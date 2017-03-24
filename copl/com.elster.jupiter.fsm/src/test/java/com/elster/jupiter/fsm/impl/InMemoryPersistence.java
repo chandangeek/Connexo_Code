@@ -5,6 +5,8 @@
 package com.elster.jupiter.fsm.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.bpm.BpmService;
+import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.EventService;
@@ -79,6 +81,7 @@ public class InMemoryPersistence {
         return Arrays.asList(
                 new InMemoryMessagingModule(),
                 new TransactionModule(),
+                new BpmModule(),
                 new OrmModule(),
                 new EventsModule(),
                 new PubSubModule(),
@@ -107,6 +110,7 @@ public class InMemoryPersistence {
             this.injector.getInstance(UserService.class);
             this.injector.getInstance(NlsService.class);
             this.injector.getInstance(EventService.class);
+            this.injector.getInstance(BpmService.class);
             this.finiteStateMachineService = this.injector.getInstance(FiniteStateMachineServiceImpl.class);
             this.dataModel = this.finiteStateMachineService.getDataModel();
             ctx.commit();
@@ -142,6 +146,10 @@ public class InMemoryPersistence {
 
     public FiniteStateMachineServiceImpl getFiniteStateMachineService() {
         return this.finiteStateMachineService;
+    }
+
+    public BpmService getBpmService() {
+        return injector.getInstance(BpmService.class);
     }
 
     public <T> T getService(Class<T> serviceClass) {

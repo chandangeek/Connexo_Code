@@ -1,17 +1,17 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- *//*
-
+ */
 
 package com.elster.jupiter.fsm.impl;
 
 import com.elster.jupiter.bpm.BpmProcessDefinition;
+import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.fsm.FiniteStateMachine;
+import com.elster.jupiter.fsm.FsmUsagePointProvider;
 import com.elster.jupiter.fsm.ProcessReference;
 import com.elster.jupiter.fsm.State;
-import com.elster.jupiter.fsm.StateChangeBusinessProcess;
 import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.fsm.StateTransitionChangeEvent;
 import com.elster.jupiter.fsm.StateTransitionEventType;
@@ -24,14 +24,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
@@ -39,20 +41,23 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-*/
 /**
  * Tests the {@link StateTransitionTriggerEventTopicHandler} component.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-03-04 (13:51)
- *//*
-
+ */
 @RunWith(MockitoJUnitRunner.class)
 public class StateTransitionTriggerEventTopicHandlerTest {
 
     public static final String SOURCE_ID = "TestDevice";
+    public static final String DEVICE = "com.energyict.mdc.device.data.Device";
     @Mock
     private EventService eventService;
+    @Mock
+    private BpmService bpmService;
+    @Mock
+    private FsmUsagePointProvider usagePointProvider;
     @Mock
     private LocalEvent localEvent;
     @Mock
@@ -80,11 +85,12 @@ public class StateTransitionTriggerEventTopicHandlerTest {
         when(this.triggerEvent.getFiniteStateMachine()).thenReturn(this.finiteStateMachine);
         when(this.triggerEvent.getProperties()).thenReturn(this.eventProperties);
         when(this.triggerEvent.getSourceId()).thenReturn(SOURCE_ID);
+        when(this.triggerEvent.getSourceType()).thenReturn(DEVICE);
         when(this.triggerEvent.getProperties()).thenReturn(this.eventProperties);
+        when(this.bpmService.findBpmProcessDefinition(anyLong())).thenReturn(Optional.empty());
     }
 
-    */
-/**
+    /**
      * Mocks the following finite state machine:
      * Instock --(#installed)--> Active
      * Active --(#deactivated)--> Inactive
@@ -92,8 +98,7 @@ public class StateTransitionTriggerEventTopicHandlerTest {
      * Inactive --(#activated)--> Active
      * Active --(#decommissioned)--> Decommissioned
      * Inactive --(#decommissioned)--> Decommissioned
-     *//*
-
+     */
     private void mockFiniteStateMachine() {
         when(this.finiteStateMachine.getName()).thenReturn("StateTransitionTriggerEventTopicHandlerTest");
         this.mockEventTypes();
@@ -159,7 +164,7 @@ public class StateTransitionTriggerEventTopicHandlerTest {
 
     @Test
     public void handleStateChange() {
-        StateTransitionTriggerEventTopicHandler handler = new StateTransitionTriggerEventTopicHandler(this.eventService);
+        StateTransitionTriggerEventTopicHandler handler = new StateTransitionTriggerEventTopicHandler(this.eventService, bpmService, usagePointProvider);
         this.eventProperties.put("Prop1", BigDecimal.TEN);
         this.eventProperties.put("Prop2", "some value");
         String currentStateName = this.active.getName();
@@ -184,7 +189,7 @@ public class StateTransitionTriggerEventTopicHandlerTest {
 
     @Test
     public void handleIllegalStateChange() {
-        StateTransitionTriggerEventTopicHandler handler = new StateTransitionTriggerEventTopicHandler(this.eventService);
+        StateTransitionTriggerEventTopicHandler handler = new StateTransitionTriggerEventTopicHandler(this.eventService, bpmService, usagePointProvider);
         String currentStateName = this.inStock.getName();
         when(this.triggerEvent.getSourceCurrentStateName()).thenReturn(currentStateName);
         when(this.triggerEvent.getType()).thenReturn(this.deactivated);
@@ -198,7 +203,7 @@ public class StateTransitionTriggerEventTopicHandlerTest {
 
     @Test
     public void handleNonExistingCurrentState() {
-        StateTransitionTriggerEventTopicHandler handler = new StateTransitionTriggerEventTopicHandler(this.eventService);
+        StateTransitionTriggerEventTopicHandler handler = new StateTransitionTriggerEventTopicHandler(this.eventService, bpmService, usagePointProvider);
         when(this.triggerEvent.getSourceCurrentStateName()).thenReturn("currentStateName");
         when(this.triggerEvent.getType()).thenReturn(this.deactivated);
 
@@ -211,7 +216,7 @@ public class StateTransitionTriggerEventTopicHandlerTest {
 
     @Test
     public void handleNoStateChange() {
-        StateTransitionTriggerEventTopicHandler handler = new StateTransitionTriggerEventTopicHandler(this.eventService);
+        StateTransitionTriggerEventTopicHandler handler = new StateTransitionTriggerEventTopicHandler(this.eventService, bpmService, usagePointProvider);
         String currentStateName = this.active.getName();
         when(this.triggerEvent.getSourceCurrentStateName()).thenReturn(currentStateName);
         when(this.triggerEvent.getType()).thenReturn(this.dataCollected);
@@ -229,7 +234,7 @@ public class StateTransitionTriggerEventTopicHandlerTest {
         BpmProcessDefinition process = mock(BpmProcessDefinition.class);
         when(processReference.getStateChangeBusinessProcess()).thenReturn(process);
         when(this.inactive.getOnEntryProcesses()).thenReturn(Arrays.asList(processReference));
-        StateTransitionTriggerEventTopicHandler handler = new StateTransitionTriggerEventTopicHandler(this.eventService);
+        StateTransitionTriggerEventTopicHandler handler = new StateTransitionTriggerEventTopicHandler(this.eventService, bpmService, usagePointProvider);
         this.eventProperties.put("Prop1", BigDecimal.TEN);
         this.eventProperties.put("Prop2", "some value");
         String currentStateName = this.active.getName();
@@ -251,7 +256,7 @@ public class StateTransitionTriggerEventTopicHandlerTest {
         BpmProcessDefinition process = mock(BpmProcessDefinition.class);
         when(processReference.getStateChangeBusinessProcess()).thenReturn(process);
         when(this.active.getOnExitProcesses()).thenReturn(Arrays.asList(processReference));
-        StateTransitionTriggerEventTopicHandler handler = new StateTransitionTriggerEventTopicHandler(this.eventService);
+        StateTransitionTriggerEventTopicHandler handler = new StateTransitionTriggerEventTopicHandler(this.eventService, bpmService, usagePointProvider);
         this.eventProperties.put("Prop1", BigDecimal.TEN);
         this.eventProperties.put("Prop2", "some value");
         String currentStateName = this.active.getName();
@@ -267,4 +272,4 @@ public class StateTransitionTriggerEventTopicHandlerTest {
 //        verify(process).executeOnExit(sourceId, this.active);
     }
 
-}*/
+}

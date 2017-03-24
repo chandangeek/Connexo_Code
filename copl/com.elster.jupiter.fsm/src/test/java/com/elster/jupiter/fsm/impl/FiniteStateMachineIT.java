@@ -1,10 +1,10 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- *//*
-
+ */
 
 package com.elster.jupiter.fsm.impl;
 
+import com.elster.jupiter.bpm.BpmProcessDefinition;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
@@ -16,7 +16,6 @@ import com.elster.jupiter.fsm.MessageSeeds;
 import com.elster.jupiter.fsm.ProcessReference;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateChangeBusinessProcess;
-import com.elster.jupiter.fsm.StateChangeBusinessProcessInUseException;
 import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.fsm.StateTransitionEventType;
 import com.elster.jupiter.fsm.UnknownProcessReferenceException;
@@ -49,19 +48,17 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-*/
 /**
  * Integration test for the {@link FiniteStateMachineImpl} component.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-03-02 (17:12)
- *//*
-
+ */
 public class FiniteStateMachineIT {
 
     private static InMemoryPersistence inMemoryPersistence;
-    private static StateChangeBusinessProcess onEntry;
-    private static StateChangeBusinessProcess onExit;
+    private static BpmProcessDefinition onEntry;
+    private static BpmProcessDefinition onExit;
 
     @Rule
     public TestRule transactionalRule = new TransactionalRule(getTransactionService());
@@ -73,8 +70,22 @@ public class FiniteStateMachineIT {
         inMemoryPersistence = InMemoryPersistence.defaultPersistence();
         inMemoryPersistence.initializeDatabase(FiniteStateMachineIT.class.getSimpleName());
         try (TransactionContext context = getTransactionService().getContext()) {
-            onEntry = inMemoryPersistence.getFiniteStateMachineService().enableAsStateChangeBusinessProcess("onEntryProcess", "onEntryDepId", "onEntry");
-            onExit = inMemoryPersistence.getFiniteStateMachineService().enableAsStateChangeBusinessProcess("onExitProcess", "onExitDepId", "onExit");
+            onEntry = inMemoryPersistence.getBpmService()
+                    .newProcessBuilder()
+                    .setProcessName("oneEntry")
+                    .setAssociation("device")
+                    .setVersion("1.0")
+                    .setAppKey("MDC")
+                    .setStatus("ACTIVE")
+                    .create();
+            onExit = inMemoryPersistence.getBpmService()
+                    .newProcessBuilder()
+                    .setProcessName("onExit")
+                    .setAssociation("device")
+                    .setVersion("1.0")
+                    .setAppKey("MDC")
+                    .setStatus("ACTIVE")
+                    .create();
             context.commit();
         }
     }
@@ -86,19 +97,6 @@ public class FiniteStateMachineIT {
     @AfterClass
     public static void cleanUpDataBase() throws SQLException {
         inMemoryPersistence.cleanUpDataBase();
-    }
-
-    @Transactional
-    @Test
-    public void findStateChangeBusinessProcesses() {
-        List<Long> businessProcessIds = this.getTestService()
-                .findStateChangeBusinessProcesses()// Business method
-                .stream()
-                .map(StateChangeBusinessProcess::getId)
-                .collect(Collectors.toList());
-
-        // Asserts
-        assertThat(businessProcessIds).containsOnly(onEntry.getId(), onExit.getId());
     }
 
     @Transactional
@@ -127,41 +125,6 @@ public class FiniteStateMachineIT {
         testService.disableAsStateChangeBusinessProcess("111", "222");
 
         // Asserts: see expected exception rule
-    }
-
-    @Transactional
-    @Test(expected = StateChangeBusinessProcessInUseException.class)
-    public void disableStateChangeBusinessProcessThatIsInUse() {
-        FiniteStateMachineServiceImpl testService = this.getTestService();
-        String name = "AAA";
-        String deploymentId = "111";
-        String processId = "222";
-        StateChangeBusinessProcess stateChangeBusinessProcess = testService.enableAsStateChangeBusinessProcess(name, deploymentId, processId);
-        FiniteStateMachineBuilder builder1 = testService.newFiniteStateMachine("disableStateChangeBusinessProcessThatIsInUse");
-        FiniteStateMachine stateMachine = builder1.complete(builder1.newCustomState("Initial").onEntry(stateChangeBusinessProcess).complete());
-
-        // Business method
-        testService.disableAsStateChangeBusinessProcess(deploymentId, processId);
-
-        // Asserts: see expected exception rule
-    }
-
-    @Transactional
-    @Test
-    public void findStateChangeBusinessProcessAfterDisable() {
-        FiniteStateMachineServiceImpl testService = this.getTestService();
-        StateChangeBusinessProcess stateChangeBusinessProcess = testService.enableAsStateChangeBusinessProcess("BBB", "333", "444");
-        testService.disableAsStateChangeBusinessProcess(stateChangeBusinessProcess.getDeploymentId(), stateChangeBusinessProcess.getProcessId());
-
-        // Business method
-        List<Long> businessProcessIds = testService
-                .findStateChangeBusinessProcesses()
-                .stream()
-                .map(StateChangeBusinessProcess::getId)
-                .collect(Collectors.toList());
-
-        // Asserts
-        assertThat(businessProcessIds).containsOnly(onEntry.getId(), onExit.getId());
     }
 
     @Transactional
@@ -507,10 +470,10 @@ public class FiniteStateMachineIT {
         FiniteStateMachineBuilder builder = this.getTestService().newFiniteStateMachine(expectedName);
         String expectedStateName = "Initial";
         State initial = builder
-            .newCustomState(expectedStateName)
-            .onEntry(onEntry)
-            .onExit(onExit)
-            .complete();
+                .newCustomState(expectedStateName)
+                .onEntry(onEntry)
+                .onExit(onExit)
+                .complete();
 
         // Business method
         FiniteStateMachine stateMachine = builder.complete(initial);
@@ -535,10 +498,10 @@ public class FiniteStateMachineIT {
         FiniteStateMachineBuilder builder = this.getTestService().newFiniteStateMachine(expectedName);
         String expectedStateName = "Initial";
         State initial = builder
-            .newCustomState(expectedStateName)
-            .onEntry(onEntry)
-            .onExit(onExit)
-            .complete();
+                .newCustomState(expectedStateName)
+                .onEntry(onEntry)
+                .onExit(onExit)
+                .complete();
         FiniteStateMachine stateMachine = builder.complete(initial);
 
         // Business method
@@ -562,17 +525,21 @@ public class FiniteStateMachineIT {
     public void createStateMachineWithOneStateAndMultipleEntryAndExitProcesses() {
         String expectedName = "createStateMachineWithOneStateAndMultipleEntryAndExitProcesses";
         FiniteStateMachineServiceImpl testService = this.getTestService();
-        StateChangeBusinessProcess onEntry2 = testService.enableAsStateChangeBusinessProcess("OnEntryB", "OnEntryDepId", "onEntry2");
-        StateChangeBusinessProcess onExit2 = testService.enableAsStateChangeBusinessProcess("OnExitB", "OnExitDepId", "onExit2");
+        BpmProcessDefinition onEntry2 = inMemoryPersistence.getBpmService().newProcessBuilder()
+                .setProcessName("onEntry2").setAssociation("device").setVersion("1.0").setAppKey("MDC").setStatus("ACTIVE")
+                .create();
+        BpmProcessDefinition onExit2 = inMemoryPersistence.getBpmService().newProcessBuilder()
+                .setProcessName("onExit2").setAssociation("device").setVersion("1.0").setAppKey("MDC").setStatus("ACTIVE")
+                .create();
         FiniteStateMachineBuilder builder = testService.newFiniteStateMachine(expectedName);
         String expectedStateName = "Initial";
         State initial = builder
-            .newCustomState(expectedStateName)
-            .onEntry(onEntry)
-            .onEntry(onEntry2)
-            .onExit(onExit)
-            .onExit(onExit2)
-            .complete();
+                .newCustomState(expectedStateName)
+                .onEntry(onEntry)
+                .onEntry(onEntry2)
+                .onExit(onExit)
+                .onExit(onExit2)
+                .complete();
 
         // Business method
         FiniteStateMachine stateMachine = builder.complete(initial);
@@ -815,13 +782,13 @@ public class FiniteStateMachineIT {
         FiniteStateMachineBuilder.StateBuilder activeBuilder = builder.newCustomState("Active");
         FiniteStateMachineBuilder.StateBuilder inactiveBuilder = builder.newCustomState("Inactive");
         State active = activeBuilder
-                            .on(decommissionedEventType).transitionTo(decommissioned)
-                            .on(deactivated).transitionTo(inactiveBuilder)
-                            .complete();
+                .on(decommissionedEventType).transitionTo(decommissioned)
+                .on(deactivated).transitionTo(inactiveBuilder)
+                .complete();
         State inactive = inactiveBuilder
-                            .on(activated).transitionTo(active)
-                            .on(decommissionedEventType).transitionTo(decommissioned)
-                            .complete();
+                .on(activated).transitionTo(active)
+                .on(decommissionedEventType).transitionTo(decommissioned)
+                .complete();
         State commissioned = builder
                 .newCustomState("Commissioned")
                 .on(activated).transitionTo(active)
@@ -834,9 +801,9 @@ public class FiniteStateMachineIT {
                 .on(commissionedEventType).transitionTo(commissioned)
                 .complete();
         builder
-            .newCustomState("Ordered")
-            .on(deliveredToWarehouse).transitionTo(inStock)
-            .complete();
+                .newCustomState("Ordered")
+                .on(deliveredToWarehouse).transitionTo(inStock)
+                .complete();
 
         // Business method
         builder.complete(inStock);
@@ -1496,8 +1463,12 @@ public class FiniteStateMachineIT {
         String expectedName = "addBothEntryAndExitProcessesToExistingState";
         FiniteStateMachineServiceImpl testService = this.getTestService();
         FiniteStateMachineBuilder builder = testService.newFiniteStateMachine(expectedName);
-        StateChangeBusinessProcess onEntry2 = testService.enableAsStateChangeBusinessProcess("doSomethingOnEntry2", "OnEntryDepId", "onEntry2");
-        StateChangeBusinessProcess onExit2 = testService.enableAsStateChangeBusinessProcess("doSomethingOnExit2", "OnExitDepId", "onExit2");
+        BpmProcessDefinition onEntry2 = inMemoryPersistence.getBpmService().newProcessBuilder()
+                .setProcessName("onEntry2").setAssociation("device").setVersion("1.0").setAppKey("MDC").setStatus("ACTIVE")
+                .create();
+        BpmProcessDefinition onExit2 = inMemoryPersistence.getBpmService().newProcessBuilder()
+                .setProcessName("onExit2").setAssociation("device").setVersion("1.0").setAppKey("MDC").setStatus("ACTIVE")
+                .create();
         String expectedStateName = "Initial";
         FiniteStateMachine stateMachine = builder.complete(builder.newCustomState(expectedStateName).complete());
 
@@ -1526,8 +1497,7 @@ public class FiniteStateMachineIT {
         assertThat(onExitProcesses.get(1).getStateChangeBusinessProcess().getId()).isEqualTo(onExit2.getId());
     }
 
-    */
-/**
+    /**
      * Builds an incomplete version of the default life cycle
      * with missing {@link State}s and transitions and then
      * completes that via the {@link FiniteStateMachineUpdater} interface.
@@ -1538,8 +1508,7 @@ public class FiniteStateMachineIT {
      * </ul>
      *
      * @see #buildDefaultLifeCycle()
-     *//*
-
+     */
     @Transactional
     @Test
     public void completeDefaultLifeCycle() {
@@ -1556,22 +1525,22 @@ public class FiniteStateMachineIT {
         State deleted = builder.newStandardState("Deleted").complete();
         State temporary = builder.newStandardState("Temporary").on(deletedEventType).transitionTo(deleted).complete();
         State decommissioned = builder
-            .newStandardState("Decommissioned")
-            .on(deletedEventType).transitionTo(deleted)
-            .complete();
+                .newStandardState("Decommissioned")
+                .on(deletedEventType).transitionTo(deleted)
+                .complete();
         State commissioned = builder
-            .newStandardState("Commissioned")
-            .on(activated).transitionTo(temporary)
-            .complete();
+                .newStandardState("Commissioned")
+                .on(activated).transitionTo(temporary)
+                .complete();
         State inStock = builder
-            .newStandardState("InStock")
-            .on(activated).transitionTo(temporary)
-            .on(commissionedEventType).transitionTo(commissioned)
-            .complete();
+                .newStandardState("InStock")
+                .on(activated).transitionTo(temporary)
+                .on(commissionedEventType).transitionTo(commissioned)
+                .complete();
         builder
-            .newStandardState("Ordered")
-            .on(deliveredToWarehouse).transitionTo(inStock)
-            .complete();
+                .newStandardState("Ordered")
+                .on(deliveredToWarehouse).transitionTo(inStock)
+                .complete();
         FiniteStateMachine stateMachine = builder.complete(inStock);
 
         // Business method
@@ -1580,25 +1549,25 @@ public class FiniteStateMachineIT {
         FiniteStateMachineBuilder.StateBuilder activeBuilder = stateMachineUpdater.newStandardState("Active");
         FiniteStateMachineBuilder.StateBuilder inactiveBuilder = stateMachineUpdater.newStandardState("Inactive");
         State active = activeBuilder
-            .on(decommissionedEventType).transitionTo(decommissioned)
-            .on(deactivated).transitionTo(inactiveBuilder)
-            .onEntry(onEntry)
-            .onExit(onExit)
-            .complete();
+                .on(decommissionedEventType).transitionTo(decommissioned)
+                .on(deactivated).transitionTo(inactiveBuilder)
+                .onEntry(onEntry)
+                .onExit(onExit)
+                .complete();
         stateMachineUpdater
-            .state("Commissioned")
-            .on(activated).transitionTo(active)
-            .on(deactivated).transitionTo(inactiveBuilder)
-            .complete();
+                .state("Commissioned")
+                .on(activated).transitionTo(active)
+                .on(deactivated).transitionTo(inactiveBuilder)
+                .complete();
         State inactive = inactiveBuilder
-            .on(activated).transitionTo(active)
-            .on(decommissionedEventType).transitionTo(decommissioned)
-            .complete();
+                .on(activated).transitionTo(active)
+                .on(decommissionedEventType).transitionTo(decommissioned)
+                .complete();
         stateMachineUpdater
-            .state("InStock")
-            .on(activated).transitionTo(active)
-            .on(deactivated).transitionTo(inactive)
-            .complete();
+                .state("InStock")
+                .on(activated).transitionTo(active)
+                .on(deactivated).transitionTo(inactive)
+                .complete();
         stateMachineUpdater.complete();
 
         // Asserts
@@ -1743,8 +1712,12 @@ public class FiniteStateMachineIT {
     public void removeEntryAndExitProcesses() {
         String expectedName = "removeEntryAndExitProcesses";
         FiniteStateMachineServiceImpl testService = this.getTestService();
-        StateChangeBusinessProcess onEntry2 = testService.enableAsStateChangeBusinessProcess("onEntryB", "OnEntryDepId", "onEntry2");
-        StateChangeBusinessProcess onExit2 = testService.enableAsStateChangeBusinessProcess("onExitB", "OnExitDepId", "onExit2");
+        BpmProcessDefinition onEntry2 = inMemoryPersistence.getBpmService().newProcessBuilder()
+                .setProcessName("onEntry2").setAssociation("device").setVersion("1.0").setAppKey("MDC").setStatus("ACTIVE")
+                .create();
+        BpmProcessDefinition onExit2 = inMemoryPersistence.getBpmService().newProcessBuilder()
+                .setProcessName("onExit2").setAssociation("device").setVersion("1.0").setAppKey("MDC").setStatus("ACTIVE")
+                .create();
         FiniteStateMachineBuilder builder = testService.newFiniteStateMachine(expectedName);
         String expectedStateName = "Initial";
         State initial = builder.newCustomState(expectedStateName)
@@ -1781,8 +1754,12 @@ public class FiniteStateMachineIT {
     public void removeAllEntryAndExitProcesses() {
         String expectedName = "removeEntryAndExitProcesses";
         FiniteStateMachineServiceImpl testService = this.getTestService();
-        StateChangeBusinessProcess onEntry2 = testService.enableAsStateChangeBusinessProcess("OnEntryB", "OnEntryDepId", "onEntry2");
-        StateChangeBusinessProcess onExit2 = testService.enableAsStateChangeBusinessProcess("OnExitB", "OnExitDepId", "onExit2");
+        BpmProcessDefinition onEntry2 = inMemoryPersistence.getBpmService().newProcessBuilder()
+                .setProcessName("onEntry2").setAssociation("device").setVersion("1.0").setAppKey("MDC").setStatus("ACTIVE")
+                .create();
+        BpmProcessDefinition onExit2 = inMemoryPersistence.getBpmService().newProcessBuilder()
+                .setProcessName("onExit2").setAssociation("device").setVersion("1.0").setAppKey("MDC").setStatus("ACTIVE")
+                .create();
         FiniteStateMachineBuilder builder = testService.newFiniteStateMachine(expectedName);
         String expectedStateName = "Initial";
         State initialState = builder.newCustomState(expectedStateName)
@@ -1824,7 +1801,8 @@ public class FiniteStateMachineIT {
                 .complete();
         FiniteStateMachine stateMachine = builder.complete(initial);
 
-        StateChangeBusinessProcess mockedStateChageBusinessProcess = mock(StateChangeBusinessProcess.class);
+//        StateChangeBusinessProcess mockedStateChageBusinessProcess = mock(StateChangeBusinessProcess.class);
+        BpmProcessDefinition mockedStateChageBusinessProcess = mock(BpmProcessDefinition.class);
         when(mockedStateChageBusinessProcess.getId()).thenReturn(Long.MAX_VALUE);
 
         // Business method
@@ -1902,10 +1880,10 @@ public class FiniteStateMachineIT {
         String expectedName = "obsoleteStateMachineDoesNotShowUpInFindByName";
         FiniteStateMachineBuilder builder = this.getTestService().newFiniteStateMachine(expectedName);
         State initial = builder
-            .newCustomState("Initial")
-            .onEntry(onEntry)
-            .onExit(onExit)
-            .complete();
+                .newCustomState("Initial")
+                .onEntry(onEntry)
+                .onExit(onExit)
+                .complete();
         FiniteStateMachine stateMachine = builder.complete(initial);
 
         // Business method
@@ -1950,10 +1928,10 @@ public class FiniteStateMachineIT {
         String expectedName = "deleteStateMachineWithOneStateAndBothEntryAndExitProcesses";
         FiniteStateMachineBuilder builder = this.getTestService().newFiniteStateMachine(expectedName);
         State initial = builder
-            .newCustomState("Initial")
-            .onEntry(onEntry)
-            .onExit(onExit)
-            .complete();
+                .newCustomState("Initial")
+                .onEntry(onEntry)
+                .onExit(onExit)
+                .complete();
         FiniteStateMachine stateMachine = builder.complete(initial);
 
         // Business method
@@ -1967,8 +1945,12 @@ public class FiniteStateMachineIT {
     @Test
     public void cloneStateMachineWithOneStateAndMultipleEntryAndExitProcesses() {
         FiniteStateMachineServiceImpl testService = this.getTestService();
-        StateChangeBusinessProcess onEntry2 = testService.enableAsStateChangeBusinessProcess("OnEntryB", "OnEntryDepId", "onEntry2");
-        StateChangeBusinessProcess onExit2 = testService.enableAsStateChangeBusinessProcess("OnExitB", "OnExitDepId", "onExit2");
+        BpmProcessDefinition onEntry2 = inMemoryPersistence.getBpmService().newProcessBuilder()
+                .setProcessName("onEntry2").setAssociation("device").setVersion("1.0").setAppKey("MDC").setStatus("ACTIVE")
+                .create();
+        BpmProcessDefinition onExit2 = inMemoryPersistence.getBpmService().newProcessBuilder()
+                .setProcessName("onExit2").setAssociation("device").setVersion("1.0").setAppKey("MDC").setStatus("ACTIVE")
+                .create();
         FiniteStateMachineBuilder builder = testService.newFiniteStateMachine("cloneStateMachineWithOneStateAndMultipleEntryAndExitProcesses");
         String expectedStateName = "Initial";
         State initial = builder
@@ -2255,4 +2237,4 @@ public class FiniteStateMachineIT {
         return finiteStateMachineService;
     }
 
-}*/
+}
