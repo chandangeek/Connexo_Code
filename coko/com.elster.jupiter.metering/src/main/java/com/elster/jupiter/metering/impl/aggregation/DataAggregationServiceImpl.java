@@ -427,18 +427,19 @@ public class DataAggregationServiceImpl implements ServerDataAggregationService 
                     .map(introspector::getCalendarUsagesFor)
                     .orElseGet(Collections::emptyList)
                     .stream()
-                    .map(calendarUsage -> new ZonedCalendarUsage(zoneId, startYear, endYear, calendarUsage))
+                    .map(calendarUsage -> new ZonedCalendarUsage(introspector.getUsagePoint(), zoneId, startYear, endYear, calendarUsage))
                     .collect(Collectors.toList());
         IntervalLength
                 .from(readingTypeAndRecords.getKey())
                 .toTimeSeries(period, zoneId)
                 .forEach(timestamp ->
                         this.findCalendarUsage(calendarUsages, timestamp)
-                            .ifPresent(zcu -> withMissings.add(
-                                    this.addMissing(
-                                            introspector.getUsagePoint(),
-                                            readingTypeAndRecords.getKey().getMRID(),
-                                            timestamp))));
+                            .ifPresent(calendarUsage ->
+                                    this.addMissingIfDifferentTimeOfUse(
+                                            calendarUsage,
+                                            readingTypeAndRecords.getKey(),
+                                            timestamp,
+                                            withMissings)));
         return withMissings;
     }
 
@@ -460,6 +461,17 @@ public class DataAggregationServiceImpl implements ServerDataAggregationService 
 
     private Optional<ZonedCalendarUsage> findCalendarUsage(List<ZonedCalendarUsage> calendarUsages, Instant timestamp) {
         return calendarUsages.stream().filter(each -> each.contains(timestamp)).findAny();
+    }
+
+    private void addMissingIfDifferentTimeOfUse(ZonedCalendarUsage calendarUsage, ReadingType readingType, Instant timestamp, List<CalculatedReadingRecord> readingRecords) {
+        int tou = readingType.getTou();
+        if (calendarUsage.sameTimeOfUse(timestamp, tou)) {
+            readingRecords.add(
+                    this.addMissing(
+                            calendarUsage.getUsagePoint(),
+                            readingType.getMRID(),
+                            timestamp));
+        }
     }
 
     private CalculatedReadingRecord addMissing(UsagePoint usagePoint, String readingTypeMRID, Instant timeStamp) {
