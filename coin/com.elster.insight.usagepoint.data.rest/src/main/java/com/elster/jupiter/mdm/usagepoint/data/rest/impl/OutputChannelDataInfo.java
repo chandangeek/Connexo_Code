@@ -53,6 +53,8 @@ public class OutputChannelDataInfo {
 
     public List<ReadingQualityInfo> readingQualities;
 
+    public boolean partOfTimeOfUseGap;
+
     public EstimationQuantityInfo estimatedByRule;
 
     public BaseReading createNew() {
