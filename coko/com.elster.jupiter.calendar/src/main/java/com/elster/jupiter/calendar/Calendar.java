@@ -202,4 +202,41 @@ public interface Calendar extends HasId, HasName {
      */
     CalendarTimeSeries toTimeSeries(TemporalAmount interval, ZoneId zoneId);
 
+    /**
+     * Returns a view on this Calendar where all time zone neutral
+     * information is mapped to the specified ZoneId within the specified year range.
+     * We are not using the Range class because only closed ranges are allowed
+     * and we support that start year == end year but the Range class considers
+     * that to be an empty range.
+     * All {@link com.elster.jupiter.calendar.RecurrentExceptionalOccurrence}s
+     * are converted to {@link com.elster.jupiter.calendar.FixedExceptionalOccurrence}s.
+     * All {@link com.elster.jupiter.calendar.RecurrentPeriodTransitionSpec}s
+     * are converted to {@link com.elster.jupiter.calendar.FixedPeriodTransitionSpec}s.
+     * The occurrence of all {@link com.elster.jupiter.calendar.PeriodTransition}s
+     * are mapped to the ZoneId.
+     *
+     * @param zoneId The ZoneId
+     * @param startYear The first year in the range
+     * @param endYear The last year in the range
+     * @return The ZonedView
+     *
+     */
+    ZonedView forZone(ZoneId zoneId, Year startYear, Year endYear);
+
+    interface ZonedView {
+        /**
+         * Returns the Event for the specified Instant
+         * @param instant the Instant you want to test
+         * @return Event
+         * @throws IllegalStateException if the Event for the instant cannot be determined, e.g. if the tested instant &lt; startYear or instant &gt endYear of the view
+         */
+        Event eventFor(Instant instant);
+        /**
+         * Returns the DayType for the specified Instant
+         * @param instant the Instant you want to test
+         * @return DayType
+         * @throws IllegalStateException if the DayType for the instant cannot be determined, e.g. if the tested instant &lt; startYear or instant &gt endYear of the view
+         */
+        DayType dayTypeFor(Instant instant);
+    }
 }

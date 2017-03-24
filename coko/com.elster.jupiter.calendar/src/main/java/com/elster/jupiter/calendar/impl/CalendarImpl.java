@@ -42,6 +42,7 @@ import java.time.Month;
 import java.time.MonthDay;
 import java.time.Year;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -605,6 +606,11 @@ public class CalendarImpl implements ServerCalendar {
     @Override
     public void regenerateCachedTimeSeries() {
         this.timeSeries.forEach(CalendarTimeSeriesEntity::regenerate);
+    }
+
+    @Override
+    public ZonedView forZone(ZoneId zoneId, Year startYear, Year endYear) {
+        return new ZonedCalenderViewImpl(this, this.clock, zoneId, startYear);
     }
 
 }

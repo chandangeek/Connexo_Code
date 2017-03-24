@@ -71,8 +71,8 @@ public class ZonedCalenderViewImpl implements ServerCalendar.ZonedView {
 
     private Stream<FixedDayTypeOccurrence> toZonedFixedOccurrence(ExceptionalOccurrence exceptionalOccurrence) {
         return IntStream
-                    .range(this.startYear, this.endYear + 1)
-                    .mapToObj(year -> this.toZonedFixedOccurrence(exceptionalOccurrence, year));
+                .range(this.startYear, this.endYear + 1)
+                .mapToObj(year -> this.toZonedFixedOccurrence(exceptionalOccurrence, year));
     }
 
     private FixedDayTypeOccurrence toZonedFixedOccurrence(ExceptionalOccurrence exceptionalOccurrence, int year) {
@@ -142,22 +142,25 @@ public class ZonedCalenderViewImpl implements ServerCalendar.ZonedView {
 
     @Override
     public Event eventFor(Instant instant) {
-        return this.exceptionalEvent(instant).orElseGet(() -> this.fixedEvent(instant));
+        return this.exceptionalOccurrenceFor(instant).orElseGet(() -> this.dayTypeOccurrenceFor(instant)).eventFor(instant);
     }
 
-    private Optional<Event> exceptionalEvent(Instant instant) {
+    @Override
+    public DayType dayTypeFor(Instant instant) {
+        return this.exceptionalOccurrenceFor(instant).orElseGet(() -> this.dayTypeOccurrenceFor(instant)).getDayType();
+    }
+
+    private Optional<FixedDayTypeOccurrence> exceptionalOccurrenceFor(Instant instant) {
         return this.exceptionalOccurrences
-                    .stream()
-                    .filter(occurrence -> occurrence.contains(instant))
-                    .map(occurrence -> occurrence.eventFor(instant))
-                    .findFirst();
+                .stream()
+                .filter(occurrence -> occurrence.contains(instant))
+                .findFirst();
     }
 
-    private Event fixedEvent(Instant instant) {
+    private FixedDayTypeOccurrence dayTypeOccurrenceFor(Instant instant) {
         return this.dayTypeOccurrences
                 .stream()
                 .filter(occurrence -> occurrence.contains(instant))
-                .map(occurrence -> occurrence.eventFor(instant))
                 .findFirst()
                 .orElseThrow(() -> new IllegalStateException("Specification for calendar(id=" + this.calendar.getId() + ", name=" + this.calendar.getName() + ") is not conclusive for instant " + instant));
     }
@@ -193,11 +196,13 @@ public class ZonedCalenderViewImpl implements ServerCalendar.ZonedView {
 
     private static class FixedDayTypeOccurrence implements Comparable<FixedDayTypeOccurrence> {
         private final ZonedDateTime startOfDay;
+        private final DayType dayType;
         private final Range<Instant> range;
         private final List<FixedEventOccurrence> eventOccurrences;
 
         private FixedDayTypeOccurrence(ZonedDateTime startOfDay, DayType dayType) {
             this.startOfDay = startOfDay;
+            this.dayType = dayType;
             Instant startOfNextDay = startOfDay.plusDays(1).toInstant();
             this.range = Range.closedOpen(startOfDay.toInstant(), startOfDay.plusDays(1).toInstant());
             this.eventOccurrences = new ArrayList<>();
@@ -241,6 +246,10 @@ public class ZonedCalenderViewImpl implements ServerCalendar.ZonedView {
                     .findFirst()
                     .map(FixedEventOccurrence::getEvent)
                     .orElseThrow(() -> new IllegalStateException("FixedDayTypeOccurrence should always return an Event for an Instant that it contains"));
+        }
+
+        DayType getDayType() {
+            return this.dayType;
         }
 
         @Override
@@ -315,7 +324,9 @@ public class ZonedCalenderViewImpl implements ServerCalendar.ZonedView {
 
         DayType dayType(DayOfWeek dayOfWeek) {
             return this.zonedDayTypeMap.get(dayOfWeek);
-        };
+        }
+
+        ;
     }
 
 }
