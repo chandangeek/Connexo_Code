@@ -15,7 +15,7 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_ESTIMATOR(1001, "estimator.doesnotexist", "Estimator {0} does not exist."),
     MISSING_PROPERTY(1002, "property.missing", "Required property with key ''{0}'' was not found."),
     INVALID_NUMBER_OF_SAMPLES(1003, "property.error.maxNumberOfSamples", "Maximum cannot be smaller than minimum"),
-    INVALID_PERIOD_OF_ZERO_OR_NEGATIVE_LENGTH(1004, "property.error.invalidMaxPeriodOfConsecutiveSuspects", "The period should have non-null length"),
+    INVALID_PERIOD_OF_ZERO_OR_NEGATIVE_LENGTH(1004, "property.error.invalidMaxPeriodOfConsecutiveSuspects", "The period should have positive length"),
     INVALID_ADVANCE_READINGTYPE(1005, "property.error.advanceReadingsSettings", "The reading type should be cumulative"),
     INVALID_ADVANCE_READINGTYPE_NONE_NOT_ALLOWED(1007, "property.error.advanceReadingsSettings.not.none", "None is not allowed");
 
