@@ -144,6 +144,12 @@ public class Beacon3100SecurityProvider extends NTASecurityProvider implements G
     }
 
     @Override
+    public String getClientPrivateSigningKeyLabel() {
+        PrivateKeyAlias privateKey = properties.getTypedProperty(DlmsSessionProperties.CLIENT_PRIVATE_SIGNING_KEY);
+        return privateKey.getAlias();
+    }
+
+    @Override
     public PrivateKey getClientPrivateKeyAgreementKey() {
         if (clientPrivateKeyAgreementKey == null) {
             clientPrivateKeyAgreementKey = parsePrivateKey(DlmsSessionProperties.CLIENT_PRIVATE_KEY_AGREEMENT_KEY);
