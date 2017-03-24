@@ -71,8 +71,10 @@ Ext.define('Imt.purpose.view.registers.RegisterDataGrid', {
             });
         if(me.output.get('isCummulative')){
             me.columns.push({
-                header: Uni.I18n.translate('device.registerData.deltaValue', 'IMT', 'Delta value'),
-                    dataIndex: 'deltaValue',
+                header: unit
+                    ? Uni.I18n.translate('device.registerData.deltaValueWithUnit', 'IMT', 'Delta value ({0})',unit)
+                    : Uni.I18n.translate('device.registerData.deltaValue', 'IMT', 'Delta value'),
+                dataIndex: 'deltaValue',
                 align: 'right',
                 minWidth: 150,
                 flex: 1
