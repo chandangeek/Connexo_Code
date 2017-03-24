@@ -10,11 +10,14 @@ import com.elster.jupiter.metering.slp.SyntheticLoadProfile;
 import com.elster.jupiter.slp.importers.impl.AbstractImportProcessor;
 import com.elster.jupiter.slp.importers.impl.MessageSeeds;
 import com.elster.jupiter.slp.importers.impl.SyntheticLoadProfileDataImporterContext;
+import com.elster.jupiter.slp.importers.impl.properties.TimeZonePropertySpec;
 import com.elster.jupiter.util.time.DefaultDateTimeFormatters;
 
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,9 +27,11 @@ public class SyntheticLoadProfileImportProcessor extends AbstractImportProcessor
     private Map<String, SyntheticLoadProfile> syntheticLoadProfiles = new HashMap<>();
     private Instant previousTimeStamp;
     private Duration interval;
+    private ZoneId zoneId;
 
-    SyntheticLoadProfileImportProcessor(SyntheticLoadProfileDataImporterContext context) {
+    SyntheticLoadProfileImportProcessor(String timeZone, SyntheticLoadProfileDataImporterContext context) {
         super(context);
+        this.zoneId = ZoneId.from(TimeZonePropertySpec.format.parse(timeZone));
     }
 
     @Override
@@ -71,8 +76,8 @@ public class SyntheticLoadProfileImportProcessor extends AbstractImportProcessor
         //Check for unexpected end of file (amount of data is less than 'Duration' of synthetic load profile specification)
         for (Map.Entry<String, Map<Instant, BigDecimal>> entry : values.entrySet()) {
             SyntheticLoadProfile syntheticLoadProfile = findSyntheticLoadProfile(entry.getKey());
-            Instant startTime = entry.getValue().keySet().stream().min(Instant::compareTo).get();
-            Instant endTime = entry.getValue().keySet().stream().max(Instant::compareTo).get();
+            LocalDateTime startTime = LocalDateTime.ofInstant(entry.getValue().keySet().stream().min(Instant::compareTo).get(), zoneId);
+            LocalDateTime endTime = LocalDateTime.ofInstant(entry.getValue().keySet().stream().max(Instant::compareTo).get(), zoneId);
             if (startTime.plus(syntheticLoadProfile.getDuration()).isAfter(endTime.plus(syntheticLoadProfile.getInterval()))) {
                 throw new ProcessorException(MessageSeeds.CORRECTIONFACTOR_NOT_ENOUGH_DATA);
             }
