@@ -6,6 +6,7 @@ import org.fest.assertions.core.Condition;
 import org.junit.Test;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
@@ -26,18 +27,8 @@ public class NoOrPasswordSecuritySupportTest extends AbstractSecuritySupportTest
         assertThat(noOrPasswordSecuritySupport.getSecurityProperties()).hasSize(1);
 
         // check for the password propertySpec
-        assertThat(noOrPasswordSecuritySupport.getSecurityProperties()).has(new Condition<List<PropertySpec>>() {
-            @Override
-            public boolean matches(List<PropertySpec> propertySpecs) {
-                boolean match = false;
-                for (PropertySpec propertySpec : propertySpecs) {
-                    if (propertySpec.equals(DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService))) {
-                        match |= true;
-                    }
-                }
-                return match;
-            }
-        });
+        Optional<PropertySpec> passwordPropertySpec = noOrPasswordSecuritySupport.getSecurityPropertySpec(SecurityPropertySpecName.PASSWORD.getKey());
+        assertPropertySpecsEqual(DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService), passwordPropertySpec);
     }
 
     @Test

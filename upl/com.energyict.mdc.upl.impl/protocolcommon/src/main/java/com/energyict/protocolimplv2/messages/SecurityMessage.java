@@ -161,7 +161,7 @@ public enum SecurityMessage implements DeviceMessageSpecSupplier {
             return Collections.singletonList(this.passwordSpec(service, DeviceMessageConstants.executionKeyAttributeName, DeviceMessageConstants.executionKeyAttributeDefaultTranslation));
         }
     },
-    CHANGE_TEMPORARY_KEY(7016, "Change temporary key") {
+    CHANGE_TEMPORARY_KEY(7017, "Change temporary key") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.passwordSpec(service, DeviceMessageConstants.temporaryKeyAttributeName, DeviceMessageConstants.temporaryKeyAttributeDefaultTranslation));

@@ -10,9 +10,12 @@ import org.fest.assertions.core.Condition;
 import org.junit.Test;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.fest.assertions.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Copyrights EnergyICT
@@ -28,61 +31,26 @@ public class Mtu155SecuritySupportTest extends AbstractSecuritySupportTest {
         // currently only 4 properties are necessary
         assertThat(mtuSecuritySupport.getSecurityProperties()).hasSize(4);
 
+
         // check for the password propertySpec
-        assertThat(mtuSecuritySupport.getSecurityProperties()).has(new Condition<List<PropertySpec>>() {
-            @Override
-            public boolean matches(List<PropertySpec> propertySpecs) {
-                boolean match = false;
-                for (PropertySpec propertySpec : propertySpecs) {
-                    if (propertySpec.equals(DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService))) {
-                        match |= true;
-                    }
-                }
-                return match;
-            }
-        });
+        Optional<PropertySpec> passwordPropertySpec = mtuSecuritySupport.getSecurityPropertySpec(SecurityPropertySpecName.PASSWORD.getKey());
+        assertPropertySpecsEqual(DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService), passwordPropertySpec);
 
         // check for the encryptionKey1 propertySpec
-        assertThat(mtuSecuritySupport.getSecurityProperties()).has(new Condition<List<PropertySpec>>() {
-            @Override
-            public boolean matches(List<PropertySpec> propertySpecs) {
-                boolean match = false;
-                for (PropertySpec propertySpec : propertySpecs) {
-                    if (propertySpec.getName().equals(SecurityPropertySpecName.ENCRYPTION_KEY_1.toString())) {
-                        match |= true;
-                    }
-                }
-                return match;
-            }
-        });
+        Optional<PropertySpec> encryptionKey1PropertySpec = mtuSecuritySupport.getSecurityPropertySpec(SecurityPropertySpecName.ENCRYPTION_KEY_1.getKey());
+        assertTrue(encryptionKey1PropertySpec.isPresent());
+        assertEquals(encryptionKey1PropertySpec.get().getName(), SecurityPropertySpecName.ENCRYPTION_KEY_1.getKey());
 
         // check for the encryptionKey2 propertySpec
-        assertThat(mtuSecuritySupport.getSecurityProperties()).has(new Condition<List<PropertySpec>>() {
-            @Override
-            public boolean matches(List<PropertySpec> propertySpecs) {
-                boolean match = false;
-                for (PropertySpec propertySpec : propertySpecs) {
-                    if (propertySpec.getName().equals(SecurityPropertySpecName.ENCRYPTION_KEY_2.toString())) {
-                        match |= true;
-                    }
-                }
-                return match;
-            }
-        });
+        Optional<PropertySpec> encryptionKey2PropertySpec = mtuSecuritySupport.getSecurityPropertySpec(SecurityPropertySpecName.ENCRYPTION_KEY_2.getKey());
+        assertTrue(encryptionKey2PropertySpec.isPresent());
+        assertEquals(encryptionKey2PropertySpec.get().getName(), SecurityPropertySpecName.ENCRYPTION_KEY_2.getKey());
 
         // check for the encryptionKey3 propertySpec
-        assertThat(mtuSecuritySupport.getSecurityProperties()).has(new Condition<List<PropertySpec>>() {
-            @Override
-            public boolean matches(List<PropertySpec> propertySpecs) {
-                boolean match = false;
-                for (PropertySpec propertySpec : propertySpecs) {
-                    if (propertySpec.getName().equals(SecurityPropertySpecName.ENCRYPTION_KEY_3.toString())) {
-                        match |= true;
-                    }
-                }
-                return match;
-            }
-        });
+
+        Optional<PropertySpec> encryptionKey3PropertySpec = mtuSecuritySupport.getSecurityPropertySpec(SecurityPropertySpecName.ENCRYPTION_KEY_3.getKey());
+        assertTrue(encryptionKey3PropertySpec.isPresent());
+        assertEquals(encryptionKey3PropertySpec.get().getName(), SecurityPropertySpecName.ENCRYPTION_KEY_3.getKey());
     }
 
 

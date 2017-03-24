@@ -10,7 +10,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.List;
+import java.util.Optional;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.assertNotNull;
@@ -29,22 +29,12 @@ public class IEC1107SecuritySupportTest extends AbstractSecuritySupportTest {
     public void getSecurityPropertiesTest() {
         IEC1107SecuritySupport iec1107SecuritySupport = new IEC1107SecuritySupport(propertySpecService);
 
-        // currently only 4 properties are necessary
+        // currently only 1 property is necessary
         assertThat(iec1107SecuritySupport.getSecurityProperties()).hasSize(1);
 
         // check for the password propertySpec
-        assertThat(iec1107SecuritySupport.getSecurityProperties()).has(new Condition<List<PropertySpec>>() {
-            @Override
-            public boolean matches(List<PropertySpec> propertySpecs) {
-                boolean match = false;
-                for (PropertySpec propertySpec : propertySpecs) {
-                    if (propertySpec.equals(DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService))) {
-                        match |= true;
-                    }
-                }
-                return match;
-            }
-        });
+        Optional<PropertySpec> passwordPropertySpec = iec1107SecuritySupport.getSecurityPropertySpec(SecurityPropertySpecName.PASSWORD.getKey());
+        assertPropertySpecsEqual(DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService), passwordPropertySpec);
     }
 
     @Test

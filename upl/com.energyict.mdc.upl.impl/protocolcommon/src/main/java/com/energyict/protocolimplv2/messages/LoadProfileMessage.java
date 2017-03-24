@@ -6,7 +6,6 @@ import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
 import com.energyict.protocolimplv2.messages.enums.LoadProfileMode;
 import com.energyict.protocolimplv2.messages.enums.LoadProfileOptInOut;
 import com.energyict.protocolimplv2.messages.enums.SetDisplayMode;
@@ -57,7 +56,7 @@ public enum LoadProfileMessage implements DeviceMessageSpecSupplier {
             return Collections.emptyList();
         }
     },
-    ResetActiveExportLP(13002, "Reset active export load profile") {
+    ResetActiveExportLP(13003, "Reset active export load profile") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList();

@@ -5,7 +5,6 @@ import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
 import com.energyict.protocolimplv2.messages.nls.TranslationKeyImpl;
 
 import java.util.Collections;
@@ -23,7 +22,7 @@ public enum WavenisDeviceMessage implements DeviceMessageSpecSupplier {
     WavenisBranchMove(38003, "Branch move a slave to a master", DeviceMessageConstants.rfAddress, DeviceMessageConstants.rfAddressDefaultTranslation),
     WavenisChangeMasterAddress(38004, "Change master address", DeviceMessageConstants.rfAddress, DeviceMessageConstants.rfAddressDefaultTranslation),
     WavenisCompareRepaireDatabases(38005, "Compare the Wavenis root database with the RTU local database, and repair if necessary"),
-    WavenisDeleteAddress(38005, "Delete Wavenis module", DeviceMessageConstants.rfAddress, DeviceMessageConstants.rfAddressDefaultTranslation),
+    WavenisDeleteAddress(38006, "Delete Wavenis module", DeviceMessageConstants.rfAddress, DeviceMessageConstants.rfAddressDefaultTranslation),
     WavenisInitBubbleUpSlotDatabase(38007, "Initialize the bubble up slot database"),
     WavenisInitDatabases(38008, "Initialize the Wavenis root database and RTU local database"),
     WavenisProgramRadioAddress(38009, "Program the Wavecard radio address", DeviceMessageConstants.rfAddress, DeviceMessageConstants.rfAddressDefaultTranslation),

@@ -1,6 +1,5 @@
 package com.energyict.protocolimplv2.security;
 
-import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
@@ -28,33 +27,13 @@ public class AnsiC12SecuritySupportTest extends AbstractSecuritySupportTest {
         assertThat(ansiC12SecuritySupport.getSecurityProperties()).hasSize(4);
 
         // check for the password propertySpec
-        assertThat(ansiC12SecuritySupport.getSecurityProperties()).areExactly(1, new Condition<PropertySpec>() {
-            @Override
-            public boolean matches(PropertySpec propertySpec) {
-                return propertySpec.equals(DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService));
-            }
-        });
+        assertPropertySpecsEqual(DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService), ansiC12SecuritySupport.getSecurityPropertySpec(SecurityPropertySpecName.PASSWORD.getKey()));
         // check for the binaryPassword propertySpec
-        assertThat(ansiC12SecuritySupport.getSecurityProperties()).areExactly(1, new Condition<PropertySpec>() {
-            @Override
-            public boolean matches(PropertySpec propertySpec) {
-                return propertySpec.equals(DeviceSecurityProperty.BINARY_PASSWORD.getPropertySpec(propertySpecService));
-            }
-        });
+        assertPropertySpecsEqual(DeviceSecurityProperty.BINARY_PASSWORD.getPropertySpec(propertySpecService), ansiC12SecuritySupport.getSecurityPropertySpec(SecurityPropertySpecName.BINARY_PASSWORD.getKey()));
         // check for the ANSI C12 user propertySpec
-        assertThat(ansiC12SecuritySupport.getSecurityProperties()).areExactly(1, new Condition<PropertySpec>() {
-            @Override
-            public boolean matches(PropertySpec propertySpec) {
-                return propertySpec.equals(DeviceSecurityProperty.ANSI_C12_USER.getPropertySpec(propertySpecService));
-            }
-        });
+        assertPropertySpecsEqual(DeviceSecurityProperty.ANSI_C12_USER.getPropertySpec(propertySpecService), ansiC12SecuritySupport.getSecurityPropertySpec(SecurityPropertySpecName.ANSI_C12_USER.getKey()));
         // check for the ANSI C12 userId propertySpec
-        assertThat(ansiC12SecuritySupport.getSecurityProperties()).areExactly(1, new Condition<PropertySpec>() {
-            @Override
-            public boolean matches(PropertySpec propertySpec) {
-                return propertySpec.equals(DeviceSecurityProperty.ANSI_C12_USER_ID.getPropertySpec(propertySpecService));
-            }
-        });
+        assertPropertySpecsEqual(DeviceSecurityProperty.ANSI_C12_USER_ID.getPropertySpec(propertySpecService), ansiC12SecuritySupport.getSecurityPropertySpec(SecurityPropertySpecName.ANSI_C12_USER_ID.getKey()));
     }
 
     @Test

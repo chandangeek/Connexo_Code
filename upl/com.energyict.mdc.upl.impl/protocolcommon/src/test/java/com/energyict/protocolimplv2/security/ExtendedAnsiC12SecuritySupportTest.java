@@ -1,6 +1,5 @@
 package com.energyict.protocolimplv2.security;
 
-import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
@@ -28,47 +27,17 @@ public class ExtendedAnsiC12SecuritySupportTest extends AbstractSecuritySupportT
         assertThat(ansiC12SecuritySupport.getSecurityProperties()).hasSize(6);
 
         // check for the password propertySpec
-        assertThat(ansiC12SecuritySupport.getSecurityProperties()).areExactly(1, new Condition<PropertySpec>() {
-            @Override
-            public boolean matches(PropertySpec propertySpec) {
-                return propertySpec.equals(DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService));
-            }
-        });
+        assertPropertySpecsEqual(DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService), ansiC12SecuritySupport.getSecurityPropertySpec(SecurityPropertySpecName.PASSWORD.getKey()));
         // check for the ANSI C12 user propertySpec
-        assertThat(ansiC12SecuritySupport.getSecurityProperties()).areExactly(1, new Condition<PropertySpec>() {
-            @Override
-            public boolean matches(PropertySpec propertySpec) {
-                return propertySpec.equals(DeviceSecurityProperty.ANSI_C12_USER.getPropertySpec(propertySpecService));
-            }
-        });
+        assertPropertySpecsEqual(DeviceSecurityProperty.ANSI_C12_USER.getPropertySpec(propertySpecService), ansiC12SecuritySupport.getSecurityPropertySpec(SecurityPropertySpecName.ANSI_C12_USER.getKey()));
         // check for the ANSI C12 userId propertySpec
-        assertThat(ansiC12SecuritySupport.getSecurityProperties()).areExactly(1, new Condition<PropertySpec>() {
-            @Override
-            public boolean matches(PropertySpec propertySpec) {
-                return propertySpec.equals(DeviceSecurityProperty.ANSI_C12_USER_ID.getPropertySpec(propertySpecService));
-            }
-        });
+        assertPropertySpecsEqual(DeviceSecurityProperty.ANSI_C12_USER_ID.getPropertySpec(propertySpecService), ansiC12SecuritySupport.getSecurityPropertySpec(SecurityPropertySpecName.ANSI_C12_USER_ID.getKey()));
         // check for the ANSI EncryptionKey
-        assertThat(ansiC12SecuritySupport.getSecurityProperties()).areExactly(1, new Condition<PropertySpec>() {
-            @Override
-            public boolean matches(PropertySpec propertySpec) {
-                return propertySpec.equals(DeviceSecurityProperty.ANSI_SECURITY_KEY.getPropertySpec(propertySpecService));
-            }
-        });
+        assertPropertySpecsEqual(DeviceSecurityProperty.ANSI_SECURITY_KEY.getPropertySpec(propertySpecService), ansiC12SecuritySupport.getSecurityPropertySpec(SecurityPropertySpecName.ANSI_SECURITY_KEY.getKey()));
         // check for the ANSI Called AP Title
-        assertThat(ansiC12SecuritySupport.getSecurityProperties()).areExactly(1, new Condition<PropertySpec>() {
-            @Override
-            public boolean matches(PropertySpec propertySpec) {
-                return propertySpec.equals(DeviceSecurityProperty.ANSI_CALLED_AP_TITLE.getPropertySpec(propertySpecService));
-            }
-        });
+        assertPropertySpecsEqual(DeviceSecurityProperty.ANSI_CALLED_AP_TITLE.getPropertySpec(propertySpecService), ansiC12SecuritySupport.getSecurityPropertySpec(SecurityPropertySpecName.ANSI_CALLED_AP_TITLE.getKey()));
         // check for the ANSI binary password property
-        assertThat(ansiC12SecuritySupport.getSecurityProperties()).areExactly(1, new Condition<PropertySpec>() {
-            @Override
-            public boolean matches(PropertySpec propertySpec) {
-                return propertySpec.equals(DeviceSecurityProperty.BINARY_PASSWORD.getPropertySpec(propertySpecService));
-            }
-        });
+        assertPropertySpecsEqual(DeviceSecurityProperty.BINARY_PASSWORD.getPropertySpec(propertySpecService), ansiC12SecuritySupport.getSecurityPropertySpec(SecurityPropertySpecName.BINARY_PASSWORD.getKey()));
     }
 
     @Test
