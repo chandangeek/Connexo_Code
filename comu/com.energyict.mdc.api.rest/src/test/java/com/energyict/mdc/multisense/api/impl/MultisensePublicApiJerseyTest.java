@@ -76,6 +76,7 @@ import com.energyict.mdc.device.config.DeviceMessageUserAction;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Batch;
 import com.energyict.mdc.device.data.BatchService;
@@ -99,6 +100,7 @@ import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
+import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
@@ -144,9 +146,6 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-/**
- * Created by bvn on 9/19/14.
- */
 public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTest {
     private static final String MANUFACTURER = "The Manufacturer";
     private static final String MODELNBR = "The ModelNumber";
@@ -287,6 +286,12 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
     }
 
     DeviceType mockDeviceType(long id, String name, long version) {
+        DeviceProtocolDialect dialect1 = mock(DeviceProtocolDialect.class);
+        when(dialect1.getDeviceProtocolDialectName()).thenReturn("ProtocolDialect1");
+        DeviceProtocolDialect dialect2 = mock(DeviceProtocolDialect.class);
+        when(dialect1.getDeviceProtocolDialectName()).thenReturn("ProtocolDialect2");
+        DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
+        when(deviceProtocol.getDeviceProtocolDialects()).thenReturn(Arrays.asList(dialect1, dialect2));
         DeviceType mock = mock(DeviceType.class);
         when(mock.getId()).thenReturn(id);
         when(mock.getName()).thenReturn(name);
@@ -294,6 +299,7 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         when(mock.getConfigurations()).thenReturn(Collections.singletonList(deviceConfiguration));
         DeviceProtocolPluggableClass pluggableClass = mock(DeviceProtocolPluggableClass.class);
         when(pluggableClass.getId()).thenReturn(id * id);
+        when(pluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         when(mock.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(pluggableClass));
         when(deviceConfigurationService.findDeviceType(id)).thenReturn(Optional.of(mock));
         when(deviceConfigurationService.findAndLockDeviceType(eq(id), longThat(Matcher.matches(v -> v != version)))).thenReturn(Optional.empty());
@@ -435,7 +441,7 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         return mock;
     }
 
-    PartialInboundConnectionTask mockPartialInboundConnectionTask(long id, String name, DeviceConfiguration deviceConfig, long version) {
+    PartialInboundConnectionTask mockPartialInboundConnectionTask(long id, String name, DeviceConfiguration deviceConfig, long version, ProtocolDialectConfigurationProperties dialectProperties) {
         PartialInboundConnectionTask mock = mock(PartialInboundConnectionTask.class);
         when(mock.getName()).thenReturn(name);
         ConnectionTypePluggableClass connectionTaskPluggeableClass = mock(ConnectionTypePluggableClass.class);
@@ -451,11 +457,11 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         when(mock.getConnectionType()).thenReturn(connectionType);
         when(mock.getTypedProperties()).thenReturn(TypedProperties.empty());
         when(mock.getVersion()).thenReturn(version);
-
+        when(mock.getProtocolDialectConfigurationProperties()).thenReturn(dialectProperties);
         return mock;
     }
 
-    PartialScheduledConnectionTask mockPartialOutboundConnectionTask(long id, String name, DeviceConfiguration deviceConfig, long version) {
+    PartialScheduledConnectionTask mockPartialOutboundConnectionTask(long id, String name, DeviceConfiguration deviceConfig, long version, ProtocolDialectConfigurationProperties dialectProperties) {
         PartialScheduledConnectionTask mock = mock(PartialScheduledConnectionTask.class);
         when(mock.getName()).thenReturn(name);
         ConnectionTypePluggableClass connectionTaskPluggeableClass = mock(ConnectionTypePluggableClass.class);
@@ -475,7 +481,7 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         when(mock.getRescheduleDelay()).thenReturn(TimeDuration.minutes(60));
         when(mock.getCommunicationWindow()).thenReturn(new ComWindow(PartialTime.fromHours(2), PartialTime.fromHours(4)));
         when(mock.getVersion()).thenReturn(version);
-
+        when(mock.getProtocolDialectConfigurationProperties()).thenReturn(dialectProperties);
         return mock;
     }
 

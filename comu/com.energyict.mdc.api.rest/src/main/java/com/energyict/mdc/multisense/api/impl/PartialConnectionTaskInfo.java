@@ -25,4 +25,5 @@ public class PartialConnectionTaskInfo extends LinkInfo<Long> {
     public Integer numberOfSimultaneousConnections = 1;
     public TimeDurationInfo rescheduleRetryDelay;
     public TemporalExpressionInfo nextExecutionSpecs;
+    public LinkInfo protocolDialectConfigurationProperties;
 }

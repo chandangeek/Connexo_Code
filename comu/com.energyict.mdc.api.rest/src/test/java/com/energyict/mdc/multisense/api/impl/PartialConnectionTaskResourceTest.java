@@ -11,6 +11,7 @@ import com.elster.jupiter.properties.rest.SimplePropertyType;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialConnectionTask;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 
 import com.jayway.jsonpath.JsonModel;
 import net.minidev.json.JSONArray;
@@ -19,6 +20,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.junit.Before;
@@ -26,21 +28,24 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-/**
- * Created by bvn on 7/16/15.
- */
 public class PartialConnectionTaskResourceTest extends MultisensePublicApiJerseyTest {
 
     @Before
     public void setup() {
         DeviceType deviceType = mockDeviceType(112L, "device type", 3333L);
         DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(113L, "Default configuration", deviceType, 3333L);
-        when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration));
-        PartialConnectionTask partialConnectionTask1 = mockPartialInboundConnectionTask(114L, "partial conn task 114", deviceConfiguration, 3333L);
-        PartialConnectionTask partialConnectionTask2 = mockPartialInboundConnectionTask(124L, "partial conn task 124", deviceConfiguration, 3333L);
-        PartialConnectionTask partialConnectionTask3 = mockPartialOutboundConnectionTask(134L, "partial conn task 134", deviceConfiguration, 3333L);
+        when(deviceType.getConfigurations()).thenReturn(Collections.singletonList(deviceConfiguration));
+        ProtocolDialectConfigurationProperties properties = mock(ProtocolDialectConfigurationProperties.class);
+        when(properties.getId()).thenReturn(25L);
+        when(properties.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        when(properties.getDeviceProtocolDialectName()).thenReturn("Protocol Dialect Name");
+
+        PartialConnectionTask partialConnectionTask1 = mockPartialInboundConnectionTask(114L, "partial conn task 114", deviceConfiguration, 3333L, properties);
+        PartialConnectionTask partialConnectionTask2 = mockPartialInboundConnectionTask(124L, "partial conn task 124", deviceConfiguration, 3333L, properties);
+        PartialConnectionTask partialConnectionTask3 = mockPartialOutboundConnectionTask(134L, "partial conn task 134", deviceConfiguration, 3333L, properties);
         when(deviceConfiguration.getPartialConnectionTasks()).thenReturn(Arrays.asList(partialConnectionTask1, partialConnectionTask2, partialConnectionTask3));
     }
 
@@ -50,7 +55,7 @@ public class PartialConnectionTaskResourceTest extends MultisensePublicApiJersey
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
         assertThat(jsonModel.<JSONArray>get("$")).containsOnly("id", "version", "name", "link", "direction", "comWindow", "rescheduleRetryDelay", "nextExecutionSpecs",
-                "connectionType", "comPortPool", "isDefault", "connectionStrategy", "numberOfSimultaneousConnections", "properties");
+                "connectionType", "comPortPool", "isDefault", "connectionStrategy", "numberOfSimultaneousConnections", "properties", "protocolDialectConfigurationProperties");
     }
 
     @Test
@@ -137,6 +142,7 @@ public class PartialConnectionTaskResourceTest extends MultisensePublicApiJersey
         assertThat(jsonModel.<Integer>get("$.link")).isNull();
         assertThat(jsonModel.<String>get("$.name")).isEqualTo("partial conn task 124");
         assertThat(jsonModel.<String>get("$.direction")).isNull();
+        assertThat(jsonModel.<String>get("$.protocolDialectConfigurationProperties")).isNull();
     }
 
 }
