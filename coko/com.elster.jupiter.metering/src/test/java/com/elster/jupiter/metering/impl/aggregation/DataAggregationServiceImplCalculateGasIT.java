@@ -34,7 +34,6 @@ import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.FullySpecifiedReadingTypeRequirement;
 import com.elster.jupiter.metering.config.MeterRole;
-import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
@@ -83,11 +82,11 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
 import java.math.BigDecimal;
+import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalTime;
 import java.time.Month;
 import java.time.MonthDay;
-import java.time.temporal.TemporalUnit;
 import java.util.Optional;
 
 import org.junit.After;
@@ -261,6 +260,7 @@ public class DataAggregationServiceImplCalculateGasIT {
     private static DataAggregationService getDataAggregationService() {
         ServerMeteringService meteringService = injector.getInstance(ServerMeteringService.class);
         return new DataAggregationServiceImpl(
+                injector.getInstance(Clock.class),
                 mock(CalendarService.class),
                 mock(CustomPropertySetService.class),
                 meteringService,

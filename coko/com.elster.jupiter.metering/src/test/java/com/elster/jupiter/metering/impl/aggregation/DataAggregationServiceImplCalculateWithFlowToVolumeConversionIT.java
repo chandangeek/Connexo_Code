@@ -82,6 +82,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
 import java.math.BigDecimal;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.Optional;
 
@@ -239,6 +240,7 @@ public class DataAggregationServiceImplCalculateWithFlowToVolumeConversionIT {
     private static DataAggregationService getDataAggregationService() {
         ServerMeteringService meteringService = injector.getInstance(ServerMeteringService.class);
         return new DataAggregationServiceImpl(
+                injector.getInstance(Clock.class),
                 mock(CalendarService.class),
                 mock(CustomPropertySetService.class),
                 meteringService,

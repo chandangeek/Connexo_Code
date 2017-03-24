@@ -57,6 +57,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.Period;
@@ -138,6 +139,7 @@ public class DataAggregationServiceImplCalculateTimeOfUseTest {
     @Mock
     private NlsService nlsService;
 
+    private Clock clock = Clock.systemDefaultZone();
     private ServerMetrologyConfigurationService metrologyConfigurationService;
 
     @Before
@@ -221,7 +223,9 @@ public class DataAggregationServiceImplCalculateTimeOfUseTest {
         ChannelContract consumptionChannel = mock(ChannelContract.class);
         when(consumptionChannel.getMainReadingType()).thenReturn(consumptionReadingType15min);
         when(consumptionChannel.getZoneId()).thenReturn(ZoneOffset.UTC);
+        SqlFragment consumptionTimeSeriesRawSql = mock(SqlFragment.class);
         TimeSeries consumptionTimeSeries = mock(TimeSeries.class);
+        when(consumptionTimeSeries.getRawValuesSql(any(Range.class), anyVararg())).thenReturn(consumptionTimeSeriesRawSql);
         when(consumptionTimeSeries.isRegular()).thenReturn(true);
         when(consumptionChannel.getTimeSeries()).thenReturn(consumptionTimeSeries);
 
@@ -233,7 +237,7 @@ public class DataAggregationServiceImplCalculateTimeOfUseTest {
         CalendarTimeSeries calendarTimeSeries = mock(CalendarTimeSeries.class);
         when(calendarTimeSeries.getCalendar()).thenReturn(calendar);
         SqlFragment sqlFragment = mock(SqlFragment.class);
-        when(calendarTimeSeries.joinSql(any(TimeSeries.class), any(Event.class), any(Range.class), anyVararg())).thenReturn(sqlFragment);
+        when(calendarTimeSeries.joinSql(any(SqlFragment.class), anyString(), any(Event.class), any(Range.class))).thenReturn(sqlFragment);
         when(calendar.toTimeSeries(Duration.ofMinutes(15), ZoneOffset.UTC)).thenReturn(calendarTimeSeries);
 
         MeterActivationSet meterActivationSet = mock(MeterActivationSet.class);
@@ -262,7 +266,8 @@ public class DataAggregationServiceImplCalculateTimeOfUseTest {
 
         // Asserts
         ArgumentCaptor<Event> eventArgumentCaptor = ArgumentCaptor.forClass(Event.class);
-        verify(calendarTimeSeries).joinSql(eq(consumptionTimeSeries), eventArgumentCaptor.capture(), any(Range.class), anyVararg());
+        verify(consumptionTimeSeries).getRawValuesSql(any(Range.class), anyVararg());
+        verify(calendarTimeSeries).joinSql(eq(consumptionTimeSeriesRawSql), anyString(), eventArgumentCaptor.capture(), any(Range.class));
         assertThat(eventArgumentCaptor.getValue()).isNotNull();
         assertThat(eventArgumentCaptor.getValue().getCode()).isEqualTo(22);
         verify(this.dataModel).getConnection(true);
@@ -332,7 +337,9 @@ public class DataAggregationServiceImplCalculateTimeOfUseTest {
         ChannelContract consumptionChannel = mock(ChannelContract.class);
         when(consumptionChannel.getMainReadingType()).thenReturn(consumptionReadingType15min);
         when(consumptionChannel.getZoneId()).thenReturn(ZoneOffset.UTC);
+        SqlFragment consumptionTimeSeriesRawSql = mock(SqlFragment.class);
         TimeSeries consumptionTimeSeries = mock(TimeSeries.class);
+        when(consumptionTimeSeries.getRawValuesSql(any(Range.class), anyVararg())).thenReturn(consumptionTimeSeriesRawSql);
         when(consumptionTimeSeries.isRegular()).thenReturn(true);
         when(consumptionChannel.getTimeSeries()).thenReturn(consumptionTimeSeries);
 
@@ -344,7 +351,7 @@ public class DataAggregationServiceImplCalculateTimeOfUseTest {
         CalendarTimeSeries calendarTimeSeries = mock(CalendarTimeSeries.class);
         when(calendarTimeSeries.getCalendar()).thenReturn(calendar);
         SqlFragment sqlFragment = mock(SqlFragment.class);
-        when(calendarTimeSeries.joinSql(any(TimeSeries.class), any(Event.class), any(Range.class), anyVararg())).thenReturn(sqlFragment);
+        when(calendarTimeSeries.joinSql(any(SqlFragment.class), anyString(), any(Event.class), any(Range.class))).thenReturn(sqlFragment);
         when(calendar.toTimeSeries(Period.ofMonths(1), ZoneOffset.UTC)).thenReturn(calendarTimeSeries);
 
         MeterActivationSet meterActivationSet = mock(MeterActivationSet.class);
@@ -374,7 +381,7 @@ public class DataAggregationServiceImplCalculateTimeOfUseTest {
 
         // Asserts
         ArgumentCaptor<Event> eventArgumentCaptor = ArgumentCaptor.forClass(Event.class);
-        verify(calendarTimeSeries).joinSql(eq(consumptionTimeSeries), eventArgumentCaptor.capture(), any(Range.class), anyVararg());
+        verify(calendarTimeSeries).joinSql(eq(consumptionTimeSeriesRawSql), anyString(), eventArgumentCaptor.capture(), any(Range.class));
         assertThat(eventArgumentCaptor.getValue()).isNotNull();
         assertThat(eventArgumentCaptor.getValue().getCode()).isEqualTo(22);
         verify(this.dataModel).getConnection(true);
@@ -420,6 +427,7 @@ public class DataAggregationServiceImplCalculateTimeOfUseTest {
 
     private DataAggregationServiceImpl testInstance() {
         return new DataAggregationServiceImpl(
+                this.clock,
                 this.calendarService,
                 this.customPropertySetService,
                 this.meteringService,

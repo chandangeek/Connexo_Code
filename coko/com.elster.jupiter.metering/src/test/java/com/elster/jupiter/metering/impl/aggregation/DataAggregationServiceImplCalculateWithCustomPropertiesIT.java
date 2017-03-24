@@ -96,6 +96,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
 import java.math.BigDecimal;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
@@ -269,6 +270,7 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
     private static DataAggregationService getDataAggregationService() {
         ServerMeteringService meteringService = getMeteringService();
         return new DataAggregationServiceImpl(
+                        injector.getInstance(Clock.class),
                         getCalendarService(),
                         getCustomPropertySetService(),
                         meteringService,

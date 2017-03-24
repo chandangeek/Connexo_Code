@@ -51,6 +51,7 @@ import com.elster.jupiter.util.units.Dimension;
 import com.google.common.collect.Range;
 
 import java.sql.SQLException;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
@@ -119,6 +120,7 @@ public class DataAggregationServiceImplIntrospectionTest {
     @Mock
     private NlsService nlsService;
 
+    private Clock clock = Clock.systemDefaultZone();
     private ServerMetrologyConfigurationService metrologyConfigurationService;
 
     @Before
@@ -659,6 +661,7 @@ public class DataAggregationServiceImplIntrospectionTest {
 
     private DataAggregationServiceImpl testInstance() {
         return new DataAggregationServiceImpl(
+                this.clock,
                 this.calendarService,
                 this.customPropertySetService,
                 this.meteringService,

@@ -80,6 +80,7 @@ import com.google.inject.Scopes;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.util.Optional;
 
@@ -228,6 +229,7 @@ public class DataAggregationServiceImplCalculateWithRegisterIT {
     private static DataAggregationService getDataAggregationService() {
         ServerMeteringService meteringService = injector.getInstance(ServerMeteringService.class);
         return new DataAggregationServiceImpl(
+                injector.getInstance(Clock.class),
                 injector.getInstance(CalendarService.class),
                 injector.getInstance(CustomPropertySetService.class),
                 meteringService,

@@ -53,6 +53,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
@@ -138,6 +139,7 @@ public class DataAggregationServiceImplCalculateTest {
     @Mock
     private NlsService nlsService;
 
+    private Clock clock = Clock.systemDefaultZone();
     private ServerMetrologyConfigurationService metrologyConfigurationService;
     private SqlBuilder withClauseBuilder;
     private SqlBuilder selectClauseBuilder;
@@ -634,6 +636,7 @@ public class DataAggregationServiceImplCalculateTest {
 
     private DataAggregationServiceImpl testInstance() {
         return new DataAggregationServiceImpl(
+                this.clock,
                 this.calendarService,
                 this.customPropertySetService,
                 this.meteringService,
