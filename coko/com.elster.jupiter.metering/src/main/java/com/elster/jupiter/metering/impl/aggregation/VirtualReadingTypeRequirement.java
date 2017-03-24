@@ -199,7 +199,7 @@ class VirtualReadingTypeRequirement {
     }
 
     private SqlBuilder timeSeriesWithReadingQualitiesSqlBuilder(TimeSeries timeSeries, SqlFragment timeSeriesSql) {
-        SqlBuilder builder = new SqlBuilder("SELECT NLV(rawts.");
+        SqlBuilder builder = new SqlBuilder("SELECT NVL(rawts.");
         builder.append(SqlConstants.TimeSeriesColumnNames.ID.fieldSpecName());
         builder.append(", ");
         builder.addLong(timeSeries.getId());
@@ -268,7 +268,7 @@ class VirtualReadingTypeRequirement {
         sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.VALUE.sqlName());
         sqlBuilder.append(" FROM mtr_readingquality WHERE readingtype = '");
         sqlBuilder.append(this.getPreferredChannel().getMainReadingType().getMRID());
-        sqlBuilder.append(" AND channelid = ");
+        sqlBuilder.append("' AND channelid = ");
         sqlBuilder.addLong(this.getPreferredChannel().getId());
         sqlBuilder.append(" AND (TYPE LIKE '%.5.258' OR TYPE LIKE '%.5.259' OR TYPE LIKE '%.7.%' OR TYPE LIKE '%.8.%')");
         sqlBuilder.append(" GROUP BY readingtimestamp) rq");
