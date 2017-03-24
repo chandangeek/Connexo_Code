@@ -21,6 +21,10 @@ public enum Predicates {
         return predicate;
     }
 
+    public static <T> Predicate<T> both(Predicate<T> predicate) {
+        return predicate;
+    }
+
     public static Predicate<Boolean> self() {
         return b -> b != null && b;
     }
