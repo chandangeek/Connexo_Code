@@ -1,7 +1,6 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- *//*
-
+ */
 
 package com.energyict.mdc.device.lifecycle.config.rest.impl.resource;
 
@@ -160,4 +159,3 @@ public class DeviceLifeCycleActionResourceTest extends DeviceLifeCycleConfigAppl
         assertThat(model.<Boolean>get("$.microChecks[0].checked")).isNull();
     }
 }
-*/

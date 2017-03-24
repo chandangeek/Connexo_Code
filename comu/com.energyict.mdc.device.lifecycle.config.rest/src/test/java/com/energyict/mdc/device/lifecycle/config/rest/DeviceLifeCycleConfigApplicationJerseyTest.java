@@ -1,16 +1,16 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- *//*
-
+ */
 
 package com.energyict.mdc.device.lifecycle.config.rest;
 
+import com.elster.jupiter.bpm.BpmProcessDefinition;
+import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.ProcessReference;
 import com.elster.jupiter.fsm.State;
-import com.elster.jupiter.fsm.StateChangeBusinessProcess;
 import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.fsm.StateTransitionEventType;
 import com.elster.jupiter.nls.Layer;
@@ -68,6 +68,8 @@ public class DeviceLifeCycleConfigApplicationJerseyTest extends FelixRestApplica
     protected DeviceConfigurationService deviceConfigurationService;
     @Mock
     protected DeviceLifeCycleService deviceLifeCycleService;
+    @Mock
+    protected BpmService bpmService;
 
     @Override
     protected Application getApplication() {
@@ -79,6 +81,7 @@ public class DeviceLifeCycleConfigApplicationJerseyTest extends FelixRestApplica
         application.setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
         application.setFiniteStateMachineService(finiteStateMachineService);
         application.setEventService(eventService);
+        application.setBpmService(bpmService);
         application.setDeviceConfigurationService(deviceConfigurationService);
         application.setDeviceLifeCycleService(deviceLifeCycleService);
         when(nlsService.getThesaurus(DeviceLifeCycleConfigApplication.DEVICE_CONFIG_LIFECYCLE_COMPONENT, Layer.REST)).thenReturn(thesaurus);
@@ -115,9 +118,9 @@ public class DeviceLifeCycleConfigApplicationJerseyTest extends FelixRestApplica
             return microCheck.name();
         });
         when(deviceLifeCycleService.getDescription(any(MicroCheck.class)))
-            .thenAnswer(invocationOnMock -> ((MicroCheck) invocationOnMock.getArguments()[0]).name());
+                .thenAnswer(invocationOnMock -> ((MicroCheck) invocationOnMock.getArguments()[0]).name());
         when(deviceLifeCycleService.getCategoryName(any(MicroCheck.class)))
-            .thenAnswer(invocationOnMock -> ((MicroCheck) invocationOnMock.getArguments()[0]).getCategory().name());
+                .thenAnswer(invocationOnMock -> ((MicroCheck) invocationOnMock.getArguments()[0]).getCategory().name());
         Stream.of(DefaultState.values()).forEach(this::mockTranslationFor);
     }
 
@@ -133,7 +136,7 @@ public class DeviceLifeCycleConfigApplicationJerseyTest extends FelixRestApplica
         when(dlc.getVersion()).thenReturn(OK_VERSION);
         when(deviceLifeCycleConfigurationService.findDeviceLifeCycle(id)).thenReturn(Optional.of(dlc));
         when(deviceLifeCycleConfigurationService.findAndLockDeviceLifeCycleByIdAndVersion(id, OK_VERSION))
-            .thenReturn(Optional.of(dlc));
+                .thenReturn(Optional.of(dlc));
         return dlc;
     }
 
@@ -161,7 +164,7 @@ public class DeviceLifeCycleConfigApplicationJerseyTest extends FelixRestApplica
         return state;
     }
 
-    private State mockSimpleStateWithEntryAndExitProcesses(long id, String name, StateChangeBusinessProcess[] onEntry, StateChangeBusinessProcess[] onExit) {
+    private State mockSimpleStateWithEntryAndExitProcesses(long id, String name, BpmProcessDefinition[] onEntry, BpmProcessDefinition[] onExit) {
         State state = mock(State.class);
         when(state.getId()).thenReturn(id);
         when(state.getName()).thenReturn(name);
@@ -171,7 +174,7 @@ public class DeviceLifeCycleConfigApplicationJerseyTest extends FelixRestApplica
         List<ProcessReference> onEntryReferences = Collections.emptyList();
         if (onEntry != null) {
             onEntryReferences = new ArrayList<>(onEntry.length);
-            for (StateChangeBusinessProcess each : onEntry) {
+            for (BpmProcessDefinition each : onEntry) {
                 ProcessReference reference = mock(ProcessReference.class);
                 when(reference.getStateChangeBusinessProcess()).thenReturn(each);
 
@@ -181,7 +184,7 @@ public class DeviceLifeCycleConfigApplicationJerseyTest extends FelixRestApplica
         List<ProcessReference> onExitReferences = Collections.emptyList();
         if (onExit != null) {
             onExitReferences = new ArrayList<>(onExit.length);
-            for (StateChangeBusinessProcess each : onExit) {
+            for (BpmProcessDefinition each : onExit) {
                 ProcessReference reference = mock(ProcessReference.class);
                 when(reference.getStateChangeBusinessProcess()).thenReturn(each);
 
@@ -204,9 +207,9 @@ public class DeviceLifeCycleConfigApplicationJerseyTest extends FelixRestApplica
     protected List<State> mockDefaultStatesWithOnEntryProcessesForDecommissioned() {
         List<State> states = new ArrayList<>(3);
         states.add(mockSimpleStateWithEntryAndExitProcesses(2, DefaultState.DECOMMISSIONED.getKey(),
-                new StateChangeBusinessProcess[]{
-                        mockStateChangeBusinessProcess(1, "nameOnEntry1", "deploymentIdOnEntry1", "processIdOnEntry1"),
-                        mockStateChangeBusinessProcess(2, "nameOnEntry2", "deploymentIdOnEntry2", "processIdOnEntry2")},
+                new BpmProcessDefinition[]{
+                        mockStateChangeBusinessProcess(1, "nameOnEntry1", "1.0"),
+                        mockStateChangeBusinessProcess(2, "nameOnEntry2", "1.0")},
                 null));
         states.add(mockSimpleState(1, DefaultState.COMMISSIONING));
         states.add(mockSimpleState(3, DefaultState.IN_STOCK));
@@ -218,10 +221,10 @@ public class DeviceLifeCycleConfigApplicationJerseyTest extends FelixRestApplica
         states.add(mockSimpleState(2, DefaultState.DECOMMISSIONED));
         states.add(mockSimpleState(1, DefaultState.COMMISSIONING));
         states.add(mockSimpleStateWithEntryAndExitProcesses(3, DefaultState.IN_STOCK.getKey(), null,
-                new StateChangeBusinessProcess[]{
-                        mockStateChangeBusinessProcess(1, "nameOnExit1", "deploymentIdOnExit1", "processIdOnExit1"),
-                        mockStateChangeBusinessProcess(2, "nameOnExit2", "deploymentIdOnExit2", "processIdOnExit2"),
-                        mockStateChangeBusinessProcess(3, "nameOnExit3", "deploymentIdOnExit3", "processIdOnExit3")}));
+                new BpmProcessDefinition[]{
+                        mockStateChangeBusinessProcess(1, "nameOnExit1", "1.0"),
+                        mockStateChangeBusinessProcess(2, "nameOnExit2", "1.0"),
+                        mockStateChangeBusinessProcess(3, "nameOnExit3", "1.0")}));
         return states;
     }
 
@@ -230,10 +233,10 @@ public class DeviceLifeCycleConfigApplicationJerseyTest extends FelixRestApplica
         states.add(mockSimpleState(2, DefaultState.DECOMMISSIONED));
         states.add(mockSimpleStateWithEntryAndExitProcesses(1,
                 DefaultState.COMMISSIONING.getKey(),
-                new StateChangeBusinessProcess[]{
-                        mockStateChangeBusinessProcess(1, ",nameOnEntry1", "deploymentIdOnEntry1", "processIdOnEntry1"),
-                        mockStateChangeBusinessProcess(2, "nameOnEntry2", "deploymentIdOnEntry2", "processIdOnEntry2")},
-                new StateChangeBusinessProcess[]{mockStateChangeBusinessProcess(3, "nameOnExit1", "deploymentIdOnExit1", "processIdOnExit1")}));
+                new BpmProcessDefinition[]{
+                        mockStateChangeBusinessProcess(1, "nameOnEntry1", "1.0"),
+                        mockStateChangeBusinessProcess(2, "nameOnEntry2", "1.0")},
+                new BpmProcessDefinition[]{mockStateChangeBusinessProcess(3, "nameOnExit1", "1.0")}));
         states.add(mockSimpleState(3, DefaultState.IN_STOCK));
         return states;
     }
@@ -342,13 +345,11 @@ public class DeviceLifeCycleConfigApplicationJerseyTest extends FelixRestApplica
     }
 
 
-    protected StateChangeBusinessProcess mockStateChangeBusinessProcess(long id, String name, String deploymentId, String processId) {
-        StateChangeBusinessProcess process = mock(StateChangeBusinessProcess.class);
+    protected BpmProcessDefinition mockStateChangeBusinessProcess(long id, String processName, String version) {
+        BpmProcessDefinition process = mock(BpmProcessDefinition.class);
         when(process.getId()).thenReturn(id);
-        when(process.getName()).thenReturn(name);
-        when(process.getDeploymentId()).thenReturn(deploymentId);
-        when(process.getProcessId()).thenReturn(processId);
+        when(process.getProcessName()).thenReturn(processName);
+        when(process.getVersion()).thenReturn(version);
         return process;
     }
 }
-*/
