@@ -88,14 +88,14 @@ class DataQualityOverviewSqlBuilder {
     }
 
     private void appendJoinClauses() {
-        this.sqlBuilder.append(" join mtr_usagepointmtrconfig efmc on efmc.usagepoint = up.id");
+        this.sqlBuilder.append(" join mtr_usagepointmtrconfig efmc on efmc.usagepoint = up.id and efmc.endtime > efmc.starttime");
         this.sqlBuilder.append(" join mtr_metrologyconfig mc on mc.id = efmc.metrologyconfig");
         if (!this.specification.getMetrologyConfigurations().isEmpty()) {
             this.sqlBuilder.append(" and mc.id in (");
             this.appendIds(this.specification.getMetrologyConfigurations());
             this.sqlBuilder.append(")");
         }
-        this.sqlBuilder.append(" join mtr_effective_contract efc on efc.effective_conf = efmc.id");
+        this.sqlBuilder.append(" join mtr_effective_contract efc on efc.effective_conf = efmc.id and efc.endtime >= efmc.endtime");
         this.sqlBuilder.append(" join mtr_metrology_contract cont on cont.id = efc.metrology_contract");
         this.sqlBuilder.append(" join mtr_metrology_purpose purpose on purpose.id = cont.metrology_purpose");
         if (!this.specification.getMetrologyPurposes().isEmpty()) {
