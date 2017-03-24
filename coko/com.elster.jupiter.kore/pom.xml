@@ -301,6 +301,12 @@
         </dependencies>
     </dependencyManagement>
 
+    <properties>
+        <javadoc.excluded.package.names>
+            ch.iec.tc57.*:org.w3.*:*.security.*:com.elster.jupiter.metering.cim
+        </javadoc.excluded.package.names>
+    </properties>
+
     <profiles>
         <profile>
             <id>kore</id>
