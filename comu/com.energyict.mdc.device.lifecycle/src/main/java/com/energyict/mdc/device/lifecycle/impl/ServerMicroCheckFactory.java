@@ -15,6 +15,8 @@ import com.energyict.mdc.device.lifecycle.config.MicroCheck;
  */
 public interface ServerMicroCheckFactory {
 
-    public ServerMicroCheck from(MicroCheck check);
+    ServerMicroCheck from(MicroCheck check);
+
+
 
 }

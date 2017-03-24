@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.validation.ValidationService;
@@ -25,7 +26,7 @@ public class AllDataValidated extends TranslatableServerMicroCheck {
     }
 
     @Override
-    public Optional<DeviceLifeCycleActionViolation> evaluate(Device device, Instant effectiveTimestamp) {
+    public Optional<DeviceLifeCycleActionViolation> evaluate(Device device, Instant effectiveTimestamp, State state) {
         Optional<? extends MeterActivation> current = device.getCurrentMeterActivation();
         if (current.isPresent()) {
             if (validationService.validationEnabled(current.get().getMeter().get())) {
