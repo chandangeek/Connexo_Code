@@ -93,7 +93,6 @@ class ValidationEvaluatorImpl extends AbstractValidationEvaluator {
                 .map(channelsContainerValidation -> channelsContainerValidation.getChannelValidation(channel))
                 .flatMap(asStream())
                 .anyMatch(ChannelValidation::hasActiveRules);
-
     }
 
     @Override

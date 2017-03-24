@@ -44,7 +44,7 @@ public class ChannelValidationContainer {
     }
 
     boolean isValidationActive() {
-        return channelValidations.stream().anyMatch(ChannelValidation::hasActiveRules);
+        return stream().anyMatch(ChannelValidation::hasActiveRules);
     }
 
     Optional<Instant> getLastChecked() {
@@ -54,6 +54,7 @@ public class ChannelValidationContainer {
     static Optional<Instant> getLastChecked(Stream<? extends ChannelValidation> validations) {
         // if any is null, then we should return Optional.empty()
         return validations
+                .filter(ChannelValidation::hasActiveRules)
                 .map(ChannelValidation::getLastChecked)
                 .map(instant -> instant == null ? Instant.MIN : instant)
                 .min(Comparator.naturalOrder())
@@ -65,6 +66,6 @@ public class ChannelValidationContainer {
     }
 
     public Stream<ChannelValidation> stream() {
-        return channelValidations.stream().map(Function.<ChannelValidation>identity());
+        return channelValidations.stream().map(Function.identity());
     }
 }
