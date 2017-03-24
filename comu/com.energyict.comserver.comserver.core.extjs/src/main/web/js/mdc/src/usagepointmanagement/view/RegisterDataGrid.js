@@ -22,14 +22,10 @@ Ext.define('Mdc.usagepointmanagement.view.RegisterDataGrid', {
 
         me.columns = [
             {
-                header: Uni.I18n.translate('deviceloadprofiles.endOfInterval', 'MDC', 'End of interval'),
-                dataIndex: 'interval',
-                renderer: function (interval) {
-                    return interval.end
-                        ? Uni.I18n.translate(
-                        'general.dateAtTime', 'MDC', '{0} at {1}',
-                        [Uni.DateTime.formatDateShort(new Date(interval.end)), Uni.DateTime.formatTimeShort(new Date(interval.end))])
-                        : '';
+                header: Uni.I18n.translate('general.measurementTime', 'MDC', 'Measurement time'),
+                dataIndex: 'measurementTime',
+                renderer: function (value) {
+                    return Uni.DateTime.formatDateShort(new Date(value));
                 },
                 flex: 1
             },
@@ -37,33 +33,31 @@ Ext.define('Mdc.usagepointmanagement.view.RegisterDataGrid', {
                 header: unit
                     ? Uni.I18n.translate('general.value.with.param', 'MDC', 'Value ({0})', [unit])
                     : Uni.I18n.translate('general.value.empty', 'MDC', 'Value'),
-                flex: 2,
+                flex: 1,
                 dataIndex: 'value',
                 align: 'right'
             },
             {
-                dataIndex: 'validation',
+                dataIndex: 'dataValidated',
                 flex: 1,
                 renderer: function (value) {
                     var validationMap = {
                         NOT_VALIDATED: '<span class="icon-flag6" style="margin-left: -15px; line-height: 12px" data-qtip="' + Uni.I18n.translate('devicechannelsreadings.validationResult.notvalidated', 'MDC', 'Not validated') + '"></span>',
                         SUSPECT: '<span class="icon-flag5" style="margin-left: -15px; color:red; line-height: 12px" data-qtip="' + Uni.I18n.translate('validationStatus.suspect', 'MDC', 'Suspect') + '"></span>',
-                        INFORMATIVE: '<span class="icon-flag5" style="margin-left: -15px; color:yellow; line-height: 12px" data-qtip="' + Uni.I18n.translate('validationStatus.informative', 'MDC', 'Informative') + '"></span>',
-                        NO_LINKED_DEVICES: '<span class="icon-flag5" style="margin-left: -15px; color:#686868; line-height: 12px" data-qtip="' + Uni.I18n.translate('validationStatus.noLinkedDevices', 'MDC', 'No linked devices') + '"></span>'
                     };
 
                     return validationMap[value];
                 }
             },
-            {
-                header: Uni.I18n.translate('general.readingData.lastUpdate', 'MDC', 'Last update'),
-                dataIndex: 'readingTime',
-                flex: 1,
-                renderer: function(value){
-                    var date = new Date(value);
-                    return Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}', [Uni.DateTime.formatDateShort(date), Uni.DateTime.formatTimeShort(date)])
-                }
-            }
+            // {
+            //     header: Uni.I18n.translate('general.readingData.lastUpdate', 'MDC', 'Last update'),
+            //     dataIndex: 'readingTime',
+            //     flex: 1,
+            //     renderer: function(value){
+            //         var date = new Date(value);
+            //         return Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}', [Uni.DateTime.formatDateShort(date), Uni.DateTime.formatTimeShort(date)])
+            //     }
+            // }
         ];
 
         me.dockedItems = [

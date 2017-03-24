@@ -36,11 +36,7 @@ Ext.define('Mdc.usagepointmanagement.view.RegisterDataPreview', {
                             name: 'measurementTime',
                             htmlEncode: false,
                             renderer: function (value) {
-                                return value
-                                    ? Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}', [Uni.DateTime.formatDateLong(new Date(value.start)), Uni.DateTime.formatTimeLong(new Date(value.start))], false)
-                                + ' - ' +
-                                Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}', [Uni.DateTime.formatDateLong(new Date(value.end)), Uni.DateTime.formatTimeLong(new Date(value.end))], false)
-                                    : '-';
+                                return Uni.DateTime.formatDateLong(value);
                             }
                         },
                         {
@@ -49,9 +45,7 @@ Ext.define('Mdc.usagepointmanagement.view.RegisterDataPreview', {
                             name: 'readingTime',
                             htmlEncode: false,
                             renderer: function (value) {
-                                return value
-                                    ? Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}', [Uni.DateTime.formatDateLong(new Date(value)), Uni.DateTime.formatTimeLong(new Date(value))], false)
-                                    : '-';
+                                return Uni.DateTime.formatDateLong(value);
                             }
                         },
                         {
@@ -68,7 +62,7 @@ Ext.define('Mdc.usagepointmanagement.view.RegisterDataPreview', {
                             itemId: 'validationResult-field',
                             fieldLabel: Uni.I18n.translate('device.dataValidation.validationResult', 'MDC', 'Validation result'),
                             name: 'validationResult',
-                            renderer: function () {
+                            renderer: function (value) {
                                 return me.displayValidationResult(false);
                             }
                         }
@@ -128,7 +122,7 @@ Ext.define('Mdc.usagepointmanagement.view.RegisterDataPreview', {
         }
         var me = this,
             result,
-            validation = me.record.get('validation'),
+            validation = me.record.get('dataValidated'),
             flags = {
                 NOT_VALIDATED: {
                     icon: '<span class="icon-flag6"></span>',

@@ -5,45 +5,16 @@
 Ext.define('Mdc.usagepointmanagement.model.RegisterReading', {
     extend: 'Uni.model.Version',
     fields: [
-        'value', 'measurementTime', 'readingTime', 'readingQualities', 'validationResult', 'dataValidated', 'validationAction', 'validationRules',
+        'value', 'measurementTime', 'readingTime', 'readingQualities', 'validationResult', 'dataValidated',
+        // {
+        //     name: 'id',
+        //     mapping: 'interval.end'
+        // },
         {
-            name: 'id',
-            mapping: 'interval.end'
-        },
-        {
-            name: 'validation',
+            name: 'dataValidated',
             mapping: function (data) {
-                var result = 'NOT_VALIDATED';
-
-                if (!data.readingTime && !data.value) {
-                    result = 'NO_LINKED_DEVICES';
-                } else {
-                    switch (data.validationResult) {
-                        case 'validationStatus.ok':
-                            result = 'OK';
-                            break;
-                        case 'validationStatus.suspect':
-                            switch (data.validationAction.toLowerCase()) {
-                                case 'warnOnly':
-                                    result = 'INFORMATIVE';
-                                    break;
-                                case 'fail':
-                                    result = 'SUSPECT';
-                                    break;
-                            }
-                            break;
-                    }
-                }
-
-                return result;
+                return data ? 'SUSPECT': 'NOT_VALIDATED';
             }
-        },
-        {
-            name: 'interval_end',
-            persist: false,
-            mapping: 'interval.end',
-            dateFormat: 'time',
-            type: 'date'
         }
     ],
     proxy: {
