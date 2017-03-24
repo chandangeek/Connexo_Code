@@ -554,7 +554,7 @@ public class SecurityContext {
         return ProtocolTools.aesWrap(sessionKey, masterKey);
     }
 
-    private GeneralCipheringSecurityProvider getGeneralCipheringSecurityProvider() {
+    protected GeneralCipheringSecurityProvider getGeneralCipheringSecurityProvider() {
         if (!(getSecurityProvider() instanceof GeneralCipheringSecurityProvider)) {
             throw CodingException.protocolImplementationError("General ciphering is not yet supported in the protocol you are using");
         }
@@ -564,7 +564,7 @@ public class SecurityContext {
     /**
      * Structure: transaction-id, client system title, server system title, date-time, other info, key-info
      */
-    private byte[] createGeneralCipheringHeader(byte[] dateTime, byte[] otherInfo) {
+    protected byte[] createGeneralCipheringHeader(byte[] dateTime, byte[] otherInfo) {
         //TODO replace epoch by transaction-id and treat it as invokeid??
         return ProtocolTools.concatByteArrays(
                 new byte[]{(byte) TRANSACTION_ID_LENGTH},

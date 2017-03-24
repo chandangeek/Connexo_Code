@@ -128,6 +128,12 @@ public class T210DSecurityProvider extends NTASecurityProvider implements Genera
     }
 
     @Override
+    public String getClientPrivateSigningKeyLabel() {
+        PrivateKeyAlias privateKey = properties.getTypedProperty(DlmsSessionProperties.CLIENT_PRIVATE_SIGNING_KEY);
+        return privateKey.getAlias();
+    }
+
+    @Override
     public PrivateKey getClientPrivateKeyAgreementKey() {
         if (clientPrivateKeyAgreementKey == null) {
             clientPrivateKeyAgreementKey = parsePrivateKey(DlmsSessionProperties.CLIENT_PRIVATE_KEY_AGREEMENT_KEY);
@@ -223,6 +229,7 @@ public class T210DSecurityProvider extends NTASecurityProvider implements Genera
      */
     private PrivateKey parsePrivateKey(String propertyName) {
         PrivateKeyWrapper alias = properties.getTypedProperty(propertyName);
+        String privateKeyAlias = getClientPrivateSigningKeyLabel();
         if (alias == null) {
             throw DeviceConfigurationException.missingProperty(propertyName);
         } else {
@@ -231,7 +238,7 @@ public class T210DSecurityProvider extends NTASecurityProvider implements Genera
                 if (privateKey == null) {
                     throw DeviceConfigurationException.invalidPropertyFormat(
                             propertyName,
-                            propertyName,
+                            privateKeyAlias,
                             "The configured alias does not refer to an existing entry in the EIServer persisted key store.");
                 }
 
@@ -243,13 +250,13 @@ public class T210DSecurityProvider extends NTASecurityProvider implements Genera
                     if (privateKeyBytes.length != keySize) {
                         throw DeviceConfigurationException.invalidPropertyFormat(
                                 propertyName,
-                                "Private key with alias '" + propertyName + "'",
+                                "Private key with alias '" + privateKeyAlias + "'",
                                 "The private key should be for the " + getECCCurve().getCurveName() + " elliptic curve (DLMS security suite " + securitySuite + ")");
                     }
                 } else {
                     throw DeviceConfigurationException.invalidPropertyFormat(
                             propertyName,
-                            "Private key with alias '" + propertyName + "'",
+                            "Private key with alias '" + privateKeyAlias + "'",
                             "The private key should be for elliptic curve cryptography");
                 }
 
@@ -258,7 +265,7 @@ public class T210DSecurityProvider extends NTASecurityProvider implements Genera
             } catch (InvalidKeySpecException | BusinessException e) {
                 throw DeviceConfigurationException.invalidPropertyFormat(
                         propertyName,
-                        "Private key with alias '" + propertyName + "'",
+                        "Private key with alias '" + privateKeyAlias + "'",
                         "The private key must be a valid, PKCS8 encoded key");
             }
         }
