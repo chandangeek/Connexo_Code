@@ -117,6 +117,12 @@ public class PropertyTypeInfo {
             simplePropertyType = "UP_METERACTIVATION";
         } else if ("meterMrid".equalsIgnoreCase(getComboBoxValues(field, "param1"))) {
             simplePropertyType = "METER_MRID";
+        } else if ("metrologyConfiguration".equalsIgnoreCase(getComboBoxValues(field, "param1"))) {
+            simplePropertyType = "METROLOGYCONFIGURATION";
+        } else if ("metrologyPurposes".equalsIgnoreCase(getComboBoxValues(field, "param1"))) {
+            simplePropertyType = "METROLOGYPURPOSES";
+        } else if ("usagePointTransition".equalsIgnoreCase(getComboBoxValues(field, "param1"))) {
+            simplePropertyType = "UP_TRANSITION";
         }
     }
 
