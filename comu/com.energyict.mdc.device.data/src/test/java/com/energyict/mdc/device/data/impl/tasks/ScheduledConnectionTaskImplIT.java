@@ -20,7 +20,9 @@ import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.TaskPriorityConstants;
+import com.energyict.mdc.device.config.exceptions.NoSuchPropertyOnDialectException;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.exceptions.ConnectionTaskIsExecutingAndCannotBecomeObsoleteException;
 import com.energyict.mdc.device.data.exceptions.DuplicateConnectionTaskException;
@@ -46,6 +48,7 @@ import java.sql.SQLException;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -102,6 +105,22 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         assertThat(connectionTask.getRescheduleDelay()).isEqualTo(TimeDuration.minutes(5));
         assertThat(connectionTask.lastExecutionFailed()).isEqualTo(false);
         assertThat(connectionTask.getExecutingComServer()).isNull();
+        assertThat(connectionTask.getProtocolDialectConfigurationProperties()).isEqualTo(this.deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(0));
+    }
+
+    @Test
+    @Transactional
+    public void testCreateWithProtocolDialectPropertiesWithoutViolations() {
+        ProtocolDialectConfigurationProperties dialectProps = deviceConfiguration.findOrCreateProtocolDialectConfigurationProperties(new ConnectionTaskProtocolDialect());
+        deviceConfiguration.save();
+        this.partialConnectionInitiationTask.setProtocolDialectConfigurationProperties(dialectProps);
+
+        String name = "testCreateWithProtocolDialectPropertiesWithoutViolations";
+        ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations(name);
+
+        // Asserts
+        assertThat(connectionTask).isNotNull();
+        assertThat(connectionTask.getProtocolDialectConfigurationProperties()).isEqualTo(dialectProps);
     }
 
     @Test
@@ -125,6 +144,27 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         when(partialScheduledConnectionTask.getName()).thenReturn("testCreateOfDifferentConfig");
         when(partialScheduledConnectionTask.getConfiguration()).thenReturn(mockedDeviceConfiguration);
         when(partialScheduledConnectionTask.getPluggableClass()).thenReturn(outboundNoParamsConnectionTypePluggableClass);
+
+        ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testCreateOfDifferentConfig", partialScheduledConnectionTask);
+
+        // Business method
+        connectionTask.update();
+
+        // Asserts: see expected exception rule
+    }
+
+    @Test(expected = PartialConnectionTaskNotPartOfDeviceConfigurationException.class)
+    @Transactional
+    public void testCreateOfDifferentConfigWithDialectProperties() {
+        ProtocolDialectConfigurationProperties dialectProps = deviceConfiguration.findOrCreateProtocolDialectConfigurationProperties(new ConnectionTaskProtocolDialect());
+        DeviceConfiguration mockedDeviceConfiguration = mock(DeviceConfiguration.class);
+        when(mockedDeviceConfiguration.getProtocolDialectConfigurationPropertiesList()).thenReturn(Collections.singletonList(dialectProps));
+        PartialScheduledConnectionTask partialScheduledConnectionTask = mock(PartialScheduledConnectionTask.class);
+        when(partialScheduledConnectionTask.getId()).thenReturn(PARTIAL_SCHEDULED_CONNECTION_TASK3_ID);
+        when(partialScheduledConnectionTask.getName()).thenReturn("testCreateOfDifferentConfig");
+        when(partialScheduledConnectionTask.getConfiguration()).thenReturn(mockedDeviceConfiguration);
+        when(partialScheduledConnectionTask.getPluggableClass()).thenReturn(outboundNoParamsConnectionTypePluggableClass);
+        when(partialScheduledConnectionTask.getProtocolDialectConfigurationProperties()).thenReturn(dialectProps);
 
         ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testCreateOfDifferentConfig", partialScheduledConnectionTask);
 
@@ -380,6 +420,35 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     }
 
     @Test
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES_ARE_REQUIRED + "}")
+    @Transactional
+    public void testUpdateNullDialectProperties() {
+        this.grantAllViewAndEditPrivilegesToPrincipal();
+        partialScheduledConnectionTask.setConnectionTypePluggableClass(outboundIpConnectionTypePluggableClass);
+        partialScheduledConnectionTask.save();
+        ScheduledConnectionTaskImpl connectionTask = createASimpleScheduledConnectionTask();
+        device.save();
+
+        connectionTask.setProtocolDialectConfigurationProperties(null);
+        // Business method
+        device.save();
+    }
+
+    @Test(expected= NoSuchPropertyOnDialectException.class)
+    @Transactional
+    public void testUpdateBadDialectProperties() {
+        this.grantAllViewAndEditPrivilegesToPrincipal();
+        partialScheduledConnectionTask.setConnectionTypePluggableClass(outboundIpConnectionTypePluggableClass);
+        partialScheduledConnectionTask.save();
+        ScheduledConnectionTaskImpl connectionTask = createASimpleScheduledConnectionTask();
+        device.save();
+
+        connectionTask.setProtocolDialectConfigurationProperties(dialectConfigurationPropertiesToUpdate());
+        // Business method
+        device.save();
+    }
+
+    @Test
     @Transactional
     public void testAddIpConnectionTypeProperty() {
         this.grantAllViewAndEditPrivilegesToPrincipal();
@@ -470,7 +539,6 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
 
         // Business method
         scheduledConnectionTask.update();
-
         // See expected constraint violation rule
     }
 
@@ -635,7 +703,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Transactional
     public void createWithOffset() {
         String name = "createWithOffset";
-        PartialScheduledConnectionTask partial = deviceConfiguration.newPartialScheduledConnectionTask(name, outboundNoParamsConnectionTypePluggableClass, TimeDuration.minutes(5), ConnectionStrategy.MINIMIZE_CONNECTIONS).nextExecutionSpec().temporalExpression(TimeDuration.days(1)).set().build();
+        PartialScheduledConnectionTask partial = deviceConfiguration.newPartialScheduledConnectionTask(name, outboundNoParamsConnectionTypePluggableClass, TimeDuration.minutes(5), ConnectionStrategy.MINIMIZE_CONNECTIONS, createDialectConfigProperties()).nextExecutionSpec().temporalExpression(TimeDuration.days(1)).set().build();
         partial.save();
         // Set it to execute every week, at 01:30 (am) of the second day of the week
         TimeDuration frequency = new TimeDuration(1, TimeDuration.TimeUnit.MONTHS);

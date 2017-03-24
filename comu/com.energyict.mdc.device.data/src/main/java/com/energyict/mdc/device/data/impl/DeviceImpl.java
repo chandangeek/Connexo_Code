@@ -17,6 +17,7 @@ import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.FiniteStateMachine;
+import com.elster.jupiter.fsm.Stage;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTimeSlice;
 import com.elster.jupiter.fsm.StateTimeline;
@@ -1874,7 +1875,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         }
     }
 
-    private Optional<MeterActivation> getMeterActivation(Instant when) {
+    @Override
+    public Optional<MeterActivation> getMeterActivation(Instant when) {
         return this.getOptionalMeterAspect(meter -> meter.getMeterActivation(when).map(MeterActivation.class::cast));
     }
 
@@ -2212,6 +2214,11 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     @Override
+    public Stage getStage() {
+        return this.getState(this.clock.instant()).get().getStage().orElseThrow(() -> new IllegalStateException("Device state does not have a stage"));
+    }
+
+    @Override
     public CalendarSupport calendars() {
         return new DeviceCalendarSupport(this, this.dataModel, this.clock);
     }
@@ -2525,19 +2532,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             @Override
             RegisterImpl newRegister(DeviceImpl device, RegisterSpec registerSpec) {
                 return new TextRegisterImpl(device, (TextualRegisterSpec) registerSpec);
-            }
-        },
-
-        Billing {
-            @Override
-            boolean appliesTo(RegisterSpec registerSpec) {
-                Set<Aggregate> eventAggregates = EnumSet.of(Aggregate.AVERAGE, Aggregate.SUM, Aggregate.MAXIMUM, Aggregate.SECONDMAXIMUM, Aggregate.THIRDMAXIMUM, Aggregate.FOURTHMAXIMUM, Aggregate.FIFTHMAXIMIMUM, Aggregate.MINIMUM, Aggregate.SECONDMINIMUM);
-                return eventAggregates.contains(this.getReadingType(registerSpec).getAggregate());
-            }
-
-            @Override
-            RegisterImpl newRegister(DeviceImpl device, RegisterSpec registerSpec) {
-                return new BillingRegisterImpl(device, (NumericalRegisterSpec) registerSpec);
             }
         },
 
