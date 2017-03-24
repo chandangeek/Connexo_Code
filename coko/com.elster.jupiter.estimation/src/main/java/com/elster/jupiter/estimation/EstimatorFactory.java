@@ -4,9 +4,12 @@
 
 package com.elster.jupiter.estimation;
 
+import aQute.bnd.annotation.ConsumerType;
+
 import java.util.List;
 import java.util.Map;
 
+@ConsumerType
 public interface EstimatorFactory {
 
     List<String> available();

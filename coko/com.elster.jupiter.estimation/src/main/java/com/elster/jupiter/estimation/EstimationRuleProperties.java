@@ -4,6 +4,9 @@
 
 package com.elster.jupiter.estimation;
 
+import aQute.bnd.annotation.ProviderType;
+
+@ProviderType
 public interface EstimationRuleProperties {
     String getName();
 
