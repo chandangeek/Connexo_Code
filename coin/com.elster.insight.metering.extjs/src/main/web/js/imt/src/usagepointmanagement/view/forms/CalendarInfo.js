@@ -49,7 +49,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.CalendarInfo', {
                         id: combobox.getValue()
                     },
                     immediately: activateField.down('radiogroup').getValue()['activateCalendar' + combobox.calendarType] === 'immediate-activation',
-                    fromTime: activateField.down('radiogroup').getValue()['activateCalendar' + combobox.calendarType] === 'on-date-activation'?activateField.down('date-time').getValue():null
+                    fromTime: activateField.down('radiogroup').getValue()['activateCalendar' + combobox.calendarType] === 'on-date-activation'?activateField.down('date-time').getValue().getTime():null
                 });
             }
         });
