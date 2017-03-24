@@ -16,12 +16,13 @@ import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 
 import javax.inject.Inject;
 import java.io.IOException;
+import java.security.cert.X509Certificate;
+import java.util.Arrays;
 import java.util.Optional;
 
 public class RequestableCertificateWrapperImpl extends AbstractCertificateWrapperImpl implements RequestableCertificateWrapper {
 
     private final Thesaurus thesaurus;
-
     private byte[] csr;
 
 
@@ -48,6 +49,25 @@ public class RequestableCertificateWrapperImpl extends AbstractCertificateWrappe
     }
 
     @Override
+    public void setCertificate(X509Certificate certificate) {
+        validateCertificateMatchesCsr(certificate);
+        super.setCertificate(certificate);
+    }
+
+    private void validateCertificateMatchesCsr(X509Certificate certificate) {
+        try {
+            if (getCSR().isPresent()) {
+                if (!Arrays.equals(certificate.getPublicKey().getEncoded(),
+                        getCSR().get().getSubjectPublicKeyInfo().getEncoded())) {
+                    throw new PkiLocalizedException(thesaurus, MessageSeeds.CERTIFICATE_PUBLIC_KEY_MISMATCH);
+                }
+            }
+        } catch (IOException e) {
+            throw new PkiLocalizedException(thesaurus, MessageSeeds.CERTIFICATE_PUBLIC_KEY_MISMATCH);
+        }
+    }
+
+    @Override
     public void setCSR(PKCS10CertificationRequest csr) {
         try {
             doSetCSR(csr);
@@ -68,5 +88,10 @@ public class RequestableCertificateWrapperImpl extends AbstractCertificateWrappe
         } else {
             return this.getCSR().isPresent() ? Optional.of(TranslationKeys.REQUESTED) : Optional.empty();
         }
+    }
+
+    @Override
+    public boolean hasCsr() {
+        return getCSR().isPresent();
     }
 }

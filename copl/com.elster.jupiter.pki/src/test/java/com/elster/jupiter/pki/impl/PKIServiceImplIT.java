@@ -4,6 +4,7 @@ import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViol
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
+import com.elster.jupiter.devtools.tests.rules.Expected;
 import com.elster.jupiter.devtools.tests.rules.ExpectedExceptionRule;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.ClientCertificateWrapper;
@@ -17,6 +18,7 @@ import com.elster.jupiter.pki.PlaintextSymmetricKey;
 import com.elster.jupiter.pki.PrivateKeyWrapper;
 import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.pki.TrustedCertificate;
+import com.elster.jupiter.pki.impl.wrappers.PkiLocalizedException;
 import com.elster.jupiter.pki.impl.wrappers.asymmetric.DataVaultPrivateKeyFactory;
 import com.elster.jupiter.pki.impl.wrappers.symmetric.DataVaultSymmetricKeyFactory;
 
@@ -32,6 +34,7 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.ContentVerifierProvider;
 import org.bouncycastle.operator.DefaultDigestAlgorithmIdentifierFinder;
+import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.operator.bc.BcECContentVerifierProviderBuilder;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.bouncycastle.operator.jcajce.JcaContentVerifierProviderBuilder;
@@ -537,19 +540,80 @@ public class PKIServiceImplIT {
 
         X500NameBuilder x500NameBuilder = new X500NameBuilder();
         x500NameBuilder.addRDN(BCStyle.CN, "ComserverTlsClient");
-        PKCS10CertificationRequest pkcs10CertificationRequest = clientCertificateWrapper.getPrivateKeyWrapper()
-                .generateCSR(x500NameBuilder.build(), certificateType.getSignatureAlgorithm());
-        clientCertificateWrapper.setCSR(pkcs10CertificationRequest);
-        clientCertificateWrapper.save();
+        clientCertificateWrapper.generateCSR(x500NameBuilder.build());
 
+        Optional<ClientCertificateWrapper> reloaded = inMemoryPersistence.getPkiService()
+                .findClientCertificateWrapper("comserver-rsa");
         // Assertions
-        assertThat(clientCertificateWrapper.getCSR()).isPresent();
-        BcPKCS10CertificationRequest bcPkcs10 = new BcPKCS10CertificationRequest(clientCertificateWrapper.getCSR().get().toASN1Structure());
+        assertThat(reloaded).isPresent();
+        assertThat(reloaded.get().getCSR()).isPresent();
+        BcPKCS10CertificationRequest bcPkcs10 = new BcPKCS10CertificationRequest(reloaded.get().getCSR().get().toASN1Structure());
         assertThat(bcPkcs10.getSubject().toString()).contains("CN=ComserverTlsClient");
-        ContentVerifierProvider verifierProvider = new JcaContentVerifierProviderBuilder().build(((PlaintextPrivateKeyWrapper) clientCertificateWrapper
+        ContentVerifierProvider verifierProvider = new JcaContentVerifierProviderBuilder().build(((PlaintextPrivateKeyWrapper) reloaded.get()
                 .getPrivateKeyWrapper()).getPublicKey());
         boolean signatureValid = bcPkcs10.isSignatureValid(verifierProvider);
         assertThat(signatureValid).isTrue();
+    }
+
+    @Test
+    @Transactional
+    public void testImportCertificateForExistingCsr() throws Exception {
+        KeyType certificateType = inMemoryPersistence.getPkiService()
+                .newClientCertificateType("TLS-RSA-Import", "SHA256withRSA")
+                .RSA()
+                .keySize(1024)
+                .add();
+        KeyAccessorType certificateAccessorType = mock(KeyAccessorType.class);
+        when(certificateAccessorType.getKeyType()).thenReturn(certificateType);
+        when(certificateAccessorType.getKeyEncryptionMethod()).thenReturn("DataVault");
+
+        ClientCertificateWrapper clientCertificateWrapper = inMemoryPersistence.getPkiService().newClientCertificateWrapper(certificateAccessorType);
+        clientCertificateWrapper.setAlias("comserver-import");
+        clientCertificateWrapper.save();
+        clientCertificateWrapper.getPrivateKeyWrapper().generateValue();
+
+        X500NameBuilder x500NameBuilder = new X500NameBuilder();
+        x500NameBuilder.addRDN(BCStyle.CN, "ComserverTlsClient");
+        clientCertificateWrapper.generateCSR(x500NameBuilder.build());
+
+        X509Certificate certificate = generateCertificateFromCSR(x500NameBuilder, clientCertificateWrapper.getCSR().get().getSubjectPublicKeyInfo());
+        clientCertificateWrapper.setCertificate(certificate);
+        // Assertions
+        Optional<ClientCertificateWrapper> reloaded = inMemoryPersistence.getPkiService()
+                .findClientCertificateWrapper("comserver-import");
+        assertThat(reloaded).isPresent();
+        assertThat(reloaded.get().getCSR()).isPresent();
+        assertThat(reloaded.get().getCertificate()).isPresent();
+    }
+
+    @Test
+    @Transactional
+    @Expected(value = PkiLocalizedException.class, message = "The certificate's public key does not match the CSR")
+    public void testImportMismatchingCertificateForExistingCsr() throws Exception {
+        KeyType certificateType = inMemoryPersistence.getPkiService()
+                .newClientCertificateType("TLS-RSA-mismatch", "SHA256withRSA")
+                .RSA()
+                .keySize(1024)
+                .add();
+        KeyAccessorType certificateAccessorType = mock(KeyAccessorType.class);
+        when(certificateAccessorType.getKeyType()).thenReturn(certificateType);
+        when(certificateAccessorType.getKeyEncryptionMethod()).thenReturn("DataVault");
+
+        ClientCertificateWrapper clientCertificateWrapper = inMemoryPersistence.getPkiService().newClientCertificateWrapper(certificateAccessorType);
+        clientCertificateWrapper.setAlias("import-mismatch");
+        clientCertificateWrapper.save();
+        clientCertificateWrapper.getPrivateKeyWrapper().generateValue();
+
+        X500NameBuilder x500NameBuilder = new X500NameBuilder();
+        x500NameBuilder.addRDN(BCStyle.CN, "ComserverTlsClient");
+        clientCertificateWrapper.generateCSR(x500NameBuilder.build());
+        PKCS10CertificationRequest originalCSR = clientCertificateWrapper.getCSR().get();
+
+        clientCertificateWrapper.getPrivateKeyWrapper().generateValue(); // NEW PK !!
+        clientCertificateWrapper.generateCSR(x500NameBuilder.build()); // NEW CSR !!
+
+        X509Certificate certificate = generateCertificateFromCSR(x500NameBuilder, originalCSR.getSubjectPublicKeyInfo());
+        clientCertificateWrapper.setCertificate(certificate); // Sets Certificate for original CSR, not most recent
     }
 
     @Test
@@ -691,6 +755,21 @@ public class PKIServiceImplIT {
 
     private X509Certificate loadCertificate(String name) throws IOException, CertificateException {
         return (X509Certificate) certificateFactory.generateCertificate(CertPathValidatorTest.class.getResourceAsStream(name));
+    }
+
+    private X509Certificate generateCertificateFromCSR(X500NameBuilder x500NameBuilder, SubjectPublicKeyInfo subjectPublicKeyInfo) throws
+            NoSuchAlgorithmException,
+            NoSuchProviderException,
+            OperatorCreationException,
+            CertificateException {
+        X509v3CertificateBuilder certificateBuilder = new X509v3CertificateBuilder(x500NameBuilder.build(), BigInteger.TEN, new Date(), new Date(), x500NameBuilder.build(), subjectPublicKeyInfo);
+        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA", "BC");
+        keyPairGenerator.initialize(4096, new SecureRandom());
+        KeyPair keyPair = keyPairGenerator.generateKeyPair();
+        ContentSigner contentSigner = new JcaContentSignerBuilder("SHA256WithRSA").build(keyPair.getPrivate());
+        return new JcaX509CertificateConverter()
+                .setProvider("BC")
+                .getCertificate(certificateBuilder.build(contentSigner));
     }
 
 

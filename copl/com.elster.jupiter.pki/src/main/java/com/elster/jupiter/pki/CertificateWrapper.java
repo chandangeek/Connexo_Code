@@ -75,4 +75,14 @@ public interface CertificateWrapper extends HasDynamicPropertiesWithUpdatableVal
      * Persist changes to this object
      */
     void save();
+
+    /**
+     * returns true is this wrapper contains a CSR, false otherwise
+     */
+    boolean hasCsr();
+
+    /**
+     * returns true is this wrapper contains a private key, false otherwise
+     */
+    boolean hasPrivateKey();
 }

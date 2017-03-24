@@ -4,6 +4,8 @@
 
 package com.elster.jupiter.pki;
 
+import org.bouncycastle.asn1.x500.X500Name;
+
 /**
  * ClientCertificate differs from a regular certificate in that it can be used to proof identify, this means, a private
  * key is associated with this certificate.
@@ -23,4 +25,11 @@ public interface ClientCertificateWrapper extends RequestableCertificateWrapper 
      * @return KeyType
      */
     KeyType getKeyType();
+
+    /**
+     * Generates a CSR with provided distinguished name. The CSR is stored in the CertificateWrapper. Any existing CSR
+     * is overwritten.
+     * @param subjectDN The X500Name to be used as subject DN.
+     */
+    void generateCSR(X500Name subjectDN);
 }

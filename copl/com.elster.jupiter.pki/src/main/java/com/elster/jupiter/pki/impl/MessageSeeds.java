@@ -33,7 +33,9 @@ public enum MessageSeeds implements MessageSeed {
     INCORRECT_KEY_ENCRYTION_METHOD(1017, "IncorrectKeyEncryptionMethod", "Can not handle non-plaintext keys"),
     FAILED_TO_WRAP_WK(1018, "FailedToWrapWK", "Failed to AES wrap the WK: {0}"),
     GENERAL_KEYSTORE_FAILURE(1019, "GeneralKeystoreFailure", "The keystore could not be read: {0}"),
-    COULD_NOT_READ_KEY_USAGES(1020, "ErrorReadingKeyUsages", "Could not read key usages");
+    COULD_NOT_READ_KEY_USAGES(1020, "ErrorReadingKeyUsages", "Could not read key usages"),
+    CERTIFICATE_PUBLIC_KEY_MISMATCH(1021, "CertificateMismatchCSR", "The certificate's public key does not match the CSR"),
+    ;
     ;
 
     private final int number;
@@ -85,6 +87,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String FIELD_IS_REQUIRED = "field.required";
         public static final String NO_SUCH_ENCRYPTION_METHOD = "no.such.encryption.method";
         public static final String DUPLICATE_KEY_ENCRYPTION_REGISTRATION = "key.encryption.duplication";
+        public static final String CERTIFICATE_DOES_NOT_MATCH_CSR = "certificate.mismatch.csr";
     }
 
 }

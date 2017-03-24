@@ -14,6 +14,8 @@ import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.PrivateKeyWrapper;
 import com.elster.jupiter.properties.PropertySpecService;
 
+import org.bouncycastle.asn1.x500.X500Name;
+
 import javax.inject.Inject;
 
 public class ClientCertificateWrapperImpl extends RequestableCertificateWrapperImpl implements ClientCertificateWrapper {
@@ -57,10 +59,21 @@ public class ClientCertificateWrapperImpl extends RequestableCertificateWrapperI
     }
 
     @Override
+    public void generateCSR(X500Name subjectDN) {
+        setCSR(getPrivateKeyWrapper().generateCSR(subjectDN, getKeyType().getSignatureAlgorithm()));
+        save();
+    }
+
+    @Override
     public void delete() {
         if (privateKeyReference.isPresent()) {
             ((PrivateKeyWrapper)privateKeyReference.get()).delete();
         }
         super.delete();
+    }
+
+    @Override
+    public boolean hasPrivateKey() {
+        return true; // TODO getPrivateKey() should also be optional in case of empty holder
     }
 }

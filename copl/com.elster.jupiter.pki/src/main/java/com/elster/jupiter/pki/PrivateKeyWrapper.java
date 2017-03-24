@@ -52,7 +52,7 @@ public interface PrivateKeyWrapper extends HasDynamicPropertiesWithUpdatableValu
 
     /**
      * Generates a CSR with provided distinguished name.
-     * @param subjectDN
+     * @param subjectDN The X500Name to be used as subject DN
      */
     PKCS10CertificationRequest generateCSR(X500Name subjectDN, String signatureAlgorithm);
 

@@ -270,4 +270,13 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
         Save.action(id).save(dataModel, this);
     }
 
+    @Override
+    public boolean hasCsr() {
+        return false;
+    }
+
+    @Override
+    public boolean hasPrivateKey() {
+        return false;
+    }
 }
