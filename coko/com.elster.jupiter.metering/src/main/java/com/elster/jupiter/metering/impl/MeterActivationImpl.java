@@ -63,7 +63,7 @@ import static com.elster.jupiter.util.streams.Predicates.not;
 
 @MeterRolePartOfMetrologyConfigurationIfAny(message = "{" + MessageSeeds.Constants.METER_ROLE_NOT_IN_CONFIGURATION + "}",
         groups = {Save.Create.class, Save.Update.class})
-@MeterInCorrectStage(message = "{" + MessageSeeds.Constants.METER_NOT_IN_OPERATIONAL_STAGE + "}",
+@MeterInCorrectStage(message = "{" + PrivateMessageSeeds.Constants.METER_NOT_IN_OPERATIONAL_STAGE + "}",
         groups = {Save.Create.class, Save.Update.class})
 public final class MeterActivationImpl implements IMeterActivation {
     @SuppressWarnings("unused") // Managed by ORM

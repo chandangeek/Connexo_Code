@@ -104,6 +104,7 @@ public enum PrivateMessageSeeds implements MessageSeed {
     USAGE_POINT_ALREADY_ACTIVE_WITH_GIVEN_ROLE(7017, Constants.USAGE_POINT_ALREADY_ACTIVE_WITH_GIVEN_ROLE, "Usage point already has linked meter {0} for role {1}"),
     USAGE_POINT_INCORRECT_STAGE(7018, Constants.USAGE_POINT_INCORRECT_STAGE, "Incorrect usage point stage, should be preoperational"),
     UNSATISFIED_READING_TYPE_REQUIREMENT_FOR_METER(7019, Constants.UNSATISFIED_READING_TYPE_REQUIREMENT_FOR_METER, "Meter {0} does not provide reading types required by purpose {1}"),
+    METER_NOT_IN_OPERATIONAL_STAGE(7020, Constants.METER_NOT_IN_OPERATIONAL_STAGE, "Meter {0} is not operational"),
 
     DENOMINATOR_CANNOT_BE_ZERO(8001, Constants.DENOMINATOR_CANNOT_BE_ZERO, "Denominator cannot be 0"),
     REQUIRED_CPS_MISSING(8002, Constants.REQUIRED_CPS_MISSING, "Required custom property sets are missing"),
@@ -239,6 +240,7 @@ public enum PrivateMessageSeeds implements MessageSeed {
         public static final String USAGE_POINT_ALREADY_ACTIVE_WITH_GIVEN_ROLE = "usage.point.already.active.with.given.role";
         public static final String UNSATISFIED_TOU = "usagepoint.tou.unsatisfied";
         public static final String DENOMINATOR_CANNOT_BE_ZERO = "denominator.cannot.be.zero";
+        public static final String METER_NOT_IN_OPERATIONAL_STAGE = "meter.not.in.operational.stage";
     }
 
 }
