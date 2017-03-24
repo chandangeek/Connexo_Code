@@ -610,4 +610,32 @@ public class DataQualityOverviewFilterTest {
         // Asserts
         // exception is thrown
     }
+
+    @Test
+    public void betweenFilterLowerBoundEqualsToUpperBound() throws Exception {
+        String filter = "[{'property': 'amountOfSuspects', 'value': {'operator': 'BETWEEN', 'criteria': [1, 1]}}]";
+        JsonQueryFilter jsonQueryFilter = jsonQueryFilter(filter);
+
+        exception.expectMessage(MessageFormat.format(MessageSeeds.INVALID_OPERATOR_CRITERIA.getDefaultFormat(), "BETWEEN", "amountOfSuspects"));
+
+        // Business method
+        DataQualityOverviewFilter.AMOUNT_OF_SUSPECTS.apply(jsonQueryFilter, overviewBuilder, resourceHelper);
+
+        // Asserts
+        // exception is thrown
+    }
+
+    @Test
+    public void betweenFilterLowerBoundGreaterThanUpperBound() throws Exception {
+        String filter = "[{'property': 'amountOfSuspects', 'value': {'operator': 'BETWEEN', 'criteria': [10, 1]}}]";
+        JsonQueryFilter jsonQueryFilter = jsonQueryFilter(filter);
+
+        exception.expectMessage(MessageFormat.format(MessageSeeds.INVALID_OPERATOR_CRITERIA.getDefaultFormat(), "BETWEEN", "amountOfSuspects"));
+
+        // Business method
+        DataQualityOverviewFilter.AMOUNT_OF_SUSPECTS.apply(jsonQueryFilter, overviewBuilder, resourceHelper);
+
+        // Asserts
+        // exception is thrown
+    }
 }
