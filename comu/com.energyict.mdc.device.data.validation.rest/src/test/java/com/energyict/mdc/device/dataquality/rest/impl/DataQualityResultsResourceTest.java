@@ -19,6 +19,7 @@ import com.energyict.mdc.device.dataquality.DataQualityOverview;
 import com.energyict.mdc.device.dataquality.DataQualityOverviews;
 import com.energyict.mdc.device.dataquality.DeviceDataQualityService;
 
+import com.google.common.collect.ImmutableSet;
 import com.jayway.jsonpath.JsonModel;
 
 import javax.ws.rs.core.Response;
@@ -27,7 +28,6 @@ import java.net.URLEncoder;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -207,14 +207,14 @@ public class DataQualityResultsResourceTest extends DeviceDataQualityRestApplica
         // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
 
-        verify(overviewBuilder).of(eq(new HashSet<>(Collections.singleton(deviceType))));
-        verify(overviewBuilder).in(eq(new HashSet<>(Collections.singleton(endDeviceGroup))));
+        verify(overviewBuilder).of(eq(ImmutableSet.of(deviceType)));
+        verify(overviewBuilder).in(eq(ImmutableSet.of(endDeviceGroup)));
         verify(overviewBuilder).in(eq(Ranges.openClosed(Instant.EPOCH, Instant.EPOCH.plusSeconds(1))));
-        verify(overviewBuilder).having(new HashSet<>(Arrays.asList(
+        verify(overviewBuilder).having(ImmutableSet.of(
                 DeviceDataQualityService.ReadingQualityType.SUSPECTS,
-                DeviceDataQualityService.ReadingQualityType.ESTIMATES)));
-        verify(overviewBuilder).havingSuspectsBy(eq(Arrays.asList(validator_1)));
-        verify(overviewBuilder).havingEstimatesBy(eq(Arrays.asList(estimator_1)));
+                DeviceDataQualityService.ReadingQualityType.ESTIMATES));
+        verify(overviewBuilder).havingSuspectsBy(eq(Collections.singletonList(validator_1)));
+        verify(overviewBuilder).havingEstimatesBy(eq(Collections.singletonList(estimator_1)));
         verify(overviewBuilder).paged(11, 23);
     }
 
