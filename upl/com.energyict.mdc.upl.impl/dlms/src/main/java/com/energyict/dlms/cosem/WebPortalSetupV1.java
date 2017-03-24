@@ -12,6 +12,7 @@ import java.util.Set;
 import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.ParseUtils;
 import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.BooleanObject;
@@ -20,6 +21,7 @@ import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.TypeEnum;
 import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.dlms.axrdencoding.util.AXDRBoolean;
 import com.energyict.dlms.cosem.attributes.DLMSClassAttributes;
 import com.energyict.dlms.cosem.methods.DLMSClassMethods;
 import com.energyict.dlms.cosem.methods.NetworkInterfaceType;
@@ -713,7 +715,15 @@ public final class WebPortalSetupV1 extends AbstractCosemObject {
 		passwordData.addDataType(new OctetString(role.getName().getBytes(StandardCharsets.US_ASCII)));
 		passwordData.addDataType(new OctetString(password));
 		
-		this.methodInvoke(WebPortalMethods.CHANGE_USER_PASSWORD, passwordData);
+		final byte[] rawResponse = this.methodInvoke(WebPortalMethods.CHANGE_USER_PASSWORD, passwordData);
+		
+		if (rawResponse != null && rawResponse.length > 0) {
+			final BooleanObject response = AXDRDecoder.decode(rawResponse, BooleanObject.class);
+			
+			if (response.getState() == false) {
+				throw new IOException("Password change was rejected by the device, please check if the password conforms to the instated policy.");
+			}
+		}
 	}
 	
 	/**
