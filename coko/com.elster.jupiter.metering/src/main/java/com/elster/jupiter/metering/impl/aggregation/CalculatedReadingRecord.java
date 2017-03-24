@@ -53,14 +53,15 @@ class CalculatedReadingRecord implements BaseReadingRecord, Comparable<Calculate
 
     private String readingTypeMRID;
     private IReadingType readingType;
-    private BigDecimal rawValue;
-    private Quantity value;
-    private Timestamp localDate;
-    private Instant timestamp;
+    private BigDecimal rawValue;    // Maybe null if record was missing
+    private Quantity value;         // Maybe null if record was missing
+    private Timestamp localDate;    // Maybe null if record was missing
+    private Instant timestamp;      // Never null, even if record was missing, in that case the timestamp is taken from
     private UsagePoint usagePoint;
     private long readingQuality;
     private long count;
     private SourceChannelSet sourceChannelSet;
+    private boolean timeOfUseGap = false;
 
     @Inject
     CalculatedReadingRecord(InstantTruncaterFactory truncaterFactory, SourceChannelSetFactory sourceChannelSetFactory) {
@@ -116,10 +117,11 @@ class CalculatedReadingRecord implements BaseReadingRecord, Comparable<Calculate
      * Initializes this {@link CalculatedReadingRecord} from the specified {@link ResultSet}.
      *
      * @param resultSet The ResultSet
-     * @return The initialized AggregatedReadingRecord
+     * @return The initialized CalculatedReadingRecord
      */
     CalculatedReadingRecord init(ResultSet resultSet, Map<MeterActivationSet, List<ReadingTypeDeliverableForMeterActivationSet>> deliverablesPerMeterActivation) {
         try {
+            this.timeOfUseGap = false;
             int columnIndex = 1;
             this.readingTypeMRID = resultSet.getString(columnIndex++);
             this.rawValue = resultSet.getBigDecimal(columnIndex++);
@@ -128,13 +130,35 @@ class CalculatedReadingRecord implements BaseReadingRecord, Comparable<Calculate
             this.readingQuality = resultSet.getLong(columnIndex++);
             this.count = resultSet.getLong(columnIndex++);
             this.sourceChannelSet = sourceChannelSetFactory.parseFromString(resultSet.getString(columnIndex++));
-            if (this.count != 1) {
+            if (this.count != 1 && this.readingQuality == 0) {
                 checkCount(deliverablesPerMeterActivation);
             }
             return this;
         } catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);
         }
+    }
+
+    /**
+     * Initializes this {@link CalculatedReadingRecord}
+     * and mark it as being part of a time of use gap.
+     *
+     * @param usagePoint The UsagePoint
+     * @param readingTypeMRID The mRID of the ReadingType
+     * @param timestamp The utc timestamp
+     * @return The initialized CalculatedReadingRecord
+     */
+    CalculatedReadingRecord initAsPartOfGapAt(UsagePoint usagePoint, String readingTypeMRID, Instant timestamp) {
+        this.usagePoint = usagePoint;
+        this.timeOfUseGap = true;
+        this.readingTypeMRID = readingTypeMRID;
+        this.rawValue = null;
+        this.localDate = new java.sql.Timestamp(timestamp.toEpochMilli());
+        this.timestamp = timestamp;
+        this.readingQuality = 0;
+        this.count = 0; // Not expecting any interval when record is part of a time of use gap
+        this.sourceChannelSet = sourceChannelSetFactory.empty();
+        return this;
     }
 
     private void checkCount(Map<MeterActivationSet, List<ReadingTypeDeliverableForMeterActivationSet>> deliverablesPerMeterActivation) {
@@ -157,7 +181,8 @@ class CalculatedReadingRecord implements BaseReadingRecord, Comparable<Calculate
                                     .stream()
                                     .filter(ReadingQualityRecord::isSuspect)
                                     .findAny()
-                                    .isPresent() ? SUSPECT : MISSING;
+                                    .map(r -> SUSPECT)
+                                    .orElse(MISSING);
                 }
             }
         }
@@ -382,4 +407,13 @@ class CalculatedReadingRecord implements BaseReadingRecord, Comparable<Calculate
     SourceChannelSet getSourceChannelSet() {
         return sourceChannelSet;
     }
+
+    public boolean isPartOfTimeOfUseGap() {
+        return timeOfUseGap;
+    }
+
+    public void markAsPartOfTimeOfUseGap() {
+        this.timeOfUseGap = true;
+    }
+
 }

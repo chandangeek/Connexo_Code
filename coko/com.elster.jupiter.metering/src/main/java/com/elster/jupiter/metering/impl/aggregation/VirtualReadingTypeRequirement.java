@@ -18,9 +18,11 @@ import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.impl.ChannelContract;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.sql.SqlBuilder;
+import com.elster.jupiter.util.sql.SqlFragment;
 
 import com.google.common.collect.Range;
 
@@ -42,6 +44,7 @@ import java.util.Optional;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-02-04 (15:24)
  */
+@LiteralSql
 class VirtualReadingTypeRequirement {
 
     private final Thesaurus thesaurus;
@@ -93,7 +96,7 @@ class VirtualReadingTypeRequirement {
     }
 
     private String prettyPrintedReadingType() {
-        return " as " + this.readingTypeForSqlComment();
+        return " (" + this.readingTypeForSqlComment() + ")";
     }
 
     private String readingTypeForSqlComment() {
@@ -102,7 +105,7 @@ class VirtualReadingTypeRequirement {
             return requirement.getReadingType().getMRID();
         } else {
             PartiallySpecifiedReadingTypeRequirement requirement = (PartiallySpecifiedReadingTypeRequirement) this.requirement;
-            return requirement.getReadingTypeTemplate().toString();
+            return requirement.getReadingTypeTemplate().attributeValues();
         }
     }
 
@@ -133,11 +136,9 @@ class VirtualReadingTypeRequirement {
         sqlBuilder.append(", ");
         sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.RECORDTIME.fieldSpecName());
         sqlBuilder.append(", ");
-        this.appendAggregatedReadingQualitySubQuery(sqlBuilder);
-        sqlBuilder.append(" AS ");
         sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.READINGQUALITY.sqlName());
         sqlBuilder.append(", ");
-        sqlBuilder.append("'" + this.getPreferredChannel().getId() + "'");
+        sqlBuilder.addLong(this.getPreferredChannel().getId());
         sqlBuilder.append(" AS ");
         sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.SOURCECHANNELS.sqlName());
         sqlBuilder.append(", ");
@@ -160,13 +161,7 @@ class VirtualReadingTypeRequirement {
         int providedTimeOfUseBucket = preferredChannel.getMainReadingType().getTou();
         if (providedTimeOfUseBucket == requestedTimeOfUseBucket) {
             // Note that this also supports the case where time of use is not requested (i.e. both are zero)
-            sqlBuilder.add(
-                    this.getPreferredChannel()
-                            .getTimeSeries()
-                            .getRawValuesSql(
-                                    this.rawDataPeriod,
-                                    this.toFieldSpecAndAliasNamePair(SqlConstants.TimeSeriesColumnNames.VALUE),
-                                    this.toFieldSpecAndAliasNamePair(SqlConstants.TimeSeriesColumnNames.LOCALDATE)));
+            sqlBuilder.add(this.timeSeriesWithReadingQualitiesSqlBuilder(this.getPreferredChannel().getTimeSeries()));
         } else if (requestedTimeOfUseBucket != 0 && providedTimeOfUseBucket == 0) {
             // Requested but not provided so use calendar at the appropriate interval
             if (this.calendar == null) {
@@ -180,11 +175,10 @@ class VirtualReadingTypeRequirement {
                                     this.targetReadingType.getIntervalLength().toTemporalAmount(),
                                     preferredChannel.getZoneId())
                             .joinSql(
-                                preferredChannel.getTimeSeries(),
+                                this.timeSeriesWithReadingQualitiesSqlBuilder(preferredChannel.getTimeSeries()),
+                                "ts",
                                 new EventFromReadingType(this.targetReadingType),
-                                this.rawDataPeriod,
-                                this.toFieldSpecAndAliasNamePair(SqlConstants.TimeSeriesColumnNames.VALUE),
-                                this.toFieldSpecAndAliasNamePair(SqlConstants.TimeSeriesColumnNames.LOCALDATE)));
+                                this.rawDataPeriod));
         } else {
             /* One of the following erroneous conditions:
              * 1. Not requested but time of use bucket is provided
@@ -193,6 +187,45 @@ class VirtualReadingTypeRequirement {
             Loggers.SQL.severe(() -> "Inconsistency between time of use bucket requested by deliverable (name=" + this.deliverable.getName() + ", id=" + this.deliverable.getId() + ") and time of use bucket provided by the preferred channel. Requested " + requestedTimeOfUseBucket + " but got " + providedTimeOfUseBucket);
             throw new TimeOfUseBucketInconsitencyException(this.thesaurus, requestedTimeOfUseBucket, providedTimeOfUseBucket, this.deliverable, this.usagePoint, this.rawDataPeriod);
         }
+    }
+
+    private SqlBuilder timeSeriesWithReadingQualitiesSqlBuilder(TimeSeries timeSeries) {
+        return this.timeSeriesWithReadingQualitiesSqlBuilder(
+                timeSeries,
+                timeSeries.getRawValuesSql(
+                    this.rawDataPeriod,
+                    this.toFieldSpecAndAliasNamePair(SqlConstants.TimeSeriesColumnNames.VALUE),
+                    this.toFieldSpecAndAliasNamePair(SqlConstants.TimeSeriesColumnNames.LOCALDATE)));
+    }
+
+    private SqlBuilder timeSeriesWithReadingQualitiesSqlBuilder(TimeSeries timeSeries, SqlFragment timeSeriesSql) {
+        SqlBuilder builder = new SqlBuilder("SELECT NLV(rawts.");
+        builder.append(SqlConstants.TimeSeriesColumnNames.ID.fieldSpecName());
+        builder.append(", ");
+        builder.addLong(timeSeries.getId());
+        builder.append(") as ");
+        builder.append(SqlConstants.TimeSeriesColumnNames.ID.fieldSpecName());
+        builder.append(", NVL(rawts.");
+        builder.append(SqlConstants.TimeSeriesColumnNames.TIMESTAMP.fieldSpecName());
+        builder.append(", rq.readingtimestamp) as ");
+        builder.append(SqlConstants.TimeSeriesColumnNames.TIMESTAMP.fieldSpecName());
+        builder.append(", rawts.");
+        builder.append(SqlConstants.TimeSeriesColumnNames.VERSIONCOUNT.fieldSpecName());
+        builder.append(", rawts.");
+        builder.append(SqlConstants.TimeSeriesColumnNames.RECORDTIME.fieldSpecName());
+        builder.append(", rawts.");
+        builder.append(SqlConstants.TimeSeriesColumnNames.LOCALDATE.fieldSpecName());
+        builder.append(", rawts.");
+        builder.append(SqlConstants.TimeSeriesColumnNames.VALUE.fieldSpecName());
+        builder.append(", NVL(rq.");
+        builder.append(SqlConstants.TimeSeriesColumnNames.VALUE.sqlName());
+        builder.append(", 0) as ");
+        builder.append(SqlConstants.TimeSeriesColumnNames.READINGQUALITY.sqlName());
+        builder.append(" FROM (");
+        builder.add(timeSeriesSql);
+        builder.append(") rawts");
+        this.appendAggregatedReadingQuality(builder);
+        return builder;
     }
 
     @SuppressWarnings("unchecked")
@@ -206,11 +239,9 @@ class VirtualReadingTypeRequirement {
         sqlBuilder.append(", ");
         sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.RECORDTIME.fieldSpecName());
         sqlBuilder.append(", ");
-        this.appendAggregatedReadingQualitySubQuery(sqlBuilder);
-        sqlBuilder.append(" AS ");
         sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.READINGQUALITY.sqlName());
         sqlBuilder.append(", ");
-        sqlBuilder.append("'" + this.getPreferredChannel().getId() + "'");
+        sqlBuilder.addLong(this.getPreferredChannel().getId());
         sqlBuilder.append(" AS ");
         sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.SOURCECHANNELS.sqlName());
         sqlBuilder.append(", ");
@@ -228,19 +259,20 @@ class VirtualReadingTypeRequirement {
         sqlBuilder.append(tempSqlName());
     }
 
-    private void appendAggregatedReadingQualitySubQuery(SqlBuilder sqlBuilder) {
-        sqlBuilder.append("(SELECT nvl(max(case");
-        sqlBuilder.append(" when type like '%.5.258' then " + CalculatedReadingRecord.SUSPECT);
-        sqlBuilder.append(" when type like '%.5.259' then " + CalculatedReadingRecord.MISSING);
-        sqlBuilder.append(" else " + CalculatedReadingRecord.ESTIMATED_EDITED);
-        sqlBuilder.append(" end), 0)");
-        sqlBuilder.append(" FROM mtr_readingquality where readingtype = '");
+    private void appendAggregatedReadingQuality(SqlBuilder sqlBuilder) {
+        sqlBuilder.append(" FULL OUTER JOIN (SELECT readingtimestamp, MAX(CASE");
+        sqlBuilder.append(" WHEN TYPE LIKE '%.5.258' THEN " + CalculatedReadingRecord.SUSPECT);
+        sqlBuilder.append(" WHEN TYPE LIKE '%.5.259' THEN " + CalculatedReadingRecord.MISSING);
+        sqlBuilder.append(" ELSE " + CalculatedReadingRecord.ESTIMATED_EDITED);
+        sqlBuilder.append(" END) AS ");
+        sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.VALUE.sqlName());
+        sqlBuilder.append(" FROM mtr_readingquality WHERE readingtype = '");
         sqlBuilder.append(this.getPreferredChannel().getMainReadingType().getMRID());
-        sqlBuilder.append("' and readingtimestamp = ");
-        sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.TIMESTAMP.fieldSpecName());
-        sqlBuilder.append(" and channelid = ");
-        sqlBuilder.append("" + this.getPreferredChannel().getId());
-        sqlBuilder.append(" and (type like '%.5.258' or type like '%.5.259' or type like '%.7.%' or type like '%.8.%'))");
+        sqlBuilder.append(" AND channelid = ");
+        sqlBuilder.addLong(this.getPreferredChannel().getId());
+        sqlBuilder.append(" AND (TYPE LIKE '%.5.258' OR TYPE LIKE '%.5.259' OR TYPE LIKE '%.7.%' OR TYPE LIKE '%.8.%')");
+        sqlBuilder.append(" GROUP BY readingtimestamp) rq");
+        sqlBuilder.append(" ON rawts.utcstamp = rq.readingtimestamp");
     }
 
     @SuppressWarnings("unchecked")
@@ -252,10 +284,12 @@ class VirtualReadingTypeRequirement {
          * it does not really matter if the value of the localdate column
          * is not actually the local version of the register reading's timestamp. */
         sqlBuilder.append("SELECT ts.*, sysdate as " + SqlConstants.TimeSeriesColumnNames.LOCALDATE.sqlName() + " FROM (");
-        sqlBuilder.add(timeSeries
-                        .getRawValuesSql(
+        sqlBuilder.add(
+                this.timeSeriesWithReadingQualitiesSqlBuilder(
+                        timeSeries,
+                        timeSeries.getRawValuesSql(
                                 this.rawDataPeriod,
-                                this.toFieldSpecAndAliasNamePair(SqlConstants.TimeSeriesColumnNames.VALUE)));
+                                this.toFieldSpecAndAliasNamePair(SqlConstants.TimeSeriesColumnNames.VALUE))));
         sqlBuilder.append(") ts");
     }
 

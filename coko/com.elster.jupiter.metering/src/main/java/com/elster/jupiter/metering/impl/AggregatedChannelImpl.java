@@ -396,7 +396,7 @@ public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel
         private final BaseReadingRecord record;
         private final Channel persistedChannel;
 
-        public CalculatedReadingRecordImpl(Channel persistedChannel, BaseReadingRecord record) {
+        CalculatedReadingRecordImpl(Channel persistedChannel, BaseReadingRecord record) {
             this.record = record;
             this.persistedChannel = persistedChannel;
         }

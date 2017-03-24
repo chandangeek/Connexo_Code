@@ -26,6 +26,10 @@ public class SourceChannelSetFactory {
         }
     }
 
+    public SourceChannelSet empty() {
+        return new SourceChannelSet(meteringService, Collections.emptySet());
+    }
+
     private Set<Long> parseListOfLongs(String value, String separator) {
         if (value != null) {
             return Stream.of(value.split(separator)).map(Long::parseLong).collect(Collectors.toSet());

@@ -46,13 +46,18 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Clock;
 import java.time.Instant;
+import java.time.Year;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -65,6 +70,7 @@ import java.util.stream.Stream;
  */
 public class DataAggregationServiceImpl implements ServerDataAggregationService {
 
+    private volatile Clock clock;
     private volatile CalendarService calendarService;
     private volatile ServerMeteringService meteringService;
     private volatile InstantTruncaterFactory truncaterFactory;
@@ -75,7 +81,7 @@ public class DataAggregationServiceImpl implements ServerDataAggregationService 
     private ReadingTypeDeliverableForMeterActivationFactory readingTypeDeliverableForMeterActivationFactory;
 
     public DataAggregationServiceImpl(MeteringDataModelService meteringDataModelService, InstantTruncaterFactory truncaterFactory, SourceChannelSetFactory sourceChannelSetFactory) {
-        this(meteringDataModelService.getCalendarService(), SqlBuilderFactoryImpl::new, () -> new VirtualFactoryImpl(meteringDataModelService), () -> new ReadingTypeDeliverableForMeterActivationFactoryImpl(meteringDataModelService.getMeteringService()));
+        this(meteringDataModelService.getClock(), meteringDataModelService.getCalendarService(), SqlBuilderFactoryImpl::new, () -> new VirtualFactoryImpl(meteringDataModelService), () -> new ReadingTypeDeliverableForMeterActivationFactoryImpl(meteringDataModelService.getMeteringService()));
         this.meteringService = meteringDataModelService.getMeteringService();
         this.truncaterFactory = truncaterFactory;
         this.sourceChannelSetFactory = sourceChannelSetFactory;
@@ -84,15 +90,16 @@ public class DataAggregationServiceImpl implements ServerDataAggregationService 
 
     // For testing purposes only
     @Inject
-    public DataAggregationServiceImpl(CalendarService calendarService, CustomPropertySetService customPropertySetService, ServerMeteringService meteringService, InstantTruncaterFactory truncaterFactory, Provider<SqlBuilderFactory> sqlBuilderFactoryProvider, Provider<VirtualFactory> virtualFactoryProvider, Provider<ReadingTypeDeliverableForMeterActivationFactory> readingTypeDeliverableForMeterActivationFactoryProvider) {
-        this(calendarService, sqlBuilderFactoryProvider, virtualFactoryProvider, readingTypeDeliverableForMeterActivationFactoryProvider);
+    public DataAggregationServiceImpl(Clock clock, CalendarService calendarService, CustomPropertySetService customPropertySetService, ServerMeteringService meteringService, InstantTruncaterFactory truncaterFactory, Provider<SqlBuilderFactory> sqlBuilderFactoryProvider, Provider<VirtualFactory> virtualFactoryProvider, Provider<ReadingTypeDeliverableForMeterActivationFactory> readingTypeDeliverableForMeterActivationFactoryProvider) {
+        this(clock, calendarService, sqlBuilderFactoryProvider, virtualFactoryProvider, readingTypeDeliverableForMeterActivationFactoryProvider);
         this.meteringService = meteringService;
         this.truncaterFactory = truncaterFactory;
         this.customPropertySetService = customPropertySetService;
     }
 
-    private DataAggregationServiceImpl(CalendarService calendarService, Provider<SqlBuilderFactory> sqlBuilderFactoryProvider, Provider<VirtualFactory> virtualFactoryProvider, Provider<ReadingTypeDeliverableForMeterActivationFactory> readingTypeDeliverableForMeterActivationFactoryProvider) {
+    private DataAggregationServiceImpl(Clock clock, CalendarService calendarService, Provider<SqlBuilderFactory> sqlBuilderFactoryProvider, Provider<VirtualFactory> virtualFactoryProvider, Provider<ReadingTypeDeliverableForMeterActivationFactory> readingTypeDeliverableForMeterActivationFactoryProvider) {
         super();
+        this.clock = clock;
         this.calendarService = calendarService;
         this.sqlBuilderFactory = sqlBuilderFactoryProvider.get();
         this.virtualFactoryProvider = virtualFactoryProvider;
@@ -387,8 +394,76 @@ public class DataAggregationServiceImpl implements ServerDataAggregationService 
         }
     }
 
-    private CalculatedMetrologyContractData postProcess(UsagePoint usagePoint, MetrologyContract contract, Range<Instant> period, Map<ReadingType, List<CalculatedReadingRecord>> calculatedReadingRecords) {
-        return new CalculatedMetrologyContractDataImpl(usagePoint, contract, period, calculatedReadingRecords, this.truncaterFactory, this.sourceChannelSetFactory);
+    private CalculatedMetrologyContractData postProcess(ServerUsagePoint usagePoint, MetrologyContract contract, Range<Instant> period, Map<ReadingType, List<CalculatedReadingRecord>> calculatedReadingRecords) {
+        MetrologyContractCalculationIntrospector introspector = this.introspect(usagePoint, contract, period);
+        Map<ReadingType, List<CalculatedReadingRecord>> withMissings = this.addMissings(calculatedReadingRecords, introspector, period);
+        return new CalculatedMetrologyContractDataImpl(usagePoint, contract, period, withMissings, this.truncaterFactory, this.sourceChannelSetFactory);
+    }
+
+    private Map<ReadingType, List<CalculatedReadingRecord>> addMissings(Map<ReadingType, List<CalculatedReadingRecord>> readingRecords, MetrologyContractCalculationIntrospector introspector, Range<Instant> period) {
+        Map<ReadingType, List<CalculatedReadingRecord>> withMissings = new HashMap<>();
+        readingRecords
+                .entrySet()
+                .forEach(readingTypeAndRecords ->
+                        withMissings
+                            .put(
+                                readingTypeAndRecords.getKey(),
+                                this.addMissings(readingTypeAndRecords, introspector, period)));
+        return withMissings;
+    }
+
+    private List<CalculatedReadingRecord> addMissings(Map.Entry<ReadingType, List<CalculatedReadingRecord>> readingTypeAndRecords, MetrologyContractCalculationIntrospector introspector, Range<Instant> period) {
+        List<CalculatedReadingRecord> withMissings = new ArrayList<>(readingTypeAndRecords.getValue());
+        ZoneId zoneId = introspector.getUsagePoint().getZoneId();
+        Year startYear = this.getStartYear(period, zoneId);
+        Year endYear = this.getEndYear(period, zoneId);
+        List<ZonedCalendarUsage> calendarUsages =
+                introspector
+                    .getMetrologyContract()
+                    .getDeliverables()
+                    .stream()
+                    .filter(deliverable -> deliverable.getReadingType().equals(readingTypeAndRecords.getKey()))
+                    .findAny()
+                    .map(introspector::getCalendarUsagesFor)
+                    .orElseGet(Collections::emptyList)
+                    .stream()
+                    .map(calendarUsage -> new ZonedCalendarUsage(zoneId, startYear, endYear, calendarUsage))
+                    .collect(Collectors.toList());
+        IntervalLength
+                .from(readingTypeAndRecords.getKey())
+                .toTimeSeries(period, zoneId)
+                .forEach(timestamp ->
+                        this.findCalendarUsage(calendarUsages, timestamp)
+                            .ifPresent(zcu -> withMissings.add(
+                                    this.addMissing(
+                                            introspector.getUsagePoint(),
+                                            readingTypeAndRecords.getKey().getMRID(),
+                                            timestamp))));
+        return withMissings;
+    }
+
+    private Year getStartYear(Range<Instant> period, ZoneId zoneId) {
+        if (period.hasLowerBound()) {
+            return Year.from(period.lowerEndpoint().atZone(zoneId));
+        } else {
+            return Year.now(this.clock);
+        }
+    }
+
+    private Year getEndYear(Range<Instant> period, ZoneId zoneId) {
+        if (period.hasUpperBound()) {
+            return Year.from(period.upperEndpoint().atZone(zoneId));
+        } else {
+            return Year.now(this.clock).plusYears(1);
+        }
+    }
+
+    private Optional<ZonedCalendarUsage> findCalendarUsage(List<ZonedCalendarUsage> calendarUsages, Instant timestamp) {
+        return calendarUsages.stream().filter(each -> each.contains(timestamp)).findAny();
+    }
+
+    private CalculatedReadingRecord addMissing(UsagePoint usagePoint, String readingTypeMRID, Instant timeStamp) {
+        return this.getDataModel().getInstance(CalculatedReadingRecord.class).initAsPartOfGapAt(usagePoint, readingTypeMRID, timeStamp);
     }
 
     private DataModel getDataModel() {

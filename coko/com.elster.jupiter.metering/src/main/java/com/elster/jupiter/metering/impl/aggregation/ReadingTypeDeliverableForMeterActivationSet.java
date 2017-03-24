@@ -11,6 +11,7 @@ import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.impl.ChannelContract;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
+import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
@@ -38,6 +39,7 @@ import static com.elster.jupiter.metering.impl.aggregation.DataSourceTableFactor
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-02-05 (09:46)
  */
+@LiteralSql
 class ReadingTypeDeliverableForMeterActivationSet {
 
     private final ServerMeteringService meteringService;
