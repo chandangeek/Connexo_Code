@@ -137,7 +137,19 @@ public interface PkiService {
      */
     ClientCertificateWrapper newClientCertificateWrapper(KeyAccessorType clientCertificateAccessorType);
 
+    /**
+     * Returns the client certificate known by the provided alias
+     * @param alias
+     * @return The {@link ClientCertificateWrapper} known by the alias, empty if not found
+     */
     Optional<ClientCertificateWrapper> findClientCertificateWrapper(String alias);
+
+    /**
+     * Returns the CertificateWrapper known by the provided alias, no tust store is searched by this method
+     * @param alias The certificate's alias
+     * @return The {@link CertificateWrapper} known by the alias, empty if not found.
+     */
+    Optional<CertificateWrapper> findCertificateWrapper(String alias);
 
     /**
      * Returns all non-trusted certificates, that means, all certificates for the 'certificate store'

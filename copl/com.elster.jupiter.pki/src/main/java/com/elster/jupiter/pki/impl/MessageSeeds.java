@@ -33,6 +33,7 @@ public enum MessageSeeds implements MessageSeed {
     INCORRECT_KEY_ENCRYTION_METHOD(1017, "IncorrectKeyEncryptionMethod", "Can not handle non-plaintext keys"),
     FAILED_TO_WRAP_WK(1018, "FailedToWrapWK", "Failed to AES wrap the WK: {0}"),
     GENERAL_KEYSTORE_FAILURE(1019, "GeneralKeystoreFailure", "The keystore could not be read: {0}"),
+    COULD_NOT_READ_KEY_USAGES(1020, "ErrorReadingKeyUsages", "Could not read key usages");
     ;
 
     private final int number;

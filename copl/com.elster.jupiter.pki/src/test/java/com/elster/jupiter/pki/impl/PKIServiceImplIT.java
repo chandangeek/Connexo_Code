@@ -346,6 +346,10 @@ public class PKIServiceImplIT {
         assertThat(certificates.get(0).getCertificate()).isPresent();
         assertThat(certificates.get(0).getCertificate().get().getIssuerDN().getName()).isEqualTo("CN=MyRootCA, OU=SmartEnergy, O=Honeywell, L=Kortrijk, ST=Vlaanderen, C=BE");
         assertThat(certificates.get(0).getCertificate().get().getSubjectDN().getName()).isEqualTo("CN=MyRootCA, OU=SmartEnergy, O=Honeywell, L=Kortrijk, ST=Vlaanderen, C=BE");
+
+        assertThat(certificates.get(0).getStatus()).isEqualTo(TranslationKeys.PRESENT.getDefaultFormat());
+        assertThat(certificates.get(0).getAllKeyUsages()).isPresent();
+        assertThat(certificates.get(0).getAllKeyUsages().get()).isEmpty();
     }
 
     @Test
@@ -398,6 +402,21 @@ public class PKIServiceImplIT {
         assertThat(reloaded).isPresent();
         TrustedCertificate trustedCertificateReloaded = reloaded.get().getCertificates().get(0);
         assertThat(trustedCertificateReloaded.getCRL()).isPresent();
+    }
+
+    @Test
+    @Transactional
+    public void testImportCertificate() throws Exception {
+        X509Certificate certificate = loadCertificate("bvn.cert");
+        CertificateWrapper certificateWrapper = inMemoryPersistence.getPkiService().newCertificateWrapper("bvn");
+        certificateWrapper.setCertificate(certificate);
+
+        Optional<CertificateWrapper> reloaded = inMemoryPersistence.getPkiService().findCertificateWrapper("bvn");
+        assertThat(reloaded).isPresent();
+        assertThat(reloaded.get().getCertificate()).isPresent();
+        assertThat(reloaded.get().getStatus()).isEqualTo("Present");
+        assertThat(reloaded.get().getAllKeyUsages()).isPresent();
+        assertThat(reloaded.get().getAllKeyUsages().get()).contains("digitalSignature", "keyAgreement", "tlsWebServerAuthentication", "tlsWebClientAuthentication");
     }
 
     @Test

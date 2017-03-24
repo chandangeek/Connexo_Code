@@ -29,7 +29,6 @@ import com.elster.jupiter.pki.impl.wrappers.certificate.RequestableCertificateWr
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
-import com.elster.jupiter.util.conditions.Where;
 
 import com.google.inject.AbstractModule;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -51,6 +50,8 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static com.elster.jupiter.util.conditions.Where.where;
 
 /**
  * Created by bvn on 1/26/17.
@@ -298,9 +299,21 @@ public class PkiServiceImpl implements PkiService {
     }
 
     @Override
+    public Optional<CertificateWrapper> findCertificateWrapper(String alias) {
+        List<CertificateWrapper> certificateWrappers = getDataModel().
+                query(CertificateWrapper.class).
+                select(where(ClientCertificateWrapperImpl.Fields.ALIAS.fieldName()).isEqualTo(alias).
+                        and(where("class").in(Arrays.asList(AbstractCertificateWrapperImpl.CERTIFICATE_DISCRIMINATOR, AbstractCertificateWrapperImpl.CLIENT_CERTIFICATE_DISCRIMINATOR))));
+        if (certificateWrappers.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(certificateWrappers.get(0)); // There should only be one
+    }
+
+    @Override
     public Finder<CertificateWrapper> findAllCertificates() {
         return DefaultFinder.of(CertificateWrapper.class,
-                Where.where("class").in(Arrays.asList(AbstractCertificateWrapperImpl.CERTIFICATE_DISCRIMINATOR, AbstractCertificateWrapperImpl.CLIENT_CERTIFICATE_DISCRIMINATOR)),
+                where("class").in(Arrays.asList(AbstractCertificateWrapperImpl.CERTIFICATE_DISCRIMINATOR, AbstractCertificateWrapperImpl.CLIENT_CERTIFICATE_DISCRIMINATOR)),
                 getDataModel());
     }
 

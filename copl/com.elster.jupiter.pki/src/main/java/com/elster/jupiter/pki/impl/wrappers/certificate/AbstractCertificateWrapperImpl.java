@@ -9,6 +9,8 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.pki.CertificateWrapper;
+import com.elster.jupiter.pki.ExtendedKeyUsage;
+import com.elster.jupiter.pki.KeyUsage;
 import com.elster.jupiter.pki.impl.MessageSeeds;
 import com.elster.jupiter.pki.impl.TranslationKeys;
 import com.elster.jupiter.pki.impl.UniqueAlias;
@@ -16,6 +18,7 @@ import com.elster.jupiter.pki.impl.wrappers.PkiLocalizedException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableMap;
 
 import javax.validation.constraints.Size;
@@ -24,7 +27,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
+import java.security.cert.CertificateExpiredException;
 import java.security.cert.CertificateFactory;
+import java.security.cert.CertificateNotYetValidException;
+import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
 import java.time.Instant;
 import java.util.EnumSet;
@@ -127,6 +133,76 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
         } catch (CertificateEncodingException e) {
             throw new PkiLocalizedException(thesaurus, MessageSeeds.CERTIFICATE_ENCODING_EXCEPTION, e);
         }
+    }
+
+    @Override
+    public String getStatus() {
+        return getInternalStatus().map(tk -> thesaurus.getFormat(tk).format()).orElse("");
+    }
+
+    /**
+     * Method can be implemented by sub-classes if they wish to override/extend status
+     * @return
+     */
+    protected Optional<TranslationKeys> getInternalStatus() {
+        if (this.getCertificate().isPresent()) {
+            try {
+                getCertificate().get().checkValidity();
+                return Optional.of(TranslationKeys.PRESENT);
+            } catch (CertificateExpiredException e) {
+                return Optional.of(TranslationKeys.EXPIRED);
+            } catch (CertificateNotYetValidException e) {
+                return Optional.of(TranslationKeys.NOT_YET_VALID);
+            }
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    @Override
+    public Optional<String> getAllKeyUsages() {
+        try {
+            if (!this.getCertificate().isPresent()) {
+                return Optional.empty();
+            }
+            return Optional.of(doAllGetKeyUsages(this.getCertificate().get()));
+        } catch (CertificateParsingException e) {
+            throw new PkiLocalizedException(thesaurus, MessageSeeds.COULD_NOT_READ_KEY_USAGES);
+        }
+    }
+
+    private String doAllGetKeyUsages(X509Certificate x509Certificate) throws CertificateParsingException {
+        String joinedKeyUsages = doGetKeyUsages(x509Certificate);
+        String joinedExtendedKeyUsages = doGetExtendedKeyUsages(x509Certificate);
+        if (joinedExtendedKeyUsages.isEmpty()) {
+            return joinedKeyUsages;
+        } else {
+            return joinedKeyUsages+joinedExtendedKeyUsages;
+        }
+    }
+
+    private String doGetExtendedKeyUsages(X509Certificate x509Certificate) throws CertificateParsingException {
+        if (x509Certificate.getExtendedKeyUsage()!=null) {
+            return x509Certificate.getExtendedKeyUsage()
+                    .stream()
+                    .map(ExtendedKeyUsage::byOid)
+                    .map(Optional::get)
+                    .map(Enum::name)
+                    .reduce("", (a, b) -> a + ", " + b);
+        }
+        return "";
+    }
+
+    private String doGetKeyUsages(X509Certificate x509Certificate) {
+        EnumSet<KeyUsage> keyUsages = EnumSet.noneOf(KeyUsage.class);
+        if (x509Certificate.getKeyUsage()!=null) {
+            for (int index = 0; index < x509Certificate.getKeyUsage().length; index++) {
+                if (x509Certificate.getKeyUsage()[index]) {
+                    KeyUsage.byBitPosition(index).ifPresent(keyUsages::add);
+                }
+            }
+        }
+        return Joiner.on(", ").join(keyUsages);
     }
 
     @Override

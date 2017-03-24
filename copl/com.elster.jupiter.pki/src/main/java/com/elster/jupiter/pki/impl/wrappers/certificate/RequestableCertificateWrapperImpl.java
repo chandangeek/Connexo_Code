@@ -8,6 +8,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.pki.RequestableCertificateWrapper;
 import com.elster.jupiter.pki.impl.MessageSeeds;
+import com.elster.jupiter.pki.impl.TranslationKeys;
 import com.elster.jupiter.pki.impl.wrappers.PkiLocalizedException;
 import com.elster.jupiter.properties.PropertySpecService;
 
@@ -59,4 +60,13 @@ public class RequestableCertificateWrapperImpl extends AbstractCertificateWrappe
         this.csr = csr.getEncoded();
     }
 
+    @Override
+    protected Optional<TranslationKeys> getInternalStatus() {
+        Optional<TranslationKeys> internalStatus = super.getInternalStatus();
+        if (internalStatus.isPresent()) {
+            return internalStatus;
+        } else {
+            return this.getCSR().isPresent() ? Optional.of(TranslationKeys.REQUESTED) : Optional.empty();
+        }
+    }
 }

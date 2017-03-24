@@ -35,4 +35,8 @@ public enum ExtendedKeyUsage {
     public static Optional<ExtendedKeyUsage> byBitPosition(int bitPosition) {
         return Arrays.asList(values()).stream().filter(keyUsage -> keyUsage.bitPosition == bitPosition).findAny();
     }
+
+    public static Optional<ExtendedKeyUsage> byOid(String OID) {
+        return Arrays.asList(values()).stream().filter(keyUsage -> keyUsage.keyPurposeId.toOID().getId().equals(OID)).findAny();
+    }
 }

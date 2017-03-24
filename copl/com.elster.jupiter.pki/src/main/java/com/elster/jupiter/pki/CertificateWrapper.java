@@ -49,6 +49,19 @@ public interface CertificateWrapper extends HasDynamicPropertiesWithUpdatableVal
     Optional<Instant> getExpirationTime();
 
     /**
+     * If the wrapper contains a Certificate, this method will return a comma-separated list of key usages, containing both
+     * basic and extended key usages. If the wrapper does not contain a Certifictate, it will return Optional.empty
+     * @return comma-separated list of key usages, empty() is no certificate is contained.
+     */
+    Optional<String> getAllKeyUsages();
+
+    /**
+     * Status describes the content of the wrapper. Currently 3 statuses are defined: Requested, Available and Expired
+     * @return CertificateWrapper status.
+     */
+    String getStatus();
+
+    /**
      * Sets a value for the certificate. Any existing value will be overridden.
      */
     void setCertificate(X509Certificate certificate);
