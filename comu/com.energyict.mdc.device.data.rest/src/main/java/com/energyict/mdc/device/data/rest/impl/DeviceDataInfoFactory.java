@@ -393,7 +393,7 @@ public class DeviceDataInfoFactory {
         addCommonRegisterInfo(register, registerInfo, topologyService);
         RegisterSpec registerSpec = register.getRegisterSpec();
         registerInfo.numberOfFractionDigits = ((NumericalRegisterSpec) registerSpec).getNumberOfFractionDigits();
-        registerInfo.overruledNumberOfFractionDigits = ((NumericalRegisterSpec) registerSpec).getNumberOfFractionDigits();
+        registerInfo.overruledNumberOfFractionDigits = register.getNumberOfFractionDigits();
         ((NumericalRegisterSpec) registerSpec).getOverflowValue().ifPresent(overflow -> registerInfo.overflow = overflow);
         registerInfo.useMultiplier = ((NumericalRegisterSpec) registerSpec).isUseMultiplier();
         register.getOverflow().ifPresent(overruledOverflowValue -> registerInfo.overruledOverflow = overruledOverflowValue);
