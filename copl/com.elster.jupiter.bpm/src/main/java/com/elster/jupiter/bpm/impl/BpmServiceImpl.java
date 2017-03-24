@@ -50,8 +50,6 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -224,14 +222,7 @@ public final class BpmServiceImpl implements BpmService, TranslationKeyProvider,
                 JSONObject jsnobject = new JSONObject(jsonContent);
                 arr = jsnobject.getJSONArray("processDefinitionList");
             }
-        } catch (JSONException e) {
-            throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE)
-                    .entity(errorInvalidMessage)
-                    .build());
-        } catch (RuntimeException e) {
-            throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE)
-                    .entity(errorNotFoundMessage)
-                    .build());
+        } catch (JSONException | RuntimeException ignored) {
         }
         if (arr != null) {
             for(int i = 0; i < arr.length(); i++) {
