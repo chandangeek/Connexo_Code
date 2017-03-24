@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.metering.impl.aggregation;
 
+import com.elster.jupiter.calendar.Event;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ProcessStatus;
@@ -11,6 +12,7 @@ import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.aggregation.CalculatedReadingRecord;
 import com.elster.jupiter.metering.impl.IReadingType;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.util.units.Quantity;
@@ -42,7 +44,7 @@ import static com.elster.jupiter.util.streams.Currying.test;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-02-11 (11:17)
  */
-class CalculatedReadingRecord implements BaseReadingRecord, Comparable<CalculatedReadingRecord> {
+class CalculatedReadingRecordImpl implements CalculatedReadingRecord {
 
     static final int SUSPECT = 4;
     static final int MISSING = 3;
@@ -61,10 +63,10 @@ class CalculatedReadingRecord implements BaseReadingRecord, Comparable<Calculate
     private long readingQuality;
     private long count;
     private SourceChannelSet sourceChannelSet;
-    private boolean timeOfUseGap = false;
+    private Optional<Event> timeOfUseEvent;
 
     @Inject
-    CalculatedReadingRecord(InstantTruncaterFactory truncaterFactory, SourceChannelSetFactory sourceChannelSetFactory) {
+    CalculatedReadingRecordImpl(InstantTruncaterFactory truncaterFactory, SourceChannelSetFactory sourceChannelSetFactory) {
         super();
         this.truncaterFactory = truncaterFactory;
         this.sourceChannelSetFactory = sourceChannelSetFactory;
@@ -75,7 +77,7 @@ class CalculatedReadingRecord implements BaseReadingRecord, Comparable<Calculate
         return this.getTimeStamp().compareTo(other.getTimeStamp());
     }
 
-    static CalculatedReadingRecord merge(CalculatedReadingRecord r1, CalculatedReadingRecord r2, Instant mergedTimestamp, InstantTruncaterFactory truncaterFactory, SourceChannelSetFactory sourceChannelSetFactory) {
+    static CalculatedReadingRecordImpl merge(CalculatedReadingRecordImpl r1, CalculatedReadingRecordImpl r2, Instant mergedTimestamp, InstantTruncaterFactory truncaterFactory, SourceChannelSetFactory sourceChannelSetFactory) {
         if (!r1.readingTypeMRID.equals(r2.readingTypeMRID)) {
             throw new IllegalArgumentException("Cannot merge two CalculatedReadingRecords with different reading type");
         }
@@ -86,7 +88,7 @@ class CalculatedReadingRecord implements BaseReadingRecord, Comparable<Calculate
             if (r1.readingType == null) {
                 throw new IllegalStateException("CalculatedReadingRecords can only be merged if ReadingType was injected first: see com.elster.jupiter.metering.impl.aggregation.CalculatedReadingRecord.setReadingType");
             }
-            CalculatedReadingRecord merged = new CalculatedReadingRecord(truncaterFactory, sourceChannelSetFactory);
+            CalculatedReadingRecordImpl merged = new CalculatedReadingRecordImpl(truncaterFactory, sourceChannelSetFactory);
             merged.readingTypeMRID = r1.readingTypeMRID;
             merged.readingType = r1.readingType;
             merged.rawValue = mergeValue(VirtualReadingType.from(r1.readingType).aggregationFunction(), r1.rawValue, r2.rawValue);
@@ -114,14 +116,14 @@ class CalculatedReadingRecord implements BaseReadingRecord, Comparable<Calculate
     }
 
     /**
-     * Initializes this {@link CalculatedReadingRecord} from the specified {@link ResultSet}.
+     * Initializes this {@link CalculatedReadingRecordImpl} from the specified {@link ResultSet}.
      *
      * @param resultSet The ResultSet
      * @return The initialized CalculatedReadingRecord
      */
-    CalculatedReadingRecord init(ResultSet resultSet, Map<MeterActivationSet, List<ReadingTypeDeliverableForMeterActivationSet>> deliverablesPerMeterActivation) {
+    CalculatedReadingRecordImpl init(ResultSet resultSet, Map<MeterActivationSet, List<ReadingTypeDeliverableForMeterActivationSet>> deliverablesPerMeterActivation) {
         try {
-            this.timeOfUseGap = false;
+            this.timeOfUseEvent = Optional.empty();
             int columnIndex = 1;
             this.readingTypeMRID = resultSet.getString(columnIndex++);
             this.rawValue = resultSet.getBigDecimal(columnIndex++);
@@ -140,17 +142,18 @@ class CalculatedReadingRecord implements BaseReadingRecord, Comparable<Calculate
     }
 
     /**
-     * Initializes this {@link CalculatedReadingRecord}
+     * Initializes this {@link CalculatedReadingRecordImpl}
      * and mark it as being part of a time of use gap.
      *
      * @param usagePoint The UsagePoint
      * @param readingTypeMRID The mRID of the ReadingType
      * @param timestamp The utc timestamp
+     * @param event The Event
      * @return The initialized CalculatedReadingRecord
      */
-    CalculatedReadingRecord initAsPartOfGapAt(UsagePoint usagePoint, String readingTypeMRID, Instant timestamp) {
+    CalculatedReadingRecordImpl initAsPartOfGapAt(UsagePoint usagePoint, String readingTypeMRID, Instant timestamp, Event event) {
         this.usagePoint = usagePoint;
-        this.timeOfUseGap = true;
+        this.timeOfUseEvent = Optional.of(event);
         this.readingTypeMRID = readingTypeMRID;
         this.rawValue = null;
         this.localDate = new java.sql.Timestamp(timestamp.toEpochMilli());
@@ -198,8 +201,8 @@ class CalculatedReadingRecord implements BaseReadingRecord, Comparable<Calculate
      * @param timeStamp The Timestamp
      * @return The copied CalculatedReadingRecord that occurs on the specified timestamp
      */
-    CalculatedReadingRecord atTimeStamp(Instant timeStamp) {
-        CalculatedReadingRecord record = new CalculatedReadingRecord(this.truncaterFactory, this.sourceChannelSetFactory);
+    CalculatedReadingRecordImpl atTimeStamp(Instant timeStamp) {
+        CalculatedReadingRecordImpl record = new CalculatedReadingRecordImpl(this.truncaterFactory, this.sourceChannelSetFactory);
         record.usagePoint = this.usagePoint;
         record.rawValue = this.rawValue;
         record.readingTypeMRID = this.readingTypeMRID;
@@ -408,12 +411,14 @@ class CalculatedReadingRecord implements BaseReadingRecord, Comparable<Calculate
         return sourceChannelSet;
     }
 
+    @Override
     public boolean isPartOfTimeOfUseGap() {
-        return timeOfUseGap;
+        return this.timeOfUseEvent.isPresent();
     }
 
-    public void markAsPartOfTimeOfUseGap() {
-        this.timeOfUseGap = true;
+    @Override
+    public Optional<Event> getTimeOfUseEvent() {
+        return this.timeOfUseEvent;
     }
 
 }

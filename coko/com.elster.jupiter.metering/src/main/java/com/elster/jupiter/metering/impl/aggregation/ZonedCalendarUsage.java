@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.metering.impl.aggregation;
 
+import com.elster.jupiter.calendar.Event;
 import com.elster.jupiter.calendar.impl.ServerCalendar;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.aggregation.MetrologyContractCalculationIntrospector;
@@ -37,8 +38,8 @@ class ZonedCalendarUsage {
         return this.calendarUsage.getRange().contains(timestamp);
     }
 
-    boolean differentTimeOfUse(Instant timestamp, int timeOfUse) {
-        return this.zonedView.eventFor(timestamp).getCode() != timeOfUse;
+    Event eventFor(Instant timestamp) {
+        return this.zonedView.eventFor(timestamp);
     }
 
 }

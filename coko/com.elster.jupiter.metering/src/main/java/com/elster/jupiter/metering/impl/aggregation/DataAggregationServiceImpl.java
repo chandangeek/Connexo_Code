@@ -6,6 +6,7 @@ package com.elster.jupiter.metering.impl.aggregation;
 
 import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.calendar.Category;
+import com.elster.jupiter.calendar.Event;
 import com.elster.jupiter.calendar.OutOfTheBoxCategory;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.metering.MeterActivation;
@@ -386,7 +387,7 @@ public class DataAggregationServiceImpl implements ServerDataAggregationService 
                 .forEach(each -> each.appendDefinitionTo(sqlBuilder));
     }
 
-    private Map<ReadingType, List<CalculatedReadingRecord>> execute(SqlBuilder sqlBuilder, Map<MeterActivationSet, List<ReadingTypeDeliverableForMeterActivationSet>> deliverablesPerMeterActivation) throws SQLException {
+    private Map<ReadingType, List<CalculatedReadingRecordImpl>> execute(SqlBuilder sqlBuilder, Map<MeterActivationSet, List<ReadingTypeDeliverableForMeterActivationSet>> deliverablesPerMeterActivation) throws SQLException {
         try (Connection connection = this.getDataModel().getConnection(true)) {
             try (PreparedStatement statement = sqlBuilder.prepare(connection)) {
                 return this.execute(statement, deliverablesPerMeterActivation);
@@ -394,14 +395,14 @@ public class DataAggregationServiceImpl implements ServerDataAggregationService 
         }
     }
 
-    private CalculatedMetrologyContractData postProcess(ServerUsagePoint usagePoint, MetrologyContract contract, Range<Instant> period, Map<ReadingType, List<CalculatedReadingRecord>> calculatedReadingRecords) {
+    private CalculatedMetrologyContractData postProcess(ServerUsagePoint usagePoint, MetrologyContract contract, Range<Instant> period, Map<ReadingType, List<CalculatedReadingRecordImpl>> calculatedReadingRecords) {
         MetrologyContractCalculationIntrospector introspector = this.introspect(usagePoint, contract, period);
-        Map<ReadingType, List<CalculatedReadingRecord>> withMissings = this.addMissings(calculatedReadingRecords, introspector, period);
+        Map<ReadingType, List<CalculatedReadingRecordImpl>> withMissings = this.addMissings(calculatedReadingRecords, introspector, period);
         return new CalculatedMetrologyContractDataImpl(usagePoint, contract, period, withMissings, this.truncaterFactory, this.sourceChannelSetFactory);
     }
 
-    private Map<ReadingType, List<CalculatedReadingRecord>> addMissings(Map<ReadingType, List<CalculatedReadingRecord>> readingRecords, MetrologyContractCalculationIntrospector introspector, Range<Instant> period) {
-        Map<ReadingType, List<CalculatedReadingRecord>> withMissings = new HashMap<>();
+    private Map<ReadingType, List<CalculatedReadingRecordImpl>> addMissings(Map<ReadingType, List<CalculatedReadingRecordImpl>> readingRecords, MetrologyContractCalculationIntrospector introspector, Range<Instant> period) {
+        Map<ReadingType, List<CalculatedReadingRecordImpl>> withMissings = new HashMap<>();
         readingRecords
                 .entrySet()
                 .forEach(readingTypeAndRecords ->
@@ -412,8 +413,8 @@ public class DataAggregationServiceImpl implements ServerDataAggregationService 
         return withMissings;
     }
 
-    private List<CalculatedReadingRecord> addMissings(Map.Entry<ReadingType, List<CalculatedReadingRecord>> readingTypeAndRecords, MetrologyContractCalculationIntrospector introspector, Range<Instant> period) {
-        List<CalculatedReadingRecord> withMissings = new ArrayList<>(readingTypeAndRecords.getValue());
+    private List<CalculatedReadingRecordImpl> addMissings(Map.Entry<ReadingType, List<CalculatedReadingRecordImpl>> readingTypeAndRecords, MetrologyContractCalculationIntrospector introspector, Range<Instant> period) {
+        List<CalculatedReadingRecordImpl> withMissings = new ArrayList<>(readingTypeAndRecords.getValue());
         ZoneId zoneId = introspector.getUsagePoint().getZoneId();
         Year startYear = this.getStartYear(period, zoneId);
         Year endYear = this.getEndYear(period, zoneId);
@@ -463,19 +464,21 @@ public class DataAggregationServiceImpl implements ServerDataAggregationService 
         return calendarUsages.stream().filter(each -> each.contains(timestamp)).findAny();
     }
 
-    private void addMissingIfDifferentTimeOfUse(ZonedCalendarUsage calendarUsage, ReadingType readingType, Instant timestamp, List<CalculatedReadingRecord> readingRecords) {
+    private void addMissingIfDifferentTimeOfUse(ZonedCalendarUsage calendarUsage, ReadingType readingType, Instant timestamp, List<CalculatedReadingRecordImpl> readingRecords) {
         int tou = readingType.getTou();
-        if (calendarUsage.differentTimeOfUse(timestamp, tou)) {
+        Event event = calendarUsage.eventFor(timestamp);
+        if (event.getCode() != tou) {
             readingRecords.add(
                     this.addMissing(
                             calendarUsage.getUsagePoint(),
                             readingType.getMRID(),
-                            timestamp));
+                            timestamp,
+                            event));
         }
     }
 
-    private CalculatedReadingRecord addMissing(UsagePoint usagePoint, String readingTypeMRID, Instant timeStamp) {
-        return this.getDataModel().getInstance(CalculatedReadingRecord.class).initAsPartOfGapAt(usagePoint, readingTypeMRID, timeStamp);
+    private CalculatedReadingRecordImpl addMissing(UsagePoint usagePoint, String readingTypeMRID, Instant timeStamp, Event event) {
+        return this.getDataModel().getInstance(CalculatedReadingRecordImpl.class).initAsPartOfGapAt(usagePoint, readingTypeMRID, timeStamp, event);
     }
 
     private DataModel getDataModel() {
@@ -486,7 +489,7 @@ public class DataAggregationServiceImpl implements ServerDataAggregationService 
         return this.meteringService.getThesaurus();
     }
 
-    private Map<ReadingType, List<CalculatedReadingRecord>> execute(PreparedStatement statement, Map<MeterActivationSet, List<ReadingTypeDeliverableForMeterActivationSet>> deliverablesPerMeterActivation) throws SQLException {
+    private Map<ReadingType, List<CalculatedReadingRecordImpl>> execute(PreparedStatement statement, Map<MeterActivationSet, List<ReadingTypeDeliverableForMeterActivationSet>> deliverablesPerMeterActivation) throws SQLException {
         try (ResultSet resultSet = statement.executeQuery()) {
             return this.getDataModel().getInstance(CalculatedReadingRecordFactory.class).consume(resultSet, deliverablesPerMeterActivation);
         }

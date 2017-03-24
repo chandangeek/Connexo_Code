@@ -46,7 +46,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * Tests the {@link CalculatedReadingRecord} component.
+ * Tests the {@link CalculatedReadingRecordImpl} component.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-02-26 (14:31)
@@ -90,7 +90,7 @@ public class CalculatedReadingRecordTest {
 
     @Test
     public void initOnly() throws SQLException {
-        CalculatedReadingRecord testInstance = this.testInstance();
+        CalculatedReadingRecordImpl testInstance = this.testInstance();
         when(this.resultSet.getString(1)).thenReturn(FIFTEEN_MINS_NET_CONSUMPTION_MRID);
         BigDecimal expectedValue = BigDecimal.TEN;
         Quantity expectedQuantity = Quantity.create(expectedValue, 3, "Wh");
@@ -129,7 +129,7 @@ public class CalculatedReadingRecordTest {
 
     @Test(expected = UnderlyingSQLFailedException.class)
     public void sqlExceptionIsWrapped() throws SQLException {
-        CalculatedReadingRecord testInstance = this.testInstance();
+        CalculatedReadingRecordImpl testInstance = this.testInstance();
         doThrow(SQLException.class).when(this.resultSet).getString(anyInt());
         doThrow(SQLException.class).when(this.resultSet).getTimestamp(anyInt());
         doThrow(SQLException.class).when(this.resultSet).getBigDecimal(anyInt());
@@ -143,7 +143,7 @@ public class CalculatedReadingRecordTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void setDifferentReadingType() throws SQLException {
-        CalculatedReadingRecord testInstance = this.testInstance();
+        CalculatedReadingRecordImpl testInstance = this.testInstance();
         when(this.resultSet.getString(1)).thenReturn(FIFTEEN_MINS_NET_CONSUMPTION_MRID);
         BigDecimal expectedValue = BigDecimal.TEN;
         when(this.resultSet.getBigDecimal(2)).thenReturn(expectedValue);
@@ -163,24 +163,24 @@ public class CalculatedReadingRecordTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testMergeDifferentReadingType() throws SQLException {
-        CalculatedReadingRecord r1 = this.newTestInstance("13.0.0.4.4.2.12.0.0.0.0.0.0.0.0.3.72.0");
-        CalculatedReadingRecord r2 = this.newTestInstance("0.0.2.4.4.2.12.0.0.0.0.0.0.0.0.3.72.0");
+        CalculatedReadingRecordImpl r1 = this.newTestInstance("13.0.0.4.4.2.12.0.0.0.0.0.0.0.0.3.72.0");
+        CalculatedReadingRecordImpl r2 = this.newTestInstance("0.0.2.4.4.2.12.0.0.0.0.0.0.0.0.3.72.0");
 
         // Business method
-        CalculatedReadingRecord.merge(r1, r2, Instant.now(), new InstantTruncaterFactory(this.meteringService), new SourceChannelSetFactory(this.meteringService));
+        CalculatedReadingRecordImpl.merge(r1, r2, Instant.now(), new InstantTruncaterFactory(this.meteringService), new SourceChannelSetFactory(this.meteringService));
 
         // Asserts: see expected exception rule
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testMergeDifferentUsagePoint() throws SQLException {
-        CalculatedReadingRecord r1 = this.newTestInstance("0.0.2.4.4.2.12.0.0.0.0.0.0.0.0.3.72.0");
+        CalculatedReadingRecordImpl r1 = this.newTestInstance("0.0.2.4.4.2.12.0.0.0.0.0.0.0.0.3.72.0");
         r1.setUsagePoint(mock(UsagePoint.class));
-        CalculatedReadingRecord r2 = this.newTestInstance("0.0.2.4.4.2.12.0.0.0.0.0.0.0.0.3.72.0");
+        CalculatedReadingRecordImpl r2 = this.newTestInstance("0.0.2.4.4.2.12.0.0.0.0.0.0.0.0.3.72.0");
         r2.setUsagePoint(mock(UsagePoint.class));
 
         // Business method
-        CalculatedReadingRecord.merge(r1, r2, Instant.now(), new InstantTruncaterFactory(this.meteringService), new SourceChannelSetFactory(this.meteringService));
+        CalculatedReadingRecordImpl.merge(r1, r2, Instant.now(), new InstantTruncaterFactory(this.meteringService), new SourceChannelSetFactory(this.meteringService));
 
         // Asserts: see expected exception rule
     }
@@ -188,13 +188,13 @@ public class CalculatedReadingRecordTest {
     @Test(expected = IllegalStateException.class)
     public void testMergeWithoutReadingType() throws SQLException {
         UsagePoint usagePoint = mock(UsagePoint.class);
-        CalculatedReadingRecord r1 = this.newTestInstance("0.0.2.4.4.2.12.0.0.0.0.0.0.0.0.3.72.0");
+        CalculatedReadingRecordImpl r1 = this.newTestInstance("0.0.2.4.4.2.12.0.0.0.0.0.0.0.0.3.72.0");
         r1.setUsagePoint(usagePoint);
-        CalculatedReadingRecord r2 = this.newTestInstance("0.0.2.4.4.2.12.0.0.0.0.0.0.0.0.3.72.0");
+        CalculatedReadingRecordImpl r2 = this.newTestInstance("0.0.2.4.4.2.12.0.0.0.0.0.0.0.0.3.72.0");
         r2.setUsagePoint(usagePoint);
 
         // Business method
-        CalculatedReadingRecord.merge(r1, r2, Instant.now(), new InstantTruncaterFactory(this.meteringService), new SourceChannelSetFactory(this.meteringService));
+        CalculatedReadingRecordImpl.merge(r1, r2, Instant.now(), new InstantTruncaterFactory(this.meteringService), new SourceChannelSetFactory(this.meteringService));
 
         // Asserts: see expected exception rule
     }
@@ -209,16 +209,16 @@ public class CalculatedReadingRecordTest {
         when(readingType.getMultiplier()).thenReturn(MetricMultiplier.KILO);
         when(readingType.getUnit()).thenReturn(ReadingTypeUnit.WATTHOUR);
         Instant old = Instant.ofEpochSecond(86400L);
-        CalculatedReadingRecord r1 = this.newTestInstance(readingTypeMRID, 97L, 4L, 101L, old, "1001");   // One day
+        CalculatedReadingRecordImpl r1 = this.newTestInstance(readingTypeMRID, 97L, 4L, 101L, old, "1001");   // One day
         r1.setReadingType(readingType);
         r1.setUsagePoint(usagePoint);
         Instant moreRecent = Instant.ofEpochSecond(172800L);
-        CalculatedReadingRecord r2 = this.newTestInstance(readingTypeMRID, 3L, 3L, 99L, moreRecent, "1002");    // Two days
+        CalculatedReadingRecordImpl r2 = this.newTestInstance(readingTypeMRID, 3L, 3L, 99L, moreRecent, "1002");    // Two days
         r2.setReadingType(readingType);
         r2.setUsagePoint(usagePoint);
 
         // Business method
-        CalculatedReadingRecord merged = CalculatedReadingRecord.merge(r1, r2, moreRecent, new InstantTruncaterFactory(this.meteringService), new SourceChannelSetFactory(this.meteringService));
+        CalculatedReadingRecordImpl merged = CalculatedReadingRecordImpl.merge(r1, r2, moreRecent, new InstantTruncaterFactory(this.meteringService), new SourceChannelSetFactory(this.meteringService));
 
         // Asserts
         assertThat(merged.getReadingType()).isEqualTo(readingType);
@@ -239,16 +239,16 @@ public class CalculatedReadingRecordTest {
         when(readingType.getMultiplier()).thenReturn(MetricMultiplier.KILO);
         when(readingType.getUnit()).thenReturn(ReadingTypeUnit.WATTHOUR);
         Instant recent = Instant.ofEpochSecond(172800L);
-        CalculatedReadingRecord r1 = this.newTestInstance(readingTypeMRID, 97L, 4L, 101L, recent, "1001");   // Two days (reading quality 4 = suspect)
+        CalculatedReadingRecordImpl r1 = this.newTestInstance(readingTypeMRID, 97L, 4L, 101L, recent, "1001");   // Two days (reading quality 4 = suspect)
         r1.setReadingType(readingType);
         r1.setUsagePoint(usagePoint);
         Instant old = Instant.ofEpochSecond(86400L);
-        CalculatedReadingRecord r2 = this.newTestInstance(readingTypeMRID, 3L, 1L, 99L, old, "1001");    // One day (reading quality 3 = missing)
+        CalculatedReadingRecordImpl r2 = this.newTestInstance(readingTypeMRID, 3L, 1L, 99L, old, "1001");    // One day (reading quality 3 = missing)
         r2.setReadingType(readingType);
         r2.setUsagePoint(usagePoint);
 
         // Business method
-        CalculatedReadingRecord merged = CalculatedReadingRecord.merge(r1, r2, recent, new InstantTruncaterFactory(this.meteringService), new SourceChannelSetFactory(this.meteringService));
+        CalculatedReadingRecordImpl merged = CalculatedReadingRecordImpl.merge(r1, r2, recent, new InstantTruncaterFactory(this.meteringService), new SourceChannelSetFactory(this.meteringService));
 
         // Asserts
         assertThat(merged.getReadingType()).isEqualTo(readingType);
@@ -270,12 +270,12 @@ public class CalculatedReadingRecordTest {
         when(readingType.getUnit()).thenReturn(ReadingTypeUnit.WATTHOUR);
         Instant may1st2016 = Instant.ofEpochMilli(1462053600000L);
         Instant june1st2016 = Instant.ofEpochMilli(1464732000000L);
-        CalculatedReadingRecord r1 = this.newTestInstance(readingTypeMRID, 97L, 3L, 1L, may1st2016, "1001");
+        CalculatedReadingRecordImpl r1 = this.newTestInstance(readingTypeMRID, 97L, 3L, 1L, may1st2016, "1001");
         r1.setReadingType(readingType);
         r1.setUsagePoint(usagePoint);
 
         // Business method
-        CalculatedReadingRecord may = r1.atTimeStamp(june1st2016);
+        CalculatedReadingRecordImpl may = r1.atTimeStamp(june1st2016);
 
         // Asserts
         assertThat(may.getReadingType()).isEqualTo(readingType);
@@ -284,19 +284,19 @@ public class CalculatedReadingRecordTest {
         assertThat(may.getSourceChannelSet().getSourceChannelIds()).containsOnly(1001L);
     }
 
-    private CalculatedReadingRecord testInstance() {
+    private CalculatedReadingRecordImpl testInstance() {
         return this.newTestInstance();
     }
 
-    private CalculatedReadingRecord newTestInstance() {
-        return new CalculatedReadingRecord(new InstantTruncaterFactory(this.meteringService), new SourceChannelSetFactory(this.meteringService));
+    private CalculatedReadingRecordImpl newTestInstance() {
+        return new CalculatedReadingRecordImpl(new InstantTruncaterFactory(this.meteringService), new SourceChannelSetFactory(this.meteringService));
     }
 
-    private CalculatedReadingRecord newTestInstance(String readingTypeMRID) throws SQLException {
+    private CalculatedReadingRecordImpl newTestInstance(String readingTypeMRID) throws SQLException {
         return this.newTestInstance(readingTypeMRID, 0, 0, 0, Instant.now(), "1");
     }
 
-    private CalculatedReadingRecord newTestInstance(String readingTypeMRID, long value, long readingQuality, long count, Instant now, String sourceChannels) throws SQLException {
+    private CalculatedReadingRecordImpl newTestInstance(String readingTypeMRID, long value, long readingQuality, long count, Instant now, String sourceChannels) throws SQLException {
         ResultSet resultSet = mock(ResultSet.class);
         when(resultSet.next()).thenReturn(true, false);
         when(resultSet.getString(1)).thenReturn(readingTypeMRID);

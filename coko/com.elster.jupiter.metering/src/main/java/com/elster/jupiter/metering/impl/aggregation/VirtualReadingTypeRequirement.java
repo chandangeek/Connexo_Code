@@ -261,9 +261,9 @@ class VirtualReadingTypeRequirement {
 
     private void appendAggregatedReadingQuality(SqlBuilder sqlBuilder) {
         sqlBuilder.append(" FULL OUTER JOIN (SELECT readingtimestamp, MAX(CASE");
-        sqlBuilder.append(" WHEN TYPE LIKE '%.5.258' THEN " + CalculatedReadingRecord.SUSPECT);
-        sqlBuilder.append(" WHEN TYPE LIKE '%.5.259' THEN " + CalculatedReadingRecord.MISSING);
-        sqlBuilder.append(" ELSE " + CalculatedReadingRecord.ESTIMATED_EDITED);
+        sqlBuilder.append(" WHEN TYPE LIKE '%.5.258' THEN " + CalculatedReadingRecordImpl.SUSPECT);
+        sqlBuilder.append(" WHEN TYPE LIKE '%.5.259' THEN " + CalculatedReadingRecordImpl.MISSING);
+        sqlBuilder.append(" ELSE " + CalculatedReadingRecordImpl.ESTIMATED_EDITED);
         sqlBuilder.append(" END) AS ");
         sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.VALUE.sqlName());
         sqlBuilder.append(" FROM mtr_readingquality WHERE readingtype = '");

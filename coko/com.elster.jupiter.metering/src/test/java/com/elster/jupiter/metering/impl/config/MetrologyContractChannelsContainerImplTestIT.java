@@ -22,6 +22,7 @@ import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.aggregation.CalculatedMetrologyContractData;
+import com.elster.jupiter.metering.aggregation.CalculatedReadingRecord;
 import com.elster.jupiter.metering.aggregation.DataAggregationService;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
@@ -197,7 +198,7 @@ public class MetrologyContractChannelsContainerImplTestIT {
                 .select(where("metrologyConfiguration").isEqualTo(metrologyConfiguration).and(where("usagePoint").isEqualTo(usagePoint)))
                 .get(0);
 
-        BaseReadingRecord baseReading = mock(BaseReadingRecord.class);
+        CalculatedReadingRecord baseReading = mock(CalculatedReadingRecord.class);
         CalculatedMetrologyContractData calculatedMetrologyContractData = mock(CalculatedMetrologyContractData.class);
         doReturn(Collections.singletonList(baseReading)).when(calculatedMetrologyContractData).getCalculatedDataFor(readingTypeDeliverable);
         when(baseReading.getTimeStamp()).thenReturn(installationTime.plus(Duration.ofMinutes(15)));
@@ -263,7 +264,7 @@ public class MetrologyContractChannelsContainerImplTestIT {
                 .select(where("metrologyConfiguration").isEqualTo(metrologyConfiguration).and(where("usagePoint").isEqualTo(usagePoint)))
                 .get(0);
 
-        BaseReadingRecord baseReading = mock(BaseReadingRecord.class);
+        CalculatedReadingRecord baseReading = mock(CalculatedReadingRecord.class);
         CalculatedMetrologyContractData calculatedMetrologyContractData = mock(CalculatedMetrologyContractData.class);
         doReturn(Collections.singletonList(baseReading)).when(calculatedMetrologyContractData).getCalculatedDataFor(readingTypeDeliverable);
         when(baseReading.getTimeStamp()).thenReturn(Instant.EPOCH.plus(1, ChronoUnit.DAYS));

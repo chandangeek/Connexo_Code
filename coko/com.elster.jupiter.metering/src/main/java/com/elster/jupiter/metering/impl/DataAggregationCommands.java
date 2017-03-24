@@ -11,6 +11,7 @@ import com.elster.jupiter.metering.MultiplierType;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.aggregation.CalculatedMetrologyContractData;
+import com.elster.jupiter.metering.aggregation.CalculatedReadingRecord;
 import com.elster.jupiter.metering.aggregation.DataAggregationService;
 import com.elster.jupiter.metering.aggregation.MetrologyContractCalculationIntrospector;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
@@ -136,7 +137,7 @@ public class DataAggregationCommands {
             Instant start = ZonedDateTime.ofInstant(Instant.parse(startDate + "T00:00:00Z"), ZoneOffset.UTC).withZoneSameLocal(ZoneId.systemDefault()).toInstant();
             CalculatedMetrologyContractData data = this.dataAggregationService.calculate(usagePoint, contract, Range.openClosed(start, Instant.now(this.clock)));
 
-            List<? extends BaseReadingRecord> dataForDeliverable = data.getCalculatedDataFor(deliverable);
+            List<CalculatedReadingRecord> dataForDeliverable = data.getCalculatedDataFor(deliverable);
             System.out.println("records found for deliverable:" + dataForDeliverable.size());
             context.commit();
         }
@@ -202,7 +203,7 @@ public class DataAggregationCommands {
 
             CalculatedMetrologyContractData data = dataAggregationService.calculate(usagePoint, contract, period);
 
-            List<? extends BaseReadingRecord> dataForDeliverable = data.getCalculatedDataFor(deliverable);
+            List<CalculatedReadingRecord> dataForDeliverable = data.getCalculatedDataFor(deliverable);
             dataForDeliverable.forEach(this::showReading);
             System.out.println("records found for deliverable:" + dataForDeliverable.size());
             context.commit();
@@ -269,21 +270,26 @@ public class DataAggregationCommands {
         return new NoSuchElementException("Deliverable not found on contract");
     }
 
-    private void showReading(BaseReadingRecord readingRecord) {
+    private void showReading(CalculatedReadingRecord readingRecord) {
         DateTimeFormatter formatter =
                 DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)
                         .withLocale(Locale.UK)
                         .withZone(ZoneId.systemDefault());
 
-        List<? extends ReadingQualityRecord> qualities = readingRecord.getReadingQualities();
-        Range<Instant> range = readingRecord.getTimePeriod().get();
-        if (qualities.isEmpty()) {
+        if (readingRecord.isPartOfTimeOfUseGap()) {
             System.out.println(
-                    formatter.format(readingRecord.getTimeStamp()) + " in " + range + " : " + readingRecord.getValue());
+                    formatter.format(readingRecord.getTimeStamp()) + " time of use gap (event code= " + readingRecord.getTimeOfUseEvent().get().getCode() + ")");
         } else {
-            System.out.println(
-                    formatter.format(readingRecord.getTimeStamp()) + " in " + range + " : " + readingRecord.getValue()
-                    + " , " + ReadingQuality.getReadingQuality(qualities.get(0).getType().getCode()).toString());
+            List<? extends ReadingQualityRecord> qualities = readingRecord.getReadingQualities();
+            Range<Instant> range = readingRecord.getTimePeriod().get();
+            if (qualities.isEmpty()) {
+                System.out.println(
+                        formatter.format(readingRecord.getTimeStamp()) + " in " + range + " : " + readingRecord.getValue());
+            } else {
+                System.out.println(
+                        formatter.format(readingRecord.getTimeStamp()) + " in " + range + " : " + readingRecord.getValue()
+                                + " , " + ReadingQuality.getReadingQuality(qualities.get(0).getType().getCode()).toString());
+            }
         }
     }
 
