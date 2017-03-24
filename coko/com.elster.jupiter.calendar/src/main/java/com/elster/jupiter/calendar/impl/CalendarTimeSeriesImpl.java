@@ -7,7 +7,6 @@ package com.elster.jupiter.calendar.impl;
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.CalendarTimeSeries;
 import com.elster.jupiter.calendar.Event;
-import com.elster.jupiter.ids.TimeSeries;
 import com.elster.jupiter.ids.TimeSeriesEntry;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.sql.SqlBuilder;
@@ -87,12 +86,18 @@ class CalendarTimeSeriesImpl implements CalendarTimeSeries {
 
     @Override
     @SuppressWarnings("unchecked")
-    public SqlFragment joinSql(TimeSeries timeSeries, Event event, Range<Instant> interval, Pair<String, String>... fieldSpecAndAliasNames) {
-        SqlBuilder builder = new SqlBuilder("SELECT ts.* FROM (");
+    public SqlFragment joinSql(SqlFragment sqlFragment, String sqlAliasName, Event event, Range<Instant> interval) {
+        SqlBuilder builder = new SqlBuilder("SELECT ");
+        builder.append(sqlAliasName);
+        builder.append(".* FROM (");
         builder.add(this.entity.timeSeries().getRawValuesSql(interval, Pair.of(FIELD_SPEC_CODE_NAME, "Value")));
-        builder.append(") cal, (");
-        builder.add(timeSeries.getRawValuesSql(interval, fieldSpecAndAliasNames));
-        builder.append(") ts WHERE cal.utcstamp = ts.utcstamp and cal.value = ");
+        builder.append(") cal JOIN (");
+        builder.add(sqlFragment);
+        builder.append(") ");
+        builder.append(sqlAliasName);
+        builder.append(" ON cal.utcstamp = ");
+        builder.append(sqlAliasName);
+        builder.append(".utcstamp WHERE cal.value = ");
         builder.addLong(event.getCode());
         return builder;
     }

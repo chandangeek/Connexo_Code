@@ -4,8 +4,6 @@
 
 package com.elster.jupiter.calendar;
 
-import com.elster.jupiter.ids.TimeSeries;
-import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.sql.SqlFragment;
 
 import aQute.bnd.annotation.ProviderType;
@@ -41,14 +39,14 @@ public interface CalendarTimeSeries {
 
     /**
      * Returns a SqlFragment that aligns the {@link Event}s of this CalendarTimeSeries
-     * with the raw data from the specified TimeSeries in the specified period in time,
-     * omitting the raw data that does not align with the specified Event.
+     * with the raw data produced by the provided SqlFragment.
      *
-     * @param timeSeries The TimeSeries that contains the raw data
+     * @param sqlFragment The SqlFragment
+     * @param sqlAliasName The sql alias name that will be assigned to the SqlFragment
+     * @param event The Event
      * @param interval The period in time
-     * @param fieldSpecAndAliasNames Forwarded to {@link TimeSeries#getRawValuesSql(Range, Pair[])}
      * @return The SqlFragment
      */
-    SqlFragment joinSql(TimeSeries timeSeries, Event event, Range<Instant> interval, Pair<String, String>... fieldSpecAndAliasNames);
+    SqlFragment joinSql(SqlFragment sqlFragment, String sqlAliasName, Event event, Range<Instant> interval);
 
 }
