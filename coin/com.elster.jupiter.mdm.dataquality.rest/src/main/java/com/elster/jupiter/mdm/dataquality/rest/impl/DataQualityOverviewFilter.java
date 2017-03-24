@@ -22,13 +22,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.elster.jupiter.mdm.dataquality.UsagePointDataQualityService.DataQualityOverviewBuilder;
 import static com.elster.jupiter.mdm.dataquality.UsagePointDataQualityService.MetricSpecificationBuilder;
+import static com.elster.jupiter.mdm.dataquality.UsagePointDataQualityService.ReadingQualityType;
 
 public enum DataQualityOverviewFilter {
 
@@ -87,27 +87,33 @@ public enum DataQualityOverviewFilter {
         }
     },
     READING_QUALITY("readingQuality") {
-
-        private Map<String, Consumer<DataQualityOverviewBuilder>> readingQualityTypes = ImmutableMap.of(
-                "suspects", DataQualityOverviewBuilder::havingSuspects,
-                "confirmed", DataQualityOverviewBuilder::havingConfirmed,
-                "estimates", DataQualityOverviewBuilder::havingEstimates,
-                "informatives", DataQualityOverviewBuilder::havingInformatives,
-                "edited", DataQualityOverviewBuilder::havingEdited
+        private Map<String, ReadingQualityType> readingQualityTypes = ImmutableMap.of(
+                "suspects", ReadingQualityType.SUSPECTS,
+                "confirmed", ReadingQualityType.CONFIRMED,
+                "estimates", ReadingQualityType.ESTIMATES,
+                "informatives", ReadingQualityType.INFORMATIVES,
+                "edited", ReadingQualityType.EDITED
         );
 
         @Override
         void apply(JsonQueryFilter filter, DataQualityOverviewBuilder overviewBuilder, ResourceHelper resourceHelper) {
-            filter.getStringList(jsonName()).stream()
-                    .map(key -> readingQualityTypes.getOrDefault(key, noSuchReadingQualityType(resourceHelper)))
-                    .forEach(consumer -> consumer.accept(overviewBuilder));
+            List<String> readingQualities = filter.getStringList(jsonName());
+            if (readingQualities.contains(null)) {
+                throw resourceHelper.newException(MessageSeeds.INVALID_FILTER_FORMAT, jsonName(), "[<readingQuality>, ...]");
+            }
+            Set<ReadingQualityType> readingQualityTypes = readingQualities.stream()
+                    .map(readingQuality -> findReadingQualityTypeOrThrowException(readingQuality, resourceHelper))
+                    .collect(Collectors.toSet());
+            overviewBuilder.having(readingQualityTypes);
         }
 
-        private Consumer<DataQualityOverviewBuilder> noSuchReadingQualityType(ResourceHelper resourceHelper) {
-            return builder -> {
+        private ReadingQualityType findReadingQualityTypeOrThrowException(String readingQuality, ResourceHelper resourceHelper) {
+            if (readingQualityTypes.containsKey(readingQuality)) {
+                return readingQualityTypes.get(readingQuality);
+            } else {
                 throw resourceHelper.newException(MessageSeeds.INVALID_FILTER_FORMAT, jsonName(),
                         "[" + readingQualityTypes.keySet().stream().collect(Collectors.joining(", ")) + "]");
-            };
+            }
         }
     },
     VALIDATOR("validator") {
@@ -120,7 +126,7 @@ public enum DataQualityOverviewFilter {
             List<Validator> validators = implementations.stream()
                     .map(resourceHelper::findValidatorOrThrowException)
                     .collect(Collectors.toList());
-            overviewBuilder.suspectedBy(validators);
+            overviewBuilder.havingSuspectsBy(validators);
         }
     },
     ESTIMATOR("estimator") {
@@ -133,7 +139,7 @@ public enum DataQualityOverviewFilter {
             List<Estimator> estimators = implementations.stream()
                     .map(resourceHelper::findEstimatorOrThrowException)
                     .collect(Collectors.toList());
-            overviewBuilder.estimatedBy(estimators);
+            overviewBuilder.havingEstimatesBy(estimators);
         }
     },
     AMOUNT_OF_SUSPECTS("amountOfSuspects") {

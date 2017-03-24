@@ -234,10 +234,10 @@ public class DataQualityResultsResourceTest extends DeviceDataQualityRestApplica
         verify(overviewBuilder).of(eq(new HashSet<>(Collections.singleton(metrologyConfiguration))));
         verify(overviewBuilder).with(eq(new HashSet<>(Collections.singleton(metrologyPurpose))));
         verify(overviewBuilder).in(eq(Ranges.openClosed(Instant.EPOCH, Instant.EPOCH.plusSeconds(1))));
-        verify(overviewBuilder).havingSuspects();
-        verify(overviewBuilder).havingEstimates();
-        verify(overviewBuilder).suspectedBy(eq(Arrays.asList(validator_1)));
-        verify(overviewBuilder).estimatedBy(eq(Arrays.asList(estimator_1)));
+        verify(overviewBuilder).having(eq(new HashSet<>(Arrays.asList(
+                UsagePointDataQualityService.ReadingQualityType.SUSPECTS, UsagePointDataQualityService.ReadingQualityType.ESTIMATES))));
+        verify(overviewBuilder).havingSuspectsBy(eq(Arrays.asList(validator_1)));
+        verify(overviewBuilder).havingEstimatesBy(eq(Arrays.asList(estimator_1)));
         verify(overviewBuilder).paged(11, 23);
     }
 
