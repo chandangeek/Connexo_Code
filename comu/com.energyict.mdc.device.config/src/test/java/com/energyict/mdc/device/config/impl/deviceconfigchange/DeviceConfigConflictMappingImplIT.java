@@ -65,7 +65,7 @@ public class DeviceConfigConflictMappingImplIT extends AbstractConflictIT {
     }
 
     private PartialScheduledConnectionTaskImpl createOutboundConnectionTask(DeviceConfiguration sourceConfig, String name) {
-        PartialScheduledConnectionTaskImpl build = sourceConfig.newPartialScheduledConnectionTask(name, connectionTypePluggableClass, FIFTEEN_MINUTES, ConnectionStrategy.AS_SOON_AS_POSSIBLE).build();
+        PartialScheduledConnectionTaskImpl build = sourceConfig.newPartialScheduledConnectionTask(name, connectionTypePluggableClass, FIFTEEN_MINUTES, ConnectionStrategy.AS_SOON_AS_POSSIBLE, sourceConfig.getProtocolDialectConfigurationPropertiesList().get(0)).build();
         build.save();
         return build;
     }
