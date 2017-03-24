@@ -37,19 +37,11 @@ public interface UsagePointDataQualityService {
 
         DataQualityOverviewBuilder in(Range<Instant> range);
 
-        DataQualityOverviewBuilder havingSuspects();
+        DataQualityOverviewBuilder having(Collection<ReadingQualityType> readingQualityTypes);
 
-        DataQualityOverviewBuilder suspectedBy(Collection<Validator> validators);
+        DataQualityOverviewBuilder havingSuspectsBy(Collection<Validator> validators);
 
-        DataQualityOverviewBuilder havingEstimates();
-
-        DataQualityOverviewBuilder estimatedBy(Collection<Estimator> estimators);
-
-        DataQualityOverviewBuilder havingEdited();
-
-        DataQualityOverviewBuilder havingConfirmed();
-
-        DataQualityOverviewBuilder havingInformatives();
+        DataQualityOverviewBuilder havingEstimatesBy(Collection<Estimator> estimators);
 
         MetricSpecificationBuilder withSuspectsAmount();
 
@@ -62,6 +54,14 @@ public interface UsagePointDataQualityService {
         MetricSpecificationBuilder withEditedAmount();
 
         DataQualityOverviews paged(int from, int to);
+    }
+
+    enum ReadingQualityType {
+        SUSPECTS,
+        INFORMATIVES,
+        ESTIMATES,
+        EDITED,
+        CONFIRMED
     }
 
     @ProviderType

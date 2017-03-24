@@ -20,12 +20,14 @@ import com.google.common.collect.Range;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.elster.jupiter.mdm.dataquality.UsagePointDataQualityService.DataQualityOverviewBuilder;
 import static com.elster.jupiter.mdm.dataquality.UsagePointDataQualityService.MetricSpecificationBuilder;
+import static com.elster.jupiter.mdm.dataquality.UsagePointDataQualityService.ReadingQualityType;
 
 class DataQualityOverviewBuilderImpl implements UsagePointDataQualityService.DataQualityOverviewBuilder {
 
@@ -77,44 +79,38 @@ class DataQualityOverviewBuilderImpl implements UsagePointDataQualityService.Dat
     }
 
     @Override
-    public DataQualityOverviewBuilder havingSuspects() {
-        this.specification.addKpiType(KpiType.SUSPECT);
+    public DataQualityOverviewBuilder having(Collection<ReadingQualityType> readingQualityTypes) {
+        Set<KpiType> kpiTypes = readingQualityTypes.stream()
+                .map(readingQualityType -> {
+                    switch (readingQualityType) {
+                        case SUSPECTS:
+                            return KpiType.SUSPECT;
+                        case INFORMATIVES:
+                            return KpiType.INFORMATIVE;
+                        case ESTIMATES:
+                            return KpiType.ESTIMATED;
+                        case EDITED:
+                            return KpiType.TOTAL_EDITED;
+                        case CONFIRMED:
+                            return KpiType.CONFIRMED;
+                        default:
+                            throw new IllegalArgumentException("Unsupported readingQualityType: " + readingQualityType.name());
+                    }
+                })
+                .collect(Collectors.toSet());
+        this.specification.addReadingQualityTypes(kpiTypes);
         return this;
     }
 
     @Override
-    public DataQualityOverviewBuilder suspectedBy(Collection<Validator> validators) {
-        this.specification.addKpiType(validators.stream().map(KpiType.ValidatorKpiType::new).toArray(KpiType[]::new));
+    public DataQualityOverviewBuilder havingSuspectsBy(Collection<Validator> validators) {
+        this.specification.addValidators(validators.stream().map(KpiType.ValidatorKpiType::new).collect(Collectors.toSet()));
         return this;
     }
 
     @Override
-    public DataQualityOverviewBuilder havingConfirmed() {
-        this.specification.addKpiType(KpiType.CONFIRMED);
-        return this;
-    }
-
-    @Override
-    public DataQualityOverviewBuilder havingEstimates() {
-        this.specification.addKpiType(KpiType.ESTIMATED);
-        return this;
-    }
-
-    @Override
-    public DataQualityOverviewBuilder estimatedBy(Collection<Estimator> estimators) {
-        this.specification.addKpiType(estimators.stream().map(KpiType.EstimatorKpiType::new).toArray(KpiType[]::new));
-        return this;
-    }
-
-    @Override
-    public DataQualityOverviewBuilder havingInformatives() {
-        this.specification.addKpiType(KpiType.INFORMATIVE);
-        return this;
-    }
-
-    @Override
-    public DataQualityOverviewBuilder havingEdited() {
-        this.specification.setAmountOfEdited(Range.atLeast(1L));
+    public DataQualityOverviewBuilder havingEstimatesBy(Collection<Estimator> estimators) {
+        this.specification.addEstimators(estimators.stream().map(KpiType.EstimatorKpiType::new).collect(Collectors.toSet()));
         return this;
     }
 

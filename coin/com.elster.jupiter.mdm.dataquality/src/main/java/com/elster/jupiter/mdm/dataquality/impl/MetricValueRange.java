@@ -11,15 +11,9 @@ import com.google.common.collect.Range;
 
 interface MetricValueRange {
 
-    void appendHavingTo(SqlBuilder sqlBuilder, String expression);
+    MetricValueRange AT_LEAST_ONE = new LongRange(Range.greaterThan(0L));
 
-    class IgnoreRange implements MetricValueRange {
-        @Override
-        public void appendHavingTo(SqlBuilder sqlBuilder, String expression) {
-            sqlBuilder.append(expression);
-            sqlBuilder.append(" >= 0");
-        }
-    }
+    void appendHavingTo(SqlBuilder sqlBuilder, String expression);
 
     class ExactMatch implements MetricValueRange {
 
@@ -55,19 +49,25 @@ interface MetricValueRange {
 
         @Override
         public void appendHavingTo(SqlBuilder sqlBuilder, String expression) {
-            sqlBuilder.append(expression);
-            sqlBuilder.append(" >");
-            if (this.range.hasLowerBound() && this.range.lowerBoundType() == BoundType.CLOSED) {
-                sqlBuilder.append("=");
+            if (this.range.hasLowerBound()) {
+                sqlBuilder.append(expression);
+                sqlBuilder.append(" >");
+                if (this.range.lowerBoundType() == BoundType.CLOSED) {
+                    sqlBuilder.append("=");
+                }
+                sqlBuilder.addLong(this.range.lowerEndpoint());
+                if (this.range.hasUpperBound()) {
+                    sqlBuilder.append("and ");
+                }
             }
-            sqlBuilder.addLong(this.range.hasLowerBound() ? this.range.lowerEndpoint() : Integer.MIN_VALUE);
-            sqlBuilder.append("and ");
-            sqlBuilder.append(expression);
-            sqlBuilder.append(" <");
-            if (this.range.hasUpperBound() && this.range.upperBoundType() == BoundType.CLOSED) {
-                sqlBuilder.append("=");
+            if (this.range.hasUpperBound()) {
+                sqlBuilder.append(expression);
+                sqlBuilder.append(" <");
+                if (this.range.upperBoundType() == BoundType.CLOSED) {
+                    sqlBuilder.append("=");
+                }
+                sqlBuilder.addLong(this.range.upperEndpoint());
             }
-            sqlBuilder.addLong(this.range.hasUpperBound() ? this.range.upperEndpoint() : Integer.MAX_VALUE);
         }
     }
 }

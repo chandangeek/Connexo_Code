@@ -6,10 +6,6 @@ package com.elster.jupiter.mdm.dataquality.impl;
 
 import com.elster.jupiter.util.sql.SqlBuilder;
 
-import com.google.common.collect.ImmutableSet;
-
-import java.util.Collections;
-
 import org.junit.Before;
 import org.junit.Test;
 
@@ -68,30 +64,6 @@ public class KpiTypeTest {
 
         // Asserts
         assertThat(sqlBuilder.toString()).isEqualTo(
-                " join " + WITH_CLAUSE_ALIAS + " " + KPI_TABLE_NAME + " on "
-                        + KPI_TABLE_NAME + ".usagepoint = up.id and kpiTableName.channelscontainer = allKpi.channelscontainer"
-        );
-    }
-
-    @Test
-    public void appendJoinIfIncluded() {
-        // Business method
-        kpiType.appendJoinIfIncluded(sqlBuilder, ImmutableSet.of(kpiType));
-
-        // Asserts
-        assertThat(sqlBuilder.toString()).isEqualTo(
-                " join " + WITH_CLAUSE_ALIAS + " " + KPI_TABLE_NAME + " on "
-                        + KPI_TABLE_NAME + ".usagepoint = up.id and kpiTableName.channelscontainer = allKpi.channelscontainer"
-        );
-    }
-
-    @Test
-    public void appendJoinIfNotIncluded() {
-        // Business method
-        kpiType.appendJoinIfIncluded(sqlBuilder, Collections.emptySet());
-
-        // Asserts
-        assertThat(sqlBuilder.toString()).isEqualTo(
                 " left join " + WITH_CLAUSE_ALIAS + " " + KPI_TABLE_NAME + " on "
                         + KPI_TABLE_NAME + ".usagepoint = up.id and kpiTableName.channelscontainer = allKpi.channelscontainer"
         );
@@ -100,21 +72,25 @@ public class KpiTypeTest {
     @Test
     public void appendHavingTo() {
         // Business method
-        kpiType.appendHavingTo(sqlBuilder, new MetricValueRange.IgnoreRange());
+        kpiType.appendHavingTo(sqlBuilder, MetricValueRange.AT_LEAST_ONE);
 
         // Asserts
-        assertThat(sqlBuilder.toString()).isEqualTo("max(nvl(" + KPI_TABLE_NAME + ".value, 0)) >= 0");
+        assertThat(sqlBuilder.toString()).isEqualTo("max(nvl(" + KPI_TABLE_NAME + ".value, 0)) > ? ");
     }
 
     @Test
-    public void appendSumOfKpiTypes() {
-        KpiType kpiType_2 = new KpiType(WITH_CLAUSE_ALIAS + "_2", KPI_TABLE_NAME + "_2", KPI_TYPE + "_2");
+    public void appendHavingToOfTotalEdited() {
+        KpiType kpiType = KpiType.TOTAL_EDITED;
 
         // Business method
-        KpiType.appendKpisSumHavingTo(sqlBuilder, new MetricValueRange.IgnoreRange(), kpiType, kpiType_2);
+        kpiType.appendHavingTo(sqlBuilder, MetricValueRange.AT_LEAST_ONE);
 
         // Asserts
+        // @formatter:off
         assertThat(sqlBuilder.toString()).isEqualTo(
-                "(max(nvl(" + KPI_TABLE_NAME + ".value, 0)) + max(nvl(" + KPI_TABLE_NAME + "_2.value, 0))) >= 0");
+                "(max(nvl(" + KpiType.ADDED.kpiTableName() + ".value, 0)) + " +
+                 "max(nvl(" + KpiType.EDITED.kpiTableName() + ".value, 0)) + " +
+                 "max(nvl(" + KpiType.REMOVED.kpiTableName() + ".value, 0))) > ? ");
+        // @formatter::on
     }
 }

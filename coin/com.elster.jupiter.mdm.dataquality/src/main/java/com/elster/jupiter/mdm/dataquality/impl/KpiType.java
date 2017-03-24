@@ -11,7 +11,6 @@ import com.elster.jupiter.validation.Validator;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -35,6 +34,31 @@ class KpiType {
     static final KpiType ESTIMATED = new KpiType("estimatedValues", "estimatedKpi", "ESTIMATED");
     static final KpiType CONFIRMED = new KpiType("confirmedValues", "confirmedKpi", "CONFIRMED");
     static final KpiType INFORMATIVE = new KpiType("informativeValues", "informativesKpi", "INFORMATIVE");
+    static final KpiType TOTAL_EDITED = new KpiType("totalEdited", "totalEdited", "totalEdited") {
+
+        private KpiType[] kpiTypes = {KpiType.ADDED, KpiType.EDITED, KpiType.REMOVED};
+
+        @Override
+        void appendSelectTo(SqlBuilder sqlBuilder) {
+            throw new UnsupportedOperationException("Composite kpi type should not be used in select");
+        }
+
+        @Override
+        void appendJoinTo(SqlBuilder sqlBuilder) {
+            throw new UnsupportedOperationException("Composite kpi type should not be joined");
+        }
+
+        @Override
+        void appendWithClauseTo(SqlBuilder sqlBuilder) {
+            throw new UnsupportedOperationException("Composite kpi type should not used in with clause");
+        }
+
+        @Override
+        void appendHavingTo(SqlBuilder sqlBuilder, MetricValueRange range) {
+            String sumOfKpiTypes = Stream.of(kpiTypes).map(kpiType -> "max(nvl(" + kpiType.kpiTableName() + ".value, 0))").collect(Collectors.joining(" + "));
+            range.appendHavingTo(sqlBuilder, "(" + sumOfKpiTypes + ")");
+        }
+    };
 
     static final List<KpiType> predefinedKpiTypes = Arrays.asList(
             SUSPECT, CHANNEL, REGISTER, ADDED, EDITED, REMOVED, ESTIMATED, CONFIRMED, INFORMATIVE
@@ -113,15 +137,8 @@ class KpiType {
         sqlBuilder.append(this.withClauseAliasName());
     }
 
-    void appendJoinIfIncluded(SqlBuilder sqlBuilder, Set<KpiType> options) {
-        if (!options.contains(this)) {
-            sqlBuilder.append(" left");
-        }
-        this.appendJoinTo(sqlBuilder);
-    }
-
     void appendJoinTo(SqlBuilder sqlBuilder) {
-        sqlBuilder.append(" join ");
+        sqlBuilder.append(" left join ");
         sqlBuilder.append(this.withClauseAliasName());
         sqlBuilder.append(" ");
         sqlBuilder.append(this.kpiTableName());
@@ -135,11 +152,6 @@ class KpiType {
 
     void appendHavingTo(SqlBuilder sqlBuilder, MetricValueRange range) {
         range.appendHavingTo(sqlBuilder, "max(nvl(" + this.kpiTableName() + ".value, 0))");
-    }
-
-    static void appendKpisSumHavingTo(SqlBuilder sqlBuilder, MetricValueRange range, KpiType... kpiTypes) {
-        String sumOfKpiTypes = Stream.of(kpiTypes).map(kpiType -> "max(nvl(" + kpiType.kpiTableName() + ".value, 0))").collect(Collectors.joining(" + "));
-        range.appendHavingTo(sqlBuilder, "(" + sumOfKpiTypes + ")");
     }
 
     @Override
