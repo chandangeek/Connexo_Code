@@ -6,7 +6,6 @@ import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
 import com.energyict.protocolimplv2.messages.nls.TranslationKeyImpl;
 
 import java.math.BigDecimal;
@@ -464,7 +463,7 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
 
     private static BigDecimal[] getPossibleValues(int lowerLimit, int upperLimit) {
         return IntStream
-                .range(lowerLimit, upperLimit)
+                .range(lowerLimit, upperLimit + 1)
                 .mapToObj(BigDecimal::valueOf)
                 .toArray(BigDecimal[]::new);
     }

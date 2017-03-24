@@ -152,11 +152,11 @@ public class IntervalDataMapTest {
         }
 
         String c = "Sat Oct 25 22:00:00 CEST 2014 0 0 Values: 10.0 0 0\n\r" +
-        "Sat Oct 25 23:00:00 CEST 2014 0 0 Values: 20.0 0 021.0 0 0\n\r" +
-        "Sun Oct 26 00:00:00 CEST 2014 0 0 Values: 30.0 0 031.0 0 0\n\r" +
-        "Sun Oct 26 01:00:00 CEST 2014 0 0 Values: 0.0 0 25641.0 0 0\n\r" +
-        "Sun Oct 26 02:00:00 CEST 2014 0 0 Values: 0.0 0 25651.0 0 0\n\r" +
-        "Sun Oct 26 02:00:00 CET 2014 0 0 Values: 0.0 0 25661.0 0 0\n\r";
+        "Sat Oct 25 23:00:00 CEST 2014 0 0 Values: 20.0 0 0 21.0 0 0\n\r" +
+        "Sun Oct 26 00:00:00 CEST 2014 0 0 Values: 30.0 0 0 31.0 0 0\n\r" +
+        "Sun Oct 26 01:00:00 CEST 2014 0 0 Values: 0.0 0 256 ReadingQualities: 1.5.259 41.0 0 0\n\r" +
+        "Sun Oct 26 02:00:00 CEST 2014 0 0 Values: 0.0 0 256 ReadingQualities: 1.5.259 51.0 0 0\n\r" +
+        "Sun Oct 26 02:00:00 CET 2014 0 0 Values: 0.0 0 256 ReadingQualities: 1.5.259 61.0 0 0\n\r";
 
         assertEquals(c, s);
     }

@@ -6,22 +6,13 @@ import com.elster.protocolimpl.lis200.objects.GenericArchiveObject;
 import com.elster.protocolimpl.lis200.registers.HistoricalArchive;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
-import org.junit.Test;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TimeZone;
-
-import static junit.framework.Assert.assertEquals;
 
 /**
  * test case for historical register reading for class DL210
@@ -34,53 +25,6 @@ public class TestDl220 extends DL220 {
     public TestDl220(PropertySpecService propertySpecService, NlsService nlsService) {
         super(propertySpecService, nlsService);
     }
-
-    @Test
-    public void RegisterReaderTestWithDLData() throws IOException {
-
-        StringBuilder sb = new StringBuilder();
-
-        RegisterValue rv;
-
-        setMeterIndex(1);
-        for (int i = 1; i <= 14; i++) {
-            rv = this.readRegister(new ObisCode(7, 0, 23, 2, 0, i));
-            sb.append(rv);
-            sb.append("\n");
-            rv = this.readRegister(new ObisCode(7, 128, 23, 2, 0, i));
-            sb.append(rv);
-            sb.append("\n");
-            rv = this.readRegister(new ObisCode(7, 0, 23, 56, 0, i));
-            sb.append(rv);
-            sb.append("\n");
-            rv = this.readRegister(new ObisCode(7, 0, 23, 62, 0, i));
-            sb.append(rv);
-            sb.append("\n");
-        }
-
-        sb.append("\n");
-
-        obisCodeMapper = null;
-        setMeterIndex(2);
-        for (int i = 1; i <= 14; i++) {
-            rv = this.readRegister(new ObisCode(7, 0, 23, 2, 0, i));
-            sb.append(rv);
-            sb.append("\n");
-            rv = this.readRegister(new ObisCode(7, 128, 23, 2, 0, i));
-            sb.append(rv);
-            sb.append("\n");
-            rv = this.readRegister(new ObisCode(7, 0, 23, 56, 0, i));
-            sb.append(rv);
-            sb.append("\n");
-            rv = this.readRegister(new ObisCode(7, 0, 23, 62, 0, i));
-            sb.append(rv);
-            sb.append("\n");
-        }
-
-        String compareData = getResourceAsString("/com/elster/protocolimpl/lis200/register/dl220registertest.txt");
-        assertEquals(compareData, sb.toString());
-    }
-
 
     // *******************************************************************************************
     // * I R e g i s t e r R e a d a b l e
@@ -115,28 +59,6 @@ public class TestDl220 extends DL220 {
     @Override
     public TimeZone getTimeZone() {
         return TimeZone.getTimeZone("Europe/Berlin");
-    }
-
-    private String getResourceAsString(String resourceName) {
-
-        StringBuilder stringBuilder = new StringBuilder();
-
-        InputStream stream = TestRegisterReader.class.getResourceAsStream(resourceName);
-
-        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(stream));
-
-        String line;
-        try {
-            while ((line = bufferedReader.readLine()) != null) {
-                stringBuilder.append(line);
-                stringBuilder.append("\n");
-            }
-            bufferedReader.close();
-        } catch (IOException ignored) {
-
-        }
-
-        return stringBuilder.toString();
     }
 
     private class MyDl220MonthlyArchive extends GenericArchiveObject {

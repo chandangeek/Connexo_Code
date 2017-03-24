@@ -14,7 +14,7 @@ import java.time.temporal.TemporalAmount;
 public final class Temporals {
 
     private static final long MILLIS_IN_SECOND = 1000L;
-    private static final long AVERAGE_SECONDS_IN_DAY = 86_400_000L;
+    private static final long AVERAGE_SECONDS_IN_DAY = 86_400L;
     private static final BigDecimal AVERAGE_DAYS_IN_YEAR = new BigDecimal("365.25");
     private static final BigDecimal AVERAGE_DAYS_IN_MONTH = new BigDecimal("30.4375");  // average days in year // 12
 

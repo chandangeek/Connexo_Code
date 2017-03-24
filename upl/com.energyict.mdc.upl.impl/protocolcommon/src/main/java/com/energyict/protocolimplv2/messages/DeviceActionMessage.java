@@ -7,7 +7,6 @@ import com.energyict.mdc.upl.properties.DeviceGroup;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
 import com.energyict.protocolimplv2.messages.nls.TranslationKeyImpl;
 
 import java.math.BigDecimal;
@@ -406,7 +405,7 @@ public enum DeviceActionMessage implements DeviceMessageSpecSupplier {
     }
 
     private static BigDecimal[] getPossibleValues() {
-        return IntStream.range(17, 32).mapToObj(BigDecimal::valueOf).toArray(BigDecimal[]::new);
+        return IntStream.range(17, 33).mapToObj(BigDecimal::valueOf).toArray(BigDecimal[]::new);
     }
 
     private String getNameResourceKey() {

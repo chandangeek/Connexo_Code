@@ -6,7 +6,6 @@ import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
 import com.energyict.protocolimplv2.messages.nls.TranslationKeyImpl;
 
 import java.math.BigDecimal;
@@ -112,7 +111,7 @@ public enum ChannelConfigurationDeviceMessage implements DeviceMessageSpecSuppli
      * Return range 1 - 32
      */
     private BigDecimal[] getBigDecimalValues() {
-        return IntStream.range(1, 32).mapToObj(BigDecimal::valueOf).toArray(BigDecimal[]::new);
+        return IntStream.range(1, 33).mapToObj(BigDecimal::valueOf).toArray(BigDecimal[]::new);
     }
 
     protected PropertySpec stringSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {

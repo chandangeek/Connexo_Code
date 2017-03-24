@@ -12,6 +12,7 @@ import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.propertyspec.MockPropertySpecService;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimplv2.messages.MBusSetupDeviceMessage;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.OneTagMessageEntry;
@@ -52,8 +53,8 @@ public class SetMBusEncryptionKeysMessageEntryTest {
     private OfflineDeviceMessage decommissionMessage;
     @Mock
     private DeviceProtocol deviceProtocol;
-    @Mock
-    private PropertySpecService propertySpecServicep;
+
+    private PropertySpecService propertySpecService = new MockPropertySpecService();
     @Mock
     private NlsService nlsService;
     @Mock
@@ -63,8 +64,8 @@ public class SetMBusEncryptionKeysMessageEntryTest {
     public void doBefore() {
 
         when(deviceProtocol.format(Matchers.any(OfflineDevice.class), Matchers.any(OfflineDeviceMessage.class), Matchers.any(PropertySpec.class), Matchers.anyObject())).thenReturn(ATTRIBUTE_VALUE);
-        keyMessage = createMessage(MBusSetupDeviceMessage.SetEncryptionKeys.get(propertySpecServicep, nlsService, converter));
-        decommissionMessage = createMessage(MBusSetupDeviceMessage.Decommission.get(propertySpecServicep, nlsService, converter));
+        keyMessage = createMessage(MBusSetupDeviceMessage.SetEncryptionKeys.get(propertySpecService, nlsService, converter));
+        decommissionMessage = createMessage(MBusSetupDeviceMessage.Decommission.get(propertySpecService, nlsService, converter));
     }
 
     @Test
