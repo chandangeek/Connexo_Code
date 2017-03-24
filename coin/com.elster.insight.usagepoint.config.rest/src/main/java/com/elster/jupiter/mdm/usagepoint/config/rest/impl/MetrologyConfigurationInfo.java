@@ -9,7 +9,6 @@ import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.search.rest.SearchCriteriaVisualizationInfo;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.xml.bind.annotation.XmlRootElement;
