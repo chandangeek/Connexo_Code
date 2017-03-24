@@ -15,6 +15,7 @@ Ext.define('Uni.controller.Error', {
         'Uni.view.error.Window',
         'Ext.ux.window.Notification',
         'Uni.view.error.NotFound',
+        'Uni.view.error.NotVisible',
         'Uni.view.error.Launch',
         'Uni.controller.history.Router',
         'Uni.controller.history.EventBus'
@@ -34,6 +35,12 @@ Ext.define('Uni.controller.Error', {
             route: 'error/notfound',
             controller: 'Uni.controller.Error',
             action: 'showPageNotFound'
+        },
+        notvisible: {
+            title: Uni.I18n.translate('error.pageNotFound', 'UNI', 'Page not visible'),
+            route: 'error/notvisible',
+            controller: 'Uni.controller.Error',
+            action: 'showPageNotVisible'
         },
         launch: {
             title: Uni.I18n.translate('error.errorLaunch', 'UNI', 'Application error'),
@@ -359,6 +366,10 @@ Ext.define('Uni.controller.Error', {
     },
     showPageNotFound: function () {
         var widget = Ext.widget('errorNotFound');
+        this.getApplication().fireEvent('changecontentevent', widget);
+    },
+    showPageNotVisible: function () {
+        var widget = Ext.widget('errorNotVisible');
         this.getApplication().fireEvent('changecontentevent', widget);
     },
     showErrorLaunch: function () {
