@@ -7,7 +7,8 @@ Ext.define('Imt.metrologyconfiguration.model.LinkableMetrologyConfiguration', {
     fields: [
         {name: 'id', type: 'number', useNull: true},
         {name: 'name', type: 'string'},
-        {name: 'purposes', defaultValue: null}
+        {name: 'purposes', defaultValue: null},
+        {name: 'activationTime', type: 'auto', defaultValue: null}
     ],
     associations: [
         {name: 'customPropertySets', type: 'hasMany', model: 'Imt.customattributesonvaluesobjects.model.AttributeSetOnObject', associationKey: 'customPropertySets', foreignKey: 'customPropertySets'}

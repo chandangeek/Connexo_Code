@@ -89,6 +89,9 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
             '#add-usage-point general-info-form #up-service-category-combo': {
                 change: me.onServiceCategoryChange
             },
+            '#add-usage-point general-info-form techinfo-installationtimefield #installation-time-date': {
+                change: me.onCreateTimeChange
+            },
             '#add-usage-point metrology-configuration-with-meters-info-form #metrology-configuration-combo': {
                 change: me.onMetrologyConfigurationChange
             },
@@ -234,6 +237,18 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
         }
     },
 
+    onCreateTimeChange: function (field, newValue) {
+        var me = this,
+            wizard = me.getWizard(),
+            activationTime = wizard.down('metrology-configuration-with-meters-info-form #start-date-field');
+        console.log(newValue);
+        if (newValue) {
+            activationTime.setValue(newValue);
+        } else {
+            activationTime.setValue(new Date());
+        }
+    },
+
     onServiceCategoryChange: function (field, newValue) {
         var me = this,
             category = me.serviceCategoryMap[newValue],
@@ -263,6 +278,7 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
             wizard = me.getWizard(),
             step = wizard.down('metrology-configuration-with-meters-info-form'),
             metrologyConfigurationInfo = step.down('#metrology-configuration-with-meters-info'),
+            metrologyConfigurationStartDate = step.down('#start-date'),
             meterActivationsField = step.down('#meter-activations-field'),
             notAllMetersSpecifiedMessage = step.down('#not-all-meters-specified-message'),
             purposesField = step.down('#purposes-field');
@@ -271,6 +287,7 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
         notAllMetersSpecifiedMessage.hide();
         step.down('#reset-metrology-configuration').setDisabled(!newValue);
         if (!Ext.isEmpty(newValue)) {
+            metrologyConfigurationStartDate.show();
             metrologyConfigurationInfo.show();
             metrologyConfigurationInfo.setLoading();
             me.getModel('Imt.metrologyconfiguration.model.MetrologyConfigurationWithCAS').load(newValue.id, {
@@ -289,6 +306,7 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
                 }
             });
         } else {
+            metrologyConfigurationStartDate.hide();
             metrologyConfigurationInfo.hide();
             me.updateMetrologyConfigurationCustomAttributeSetsSteps();
         }
@@ -348,6 +366,7 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
         me.modifyLifeCycleTransitionStep(wizard, navigationItemsToAdd, stepsToAdd.length + 2);
         navigation.add(navigationItemsToAdd);
         wizard.insert(1, stepsToAdd);
+        me.onCreateTimeChange();
         Ext.resumeLayouts(true);
     },
 

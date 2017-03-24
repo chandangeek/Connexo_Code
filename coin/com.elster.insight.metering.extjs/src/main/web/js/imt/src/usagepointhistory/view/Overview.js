@@ -56,6 +56,10 @@ Ext.define('Imt.usagepointhistory.view.Overview', {
                         itemId: 'meters-tab'
                     },
                     {
+                        title: Uni.I18n.translate('general.metrologyConfigurations', 'IMT', 'Metrology configurations'),
+                        itemId: 'metrology-configurations-tab'
+                    },
+                    {
                         title: Uni.I18n.translate('general.usagePointLifeCycle', 'IMT', 'Usage point life cycle'),
                         itemId: 'up-life-cycle-tab'
                     }

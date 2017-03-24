@@ -238,7 +238,8 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
                         itemId: 'define-metrology-configuration',
                         returnLink: me.returnLink,
                         isPossibleAdd: isPossibleAdd,
-                        upVersion: record.get('version')
+                        upVersion: record.get('version'),
+                        createTime: record.data.createTime
                     }));
                     me.getWizard().loadRecord(Ext.create('Imt.metrologyconfiguration.model.LinkableMetrologyConfiguration'));
                     mainView.setLoading(false);
@@ -299,7 +300,6 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
             wizard = me.getWizard(),
             record,
             modelProxy;
-
         wizard.clearInvalid();
         wizard.updateRecord();
         wizard.setLoading();
@@ -307,6 +307,7 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
         modelProxy = record.getProxy();
         record.phantom = false;       // force 'PUT' method for request otherwise 'POST' will be performed
         modelProxy.appendId = false; // remove 'id' part from request url
+
         record.save(Ext.merge({
                 callback: function () {
                     wizard.setLoading(false);
@@ -409,7 +410,8 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
         me.getModel('Imt.metrologyconfiguration.model.MetrologyConfiguration').load(newValue, {
             success: function (record) {
                 if (wizard.rendered) {
-                    wizard.down('#purposes-field').setStore(record.metrologyContracts())
+                    wizard.down('#purposes-field').setStore(record.metrologyContracts());
+                    wizard.down('#start-date').show();
                 }
             },
             callback: function () {
