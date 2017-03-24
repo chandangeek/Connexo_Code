@@ -4,8 +4,7 @@
 
 package com.elster.jupiter.pki.rest.impl;
 
-import com.elster.jupiter.pki.CertificateWrapper;
-
+import java.math.BigInteger;
 import java.time.Instant;
 
 public class CertificateInfo {
@@ -16,16 +15,9 @@ public class CertificateInfo {
     public String issuer;
     public String subject;
     public String status;
-
-    CertificateInfo() {
-    }
-
-    CertificateInfo(CertificateWrapper certificateWrapper) {
-        this.alias = certificateWrapper.getAlias();
-        this.expirationDate = certificateWrapper.getExpirationTime().orElse(null);
-        this.type = "";     // <<<<<< To do
-        this.issuer = "";   // <<<<<< To do
-        this.subject = "";  // <<<<<< To do
-        this.status = "";   // <<<<<< To do
-    }
+    public Integer version;
+    public BigInteger serialNumber;
+    public Instant notBefore;
+    public Instant notAfter;
+    public String signatureAlgorithm;
 }

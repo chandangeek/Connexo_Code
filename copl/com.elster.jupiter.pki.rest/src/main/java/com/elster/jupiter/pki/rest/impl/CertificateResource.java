@@ -7,54 +7,57 @@ package com.elster.jupiter.pki.rest.impl;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.PagedInfoList;
 
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 
 import javax.inject.Inject;
+import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.SecurityContext;
-import javax.ws.rs.core.UriInfo;
 import java.io.InputStream;
 import java.security.NoSuchProviderException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
+import java.util.List;
+
+import static java.util.stream.Collectors.toList;
 
 @Path("/certificates")
 public class CertificateResource {
 
     private final PkiService pkiService;
-//    private final TrustStoreInfoFactory trustStoreInfoFactory;
-//    private final TrustedCertificateInfoFactory trustedCertificateInfoFactory;
+    private final CertificateInfoFactory certificateInfoFactory;
     private final ExceptionFactory exceptionFactory;
-//    private final ConcurrentModificationExceptionFactory conflictFactory;
 
     @Inject
-    public CertificateResource(PkiService pkiService, ExceptionFactory exceptionFactory/*, ConcurrentModificationExceptionFactory conflictFactory, TrustStoreInfoFactory trustStoreInfoFactory, TrustedCertificateInfoFactory trustedCertificateInfoFactory*/) {
+    public CertificateResource(PkiService pkiService, CertificateInfoFactory certificateInfoFactory, ExceptionFactory exceptionFactory/*, ConcurrentModificationExceptionFactory conflictFactory, TrustStoreInfoFactory trustStoreInfoFactory, TrustedCertificateInfoFactory trustedCertificateInfoFactory*/) {
         this.pkiService = pkiService;
+        this.certificateInfoFactory = certificateInfoFactory;
         this.exceptionFactory = exceptionFactory;
-//        this.conflictFactory = conflictFactory;
-//        this.trustStoreInfoFactory = trustStoreInfoFactory;
-//        this.trustedCertificateInfoFactory = trustedCertificateInfoFactory;
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
 //    @RolesAllowed({Privileges.Constants.VIEW_TASK_OVERVIEW})
-    public CertificateInfos getCertificates(@Context UriInfo uriInfo, @Context SecurityContext securityContext) {
-        return new CertificateInfos(pkiService.findAllCertificates().find());
+    public PagedInfoList getCertificates(@BeanParam JsonQueryParameters queryParameters) {
+        List<CertificateInfo> infoList = pkiService.findAllCertificates()
+                .from(queryParameters)
+                .stream()
+                .map(certificateInfoFactory::asInfo)
+                .collect(toList());
+
+        return PagedInfoList.fromPagedList("certificates", infoList, queryParameters);
     }
 
     @POST

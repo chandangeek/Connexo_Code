@@ -69,7 +69,5 @@ public class CertificateResourceTest extends PkiApplicationTest {
         verify(certificateWrapper, times(1)).setCertificate(certificateArgumentCaptor.capture());
         assertThat(stringArgumentCaptor.getValue()).isEqualTo("myCert");
         assertThat(certificateArgumentCaptor.getValue().getIssuerDN().getName()).contains("CN=MyRootCA");
-
-
     }
 }
