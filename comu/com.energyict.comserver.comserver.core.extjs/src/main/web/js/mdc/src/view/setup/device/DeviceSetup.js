@@ -24,7 +24,6 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
         'Uni.view.notifications.NoItemsFoundPanel',
         'Uni.view.widget.WhatsGoingOn',
         'Mdc.view.setup.device.DataLoggerSlavesPanel'
-        //'Mdc.view.setup.device.DeviceHealthCheckPanel'
     ],
 
     content: [
@@ -409,7 +408,8 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
         var me = this,
             panelContainer = me.down('#mdc-panel-container');
 
-        if ( Ext.isEmpty(me.device.get('isDataLogger')) || !me.device.get('isDataLogger') ) {
+        if (( Ext.isEmpty(me.device.get('isDataLogger')) || !me.device.get('isDataLogger')) &&
+            ( Ext.isEmpty(me.device.get('isMultiElementDevice')) || !me.device.get('isMultiElementDevice'))) {
             return;
         }
 

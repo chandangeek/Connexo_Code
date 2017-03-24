@@ -277,14 +277,16 @@ Ext.define('Mdc.controller.setup.Devices', {
                             }
                         });
                         if (!Ext.isEmpty(me.getDeviceCommunicationTopologyPanel())) {
-                            if (device.get('isDataLoggerSlave')) {
+                            if (device.get('isDataLoggerSlave') || device.get('isMultiElementSlave')) {
                                 me.getDeviceCommunicationTopologyPanel().hide();
                             } else {
                                 me.getDeviceCommunicationTopologyPanel().setRecord(device);
                             }
                         }
                         if (!Ext.isEmpty(me.getDataLoggerSlavesPanel())) {
-                            me.getDataLoggerSlavesPanel().setSlaveStore(me.createDataLoggerSlavesStore(device));
+                            var dataLoggerSlavesPanel = me.getDataLoggerSlavesPanel();
+                            dataLoggerSlavesPanel.setDevice(device);
+                            dataLoggerSlavesPanel.setSlaveStore(me.createDataLoggerSlavesStore(device));
                         }
                         if (!Ext.isEmpty(me.getDeviceOpenIssuesPanel())) {
                             me.getDeviceOpenIssuesPanel().setDataCollectionIssues(device);
@@ -332,6 +334,7 @@ Ext.define('Mdc.controller.setup.Devices', {
                 {name: 'name', type: 'string'},
                 {name: 'deviceTypeName', type: 'string'},
                 {name: 'deviceConfigurationName', type: 'string'},
+                {name: 'deviceTypePurpose', type: 'string'},
                 {name: 'linkingTimeStamp', type: 'number'}
             ]
         });
@@ -344,6 +347,7 @@ Ext.define('Mdc.controller.setup.Devices', {
                 name: slaveRecord.name,
                 deviceTypeName: slaveRecord.deviceTypeName,
                 deviceConfigurationName: slaveRecord.deviceConfigurationName,
+                deviceTypePurpose : slaveRecord.deviceTypePurpose,
                 linkingTimeStamp: slaveRecord.linkingTimeStamp
             });
         }, me);

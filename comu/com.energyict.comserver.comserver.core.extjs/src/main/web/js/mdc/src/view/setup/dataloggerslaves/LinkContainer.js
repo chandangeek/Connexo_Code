@@ -10,7 +10,7 @@ Ext.define('Mdc.view.setup.dataloggerslaves.LinkContainer', {
         'Mdc.view.setup.dataloggerslaves.LinkNavigationMenu',
         'Mdc.view.setup.dataloggerslaves.LinkWizard'
     ],
-
+    purpose: undefined,
     router: null,
     returnLink: null,
     service: null,
@@ -21,6 +21,7 @@ Ext.define('Mdc.view.setup.dataloggerslaves.LinkContainer', {
         me.side = {
             itemId: 'mdc-link-dataloggerslave-sidemenu-panel',
             xtype: 'panel',
+          /*  title: me.getTitle(me.purpose),  */
             ui: 'medium',
             layout: {
                 type: 'vbox',
@@ -29,7 +30,8 @@ Ext.define('Mdc.view.setup.dataloggerslaves.LinkContainer', {
             items: [
                 {
                     xtype: 'dataloggerslave-link-navigation',
-                    itemId: 'mdc-link-dataloggerslave-navigation-menu'
+                    itemId: 'mdc-link-dataloggerslave-navigation-menu',
+                    title: me.purpose
                 }
             ]
         };
@@ -38,6 +40,7 @@ Ext.define('Mdc.view.setup.dataloggerslaves.LinkContainer', {
             {
                 xtype: 'dataloggerslave-link-wizard',
                 itemId: 'mdc-dataloggerslave-link-wizard',
+                purpose: me.purpose,
                 router: me.router,
                 service: me.service,
                 returnLink: me.returnLink
@@ -45,5 +48,10 @@ Ext.define('Mdc.view.setup.dataloggerslaves.LinkContainer', {
         ];
 
         me.callParent(arguments);
+    },
+    setPurpose: function(purpose){
+        var me = this;
+        me.down('#mdc-link-dataloggerslave-sidemenu-panel').setTitle(purpose.displayValue);
+
     }
 });

@@ -39,6 +39,8 @@ Ext.define('Mdc.model.Device', {
         {name: 'isGateway', type: 'boolean'},
         {name: 'isDataLogger', type: 'boolean'},
         {name: 'isDataLoggerSlave', type: 'boolean'},
+        {name: 'isMultiElementDevice', type: 'boolean'},
+        {name: 'isMultiElementSlave', type: 'boolean'},
         {name: 'hasLoadProfiles', type: 'boolean'},
         {name: 'hasLogBooks', type: 'boolean'},
         {name: 'hasRegisters', type: 'boolean'},

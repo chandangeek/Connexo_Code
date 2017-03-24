@@ -10,7 +10,8 @@ Ext.define('Mdc.controller.history.Setup', {
     currentPath: null,
 
     requires: [
-        'Uni.store.Apps'
+        'Uni.store.Apps',
+        'Mdc.util.LinkPurpose'
     ],
 
     checkInsightRedirect: function (route) {
@@ -518,18 +519,32 @@ Ext.define('Mdc.controller.history.Setup', {
                             }
                         },
                         dataloggerslaves: {
-                            title: Uni.I18n.translate('general.dataLoggerSlaves', 'MDC', 'Data logger slaves'),
-                            route: 'dataloggerslaves',
+                            title: Uni.I18n.translate('general.slaves', 'MDC', 'Slaves'),
+                            route: 'slaves',
                             privileges: Mdc.privileges.Device.viewOrAdministrateDeviceData,
                             controller: 'Mdc.controller.setup.DataLoggerSlaves',
                             action: 'showDataLoggerSlaves',
+                            callback: function (route) {
+                                this.getApplication().on('loadDevice', function (device) {
+                                    route.setTitle(Mdc.util.LinkPurpose.forDevice(device).pageTitle);
+                                    return true;
+                                }, {single: true});
+                                return this;
+                            },
                             items: {
                                 link: {
                                     title: Uni.I18n.translate('general.linkDataLoggerSlave', 'MDC', 'Link data logger slave'),
                                     route: 'link',
                                     controller: 'Mdc.controller.setup.DataLoggerSlaves',
                                     privileges: Mdc.privileges.Device.administrateDevice,
-                                    action: 'showLinkWizard'
+                                    action: 'showLinkWizard',
+                                    callback: function (route) {
+                                        this.getApplication().on('linkSlave', function (purpose) {
+                                            route.setTitle(purpose.displayValue);
+                                            return true;
+                                        }, {single: true});
+                                        return this;
+                                    }
                                 }
                             }
                         },

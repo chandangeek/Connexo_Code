@@ -5,7 +5,7 @@
 Ext.define('Mdc.view.setup.dataloggerslaves.LinkWizard', {
     extend: 'Ext.form.Panel',
     alias: 'widget.dataloggerslave-link-wizard',
-
+    purpose: undefined,
     requires: [
         'Mdc.view.setup.dataloggerslaves.LinkWizardStep1',
         'Mdc.view.setup.dataloggerslaves.LinkWizardStep2',

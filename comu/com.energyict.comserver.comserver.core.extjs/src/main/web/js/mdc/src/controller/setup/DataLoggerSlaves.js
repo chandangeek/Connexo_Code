@@ -4,7 +4,7 @@
 
 Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
     extend: 'Ext.app.Controller',
-
+    requires: 'Mdc.util.LinkPurpose',
     models: [
         'Mdc.model.Device',
         'Mdc.model.DataLoggerSlaveDevice',
@@ -92,7 +92,11 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
                 me.wizardInformation.dataLogger = device;
                 me.getApplication().fireEvent('loadDevice', device);
                 slavesStore.getProxy().setExtraParam('deviceId', device.get('name'));
-                widget = Ext.widget('dataLoggerSlavesSetup', { device: device, router: router, store:slavesStore });
+                widget = Ext.widget('dataLoggerSlavesSetup',
+                    { device: device,
+                      purpose: Mdc.util.LinkPurpose.forDevice(device),
+                      router: router,
+                      store:slavesStore });
                 me.getApplication().fireEvent('changecontentevent', widget);
                 mainView.setLoading(false);
                 slavesStore.load();
@@ -125,12 +129,14 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
                 me.wizardInformation.noData = true;
                 me.wizardInformation.dataLogger = device;
                 me.wizardInformation.dataLogger.get('dataLoggerSlaveDevices').push(Ext.create('Mdc.model.DataLoggerSlaveDevice'));
+                var purpose = Mdc.util.LinkPurpose.forDevice(device)
+                widget.setPurpose(purpose);
                 me.getApplication().fireEvent('loadDevice', device);
+                me.getApplication().fireEvent('linkSlave', purpose);
                 mainView.setLoading(false);
             }
         });
     },
-
     onCancelWizard: function() {
         this.wizardInformation.dataLogger.get('dataLoggerSlaveDevices').pop();
     },
