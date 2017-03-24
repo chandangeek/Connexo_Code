@@ -23,6 +23,7 @@ Ext.define('Imt.customattributesonvaluesobjects.view.CustomAttributeSetVersionsG
                 },
                 {
                     xtype: 'uni-actioncolumn',
+                    width: 120,
                     privileges: Imt.privileges.UsagePoint.admin,
                     hidden: true,
                     itemId: 'custom-attribute-set-versions-grid-action-column',
