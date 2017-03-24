@@ -5,6 +5,7 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.rest.util.VersionInfo;
@@ -14,6 +15,7 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialConnectionTaskBuilder;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
@@ -34,8 +36,8 @@ import java.util.Optional;
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "direction")
 @JsonSubTypes({
-     @JsonSubTypes.Type(value = InboundConnectionMethodInfo.class, name = "Inbound"),
-     @JsonSubTypes.Type(value = ScheduledConnectionMethodInfo.class, name = "Outbound") })
+        @JsonSubTypes.Type(value = InboundConnectionMethodInfo.class, name = "Inbound"),
+        @JsonSubTypes.Type(value = ScheduledConnectionMethodInfo.class, name = "Outbound")})
 public abstract class ConnectionMethodInfo<T extends PartialConnectionTask> {
 
     @JsonIgnore
@@ -49,24 +51,25 @@ public abstract class ConnectionMethodInfo<T extends PartialConnectionTask> {
     public boolean isDefault;
     public Integer comWindowStart;
     public Integer comWindowEnd;
-    public String connectionStrategy;
     public List<PropertyInfo> properties;
     public Integer numberOfSimultaneousConnections = 1;
     public TimeDurationInfo rescheduleRetryDelay;
     public TemporalExpressionInfo temporalExpression;
     public long version;
     public VersionInfo<Long> parent;
+    public ConnectionStrategyInfo connectionStrategyInfo;
+    public ProtocolDialectConfigurationPropertiesInfo protocolDialectConfigurationProperties;
 
     public ConnectionMethodInfo() {
     }
 
-    protected ConnectionMethodInfo(PartialConnectionTask partialConnectionTask, UriInfo uriInfo, MdcPropertyUtils mdcPropertyUtils) {
+    protected ConnectionMethodInfo(PartialConnectionTask partialConnectionTask, UriInfo uriInfo, MdcPropertyUtils mdcPropertyUtils, Thesaurus thesaurus) {
         this.mdcPropertyUtils = mdcPropertyUtils;
-        this.id=partialConnectionTask.getId();
-        this.name= partialConnectionTask.getName();
+        this.id = partialConnectionTask.getId();
+        this.name = partialConnectionTask.getName();
         this.connectionTypePluggableClass = partialConnectionTask.getPluggableClass().getName();
-        this.comPortPool= partialConnectionTask.getComPortPool()!=null?partialConnectionTask.getComPortPool().getName():null;
-        this.isDefault= partialConnectionTask.isDefault();
+        this.comPortPool = partialConnectionTask.getComPortPool() != null ? partialConnectionTask.getComPortPool().getName() : null;
+        this.isDefault = partialConnectionTask.isDefault();
         List<PropertySpec> propertySpecs = partialConnectionTask.getConnectionType().getPropertySpecs();
         TypedProperties typedProperties = partialConnectionTask.getTypedProperties();
         this.properties = new ArrayList<>();
@@ -74,10 +77,11 @@ public abstract class ConnectionMethodInfo<T extends PartialConnectionTask> {
         this.version = partialConnectionTask.getVersion();
         DeviceConfiguration deviceConfiguration = partialConnectionTask.getConfiguration();
         this.parent = new VersionInfo<>(deviceConfiguration.getId(), deviceConfiguration.getVersion());
+        this.protocolDialectConfigurationProperties = ProtocolDialectConfigurationPropertiesInfo.from(partialConnectionTask.getProtocolDialectConfigurationProperties(), thesaurus);
     }
 
     protected void addPropertiesToPartialConnectionTask(PartialConnectionTaskBuilder<?, ?, ?> connectionTaskBuilder, ConnectionTypePluggableClass connectionTypePluggableClass) {
-        if (this.properties !=null) {
+        if (this.properties != null) {
             try {
                 for (PropertySpec propertySpec : connectionTypePluggableClass.getPropertySpecs()) {
                     Object propertyValue = mdcPropertyUtils.findPropertyValue(propertySpec, this.properties);
@@ -86,7 +90,7 @@ public abstract class ConnectionMethodInfo<T extends PartialConnectionTask> {
                     }
                 }
             } catch (LocalizedFieldValidationException e) {
-                throw new LocalizedFieldValidationException(e.getMessageSeed(), "properties."+e.getViolatingProperty());
+                throw new LocalizedFieldValidationException(e.getMessageSeed(), "properties." + e.getViolatingProperty());
             }
         }
     }
@@ -105,6 +109,36 @@ public abstract class ConnectionMethodInfo<T extends PartialConnectionTask> {
         partialConnectionTask.setName(this.name);
     }
 
+    public abstract PartialConnectionTask createPartialTask(DeviceConfiguration deviceConfiguration, ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties, EngineConfigurationService engineConfigurationService, ProtocolPluggableService protocolPluggableService, MdcPropertyUtils mdcPropertyUtils, Thesaurus thesaurus);
 
-    public abstract PartialConnectionTask createPartialTask(DeviceConfiguration deviceConfiguration, EngineConfigurationService engineConfigurationService, ProtocolPluggableService protocolPluggableService, MdcPropertyUtils mdcPropertyUtils);
+    public static class ProtocolDialectConfigurationPropertiesInfo {
+        public static final Long DEFAULT_PROTOCOL_DIALECT_ID = -1L;
+        public static final String DEFAULT_PROTOCOL_DIALECT_NAME_KEY = "default.protocol.dialect.name";
+        public Long id;
+        public String name;
+        public String displayName;
+
+        public ProtocolDialectConfigurationPropertiesInfo() {
+        }
+
+        public static ProtocolDialectConfigurationPropertiesInfo from(ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties, Thesaurus thesaurus) {
+            ProtocolDialectConfigurationPropertiesInfo protocolDialectConfigurationPropertiesInfo = new ProtocolDialectConfigurationPropertiesInfo();
+            if (protocolDialectConfigurationProperties == null) {
+                protocolDialectConfigurationPropertiesInfo.id = DEFAULT_PROTOCOL_DIALECT_ID;
+                protocolDialectConfigurationPropertiesInfo.name = thesaurus.getString(DEFAULT_PROTOCOL_DIALECT_NAME_KEY, DEFAULT_PROTOCOL_DIALECT_NAME_KEY);
+                protocolDialectConfigurationPropertiesInfo.displayName = thesaurus.getString(DEFAULT_PROTOCOL_DIALECT_NAME_KEY, DEFAULT_PROTOCOL_DIALECT_NAME_KEY);
+            } else {
+                protocolDialectConfigurationPropertiesInfo.id = protocolDialectConfigurationProperties.getId();
+                protocolDialectConfigurationPropertiesInfo.name = protocolDialectConfigurationProperties.getDeviceProtocolDialect().getDeviceProtocolDialectName();
+                protocolDialectConfigurationPropertiesInfo.displayName = protocolDialectConfigurationProperties.getDeviceProtocolDialect().getDisplayName();
+            }
+            return protocolDialectConfigurationPropertiesInfo;
+        }
+    }
+
+    public static class ConnectionStrategyInfo {
+        public String connectionStrategy;
+        public String localizedValue;
+    }
+
 }
