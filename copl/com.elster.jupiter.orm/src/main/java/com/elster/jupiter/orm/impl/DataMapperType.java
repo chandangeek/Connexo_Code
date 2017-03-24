@@ -46,4 +46,5 @@ abstract class DataMapperType<T> {
 		return table;
 	}
 
+	public abstract void validate();
 }
