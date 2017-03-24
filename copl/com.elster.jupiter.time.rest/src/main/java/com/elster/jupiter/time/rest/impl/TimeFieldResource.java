@@ -52,7 +52,7 @@ public class TimeFieldResource {
             String timeUnitDescription = TimeDuration.getTimeUnitDescription(timeDuration);
             Map<String, Object> subMap = new HashMap<>();
             subMap.put("timeUnit", timeUnitDescription);
-            subMap.put("localizedValue", thesaurus.getString(timeUnitDescription.toString(), timeUnitDescription.toString()));
+            subMap.put("localizedValue", TimeDuration.getLocalizedTimeUnitDescription(timeUnitDescription, thesaurus));
             subMap.put("code", timeDuration);
             list.add(subMap);
         }

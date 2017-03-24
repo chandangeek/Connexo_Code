@@ -6,7 +6,6 @@ package com.elster.jupiter.time.rest;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.time.impl.TimeDurationUnitTranslationKeys;
 
 public class TimeDurationInfo {
     public long count;
@@ -31,10 +30,7 @@ public class TimeDurationInfo {
     public TimeDurationInfo(TimeDuration timeDuration, Thesaurus thesaurus) {
         this.count = timeDuration.getCount();
         this.timeUnit = TimeDuration.getTimeUnitDescription(timeDuration.getTimeUnitCode());
-        this.localizedTimeUnit = thesaurus.getString(
-                TimeDurationUnitTranslationKeys.Constants.DESCRIPTION_TRANSLATION_KEY_PREFIX
-                        + TimeDuration.getTimeUnitDescription(timeDuration.getTimeUnitCode()),
-                TimeDuration.getTimeUnitDescription(timeDuration.getTimeUnitCode()));
+        this.localizedTimeUnit = TimeDuration.getLocalizedTimeUnitDescription(timeUnit, thesaurus);
         this.asSeconds = timeDuration.getSeconds();
     }
 
