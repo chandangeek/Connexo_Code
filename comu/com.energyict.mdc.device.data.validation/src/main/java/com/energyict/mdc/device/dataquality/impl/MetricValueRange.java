@@ -11,7 +11,7 @@ import com.google.common.collect.Range;
 
 interface MetricValueRange {
 
-    static final MetricValueRange AT_LEAST_ONE = new LongRange(Range.greaterThan(0L));
+    MetricValueRange AT_LEAST_ONE = new LongRange(Range.greaterThan(0L));
 
     void appendHavingTo(SqlBuilder sqlBuilder, String expression);
 

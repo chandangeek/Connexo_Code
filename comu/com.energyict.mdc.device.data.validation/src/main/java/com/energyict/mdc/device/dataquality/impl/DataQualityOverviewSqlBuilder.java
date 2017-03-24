@@ -144,8 +144,8 @@ class DataQualityOverviewSqlBuilder {
     }
 
     enum SqlOperator {
-        AND(" and "),
-        OR(" or ");
+        AND("and"),
+        OR("or");
 
         private String operator;
 
