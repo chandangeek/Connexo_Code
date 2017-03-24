@@ -121,7 +121,7 @@ public class IntervalValue implements Serializable {
             readingQualitiesDescription.append(readingQualityType);
         }
 
-        return number + " " + protocolStatus + " " + eiStatus + " ReadingQualities: " + readingQualitiesDescription.toString();
+        return number + " " + protocolStatus + " " + eiStatus + (getReadingQualityTypes().isEmpty() ? "" : " ReadingQualities: " + readingQualitiesDescription.toString());
     }
 
 }

@@ -731,14 +731,24 @@ public class IntervalData implements java.io.Externalizable, Comparable, Interva
                 append(getEndTime()).
                 append(" ").
                 append(getProtocolStatus()).
-                append(" ").
-                append("ReadingQualities: ").
-                append(readingQualitiesDescription.toString()).
-                append(" ").
+                append(" ");
+
+        if (!getReadingQualityTypes().isEmpty()) {
+            stringBuilder.
+                    append("ReadingQualities: ").
+                    append(readingQualitiesDescription.toString()).
+                    append(" ");
+        }
+
+        stringBuilder.
                 append(getEiStatus()).
-                append(" ")
-                .append("Values: ");
-        for (IntervalValue intervalValue : intervalValues) {
+                append(" ").
+                append("Values: ");
+        for (int i = 0; i < intervalValues.size(); i++) {
+            if (i > 0) {
+                stringBuilder.append(" ");
+            }
+            IntervalValue intervalValue = intervalValues.get(i);
             stringBuilder.append(intervalValue.toString());
         }
         return stringBuilder.toString();
