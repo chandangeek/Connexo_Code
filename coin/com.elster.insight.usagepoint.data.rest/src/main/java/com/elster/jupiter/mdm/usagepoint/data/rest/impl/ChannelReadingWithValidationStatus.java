@@ -1,6 +1,7 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.calendar.Calendar;
+import com.elster.jupiter.metering.AggregatedChannel;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 
@@ -15,6 +16,7 @@ public class ChannelReadingWithValidationStatus extends ReadingWithValidationSta
 
     private final TemporalAmount intervalLength;
     private final Optional<Calendar> calendar;
+    private boolean partOfTimeOfUseGap = false;
 
     public ChannelReadingWithValidationStatus(Channel channel, ZonedDateTime readingTimeStamp, ChannelGeneralValidation channelGeneralValidation, Optional<Calendar> calendar) {
         super(readingTimeStamp, channelGeneralValidation);
@@ -31,4 +33,24 @@ public class ChannelReadingWithValidationStatus extends ReadingWithValidationSta
     public Optional<Calendar> getCalendar(){
         return this.calendar;
     }
+
+    @Override
+    public void setCalculatedReadingRecord(IntervalReadingRecord readingRecord) {
+        super.setCalculatedReadingRecord(readingRecord);
+        if (readingRecord instanceof AggregatedChannel.AggregatedIntervalReadingRecord) {
+            AggregatedChannel.AggregatedIntervalReadingRecord aggregated = (AggregatedChannel.AggregatedIntervalReadingRecord) readingRecord;
+            if (aggregated.isPartOfTimeOfUseGap()) {
+                this.markPartOfTimeOfUseGap();
+            }
+        }
+    }
+
+    public boolean isPartOfTimeOfUseGap() {
+        return this.partOfTimeOfUseGap;
+    }
+
+    public void markPartOfTimeOfUseGap() {
+        this.partOfTimeOfUseGap = true;
+    }
+
 }

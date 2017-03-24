@@ -247,7 +247,7 @@ public class UsagePointOutputResource {
                         .collect(Collectors.toMap(Function.identity(), readingWithValidationStatusFactory::createChannelReading));
 
                 // add readings to pre filled channel data map
-                List<IntervalReadingRecord> calculatedReadings = channel.getCalculatedIntervalReadings(requestedInterval);
+                List<AggregatedChannel.AggregatedIntervalReadingRecord> calculatedReadings = channel.getCalculatedIntervalReadings(requestedInterval);
                 Map<Instant, IntervalReadingRecord> persistedReadings = toMap(channel.getPersistedIntervalReadings(requestedInterval));
                 for (Map.Entry<Instant, ChannelReadingWithValidationStatus> entry : preFilledChannelDataMap.entrySet()) {
                     Instant readingTimestamp = entry.getKey();
@@ -287,7 +287,7 @@ public class UsagePointOutputResource {
         return PagedInfoList.fromCompleteList("channelData", outputChannelDataInfoList, queryParameters);
     }
 
-    private Optional<IntervalReadingRecord> findRecordWithContainingRange(List<IntervalReadingRecord> records, Instant timestamp) {
+    private Optional<AggregatedChannel.AggregatedIntervalReadingRecord> findRecordWithContainingRange(List<AggregatedChannel.AggregatedIntervalReadingRecord> records, Instant timestamp) {
         return records
                 .stream()
                 .filter(record -> record.getTimePeriod().isPresent())

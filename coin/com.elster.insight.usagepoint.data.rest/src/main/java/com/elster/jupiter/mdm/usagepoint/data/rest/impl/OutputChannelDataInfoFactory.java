@@ -43,6 +43,7 @@ public class OutputChannelDataInfoFactory {
         if (readingWithValidationStatus.getCalendar().isPresent()) {
             outputChannelDataInfo.calendarName = readingWithValidationStatus.getCalendar().get().getName();
         }
+        outputChannelDataInfo.partOfTimeOfUseGap = readingWithValidationStatus.isPartOfTimeOfUseGap();
         setValidationFields(readingWithValidationStatus, outputChannelDataInfo);
         setEditingFields(readingWithValidationStatus, outputChannelDataInfo);
         setReadingQualities(readingWithValidationStatus, outputChannelDataInfo);
