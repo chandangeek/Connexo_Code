@@ -252,7 +252,7 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
         when(set1.isVersioned()).thenReturn(true);
         when(set1.getName()).thenReturn("Antenna");
 
-        when(meteringService.findUsagePointById(1022L)).thenReturn(Optional.of(usagePoint));
+        when(meteringService.findUsagePointByName("someName")).thenReturn(Optional.of(usagePoint));
         when(usagePoint.forCustomProperties()).thenReturn(extension);
         when(extension.getAllPropertySets()).thenReturn(Collections.singletonList(set2));
         when(set2.getCustomPropertySet()).thenReturn(set1);
@@ -260,7 +260,7 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
         when(set2.getValues()).thenReturn(values);
 
         //Business method
-        String json = target("metrologyconfigurations/13/usagepoint/1022").request().get(String.class);
+        String json = target("metrologyconfigurations/13/usagepoint/someName").request().get(String.class);
 
         //Asserts
         JsonModel jsonModel = JsonModel.create(json);

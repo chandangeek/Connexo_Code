@@ -127,10 +127,10 @@ public class MetrologyConfigurationResource {
     }
 
     @GET
-    @Path("/{id}/usagepoint/{upId}")
+    @Path("/{id}/usagepoint/{upName}")
     @RolesAllowed({Privileges.Constants.VIEW_METROLOGY_CONFIGURATION, Privileges.Constants.ADMINISTER_METROLOGY_CONFIGURATION})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public PagedInfoList getDetailedMetrologyConfiguration(@PathParam("id") long id, @PathParam("upId") long upId, @BeanParam JsonQueryParameters queryParameters) {
+    public PagedInfoList getDetailedMetrologyConfiguration(@PathParam("id") long id, @PathParam("upName") String upName, @BeanParam JsonQueryParameters queryParameters) {
         UsagePointMetrologyConfiguration metrologyConfiguration = resourceHelper.getMetrologyConfigOrThrowException(id);
         MetrologyConfigurationInfo info = metrologyConfigurationInfoFactory.asDetailedInfo(metrologyConfiguration);
         Map<String,Object> valueInfo = new TreeMap<>();
@@ -144,13 +144,13 @@ public class MetrologyConfigurationResource {
 
         List<CustomPropertySetValues> nameInfos = new ArrayList<>();
         for (String str:mCCustomAttributeSet){
-                nameInfos.add(meteringService.findUsagePointById(upId).get()
+                nameInfos.add(meteringService.findUsagePointByName(upName).get()
                         .forCustomProperties().getAllPropertySets()
                         .stream()
                         .filter(usagePointPropertySet -> usagePointPropertySet.getCustomPropertySet().getName().matches(str))
                         .findFirst()
                         .map(usagePointPropertySet -> usagePointPropertySet.getValues()).orElse(CustomPropertySetValues.empty()));
-            info.haveSameCASesAsUP= meteringService.findUsagePointById(upId).get()
+            info.haveSameCASesAsUP= meteringService.findUsagePointByName(upName).get()
                     .forCustomProperties().getAllPropertySets()
                     .stream()
                     .map(UsagePointPropertySet::getCustomPropertySet)
