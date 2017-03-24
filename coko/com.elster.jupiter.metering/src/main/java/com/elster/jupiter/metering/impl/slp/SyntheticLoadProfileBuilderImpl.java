@@ -67,7 +67,7 @@ public class SyntheticLoadProfileBuilderImpl implements SyntheticLoadProfileBuil
 
         Vault vault = syntheticLoadProfileService.getVault();
         RecordSpec recordSpec = syntheticLoadProfileService.getRecordSpec();
-        TimeSeries timeSeries = vault.createRegularTimeSeries(recordSpec, timeZone, Duration.from(readingType.getIntervalLength().get()), 0);
+        TimeSeries timeSeries = vault.createRegularTimeSeries(recordSpec, timeZone, readingType.getIntervalLength().get(), 0);
         syntheticLoadProfile.setTimeSeries(timeSeries);
 
         syntheticLoadProfile.save();
