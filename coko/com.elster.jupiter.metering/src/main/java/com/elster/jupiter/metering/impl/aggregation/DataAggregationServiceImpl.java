@@ -465,7 +465,7 @@ public class DataAggregationServiceImpl implements ServerDataAggregationService 
 
     private void addMissingIfDifferentTimeOfUse(ZonedCalendarUsage calendarUsage, ReadingType readingType, Instant timestamp, List<CalculatedReadingRecord> readingRecords) {
         int tou = readingType.getTou();
-        if (calendarUsage.sameTimeOfUse(timestamp, tou)) {
+        if (calendarUsage.differentTimeOfUse(timestamp, tou)) {
             readingRecords.add(
                     this.addMissing(
                             calendarUsage.getUsagePoint(),

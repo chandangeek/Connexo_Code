@@ -37,8 +37,8 @@ class ZonedCalendarUsage {
         return this.calendarUsage.getRange().contains(timestamp);
     }
 
-    boolean sameTimeOfUse(Instant timestamp, int timeOfUse) {
-        return this.zonedView.eventFor(timestamp).getCode() == timeOfUse;
+    boolean differentTimeOfUse(Instant timestamp, int timeOfUse) {
+        return this.zonedView.eventFor(timestamp).getCode() != timeOfUse;
     }
 
 }
