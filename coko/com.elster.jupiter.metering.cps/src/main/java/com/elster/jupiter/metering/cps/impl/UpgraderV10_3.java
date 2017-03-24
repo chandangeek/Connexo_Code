@@ -42,6 +42,8 @@ class UpgraderV10_3 implements Upgrader {
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
         upgradeUnmeasuredAntennaInstallation();
+        meteringCustomPropertySetsDemoInstaller.createSyntheticLoadProfiles();
+        meteringCustomPropertySetsDemoInstaller.correctionFactors();
         meteringCustomPropertySetsDemoInstaller.residentialGasWithCorrection();
     }
 

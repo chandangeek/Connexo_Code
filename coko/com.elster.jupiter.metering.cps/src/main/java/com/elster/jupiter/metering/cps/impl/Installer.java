@@ -63,6 +63,8 @@ class Installer implements FullInstaller {
 
         meteringCustomPropertySetsDemoInstaller.unmeasuredAntennaInstallation();
         meteringCustomPropertySetsDemoInstaller.residentialPrepay();
+
+        meteringCustomPropertySetsDemoInstaller.createSyntheticLoadProfiles();
         meteringCustomPropertySetsDemoInstaller.correctionFactors();
         meteringCustomPropertySetsDemoInstaller.residentialGasWithCorrection();
     }

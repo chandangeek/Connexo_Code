@@ -49,6 +49,7 @@ import com.elster.jupiter.metering.cps.impl.metrology.UsagePointTechInstEGCustom
 import com.elster.jupiter.metering.cps.impl.metrology.UsagePointTechInstEGDomExt;
 import com.elster.jupiter.metering.cps.impl.metrology.UsagePointTechInstElectrCPS;
 import com.elster.jupiter.metering.cps.impl.metrology.UsagePointTechInstElectrDE;
+import com.elster.jupiter.metering.slp.SyntheticLoadProfileBuilder;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
@@ -72,6 +73,8 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
+import java.time.Instant;
+import java.time.Period;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -406,6 +409,20 @@ public class MeteringCustomPropertySetsDemoInstaller implements TranslationKeyPr
         hourlyBuilder.build(hourlyBuilder.multiply(hourlyBuilder.requirement(requirementGasVolume), hourlyClimateCorrectionFactor));
         dailyBuilder.build(dailyBuilder.multiply(dailyBuilder.requirement(requirementGasVolume), dailyClimateCorrectionFactor));
         buildFormulaSingleRequirement(contractInformation, readingTypeHourlyVolume, requirementGasVolume, "Hourly volume m³");
+    }
+
+    void createSyntheticLoadProfiles(){
+        ReadingType readingTypeDailyApluskWh = meteringService.getReadingType("11.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0")
+                .orElseGet(() -> meteringService.createReadingType("11.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "A+"));
+        syntheticLoadProfileService.newSyntheticLoadProfile("Loss factor", Period.ofYears(1), Instant.parse("2017-01-01T00:00:00Z"), readingTypeDailyApluskWh)
+                .withDescription("Loss factor")
+                .build();
+
+        ReadingType readingTypeHourlyVolume = meteringService.getReadingType("0.0.7.4.1.7.58.0.0.0.0.0.0.0.0.0.42.0")
+                .orElseGet(() -> meteringService.createReadingType("0.0.7.4.1.7.58.0.0.0.0.0.0.0.0.0.42.0", "Hourly volume m³"));
+        syntheticLoadProfileService.newSyntheticLoadProfile("CCF", Period.ofMonths(1), Instant.parse("2017-01-01T00:00:00Z"), readingTypeHourlyVolume)
+                .withDescription("Climate Correction Factor")
+                .build();
     }
 
     private SearchablePropertyValue.ValueBean getUsagePointRequirement(String property, SearchablePropertyOperator operator, String... values) {
