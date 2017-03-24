@@ -16,7 +16,7 @@ public enum MessageSeeds implements MessageSeed {
     COULD_NOT_CREATE_CERTIFICATE_FACTORY(3, "CertificateFactoryFail", "Could not create the certificate factory: {0}"),
     COULD_NOT_CREATE_CERTIFICATE(4, "CertificateCreationFailed", "Could not create the certificate: {0}"),
     COULD_NOT_READ_KEYSTORE(5, "KeystoreReadError", "Could not read the keystore: {0}"),
-    ;
+    NO_SUCH_CERTIFICATE(6, "NoSuchCertificate", "No certificate place holder with alias {0} could be located");
     private final int number;
     private final String key;
     private final String defaultFormat;

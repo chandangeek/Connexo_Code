@@ -8,6 +8,9 @@ import java.math.BigInteger;
 import java.time.Instant;
 
 public class CertificateInfo {
+    public boolean hasCSR;
+    public boolean hasCertificate;
+    public boolean hasPrivateKey;
 
     public String alias;
     public Instant expirationDate;

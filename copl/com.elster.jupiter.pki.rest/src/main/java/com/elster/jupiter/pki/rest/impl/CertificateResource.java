@@ -63,13 +63,31 @@ public class CertificateResource {
     @POST
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.TEXT_PLAIN)
-    public Response importCertificate(
+    public Response importNewCertificate(
             @PathParam("id") long trustStoreId,
             @FormDataParam("file") InputStream certificateInputStream,
             @FormDataParam("file") FormDataContentDisposition contentDispositionHeader,
             @FormDataParam("alias") String alias) {
+        CertificateWrapper certificateWrapper = pkiService.newCertificateWrapper(alias);
+        return doImportCertificateForCertificateWrapper(certificateInputStream, certificateWrapper);
+    }
+
+    @POST // This should be PUT but has to be POST due to some 3th party issue
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    @Produces(MediaType.TEXT_PLAIN)
+    @Path("/{alias}")
+    public Response importCertificateIntoExistingWrapper(
+            @PathParam("id") long trustStoreId,
+            @FormDataParam("file") InputStream certificateInputStream,
+            @FormDataParam("file") FormDataContentDisposition contentDispositionHeader,
+            @FormDataParam("alias") String alias) {
+        CertificateWrapper certificateWrapper = pkiService.findCertificateWrapper(alias)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CERTIFICATE));
+        return doImportCertificateForCertificateWrapper(certificateInputStream, certificateWrapper);
+    }
+
+    private Response doImportCertificateForCertificateWrapper(@FormDataParam("file") InputStream certificateInputStream, CertificateWrapper certificateWrapper) {
         try {
-            CertificateWrapper certificateWrapper = pkiService.newCertificateWrapper(alias);
             CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509", "BC");
             X509Certificate certificate = (X509Certificate) certificateFactory.generateCertificate(certificateInputStream);
             certificateWrapper.setCertificate(certificate);

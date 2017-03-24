@@ -20,9 +20,14 @@ public class CertificateInfoFactory {
 
     public CertificateInfo asInfo(CertificateWrapper certificateWrapper) {
         CertificateInfo info = new CertificateInfo();
+        info.hasCSR = certificateWrapper.hasCsr();
+        info.hasCertificate = certificateWrapper.getCertificate().isPresent();
+        info.hasPrivateKey = certificateWrapper.hasPrivateKey();
+
         info.alias = certificateWrapper.getAlias();
         info.status = certificateWrapper.getStatus();
         info.expirationDate = certificateWrapper.getExpirationTime().orElse(null);
+
         certificateWrapper.getAllKeyUsages().ifPresent(keyUsages -> info.type = keyUsages);
         certificateWrapper.getCertificate().ifPresent(x509Certificate -> info.issuer = x509Certificate.getIssuerDN().getName());
         certificateWrapper.getCertificate().ifPresent(x509Certificate -> info.subject = x509Certificate.getSubjectDN().getName());
