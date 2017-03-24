@@ -233,6 +233,9 @@ public enum DataQualityOverviewFilter {
                 }
                 long lowerBound = criteriaNode.get(0).numberValue().longValue();
                 long upperBound = criteriaNode.get(1).numberValue().longValue();
+                if (lowerBound >= upperBound) {
+                    throw resourceHelper.newException(MessageSeeds.INVALID_OPERATOR_CRITERIA, jsonName(), filterProperty);
+                }
                 builder.inRange(Ranges.open(lowerBound, upperBound));
             }
         },
