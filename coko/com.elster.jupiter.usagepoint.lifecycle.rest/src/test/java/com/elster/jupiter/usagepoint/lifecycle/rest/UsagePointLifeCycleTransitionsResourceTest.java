@@ -1,7 +1,6 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- *//*
-
+ */
 
 package com.elster.jupiter.usagepoint.lifecycle.rest;
 
@@ -307,4 +306,3 @@ public class UsagePointLifeCycleTransitionsResourceTest extends UsagePointLifeCy
         assertThat(model.<String>get("$.error")).isEqualTo("Transition has changed since the page was last updated.");
     }
 }
-*/

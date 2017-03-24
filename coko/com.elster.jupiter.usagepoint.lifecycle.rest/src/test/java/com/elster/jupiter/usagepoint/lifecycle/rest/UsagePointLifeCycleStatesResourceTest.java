@@ -1,13 +1,12 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- *//*
-
+ */
 
 package com.elster.jupiter.usagepoint.lifecycle.rest;
 
+import com.elster.jupiter.bpm.BpmProcessDefinition;
 import com.elster.jupiter.devtools.tests.FakeBuilder;
 import com.elster.jupiter.fsm.ProcessReference;
-import com.elster.jupiter.fsm.StateChangeBusinessProcess;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointStage;
@@ -29,6 +28,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
@@ -117,11 +117,11 @@ public class UsagePointLifeCycleStatesResourceTest extends UsagePointLifeCycleAp
         UsagePointState.UsagePointStateCreator builder = FakeBuilder.initBuilderStub(state, UsagePointState.UsagePointStateCreator.class);
         when(lifeCycle.newState(anyString())).thenReturn(builder);
         ProcessReference onEntry = mockProcessReference(1L, "processName 1", "deploymentId 1", "processId 1");
-        StateChangeBusinessProcess onEntryProcess = onEntry.getStateChangeBusinessProcess();
-        when(finiteStateMachineService.findStateChangeBusinessProcessById(1L)).thenReturn(Optional.of(onEntryProcess));
+        BpmProcessDefinition onEntryProcess = onEntry.getStateChangeBusinessProcess();
+        when(bpmService.findBpmProcessDefinition(onEntryProcess.getId())).thenReturn(Optional.of(onEntryProcess));
         ProcessReference onExit = mockProcessReference(2L, "processName 2", "deploymentId 2", "processId 2");
-        StateChangeBusinessProcess onExitProcess = onExit.getStateChangeBusinessProcess();
-        when(finiteStateMachineService.findStateChangeBusinessProcessById(2L)).thenReturn(Optional.of(onExitProcess));
+        BpmProcessDefinition onExitProcess = onExit.getStateChangeBusinessProcess();
+        when(bpmService.findBpmProcessDefinition(onExitProcess.getId())).thenReturn(Optional.of(onExitProcess));
 
         when(state.getId()).thenReturn(4L);
         when(state.getName()).thenReturn("State");
@@ -133,8 +133,8 @@ public class UsagePointLifeCycleStatesResourceTest extends UsagePointLifeCycleAp
         UsagePointLifeCycleStateInfo info = new UsagePointLifeCycleStateInfo();
         info.id = 4L;
         info.name = "State";
-        info.onEntry = Collections.singletonList(new BusinessProcessInfo(1L, null, null, null));
-        info.onExit = Collections.singletonList(new BusinessProcessInfo(2L, null, null, null));
+        info.onEntry = Collections.singletonList(new BusinessProcessInfo(1L, null, null));
+        info.onExit = Collections.singletonList(new BusinessProcessInfo(2L, null, null));
         info.parent = new VersionInfo<>(12L, 4L);
         info.stage = UsagePointStage.Key.OPERATIONAL;
         Entity<UsagePointLifeCycleStateInfo> json = Entity.json(info);
@@ -157,14 +157,14 @@ public class UsagePointLifeCycleStatesResourceTest extends UsagePointLifeCycleAp
         when(usagePointLifeCycleConfigurationService.findAndLockUsagePointLifeCycleByIdAndVersion(12L, 4L)).thenReturn(Optional.of(lifeCycle));
         UsagePointState.UsagePointStateCreator builder = FakeBuilder.initBuilderStub(state, UsagePointState.UsagePointStateCreator.class);
         when(lifeCycle.newState(anyString())).thenReturn(builder);
-        when(finiteStateMachineService.findStateChangeBusinessProcessById(1L)).thenReturn(Optional.empty());
+        when(bpmService.findBpmProcessDefinition(anyLong())).thenReturn(Optional.empty());
 
         UsagePointLifeCycleStateInfo info = new UsagePointLifeCycleStateInfo();
         info.id = 4L;
         info.name = "State";
         info.stage = UsagePointStage.Key.OPERATIONAL;
-        info.onEntry = Collections.singletonList(new BusinessProcessInfo(1L, null, null, null));
-        info.onExit = Collections.singletonList(new BusinessProcessInfo(2L, null, null, null));
+        info.onEntry = Collections.singletonList(new BusinessProcessInfo(1L, null, null));
+        info.onExit = Collections.singletonList(new BusinessProcessInfo(2L, null, null));
         info.parent = new VersionInfo<>(12L, 4L);
         Entity<UsagePointLifeCycleStateInfo> json = Entity.json(info);
 
@@ -180,11 +180,11 @@ public class UsagePointLifeCycleStatesResourceTest extends UsagePointLifeCycleAp
         when(usagePointLifeCycleConfigurationService.findAndLockUsagePointLifeCycleByIdAndVersion(12L, 4L)).thenReturn(Optional.of(lifeCycle));
         when(usagePointLifeCycleConfigurationService.findAndLockUsagePointStateByIdAndVersion(4L, 3L)).thenReturn(Optional.of(state));
         ProcessReference onEntry = mockProcessReference(1L, "processName 1", "deploymentId 1", "processId 1");
-        StateChangeBusinessProcess onEntryProcess = onEntry.getStateChangeBusinessProcess();
-        when(finiteStateMachineService.findStateChangeBusinessProcessById(1L)).thenReturn(Optional.of(onEntryProcess));
+        BpmProcessDefinition onEntryProcess = onEntry.getStateChangeBusinessProcess();
+        when(bpmService.findBpmProcessDefinition(onEntryProcess.getId())).thenReturn(Optional.of(onEntryProcess));
         ProcessReference onExit = mockProcessReference(2L, "processName 2", "deploymentId 2", "processId 2");
-        StateChangeBusinessProcess onExitProcess = onExit.getStateChangeBusinessProcess();
-        when(finiteStateMachineService.findStateChangeBusinessProcessById(2L)).thenReturn(Optional.of(onExitProcess));
+        BpmProcessDefinition onExitProcess = onExit.getStateChangeBusinessProcess();
+        when(bpmService.findBpmProcessDefinition(onExitProcess.getId())).thenReturn(Optional.of(onExitProcess));
 
         UsagePointState.UsagePointStateUpdater builder = FakeBuilder.initBuilderStub(state, UsagePointState.UsagePointStateUpdater.class, UsagePointState.UsagePointStateCreator.class);
         when(state.startUpdate()).thenReturn(builder);
@@ -198,8 +198,8 @@ public class UsagePointLifeCycleStatesResourceTest extends UsagePointLifeCycleAp
         UsagePointLifeCycleStateInfo info = new UsagePointLifeCycleStateInfo();
         info.id = 4L;
         info.name = "State changed";
-        info.onEntry = Collections.singletonList(new BusinessProcessInfo(1L, null, null, null));
-        info.onExit = Collections.singletonList(new BusinessProcessInfo(2L, null, null, null));
+        info.onEntry = Collections.singletonList(new BusinessProcessInfo(1L, null, null));
+        info.onExit = Collections.singletonList(new BusinessProcessInfo(2L, null, null));
         info.version = 3L;
         info.parent = new VersionInfo<>(12L, 4L);
         info.stage = UsagePointStage.Key.OPERATIONAL;
@@ -227,13 +227,13 @@ public class UsagePointLifeCycleStatesResourceTest extends UsagePointLifeCycleAp
         when(usagePointLifeCycleConfigurationService.findAndLockUsagePointStateByIdAndVersion(4L, 3L)).thenReturn(Optional.of(state));
         UsagePointState.UsagePointStateUpdater builder = FakeBuilder.initBuilderStub(state, UsagePointState.UsagePointStateUpdater.class, UsagePointState.UsagePointStateCreator.class);
         when(state.startUpdate()).thenReturn(builder);
-        when(finiteStateMachineService.findStateChangeBusinessProcessById(1L)).thenReturn(Optional.empty());
+        when(bpmService.findBpmProcessDefinition(anyLong())).thenReturn(Optional.empty());
 
         UsagePointLifeCycleStateInfo info = new UsagePointLifeCycleStateInfo();
         info.id = 4L;
         info.name = "State changed";
-        info.onEntry = Collections.singletonList(new BusinessProcessInfo(1L, null, null, null));
-        info.onExit = Collections.singletonList(new BusinessProcessInfo(2L, null, null, null));
+        info.onEntry = Collections.singletonList(new BusinessProcessInfo(1L, null, null));
+        info.onExit = Collections.singletonList(new BusinessProcessInfo(2L, null, null));
         info.stage = UsagePointStage.Key.OPERATIONAL;
         info.version = 3L;
         info.parent = new VersionInfo<>(12L, 4L);
@@ -256,8 +256,8 @@ public class UsagePointLifeCycleStatesResourceTest extends UsagePointLifeCycleAp
         info.id = 4L;
         info.name = "State";
         info.stage = UsagePointStage.Key.OPERATIONAL;
-        info.onEntry = Collections.singletonList(new BusinessProcessInfo(1L, null, null, null));
-        info.onExit = Collections.singletonList(new BusinessProcessInfo(2L, null, null, null));
+        info.onEntry = Collections.singletonList(new BusinessProcessInfo(1L, null, null));
+        info.onExit = Collections.singletonList(new BusinessProcessInfo(2L, null, null));
         info.version = 2L;
         info.parent = new VersionInfo<>(12L, 3L);
         Entity<UsagePointLifeCycleStateInfo> json = Entity.json(info);
@@ -279,8 +279,8 @@ public class UsagePointLifeCycleStatesResourceTest extends UsagePointLifeCycleAp
         info.id = 4L;
         info.name = "State";
         info.stage = UsagePointStage.Key.OPERATIONAL;
-        info.onEntry = Collections.singletonList(new BusinessProcessInfo(1L, null, null, null));
-        info.onExit = Collections.singletonList(new BusinessProcessInfo(2L, null, null, null));
+        info.onEntry = Collections.singletonList(new BusinessProcessInfo(1L, null, null));
+        info.onExit = Collections.singletonList(new BusinessProcessInfo(2L, null, null));
         info.version = 2L;
         info.parent = new VersionInfo<>(12L, 4L);
         Entity<UsagePointLifeCycleStateInfo> json = Entity.json(info);
@@ -402,4 +402,3 @@ public class UsagePointLifeCycleStatesResourceTest extends UsagePointLifeCycleAp
         verify(state).remove();
     }
 }
-*/

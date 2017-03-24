@@ -175,21 +175,9 @@ public class UsagePointLifeCycleResource {
         //noinspection unchecked
         List<BusinessProcessInfo> activeProcesses = bpmService.getActiveBpmProcessDefinitions(USAGEPOINT_ASSOCIATION)
                 .stream()
-                /*.filter(bpmProcessDefinition -> bpmProcessDefinition.getAssociation().equals(USAGEPOINT_ASSOCIATION))
-                .filter(f -> List.class.isInstance(f.getProperties().get(PROCESS_KEY_DEVICE_STATES)))
-                .filter(s -> ((List<Object>) s.getProperties().get(PROCESS_KEY_DEVICE_STATES))
-                        .stream()
-                        .filter(HasIdAndName.class::isInstance)
-                        .anyMatch(v -> uriInfo.getQueryParameters().getFirst("stateId").equals("") || ((HasIdAndName) v).getId()
-                                .toString()
-                                .equals(uriInfo.getQueryParameters().getFirst("stateId"))))*/
                 .map(this.bpmFactory::from)
                 .collect(Collectors.toList());
-
         return PagedInfoList.fromCompleteList("processes", activeProcesses, queryParams);
-//        List<BusinessProcessInfo> processes = this.finiteStateMachineService.findStateChangeBusinessProcesses().stream()
-//                .map(this.bpmFactory::from).collect(Collectors.toList());
-//        return PagedInfoList.fromCompleteList("processes", processes, queryParams);
     }
 
     @GET

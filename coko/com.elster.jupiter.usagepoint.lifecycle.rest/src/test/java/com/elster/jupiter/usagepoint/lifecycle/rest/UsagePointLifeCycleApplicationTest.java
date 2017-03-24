@@ -1,14 +1,14 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- *//*
-
+ */
 
 package com.elster.jupiter.usagepoint.lifecycle.rest;
 
+import com.elster.jupiter.bpm.BpmProcessDefinition;
+import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.ProcessReference;
-import com.elster.jupiter.fsm.StateChangeBusinessProcess;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
@@ -37,6 +37,8 @@ public class UsagePointLifeCycleApplicationTest extends FelixRestApplicationJers
     protected MeteringService meteringService;
     @Mock
     protected UsagePointMicroActionFactory usagePointMicroActionFactory;
+    @Mock
+    protected BpmService bpmService;
 
     @Override
     public void setupMocks() {
@@ -52,25 +54,25 @@ public class UsagePointLifeCycleApplicationTest extends FelixRestApplicationJers
         app.setUsagePointLifeCycleService(this.usagePointLifeCycleService);
         app.setFiniteStateMachineService(this.finiteStateMachineService);
         app.setMeteringService(this.meteringService);
+        app.setBpmService(bpmService);
         app.setUsagePointMicroActionFactory(this.usagePointMicroActionFactory);
         return app;
     }
 
-    protected StateChangeBusinessProcess mockProcess(long id, String name, String deploymentId, String processId) {
-        StateChangeBusinessProcess process = mock(StateChangeBusinessProcess.class);
+    protected BpmProcessDefinition mockProcess(long id, String name, String association, String version) {
+        BpmProcessDefinition process = mock(BpmProcessDefinition.class);
         when(process.getId()).thenReturn(id);
-        when(process.getName()).thenReturn(name);
-        when(process.getDeploymentId()).thenReturn(deploymentId);
-        when(process.getProcessId()).thenReturn(processId);
+        when(process.getProcessName()).thenReturn(name);
+        when(process.getAssociation()).thenReturn(association);
+        when(process.getVersion()).thenReturn(version);
         return process;
     }
 
-    protected ProcessReference mockProcessReference(long id, String name, String deploymentId, String processId) {
+    protected ProcessReference mockProcessReference(long id, String name, String association, String version) {
         ProcessReference reference = mock(ProcessReference.class);
-        StateChangeBusinessProcess process = mockProcess(id, name, deploymentId, processId);
+        BpmProcessDefinition process = mockProcess(id, name, association, version);
         when(reference.getStateChangeBusinessProcess()).thenReturn(process);
         return reference;
     }
 
 }
-*/
