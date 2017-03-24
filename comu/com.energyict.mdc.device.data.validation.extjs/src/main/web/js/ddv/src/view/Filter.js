@@ -46,7 +46,8 @@ Ext.define('Ddv.view.Filter', {
                 text: Uni.I18n.translate('general.period', 'DDV', 'Period'),
                 defaultFromDate: me.filterDefault.from,
                 defaultToDate: me.filterDefault.to,
-                withoutTime: true
+                withoutTime: true,
+                minValue: moment().subtract(3, 'months').toDate()
             },
             {
                 type: 'readingquality',
