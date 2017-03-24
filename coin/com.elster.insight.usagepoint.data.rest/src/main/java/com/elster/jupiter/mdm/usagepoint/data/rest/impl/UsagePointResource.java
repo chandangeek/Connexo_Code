@@ -1107,12 +1107,13 @@ public class UsagePointResource {
 
             usagePoint = usagePointBuilder.create();
             info.techInfo.getUsagePointDetailBuilder(usagePoint, clock).create();
+            addCalendars(info, usagePoint);
             if (info.metrologyConfiguration != null) {
                 usagePoint.apply((UsagePointMetrologyConfiguration)resourceHelper
                         .findMetrologyConfigurationOrThrowException(info.metrologyConfiguration.id));
             }
             resourceHelper.activateMeters(info, usagePoint);
-            addCalendars(info, usagePoint);
+
 
 
             performLifeCycleTransition(info.transitionToPerform, usagePoint, validationBuilder);
