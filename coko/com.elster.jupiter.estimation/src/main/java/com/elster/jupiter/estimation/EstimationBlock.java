@@ -9,8 +9,11 @@ import com.elster.jupiter.metering.CimChannel;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 
+import aQute.bnd.annotation.ConsumerType;
+
 import java.util.List;
 
+@ConsumerType
 public interface EstimationBlock {
 
     Channel getChannel();

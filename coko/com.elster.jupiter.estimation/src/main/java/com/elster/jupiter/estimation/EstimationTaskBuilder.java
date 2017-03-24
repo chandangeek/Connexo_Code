@@ -11,8 +11,11 @@ import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.util.time.ScheduleExpression;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.time.Instant;
 
+@ProviderType
 public interface EstimationTaskBuilder {
 
     EstimationTaskBuilder setScheduleExpression(ScheduleExpression scheduleExpression);

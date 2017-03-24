@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 @ConsumerType
 public interface Estimator extends HasDynamicProperties {
@@ -55,7 +56,9 @@ public interface Estimator extends HasDynamicProperties {
 
     NlsKey getNlsKey();
 
-    List<String> getRequiredProperties();
+    default List<String> getRequiredProperties() {
+        return getPropertySpecs().stream().filter(PropertySpec::isRequired).map(PropertySpec::getName).collect(Collectors.toList());
+    }
 
     /**
      * Returns the set of target quality code systems supported by this estimator.

@@ -6,6 +6,9 @@ package com.elster.jupiter.estimation;
 
 import com.elster.jupiter.metering.ReadingType;
 
+import aQute.bnd.annotation.ProviderType;
+
+@ProviderType
 public interface ReadingTypeInEstimationRule {
 
     EstimationRule getRule();

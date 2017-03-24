@@ -6,9 +6,12 @@ package com.elster.jupiter.estimation;
 
 import com.elster.jupiter.metering.ReadingType;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.util.Collection;
 import java.util.Map;
 
+@ProviderType
 public interface EstimationRuleBuilder {
 
     EstimationRuleBuilder active(boolean active);
