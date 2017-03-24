@@ -26,6 +26,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import aQute.lib.strings.Strings;
+import org.glassfish.hk2.api.Factory;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.ClientProperties;
@@ -169,12 +170,28 @@ public abstract class FelixRestApplicationJerseyTest extends JerseyTest {
         resourceConfig.register(ConcurrentModificationExceptionMapper.class);
         resourceConfig.register(TransactionWrapper.class);
         resourceConfig.register(new AbstractBinder() {
+
+            public Factory<ConstraintViolationInfo> getConstraintViolationInfo() {
+                return new Factory<ConstraintViolationInfo>() {
+                    @Override
+                    public ConstraintViolationInfo provide() {
+                        return new ConstraintViolationInfo(thesaurus);
+                    }
+
+                    @Override
+                    public void dispose(ConstraintViolationInfo constraintViolationInfo) {
+                        // nothing to do
+                    }
+                };
+            }
+
             @Override
             protected void configure() {
                 bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
                 bind(ConcurrentModificationInfo.class).to(ConcurrentModificationInfo.class);
                 bind(ConcurrentModificationExceptionFactory.class).to(ConcurrentModificationExceptionFactory.class);
                 bind(transactionService).to(TransactionService.class);
+                bindFactory(getConstraintViolationInfo()).to(ConstraintViolationInfo.class);
             }
         });
         application.getSingletons().stream().filter(s -> s instanceof AbstractBinder).forEach(resourceConfig::register);
