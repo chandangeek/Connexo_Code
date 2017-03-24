@@ -39,6 +39,9 @@ public class OutputChannelDataInfoFactory {
         outputChannelDataInfo.interval = IntervalInfo.from(readingWithValidationStatus.getTimePeriod());
         outputChannelDataInfo.value = readingWithValidationStatus.getValue();
         outputChannelDataInfo.calculatedValue = readingWithValidationStatus.getCalculatedValue().orElse(null);
+        if(readingWithValidationStatus.getCalendar().isPresent()){
+            outputChannelDataInfo.calendarName = readingWithValidationStatus.getCalendar().get().getName();
+        }
         setValidationFields(readingWithValidationStatus, outputChannelDataInfo);
         setEditingFields(readingWithValidationStatus, outputChannelDataInfo);
         setReadingQualities(readingWithValidationStatus, outputChannelDataInfo);

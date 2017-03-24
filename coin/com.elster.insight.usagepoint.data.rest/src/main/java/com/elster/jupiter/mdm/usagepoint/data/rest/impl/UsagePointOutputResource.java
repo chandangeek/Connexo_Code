@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
+import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.estimation.EstimationResult;
 import com.elster.jupiter.estimation.EstimationService;
@@ -97,6 +98,7 @@ public class UsagePointOutputResource {
     private final MeteringService meteringService;
     private final DataValidationTaskInfoFactory dataValidationTaskInfoFactory;
     private final EstimationTaskInfoFactory estimationTaskInfoFactory;
+    private final CalendarService calendarService;
 
     private static final String INTERVAL_START = "intervalStart";
     private static final String INTERVAL_END = "intervalEnd";
@@ -115,7 +117,7 @@ public class UsagePointOutputResource {
                              EstimationService estimationService,
                              MeteringService meteringService,
                              DataValidationTaskInfoFactory dataValidationTaskInfoFactory,
-                             EstimationTaskInfoFactory estimationTaskInfoFactory) {
+                             EstimationTaskInfoFactory estimationTaskInfoFactory, CalendarService calendarService) {
         this.resourceHelper = resourceHelper;
         this.exceptionFactory = exceptionFactory;
         this.estimationHelper = estimationHelper;
@@ -131,6 +133,7 @@ public class UsagePointOutputResource {
         this.meteringService = meteringService;
         this.dataValidationTaskInfoFactory = dataValidationTaskInfoFactory;
         this.estimationTaskInfoFactory = estimationTaskInfoFactory;
+        this.calendarService = calendarService;
     }
 
     @GET
@@ -226,8 +229,9 @@ public class UsagePointOutputResource {
                 ReadingWithValidationStatusFactory readingWithValidationStatusFactory = new ReadingWithValidationStatusFactory(
                         clock, channel,
                         validationStatusFactory.isValidationActive(metrologyContract, Collections.singletonList(channel)),
-                        validationStatusFactory.getLastCheckedForChannels(evaluator, channelsContainer, Collections.singletonList(channel)));
-
+                        validationStatusFactory.getLastCheckedForChannels(evaluator, channelsContainer, Collections.singletonList(channel)),
+                        usagePoint,
+                        calendarService);
                 Map<Instant, ChannelReadingWithValidationStatus> preFilledChannelDataMap = channel.toList(requestedInterval).stream()
                         .collect(Collectors.toMap(Function.identity(), readingWithValidationStatusFactory::createChannelReading));
 
@@ -427,7 +431,8 @@ public class UsagePointOutputResource {
                 ReadingWithValidationStatusFactory readingWithValidationStatusFactory = new ReadingWithValidationStatusFactory(
                         clock, channel,
                         validationStatusFactory.isValidationActive(metrologyContract, Collections.singletonList(channel)),
-                        validationStatusFactory.getLastCheckedForChannels(evaluator, channelsContainer, Collections.singletonList(channel)));
+                        validationStatusFactory.getLastCheckedForChannels(evaluator, channelsContainer, Collections.singletonList(channel)),
+                        usagePoint, calendarService);
 
                 // add readings to pre filled register data map
                 Map<Instant, ReadingRecord> calculatedReadings = toMap(channel.getCalculatedRegisterReadings(effectiveInterval));
@@ -502,7 +507,8 @@ public class UsagePointOutputResource {
                 clock,
                 channel,
                 validationStatusFactory.isValidationActive(metrologyContract, Collections.singletonList(channel)),
-                validationStatusFactory.getLastCheckedForChannels(evaluator, channelsContainer, Collections.singletonList(channel)));
+                validationStatusFactory.getLastCheckedForChannels(evaluator, channelsContainer, Collections.singletonList(channel)),
+                usagePoint, calendarService);
         RegisterReadingWithValidationStatus readingWithValidationStatus = readingWithValidationStatusFactory.createRegisterReading(requestedTime);
 
         Range<Instant> dataAggregationInterval = Range.openClosed(requestedTime.minusMillis(1L), requestedTime);

@@ -55,6 +55,8 @@ public class OutputChannelDataInfo {
 
     public EstimationQuantityInfo estimatedByRule;
 
+    public String calendarName;
+
     public BaseReading createNew() {
         return IntervalReadingImpl.of(Instant.ofEpochMilli(this.interval.end), this.value, Collections.emptyList());
     }
