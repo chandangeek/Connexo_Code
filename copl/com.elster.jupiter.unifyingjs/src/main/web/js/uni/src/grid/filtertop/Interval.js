@@ -21,6 +21,7 @@ Ext.define('Uni.grid.filtertop.Interval', {
     originalDefaultToDate: undefined,
     originalTitle: null,
     withoutTime: false,
+    minValue: undefined,
 
     initComponent: function () {
         var me = this;
@@ -85,6 +86,7 @@ Ext.define('Uni.grid.filtertop.Interval', {
                                     },
                                     {
                                         xtype: 'datefield',
+                                        minValue: me.minValue,
                                         itemId: 'fromDate',
                                         editable: false,
                                         value: me.defaultFromDate,
@@ -188,6 +190,7 @@ Ext.define('Uni.grid.filtertop.Interval', {
                                     },
                                     {
                                         xtype: 'datefield',
+                                        minValue: me.minValue,
                                         itemId: 'toDate',
                                         editable: false,
                                         value: me.defaultToDate,
