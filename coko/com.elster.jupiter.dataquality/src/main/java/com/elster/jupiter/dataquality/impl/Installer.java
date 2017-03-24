@@ -182,6 +182,7 @@ public class Installer implements FullInstaller, PrivilegesProvider {
                 "     payload = 'DEVICE_DATA_QUALITY_KPI-' || (SELECT dqk.id FROM DQK_DATAQUALITYKPI dqk WHERE tsk.id = dqk.dataqualitykpitask)," +
                 "     name = (SELECT edg.name || ' - Device Data Quality KPI' FROM DQK_DATAQUALITYKPI dqk JOIN MTG_ED_GROUP edg ON dqk.ENDDEVICEGROUP = edg.id WHERE tsk.id = dqk.dataqualitykpitask)" +
                 " WHERE id IN (SELECT dataqualitykpitask FROM DQK_DATAQUALITYKPI)");
+        sql.add("UPDATE TSK_RECURRENT_TASK set DESTINATION = 'DataQualityKpiCalcTopic' where DESTINATION = 'ValKpiCalcTopic'");
 
         dataModel.useConnectionRequiringTransaction(connection -> {
             try (Statement statement = connection.createStatement()) {
