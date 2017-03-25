@@ -95,6 +95,8 @@ public enum MessageSeeds implements MessageSeed {
     ISSUE_ALREADY_CLOSED(83, "IssueAlreadyClosed", "Issue with id {0} already closed"),
     NO_SUCH_USAGE_POINT_LIFECYCLE(84, "NoSuchUsagePointLifeCycle", "No such usage point lifecycle with id {0}"),
     NO_SUCH_USAGE_POINT_LIFECYCLE_STATE(85, "NoSuchUsagePointLifeCycleState", "No such usage point lifecycle state with id {0}"),
+    NO_SUCH_LIFE_CYCLE_TRANSITION(86, "NoSuchUsagePointLifeCycleTransition", "No usage point transition with id {0}"),
+    TRANSITION_FAILED(87, "UsagePointLifeCycleTransitionFailed", "Transition failed: {0}"),
     ;
 
     private final int number;

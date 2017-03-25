@@ -34,6 +34,7 @@ import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
 
 import com.google.common.collect.ImmutableSet;
@@ -61,6 +62,7 @@ public class PublicRestApplication extends Application {
     private volatile CustomPropertySetService customPropertySetService;
     private volatile MetrologyConfigurationService metrologyConfigurationService;
     private volatile UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService;
+    private volatile UsagePointLifeCycleService usagePointLifeCycleService;
     private volatile ServiceCallService serviceCallService;
     private volatile MessageService messageService;
     private volatile PropertyValueInfoService propertyValueInfoService;
@@ -158,6 +160,11 @@ public class PublicRestApplication extends Application {
         this.issueService = issueService;
     }
 
+    @Reference
+    public void setUsagePointLifeCycleService(UsagePointLifeCycleService usagePointLifeCycleService) {
+        this.usagePointLifeCycleService = usagePointLifeCycleService;
+    }
+
     class HK2Binder extends AbstractBinder {
 
         @Override
@@ -176,6 +183,7 @@ public class PublicRestApplication extends Application {
             bind(locationService).to(LocationService.class);
             bind(issueService).to(IssueService.class);
             bind(usagePointLifeCycleConfigurationService).to(UsagePointLifeCycleConfigurationService.class);
+            bind(usagePointLifeCycleService).to(UsagePointLifeCycleService.class);
 
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
             bind(ExceptionFactory.class).to(ExceptionFactory.class);

@@ -68,6 +68,7 @@ import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallBuilder;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
+import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointStage;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
@@ -113,6 +114,8 @@ public class PlatformPublicApiJerseyTest extends FelixRestApplicationJerseyTest 
     @Mock
     UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService;
     @Mock
+    UsagePointLifeCycleService usagePointLifeCycleService;
+    @Mock
     MessageService messageService;
     @Mock
     ServiceCallService serviceCallService;
@@ -147,6 +150,7 @@ public class PlatformPublicApiJerseyTest extends FelixRestApplicationJerseyTest 
         application.setThreadPrincipalService(threadPrincipalService);
         application.setLocationService(locationService);
         application.setIssueService(issueService);
+        application.setUsagePointLifeCycleService(usagePointLifeCycleService);
         return application;
     }
 

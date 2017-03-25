@@ -4,17 +4,27 @@
 
 package com.elster.jupiter.kore.api.v2;
 
+import com.elster.jupiter.kore.api.impl.MessageSeeds;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.LinkInfo;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.PropertyCopier;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.Relation;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.SelectableFieldFactory;
+import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.rest.util.IntervalInfo;
+import com.elster.jupiter.rest.util.RestValidationBuilder;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.ws.rs.core.Link;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
+import java.net.URI;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -29,11 +39,24 @@ public class EffectiveMetrologyConfigurationInfoFactory extends SelectableFieldF
 
     private final Provider<MetrologyConfigurationInfoFactory> metrologyConfigurationInfoFactory;
     private final Provider<MetrologyConfigurationPurposeInfoFactory> metrologyConfigurationPurposeInfoFactory;
+    private final Provider<UsagePointInfoFactory> usagePointInfoFactory;
+    private final MeteringService meteringService;
+    private final ExceptionFactory exceptionFactory;
+    private final ResourceHelper resourceHelper;
 
     @Inject
-    public EffectiveMetrologyConfigurationInfoFactory(Provider<MetrologyConfigurationInfoFactory> metrologyConfigurationInfoFactory, Provider<MetrologyConfigurationPurposeInfoFactory> metrologyConfigurationPurposeInfoFactory) {
+    public EffectiveMetrologyConfigurationInfoFactory(Provider<MetrologyConfigurationInfoFactory> metrologyConfigurationInfoFactory,
+                                                      Provider<MetrologyConfigurationPurposeInfoFactory> metrologyConfigurationPurposeInfoFactory,
+                                                      Provider<UsagePointInfoFactory> usagePointInfoFactory,
+                                                      MeteringService meteringService,
+                                                      ExceptionFactory exceptionFactory,
+                                                      ResourceHelper resourceHelper) {
         this.metrologyConfigurationInfoFactory = metrologyConfigurationInfoFactory;
         this.metrologyConfigurationPurposeInfoFactory = metrologyConfigurationPurposeInfoFactory;
+        this.usagePointInfoFactory = usagePointInfoFactory;
+        this.meteringService = meteringService;
+        this.exceptionFactory = exceptionFactory;
+        this.resourceHelper = resourceHelper;
     }
 
     public LinkInfo asLink(EffectiveMetrologyConfigurationOnUsagePoint metrology, Relation relation, UriInfo uriInfo) {
@@ -76,6 +99,11 @@ public class EffectiveMetrologyConfigurationInfoFactory extends SelectableFieldF
         map.put("metrologyConfiguration", (metrologyInfo, metrology, uriInfo) -> metrologyInfo.metrologyConfiguration = metrologyConfigurationInfoFactory
                 .get()
                 .asLink(metrology.getMetrologyConfiguration(), Relation.REF_RELATION, uriInfo));
+        map.put("usagePoint", (metrologyInfo, metrology, uriInfo) -> metrologyInfo.usagePoint = usagePointInfoFactory
+                .get()
+                .asLink(metrology.getUsagePoint(), Relation.REF_RELATION, uriInfo));
+        map.put("interval", (metrologyInfo, metrology, uriInfo) -> metrologyInfo.interval = IntervalInfo
+                .from(metrology.getInterval().toOpenRange()));
         map.put("purposes", (metrologyInfo, metrology, uriInfo) -> metrologyInfo.purposes = metrology.getMetrologyConfiguration()
                 .getContracts().stream().map(c -> metrologyConfigurationPurposeInfoFactory.get().asInfo(
                         c.getId(),

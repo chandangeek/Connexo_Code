@@ -6,17 +6,21 @@ package com.elster.jupiter.kore.api.v2;
 
 import com.elster.jupiter.kore.api.impl.MessageSeeds;
 import com.elster.jupiter.kore.api.security.Privileges;
+import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.FieldSelection;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.JsonQueryParameters;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.PagedInfoList;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.PROPFIND;
+import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -35,14 +39,16 @@ public class UsagePointLifeCycleStateResource {
     private final UsagePointLifeCycleStateInfoFactory usagePointLifeCycleStateInfoFactory;
     private final UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService;
     private final ExceptionFactory exceptionFactory;
+    private final ResourceHelper resourceHelper;
 
     @Inject
     public UsagePointLifeCycleStateResource(UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService,
                                             UsagePointLifeCycleStateInfoFactory usagePointLifeCycleStateInfoFactory,
-                                            ExceptionFactory exceptionFactory) {
+                                            ExceptionFactory exceptionFactory, ResourceHelper resourceHelper) {
         this.usagePointLifeCycleConfigurationService = usagePointLifeCycleConfigurationService;
         this.usagePointLifeCycleStateInfoFactory = usagePointLifeCycleStateInfoFactory;
         this.exceptionFactory = exceptionFactory;
+        this.resourceHelper = resourceHelper;
     }
 
     /**
@@ -84,6 +90,22 @@ public class UsagePointLifeCycleStateResource {
                 .path(UsagePointLifeCycleStateResource.class);
 
         return PagedInfoList.from(infos, queryParameters, uriBuilder, uriInfo);
+    }
+
+    @Path("{usagePointMrid}/transition")
+    @POST
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
+    @Transactional
+    public Response performTransition(@PathParam("usagePointMrid") String usagePointMrid,
+                                      UsagePointTransitionInfo info) {
+        UsagePoint usagePoint = resourceHelper.findUsagePointByMrid(usagePointMrid)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_USAGE_POINT));
+
+        resourceHelper.performUsagePointTransition(usagePoint, info);
+
+        return Response.ok().build();
     }
 
     /**

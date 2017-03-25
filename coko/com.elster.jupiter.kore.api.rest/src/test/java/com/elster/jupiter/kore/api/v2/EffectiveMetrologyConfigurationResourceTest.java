@@ -9,6 +9,7 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.Relation;
+import com.elster.jupiter.util.time.Interval;
 
 import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
@@ -42,6 +43,7 @@ public class EffectiveMetrologyConfigurationResourceTest extends PlatformPublicA
         when(effectiveMetrologyConfiguration.getMetrologyConfiguration()).thenReturn(metrologyConfiguration);
         when(effectiveMetrologyConfiguration.getUsagePoint()).thenReturn(usagePoint);
         when(effectiveMetrologyConfiguration.getRange()).thenReturn(Range.atLeast(Instant.ofEpochMilli(1468933329000L)));
+        when(effectiveMetrologyConfiguration.getInterval()).thenReturn(Interval.of(Range.atLeast(Instant.ofEpochMilli(1468933329000L))));
         when(usagePoint.getEffectiveMetrologyConfiguration(any(Instant.class))).thenReturn(Optional.of(effectiveMetrologyConfiguration));
     }
 
@@ -82,7 +84,7 @@ public class EffectiveMetrologyConfigurationResourceTest extends PlatformPublicA
 
         // Asserts
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
-        assertThat(model.<List>get("$")).hasSize(4);
-        assertThat(model.<List<String>>get("$")).containsOnly("id", "link", "metrologyConfiguration", "purposes");
+        assertThat(model.<List>get("$")).hasSize(6);
+        assertThat(model.<List<String>>get("$")).containsOnly("id", "link", "interval", "metrologyConfiguration", "purposes", "usagePoint");
     }
 }
