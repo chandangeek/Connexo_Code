@@ -18,6 +18,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.temporal.TemporalAmount;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,8 +26,8 @@ public class SyntheticLoadProfileImportProcessor extends AbstractImportProcessor
 
     private Map<String, Map<Instant, BigDecimal>> values = new HashMap<>();
     private Map<String, SyntheticLoadProfile> syntheticLoadProfiles = new HashMap<>();
-    private Instant previousTimeStamp;
-    private Duration interval;
+    private LocalDateTime previousTimeStamp;
+    private TemporalAmount interval;
     private ZoneId zoneId;
 
     SyntheticLoadProfileImportProcessor(String timeZone, SyntheticLoadProfileDataImporterContext context) {
@@ -42,7 +43,7 @@ public class SyntheticLoadProfileImportProcessor extends AbstractImportProcessor
         } catch (Exception e) {
             throw e;
         } finally {
-            previousTimeStamp = data.getTimeStamp();
+            previousTimeStamp = LocalDateTime.ofInstant(data.getTimeStamp(), zoneId);
         }
     }
 
@@ -67,7 +68,7 @@ public class SyntheticLoadProfileImportProcessor extends AbstractImportProcessor
             }
         }
         //Check for wrong interval of data (current timestamp minus previous timestamp is not equal to 'Interval' of all of the synthetic load profiles specified in the file)
-        if (previousTimeStamp != null && !previousTimeStamp.plus(getInterval(data)).equals(data.getTimeStamp())) {
+        if (previousTimeStamp != null && !previousTimeStamp.plus(getInterval(data)).equals(LocalDateTime.ofInstant(data.getTimeStamp(), zoneId))) {
             throw new ProcessorException(MessageSeeds.CORRECTIONFACTOR_WRONG_INTERVAL, data.getLineNumber());
         }
     }
@@ -105,7 +106,7 @@ public class SyntheticLoadProfileImportProcessor extends AbstractImportProcessor
         return syntheticLoadProfiles.get(syntheticLoadProfileName);
     }
 
-    private Duration getInterval(SyntheticLoadProfileImportRecord data){
+    private TemporalAmount getInterval(SyntheticLoadProfileImportRecord data){
         if(interval == null) {
             interval = findSyntheticLoadProfile(data.getSyntheticLoadProfiles().keySet().iterator().next()).getInterval();
         }
