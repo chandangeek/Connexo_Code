@@ -235,7 +235,7 @@ public class Beacon3100ProtocolEventLog extends Beacon3100AbstractEventLog {
             if (!entry.debugInfo.isEmpty()){
                 msg += " " +entry.debugInfo;
             }
-            meterEvents.add(new MeterEvent(entry.entryTimeStamp,code,entry.type.getType(), msg));
+            meterEvents.add(new MeterEvent(entry.entryTimeStamp, 0, code, msg, 0, entry.type.getType()));
         }
 
         logBook.addCollectedMeterEvents(MeterEvent.mapMeterEventsToMeterProtocolEvents(meterEvents));
@@ -246,8 +246,11 @@ public class Beacon3100ProtocolEventLog extends Beacon3100AbstractEventLog {
         List<CollectedLogBook> slaveLogBooksCollection = new ArrayList<>();
 
         for(Map.Entry<String, CollectedLogBook> slaveLogBookMap : slaveLogBooks.entrySet()){
-            Logger.getAnonymousLogger().finest("----- EVENTS for "+slaveLogBookMap.getKey()+" ----------");
-            Logger.getAnonymousLogger().finest(slaveLogBooksCollection.toString());
+            try {
+                Logger.getAnonymousLogger().info("- EventLog for " + slaveLogBookMap.getKey() + " has " + slaveLogBookMap.getValue().getCollectedMeterEvents().size() + " events");
+            } catch (Exception ex){
+                // swallow any funny NPE
+            }
             slaveLogBooksCollection.add(slaveLogBookMap.getValue());
         }
 
