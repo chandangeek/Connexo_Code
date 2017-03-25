@@ -63,6 +63,10 @@ public class Beacon3100LogBookFactory implements DeviceLogBookSupport {
                     try {
                         DataContainer dataContainer = profileGeneric.getBuffer(fromDate, getCalendar());
                         collectedLogBook.setCollectedMeterEvents(parseEvents(dataContainer, logBookReader.getLogBookObisCode()));
+                        if (PROTOCOL_LOGBOOK.equals(logBookReader.getLogBookObisCode())){
+                            Beacon3100ProtocolEventLog protocolEventLog = new Beacon3100ProtocolEventLog(dataContainer, protocol.getTimeZone());
+                            result.addAll(protocolEventLog.geSlaveLogBooks());
+                        }
                     } catch (IOException e) {
                         if (DLMSIOExceptionHandler.isUnexpectedResponse(e, protocol.getDlmsSessionProperties().getRetries())) {
                             collectedLogBook.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueFactory().createWarning(logBookReader, "logBookXissue", logBookReader.getLogBookObisCode().toString(), e.getMessage()));
