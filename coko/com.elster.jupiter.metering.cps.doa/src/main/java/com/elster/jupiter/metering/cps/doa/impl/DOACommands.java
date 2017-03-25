@@ -29,6 +29,7 @@ import java.time.LocalDateTime;
 import java.time.Period;
 import java.time.Year;
 import java.time.ZoneOffset;
+import java.time.temporal.TemporalAmount;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -275,10 +276,10 @@ public class DOACommands {
             return builder.build();
         }
 
-        static IntervalLength from(Duration duration) {
+        static IntervalLength from(TemporalAmount duration) {
             return Stream
                     .of(values())
-                    .filter(each -> each.toDuration().equals(duration))
+                    .filter(each -> duration.equals(each.toDuration()))
                     .findAny()
                     .orElseThrow(() -> new IllegalArgumentException("Duration " + duration + " is not supported by the doa gogo command, likely because the SLP was not created with a doa command"));
         }
