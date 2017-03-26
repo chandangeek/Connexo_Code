@@ -116,7 +116,7 @@ public enum DeviceActionMessage implements DeviceMessageSpec {
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.bufferSize)),
     BillingResetWithActivationDate(58,
             PropertySpecFactory.dateTimePropertySpec(DeviceMessageConstants.adHocEndOfBillingActivationDatedAttributeName)),
-    RemoveLogicalDevice(58,
+    RemoveLogicalDevice(59,
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.clientMacAddress)
             )
     ;

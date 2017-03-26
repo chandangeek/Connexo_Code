@@ -40,7 +40,20 @@ public class ConcentratorSetupMapping extends G3Mapping{
 
     @Override
     public int getAttributeNumber() {
-        return getObisCode().getF();        //The F-field of the obiscode indicates which attribute is being read
+        switch (getObisCode().getF()) {        //The F-field of the obiscode indicates which attribute is being read
+            case 2:
+                return  2;
+            case 3:
+                return  3;
+            case 4:
+            case 41:
+            case 42:
+                return  4;
+            case 5:
+                return  5;
+
+        }
+        return getObisCode().getF();
     }
 
     @Override

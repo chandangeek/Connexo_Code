@@ -91,6 +91,21 @@ public class Beacon3100RegisterFactory {
             if (g3Mapping != null) {
                 // let the mapper do the job
                 ComposedRegister composedRegister = new ComposedRegister();
+                int[] attributeNumbers = g3Mapping.getAttributeNumbers();
+                for (int index = 0; index < attributeNumbers.length; index++) {
+                    int attributeNumber = attributeNumbers[index];
+                    DLMSAttribute dlmsAttribute = new DLMSAttribute(g3Mapping.getBaseObisCode(), attributeNumber, g3Mapping.getDLMSClassId());
+                    dlmsAttributes.add(dlmsAttribute);
+
+                    //If the mapping contains more than 1 attribute, the order is always value, unit, captureTime
+                    if (index == 0) {
+                        composedRegister.setRegisterValue(dlmsAttribute);
+                    } else if (index == 1) {
+                        composedRegister.setRegisterUnit(dlmsAttribute);
+                    } else if (index == 2) {
+                        composedRegister.setRegisterCaptureTime(dlmsAttribute);
+                    }
+                }
                 composedRegisterMap.put(register.getObisCode(), composedRegister);
             } else {
 
