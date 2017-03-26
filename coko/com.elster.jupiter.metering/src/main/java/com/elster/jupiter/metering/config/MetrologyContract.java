@@ -81,6 +81,8 @@ public interface MetrologyContract extends HasId {
      */
     Collection<Set<ReadingType>> sortReadingTypesByDependencyLevel();
 
+    List<ReadingType> sortReadingTypesByDependency();
+
     interface Status {
 
         String getKey();

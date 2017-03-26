@@ -67,6 +67,7 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
     public enum Fields {
         NAME("name"),
         DESCRIPTION("description"),
+        ALLOW_GAP("gapAllowed"),
         STATUS("status"),
         SERVICECATEGORY("serviceCategory"),
         CUSTOM_PROPERTY_SETS("customPropertySets"),
@@ -103,6 +104,7 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
     private String name;
     @Size(max = Table.SHORT_DESCRIPTION_LENGTH, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
     private String description;
+    private boolean gapAllowed;
     @NotNull
     private MetrologyConfigurationStatus status = MetrologyConfigurationStatus.INACTIVE;
     @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
@@ -182,6 +184,15 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
     }
 
     @Override
+    public boolean isGapAllowed() {
+        return gapAllowed;
+    }
+
+    public void setGapAllowed(boolean gapAllowed){
+        this.gapAllowed = gapAllowed;
+    }
+
+    @Override
     public MetrologyConfigurationStatus getStatus() {
         return status;
     }
@@ -194,7 +205,8 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
     private void checkLinkedUsagePoints() {
         if (!metrologyConfigurationService.getDataModel()
                 .query(EffectiveMetrologyConfigurationOnUsagePoint.class, MetrologyConfiguration.class)
-                .select(where("metrologyConfiguration").isEqualTo(this).and(where("interval").isEffective()), Order.NOORDER, false, null, 1, 1)
+                .select(where("metrologyConfiguration").isEqualTo(this)
+                        .and(where("interval").isEffective()), Order.NOORDER, false, null, 1, 1)
                 .isEmpty()) {
             throw new CannotDeactivateMetrologyConfiguration(this.metrologyConfigurationService.getThesaurus());
         }
@@ -300,7 +312,8 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
     }
 
     private MetrologyContract createMetrologyContract(MetrologyPurpose metrologyPurpose, boolean mandatory) {
-        MetrologyContractImpl metrologyContract = this.metrologyConfigurationService.getDataModel().getInstance(MetrologyContractImpl.class)
+        MetrologyContractImpl metrologyContract = this.metrologyConfigurationService.getDataModel()
+                .getInstance(MetrologyContractImpl.class)
                 .init(this, metrologyPurpose);
         metrologyContract.setMandatory(mandatory);
         Save.CREATE.validate(this.metrologyConfigurationService.getDataModel(), metrologyContract);

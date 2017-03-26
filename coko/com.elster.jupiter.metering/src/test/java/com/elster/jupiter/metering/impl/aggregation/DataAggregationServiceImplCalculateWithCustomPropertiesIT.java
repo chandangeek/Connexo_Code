@@ -390,6 +390,7 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
 
         // Setup MetrologyConfiguration
         this.configuration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("monthlyNetConsumption", ELECTRICITY).create();
+        this.configuration.addMeterRole(getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT));
         this.contract = configuration.addMetrologyContract(METROLOGY_PURPOSE);
         // Add the CustomPropertySet
         RegisteredCustomPropertySet registeredCustomPropertySet = getCustomPropertySetService().findActiveCustomPropertySet(AntennaDetailsCustomPropertySet.ID).get();
@@ -590,7 +591,10 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
 
     private void setupUsagePoint(String name) {
         ServiceCategory electricity = getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
-        this.usagePoint = electricity.newUsagePoint(name, jan1st2016).create();
+        this.usagePoint = electricity.newUsagePoint(name, jan1st2016.minusSeconds(20)).create();
+        UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("UP1", electricity).create();
+        usagePointMetrologyConfiguration.addMeterRole(getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT));
+        usagePoint.apply(usagePointMetrologyConfiguration, jan1st2016.minusSeconds(20));
     }
 
     private void activateMeter() {
