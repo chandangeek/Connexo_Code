@@ -29,7 +29,8 @@ public enum ConnectionTaskFields implements ImplField {
     PLANNED_NEXT_EXECUTION_TIMESTAMP("plannedNextExecutionTimestamp"),
     CONNECTION_STRATEGY("connectionStrategy"),
     PRIORITY("priority"),
-    ALLOW_SIMULTANEOUS_CONNECTIONS("numberOfSimultaneousConnections");
+    ALLOW_SIMULTANEOUS_CONNECTIONS("numberOfSimultaneousConnections"),
+    PROTOCOLDIALECTCONFIGURATIONPROPERTIES("protocolDialectConfigurationProperties");
 
     private final String javaFieldName;
 
