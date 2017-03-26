@@ -73,6 +73,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.time.Period;
 import java.util.Arrays;
@@ -80,6 +81,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.TimeZone;
 
 import static com.elster.jupiter.orm.Version.version;
 
@@ -95,6 +97,7 @@ public class MeteringCustomPropertySetsDemoInstaller implements TranslationKeyPr
     private MetrologyConfigurationService metrologyConfigurationService;
     private volatile UpgradeService upgradeService;
     private volatile SyntheticLoadProfileService syntheticLoadProfileService;
+    private volatile Clock clock;
 
     @Reference
     @SuppressWarnings("unused") // Used by OSGi framework
@@ -136,6 +139,12 @@ public class MeteringCustomPropertySetsDemoInstaller implements TranslationKeyPr
     @SuppressWarnings("unused") // Used by OSGi framework
     public void setUpgradeService(UpgradeService upgradeService) {
         this.upgradeService = upgradeService;
+    }
+
+    @Reference
+    @SuppressWarnings("unused") // Used by OSGi framework
+    public void setClock(Clock clock) {
+        this.clock = clock;
     }
 
     @Activate
@@ -412,16 +421,19 @@ public class MeteringCustomPropertySetsDemoInstaller implements TranslationKeyPr
     }
 
     void createSyntheticLoadProfiles(){
+        TimeZone timeZone = TimeZone.getTimeZone(clock.getZone());
         ReadingType readingTypeDailyApluskWh = meteringService.getReadingType("11.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0")
                 .orElseGet(() -> meteringService.createReadingType("11.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "A+"));
         syntheticLoadProfileService.newSyntheticLoadProfile("Loss factor", Period.ofYears(1), Instant.parse("2017-01-01T00:00:00Z"), readingTypeDailyApluskWh)
                 .withDescription("Loss factor")
+                .withTimeZone(timeZone)
                 .build();
 
         ReadingType readingTypeHourlyVolume = meteringService.getReadingType("0.0.7.4.1.7.58.0.0.0.0.0.0.0.0.0.42.0")
                 .orElseGet(() -> meteringService.createReadingType("0.0.7.4.1.7.58.0.0.0.0.0.0.0.0.0.42.0", "Hourly volume m³"));
         syntheticLoadProfileService.newSyntheticLoadProfile("CCF", Period.ofMonths(1), Instant.parse("2017-01-01T00:00:00Z"), readingTypeHourlyVolume)
                 .withDescription("Climate Correction Factor")
+                .withTimeZone(timeZone)
                 .build();
     }
 
