@@ -236,7 +236,7 @@ class UpgraderV10_3 implements Upgrader, PrivilegesProvider {
 
     private void upgradeResidentialProsumerWith2Meter() {
         Optional<MetrologyConfiguration> usagePointMetrologyConfiguration = metrologyConfigurationService.findMetrologyConfiguration("Residential prosumer with 2 meter");
-        if (usagePointMetrologyConfiguration.isPresent()) {
+        if (usagePointMetrologyConfiguration.isPresent() && usagePointMetrologyConfiguration.get() instanceof UsagePointMetrologyConfiguration) {
             UsagePointMetrologyConfiguration config = (UsagePointMetrologyConfiguration) usagePointMetrologyConfiguration
                     .get();
             ReadingType readingTypeMonthlyAplusWh = meteringService.findReadingTypes(Collections.singletonList(MetrologyConfigurationsInstaller.MONTHLY_A_PLUS_WH))
