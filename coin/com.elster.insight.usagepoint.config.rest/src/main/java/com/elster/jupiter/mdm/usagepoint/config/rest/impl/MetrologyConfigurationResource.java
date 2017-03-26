@@ -281,11 +281,12 @@ public class MetrologyConfigurationResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public MetrologyContractInfo getLinkableValidationRuleSetsForMetrologyContract(@PathParam("contractId") long contractId) {
         MetrologyContract metrologyContract = resourceHelper.findContractByIdOrThrowException(contractId);
+        List<ValidationRuleSet> linkedValidationRuleSets = usagePointConfigurationService.getValidationRuleSets(metrologyContract);
         List<ValidationRuleSetInfo> linkableValidationRuleSets = validationService.getValidationRuleSets()
                 .stream()
                 .filter(validationRuleSet -> validationRuleSet.getQualityCodeSystem().equals(QualityCodeSystem.MDM))
-                .filter(validationRuleSet -> usagePointConfigurationService.isLinkableValidationRuleSet(metrologyContract, validationRuleSet,
-                        usagePointConfigurationService.getValidationRuleSets(metrologyContract)))
+                .filter(validationRuleSet -> !usagePointConfigurationService.getMatchingDeliverablesOnValidationRuleSet(metrologyContract, validationRuleSet).isEmpty())
+                .filter(validationRuleSet -> !linkedValidationRuleSets.contains(validationRuleSet))
                 .map(ValidationRuleSetInfo::new)
                 .collect(Collectors.toList());
         List<EstimationRuleSetInfo> linkableEstimationRuleSets = estimationService.getEstimationRuleSets()
