@@ -20,13 +20,14 @@ public class SyntheticLoadProfileBuilderImpl implements SyntheticLoadProfileBuil
 
     private final SyntheticLoadProfileServiceImpl syntheticLoadProfileService;
 
-    private final TimeZone timeZone = TimeZone.getTimeZone("UTC");
+
 
     private String name;
     private String description;
     private ReadingType readingType;
     private Instant startTime;
     private Period duration;
+    private TimeZone timeZone = TimeZone.getTimeZone("UTC");
 
     public SyntheticLoadProfileBuilderImpl(SyntheticLoadProfileServiceImpl syntheticLoadProfileService, String name) {
         this.syntheticLoadProfileService = syntheticLoadProfileService;
@@ -54,6 +55,12 @@ public class SyntheticLoadProfileBuilderImpl implements SyntheticLoadProfileBuil
 
     public SyntheticLoadProfileBuilder withDuration(Period duration) {
         this.duration = duration;
+        return this;
+    }
+
+    @Override
+    public SyntheticLoadProfileBuilder withTimeZone(TimeZone timeZone) {
+        this.timeZone = timeZone;
         return this;
     }
 

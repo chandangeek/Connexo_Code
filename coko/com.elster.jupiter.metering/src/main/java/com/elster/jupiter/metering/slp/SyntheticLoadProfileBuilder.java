@@ -6,9 +6,13 @@ package com.elster.jupiter.metering.slp;
 
 import aQute.bnd.annotation.ProviderType;
 
+import java.util.TimeZone;
+
 @ProviderType
 public interface SyntheticLoadProfileBuilder {
     SyntheticLoadProfileBuilder withDescription(String description);
+
+    SyntheticLoadProfileBuilder withTimeZone(TimeZone timeZone);
 
     SyntheticLoadProfile build();
 }
