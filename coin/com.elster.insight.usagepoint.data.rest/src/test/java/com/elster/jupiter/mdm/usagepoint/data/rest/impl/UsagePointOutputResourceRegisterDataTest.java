@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
+import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.devtools.ExtjsFilter;
@@ -14,6 +15,7 @@ import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingRecord;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
@@ -31,6 +33,7 @@ import com.jayway.jsonpath.JsonModel;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
+import java.io.ByteArrayInputStream;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -75,6 +78,12 @@ public class UsagePointOutputResourceRegisterDataTest extends UsagePointDataRest
     private ReadingRecord readingRecord1, readingRecord2, readingRecord3;
     @Mock
     private ValidationEvaluator evaluator;
+    @Mock
+    private ReadingType readingType1;
+    @Mock
+    private ReadingType readingType2;
+    @Mock
+    private ReadingType readingType3;
 
     @Captor
     private ArgumentCaptor<List<ReadingImpl>> readingsCaptor;
@@ -96,12 +105,20 @@ public class UsagePointOutputResourceRegisterDataTest extends UsagePointDataRest
         when(readingRecord1.getValue()).thenReturn(BigDecimal.valueOf(200, 0));
         when(readingRecord1.getTimeStamp()).thenReturn(readingTimeStamp1);
         when(readingRecord1.getReportedDateTime()).thenReturn(readingTimeStamp1);
+        when(readingRecord1.getTimePeriod()).thenReturn(Optional.empty());
         when(readingRecord2.getValue()).thenReturn(BigDecimal.valueOf(206, 0));
         when(readingRecord2.getTimeStamp()).thenReturn(readingTimeStamp2);
+        when(readingRecord2.getTimePeriod()).thenReturn(Optional.empty());
         when(readingRecord2.getReportedDateTime()).thenReturn(readingTimeStamp2);
         when(readingRecord3.getValue()).thenReturn(BigDecimal.valueOf(250, 0));
         when(readingRecord3.getTimeStamp()).thenReturn(readingTimeStamp3);
         when(readingRecord3.getReportedDateTime()).thenReturn(readingTimeStamp3);
+        when(readingRecord1.getReadingType()).thenReturn(readingType1);
+        when(readingRecord2.getReadingType()).thenReturn(readingType2);
+        when(readingRecord3.getReadingType()).thenReturn(readingType3);
+        when(readingType1.getMacroPeriod()).thenReturn(MacroPeriod.BILLINGPERIOD);
+        when(readingType2.getMacroPeriod()).thenReturn(MacroPeriod.BILLINGPERIOD);
+        when(readingType3.getMacroPeriod()).thenReturn(MacroPeriod.MONTHLY);
 
         evaluator = mock(ValidationEvaluator.class);
         when(validationService.getEvaluator()).thenReturn(evaluator);
@@ -299,6 +316,7 @@ public class UsagePointOutputResourceRegisterDataTest extends UsagePointDataRest
 
     @Test
     public void testEditRegisterData() throws Exception {
+        when(usagePoint.getEffectiveMetrologyConfiguration(any())).thenReturn(Optional.of(effectiveMC));
         when(channelsContainer.getRange()).thenReturn(Range.atLeast(readingTimeStamp1));
         when(channel.getRegisterReadings(Range.openClosed(readingTimeStamp1, readingTimeStamp3)))
                 .thenReturn(Arrays.asList(readingRecord1, readingRecord2, readingRecord3));
@@ -324,7 +342,29 @@ public class UsagePointOutputResourceRegisterDataTest extends UsagePointDataRest
     }
 
     @Test
+    public void testEditRegisterDataWithoutEffectiveMC() throws Exception {
+        when(usagePoint.getEffectiveMetrologyConfiguration(any())).thenReturn(Optional.empty());
+
+        NumericalOutputRegisterDataInfo info = new NumericalOutputRegisterDataInfo();
+        info.value = BigDecimal.valueOf(101L);
+        info.timeStamp = readingTimeStamp3;
+
+        // Business method
+        Response response = target("usagepoints/" + USAGE_POINT_NAME + "/purposes/100/outputs/1/registerData/" + readingTimeStamp3.toEpochMilli())
+                .request().put(Entity.json(info));
+        JsonModel model = JsonModel.create((ByteArrayInputStream) response.getEntity());
+
+        // Asserts
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+        assertThat(model.<Boolean>get("$.success")).isEqualTo(false);
+        assertThat(model.<List>get("$.errors")).hasSize(1);
+        assertThat(model.<String>get("$.errors[0].id")).isEqualTo("timeStamp");
+        assertThat(model.<String>get("$.errors[0].msg")).isEqualTo(MessageSeeds.NO_METROLOGYCONFIG_FOR_USAGEPOINT_IN_THIS_TIME.getDefaultFormat());
+    }
+
+    @Test
     public void testConfirmRegisterData() throws Exception {
+        when(usagePoint.getEffectiveMetrologyConfiguration(any())).thenReturn(Optional.of(effectiveMC));
         when(channelsContainer.getRange()).thenReturn(Range.atLeast(readingTimeStamp1));
         when(channel.getRegisterReadings(Range.openClosed(readingTimeStamp1, readingTimeStamp3)))
                 .thenReturn(Arrays.asList(readingRecord1, readingRecord2, readingRecord3));
@@ -347,6 +387,28 @@ public class UsagePointOutputResourceRegisterDataTest extends UsagePointDataRest
         assertThat(readingsCaptor.getValue()).hasSize(1);
         assertThat(readingsCaptor.getValue().get(0).getValue()).isEqualTo(info.value);
         assertThat(readingsCaptor.getValue().get(0).getTimeStamp()).isEqualTo(readingTimeStamp3);
+    }
+
+
+    @Test
+    public void testConfirmRegisterDataWithoutEffectiveMC() throws Exception {
+        when(usagePoint.getEffectiveMetrologyConfiguration(any())).thenReturn(Optional.empty());
+
+        NumericalOutputRegisterDataInfo info = new NumericalOutputRegisterDataInfo();
+        info.isConfirmed = true;
+        info.timeStamp = readingTimeStamp3;
+
+        // Business method
+        Response response = target("usagepoints/" + USAGE_POINT_NAME + "/purposes/100/outputs/1/registerData/" + readingTimeStamp3.toEpochMilli())
+                .request().put(Entity.json(info));
+        JsonModel model = JsonModel.create((ByteArrayInputStream) response.getEntity());
+
+        // Asserts
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+        assertThat(model.<Boolean>get("$.success")).isEqualTo(false);
+        assertThat(model.<List>get("$.errors")).hasSize(1);
+        assertThat(model.<String>get("$.errors[0].id")).isEqualTo("timeStamp");
+        assertThat(model.<String>get("$.errors[0].msg")).isEqualTo(MessageSeeds.NO_METROLOGYCONFIG_FOR_USAGEPOINT_IN_THIS_TIME.getDefaultFormat());
     }
 
     @Test

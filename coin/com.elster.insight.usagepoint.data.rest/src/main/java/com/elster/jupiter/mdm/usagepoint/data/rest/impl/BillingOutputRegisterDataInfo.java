@@ -20,6 +20,8 @@ public class BillingOutputRegisterDataInfo extends NumericalOutputRegisterDataIn
 
     @JsonProperty("interval")
     public IntervalInfo interval;
+    @JsonProperty("eventDate")
+    public Instant eventDate;
 
     @Override
     public BaseReading createNew(ReadingType readingType) {
