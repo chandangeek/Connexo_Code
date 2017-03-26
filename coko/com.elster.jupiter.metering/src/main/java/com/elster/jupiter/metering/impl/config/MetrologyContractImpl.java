@@ -319,6 +319,14 @@ public class MetrologyContractImpl implements MetrologyContract {
                 .values();
     }
 
+    @Override
+    public List<ReadingType> sortReadingTypesByDependency() {
+        return DependencyAnalyzer.forAnalysisOf(this)
+                .getDeliverables().stream()
+                .map(ReadingTypeDeliverable::getReadingType)
+                .collect(Collectors.toList());
+    }
+
     void deliverableUpdated(ReadingTypeDeliverableImpl deliverable) {
         this.touch();
     }

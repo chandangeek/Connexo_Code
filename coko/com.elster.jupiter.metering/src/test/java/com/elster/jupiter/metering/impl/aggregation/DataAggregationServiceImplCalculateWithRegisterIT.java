@@ -344,7 +344,7 @@ public class DataAggregationServiceImplCalculateWithRegisterIT {
         this.initializeSqlBuilders();
 
         // Apply MetrologyConfiguration to UsagePoint
-        this.usagePoint.apply(this.configuration, jan1st2016);
+        this.usagePoint.apply(this.configuration, jan1st2016.plusSeconds(60));
 
         this.contract = this.configuration.addMetrologyContract(METROLOGY_PURPOSE);
 
@@ -396,6 +396,9 @@ public class DataAggregationServiceImplCalculateWithRegisterIT {
     private void setupUsagePoint(String name) {
         ServiceCategory electricity = getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
         this.usagePoint = electricity.newUsagePoint(name, jan1st2016).create();
+        UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("UP1", electricity).create();
+        usagePointMetrologyConfiguration.addMeterRole(getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT));
+        usagePoint.apply(usagePointMetrologyConfiguration, jan1st2016);
     }
 
     private void activateMeterWithBulkWattRegister() {
