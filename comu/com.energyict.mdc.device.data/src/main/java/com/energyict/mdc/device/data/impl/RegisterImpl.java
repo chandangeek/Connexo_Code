@@ -4,6 +4,8 @@
 
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.cbo.Aggregate;
+import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
@@ -11,7 +13,6 @@ import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.util.Pair;
-import com.elster.jupiter.util.collections.DualIterable;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.energyict.mdc.common.ObisCode;
@@ -33,7 +34,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public abstract class RegisterImpl<R extends Reading, RS extends RegisterSpec> implements Register<R, RS> {
 
@@ -45,6 +45,10 @@ public abstract class RegisterImpl<R extends Reading, RS extends RegisterSpec> i
      * The Device which <i>owns</i> this Register.
      */
     protected final DeviceImpl device;
+
+
+    private final List<Aggregate> aggregatesWithEventDate = Arrays.asList(Aggregate.MAXIMUM, Aggregate.FIFTHMAXIMIMUM,
+            Aggregate.FOURTHMAXIMUM, Aggregate.MINIMUM, Aggregate.SECONDMAXIMUM, Aggregate.SECONDMINIMUM, Aggregate.THIRDMAXIMUM);
 
     public RegisterImpl(DeviceImpl device, RS registerSpec) {
         this.registerSpec = registerSpec;
@@ -71,6 +75,8 @@ public abstract class RegisterImpl<R extends Reading, RS extends RegisterSpec> i
         return Optional.empty();
     }
 
+
+
     @Override
     public Optional<R> getReading(Instant timestamp) {
         List<R> atMostOne = this.getReadings(Range.singleton(timestamp));
@@ -89,19 +95,11 @@ public abstract class RegisterImpl<R extends Reading, RS extends RegisterSpec> i
 
     private List<R> getReadings(Range<Instant> interval) {
         List<ReadingRecord> koreReadings = this.device.getReadingsFor(this, interval);
-        List<Optional<DataValidationStatus>> validationStatuses = this.getValidationStatuses(koreReadings);
-        return this.toReadings(koreReadings, validationStatuses);
-    }
-
-    private List<Optional<DataValidationStatus>> getValidationStatuses(List<ReadingRecord> readings) {
-        return readings
-                .stream()
-                .map(this::getValidationStatus)
-                .collect(Collectors.toList());
+        return this.toReadings(koreReadings);
     }
 
     private Optional<DataValidationStatus> getValidationStatus(ReadingRecord reading) {
-        List<DataValidationStatus> validationStatuses = this.getValidationStatus(Arrays.asList(reading), Range.closed(reading.getTimeStamp(), reading.getTimeStamp()));
+        List<DataValidationStatus> validationStatuses = this.getValidationStatus(Collections.singletonList(reading), Range.closed(reading.getTimeStamp(), reading.getTimeStamp()));
         if (validationStatuses.isEmpty()) {
             return Optional.empty();
         }
@@ -114,26 +112,33 @@ public abstract class RegisterImpl<R extends Reading, RS extends RegisterSpec> i
         return this.device.forValidation().getValidationStatus(this, readings, interval);
     }
 
-    private List<R> toReadings(List<ReadingRecord> koreReadings, List<Optional<DataValidationStatus>> validationStatuses) {
+    private List<R> toReadings(List<ReadingRecord> koreReadings) {
         List<R> readings = new ArrayList<>(koreReadings.size());
-        for (Pair<ReadingRecord, Optional<DataValidationStatus>> koreReadingAndStatus : DualIterable.endWithShortest(koreReadings, validationStatuses)) {
-            readings.add(this.toReading(koreReadingAndStatus));
+        ReadingRecord previous = null;
+        for (ReadingRecord current : koreReadings) {
+            List<DataValidationStatus> validationStatus = this.getValidationStatus(Collections.singletonList(current), Range.closed(current.getTimeStamp(), current.getTimeStamp()));
+            if (validationStatus.isEmpty()) {
+                readings.add(this.newUnvalidatedReading(current, previous));
+            } else {
+                readings.add(this.newValidatedReading(current, validationStatus.get(0), previous));
+            }
+            previous = current;
         }
         return readings;
     }
 
     private R toReading (Pair<ReadingRecord, Optional<DataValidationStatus>> koreReadingAndStatus) {
         if (koreReadingAndStatus.getLast().isPresent()) {
-            return this.newValidatedReading(koreReadingAndStatus.getFirst(), koreReadingAndStatus.getLast().get());
+            return this.newValidatedReading(koreReadingAndStatus.getFirst(), koreReadingAndStatus.getLast().get(), null);
         }
         else {
-            return this.newUnvalidatedReading(koreReadingAndStatus.getFirst());
+            return this.newUnvalidatedReading(koreReadingAndStatus.getFirst(), null);
         }
     }
 
-    protected abstract R newUnvalidatedReading(ReadingRecord actualReading);
+    protected abstract R newUnvalidatedReading(ReadingRecord actualReading, ReadingRecord previousReading);
 
-    protected abstract R newValidatedReading(ReadingRecord actualReading, DataValidationStatus validationStatus);
+    protected abstract R newValidatedReading(ReadingRecord actualReading, DataValidationStatus validationStatus, ReadingRecord previous);
 
     @Override
     public Optional<R> getLastReading() {
@@ -184,6 +189,21 @@ public abstract class RegisterImpl<R extends Reading, RS extends RegisterSpec> i
     }
 
     @Override
+    public boolean hasEventDate() {
+        return aggregatesWithEventDate.contains(getReadingType().getAggregate());
+    }
+
+    @Override
+    public boolean isCumulative() {
+        return getRegisterSpec().getReadingType().isCumulative();
+    }
+
+    @Override
+    public boolean isBilling() {
+        return getReadingType().getMacroPeriod().equals(MacroPeriod.BILLINGPERIOD);
+    }
+
+    @Override
     public RegisterDataUpdater startEditingData() {
         return new RegisterDataUpdaterImpl(this);
     }
@@ -201,14 +221,22 @@ public abstract class RegisterImpl<R extends Reading, RS extends RegisterSpec> i
         }
 
         @Override
-        public RegisterDataUpdater editReading(BaseReading modified) {
+        public RegisterDataUpdater editReading(BaseReading modified, Instant editTimeStamp) {
+            updateBillingTimeStampChange(modified, editTimeStamp);
             this.activationDate.ifPresent(previousTimestamp -> this.setActivationDateIfBefore(modified.getTimeStamp()));
             this.edited.add(modified);
             return this;
         }
 
+        private void updateBillingTimeStampChange(BaseReading modified, Instant editTimeStamp) {
+            if(isBilling() && !editTimeStamp.equals(modified.getTimeStamp())){
+                this.removeReading(editTimeStamp);
+            }
+        }
+
         @Override
-        public RegisterDataUpdater confirmReading(BaseReading modified) {
+        public RegisterDataUpdater confirmReading(BaseReading modified, Instant editTimeStamp) {
+            updateBillingTimeStampChange(modified, editTimeStamp);
             this.activationDate.ifPresent(previousTimestamp -> this.setActivationDateIfBefore(modified.getTimeStamp()));
             this.confirmed.add(modified);
             return this;
