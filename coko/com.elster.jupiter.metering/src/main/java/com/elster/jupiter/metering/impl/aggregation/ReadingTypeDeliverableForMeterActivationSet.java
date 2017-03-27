@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.metering.impl.aggregation;
 
+import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.Formula;
@@ -14,6 +15,7 @@ import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.sql.SqlBuilder;
+import com.elster.jupiter.util.streams.Functions;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
@@ -25,6 +27,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -431,6 +434,15 @@ class ReadingTypeDeliverableForMeterActivationSet {
                     .stream()
                     .map(node -> Pair.of(node.getRequirement(), node.getPreferredChannel()))
                     .collect(Collectors.toList());
+    }
+
+    Set<Calendar> getUsedCalendars() {
+        return this.expressionNode
+                .accept(RequirementsFromExpressionNode.recursiveOnDeliverables())
+                .stream()
+                .map(VirtualRequirementNode::getCalendar)
+                .flatMap(Functions.asStream())
+                .collect(Collectors.toSet());
     }
 
     List<VirtualRequirementNode> nestedRequirements(ServerExpressionNode.Visitor<List<VirtualRequirementNode>> visitor) {

@@ -30,6 +30,7 @@ import com.elster.jupiter.metering.config.ReadingTypeDeliverableNode;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.ReadingTypeRequirementNode;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
+import com.elster.jupiter.metering.impl.IReadingType;
 import com.elster.jupiter.metering.impl.MeteringDataModelService;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.metering.impl.ServerUsagePoint;
@@ -471,14 +472,14 @@ public class DataAggregationServiceImpl implements ServerDataAggregationService 
             readingRecords.add(
                     this.addMissing(
                             calendarUsage.getUsagePoint(),
-                            readingType.getMRID(),
+                            (IReadingType) readingType,
                             timestamp,
                             event));
         }
     }
 
-    private CalculatedReadingRecordImpl addMissing(UsagePoint usagePoint, String readingTypeMRID, Instant timeStamp, Event event) {
-        return this.getDataModel().getInstance(CalculatedReadingRecordImpl.class).initAsPartOfGapAt(usagePoint, readingTypeMRID, timeStamp, event);
+    private CalculatedReadingRecordImpl addMissing(UsagePoint usagePoint, IReadingType readingType, Instant timeStamp, Event event) {
+        return this.getDataModel().getInstance(CalculatedReadingRecordImpl.class).initAsPartOfGapAt(usagePoint, readingType, timeStamp, event);
     }
 
     private DataModel getDataModel() {

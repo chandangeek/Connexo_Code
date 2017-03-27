@@ -142,29 +142,6 @@ class CalculatedReadingRecordImpl implements CalculatedReadingRecord {
         }
     }
 
-    /**
-     * Initializes this {@link CalculatedReadingRecordImpl}
-     * and mark it as being part of a time of use gap.
-     *
-     * @param usagePoint The UsagePoint
-     * @param readingTypeMRID The mRID of the ReadingType
-     * @param timestamp The utc timestamp
-     * @param event The Event
-     * @return The initialized CalculatedReadingRecord
-     */
-    CalculatedReadingRecordImpl initAsPartOfGapAt(UsagePoint usagePoint, String readingTypeMRID, Instant timestamp, Event event) {
-        this.usagePoint = usagePoint;
-        this.timeOfUseEvent = Optional.of(event);
-        this.readingTypeMRID = readingTypeMRID;
-        this.rawValue = null;
-        this.localDate = new java.sql.Timestamp(timestamp.toEpochMilli());
-        this.timestamp = timestamp;
-        this.readingQuality = 0;
-        this.count = 0; // Not expecting any interval when record is part of a time of use gap
-        this.sourceChannelSet = sourceChannelSetFactory.empty();
-        return this;
-    }
-
     private void checkCount(Map<MeterActivationSet, List<ReadingTypeDeliverableForMeterActivationSet>> deliverablesPerMeterActivation) {
         Optional<MeterActivationSet> meterActivationSet =
                 deliverablesPerMeterActivation.keySet().stream().filter(maSet -> maSet.contains(this.timestamp)).findAny();
@@ -190,6 +167,30 @@ class CalculatedReadingRecordImpl implements CalculatedReadingRecord {
                 }
             }
         }
+    }
+
+    /**
+     * Initializes this {@link CalculatedReadingRecordImpl}
+     * and mark it as being part of a time of use gap.
+     *
+     * @param usagePoint The UsagePoint
+     * @param readingType The ReadingType
+     * @param timestamp The utc timestamp
+     * @param event The Event
+     * @return The initialized CalculatedReadingRecord
+     */
+    CalculatedReadingRecordImpl initAsPartOfGapAt(UsagePoint usagePoint, IReadingType readingType, Instant timestamp, Event event) {
+        this.usagePoint = usagePoint;
+        this.timeOfUseEvent = Optional.of(event);
+        this.readingType = readingType;
+        this.readingTypeMRID = readingType.getMRID();
+        this.rawValue = null;
+        this.localDate = new java.sql.Timestamp(timestamp.toEpochMilli());
+        this.timestamp = timestamp;
+        this.readingQuality = 0;
+        this.count = 0; // Not expecting any interval when record is part of a time of use gap
+        this.sourceChannelSet = sourceChannelSetFactory.empty();
+        return this;
     }
 
     private boolean readingTypeMatches(ReadingTypeDeliverableForMeterActivationSet set, String readingTypeMRID) {

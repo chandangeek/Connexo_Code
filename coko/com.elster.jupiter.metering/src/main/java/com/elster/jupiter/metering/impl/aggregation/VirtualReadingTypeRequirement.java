@@ -189,6 +189,24 @@ class VirtualReadingTypeRequirement {
         }
     }
 
+    Optional<Calendar> getCalendar() {
+        ChannelContract preferredChannel = this.getPreferredChannel();
+        int requestedTimeOfUseBucket = this.targetReadingType.getTimeOfUseBucket();
+        int providedTimeOfUseBucket = preferredChannel.getMainReadingType().getTou();
+        if (providedTimeOfUseBucket == requestedTimeOfUseBucket) {
+            // Note that this also supports the case where time of use is not requested (i.e. both are zero)
+            return Optional.empty();
+        } else if (requestedTimeOfUseBucket != 0 && providedTimeOfUseBucket == 0) {
+            return Optional.ofNullable(this.calendar);
+        } else {
+            /* One of the following erroneous conditions:
+             * 1. Not requested but time of use bucket is provided
+             * 2. Requested but different time of use bucket is provided
+             */
+            return Optional.empty();
+        }
+    }
+
     private SqlBuilder timeSeriesWithReadingQualitiesSqlBuilder(TimeSeries timeSeries) {
         return this.timeSeriesWithReadingQualitiesSqlBuilder(
                 timeSeries,
@@ -260,18 +278,17 @@ class VirtualReadingTypeRequirement {
     }
 
     private void appendAggregatedReadingQuality(SqlBuilder sqlBuilder) {
-        sqlBuilder.append(" FULL OUTER JOIN (SELECT readingtimestamp, MAX(CASE");
+        sqlBuilder.append(" FULL OUTER JOIN (SELECT readingtimestamp, CASE");
         sqlBuilder.append(" WHEN TYPE LIKE '%.5.258' THEN " + CalculatedReadingRecordImpl.SUSPECT);
         sqlBuilder.append(" WHEN TYPE LIKE '%.5.259' THEN " + CalculatedReadingRecordImpl.MISSING);
         sqlBuilder.append(" ELSE " + CalculatedReadingRecordImpl.ESTIMATED_EDITED);
-        sqlBuilder.append(" END) AS ");
+        sqlBuilder.append(" END AS ");
         sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.VALUE.sqlName());
         sqlBuilder.append(" FROM mtr_readingquality WHERE readingtype = '");
         sqlBuilder.append(this.getPreferredChannel().getMainReadingType().getMRID());
         sqlBuilder.append("' AND channelid = ");
         sqlBuilder.addLong(this.getPreferredChannel().getId());
-        sqlBuilder.append(" AND (TYPE LIKE '%.5.258' OR TYPE LIKE '%.5.259' OR TYPE LIKE '%.7.%' OR TYPE LIKE '%.8.%')");
-        sqlBuilder.append(" GROUP BY readingtimestamp) rq");
+        sqlBuilder.append(" AND (TYPE LIKE '%.5.258' OR TYPE LIKE '%.5.259' OR TYPE LIKE '%.7.%' OR TYPE LIKE '%.8.%')) rq");
         sqlBuilder.append(" ON rawts.utcstamp = rq.readingtimestamp");
     }
 

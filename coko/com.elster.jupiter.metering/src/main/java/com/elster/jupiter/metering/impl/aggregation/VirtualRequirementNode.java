@@ -19,7 +19,6 @@ import com.elster.jupiter.metering.impl.ChannelContract;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
 import java.text.MessageFormat;
-import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -178,6 +177,11 @@ class VirtualRequirementNode implements ServerExpressionNode {
     ChannelContract getPreferredChannel() {
         this.ensureVirtualized();
         return this.virtualRequirement.getPreferredChannel();
+    }
+
+    Optional<Calendar> getCalendar() {
+        this.ensureVirtualized();
+        return this.virtualRequirement.getCalendar();
     }
 
     VirtualReadingType getTargetReadingType() {
