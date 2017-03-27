@@ -6,7 +6,7 @@ Ext.define('Imt.metrologyconfiguration.model.MetrologyConfigurationWithCAS', {
             name: 'customPropertySets',
             type: 'hasMany',
             model: 'Imt.customattributesonvaluesobjects.model.AttributeSetOnObject',
-            associationKey: 'Info',
+            associationKey: 'customPropertySets',
             foreignKey: 'customPropertySets'
         }
     ]

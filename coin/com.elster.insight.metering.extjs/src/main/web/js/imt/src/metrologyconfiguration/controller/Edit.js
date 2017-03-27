@@ -256,8 +256,13 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
             wizard = me.getWizard(),
             wizardLayout = wizard.getLayout(),
             stepView = wizardLayout.getActiveItem(),
+            radioBtn = wizard.down('#custom-attributes-radiogroup'),
+            clearRecord = wizard.down('#metrology-configuration-combo'),
+            customAttributeSetsValueStore = me.getStore('Imt.metrologyconfiguration.store.CustomAttributeSetsValue'),
+            metrologyConfigurationId = clearRecord.getValue(),
             currentStep = stepView.navigationIndex,
             validationParams = {validate: true},
+            stepsToAdd = [],
             direction,
             nextStep,
             changeStep = function () {
@@ -267,6 +272,48 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
                 me.getNavigationMenu().moveToStep(nextStep);
                 Ext.resumeLayouts(true);
             };
+            console.log(currentStep);
+        wizard.getRecord().customPropertySets().removeAll();
+        clearRecord = clearRecord.findRecordByValue(metrologyConfigurationId);
+
+        var override = customAttributeSetsValueStore.getRange();
+        console.log(override);
+        var attributeValue = null,
+            buttonValue = radioBtn.getValue(),
+            stepNumber = 1,
+            name = null;
+        clearRecord.customPropertySets().each(function (record) {
+            name = record.get('name');
+            if (buttonValue) {
+                override.forEach(function (item) {
+                    if (item.get('name') === name) {
+                        record.properties().each(function (property) {
+                            var propValue = _.find(item.get('id'), function (prop) {
+                                return prop.name === property.get('key');
+                            });
+                            if (propValue) {
+                                property.getPropertyValue().set('defaultValue', propValue.id);
+                            }
+                        });
+
+                    }
+                });
+            }
+
+            stepNumber++;
+            stepsToAdd.push({
+                xtype: 'cps-info-form',
+                title: Uni.I18n.translate('metrologyConfiguration.wizard.cpsStepTitle', 'IMT', 'Step {0}: {1}', [stepNumber, name]),
+                navigationIndex: stepNumber,
+                itemId: 'define-metrology-configuration-step' + stepNumber,
+                ui: 'large',
+                isWizardStep: true,
+                predefinedRecord: record
+            });
+
+            wizard.add(stepsToAdd);
+            wizard.updateRecord(clearRecord);
+        });
 
         if (button.action === 'step-next') {
             direction = 1;
@@ -304,7 +351,6 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
             modelProxy;
         wizard.clearInvalid();
         wizard.updateRecord();
-        // console.log(wizard.upVersion);
         wizard.setLoading();
         record = wizard.getRecord();
         modelProxy = record.getProxy();
@@ -362,14 +408,13 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
             wizard = me.getWizard(),
             stepNumber = 1,
             buttons = wizard.getDockedComponent('define-metrology-configuration-wizard-buttons'),
+            customAttributeSetsValueStore = me.getStore('Imt.metrologyconfiguration.store.CustomAttributeSetsValue'),
             nextBtn = buttons.down('[action=step-next]'),
             addBtn = buttons.down('[action=add]'),
             radioBtn = wizard.down('#custom-attributes-radiogroup'),
             navigation = me.getNavigationMenu(),
             currentSteps = wizard.query('[isWizardStep=true]'),
-            // record = Ext.getStore('Imt.metrologyconfiguration.store.CustomAttributeSetsValue')
             currentMenuItems = navigation.query('menuitem'),
-            stepsToAdd = [],
             navigationItemsToAdd = [];
 
         Ext.suspendLayouts();
@@ -381,89 +426,39 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
         for (var j = 1; j < currentMenuItems.length; j++) {
             navigation.remove(currentMenuItems[j], true);
         }
-        customAttributeSetsValueStore = me.getStore('Imt.metrologyconfiguration.store.CustomAttributeSetsValue');
-        customAttributeSetsValueStore.getProxy().setExtraParam('id', newValue);
-        wizard.getRecord().customPropertySets().removeAll();
-        // console.log(configuration);
-        customAttributeSetsValueStore.load(function (record) {
-            // console.log(record);
-        });
-        // customAttributeSetsValueStore.load(function (item) {
-        //     // console.log(item);
-        //     console.info(configuration);
-        //     item[0].customPropertySets().each(function (rec) {
-        //         // console.info(rec);
-        //         // console.info(rec.customPropertySets());
-        //         stepNumber++;
-        //         stepsToAdd.push({
-        //             xtype: 'cps-info-form',
-        //             title: Uni.I18n.translate('metrologyConfiguration.wizard.cpsStepTitle', 'IMT', 'Step {0}: {1}', [stepNumber, rec.get('name')]),
-        //             navigationIndex: stepNumber,
-        //             itemId: 'define-metrology-configuration-step' + stepNumber,
-        //             ui: 'large',
-        //             isWizardStep: true,
-        //             predefinedRecord: rec,
-        //             value: wizard.down('#custom-attributes-radiogroup')
-        //         });
-        //         navigationItemsToAdd.push({
-        //             text: rec.get('name')
-        //         });
-        //     });
-            // });
-            // wizard.getRecord().customPropertySets().removeAll();
-            // if (configuration) {
-            //     console.log(configuration.customPropertySets());
-            configuration.customPropertySets().each(function (record) {
 
-                        // console.info(record.properties());
-                        stepNumber++;
-                        stepsToAdd.push({
-                            xtype: 'cps-info-form',
-                            title: Uni.I18n.translate('metrologyConfiguration.wizard.cpsStepTitle', 'IMT', 'Step {0}: {1}', [stepNumber, record.get('name')]),
-                            navigationIndex: stepNumber,
-                            itemId: 'define-metrology-configuration-step' + stepNumber,
-                            ui: 'large',
-                            isWizardStep: true,
-                            predefinedRecord: record,
-                            value: wizard.down('#custom-attributes-radiogroup')
-                        });
-                        navigationItemsToAdd.push({
-                            text: record.get('name')
-                        });
+        configuration.customPropertySets().each(function (record) {
+            navigationItemsToAdd.push({
+                text: record.get('name')
             });
+        });
 
+        if (navigationItemsToAdd.length) {
+            addBtn.hide();
+            nextBtn.show();
+        } else {
+            addBtn.show();
+            nextBtn.hide();
+        }
 
-            if (navigationItemsToAdd.length) {
-                addBtn.hide();
-                nextBtn.show();
-            } else {
-                addBtn.show();
-                nextBtn.hide();
-            }
-
-            navigation.add(navigationItemsToAdd);
-            wizard.add(stepsToAdd);
-            // wizard.updateRecord(item[0]);
-            wizard.updateRecord(configuration);
-
-        // });
-        // console.log(configuration.customPropertySets());
-        // console.log(wizard.getRecord());
+        navigation.add(navigationItemsToAdd);
         Ext.resumeLayouts(true);
-
+        customAttributeSetsValueStore.getProxy().setExtraParam('id', newValue);
         wizard.setLoading();
         me.getModel('Imt.metrologyconfiguration.model.MetrologyConfiguration').load(newValue, {
             success: function (record) {
                 if (wizard.rendered) {
                     wizard.down('#purposes-field').setStore(record.metrologyContracts());
                     wizard.down('#start-date').show();
-
-                    if (record.data.customPropertySets) {
-                        radioBtn.show();
-                    } else {
-                        radioBtn.hide()
-                            .reset();
-                    }
+                    customAttributeSetsValueStore.load(function (item) {
+                        console.log(item[0].get('id').length);
+                        if (item[0].get('id').length) {
+                            radioBtn.show();
+                        } else {
+                            radioBtn.hide();
+                            radioBtn.reset();
+                        }
+                    });
                 }
             },
             callback: function () {
