@@ -36,6 +36,7 @@ import com.google.common.collect.Range;
 
 import java.time.Instant;
 import java.util.Collections;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.assertj.core.data.MapEntry;
@@ -137,6 +138,16 @@ public class OutputChannelDependenciesIT {
     @Test
     public void testGetRequirements() {
         assertThat(informationContract.getRequirements()).containsOnly(aPlusRequirement, aMinusRequirement);
+    }
+
+    @Test
+    public void testSortReadingTypesByDependency() {
+        List<ReadingType> sorted = informationContract.sortReadingTypesByDependency();
+        assertThat(sorted).containsSubsequence(nil);
+        assertThat(sorted).containsSubsequence(min15Plus, dailyPlus, monthlyPlus, monthlyTotal);
+        assertThat(sorted).containsSubsequence(min15Plus, dailyPlus, monthlyPlus, monthlyNet);
+        assertThat(sorted).containsSubsequence(monthlyMinus, monthlyTotal);
+        assertThat(sorted).containsSubsequence(monthlyMinus, monthlyNet);
     }
 
     @Test
