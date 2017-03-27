@@ -33,6 +33,7 @@ import java.time.temporal.TemporalAmount;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -164,7 +165,8 @@ public class DOACommands {
                             name,
                             Period.ofYears(1),
                             LocalDate.ofYearDay(startYear, 1).atStartOfDay(ZoneOffset.UTC).toInstant(),
-                            readingType)
+                            readingType,
+                            TimeZone.getTimeZone(ZoneOffset.UTC))
                     .withDescription(description)
                     .build();
             System.out.println("Synthetic load profile created with id: " + slp.getId());
