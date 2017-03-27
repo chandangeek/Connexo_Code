@@ -415,7 +415,7 @@ sub install_tomcat {
 		print "\n\nExtracting Apache Tomcat 7 ...\n";
 		print "==========================================================================\n";
 
-		$ENV{JVM_OPTIONS}="-Dorg.uberfire.nio.git.ssh.port=$TOMCAT_SSH_PORT;-Dorg.uberfire.nio.git.daemon.port=$TOMCAT_DAEMON_PORT;-Dport.shutdown=$TOMCAT_SHUTDOWN_PORT;-Dport.http=$TOMCAT_HTTP_PORT;-Dflow.url=$FLOW_URL;-Dconnexo.url=$CONNEXO_URL;-Dconnexo.user=\"$CONNEXO_ADMIN_ACCOUNT\";-Dconnexo.password=\"$CONNEXO_ADMIN_PASSWORD\";-Dbtm.root=\"$CATALINA_HOME\";-Dbitronix.tm.configuration=\"$CATALINA_HOME/conf/btm-config.properties\";-Djbpm.tsr.jndi.lookup=java:comp/env/TransactionSynchronizationRegistry;-Dorg.kie.demo=false;-Dorg.kie.example=false;-Dconnexo.configuration=\"$CATALINA_HOME/conf/connexo.properties\" -Dorg.jboss.logging.provider=slf4j -Dorg.uberfire.nio.git.ssh.algorithm=RSA";
+		$ENV{JVM_OPTIONS}="-Dorg.uberfire.nio.git.ssh.port=$TOMCAT_SSH_PORT;-Dorg.uberfire.nio.git.daemon.port=$TOMCAT_DAEMON_PORT;-Dport.shutdown=$TOMCAT_SHUTDOWN_PORT;-Dport.http=$TOMCAT_HTTP_PORT;-Dflow.url=$FLOW_URL;-Dconnexo.url=$CONNEXO_URL;-Dconnexo.user=\"$CONNEXO_ADMIN_ACCOUNT\";-Dconnexo.password=\"$CONNEXO_ADMIN_PASSWORD\";-Dbtm.root=\"$CATALINA_HOME\";-Dbitronix.tm.configuration=\"$CATALINA_HOME/conf/btm-config.properties\";-Djbpm.tsr.jndi.lookup=java:comp/env/TransactionSynchronizationRegistry;-Dorg.kie.demo=false;-Dorg.kie.example=false;-Dconnexo.configuration=\"$CATALINA_HOME/conf/connexo.properties\";-Dorg.jboss.logging.provider=slf4j;-Dorg.uberfire.nio.git.ssh.algorithm=RSA";
 
 		chdir "$TOMCAT_BASE";
 		print "Extracting $TOMCAT_ZIP.zip\n";
@@ -691,6 +691,7 @@ sub activate_sso {
             #install apache 2.2 or 2.4???
             my $PUBLIC_KEY_PROPERTIES="to be filled in";
             if (-e "$CONNEXO_DIR/publicKey.txt") {
+				local $/;
                 open(my $FH,"< $CONNEXO_DIR/publicKey.txt") or die "Could not open $CONNEXO_DIR/publicKey.txt: $!";
                 $PUBLIC_KEY_PROPERTIES=<$FH>;
                 chomp($PUBLIC_KEY_PROPERTIES);
@@ -764,7 +765,7 @@ sub activate_sso {
             add_to_file("$CATALINA_BASE/conf/connexo.properties","");
             add_to_file_if("$CATALINA_BASE/conf/connexo.properties","com.elster.jupiter.url=http://$HOST_NAME:$CONNEXO_HTTP_PORT");
             add_to_file_if("$CATALINA_BASE/conf/connexo.properties","com.elster.jupiter.externalurl=http://$HOST_NAME");
-            add_to_file_if("$CATALINA_BASE/conf/connexo.properties","$PUBLIC_KEY_PROPERTIES");
+            add_to_file("$CATALINA_BASE/conf/connexo.properties","$PUBLIC_KEY_PROPERTIES");
 
             #if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
             #    system("sc config \"Apache2.4\"  start= delayed-auto");
