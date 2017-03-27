@@ -265,28 +265,6 @@ public class UsagePointImplIT {
 
     @Test
     @Transactional
-    public void testCannotActivateMetrologyConfigWithInvalidMeterActivationsDate() {
-        expectedException.expect(UsagePointManagementException.class);
-        expectedException.expectMessage("The metrology configuration's start date must be greater than, or equal to, the meters' activation date 01:00:00 Mon 15 Aug '16");
-        ServerMeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
-        AmrSystem system = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
-        Meter meter = system.newMeter("Meter", "meterName").create();
-        ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
-        UsagePoint usagePoint = serviceCategory.newUsagePoint("UsagePoint", JUNE_1ST_2016).create();
-        MeterRole meterRole = inMemoryBootstrapModule.getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT);
-        usagePoint.linkMeters().activate(meter, meterRole).complete();
-
-        UsagePointMetrologyConfiguration configuration1 =
-                inMemoryBootstrapModule
-                        .getMetrologyConfigurationService()
-                        .newUsagePointMetrologyConfiguration("metrologyConfiguration1", serviceCategory)
-                        .create();
-        configuration1.activate();
-        usagePoint.apply(configuration1, AUG_15TH_2016);
-    }
-
-    @Test
-    @Transactional
     public void testCannotActivateMetrologyConfigWithIncompatibleMeterRequirements() {
         expectedException.expect(UsagePointManagementException.class);
         expectedException.expectMessage("The meters of the usage point do not provide the necessary reading types for purposes [metrology.purpose.voltage.monitoring.name]  of the new metrology configuration");

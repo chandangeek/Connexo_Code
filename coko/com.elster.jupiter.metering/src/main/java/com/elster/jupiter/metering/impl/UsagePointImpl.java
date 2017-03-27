@@ -10,6 +10,7 @@ import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.fsm.Stage;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.ConnectionState;
 import com.elster.jupiter.metering.ElectricityDetailBuilder;
@@ -561,7 +562,6 @@ public class UsagePointImpl implements ServerUsagePoint {
     private void apply(UsagePointMetrologyConfiguration metrologyConfiguration, Set<MetrologyContract> optionalContractsToActivate, Instant start, Instant end) {
         validateApplyTimeAndCreateDate(start);
         validateUsagePointStage(start);
-        validateMeterActivationsStartDate(this.getMeterActivations(), start);
         validateEndDeviceStage(this.getMeterActivations(), start);
         validateMetrologyConfigOverlapping(metrologyConfiguration, start);
         validateMeters(this.getMeterActivations(), metrologyConfiguration.getContracts());
@@ -627,14 +627,6 @@ public class UsagePointImpl implements ServerUsagePoint {
         }
     }
 
-    private void validateMeterActivationsStartDate(List<MeterActivation> meterActivations, Instant mcStart) {
-        if (!meterActivations.isEmpty()) {
-            DateTimeFormatter dateTimeFormatter = userService.getUserPreferencesService().getDateTimeFormatter(threadPrincipalService.getPrincipal(), PreferenceType.LONG_DATE, PreferenceType.LONG_TIME);
-            meterActivations.stream().filter(meterActivation -> meterActivation.getStart().isAfter(mcStart) || meterActivation.getStart().equals(mcStart)).findAny()
-                    .orElseThrow(() -> UsagePointManagementException.incorrectMeterActivationTime(thesaurus, dateTimeFormatter.format(LocalDateTime.ofInstant(mcStart, ZoneId.systemDefault()))));
-        }
-    }
-
     private void validateMetrologyConfigOverlapping(UsagePointMetrologyConfiguration metrologyConfiguration, Instant mcStart) {
         if (this.getEffectiveMetrologyConfigurations(Range.greaterThan(mcStart)).stream().findAny().isPresent()) {
             DateTimeFormatter dateTimeFormatter = userService.getUserPreferencesService().getDateTimeFormatter(threadPrincipalService.getPrincipal(), PreferenceType.LONG_DATE, PreferenceType.LONG_TIME);
@@ -646,16 +638,20 @@ public class UsagePointImpl implements ServerUsagePoint {
         if (!meterActivations.isEmpty()) {
             meterActivations.forEach(meterActivation -> {
                 if (meterActivation.getMeter().isPresent() && meterActivation.getMeter().get().getState(mcStart).isPresent()) {
-                    checkOperationalStage(meterActivation.getMeter().get().getState(mcStart).get().getName(), mcStart);
+                    checkOperationalStage(meterActivation.getMeter().get().getState(mcStart).get().getStage(), mcStart);
                 }
             });
         }
     }
 
-    private void checkOperationalStage(String stateName, Instant mcStart) {
-        if (!EndDeviceStage.fromKey(stateName).equals(EndDeviceStage.OPERATIONAL)) {
-            DateTimeFormatter dateTimeFormatter = userService.getUserPreferencesService().getDateTimeFormatter(threadPrincipalService.getPrincipal(), PreferenceType.LONG_DATE, PreferenceType.LONG_TIME);
-            throw UsagePointManagementException.incorrectEndDeviceStage(thesaurus, dateTimeFormatter.format(LocalDateTime.ofInstant(mcStart, ZoneId.systemDefault())));
+    private void checkOperationalStage(Optional<Stage> deviceStage, Instant mcStart) {
+        if(deviceStage.isPresent()) {
+            if (!EndDeviceStage.fromKey(deviceStage.get().getName()).equals(EndDeviceStage.OPERATIONAL)) {
+                DateTimeFormatter dateTimeFormatter = userService.getUserPreferencesService()
+                        .getDateTimeFormatter(threadPrincipalService.getPrincipal(), PreferenceType.LONG_DATE, PreferenceType.LONG_TIME);
+                throw UsagePointManagementException.incorrectEndDeviceStage(thesaurus, dateTimeFormatter.format(LocalDateTime
+                        .ofInstant(mcStart, ZoneId.systemDefault())));
+            }
         }
     }
 
