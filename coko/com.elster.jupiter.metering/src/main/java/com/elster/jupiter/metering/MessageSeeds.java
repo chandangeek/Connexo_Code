@@ -31,12 +31,8 @@ public enum MessageSeeds implements MessageSeed {
     THIS_DATE_IS_OVERLAPPED_BY_OTHER_METROLOGYCONFIGURATION_VERSION(7009, Constants.THIS_DATE_IS_OVERLAPPED_BY_OTHER_METROLOGYCONFIGURATION_VERSION, "This date is overlapped by other metrology configuration version."),
     END_DATE_CANT_BE_IN_THE_PAST_FOR_CURRENT_METROLOGYCONFIGURATION_VERSION(7010, Constants.END_DATE_CANT_BE_IN_THE_PAST_FOR_CURRENT_METROLOGYCONFIGURATION_VERSION, "End date can''t be in the past for current metrology configuration version"),
     UNSUPPORTED_COMMAND(7012, Constants.UNSPPORTED_COMMAND, "Unsupported Command {0} for end device {1}"),
-    CANNOT_START_PRIOR_TO_LATEST_CALENDAR_OF_SAME_CATEGORY(7020, "usagepoint.calendar.cannot.start.prior.of.same.category", "Cannot start calendar on usage point, prior to latest calendar of same category."),
-    CANNOT_START_BEFORE_NOW(7022, "usagepoint.calendar.cannot.start.before.now", "Activation date can''t be in the past."),
 
-    INVALID_COORDINATES(10003, "invalidCoordinates", "All coordinates fields must contain valid values"),
-
-    DUPLICATE_SLP_NAME(11001, Constants.DUPLICATE_SLP_NAME, "Synthetic load profile name must be unique", Level.SEVERE);
+    INVALID_COORDINATES(10003, "invalidCoordinates", "All coordinates fields must contain valid values");
 
     private final int number;
     private final String key;
@@ -99,7 +95,6 @@ public enum MessageSeeds implements MessageSeed {
         public static final String THIS_DATE_IS_OVERLAPPED_BY_OTHER_METROLOGYCONFIGURATION_VERSION = "this.date.is.overlapped.by.other.metrology.configuration.version";
         public static final String END_DATE_CANT_BE_IN_THE_PAST_FOR_CURRENT_METROLOGYCONFIGURATION_VERSION = "End.date.cant.be.in.the.past.for.current.metrology.configuration.version";
         public static final String UNSPPORTED_COMMAND = "Unsupported.Command.for.enddevice";
-        public static final String DUPLICATE_SLP_NAME = "slp.name.already.exists";
     }
 
 }

@@ -10,7 +10,6 @@ import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.ids.TimeSeries;
 import com.elster.jupiter.ids.TimeSeriesDataStorer;
 import com.elster.jupiter.ids.TimeSeriesEntry;
-import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.impl.PrivateMessageSeeds;
 import com.elster.jupiter.metering.slp.SyntheticLoadProfile;
@@ -37,7 +36,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
-@Unique(fields = "name", groups = {Save.Create.class}, message = "{" + MessageSeeds.Constants.DUPLICATE_SLP_NAME + "}")
+@Unique(fields = "name", groups = {Save.Create.class}, message = "{" + PrivateMessageSeeds.Constants.DUPLICATE_SLP_NAME + "}")
 public class SyntheticLoadProfileImpl implements SyntheticLoadProfile {
     private final int FIRST_VALUE_OFFSET = 0;
 

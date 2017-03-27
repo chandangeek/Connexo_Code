@@ -115,6 +115,8 @@ public enum PrivateMessageSeeds implements MessageSeed {
     CAN_NOT_DELETE_ACTIVE_LIFE_CYCLE(9001, Constants.CAN_NOT_DELETE_ACTIVE_LIFE_CYCLE, "Can''t remove usage point life cycle because it''s in use by at least one of the usage point."),
     CAN_NOT_DELETE_ACTIVE_STATE(9002, Constants.CAN_NOT_DELETE_ACTIVE_STATE, "This state can''t be removed from this usage point life cycle because one or more usage points use this state."),
 
+    DUPLICATE_SLP_NAME(11001, Constants.DUPLICATE_SLP_NAME, "Synthetic load profile name must be unique", Level.SEVERE),
+
     CONNECTION_STATE_CHANGE_BEFORE_INSTALLATION_TIME(12001, "connection.state.change.before.installation.time", "Connection state change should be after usage point installation time"),
     CONNECTION_STATE_CHANGE_BEFORE_LATEST_CHANGE(12002, "connection.state.change.before.latest.change", "Connection state change should be after the latest connection state change on usage point");
 
@@ -241,6 +243,7 @@ public enum PrivateMessageSeeds implements MessageSeed {
         public static final String UNSATISFIED_TOU = "usagepoint.tou.unsatisfied";
         public static final String DENOMINATOR_CANNOT_BE_ZERO = "denominator.cannot.be.zero";
         public static final String METER_NOT_IN_OPERATIONAL_STAGE = "meter.not.in.operational.stage";
+        public static final String DUPLICATE_SLP_NAME = "slp.name.already.exists";
     }
 
 }

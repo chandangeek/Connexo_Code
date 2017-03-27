@@ -216,7 +216,7 @@ public class MetrologyContractChannelsContainerImplTestIT {
         assertThat(channel).isInstanceOf(AggregatedChannel.class);
 
         AggregatedChannel aggregatedChannel = (AggregatedChannel) channel;
-        List<IntervalReadingRecord> calculatedIntervalReadings = aggregatedChannel.getCalculatedIntervalReadings(requestedInterval);
+        List<AggregatedChannel.AggregatedIntervalReadingRecord> calculatedIntervalReadings = aggregatedChannel.getCalculatedIntervalReadings(requestedInterval);
         assertThat(calculatedIntervalReadings).hasSize(1);
         assertThat(calculatedIntervalReadings.get(0).getValue()).isEqualTo(readings.get(0).getValue());
         assertThat(readings.get(0).getValue()).isEqualTo(BigDecimal.valueOf(123L));

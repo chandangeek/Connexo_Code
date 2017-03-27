@@ -265,9 +265,9 @@ public class DataAggregationServiceImplCalculateTimeOfUseTest {
         service.calculate(this.usagePoint, this.contract, aggregationPeriod);
 
         // Asserts
-        ArgumentCaptor<Event> eventArgumentCaptor = ArgumentCaptor.forClass(Event.class);
         verify(consumptionTimeSeries).getRawValuesSql(any(Range.class), anyVararg());
-        verify(calendarTimeSeries).joinSql(eq(consumptionTimeSeriesRawSql), anyString(), eventArgumentCaptor.capture(), any(Range.class));
+        ArgumentCaptor<Event> eventArgumentCaptor = ArgumentCaptor.forClass(Event.class);
+        verify(calendarTimeSeries).joinSql(any(SqlFragment.class), anyString(), eventArgumentCaptor.capture(), any(Range.class));
         assertThat(eventArgumentCaptor.getValue()).isNotNull();
         assertThat(eventArgumentCaptor.getValue().getCode()).isEqualTo(22);
         verify(this.dataModel).getConnection(true);
@@ -380,8 +380,9 @@ public class DataAggregationServiceImplCalculateTimeOfUseTest {
         service.calculate(this.usagePoint, this.contract, aggregationPeriod);
 
         // Asserts
+        verify(consumptionTimeSeries).getRawValuesSql(any(Range.class), anyVararg());
         ArgumentCaptor<Event> eventArgumentCaptor = ArgumentCaptor.forClass(Event.class);
-        verify(calendarTimeSeries).joinSql(eq(consumptionTimeSeriesRawSql), anyString(), eventArgumentCaptor.capture(), any(Range.class));
+        verify(calendarTimeSeries).joinSql(any(SqlFragment.class), anyString(), eventArgumentCaptor.capture(), any(Range.class));
         assertThat(eventArgumentCaptor.getValue()).isNotNull();
         assertThat(eventArgumentCaptor.getValue().getCode()).isEqualTo(22);
         verify(this.dataModel).getConnection(true);
