@@ -100,6 +100,7 @@ class CalculatedReadingRecordImpl implements CalculatedReadingRecord {
             merged.readingQuality = Math.max(r1.readingQuality, r2.readingQuality);
             merged.count = r1.count + r2.count;
             merged.sourceChannelSet = sourceChannelSetFactory.merge(r1.sourceChannelSet, r2.sourceChannelSet);
+            merged.timeOfUseEvent = mergeEvent(r1.timeOfUseEvent, r2.timeOfUseEvent);
             return merged;
         } else {
             return merge(r2, r1, mergedTimestamp, truncaterFactory, sourceChannelSetFactory);
@@ -113,6 +114,16 @@ class CalculatedReadingRecordImpl implements CalculatedReadingRecord {
             return v2;
         } else {
             return v1;
+        }
+    }
+
+    private static Optional<Event> mergeEvent(Optional<Event> event1, Optional<Event> event2) {
+        if (event1.isPresent()) {
+            return event1;
+        } else if (event2.isPresent()) {
+            return event2;
+        } else {
+            return Optional.empty();
         }
     }
 
@@ -214,6 +225,7 @@ class CalculatedReadingRecordImpl implements CalculatedReadingRecord {
         record.readingQuality = this.readingQuality;
         record.count = 1;
         record.sourceChannelSet = this.sourceChannelSet;
+        record.timeOfUseEvent = this.timeOfUseEvent;
         return record;
     }
 
