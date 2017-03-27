@@ -8,6 +8,7 @@ import java.math.BigInteger;
 import java.time.Instant;
 
 public class CertificateInfo {
+    public long id;
     public boolean hasCSR;
     public boolean hasCertificate;
     public boolean hasPrivateKey;

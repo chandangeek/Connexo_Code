@@ -33,7 +33,7 @@ public class PkiApplication extends Application {
     public Set<Class<?>> getClasses() {
         return ImmutableSet.of(
             TrustStoreResource.class,
-            CertificateResource.class,
+            CertificateWrapperResource.class,
             MultiPartFeature.class
         );
     }

@@ -5,7 +5,11 @@
 package com.elster.jupiter.pki.rest.impl;
 
 import com.elster.jupiter.pki.CertificateWrapper;
+import com.elster.jupiter.pki.ClientCertificateWrapper;
 
+import org.bouncycastle.pkcs.PKCS10CertificationRequest;
+
+import java.security.cert.X509Certificate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,7 +24,8 @@ public class CertificateInfoFactory {
 
     public CertificateInfo asInfo(CertificateWrapper certificateWrapper) {
         CertificateInfo info = new CertificateInfo();
-        info.hasCSR = certificateWrapper.hasCsr();
+        info.id = certificateWrapper.getId();
+        info.hasCSR = certificateWrapper.hasCSR();
         info.hasCertificate = certificateWrapper.getCertificate().isPresent();
         info.hasPrivateKey = certificateWrapper.hasPrivateKey();
 
@@ -29,13 +34,20 @@ public class CertificateInfoFactory {
         info.expirationDate = certificateWrapper.getExpirationTime().orElse(null);
 
         certificateWrapper.getAllKeyUsages().ifPresent(keyUsages -> info.type = keyUsages);
-        certificateWrapper.getCertificate().ifPresent(x509Certificate -> info.issuer = x509Certificate.getIssuerDN().getName());
-        certificateWrapper.getCertificate().ifPresent(x509Certificate -> info.subject = x509Certificate.getSubjectDN().getName());
-        certificateWrapper.getCertificate().ifPresent(x509Certificate -> info.version = x509Certificate.getVersion());
-        certificateWrapper.getCertificate().ifPresent(x509Certificate -> info.serialNumber = x509Certificate.getSerialNumber());
-        certificateWrapper.getCertificate().ifPresent(x509Certificate -> info.notBefore = x509Certificate.getNotBefore().toInstant());
-        certificateWrapper.getCertificate().ifPresent(x509Certificate -> info.notAfter = x509Certificate.getNotAfter().toInstant());
-        certificateWrapper.getCertificate().ifPresent(x509Certificate -> info.signatureAlgorithm = x509Certificate.getSigAlgName());
+        if (certificateWrapper.getCertificate().isPresent()) {
+            X509Certificate x509Certificate = certificateWrapper.getCertificate().get();
+            info.issuer = x509Certificate.getIssuerDN().getName();
+            info.subject = x509Certificate.getSubjectDN().getName();
+            info.version = x509Certificate.getVersion();
+            info.serialNumber = x509Certificate.getSerialNumber();
+            info.notBefore = x509Certificate.getNotBefore().toInstant();
+            info.notAfter = x509Certificate.getNotAfter().toInstant();
+            info.signatureAlgorithm = x509Certificate.getSigAlgName();
+        } else if (certificateWrapper.hasCSR()) {
+            PKCS10CertificationRequest csr = ((ClientCertificateWrapper) certificateWrapper).getCSR().get();
+            info.subject = csr.getSubject().toString();
+            info.signatureAlgorithm = csr.getSignatureAlgorithm().getAlgorithm().toString();
+        }
 
         return info;
     }
