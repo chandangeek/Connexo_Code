@@ -70,7 +70,7 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
     @Mock
     private DeviceValidation deviceValidation;
     @Mock
-    private DataValidationStatus dataValidationStatus;
+    private DataValidationStatus dataValidationStatus, dataValidationStatus2, dataValidationStatus3;
     @Mock
     private NumericalRegister register;
     @Mock
@@ -133,11 +133,12 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
         doReturn(Arrays.asList(mockReadingQuality("2.7.1"))).when(actualReading1).getReadingQualities();
         when(numericalReading1.getValidationStatus()).thenReturn(Optional.of(dataValidationStatus));
 
+
         NumericalReading numericalReading2 = mockNumericalReading(actualReading2);
-        when(numericalReading2.getValidationStatus()).thenReturn(Optional.of(dataValidationStatus));
+        when(numericalReading2.getValidationStatus()).thenReturn(Optional.of(dataValidationStatus2));
         when(actualReading2.edited()).thenReturn(true);
         NumericalReading numericalReadingConfirmed = mockNumericalReading(actualReading3);
-        when(numericalReadingConfirmed.getValidationStatus()).thenReturn(Optional.of(dataValidationStatus));
+        when(numericalReadingConfirmed.getValidationStatus()).thenReturn(Optional.of(dataValidationStatus3));
         when(actualReading3.confirmed()).thenReturn(true);
         ReadingQualityRecord readingQualityEdited = mockReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.EDITGENERIC).getCode());
         doReturn(Arrays.asList(readingQualityEdited)).when(actualReading2).getReadingQualities();
@@ -165,7 +166,9 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
         when(estimationRule.getRuleSet()).thenReturn(estimationRuleSet);
         when(readingQualityEstimated.hasEstimatedCategory()).thenReturn(true);
         doReturn(Optional.of(estimationRule)).when(estimationService).findEstimationRuleByQualityType(readingQualityType);
-        doReturn(Arrays.asList(readingQualityEstimated, readingQualityConfirmed)).when(dataValidationStatus).getReadingQualities();
+        doReturn(Arrays.asList(mockReadingQuality("2.7.1"), readingQualityEstimated, readingQualityConfirmed)).when(dataValidationStatus).getReadingQualities();
+        doReturn(Arrays.asList(readingQualityEdited, readingQualityEstimated, readingQualityConfirmed)).when(dataValidationStatus2).getReadingQualities();
+        doReturn(Arrays.asList(readingQualityConfirmed, readingQualityEstimated, readingQualityConfirmed)).when(dataValidationStatus3).getReadingQualities();
         when(topologyService.getSlaveChannel(any(com.energyict.mdc.device.data.Channel.class), any(Instant.class))).thenReturn(Optional.empty());
         when(topologyService.getSlaveRegister(any(Register.class), any(Instant.class))).thenReturn(Optional.empty());
     }
@@ -220,7 +223,7 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
                 .queryParam("filter", filter)
                 .request().get(Map.class);
 
-/*        JsonModel jsonModel = JsonModel.create(json);
+        JsonModel jsonModel = JsonModel.create(json);
         assertThat(jsonModel.<List<?>>get("$.data")).hasSize(3);
         assertThat(jsonModel.<String>get("$.data[0].type")).isEqualTo("numerical");
         assertThat(jsonModel.<String>get("$.data[0].modificationFlag")).isEqualTo(ReadingModificationFlag.ADDED.name());
@@ -232,7 +235,6 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
         assertThat(jsonModel.<List<?>>get("$.data[0].estimatedByRule.properties")).isEmpty();
         assertThat(jsonModel.<String>get("$.data[0].estimatedByRule.application.id")).isEqualTo(QualityCodeSystem.MDC.name());
         assertThat(jsonModel.<String>get("$.data[0].estimatedByRule.application.name")).isEqualTo("MultiSense");
-        assertThat(jsonModel.<List<?>>get("$.data[0].readingQualities")).hasSize(1);
         assertThat(jsonModel.<String>get("$.data[0].readingQualities[0].cimCode")).isEqualTo("2.7.1");
         assertThat(jsonModel.<String>get("$.data[0].readingQualities[0].indexName")).isEqualTo("Manually added");
         assertThat(jsonModel.<String>get("$.data[0].readingQualities[0].systemName")).isEqualTo("MDC");
@@ -245,7 +247,6 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
         assertThat(jsonModel.<Number>get("$.data[1].estimatedByRule.id")).isEqualTo(13);
         assertThat(jsonModel.<Number>get("$.data[1].estimatedByRule.ruleSetId")).isEqualTo(15);
         assertThat(jsonModel.<String>get("$.data[1].estimatedByRule.name")).isEqualTo("EstimationRule");
-        assertThat(jsonModel.<List<?>>get("$.data[1].readingQualities")).hasSize(1);
         assertThat(jsonModel.<String>get("$.data[1].readingQualities[0].cimCode")).isEqualTo("2.7.0");
         assertThat(jsonModel.<String>get("$.data[1].readingQualities[0].indexName")).isEqualTo("Manually edited - generic");
         assertThat(jsonModel.<String>get("$.data[1].readingQualities[0].systemName")).isEqualTo("MDC");
@@ -257,11 +258,10 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
         assertThat(jsonModel.<Boolean>get("$.data[2].isConfirmed")).isEqualTo(true);
         assertThat(jsonModel.<String>get("$.data[2].confirmedInApps[0].id")).isEqualTo(QualityCodeSystem.MDC.name());
         assertThat(jsonModel.<String>get("$.data[2].confirmedInApps[0].name")).isEqualTo("MultiSense");
-        assertThat(jsonModel.<List<?>>get("$.data[2].readingQualities")).hasSize(1);
         assertThat(jsonModel.<String>get("$.data[2].readingQualities[0].cimCode")).isEqualTo("2.10.1");
         assertThat(jsonModel.<String>get("$.data[2].readingQualities[0].indexName")).isEqualTo("Manually accepted");
         assertThat(jsonModel.<String>get("$.data[0].readingQualities[0].systemName")).isEqualTo("MDC");
-        assertThat(jsonModel.<String>get("$.data[2].readingQualities[0].categoryName")).isEqualTo("Questionable");*/
+        assertThat(jsonModel.<String>get("$.data[2].readingQualities[0].categoryName")).isEqualTo("Questionable");
     }
 
     @Test
