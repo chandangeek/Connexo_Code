@@ -293,7 +293,7 @@ public class AesGcmTest {
      * Tests authenticated encryption using AES-GCM-256.
      * If this test fails, it might be that the 'Java unlimited strength files' are missing.
      * Download the file from http://www.oracle.com/technetwork/java/javase/downloads/jce-7-download-432124.html
-     * (or other similar link corresponding to the used java version used), extract the jar's from the zip and
+     * (or other similar link corresponding to the used java version), extract the jar files from the zip and
      * save them in ${java.home}/jre/lib/security/
      * See http://stackoverflow.com/questions/6481627/java-security-illegal-key-size-or-default-parameters
      */

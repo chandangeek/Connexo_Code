@@ -49,7 +49,7 @@ public class IDISStoredValues implements StoredValues {
 
     public HistoricalValue getHistoricalValue(ObisCode obisCode) throws IOException {
         ObisCode baseObisCode = ProtocolTools.setObisCodeField(obisCode, 5, (byte) 255);
-        int channelIndex = checkIfObisCodeIsCaptured(baseObisCode);
+        ExtendedRegisterChannelIndex channelIndex = new ExtendedRegisterChannelIndex(baseObisCode, getProfileGeneric().getCaptureObjects());
         int billingPoint = obisCode.getF();
         if (!isValidBillingPoint(billingPoint)) {
             throw new NoSuchRegisterException("Billing point " + obisCode.getF() + " doesn't exist for obiscode " + baseObisCode + ".");
@@ -57,16 +57,26 @@ public class IDISStoredValues implements StoredValues {
         int reverseBillingPoint = getReversedBillingPoint(billingPoint);
         ProfileData historicalProfileData = getProfileData();
         IntervalData intervalData = historicalProfileData.getIntervalData(reverseBillingPoint);
-        IntervalValue intervalValue = (IntervalValue) intervalData.getIntervalValues().get(channelIndex - 1);
-        int value = intervalValue.getNumber().intValue();
 
+        // get the value
+        IntervalValue intervalValue = (IntervalValue) intervalData.getIntervalValues().get(channelIndex.getValueIndex() - 1);
+        int value = intervalValue.getNumber().intValue();
+        Date historicalDate = intervalData.getEndTime();
+
+        // try to see if we have also event time (i.e. for extended registers)
+        Date eventTime = null;
+        if (channelIndex.getEventTimeIndex()>0){
+            IntervalValue capturedTime = (IntervalValue) intervalData.getIntervalValues().get(channelIndex.getEventTimeIndex() - 1);
+            if (capturedTime.getNumber()!=null) {
+                eventTime = new Date(capturedTime.getNumber().longValue());
+            }
+        }
 
         HistoricalRegister cosemValue = new HistoricalRegister();
         cosemValue.setQuantityValue(BigDecimal.valueOf(value), getUnit(baseObisCode));
 
-        Date historicalDate = intervalData.getEndTime();
 
-        return new HistoricalValue(cosemValue, historicalDate, new Date(), 0);
+        return new HistoricalValue(cosemValue, historicalDate, eventTime, 0);
     }
 
     protected int getReversedBillingPoint(int billingPoint) throws IOException {
@@ -92,6 +102,8 @@ public class IDISStoredValues implements StoredValues {
                     } else {
                         if (structure.isInteger(channel)) {
                             value = new IntervalValue(structure.getInteger(channel), 0, 0);
+                        } else if (structure.isOctetString(channel)){
+                            value = new IntervalValue(structure.getOctetString(channel).toDate().getTime(), 0, 0);
                         } else {
                             value = new IntervalValue(null, 0, 0);
                         }
@@ -116,18 +128,6 @@ public class IDISStoredValues implements StoredValues {
     private Unit getUnit(ObisCode baseObisCode) throws IOException {
         Map<ObisCode, Unit> unitMap = am500.getIDISProfileDataReader().readUnits(null, Arrays.asList(baseObisCode));
         return unitMap.get(baseObisCode);
-    }
-
-    protected int checkIfObisCodeIsCaptured(ObisCode obisCode) throws IOException {
-        int channelIndex = 0;
-        List<CapturedObject> captureObjects = getProfileGeneric().getCaptureObjects();
-        for (CapturedObject capturedObject : captureObjects) {
-            if (capturedObject.getLogicalName().getObisCode().equals(obisCode)) {
-                return channelIndex;
-            }
-            channelIndex++;
-        }
-        throw new NoSuchRegisterException("Obiscode " + obisCode.toString() + " is not stored in the billing profile. The captured objects are: "+captureObjects.toString());
     }
 
     public ProfileGeneric getProfileGeneric() throws NotInObjectListException {

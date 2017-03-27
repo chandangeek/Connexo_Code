@@ -44,7 +44,7 @@ public class ObjectFactoryTest {
         assertEquals(profileData.getIntervalDatas().size(), 39);
         assertEquals(profileData.getMeterEvents().size(), 0);
         IntervalData firstInterval = profileData.getIntervalDatas().get(0);
-        assertEquals(firstInterval.getEndTime().getTime(), 1467147600000L);
+        assertEquals(firstInterval.getEndTime().getTime(), 1467151200000L);
         assertEquals(firstInterval.getEiStatus(), IntervalStateBits.REVERSERUN);
         assertEquals(firstInterval.getProtocolStatus(), 49152);
         assertEquals(firstInterval.getTariffCode(), 1);
@@ -64,7 +64,7 @@ public class ObjectFactoryTest {
         assertEquals(profileData.getIntervalDatas().size(), 39);
         assertEquals(profileData.getMeterEvents().size(), 0);
         IntervalData lastInterval = profileData.getIntervalDatas().get(38);
-        assertEquals(lastInterval.getEndTime().getTime(), 1467181800000L);
+        assertEquals(lastInterval.getEndTime().getTime(), 1467185400000L);
         assertEquals(lastInterval.getEiStatus(), IntervalStateBits.REVERSERUN);
         assertEquals(lastInterval.getProtocolStatus(), 49152);
         assertEquals(lastInterval.getTariffCode(), 2);

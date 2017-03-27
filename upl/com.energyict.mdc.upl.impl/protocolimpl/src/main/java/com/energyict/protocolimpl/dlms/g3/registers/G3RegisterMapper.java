@@ -248,6 +248,23 @@ public class G3RegisterMapper {
     public static final ObisCode MODEM_WATCHDOG_ATTR2 = ObisCode.fromString("0.2.128.0.11.255");
     public static final ObisCode MODEM_WATCHDOG_ATTR3 = ObisCode.fromString("0.3.128.0.11.255");
 
+
+    public static final ObisCode MULTI_APN_CONFIG = ObisCode.fromString("0.128.25.3.0.255");
+
+    /**
+     * ObisCode mappers for the ConcentratorSetup attributes, found on base OBISCode 0.187.96.128.0.255
+     * https://confluence.eict.vpdc/display/G3IntBeacon3100/Manage+DC+operations
+     */
+    public static final ObisCode CONCENTRATOR_SETUP_ACTIVE                      = ObisCode.fromString("0.187.96.128.0.2");
+    public static final ObisCode CONCENTRATOR_SETUP_MAX_CONCURENT_SESSIONS      = ObisCode.fromString("0.187.96.128.0.3");
+    public static final ObisCode CONCENTRATOR_SETUP_METER_INFO_JSON             = ObisCode.fromString("0.187.96.128.0.4");
+    public static final ObisCode CONCENTRATOR_SETUP_METER_INFO_SERIAL           = ObisCode.fromString("0.187.96.128.0.41");
+    public static final ObisCode CONCENTRATOR_SETUP_METER_INFO_MAC              = ObisCode.fromString("0.187.96.128.0.42");
+    public static final ObisCode CONCENTRATOR_SETUP_PROTOCOL_EVENT_LOG_LEVEL    = ObisCode.fromString("0.187.96.128.0.5");
+
+
+
+
     protected final List<G3Mapping> mappings = new ArrayList<G3Mapping>();
     private final Logger logger;
     private final CosemObjectFactory cosemObjectFactory;
@@ -629,4 +646,26 @@ public class G3RegisterMapper {
 
         return ipv4SetupMappings;
     }
+
+
+    protected List<G3Mapping> getConcentratorSetupMappings() {
+        final List<G3Mapping> concentratorSetupMapping = new ArrayList<G3Mapping>();
+
+        concentratorSetupMapping.add(new ConcentratorSetupMapping(CONCENTRATOR_SETUP_ACTIVE));
+        concentratorSetupMapping.add(new ConcentratorSetupMapping(CONCENTRATOR_SETUP_MAX_CONCURENT_SESSIONS));
+        concentratorSetupMapping.add(new ConcentratorSetupMapping(CONCENTRATOR_SETUP_METER_INFO_JSON));
+        concentratorSetupMapping.add(new ConcentratorSetupMapping(CONCENTRATOR_SETUP_METER_INFO_SERIAL));
+        concentratorSetupMapping.add(new ConcentratorSetupMapping(CONCENTRATOR_SETUP_METER_INFO_MAC));
+        concentratorSetupMapping.add(new ConcentratorSetupMapping(CONCENTRATOR_SETUP_PROTOCOL_EVENT_LOG_LEVEL));
+
+        return concentratorSetupMapping;
+    }
+
+
+    protected final List<G3Mapping> getMultiAPNConfigurationMappings() {
+        final List<G3Mapping> apnConfigsMappings = new ArrayList<G3Mapping>();
+        apnConfigsMappings.add(new MultiAPNConfigMapping(MULTI_APN_CONFIG));
+        return apnConfigsMappings;
+    }
+
 }

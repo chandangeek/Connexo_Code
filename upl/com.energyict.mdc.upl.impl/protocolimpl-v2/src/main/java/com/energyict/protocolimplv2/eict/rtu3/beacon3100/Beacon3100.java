@@ -49,7 +49,7 @@ import com.energyict.protocolimplv2.eict.rtu3.beacon3100.logbooks.Beacon3100LogB
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.Beacon3100Messaging;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties.Beacon3100ConfigurationSupport;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties.Beacon3100Properties;
-import com.energyict.protocolimplv2.eict.rtu3.beacon3100.registers.RegisterFactory;
+import com.energyict.protocolimplv2.eict.rtu3.beacon3100.registers.Beacon3100RegisterFactory;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
 import com.energyict.protocolimplv2.security.DeviceProtocolSecurityPropertySetImpl;
@@ -81,7 +81,7 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
     private static final int MAC_ADDRESS_LENGTH = 8;    //In bytes
     protected Beacon3100Messaging beacon3100Messaging;
     private BeaconCache beaconCache = null;
-    private RegisterFactory registerFactory;
+    private Beacon3100RegisterFactory registerFactory;
     private Beacon3100LogBookFactory logBookFactory;
 
     @Override
@@ -472,9 +472,9 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
         return getRegisterFactory().readRegisters(registers);
     }
 
-    private RegisterFactory getRegisterFactory() {
+    private Beacon3100RegisterFactory getRegisterFactory() {
         if (registerFactory == null) {
-            registerFactory = new RegisterFactory(getDlmsSession());
+            registerFactory = new Beacon3100RegisterFactory(getDlmsSession());
         }
         return registerFactory;
     }

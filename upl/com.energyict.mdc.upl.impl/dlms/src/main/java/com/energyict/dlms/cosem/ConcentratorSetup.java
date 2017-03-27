@@ -1,28 +1,26 @@
 package com.energyict.dlms.cosem;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
-import java.util.TimeZone;
-
 import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.axrdencoding.TypeEnum;
-import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.axrdencoding.util.DateTime;
 import com.energyict.dlms.cosem.attributes.ConcentratorSetupAttributes;
 import com.energyict.dlms.cosem.methods.ConcentratorSetupMethods;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * Concentrator setup IC (for the Beacon 3100).
  * 
- * Specified in : https://confluence.eict.vpdc/display/G3IntBeacon3100/DLMS+concentrator+specification.
+ * Specified in :   https://confluence.eict.vpdc/display/G3IntBeacon3100/DLMS+concentrator+specification.
+ *                  https://confluence.eict.vpdc/display/G3IntBeacon3100/Manage+DC+operations
  * 
  * @author alex
  */
@@ -30,8 +28,10 @@ public final class ConcentratorSetup extends AbstractCosemObject {
 	
 	/** Beacon 3100 OBIS code. */
 	public static final ObjectReference DEFAULT_OBIS_CODE = new ObjectReference(new byte[] { 0, 0, (byte)128, 0, 18, (byte)255 });
-	
-	/**
+    /** ObisCode for Beacon version  1.11 */
+    public static final ObisCode NEW_LOGICAL_NAME = ObisCode.fromString("0.187.96.128.0.255");
+
+    /**
 	 * Enumerates the scheduling states of the meters.
 	 * 
 	 * @author alex
@@ -352,6 +352,15 @@ public final class ConcentratorSetup extends AbstractCosemObject {
 	public final void reset() throws IOException {
 		this.methodInvoke(ConcentratorSetupMethods.RESET_CONCENTRATOR);
 	}
+
+    /**
+     * Removes all meter data associated with the given logical device, and removed the logical device from the SAP list.
+     *
+     */
+    public final void removeLogicalDevice(final byte[] mac) throws IOException {
+        OctetString osMC = OctetString.fromByteArray(mac);
+        this.methodInvoke(ConcentratorSetupMethods.REMOVE_LOGICAL_DEVICE, osMC.getBEREncodedByteArray());
+    }
 	
 	/**
 	 * Trigger the preliminary protocol for a particular meter (identified by it's MAC address (EUI64)).
@@ -400,4 +409,136 @@ public final class ConcentratorSetup extends AbstractCosemObject {
     	
     	return meterInformation;
     }
+
+    /** Returns information about the mirror devices known to the concentrator.
+     *
+     * @return raw AXDR encoded meter infor arry
+     */
+    public Array getMeterInfoArray() throws IOException {
+        return this.readDataType(ConcentratorSetupAttributes.METER_INFO, Array.class);
+    }
+
+    /**
+     * @return boolean DLMS object, true the concentrator component is running
+     */
+    public BooleanObject isActive() throws IOException {
+        return this.readDataType(ConcentratorSetupAttributes.IS_ACTIVE, BooleanObject.class);
+    }
+
+    /**
+     * @return Gets the maximum amount of concurrent meter sessions that are allowed.
+     * @throws IOException
+     */
+    public Unsigned16 getMaxConcurrentSessions() throws IOException {
+        return this.readDataType(ConcentratorSetupAttributes.MAX_CONCURENT_SESSIONS, Unsigned16.class);
+    }
+
+    /**
+    * @return Gets the protocol event log level.
+    * @throws IOException
+    */
+    public TypeEnum getProtocolEventLogLevel() throws IOException {
+        return this.readDataType(ConcentratorSetupAttributes.PROTOCOL_LOG_LEVEL, TypeEnum.class);
+    }
+
+    /** Translates an enum log level into text
+     *    protocol_log_level ::= ENUMERATION
+     {
+     [0]:    OFF,
+     [1]:    WARNING,
+     [2]:    INFO,
+     [3]:    DEBUG
+     }
+     * @param logLevel
+     * @return
+     */
+    public static String getLogLevelDescription(TypeEnum logLevel) {
+        switch (logLevel.getValue()){
+            case 0: return "OFF";
+            case 1: return "WARNING";
+            case 2: return "INFO";
+            case 3: return "DEBUG";
+        }
+        return logLevel.toString();
+    }
+
+    /**
+     * Transforms the array of meterInfos into a JSON array, with all the details about the device
+     * @param meterInfos
+     * @return
+     * @throws IOException
+     * @throws JSONException
+     */
+    public static String buildMeterInfoJSON(Array meterInfos) throws IOException, JSONException {
+        JSONArray jsonArray = new JSONArray();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm");
+        Calendar now = Calendar.getInstance();
+        for (final AbstractDataType entry : meterInfos) {
+            MeterInfo meterInfo = MeterInfo.fromStructure(entry.getStructure());
+
+            JSONObject jsonMeterInfo = new JSONObject();
+
+            jsonMeterInfo.put("serial", meterInfo.getSerialNumber());
+            jsonMeterInfo.put("state", meterInfo.getSchedulingState().toString());
+            jsonMeterInfo.put("id", ProtocolTools.getHexStringFromBytes(meterInfo.getId(), ""));
+            jsonMeterInfo.put("tz", meterInfo.getTimezone().getDisplayName());
+
+            JSONArray jsonDeviceTypes = new JSONArray();
+            for(DeviceTypeAssignment deviceType : meterInfo.getDeviceTypeAssignments()){
+                JSONObject jsonDeviceType = new JSONObject();
+                jsonDeviceType.put("tid", deviceType.getDeviceTypeId());
+                jsonDeviceType.put("st", dateFormat.format(deviceType.getStartTime().getTime()));
+                if (now.compareTo(deviceType.getEndTime())==1) {
+                    jsonDeviceType.put("et", "*");                 // future date
+                } else {
+                    jsonDeviceType.put("et", dateFormat.format(deviceType.getEndTime().getTime()));
+                }
+                jsonDeviceTypes.put(jsonDeviceType);
+            }
+
+            jsonMeterInfo.put("deviceTypes", jsonDeviceTypes);
+
+            jsonArray.put(jsonMeterInfo);
+        }
+
+        return jsonArray.toString();
+    }
+
+    /**
+     * Transforms the meterInfo structures into a list of serial numbers
+     *
+     * @param meterInfos
+     * @return
+     * @throws IOException
+     */
+    public static String buildMeterInfoAsSerial(Array meterInfos) throws IOException {
+        StringBuilder stringBuilder = new StringBuilder();
+
+        for (final AbstractDataType entry : meterInfos) {
+            MeterInfo meterInfo = MeterInfo.fromStructure(entry.getStructure());
+            stringBuilder.append(meterInfo.getSerialNumber()).append(",");
+        }
+
+        return stringBuilder.toString();
+    }
+
+    /**
+     * Transforms the meterInfo structures into a list of MAC addresses
+     *
+     * @param meterInfos
+     * @return
+     * @throws IOException
+     */
+    public static String buildMeterInfoAsMAC(Array meterInfos) throws IOException {
+        StringBuilder stringBuilder = new StringBuilder();
+
+        for (final AbstractDataType entry : meterInfos) {
+            MeterInfo meterInfo = MeterInfo.fromStructure(entry.getStructure());
+            String mac = ProtocolTools.getHexStringFromBytes(meterInfo.getId(),"");
+            stringBuilder.append(mac).append(",");
+        }
+
+        return stringBuilder.toString();
+    }
+
 }

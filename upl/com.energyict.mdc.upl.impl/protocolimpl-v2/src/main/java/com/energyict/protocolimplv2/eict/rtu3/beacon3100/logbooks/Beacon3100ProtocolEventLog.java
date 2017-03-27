@@ -2,25 +2,32 @@ package com.energyict.protocolimplv2.eict.rtu3.beacon3100.logbooks;
 
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.DataStructure;
+import com.energyict.mdc.meterdata.CollectedLogBook;
+import com.energyict.mdc.meterdata.identifiers.LogBookIdentifier;
+import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.exceptions.DataParseException;
+import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
+import com.energyict.protocolimplv2.identifiers.LogBookIdentifierByObisCodeAndDevice;
 
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.TimeZone;
+import java.util.*;
+import java.util.logging.Logger;
 
 /**
  * Copyrights EnergyICT
  */
 
 public class Beacon3100ProtocolEventLog extends Beacon3100AbstractEventLog {
+    public static final ObisCode SLAVE_DEVICE_PROTOCOL_LOGBOOK       = ObisCode.fromString("0.128.99.98.0.255");
 
     DateFormat dateFormat = setDateFormat();
+    private Map<String, CollectedLogBook> slaveLogBooks = new HashMap<>();
 
     public Beacon3100ProtocolEventLog(DataContainer dc, TimeZone timeZone) {
         super(dc, timeZone);
@@ -62,7 +69,61 @@ public class Beacon3100ProtocolEventLog extends Beacon3100AbstractEventLog {
         Result taskResult = Result.UNKNOWN;
         List<JournalEntry> journalEntry = null;;
 
-        for (int i = 0; i <= (size - 1); i++) {
+        for (int i = 0; i < size; i++) {
+            DataStructure eventStructure = this.dcEvents.getRoot().getStructure(i);
+
+            if (eventStructure.isLong(0)) {
+                eventTimeStamp.setTime(eventStructure.getLong(0));
+            } else {
+                throw DataParseException.ioException(new ProtocolException("Expected the first element of the received structure to be a Long value"));
+            }
+
+            if (eventStructure.isOctetString(1)) {
+                serialNumber = eventStructure.getOctetString(1).toString();
+            } else {
+                throw DataParseException.ioException(new ProtocolException("Expected the second element of the received structure to be an OctetString"));
+            }
+
+            if (eventStructure.isLong(2)) {
+                deviceId = eventStructure.getValue(2);
+            } else {
+                throw DataParseException.ioException(new ProtocolException("Expected the third element of the received structure to be a Long value"));
+            }
+
+            if (eventStructure.isInteger(3)) {
+                taskResult = Result.fromValue(eventStructure.getValue(3) & 0xFFFFFFFF);
+            } else {
+                throw DataParseException.ioException(new ProtocolException("Expected the first element of the received structure to be an Integer"));
+            }
+
+
+            StringBuffer buffer = new StringBuffer(40);
+            buffer.append("Serial: ");
+            buffer.append(serialNumber);
+            buffer.append(", MAC: ");
+            buffer.append(Long.toHexString(deviceId));
+            buffer.append(", Result: ");
+            buffer.append(taskResult.getDescription());
+
+            buildMeterEvent(meterEvents, eventTimeStamp, buffer.toString());
+        }
+        return meterEvents;
+    }
+
+
+    /** Returns a list of collected log books, sorted by each slave device
+     *
+     * @return list of slave protocol logbooks
+     */
+    public List<CollectedLogBook> geSlaveLogBooks() {
+        int size = this.dcEvents.getRoot().getNrOfElements();
+        long deviceId = -1;
+        Date eventTimeStamp = new Date();
+        String serialNumber = null;
+        Result taskResult = Result.UNKNOWN;
+        List<JournalEntry> journalEntry = null;
+
+        for (int i = 0; i < size; i++) {
             DataStructure eventStructure = this.dcEvents.getRoot().getStructure(i);
 
             if (eventStructure.isLong(0)) {
@@ -95,17 +156,21 @@ public class Beacon3100ProtocolEventLog extends Beacon3100AbstractEventLog {
                 throw DataParseException.ioException(new ProtocolException("Expected the first element of the received structure to be a Structure"));
             }
 
-            StringBuffer buffer = new StringBuffer(40);
-            buffer.append("\tMeter serial: ");
-            buffer.append(serialNumber);
-            buffer.append("\tDevice id: ");
-            buffer.append(Long.toHexString(deviceId));
-            buffer.append("\tResult: ");
-            buffer.append(taskResult.getDescription());
-
-            buildMeterEvent(meterEvents, eventTimeStamp, deviceId, buffer.toString(), journalEntry);
+            CollectedLogBook slaveLogBook = getSlaveLogBook(serialNumber);
+            addSlaveEventsToLogBook(slaveLogBook, taskResult.getResult(), journalEntry);
         }
-        return meterEvents;
+        return getSlaveLogBooks();
+    }
+
+
+    private CollectedLogBook getSlaveLogBook(String serialNumber) {
+        if (!slaveLogBooks.keySet().contains(serialNumber)) {
+            DeviceIdentifier deviceIdentifier = new DeviceIdentifierBySerialNumber(serialNumber);
+            LogBookIdentifier logBookIdentifier = new LogBookIdentifierByObisCodeAndDevice(deviceIdentifier, SLAVE_DEVICE_PROTOCOL_LOGBOOK);
+            CollectedLogBook collectedLogBook = MdcManager.getCollectedDataFactory().createCollectedLogBook(logBookIdentifier);
+            slaveLogBooks.put(serialNumber, collectedLogBook);
+        }
+        return slaveLogBooks.get(serialNumber);
     }
 
     private List<JournalEntry> getJournalEntries(DataStructure array) {
@@ -155,37 +220,41 @@ public class Beacon3100ProtocolEventLog extends Beacon3100AbstractEventLog {
         meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), dlmsCode, deviceCode, " Event: "+eventDescription+" - "+message));
     }
 
-    protected void buildMeterEvent(List<MeterEvent> meterEvents, Date eventTimeStamp, long deviceId, String message, List<JournalEntry> journalEntry) {
-        String eventDescription = null;
-        StringBuffer descriptionBuffer = new StringBuffer(message.length());
 
-        descriptionBuffer.append("\nDate: ");
-        descriptionBuffer.append(dateFormat.format(eventTimeStamp));
-        descriptionBuffer.append(message);
-        descriptionBuffer.append("\n");
-        int entrySize = journalEntry.size();
+    protected void buildMeterEvent(List<MeterEvent> meterEvents, Date eventTimeStamp, String message) {
+        meterEvents.add(new MeterEvent(eventTimeStamp, 0, 0, message));
+    }
 
-        for (int i = 0; i < entrySize; i++) {
-            descriptionBuffer.append("\nJournal entry type: ");
-            descriptionBuffer.append(journalEntry.get(i).type.getDescription());
-            descriptionBuffer.append("\nTimestamp: ");
-            descriptionBuffer.append(dateFormat.format(journalEntry.get(i).entryTimeStamp));
-            descriptionBuffer.append("\nMessage: ");
-            descriptionBuffer.append(journalEntry.get(i).message);
-            if (!"".equals(journalEntry.get(i).debugInfo)) {
-                descriptionBuffer.append("\nDebug info: ");
-                descriptionBuffer.append(journalEntry.get(i).debugInfo);
+    protected void addSlaveEventsToLogBook(CollectedLogBook logBook, int code, List<JournalEntry> journalEntry) {
+        List<MeterEvent> meterEvents = new ArrayList<>();
+        for(JournalEntry entry : journalEntry){
+            String msg = entry.type.getDescription();
+            if (!entry.message.isEmpty()){
+                msg += " " + entry.message;
             }
-            descriptionBuffer.append('\n');
+            if (!entry.debugInfo.isEmpty()){
+                msg += " " +entry.debugInfo;
+            }
+            meterEvents.add(new MeterEvent(entry.entryTimeStamp, 0, code, msg, 0, entry.type.getType()));
         }
 
-        eventDescription = descriptionBuffer.toString();
+        logBook.addCollectedMeterEvents(MeterEvent.mapMeterEventsToMeterProtocolEvents(meterEvents));
+    }
 
-        if (eventDescription == null) {
-            eventDescription = getDefaultEventDescription(0, (int) deviceId, message);
+
+    public List<CollectedLogBook> getSlaveLogBooks() {
+        List<CollectedLogBook> slaveLogBooksCollection = new ArrayList<>();
+
+        for(Map.Entry<String, CollectedLogBook> slaveLogBookMap : slaveLogBooks.entrySet()){
+            try {
+                Logger.getAnonymousLogger().info("- EventLog for " + slaveLogBookMap.getKey() + " has " + slaveLogBookMap.getValue().getCollectedMeterEvents().size() + " events");
+            } catch (Exception ex){
+                // swallow any funny NPE
+            }
+            slaveLogBooksCollection.add(slaveLogBookMap.getValue());
         }
 
-        meterEvents.add(new MeterEvent((Date) eventTimeStamp, 0, 0, eventDescription));
+        return slaveLogBooksCollection;
     }
 
     public class JournalEntry{
