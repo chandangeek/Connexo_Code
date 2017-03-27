@@ -9,6 +9,7 @@ import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.pki.PrivateKeyWrapper;
 import com.elster.jupiter.pki.rest.impl.CsrInfo;
 
+import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -109,7 +110,8 @@ public class CertificateWrapperResourceTest extends PkiApplicationTest {
         when(csr.getSubject()).thenReturn(x500Name);
         AlgorithmIdentifier signatureAlgorithm = mock(AlgorithmIdentifier.class);
         when(csr.getSignatureAlgorithm()).thenReturn(signatureAlgorithm);
-        when(signatureAlgorithm.toString()).thenReturn("algorithm");
+        ASN1ObjectIdentifier algorithm = new ASN1ObjectIdentifier("1.2.840.10045.4.3.2");
+        when(signatureAlgorithm.getAlgorithm()).thenReturn(algorithm);
 
         Response response = target("/certificates/csr").request().post(Entity.json(csrInfo));
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
