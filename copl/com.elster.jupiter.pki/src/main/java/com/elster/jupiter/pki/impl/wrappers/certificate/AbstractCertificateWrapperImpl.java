@@ -85,6 +85,14 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
     private String alias;
     private byte[] certificate;
     private Instant expirationTime;
+    @SuppressWarnings("unused")
+    private String userName;
+    @SuppressWarnings("unused")
+    private long version;
+    @SuppressWarnings("unused")
+    private Instant createTime;
+    @SuppressWarnings("unused")
+    private Instant modTime;
 
     public AbstractCertificateWrapperImpl(DataModel dataModel, Thesaurus thesaurus, PropertySpecService propertySpecService) {
         this.dataModel = dataModel;
@@ -134,6 +142,11 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
         } catch (CertificateEncodingException e) {
             throw new PkiLocalizedException(thesaurus, MessageSeeds.CERTIFICATE_ENCODING_EXCEPTION, e);
         }
+    }
+
+    @Override
+    public long getVersion() {
+        return version;
     }
 
     @Override

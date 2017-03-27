@@ -176,6 +176,14 @@ public interface PkiService {
     Optional<CertificateWrapper> findCertificateWrapper(long id);
 
     /**
+     * Returns the CertificateWrapper identified by the provided id if the {@link CertificateWrapper} has the correct version
+     * @param id The certificate's id
+     * @param version The object's required version
+     * @return The {@link CertificateWrapper}, empty if not found.
+     */
+    Optional<CertificateWrapper> findAndLockCertificateWrapper(long id, long version);
+
+    /**
      * Returns all non-trusted certificates, that means, all certificates for the 'certificate store'
      * @return All Certificates and ClientCertificates, TrustedCertificates will not be part of the list.
      */

@@ -91,6 +91,10 @@ public enum TableSpecs {
             Column trustStoreColumn = table.column("TRUSTSTORE")
                     .number()
                     .add();
+            Column keyTypeColumn = table.column("KEYTYPE")
+                    .number()
+                    .add();
+            table.addAuditColumns();
             table.addMessageAuthenticationCodeColumn(encrypter);
 
             table.primaryKey("PK_PKI_CERTIFICATE").on(id).add();
@@ -100,6 +104,11 @@ public enum TableSpecs {
                     .map(AbstractCertificateWrapperImpl.Fields.TRUST_STORE.fieldName())
                     .reverseMap(TrustStoreImpl.Fields.CERTIFICATES.fieldName())
                     .onDelete(DeleteRule.CASCADE)
+                    .add();
+            table.foreignKey("PKI_FK_CERT_KEYTYPE").on(keyTypeColumn)
+                    .references(KeyTypeImpl.class)
+//                    .composition() // Due to bug CXO-5905
+                    .map(AbstractCertificateWrapperImpl.Fields.KEY_TYPE.fieldName())
                     .add();
         }
     }

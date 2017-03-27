@@ -56,6 +56,11 @@ public interface CertificateWrapper extends HasDynamicPropertiesWithUpdatableVal
     Optional<String> getAllKeyUsages();
 
     /**
+     * The current version of this business object. Version property is used for concurrency purposes.
+     */
+    long getVersion();
+
+    /**
      * Status describes the content of the wrapper. Currently 3 statuses are defined: Requested, Available and Expired
      * @return CertificateWrapper status.
      */

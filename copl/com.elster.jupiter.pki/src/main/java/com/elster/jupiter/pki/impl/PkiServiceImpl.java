@@ -345,6 +345,11 @@ public class PkiServiceImpl implements PkiService {
     }
 
     @Override
+    public Optional<CertificateWrapper> findAndLockCertificateWrapper(long id, long version) {
+        return getDataModel().mapper(CertificateWrapper.class).lockObjectIfVersion(version, id);
+    }
+
+    @Override
     public Finder<CertificateWrapper> findAllCertificates() {
         return DefaultFinder.of(CertificateWrapper.class,
                 where("class").in(Arrays.asList(AbstractCertificateWrapperImpl.CERTIFICATE_DISCRIMINATOR, AbstractCertificateWrapperImpl.CLIENT_CERTIFICATE_DISCRIMINATOR)),
