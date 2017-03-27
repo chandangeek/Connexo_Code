@@ -53,7 +53,7 @@ public class CertificateInfoFactory {
             info.csr = info.new CertificateInfo();
             PKCS10CertificationRequest csr = ((ClientCertificateWrapper) certificateWrapper).getCSR().get();
             info.csr.subject = csr.getSubject().toString();
-            info.csr.signatureAlgorithm = csr.getSignatureAlgorithm().getAlgorithm().toString();
+//            info.csr.signatureAlgorithm = csr.getSignatureAlgorithm().getAlgorithm().toString();
         }
 
         return info;

@@ -19,7 +19,9 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_CERTIFICATE(6, "NoSuchCertificate", "No certificate wrapper with alias {0} could be located"),
     NO_SUCH_KEY_TYPE(7, "NoSuchKeyType", "No such key type"),
     CERTIFICATE_TOO_BIG(8, "fileTooBig", "File size should be less than 2 kB"),
-    FIELD_IS_REQUIRED(9, "FieldIsrequired", "This field is required");
+    FIELD_IS_REQUIRED(9, "FieldIsrequired", "This field is required"),
+    NOT_POSSIBLE_TO_CREATE_CSR(10, "NotPossibleToCreateCSR" , "CSR can not be generated for this type of certificate");
+
     private final int number;
     private final String key;
     private final String defaultFormat;

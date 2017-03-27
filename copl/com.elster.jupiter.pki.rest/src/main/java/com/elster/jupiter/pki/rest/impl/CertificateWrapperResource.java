@@ -104,14 +104,15 @@ public class CertificateWrapperResource {
     public Response importCertificateIntoExistingWrapper(
             @PathParam("id") long certificateWrapperId,
             @FormDataParam("file") InputStream certificateInputStream,
-            @FormDataParam("file") FormDataContentDisposition contentDispositionHeader) {
+            @FormDataParam("file") FormDataContentDisposition contentDispositionHeader,
+            @FormDataParam("version") long version) {
         if (contentDispositionHeader==null) {
             throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "file");
         }
         if (contentDispositionHeader.getSize() > MAX_FILE_SIZE) {
             throw new LocalizedFieldValidationException(MessageSeeds.CERTIFICATE_TOO_BIG, "file");
         }
-        CertificateWrapper certificateWrapper = pkiService.findCertificateWrapper(certificateWrapperId)
+        CertificateWrapper certificateWrapper = pkiService.findAndLockCertificateWrapper(certificateWrapperId, version)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CERTIFICATE, certificateWrapperId));
         return doImportCertificateForCertificateWrapper(certificateInputStream, certificateWrapper);
     }
@@ -144,19 +145,26 @@ public class CertificateWrapperResource {
     }
 
     @POST // This should be PUT but has to be POST due to some 3th party issue
-    @Consumes(MediaType.MULTIPART_FORM_DATA)
-    @Produces(MediaType.TEXT_PLAIN)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     @Path("/{id}/csr")
     @Transactional
     public Response createCSRForExistingCertificateWrapper(@PathParam("id") long id, CsrInfo csrInfo) {
         if (csrInfo.CN==null) {
             throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "CN");
         }
-        ClientCertificateWrapper clientCertificateWrapper = pkiService.findClientCertificateWrapper(id)
+        CertificateWrapper certificateWrapper = pkiService.findAndLockCertificateWrapper(id, csrInfo.version)
                 .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_CERTIFICATE, id));
-        X500Name x500Name = getX500Name(csrInfo);
-        clientCertificateWrapper.generateCSR(x500Name);
-        return Response.status(Response.Status.CREATED).entity(certificateInfoFactory.asInfo(clientCertificateWrapper)).build();
+        if (ClientCertificateWrapper.class.isAssignableFrom(certificateWrapper.getClass())) {
+            ClientCertificateWrapper clientCertificateWrapper = (ClientCertificateWrapper) certificateWrapper;
+            X500Name x500Name = getX500Name(csrInfo);
+            clientCertificateWrapper.generateCSR(x500Name);
+            return Response.status(Response.Status.CREATED)
+                    .entity(certificateInfoFactory.asInfo(clientCertificateWrapper))
+                    .build();
+        } else {
+            throw exceptionFactory.newException(MessageSeeds.NOT_POSSIBLE_TO_CREATE_CSR);
+        }
     }
 
     private X500Name getX500Name(CsrInfo csrInfo) {

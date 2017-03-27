@@ -8,6 +8,7 @@ package com.elster.jupiter.pki.rest.impl;
  * Created by bvn on 3/24/17.
  */
 public class CsrInfo {
+    public long version;
     public String alias;
     public Long keyTypeId;
     public String keyEncryptionMethod;
