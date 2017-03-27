@@ -223,7 +223,7 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
         JsonModel jsonModel = JsonModel.create(json);
         assertThat(jsonModel.<List<?>>get("$.data")).hasSize(3);
         assertThat(jsonModel.<String>get("$.data[0].type")).isEqualTo("numerical");
-        assertThat(jsonModel.<String>get("$.data[0].modificationFlag")).isEqualTo(ReadingModificationFlag.ADDED.name());
+//        assertThat(jsonModel.<String>get("$.data[0].modificationFlag")).isEqualTo(ReadingModificationFlag.ADDED.name());
         assertThat(jsonModel.<String>get("$.data[0].editedInApp.id")).isEqualTo(QualityCodeSystem.MDC.name());
         assertThat(jsonModel.<String>get("$.data[0].editedInApp.name")).isEqualTo("MultiSense");
         assertThat(jsonModel.<Number>get("$.data[0].estimatedByRule.id")).isEqualTo(13);
