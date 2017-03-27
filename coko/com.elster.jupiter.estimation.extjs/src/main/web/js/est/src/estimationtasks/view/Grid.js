@@ -40,6 +40,7 @@ Ext.define('Est.estimationtasks.view.Grid', {
             },
             {
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 menu: {
                     xtype: 'estimationtasks-action-menu',
                     itemId: 'estimationtasks-action-menu'

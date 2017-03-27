@@ -42,6 +42,7 @@ Ext.define('Est.estimationrulesets.view.RuleSetsGrid', {
         if (Uni.Auth.hasAnyPrivilege(['privilege.administrate.EstimationConfiguration'])) {
             me.columns.push({
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 privileges: Est.privileges.EstimationConfiguration.administrate,
                 menu: {
                     xtype: 'estimation-rule-sets-action-menu'

@@ -27,6 +27,12 @@ Ext.define('Est.main.controller.Main', {
     ],
 
     init: function () {
+        this.control({
+            'estimation-rule-set-side-menu': {
+                beforerender: this.onRuleSetMenuBeforeRender
+            }
+        });
+
         if (Est.privileges.EstimationConfiguration.canView()) {
             var me = this,
                 historian = me.getController('Est.main.controller.history.Setup'),
@@ -52,5 +58,9 @@ Ext.define('Est.main.controller.Main', {
 
             Uni.store.PortalItems.add(portalItem);
         }
+    },
+
+    onRuleSetMenuBeforeRender: function (menu) {
+        this.getApplication().fireEvent('estimationRuleSetMenuRender', menu);
     }
 });
