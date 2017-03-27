@@ -58,7 +58,8 @@ class CalculatedReadingRecordImpl implements CalculatedReadingRecord {
     private BigDecimal rawValue;    // Maybe null if record was missing
     private Quantity value;         // Maybe null if record was missing
     private Timestamp localDate;    // Maybe null if record was missing
-    private Instant timestamp;      // Never null, even if record was missing, in that case the timestamp is taken from
+    private Instant timestamp;      // Never null, even if record was missing, in that case the timestamp is taken from the reading quality entity
+    private Optional<Range<Instant>> timePeriod;
     private UsagePoint usagePoint;
     private long readingQuality;
     private long count;
@@ -347,17 +348,20 @@ class CalculatedReadingRecordImpl implements CalculatedReadingRecord {
 
     @Override
     public Optional<Range<Instant>> getTimePeriod() {
-        Optional<MeterActivation> meterActivation = this.usagePoint.getMeterActivations(this.getTimeStamp())
-                .stream()
-                .findFirst();
-        if (meterActivation.isPresent()) {
-            return this.getTimePeriod(meterActivation.get().getStart(), meterActivation.get().getChannelsContainer().getZoneId());
-        } else {
-            ZoneId zoneId = ZoneId.of("UTC");
-            IntervalLength intervalLength = IntervalLength.from(this.getReadingType());
-            Instant start = truncaterFactory.truncaterFor(this.getReadingType()).truncate(this.getTimeStamp(), intervalLength, zoneId);
-            return this.getTimePeriod(start, zoneId);
+        if (this.timePeriod == null) {
+            Optional<MeterActivation> meterActivation = this.usagePoint.getMeterActivations(this.getTimeStamp())
+                    .stream()
+                    .findFirst();
+            if (meterActivation.isPresent()) {
+                this.timePeriod = this.getTimePeriod(meterActivation.get().getStart(), meterActivation.get().getChannelsContainer().getZoneId());
+            } else {
+                ZoneId zoneId = ZoneId.of("UTC");
+                IntervalLength intervalLength = IntervalLength.from(this.getReadingType());
+                Instant start = truncaterFactory.truncaterFor(this.getReadingType()).truncate(this.getTimeStamp(), intervalLength, zoneId);
+                this.timePeriod = this.getTimePeriod(start, zoneId);
+            }
         }
+        return this.timePeriod;
     }
 
     private Optional<Range<Instant>> getTimePeriod(Instant start, ZoneId zoneId) {
