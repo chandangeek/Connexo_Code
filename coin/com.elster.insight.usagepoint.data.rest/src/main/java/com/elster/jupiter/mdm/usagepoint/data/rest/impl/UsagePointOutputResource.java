@@ -499,21 +499,16 @@ public class UsagePointOutputResource {
                     Instant readingTimestamp = entry.getKey();
                     RegisterReadingWithValidationStatus readingWithValidationStatus = entry.getValue();
                     ReadingRecord persistedReading = persistedReadings.get(readingTimestamp);
-//                    ReadingRecord tempPreviousReadingRecord = null;
                     readingWithValidationStatus.setPreviousReadingRecord(previousReadingRecord);
                     if (persistedReading != null && (persistedReading.getValue() != null || persistedReading.getText() != null)) {
                         readingWithValidationStatus.setPersistedReadingRecord(persistedReading);
-                       // readingWithValidationStatus.setPreviousReadingRecord(previousReadingRecord);
                         previousReadingRecord = persistedReading;
-                    } else {
-                        ReadingRecord calculatedReading = calculatedReadings.get(readingTimestamp);
-                        if (calculatedReading != null) {
-                            readingWithValidationStatus.setCalculatedReadingRecord(calculatedReading);
-                            // readingWithValidationStatus.setPreviousReadingRecord(previousReadingRecord);
-                            previousReadingRecord = calculatedReading;
-                        }
                     }
-//                    previousReadingRecord = tempPreviousReadingRecord;
+                    ReadingRecord calculatedReading = calculatedReadings.get(readingTimestamp);
+                    if (calculatedReading != null) {
+                        readingWithValidationStatus.setCalculatedReadingRecord(calculatedReading);
+                        previousReadingRecord = calculatedReading;
+                    }
                 }
 
                 // add validation statuses to pre filled register data map
