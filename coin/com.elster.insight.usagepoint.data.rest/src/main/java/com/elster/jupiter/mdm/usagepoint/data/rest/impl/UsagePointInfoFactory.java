@@ -50,6 +50,7 @@ import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCycleStateInfo
 import com.elster.jupiter.util.geo.SpatialCoordinates;
 import com.elster.jupiter.util.geo.SpatialCoordinatesFactory;
 
+import org.drools.core.rule.Collect;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -258,6 +259,23 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         info.state = this.stateInfoFactory.from(usagePoint.getState());
         info.lifeCycle = this.lifeCycleInfoFactory.shortInfo(usagePoint.getState().getLifeCycle());
         info.lastTransitionTime = usagePointLifeCycleService.getLastUsagePointStateChangeRequest(usagePoint).map(cr -> cr.getTransitionTime().toEpochMilli()).orElse(null);
+        String temp = usagePoint.getState().getStage().getDisplayName();
+        List temp2 = usagePoint.getEffectiveMetrologyConfigurations().stream().map(EffectiveMetrologyConfigurationOnUsagePoint::getId).sorted().collect(Collectors.toList());
+        Long temp3 =usagePoint.getEffectiveMetrologyConfigurations().stream().collect(Collectors.counting());
+        if(usagePoint.getState().getStage().getDisplayName().equals("Suspended") || usagePoint.getState().getStage().getDisplayName().equals("Pre-operational") ){
+            if(!usagePoint.getEffectiveMetrologyConfigurations()
+                    .stream()
+                    .anyMatch(effectiveMetrologyConfigurationOnUsagePoint -> effectiveMetrologyConfigurationOnUsagePoint.getEnd()==null)){
+                info.isReadyForLinkingMC=true;
+            }
+            else if (usagePoint.getEffectiveMetrologyConfigurations().size()==0){
+                info.isReadyForLinkingMC=true;
+            }
+            else
+                info.isReadyForLinkingMC=false;
+        }
+        else
+            info.isReadyForLinkingMC=false;
         return info;
     }
 

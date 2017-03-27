@@ -58,6 +58,9 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyValueConverter;
 import com.elster.jupiter.properties.rest.PropertyValueInfo;
 import com.elster.jupiter.rest.util.StatusCode;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.time.PeriodicalScheduleExpression;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointStateChangeRequest;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
@@ -72,6 +75,7 @@ import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.validation.DataValidationTask;
 
+import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
 
 import javax.ws.rs.client.Entity;
@@ -83,13 +87,10 @@ import java.net.URL;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
+import java.util.*;
 import java.util.Currency;
-import java.util.List;
-import java.util.Optional;
 
+import org.joda.time.DateMidnight;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -98,6 +99,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.in;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyLong;
@@ -286,6 +288,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         assertThat(response.state.name).isEqualTo("State");
         assertThat(response.lifeCycle.id).isEqualTo(1L);
         assertThat(response.lifeCycle.name).isEqualTo("Life cycle");
+        assertThat(response.isReadyForLinkingMC).isEqualTo(false);
     }
 
     @Test
@@ -843,6 +846,65 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         verify(transactionService).getContext();
         verify(usagePoint).apply(any(), any(Instant.class));
         verify(usagePointLifeCycleService).scheduleTransition(any(), any(), any(), any(),any());
+    }
+
+    @Test
+    public void testGetUsagePointPrivileges() throws Exception {
+        EffectiveMetrologyConfigurationOnUsagePoint metrologyConfigurationOnUsagePoint = mock(EffectiveMetrologyConfigurationOnUsagePoint.class);
+        UsagePointStage  stage = mock(UsagePointStage.class);
+        UsagePointState state = mock(UsagePointState.class);
+        List<EffectiveMetrologyConfigurationOnUsagePoint> configurationOnUsagePointList = Arrays.asList(metrologyConfigurationOnUsagePoint);
+        Range<Instant> range = Range.open(new DateMidnight(2014, 1, 1).toDate().toInstant(), new DateMidnight(2014, 2, 1).toDate().toInstant());
+
+        when(usagePoint.getState()).thenReturn(state);
+        when(state.getStage()).thenReturn(stage);
+        when(stage.getKey()).thenReturn(UsagePointStage.Key.SUSPENDED);
+        when(usagePoint.getEffectiveMetrologyConfigurations()).thenReturn(configurationOnUsagePointList);
+        when(metrologyConfigurationOnUsagePoint.getRange()).thenReturn(range);
+
+        Response response = target("usagepoints/" + USAGE_POINT_NAME + "/metrologyconfiguration/privileges").request().get();
+        JsonModel model = JsonModel.create((ByteArrayInputStream) response.getEntity());
+        assertThat(model.<Integer>get("$.total")).isEqualTo(1);
+        assertThat(model.<List>get("$.privileges")).hasSize(1);
+        assertThat(model.<String>get("$.privileges[0].name")).isEqualTo("usagepoint.action.link.metrology.configuration");
+    }
+
+    @Test
+    public void testGetUsagePointPrivilegesWithOpenMC() throws Exception {
+        EffectiveMetrologyConfigurationOnUsagePoint metrologyConfigurationOnUsagePoint = mock(EffectiveMetrologyConfigurationOnUsagePoint.class);
+        EffectiveMetrologyConfigurationOnUsagePoint metrologyConfigurationOnUsagePoint1 = mock(EffectiveMetrologyConfigurationOnUsagePoint.class);
+        UsagePointStage  stage = mock(UsagePointStage.class);
+        UsagePointState state = mock(UsagePointState.class);
+        List<EffectiveMetrologyConfigurationOnUsagePoint> configurationOnUsagePointList =  Arrays.asList(metrologyConfigurationOnUsagePoint,metrologyConfigurationOnUsagePoint1);
+        Range<Instant> range = Range.closed(new DateMidnight(2014, 1, 1).toDate().toInstant(), new DateMidnight(2014, 2, 1).toDate().toInstant());
+        Range<Instant> range1 = Range.atLeast(Instant.from(NOW));
+        when(usagePoint.getState()).thenReturn(state);
+        when(state.getStage()).thenReturn(stage);
+        when(stage.getKey()).thenReturn(UsagePointStage.Key.SUSPENDED);
+        when(usagePoint.getEffectiveMetrologyConfigurations()).thenReturn(configurationOnUsagePointList);
+        when(metrologyConfigurationOnUsagePoint1.getRange()).thenReturn(range1);
+        when(metrologyConfigurationOnUsagePoint.getRange()).thenReturn(range);
+
+        Response response = target("usagepoints/" + USAGE_POINT_NAME + "/metrologyconfiguration/privileges").request().get();
+        JsonModel model = JsonModel.create((ByteArrayInputStream) response.getEntity());
+        assertThat(model.<Integer>get("$.total")).isEqualTo(0);
+        assertThat(model.<List>get("$.privileges")).hasSize(0);
+    }
+
+    @Test
+    public void testGetUsagePointPrivilegesWithNoMC() throws Exception {
+        UsagePointStage  stage = mock(UsagePointStage.class);
+        UsagePointState state = mock(UsagePointState.class);
+        List<EffectiveMetrologyConfigurationOnUsagePoint> configurationOnUsagePointList = Collections.emptyList();
+        when(usagePoint.getState()).thenReturn(state);
+        when(state.getStage()).thenReturn(stage);
+        when(stage.getKey()).thenReturn(UsagePointStage.Key.SUSPENDED);
+        when(usagePoint.getEffectiveMetrologyConfigurations()).thenReturn(configurationOnUsagePointList);
+        Response response = target("usagepoints/" + USAGE_POINT_NAME + "/metrologyconfiguration/privileges").request().get();
+        JsonModel model = JsonModel.create((ByteArrayInputStream) response.getEntity());
+        assertThat(model.<Integer>get("$.total")).isEqualTo(1);
+        assertThat(model.<List>get("$.privileges")).hasSize(1);
+        assertThat(model.<String>get("$.privileges[0].name")).isEqualTo("usagepoint.action.link.metrology.configuration");
     }
 
     @Test

@@ -978,6 +978,20 @@ public class UsagePointResource {
         return PagedInfoList.fromCompleteList("dataValidationTasks", dataValidationTasks, queryParameters);
     }
 
+    @GET
+    @Path("/{name}/metrologyconfiguration/privileges")
+    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT,
+            Privileges.Constants.ADMINISTER_OWN_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public PagedInfoList getUsagePointPrivileges(@PathParam("name") String name ,@BeanParam JsonQueryParameters queryParameters) {
+        List<IdWithNameInfo> privileges = UsagePointPrivileges
+                .getUsagePointPrivilegesBasedOnStage(resourceHelper.findUsagePointByNameOrThrowException(name))
+                .stream()
+                .map(privilege -> new IdWithNameInfo(null,privilege))
+                .collect(Collectors.toList());
+        return PagedInfoList.fromCompleteList("privileges", privileges, queryParameters);
+    }
+
     private boolean isMember(UsagePoint usagePoint, UsagePointGroup usagePointGroup) {
         return !meteringService.getUsagePointQuery()
                 .select(Where.where("id").isEqualTo(usagePoint.getId())
