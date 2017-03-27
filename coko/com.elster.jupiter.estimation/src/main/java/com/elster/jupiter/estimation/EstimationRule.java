@@ -7,11 +7,14 @@ package com.elster.jupiter.estimation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.properties.PropertySpec;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+@ProviderType
 public interface EstimationRule {
 
     long getId();
@@ -57,4 +60,6 @@ public interface EstimationRule {
     void setMarkProjected(boolean b);
 
     boolean isMarkProjected();
+
+    Estimator createNewEstimator();
 }
