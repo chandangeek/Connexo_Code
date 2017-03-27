@@ -103,7 +103,7 @@ Ext.define('Cfg.insight.dataqualitykpi.controller.DataQualityKpiOverview', {
         });
 
         function onSuccessRemove() {
-            me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('dataqualitykpis.kpiRemoved', 'CFG', 'Data quality KPI scheduled for removal'));
+            me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('dataqualitykpis.removed', 'CFG', 'Data quality KPI removed'));
             router.getRoute().forward();
         }
 
