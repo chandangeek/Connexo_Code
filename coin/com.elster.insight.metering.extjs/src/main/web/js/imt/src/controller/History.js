@@ -261,6 +261,8 @@ Ext.define('Imt.controller.History', {
                             controller: 'Imt.metrologyconfiguration.controller.Edit',
                             action: 'showWizard',
                             privileges: Imt.privileges.UsagePoint.admin,
+                            dynamicPrivilegeStores: Imt.dynamicprivileges.Stores.usagePointMetrologyConfigurationStore,
+                            dynamicPrivilege: Imt.dynamicprivileges.UsagePoint.metrologyConfigurationDefine,
                             route: 'metrologyconfiguration/define'
                         },
                         purpose: {

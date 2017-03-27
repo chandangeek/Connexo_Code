@@ -359,6 +359,7 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
             buttons = wizard.getDockedComponent('define-metrology-configuration-wizard-buttons'),
             nextBtn = buttons.down('[action=step-next]'),
             addBtn = buttons.down('[action=add]'),
+            radioBtn = wizard.down('#custom-attributes-radiogroup'),
             navigation = me.getNavigationMenu(),
             currentSteps = wizard.query('[isWizardStep=true]'),
             currentMenuItems = navigation.query('menuitem'),
@@ -385,7 +386,8 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
                     itemId: 'define-metrology-configuration-step' + stepNumber,
                     ui: 'large',
                     isWizardStep: true,
-                    predefinedRecord: record
+                    predefinedRecord: record,
+                    value: wizard.down('#custom-attributes-radiogroup')
                 });
                 navigationItemsToAdd.push({
                     text: record.get('name')
@@ -412,6 +414,12 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
                 if (wizard.rendered) {
                     wizard.down('#purposes-field').setStore(record.metrologyContracts());
                     wizard.down('#start-date').show();
+                    if (record.data.customPropertySets.lengh) {
+                        radioBtn.show();
+                    } else {
+                        radioBtn.hide()
+                                .reset();
+                    }
                 }
             },
             callback: function () {

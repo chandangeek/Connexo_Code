@@ -70,6 +70,7 @@ Ext.define('Imt.controller.Main', {
     stores: [
         'Imt.customattributesonvaluesobjects.store.MetrologyConfigurationCustomAttributeSets',
         'Imt.customattributesonvaluesobjects.store.ServiceCategoryCustomAttributeSets',
+        'Imt.usagepointmanagement.store.DefineMetrologyConfigurationPrivileges',
         'Imt.usagepointmanagement.store.UsagePointPrivileges'
     ],
 
