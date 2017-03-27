@@ -112,13 +112,13 @@ public class KeyAccessorCommands {
     }
 
     public void keyAccessors() {
-        System.out.println("Usage: keyAccessors <device id>");
+        System.out.println("Usage: keyAccessors <device mrid>");
         System.out.println("       List all known key accessors for a certain device");
-        System.out.println("e.g. : keyAccessors 123");
+        System.out.println("e.g. : keyAccessors ABCD");
     }
 
-    public void keyAccessors(long deviceId) throws InvalidKeyException {
-        Device device = deviceService.findDeviceById(deviceId)
+    public void keyAccessors(String deviceMrid) throws InvalidKeyException {
+        Device device = deviceService.findDeviceByMrid(deviceMrid)
                 .orElseThrow(() -> new RuntimeException("No such device"));
         List<List<?>> collection = new ArrayList<>();
         for (KeyAccessorType keyAccessorType: device.getDeviceType().getKeyAccessorTypes()) {
@@ -176,18 +176,18 @@ public class KeyAccessorCommands {
     }
 
     public void importCertificateWithKey() {
-        System.out.println("Usage: importCertificateWithKey <device id> <cert accessor type name> <pkcs#12 file>  <password> <alias>");
-        System.out.println("e.g. : importCertificateWithKey 1 \"TLS SUITE 2\" tls.pkcs12 foo123 mycert");
+        System.out.println("Usage: importCertificateWithKey <device mrid> <cert accessor type name> <pkcs#12 file>  <password> <alias>");
+        System.out.println("e.g. : importCertificateWithKey ABC123 \"TLS SUITE 2\" tls.pkcs12 foo123 mycert");
     }
 
-    public void importCertificateWithKey(long deviceId, String certKatName, String pkcs12Name, String pkcs12Password, String alias)
+    public void importCertificateWithKey(String deviceMrid, String certKatName, String pkcs12Name, String pkcs12Password, String alias)
             throws KeyStoreException, IOException, CertificateException,
                         NoSuchAlgorithmException, UnrecoverableKeyException {
 
         threadPrincipalService.set(() -> "Console");
 
         try (TransactionContext context = transactionService.getContext()) {
-            Device device = deviceService.findDeviceById(deviceId)
+            Device device = deviceService.findDeviceByMrid(deviceMrid)
                     .orElseThrow(() -> new RuntimeException("No such device"));
             KeyAccessorType certKeyAccessorType = device.getDeviceType()
                     .getKeyAccessorTypes()
@@ -206,8 +206,7 @@ public class KeyAccessorCommands {
             if (key==null) {
                 throw new RuntimeException("The keystore does not contain a key with alias "+alias);
             }
-            ClientCertificateWrapper clientCertificateWrapper = pkiService.newClientCertificateWrapper(certKeyAccessorType);
-            clientCertificateWrapper.setAlias(alias);
+            ClientCertificateWrapper clientCertificateWrapper = pkiService.newClientCertificateWrapper(certKeyAccessorType.getKeyType(), certKeyAccessorType.getKeyEncryptionMethod()).alias(alias).add();
             clientCertificateWrapper.setCertificate((X509Certificate) certificate);
             clientCertificateWrapper.setCertificate((X509Certificate) certificate);
             PlaintextPrivateKeyWrapper privateKeyWrapper = (PlaintextPrivateKeyWrapper) clientCertificateWrapper.getPrivateKeyWrapper();
@@ -223,18 +222,18 @@ public class KeyAccessorCommands {
     }
 
     public void importSymmetricKey() {
-        System.out.println("Usage: importSymmetricKey <device id> <key accessor type name> <keystore file>  <key store password> <alias>");
-        System.out.println("e.g. : importSymmetricKey 1 MK aes128.jks foo123 mk");
+        System.out.println("Usage: importSymmetricKey <device mrid> <key accessor type name> <keystore file>  <key store password> <alias>");
+        System.out.println("e.g. : importSymmetricKey A1BC MK aes128.jks foo123 mk");
     }
 
-    public void importSymmetricKey(long deviceId, String keyAccessTypeName, String keyStoreName, String keyStorePassword, String alias)
+    public void importSymmetricKey(String deviceMrid, String keyAccessTypeName, String keyStoreName, String keyStorePassword, String alias)
             throws KeyStoreException, IOException, CertificateException,
                         NoSuchAlgorithmException, UnrecoverableKeyException {
 
         threadPrincipalService.set(() -> "Console");
 
         try (TransactionContext context = transactionService.getContext()) {
-            Device device = deviceService.findDeviceById(deviceId)
+            Device device = deviceService.findDeviceByMrid(deviceMrid)
                     .orElseThrow(() -> new RuntimeException("No such device"));
             KeyAccessorType keyAccessorType = device.getDeviceType()
                     .getKeyAccessorTypes()
@@ -264,16 +263,16 @@ public class KeyAccessorCommands {
     }
 
     public void generateCSR() {
-        System.out.println("Usage: generateCSR <device id> <cert accessor type name> <alias> <CommonName>");
-        System.out.println("e.g. : generateCSR 1 \"TLS SUITE 1\" comserver \"Comserver TLS\"");
+        System.out.println("Usage: generateCSR <device mrid> <cert accessor type name> <alias> <CommonName>");
+        System.out.println("e.g. : generateCSR AB1 \"TLS SUITE 1\" comserver \"Comserver TLS\"");
     }
 
-    public void generateCSR(long deviceId, String certKatName, String alias, String cn) throws
+    public void generateCSR(String deviceMrid, String certKatName, String alias, String cn) throws
             NoSuchAlgorithmException {
         threadPrincipalService.set(() -> "Console");
 
         try (TransactionContext context = transactionService.getContext()) {
-            Device device = deviceService.findDeviceById(deviceId)
+            Device device = deviceService.findDeviceByMrid(deviceMrid)
                     .orElseThrow(() -> new RuntimeException("No such device"));
             KeyAccessorType certKeyAccessorType = device.getDeviceType()
                     .getKeyAccessorTypes()
@@ -282,7 +281,7 @@ public class KeyAccessorCommands {
                     .findAny()
                     .orElseThrow(() -> new RuntimeException("No such key accessor type on the device type: " + certKatName));
 
-            ClientCertificateWrapper clientCertificateWrapper = pkiService.newClientCertificateWrapper(certKeyAccessorType);
+            ClientCertificateWrapper clientCertificateWrapper = pkiService.newClientCertificateWrapper(certKeyAccessorType.getKeyType(), certKeyAccessorType.getKeyEncryptionMethod()).alias(alias).add();
             clientCertificateWrapper.getPrivateKeyWrapper().generateValue();
 
             X500NameBuilder x500NameBuilder = new X500NameBuilder();
@@ -299,14 +298,15 @@ public class KeyAccessorCommands {
 
     public void renew() {
         System.out.println("Trigger renew for a key accessor type on a device");
+        System.out.println("usage: renew <device mrid> <key acccessor type name>");
         System.out.println("e.g.: renew 1001 MK");
     }
 
-    public void renew(long deviceId, String keyAccessorTypeName) {
+    public void renew(String deviceMrid, String keyAccessorTypeName) {
         threadPrincipalService.set(() -> "Console");
 
         try (TransactionContext context = transactionService.getContext()) {
-            Device device = deviceService.findDeviceById(deviceId)
+            Device device = deviceService.findDeviceByMrid(deviceMrid)
                     .orElseThrow(() -> new RuntimeException("No such device"));
             KeyAccessorType keyAccessorType = device.getDeviceType()
                     .getKeyAccessorTypes()
@@ -328,7 +328,8 @@ public class KeyAccessorCommands {
 
     public void swap() {
         System.out.println("Swap actual and temp values on a device for a key accessor type");
-        System.out.println("e.g.: swap 1001 MK");
+        System.out.println("Usage: swap <device mrid> <key accessor type name>");
+        System.out.println("e.g. : swap 1001 MK");
     }
 
     public void swap(long deviceId, String keyAccessorTypeName) {
@@ -357,14 +358,15 @@ public class KeyAccessorCommands {
 
     public void clearTemp() {
         System.out.println("Clears the temp value on a device for a key accessor type");
-        System.out.println("e.g.: clearTemp 1001 MK");
+        System.out.println("usage: clearTemp <device mrid> <key accessor type name>");
+        System.out.println("e.g. : clearTemp 1001 MK");
     }
 
-    public void clearTemp(long deviceId, String keyAccessorTypeName) {
+    public void clearTemp(String deviceMrid, String keyAccessorTypeName) {
         threadPrincipalService.set(() -> "Console");
 
         try (TransactionContext context = transactionService.getContext()) {
-            Device device = deviceService.findDeviceById(deviceId)
+            Device device = deviceService.findDeviceByMrid(deviceMrid)
                     .orElseThrow(() -> new RuntimeException("No such device"));
             KeyAccessorType keyAccessorType = device.getDeviceType()
                     .getKeyAccessorTypes()

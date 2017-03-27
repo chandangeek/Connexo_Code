@@ -63,7 +63,6 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.TemporalReference;
 import com.elster.jupiter.orm.associations.Temporals;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.pki.ClientCertificateWrapper;
 import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.pki.SymmetricKeyWrapper;
@@ -3171,9 +3170,9 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                 CertificateAccessorImpl certificateAccessor = dataModel.getInstance(CertificateAccessorImpl.class);
                 certificateAccessor.init(keyAccessorType, this);
                 this.keyAccessors.add(certificateAccessor);
-                ClientCertificateWrapper clientCertificateWrapper = pkiService.newClientCertificateWrapper(keyAccessorType);
-                certificateAccessor.setActualValue(clientCertificateWrapper);
-                certificateAccessor.save();
+//                ClientCertificateWrapper clientCertificateWrapper = pkiService.newClientCertificateWrapper(keyAccessorType.getKeyType(), keyAccessorType.getKeyEncryptionMethod()).add();
+//                certificateAccessor.setActualValue(clientCertificateWrapper);
+//                certificateAccessor.save();
                 return certificateAccessor;
             case TrustedCertificate:
                 break;
