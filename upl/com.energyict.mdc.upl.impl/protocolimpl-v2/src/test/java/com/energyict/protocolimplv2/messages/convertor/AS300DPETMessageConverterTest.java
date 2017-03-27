@@ -22,6 +22,7 @@ import java.util.Optional;
 
 import static junit.framework.Assert.assertEquals;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -86,7 +87,7 @@ public class AS300DPETMessageConverterTest extends AS300MessageConverterTest {
         when(deviceGroupExtractor.members(deviceGroup)).thenReturn(Arrays.asList(member));
         Register register = mock(Register.class);
         when(registerExtractor.lastReading(register)).thenReturn(Optional.of(() -> "KeyPair1"));
-        when(deviceExtractor.register(member, any(ObisCode.class))).thenReturn(Optional.of(register));
+        when(deviceExtractor.register(eq(member), any(ObisCode.class))).thenReturn(Optional.of(register));
         return deviceGroup;
     }
 }

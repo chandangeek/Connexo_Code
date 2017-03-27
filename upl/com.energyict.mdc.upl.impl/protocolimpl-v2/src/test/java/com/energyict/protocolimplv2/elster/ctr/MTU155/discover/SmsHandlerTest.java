@@ -2,6 +2,9 @@ package com.energyict.protocolimplv2.elster.ctr.MTU155.discover;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
+import com.energyict.mdc.MockDeviceLoadProfile;
+import com.energyict.mdc.MockDeviceLogBook;
+import com.energyict.mdc.MockDeviceRegister;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
@@ -10,6 +13,9 @@ import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.MeterProtocolEvent;
@@ -18,6 +24,7 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.frame.SMSFrame;
 import com.energyict.protocolimplv2.identifiers.LoadProfileIdentifierByObisCodeAndDevice;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -28,6 +35,9 @@ import java.util.List;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
 import static org.fest.assertions.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * @author sva
@@ -39,9 +49,30 @@ public class SmsHandlerTest {
     @Mock
     DeviceIdentifier deviceIdentifier;
     @Mock
-    CollectedDataFactory collectedDataFactory;
-    @Mock
     IssueFactory issueFactory;
+
+    static CollectedDataFactory collectedDataFactory;
+
+    @BeforeClass
+    public static void beforeClass() {
+        collectedDataFactory = mock(CollectedDataFactory.class);
+
+        when(collectedDataFactory.createCollectedLoadProfile(any(LoadProfileIdentifier.class))).thenAnswer(invocation -> {
+            Object[] args = invocation.getArguments();
+            return new MockDeviceLoadProfile((LoadProfileIdentifier) args[0]);
+        });
+
+        when(collectedDataFactory.createCollectedLogBook(any(LogBookIdentifier.class))).thenAnswer(invocation -> {
+            Object[] args = invocation.getArguments();
+            return new MockDeviceLogBook((LogBookIdentifier) args[0]);
+        });
+
+        when(collectedDataFactory.createDefaultCollectedRegister(any(RegisterIdentifier.class))).thenAnswer(invocation -> {
+            Object[] args = invocation.getArguments();
+            return new MockDeviceRegister((RegisterIdentifier) args[0]);
+        });
+
+    }
 
     /**
      * TODO: update with additional tests for following cases

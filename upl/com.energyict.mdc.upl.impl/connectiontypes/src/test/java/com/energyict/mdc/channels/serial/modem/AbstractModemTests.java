@@ -9,7 +9,6 @@ import com.energyict.mdc.channel.serial.ServerSerialPort;
 import com.energyict.mdc.protocol.ComChannelType;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.propertyspec.MockPropertySpecService;
-import org.junit.BeforeClass;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -17,12 +16,7 @@ import java.util.List;
 
 public class AbstractModemTests {
 
-    protected static PropertySpecService propertySpecService;
-
-    @BeforeClass
-    public static void initializeMocksAndFactories() {
-        propertySpecService = new MockPropertySpecService();
-    }
+    protected static PropertySpecService propertySpecService = new MockPropertySpecService();
 
     protected static final String RUBBISH_FOR_FLUSH = "rubbishForFlush";
     protected static final String PHONE_NUMBER = "00123456789";

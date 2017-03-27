@@ -26,7 +26,7 @@ import static org.junit.Assert.assertEquals;
  * @since 24/10/13 - 10:50
  */
 @RunWith(MockitoJUnitRunner.class)
-public class PoregMeterMessageConverterTest extends AbstractMessageConverterTest {
+public class PoregMeterMessageConverterTest extends AbstractV2MessageConverterTest {
 
     @Test
     public void testMessageConversion() throws IOException {

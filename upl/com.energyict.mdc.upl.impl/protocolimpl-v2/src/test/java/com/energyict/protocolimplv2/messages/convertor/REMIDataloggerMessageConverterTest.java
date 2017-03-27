@@ -26,7 +26,7 @@ import static junit.framework.Assert.assertEquals;
  * @since 30/10/13 - 13:27
  */
 @RunWith(MockitoJUnitRunner.class)
-public class REMIDataloggerMessageConverterTest extends AbstractMessageConverterTest {
+public class REMIDataloggerMessageConverterTest extends AbstractV2MessageConverterTest {
 
     @Test
     public void testMessageConversion() {

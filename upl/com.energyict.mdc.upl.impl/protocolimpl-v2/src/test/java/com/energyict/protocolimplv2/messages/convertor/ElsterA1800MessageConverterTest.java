@@ -22,7 +22,7 @@ import static junit.framework.Assert.assertEquals;
  * @since 25/10/13 - 10:49
  */
 @RunWith(MockitoJUnitRunner.class)
-public class ElsterA1800MessageConverterTest extends AbstractMessageConverterTest {
+public class ElsterA1800MessageConverterTest extends AbstractV2MessageConverterTest {
 
     @Test
     public void testMessageConversion() {

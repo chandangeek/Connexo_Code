@@ -22,7 +22,7 @@ import static org.junit.Assert.assertEquals;
  * @since 24/10/13 - 10:50
  */
 @RunWith(MockitoJUnitRunner.class)
-public class ModbusMessageConverterTest extends AbstractMessageConverterTest {
+public class ModbusMessageConverterTest extends AbstractV2MessageConverterTest {
 
     @Test
     public void testMessageConversion() {

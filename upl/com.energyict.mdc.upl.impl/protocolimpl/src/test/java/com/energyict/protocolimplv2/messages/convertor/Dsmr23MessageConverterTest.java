@@ -111,11 +111,10 @@ public class Dsmr23MessageConverterTest extends AbstractMessageConverterTest {
 
     private Dsmr23MessageConverter dsmr23MessageConverter;
 
-
     @Before
     public void beforeEachTest() {
         Messaging smartMeterProtocol = new WebRTUKP(propertySpecService, tariffCalendarFinder, calendarExtractor, messageFileExtractor, deviceMessageFileFinder, numberLookupExtractor, numberLookupFinder);
-        dsmr23MessageConverter = new Dsmr23MessageConverter(smartMeterProtocol, this.propertySpecService, this.nlsService, this.converter, this.loadProfileExtractor, this.numberLookupExtractor, this.calendarExtractor);
+        dsmr23MessageConverter = new Dsmr23MessageConverter(smartMeterProtocol, propertySpecService, this.nlsService, this.converter, this.loadProfileExtractor, this.numberLookupExtractor, this.calendarExtractor);
     }
 
     @Test

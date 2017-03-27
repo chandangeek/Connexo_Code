@@ -47,7 +47,7 @@ public class ObisCodeMapperTest {
     public void errorRegisterTest() throws IOException {
         DummyDLMSConnection connection = new DummyDLMSConnection();
         connection.setResponseByte(DLMSUtils.hexStringToByteArray("E6E7000C0100090400810019"));
-        DLMSZMD protocol = new DLMSZMD(this.propertySpecService, this.messageFileFinder, this.deviceMessageFileExtractor, this.nlsService);
+        DLMSZMD protocol = new DLMSZMD(propertySpecService, this.messageFileFinder, this.deviceMessageFileExtractor, this.nlsService);
         UniversalObject[] uos = new UniversalObject[1];
         List<Long> demandResetFields =
                 Arrays.asList(

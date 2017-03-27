@@ -23,22 +23,22 @@ import static junit.framework.Assert.assertEquals;
  * @since 30/10/13 - 14:22
  */
 @RunWith(MockitoJUnitRunner.class)
-public class CryptoDsmr40MessageConverterTest extends AbstractMessageConverterTest {
+public class CryptoDsmr40MessageConverterTest extends AbstractV2MessageConverterTest {
 
     @Test
     public void testMessageConversion() {
         MessageEntry messageEntry;
         OfflineDeviceMessage offlineDeviceMessage;
 
-        offlineDeviceMessage = createMessage(SecurityMessage.CHANGE_AUTHENTICATION_KEY_USING_SERVICE_KEY.get(this.propertySpecService, this.nlsService, this.converter));
+        offlineDeviceMessage = createMessage(SecurityMessage.CHANGE_AUTHENTICATION_KEY_USING_SERVICE_KEY.get(propertySpecService, this.nlsService, this.converter));
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<ServiceKeyAK PreparedData=\"0102030405060708\" Signature=\"0102030405060708\" VerificationKey=\"1\"> </ServiceKeyAK>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(SecurityMessage.CHANGE_ENCRYPTION_KEY_USING_SERVICE_KEY.get(this.propertySpecService, this.nlsService, this.converter));
+        offlineDeviceMessage = createMessage(SecurityMessage.CHANGE_ENCRYPTION_KEY_USING_SERVICE_KEY.get(propertySpecService, this.nlsService, this.converter));
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<ServiceKeyEK PreparedData=\"0102030405060708\" Signature=\"0102030405060708\" VerificationKey=\"1\"> </ServiceKeyEK>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(SecurityMessage.CHANGE_HLS_SECRET_USING_SERVICE_KEY.get(this.propertySpecService, this.nlsService, this.converter));
+        offlineDeviceMessage = createMessage(SecurityMessage.CHANGE_HLS_SECRET_USING_SERVICE_KEY.get(propertySpecService, this.nlsService, this.converter));
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<ServiceKeyHLSSecret PreparedData=\"0102030405060708\" Signature=\"0102030405060708\" VerificationKey=\"1\"> </ServiceKeyHLSSecret>", messageEntry.getContent());
     }
@@ -50,7 +50,7 @@ public class CryptoDsmr40MessageConverterTest extends AbstractMessageConverterTe
 
     @Override
     LegacyMessageConverter doGetMessageConverter() {
-        return new CryptoDsmr40MessageConverter(getMessagingProtocol(), this.propertySpecService, this.nlsService, this.converter, this.loadProfileExtractor, numberLookupExtractor, calendarExtractor);
+        return new CryptoDsmr40MessageConverter(getMessagingProtocol(), propertySpecService, this.nlsService, this.converter, this.loadProfileExtractor, numberLookupExtractor, calendarExtractor);
     }
 
     @Override

@@ -21,7 +21,7 @@ import static junit.framework.Assert.assertEquals;
  * @since 19/11/14 - 13:31
  */
 @RunWith(MockitoJUnitRunner.class)
-public class NXT4MessageConverterTest extends AbstractMessageConverterTest {
+public class NXT4MessageConverterTest extends AbstractV2MessageConverterTest {
 
     @Test
     public void testMessageConversion() {
@@ -35,7 +35,7 @@ public class NXT4MessageConverterTest extends AbstractMessageConverterTest {
 
     @Override
     protected Messaging getMessagingProtocol() {
-        return new IskraMT880(this.propertySpecService);
+        return new IskraMT880(propertySpecService);
     }
 
     @Override

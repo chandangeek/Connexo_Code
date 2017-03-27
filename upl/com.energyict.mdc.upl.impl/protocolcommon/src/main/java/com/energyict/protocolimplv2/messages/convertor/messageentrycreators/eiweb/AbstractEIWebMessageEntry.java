@@ -5,7 +5,6 @@ import com.energyict.mdc.upl.messages.OfflineDeviceMessageAttribute;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageEntryCreator;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
-
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.SimpleTagWriter;
@@ -13,7 +12,7 @@ import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.gene
 /**
  * Abstract class with some utility methods for generating a legacy XML message from a given MessageTag.
  * writeTag() is the same method as used in com.energyict.genericprotocolimpl.common.messages.GenericMessaging
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 1/10/13
  * Time: 16:54
@@ -49,7 +48,7 @@ public abstract class AbstractEIWebMessageEntry implements MessageEntryCreator {
      * Creates the message parent tag based on the name of the given deviceMessage spec enum.
      */
     protected String getMessageName(OfflineDeviceMessage offlineDeviceMessage) {
-        String messageName = ((Enum) offlineDeviceMessage.getSpecification()).name();
+        String messageName = offlineDeviceMessage.getSpecification().getNameTranslationKey().getKey().split("\\.")[1];
         if (messageName.startsWith(EIWEB_PREFIX)) {
             messageName = messageName.substring(EIWEB_PREFIX.length());
         }
@@ -58,8 +57,8 @@ public abstract class AbstractEIWebMessageEntry implements MessageEntryCreator {
 
     protected MessageEntry createMessageEntry(MessageTag messageTag, String trackingId) {
         return MessageEntry
-                    .fromContent(SimpleTagWriter.writeTag(messageTag))
-                    .trackingId(trackingId)
-                    .finish();
+                .fromContent(SimpleTagWriter.writeTag(messageTag))
+                .trackingId(trackingId)
+                .finish();
     }
 }

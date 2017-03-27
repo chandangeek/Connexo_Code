@@ -1,11 +1,11 @@
 package com.energyict.mdc.protocol.inbound.general.frames;
 
 import com.energyict.mdc.protocol.inbound.general.frames.parsing.RegisterInfo;
+import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.CollectedRegisterList;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
-
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimplv2.identifiers.CallHomeIdPlaceHolder;
@@ -23,7 +23,6 @@ import java.util.List;
  */
 public class RegisterFrame extends AbstractInboundFrame {
 
-    private final CollectedDataFactory collectedDataFactory;
     private CollectedRegisterList collectedRegisterList;
 
     @Override
@@ -31,9 +30,8 @@ public class RegisterFrame extends AbstractInboundFrame {
         return FrameType.REGISTER;
     }
 
-    public RegisterFrame(String frame, CallHomeIdPlaceHolder callHomeIdPlaceHolder, CollectedDataFactory collectedDataFactory) {
-        super(frame, callHomeIdPlaceHolder);
-        this.collectedDataFactory = collectedDataFactory;
+    public RegisterFrame(String frame, CallHomeIdPlaceHolder callHomeIdPlaceHolder, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+        super(frame, callHomeIdPlaceHolder, collectedDataFactory, issueFactory);
     }
 
     @Override

@@ -27,7 +27,7 @@ import static junit.framework.Assert.assertEquals;
  * @since 30/10/13 - 9:06
  */
 @RunWith(MockitoJUnitRunner.class)
-public class Dsmr23MBusDeviceMessageConverterTest extends AbstractMessageConverterTest {
+public class Dsmr23MBusDeviceMessageConverterTest extends AbstractV2MessageConverterTest {
 
     private Date activityCalendarActivationDate;
 

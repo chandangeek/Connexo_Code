@@ -4,6 +4,7 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.common.AbstractField;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRParsingException;
 
 import java.time.Duration;
+import java.time.Period;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAmount;
 
@@ -24,7 +25,7 @@ public class PeriodTrace_C extends AbstractField<PeriodTrace_C> {
     private static final int LENGTH = 1;
     private static final TemporalAmount HOUR = Duration.ofHours(1);
     private static final TemporalAmount DAY = Duration.ofDays(1);
-    private static final TemporalAmount MONTH = Duration.of(1, ChronoUnit.MONTHS);
+    private static final TemporalAmount MONTH = Period.ofMonths(1);
 
     private int period;
 

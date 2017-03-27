@@ -347,7 +347,7 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return IntStream
-                        .range(1, 10)
+                        .range(1, 11)
                         .mapToObj(number -> this.networkOperatorSpec(service, number))
                         .collect(Collectors.toList());
         }

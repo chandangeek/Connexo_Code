@@ -25,39 +25,39 @@ import static junit.framework.Assert.assertTrue;
  * @since 30/10/13 - 14:22
  */
 @RunWith(MockitoJUnitRunner.class)
-public class Dsmr40MessageConverterTest extends AbstractMessageConverterTest {
+public class Dsmr40MessageConverterTest extends AbstractV2MessageConverterTest {
 
     @Test
     public void testMessageConversion() {
         MessageEntry messageEntry;
         OfflineDeviceMessage offlineDeviceMessage;
 
-        offlineDeviceMessage = createMessage(DeviceActionMessage.RESTORE_FACTORY_SETTINGS.get(this.propertySpecService, this.nlsService, this.converter));
+        offlineDeviceMessage = createMessage(DeviceActionMessage.RESTORE_FACTORY_SETTINGS.get(propertySpecService, this.nlsService, this.converter));
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<Restore_Factory_Settings/>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(ConfigurationChangeDeviceMessage.ChangeAdministrativeStatus.get(this.propertySpecService, this.nlsService, this.converter));
+        offlineDeviceMessage = createMessage(ConfigurationChangeDeviceMessage.ChangeAdministrativeStatus.get(propertySpecService, this.nlsService, this.converter));
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<Change_Administrative_Status Status=\"1\"> </Change_Administrative_Status>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(SecurityMessage.DISABLE_DLMS_AUTHENTICATION_LEVEL_P0.get(this.propertySpecService, this.nlsService, this.converter));
+        offlineDeviceMessage = createMessage(SecurityMessage.DISABLE_DLMS_AUTHENTICATION_LEVEL_P0.get(propertySpecService, this.nlsService, this.converter));
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<Disable_authentication_level_P0 AuthenticationLevel=\"1\"> </Disable_authentication_level_P0>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(SecurityMessage.DISABLE_DLMS_AUTHENTICATION_LEVEL_P3.get(this.propertySpecService, this.nlsService, this.converter));
+        offlineDeviceMessage = createMessage(SecurityMessage.DISABLE_DLMS_AUTHENTICATION_LEVEL_P3.get(propertySpecService, this.nlsService, this.converter));
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<Disable_authentication_level_P3 AuthenticationLevel=\"1\"> </Disable_authentication_level_P3>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(SecurityMessage.ENABLE_DLMS_AUTHENTICATION_LEVEL_P0.get(this.propertySpecService, this.nlsService, this.converter));
+        offlineDeviceMessage = createMessage(SecurityMessage.ENABLE_DLMS_AUTHENTICATION_LEVEL_P0.get(propertySpecService, this.nlsService, this.converter));
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<Enable_authentication_level_P0 AuthenticationLevel=\"1\"> </Enable_authentication_level_P0>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(SecurityMessage.ENABLE_DLMS_AUTHENTICATION_LEVEL_P3.get(this.propertySpecService, this.nlsService, this.converter));
+        offlineDeviceMessage = createMessage(SecurityMessage.ENABLE_DLMS_AUTHENTICATION_LEVEL_P3.get(propertySpecService, this.nlsService, this.converter));
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<Enable_authentication_level_P3 AuthenticationLevel=\"1\"> </Enable_authentication_level_P3>", messageEntry.getContent());
 
         // Test the DSMR2.3 CHANGE_DLMS_AUTHENTICATION_LEVEL message is removed
-        offlineDeviceMessage = createMessage(SecurityMessage.CHANGE_DLMS_AUTHENTICATION_LEVEL.get(this.propertySpecService, this.nlsService, this.converter));
+        offlineDeviceMessage = createMessage(SecurityMessage.CHANGE_DLMS_AUTHENTICATION_LEVEL.get(propertySpecService, this.nlsService, this.converter));
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertTrue(messageEntry.getContent().isEmpty());
     }
@@ -69,7 +69,7 @@ public class Dsmr40MessageConverterTest extends AbstractMessageConverterTest {
 
     @Override
     LegacyMessageConverter doGetMessageConverter() {
-        return new Dsmr40MessageConverter(getMessagingProtocol(), this.propertySpecService, this.nlsService, this.converter, this.loadProfileExtractor, numberLookupExtractor, calendarExtractor);
+        return new Dsmr40MessageConverter(getMessagingProtocol(), propertySpecService, this.nlsService, this.converter, this.loadProfileExtractor, numberLookupExtractor, calendarExtractor);
     }
 
     @Override

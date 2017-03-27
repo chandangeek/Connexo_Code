@@ -32,7 +32,7 @@ import static org.junit.Assert.assertEquals;
  * @since 24/10/13 - 10:50
  */
 @RunWith(MockitoJUnitRunner.class)
-public class EictZ3MessageConverterTest extends AbstractMessageConverterTest {
+public class EictZ3MessageConverterTest extends AbstractV2MessageConverterTest {
 
     @Test
     public void testMessageConversion() {
@@ -57,7 +57,7 @@ public class EictZ3MessageConverterTest extends AbstractMessageConverterTest {
 
         offlineDeviceMessage = createMessage(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
-        assertEquals("<FirmwareUpdate><IncludedFile>Firmware bytes</IncludedFile></FirmwareUpdate>", messageEntry.getContent());
+        assertEquals("<FirmwareUpdate><IncludedFile>path</IncludedFile></FirmwareUpdate>", messageEntry.getContent());
 
     }
 

@@ -20,7 +20,7 @@ import static junit.framework.Assert.assertEquals;
  * @author khe
  * @since 30/10/13 - 14:22
  */
-public class CryptoDsmr23MBusMessageConverterTest extends AbstractMessageConverterTest {
+public class CryptoDsmr23MBusMessageConverterTest extends AbstractV2MessageConverterTest {
 
     @Test
     public void testMessageConversion() {

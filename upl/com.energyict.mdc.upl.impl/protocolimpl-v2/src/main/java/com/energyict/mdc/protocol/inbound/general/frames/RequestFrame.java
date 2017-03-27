@@ -1,5 +1,7 @@
 package com.energyict.mdc.protocol.inbound.general.frames;
 
+import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.protocolimplv2.identifiers.CallHomeIdPlaceHolder;
 
 /**
@@ -15,8 +17,8 @@ public class RequestFrame extends AbstractInboundFrame {
         return FrameType.REQUEST;
     }
 
-    public RequestFrame(String frame, CallHomeIdPlaceHolder callHomeIdPlaceHolder) {
-        super(frame, callHomeIdPlaceHolder);
+    public RequestFrame(String frame, CallHomeIdPlaceHolder callHomeIdPlaceHolder, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+        super(frame, callHomeIdPlaceHolder, collectedDataFactory, issueFactory);
     }
 
     @Override

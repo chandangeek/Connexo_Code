@@ -52,7 +52,7 @@ import static org.mockito.Mockito.when;
  * @since 24/10/13 - 10:50
  */
 @RunWith(MockitoJUnitRunner.class)
-public class G3MeterMessageConverterTest extends AbstractMessageConverterTest {
+public class G3MeterMessageConverterTest extends AbstractV2MessageConverterTest {
 
     private static final String xmlSpecialDays = "<TimeOfUse><CalendarName/><CodeTableTimeZone>Central European Time</CodeTableTimeZone><CodeTableDestinationTimeZone>Central European Time</CodeTableDestinationTimeZone><CodeTableInterval>3600</CodeTableInterval><CodeTableFromYear>2012</CodeTableFromYear><CodeTableToYear>2020</CodeTableToYear><CodeTableSeasonSetId>21</CodeTableSeasonSetId><ActivationDate>1</ActivationDate><CodeTableActCalendar><SeasonProfiles><SeasonProfile><SeasonProfileName>0</SeasonProfileName><SeasonStart><Year>-1</Year><Month>1</Month><Day>1</Day></SeasonStart><SeasonWeekName>0</SeasonWeekName></SeasonProfile></SeasonProfiles><WeekProfiles><WeekProfile><WeekProfileName>0</WeekProfileName><wkMonday>0</wkMonday><wkTuesday>0</wkTuesday><wkWednesday>0</wkWednesday><wkThursday>0</wkThursday><wkFriday>0</wkFriday><wkSaturday>0</wkSaturday><wkSunday>1</wkSunday></WeekProfile></WeekProfiles><DayProfiles><DayProfile><DayProfileId>0</DayProfileId><DayProfileTariffs><DayProfileTariff><DayProfileTariffId>1</DayProfileTariffId><DayTariffStartTime><Hour>0</Hour><Minutes>0</Minutes><Seconds>0</Seconds></DayTariffStartTime></DayProfileTariff><DayProfileTariff><DayProfileTariffId>2</DayProfileTariffId><DayTariffStartTime><Hour>7</Hour><Minutes>0</Minutes><Seconds>0</Seconds></DayTariffStartTime></DayProfileTariff><DayProfileTariff><DayProfileTariffId>1</DayProfileTariffId><DayTariffStartTime><Hour>21</Hour><Minutes>0</Minutes><Seconds>0</Seconds></DayTariffStartTime></DayProfileTariff></DayProfileTariffs></DayProfile><DayProfile><DayProfileId>1</DayProfileId><DayProfileTariffs><DayProfileTariff><DayProfileTariffId>1</DayProfileTariffId><DayTariffStartTime><Hour>0</Hour><Minutes>0</Minutes><Seconds>0</Seconds></DayTariffStartTime></DayProfileTariff></DayProfileTariffs></DayProfile></DayProfiles></CodeTableActCalendar><CodeTableSpecialDay><SpecialDays><SpecialDay><SpecialDayEntryDate><Year>-1</Year><Month>-1</Month><Day>-1</Day></SpecialDayEntryDate><SpecialDayEntryDayId>1</SpecialDayEntryDayId></SpecialDay></SpecialDays></CodeTableSpecialDay></TimeOfUse>";
     private static final String xmlEncodedCodeTableWithEmptyName = "<TimeOfUse><CalendarName>0</CalendarName><CodeTableTimeZone>Central European Time</CodeTableTimeZone><CodeTableDestinationTimeZone>Central European Time</CodeTableDestinationTimeZone><CodeTableInterval>3600</CodeTableInterval><CodeTableFromYear>2012</CodeTableFromYear><CodeTableToYear>2020</CodeTableToYear><CodeTableSeasonSetId>21</CodeTableSeasonSetId><ActivationDate>0</ActivationDate><CodeTableActCalendar><SeasonProfiles><SeasonProfile><SeasonProfileName>0</SeasonProfileName><SeasonStart><Year>-1</Year><Month>1</Month><Day>1</Day></SeasonStart><SeasonWeekName>0</SeasonWeekName></SeasonProfile></SeasonProfiles><WeekProfiles><WeekProfile><WeekProfileName>0</WeekProfileName><wkMonday>0</wkMonday><wkTuesday>0</wkTuesday><wkWednesday>0</wkWednesday><wkThursday>0</wkThursday><wkFriday>0</wkFriday><wkSaturday>0</wkSaturday><wkSunday>1</wkSunday></WeekProfile></WeekProfiles><DayProfiles><DayProfile><DayProfileId>0</DayProfileId><DayProfileTariffs><DayProfileTariff><DayProfileTariffId>1</DayProfileTariffId><DayTariffStartTime><Hour>0</Hour><Minutes>0</Minutes><Seconds>0</Seconds></DayTariffStartTime></DayProfileTariff><DayProfileTariff><DayProfileTariffId>2</DayProfileTariffId><DayTariffStartTime><Hour>7</Hour><Minutes>0</Minutes><Seconds>0</Seconds></DayTariffStartTime></DayProfileTariff><DayProfileTariff><DayProfileTariffId>1</DayProfileTariffId><DayTariffStartTime><Hour>21</Hour><Minutes>0</Minutes><Seconds>0</Seconds></DayTariffStartTime></DayProfileTariff></DayProfileTariffs></DayProfile><DayProfile><DayProfileId>1</DayProfileId><DayProfileTariffs><DayProfileTariff><DayProfileTariffId>1</DayProfileTariffId><DayTariffStartTime><Hour>0</Hour><Minutes>0</Minutes><Seconds>0</Seconds></DayTariffStartTime></DayProfileTariff></DayProfileTariffs></DayProfile></DayProfiles></CodeTableActCalendar><CodeTableSpecialDay><SpecialDays><SpecialDay><SpecialDayEntryDate><Year>-1</Year><Month>-1</Month><Day>-1</Day></SpecialDayEntryDate><SpecialDayEntryDayId>1</SpecialDayEntryDayId></SpecialDay></SpecialDays></CodeTableSpecialDay></TimeOfUse>";
@@ -65,26 +65,26 @@ public class G3MeterMessageConverterTest extends AbstractMessageConverterTest {
         MessageEntry messageEntry;
         OfflineDeviceMessage offlineDeviceMessage;
 
-        offlineDeviceMessage = createMessage(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME_AND_TYPE.get(this.propertySpecService, this.nlsService, this.converter));
+        offlineDeviceMessage = createMessage(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME_AND_TYPE.get(propertySpecService, this.nlsService, this.converter));
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         String xml = xmlEncodedCodeTable.replace("<ActivationDate>1</ActivationDate>", "<ActivationDate>" + String.valueOf(getDateInFuture().getTime()) + "</ActivationDate>");
         assertEquals("<PublicNetworkActivity_Calendar><RawContent>" + ProtocolTools.compress(xml) + "</RawContent></PublicNetworkActivity_Calendar>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(ActivityCalendarDeviceMessage.SPECIAL_DAY_CALENDAR_SEND_WITH_TYPE.get(this.propertySpecService, this.nlsService, this.converter));
+        offlineDeviceMessage = createMessage(ActivityCalendarDeviceMessage.SPECIAL_DAY_CALENDAR_SEND_WITH_TYPE.get(propertySpecService, this.nlsService, this.converter));
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<PublicNetworkSpecial_Days><RawContent>" + ProtocolTools.compress(xmlSpecialDays) + "</RawContent></PublicNetworkSpecial_Days>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(PLCConfigurationDeviceMessage.WritePlcG3Timeout.get(this.propertySpecService, this.nlsService, this.converter));
+        offlineDeviceMessage = createMessage(PLCConfigurationDeviceMessage.WritePlcG3Timeout.get(propertySpecService, this.nlsService, this.converter));
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<WritePlcG3Timeout Timeout_in_minutes=\"2\"> \n\n</WritePlcG3Timeout>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(SecurityMessage.WRITE_PSK.get(this.propertySpecService, this.nlsService, this.converter));
+        offlineDeviceMessage = createMessage(SecurityMessage.WRITE_PSK.get(propertySpecService, this.nlsService, this.converter));
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<WritePlcPsk PSK=\"PSK\"> \n\n</WritePlcPsk>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_RESUME_OPTION_AND_TYPE.get(this.propertySpecService, this.nlsService, this.converter));
+        offlineDeviceMessage = createMessage(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_RESUME_OPTION_AND_TYPE.get(propertySpecService, this.nlsService, this.converter));
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
-        assertEquals("<FirmwareUpdate><IncludedFile>userFileBytes</IncludedFile></FirmwareUpdate>", messageEntry.getContent());
+        assertEquals("<FirmwareUpdate><IncludedFile>path</IncludedFile></FirmwareUpdate>", messageEntry.getContent());
         assertTrue(messageEntry.getTrackingId().toLowerCase().contains("noresume"));
         assertTrue(messageEntry.getTrackingId().toLowerCase().contains("plc"));
     }
@@ -95,7 +95,7 @@ public class G3MeterMessageConverterTest extends AbstractMessageConverterTest {
     }
 
     protected LegacyMessageConverter doGetMessageConverter() {
-        return new TestG3MeterMessageConverter(getMessagingProtocol(), this.propertySpecService, this.nlsService, this.converter, this.calendarExtractor);
+        return new TestG3MeterMessageConverter(getMessagingProtocol(), propertySpecService, this.nlsService, this.converter, this.calendarExtractor);
     }
 
     /**
@@ -108,10 +108,12 @@ public class G3MeterMessageConverterTest extends AbstractMessageConverterTest {
             return mock(TariffCalendar.class);
         } else if (propertySpec.getName().equals(activityCalendarNameAttributeName)) {
             return "KHE";
-        } else if (propertySpec.getName().equals(configUserFileAttributeName) || propertySpec.getName().equals(firmwareUpdateFileAttributeName)) {
+        } else if (propertySpec.getName().equals(configUserFileAttributeName)) {
             DeviceMessageFile deviceMessageFile = mock(DeviceMessageFile.class);
             when(deviceMessageFileExtractor.binaryContents(deviceMessageFile)).thenReturn("userFileBytes".getBytes());
             return deviceMessageFile;
+        } else if (propertySpec.getName().equals(firmwareUpdateFileAttributeName)) {
+            return "path";
         } else if (propertySpec.getName().equals(resumeFirmwareUpdateAttributeName)) {
             return Boolean.FALSE;
         } else if (propertySpec.getName().equals(plcTypeFirmwareUpdateAttributeName)) {

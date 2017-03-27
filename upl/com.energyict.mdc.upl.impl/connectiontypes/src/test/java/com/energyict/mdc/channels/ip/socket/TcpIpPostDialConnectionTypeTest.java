@@ -42,11 +42,6 @@ public class TcpIpPostDialConnectionTypeTest {
     @Before
     public void initializeMocksAndFactories() {
         propertySpecService = mock(PropertySpecService.class);
-/*
-        //TODO
-        PropertySpecBuilderWizard.NlsOptions propertySpecBuilder = new PropertySpecBuilderImpl();
-        when(propertySpecService.encryptedStringSpec()).thenReturn(propertySpecBuilder);
-*/
     }
 
     @Test(expected = InvalidPropertyException.class)
