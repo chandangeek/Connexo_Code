@@ -41,6 +41,7 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -204,6 +205,19 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
     }
 
     @Test
+    public void testGetRegisterHistoryData() throws Exception {
+        Response response = getHistoryData(false);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        assertThat(response.getEntity()).isNotNull();
+    }
+
+    @Test
+    public void testGetEmptyRegisterHistoryData() throws Exception {
+        Response response = getHistoryData(true);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+    }
+
+    @Test
     public void testGetRegisterData() throws Exception {
         when(deviceService.findDeviceByName("1")).thenReturn(Optional.of(device));
         when(numericalRegisterSpec.getId()).thenReturn(1L);
@@ -345,5 +359,43 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
         verify(registerDataUpdater).confirmReading(any());
         verify(registerDataUpdater).complete();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+    }
+
+    private Response getHistoryData(boolean empty) throws UnsupportedEncodingException {
+        when(deviceService.findDeviceByName("1")).thenReturn(Optional.of(device));
+        when(numericalRegisterSpec.getId()).thenReturn(1L);
+        when(numericalRegisterSpec.getCalculatedReadingType()).thenReturn(Optional.empty());
+        when(device.getId()).thenReturn(1L);
+        when(device.getMultiplier()).thenReturn(BigDecimal.ONE);
+
+        long intervalStart = ZonedDateTime.ofInstant(NOW, ZoneId.systemDefault())
+                .minusYears(1)
+                .truncatedTo(ChronoUnit.DAYS)
+                .plusDays(1)
+                .toInstant()
+                .toEpochMilli();
+        long intervalEnd = ZonedDateTime.ofInstant(NOW, ZoneId.systemDefault())
+                .truncatedTo(ChronoUnit.DAYS)
+                .plusDays(1)
+                .toInstant()
+                .toEpochMilli();
+        Range<Instant> range = Ranges.openClosed(Instant.ofEpochMilli(intervalStart), Instant
+                .ofEpochMilli(intervalEnd));
+        when(topologyService.getDataLoggerRegisterTimeLine(any(Register.class), any(Range.class))).thenReturn(Collections
+                .singletonList(Pair.of(register, range)));
+        if(!empty) {
+            NumericalReading numericalReading1 = mockNumericalReading(actualReading1);
+            doReturn(Collections.singletonList(numericalReading1)).when(register)
+                    .getHistoryReadings(Interval.of(range), false);
+            when(numericalReading1.getValidationStatus()).thenReturn(Optional.of(dataValidationStatus));
+        }
+
+        String filter = ExtjsFilter.filter()
+                .property("intervalStart", intervalStart)
+                .property("intervalEnd", intervalEnd)
+                .create();
+        return target("devices/1/registers/1/historydata")
+                .queryParam("filter", filter)
+                .request().get();
     }
 }
