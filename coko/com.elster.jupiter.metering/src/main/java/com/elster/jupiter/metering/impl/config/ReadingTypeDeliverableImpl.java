@@ -40,7 +40,6 @@ public class ReadingTypeDeliverableImpl implements ReadingTypeDeliverable, HasUn
     public enum Fields {
         ID("id"),
         NAME("name"),
-        METROLOGY_CONFIGURATION("metrologyConfiguration"),
         DELIVERABLE_TYPE("deliverableType"),
         READING_TYPE("readingType"),
         FORMULA("formula"),
@@ -70,7 +69,7 @@ public class ReadingTypeDeliverableImpl implements ReadingTypeDeliverable, HasUn
     @Size(max = Table.NAME_LENGTH, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
     private String name;
     @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
-    private Reference<MetrologyContract> metrologyContract = ValueReference.absent();
+    private Reference<MetrologyContractImpl> metrologyContract = ValueReference.absent();
     @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     private Reference<ReadingType> readingType = ValueReference.absent();
     @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
@@ -101,7 +100,7 @@ public class ReadingTypeDeliverableImpl implements ReadingTypeDeliverable, HasUn
         this.customPropertySetService = customPropertySetService;
     }
 
-    public ReadingTypeDeliverableImpl init(MetrologyContract metrologyContract, String name, DeliverableType deliverableType, ReadingType readingType, ServerFormula formula) {
+    public ReadingTypeDeliverableImpl init(MetrologyContractImpl metrologyContract, String name, DeliverableType deliverableType, ReadingType readingType, ServerFormula formula) {
         this.name = name;
         this.metrologyContract.set(metrologyContract);
         this.readingType.set(readingType);
@@ -126,7 +125,7 @@ public class ReadingTypeDeliverableImpl implements ReadingTypeDeliverable, HasUn
 
     @Override
     public MetrologyConfiguration getMetrologyConfiguration() {
-        return this.metrologyContract.get().getMetrologyConfiguration();
+        return this.metrologyContract.getOptional().map(MetrologyContract::getMetrologyConfiguration).orElseThrow(null);
     }
 
     @Override
@@ -190,7 +189,7 @@ public class ReadingTypeDeliverableImpl implements ReadingTypeDeliverable, HasUn
 
     private void completeUpdate() {
         Save.action(getId()).save(this.dataModel, this);
-        ((MetrologyContractImpl) this.metrologyContract.get()).deliverableUpdated(this);
+        this.metrologyContract.get().deliverableUpdated(this);
         this.eventService.postEvent(EventType.READING_TYPE_DELIVERABLE_UPDATED.topic(), this);
     }
 

@@ -112,7 +112,7 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
     @Valid
     private List<MetrologyConfigurationCustomPropertySetUsage> customPropertySets = new ArrayList<>();
     private List<ReadingTypeRequirement> readingTypeRequirements = new ArrayList<>();
-    private List<MetrologyContract> metrologyContracts = new ArrayList<>();
+    private List<MetrologyContractImpl> metrologyContracts = new ArrayList<>();
     @Deprecated // up to version 10.3
     private List<ReadingTypeDeliverable> deliverables;
 
@@ -377,9 +377,7 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
     @Override
     public void removeReadingTypeDeliverable(ReadingTypeDeliverable deliverable) {
         metrologyContracts.stream()
-                .filter(contract -> contract
-                        .getDeliverables().stream()
-                        .anyMatch(readingTypeDeliverable -> readingTypeDeliverable.equals(deliverable)))
+                .filter(contract -> contract.getDeliverables().contains(deliverable))
                 .forEach(contract -> contract.removeDeliverable(deliverable));
     }
 

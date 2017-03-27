@@ -1508,7 +1508,7 @@ public enum TableSpecs {
                     .map(ReadingTypeDeliverableImpl.Fields.NAME.fieldName())
                     .add();
             Column metrologyConfigColumn = table
-                    .column(ReadingTypeDeliverableImpl.Fields.METROLOGY_CONFIGURATION.name())
+                    .column("METROLOGY_CONFIGURATION")
                     .number()
                     .conversion(ColumnConversion.NUMBER2LONG)
                     .notNull()
@@ -1546,7 +1546,7 @@ public enum TableSpecs {
             table.foreignKey("MTR_DELIVERABLE_TO_CONFIG")
                     .references(MetrologyConfiguration.class)
                     .on(metrologyConfigColumn)
-                    .map(ReadingTypeDeliverableImpl.Fields.METROLOGY_CONFIGURATION.fieldName())
+                    .map("METROLOGY_CONFIGURATION")
                     .reverseMap(MetrologyConfigurationImpl.Fields.DELIVERABLES.fieldName())
                     .composition()
                     .upTo(version(10, 3))
@@ -1604,7 +1604,7 @@ public enum TableSpecs {
                     .on(deliverableColumn)
                     .map(MetrologyContractReadingTypeDeliverableUsage.Fields.DELIVERABLE.fieldName())
                     .add();
-            table.upTo(version(10, 2));
+            table.upTo(version(10, 3));
         }
     },
     MTR_UP_REQUIREMENT {

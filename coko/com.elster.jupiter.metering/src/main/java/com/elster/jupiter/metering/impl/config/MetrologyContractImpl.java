@@ -159,10 +159,12 @@ public class MetrologyContractImpl implements MetrologyContract {
                 .isEmpty()){
             throw new CannotDeleteReadingTypeDeliverableException(metrologyConfigurationService.getThesaurus(), deliverableForRemove.getName());
         }
-        ((ReadingTypeDeliverableImpl) deliverableForRemove).prepareDelete();
-        if(this.deliverables.remove(deliverableForRemove)){
-            this.eventService.postEvent(EventType.READING_TYPE_DELIVERABLE_DELETED.topic(), deliverableForRemove);
-            this.touch();
+        if(this.deliverables.contains(deliverableForRemove)) {
+            ((ReadingTypeDeliverableImpl) deliverableForRemove).prepareDelete();
+            if(this.deliverables.remove(deliverableForRemove)) {
+                this.eventService.postEvent(EventType.READING_TYPE_DELIVERABLE_DELETED.topic(), deliverableForRemove);
+                this.touch();
+            }
         }
     }
 

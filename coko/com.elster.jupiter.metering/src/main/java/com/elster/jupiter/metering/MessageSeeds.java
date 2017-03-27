@@ -64,6 +64,7 @@ public enum MessageSeeds implements MessageSeed {
     SEARCHABLE_PROPERTY_NOT_FOUND(4021, Constants.SEARCHABLE_PROPERTY_NOT_FOUND, "The ''{0}'' searchable property can not be used as usage point requirement."),
     BAD_USAGE_POINT_REQUIREMENT_VALUE(4022, Constants.BAD_USAGE_POINT_REQUIREMENT_VALUE, "Bad usage point requirement value: {0}."),
     FAILED_TO_DEACTIVATE_METROLOGY_CONFIGURATION(4023, Constants.FAILED_TO_DEACTIVATE_METROLOGY_CONFIGURATION, "The metrology configuration is still used by at least one usage point. Use search to find the usage points with such metrology configuration."),
+    READING_TYPE_FOR_DELIVERABLE_ALREADY_USED_ON_CONTRACT(4024, Constants.READING_TYPE_FOR_DELIVERABLE_ALREADY_USED_ON_CONTRACT, "The readingtype is already used for another deliverable on this metrology contract."),
 
     INVALID_DIMENSION(5000, Constants.INVALID_DIMENSION, "Invalid dimension"),
     INVALID_ARGUMENTS_FOR_MULTIPLICATION(5001, Constants.INVALID_ARGUMENTS_FOR_MULTIPLICATION, "Dimensions from multiplication arguments do not result in a valid dimension."),
@@ -245,6 +246,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String INVALID_READINGTYPE_UNIT_IN_REQUIREMENT = "invalid.readingtype.in.requirement";
         public static final String INCOMPATIBLE_INTERVAL_LENGTHS = "incompatible.intervallengths";
         public static final String READING_TYPE_FOR_DELIVERABLE_ALREADY_USED = "reading.type.already.used.for.deliverable.on.same.metrologyconfig";
+        public static final String READING_TYPE_FOR_DELIVERABLE_ALREADY_USED_ON_CONTRACT = "reading.type.already.used.for.deliverable.on.same.metrologycontract";
         public static final String CAN_NOT_DELETE_READING_TYPE_DELIVERABLE_IN_USE = "can.not.delete.reading.type.deliverable.in.use";
         public static final String SEARCHABLE_PROPERTY_NOT_FOUND = "searchable.property.not.found";
         public static final String BAD_USAGE_POINT_REQUIREMENT_VALUE = "bad.usage.point.requirement.value";

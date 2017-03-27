@@ -46,10 +46,10 @@ public class ReadingTypeDeliverableBuilderImpl implements ReadingTypeDeliverable
     private final CustomPropertySetService customPropertySetService;
     private final DeliverableType deliverableType;
 
-    ReadingTypeDeliverableBuilderImpl(MetrologyContract metrologyContract, String name, DeliverableType deliverableType, ReadingType readingType, Formula.Mode mode, CustomPropertySetService customPropertySetService, DataModel dataModel, Thesaurus thesaurus) {
+    ReadingTypeDeliverableBuilderImpl(MetrologyContractImpl metrologyContract, String name, DeliverableType deliverableType, ReadingType readingType, Formula.Mode mode, CustomPropertySetService customPropertySetService, DataModel dataModel, Thesaurus thesaurus) {
         this.formulaBuilder = new FormulaBuilderImpl(mode, dataModel, thesaurus);
         this.name = name;
-        this.metrologyContract = (MetrologyContractImpl) metrologyContract;
+        this.metrologyContract = metrologyContract;
         this.deliverableType = deliverableType;
         this.readingType = readingType;
         this.customPropertySetService = customPropertySetService;
@@ -68,7 +68,7 @@ public class ReadingTypeDeliverableBuilderImpl implements ReadingTypeDeliverable
 
     @Override
     public FormulaBuilder deliverable(ReadingTypeDeliverable readingTypeDeliverable) {
-        if (!readingTypeDeliverable.getMetrologyConfiguration().equals(metrologyContract.getMetrologyConfiguration())) {
+        if (!readingTypeDeliverable.getMetrologyContract().equals(metrologyContract)) {
             throw new InvalidNodeException(this.formulaBuilder.getThesaurus(), MessageSeeds.INVALID_METROLOGYCONFIGURATION_FOR_DELIVERABLE, (int) readingTypeDeliverable.getId());
         }
         if ((isAutoMode() && readingTypeDeliverable.getFormula().getMode().equals(Formula.Mode.EXPERT)) ||
@@ -276,7 +276,7 @@ public class ReadingTypeDeliverableBuilderImpl implements ReadingTypeDeliverable
     public ReadingTypeDeliverable doBuild() {
         if( metrologyContract.getDeliverables().stream()
                         .anyMatch(deliverable -> deliverable.getReadingType().equals(readingType))){
-            throw new ReadingTypeAlreadyUsedOnMetrologyConfiguration(formulaBuilder.getThesaurus());
+            throw new ReadingTypeAlreadyUsedOnMetrologyContract(formulaBuilder.getThesaurus());
         }
         return metrologyContract.addDeliverable(name, deliverableType, readingType, formulaBuilder.build());
     }

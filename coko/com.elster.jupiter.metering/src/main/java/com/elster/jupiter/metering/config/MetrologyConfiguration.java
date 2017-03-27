@@ -88,19 +88,12 @@ public interface MetrologyConfiguration extends HasId, HasName {
     ReadingTypeDeliverableBuilder newReadingTypeDeliverable(String name, DeliverableType type, ReadingType readingType, Formula.Mode mode);
 
     /**
-     * This method remove the ReadingTypeDeliverable from contract to which belongs
-     *
-     * @deprecated because ReadingTypeDeliverable moved from MetrologyConfiguration to MetrologyContract
+     * This method removes the ReadingTypeDeliverable from contract to which belongs,
+     * because ReadingTypeDeliverable support is moved from MetrologyConfiguration to MetrologyContract
      */
     @Deprecated
     void removeReadingTypeDeliverable(ReadingTypeDeliverable deliverable);
 
-    /**
-     * This method returns the ReadingTypeDeliverable of all contracts from the configuration
-     *
-     * @deprecated because ReadingTypeDeliverable moved from MetrologyConfiguration to MetrologyContract
-     */
-    @Deprecated
     List<ReadingTypeDeliverable> getDeliverables();
 
     void delete();

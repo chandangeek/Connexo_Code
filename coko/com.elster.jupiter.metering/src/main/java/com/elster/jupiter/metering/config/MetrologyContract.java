@@ -6,7 +6,7 @@ package com.elster.jupiter.metering.config;
 
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.impl.config.ReadingTypeDeliverableImpl;
+import com.elster.jupiter.metering.impl.config.MetrologyContractImpl;
 import com.elster.jupiter.util.HasId;
 
 import aQute.bnd.annotation.ProviderType;
@@ -38,9 +38,9 @@ public interface MetrologyContract extends HasId {
     MetrologyConfiguration getMetrologyConfiguration();
 
     /**
-     * @deprecated because new deliverable adds in newReadingTypeDeliverable methods
+     * @deprecated because new deliverable is added in {@link MetrologyContractImpl#addDeliverable(String, DeliverableType, ReadingType, Formula)} methods
      *
-     * @return the current contract without adding new {@link ReadingTypeDeliverable}
+     * the current contract without adding new {@link ReadingTypeDeliverable}
      */
     @Deprecated
     MetrologyContract addDeliverable(ReadingTypeDeliverable deliverable);
