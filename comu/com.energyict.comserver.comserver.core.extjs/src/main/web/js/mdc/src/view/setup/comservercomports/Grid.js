@@ -47,6 +47,7 @@ Ext.define('Mdc.view.setup.comservercomports.Grid', {
             },
             {
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 privileges: Mdc.privileges.Communication.admin,
                 menu: {
                     xtype: 'comServerComPortsActionMenu'

@@ -508,6 +508,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                         }
                                     }
                                 },
+
                                 tab: {
                                     title: Uni.I18n.translate('general.registers', 'MDC', 'Registers'),
                                     route: 'tab/:tab:',

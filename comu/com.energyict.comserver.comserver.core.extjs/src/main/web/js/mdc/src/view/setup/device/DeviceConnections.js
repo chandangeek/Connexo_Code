@@ -175,6 +175,7 @@ Ext.define('Mdc.view.setup.device.DeviceConnections', {
                 },
                 {
                     xtype: 'uni-actioncolumn',
+                    width: 120,
                     menu: {
                         plain: true,
                         xtype: 'device-connection-action-menu',

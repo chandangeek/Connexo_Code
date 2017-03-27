@@ -61,6 +61,7 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceCommunicationTaskExecut
             {
                 itemId: 'action',
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 menu: {
                     xtype: 'mdc-device-communication-task-grid-action-menu'
                 }
