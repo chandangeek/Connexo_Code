@@ -796,6 +796,7 @@ Ext.define('Dxp.controller.Tasks', {
             dataSelectorCombo = view.down('#data-selector-combo'),
             deviceGroupCombo = view.down('#device-group-combo'),
             usagePointGroupCombo = view.down('#usage-point-group-combo'),
+            purposeCombo = view.down('#purpose-combo'),
             exportPeriodCombo = view.down('#export-period-combo'),
             updateWindowCombo = view.down('#update-window'),
             timeframeCombo = view.down('#timeFrame'),
@@ -842,6 +843,19 @@ Ext.define('Dxp.controller.Tasks', {
         });
 
         usagePointGroupCombo.store.load(function () {
+            if (this.getCount() === 0) {
+                usagePointGroupCombo.allowBlank = true;
+                Ext.suspendLayouts();
+                usagePointGroupCombo.hide();
+                purposeCombo.hide();
+                view.down('#no-usage-point').show();
+                Ext.resumeLayouts(true);
+            } else if(typeof(MdmApp) != 'undefined'){
+                purposeCombo.store.load();
+            }
+        });
+
+        purposeCombo.store.load(function () {
             if (this.getCount() === 0) {
                 usagePointGroupCombo.allowBlank = true;
                 Ext.suspendLayouts();
@@ -894,6 +908,7 @@ Ext.define('Dxp.controller.Tasks', {
             fileFormatterCombo = view.down('#file-formatter-combo'),
             deviceGroupCombo = view.down('#device-group-combo'),
             usagePointGroupCombo = view.down('#usage-point-group-combo'),
+            purposeCombo = view.down('#purpose-combo'),
             exportPeriodCombo = view.down('#export-period-combo'),
 
             dataSelectorCombo = view.down('#data-selector-combo'),
@@ -1095,6 +1110,15 @@ Ext.define('Dxp.controller.Tasks', {
                                                 view.down('#no-usage-point').show();
                                             }
                                             usagePointGroupCombo.setValue(usagePointGroupCombo.store.getById(record.getStandardDataSelector().data.usagePointGroup.id));
+                                            Ext.resumeLayouts(true);
+                                        }
+                                    });
+
+                                    purposeCombo.store.load({
+                                        callback: function () {
+                                            Ext.suspendLayouts();
+
+                                            purposeCombo.setValue(purposeCombo.store.getById(record.getStandardDataSelector().data.purpose.id));
                                             Ext.resumeLayouts(true);
                                         }
                                     });
@@ -1626,6 +1650,7 @@ Ext.define('Dxp.controller.Tasks', {
         Ext.suspendLayouts();
         page.down('#device-group-container').setVisible(false);
         page.down('#usage-point-group-container').setVisible(true);
+        page.down('#purpose-group-container').setVisible(true);
         page.down('#readingTypesFieldContainer').setVisible(true);
         page.down('#eventTypesFieldContainer').setVisible(false);
         page.down('#export-periods-container').setVisible(true);
@@ -2105,6 +2130,10 @@ Ext.define('Dxp.controller.Tasks', {
                         usagePointGroup: {
                             id: form.down('#usage-point-group-combo').getValue(),
                             name: form.down('#usage-point-group-combo').getRawValue()
+                        },
+                        purpose: {
+                            id: form.down('#purpose-combo').getValue(),
+                            name: form.down('#purpose-combo').getRawValue()
                         },
                         exportPeriod: {
                             id: form.down('#export-period-combo').getValue(),
