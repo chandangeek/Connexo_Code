@@ -38,7 +38,6 @@ import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.users.User;
-import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.WorkGroup;
 
 import java.time.Instant;
@@ -153,6 +152,7 @@ import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 import static com.elster.jupiter.orm.Table.SHORT_DESCRIPTION_LENGTH;
+import static com.elster.jupiter.orm.Version.version;
 
 public enum TableSpecs {
 
@@ -164,7 +164,7 @@ public enum TableSpecs {
             table.cache();
 
             Column key = table.column(ISSUE_TYPE_COLUMN_KEY).map("key").varChar(NAME_LENGTH).notNull().add();
-            table.column(ISSUE_TYPE_COLUMN_PREFIX).map("prefix").varChar(3).notNull().since(Version.version(10, 2)).installValue("'DCI'").add();
+            table.column(ISSUE_TYPE_COLUMN_PREFIX).map("prefix").varChar(3).notNull().since(version(10, 2)).installValue("'DCI'").add();
             table.column(ISSUE_TYPE_COLUMN_TRANSLATION).map("translationKey").varChar(NAME_LENGTH).notNull().add();
             table.addAuditColumns();
 
@@ -219,7 +219,12 @@ public enum TableSpecs {
             table.primaryKey(ISSUE_COMMENT_PK_NAME).on(idColumn).add();
             table.addAuditColumns();
 
-            table.foreignKey(ISSUE_COMMENT_FK_TO_USER).map("user").on(userRefIdColumn).references(UserService.COMPONENTNAME, USER_TABLE).add();
+            table
+                .foreignKey(ISSUE_COMMENT_FK_TO_USER)
+                .on(userRefIdColumn)
+                .references(User.class)
+                .map("user")
+                .add();
         }
     },
 
