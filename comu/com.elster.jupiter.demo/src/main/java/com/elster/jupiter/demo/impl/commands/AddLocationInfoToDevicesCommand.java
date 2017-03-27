@@ -63,13 +63,15 @@ public class AddLocationInfoToDevicesCommand {
     }
 
     public void run() {
-        getDeviceList().forEach(device -> {
-            if (!this.dataModel.getSqlDialect().name().equalsIgnoreCase("H2")) {
-                device.setSpatialCoordinates(createSpatialCoordinates());
-            }
-            device.setLocation(createLocation());
-            device.save();
-        });
+        getDeviceList().stream()
+                .filter(device -> !device.getLocation().isPresent())
+                .forEach(device -> {
+                    if (!this.dataModel.getSqlDialect().name().equalsIgnoreCase("H2")) {
+                        device.setSpatialCoordinates(createSpatialCoordinates());
+                    }
+                    device.setLocation(createLocation());
+                    device.save();
+                });
     }
 
     private List<Device> getDeviceList() {
