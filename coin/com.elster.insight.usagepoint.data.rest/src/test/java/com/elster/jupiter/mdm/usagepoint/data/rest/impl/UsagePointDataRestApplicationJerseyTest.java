@@ -335,7 +335,7 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
     }
 
     public Calendar mockCalendar(){
-        Calendar calendar = mock(Calendar.class);
-        return calendar;
+        return mock(Calendar.class);
     }
+
 }

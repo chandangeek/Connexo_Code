@@ -290,9 +290,12 @@ public class UsagePointOutputResource {
     private Optional<AggregatedChannel.AggregatedIntervalReadingRecord> findRecordWithContainingRange(List<AggregatedChannel.AggregatedIntervalReadingRecord> records, Instant timestamp) {
         return records
                 .stream()
-                .filter(record -> record.getTimePeriod().isPresent())
-                .filter(record -> record.getTimePeriod().get().contains(timestamp))
+                .filter(record -> this.timePeriodContains(record, timestamp))
                 .findFirst();
+    }
+
+    private boolean timePeriodContains(AggregatedChannel.AggregatedIntervalReadingRecord record, Instant timestamp) {
+        return record.getTimePeriod().map(period -> period.contains(timestamp)).orElse(false);
     }
 
     private boolean hasSuspects(ChannelReadingWithValidationStatus channelReadingWithValidationStatus) {

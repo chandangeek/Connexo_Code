@@ -4,6 +4,8 @@
 
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
+import com.elster.jupiter.calendar.Category;
+import com.elster.jupiter.calendar.OutOfTheBoxCategory;
 import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
@@ -89,6 +91,11 @@ public class UsagePointOutputResourceRegisterDataTest extends UsagePointDataRest
 
     @Before
     public void before() {
+        Category timeOfUseCategory = mock(Category.class);
+        when(this.calendarService.findCategoryByName(OutOfTheBoxCategory.TOU.name())).thenReturn(Optional.of(timeOfUseCategory));
+        UsagePoint.UsedCalendars usedCalendars = mock(UsagePoint.UsedCalendars.class);
+        when(usedCalendars.getCalendar(any(Instant.class), any(Category.class))).thenReturn(Optional.empty());
+        when(this.usagePoint.getUsedCalendars()).thenReturn(usedCalendars);
         when(clock.getZone()).thenReturn(ZoneId.systemDefault());
 
         when(meteringService.findUsagePointByName(any())).thenReturn(Optional.empty());
