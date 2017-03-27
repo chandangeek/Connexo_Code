@@ -260,7 +260,7 @@ Ext.define('Imt.purpose.view.OutputReadings', {
                         color: 'rgba(235, 86, 66, 0.3)'
                     });
                     record.set('plotBand', true);
-                } else if (Ext.isEmpty(readinqQualities) && Ext.isEmpty(record.get('value'))) {
+                } else if (record.get('partOfTimeOfUseGap')) {
                     missedValues.push({
                         id: record.get('interval').start,
                         from: record.get('interval').start,

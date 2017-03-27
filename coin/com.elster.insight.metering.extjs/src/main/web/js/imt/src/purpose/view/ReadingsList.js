@@ -101,7 +101,8 @@ Ext.define('Imt.purpose.view.ReadingsList', {
                     itemId: 'purpose-readings-data-action-menu'
                 },
                 isDisabled: function(grid, rowIndex, colIndex, clickedItem, record) {
-                    return Ext.isEmpty(record.get('readinqQualities')) && Ext.isEmpty(record.get('value'));
+                    console.log(record.get('partOfTimeOfUseGap'));
+                    return record.get('partOfTimeOfUseGap');
                 }
             }
         ];
@@ -149,7 +150,7 @@ Ext.define('Imt.purpose.view.ReadingsList', {
             value = Ext.isEmpty(v) ? '-' : v,
             estimatedByRule = record.get('estimatedByRule'),
             icon = '';
-        if(Ext.isEmpty(record.get('readinqQualities')) && Ext.isEmpty(record.get('value'))){
+        if(record.get('partOfTimeOfUseGap')){
             icon = '<span class="icon-flag6" style="margin-left:10px; position:absolute;" data-qtip="'
                 + Uni.I18n.translate('reading.tou.gap', 'IMT', 'Data not calculated, calendar \''+ record.get('calendarName') +'\' only uses data specified in the formula.') + '"></span>';
         } else if (status === 'notValidated') {
