@@ -108,6 +108,7 @@ public class UsagePointResourceChannelDataTest extends UsagePointApplicationJers
 
         when(usagePoint.getName()).thenReturn(UP_NAME);
         when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMetrologyConfiguration));
+        when(usagePoint.getEffectiveMetrologyConfigurations()).thenReturn(Collections.singletonList(effectiveMetrologyConfiguration));
 
         when(effectiveMetrologyConfiguration.getMetrologyConfiguration()).thenReturn(metrologyConfiguration);
         when(effectiveMetrologyConfiguration.getChannelsContainer(metrologyContract)).thenReturn(Optional.of(upChannelsContainer));
@@ -197,6 +198,7 @@ public class UsagePointResourceChannelDataTest extends UsagePointApplicationJers
     @Test
     public void getChannelDataNoEffectiveMetrologyConfiguration() throws Exception {
         when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.empty());
+        when(usagePoint.getEffectiveMetrologyConfigurations()).thenReturn(Collections.emptyList());
 
         // Business method
         Response response = target("/usagepoints/UP0001/channels/13/data").queryParam("filter", buildFilter()).request().get();

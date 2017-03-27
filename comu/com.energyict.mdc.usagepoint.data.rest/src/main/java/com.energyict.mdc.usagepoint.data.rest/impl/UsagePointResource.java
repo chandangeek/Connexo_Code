@@ -130,34 +130,38 @@ public class UsagePointResource {
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT, Privileges.Constants.ADMINISTER_OWN_USAGEPOINT})
     public PagedInfoList getChannelData(@PathParam("name") String name, @PathParam("channelId") long channelId, @BeanParam JsonQueryFilter filter, @BeanParam JsonQueryParameters queryParameters) {
         UsagePoint usagePoint = resourceHelper.findUsagePointOrThrowException(name);
-        List<ChannelDataInfo> outputChannelDataInfoList = Collections.emptyList();
+        List<ChannelDataInfo> outputChannelDataInfoList = new ArrayList<>();
         if (filter.hasProperty("intervalStart") && filter.hasProperty("intervalEnd")) {
             Range<Instant> requestedInterval = Ranges.openClosed(filter.getInstant("intervalStart"), filter.getInstant("intervalEnd"));
-            EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = usagePoint.getCurrentEffectiveMetrologyConfiguration()
-                    .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_METROLOGY_CONFIG_FOR_USAGE_POINT, usagePoint.getName()));
-            Channel channel = resourceHelper.findChannelOnUsagePointOrThrowException(effectiveMetrologyConfiguration, channelId);
-            Range<Instant> usagePointActivationInterval = getUsagePointActivationInterval(usagePoint);
-            if (usagePointActivationInterval.isConnected(requestedInterval)) {
-                Range<Instant> effectiveInterval = usagePointActivationInterval.intersection(requestedInterval);
-                TemporalAmount intervalLength = channel.getIntervalLength().get();
-                Map<Instant, IntervalReadingWithValidationStatus> preFilledChannelDataMap = channel.toList(effectiveInterval).stream()
-                        .collect(Collectors.toMap(Function.identity(), timeStamp -> new IntervalReadingWithValidationStatus(ZonedDateTime.ofInstant(timeStamp, clock.getZone()), intervalLength)));
-
-                // add readings to pre filled channel data map
-                List<IntervalReadingRecord> intervalReadings = channel.getIntervalReadings(effectiveInterval);
-                for (IntervalReadingRecord intervalReadingRecord : intervalReadings) {
-                    IntervalReadingWithValidationStatus readingHolder = preFilledChannelDataMap.get(intervalReadingRecord.getTimeStamp());
-                    if (readingHolder != null) {
-                        readingHolder.setIntervalReadingRecord(intervalReadingRecord);
-                    }
-                }
-                RangeMap<Instant, Instant> lastCheckedOfSourceChannels = getLastCheckedOfSourceChannels(effectiveMetrologyConfiguration, channel);
-                outputChannelDataInfoList = preFilledChannelDataMap.entrySet().stream()
-                        .sorted(Collections.reverseOrder(Comparator.comparing(Map.Entry::getKey)))
-                        .map(Map.Entry::getValue)
-                        .map(reading -> channelDataInfoFactory.asInfo(reading, lastCheckedOfSourceChannels))
-                        .collect(Collectors.toList());
+            List<EffectiveMetrologyConfigurationOnUsagePoint> metrologyConfigurationsOnUsagePoints = usagePoint.getEffectiveMetrologyConfigurations();
+            if (metrologyConfigurationsOnUsagePoints.isEmpty()) {
+                throw exceptionFactory.newExceptionSupplier(MessageSeeds.NO_METROLOGY_CONFIG_FOR_USAGE_POINT, usagePoint.getName()).get();
             }
+            metrologyConfigurationsOnUsagePoints.forEach(effectiveMetrologyConfiguration -> {
+                Channel channel = resourceHelper.findChannelOnUsagePointOrThrowException(effectiveMetrologyConfiguration, channelId);
+                Range<Instant> usagePointActivationInterval = getUsagePointActivationInterval(usagePoint);
+                if (usagePointActivationInterval.isConnected(requestedInterval)) {
+                    Range<Instant> effectiveInterval = usagePointActivationInterval.intersection(requestedInterval);
+                    TemporalAmount intervalLength = channel.getIntervalLength().get();
+                    Map<Instant, IntervalReadingWithValidationStatus> preFilledChannelDataMap = channel.toList(effectiveInterval).stream()
+                            .collect(Collectors.toMap(Function.identity(), timeStamp -> new IntervalReadingWithValidationStatus(ZonedDateTime.ofInstant(timeStamp, clock.getZone()), intervalLength)));
+
+                    // add readings to pre filled channel data map
+                    List<IntervalReadingRecord> intervalReadings = channel.getIntervalReadings(effectiveInterval);
+                    for (IntervalReadingRecord intervalReadingRecord : intervalReadings) {
+                        IntervalReadingWithValidationStatus readingHolder = preFilledChannelDataMap.get(intervalReadingRecord.getTimeStamp());
+                        if (readingHolder != null) {
+                            readingHolder.setIntervalReadingRecord(intervalReadingRecord);
+                        }
+                    }
+                    RangeMap<Instant, Instant> lastCheckedOfSourceChannels = getLastCheckedOfSourceChannels(effectiveMetrologyConfiguration, channel);
+                    outputChannelDataInfoList.addAll((preFilledChannelDataMap.entrySet().stream()
+                            .sorted(Collections.reverseOrder(Comparator.comparing(Map.Entry::getKey)))
+                            .map(Map.Entry::getValue)
+                            .map(reading -> channelDataInfoFactory.asInfo(reading, lastCheckedOfSourceChannels))
+                            .collect(Collectors.toList())));
+                }
+            });
         }
         return PagedInfoList.fromCompleteList("data", outputChannelDataInfoList, queryParameters);
     }
