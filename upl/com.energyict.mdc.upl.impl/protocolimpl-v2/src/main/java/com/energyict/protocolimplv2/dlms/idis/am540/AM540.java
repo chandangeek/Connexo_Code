@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Level;
 
 import com.energyict.cbo.ConfigurationSupport;
 import com.energyict.cpo.TypedProperties;
@@ -12,6 +13,7 @@ import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.HHUSignOnV2;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.aso.ApplicationServiceObject;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.cosem.FrameCounterProvider;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
@@ -194,7 +196,17 @@ public class AM540 extends AM130 implements SerialNumberSupport {
             IOException cause = new IOException("When connected to the mirror logical device, writing of the clock is not allowed.");
             throw DeviceConfigurationException.notAllowedToExecuteCommand("date/time change", cause);
         } else {
-            super.setTime(timeToSet);
+            try {
+            	final boolean useUnspecifiedClockStatus = this.getDlmsSessionProperties().useUnspecifiedAsClockStatus();
+                final AXDRDateTime dateTime = new AXDRDateTime(timeToSet, getTimeZone(), useUnspecifiedClockStatus);
+                dateTime.useUnspecifiedAsDeviation(getDlmsSessionProperties().useUndefinedAsTimeDeviation());
+                dateTime.setSetHSByte(this.getDlmsSessionProperties().supportsHundredthsTimeField());
+                
+                getDlmsSession().getCosemObjectFactory().getClock().setAXDRDateTimeAttr(dateTime);
+            } catch (IOException e) {
+                getLogger().log(Level.FINEST, e.getMessage());
+                throw DLMSIOExceptionHandler.handle(e, getDlmsSessionProperties().getRetries() + 1);
+            }
         }
     }
 
@@ -383,6 +395,8 @@ public class AM540 extends AM130 implements SerialNumberSupport {
         try {
 
             FrameCounterProvider frameCounterProvider = publicDlmsSession.getCosemObjectFactory().getFrameCounterProvider(frameCounterObisCode);
+            frameCounterProvider.setSkipValidation(this.getDlmsSessionProperties().skipFramecounterAuthenticationTag());
+            
             frameCounter = frameCounterProvider.getFrameCounter(publicDlmsSession.getProperties().getSecurityProvider().getAuthenticationKey());
 
             getLogger().info("The read-out frame-counter is: "+frameCounter);

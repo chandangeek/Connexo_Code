@@ -196,7 +196,34 @@ public class AM540Properties extends IDISProperties {
     public long getInitialFrameCounter(){
         return getProperties().getTypedProperty(AM540ConfigurationSupport.INITIAL_FRAME_COUNTER, BigDecimal.valueOf(100)).longValue();
     }
+    
+    /**
+     * Indicates whether or not the meter supports the hundreths time field.
+     * 
+     * @return	<code>true</code> if supported, <code>false</code> if not.
+     */
+    public final boolean supportsHundredthsTimeField() {
+        return getProperties().<Boolean>getTypedProperty(AM540ConfigurationSupport.SUPPORTS_HUNDRETHS_TIMEFIELD, true);
+    }
 
+    /**
+     * Indicates whether or not to skip the frame counter authentication tag check.
+     * 
+     * @return	<code>true</code> if this needs to be skipped, <code>false</code> otherwise.
+     */
+    public final boolean skipFramecounterAuthenticationTag() {
+    	return this.getProperties().<Boolean>getTypedProperty(AM540ConfigurationSupport.SKIP_FC_AUTH_TAG_VALIDATION, false);
+    }
+    
+    /**
+     * Indicates whether or not we use unspecified as clock status.
+     * 
+     * @return	<code>true</code> for unspecified, <code>false</code> if not.
+     */
+    public final boolean useUnspecifiedAsClockStatus() {
+    	return this.getProperties().<Boolean>getTypedProperty(AM540ConfigurationSupport.USE_UNDEFINED_AS_CLOCK_STATUS, false);
+    }
+    
     /**
      * {@inheritDoc}
      */
