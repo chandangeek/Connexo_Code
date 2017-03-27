@@ -56,6 +56,7 @@ class Installer implements FullInstaller {
         if (!basicAuthentication.getKeyPair().isPresent()) {
             try {
                 dataModel.getInstance(KeyStoreImpl.class).init(dataVaultService);
+                basicAuthentication.initSecurityTokenImpl();
             } catch (NoSuchAlgorithmException e) {
                 throw new RuntimeException(e);
             }

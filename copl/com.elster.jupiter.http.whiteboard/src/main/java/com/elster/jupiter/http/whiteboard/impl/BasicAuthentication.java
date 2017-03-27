@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.http.whiteboard.impl;
 
+import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.http.whiteboard.HttpAuthenticationService;
 import com.elster.jupiter.orm.DataModel;
@@ -81,6 +82,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
     private volatile DataModel dataModel;
     private volatile TransactionService transactionService;
     private volatile UpgradeService upgradeService;
+    private volatile BpmService bpmService;
 
     private int timeout;
     private int tokenRefreshMaxCount;
@@ -89,13 +91,14 @@ public final class BasicAuthentication implements HttpAuthenticationService {
 
 
     @Inject
-    BasicAuthentication(UserService userService, OrmService ormService, DataVaultService dataVaultService, UpgradeService upgradeService) throws
+    BasicAuthentication(UserService userService, OrmService ormService, DataVaultService dataVaultService, UpgradeService upgradeService, BpmService bpmService) throws
             InvalidKeySpecException,
             NoSuchAlgorithmException {
         setUserService(userService);
         setOrmService(ormService);
         setDataVaultService(dataVaultService);
         setUpgradeService(upgradeService);
+        setBpmService(bpmService);
         activate(null);
     }
 
@@ -129,6 +132,11 @@ public final class BasicAuthentication implements HttpAuthenticationService {
     @Reference
     public void setUpgradeService(UpgradeService upgradeService) {
         this.upgradeService = upgradeService;
+    }
+
+    @Reference
+    public void setBpmService(BpmService bpmService) {
+        this.bpmService = bpmService;
     }
 
     @Activate
@@ -188,7 +196,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         }
     }
 
-    private void initSecurityTokenImpl() {
+    protected void initSecurityTokenImpl() {
         Optional<KeyStoreImpl> keyStore = getKeyPair();
         if (keyStore.isPresent()) {
 
