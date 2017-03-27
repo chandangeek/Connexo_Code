@@ -21,7 +21,8 @@ Ext.define('Imt.purpose.controller.Purpose', {
         'Imt.usagepointmanagement.store.UsagePointTypes',
         'Imt.purpose.store.ValidationTasks',
         'Imt.purpose.store.EstimationTasks',
-        'Imt.usagepointmanagement.store.Periods'
+        'Imt.usagepointmanagement.store.Periods',
+        'Imt.purpose.store.EstimationRules'
     ],
 
     models: [
@@ -56,6 +57,8 @@ Ext.define('Imt.purpose.controller.Purpose', {
             selector: '#purpose-outputs #output-preview'
         }
     ],
+
+    hasEstimationRule: false,
 
     init: function () {
         this.control({
@@ -235,7 +238,16 @@ Ext.define('Imt.purpose.controller.Purpose', {
             outputModel.load(outputId, {
                 success: function (record) {
                     output = record;
-                    displayPage();
+                    if(record.get('outputType') === "channel"){
+                        var estimationRulesStore = me.getStore('Imt.purpose.store.EstimationRules');
+                        estimationRulesStore.getProxy().extraParams = {usagePointId: usagePointId, purposeId: purposeId, outputId: outputId}
+                        estimationRulesStore.load(function(records){
+                            me.hasEstimationRule = Boolean(records.length);
+                            displayPage();
+                        });
+                    } else {
+                        displayPage();
+                    }
                 }
             });
         }
@@ -265,7 +277,6 @@ Ext.define('Imt.purpose.controller.Purpose', {
             router = me.getController('Uni.controller.history.Router'),
             output = panel.output,
             readingsStore;
-
         switch (output.get('outputType')) {
             case 'channel':
                 readingsStore = me.getStore('Imt.purpose.store.Readings');
@@ -356,7 +367,7 @@ Ext.define('Imt.purpose.controller.Purpose', {
             duration: 60000,
             fn: Ext.bind(me.onTooLongOperation, me, [purpose, confWindow, {
                 title: Uni.I18n.translate('purpose.dataValidation.timeout.title1', 'IMT', 'Data validation takes longer than expected'),
-                msg: Uni.I18n.translate('purpose.dataValidation.timeout.msg1', 'IMT', 'Data validation takes longer than expected. Data validation will continue in the background.')
+                msg: Uni.I18n.translate('purpose.dataValidation.timeout.message', 'IMT', 'Data validation takes longer than expected and will continue in the background.')
             }])
         });
 
@@ -406,7 +417,7 @@ Ext.define('Imt.purpose.controller.Purpose', {
             duration: 60000,
             fn: Ext.bind(me.onTooLongOperation, me, [purpose, confirmationWindow, {
                 title: Uni.I18n.translate('purpose.dataEstimation.timeout.title1', 'IMT', 'Data estimation takes longer than expected'),
-                msg: Uni.I18n.translate('purpose.dataEstimation.timeout.msg1', 'IMT', 'Data estimation takes longer than expected. Data estimation will continue in the background.')
+                msg: Uni.I18n.translate('purpose.dataEstimation.timeout.message', 'IMT', 'Data estimation takes longer than expected and will continue in the background.')
             }])
         });
 

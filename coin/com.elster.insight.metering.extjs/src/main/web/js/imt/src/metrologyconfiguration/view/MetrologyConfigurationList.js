@@ -40,6 +40,7 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigurationList', {
             },
             {
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 privileges: Imt.privileges.MetrologyConfig.admin,
                 menu: {
                     xtype: 'metrology-configuration-action-menu',
