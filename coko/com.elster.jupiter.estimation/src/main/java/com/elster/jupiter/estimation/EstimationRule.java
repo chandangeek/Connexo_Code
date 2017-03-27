@@ -53,4 +53,8 @@ public interface EstimationRule {
     List<PropertySpec> getPropertySpecs();
 
     boolean isObsolete();
+
+    void setMarkProjected(boolean b);
+
+    boolean isMarkProjected();
 }

@@ -55,24 +55,25 @@ class EstimationRuleImpl implements IEstimationRule {
     @ExistingEstimator(groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.NO_SUCH_ESTIMATOR + "}")
     private String implementation; //estimator class name
     private Instant obsoleteTime;
+    private boolean markProjected;
 
     private long version;
     private Instant createTime;
     private Instant modTime;
     private String userName;
+
     // associations
     @Valid
     @Size(min=1, groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.NAME_REQUIRED_KEY + "}")
     private List<ReadingTypeInEstimationRule> readingTypesInRule = new ArrayList<>();
 
     private Reference<EstimationRuleSet> ruleSet = ValueReference.absent();
-
     @SuppressWarnings("unused")
     private int position;
+
     private transient Estimator templateEstimator;
 
     private List<EstimationRuleProperties> properties = new ArrayList<>();
-
     private final DataModel dataModel;
     private final EstimatorCreator estimatorCreator;
     private final Thesaurus thesaurus;
@@ -273,6 +274,16 @@ class EstimationRuleImpl implements IEstimationRule {
     @Override
     public boolean isObsolete() {
         return getObsoleteDate() != null;
+    }
+
+    @Override
+    public void setMarkProjected(boolean markProjected) {
+        this.markProjected = markProjected;
+    }
+
+    @Override
+    public boolean isMarkProjected() {
+        return markProjected;
     }
 
     public void save() {
