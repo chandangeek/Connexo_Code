@@ -142,7 +142,6 @@ import static com.elster.jupiter.issue.impl.database.DatabaseConst.RULE_ACTION_T
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.RULE_ACTION_TYPE_PHASE;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.RULE_ACTION_TYPE_PK_NAME;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.RULE_ACTION_TYPE_REASON;
-import static com.elster.jupiter.issue.impl.database.DatabaseConst.USER_TABLE;
 import static com.elster.jupiter.orm.ColumnConversion.CHAR2BOOLEAN;
 import static com.elster.jupiter.orm.ColumnConversion.CLOB2STRING;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2BOOLEAN;
@@ -220,11 +219,11 @@ public enum TableSpecs {
             table.addAuditColumns();
 
             table
-                .foreignKey(ISSUE_COMMENT_FK_TO_USER)
-                .on(userRefIdColumn)
-                .references(User.class)
-                .map("user")
-                .add();
+                    .foreignKey(ISSUE_COMMENT_FK_TO_USER)
+                    .on(userRefIdColumn)
+                    .references(User.class)
+                    .map("user")
+                    .add();
         }
     },
 
@@ -415,7 +414,7 @@ public enum TableSpecs {
             Column reasonRefIdColumn = table.column(ISSUE_COLUMN_REASON_ID).varChar(NAME_LENGTH).notNull().add();
             Column statusRefIdColumn = table.column(ISSUE_COLUMN_STATUS_ID).varChar(NAME_LENGTH).notNull().add();
             Column deviceRefIdColumn = table.column(ISSUE_COLUMN_DEVICE_ID).number().conversion(NUMBER2LONG).add();
-            table.column(ISSUE_COLUMN_ASSIGNEE_TYPE).map("assigneeType").number().conversion(NUMBER2ENUM).upTo(Version.version(10,3)).add();
+            table.column(ISSUE_COLUMN_ASSIGNEE_TYPE).map("assigneeType").number().conversion(NUMBER2ENUM).upTo(Version.version(10, 3)).add();
             Column userRefIdColumn = table.column(ISSUE_COLUMN_USER_ID).number().conversion(NUMBER2LONG).add();
             Column workGroupRefIdColumn = table.column(ISSUE_COLUMN_WORKGROUP_ID).number().conversion(NUMBER2LONG).add().since(Version.version(10, 3));
             table.column(ISSUE_COLUMN_OVERDUE).map("overdue").number().conversion(NUMBER2BOOLEAN).notNull().add();
