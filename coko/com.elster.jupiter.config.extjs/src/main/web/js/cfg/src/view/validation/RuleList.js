@@ -50,6 +50,7 @@ Ext.define('Cfg.view.validation.RuleList', {
             },
             {
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 privileges: Cfg.privileges.Validation.admin,
                 menu: {
                     itemId: 'ruleGridMenu',

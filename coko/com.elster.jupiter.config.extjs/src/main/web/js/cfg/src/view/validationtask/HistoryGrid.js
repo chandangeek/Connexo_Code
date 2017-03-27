@@ -45,7 +45,7 @@ Ext.define('Cfg.view.validationtask.HistoryGrid', {
             },
             {
                 xtype: 'uni-actioncolumn',
-                width: 100,
+                width: 120,
                 menu: {
                     xtype: 'cfg-tasks-history-action-menu'
                 }

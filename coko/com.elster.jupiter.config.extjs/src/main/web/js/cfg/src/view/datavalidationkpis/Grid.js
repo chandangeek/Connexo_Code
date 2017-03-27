@@ -44,6 +44,7 @@ Ext.define('Cfg.view.datavalidationkpis.Grid', {
             },
             {
                 xtype: 'uni-actioncolumn-remove',
+                width: 120,
                 privileges: Cfg.privileges.Validation.administerDataQuality,
                 handler: function (grid, rowIndex, colIndex, column, event, record) {
                     this.fireEvent('remove', record);

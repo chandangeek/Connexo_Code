@@ -51,6 +51,7 @@ Ext.define('Cfg.view.validationtask.Grid', {
             },
             {
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 menu: {
                     xtype: 'cfg-validation-tasks-action-menu',
                     itemId: 'tasks-action-menu'
