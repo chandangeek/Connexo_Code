@@ -358,7 +358,7 @@ public class MeteringCustomPropertySetsDemoInstaller implements TranslationKeyPr
 
 
         builder.build(builder.multiply(builder.requirement(requirementAplus), lossFactor));
-        buildFormulaSingleRequirement(contractInformation, readingTypeDailyApluskWh, requirementAplus, "Daily A+ Wh");
+        buildFormulaSingleRequirement(contractInformation, readingTypeDailyApluskWh, requirementAplus, "Daily A+ kWh");
     }
 
     void residentialGasWithCorrection(){
@@ -413,10 +413,9 @@ public class MeteringCustomPropertySetsDemoInstaller implements TranslationKeyPr
         FormulaBuilder hourlyClimateCorrectionFactor = hourlyBuilder.property(correctionFactorCPS, climateCorrectionFactorSpec);
 
         ReadingTypeDeliverableBuilder dailyBuilder = contractBilling.newReadingTypeDeliverable("Daily corrected volume m³", readingTypeCorrectedDailyVolume, Formula.Mode.AUTO);
-        FormulaBuilder dailyClimateCorrectionFactor = dailyBuilder.property(correctionFactorCPS, climateCorrectionFactorSpec);
 
-        hourlyBuilder.build(hourlyBuilder.multiply(hourlyBuilder.requirement(requirementGasVolume), hourlyClimateCorrectionFactor));
-        dailyBuilder.build(dailyBuilder.multiply(dailyBuilder.requirement(requirementGasVolume), dailyClimateCorrectionFactor));
+        ReadingTypeDeliverable hourlyDeliverable = hourlyBuilder.build(hourlyBuilder.multiply(hourlyBuilder.requirement(requirementGasVolume), hourlyClimateCorrectionFactor));
+        dailyBuilder.build(dailyBuilder.deliverable(hourlyDeliverable));
         buildFormulaSingleRequirement(contractInformation, readingTypeHourlyVolume, requirementGasVolume, "Hourly volume m³");
     }
 
