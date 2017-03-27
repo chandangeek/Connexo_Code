@@ -15,5 +15,5 @@ public interface PrivateKeyFactory {
      */
     String getKeyEncryptionMethod();
 
-    PrivateKeyWrapper newPrivateKeyWrapper(KeyAccessorType keyAccessorType);
+    PrivateKeyWrapper newPrivateKeyWrapper(KeyType keyType);
 }

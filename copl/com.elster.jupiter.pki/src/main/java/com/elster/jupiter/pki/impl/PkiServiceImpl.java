@@ -247,7 +247,12 @@ public class PkiServiceImpl implements PkiService {
 
     @Override
     public Optional<KeyType> getKeyType(String name) {
-        return this.getDataModel().mapper(KeyType.class).getUnique("name", name);
+        return this.getDataModel().mapper(KeyType.class).getUnique(KeyTypeImpl.Fields.NAME.fieldName(), name);
+    }
+
+    @Override
+    public Optional<KeyType> getKeyType(long id) {
+        return this.getDataModel().mapper(KeyType.class).getUnique(KeyTypeImpl.Fields.ID.fieldName(), id);
     }
 
     @Override
@@ -261,11 +266,11 @@ public class PkiServiceImpl implements PkiService {
     }
 
     @Override
-    public PrivateKeyWrapper newPrivateKeyWrapper(KeyAccessorType keyAccessorType) { // TODO remove from interface?
-        if (!privateKeyFactories.containsKey(keyAccessorType.getKeyEncryptionMethod())) {
+    public PrivateKeyWrapper newPrivateKeyWrapper(KeyType keyType, String keyEncryptionMethod) { // TODO remove from interface?
+        if (!privateKeyFactories.containsKey(keyEncryptionMethod)) {
             throw new NoSuchKeyEncryptionMethod(thesaurus);
         }
-        return privateKeyFactories.get(keyAccessorType.getKeyEncryptionMethod()).newPrivateKeyWrapper(keyAccessorType);
+        return privateKeyFactories.get(keyEncryptionMethod).newPrivateKeyWrapper(keyType);
     }
 
     @Override
@@ -285,17 +290,41 @@ public class PkiServiceImpl implements PkiService {
     }
 
     @Override
-    public ClientCertificateWrapper newClientCertificateWrapper(KeyAccessorType clientCertificateAccessorType) {
-        AbstractPlaintextPrivateKeyWrapperImpl privateKeyWrapper = (AbstractPlaintextPrivateKeyWrapperImpl) this.newPrivateKeyWrapper(clientCertificateAccessorType);
+    public ClientCertificateWrapperBuilder newClientCertificateWrapper(KeyType clientCertificateKeyType, String keyEncryptionMethod) {
+        AbstractPlaintextPrivateKeyWrapperImpl privateKeyWrapper = (AbstractPlaintextPrivateKeyWrapperImpl) this.newPrivateKeyWrapper(clientCertificateKeyType, keyEncryptionMethod);
         ClientCertificateWrapperImpl clientCertificate = getDataModel().getInstance(ClientCertificateWrapperImpl.class)
-                .init(privateKeyWrapper, clientCertificateAccessorType.getKeyType());
-        clientCertificate.save();
-        return clientCertificate;
+                .init(privateKeyWrapper, clientCertificateKeyType);
+        return new ClientCertificateWrapperBuilder(clientCertificate);
+    }
+
+    class ClientCertificateWrapperBuilder implements PkiService.ClientCertificateWrapperBuilder {
+        private final ClientCertificateWrapper underConstruction;
+
+        public ClientCertificateWrapperBuilder(ClientCertificateWrapper underConstruction) {
+            this.underConstruction = underConstruction;
+        }
+
+        @Override
+        public PkiService.ClientCertificateWrapperBuilder alias(String alias) {
+            underConstruction.setAlias(alias);
+            return this;
+        }
+
+        @Override
+        public ClientCertificateWrapper add() {
+            underConstruction.save();
+            return underConstruction;
+        }
     }
 
     @Override
     public Optional<ClientCertificateWrapper> findClientCertificateWrapper(String alias) {
         return getDataModel().mapper(ClientCertificateWrapper.class).getUnique(ClientCertificateWrapperImpl.Fields.ALIAS.fieldName(), alias);
+    }
+
+    @Override
+    public Optional<ClientCertificateWrapper> findClientCertificateWrapper(long id) {
+        return getDataModel().mapper(ClientCertificateWrapper.class).getUnique(ClientCertificateWrapperImpl.Fields.ID.fieldName(), id);
     }
 
     @Override
@@ -308,6 +337,11 @@ public class PkiServiceImpl implements PkiService {
             return Optional.empty();
         }
         return Optional.of(certificateWrappers.get(0)); // There should only be one
+    }
+
+    @Override
+    public Optional<CertificateWrapper> findCertificateWrapper(long id) {
+        return getDataModel().mapper(CertificateWrapper.class).getUnique(AbstractCertificateWrapperImpl.Fields.ID.fieldName(), id);
     }
 
     @Override

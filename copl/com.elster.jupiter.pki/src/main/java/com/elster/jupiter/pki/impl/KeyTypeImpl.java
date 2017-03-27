@@ -46,6 +46,7 @@ public class KeyTypeImpl implements KeyType {
         CURVE("curve"),
         KEY_USAGES("keyUsages"),
         EXTENDED_KEY_USAGES("extendedKeyUsages"),
+        ID("id"),
         ;
 
         private final String javaFieldName;

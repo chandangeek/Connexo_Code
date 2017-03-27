@@ -38,9 +38,9 @@ public class PkiGogoCommand {
     public void keytypes() {
         List<List<?>> collect = pkiService.findAllKeyTypes()
                 .stream()
-                .map(keytype -> Arrays.asList(keytype.getName(), keytype.getCryptographicType().name(), keytype.getKeyAlgorithm()))
+                .map(keytype -> Arrays.asList(keytype.getId(), keytype.getName(), keytype.getCryptographicType().name(), keytype.getKeyAlgorithm()))
                 .collect(toList());
-        collect.add(0, Arrays.asList("name", "type", "algorithm"));
+        collect.add(0, Arrays.asList("id", "name", "type", "algorithm"));
         MYSQL_PRINT.printTableWithHeader(collect);
     }
 

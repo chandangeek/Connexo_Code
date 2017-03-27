@@ -8,7 +8,6 @@ import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -67,13 +66,11 @@ public class PlaintextEcdsaPrivateKeyTest {
         when(validatorFactory.getValidator()).thenReturn(validator);
         NlsMessageFormat format = mock(NlsMessageFormat.class);
         when(thesaurus.getFormat(any(MessageSeed.class))).thenReturn(format);
-        KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
         keyType = mock(KeyType.class);
-        when(keyAccessorType.getKeyType()).thenReturn(keyType);
         when(keyType.getKeyAlgorithm()).thenReturn("ECDSA");
         when(keyType.getCurve()).thenReturn("secp256r1");
         privateKeyWrapper = new PlaintextEcdsaPrivateKey(datavaultService, propertySpecService, dataModel, thesaurus);
-        privateKeyWrapper.init(keyAccessorType);
+        privateKeyWrapper.init(keyType);
     }
 
     @Test

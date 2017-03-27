@@ -65,7 +65,8 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
         KEY_TYPE("keyTypeReference"),
         EXPIRATION("expirationTime"),
         TRUST_STORE("trustStoreReference"),
-        ALIAS("alias")
+        ALIAS("alias"),
+        ID("id")
         ;
 
         private final String fieldName;
@@ -152,7 +153,7 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
             } catch (CertificateExpiredException e) {
                 return Optional.of(TranslationKeys.EXPIRED);
             } catch (CertificateNotYetValidException e) {
-                return Optional.of(TranslationKeys.NOT_YET_VALID);
+                return Optional.of(TranslationKeys.PRESENT);
             }
         } else {
             return Optional.empty();
@@ -271,7 +272,7 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
     }
 
     @Override
-    public boolean hasCsr() {
+    public boolean hasCSR() {
         return false;
     }
 

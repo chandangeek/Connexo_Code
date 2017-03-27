@@ -5,7 +5,7 @@
 package com.elster.jupiter.pki.impl.wrappers.asymmetric;
 
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.pki.PrivateKeyFactory;
 import com.elster.jupiter.pki.PrivateKeyWrapper;
@@ -43,32 +43,32 @@ public class DataVaultPrivateKeyFactory implements PrivateKeyFactory {
     }
 
     @Override
-    public PrivateKeyWrapper newPrivateKeyWrapper(KeyAccessorType keyAccessorType) {
-        switch (PkiService.AsymmetricKeyAlgorithms.valueOf(keyAccessorType.getKeyType().getKeyAlgorithm())) {
-            case ECDSA: return newEcdsaPrivateKey(keyAccessorType);
-            case RSA: return newRsaPrivateKey(keyAccessorType);
-            case DSA: return newDsaPrivateKey(keyAccessorType);
+    public PrivateKeyWrapper newPrivateKeyWrapper(KeyType keyType) {
+        switch (PkiService.AsymmetricKeyAlgorithms.valueOf(keyType.getKeyAlgorithm())) {
+            case ECDSA: return newEcdsaPrivateKey(keyType);
+            case RSA: return newRsaPrivateKey(keyType);
+            case DSA: return newDsaPrivateKey(keyType);
             default: return null; // TODO throw exception
         }
     }
 
-    private PrivateKeyWrapper newRsaPrivateKey(KeyAccessorType keyAccessorType) {
+    private PrivateKeyWrapper newRsaPrivateKey(KeyType keyType) {
         PlaintextRsaPrivateKey plaintextPrivateKey = dataModel.getInstance(PlaintextRsaPrivateKey.class);
-        plaintextPrivateKey.init(keyAccessorType);
+        plaintextPrivateKey.init(keyType);
         plaintextPrivateKey.save();
         return plaintextPrivateKey;
     }
 
-    private PrivateKeyWrapper newDsaPrivateKey(KeyAccessorType keyAccessorType) {
+    private PrivateKeyWrapper newDsaPrivateKey(KeyType keyType) {
         PlaintextDsaPrivateKey plaintextPrivateKey = dataModel.getInstance(PlaintextDsaPrivateKey.class);
-        plaintextPrivateKey.init(keyAccessorType);
+        plaintextPrivateKey.init(keyType);
         plaintextPrivateKey.save();
         return plaintextPrivateKey;
     }
 
-    private PrivateKeyWrapper newEcdsaPrivateKey(KeyAccessorType keyAccessorType) {
+    private PrivateKeyWrapper newEcdsaPrivateKey(KeyType keyType) {
         PlaintextEcdsaPrivateKey plaintextPrivateKey = dataModel.getInstance(PlaintextEcdsaPrivateKey.class);
-        plaintextPrivateKey.init(keyAccessorType);
+        plaintextPrivateKey.init(keyType);
         plaintextPrivateKey.save();
         return plaintextPrivateKey;
     }

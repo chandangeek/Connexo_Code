@@ -10,7 +10,6 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.PlaintextPrivateKeyWrapper;
 import com.elster.jupiter.pki.PrivateKeyWrapper;
@@ -94,8 +93,8 @@ abstract public class AbstractPlaintextPrivateKeyWrapperImpl implements Plaintex
         this.thesaurus = thesaurus;
     }
 
-    public AbstractPlaintextPrivateKeyWrapperImpl init(KeyAccessorType keyAccessorType) {
-        keyTypeReference.set(keyAccessorType.getKeyType());
+    public AbstractPlaintextPrivateKeyWrapperImpl init(KeyType keyType) {
+        keyTypeReference.set(keyType);
         return this;
     }
 

@@ -79,7 +79,7 @@ public interface CertificateWrapper extends HasDynamicPropertiesWithUpdatableVal
     /**
      * returns true is this wrapper contains a CSR, false otherwise
      */
-    boolean hasCsr();
+    boolean hasCSR();
 
     /**
      * returns true is this wrapper contains a private key, false otherwise

@@ -105,6 +105,14 @@ public interface PkiService {
     Optional<KeyType> getKeyType(String name);
 
     /**
+     * Get an existing KeyType by id.
+     * Returns Optional.empty() if not found
+     * @param id The KpiType's id.
+     * @return The KpiType if present, empty otherwise.
+     */
+    Optional<KeyType> getKeyType(long id);
+
+    /**
      * Get a list of all known key types
      */
     List<KeyType> getKeyTypes();
@@ -112,11 +120,12 @@ public interface PkiService {
     /**
      * Creates a new PrivateKeyWrapper. The PkiService will delegate the actual creation and storage to the appropriate
      * factory given the provided key encryption method.
-     * @param keyAccessorType Contains all information required by the pkiService and factories to figure out what has
+     * @param keyType Contains all information required by the pkiService and factories to figure out what has
      * to be done.
+     * @param keyEcnryptionMethod Desired method of key storage
      * @return a new private key wrapper of the required type and encryption method, without value.
      */
-    PrivateKeyWrapper newPrivateKeyWrapper(KeyAccessorType keyAccessorType);
+    PrivateKeyWrapper newPrivateKeyWrapper(KeyType keyType, String keyEcnryptionMethod);
 
     /**
      * Creates a new SymmetricKeyWrapper. The PkiService will delegate the actual creation and storage to the appropriate
@@ -132,10 +141,11 @@ public interface PkiService {
     /**
      * Creates a new Client certificate wrapper.
      *
-     * @param clientCertificateAccessorType The Key AccessorType describing the certificate and the private key
+     * @param clientCertificateKeyType The Key AccessorType describing the certificate and the private key
+     * @param keyEncryptionMethod Desired method of key storage
      * @return Persisted, empty ClientCertificateWrapper
      */
-    ClientCertificateWrapper newClientCertificateWrapper(KeyAccessorType clientCertificateAccessorType);
+    ClientCertificateWrapperBuilder newClientCertificateWrapper(KeyType clientCertificateKeyType, String keyEncryptionMethod);
 
     /**
      * Returns the client certificate known by the provided alias
@@ -145,6 +155,13 @@ public interface PkiService {
     Optional<ClientCertificateWrapper> findClientCertificateWrapper(String alias);
 
     /**
+     * Returns the client certificate known by the id
+     * @param id
+     * @return The {@link ClientCertificateWrapper}, empty if not found
+     */
+    Optional<ClientCertificateWrapper> findClientCertificateWrapper(long id);
+
+    /**
      * Returns the CertificateWrapper known by the provided alias, no tust store is searched by this method
      * @param alias The certificate's alias
      * @return The {@link CertificateWrapper} known by the alias, empty if not found.
@@ -152,10 +169,22 @@ public interface PkiService {
     Optional<CertificateWrapper> findCertificateWrapper(String alias);
 
     /**
+     * Returns the CertificateWrapper identified by the provided id
+     * @param id The certificate's id
+     * @return The {@link CertificateWrapper}, empty if not found.
+     */
+    Optional<CertificateWrapper> findCertificateWrapper(long id);
+
+    /**
      * Returns all non-trusted certificates, that means, all certificates for the 'certificate store'
      * @return All Certificates and ClientCertificates, TrustedCertificates will not be part of the list.
      */
     Finder<CertificateWrapper> findAllCertificates();
+
+    public interface ClientCertificateWrapperBuilder {
+        ClientCertificateWrapperBuilder alias(String alias);
+        ClientCertificateWrapper add();
+    }
 
     public interface CertificateTypeBuilder {
         CertificateTypeBuilder description(String description);

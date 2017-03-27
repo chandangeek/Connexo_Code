@@ -91,7 +91,7 @@ public class RequestableCertificateWrapperImpl extends AbstractCertificateWrappe
     }
 
     @Override
-    public boolean hasCsr() {
+    public boolean hasCSR() {
         return getCSR().isPresent();
     }
 }
