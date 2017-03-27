@@ -44,10 +44,10 @@ public class EventAggregationRuleTemplate extends AbstractDataCollectionTemplate
     }
 
     @Inject
-    public EventAggregationRuleTemplate(NlsService nlsService, IssueService issueSerivce, IssueDataCollectionService issueDataCollectionService, PropertySpecService propertySpecService) {
+    public EventAggregationRuleTemplate(NlsService nlsService, IssueService issueService, IssueDataCollectionService issueDataCollectionService, PropertySpecService propertySpecService) {
         this();
         setNlsService(nlsService);
-        setIssueService(issueSerivce);
+        setIssueService(issueService);
         setIssueDataCollectionService(issueDataCollectionService);
         setPropertySpecService(propertySpecService);
         activate();
