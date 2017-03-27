@@ -64,6 +64,8 @@ Ext.define('Imt.purpose.view.ReadingEstimationWithRuleWindow', {
                                         var estimator = implementationCombo.getStore().getById(newValue);
 
                                         estimator && me.down('property-form').loadRecord(estimator);
+                                        estimator && me.down('#reading-type-mark-projected').loadRecord(estimator);
+                                        estimator && me.down('#reading-type-mark-projected').show();
                                         me.updateLayout();
                                         me.center();
                                     }
@@ -82,6 +84,7 @@ Ext.define('Imt.purpose.view.ReadingEstimationWithRuleWindow', {
                         }
                     ]
                 },
+
                 {
                     xtype: 'property-form',
                     itemId: 'property-form',
@@ -92,12 +95,23 @@ Ext.define('Imt.purpose.view.ReadingEstimationWithRuleWindow', {
                     }
                 },
                 {
-                    xtype: 'checkboxfield',
-                    fieldLabel: Uni.I18n.translate('general.projectedValue', 'IMT', 'Projected value'),
-                    boxLabel: Uni.I18n.translate('general.markValuesAsProjected', 'IMT', 'Mark value(s) as projected'),
-                    itemId: 'markProjected',
-                    checked: false,
-                    labelWidth: 200
+                    xtype: 'form',
+                    itemId: 'reading-type-mark-projected',
+                    hidden: true,
+                    defaults: {
+                        width: 503,
+                        labelWidth: 200
+                    },
+                    items: [
+                        {
+                            xtype: 'displayfield',
+                            fieldLabel: Uni.I18n.translate('general.markAsProjected', 'EST', 'Mark as projected'),
+                            name: 'markProjected',
+                            renderer: function (value) {
+                                return value ? Uni.I18n.translate('general.yes', 'EST', 'Yes') : Uni.I18n.translate('general.no', 'EST', 'No');
+                            }
+                        }
+                    ]
                 },
                 {
                     xtype: 'fieldcontainer',

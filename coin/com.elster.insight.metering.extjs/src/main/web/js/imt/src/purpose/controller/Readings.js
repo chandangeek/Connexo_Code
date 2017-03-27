@@ -403,7 +403,7 @@ Ext.define('Imt.purpose.controller.Readings', {
             menu = button.down('menu'),
             estimationRulesCount = me.getOutputChannelMainPage().controller.hasEstimationRule;
 
-        selectedRecords.forEach(function (record) {
+        Ext.Array.each(selectedRecords, function (record) {
             if (canEstimate && canConfirm && canReset) {
                 return false;
             }
@@ -576,7 +576,7 @@ Ext.define('Imt.purpose.controller.Readings', {
 
         !window.down('#form-errors').isHidden() && window.down('#form-errors').hide();
         !window.down('#error-label').isHidden() && window.down('#error-label').hide();
-        markAsProjected = window.down('#markProjected').getValue();
+        markAsProjected = window.down('#reading-type-mark-projected').getRecord().get('markProjected');
         if (propertyForm.getRecord()) {
             model.set('estimatorImpl', window.getEstimator());
             model.propertiesStore = propertyForm.getRecord().properties();
