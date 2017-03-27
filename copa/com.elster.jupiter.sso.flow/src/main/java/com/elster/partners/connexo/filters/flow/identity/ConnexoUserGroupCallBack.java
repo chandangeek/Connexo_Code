@@ -7,14 +7,15 @@ package com.elster.partners.connexo.filters.flow.identity;
 import org.kie.api.task.UserGroupCallback;
 import org.uberfire.commons.services.cdi.Veto;
 
-import javax.inject.Inject;
 import java.util.List;
 
 @Veto
 public class ConnexoUserGroupCallBack implements UserGroupCallback {
+	private ConnexoFlowRestProxyService connexoFlowRestProxyService;
 
-	@Inject
-	ConnexoFlowRestProxyService connexoFlowRestProxyService;
+	public ConnexoUserGroupCallBack(ConnexoFlowRestProxyService connexoFlowRestProxyService) {
+		this.connexoFlowRestProxyService = connexoFlowRestProxyService;
+	}
 
 	@Override
 	public boolean existsUser(String userId) {

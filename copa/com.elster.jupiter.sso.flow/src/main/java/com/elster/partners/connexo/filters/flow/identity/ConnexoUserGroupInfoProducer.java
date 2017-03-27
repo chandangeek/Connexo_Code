@@ -9,19 +9,30 @@ import org.jbpm.services.cdi.producer.UserGroupInfoProducer;
 import org.kie.api.task.UserGroupCallback;
 import org.kie.internal.task.api.UserInfo;
 
+import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Alternative;
 import javax.enterprise.inject.Produces;
+import javax.inject.Inject;
 
 @ApplicationScoped
 @Alternative
 @Selectable
 public class ConnexoUserGroupInfoProducer implements UserGroupInfoProducer {
 
-	private UserGroupCallback	callback	= new ConnexoUserGroupCallBack();
-	private UserInfo			userInfo	= new ConnexoUserInfo();
+	private UserGroupCallback callback;
+	private UserInfo userInfo;
+
+	@Inject
+	ConnexoFlowRestProxyService connexoFlowRestProxyService;
 
 	public ConnexoUserGroupInfoProducer() {
+	}
+
+	@PostConstruct
+	public void init() {
+		callback = new ConnexoUserGroupCallBack(connexoFlowRestProxyService);
+		userInfo = new ConnexoUserInfo();
 	}
 
 	@Override
