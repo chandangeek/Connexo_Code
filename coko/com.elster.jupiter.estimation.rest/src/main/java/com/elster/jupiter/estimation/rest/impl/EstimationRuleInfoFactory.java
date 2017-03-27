@@ -40,6 +40,7 @@ public class EstimationRuleInfoFactory {
         estimationRuleInfo.version = estimationRule.getVersion();
         estimationRuleInfo.parent.id = ruleSet.getId();
         estimationRuleInfo.parent.version = ruleSet.getVersion();
+        estimationRuleInfo.markProjected = estimationRule.isMarkProjected();
 
         return estimationRuleInfo;
     }
