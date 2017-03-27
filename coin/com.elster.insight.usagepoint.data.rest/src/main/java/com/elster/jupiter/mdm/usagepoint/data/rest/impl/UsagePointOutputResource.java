@@ -218,13 +218,26 @@ public class UsagePointOutputResource {
     public PagedInfoList getChannelDataOfOutput(@PathParam("name") String name, @PathParam("purposeId") long contractId, @PathParam("outputId") long outputId,
                                                 @BeanParam JsonQueryFilter filter, @BeanParam JsonQueryParameters queryParameters) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
-        EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
-        MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(effectiveMetrologyConfigurationOnUsagePoint, contractId);
+        List<OutputChannelDataInfo> outputChannelDataInfoList = new ArrayList<>();
+        List<EffectiveMetrologyConfigurationOnUsagePoint> metrologyConfigurationOnUsagePoints = usagePoint.getEffectiveMetrologyConfigurations();
+        if (metrologyConfigurationOnUsagePoints.isEmpty()) {
+            throw exceptionFactory.newExceptionSupplier(MessageSeeds.NO_METROLOGYCONFIG_FOR_USAGEPOINT, contractId, usagePoint.getName()).get();
+        }
+        metrologyConfigurationOnUsagePoints.forEach(effectiveMetrologyConfigurationOnUsagePoint ->
+                effectiveMetrologyConfigurationOnUsagePoint.getMetrologyConfiguration().getContracts()
+                    .stream()
+                    .filter(metrologyContract -> metrologyContract.getId() == contractId)
+                    .findFirst()
+                    .ifPresent(metrologyContract -> putChannelDataFromMetrologyConfiguration(outputChannelDataInfoList, metrologyContract, outputId, name, usagePoint, filter, effectiveMetrologyConfigurationOnUsagePoint)));
+
+        return PagedInfoList.fromCompleteList("channelData", outputChannelDataInfoList, queryParameters);
+    }
+
+    private List<OutputChannelDataInfo> putChannelDataFromMetrologyConfiguration(List<OutputChannelDataInfo> outputChannelDataInfoList, MetrologyContract metrologyContract, long outputId, String name, UsagePoint usagePoint, JsonQueryFilter filter, EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint) {
         ReadingTypeDeliverable readingTypeDeliverable = resourceHelper.findReadingTypeDeliverableOrThrowException(metrologyContract, outputId, name);
         if (!readingTypeDeliverable.getReadingType().isRegular()) {
             throw exceptionFactory.newException(MessageSeeds.THIS_OUTPUT_IS_IRREGULAR, outputId);
         }
-        List<OutputChannelDataInfo> outputChannelDataInfoList = new ArrayList<>();
         if (filter.hasProperty(INTERVAL_START) && filter.hasProperty(INTERVAL_END)) {
             Range<Instant> requestedInterval = getRequestedInterval(usagePoint, filter);
             if (requestedInterval != null) {
@@ -269,15 +282,16 @@ public class UsagePointOutputResource {
                     }
                 }
 
-                outputChannelDataInfoList = preFilledChannelDataMap.entrySet().stream()
+                outputChannelDataInfoList.addAll(preFilledChannelDataMap.entrySet().stream()
                         .sorted(Collections.reverseOrder(Comparator.comparing(Map.Entry::getKey)))
                         .map(Map.Entry::getValue)
                         .filter(getSuspectsFilter(filter, this::hasSuspects))
                         .map(outputChannelDataInfoFactory::createChannelDataInfo)
-                        .collect(Collectors.toList());
+                        .collect(Collectors.toList()));
             }
         }
-        return PagedInfoList.fromCompleteList("channelData", outputChannelDataInfoList, queryParameters);
+
+        return outputChannelDataInfoList;
     }
 
     private Optional<IntervalReadingRecord> findRecordWithContainingRange(List<IntervalReadingRecord> records, Instant timestamp) {
@@ -462,13 +476,27 @@ public class UsagePointOutputResource {
     public PagedInfoList getRegisterDataOfOutput(@PathParam("name") String name, @PathParam("purposeId") long contractId, @PathParam("outputId") long outputId,
                                                  @BeanParam JsonQueryFilter filter, @BeanParam JsonQueryParameters queryParameters) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
-        EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
-        MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(effectiveMetrologyConfiguration, contractId);
+        List<OutputRegisterDataInfo> outputRegisterData = new ArrayList<>();
+        List<EffectiveMetrologyConfigurationOnUsagePoint> metrologyConfigurationOnUsagePoints = usagePoint.getEffectiveMetrologyConfigurations();
+        if (metrologyConfigurationOnUsagePoints.isEmpty()) {
+            throw exceptionFactory.newExceptionSupplier(MessageSeeds.NO_METROLOGYCONFIG_FOR_USAGEPOINT, contractId, usagePoint.getName()).get();
+        }
+
+        metrologyConfigurationOnUsagePoints.forEach(effectiveMetrologyConfigurationOnUsagePoint ->
+            effectiveMetrologyConfigurationOnUsagePoint.getMetrologyConfiguration().getContracts()
+                    .stream()
+                    .filter(contract -> contract.getId() == contractId)
+                    .findFirst()
+                    .ifPresent(metrologyContract -> putRegisterDataFromMetrologyConfiguration(outputRegisterData, metrologyContract, outputId, name, effectiveMetrologyConfigurationOnUsagePoint, filter)));
+
+        return PagedInfoList.fromPagedList("registerData", ListPager.of(outputRegisterData).from(queryParameters).find(), queryParameters);
+    }
+
+    private List<OutputRegisterDataInfo> putRegisterDataFromMetrologyConfiguration(List<OutputRegisterDataInfo> outputRegisterData, MetrologyContract metrologyContract, long outputId, String name, EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration, JsonQueryFilter filter) {
         ReadingTypeDeliverable readingTypeDeliverable = resourceHelper.findReadingTypeDeliverableOrThrowException(metrologyContract, outputId, name);
         if (readingTypeDeliverable.getReadingType().isRegular()) {
             throw exceptionFactory.newException(MessageSeeds.THIS_OUTPUT_IS_REGULAR, outputId);
         }
-        List<OutputRegisterDataInfo> outputRegisterData = new ArrayList<>();
         if (filter.hasProperty(INTERVAL_START) && filter.hasProperty(INTERVAL_END)) {
             Range<Instant> requestedInterval = Ranges.openClosed(filter.getInstant(INTERVAL_START), filter.getInstant(INTERVAL_END));
             ChannelsContainer channelsContainer = effectiveMetrologyConfiguration.getChannelsContainer(metrologyContract).get();
@@ -500,7 +528,7 @@ public class UsagePointOutputResource {
                     readingWithValidationStatus.setPreviousReadingRecord(previousReadingRecord);
                     if (persistedReading != null && (persistedReading.getValue() != null || persistedReading.getText() != null)) {
                         readingWithValidationStatus.setPersistedReadingRecord(persistedReading);
-                       // readingWithValidationStatus.setPreviousReadingRecord(previousReadingRecord);
+                        // readingWithValidationStatus.setPreviousReadingRecord(previousReadingRecord);
                         previousReadingRecord = persistedReading;
                     } else {
                         ReadingRecord calculatedReading = calculatedReadings.get(readingTimestamp);
@@ -510,7 +538,6 @@ public class UsagePointOutputResource {
                             previousReadingRecord = calculatedReading;
                         }
                     }
-//                    previousReadingRecord = tempPreviousReadingRecord;
                 }
 
                 // add validation statuses to pre filled register data map
@@ -526,15 +553,16 @@ public class UsagePointOutputResource {
                     }
                 }
 
-                outputRegisterData = sortedPreFilledRegisterDataMap.entrySet().stream()
+                outputRegisterData.addAll(sortedPreFilledRegisterDataMap.entrySet().stream()
                         .sorted(Collections.reverseOrder(Comparator.comparing(Map.Entry::getKey)))
                         .map(Map.Entry::getValue)
                         .filter(getSuspectsFilter(filter, this::hasSuspects))
                         .map(reading -> outputRegisterDataInfoFactory.createRegisterDataInfo(reading, readingTypeDeliverable))
-                        .collect(Collectors.toList());
+                        .collect(Collectors.toList()));
             }
         }
-        return PagedInfoList.fromPagedList("registerData", ListPager.of(outputRegisterData).from(queryParameters).find(), queryParameters);
+
+        return outputRegisterData;
     }
 
     private boolean hasSuspects(RegisterReadingWithValidationStatus registerReadingWithValidationStatus) {

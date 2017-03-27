@@ -124,6 +124,7 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         UsagePointMetrologyConfiguration metrologyConfiguration = mockMetrologyConfigurationWithContract(1, "mc");
 
         when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMC));
+        when(usagePoint.getEffectiveMetrologyConfigurations()).thenReturn(Collections.singletonList(effectiveMC));
         when(effectiveMC.getMetrologyConfiguration()).thenReturn(metrologyConfiguration);
         when(effectiveMC.getMetrologyConfiguration()).thenReturn(metrologyConfiguration);
         when(effectiveMC.getUsagePoint()).thenReturn(usagePoint);
@@ -176,7 +177,7 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
 
     @Test
     public void testGetChannelDataNoMetrologyConfigurationOnUsagePoint() throws Exception {
-        when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.empty());
+        when(usagePoint.getEffectiveMetrologyConfigurations()).thenReturn(Collections.emptyList());
 
         // Business method
         Response response = target("/usagepoints/" + USAGE_POINT_NAME + "/purposes/100/outputs/1/channelData")
@@ -590,7 +591,7 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         Response response = target("/usagepoints/" + USAGE_POINT_NAME + "/purposes/100/outputs/1/channelData/estimateWithRule").request().get();
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        verify(estimationService).getEstimationRuleSets();
+        verify(usagePointConfigurationService).getEstimationRuleSets(any(MetrologyContract.class));
         verify(estimationRuleSet).getRules();
         verify(estimationRule, times(3)).getRuleSet();
         verify(estimationRuleSet, times(2)).getQualityCodeSystem();
