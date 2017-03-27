@@ -32,13 +32,13 @@ import static com.elster.jupiter.util.streams.Currying.perform;
 class DataQualityOverviewSqlBuilder {
 
     private final DataQualityOverviewSpecificationImpl specification;
-    private final Clock clock;
+    private final long now;
 
     private SqlBuilder sqlBuilder;
 
     DataQualityOverviewSqlBuilder(DataQualityOverviewSpecificationImpl specification, Clock clock) {
         this.specification = specification;
-        this.clock = clock;
+        this.now = clock.instant().toEpochMilli();
     }
 
     PreparedStatement prepare(Connection connection) throws SQLException {
@@ -75,11 +75,10 @@ class DataQualityOverviewSqlBuilder {
     }
 
     private void appendIsEffectiveCaseClause() {
-        Instant now = clock.instant();
         this.sqlBuilder.append(" case when efmc.starttime <=");
-        this.sqlBuilder.addLong(now.toEpochMilli());
+        this.sqlBuilder.addLong(this.now);
         this.sqlBuilder.append(" and efmc.endtime >");
-        this.sqlBuilder.addLong(now.toEpochMilli());
+        this.sqlBuilder.addLong(this.now);
         this.sqlBuilder.append(" then 'Y' else 'N' end");
     }
 
@@ -97,7 +96,9 @@ class DataQualityOverviewSqlBuilder {
         }
         this.sqlBuilder.append(" join mtr_effective_contract efc on efc.effective_conf = efmc.id and efc.endtime >= efmc.endtime");
         this.sqlBuilder.append(" join mtr_metrology_contract cont on cont.id = efc.metrology_contract");
-        this.sqlBuilder.append(" join mtr_metrology_purpose purpose on purpose.id = cont.metrology_purpose");
+        this.sqlBuilder.append(" join mtr_metrology_purpose purpose on purpose.id = cont.metrology_purpose and purpose.id in (");
+        this.appendActivePurposeSubquery();
+        this.sqlBuilder.append(")");
         if (!this.specification.getMetrologyPurposes().isEmpty()) {
             this.sqlBuilder.append(" and purpose.id in (");
             this.appendIds(this.specification.getMetrologyPurposes());
@@ -106,6 +107,19 @@ class DataQualityOverviewSqlBuilder {
         this.sqlBuilder.append(" join allData allKpi on allKpi.usagepoint = up.id and efc.channels_container = allKpi.channelscontainer");
 
         this.specification.getAvailableKpiTypes().forEach(kpiType -> kpiType.appendJoinTo(this.sqlBuilder));
+    }
+
+    private void appendActivePurposeSubquery() {
+        this.sqlBuilder.append("select sq_cont.metrology_purpose");
+        this.sqlBuilder.append("  from mtr_usagepoint sq_up");
+        this.sqlBuilder.append("  join mtr_usagepointmtrconfig sq_efmc on sq_efmc.usagepoint = sq_up.id");
+        this.sqlBuilder.append("  and sq_efmc.starttime <=");
+        this.sqlBuilder.addLong(this.now);
+        this.sqlBuilder.append("  and sq_efmc.endtime >");
+        this.sqlBuilder.addLong(this.now);
+        this.sqlBuilder.append("  join mtr_effective_contract sq_efc on sq_efc.effective_conf = sq_efmc.id and sq_efc.endtime >= sq_efmc.endtime");
+        this.sqlBuilder.append("  join mtr_metrology_contract sq_cont on sq_cont.id = sq_efc.metrology_contract");
+        this.sqlBuilder.append("  where sq_up.id = up.id");
     }
 
     private void appendGroupByClause() {
