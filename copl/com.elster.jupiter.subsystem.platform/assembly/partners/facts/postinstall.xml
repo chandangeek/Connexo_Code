@@ -1,7 +1,3 @@
-<!--
-  ~ Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
-  -->
-
 <sql>
     <query>Insert into CONFIGURATION (IPORG,CONFIGTYPECODE,CONFIGCODE,CONFIGDATA) values
         (1,'SYSTEM','SIMPLE_AUTHENTICATION','TRUE')
