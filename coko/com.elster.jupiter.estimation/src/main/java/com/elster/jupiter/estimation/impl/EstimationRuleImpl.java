@@ -359,7 +359,7 @@ class EstimationRuleImpl implements IEstimationRule {
 
     @Override
     public Estimator createNewEstimator() {
-        return new RuleTypedEstimator(createBaseEstimator(), (int)getId());
+        return new RuleTypedEstimator(createBaseEstimator(), (int)getId(), markProjected);
     }
 
     private Estimator createBaseEstimator() {

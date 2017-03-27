@@ -91,8 +91,12 @@ class EstimationEngine {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
             CimChannelKey that = (CimChannelKey) o;
             return cimChannel.getChannel().getId() == that.cimChannel.getChannel().getId()
                     && Objects.equals(cimChannel.getReadingType(), that.cimChannel.getReadingType());
@@ -118,7 +122,8 @@ class EstimationEngine {
         private Stream<? extends BaseReading> getReadings() {
             return estimationBlock.estimatables().stream()
                     .map(estimatable -> ReadingImpl.of(estimationBlock.getReadingType().getMRID(), estimatable.getEstimation(), estimatable.getTimestamp()))
-                    .peek(reading -> reading.addQuality(estimationBlock.getReadingQualityType().getCode()));
+                    .peek(reading ->estimationBlock.getReadingQualityTypes().stream()
+                                    .forEach(quality -> reading.addQuality(quality.getCode())));
         }
     }
 
