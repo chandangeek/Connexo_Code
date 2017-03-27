@@ -7,6 +7,7 @@ package com.elster.jupiter.mdm.usagepoint.config.rest.impl;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
@@ -19,11 +20,13 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.UsagePointPropertySet;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.security.Privileges;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.ListPager;
 import com.elster.jupiter.rest.util.PagedInfoList;
@@ -57,8 +60,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -119,6 +124,47 @@ public class MetrologyConfigurationResource {
     public MetrologyConfigurationInfo getMetrologyConfiguration(@PathParam("id") long id) {
         UsagePointMetrologyConfiguration metrologyConfiguration = resourceHelper.getMetrologyConfigOrThrowException(id);
         return metrologyConfigurationInfoFactory.asDetailedInfo(metrologyConfiguration);
+    }
+
+    @GET
+    @Path("/{id}/usagepoint/{upName}")
+    @RolesAllowed({Privileges.Constants.VIEW_METROLOGY_CONFIGURATION, Privileges.Constants.ADMINISTER_METROLOGY_CONFIGURATION})
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public PagedInfoList getDetailedMetrologyConfiguration(@PathParam("id") long id, @PathParam("upName") String upName, @BeanParam JsonQueryParameters queryParameters) {
+        UsagePointMetrologyConfiguration metrologyConfiguration = resourceHelper.getMetrologyConfigOrThrowException(id);
+        MetrologyConfigurationInfo info = metrologyConfigurationInfoFactory.asDetailedInfo(metrologyConfiguration);
+        Map<String,Object> valueInfo = new TreeMap<>();
+        List<IdWithNameInfo> idWithNameInfoList = new ArrayList<>();
+        List <String> mCCustomAttributeSet=metrologyConfiguration.getCustomPropertySets()
+                .stream()
+                .filter(registeredCustomPropertySet -> registeredCustomPropertySet.getCustomPropertySet().isVersioned())
+                .map(RegisteredCustomPropertySet::getCustomPropertySet)
+                .filter(CustomPropertySet::isVersioned)
+                .map(CustomPropertySet::getName).collect(Collectors.toList());
+
+        List<CustomPropertySetValues> nameInfos = new ArrayList<>();
+        for (String str:mCCustomAttributeSet){
+                nameInfos.add(meteringService.findUsagePointByName(upName).get()
+                        .forCustomProperties().getAllPropertySets()
+                        .stream()
+                        .filter(usagePointPropertySet -> usagePointPropertySet.getCustomPropertySet().getName().matches(str))
+                        .findFirst()
+                        .map(usagePointPropertySet -> usagePointPropertySet.getValues()).orElse(CustomPropertySetValues.empty()));
+            info.haveSameCASesAsUP= meteringService.findUsagePointByName(upName).get()
+                    .forCustomProperties().getAllPropertySets()
+                    .stream()
+                    .map(UsagePointPropertySet::getCustomPropertySet)
+                    .anyMatch(usagePointCustomPropertySet -> usagePointCustomPropertySet.getName().matches(str));
+        }
+
+        for (CustomPropertySetValues value:nameInfos){
+            for (String prop:value.propertyNames()){
+                idWithNameInfoList.add(new IdWithNameInfo(value.getProperty(prop),prop));
+            }
+        }
+        idWithNameInfoList.add(new IdWithNameInfo(info,"Metrology configuration info"));
+
+        return PagedInfoList.fromCompleteList("Data",idWithNameInfoList,queryParameters);
     }
 
     @GET
