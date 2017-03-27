@@ -11,22 +11,31 @@ import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.estimation.impl.EstimationModule;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.events.impl.EventServiceImpl;
 import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.fsm.FiniteStateMachine;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
+import com.elster.jupiter.fsm.impl.StateTransitionTriggerEventTopicHandler;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.issue.impl.module.IssueModule;
 import com.elster.jupiter.kpi.impl.KpiModule;
+import com.elster.jupiter.license.License;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
+import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.impl.SearchModule;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.impl.ServiceCallModule;
@@ -41,14 +50,22 @@ import com.elster.jupiter.usagepoint.lifecycle.config.impl.UsagePointLifeCycleCo
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.validation.impl.ValidationModule;
+import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.LockService;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 import com.energyict.mdc.device.data.impl.DeviceDataModule;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertySet;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CompletionOptionsCustomPropertySet;
 import com.energyict.mdc.device.data.impl.ami.servicecall.OnDemandReadServiceCallCustomPropertySet;
+import com.energyict.mdc.device.data.impl.events.DeviceLifeCycleChangeEventHandler;
+import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
+import com.energyict.mdc.device.lifecycle.impl.DeviceLifeCycleModule;
+import com.energyict.mdc.device.lifecycle.impl.StateTransitionChangeEventTopicHandler;
+import com.energyict.mdc.device.topology.impl.TopologyModule;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.engine.config.impl.EngineModelModule;
 import com.energyict.mdc.issues.impl.IssuesModule;
@@ -56,7 +73,10 @@ import com.energyict.mdc.masterdata.impl.MasterDataModule;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
 import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
+import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
+import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableServiceImpl;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.tasks.impl.TasksModule;
 
@@ -80,9 +100,14 @@ import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.Properties;
 
 import org.mockito.Matchers;
+import org.mockito.Mock;
 
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -94,6 +119,11 @@ public class InMemoryIntegrationPersistence {
     private InMemoryBootstrapModule bootstrapModule;
     private Injector injector;
     private DeviceConfigurationService deviceConfigurationService;
+    private DeviceLifeCycleService deviceLifeCycleService;
+    private FiniteStateMachineService finiteStateMachineService;
+    private ThreadPrincipalService threadPrincipalService;
+    private LicenseService licenseService;
+    private DeviceLifeCycleChangeEventHandler deviceLifeCycleChangeEventHandler;
 
     public InMemoryIntegrationPersistence() {
         super();
@@ -106,9 +136,19 @@ public class InMemoryIntegrationPersistence {
 
     public void initializeDatabase(String testName, boolean showSqlLogging) throws SQLException {
         this.bootstrapModule = new InMemoryBootstrapModule();
+        LicensedProtocolService licensedProtocolService = mock(LicensedProtocolService.class);
+        License license = mock(License.class);
+        this.licenseService = mock(LicenseService.class);
+        when(this.licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.of(license));
+        when(licensedProtocolService.isValidJavaClassName(anyString(), eq(license))).thenReturn(true);
+        Properties properties = new Properties();
+        properties.put("protocols", "all");
+        when(license.getLicensedValues()).thenReturn(properties);
         this.injector = Guice.createInjector(this.getModules(showSqlLogging));
         this.transactionService = this.injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = this.transactionService.getContext()) {
+            ProtocolPluggableServiceImpl protocolPluggableService = (ProtocolPluggableServiceImpl) this.injector.getInstance(ProtocolPluggableService.class);
+            protocolPluggableService.addLicensedProtocolService(licensedProtocolService);
             injector.getInstance(CustomPropertySetService.class);
             this.transactionService = this.injector.getInstance(TransactionService.class);
             injector.getInstance(ServiceCallService.class);
@@ -116,8 +156,41 @@ public class InMemoryIntegrationPersistence {
             injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CommandCustomPropertySet());
             injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CompletionOptionsCustomPropertySet());
             injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new OnDemandReadServiceCallCustomPropertySet());
+            if(deviceConfigurationService == null) {
+                StateTransitionTriggerEventTopicHandler stateTransitionTriggerEventTopicHandler = new StateTransitionTriggerEventTopicHandler(this.injector
+                        .getInstance(EventService.class));
+                ((EventServiceImpl) this.injector.getInstance(EventService.class)).addTopicHandler(stateTransitionTriggerEventTopicHandler);
+                com.elster.jupiter.metering.impl.StateTransitionChangeEventTopicHandler meteringTopicHandler =
+                        new com.elster.jupiter.metering.impl.StateTransitionChangeEventTopicHandler(Clock.systemDefaultZone(),
+                                this.injector.getInstance(FiniteStateMachineService.class),
+                                this.injector.getInstance(MeteringService.class));
+                ((EventServiceImpl) this.injector.getInstance(EventService.class)).addTopicHandler(meteringTopicHandler);
+                StateTransitionChangeEventTopicHandler stateTransitionChangeEventTopicHandler =
+                        new StateTransitionChangeEventTopicHandler(
+                                this.injector.getInstance(FiniteStateMachineService.class),
+                                this.injector.getInstance(MeteringService.class),
+                                this.clock);
+                ((EventServiceImpl) this.injector.getInstance(EventService.class)).addTopicHandler(stateTransitionChangeEventTopicHandler);
+                DeviceLifeCycleChangeEventHandler deviceLifeCycleChangeEventHandler = getDeviceLifeCycleChangeEventHandler();
+                ((EventServiceImpl) this.injector.getInstance(EventService.class)).addTopicHandler(deviceLifeCycleChangeEventHandler);
+
+                this.deviceLifeCycleService = this.injector.getInstance(DeviceLifeCycleService.class);
+                this.finiteStateMachineService = this.injector.getInstance(FiniteStateMachineService.class);
+                this.threadPrincipalService = this.injector.getInstance(ThreadPrincipalService.class);
+            }
+
             ctx.commit();
         }
+    }
+
+    public DeviceLifeCycleChangeEventHandler getDeviceLifeCycleChangeEventHandler() {
+        if (deviceLifeCycleChangeEventHandler == null) {
+            deviceLifeCycleChangeEventHandler = new DeviceLifeCycleChangeEventHandler(
+                    this.injector.getInstance(DeviceConfigurationService.class),
+                    this.injector.getInstance(DeviceDataModelService.class),
+                    this.injector.getInstance(MeteringService.class));
+        }
+        return deviceLifeCycleChangeEventHandler;
     }
 
     private Module[] getModules(boolean showSqlLogging) {
@@ -125,17 +198,19 @@ public class InMemoryIntegrationPersistence {
         Collections.addAll(modules,
                 new MockModule(),
                 bootstrapModule,
+                new OrmModule(),
                 new ServiceCallModule(),
                 new CustomPropertySetsModule(),
                 new DataVaultModule(),
                 new InMemoryMessagingModule(),
                 new IdsModule(),
+                new TopologyModule(),
+                new DeviceLifeCycleModule(),
                 new UsagePointLifeCycleConfigurationModule(),
                 new MeteringModule(),
                 new PartyModule(),
                 new EventsModule(),
                 new DomainUtilModule(),
-                new OrmModule(),
                 new DataVaultModule(),
                 new TaskModule(),
                 new UtilModule(clock),
@@ -185,6 +260,18 @@ public class InMemoryIntegrationPersistence {
         return transactionService;
     }
 
+    public FiniteStateMachineService getFiniteStateMachineService() {
+        return finiteStateMachineService;
+    }
+
+    public ThreadPrincipalService getThreadPrincipalService() {
+        return threadPrincipalService;
+    }
+
+    public DeviceLifeCycleService getDeviceLifeCycleService() {
+        return deviceLifeCycleService;
+    }
+
     public <T> T getService(Class<T> serviceClass) {
         return this.injector.getInstance(serviceClass);
     }
@@ -206,7 +293,7 @@ public class InMemoryIntegrationPersistence {
             bind(MessageInterpolator.class).toInstance(thesaurus);
 
             bind(LogService.class).toInstance(mock(LogService.class));
-            bind(LicenseService.class).toInstance(mock(LicenseService.class));
+            bind(LicenseService.class).toInstance(licenseService);
             if (deviceConfigurationService != null) {
                 bind(DeviceConfigurationService.class).toInstance(deviceConfigurationService);
                 bind(LockService.class).toInstance(mock(LockService.class));
