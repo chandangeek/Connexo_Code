@@ -61,7 +61,7 @@ public class CertificateWrapperResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
 //    @RolesAllowed({Privileges.Constants.VIEW_TASK_OVERVIEW})
     public PagedInfoList getCertificates(@BeanParam JsonQueryParameters queryParameters) {
-        List<CertificateInfo> infoList = pkiService.findAllCertificates()
+        List<CertificateWrapperInfo> infoList = pkiService.findAllCertificates()
                 .from(queryParameters)
                 .stream()
                 .map(certificateInfoFactory::asInfo)
@@ -89,7 +89,7 @@ public class CertificateWrapperResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Path("/{id}")
-    public CertificateInfo getCertificate(@PathParam("id") long certificateId) {
+    public CertificateWrapperInfo getCertificate(@PathParam("id") long certificateId) {
         CertificateWrapper certificateWrapper = pkiService.findCertificateWrapper(certificateId)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CERTIFICATE, certificateId));
 
@@ -122,6 +122,18 @@ public class CertificateWrapperResource {
     @Path("/csr")
     @Transactional
     public Response createCertificateWrapperWithKeysAndCSR(CsrInfo csrInfo) {
+        if (csrInfo.keyTypeId==null) {
+            throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "keyTypeId");
+        }
+        if (csrInfo.alias==null) {
+            throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "alias");
+        }
+        if (csrInfo.keyEncryptionMethod==null) {
+            throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "keyEncryptionMethod");
+        }
+        if (csrInfo.CN==null) {
+            throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "CN");
+        }
         KeyType keyType = pkiService.getKeyType(csrInfo.keyTypeId)
                 .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_KEY_TYPE, "keyType"));
         ClientCertificateWrapper clientCertificateWrapper = pkiService.newClientCertificateWrapper(keyType, csrInfo.keyEncryptionMethod).alias(csrInfo.alias).add();
@@ -137,6 +149,9 @@ public class CertificateWrapperResource {
     @Path("/{id}/csr")
     @Transactional
     public Response createCSRForExistingCertificateWrapper(@PathParam("id") long id, CsrInfo csrInfo) {
+        if (csrInfo.CN==null) {
+            throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "CN");
+        }
         ClientCertificateWrapper clientCertificateWrapper = pkiService.findClientCertificateWrapper(id)
                 .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_CERTIFICATE, id));
         X500Name x500Name = getX500Name(csrInfo);

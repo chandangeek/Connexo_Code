@@ -187,8 +187,8 @@ public class TrustStoreResource {
         return pkiService.findTrustStore(id).map(TrustStore::getVersion).orElse(null);
     }
 
-    private PagedInfoList asPagedInfoList(List<CertificateInfo> certificateInfos, String rootKeyName, JsonQueryParameters queryParameters) {
-        List<CertificateInfo> pagedInfos = ListPager.of(certificateInfos).from(queryParameters).find();
+    private PagedInfoList asPagedInfoList(List<CertificateWrapperInfo> certificateWrapperInfos, String rootKeyName, JsonQueryParameters queryParameters) {
+        List<CertificateWrapperInfo> pagedInfos = ListPager.of(certificateWrapperInfos).from(queryParameters).find();
         return PagedInfoList.fromPagedList(rootKeyName, pagedInfos, queryParameters);
     }
 

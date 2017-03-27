@@ -9,6 +9,7 @@ import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.pki.PrivateKeyWrapper;
 import com.elster.jupiter.pki.rest.impl.CsrInfo;
 
+import com.jayway.jsonpath.JsonModel;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
@@ -23,9 +24,17 @@ import javax.ws.rs.core.Form;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.math.BigInteger;
 import java.net.URL;
 import java.security.Security;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneId;
 import java.util.Optional;
 
 import org.junit.Before;
@@ -43,11 +52,15 @@ import static org.mockito.Mockito.when;
  * Created by bvn on 3/23/17.
  */
 public class CertificateWrapperResourceTest extends PkiApplicationTest {
+
+    private CertificateFactory certificateFactory;
+
     @Override
     @Before
     public void setUp() throws Exception {
         super.setUp();
         Security.addProvider(new BouncyCastleProvider());
+        certificateFactory = CertificateFactory.getInstance("X.509", "BC");
     }
 
     @Test
@@ -117,9 +130,44 @@ public class CertificateWrapperResourceTest extends PkiApplicationTest {
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
 
         ArgumentCaptor<X500Name> x500NameArgumentCaptor = ArgumentCaptor.forClass(X500Name.class);
-        verify(certificateWrapper, times(1)).getPrivateKeyWrapper();
         verify(privateKeyWrapper, times(1)).generateValue();
         verify(certificateWrapper, times(1)).generateCSR(x500NameArgumentCaptor.capture());
         assertThat(x500NameArgumentCaptor.getValue().getRDNs());
     }
+
+    @Test
+    public void testGetCertificateWrapperWithCertificate() throws Exception {
+        Clock clock = Clock.fixed(Instant.ofEpochMilli(1488240000000L), ZoneId.systemDefault());
+
+        ClientCertificateWrapper certificateWrapper = mock(ClientCertificateWrapper.class);
+        when(pkiService.findCertificateWrapper(12345)).thenReturn(Optional.of(certificateWrapper));
+        when(certificateWrapper.getAlias()).thenReturn("root");
+        when(certificateWrapper.getCertificate()).thenReturn(Optional.of(loadCertificate("myRootCA.cert")));
+        when(certificateWrapper.getExpirationTime()).thenReturn(Optional.of(Instant.now(clock)));
+        when(certificateWrapper.getAllKeyUsages()).thenReturn(Optional.of("A, B, C"));
+        PrivateKeyWrapper privateKeyWrapper = mock(PrivateKeyWrapper.class);
+        when(certificateWrapper.getPrivateKeyWrapper()).thenReturn(privateKeyWrapper);
+        when(privateKeyWrapper.getKeyEncryptionMethod()).thenReturn("DataVault");
+
+
+        Response response = target("/certificates/12345").request().get();
+        JsonModel model = JsonModel.model((InputStream) response.getEntity());
+        assertThat(model.<String>get("alias")).isEqualTo("root");
+        assertThat(model.<String>get("keyEncryptionMethod")).isEqualTo("DataVault");
+        assertThat(model.<Long>get("expirationDate")).isEqualTo(1488240000000L);
+        assertThat(model.<String>get("certificate.type")).isEqualTo("A, B, C");
+        assertThat(model.<String>get("certificate.issuer")).isEqualTo("C=BE,ST=Vlaanderen,L=Kortrijk,O=Honeywell,OU=SmartEnergy,CN=MyRootCA");
+        assertThat(model.<String>get("certificate.subject")).isEqualTo("C=BE,ST=Vlaanderen,L=Kortrijk,O=Honeywell,OU=SmartEnergy,CN=MyRootCA");
+        assertThat(model.<Integer>get("certificate.version")).isEqualTo(1);
+        assertThat(model.<BigInteger>get("certificate.serialNumber")).isEqualTo(new BigInteger("12550491392904217459"));
+        assertThat(model.<Instant>get("certificate.notBefore")).isNotNull();
+        assertThat(model.<Instant>get("certificate.notAfter")).isNotNull();
+        assertThat(model.<String>get("certificate.signatureAlgorithm")).isEqualToIgnoringCase("SHA256withECDSA");
+        assertThat(model.<Object>get("csr")).isNull();
+    }
+
+    private X509Certificate loadCertificate(String name) throws IOException, CertificateException {
+        return (X509Certificate) certificateFactory.generateCertificate(CertificateWrapperResourceTest.class.getResourceAsStream(name));
+    }
+
 }
