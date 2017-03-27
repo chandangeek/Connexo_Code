@@ -105,10 +105,10 @@ Ext.define('Imt.purpose.view.ReadingEstimationWithRuleWindow', {
                     items: [
                         {
                             xtype: 'displayfield',
-                            fieldLabel: Uni.I18n.translate('general.markAsProjected', 'EST', 'Mark as projected'),
+                            fieldLabel: Uni.I18n.translate('general.markAsProjected', 'IMT', 'Mark as projected'),
                             name: 'markProjected',
                             renderer: function (value) {
-                                return value ? Uni.I18n.translate('general.yes', 'EST', 'Yes') : Uni.I18n.translate('general.no', 'EST', 'No');
+                                return value ? Uni.I18n.translate('general.yes', 'IMT', 'Yes') : Uni.I18n.translate('general.no', 'IMT', 'No');
                             }
                         }
                     ]
