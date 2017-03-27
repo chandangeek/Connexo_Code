@@ -7,6 +7,7 @@ import com.energyict.cuo.core.UserEnvironment;
 import com.energyict.mdc.messages.DeviceMessageCategory;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.messages.DeviceMessageSpecPrimaryKey;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocolimplv2.messages.enums.DlmsEncryptionLevelMessageValues;
 
 import java.math.BigDecimal;
@@ -118,7 +119,12 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpec {
             PropertySpecFactory.stringPropertySpecWithValuesAndDefaultValue(MeterTimeZone, "Europe/Vienna", TimeZone.getAvailableIDs()),
             PropertySpecFactory.bigDecimalPropertySpec(SecurityLevelMulticast, BigDecimal.ZERO),
             PropertySpecFactory.bigDecimalPropertySpec(SecurityPolicyMulticastV0, BigDecimal.ZERO),
-            PropertySpecFactory.timeDurationPropertySpecWithSmallUnitsAndDefaultValue(DelayBetweenBlockSentFast, new TimeDuration(20, TimeDuration.MILLISECONDS))
+            PropertySpecFactory.timeDurationPropertySpecWithSmallUnitsAndDefaultValue(DelayBetweenBlockSentFast, new TimeDuration(20, TimeDuration.MILLISECONDS)),
+            PropertySpecFactory.notNullableBooleanPropertySpec(MCAST_FW_UPGRADE_BLOCK_SIZE_READABLE, false),
+            PropertySpecFactory.notNullableBooleanPropertySpec(MCAST_FW_UPGRADE_BLOCK_SIZE_WRITABLE, false),
+            PropertySpecFactory.bigDecimalPropertySpec(MCAST_FW_UPGRADE_REQUESTED_BLOCK_SIZE, BigDecimal.valueOf(128)),
+            PropertySpecFactory.obisCodePropertySpecWithDefaultValue(MCAST_FW_UPGRADE_UNICAST_FRAMECOUNTER_LOGICAL_NAME, ObisCode.fromString("0.0.43.3.0.255")),
+            PropertySpecFactory.bigDecimalPropertySpec(MCAST_FW_UPGRADE_MAX_REC_PDU_SIZE, BigDecimal.valueOf(1224))
     ),
     START_MULTICAST_BLOCK_TRANSFER_TO_SLAVE_DEVICES(25),
     FIRMWARE_IMAGE_ACTIVATION_WITH_DATA_PROTECTION(26),

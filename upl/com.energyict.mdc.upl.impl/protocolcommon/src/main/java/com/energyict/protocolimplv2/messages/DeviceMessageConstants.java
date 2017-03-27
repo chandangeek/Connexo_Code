@@ -59,7 +59,22 @@ public class DeviceMessageConstants {
     public static final String MeterTimeZone = "FirmwareDeviceMessage.TimeZone";
     public static final String SecurityLevelMulticast = "FirmwareDeviceMessage.SecurityLevelMulticast";
     public static final String SecurityPolicyMulticastV0 = "FirmwareDeviceMessage.SecurityPolicyMulticastV0";
+    
+    /** Indicates to the device whether or not it can read the image block size. */
+    public static final String MCAST_FW_UPGRADE_BLOCK_SIZE_READABLE = "FirmwareDeviceMessage.BlockSizeReadable";
+    
+    /** Indicates to the device whether or not it can write the image block size. */
+    public static final String MCAST_FW_UPGRADE_BLOCK_SIZE_WRITABLE = "FirmwareDeviceMessage.BlockSizeWritable";
+    
+    /** If the device cannot read the block size, spell it out. */
+    public static final String MCAST_FW_UPGRADE_REQUESTED_BLOCK_SIZE = "FirmwareDeviceMessage.RequestedBlockSize";
 
+    /** max-apdu-size for a pre-established association. */
+    public static final String MCAST_FW_UPGRADE_MAX_REC_PDU_SIZE = "FirmwareDeviceMessage.MaxRecPDUSize";
+    
+    /** The logical name of the frame counter to be used in unicast mode. */
+    public static final String MCAST_FW_UPGRADE_UNICAST_FRAMECOUNTER_LOGICAL_NAME = "FirmwareDeviceMessage.UnicastFrameCounterObiscode";
+    
     public static final String contractAttributeName = "contract";
     public static final String defaultTariffCodeAttrributeName = "ActivityCalendarDeviceMessage.default.tariff";
     public static final String activityCalendarTypeAttributeName = "ActivityCalendarDeviceMessage.activitycalendar.type";
