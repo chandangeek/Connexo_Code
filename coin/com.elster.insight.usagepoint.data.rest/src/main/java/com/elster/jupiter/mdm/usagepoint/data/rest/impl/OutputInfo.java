@@ -42,4 +42,12 @@ public abstract class OutputInfo {
 
         public String deliverableType;
     }
+
+    public boolean isCummulative;
+
+    public boolean hasEvent;
+
+    public boolean isBilling;
+
+
 }
