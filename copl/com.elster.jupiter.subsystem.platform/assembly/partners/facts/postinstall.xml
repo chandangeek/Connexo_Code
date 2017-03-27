@@ -6,10 +6,10 @@
     <query>Insert into CONFIGURATION (IPORG,CONFIGTYPECODE,CONFIGCODE,CONFIGDATA) values
         (1,'SYSTEM','SIMPLE_AUTHENTICATION','TRUE')
     </query>
-    <query>Insert into CONFIGURATION (IPORG,CONFIGTYPECODE,CONFIGCODE,CONFIGDATA) values
-        (1,'SYSTEM','HOMEPAGE','${url}')
+    <query>Update CONFIGURATION set CONFIGDATA='${url}' where IPORG=1 and CONFIGTYPECODE='SYSTEM' and
+        CONFIGCODE='HOMEPAGE'
     </query>
-    <query>Insert into CONFIGURATION (IPORG,CONFIGTYPECODE,CONFIGCODE,CONFIGDATA) values
-        (1,'SYSTEM','EXTERNALURL','${url}')
+    <query>Update CONFIGURATION set CONFIGDATA='${url}' where IPORG=1 and CONFIGTYPECODE='SYSTEM' and
+        CONFIGCODE='EXTERNALURL'
     </query>
 </sql>
