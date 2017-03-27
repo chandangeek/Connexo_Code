@@ -76,9 +76,9 @@ public class SyntheticLoadProfileConsoleCommands {
             SyntheticLoadProfileBuilder builder = syntheticLoadProfileService.newSyntheticLoadProfile(name,
                     Period.parse(durationName.toUpperCase()),
                     startDate,
-                    meteringService.getReadingType(readingType).get());
+                    meteringService.getReadingType(readingType).get(),
+                    TimeZone.getTimeZone(clock.getZone()));
             builder.withDescription(name);
-            builder.withTimeZone(TimeZone.getTimeZone(clock.getZone()));
             builder.build();
             context.commit();
         } catch (RuntimeException e){

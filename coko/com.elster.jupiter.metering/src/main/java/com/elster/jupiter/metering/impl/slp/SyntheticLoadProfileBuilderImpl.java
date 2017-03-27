@@ -58,7 +58,6 @@ public class SyntheticLoadProfileBuilderImpl implements SyntheticLoadProfileBuil
         return this;
     }
 
-    @Override
     public SyntheticLoadProfileBuilder withTimeZone(TimeZone timeZone) {
         this.timeZone = timeZone;
         return this;

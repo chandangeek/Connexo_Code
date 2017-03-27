@@ -12,7 +12,5 @@ import java.util.TimeZone;
 public interface SyntheticLoadProfileBuilder {
     SyntheticLoadProfileBuilder withDescription(String description);
 
-    SyntheticLoadProfileBuilder withTimeZone(TimeZone timeZone);
-
     SyntheticLoadProfile build();
 }
