@@ -19,15 +19,16 @@ Ext.define('Imt.processes.view.PurposesOnMetrologyConfigarations', {
         afterrender: {
             fn: function () {
                 var me = this,
-                store = Ext.getStore('Imt.processes.store.PurposesWithValidationRuleSets');
+                    store = Ext.getStore('Imt.processes.store.PurposesWithValidationRuleSets');
 
-                store.on('load', function () {
+                store.addListener('loadpurposestore', function(){
                     me.setStore(store);
-                });
+                }, me);
 
-                store.on('clearPurposeStore', function () {
+
+                store.addListener('clearpurposestore', function () {
                     store.removeAll();
-                });
+                }, me);
             }
         }
     },
@@ -78,10 +79,15 @@ Ext.define('Imt.processes.view.PurposesOnMetrologyConfigarations', {
     setStore: function (store) {
         var me = this;
 
-        Ext.suspendLayouts();
-        me.down('grid').reconfigure(store);
-        me.down('grid').bindStore(store);
-        Ext.resumeLayouts(true);
+
+        store.load({
+            callback: function(){
+                Ext.suspendLayouts();
+                me.down('grid').reconfigure(store);
+                me.down('grid').bindStore(store);
+                Ext.resumeLayouts(true);
+            }
+        });
     },
 
     getValue: function () {
