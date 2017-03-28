@@ -800,6 +800,7 @@ Ext.define('Dxp.controller.Tasks', {
             deviceGroupCombo = view.down('#device-group-combo'),
             usagePointGroupCombo = view.down('#usage-point-group-combo'),
             purposeCombo = view.down('#purpose-combo'),
+            purposeContainer = view.down('#purpose-group-container'),
             exportPeriodCombo = view.down('#export-period-combo'),
             updateWindowCombo = view.down('#update-window'),
             timeframeCombo = view.down('#timeFrame'),
@@ -850,24 +851,14 @@ Ext.define('Dxp.controller.Tasks', {
                 usagePointGroupCombo.allowBlank = true;
                 Ext.suspendLayouts();
                 usagePointGroupCombo.hide();
-                purposeCombo.hide();
+                purposeContainer.hide();
                 view.down('#no-usage-point').show();
                 Ext.resumeLayouts(true);
             } else if(typeof(MdmApp) != 'undefined'){
                 purposeCombo.store.load();
+                purposeCombo.allowBlank = true;
             }
         });
-
-        purposeCombo.store.load(function () {
-            if (this.getCount() === 0) {
-                usagePointGroupCombo.allowBlank = true;
-                Ext.suspendLayouts();
-                usagePointGroupCombo.hide();
-                view.down('#no-usage-point').show();
-                Ext.resumeLayouts(true);
-            }
-        });
-
 
         dataSelectorCombo.store.load(function () {
             recurrenceTypeCombo.setValue(recurrenceTypeCombo.store.findRecord('name', 'months'));
@@ -934,6 +925,7 @@ Ext.define('Dxp.controller.Tasks', {
             view.down('#dxp-data-selector-container').setDisabled(true);
             view.down('#device-group-container').setDisabled(true);
             view.down('#usage-point-group-container').setDisabled(true);
+            view.down('#purpose-group-container').setDisabled(true);
             view.down('#readingTypesFieldContainer').setDisabled(true);
             view.down('#eventTypesFieldContainer').setDisabled(true);
             view.down('#readingTypesGridPanel').setDisabled(true);
@@ -1637,6 +1629,7 @@ Ext.define('Dxp.controller.Tasks', {
         Ext.suspendLayouts();
         page.down('#device-group-container').setVisible(true);
         page.down('#usage-point-group-container').setVisible(false);
+        page.down('#purpose-group-container').setVisible(false);
         page.down('#readingTypesFieldContainer').setVisible(true);
         page.down('#eventTypesFieldContainer').setVisible(false);
         page.down('#export-periods-container').setVisible(true);
@@ -1678,6 +1671,7 @@ Ext.define('Dxp.controller.Tasks', {
         Ext.suspendLayouts();
         page.down('#device-group-container').setVisible(true);
         page.down('#usage-point-group-container').setVisible(false);
+        page.down('#purpose-group-container').setVisible(false);
         page.down('#readingTypesFieldContainer').setVisible(false);
         page.down('#eventTypesFieldContainer').setVisible(true);
         page.down('#export-periods-container').setVisible(true);
@@ -2308,6 +2302,7 @@ Ext.define('Dxp.controller.Tasks', {
         page.down('grouped-property-form').updateRecord();
         formValues.groupedProperty = page.down('grouped-property-form').getRecord();
         formValues.dataProcessor = page.down('#file-formatter-combo').getValue();
+        console.log(formValues)
         me.getStore('Dxp.store.Clipboard').set('addDataExportTaskValues', formValues);
     },
 
@@ -2394,6 +2389,7 @@ Ext.define('Dxp.controller.Tasks', {
         view.down('#data-selector-combo').setValue(formModel.get('readingTypeDataSelector.value.dataSelector'));
         view.down('#device-group-combo').setValue(formModel.get('readingTypeDataSelector.value.endDeviceGroup'));
         view.down('#usage-point-group-combo').setValue(formModel.get('readingTypeDataSelector.value.usagePointGroup'));
+        view.down('#purpose-combo').setValue(formModel.get('metrologyPurpose'));
         view.down('#export-period-combo').setValue(formModel.get('readingTypeDataSelector.value.exportPeriod'));
 
         view.down('#recurrence-trigger').setValue({recurrence: formModel.get('recurrence')});

@@ -319,6 +319,7 @@ Ext.define('Dxp.view.tasks.Add', {
                         xtype: 'fieldcontainer',
                         fieldLabel: Uni.I18n.translate('estimationtasks.general.purpose', 'DES', 'Purpose'),
                         itemId: 'purpose-group-container',
+                        hidden: true,
                         layout: {
                             type: 'hbox',
                         },
