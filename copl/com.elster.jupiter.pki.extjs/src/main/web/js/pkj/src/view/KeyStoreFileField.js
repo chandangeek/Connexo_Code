@@ -4,7 +4,7 @@
 Ext.define('Pkj.view.KeyStoreFileField', {
     extend: 'Ext.form.field.File',
     xtype: 'keystore-file-field',
-    name: 'keyStoreFile',
+    name: 'file',
     required: true,
     fieldLabel: Uni.I18n.translate('general.keyStoreFile', 'PKJ', 'Key store file'),
     allowBlank: false,

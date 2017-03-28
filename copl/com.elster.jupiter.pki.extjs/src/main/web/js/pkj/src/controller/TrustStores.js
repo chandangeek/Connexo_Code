@@ -44,6 +44,7 @@ Ext.define('Pkj.controller.TrustStores', {
     ],
 
     currentTrustStoreId: undefined,
+    onTrustStoreCertificatesPage: false,
 
     init: function() {
         this.control({
@@ -76,6 +77,7 @@ Ext.define('Pkj.controller.TrustStores', {
 
     showTrustStores: function() {
         this.getApplication().fireEvent('changecontentevent', Ext.widget('truststores-overview', {router: this.getController('Uni.controller.history.Router')}));
+        this.onTrustStoreCertificatesPage = false;
     },
 
     navigateToTrustStoresOverviewPage: function () {
@@ -88,11 +90,11 @@ Ext.define('Pkj.controller.TrustStores', {
 
     navigateToEditTrustStore: function(record) {
         this.getController('Uni.controller.history.Router')
-            .getRoute('administration/truststores/view/edit')
+            .getRoute('administration/truststores/edit')
             .forward({trustStoreId: record.get('id')});
     },
 
-    navigateToImportTrustedCertificates: function(buttonClicked) {
+    navigateToImportTrustedCertificates: function() {
         this.getController('Uni.controller.history.Router')
             .getRoute('administration/truststores/view/importcertificates')
             .forward({trustStoreId: this.currentTrustStoreId});
@@ -166,9 +168,10 @@ Ext.define('Pkj.controller.TrustStores', {
             case 'removeTrustStore':
                 me.removeTrustStore(menu.record);
                 break;
-            //case 'download':
-            //    me.activateOrDeactivate(menu.record);
-            //    break;
+            case 'importTrustedCertificates':
+                me.currentTrustStoreId = menu.record.get('id');
+                this.navigateToImportTrustedCertificates();
+                break;
         }
     },
 
@@ -188,8 +191,13 @@ Ext.define('Pkj.controller.TrustStores', {
             router = me.getController('Uni.controller.history.Router'),
             view = Ext.widget('truststore-add', {
                 action: 'edit',
-                returnLink: router.getRoute('administration/truststores').buildUrl()
+                returnLink: me.onTrustStoreCertificatesPage
+                    ? router.getRoute('administration/truststores/view').buildUrl({trustStoreId:trustStoreRecord.get('id')})
+                    : router.getRoute('administration/truststores').buildUrl()
             });
+
+        me.onTrustStoreCertificatesPage = false;
+        view.down('panel').setTitle(Ext.String.format(Uni.I18n.translate('general.editX', 'PKJ', "Edit '{0}'"), trustStoreRecord.get('name')));
         view.down('form').loadRecord(trustStoreRecord);
         me.getApplication().fireEvent('changecontentevent', view);
     },
@@ -214,7 +222,7 @@ Ext.define('Pkj.controller.TrustStores', {
         });
     },
 
-    showTrustedCertificates: function(trustStoreId) {
+    showTrustedStoreAndCertificates: function(trustStoreId) {
         var me = this,
             model = Ext.ModelManager.getModel('Pkj.model.TrustStore'),
             certificatesStore = Ext.getStore('Pkj.store.TrustedCertificates');
@@ -224,20 +232,19 @@ Ext.define('Pkj.controller.TrustStores', {
             success: function (record) {
                 me.currentTrustStoreId = trustStoreId;
                 certificatesStore.load(function() {
-                    me.showCertificatesPage(record, certificatesStore);
+                    me.showTrustedStoreAndCertificatesPage(record, certificatesStore);
                     me.getApplication().fireEvent('trustStoreLoaded', record.get('name'));
                 });
             }
         });
     },
 
-    showCertificatesPage: function(trustStoreRecord, certificateStore) {
+    showTrustedStoreAndCertificatesPage: function(trustStoreRecord, certificateStore) {
         var me = this,
-            router = me.getController('Uni.controller.history.Router'),
-            view;
+            view = Ext.widget('truststore-certificates-view', {store:certificateStore});
 
-        view = Ext.widget('truststores-certificates-view', {store:certificateStore});
-        //view.down('form').loadRecord(trustStoreRecord);
+        me.onTrustStoreCertificatesPage = true;
+        view.loadTrustStoreRecord(trustStoreRecord);
         me.getApplication().fireEvent('changecontentevent', view);
     },
 
@@ -246,87 +253,79 @@ Ext.define('Pkj.controller.TrustStores', {
             router = me.getController('Uni.controller.history.Router'),
             model = Ext.ModelManager.getModel('Pkj.model.TrustStore');
 
+        me.currentTrustStoreId = trustStoreId;
         model.load(trustStoreId, {
             success: function (trustStoreRecord) {
                 me.getApplication().fireEvent('trustStoreLoaded', trustStoreRecord.get('name'));
                 me.getApplication().fireEvent('changecontentevent',
                     Ext.widget('trusted-certificate-import', {
-                        cancelLink: router.getRoute('administration/truststores/view').buildUrl({trustStoreId:me.trustStoreId}),
+                        cancelLink: me.onTrustStoreCertificatesPage
+                            ? router.getRoute('administration/truststores/view').buildUrl({trustStoreId:me.trustStoreId})
+                            : router.getRoute('administration/truststores').buildUrl(),
                         trustStoreRecord: trustStoreRecord
                     })
                 );
+                me.onTrustStoreCertificatesPage = false;
             }
         });
     },
 
     importCertificates: function() {
-        //var me = this,
-        //    form = me.getCertificateImportForm(),
-        //    errorMsgPanel = form.down('uni-form-error-message'),
-        //    record = form.updateRecord().getRecord(),
-        //    input = form.down('filefield').button.fileInputEl.dom,
-        //    file = input.files[0],
-        //    precallback = function (options, success, response) {
-        //        if (success) {
-        //            callback(options, success, response);
-        //        } else {
-        //            me.setFormErrors(response, form);
-        //            form.setLoading(false);
-        //        }
-        //    },
-        //    callback = function (options, success, response) {
-        //        if (success) {
-        //            debugger;
-        //            //record.doSave(
-        //            //    {
-        //            //        backUrl: backUrl,
-        //            //        callback: me.getOnSaveOptionsCallbackFunction(form, backUrl, 'Firmware version added'))
-        //            //    },
-        //            //    form
-        //            //);
-        //        } else {
-        //            me.setFormErrors(response, form);
-        //            form.setLoading(false);
-        //        }
-        //    };
-        //
-        //
-        //errorMsgPanel.hide();
-        //form.getForm().clearInvalid();
-        //if (!form.isValid()) {
-        //    errorMsgPanel.show();
-        //    return;
-        //}
-        //
-        //if (file) {
-        //    form.setLoading();
-        //    record.set('keyStoreFileSize', file.size);
-        //    record.doValidate(precallback);
-        //} else {
-        //    record.set('keyStoreFileSize', null);
-        //    record.doValidate(precallback);
-        //}
+        var me = this,
+            form = me.getCertificateImportForm(),
+            fileField = form.down('#pkj-trusted-certificate-import-form-file'),
+            errorMsgPanel = form.down('uni-form-error-message'),
+            maxFileSize = 250 * 1024,
+            input = form.down('filefield').button.fileInputEl.dom,
+            file = input.files[0];
+
+        errorMsgPanel.hide();
+        form.getForm().clearInvalid();
+
+        if (!form.isValid()) {
+            errorMsgPanel.show();
+            if ( file!=undefined && file.size > maxFileSize) {
+                fileField.markInvalid(Uni.I18n.translate('general.keyStoreFileTooBig', 'PKJ', 'File size should be less than 250 kB'));
+            }
+            return;
+        }
+        if (file.size > maxFileSize) {
+            errorMsgPanel.show();
+            fileField.markInvalid(Uni.I18n.translate('general.keyStoreFileTooBig', 'PKJ', 'File size should be less than 250 kB'));
+            return;
+        }
+
+        form.setLoading();
+        Ext.Ajax.request({
+            url: '/api/pir/truststores/' + me.currentTrustStoreId + '/certificates/keystore',
+            method: 'POST',
+            form: form.getEl().dom,
+            params: {
+                fileName: me.getFileName(form.down('filefield').getValue())
+            },
+            headers: {'Content-type': 'multipart/form-data'},
+            isFormUpload: true,
+            callback: function (config, success, response) {
+                form.setLoading(false);
+                if (response.responseText) {
+                    var json = Ext.decode(response.responseText, true);
+                    if (json && json.errors) {
+                        Ext.suspendLayouts();
+                        fileField.reset();
+                        errorMsgPanel.show();
+                        form.getForm().markInvalid(json.errors);
+                        Ext.resumeLayouts(true);
+                    }
+                } else {
+                    me.showTrustedStoreAndCertificates(me.currentTrustStoreId);
+                }
+            }
+        });
     },
 
-    setFormErrors: function (response, form) {
-        //form.down('uni-form-error-message').show();
-        //var json = Ext.decode(response.responseText);
-        //if (json && json.errors) {
-        //    var errorsToShow = [];
-        //    Ext.each(json.errors, function (item) {
-        //        switch (item.id) {
-        //            case 'firmwareFileSize':
-        //                item.id = 'firmwareFile';
-        //                errorsToShow.push(item);
-        //                break;
-        //            default:
-        //                errorsToShow.push(item);
-        //                break;
-        //        }
-        //    });
-        //    form.getForm().markInvalid(errorsToShow);
-        //}
+    getFileName: function (fullPath) {
+        var filename = fullPath.replace(/^.*[\\\/]/, '');
+        return filename;
     }
-
 
 });

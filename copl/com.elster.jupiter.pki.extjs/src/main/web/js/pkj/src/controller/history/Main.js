@@ -21,9 +21,9 @@ Ext.define('Pkj.controller.history.Main', {
                     action: 'showTrustStores',
                     items: {
                         add: {
+                            route: 'add',
                             title: Uni.I18n.translate('general.addTrustStore', 'PKJ', 'Add trust store'),
                             //privileges: Wss.privileges.Webservices.admin,
-                            route: 'add',
                             controller: 'Pkj.controller.TrustStores',
                             action: 'showAddTrustStore'
                         },
@@ -32,7 +32,7 @@ Ext.define('Pkj.controller.history.Main', {
                             //privileges: Pkj.privileges.view,
                             title: Uni.I18n.translate('general.trustedCertificates', 'PKJ', 'Trusted certificates'),
                             controller: 'Pkj.controller.TrustStores',
-                            action: 'showTrustedCertificates',
+                            action: 'showTrustedStoreAndCertificates',
                             callback: function (route) {
                                 this.getApplication().on('trustStoreLoaded', function (name) {
                                     route.setTitle(name);
@@ -41,20 +41,6 @@ Ext.define('Pkj.controller.history.Main', {
                                 return this;
                             },
                             items: {
-                                edit: {
-                                    route: 'edit',
-                                    title: Uni.I18n.translate('general.Edit', 'PKJ', 'Edit'),
-                                    //privileges: Wss.privileges.Webservices.admin,
-                                    controller: 'Pkj.controller.TrustStores',
-                                    action: 'showEditTrustStore',
-                                    callback: function (route) {
-                                        this.getApplication().on('trustStoreLoaded', function (name) {
-                                            route.setTitle(Ext.String.format(Uni.I18n.translate('general.editX', 'PKJ', "Edit '{0}'"), name));
-                                            return true;
-                                        }, {single: true});
-                                        return this;
-                                    }
-                                },
                                 importcertificates: {
                                     route: 'importcertificates',
                                     title: Uni.I18n.translate('general.importTrustedCertificates', 'PKJ', 'Import trusted certificates'),
@@ -62,8 +48,21 @@ Ext.define('Pkj.controller.history.Main', {
                                     action: 'showImportCertificatesPage'
                                 }
                             }
+                        },
+                        edit: {
+                            route: '{trustStoreId}/edit',
+                            title: Uni.I18n.translate('general.Edit', 'PKJ', 'Edit'),
+                            //privileges: Wss.privileges.Webservices.admin,
+                            controller: 'Pkj.controller.TrustStores',
+                            action: 'showEditTrustStore',
+                            callback: function (route) {
+                                this.getApplication().on('trustStoreLoaded', function (name) {
+                                    route.setTitle(Ext.String.format(Uni.I18n.translate('general.editX', 'PKJ', "Edit '{0}'"), name));
+                                    return true;
+                                }, {single: true});
+                                return this;
+                            }
                         }
-
                     }
                 },
                 certificates: {
