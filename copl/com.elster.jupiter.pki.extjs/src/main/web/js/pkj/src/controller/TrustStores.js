@@ -40,6 +40,14 @@ Ext.define('Pkj.controller.TrustStores', {
         {
             ref: 'certificateImportForm',
             selector: 'trusted-certificate-import-form'
+        },
+        {
+            ref: 'trustedCertificatePreview',
+            selector: 'truststore-certificates-view trusted-certificate-preview'
+        },
+        {
+            ref: 'trustedCertificatePreviewForm',
+            selector: 'truststore-certificates-view trusted-certificate-preview trusted-certificate-preview-form'
         }
     ],
 
@@ -61,7 +69,7 @@ Ext.define('Pkj.controller.TrustStores', {
                 click: this.navigateToAddTrustStore
             },
             'truststore-action-menu': {
-                click: this.onMenuAction
+                click: this.onStoreMenuAction
             },
             'button#pkj-certificates-grid-import-certificates': {
                 click: this.navigateToImportTrustedCertificates
@@ -71,6 +79,12 @@ Ext.define('Pkj.controller.TrustStores', {
             },
             'button#pkj-trusted-certificate-import-form-import-btn': {
                 click: this.importCertificates
+            },
+            'truststores-certificates-grid': {
+                select: this.onTrustedCertificateSelected
+            },
+            'trusted-certificate-action-menu': {
+                click: this.onCertificateMenuAction
             }
         });
     },
@@ -97,6 +111,12 @@ Ext.define('Pkj.controller.TrustStores', {
     navigateToImportTrustedCertificates: function() {
         this.getController('Uni.controller.history.Router')
             .getRoute('administration/truststores/view/importcertificates')
+            .forward({trustStoreId: this.currentTrustStoreId});
+    },
+
+    navigateToTrustStoreAndCertificatesPage: function() {
+        this.getController('Uni.controller.history.Router')
+            .getRoute('administration/truststores/view')
             .forward({trustStoreId: this.currentTrustStoreId});
     },
 
@@ -158,7 +178,7 @@ Ext.define('Pkj.controller.TrustStores', {
         }
     },
 
-    onMenuAction: function (menu, item) {
+    onStoreMenuAction: function (menu, item) {
         var me = this;
 
         switch (item.action) {
@@ -317,7 +337,7 @@ Ext.define('Pkj.controller.TrustStores', {
                         Ext.resumeLayouts(true);
                     }
                 } else {
-                    me.showTrustedStoreAndCertificates(me.currentTrustStoreId);
+                    me.navigateToTrustStoreAndCertificatesPage();
                 }
             }
         });
@@ -326,6 +346,55 @@ Ext.define('Pkj.controller.TrustStores', {
     getFileName: function (fullPath) {
         var filename = fullPath.replace(/^.*[\\\/]/, '');
         return filename;
+    },
+
+    onTrustedCertificateSelected: function(grid, record) {
+        var me = this,
+            actionMenu = me.getTrustedCertificatePreview().down('trusted-certificate-action-menu');
+
+        me.getTrustedCertificatePreviewForm().loadRecord(record);
+        me.getTrustedCertificatePreview().setTitle(Ext.htmlEncode(record.get('alias')));
+        if (actionMenu) {
+            actionMenu.record = record;
+        }
+    },
+
+    onCertificateMenuAction: function (menu, item) {
+        var me = this;
+
+        switch (item.action) {
+            case 'downloadTrustedCertificate':
+                //me.navigateToEditTrustStore(menu.record);
+                break;
+            case 'removeTrustedCertificate':
+                me.removeCertificate(menu.record);
+                break;
+        }
+    },
+
+    removeCertificate: function(certificateRecord) {
+        var me = this,
+            confirmationWindow = Ext.create('Uni.view.window.Confirmation');
+
+        confirmationWindow.show({
+            title: Uni.I18n.translate('general.removeX', 'PKJ', "Remove '{0}'?", certificateRecord.get('alias')),
+            msg: Uni.I18n.translate('certificate.remove.msg', 'PKJ', 'This trusted certificate will no longer be available.'),
+            fn: function (state) {
+                if (state === 'confirm') {
+
+                    Ext.Ajax.request({
+                        url: '/api/pir/truststores/' + me.currentTrustStoreId + '/certificates/' + certificateRecord.get('id'),
+                        method: 'DELETE',
+                        callback: function (config, success, response) {
+                            if (Ext.isEmpty(response.responseText)) {
+                                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.certificateRemoved', 'PKJ', 'Trusted certificate removed.'));
+                                me.navigateToTrustStoreAndCertificatesPage();
+                            }
+                        }
+                    });
+                }
+            }
+        });
     }
 
 });

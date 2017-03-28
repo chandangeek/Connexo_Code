@@ -33,12 +33,12 @@ Ext.define('Pkj.view.CertificatesGrid', {
             },
             {
                 header: Uni.I18n.translate('general.issuer', 'PKJ', 'Issuer'),
-                dataIndex: 'certificateIssuer',
+                dataIndex: 'issuer',
                 flex: 1
             },
             {
                 header: Uni.I18n.translate('general.subject', 'PKJ', 'Subject'),
-                dataIndex: 'certificateSubject',
+                dataIndex: 'subject',
                 flex: 1
             },
             {

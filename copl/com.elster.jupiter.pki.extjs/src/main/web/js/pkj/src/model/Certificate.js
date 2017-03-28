@@ -8,19 +8,19 @@ Ext.define('Pkj.model.Certificate', {
         'alias',
         'expirationDate',
         'status',
-        'version',
 
         'hasPrivateKey',
         'keyEncryptionMethod',
-
         'hasCSR',
         'hasCertificate',
+
         'type',
         'issuer',
         'subject',
+        'certificateVersion',
         'serialNumber',
-        'NotBefore',
-        'NotAfter',
+        'notBefore',
+        'notAfter',
         'signatureAlgorithm',
 
         {

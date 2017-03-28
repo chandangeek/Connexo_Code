@@ -4,8 +4,24 @@
 Ext.define('Pkj.model.TrustedCertificate', {
     extend: 'Ext.data.Model',
     fields: [
+        'id',
         'alias',
-        'expirationDate'
+        'expirationDate',
+        'status',
+
+        'hasPrivateKey',
+        'keyEncryptionMethod',
+        'hasCSR',
+        'hasCertificate',
+
+        'type',
+        'issuer',
+        'subject',
+        'certificateVersion',
+        'serialNumber',
+        'notBefore',
+        'notAfter',
+        'signatureAlgorithm'
     ],
     proxy: {
         type: 'rest',

@@ -28,6 +28,7 @@ Ext.define('Pkj.view.TrustedCertificatesView', {
                     items: [
                         {
                             xtype: 'panel',
+                            padding: '0 0 0 0',
                             title: Uni.I18n.translate('general.details', 'PKJ', 'Details'),
                             ui: 'medium',
                             tools: [
@@ -58,6 +59,7 @@ Ext.define('Pkj.view.TrustedCertificatesView', {
                     items: [
                         {
                             xtype: 'panel',
+                            padding: '0 0 0 0',
                             title: Uni.I18n.translate('general.trustedCertificates', 'PKJ', 'Trusted certificates'),
                             ui: 'medium',
                             items: [

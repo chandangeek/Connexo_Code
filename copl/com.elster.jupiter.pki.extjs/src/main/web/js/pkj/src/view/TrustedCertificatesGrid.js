@@ -21,19 +21,45 @@ Ext.define('Pkj.view.TrustedCertificatesGrid', {
                 flex: 1
             },
             {
+                header: Uni.I18n.translate('general.keyUsage', 'PKJ', 'Key usage'),
+                dataIndex: 'type',
+                flex: 1
+            },
+            {
+                header: Uni.I18n.translate('general.issuer', 'PKJ', 'Issuer'),
+                dataIndex: 'issuer',
+                flex: 1
+            },
+            {
+                header: Uni.I18n.translate('general.subject', 'PKJ', 'Subject'),
+                dataIndex: 'subject',
+                flex: 1
+            },
+            {
+                header: Uni.I18n.translate('general.status', 'PKJ', 'Status'),
+                dataIndex: 'status',
+                flex: 1
+            },
+            {
                 header: Uni.I18n.translate('general.expirationDate', 'PKJ', 'Expiration date'),
                 dataIndex: 'expirationDate',
-                flex: 1
+                flex: 1,
+                renderer: function(value){
+                    if (Ext.isEmpty(value)) {
+                        return '-';
+                    }
+                    return Uni.DateTime.formatDateShort(new Date(value));
+                }
+            },
+            {
+                xtype: 'uni-actioncolumn',
+                width: '150',
+                //privileges: Apr.privileges.AppServer.admin,
+                menu: {
+                    xtype: 'trusted-certificate-action-menu',
+                    itemId: 'pkj-truststore-detail-view-certificate-menu'
+                }
             }
-            //,
-            //{
-            //    xtype: 'uni-actioncolumn',
-            //     privileges: Apr.privileges.AppServer.admin,
-                //menu: {
-                //    xtype: 'truststore-action-menu',
-                //    itemId: 'pkj-truststore-action-menu'
-                //}
-            //}
         ];
 
         me.dockedItems = [
