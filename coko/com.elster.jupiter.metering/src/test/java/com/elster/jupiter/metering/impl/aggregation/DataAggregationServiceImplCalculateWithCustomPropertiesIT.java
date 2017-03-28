@@ -271,9 +271,9 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
         ServerMeteringService meteringService = getMeteringService();
         return new DataAggregationServiceImpl(
                         injector.getInstance(Clock.class),
+                        meteringService,
                         getCalendarService(),
                         getCustomPropertySetService(),
-                        meteringService,
                         new InstantTruncaterFactory(meteringService),
                         DataAggregationServiceImplCalculateWithCustomPropertiesIT::getSqlBuilderFactory,
                         () -> new VirtualFactoryImpl(dataModelService),

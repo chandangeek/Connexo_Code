@@ -241,9 +241,9 @@ public class DataAggregationServiceImplCalculateWithFlowToVolumeConversionIT {
         ServerMeteringService meteringService = injector.getInstance(ServerMeteringService.class);
         return new DataAggregationServiceImpl(
                 injector.getInstance(Clock.class),
+                meteringService,
                 mock(CalendarService.class),
                 mock(CustomPropertySetService.class),
-                meteringService,
                 new InstantTruncaterFactory(meteringService),
                 DataAggregationServiceImplCalculateWithFlowToVolumeConversionIT::getSqlBuilderFactory,
                 () -> new VirtualFactoryImpl(meteringDataModelService),

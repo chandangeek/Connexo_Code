@@ -8,6 +8,7 @@ import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.calendar.Category;
 import com.elster.jupiter.calendar.Event;
 import com.elster.jupiter.calendar.OutOfTheBoxCategory;
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
@@ -72,37 +73,70 @@ import java.util.stream.Stream;
  */
 public class DataAggregationServiceImpl implements ServerDataAggregationService {
 
-    private volatile Clock clock;
-    private volatile CalendarService calendarService;
-    private volatile ServerMeteringService meteringService;
-    private volatile InstantTruncaterFactory truncaterFactory;
-    private volatile SourceChannelSetFactory sourceChannelSetFactory;
+    private final Clock clock;
+    private final CalendarService calendarService;
+    private final ServerMeteringService meteringService;
+    private final InstantTruncaterFactory truncaterFactory;
+    private final SourceChannelSetFactory sourceChannelSetFactory;
     private SqlBuilderFactory sqlBuilderFactory;
     private Provider<VirtualFactory> virtualFactoryProvider;
     private CustomPropertySetService customPropertySetService;
     private ReadingTypeDeliverableForMeterActivationFactory readingTypeDeliverableForMeterActivationFactory;
 
-    public DataAggregationServiceImpl(MeteringDataModelService meteringDataModelService, InstantTruncaterFactory truncaterFactory, SourceChannelSetFactory sourceChannelSetFactory) {
-        this(meteringDataModelService.getClock(), meteringDataModelService.getCalendarService(), SqlBuilderFactoryImpl::new, () -> new VirtualFactoryImpl(meteringDataModelService), () -> new ReadingTypeDeliverableForMeterActivationFactoryImpl(meteringDataModelService.getMeteringService()));
-        this.meteringService = meteringDataModelService.getMeteringService();
-        this.truncaterFactory = truncaterFactory;
-        this.sourceChannelSetFactory = sourceChannelSetFactory;
-        this.customPropertySetService = meteringDataModelService.getCustomPropertySetService();
+    public DataAggregationServiceImpl(
+                    MeteringDataModelService meteringDataModelService,
+                    InstantTruncaterFactory truncaterFactory,
+                    SourceChannelSetFactory sourceChannelSetFactory) {
+        this(meteringDataModelService.getClock(),
+                meteringDataModelService.getMeteringService(),
+                meteringDataModelService.getCalendarService(),
+                meteringDataModelService.getCustomPropertySetService(),
+                truncaterFactory,
+                () -> sourceChannelSetFactory,
+                SqlBuilderFactoryImpl::new,
+                () -> new VirtualFactoryImpl(meteringDataModelService),
+                () -> new ReadingTypeDeliverableForMeterActivationFactoryImpl(meteringDataModelService.getMeteringService()));
     }
 
     // For testing purposes only
     @Inject
-    public DataAggregationServiceImpl(Clock clock, CalendarService calendarService, CustomPropertySetService customPropertySetService, ServerMeteringService meteringService, InstantTruncaterFactory truncaterFactory, Provider<SqlBuilderFactory> sqlBuilderFactoryProvider, Provider<VirtualFactory> virtualFactoryProvider, Provider<ReadingTypeDeliverableForMeterActivationFactory> readingTypeDeliverableForMeterActivationFactoryProvider) {
-        this(clock, calendarService, sqlBuilderFactoryProvider, virtualFactoryProvider, readingTypeDeliverableForMeterActivationFactoryProvider);
-        this.meteringService = meteringService;
-        this.truncaterFactory = truncaterFactory;
-        this.customPropertySetService = customPropertySetService;
+    public DataAggregationServiceImpl(
+                    Clock clock,
+                    ServerMeteringService meteringService,
+                    CalendarService calendarService,
+                    CustomPropertySetService customPropertySetService,
+                    InstantTruncaterFactory truncaterFactory,
+                    Provider<SqlBuilderFactory> sqlBuilderFactoryProvider,
+                    Provider<VirtualFactory> virtualFactoryProvider,
+                    Provider<ReadingTypeDeliverableForMeterActivationFactory> readingTypeDeliverableForMeterActivationFactoryProvider) {
+        this(clock,
+            meteringService,
+            calendarService,
+            customPropertySetService,
+            truncaterFactory,
+            () -> new SourceChannelSetFactory(meteringService),
+            sqlBuilderFactoryProvider,
+            virtualFactoryProvider,
+            readingTypeDeliverableForMeterActivationFactoryProvider);
     }
 
-    private DataAggregationServiceImpl(Clock clock, CalendarService calendarService, Provider<SqlBuilderFactory> sqlBuilderFactoryProvider, Provider<VirtualFactory> virtualFactoryProvider, Provider<ReadingTypeDeliverableForMeterActivationFactory> readingTypeDeliverableForMeterActivationFactoryProvider) {
+    private DataAggregationServiceImpl(
+                    Clock clock,
+                    ServerMeteringService meteringService,
+                    CalendarService calendarService,
+                    CustomPropertySetService customPropertySetService,
+                    InstantTruncaterFactory truncaterFactory,
+                    Provider<SourceChannelSetFactory> sourceChannelSetProvider,
+                    Provider<SqlBuilderFactory> sqlBuilderFactoryProvider,
+                    Provider<VirtualFactory> virtualFactoryProvider,
+                    Provider<ReadingTypeDeliverableForMeterActivationFactory> readingTypeDeliverableForMeterActivationFactoryProvider) {
         super();
         this.clock = clock;
+        this.meteringService = meteringService;
         this.calendarService = calendarService;
+        this.customPropertySetService = customPropertySetService;
+        this.truncaterFactory = truncaterFactory;
+        this.sourceChannelSetFactory = sourceChannelSetProvider.get();
         this.sqlBuilderFactory = sqlBuilderFactoryProvider.get();
         this.virtualFactoryProvider = virtualFactoryProvider;
         this.readingTypeDeliverableForMeterActivationFactory = readingTypeDeliverableForMeterActivationFactoryProvider.get();
@@ -262,8 +296,9 @@ public class DataAggregationServiceImpl implements ServerDataAggregationService 
         return clippedPeriod;
     }
 
-    private boolean hasContract(EffectiveMetrologyConfigurationOnUsagePoint each, MetrologyContract contract) {
-        return each.getMetrologyConfiguration().getContracts().contains(contract);
+    @Override
+    public boolean hasContract(EffectiveMetrologyConfigurationOnUsagePoint mistery, MetrologyContract contract) {
+        return mistery.getMetrologyConfiguration().getContracts().contains(contract);
     }
 
     @Override
@@ -486,7 +521,13 @@ public class DataAggregationServiceImpl implements ServerDataAggregationService 
         return this.meteringService.getDataModel();
     }
 
-    private Thesaurus getThesaurus() {
+    @Override
+    public Clock getClock() {
+        return this.clock;
+    }
+
+    @Override
+    public Thesaurus getThesaurus() {
         return this.meteringService.getThesaurus();
     }
 
@@ -501,6 +542,14 @@ public class DataAggregationServiceImpl implements ServerDataAggregationService 
         return this.calendarService
                     .findCategoryByName(OutOfTheBoxCategory.TOU.name())
                     .orElseThrow(() -> new IllegalStateException("Calendar service installer failure, time of use category is missing"));
+    }
+
+    @Override
+    public MetrologyContractDataEditor edit(UsagePoint usagePoint, MetrologyContract contract, ReadingTypeDeliverable deliverable, QualityCodeSystem qualityCodeSystem) {
+        if (!contract.getDeliverables().contains(deliverable)) {
+            throw new IllegalArgumentException("Deliverable is not part of the contract");
+        }
+        return new MetrologyContractDataEditorImpl(usagePoint, contract, deliverable, qualityCodeSystem, this);
     }
 
     private static class ReadingTypeDeliverablePerMeterActivationSetProviderImpl implements ReadingTypeDeliverableForMeterActivationSetProvider {

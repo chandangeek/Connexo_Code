@@ -348,15 +348,7 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
 
     @Override
     public ReadingTypeDeliverableBuilderImpl newReadingTypeDeliverable(String name, ReadingType readingType, Formula.Mode mode) {
-        return new ReadingTypeDeliverableBuilderImpl(
-                this,
-                name,
-                DeliverableType.NUMERICAL,
-                readingType,
-                mode,
-                this.customPropertySetService,
-                this.metrologyConfigurationService.getDataModel(),
-                this.metrologyConfigurationService.getThesaurus());
+        return this.newReadingTypeDeliverable(name, DeliverableType.NUMERICAL, readingType, mode);
     }
 
     @Override

@@ -245,9 +245,9 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
         ServerMeteringService meteringService = injector.getInstance(ServerMeteringService.class);
         return new DataAggregationServiceImpl(
                 injector.getInstance(Clock.class),
+                meteringService,
                 injector.getInstance(CalendarService.class),
                 injector.getInstance(CustomPropertySetService.class),
-                meteringService,
                 new InstantTruncaterFactory(meteringService),
                 DataAggregationServiceImplCalculateWithTemperatureConversionIT::getSqlBuilderFactory,
                 () -> new VirtualFactoryImpl(dataModelService),

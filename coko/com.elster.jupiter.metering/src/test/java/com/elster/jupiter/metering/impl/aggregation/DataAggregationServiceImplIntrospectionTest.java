@@ -662,9 +662,9 @@ public class DataAggregationServiceImplIntrospectionTest {
     private DataAggregationServiceImpl testInstance() {
         return new DataAggregationServiceImpl(
                 this.clock,
+                this.meteringService,
                 this.calendarService,
                 this.customPropertySetService,
-                this.meteringService,
                 new InstantTruncaterFactory(this.meteringService),
                 SqlBuilderFactoryImpl::new,
                 () -> new VirtualFactoryImpl(meteringDataModelService),

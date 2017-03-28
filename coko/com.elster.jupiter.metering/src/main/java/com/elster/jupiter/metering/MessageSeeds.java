@@ -31,6 +31,7 @@ public enum MessageSeeds implements MessageSeed {
     THIS_DATE_IS_OVERLAPPED_BY_OTHER_METROLOGYCONFIGURATION_VERSION(7009, Constants.THIS_DATE_IS_OVERLAPPED_BY_OTHER_METROLOGYCONFIGURATION_VERSION, "This date is overlapped by other metrology configuration version."),
     END_DATE_CANT_BE_IN_THE_PAST_FOR_CURRENT_METROLOGYCONFIGURATION_VERSION(7010, Constants.END_DATE_CANT_BE_IN_THE_PAST_FOR_CURRENT_METROLOGYCONFIGURATION_VERSION, "End date can''t be in the past for current metrology configuration version"),
     UNSUPPORTED_COMMAND(7012, Constants.UNSPPORTED_COMMAND, "Unsupported Command {0} for end device {1}"),
+    INCOMPATIBLE_TIME_OF_USE_FOR_EDITING(7021, "incompatible.time.of.use.for.editing", "Cannot edit/confirm/estimate/remove reading on a timestamp with time of use {1} when {0} was expected"),
 
     INVALID_COORDINATES(10003, "invalidCoordinates", "All coordinates fields must contain valid values");
 
