@@ -66,7 +66,19 @@ public interface KeyType extends HasName, HasId {
 
     EnumSet<KeyUsage> getKeyUsages();
 
+    /**
+     * Returns the currently defined key usage as a BouncyCastle {@link org.bouncycastle.asn1.x509.KeyUsage}
+     * @return org.bouncycastle.asn1.x509.KeyUsage
+     */
+    org.bouncycastle.asn1.x509.KeyUsage getKeyUsage();
+
     EnumSet<ExtendedKeyUsage> getExtendedKeyUsages();
+
+    /**
+     * Returns the currently defined extended key usages as a BC {@link ExtendedKeyUsage}
+     * @return ExtendedKeyUsage
+     */
+    org.bouncycastle.asn1.x509.ExtendedKeyUsage getExtendedKeyUsage();
 
     /**
      * Returns the curve name in case of an EC key

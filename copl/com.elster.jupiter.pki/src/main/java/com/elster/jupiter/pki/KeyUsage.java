@@ -4,7 +4,11 @@
 
 package com.elster.jupiter.pki;
 
+import org.bouncycastle.asn1.DERBitString;
+import org.bouncycastle.asn1.x509.Extension;
+
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.Optional;
 
 /**
@@ -32,5 +36,20 @@ public enum KeyUsage {
 
     public static Optional<KeyUsage> byBitPosition(int bitPosition) {
         return Arrays.asList(values()).stream().filter(keyUsage -> keyUsage.bitPosition == bitPosition).findAny();
+    }
+
+    public static EnumSet<KeyUsage> fromExtension(Extension keyUsageExtension) {
+        if (!keyUsageExtension.getExtnId().getId().equals("2.5.29.15")) {
+            throw new IllegalArgumentException("Not a valid KeyUsage extension");
+        }
+        int bits = ((DERBitString) keyUsageExtension.getParsedValue())
+                .intValue();
+        EnumSet<KeyUsage> keyUsages = EnumSet.noneOf(KeyUsage.class);
+        for (KeyUsage keyUsage : KeyUsage.values()) {
+            if ((bits & keyUsage.bouncyCastleBitPosition) !=0) {
+                keyUsages.add(keyUsage);
+            }
+        }
+        return keyUsages;
     }
 }

@@ -21,7 +21,10 @@ import com.elster.jupiter.properties.PropertySpecService;
 
 import com.google.common.collect.ImmutableMap;
 import org.bouncycastle.asn1.ASN1Sequence;
+import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
 import org.bouncycastle.asn1.x500.X500Name;
+import org.bouncycastle.asn1.x509.Extension;
+import org.bouncycastle.asn1.x509.ExtensionsGenerator;
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
 import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.OperatorCreationException;
@@ -227,9 +230,18 @@ abstract public class AbstractPlaintextPrivateKeyWrapperImpl implements Plaintex
             OperatorCreationException, IOException {
         SubjectPublicKeyInfo subjectPublicKeyInfo = SubjectPublicKeyInfo.getInstance(ASN1Sequence.fromByteArray(getPublicKey().getEncoded()));
         PKCS10CertificationRequestBuilder csrBuilder = new PKCS10CertificationRequestBuilder(subjectDN, subjectPublicKeyInfo);
+        ExtensionsGenerator extensionsGenerator = new ExtensionsGenerator();
+        if (!getKeyType().getKeyUsages().isEmpty()) {
+            extensionsGenerator.addExtension(Extension.keyUsage, true, getKeyType().getKeyUsage());
+        }
+        if (!getKeyType().getExtendedKeyUsages().isEmpty()) {
+            extensionsGenerator.addExtension(Extension.extendedKeyUsage, true, getKeyType().getExtendedKeyUsage());
+        }
+        csrBuilder.addAttribute(PKCSObjectIdentifiers.pkcs_9_at_extensionRequest, extensionsGenerator.generate());
         ContentSigner contentSigner = new JcaContentSignerBuilder(signatureAlgorithm).build(getPrivateKey());
         return csrBuilder.build(contentSigner);
     }
+
 
     public enum Properties {
         ENCRYPTED_PRIVATE_KEY("privateKey") {

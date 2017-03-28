@@ -135,8 +135,9 @@ public class KeyTypeImpl implements KeyType {
         return long2keyUsages(this.keyUsages);
     }
 
-    public org.bouncycastle.asn1.x509.KeyUsage asBCKeyUsage(EnumSet<KeyUsage> usages) {
-        return new org.bouncycastle.asn1.x509.KeyUsage(usages.stream().mapToInt(usage->usage.bouncyCastleBitPosition).sum());
+    @Override
+    public org.bouncycastle.asn1.x509.KeyUsage getKeyUsage() {
+        return new org.bouncycastle.asn1.x509.KeyUsage(getKeyUsages().stream().mapToInt(usage->usage.bouncyCastleBitPosition).sum());
     }
 
     public void setExtendedKeyUsages(EnumSet<ExtendedKeyUsage> extendedKeyUsages) {
@@ -148,8 +149,9 @@ public class KeyTypeImpl implements KeyType {
         return long2extendedKeyUsages(this.extendedKeyUsages);
     }
 
-    public org.bouncycastle.asn1.x509.ExtendedKeyUsage asBCExtendedKeyUsage(EnumSet<ExtendedKeyUsage> usages) {
-        KeyPurposeId[] keyPurposeIds = usages.stream().map(extendedKeyUsage -> extendedKeyUsage.keyPurposeId).toArray(KeyPurposeId[]::new);
+    @Override
+    public org.bouncycastle.asn1.x509.ExtendedKeyUsage getExtendedKeyUsage() {
+        KeyPurposeId[] keyPurposeIds = getExtendedKeyUsages().stream().map(extendedKeyUsage -> extendedKeyUsage.keyPurposeId).toArray(KeyPurposeId[]::new);
         return new org.bouncycastle.asn1.x509.ExtendedKeyUsage(keyPurposeIds);
     }
 

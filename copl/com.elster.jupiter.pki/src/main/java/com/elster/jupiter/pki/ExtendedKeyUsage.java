@@ -4,9 +4,13 @@
 
 package com.elster.jupiter.pki;
 
+import org.bouncycastle.asn1.ASN1Encodable;
+import org.bouncycastle.asn1.DLSequence;
+import org.bouncycastle.asn1.x509.Extension;
 import org.bouncycastle.asn1.x509.KeyPurposeId;
 
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.Optional;
 
 /**
@@ -38,5 +42,16 @@ public enum ExtendedKeyUsage {
 
     public static Optional<ExtendedKeyUsage> byOid(String OID) {
         return Arrays.asList(values()).stream().filter(keyUsage -> keyUsage.keyPurposeId.toOID().getId().equals(OID)).findAny();
+    }
+
+    public static EnumSet<ExtendedKeyUsage> fromExtension(Extension extension) {
+        if (!extension.getExtnId().getId().equals("2.5.29.37")) {
+            throw new IllegalArgumentException("Not a valid extendedKeyUsage extension");
+        }
+        EnumSet<ExtendedKeyUsage> extendedKeyUsages = EnumSet.noneOf(ExtendedKeyUsage.class);
+        for(ASN1Encodable asn1Encodable: ((DLSequence)extension.getParsedValue()).toArray()) {
+            byOid(asn1Encodable.toASN1Primitive().toString()).ifPresent(extendedKeyUsages::add);
+        }
+        return extendedKeyUsages;
     }
 }

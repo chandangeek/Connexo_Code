@@ -478,6 +478,8 @@ public class PKIServiceImplIT {
     public void testCreateCsrForECKey() throws Exception {
         KeyType certificateType = inMemoryPersistence.getPkiService()
                 .newClientCertificateType("TLS-EC", "SHA256withECDSA")
+                .setKeyUsages(EnumSet.of(KeyUsage.cRLSign))
+                .setExtendedKeyUsages(EnumSet.of(ExtendedKeyUsage.digitalSignature, ExtendedKeyUsage.tlsWebClientAuthentication))
                 .ECDSA()
                 .curve("secp256r1")
                 .add();
@@ -490,13 +492,14 @@ public class PKIServiceImplIT {
 
         X500NameBuilder x500NameBuilder = new X500NameBuilder();
         x500NameBuilder.addRDN(BCStyle.CN, "ComserverTlsClient");
-        PKCS10CertificationRequest pkcs10CertificationRequest = clientCertificateWrapper.getPrivateKeyWrapper()
-                .generateCSR(x500NameBuilder.build(), certificateType.getSignatureAlgorithm());
-        clientCertificateWrapper.setCSR(pkcs10CertificationRequest);
-        clientCertificateWrapper.save();
+        clientCertificateWrapper.generateCSR(x500NameBuilder.build());
 
         // Assertions
         assertThat(clientCertificateWrapper.getCSR()).isPresent();
+        assertThat(clientCertificateWrapper.getAllKeyUsages()).isPresent();
+        assertThat(clientCertificateWrapper.getAllKeyUsages().get()).contains("digitalSignature");
+        assertThat(clientCertificateWrapper.getAllKeyUsages().get()).contains("cRLSign");
+        assertThat(clientCertificateWrapper.getAllKeyUsages().get()).contains("tlsWebClientAuthentication");
         BcPKCS10CertificationRequest bcPkcs10 = new BcPKCS10CertificationRequest(clientCertificateWrapper.getCSR().get().toASN1Structure());
         assertThat(bcPkcs10.getSubject().toString()).contains("CN=ComserverTlsClient");
         ContentVerifierProvider verifierProvider = new BcECContentVerifierProviderBuilder(new DefaultDigestAlgorithmIdentifierFinder())
