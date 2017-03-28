@@ -9,7 +9,7 @@ import com.elster.jupiter.nls.TranslationKey;
 public enum TranslationKeys implements TranslationKey {
 
     ALIAS("Alias", "Alias"),
-    PRESENT("Present", "Present"),
+    AVAILABLE("Available", "Available"),
     REQUESTED("Requested", "Requested"),
     EXPIRED("Expired", "Expired"),
     NOT_YET_VALID("notYetValid", "Not yet valid");

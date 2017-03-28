@@ -162,11 +162,11 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
         if (this.getCertificate().isPresent()) {
             try {
                 getCertificate().get().checkValidity();
-                return Optional.of(TranslationKeys.PRESENT);
+                return Optional.of(TranslationKeys.AVAILABLE);
             } catch (CertificateExpiredException e) {
                 return Optional.of(TranslationKeys.EXPIRED);
             } catch (CertificateNotYetValidException e) {
-                return Optional.of(TranslationKeys.PRESENT);
+                return Optional.of(TranslationKeys.AVAILABLE);
             }
         } else {
             return Optional.empty();

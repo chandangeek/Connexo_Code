@@ -341,7 +341,7 @@ public class PKIServiceImplIT {
         assertThat(certificates.get(0).getCertificate().get().getIssuerDN().getName()).isEqualTo("CN=MyRootCA, OU=SmartEnergy, O=Honeywell, L=Kortrijk, ST=Vlaanderen, C=BE");
         assertThat(certificates.get(0).getCertificate().get().getSubjectDN().getName()).isEqualTo("CN=MyRootCA, OU=SmartEnergy, O=Honeywell, L=Kortrijk, ST=Vlaanderen, C=BE");
 
-        assertThat(certificates.get(0).getStatus()).isEqualTo(TranslationKeys.PRESENT.getDefaultFormat());
+        assertThat(certificates.get(0).getStatus()).isEqualTo(TranslationKeys.AVAILABLE.getDefaultFormat());
         assertThat(certificates.get(0).getAllKeyUsages()).isPresent();
         assertThat(certificates.get(0).getAllKeyUsages().get()).isEmpty();
     }

@@ -35,6 +35,7 @@ public enum MessageSeeds implements MessageSeed {
     GENERAL_KEYSTORE_FAILURE(1019, "GeneralKeystoreFailure", "The keystore could not be read: {0}"),
     COULD_NOT_READ_KEY_USAGES(1020, "ErrorReadingKeyUsages", "Could not read key usages"),
     CERTIFICATE_PUBLIC_KEY_MISMATCH(1021, "CertificateMismatchCSR", "The certificate's public key does not match the CSR"),
+    UNSUPPORTED_KEY_TYPE(1022, "UnsupportedKeyType", "The key type you requested is not supported: {0}")
     ;
     ;
 

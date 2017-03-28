@@ -50,7 +50,7 @@ public interface CertificateWrapper extends HasDynamicPropertiesWithUpdatableVal
 
     /**
      * If the wrapper contains a Certificate, this method will return a comma-separated list of key usages, containing both
-     * basic and extended key usages. If the wrapper does not contain a Certifictate, it will return Optional.empty
+     * basic and extended key usages. If the wrapper does not contain a Certificate, it will return Optional.empty
      * @return comma-separated list of key usages, empty() is no certificate is contained.
      */
     Optional<String> getAllKeyUsages();

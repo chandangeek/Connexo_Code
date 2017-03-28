@@ -36,7 +36,7 @@ import java.util.stream.Stream;
         property = {"name="+SoftwareSecurityDataModel.COMPONENTNAME},
         immediate = true)
 public class SoftwareSecurityDataModel {
-    static final String COMPONENTNAME = "SSM";
+    public static final String COMPONENTNAME = "SSM";
 
     private volatile DataVaultService dataVaultService;
     private volatile PropertySpecService propertySpecService;
