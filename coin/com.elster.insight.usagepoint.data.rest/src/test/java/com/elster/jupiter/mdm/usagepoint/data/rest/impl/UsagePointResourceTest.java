@@ -32,10 +32,10 @@ import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.ElectricityDetailBuilder;
 import com.elster.jupiter.metering.LocationTemplate;
+import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
@@ -58,9 +58,6 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyValueConverter;
 import com.elster.jupiter.properties.rest.PropertyValueInfo;
 import com.elster.jupiter.rest.util.StatusCode;
-import com.elster.jupiter.rest.util.IdWithNameInfo;
-import com.elster.jupiter.rest.util.JsonQueryParameters;
-import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.time.PeriodicalScheduleExpression;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointStateChangeRequest;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
@@ -77,6 +74,7 @@ import com.elster.jupiter.validation.DataValidationTask;
 
 import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
+import org.joda.time.DateMidnight;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
@@ -87,10 +85,13 @@ import java.net.URL;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Currency;
+import java.util.List;
+import java.util.Optional;
 
-import org.joda.time.DateMidnight;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -99,7 +100,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.in;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyLong;
@@ -940,6 +940,11 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         when(closedEffective.isEffectiveAt(any(Instant.class))).thenReturn(false);
         when(closedMetrologyConfiguration.getName()).thenReturn("Closed effective");
         when(closedMetrologyConfiguration.getContracts()).thenReturn(Collections.singletonList(metrologyContract));
+        when(closedEffective.getUsagePoint()).thenReturn(usagePoint);
+        when(currentEffective.getUsagePoint()).thenReturn(usagePoint);
+        when(closedMetrologyConfiguration.getId()).thenReturn(666L);
+        when(currentMetrologyConfiguration.getId()).thenReturn(555L);
+        when(usagePoint.getMRID()).thenReturn("MRID");
 
         when(usagePoint.getEffectiveMetrologyConfigurations()).thenReturn(Arrays.asList(currentEffective, closedEffective));
         when(bpmService.getRunningProcesses(anyString(), anyString())).thenReturn(new ProcessInstanceInfos());
