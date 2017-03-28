@@ -19,17 +19,12 @@ public class CertificateWrapperInfo {
     public Instant expirationDate;
     public String keyEncryptionMethod;
 
-    public CertificateInfo certificate;
-    public CertificateInfo csr;
-
-    class CertificateInfo {
-        public String type;
-        public String issuer;
-        public String subject;
-        public Integer version;
-        public BigInteger serialNumber;
-        public Instant notBefore;
-        public Instant notAfter;
-        public String signatureAlgorithm;
-    }
+    public String type;
+    public String issuer;
+    public String subject;
+    public Integer certificateVersion;
+    public BigInteger serialNumber;
+    public Instant notBefore;
+    public Instant notAfter;
+    public String signatureAlgorithm;
 }

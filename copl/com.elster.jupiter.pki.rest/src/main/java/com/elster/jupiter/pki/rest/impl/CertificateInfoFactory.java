@@ -39,21 +39,18 @@ public class CertificateInfoFactory {
         }
 
         if (certificateWrapper.getCertificate().isPresent()) {
-            info.certificate = info.new CertificateInfo();
-            certificateWrapper.getAllKeyUsages().ifPresent(keyUsages -> info.certificate.type = keyUsages);
+            certificateWrapper.getAllKeyUsages().ifPresent(keyUsages -> info.type = keyUsages);
             X509Certificate x509Certificate = certificateWrapper.getCertificate().get();
-            info.certificate.issuer = x509Certificate.getIssuerDN().getName();
-            info.certificate.subject = x509Certificate.getSubjectDN().getName();
-            info.certificate.version = x509Certificate.getVersion();
-            info.certificate.serialNumber = x509Certificate.getSerialNumber();
-            info.certificate.notBefore = x509Certificate.getNotBefore().toInstant();
-            info.certificate.notAfter = x509Certificate.getNotAfter().toInstant();
-            info.certificate.signatureAlgorithm = x509Certificate.getSigAlgName();
+            info.issuer = x509Certificate.getIssuerDN().getName();
+            info.subject = x509Certificate.getSubjectDN().getName();
+            info.certificateVersion = x509Certificate.getVersion();
+            info.serialNumber = x509Certificate.getSerialNumber();
+            info.notBefore = x509Certificate.getNotBefore().toInstant();
+            info.notAfter = x509Certificate.getNotAfter().toInstant();
+            info.signatureAlgorithm = x509Certificate.getSigAlgName();
         } else if (certificateWrapper.hasCSR()) {
-            info.csr = info.new CertificateInfo();
             PKCS10CertificationRequest csr = ((ClientCertificateWrapper) certificateWrapper).getCSR().get();
-            info.csr.subject = csr.getSubject().toString();
-//            info.csr.signatureAlgorithm = csr.getSignatureAlgorithm().getAlgorithm().toString();
+            info.subject = csr.getSubject().toString();
         }
 
         return info;

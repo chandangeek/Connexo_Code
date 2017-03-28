@@ -144,28 +144,28 @@ public class CertificateWrapperResource {
         return Response.status(Response.Status.CREATED).entity(certificateInfoFactory.asInfo(clientCertificateWrapper)).build();
     }
 
-    @POST // This should be PUT but has to be POST due to some 3th party issue
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    @Path("/{id}/csr")
-    @Transactional
-    public Response createCSRForExistingCertificateWrapper(@PathParam("id") long id, CsrInfo csrInfo) {
-        if (csrInfo.CN==null) {
-            throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "CN");
-        }
-        CertificateWrapper certificateWrapper = pkiService.findAndLockCertificateWrapper(id, csrInfo.version)
-                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_CERTIFICATE, id));
-        if (ClientCertificateWrapper.class.isAssignableFrom(certificateWrapper.getClass())) {
-            ClientCertificateWrapper clientCertificateWrapper = (ClientCertificateWrapper) certificateWrapper;
-            X500Name x500Name = getX500Name(csrInfo);
-            clientCertificateWrapper.generateCSR(x500Name);
-            return Response.status(Response.Status.CREATED)
-                    .entity(certificateInfoFactory.asInfo(clientCertificateWrapper))
-                    .build();
-        } else {
-            throw exceptionFactory.newException(MessageSeeds.NOT_POSSIBLE_TO_CREATE_CSR);
-        }
-    }
+//    @POST // This should be PUT but has to be POST due to some 3th party issue
+//    @Consumes(MediaType.APPLICATION_JSON)
+//    @Produces(MediaType.APPLICATION_JSON)
+//    @Path("/{id}/csr")
+//    @Transactional
+//    public Response createCSRForExistingCertificateWrapper(@PathParam("id") long id, CsrInfo csrInfo) {
+//        if (csrInfo.CN==null) {
+//            throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "CN");
+//        }
+//        CertificateWrapper certificateWrapper = pkiService.findAndLockCertificateWrapper(id, csrInfo.version)
+//                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_CERTIFICATE, id));
+//        if (ClientCertificateWrapper.class.isAssignableFrom(certificateWrapper.getClass())) {
+//            ClientCertificateWrapper clientCertificateWrapper = (ClientCertificateWrapper) certificateWrapper;
+//            X500Name x500Name = getX500Name(csrInfo);
+//            clientCertificateWrapper.generateCSR(x500Name);
+//            return Response.status(Response.Status.CREATED)
+//                    .entity(certificateInfoFactory.asInfo(clientCertificateWrapper))
+//                    .build();
+//        } else {
+//            throw exceptionFactory.newException(MessageSeeds.NOT_POSSIBLE_TO_CREATE_CSR);
+//        }
+//    }
 
     private X500Name getX500Name(CsrInfo csrInfo) {
         X500NameBuilder x500NameBuilder = new X500NameBuilder();
