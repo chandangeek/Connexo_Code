@@ -24,39 +24,47 @@ public class Temporals {
     }
 
     public static TimeDuration toTimeDuration(TemporalAmount temporalAmount) {
-        if (temporalAmount instanceof Duration) {
-            Duration duration = (Duration) temporalAmount;
-            return toTimeDuration(duration);
+        if (temporalAmount == null) {
+            return null;
         } else {
-            return toTimeDuration((Period) temporalAmount);
+            if (temporalAmount instanceof Duration) {
+                Duration duration = (Duration) temporalAmount;
+                return toTimeDuration(duration);
+            } else {
+                return toTimeDuration((Period) temporalAmount);
+            }
         }
     }
 
     public static TemporalAmount toTemporalAmount(TimeDuration timeDuration) {
-        switch (timeDuration.getTimeUnit()) {
-            case YEARS: {
-                return Period.ofYears(timeDuration.getCount());
-            }
-            case MONTHS: {
-                return Period.ofMonths(timeDuration.getCount());
-            }
-            case DAYS: {
-                return Period.ofDays(timeDuration.getCount());
-            }
-            case HOURS: {
-                return Duration.ofHours(timeDuration.getCount());
-            }
-            case MINUTES: {
-                return Duration.ofMinutes(timeDuration.getCount());
-            }
-            case SECONDS: {
-                return Duration.ofSeconds(timeDuration.getCount());
-            }
-            case MILLISECONDS: {
-                return Duration.ofMillis(timeDuration.getCount());
-            }
-            default: {
-                throw new IllegalArgumentException("Unsupported TimeDuration unit " + timeDuration.getTimeUnitCode());
+        if (timeDuration == null) {
+            return null;
+        } else {
+            switch (timeDuration.getTimeUnit()) {
+                case YEARS: {
+                    return Period.ofYears(timeDuration.getCount());
+                }
+                case MONTHS: {
+                    return Period.ofMonths(timeDuration.getCount());
+                }
+                case DAYS: {
+                    return Period.ofDays(timeDuration.getCount());
+                }
+                case HOURS: {
+                    return Duration.ofHours(timeDuration.getCount());
+                }
+                case MINUTES: {
+                    return Duration.ofMinutes(timeDuration.getCount());
+                }
+                case SECONDS: {
+                    return Duration.ofSeconds(timeDuration.getCount());
+                }
+                case MILLISECONDS: {
+                    return Duration.ofMillis(timeDuration.getCount());
+                }
+                default: {
+                    throw new IllegalArgumentException("Unsupported TimeDuration unit " + timeDuration.getTimeUnitCode());
+                }
             }
         }
     }
