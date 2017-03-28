@@ -223,14 +223,31 @@ public class UsagePointOutputResource {
         if (metrologyConfigurationOnUsagePoints.isEmpty()) {
             throw exceptionFactory.newExceptionSupplier(MessageSeeds.NO_METROLOGYCONFIG_FOR_USAGEPOINT, contractId, usagePoint.getName()).get();
         }
+        if (!isContractPresentOnCurrentMC(usagePoint, contractId)) {
+            throw exceptionFactory.newExceptionSupplier(MessageSeeds.METROLOGYCONTRACT_IS_NOT_LINKED_TO_USAGEPOINT, contractId, usagePoint.getName()).get();
+        }
+
         metrologyConfigurationOnUsagePoints.forEach(effectiveMetrologyConfigurationOnUsagePoint ->
                 effectiveMetrologyConfigurationOnUsagePoint.getMetrologyConfiguration().getContracts()
                     .stream()
                     .filter(metrologyContract -> metrologyContract.getId() == contractId)
-                    .findFirst()
+                    .findAny()
                     .ifPresent(metrologyContract -> putChannelDataFromMetrologyConfiguration(outputChannelDataInfoList, metrologyContract, outputId, name, usagePoint, filter, effectiveMetrologyConfigurationOnUsagePoint)));
 
         return PagedInfoList.fromCompleteList("channelData", outputChannelDataInfoList, queryParameters);
+    }
+
+    private boolean isContractPresentOnCurrentMC(UsagePoint usagePoint, long contractId) {
+        boolean check = false;
+        if (usagePoint.getCurrentEffectiveMetrologyConfiguration().isPresent()) {
+            check = usagePoint.getCurrentEffectiveMetrologyConfiguration().get().getMetrologyConfiguration().getContracts()
+                    .stream()
+                    .filter(metrologyContract -> metrologyContract.getId() == contractId)
+                    .findAny()
+                    .isPresent();
+        }
+
+        return check;
     }
 
     private List<OutputChannelDataInfo> putChannelDataFromMetrologyConfiguration(List<OutputChannelDataInfo> outputChannelDataInfoList, MetrologyContract metrologyContract, long outputId, String name, UsagePoint usagePoint, JsonQueryFilter filter, EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint) {
@@ -481,12 +498,14 @@ public class UsagePointOutputResource {
         if (metrologyConfigurationOnUsagePoints.isEmpty()) {
             throw exceptionFactory.newExceptionSupplier(MessageSeeds.NO_METROLOGYCONFIG_FOR_USAGEPOINT, contractId, usagePoint.getName()).get();
         }
-
+        if (!isContractPresentOnCurrentMC(usagePoint, contractId)) {
+            throw exceptionFactory.newExceptionSupplier(MessageSeeds.METROLOGYCONTRACT_IS_NOT_LINKED_TO_USAGEPOINT, contractId, usagePoint.getName()).get();
+        }
         metrologyConfigurationOnUsagePoints.forEach(effectiveMetrologyConfigurationOnUsagePoint ->
             effectiveMetrologyConfigurationOnUsagePoint.getMetrologyConfiguration().getContracts()
                     .stream()
                     .filter(contract -> contract.getId() == contractId)
-                    .findFirst()
+                    .findAny()
                     .ifPresent(metrologyContract -> putRegisterDataFromMetrologyConfiguration(outputRegisterData, metrologyContract, outputId, name, effectiveMetrologyConfigurationOnUsagePoint, filter)));
 
         return PagedInfoList.fromPagedList("registerData", ListPager.of(outputRegisterData).from(queryParameters).find(), queryParameters);
