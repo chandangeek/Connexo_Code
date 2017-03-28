@@ -103,11 +103,11 @@ public class KeyAccessorTypeCommands {
     }
 
     public void createCertificateAccessorType() {
-        System.out.println("Usage: createCertificateAccessorTypes <name> <device type id> <key type name> <trust store id> <key encryption method>");
+        System.out.println("Usage: createCertificateAccessorTypes <name> <device type id> <key type name> <trust store name> <key encryption method>");
         System.out.println("Eg.  : createCertificateAccessorTypes TLS 153 TLSClient DataVault");
     }
 
-    public void createCertificateAccessorType(String name, long deviceTypeId, String keyTypeName, long trustStoreId, String keyEncryptionMethod) {
+    public void createCertificateAccessorType(String name, long deviceTypeId, String keyTypeName, String trustStoreName, String keyEncryptionMethod) {
         threadPrincipalService.set(() -> "Console");
 
         try (TransactionContext context = transactionService.getContext()) {
@@ -115,7 +115,7 @@ public class KeyAccessorTypeCommands {
                     .orElseThrow(() -> new RuntimeException("No such device type"));
             KeyType keyType = pkiService.getKeyType(keyTypeName)
                     .orElseThrow(() -> new RuntimeException("No such key type"));
-            TrustStore trustStore = pkiService.findTrustStore(trustStoreId)
+            TrustStore trustStore = pkiService.findTrustStore(trustStoreName)
                     .orElseThrow(() -> new RuntimeException("No such trust store"));
             KeyAccessorType.Builder builder = deviceType.addKeyAccessorType(name, keyType)
                     .trustStore(trustStore)
