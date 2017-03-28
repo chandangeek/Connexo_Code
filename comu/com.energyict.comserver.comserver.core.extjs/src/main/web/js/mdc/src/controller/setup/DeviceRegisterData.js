@@ -63,7 +63,10 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
             'deviceregisterdataactionmenu': {
                 beforeshow: this.checkSuspect,
                 click: this.chooseAction
-            }
+            },
+            'register-data-bulk-action-menu': {
+                click: this.chooseBulkAction
+            },
         });
     },
 
@@ -218,6 +221,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
     chooseAction: function (menu, item) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
+            routeParams = router.arguments,
             grid = me.getPage().down('grid'),
             record = grid.getView().getSelectionModel().getLastSelected();
 
@@ -237,6 +241,14 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
                     }
                 });
                 break;
+            case 'viewHistory':
+                route = 'devices/device/registers/registerdata/history';
+                filterParams = {
+                    endInterval: Number(menu.record.get('timeStamp') - 1) + '-' + Number(menu.record.get('timeStamp'))
+                };
+                route && (route = router.getRoute(route));
+                route && route.forward(routeParams, filterParams);
+                break;
         }
     },
 
@@ -247,7 +259,32 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
             bulkStatus = record.get('validationResult').split('.')[1] == 'suspect';
 
         menu.down('#confirm-value').setVisible(mainStatus || bulkStatus);
-    }
+    },
+
+    chooseBulkAction: function (menu, item) {
+        var me = this,
+            router = this.getController('Uni.controller.history.Router'),
+            routeParams = router.arguments,
+            route,
+            filterParams = {};
+
+        switch (item.action) {
+            case 'viewHistory':
+                route = 'devices/device/registers/registerdata/history';
+                var param = {};
+                me.getFilterPanel().down('#deviceregister-topfilter-interval').applyParamValue(param);
+                filterParams = {
+                    endInterval: param.intervalStart.toString() + '-' + param.intervalEnd.toString(),
+                    changedDataOnly: 'yes'
+                };
+                break;
+        }
+
+        route && (route = router.getRoute(route));
+        route && route.forward(routeParams, filterParams);
+    },
+
+
 })
 ;
 
