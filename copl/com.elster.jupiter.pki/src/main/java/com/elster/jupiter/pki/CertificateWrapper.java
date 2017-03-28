@@ -4,9 +4,11 @@ import com.elster.jupiter.util.HasId;
 
 import aQute.bnd.annotation.ProviderType;
 
+import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
 import java.time.Instant;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * This object represents a Certificate stored in Connexo. A Certificate can optionally linked to
@@ -50,10 +52,25 @@ public interface CertificateWrapper extends HasDynamicPropertiesWithUpdatableVal
 
     /**
      * If the wrapper contains a Certificate, this method will return a comma-separated list of key usages, containing both
-     * basic and extended key usages. If the wrapper does not contain a Certificate, it will return Optional.empty
+     * basic and extended key usages. If the wrapper does not contain a Certificate, it will return the key usages and
+     * extended key usages as found on the CSR, if present.
      * @return comma-separated list of key usages, empty() is no certificate is contained.
      */
     Optional<String> getAllKeyUsages();
+
+    /**
+     * Returns a set of ExtendedKeyUsage defined on this CertificateWrapper, if present. If not present, the CSR's key extended usages
+     * will be returned, if present. Empty() otherwise.
+     * @throws CertificateParsingException
+     */
+    Set<ExtendedKeyUsage> getExtendedKeyUsages() throws CertificateParsingException;
+
+    /**
+     * Returns a set of KeyUsage defined on this CertificateWrapper, if present. If not present, the CSR's key usages
+     * will be returned, if present. Empty() otherwise.
+     * @throws CertificateParsingException
+     */
+    Set<KeyUsage> getKeyUsages();
 
     /**
      * The current version of this business object. Version property is used for concurrency purposes.

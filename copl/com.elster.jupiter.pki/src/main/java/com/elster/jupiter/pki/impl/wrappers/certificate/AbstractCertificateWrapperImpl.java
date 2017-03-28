@@ -38,8 +38,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
 
 @UniqueAlias(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.ALIAS_UNIQUE + "}")
 public abstract class AbstractCertificateWrapperImpl implements CertificateWrapper {
@@ -179,44 +181,45 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
             if (!this.getCertificate().isPresent()) {
                 return Optional.empty();
             }
-            return Optional.of(doAllGetKeyUsages(this.getCertificate().get()));
+            return Optional.of(doAllGetKeyUsages());
         } catch (CertificateParsingException e) {
             throw new PkiLocalizedException(thesaurus, MessageSeeds.COULD_NOT_READ_KEY_USAGES);
         }
     }
 
-    private String doAllGetKeyUsages(X509Certificate x509Certificate) throws CertificateParsingException {
-        String joinedKeyUsages = doGetKeyUsages(x509Certificate);
-        String joinedExtendedKeyUsages = doGetExtendedKeyUsages(x509Certificate);
-        if (joinedExtendedKeyUsages.isEmpty()) {
-            return joinedKeyUsages;
-        } else {
-            return joinedKeyUsages+joinedExtendedKeyUsages;
-        }
+    private String doAllGetKeyUsages() throws CertificateParsingException {
+        List<String> collect = getKeyUsages().stream().map(Enum::name).collect(toList());
+        getExtendedKeyUsages().stream().map(Enum::name).forEach(collect::add);
+        return Joiner.on(", ").join(collect);
     }
 
-    private String doGetExtendedKeyUsages(X509Certificate x509Certificate) throws CertificateParsingException {
-        if (x509Certificate.getExtendedKeyUsage()!=null) {
-            return x509Certificate.getExtendedKeyUsage()
-                    .stream()
-                    .map(ExtendedKeyUsage::byOid)
-                    .map(Optional::get)
-                    .map(Enum::name)
-                    .reduce("", (a, b) -> a + ", " + b);
+    @Override
+    public Set<ExtendedKeyUsage> getExtendedKeyUsages() throws CertificateParsingException {
+        if (this.getCertificate().isPresent()) {
+            if (this.getCertificate().get().getExtendedKeyUsage()!=null) {
+                return this.getCertificate().get().getExtendedKeyUsage()
+                        .stream()
+                        .map(ExtendedKeyUsage::byOid)
+                        .map(Optional::get)
+                        .collect(toSet());
+            }
         }
-        return "";
+        return EnumSet.noneOf(ExtendedKeyUsage.class);
     }
 
-    private String doGetKeyUsages(X509Certificate x509Certificate) {
+    @Override
+    public Set<KeyUsage> getKeyUsages() {
         EnumSet<KeyUsage> keyUsages = EnumSet.noneOf(KeyUsage.class);
-        if (x509Certificate.getKeyUsage()!=null) {
-            for (int index = 0; index < x509Certificate.getKeyUsage().length; index++) {
-                if (x509Certificate.getKeyUsage()[index]) {
-                    KeyUsage.byBitPosition(index).ifPresent(keyUsages::add);
+        if (this.getCertificate().isPresent()) {
+            if (this.getCertificate().get().getKeyUsage() != null) {
+                for (int index = 0; index < this.getCertificate().get().getKeyUsage().length; index++) {
+                    if (this.getCertificate().get().getKeyUsage()[index]) {
+                        KeyUsage.byBitPosition(index).ifPresent(keyUsages::add);
+                    }
                 }
             }
         }
-        return Joiner.on(", ").join(keyUsages);
+        return keyUsages;
     }
 
     @Override

@@ -24,11 +24,14 @@ import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 
 import javax.inject.Inject;
 import java.io.IOException;
+import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public class RequestableCertificateWrapperImpl extends AbstractCertificateWrapperImpl implements RequestableCertificateWrapper {
 
@@ -71,6 +74,10 @@ public class RequestableCertificateWrapperImpl extends AbstractCertificateWrappe
                         getCSR().get().getSubjectPublicKeyInfo().getEncoded())) {
                     throw new PkiLocalizedException(thesaurus, MessageSeeds.CERTIFICATE_PUBLIC_KEY_MISMATCH);
                 }
+                if (!new org.bouncycastle.asn1.x500.X500Name(certificate.getSubjectDN().getName()).equals(getCSR().get().getSubject())) {
+                    throw new PkiLocalizedException(thesaurus, MessageSeeds.CERTIFICATE_SUBJECT_DN_MISMATCH);
+                }
+                // TODO validate key usages
             }
         } catch (IOException e) {
             throw new PkiLocalizedException(thesaurus, MessageSeeds.CERTIFICATE_PUBLIC_KEY_MISMATCH);
@@ -108,8 +115,8 @@ public class RequestableCertificateWrapperImpl extends AbstractCertificateWrappe
     @Override
     public Optional<String> getAllKeyUsages() {
         if (!this.getCertificate().isPresent() && getCSR().isPresent()) {
+            List<String> usages = new ArrayList<>();
             for (Attribute attribute: getCSR().get().getAttributes(PKCSObjectIdentifiers.pkcs_9_at_extensionRequest)) {
-                List<String> usages = new ArrayList<>();
                 for (ASN1Encodable asn1Encodable : attribute.getAttributeValues()) {
                     Extensions extensions = Extensions.getInstance(asn1Encodable);
                     Extension keyUsageExtension = extensions.getExtension(Extension.keyUsage);
@@ -118,11 +125,42 @@ public class RequestableCertificateWrapperImpl extends AbstractCertificateWrappe
                     Extension extendedKeyUsage = extensions.getExtension(Extension.extendedKeyUsage);
                     ExtendedKeyUsage.fromExtension(extendedKeyUsage).stream().map(Enum::toString).forEach(usages::add);
                 }
-                return Optional.of(Joiner.on(", ").join(usages));
             }
-            return Optional.empty();
+            return Optional.of(Joiner.on(", ").join(usages));
         } else {
             return super.getAllKeyUsages();
         }
+    }
+
+    @Override
+    public Set<ExtendedKeyUsage> getExtendedKeyUsages() throws CertificateParsingException {
+        if (!this.getCertificate().isPresent() && this.getCSR().isPresent()) {
+            EnumSet<ExtendedKeyUsage> extendedKeyUsages = EnumSet.noneOf(ExtendedKeyUsage.class);
+            for (Attribute attribute: getCSR().get().getAttributes(PKCSObjectIdentifiers.pkcs_9_at_extensionRequest)) {
+                for (ASN1Encodable asn1Encodable : attribute.getAttributeValues()) {
+                    Extensions extensions = Extensions.getInstance(asn1Encodable);
+                    Extension extendedKeyUsage = extensions.getExtension(Extension.extendedKeyUsage);
+                    extendedKeyUsages.addAll(ExtendedKeyUsage.fromExtension(extendedKeyUsage));
+                }
+            }
+            return extendedKeyUsages;
+        }
+        return super.getExtendedKeyUsages();
+    }
+
+    @Override
+    public Set<KeyUsage> getKeyUsages() {
+        if (!this.getCertificate().isPresent() && this.getCSR().isPresent()) {
+            EnumSet<KeyUsage> keyUsages = EnumSet.noneOf(KeyUsage.class);
+            for (Attribute attribute: getCSR().get().getAttributes(PKCSObjectIdentifiers.pkcs_9_at_extensionRequest)) {
+                for (ASN1Encodable asn1Encodable : attribute.getAttributeValues()) {
+                    Extensions extensions = Extensions.getInstance(asn1Encodable);
+                    Extension keyUsageExtension = extensions.getExtension(Extension.keyUsage);
+                    keyUsages.addAll(KeyUsage.fromExtension(keyUsageExtension));
+                }
+            }
+            return keyUsages;
+        }
+        return super.getKeyUsages();
     }
 }

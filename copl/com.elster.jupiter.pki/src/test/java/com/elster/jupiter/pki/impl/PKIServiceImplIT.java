@@ -408,7 +408,7 @@ public class PKIServiceImplIT {
         Optional<CertificateWrapper> reloaded = inMemoryPersistence.getPkiService().findCertificateWrapper("bvn");
         assertThat(reloaded).isPresent();
         assertThat(reloaded.get().getCertificate()).isPresent();
-        assertThat(reloaded.get().getStatus()).isEqualTo("Present");
+        assertThat(reloaded.get().getStatus()).isEqualTo("Available");
         assertThat(reloaded.get().getAllKeyUsages()).isPresent();
         assertThat(reloaded.get().getAllKeyUsages().get()).contains("digitalSignature", "keyAgreement", "tlsWebServerAuthentication", "tlsWebClientAuthentication");
     }
@@ -483,11 +483,35 @@ public class PKIServiceImplIT {
                 .ECDSA()
                 .curve("secp256r1")
                 .add();
-        KeyAccessorType certificateAccessorType = mock(KeyAccessorType.class);
-        when(certificateAccessorType.getKeyType()).thenReturn(certificateType);
-        when(certificateAccessorType.getKeyEncryptionMethod()).thenReturn("DataVault");
-
         ClientCertificateWrapper clientCertificateWrapper = inMemoryPersistence.getPkiService().newClientCertificateWrapper(certificateType, "DataVault").alias("comserver").add();
+        clientCertificateWrapper.getPrivateKeyWrapper().generateValue();
+
+        X500NameBuilder x500NameBuilder = new X500NameBuilder();
+        x500NameBuilder.addRDN(BCStyle.CN, "ComserverTlsClient");
+        clientCertificateWrapper.generateCSR(x500NameBuilder.build());
+
+        // Assertions
+        assertThat(clientCertificateWrapper.getCSR()).isPresent();
+        BcPKCS10CertificationRequest bcPkcs10 = new BcPKCS10CertificationRequest(clientCertificateWrapper.getCSR().get().toASN1Structure());
+        assertThat(bcPkcs10.getSubject().toString()).contains("CN=ComserverTlsClient");
+        ContentVerifierProvider verifierProvider = new BcECContentVerifierProviderBuilder(new DefaultDigestAlgorithmIdentifierFinder())
+                .build(bcPkcs10.getPublicKey());
+        boolean signatureValid = bcPkcs10.isSignatureValid(verifierProvider);
+        assertThat(signatureValid).isTrue();
+    }
+
+    @Test
+    @Transactional
+    public void testExtensionsOnCSR() throws Exception {
+        KeyType certificateType = inMemoryPersistence.getPkiService()
+                .newClientCertificateType("TLS-EC-2", "SHA256withECDSA")
+                .setKeyUsages(EnumSet.of(KeyUsage.cRLSign, KeyUsage.decipherOnly))
+                .setExtendedKeyUsages(EnumSet.of(ExtendedKeyUsage.digitalSignature, ExtendedKeyUsage.tlsWebClientAuthentication))
+                .ECDSA()
+                .curve("secp256r1")
+                .add();
+
+        ClientCertificateWrapper clientCertificateWrapper = inMemoryPersistence.getPkiService().newClientCertificateWrapper(certificateType, "DataVault").alias("comsrvr").add();
         clientCertificateWrapper.getPrivateKeyWrapper().generateValue();
 
         X500NameBuilder x500NameBuilder = new X500NameBuilder();
@@ -498,14 +522,11 @@ public class PKIServiceImplIT {
         assertThat(clientCertificateWrapper.getCSR()).isPresent();
         assertThat(clientCertificateWrapper.getAllKeyUsages()).isPresent();
         assertThat(clientCertificateWrapper.getAllKeyUsages().get()).contains("digitalSignature");
+        assertThat(clientCertificateWrapper.getAllKeyUsages().get()).contains("decipherOnly");
         assertThat(clientCertificateWrapper.getAllKeyUsages().get()).contains("cRLSign");
         assertThat(clientCertificateWrapper.getAllKeyUsages().get()).contains("tlsWebClientAuthentication");
-        BcPKCS10CertificationRequest bcPkcs10 = new BcPKCS10CertificationRequest(clientCertificateWrapper.getCSR().get().toASN1Structure());
-        assertThat(bcPkcs10.getSubject().toString()).contains("CN=ComserverTlsClient");
-        ContentVerifierProvider verifierProvider = new BcECContentVerifierProviderBuilder(new DefaultDigestAlgorithmIdentifierFinder())
-                .build(bcPkcs10.getPublicKey());
-        boolean signatureValid = bcPkcs10.isSignatureValid(verifierProvider);
-        assertThat(signatureValid).isTrue();
+        assertThat(clientCertificateWrapper.getKeyUsages()).containsOnly(KeyUsage.cRLSign, KeyUsage.decipherOnly);
+        assertThat(clientCertificateWrapper.getExtendedKeyUsages()).containsOnly(ExtendedKeyUsage.digitalSignature, ExtendedKeyUsage.tlsWebClientAuthentication);
     }
 
     @Test
@@ -551,6 +572,10 @@ public class PKIServiceImplIT {
 
         X500NameBuilder x500NameBuilder = new X500NameBuilder();
         x500NameBuilder.addRDN(BCStyle.CN, "ComserverTlsClient");
+        x500NameBuilder.addRDN(BCStyle.C, "Belgium");
+        x500NameBuilder.addRDN(BCStyle.L, "kortrijk");
+        x500NameBuilder.addRDN(BCStyle.O, "Honeywell");
+        x500NameBuilder.addRDN(BCStyle.OU, "SmartEnergy");
         clientCertificateWrapper.generateCSR(x500NameBuilder.build());
 
         X509Certificate certificate = generateCertificateFromCSR(x500NameBuilder, clientCertificateWrapper.getCSR().get().getSubjectPublicKeyInfo());
@@ -561,6 +586,37 @@ public class PKIServiceImplIT {
         assertThat(reloaded).isPresent();
         assertThat(reloaded.get().getCSR()).isPresent();
         assertThat(reloaded.get().getCertificate()).isPresent();
+    }
+
+    @Test
+    @Transactional
+    @Expected(value = PkiLocalizedException.class, message = "The certificate's subject distinguished name does not match the CSR")
+    public void testImportCertificateForExistingCsrWithSubjectDnMismatch() throws Exception {
+        KeyType certificateType = inMemoryPersistence.getPkiService()
+                .newClientCertificateType("TLS-DN-MISMATCH", "SHA256withRSA")
+                .RSA()
+                .keySize(1024)
+                .add();
+
+        ClientCertificateWrapper clientCertificateWrapper = inMemoryPersistence.getPkiService().newClientCertificateWrapper(certificateType, "DataVault").alias("comserver-dn-mismatch").add();
+        clientCertificateWrapper.getPrivateKeyWrapper().generateValue();
+
+        X500NameBuilder x500NameBuilder = new X500NameBuilder();
+        x500NameBuilder.addRDN(BCStyle.CN, "ComserverTlsClient");
+        x500NameBuilder.addRDN(BCStyle.C, "Belgium");
+        x500NameBuilder.addRDN(BCStyle.L, "kortrijk");
+        x500NameBuilder.addRDN(BCStyle.O, "Honeywell");
+        x500NameBuilder.addRDN(BCStyle.OU, "SmartEnergy");
+        clientCertificateWrapper.generateCSR(x500NameBuilder.build());
+
+        X500NameBuilder newName = new X500NameBuilder();
+        newName.addRDN(BCStyle.CN, "ComserverTlsClient");
+        newName.addRDN(BCStyle.C, "Belgium");
+        newName.addRDN(BCStyle.O, "Honeywell");
+        newName.addRDN(BCStyle.OU, "SmartEnergy");
+
+        X509Certificate certificate = generateCertificateFromCSR(newName, clientCertificateWrapper.getCSR().get().getSubjectPublicKeyInfo());
+        clientCertificateWrapper.setCertificate(certificate);
     }
 
     @Test

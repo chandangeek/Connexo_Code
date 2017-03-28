@@ -34,9 +34,11 @@ public enum MessageSeeds implements MessageSeed {
     FAILED_TO_WRAP_WK(1018, "FailedToWrapWK", "Failed to AES wrap the WK: {0}"),
     GENERAL_KEYSTORE_FAILURE(1019, "GeneralKeystoreFailure", "The keystore could not be read: {0}"),
     COULD_NOT_READ_KEY_USAGES(1020, "ErrorReadingKeyUsages", "Could not read key usages"),
-    CERTIFICATE_PUBLIC_KEY_MISMATCH(1021, "CertificateMismatchCSR", "The certificate's public key does not match the CSR"),
-    UNSUPPORTED_KEY_TYPE(1022, "UnsupportedKeyType", "The key type you requested is not supported: {0}")
-    ;
+    CERTIFICATE_PUBLIC_KEY_MISMATCH(1021, "PublicKeyMismatchCSR", "The certificate's public key does not match the CSR"),
+    UNSUPPORTED_KEY_TYPE(1022, "UnsupportedKeyType", "The key type you requested is not supported: {0}"),
+    CERTIFICATE_SUBJECT_DN_MISMATCH(1023, "SubjectMismatchCSR", "The certificate's subject distinguished name does not match the CSR"),
+    CERTIFICATE_KEY_USAGES_MISMATCH(1024, "KeyUsagesMismatchCSR", "The certificate's key usage extension does not match the CSR"),
+    CERTIFICATE_EXTENDED_KEY_USAGES_MISMATCH(1025, "ExtendedKeyUsagesMismatchCSR", "The certificate's extended key usage extension does not match the CSR"),
     ;
 
     private final int number;
