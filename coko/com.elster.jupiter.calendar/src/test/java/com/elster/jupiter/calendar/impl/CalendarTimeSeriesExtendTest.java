@@ -64,7 +64,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
- * Tests the {@link ServerCalendar#extend(long)} and {@link ServerCalendar#bumpEndYear()} methods
+ * Tests the {@link ServerCalendar#extendAllTimeSeries()} and {@link ServerCalendar#bumpEndYear()} methods
  * that are being called from the recurrent task that extends the cached time series of a Calendar.
  *
  * @author Rudi Vankeirsbilck (rudi)
@@ -149,7 +149,7 @@ public class CalendarTimeSeriesExtendTest {
     }
 
     @Test
-    public void extend() {
+    public void extendAllTimeSeries() {
         ServerCalendarService calendarService = this.getCalendarService();
         when(this.dataModel.getInstance(CalendarTimeSeriesEntityImpl.class)).thenReturn(new CalendarTimeSeriesEntityImpl(calendarService));
         ServerCalendar calendar = this.createSimplePeakOffPeakCalendar(calendarService, "FirstCall");
@@ -161,7 +161,7 @@ public class CalendarTimeSeriesExtendTest {
         when(this.storer.execute()).thenReturn(this.storerStats);
 
         // Business methods
-        calendar.extend(TIMESERIES_ID);
+        calendar.extendAllTimeSeries();
 
         // Asserts
         verify(this.vault, never()).createRegularTimeSeries(this.recordSpec, ZoneOffset.UTC, Duration.ofHours(1), 0);

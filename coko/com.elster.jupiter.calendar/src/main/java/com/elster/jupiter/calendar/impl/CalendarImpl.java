@@ -580,12 +580,8 @@ public class CalendarImpl implements ServerCalendar {
     }
 
     @Override
-    public void extend(long timeSeriesId) {
-        this.timeSeries
-                .stream()
-                .filter(each -> each.timeSeries().getId() == timeSeriesId)
-                .findAny()
-                .ifPresent(CalendarTimeSeriesEntity::extend);
+    public void extendAllTimeSeries() {
+        this.timeSeries.forEach(CalendarTimeSeriesEntity::extend);
     }
 
     @Override

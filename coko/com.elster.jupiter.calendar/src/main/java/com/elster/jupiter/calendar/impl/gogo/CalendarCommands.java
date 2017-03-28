@@ -8,9 +8,7 @@ import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.calendar.EventSet;
 import com.elster.jupiter.calendar.OutOfTheBoxCategory;
-import com.elster.jupiter.calendar.impl.CalendarTimeSeriesEntity;
 import com.elster.jupiter.calendar.impl.ServerCalendar;
-import com.elster.jupiter.ids.TimeSeries;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -99,32 +97,24 @@ public class CalendarCommands {
     }
 
     public void extend() {
-        System.out.println("Usage: extend (<id> | <name>) <amount> (Min | H | D | Mon | Y)");
+        System.out.println("Usage: extend (<id> | <name>)");
     }
 
-    public void extend(long id, int temporalAmount, String temporalAmountType) {
+    public void extend(long id) {
         Calendar calendar = this.calendarService.findCalendar(id).orElseThrow(() -> new IllegalArgumentException("Calendar with id " + id + " not found"));
-        this.extend((ServerCalendar) calendar, temporalAmount, temporalAmountType, ZoneOffset.UTC);
+        this.extend((ServerCalendar) calendar, ZoneOffset.UTC);
     }
 
-    public void extend(String name, int temporalAmount, String temporalAmountType) {
+    public void extend(String name) {
         Calendar calendar = this.calendarService.findCalendarByName(name).orElseThrow(() -> new IllegalArgumentException("Calendar with name " + name + " not found"));
-        this.extend((ServerCalendar) calendar, temporalAmount, temporalAmountType, ZoneOffset.UTC);
+        this.extend((ServerCalendar) calendar, ZoneOffset.UTC);
     }
 
-    private void extend(ServerCalendar calendar, int temporalAmount, String temporalAmountType, ZoneId zoneId) {
+    private void extend(ServerCalendar calendar, ZoneId zoneId) {
         this.threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
-            long timeSeriesId=
-                    calendar
-                        .getCachedTimeSeries()
-                        .stream()
-                        .filter(calendarTimeSeriesEntity -> calendarTimeSeriesEntity.matches(toTemporalAmount(temporalAmount, temporalAmountType), zoneId))
-                        .findAny()
-                        .map(CalendarTimeSeriesEntity::timeSeries)
-                        .map(TimeSeries::getId)
-                        .orElseThrow(() -> new IllegalArgumentException("TimeSeries for specified interval was not generated before, see cal:toTimeSeries"));
-            calendar.extend(timeSeriesId);
+            calendar.extendAllTimeSeries();
+            calendar.bumpEndYear();
             context.commit();
         }
     }

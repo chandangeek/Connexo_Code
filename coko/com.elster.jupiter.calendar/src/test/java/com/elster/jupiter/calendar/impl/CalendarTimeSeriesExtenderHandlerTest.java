@@ -7,12 +7,12 @@ package com.elster.jupiter.calendar.impl;
 import com.elster.jupiter.ids.TimeSeries;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageBuilder;
-import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.tasks.TaskLogHandler;
 import com.elster.jupiter.tasks.TaskOccurrence;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Optional;
+import java.util.logging.Handler;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -20,9 +20,9 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.times;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 /**
@@ -34,14 +34,15 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class CalendarTimeSeriesExtenderHandlerTest {
 
-    private static final long CALENDAR_ID = 97L;
-    private static final long TIMESERIES_1_ID = 101L;
-    private static final long TIMESERIES_2_ID = 102L;
+    private static final long CALENDAR_1_ID = 97L;
+    private static final long TIMESERIES_1_1_ID = 101L;
+    private static final long TIMESERIES_1_2_ID = 102L;
+    private static final long CALENDAR_2_ID = 103L;
+    private static final long TIMESERIES_2_1_ID = 104L;
+    private static final long TIMESERIES_2_2_ID = 105L;
 
     @Mock
     private ServerCalendarService calendarService;
-    @Mock
-    private MessageService messageService;
     @Mock
     private DestinationSpec destinationSpec;
     @Mock
@@ -49,34 +50,69 @@ public class CalendarTimeSeriesExtenderHandlerTest {
     @Mock
     private TaskOccurrence taskOccurrence;
     @Mock
-    private ServerCalendar calendar;
+    private TaskLogHandler taskLogHandler;
     @Mock
-    private CalendarTimeSeriesEntity calendarTimeSeries1;
+    private Handler handler;
     @Mock
-    private TimeSeries timeSeries1;
+    private ServerCalendar calendar1;
     @Mock
-    private CalendarTimeSeriesEntity calendarTimeSeries2;
+    private CalendarTimeSeriesEntity calendarTimeSeries1_1;
     @Mock
-    private TimeSeries timeSeries2;
+    private TimeSeries timeSeries1_1;
+    @Mock
+    private CalendarTimeSeriesEntity calendarTimeSeries1_2;
+    @Mock
+    private TimeSeries timeSeries1_2;
+    @Mock
+    private ServerCalendar calendar2;
+    @Mock
+    private CalendarTimeSeriesEntity calendarTimeSeries2_1;
+    @Mock
+    private TimeSeries timeSeries2_1;
+    @Mock
+    private CalendarTimeSeriesEntity calendarTimeSeries2_2;
+    @Mock
+    private TimeSeries timeSeries2_2;
+
+    private FakeTransactionService transactionService = new FakeTransactionService();
 
     @Before
     public void setupCalendarService() {
-        when(this.calendarService.findAllCalendarsForExtension()).thenReturn(Collections.singletonList(this.calendar));
-        when(this.calendarService.findCalendar(CALENDAR_ID)).thenReturn(Optional.of(this.calendar));
-        when(this.calendar.getId()).thenReturn(CALENDAR_ID);
-        when(this.calendar.getCachedTimeSeries()).thenReturn(Arrays.asList(this.calendarTimeSeries1, calendarTimeSeries2));
-        when(this.calendarTimeSeries1.calendar()).thenReturn(this.calendar);
-        when(this.calendarTimeSeries1.timeSeries()).thenReturn(this.timeSeries1);
-        when(this.timeSeries1.getId()).thenReturn(TIMESERIES_1_ID);
-        when(this.calendarTimeSeries2.calendar()).thenReturn(this.calendar);
-        when(this.calendarTimeSeries2.timeSeries()).thenReturn(this.timeSeries2);
-        when(this.timeSeries2.getId()).thenReturn(TIMESERIES_2_ID);
+        when(this.calendarService.findAllCalendarsForExtension()).thenReturn(Arrays.asList(this.calendar1, this.calendar2));
+        when(this.calendarService.findCalendar(CALENDAR_1_ID)).thenReturn(Optional.of(this.calendar1));
+        when(this.calendar1.getId()).thenReturn(CALENDAR_1_ID);
+        when(this.calendar1.getCachedTimeSeries()).thenReturn(Arrays.asList(this.calendarTimeSeries1_1, calendarTimeSeries1_2));
+        when(this.calendarTimeSeries1_1.calendar()).thenReturn(this.calendar1);
+        when(this.calendarTimeSeries1_1.timeSeries()).thenReturn(this.timeSeries1_1);
+        when(this.timeSeries1_1.getId()).thenReturn(TIMESERIES_1_1_ID);
+        when(this.calendarTimeSeries1_2.calendar()).thenReturn(this.calendar1);
+        when(this.calendarTimeSeries1_2.timeSeries()).thenReturn(this.timeSeries1_2);
+        when(this.timeSeries1_2.getId()).thenReturn(TIMESERIES_1_2_ID);
+        when(this.calendarService.findCalendar(CALENDAR_2_ID)).thenReturn(Optional.of(this.calendar2));
+        when(this.calendar2.getId()).thenReturn(CALENDAR_2_ID);
+        when(this.calendar2.getCachedTimeSeries()).thenReturn(Arrays.asList(this.calendarTimeSeries2_1, calendarTimeSeries2_2));
+        when(this.calendarTimeSeries2_2.calendar()).thenReturn(this.calendar2);
+        when(this.calendarTimeSeries2_2.timeSeries()).thenReturn(this.timeSeries2_1);
+        when(this.timeSeries2_2.getId()).thenReturn(TIMESERIES_2_1_ID);
+        when(this.calendarTimeSeries2_2.calendar()).thenReturn(this.calendar2);
+        when(this.calendarTimeSeries2_2.timeSeries()).thenReturn(this.timeSeries2_2);
+        when(this.timeSeries2_2.getId()).thenReturn(TIMESERIES_2_2_ID);
+        when(this.taskOccurrence.createTaskLogHandler()).thenReturn(this.taskLogHandler);
+        when(this.taskLogHandler.asHandler()).thenReturn(this.handler);
     }
 
-    @Before
-    public void setupMessageService() {
-        when(this.messageService.getDestinationSpec(CalendarTimeSeriesExtenderHandlerFactory.TASK_DESTINATION)).thenReturn(Optional.of(this.destinationSpec));
-        when(this.destinationSpec.message(anyString())).thenReturn(this.messageBuilder);
+    @Test
+    public void noWorkIsDoneInExecute() {
+        CalendarTimeSeriesExtenderHandler testInstance = this.getInstance();
+        when(this.taskOccurrence.getPayLoad()).thenReturn(CalendarTimeSeriesExtenderHandler.GLOBAL_START_PAYLOAD);
+
+        // Business method
+        testInstance.execute(this.taskOccurrence);
+
+        // Asserts
+        assertThat(this.transactionService.getContexts()).isEmpty();
+        verifyZeroInteractions(this.calendar1);
+        verifyZeroInteractions(this.calendar2);
     }
 
     @Test
@@ -85,28 +121,18 @@ public class CalendarTimeSeriesExtenderHandlerTest {
         when(this.taskOccurrence.getPayLoad()).thenReturn(CalendarTimeSeriesExtenderHandler.GLOBAL_START_PAYLOAD);
 
         // Business method
-        testInstance.execute(this.taskOccurrence);
+        testInstance.postExecute(this.taskOccurrence);
 
         // Asserts
-        verify(this.messageService).getDestinationSpec(CalendarTimeSeriesExtenderHandlerFactory.TASK_DESTINATION);
-        verify(this.destinationSpec, times(2)).message(anyString());    // Create a message for every cached time series
-        verify(this.messageBuilder, times(2)).send();   // Send every messge that was created
-    }
-
-    @Test
-    public void executeSingleTask() {
-        CalendarTimeSeriesExtenderHandler testInstance = this.getInstance();
-        when(this.taskOccurrence.getPayLoad()).thenReturn(CALENDAR_ID + "#" + TIMESERIES_1_ID);
-
-        // Business method
-        testInstance.execute(this.taskOccurrence);
-
-        // Asserts
-        verify(this.calendarService).findCalendar(CALENDAR_ID);
-        verify(this.calendar).extend(TIMESERIES_1_ID);
+        assertThat(this.transactionService.getContexts()).hasSize(2);   // Two calendars so two transactions
+        verify(this.calendar1).extendAllTimeSeries();
+        verify(this.calendar2).extendAllTimeSeries();
+        verify(this.taskOccurrence).createTaskLogHandler();
+        verify(this.taskLogHandler).asHandler();
     }
 
     private CalendarTimeSeriesExtenderHandler getInstance() {
-        return new CalendarTimeSeriesExtenderHandler(this.calendarService, this.messageService);
+        return new CalendarTimeSeriesExtenderHandler(this.transactionService, this.calendarService);
     }
+
 }

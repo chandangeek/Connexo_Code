@@ -41,11 +41,9 @@ public interface ServerCalendar extends Calendar {
     ZonedView forZone(ZoneId zoneId, Year startYear, Year endYear);
 
     /**
-     * Extends the cached TimeSeries with one additional year.
-     *
-     * @param timeSeriesId The id of the existing cached TimeSeries
+     * Extends all the cached TimeSeries with one additional year.
      */
-    void extend(long timeSeriesId);
+    void extendAllTimeSeries();
 
     /**
      * Bumps the end year (as part of extending the cached timeseries).
