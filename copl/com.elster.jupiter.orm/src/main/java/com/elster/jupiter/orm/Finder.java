@@ -4,8 +4,10 @@
 
 package com.elster.jupiter.orm;
 
-import aQute.bnd.annotation.ProviderType;
+import com.elster.jupiter.util.conditions.Comparison;
 import com.elster.jupiter.util.conditions.Order;
+
+import aQute.bnd.annotation.ProviderType;
 
 import java.time.Instant;
 import java.util.List;
@@ -96,5 +98,9 @@ public interface Finder<T> extends BasicQuery<T> {
 	 */
     interface JournalFinder<S> {
     	List<JournalEntry<S>> find(Map<String, Object> valueMap);
+
+        List<JournalEntry<S>> find(List<Comparison> comparisons);
     }
+
+
 }
