@@ -8,9 +8,11 @@ Ext.define('Pkj.view.CertificatesGrid', {
     requires: [
         'Uni.grid.column.Action',
         'Pkj.view.CertificateActionMenu',
+        'Pkj.view.CertificatesGridActionMenu',
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom'
     ],
+    router: undefined,
 
     initComponent: function () {
         var me = this;
@@ -18,7 +20,11 @@ Ext.define('Pkj.view.CertificatesGrid', {
             {
                 header: Uni.I18n.translate('general.alias', 'PKJ', 'Alias'),
                 dataIndex: 'alias',
-                flex: 1
+                flex: 1,
+                renderer: function (value, metaData, record) {
+                    var url = me.router.getRoute('administration/certificates/view').buildUrl({certificateId: record.get('id')});
+                    return '<a href="' + url + '">' + Ext.String.htmlEncode(value) + '</a>';
+                }
             },
             {
                 header: Uni.I18n.translate('general.type', 'PKJ', 'Type'),
@@ -27,12 +33,12 @@ Ext.define('Pkj.view.CertificatesGrid', {
             },
             {
                 header: Uni.I18n.translate('general.issuer', 'PKJ', 'Issuer'),
-                dataIndex: 'issuer',
+                dataIndex: 'certificateIssuer',
                 flex: 1
             },
             {
                 header: Uni.I18n.translate('general.subject', 'PKJ', 'Subject'),
-                dataIndex: 'subject',
+                dataIndex: 'certificateSubject',
                 flex: 1
             },
             {
@@ -72,14 +78,10 @@ Ext.define('Pkj.view.CertificatesGrid', {
                 emptyMsg: Uni.I18n.translate('certificates.pagingtoolbartop.emptyMsg', 'PKJ', 'There are no certificates to display'),
                 items: [
                     {
-                        xtype: 'button',
-                        text: Uni.I18n.translate('general.addCSR', 'PKJ', 'Add CSR'),
-                        itemId: 'pkj-certificates-grid-add-csr-btn'
-                    },
-                    {
-                        xtype: 'button',
-                        text: Uni.I18n.translate('general.addCertificate', 'PKJ', 'Add certificate'),
-                        itemId: 'pkj-certificates-grid-add-certificate-btn'
+                        xtype: 'uni-button-action',
+                        menu: {
+                            xtype: 'certificates-grid-action-menu'
+                        }
                     }
                 ]
             },

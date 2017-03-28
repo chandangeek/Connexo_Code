@@ -78,6 +78,27 @@ Ext.define('Pkj.controller.history.Main', {
                             title: Uni.I18n.translate('general.addCertificate', 'PKJ', 'Add certificate'),
                             controller: 'Pkj.controller.Certificates',
                             action: 'showAddCertificatePage'
+                        },
+                        view: {
+                            route: '{certificateId}',
+                            title: '&nbsp;',
+                            controller: 'Pkj.controller.Certificates',
+                            action: 'showCertificateDetailsPage',
+                            callback: function (route) {
+                                this.getApplication().on('certificateLoaded', function (name) {
+                                    route.setTitle(name);
+                                    return true;
+                                }, {single: true});
+                                return this;
+                            },
+                            items: {
+                                import: {
+                                    route: 'import',
+                                    title: Uni.I18n.translate('general.importCertificate', 'PKJ', 'Import certificate'),
+                                    controller: 'Pkj.controller.Certificates',
+                                    action: 'showImportCertificatePage'
+                                }
+                            }
                         }
                     }
                 }

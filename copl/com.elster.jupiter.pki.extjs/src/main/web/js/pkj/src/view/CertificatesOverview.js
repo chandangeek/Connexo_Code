@@ -30,8 +30,10 @@ Ext.define('Pkj.view.CertificatesOverview', {
                         xtype: 'preview-container',
                         grid: {
                             xtype: 'certificates-grid',
+                            itemId: 'pkj-certificates-grid',
                             store: me.store,
-                            itemId: 'pkj-certificates-grid'
+                            router: me.router
+
                         },
                         emptyComponent: {
                             xtype: 'no-items-found-panel',
@@ -50,7 +52,7 @@ Ext.define('Pkj.view.CertificatesOverview', {
                                 {
                                     xtype: 'button',
                                     text: Uni.I18n.translate('general.addCertificate', 'PKJ', 'Add certificate'),
-                                    itemId: ''
+                                    itemId: 'pkj-no-certificates-add-certificate-btn'
                                 }
                             ]
                         },

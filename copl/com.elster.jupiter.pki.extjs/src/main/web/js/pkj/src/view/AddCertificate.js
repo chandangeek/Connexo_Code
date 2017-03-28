@@ -10,13 +10,18 @@ Ext.define('Pkj.view.AddCertificate', {
 
     record: undefined,
     cancelLink: undefined,
+    importMode: false,
 
     initComponent: function () {
-        this.content = [
+        var me = this;
+
+        me.content = [
             {
                 xtype: 'panel',
                 ui: 'large',
-                title: Uni.I18n.translate('general.addCertificate', 'PKJ', 'Add certificate'),
+                title: me.importMode
+                    ? Uni.I18n.translate('general.importCertificate', 'PKJ', 'Import certificate')
+                    : Uni.I18n.translate('general.addCertificate', 'PKJ', 'Add certificate'),
                 items: {
                     xtype: 'certificate-add-form',
                     autoEl: {
@@ -24,10 +29,11 @@ Ext.define('Pkj.view.AddCertificate', {
                         enctype: 'multipart/form-data'
                     },
                     record: this.record,
-                    cancelLink: this.cancelLink
+                    cancelLink: this.cancelLink,
+                    importMode: me.importMode
                 }
             }
         ];
-        this.callParent(arguments);
+        me.callParent(arguments);
     }
 });

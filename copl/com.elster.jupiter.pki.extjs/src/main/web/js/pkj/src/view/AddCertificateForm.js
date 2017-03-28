@@ -5,7 +5,6 @@ Ext.define('Pkj.view.AddCertificateForm', {
     extend: 'Ext.form.Panel',
     alias: 'widget.certificate-add-form',
     edit: false,
-    //hydrator: 'Fwc.form.Hydrator',
 
     requires: [
         'Pkj.view.CertificateFileField',
@@ -16,6 +15,7 @@ Ext.define('Pkj.view.AddCertificateForm', {
 
     cancelLink: undefined,
     trustStoreRecord: undefined,
+    importMode: false,
 
     initComponent: function () {
         var me = this;
@@ -34,8 +34,9 @@ Ext.define('Pkj.view.AddCertificateForm', {
                 required: true,
                 name: 'alias',
                 itemId: 'pkj-certificate-add-form-alias',
-                allowBlank: false,
-                anchor: '40%'
+                allowBlank: !me.importMode,
+                anchor: '40%',
+                hidden: me.importMode
             },
             {
                 xtype: 'certificate-file-field',
@@ -52,7 +53,9 @@ Ext.define('Pkj.view.AddCertificateForm', {
                 items: [
                     {
                         xtype: 'button',
-                        text: Uni.I18n.translate('general.add', 'PKJ', 'Add'),
+                        text: me.importMode
+                            ? Uni.I18n.translate('general.import', 'PKJ', 'Import')
+                            : Uni.I18n.translate('general.add', 'PKJ', 'Add'),
                         ui: 'action',
                         itemId: 'pkj-certificate-add-form-add-btn'
                     },

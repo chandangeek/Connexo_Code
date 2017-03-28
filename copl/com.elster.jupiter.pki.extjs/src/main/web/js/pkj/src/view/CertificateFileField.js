@@ -4,14 +4,14 @@
 Ext.define('Pkj.view.CertificateFileField', {
     extend: 'Ext.form.field.File',
     xtype: 'certificate-file-field',
-    name: 'certificateFile',
+    name: 'file',
     required: true,
-    fieldLabel: Uni.I18n.translate('general.keyStoreFile', 'PKJ', 'Certificate file'),
+    fieldLabel: Uni.I18n.translate('general.certificateFile', 'PKJ', 'Certificate file'),
     allowBlank: false,
     buttonText: Uni.I18n.translate('general.selectFile', 'PKJ', 'Select file...'),
     afterBodyEl: [
         '<div class="x-form-display-field"><i>',
-        Uni.I18n.translate('general.maxKeyStoreFileSize', 'PKJ', 'Maximum file size is 250kB'),
+        Uni.I18n.translate('general.maxKeyStoreFileSize', 'PKJ', 'Maximum file size is 2 kB'),
         '</i></div>'
     ]
 });
