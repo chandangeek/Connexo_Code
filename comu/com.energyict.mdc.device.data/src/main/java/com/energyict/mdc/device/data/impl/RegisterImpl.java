@@ -15,6 +15,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.orm.JournalEntry;
 import com.elster.jupiter.util.Pair;
+import com.elster.jupiter.util.collections.DualIterable;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.energyict.mdc.common.ObisCode;
@@ -134,7 +135,6 @@ public abstract class RegisterImpl<R extends Reading, RS extends RegisterSpec> i
         return this.device.forValidation().getValidationStatus(this, readings, interval);
     }
 
-    private List<R> toReadings(List<ReadingRecord> koreReadings) {
     private List<Optional<DataValidationStatus>> getHistoryValidationStatuses(Register<?, ?> register, Range<Instant> interval, List<ReadingRecord> readings) {
         Map<ReadingRecord, List<ReadingQualityRecord>> historyReadingQualities = this.getHistoryReadingQualities(interval, readings, register);
         return readings
