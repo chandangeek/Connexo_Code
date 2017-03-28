@@ -125,7 +125,7 @@ Ext.define('Pkj.controller.Certificates', {
 
         errorMsgPanel.hide();
         form.getForm().clearInvalid();
-        debugger;
+
         if (!form.isValid()) {
             errorMsgPanel.show();
             if ( file!=undefined && file.size > maxFileSize) {
