@@ -56,12 +56,15 @@ import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
+import com.energyict.mdc.protocol.api.services.CustomPropertySetInstantiatorService;
 import com.energyict.mdc.protocol.api.services.DeviceCacheMarshallingService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolMessageService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolSecurityService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
@@ -86,6 +89,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Mockito.mock;
@@ -283,6 +287,18 @@ public class DeviceConfigValidationRuleSetUsageTest {
     }
 
     private class MockModule extends AbstractModule {
+
+        private final DeviceMessageSpecificationService deviceMessageSpecificationService;
+
+        public MockModule() {
+            this.deviceMessageSpecificationService = mock(DeviceMessageSpecificationService.class);
+
+            when(deviceMessageSpecificationService.findCategoryById(anyInt())).thenAnswer(invocation -> {
+                Object[] args = invocation.getArguments();
+                return Optional.of(DeviceMessageTestCategories.values()[((int) args[0])]);
+            });
+        }
+
         @Override
         protected void configure() {
             bind(EventAdmin.class).toInstance(eventAdmin);
@@ -290,6 +306,9 @@ public class DeviceConfigValidationRuleSetUsageTest {
             bind(LicenseService.class).toInstance(licenseService);
             bind(IssueService.class).toInstance(issueService);
             bind(PropertySpecService.class).toInstance(propertySpecService);
+            bind(DeviceMessageSpecificationService.class).toInstance(deviceMessageSpecificationService);
+            bind(IdentificationService.class).toInstance(mock(IdentificationService.class));
+            bind(CustomPropertySetInstantiatorService.class).toInstance(mock(CustomPropertySetInstantiatorService.class));
             bind(ConnectionTypeService.class).toInstance(connectionTypeService);
             bind(DeviceCacheMarshallingService.class).toInstance(deviceCacheMarshallingService);
             bind(DeviceProtocolMessageService.class).toInstance(deviceProtocolMessageService);
