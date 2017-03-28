@@ -317,6 +317,11 @@ public final class TimeSeriesImpl implements TimeSeries {
 	}
 
 	@Override
+	public List<TimeSeriesEntry> getJournalEntries(Range<Instant> interval) {
+		return getVault().getJournalEntries(this, interval);
+	}
+
+	@Override
 	public SqlFragment getRawValuesSql(Range<Instant> interval, Pair<String, String>... fieldSpecAndAliasNames) {
 		return this.getVault().getRawValuesSql(this, interval, fieldSpecAndAliasNames);
 	}

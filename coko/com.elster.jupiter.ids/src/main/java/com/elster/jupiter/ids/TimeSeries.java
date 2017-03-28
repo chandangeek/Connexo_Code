@@ -31,6 +31,8 @@ public interface TimeSeries {
 	boolean add(Instant dateTime , boolean overrule , Object... values);
     List<TimeSeriesEntry> getEntries(Range<Instant> interval);
 
+	List<TimeSeriesEntry> getJournalEntries(Range<Instant> interval);
+
 	/**
 	 * Returns a SqlFragment that selects the requested raw data of this TimeSeries
 	 * for the specified period in time.

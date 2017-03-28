@@ -29,4 +29,6 @@ public interface IVault extends Vault {
 
     void removeEntries(TimeSeriesImpl timeSeries, Range<Instant> range);
 
+    List<TimeSeriesEntry> getJournalEntries(TimeSeriesImpl timeSeries, Range<Instant> interval);
+
 }

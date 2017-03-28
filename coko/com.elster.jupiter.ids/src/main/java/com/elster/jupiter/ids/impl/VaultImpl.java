@@ -425,6 +425,15 @@ public final class VaultImpl implements IVault {
     }
 
     @Override
+    public List<TimeSeriesEntry> getJournalEntries(TimeSeriesImpl timeSeries, Range<Instant> interval) {
+        try {
+            return doGetJournalEntries(timeSeries, interval);
+        } catch (SQLException ex) {
+            throw new UnderlyingSQLFailedException(ex);
+        }
+    }
+
+    @Override
     public SqlFragment getRawValuesSql(TimeSeriesImpl timeSeries, Range<Instant> interval, Pair<String, String>... fieldSpecAndAliasNames) {
         return this.rangeSql(timeSeries, interval, Arrays.asList(fieldSpecAndAliasNames));
     }
@@ -463,6 +472,11 @@ public final class VaultImpl implements IVault {
         return builder;
     }
 
+    private SqlBuilder rangeJournalSql(TimeSeriesImpl timeSeries, Range<Instant> interval) {
+        SqlBuilder builder = selectJournalSql(timeSeries, interval);
+        return builder;
+    }
+
     private SqlBuilder rangeSql(TimeSeriesImpl timeSeries, Range<Instant> range, List<Pair<String, String>> recordSpecFieldNames) {
         SqlBuilder builder = selectSql(timeSeries, recordSpecFieldNames);
         this.appendRange(range, builder);
@@ -478,17 +492,17 @@ public final class VaultImpl implements IVault {
         return builder;
     }
 
-    private void appendRange(Range<Instant> range, SqlBuilder builder) {
+    private void appendRange(Range<Instant> interval, SqlBuilder builder) {
         builder.append(" AND UTCSTAMP >");
-        if (range.hasLowerBound() && range.lowerBoundType() == BoundType.CLOSED) {
+        if (interval.hasLowerBound() && interval.lowerBoundType() == BoundType.CLOSED) {
             builder.append("=");
         }
-        builder.addLong(range.hasLowerBound() ? range.lowerEndpoint().toEpochMilli() : Long.MIN_VALUE);
+        builder.addLong(interval.hasLowerBound() ? interval.lowerEndpoint().toEpochMilli() : Long.MIN_VALUE);
         builder.append("AND UTCSTAMP <");
-        if (range.hasUpperBound() && range.upperBoundType() == BoundType.CLOSED) {
+        if (interval.hasUpperBound() && interval.upperBoundType() == BoundType.CLOSED) {
             builder.append("=");
         }
-        builder.addLong(range.hasUpperBound() ? range.upperEndpoint().toEpochMilli() : Long.MAX_VALUE);
+        builder.addLong(interval.hasUpperBound() ? interval.upperEndpoint().toEpochMilli() : Long.MAX_VALUE);
     }
 
     private SqlBuilder entrySql(TimeSeriesImpl timeSeries, Instant when) {
@@ -512,6 +526,20 @@ public final class VaultImpl implements IVault {
                 try (ResultSet rs = statement.executeQuery()) {
                     while (rs.next()) {
                         result.add(new TimeSeriesEntryImpl(timeSeries, rs));
+                    }
+                }
+            }
+        }
+        return result;
+    }
+
+    private List<TimeSeriesEntry> doGetJournalEntries(TimeSeriesImpl timeSeries, Range<Instant> interval) throws SQLException {
+        List<TimeSeriesEntry> result = new ArrayList<>();
+        try (Connection connection = getConnection(false)) {
+            try (PreparedStatement statement = rangeJournalSql(timeSeries, interval).prepare(connection)) {
+                try (ResultSet rs = statement.executeQuery()) {
+                    while (rs.next()) {
+                        result.add(new TimeSeriesEntryImpl(timeSeries, rs, true));
                     }
                 }
             }
@@ -584,6 +612,50 @@ public final class VaultImpl implements IVault {
         builder.append(" FROM ");
         builder.append(getJournalTableName());
         builder.append(" WHERE");
+        return builder;
+    }
+
+    SqlBuilder selectJournalSql(TimeSeriesImpl timeSeries, Range<Instant> interval) {
+        String columnNames = "";
+        for (String column : timeSeries.getRecordSpec().columnNames()) {
+            columnNames += ", " + column;
+        }
+
+        SqlBuilder builder = new SqlBuilder("select TIMESERIESID, UTCSTAMP, VERSIONCOUNT, RECORDTIME " + columnNames + ", JOURNALTIME, USERNAME, ISACTIVE  from ");
+        builder.append(" ( ");
+
+        builder.append("select R1.TIMESERIESID, R1.UTCSTAMP, R1.VERSIONCOUNT, R1.RECORDTIME, R1.ISACTIVE, R1.JOURNALTIME, R2.USERNAME ");
+        for (String column : timeSeries.getRecordSpec().columnNames()) {
+            builder.append(", R1.");
+            builder.append(column);
+        }
+        builder.append(" FROM ");
+        builder.append(" ( ");
+        builder.append("    select TIMESERIESID, UTCSTAMP, VERSIONCOUNT, RECORDTIME, JOURNALTIME, USERNAME, ISACTIVE " + columnNames + "  from ");
+        builder.append("    ( ");
+        builder.append("        select TIMESERIESID, UTCSTAMP, VERSIONCOUNT, RECORDTIME, 0 JOURNALTIME, '' USERNAME, 1 ISACTIVE " + columnNames + "  from " + getTableName());
+        builder.append(" WHERE TIMESERIESID =" + timeSeries.getId());
+        builder.append("        union all ");
+        builder.append("        select TIMESERIESID, UTCSTAMP, VERSIONCOUNT, RECORDTIME, JOURNALTIME, USERNAME, 0 ISACTIVE " + columnNames + "  from " + getJournalTableName());
+        builder.append(" WHERE TIMESERIESID =" + timeSeries.getId());
+        builder.append("    ) ");
+        builder.append(" ) R1 ");
+        builder.append(" LEFT JOIN ");
+        builder.append(" ( ");
+        builder.append("    select TIMESERIESID, UTCSTAMP, VERSIONCOUNT, RECORDTIME,  JOURNALTIME, USERNAME, ISACTIVE " + columnNames + "  from ");
+        builder.append("    ( ");
+        builder.append("        select TIMESERIESID, UTCSTAMP, VERSIONCOUNT, RECORDTIME, 0 JOURNALTIME, '' USERNAME, 1 ISACTIVE " + columnNames + "  from " + getTableName());
+        builder.append(" WHERE TIMESERIESID =" + timeSeries.getId());
+        builder.append("        union all ");
+        builder.append("        select TIMESERIESID, UTCSTAMP, VERSIONCOUNT, RECORDTIME, JOURNALTIME, USERNAME, 0 ISACTIVE " + columnNames + "  from " + getJournalTableName());
+        builder.append(" WHERE TIMESERIESID =" + timeSeries.getId());
+        builder.append("    ) ");
+        builder.append(" ) R2 ");
+        builder.append(" ON R1.VERSIONCOUNT = R2.VERSIONCOUNT+1 and R1.UTCSTAMP = R2.UTCSTAMP ");
+        builder.append("    ) ");
+        builder.append(" WHERE 1=1 ");
+        this.appendRange(interval, builder);
+        builder.append(" order by UTCSTAMP DESC, VERSIONCOUNT desc");
         return builder;
     }
 

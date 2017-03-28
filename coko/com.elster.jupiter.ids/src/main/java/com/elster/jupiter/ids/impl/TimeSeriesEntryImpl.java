@@ -20,13 +20,20 @@ import java.util.List;
 import java.util.Optional;
 
 public class TimeSeriesEntryImpl implements TimeSeriesEntry {
-    private final TimeSeriesImpl timeSeries;
-    private final long timeStamp;
-    private final long version;
-    private final long recordTime;
-    private final Object[] values;
+    protected final TimeSeriesImpl timeSeries;
+    protected final long timeStamp;
+    protected final long version;
+    protected final long recordTime;
+    protected final long journalTime;
+    protected final String userName;
+    protected final Object[] values;
+
 
     TimeSeriesEntryImpl(TimeSeriesImpl timeSeries, ResultSet resultSet) throws SQLException {
+        this(timeSeries, resultSet, false);
+    }
+
+    TimeSeriesEntryImpl(TimeSeriesImpl timeSeries, ResultSet resultSet, Boolean isJournal) throws SQLException {
         this.timeSeries = timeSeries;
         int offset = 2;
         this.timeStamp = resultSet.getLong(offset++);
@@ -37,6 +44,8 @@ public class TimeSeriesEntryImpl implements TimeSeriesEntry {
         for (int i = 0; i < fieldSpecs.size(); i++) {
             values[i] = ((FieldSpecImpl) fieldSpecs.get(i)).getValue(resultSet, offset++);
         }
+        this.journalTime = isJournal ? resultSet.getLong("JOURNALTIME") : 0;
+        this.userName = isJournal ? resultSet.getString("USERNAME") : "";
     }
 
     TimeSeriesEntryImpl(TimeSeriesImpl timeSeries, Instant timeStamp, Object[] values) {
@@ -45,6 +54,8 @@ public class TimeSeriesEntryImpl implements TimeSeriesEntry {
         this.version = 1;
         this.recordTime = 0;
         this.values = Arrays.copyOf(values, values.length);
+        this.journalTime = 0;
+        this.userName = "";
     }
 
     private TimeSeriesEntryImpl(TimeSeriesEntryImpl source) {
@@ -53,6 +64,8 @@ public class TimeSeriesEntryImpl implements TimeSeriesEntry {
         this.version = source.version;
         this.recordTime = source.recordTime;
         this.values = Arrays.copyOf(source.values, source.values.length);
+        this.journalTime = source.journalTime;
+        this.userName = source.userName;
     }
 
     @Override
@@ -166,5 +179,15 @@ public class TimeSeriesEntryImpl implements TimeSeriesEntry {
     @Override
     public Optional<TimeSeriesEntry> getVersion(Instant at) {
         return getTimeSeries().getVault().getJournaledEntry(getTimeSeries(), getTimeStamp(), at);
+    }
+
+    @Override
+    public Instant getJournalTime() {
+        return Instant.ofEpochMilli(journalTime);
+    }
+
+    @Override
+    public String getUserName() {
+        return userName;
     }
 }
