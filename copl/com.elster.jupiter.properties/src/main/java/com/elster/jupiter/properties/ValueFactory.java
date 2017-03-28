@@ -19,16 +19,6 @@ public interface ValueFactory<T> {
 
     String toStringValue(T object);
 
-    /**
-     * Has been deprecated as it does not relate in any way to how
-     * values of the domain are being persisted.
-     * Client code that explicitly needs to know if values of the
-     * domain are business objects instead of basic value
-     * should be talking to the {@link PropertySpec}.
-     *
-     * @return A flag that indicates if values managed by this factory are in fact references to another business object
-     */
-    @Deprecated
     default boolean isReference() {
         return false;
     }

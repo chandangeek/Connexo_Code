@@ -75,7 +75,7 @@ public class BasicPropertySpec implements PropertySpec, Serializable {
 
     @Override
     public boolean isReference() {
-        return false;
+        return this.getValueFactory().isReference();
     }
 
     @Override
