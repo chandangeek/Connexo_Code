@@ -2,22 +2,24 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-Ext.define('Mdc.store.AvailableDataLoggerSlaveDeviceTypes',{
+Ext.define('Mdc.store.AvailableMultiElementSlaveDeviceTypes',{
     extend: 'Ext.data.Store',
     requires: [
         'Mdc.model.DeviceType'
     ],
     model: 'Mdc.model.DeviceType',
-    storeId: 'AvailableDataLoggerSlaveDeviceTypes',
-    filters: [
-        function(record) {
-            return record.get('deviceTypePurpose') === 'DATALOGGER_SLAVE';
-        }
-    ],
+    storeId: 'AvailableMultiElementSlaveDeviceTypes',
     sorters: [{
         property: 'name',
         direction: 'ASC'
     }],
+    filters: [
+        function(deviceType) {
+            return deviceType.get('deviceTypePurpose') === 'MULTI_ELEMENT_SLAVE' && deviceType.get('activeDeviceConfigurationCount') > 0;
+        }
+    ],
+    filterOnLoad: true,
+    remoteFilter: false,
     remoteSort: true,
     proxy: {
         type: 'rest',

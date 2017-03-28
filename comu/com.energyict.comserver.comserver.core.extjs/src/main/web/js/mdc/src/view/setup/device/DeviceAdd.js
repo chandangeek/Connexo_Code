@@ -9,11 +9,13 @@ Ext.define('Mdc.view.setup.device.DeviceAdd', {
     requires: [
         'Mdc.store.AvailableDeviceTypes',
         'Mdc.store.AvailableDeviceConfigurations',
-        'Uni.util.Hydrator'
+        'Uni.util.Hydrator',
+        'Mdc.util.LinkPurpose'
     ],
     labelWidth: 250,
     formWidth: 650,
     deviceTypeStore: undefined,
+    purpose: undefined,
 
     initComponent: function () {
         var me = this;

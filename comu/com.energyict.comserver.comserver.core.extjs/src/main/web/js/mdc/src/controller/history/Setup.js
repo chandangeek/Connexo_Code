@@ -526,7 +526,10 @@ Ext.define('Mdc.controller.history.Setup', {
                             action: 'showDataLoggerSlaves',
                             callback: function (route) {
                                 this.getApplication().on('loadDevice', function (device) {
-                                    route.setTitle(Mdc.util.LinkPurpose.forDevice(device).pageTitle);
+                                    var purpose = Mdc.util.LinkPurpose.forDevice(device);
+                                    if (!Ext.isEmpty(purpose)){
+                                        route.setTitle(purpose.pageTitle);
+                                    }
                                     return true;
                                 }, {single: true});
                                 return this;
