@@ -6,6 +6,7 @@ package com.energyict.mdc.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingRecord;
+import com.elster.jupiter.metering.ReadingType;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -14,7 +15,8 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Represents {@link ReadingRecord} with validation status
+ * Represents {@link ReadingRecord} with validation status. <br>
+ * Data, collected by this class will be represented as {@link RegisterDataInfo} by corresponding factory
  */
 public class RegisterReadingWithValidationStatus {
 
@@ -24,6 +26,10 @@ public class RegisterReadingWithValidationStatus {
     public RegisterReadingWithValidationStatus(ZonedDateTime readingTimeStamp, ReadingRecord readingRecord) {
         this.readingTimeStamp = readingTimeStamp;
         this.readingRecord = Optional.of(readingRecord);
+    }
+
+    public ReadingType getReadingType() {
+        return readingRecord.map(readingRecord1 -> readingRecord1.getReadingType()).orElse(null);
     }
 
     public BigDecimal getValue() {

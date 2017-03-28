@@ -4,7 +4,10 @@
 
 package com.energyict.mdc.usagepoint.data.rest.impl;
 
+import com.elster.jupiter.metering.config.DeliverableType;
 import com.elster.jupiter.validation.ValidationAction;
+
+import com.energyict.mdc.device.data.NumericalRegister;
 
 import com.google.common.collect.RangeMap;
 
@@ -24,15 +27,42 @@ public class RegisterDataInfoFactory {
      * @return {@link RegisterDataInfo} info object
      */
     public RegisterDataInfo asInfo(RegisterReadingWithValidationStatus readingRecord,
-                                   RangeMap<Instant, Instant> lastCheckedMap) {
-        RegisterDataInfo registerDataInfo = new RegisterDataInfo();
+                                   RangeMap<Instant, Instant> lastCheckedMap, DeliverableType deliverableType) {
+
+
+
+        RegisterDataInfo registerDataInfo = null;
+                /*new RegisterDataInfo();
         registerDataInfo.measurementTime = readingRecord.getTimeStamp();
         registerDataInfo.value = readingRecord.getValue();
         Optional<Instant> lastChecked = Optional.ofNullable(lastCheckedMap.get(readingRecord.getTimeStamp()));
         lastChecked.ifPresent(instant -> registerDataInfo.readingTime = readingRecord.getTimeStamp());
         registerDataInfo.validationResult = readingRecord.getValidationStatus(lastChecked.orElse(Instant.MIN));
         registerDataInfo.dataValidated = !readingRecord.getTimeStamp().isAfter(lastChecked.orElse(Instant.MIN));
-        registerDataInfo.validationAction = ValidationAction.FAIL;
+        registerDataInfo.validationAction = ValidationAction.FAIL;*/
+
+
+
+
         return registerDataInfo;
+    }
+
+    private RegisterDataInfo createRegisterDataInfo(RegisterReadingWithValidationStatus registerReadingWithValidationStatus, DeliverableType deliverableType) {
+        RegisterDataInfo registerDataInfo = null;
+        switch (deliverableType) {
+            case NUMERICAL:break;
+            NumericalRegisterDataInfo numericalRegisterDataInfo = new NumericalRegisterDataInfo();
+            numericalRegisterDataInfo.
+            case TEXT: break;
+            case BILLING:
+                break;
+            case FLAGS:
+                break;
+            default:
+
+        }
+
+        registerReadingWithValidationStatus.getReadingType();
+
     }
 }

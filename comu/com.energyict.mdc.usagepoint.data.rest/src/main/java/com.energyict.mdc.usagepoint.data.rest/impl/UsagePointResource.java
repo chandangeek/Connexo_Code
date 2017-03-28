@@ -10,6 +10,7 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.config.DeliverableType;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
@@ -229,10 +230,14 @@ public class UsagePointResource {
 
                 Range<Instant> effectiveInterval = usagePointActivationInterval.intersection(requestedInterval);
 
+                DeliverableType deliverableType = resourceHelper.identifyDeliverableType(effectiveMetrologyConfiguration, register, usagePointRegisterInfoFactory
+                        .getChannelType());
+
                 Map<Instant, RegisterReadingWithValidationStatus> preFilledRegisterDataMap = register.getRegisterReadings(effectiveInterval)
                         .stream()
                         .collect(Collectors.toMap(ReadingRecord::getTimeStamp, reading ->
-                                new RegisterReadingWithValidationStatus(ZonedDateTime.ofInstant(reading.getTimeStamp(), clock.getZone()),reading)));
+                                new RegisterReadingWithValidationStatus(ZonedDateTime.ofInstant(reading.getTimeStamp(), clock
+                                        .getZone()), reading)));
 
                 RangeMap<Instant, Instant> lastCheckedOfSourceChannels =
                         getLastCheckedOfSourceChannels(effectiveMetrologyConfiguration, register);
@@ -240,7 +245,7 @@ public class UsagePointResource {
                 outputRegisterDataInfoList = preFilledRegisterDataMap.entrySet().stream()
                         .sorted(Collections.reverseOrder(Comparator.comparing(Map.Entry::getKey)))
                         .map(Map.Entry::getValue)
-                        .map((reading) -> registerDataInfoFactory.asInfo(reading, lastCheckedOfSourceChannels))
+                        .map((reading) -> registerDataInfoFactory.asInfo(reading, lastCheckedOfSourceChannels, deliverableType))
                         .collect((Collectors.toList()));
             }
         }
