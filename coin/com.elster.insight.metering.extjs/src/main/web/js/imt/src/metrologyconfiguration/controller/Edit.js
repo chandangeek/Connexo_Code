@@ -321,7 +321,7 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
                 });
 
                 wizard.add(stepsToAdd);
-                wizard.updateRecord(records);
+                wizard.updateRecord(clearRecords);
             });
         } else {
             direction = -1;
