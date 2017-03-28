@@ -19,7 +19,6 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLDeviceMessageCategoryAdapter;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.MessagesTask;
 import com.energyict.mdc.tasks.ProtocolTask;
@@ -28,7 +27,6 @@ import com.energyict.mdc.upl.nls.NlsMessageFormat;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.HexString;
-import com.energyict.protocolimplv2.messages.DeviceMessageCategories;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -42,7 +40,6 @@ import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static com.energyict.mdc.device.data.impl.DeviceMessageServiceImplTest.Progress.OnHold;
 import static com.energyict.mdc.device.data.impl.DeviceMessageServiceImplTest.Progress.Planned;
@@ -89,13 +86,11 @@ public class DeviceMessageServiceImplTest extends PersistenceIntegrationTest {
         device = mock(Device.class);
         when(deviceService.findDeviceByMrid("ZABF010000080004")).thenReturn(Optional.of(device));
 
-        List<DeviceMessageCategory> allCategories = EnumSet.allOf(DeviceMessageCategories.class).stream()
-                .map(deviceMessageCategory -> deviceMessageCategory.get(uplPropertySpecService, uplNlsService, converter))
-                .map(UPLDeviceMessageCategoryAdapter::new)
-                .collect(Collectors.toList());
+        List<DeviceMessageCategory> allCategories = Arrays.asList(DeviceMessageTestCategories.values());
 
         when(deviceMessageSpecificationService.filteredCategoriesForUserSelection()).thenReturn(allCategories);
         when(deviceMessageSpecificationService.filteredCategoriesForComTaskDefinition()).thenReturn(allCategories);
+        deviceMessageCategory = DeviceMessageTestCategories.FIRST_TEST_CATEGORY;
 
         command1 = mockCommand(device, 1L, DeviceMessageId.DEVICE_ACTIONS_DEMAND_RESET, "do delete rule", "Error message", DeviceMessageStatus.PENDING, "T14", "Jeff", created, created.plusSeconds(10), null, deviceMessageCategory);
         when(device.getMessages()).thenReturn(Arrays.asList(command1));
@@ -140,8 +135,7 @@ public class DeviceMessageServiceImplTest extends PersistenceIntegrationTest {
         when(deviceConfiguration.getDeviceType()).thenReturn(deviceType);
         when(device.getDeviceType()).thenReturn(deviceType);
 
-        wrongCategory = new UPLDeviceMessageCategoryAdapter(DeviceMessageCategories.ACTIVITY_CALENDAR.get(uplPropertySpecService, uplNlsService, converter));
-        deviceMessageCategory = new UPLDeviceMessageCategoryAdapter(DeviceMessageCategories.DEVICE_ACTIONS.get(uplPropertySpecService, uplNlsService, converter));
+        wrongCategory = DeviceMessageTestCategories.SECOND_TEST_CATEGORY;
     }
 
     @Test

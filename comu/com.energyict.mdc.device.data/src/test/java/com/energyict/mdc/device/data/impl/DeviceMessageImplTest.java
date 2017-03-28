@@ -554,9 +554,9 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
 
         device.newDeviceMessage(contactorClose)
                 .setReleaseDate(myReleaseInstant)
-                .addProperty(DeviceMessageConstants.DisplayMessageAttributeName, displayMessageAttributeName)
-                .addProperty(DeviceMessageConstants.DisplayMessageTimeDurationAttributeName, displayMessageTimeDurationAttributeName)
-                .addProperty(DeviceMessageConstants.DisplayMessageActivationDate, displayMessageActivationDate)
+                .addProperty("DisplayDeviceMessage.displaymessage", displayMessageAttributeName)
+                .addProperty("DisplayMessage.timeduration", displayMessageTimeDurationAttributeName)
+                .addProperty("DisplayMessage.activationdate", displayMessageActivationDate)
                 .add();
 
         Device reloadedDevice = getReloadedDevice(device);
@@ -570,7 +570,7 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
         Optional<DeviceMessageAttribute> deviceMessageAttributeOptional1 =
                 attributes.stream()
                         .map(DeviceMessageAttribute.class::cast)        //Downcast to Connexo DeviceMessageAttribute
-                        .filter(attribute -> attribute.getName().equals(DeviceMessageConstants.DisplayMessageAttributeName))
+                        .filter(attribute -> attribute.getName().equals("DisplayDeviceMessage.displaymessage"))
                         .findFirst();
         assertThat(deviceMessageAttributeOptional1.isPresent()).isTrue();
         assertThat(deviceMessageAttributeOptional1.get().getValue()).isEqualTo(displayMessageAttributeName);
@@ -578,7 +578,7 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
         Optional<DeviceMessageAttribute> deviceMessageAttributeOptional2 =
                 attributes.stream()
                         .map(DeviceMessageAttribute.class::cast)        //Downcast to Connexo DeviceMessageAttribute
-                        .filter(attribute -> attribute.getName().equals(DeviceMessageConstants.DisplayMessageTimeDurationAttributeName))
+                        .filter(attribute -> attribute.getName().equals("DisplayMessage.timeduration"))
                         .findFirst();
         assertThat(deviceMessageAttributeOptional2.isPresent()).isTrue();
         assertThat(deviceMessageAttributeOptional2.get().getValue()).isEqualTo(displayMessageTimeDurationAttributeName);
@@ -586,7 +586,7 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
         Optional<DeviceMessageAttribute> deviceMessageAttributeOptional3 =
                 attributes.stream()
                         .map(DeviceMessageAttribute.class::cast)        //Downcast to Connexo DeviceMessageAttribute
-                        .filter(attribute -> attribute.getName().equals(DeviceMessageConstants.DisplayMessageActivationDate))
+                        .filter(attribute -> attribute.getName().equals("DisplayMessage.activationdate"))
                         .findFirst();
         assertThat(deviceMessageAttributeOptional3.isPresent()).isTrue();
         assertThat(deviceMessageAttributeOptional3.get().getValue()).isEqualTo(displayMessageActivationDate);

@@ -37,6 +37,7 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.SearchDomain;
@@ -109,9 +110,13 @@ import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
+import com.energyict.mdc.protocol.api.services.CustomPropertySetInstantiatorService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
@@ -121,7 +126,6 @@ import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
-
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -138,13 +142,16 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.time.Clock;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 
 import static java.util.Arrays.asList;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
@@ -584,6 +591,52 @@ public class InMemoryIntegrationPersistence {
     }
 
     private class MockModule extends AbstractModule {
+
+        private final DeviceMessageSpecificationService deviceMessageSpecificationService;
+
+        public MockModule() {
+            this.deviceMessageSpecificationService = mock(DeviceMessageSpecificationService.class);
+
+            when(deviceMessageSpecificationService.findCategoryById(anyInt())).thenAnswer(invocation -> {
+                Object[] args = invocation.getArguments();
+                return Optional.of(DeviceMessageTestCategories.values()[((int) args[0])]);
+            });
+            when(deviceMessageSpecificationService.findMessageSpecById(anyInt())).thenAnswer(invocation -> {
+                Object[] args = invocation.getArguments();
+                long id = (long) args[0];
+
+                if (id == DeviceMessageId.CONTACTOR_OPEN_WITH_OUTPUT.dbValue()) {
+                    return Optional.of(DeviceMessageTestSpec.CONTACTOR_OPEN_WITH_OUTPUT);
+                }  else if (id == DeviceMessageId.DISPLAY_SET_MESSAGE_WITH_OPTIONS.dbValue()) {
+                    return Optional.of(DeviceMessageTestSpec.SET_DISPLAY_MESSAGE_WITH_OPTIONS);
+                } else {
+                    DeviceMessageSpec deviceMessageSpec = new DeviceMessageSpec() {
+
+                        @Override
+                        public DeviceMessageCategory getCategory() {
+                            return DeviceMessageTestCategories.FIRST_TEST_CATEGORY;
+                        }
+
+                        @Override
+                        public String getName() {
+                            return String.valueOf(id);
+                        }
+
+                        @Override
+                        public DeviceMessageId getId() {
+                            return DeviceMessageId.havingId(id);
+                        }
+
+                        @Override
+                        public List<PropertySpec> getPropertySpecs() {
+                            return Collections.emptyList();
+                        }
+                    };
+                    return Optional.of(deviceMessageSpec);
+                }
+            });
+        }
+
         @Override
         protected void configure() {
             bind(ExecutionTimerService.class).to(ExecutionTimerServiceImpl.class);
@@ -600,6 +653,9 @@ public class InMemoryIntegrationPersistence {
             bind(Thesaurus.class).toInstance(thesaurus);
             bind(DataModel.class).toProvider(() -> dataModel);
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
+
+            bind(CustomPropertySetInstantiatorService.class).toInstance(mock(CustomPropertySetInstantiatorService.class));
+            bind(DeviceMessageSpecificationService.class).toInstance(deviceMessageSpecificationService);
         }
     }
 
