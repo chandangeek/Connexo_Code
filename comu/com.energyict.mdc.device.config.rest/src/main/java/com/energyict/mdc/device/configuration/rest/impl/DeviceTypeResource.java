@@ -163,7 +163,6 @@ public class DeviceTypeResource {
         info.id = id;
         resourceHelper.lockDeviceTypeOrThrowException(info).delete();
         return Response.ok().build();
-
     }
 
     @POST
