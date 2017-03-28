@@ -113,6 +113,12 @@ Ext.define('Dxp.view.tasks.HistoryPreviewForm', {
                         }
                     },
                     {
+                        fieldLabel: Uni.I18n.translate('general.purpose', 'DES', 'Purpose'),
+                        name: 'purpose',
+                        hidden: true,
+                        itemId: 'data-selector-purpose-preview'
+                    },
+                    {
                         fieldLabel: Uni.I18n.translate('general.readingTypes', 'DES', 'Reading types'),
                         name: 'readingTypes',
                         hidden: true,

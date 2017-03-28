@@ -486,6 +486,7 @@ Ext.define('Dxp.controller.Tasks', {
                         previewForm.down('#data-selector-properties-preview').hide();
                         previewForm.down('#data-selector-deviceGroup-preview').show();
                         previewForm.down('#data-selector-usage-point-group-preview').hide();
+                        previewForm.down('#data-selector-purpose-preview').hide();
                         previewForm.down('#data-selector-readingTypes-preview').show();
                         previewForm.down('#data-selector-eventTypes-preview').hide();
                         previewForm.down('#data-selector-exportPeriod-preview').show();
@@ -507,6 +508,7 @@ Ext.define('Dxp.controller.Tasks', {
                         previewForm.down('#data-selector-properties-preview').hide();
                         previewForm.down('#data-selector-deviceGroup-preview').hide();
                         previewForm.down('#data-selector-usage-point-group-preview').show();
+                        previewForm.down('#data-selector-purpose-preview').show();
                         previewForm.down('#data-selector-readingTypes-preview').show();
                         previewForm.down('#data-selector-eventTypes-preview').hide();
                         previewForm.down('#data-selector-exportPeriod-preview').show();
@@ -520,6 +522,7 @@ Ext.define('Dxp.controller.Tasks', {
                         previewForm.down('#data-selector-properties-preview').hide();
                         previewForm.down('#data-selector-deviceGroup-preview').show();
                         previewForm.down('#data-selector-usage-point-group-preview').hide();
+                        previewForm.down('#data-selector-purpose-preview').hide();
                         previewForm.down('#data-selector-readingTypes-preview').hide();
                         previewForm.down('#data-selector-eventTypes-preview').show();
                         previewForm.down('#data-selector-exportPeriod-preview').show();
@@ -1198,6 +1201,7 @@ Ext.define('Dxp.controller.Tasks', {
             selectorPropertyForm = previewForm.down('#data-selector-properties-preview'),
             deviceGroup = previewForm.down('#data-selector-deviceGroup-preview'),
             usagePointGroup = previewForm.down('#data-selector-usage-point-group-preview'),
+            purpose = previewForm.down('#data-selector-purpose-preview'),
             exportPeriod = previewForm.down('#data-selector-exportPeriod-preview'),
             continuousData = previewForm.down('#continuousData-preview'),
             readingTypes = previewForm.down('#data-selector-readingTypes-preview'),
@@ -1255,6 +1259,7 @@ Ext.define('Dxp.controller.Tasks', {
                     selectorPropertyForm.hide();
                     deviceGroup.show();
                     usagePointGroup.hide();
+                    purpose.hide();
                     exportPeriod.show();
                     continuousData.show();
                     readingTypes.show();
@@ -1272,6 +1277,7 @@ Ext.define('Dxp.controller.Tasks', {
                     selectorPropertyForm.hide();
                     deviceGroup.hide();
                     usagePointGroup.show();
+                    purpose.show();
                     exportPeriod.show();
                     continuousData.show();
                     readingTypes.show();
@@ -1285,6 +1291,7 @@ Ext.define('Dxp.controller.Tasks', {
                     selectorPropertyForm.hide();
                     deviceGroup.show();
                     usagePointGroup.hide();
+                    purpose.hide();
                     exportPeriod.show();
                     continuousData.hide();
                     readingTypes.hide();
