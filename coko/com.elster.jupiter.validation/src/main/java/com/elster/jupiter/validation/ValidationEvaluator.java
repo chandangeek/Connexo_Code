@@ -44,6 +44,7 @@ public interface ValidationEvaluator {
 
     /**
      * Checks if there's at least one suspect put to {@link ChannelsContainer} by one of the {@code qualityCodeSystems}.
+     *
      * @param qualityCodeSystems Systems to take into account when checking for suspects; empty set means all systems.
      * @param channelsContainer {@link ChannelsContainer} to check.
      * @return {@code true} if there's at least a suspect, {@code false} otherwise.
@@ -51,7 +52,18 @@ public interface ValidationEvaluator {
     boolean areSuspectsPresent(Set<QualityCodeSystem> qualityCodeSystems, ChannelsContainer channelsContainer);
 
     /**
+     * Checks if there's at least one suspect put to {@link Channel} by one of the {@code qualityCodeSystems}.
+     *
+     * @param qualityCodeSystems Systems to take into account when checking for suspects; empty set means all systems.
+     * @param channel {@link Channel} to check.
+     * @param interval time interval to check for suspects
+     * @return {@code true} if there's at least a suspect, {@code false} otherwise.
+     */
+    boolean areSuspectsPresent(Set<QualityCodeSystem> qualityCodeSystems, Channel channel, Range<Instant> interval);
+
+    /**
      * Gets validation status taking into account qualities of systems among {@code qualityCodeSystems}.
+     *
      * @param qualityCodeSystems Only systems to take into account for computation of validation status; empty set means all systems.
      * @param channel The channel to check.
      * @param readings Provided list of readings.
@@ -68,6 +80,7 @@ public interface ValidationEvaluator {
 
     /**
      * Gets validation status taking into account qualities of systems among {@code qualityCodeSystems}.
+     *
      * @param qualityCodeSystems Only systems to take into account for computation of validation status; empty set means all systems.
      * @param channel The channel to check.
      * @param readings Provided list of readings.
@@ -84,6 +97,7 @@ public interface ValidationEvaluator {
 
     /**
      * Gets validation status taking into account qualities of systems among {@code qualityCodeSystems}.
+     *
      * @param qualityCodeSystems Only systems to take into account for computation of validation status; empty set means all systems.
      * @param channels A list of one or two (1st main + 2nd bulk) channels. Other cases are not supported by implementation and may lead to unexpected errors!
      * @param readings Provided list of readings.
