@@ -7,9 +7,9 @@ package com.energyict.mdc.device.data.rest.impl;
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.BaseReadingRecord;
-import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.util.Pair;
+import com.energyict.mdc.device.data.Reading;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -36,8 +36,8 @@ public enum ReadingModificationFlag {
                 .findFirst();
     }
 
-    public static Pair<ReadingModificationFlag, QualityCodeSystem> getModificationFlag(ReadingRecord reading) {
-        return getModificationFlag(reading, reading.getReadingQualities());
+    public static Pair<ReadingModificationFlag, QualityCodeSystem> getModificationFlag(Reading reading) {
+        return getModificationFlag(reading.getActualReading(), reading.getValidationStatus().get().getReadingQualities());
     }
 
     public static Pair<ReadingModificationFlag, QualityCodeSystem> getModificationFlag(BaseReadingRecord reading, Collection<? extends ReadingQuality> readingQualities) {
