@@ -16,6 +16,7 @@ import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.conditions.Condition;
+import com.energyict.mdc.common.interval.Temporals;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LoadProfileTypeChannelTypeUsage;
@@ -74,7 +75,7 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
         assertThat(loadProfileType.getName()).isEqualTo(loadProfileTypeName);
         assertThat(loadProfileType.getDescription()).isNotEmpty();
         assertThat(loadProfileType.getObisCode()).isEqualTo(OBIS_CODE);
-        assertThat(loadProfileType.interval()).isEqualTo(interval);
+        assertThat(Temporals.toTimeDuration(loadProfileType.interval())).isEqualTo(interval);
     }
 
     @Test
@@ -96,7 +97,7 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
         assertThat(loadProfileType.getName()).isEqualTo(loadProfileTypeName);
         assertThat(loadProfileType.getDescription()).isNotEmpty();
         assertThat(loadProfileType.getObisCode()).isEqualTo(OBIS_CODE);
-        assertThat(loadProfileType.interval()).isEqualTo(interval);
+        assertThat(Temporals.toTimeDuration(loadProfileType.interval())).isEqualTo(interval);
     }
 
     @Test
@@ -316,7 +317,7 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
         assertThat(loadProfileType.getName()).isEqualTo(loadProfileTypeName);
         assertThat(loadProfileType.getDescription()).isNotEmpty();
         assertThat(loadProfileType.getObisCode()).isEqualTo(OBIS_CODE);
-        assertThat(loadProfileType.interval()).isEqualTo(updatedInterval);
+        assertThat(Temporals.toTimeDuration(loadProfileType.interval())).isEqualTo(updatedInterval);
     }
 
     @Test
@@ -487,7 +488,7 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
         LoadProfileType finalLoadProfile = masterDataService.findLoadProfileType(reloadedLoadProfile.getId()).get();
 
         assertThat(finalLoadProfile.getChannelTypes()).hasSize(1);
-        assertThat(finalLoadProfile.interval()).isEqualTo(newInterval);
+        assertThat(Temporals.toTimeDuration(finalLoadProfile.interval())).isEqualTo(newInterval);
         assertThat(finalLoadProfile.getChannelTypes().get(0).getInterval()).isEqualTo(newInterval);
         assertThat(inMemoryPersistence.getMasterDataService().findAllChannelTypes().find()).hasSize(2); // the old one should still exist
     }
