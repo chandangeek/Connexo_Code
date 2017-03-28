@@ -2302,7 +2302,6 @@ Ext.define('Dxp.controller.Tasks', {
         page.down('grouped-property-form').updateRecord();
         formValues.groupedProperty = page.down('grouped-property-form').getRecord();
         formValues.dataProcessor = page.down('#file-formatter-combo').getValue();
-        console.log(formValues)
         me.getStore('Dxp.store.Clipboard').set('addDataExportTaskValues', formValues);
     },
 
