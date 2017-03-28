@@ -27,19 +27,19 @@ Ext.define('Pkj.view.CertificatesGrid', {
                 }
             },
             {
-                header: Uni.I18n.translate('general.type', 'PKJ', 'Type'),
+                header: Uni.I18n.translate('general.keyusage', 'PKJ', 'Key usage'),
                 dataIndex: 'type',
-                flex: 1
+                flex: 2
             },
             {
                 header: Uni.I18n.translate('general.issuer', 'PKJ', 'Issuer'),
                 dataIndex: 'issuer',
-                flex: 1
+                flex: 2
             },
             {
                 header: Uni.I18n.translate('general.subject', 'PKJ', 'Subject'),
                 dataIndex: 'subject',
-                flex: 1
+                flex: 2
             },
             {
                 header: Uni.I18n.translate('general.status', 'PKJ', 'Status'),

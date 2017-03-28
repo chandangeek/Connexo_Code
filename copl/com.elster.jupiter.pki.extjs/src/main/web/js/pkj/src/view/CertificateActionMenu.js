@@ -5,22 +5,41 @@ Ext.define('Pkj.view.CertificateActionMenu', {
     extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.certificate-action-menu',
     initComponent: function () {
-        this.items = [
+        var me = this;
+
+        me.items = [
+            {
+                text: Uni.I18n.translate('general.downloadCertificate', 'PKJ', 'Download certificate'),
+                itemId: 'pkj-download-certificate-menu-item',
+                //privileges: Sct.privileges.ServiceCallType.admin,
+                action: 'downloadCertificate',
+                hidden: Ext.isEmpty(me.record) || !me.record.get('hasCertificate'),
+                section: this.SECTION_ACTION
+            },
             {
                 text: Uni.I18n.translate('general.downloadCSR', 'PKJ', 'Download CSR'),
-                itemId: 'pkj-certificates-grid-download-csr',
+                itemId: 'pkj-download-csr-menu-item',
                 //privileges: Sct.privileges.ServiceCallType.admin,
                 action: 'downloadCSR',
                 section: this.SECTION_ACTION
             },
             {
                 text: Uni.I18n.translate('general.importCertificate', 'PKJ', 'Import certificate'),
-                itemId: 'pkj-certificates-grid-import-certificate',
+                itemId: 'pkj-import-certificate-menu-item',
                 //privileges: Sct.privileges.ServiceCallType.admin,
                 action: 'importCertificate',
                 section: this.SECTION_ACTION
             }
         ];
-        this.callParent(arguments);
+        me.callParent(arguments);
+    },
+
+    listeners: {
+        show: {
+            fn: function (menu) {
+                menu.down('[action=downloadCertificate]').setVisible( !Ext.isEmpty(menu.record) && menu.record.get('hasCertificate') )
+            }
+        }
     }
+
 });

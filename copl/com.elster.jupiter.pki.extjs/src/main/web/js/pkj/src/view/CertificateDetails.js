@@ -5,14 +5,26 @@ Ext.define('Pkj.view.CertificateDetails', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.certificate-details',
     requires: [
-        'Pkj.view.CertificatePreview'
+        'Pkj.view.CertificatePreview',
+        'Pkj.view.CertificateActionMenu',
+        'Uni.button.Action'
     ],
 
     initComponent: function () {
         this.content = [
             {
                 xtype: 'panel',
+                itemId: 'pkj-certificate-details-panel',
                 ui: 'large',
+                tools: [
+                    {
+                        xtype: 'uni-button-action',
+                        //privileges: Mdc.privileges.Communication.admin,
+                        menu: {
+                            xtype: 'certificate-action-menu'
+                        }
+                    }
+                ],
                 items: {
                     xtype: 'certificate-preview',
                     frame: false

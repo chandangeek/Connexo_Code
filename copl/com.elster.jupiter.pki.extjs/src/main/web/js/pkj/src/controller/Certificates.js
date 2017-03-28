@@ -8,9 +8,6 @@ Ext.define('Pkj.controller.Certificates', {
         'Pkj.view.CertificatesOverview',
         'Pkj.view.AddCertificate',
         'Pkj.view.CertificateDetails'
-        //'Pkj.view.AddEditTrustStore',
-        //'Pkj.view.ImportTrustedCertificate',
-        //'Uni.view.window.Confirmation'
     ],
     stores: [
         'Pkj.store.Certificates'
@@ -35,6 +32,7 @@ Ext.define('Pkj.controller.Certificates', {
     ],
 
     currentCertificateId: undefined,
+    onCertificateDetailsPage: false,
 
     init: function() {
         this.control({
@@ -52,6 +50,9 @@ Ext.define('Pkj.controller.Certificates', {
             },
             '#pkj-certificates-grid-import-certificate': {
                 click: this.navigateToImportCertificatePage
+            },
+            '#pkj-import-certificate-menu-item': {
+                click: this.navigateToImportCertificatePage
             }
         });
     },
@@ -66,6 +67,7 @@ Ext.define('Pkj.controller.Certificates', {
                 }
             )
         );
+        this.onCertificateDetailsPage = false;
     },
 
     onCertificateSelected: function(grid, record) {
@@ -95,19 +97,24 @@ Ext.define('Pkj.controller.Certificates', {
 
     showImportCertificatePage: function(certificateId) {
         var me = this,
-            certificateModel = Ext.ModelManager.getModel('Pkj.model.Certificate');
+            router = me.getController('Uni.controller.history.Router'),
+            certificateModel = Ext.ModelManager.getModel('Pkj.model.Certificate'),
+            widget;
 
         certificateModel.load(certificateId, {
             success: function (certificateRecord) {
                 me.currentCertificateId = certificateId;
-                me.getApplication().fireEvent('changecontentevent',
-                    Ext.widget('certificate-add',
-                        {
-                            cancelLink: me.getController('Uni.controller.history.Router').getRoute('administration/certificates').buildUrl(),
-                            importMode: true
-                        }
-                    )
+                widget = Ext.widget('certificate-add',
+                    {
+                        cancelLink: me.onCertificateDetailsPage
+                            ? router.getRoute('administration/certificates/view').buildUrl({certificateId: certificateId})
+                            : router.getRoute('administration/certificates').buildUrl(),
+                        importMode: true,
+                        certificateRecord: certificateRecord
+                    }
                 );
+                me.getApplication().fireEvent('changecontentevent', widget);
+                widget.down('#pkj-certificate-add-form-alias').setValue(certificateRecord.get('alias'));
                 me.getApplication().fireEvent('certificateLoaded', certificateRecord.get('alias'));
             }
         });
@@ -120,8 +127,7 @@ Ext.define('Pkj.controller.Certificates', {
             errorMsgPanel = form.down('uni-form-error-message'),
             maxFileSize = 2 * 1024,
             input = form.down('filefield').button.fileInputEl.dom,
-            file = input.files[0],
-            backUrl = me.getController('Uni.controller.history.Router').getRoute('administration/certificates').buildUrl();
+            file = input.files[0];
 
         errorMsgPanel.hide();
         form.getForm().clearInvalid();
@@ -141,7 +147,7 @@ Ext.define('Pkj.controller.Certificates', {
 
         form.setLoading();
         Ext.Ajax.request({
-            url: '/api/pir/certificates/',
+            url: form.importMode ? '/api/pir/certificates/' + form.certificateRecord.get('id') : '/api/pir/certificates/',
             method: 'POST',
             form: form.getEl().dom,
             params: {
@@ -178,8 +184,12 @@ Ext.define('Pkj.controller.Certificates', {
             success: function (certificateRecord) {
                 me.currentCertificateId = certificateId;
                 me.getApplication().fireEvent('changecontentevent', widget);
+                me.onCertificateDetailsPage = true;
                 widget.down('certificate-preview').loadRecordInForm(certificateRecord);
-                widget.down('certificate-preview').setTitle(certificateRecord.get('alias'));
+                if (widget.down('certificate-action-menu')) {
+                    widget.down('certificate-action-menu').record = certificateRecord;
+                }
+                widget.down('#pkj-certificate-details-panel').setTitle(certificateRecord.get('alias'));
                 me.getApplication().fireEvent('certificateLoaded', certificateRecord.get('alias'));
             }
         });

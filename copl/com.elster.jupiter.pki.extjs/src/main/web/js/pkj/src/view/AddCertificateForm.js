@@ -14,7 +14,7 @@ Ext.define('Pkj.view.AddCertificateForm', {
     margin: '15 0 0 0',
 
     cancelLink: undefined,
-    trustStoreRecord: undefined,
+    certificateRecord: undefined,
     importMode: false,
 
     initComponent: function () {

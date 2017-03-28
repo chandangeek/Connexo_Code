@@ -8,7 +8,7 @@ Ext.define('Pkj.view.AddCertificate', {
         'Pkj.view.AddCertificateForm'
     ],
 
-    record: undefined,
+    certificateRecord: undefined,
     cancelLink: undefined,
     importMode: false,
 
@@ -28,7 +28,7 @@ Ext.define('Pkj.view.AddCertificate', {
                         tag: 'form',
                         enctype: 'multipart/form-data'
                     },
-                    record: this.record,
+                    certificateRecord: this.certificateRecord,
                     cancelLink: this.cancelLink,
                     importMode: me.importMode
                 }

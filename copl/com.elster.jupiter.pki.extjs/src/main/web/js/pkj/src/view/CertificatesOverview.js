@@ -10,6 +10,7 @@ Ext.define('Pkj.view.CertificatesOverview', {
         'Pkj.view.CertificatesGrid',
         'Pkj.view.CertificatePreview',
         'Pkj.view.CertificateFilter',
+        'Pkj.view.CertificateActionMenu',
         'Uni.view.notifications.NoItemsFoundPanel'
     ],
 
@@ -58,7 +59,16 @@ Ext.define('Pkj.view.CertificatesOverview', {
                         },
                         previewComponent: {
                             xtype: 'certificate-preview',
-                            itemId: 'pkj-certificate-preview'
+                            itemId: 'pkj-certificate-preview',
+                            tools: [
+                                {
+                                    xtype: 'uni-button-action',
+                                    //privileges: Mdc.privileges.Communication.admin,
+                                    menu: {
+                                        xtype: 'certificate-action-menu'
+                                    }
+                                }
+                            ]
                         }
                     }
                 ]
