@@ -11,6 +11,7 @@ public enum Operator {
     LESSTHAN("<"),
     GREATERTHANOREQUAL(">="),
     LESSTHANOREQUAL("<="),
+    IN("IN"),
     LIKE("LIKE") {
         @Override
         public String getFormat() {
