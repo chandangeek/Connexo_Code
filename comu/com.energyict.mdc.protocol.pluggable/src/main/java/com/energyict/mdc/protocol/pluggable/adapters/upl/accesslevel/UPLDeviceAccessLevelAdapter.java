@@ -49,4 +49,17 @@ public class UPLDeviceAccessLevelAdapter implements DeviceAccessLevel {
         }
     }
 
+    @Override
+    public int hashCode() {
+        return uplDeviceAccessLevel.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof UPLDeviceAccessLevelAdapter) {
+            return uplDeviceAccessLevel.equals(((UPLDeviceAccessLevelAdapter) obj).uplDeviceAccessLevel);
+        } else {
+            return uplDeviceAccessLevel.equals(obj);
+        }
+    }
 }

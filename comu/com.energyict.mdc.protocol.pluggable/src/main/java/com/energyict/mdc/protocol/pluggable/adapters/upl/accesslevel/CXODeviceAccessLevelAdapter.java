@@ -44,4 +44,18 @@ public class CXODeviceAccessLevelAdapter implements DeviceAccessLevel {
                 .map(ConnexoToUPLPropertSpecAdapter::new)
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public int hashCode() {
+        return cxoDeviceAccessLevel.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof CXODeviceAccessLevelAdapter) {
+            return cxoDeviceAccessLevel.equals(((CXODeviceAccessLevelAdapter) obj).cxoDeviceAccessLevel);
+        } else {
+            return cxoDeviceAccessLevel.equals(obj);
+        }
+    }
 }
