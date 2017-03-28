@@ -93,6 +93,16 @@ public abstract class ReadingImpl implements Reading {
     }
 
     @Override
+    public Instant getJournalTime() {
+        return actualReading.getJournalTime();
+    }
+
+    @Override
+    public String getUserName() {
+        return actualReading.getUserName();
+    }
+
+    @Override
     public Optional<Instant> getEventDate() {
         return getRegister().hasEventDate()? Optional.of(getTimeStamp()):Optional.empty();
     }
