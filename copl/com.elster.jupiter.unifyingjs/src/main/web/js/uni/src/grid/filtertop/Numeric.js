@@ -66,6 +66,10 @@ Ext.define('Uni.grid.filtertop.Numeric', {
         var me = this,
             value = me.down('#uni-search-criteria-numeric').getValue();
 
+        if (value) {
+            me.updateTitle();
+        }
+
         return value != null ? value[0].data : undefined;
     },
 
