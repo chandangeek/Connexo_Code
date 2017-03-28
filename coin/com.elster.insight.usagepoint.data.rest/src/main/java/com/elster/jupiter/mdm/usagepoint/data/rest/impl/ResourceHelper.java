@@ -105,9 +105,9 @@ public class ResourceHelper {
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_METROLOGYCONFIG_FOR_USAGEPOINT, usagePoint.getName()));
     }
 
-    public UsagePointMetrologyConfiguration findAndLockActiveUsagePointMetrologyConfigurationOrThrowException(long id, long version) {
+    public UsagePointMetrologyConfiguration findActiveUsagePointMetrologyConfigurationOrThrowException(long id) {
         return metrologyConfigurationService
-                .findAndLockMetrologyConfiguration(id, version)
+                .findMetrologyConfiguration(id)
                 .filter(metrologyConfiguration -> metrologyConfiguration instanceof UsagePointMetrologyConfiguration)
                 .map(this::isActiveMetrologyConfigurationOrThrowException)
                 .map(UsagePointMetrologyConfiguration.class::cast)
