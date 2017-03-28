@@ -5,8 +5,10 @@
 package com.elster.jupiter.pki.rest.impl;
 
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
+import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.pki.TrustStore;
+import com.elster.jupiter.pki.TrustedCertificate;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
@@ -180,6 +182,20 @@ public class TrustStoreResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public Response deleteTrustStore(@PathParam("id") long id) {
         findTrustStoreOrThrowException(id).delete();
+        return Response.status(Response.Status.OK).build();
+    }
+
+    @DELETE
+    @Transactional
+    @Path("/{id}/certificates/{certificateId}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public Response removeTrustedCertificate(@PathParam("id") long trustStoreId, @PathParam("certificateId") long certificateId) {
+        CertificateWrapper certificateWrapper = pkiService.findCertificateWrapper(certificateId)
+            .orElseThrow( exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CERTIFICATE, certificateId) );
+        if ( ((TrustedCertificate)certificateWrapper).getTrustStore().getId() != trustStoreId ) {
+            throw exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CERTIFICATE_IN_STORE, certificateId, trustStoreId).get();
+        }
+        certificateWrapper.delete();
         return Response.status(Response.Status.OK).build();
     }
 

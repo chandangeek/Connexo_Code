@@ -16,11 +16,12 @@ public enum MessageSeeds implements MessageSeed {
     COULD_NOT_CREATE_CERTIFICATE_FACTORY(3, "CertificateFactoryFail", "Could not create the certificate factory: {0}"),
     COULD_NOT_CREATE_CERTIFICATE(4, "CertificateCreationFailed", "Could not create the certificate: {0}"),
     COULD_NOT_READ_KEYSTORE(5, "KeystoreReadError", "Could not read the keystore: {0}"),
-    NO_SUCH_CERTIFICATE(6, "NoSuchCertificate", "No certificate wrapper with alias {0} could be located"),
+    NO_SUCH_CERTIFICATE(6, "NoSuchCertificate", "No certificate wrapper with id {0} could be located"),
     NO_SUCH_KEY_TYPE(7, "NoSuchKeyType", "No such key type"),
     CERTIFICATE_TOO_BIG(8, "fileTooBig", "File size should be less than 2 kB"),
     FIELD_IS_REQUIRED(9, "FieldIsrequired", "This field is required"),
-    NOT_POSSIBLE_TO_CREATE_CSR(10, "NotPossibleToCreateCSR" , "CSR can not be generated for this type of certificate");
+    NOT_POSSIBLE_TO_CREATE_CSR(10, "NotPossibleToCreateCSR" , "CSR can not be generated for this type of certificate"),
+    NO_SUCH_CERTIFICATE_IN_STORE(11, "NoSuchCertificateInStore", "No certificate wrapper with id {0} could be located in trust store with id {1}");
 
     private final int number;
     private final String key;
