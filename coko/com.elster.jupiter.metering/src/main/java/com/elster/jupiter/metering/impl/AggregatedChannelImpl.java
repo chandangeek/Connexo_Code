@@ -21,6 +21,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.aggregation.CalculatedMetrologyContractData;
 import com.elster.jupiter.metering.aggregation.DataAggregationService;
+import com.elster.jupiter.metering.aggregation.MetrologyContractCalculationIntrospector;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.readings.BaseReading;
@@ -36,15 +37,13 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.temporal.TemporalAmount;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static java.util.Comparator.naturalOrder;
+import static java.util.Comparator.nullsLast;
 
 public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel {
 
@@ -300,15 +299,24 @@ public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel
     @Override
     public Instant getLastDateTime() {
         Instant persistedChannelLastDateTime = this.persistedChannel.getLastDateTime();
-        CalculatedMetrologyContractData calculatedMetrologyContractData = this.dataAggregationService.calculate(this.usagePoint, this.metrologyContract, this.channelsContainer.getRange());
-        if (!calculatedMetrologyContractData.isEmpty()) {
-            List<? extends BaseReadingRecord> deliverableData = calculatedMetrologyContractData.getCalculatedDataFor(this.deliverable);
-            if (!deliverableData.isEmpty()) {
-                Instant calculatedLastDateTime = deliverableData.get(deliverableData.size() - 1).getTimeStamp();
-                return persistedChannelLastDateTime == null || calculatedLastDateTime.compareTo(persistedChannelLastDateTime) >= 0 ? calculatedLastDateTime : persistedChannelLastDateTime;
+        MetrologyContractCalculationIntrospector introspector = this.dataAggregationService.introspect(this.usagePoint, this.metrologyContract, this.channelsContainer.getRange());
+        Instant channelUsageMin = introspector.getChannelUsagesFor(deliverable)
+                .stream()
+                .map(cu -> cu.getChannel().getLastDateTime())
+                .min(nullsLast(naturalOrder())).orElse(null);
+        if (channelUsageMin!=null) {
+            if (persistedChannelLastDateTime!=null) {
+                if (channelUsageMin.compareTo(persistedChannelLastDateTime)>=0) {
+                    return channelUsageMin;
+                } else {
+                    return persistedChannelLastDateTime;
+                }
+            } else {
+                return channelUsageMin;
             }
+        } else {
+            return persistedChannelLastDateTime;
         }
-        return persistedChannelLastDateTime;
     }
 
     @Override

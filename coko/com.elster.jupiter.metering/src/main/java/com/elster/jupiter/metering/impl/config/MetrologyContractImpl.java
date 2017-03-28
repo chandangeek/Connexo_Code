@@ -239,16 +239,9 @@ public class MetrologyContractImpl implements MetrologyContract {
                     .map(Optional::get)
                     .collect(Collectors.toList());
 
-            boolean allMeterRolesHasMeters = true;
-            for (MeterRole meterRole : meterRoles) {
-                MeterActivation meterActivation = !usagePoint.getMeterActivations(meterRole)
-                        .isEmpty() ? usagePoint.getMeterActivations(meterRole)
-                        .stream()
-                        .filter(meterActivationToCheck -> meterActivationToCheck.getEnd() == null)
-                        .findFirst()
-                        .orElse(null) : null;
-                allMeterRolesHasMeters &= meterActivation != null;
-            }
+            List<MeterActivation> currentMeterActivations = usagePoint.getCurrentMeterActivations();
+            boolean allMeterRolesHasMeters = meterRoles.stream().allMatch(role -> currentMeterActivations.stream().anyMatch(ma -> role.equals(ma.getMeterRole().orElse(null))));
+
             return allMeterRolesHasMeters ? MetrologyContractStatusKey.COMPLETE : MetrologyContractStatusKey.INCOMPLETE;
         }
         return MetrologyContractStatusKey.UNKNOWN;
