@@ -74,20 +74,8 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
-            <artifactId>http.whiteboard</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
             <artifactId>users</artifactId>
         </dependency>
-        <!--dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>search</artifactId>
-        </dependency-->
-        <!--dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>cbo</artifactId>
-        </dependency-->
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>properties</artifactId>
