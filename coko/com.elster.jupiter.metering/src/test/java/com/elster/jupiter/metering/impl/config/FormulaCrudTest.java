@@ -2083,10 +2083,10 @@ public class FormulaCrudTest {
         }
     }
 
-    @Test(expected = ReadingTypeAlreadyUsedOnMetrologyConfiguration.class)
+    @Test(expected = ReadingTypeAlreadyUsedOnMetrologyContract.class)
     @Transactional
     // formula = Requirement
-    public void testMultipleDeliverableWithSameReadingTypeOnSameMetrologyConfig() {
+    public void testMultipleDeliverableWithSameReadingTypeOnSameMetrologyContract() {
         ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
         Optional<ServiceCategory> serviceCategory =
                 inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
@@ -2094,10 +2094,10 @@ public class FormulaCrudTest {
         MetrologyConfigurationBuilder metrologyConfigurationBuilder =
                 service.newMetrologyConfiguration("config11", serviceCategory.get());
         MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+        assertThat(config).isNotNull();
         MetrologyPurpose purposeInformation = service.findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION)
                 .orElseThrow(() -> new NoSuchElementException("Information metrology purpose not found"));
         MetrologyContract contractInformation = config.addMandatoryMetrologyContract(purposeInformation);
-        assertThat(config).isNotNull();
         ReadingType AplusRT =
                 inMemoryBootstrapModule.getMeteringService().createReadingType(
                         "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0", "AplusRT");
@@ -2105,14 +2105,14 @@ public class FormulaCrudTest {
         assertThat(AplusRT).isNotNull();
 
         ReadingTypeDeliverableBuilder builder = contractInformation.newReadingTypeDeliverable("Del1", AplusRT, Formula.Mode.AUTO);
-        ReadingTypeDeliverable deliverable1 = builder.build(builder.constant(10));
+        builder.build(builder.constant(10));
 
         ReadingTypeDeliverableBuilder builder2 = contractInformation.newReadingTypeDeliverable("Del2", AplusRT, Formula.Mode.AUTO);
 
         try {
             builder2.build(builder2.constant(10));
-        } catch (ReadingTypeAlreadyUsedOnMetrologyConfiguration e) {
-            assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.READING_TYPE_FOR_DELIVERABLE_ALREADY_USED);
+        } catch (ReadingTypeAlreadyUsedOnMetrologyContract e) {
+            assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.READING_TYPE_FOR_DELIVERABLE_ALREADY_USED_ON_CONTRACT);
             throw e;
         }
     }
