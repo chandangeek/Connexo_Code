@@ -240,8 +240,7 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
     onCreateTimeChange: function (field, newValue) {
         var me = this,
             wizard = me.getWizard(),
-            activationTime = wizard.down('metrology-configuration-with-meters-info-form #start-date-field');
-        console.log(newValue);
+            activationTime = wizard.down('metrology-configuration-with-meters-info-form #metrology-configuration-start-date-field');
         if (newValue) {
             activationTime.setValue(newValue);
         } else {
@@ -278,7 +277,7 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
             wizard = me.getWizard(),
             step = wizard.down('metrology-configuration-with-meters-info-form'),
             metrologyConfigurationInfo = step.down('#metrology-configuration-with-meters-info'),
-            metrologyConfigurationStartDate = step.down('#start-date'),
+            metrologyConfigurationStartDate = step.down('#metrology-configuration-start-date'),
             meterActivationsField = step.down('#meter-activations-field'),
             notAllMetersSpecifiedMessage = step.down('#not-all-meters-specified-message'),
             purposesField = step.down('#purposes-field');

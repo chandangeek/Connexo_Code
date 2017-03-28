@@ -256,15 +256,20 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
             wizard = me.getWizard(),
             wizardLayout = wizard.getLayout(),
             stepView = wizardLayout.getActiveItem(),
-            radioBtn = wizard.down('#custom-attributes-radiogroup'),
-            clearRecord = wizard.down('#metrology-configuration-combo'),
+            buttonValue = wizard.down('#custom-attributes-radiogroup').getValue(),
+            clearRecords = wizard.down('#metrology-configuration-combo'),
             customAttributeSetsValueStore = me.getStore('Imt.metrologyconfiguration.store.CustomAttributeSetsValue'),
-            metrologyConfigurationId = clearRecord.getValue(),
+            injectRecord = customAttributeSetsValueStore.getRange(),
+            metrologyConfigurationId = clearRecords.getValue(),
+            currentSteps = wizard.query('[isWizardStep=true]'),
             currentStep = stepView.navigationIndex,
             validationParams = {validate: true},
             stepsToAdd = [],
+            stepNumber = 1,
             direction,
             nextStep,
+            records,
+            name,
             changeStep = function () {
                 Ext.suspendLayouts();
                 me.prepareNextStep(nextStep);
@@ -272,52 +277,52 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
                 me.getNavigationMenu().moveToStep(nextStep);
                 Ext.resumeLayouts(true);
             };
-            console.log(currentStep);
-        wizard.getRecord().customPropertySets().removeAll();
-        clearRecord = clearRecord.findRecordByValue(metrologyConfigurationId);
-
-        var override = customAttributeSetsValueStore.getRange();
-        console.log(override);
-        var attributeValue = null,
-            buttonValue = radioBtn.getValue(),
-            stepNumber = 1,
-            name = null;
-        clearRecord.customPropertySets().each(function (record) {
-            name = record.get('name');
-            if (buttonValue) {
-                override.forEach(function (item) {
-                    if (item.get('name') === name) {
-                        record.properties().each(function (property) {
-                            var propValue = _.find(item.get('id'), function (prop) {
-                                return prop.name === property.get('key');
-                            });
-                            if (propValue) {
-                                property.getPropertyValue().set('defaultValue', propValue.id);
-                            }
-                        });
-
-                    }
-                });
-            }
-
-            stepNumber++;
-            stepsToAdd.push({
-                xtype: 'cps-info-form',
-                title: Uni.I18n.translate('metrologyConfiguration.wizard.cpsStepTitle', 'IMT', 'Step {0}: {1}', [stepNumber, name]),
-                navigationIndex: stepNumber,
-                itemId: 'define-metrology-configuration-step' + stepNumber,
-                ui: 'large',
-                isWizardStep: true,
-                predefinedRecord: record
-            });
-
-            wizard.add(stepsToAdd);
-            wizard.updateRecord(clearRecord);
-        });
 
         if (button.action === 'step-next') {
             direction = 1;
             nextStep = currentStep + direction;
+            if (currentStep === 1) {
+                // remove all steps except first
+                for (var i = 1; i < currentSteps.length; i++) {
+                    wizard.remove(currentSteps[i], true);
+                }
+            }
+            wizard.getRecord().customPropertySets().removeAll();
+            clearRecords = clearRecords.findRecordByValue(metrologyConfigurationId);
+
+            records = buttonValue.customAttributes ? injectRecord[0] : clearRecords;
+            records.customPropertySets().each(function (record) {
+                name = record.get('name');
+
+                // if (buttonValue) {
+                //     injectRecord.forEach(function (itemValue) {
+                //         if (itemValue.get('name') === name) {
+                //             record.properties().each(function (property) {
+                //                 var propValue = _.find(itemValue.get('id'), function (prop) {
+                //                     return prop.name === property.get('key');
+                //                 });
+                //                 if (propValue) {
+                //                     property.getPropertyValue().set('defaultValue', propValue.id);
+                //                 }
+                //             });
+                //         }
+                //     });
+                // }
+
+                stepNumber++;
+                stepsToAdd.push({
+                    xtype: 'cps-info-form',
+                    title: Uni.I18n.translate('metrologyConfiguration.wizard.cpsStepTitle', 'IMT', 'Step {0}: {1}', [stepNumber, name]),
+                    navigationIndex: stepNumber,
+                    itemId: 'define-metrology-configuration-step' + stepNumber,
+                    ui: 'large',
+                    isWizardStep: true,
+                    predefinedRecord: record
+                });
+
+                wizard.add(stepsToAdd);
+                wizard.updateRecord(records);
+            });
         } else {
             direction = -1;
             if (button.action === 'step-back') {
@@ -413,15 +418,11 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
             addBtn = buttons.down('[action=add]'),
             radioBtn = wizard.down('#custom-attributes-radiogroup'),
             navigation = me.getNavigationMenu(),
-            currentSteps = wizard.query('[isWizardStep=true]'),
             currentMenuItems = navigation.query('menuitem'),
             navigationItemsToAdd = [];
 
         Ext.suspendLayouts();
-        // remove all steps except first
-        for (var i = 1; i < currentSteps.length; i++) {
-            wizard.remove(currentSteps[i], true);
-        }
+
         // remove all menu items except first
         for (var j = 1; j < currentMenuItems.length; j++) {
             navigation.remove(currentMenuItems[j], true);
@@ -451,8 +452,7 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
                     wizard.down('#purposes-field').setStore(record.metrologyContracts());
                     wizard.down('#start-date').show();
                     customAttributeSetsValueStore.load(function (item) {
-                        console.log(item[0].get('id').length);
-                        if (item[0].get('id').length) {
+                        if (item[0].customPropertySets().getCount()) {
                             radioBtn.show();
                         } else {
                             radioBtn.hide();

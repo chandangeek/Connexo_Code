@@ -4,22 +4,13 @@
 
 Ext.define('Imt.metrologyconfiguration.store.CustomAttributeSetsValue', {
     extend: 'Ext.data.Store',
-    // model: 'Imt.metrologyconfiguration.model.MetrologyConfigurationWithCAS',
-    // autoLoad: true,
-    fields: [
-        'id',
-        'name'
-    ],
+    model: 'Imt.metrologyconfiguration.model.MetrologyConfigurationWithCAS',
     proxy: {
         type: 'rest',
         url: '/api/ucr/metrologyconfigurations/{id}/usagepoint/{upId}',
         timeout: 240000,
         reader: {
-            type: 'json',
-            root: 'customPropertySets'
-        },
-        pageParam: undefined,
-        startParam: undefined,
-        limitParam: undefined
+            type: 'json'
+        }
     }
 });
