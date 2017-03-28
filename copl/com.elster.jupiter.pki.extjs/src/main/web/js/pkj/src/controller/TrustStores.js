@@ -156,9 +156,17 @@ Ext.define('Pkj.controller.TrustStores', {
                 if (success) {
                     viewport.setLoading(false);
                     me.getApplication().fireEvent('acknowledge', operation.action === 'update'
-                        ? Uni.I18n.translate('truststores.saveSuccess', 'PKJ', 'trust store saved')
-                        : Uni.I18n.translate('truststores.addSuccess', 'PKJ', 'trust store added'));
-                    me.navigateToTrustStoresOverviewPage();
+                        ? Uni.I18n.translate('truststores.saveSuccess', 'PKJ', 'Trust store saved')
+                        : Uni.I18n.translate('truststores.addSuccess', 'PKJ', 'Trust store added'));
+                    if (operation.action !== 'update') {
+                        me.currentTrustStoreId = record.get('id');
+                        me.navigateToTrustStoreAndCertificatesPage();
+                    } else if (me.onTrustStoreCertificatesPage) {
+                        me.navigateToTrustStoreAndCertificatesPage();
+                    } else {
+                        me.navigateToTrustStoresOverviewPage();
+                        me.onTrustStoreCertificatesPage = false;
+                    }
                 } else {
                     if (responseText && responseText.errors) {
                         errorMessage.show();
@@ -216,7 +224,6 @@ Ext.define('Pkj.controller.TrustStores', {
                     : router.getRoute('administration/truststores').buildUrl()
             });
 
-        me.onTrustStoreCertificatesPage = false;
         view.down('panel').setTitle(Ext.String.format(Uni.I18n.translate('general.editX', 'PKJ', "Edit '{0}'"), trustStoreRecord.get('name')));
         view.down('form').loadRecord(trustStoreRecord);
         me.getApplication().fireEvent('changecontentevent', view);
@@ -233,7 +240,7 @@ Ext.define('Pkj.controller.TrustStores', {
                 if (state === 'confirm') {
                     trustStoreRecord.destroy({
                         success: function () {
-                            me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.trustStoreRemoved', 'PKJ', 'Trust store removed.'));
+                            me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.trustStoreRemoved', 'PKJ', 'Trust store removed'));
                             me.navigateToTrustStoresOverviewPage();
                         }
                     });
@@ -387,7 +394,7 @@ Ext.define('Pkj.controller.TrustStores', {
                         method: 'DELETE',
                         callback: function (config, success, response) {
                             if (Ext.isEmpty(response.responseText)) {
-                                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.certificateRemoved', 'PKJ', 'Trusted certificate removed.'));
+                                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.certificateRemoved', 'PKJ', 'Trusted certificate removed'));
                                 me.navigateToTrustStoreAndCertificatesPage();
                             }
                         }

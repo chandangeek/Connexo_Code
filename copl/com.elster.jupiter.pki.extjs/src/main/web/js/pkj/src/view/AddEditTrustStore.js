@@ -49,7 +49,12 @@ Ext.define('Pkj.view.AddEditTrustStore', {
                                 itemId: 'pkj-add-truststore-name',
                                 fieldLabel: Uni.I18n.translate('general.name', 'PKJ', 'Name'),
                                 allowBlank: false,
-                                required: true
+                                required: true,
+                                listeners: {
+                                    afterrender: function(field) {
+                                        field.focus(false, 200);
+                                    }
+                                }
                             },
                             {
                                 xtype: 'textareafield',
