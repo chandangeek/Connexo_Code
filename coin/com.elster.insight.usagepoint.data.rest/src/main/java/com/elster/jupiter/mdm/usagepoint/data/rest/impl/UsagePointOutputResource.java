@@ -55,7 +55,6 @@ import com.google.common.collect.TreeRangeSet;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.swing.text.html.Option;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -171,32 +170,25 @@ public class UsagePointOutputResource {
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
         MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(effectiveMetrologyConfigurationOnUsagePoint, contractId);
+        Range<Instant> interval = null;
         if (filter.hasFilters()) {
             Instant now = clock.instant();
             int periodId = filter.getInteger("periodId");
-            Range<Instant> interval = timeService.findRelativePeriod(periodId)
+            Range<Instant> relativePeriodInterval = timeService.findRelativePeriod(periodId)
                     .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_RELATIVEPERIOD_FOR_ID, periodId))
                     .getOpenClosedInterval(ZonedDateTime.ofInstant(now, clock.getZone()));
             Range<Instant> upToNow = Range.atMost(now);
-            if (!interval.isConnected(upToNow)) {
+            if (!relativePeriodInterval.isConnected(upToNow)) {
                 throw exceptionFactory.newException(MessageSeeds.RELATIVEPERIOD_IS_IN_THE_FUTURE, periodId);
-            } else if (!interval.intersection(upToNow).isEmpty()) {
-                Range<Instant> adjustedInterval = getUsagePointAdjustedDataRange(usagePoint, interval.intersection(upToNow)).orElse(Range.openClosed(now, now));
-                outputInfoList = metrologyContract.getDeliverables()
-                        .stream()
-                        .map(deliverable -> outputInfoFactory.asInfo(deliverable, effectiveMetrologyConfigurationOnUsagePoint, metrologyContract, adjustedInterval))
-                        .sorted(Comparator.comparing(info -> info.name))
-                        .collect(Collectors.toList());
+            } else if (!relativePeriodInterval.intersection(upToNow).isEmpty()) {
+                interval = getUsagePointAdjustedDataRange(usagePoint, relativePeriodInterval.intersection(upToNow)).orElse(Range.openClosed(now, now));
             }
-            return PagedInfoList.fromCompleteList("outputs", outputInfoList, queryParameters);
-        } else {
-            outputInfoList = metrologyContract.getDeliverables()
-                    .stream()
-                    .map(deliverable -> outputInfoFactory.asInfo(deliverable, effectiveMetrologyConfigurationOnUsagePoint, metrologyContract, null))
-                    .sorted(Comparator.comparing(info -> info.name))
-                    .collect(Collectors.toList());
-            return PagedInfoList.fromCompleteList("outputs", outputInfoList, queryParameters);
         }
+        outputInfoList = outputInfoFactory.deliverablesAsOutputInfo(effectiveMetrologyConfigurationOnUsagePoint, metrologyContract, interval)
+                .stream()
+                .sorted(Comparator.comparing(info -> info.name))
+                .collect(Collectors.toList());
+        return PagedInfoList.fromCompleteList("outputs", outputInfoList, queryParameters);
     }
 
     @GET
@@ -235,8 +227,8 @@ public class UsagePointOutputResource {
                 ValidationEvaluator evaluator = validationService.getEvaluator();
                 ReadingWithValidationStatusFactory readingWithValidationStatusFactory = new ReadingWithValidationStatusFactory(
                         clock, channel,
-                        validationStatusFactory.isValidationActive(metrologyContract, Collections.singletonList(channel)),
-                        validationStatusFactory.getLastCheckedForChannels(evaluator, channelsContainer, Collections.singletonList(channel)));
+                        evaluator.isValidationEnabled(channel),
+                        evaluator.getLastChecked(channelsContainer, channel.getMainReadingType()).orElse(null));
 
                 Map<Instant, ChannelReadingWithValidationStatus> preFilledChannelDataMap = channel.toList(requestedInterval).stream()
                         .collect(Collectors.toMap(Function.identity(), readingWithValidationStatusFactory::createChannelReading));
@@ -482,8 +474,8 @@ public class UsagePointOutputResource {
 
                 ReadingWithValidationStatusFactory readingWithValidationStatusFactory = new ReadingWithValidationStatusFactory(
                         clock, channel,
-                        validationStatusFactory.isValidationActive(metrologyContract, Collections.singletonList(channel)),
-                        validationStatusFactory.getLastCheckedForChannels(evaluator, channelsContainer, Collections.singletonList(channel)));
+                        evaluator.isValidationEnabled(channel),
+                        evaluator.getLastChecked(channelsContainer, channel.getMainReadingType()).orElse(null));
 
                 // add readings to pre filled register data map
                 Map<Instant, ReadingRecord> calculatedReadings = toMap(channel.getCalculatedRegisterReadings(effectiveInterval));
@@ -567,8 +559,8 @@ public class UsagePointOutputResource {
         ReadingWithValidationStatusFactory readingWithValidationStatusFactory = new ReadingWithValidationStatusFactory(
                 clock,
                 channel,
-                validationStatusFactory.isValidationActive(metrologyContract, Collections.singletonList(channel)),
-                validationStatusFactory.getLastCheckedForChannels(evaluator, channelsContainer, Collections.singletonList(channel)));
+                evaluator.isValidationEnabled(channel),
+                evaluator.getLastChecked(channelsContainer, channel.getMainReadingType()).orElse(null));
         RegisterReadingWithValidationStatus readingWithValidationStatus = readingWithValidationStatusFactory.createRegisterReading(requestedTime);
 
         Range<Instant> dataAggregationInterval = Range.openClosed(requestedTime.minusMillis(1L), requestedTime);
