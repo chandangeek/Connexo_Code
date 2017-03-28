@@ -377,7 +377,7 @@ Ext.define('Mdc.view.setup.devicechannels.HistoryPreview', {
 
                 valueItem.items.push(
                     {
-                        fieldLabel: Uni.I18n.translate('general.calculatedValue', 'MDC', 'Calculated value'),
+                        fieldLabel: Uni.I18n.translate('general.historyCalculatedValue', 'MDC', 'Calculated value'),
                         xtype: 'displayfield',
                         labelWidth: 200,
                         itemId: 'channelValue' + channel.id,
@@ -463,7 +463,7 @@ Ext.define('Mdc.view.setup.devicechannels.HistoryPreview', {
                 {
                     xtype: 'fieldcontainer',
                     labelWidth: 200,
-                    fieldLabel: Uni.I18n.translate('general.calculatedValue', 'MDC', 'Calculated value'),
+                    fieldLabel: Uni.I18n.translate('general.historyCalculatedValue', 'MDC', 'Calculated value'),
                     layout: 'hbox',
                     items: [
                         {

@@ -93,7 +93,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.HistoryPreview', {
                             {
                                 xtype: 'fieldcontainer',
                                 itemId: 'mdc-calculated-value-field',
-                                fieldLabel: Uni.I18n.translate('general.calculatedValue', 'MDC', 'Calculated value'),
+                                fieldLabel: Uni.I18n.translate('general.historyCalculatedValue', 'MDC', 'Calculated value'),
                                 layout: {
                                     type: 'hbox'
                                 },
