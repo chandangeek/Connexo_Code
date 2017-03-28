@@ -125,7 +125,7 @@ public class ReadingTypeDeliverableImpl implements ReadingTypeDeliverable, HasUn
 
     @Override
     public MetrologyConfiguration getMetrologyConfiguration() {
-        return this.metrologyContract.getOptional().map(MetrologyContract::getMetrologyConfiguration).orElseThrow(null);
+        return this.metrologyContract.getOptional().map(MetrologyContract::getMetrologyConfiguration).orElse(null);
     }
 
     @Override

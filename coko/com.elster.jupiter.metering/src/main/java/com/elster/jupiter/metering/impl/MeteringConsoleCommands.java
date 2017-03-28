@@ -645,7 +645,7 @@ public class MeteringConsoleCommands {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
             MetrologyContract metrologyContract = metrologyConfigurationService.findMetrologyContract(metrologyContractId)
-                    .orElseThrow(() -> new IllegalArgumentException("No such metrology contract in this metrology configuration"));
+                    .orElseThrow(() -> new IllegalArgumentException("No such metrology contract"));
             ReadingType readingType = meteringService.getReadingType(readingTypeString)
                     .orElseThrow(() -> new IllegalArgumentException("No such reading type"));
 

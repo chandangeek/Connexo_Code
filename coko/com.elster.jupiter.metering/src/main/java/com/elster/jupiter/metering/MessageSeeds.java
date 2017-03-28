@@ -95,6 +95,7 @@ public enum MessageSeeds implements MessageSeed {
     CUSTOM_PROPERTY_SET_NOT_VERSIONED(5026, Constants.CUSTOM_PROPERTY_SET_NOT_VERSIONED, "The custom property set ''{0}'' is not versioned, only versioned sets are supported."),
     CUSTOM_PROPERTY_MUST_BE_NUMERICAL(5027, Constants.CUSTOM_PROPERTY_MUST_BE_NUMERICAL, "The property ''{0}'' of custom property set ''{1}'' must be numerical."),
     CUSTOM_PROPERTY_MUST_BE_SLP(5028, Constants.CUSTOM_PROPERTY_MUST_BE_SLP, "The property ''{0}'' of custom property set ''{1}'' must be numerical."),
+    INVALID_METROLOGYCONTRACT_FOR_DELIVERABLE(5029, Constants.INVALID_METROLOGYCONTRACT_FOR_DELIVERABLE, "The deliverable with id ''{0}'' cannot be used because it has a different metrology contract."),
 
     CONTRACT_NOT_ACTIVE(6000, Constants.CONTRACT_NOT_ACTIVE, "The metrology contract with purpose {0} is not active on usage point ''{1}'' during the requested data aggregation period ({2})"),
     VIRTUAL_USAGE_POINT_ONLY_SUPPORT_CONSTANT_LIKE_EXPRESSIONS(6001, Constants.VIRTUAL_USAGE_POINT_ONLY_SUPPORT_CONSTANT_LIKE_EXPRESSIONS, "Unmeasured usage points only support constants and custom attributes or operations and functions that operate on those"),
@@ -233,6 +234,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String ROLE_IS_NOT_ALLOWED_ON_CONFIGURATION = "usagepoint.metrologyconfiguration.role.not.allowed";
         public static final String INVALID_METROLOGYCONFIGURATION_FOR_REQUIREMENT = "invalid.metrologyconfiguration.for.requirement";
         public static final String INVALID_METROLOGYCONFIGURATION_FOR_DELIVERABLE = "invalid.metrologyconfiguration.for.deliverable";
+        public static final String INVALID_METROLOGYCONTRACT_FOR_DELIVERABLE = "invalid.metrologycontract.for.deliverable";
         public static final String READINGTYPE_OF_DELIVERABLE_IS_NOT_COMPATIBLE_WITH_FORMULA = "readingtype.of.deliverable.incompatible.with.formula";
         public static final String DELIVERABLE_MUST_HAVE_THE_SAME_CONFIGURATION = "deliverable.must.have.the.same.configuration";
         public static final String REQUIREMENT_MUST_HAVE_UNIQUE_RT = "requirement.must.have.unique.rt";

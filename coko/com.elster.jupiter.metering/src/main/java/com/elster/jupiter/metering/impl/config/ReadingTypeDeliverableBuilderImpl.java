@@ -69,7 +69,7 @@ public class ReadingTypeDeliverableBuilderImpl implements ReadingTypeDeliverable
     @Override
     public FormulaBuilder deliverable(ReadingTypeDeliverable readingTypeDeliverable) {
         if (!readingTypeDeliverable.getMetrologyContract().equals(metrologyContract)) {
-            throw new InvalidNodeException(this.formulaBuilder.getThesaurus(), MessageSeeds.INVALID_METROLOGYCONFIGURATION_FOR_DELIVERABLE, (int) readingTypeDeliverable.getId());
+            throw new InvalidNodeException(this.formulaBuilder.getThesaurus(), MessageSeeds.INVALID_METROLOGYCONTRACT_FOR_DELIVERABLE, (int) readingTypeDeliverable.getId());
         }
         if ((isAutoMode() && readingTypeDeliverable.getFormula().getMode().equals(Formula.Mode.EXPERT)) ||
                 (isExpertMode() && readingTypeDeliverable.getFormula().getMode().equals(Formula.Mode.AUTO))) {
