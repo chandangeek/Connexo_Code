@@ -68,16 +68,26 @@ import com.energyict.mdc.masterdata.impl.MasterDataModule;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
+import com.energyict.mdc.protocol.api.services.CustomPropertySetInstantiatorService;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.tasks.impl.TasksModule;
 import com.energyict.mdc.upl.io.SerialComponentService;
 import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
-
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.rules.TestRule;
+import org.junit.runner.RunWith;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.http.HttpService;
@@ -88,16 +98,6 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.Date;
 import java.util.TimeZone;
-
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.rules.TestRule;
-import org.junit.runner.RunWith;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -175,7 +175,6 @@ public abstract class AbstractCollectedDataIntegrationTest {
                 new ProtocolPluggableModule(),
                 new EngineModelModule(),
                 new EngineModule(),
-                new ProtocolApiModule(),
                 new ProtocolsModule(),
                 new PluggableModule(),
                 new KpiModule(),
@@ -306,6 +305,9 @@ public abstract class AbstractCollectedDataIntegrationTest {
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
             bind(FileImportService.class).toInstance(mock(FileImportService.class));
             bind(HttpService.class).toInstance(mock(HttpService.class));
+
+            bind(CustomPropertySetInstantiatorService.class).toInstance(mock(CustomPropertySetInstantiatorService.class));
+            bind(DeviceMessageSpecificationService.class).toInstance(mock(DeviceMessageSpecificationService.class));
         }
 
     }
