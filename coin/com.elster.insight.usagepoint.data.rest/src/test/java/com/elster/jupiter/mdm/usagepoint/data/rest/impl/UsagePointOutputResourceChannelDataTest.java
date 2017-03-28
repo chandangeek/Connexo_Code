@@ -16,16 +16,18 @@ import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.estimation.Estimator;
 import com.elster.jupiter.metering.AggregatedChannel;
-import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.aggregation.DataAggregationService;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyContract;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
+import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
 import com.elster.jupiter.properties.rest.PropertyInfo;
@@ -431,6 +433,8 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
 
     @Test
     public void testEditChannelData() throws Exception {
+        DataAggregationService.MetrologyContractDataEditor editor = mock(DataAggregationService.MetrologyContractDataEditor.class);
+        when(dataAggregationService.edit(eq(usagePoint), any(MetrologyContract.class), any(ReadingTypeDeliverable.class), eq(QualityCodeSystem.MDM))).thenReturn(editor);
         when(channel.getIntervalLength()).thenReturn(Optional.of(Duration.ofMinutes(15)));
         when(channel.toList(Range.openClosed(INTERVAL_1.lowerEndpoint(), INTERVAL_3.upperEndpoint()))).thenReturn(
                 Arrays.asList(INTERVAL_1.upperEndpoint(), INTERVAL_2.upperEndpoint(), INTERVAL_3.upperEndpoint())
@@ -448,14 +452,17 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
 
         // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        verify(channel).editReadings(eq(QualityCodeSystem.MDM), intervalReadingsCaptor.capture());
-        assertThat(intervalReadingsCaptor.getValue()).hasSize(1);
-        assertThat(intervalReadingsCaptor.getValue().get(0).getValue()).isEqualTo(info.value);
-        assertThat(intervalReadingsCaptor.getValue().get(0).getTimeStamp()).isEqualTo(INTERVAL_3.upperEndpoint());
+        ArgumentCaptor<BaseReading> readingsCaptor = ArgumentCaptor.forClass(BaseReading.class);
+        verify(editor).update(readingsCaptor.capture());
+        assertThat(readingsCaptor.getAllValues()).hasSize(1);
+        assertThat(readingsCaptor.getValue().getValue()).isEqualTo(info.value);
+        assertThat(readingsCaptor.getValue().getTimeStamp()).isEqualTo(INTERVAL_3.upperEndpoint());
     }
 
     @Test
     public void testConfirmChannelData() throws Exception {
+        DataAggregationService.MetrologyContractDataEditor editor = mock(DataAggregationService.MetrologyContractDataEditor.class);
+        when(dataAggregationService.edit(eq(usagePoint), any(MetrologyContract.class), any(ReadingTypeDeliverable.class), eq(QualityCodeSystem.MDM))).thenReturn(editor);
         when(channel.toList(Range.openClosed(INTERVAL_1.lowerEndpoint(), INTERVAL_3.upperEndpoint()))).thenReturn(
                 Arrays.asList(INTERVAL_1.upperEndpoint(), INTERVAL_2.upperEndpoint(), INTERVAL_3.upperEndpoint())
         );
@@ -472,13 +479,16 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
 
         // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        verify(channel).confirmReadings(eq(QualityCodeSystem.MDM), intervalReadingsCaptor.capture());
-        assertThat(intervalReadingsCaptor.getValue()).hasSize(1);
-        assertThat(intervalReadingsCaptor.getValue().get(0).getTimeStamp()).isEqualTo(INTERVAL_3.upperEndpoint());
+        ArgumentCaptor<BaseReading> readingsCaptor = ArgumentCaptor.forClass(BaseReading.class);
+        verify(editor).confirm(readingsCaptor.capture());
+        assertThat(readingsCaptor.getAllValues()).hasSize(1);
+        assertThat(readingsCaptor.getValue().getTimeStamp()).isEqualTo(INTERVAL_3.upperEndpoint());
     }
 
     @Test
     public void testRemoveChannelData() throws Exception {
+        DataAggregationService.MetrologyContractDataEditor editor = mock(DataAggregationService.MetrologyContractDataEditor.class);
+        when(dataAggregationService.edit(eq(usagePoint), any(MetrologyContract.class), any(ReadingTypeDeliverable.class), eq(QualityCodeSystem.MDM))).thenReturn(editor);
         when(channel.toList(Range.openClosed(INTERVAL_1.lowerEndpoint(), INTERVAL_3.upperEndpoint()))).thenReturn(
                 Arrays.asList(INTERVAL_1.upperEndpoint(), INTERVAL_2.upperEndpoint(), INTERVAL_3.upperEndpoint())
         );
@@ -495,8 +505,7 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
 
         // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        List<BaseReadingRecord> record = Collections.singletonList(channel.getReading(INTERVAL_1.upperEndpoint()).get());
-        verify(channel).removeReadings(eq(QualityCodeSystem.MDM), eq(record));
+        verify(editor).remove(INTERVAL_1.upperEndpoint());
     }
 
     @Test

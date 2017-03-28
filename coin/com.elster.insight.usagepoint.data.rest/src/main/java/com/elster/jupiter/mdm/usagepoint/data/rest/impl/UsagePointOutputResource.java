@@ -21,6 +21,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.aggregation.DataAggregationService;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
@@ -105,28 +106,31 @@ public class UsagePointOutputResource {
     private final CalendarService calendarService;
     private final EstimationRuleInfoFactory estimationRuleInfoFactory;
     private final UsagePointConfigurationService usagePointConfigurationService;
+    private final DataAggregationService dataAggregationService;
 
     private static final String INTERVAL_START = "intervalStart";
     private static final String INTERVAL_END = "intervalEnd";
 
     @Inject
-    UsagePointOutputResource(ResourceHelper resourceHelper, ExceptionFactory exceptionFactory,
-                             EstimationHelper estimationHelper,
-                             ValidationService validationService,
-                             OutputInfoFactory outputInfoFactory,
-                             OutputChannelDataInfoFactory outputChannelDataInfoFactory,
-                             OutputRegisterDataInfoFactory outputRegisterDataInfoFactory,
-                             PurposeInfoFactory purposeInfoFactory,
-                             ValidationStatusFactory validationStatusFactory,
-                             Clock clock,
-                             TimeService timeService,
-                             EstimationService estimationService,
-                             MeteringService meteringService,
-                             DataValidationTaskInfoFactory dataValidationTaskInfoFactory,
-                             CalendarService calendarService,
-                             EstimationTaskInfoFactory estimationTaskInfoFactory,
-                             EstimationRuleInfoFactory estimationRuleInfoFactory,
-                             UsagePointConfigurationService usagePointConfigurationService) {
+    UsagePointOutputResource(
+            ResourceHelper resourceHelper, ExceptionFactory exceptionFactory,
+            EstimationHelper estimationHelper,
+            ValidationService validationService,
+            OutputInfoFactory outputInfoFactory,
+            OutputChannelDataInfoFactory outputChannelDataInfoFactory,
+            OutputRegisterDataInfoFactory outputRegisterDataInfoFactory,
+            PurposeInfoFactory purposeInfoFactory,
+            ValidationStatusFactory validationStatusFactory,
+            Clock clock,
+            TimeService timeService,
+            EstimationService estimationService,
+            MeteringService meteringService,
+            DataValidationTaskInfoFactory dataValidationTaskInfoFactory,
+            CalendarService calendarService,
+            EstimationTaskInfoFactory estimationTaskInfoFactory,
+            EstimationRuleInfoFactory estimationRuleInfoFactory,
+            UsagePointConfigurationService usagePointConfigurationService,
+            DataAggregationService dataAggregationService) {
         this.resourceHelper = resourceHelper;
         this.exceptionFactory = exceptionFactory;
         this.estimationHelper = estimationHelper;
@@ -145,6 +149,7 @@ public class UsagePointOutputResource {
         this.estimationTaskInfoFactory = estimationTaskInfoFactory;
         this.estimationRuleInfoFactory = estimationRuleInfoFactory;
         this.usagePointConfigurationService = usagePointConfigurationService;
+        this.dataAggregationService = dataAggregationService;
     }
 
     @GET
@@ -323,41 +328,28 @@ public class UsagePointOutputResource {
         if (!readingTypeDeliverable.getReadingType().isRegular()) {
             throw exceptionFactory.newException(MessageSeeds.THIS_OUTPUT_IS_IRREGULAR, outputId);
         }
-
-        List<BaseReading> editedReadings = new ArrayList<>();
-        List<BaseReading> estimatedReadings = new ArrayList<>();
-        List<BaseReading> confirmedReadings = new ArrayList<>();
-        List<Instant> removeCandidates = new ArrayList<>();
+        DataAggregationService.MetrologyContractDataEditor editor = this.dataAggregationService.edit(usagePoint, metrologyContract, readingTypeDeliverable, QualityCodeSystem.MDM);
 
         channelDataInfos.forEach((channelDataInfo) -> {
             if (!isToBeConfirmed(channelDataInfo) && channelDataInfo.value == null) {
-                removeCandidates.add(Instant.ofEpochMilli(channelDataInfo.interval.end));
+                editor.remove(Instant.ofEpochMilli(channelDataInfo.interval.end));
             } else {
                 if (channelDataInfo.value != null) {
                     IntervalReadingImpl baseReading = channelDataInfo.createNew();
                     if (channelDataInfo.ruleId != 0) {
                         baseReading.addQuality("3.8." + channelDataInfo.ruleId);
-                        estimatedReadings.add(baseReading);
+                        editor.estimate(baseReading);
                     } else {
-                        editedReadings.add(baseReading);
+                        editor.update(baseReading);
                     }
                 }
                 if (isToBeConfirmed(channelDataInfo)) {
-                    confirmedReadings.add(channelDataInfo.createConfirm());
+                    editor.confirm(channelDataInfo.createConfirm());
                 }
             }
         });
 
-        ChannelsContainer channelsContainer = effectiveMetrologyConfigurationOnUsagePoint.getChannelsContainer(metrologyContract).get();
-        Channel channel = channelsContainer.getChannel(readingTypeDeliverable.getReadingType()).get();
-
-        channel.estimateReadings(QualityCodeSystem.MDM, estimatedReadings);
-        channel.editReadings(QualityCodeSystem.MDM, editedReadings);
-        channel.confirmReadings(QualityCodeSystem.MDM, confirmedReadings);
-        channel.removeReadings(QualityCodeSystem.MDM, removeCandidates.stream()
-                .map(channel::getReading)
-                .flatMap(Functions.asStream())
-                .collect(Collectors.toList()));
+        editor.save();
         return Response.status(Response.Status.OK).build();
     }
 
