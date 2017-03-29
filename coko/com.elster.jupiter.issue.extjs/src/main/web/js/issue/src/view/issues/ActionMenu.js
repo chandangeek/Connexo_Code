@@ -20,38 +20,9 @@ Ext.define('Isu.view.issues.ActionMenu', {
     },
     currentUserId: -1,
     urlStoreProxy: '/api/isu/issues/{0}/actions',
-    predefinedItems: [
-        {
-            text: Uni.I18n.translate('issues.actionMenu.assignToMe', 'ISU', 'Assign to me'),
-            privileges: Isu.privileges.Issue.assign,
-            action: 'assignIssueToMe',
-            itemId: 'assign-to-me',
-            hidden: true,
-            section: this.SECTION_ACTION
-        },
-        {
-            text: Uni.I18n.translate('issues.actionMenu.unassign', 'ISU', 'Unassign'),
-            privileges: Isu.privileges.Issue.assign,
-            action: 'unassign',
-            itemId: 'unassign',
-            hidden: true,
-            section: this.SECTION_ACTION
-        },
-        {
-            text: Uni.I18n.translate('issues.actionMenu.addComment', 'ISU', 'Add comment'),
-            privileges: Isu.privileges.Issue.comment,
-            action: 'addComment',
-            section: this.SECTION_ACTION
-        },
-        {
-            text: Uni.I18n.translate('issues.actionMenu.setPriority', 'ISU', 'Set priority'),
-            privileges: Isu.privileges.Issue.action,
-            action: 'setPriority',
-            section: this.SECTION_EDIT
-        }
-    ],
+    onBeforeShow: Ext.emptyFn,
     listeners: {
-        beforeshow: {
+        show: {
             fn: function () {
                 var me = this;
 
@@ -131,6 +102,7 @@ Ext.define('Isu.view.issues.ActionMenu', {
         me.addDynamicActions();
         me.addPredefinedActions();
         me.addSpecificActions();
+        me.reorderItems();
         Ext.resumeLayouts(true);
     },
 
@@ -141,30 +113,25 @@ Ext.define('Isu.view.issues.ActionMenu', {
 
         // add dynamic actions
         me.store.each(function (record) {
-            var privileges,
-                section;
+            var privileges;
             switch (record.get('name')) {
                 case 'Assign issue':
                     privileges = Isu.privileges.Issue.canDoAction() && Isu.privileges.Issue.assign;
-                    section = this.SECTION_ACTION;
                     break;
                 case 'Close issue':
                     privileges = Isu.privileges.Issue.canDoAction() && Isu.privileges.Issue.close;
-                    section = this.SECTION_REMOVE;
                     break;
                 case 'Retry now':
                     privileges = Isu.privileges.Device.canOperateDeviceCommunication() && Isu.privileges.Issue.canDoAction();
-                    section = this.SECTION_ACTION;
                     break;
                 case 'Retry estimation':
                     privileges = Isu.privileges.Issue.runTask;
-                    section = this.SECTION_ACTION;
                     break;
             }
 
             var menuItem = {
                 text: record.get('name'),
-                section: section,
+                section: record.get('actionType'),
                 privileges: privileges
             };
 
@@ -193,21 +160,21 @@ Ext.define('Isu.view.issues.ActionMenu', {
             fromDetails = Ext.ComponentQuery.query('issue-detail-top')[0];
 
         // show/hide 'Assign to me and' and 'Unassign' menu items
-        var assignIssueToMe = me.predefinedItems.filter(function (menu) {
+        var assignIssueToMe = me.getPredefinedItems().filter(function (menu) {
             return menu.action === 'assignIssueToMe';
         })[0];
         assignIssueToMe.hidden = (me.record.get('userId') == me.currentUserId);
         assignIssueToMe.record = me.record;
 
-        var unassign = me.predefinedItems.filter(function (menu) {
+        var unassign = me.getPredefinedItems().filter(function (menu) {
             return menu.action === 'unassign';
         })[0];
         unassign.hidden = (me.record.get('userId') != me.currentUserId);
         unassign.record = me.record;
 
         // add predefined actions
-        if (me.predefinedItems && me.predefinedItems.length) {
-            Ext.Array.each(me.predefinedItems, function (menuItem) {
+        if (me.getPredefinedItems() && me.getPredefinedItems().length) {
+            Ext.Array.each(me.getPredefinedItems(), function (menuItem) {
                 switch (menuItem.action) {
                     case 'assignIssue':
                         menuItem.href = me.router.getRoute(me.router.currentRoute.replace('/view', '') + '/view/assignIssue').buildUrl(
@@ -256,7 +223,7 @@ Ext.define('Isu.view.issues.ActionMenu', {
                         break;
                 }
             });
-            me.add(me.predefinedItems);
+            me.add(me.getPredefinedItems());
         }
 
         if (Isu.privileges.Issue.canViewProcessMenu() && issueType == 'datacollection')
@@ -302,7 +269,7 @@ Ext.define('Isu.view.issues.ActionMenu', {
                                 logLevels: ['Error', 'Warning', 'Information']
                             }
                         ),
-                        section: this.SECTION_VIEW,
+                        section: me.SECTION_VIEW,
                         hrefTarget: '_blank'
                     });
                 }
@@ -320,11 +287,45 @@ Ext.define('Isu.view.issues.ActionMenu', {
                                 communications: ['Connections', 'Communications']
                             }
                         ),
-                        section: this.SECTION_VIEW,
+                        section: me.SECTION_VIEW,
                         hrefTarget: '_blank'
                     });
                 }
             }
         }
+    },
+
+    getPredefinedItems: function () {
+        var me = this;
+        return [
+            {
+                text: Uni.I18n.translate('issues.actionMenu.assignToMe', 'ISU', 'Assign to me'),
+                privileges: Isu.privileges.Issue.assign,
+                action: 'assignIssueToMe',
+                itemId: 'assign-to-me',
+                section: me.SECTION_ACTION,
+                hidden: true
+            },
+            {
+                text: Uni.I18n.translate('issues.actionMenu.unassign', 'ISU', 'Unassign'),
+                privileges: Isu.privileges.Issue.assign,
+                action: 'unassign',
+                itemId: 'unassign',
+                section: me.SECTION_ACTION,
+                hidden: true
+            },
+            {
+                text: Uni.I18n.translate('issues.actionMenu.addComment', 'ISU', 'Add comment'),
+                privileges: Isu.privileges.Issue.comment,
+                section: me.SECTION_ACTION,
+                action: 'addComment'
+            },
+            {
+                text: Uni.I18n.translate('issues.actionMenu.setPriority', 'ISU', 'Set priority'),
+                privileges: Isu.privileges.Issue.action,
+                section: me.SECTION_EDIT,
+                action: 'setPriority'
+            }
+        ];
     }
 });
