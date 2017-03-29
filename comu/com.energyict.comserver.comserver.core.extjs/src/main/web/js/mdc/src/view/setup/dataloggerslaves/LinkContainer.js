@@ -9,7 +9,7 @@ Ext.define('Mdc.view.setup.dataloggerslaves.LinkContainer', {
         'Mdc.view.setup.dataloggerslaves.LinkNavigationMenu',
         'Mdc.view.setup.dataloggerslaves.LinkWizard'
     ],
-    itemId: 'mdc-dataloggerslave-link-container',
+    itemId: 'mdc-slave-link-container',
     purpose: undefined,
     router: null,
     returnLink: null,

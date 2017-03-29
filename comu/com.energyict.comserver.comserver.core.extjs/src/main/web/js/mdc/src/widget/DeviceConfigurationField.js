@@ -132,8 +132,11 @@ Ext.define('Mdc.widget.DeviceConfigurationField', {
 
     validate: function(){
         Ext.Array.forEach(this.items.items, function(item){
-            item.validate();
+            if (!item.validate()){
+                return false;
+            }
         });
+        return true;
     },
 
     clearInvalid: function(){

@@ -7,7 +7,7 @@ Ext.define('Mdc.view.setup.dataloggerslaves.DataLoggerSlaveDeviceAdd', {
     itemId: 'mdc-datalogger-slave-device-add',
     requires: [
         'Mdc.widget.DeviceConfigurationField',
-        'Mdc.store.AvailableSlaveDeviceTypes'
+        'Mdc.store.AvailableDeviceTypes'
     ],
     hydrator: 'Uni.util.Hydrator',
     width: 570,

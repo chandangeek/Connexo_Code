@@ -33,7 +33,8 @@ Ext.define('Mdc.view.setup.dataloggerslaves.LinkWizardStep1', {
         }else{
             me.items.push({
                 xtype: 'datalogger-slave-link-wizard-step1',
-                itemId: 'mdc-datalogger-element-slave-link-wizard-step1'
+                itemId: 'mdc-datalogger-element-slave-link-wizard-step1',
+                purpose: me.purpose
             });
         }
 

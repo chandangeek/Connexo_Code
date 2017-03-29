@@ -1,11 +1,9 @@
-/**
- * Created by pdo on 27/03/2017.
- */
 Ext.define('Mdc.view.setup.dataloggerslaves.MultiElementSlaveDeviceAdd', {
     extend: 'Ext.form.Panel',
     alias: 'widget.multi-element-slave-device-add',
     itemId: 'mdc-multi-element-slave-device-add',
     requires: [
+        'Mdc.util.LinkPurpose',
         'Mdc.widget.DeviceConfigurationField'
     ],
     hydrator: 'Uni.util.Hydrator',
@@ -19,11 +17,17 @@ Ext.define('Mdc.view.setup.dataloggerslaves.MultiElementSlaveDeviceAdd', {
         labelWidth: 145
     },
     initComponent: function () {
-        var me = this;
+        var me = this,
+            deviceTypeStore = Ext.getStore('Mdc.store.AvailableDeviceTypes');
+
+        deviceTypeStore.clearFilter(true);
+        deviceTypeStore.filter([
+            Ext.create('Ext.util.Filter', {filterFn: Mdc.util.LinkPurpose.properties[ Mdc.util.LinkPurpose.LINK_MULTI_ELEMENT_SLAVE].deviceTypeFilter})
+        ]);
         me.items = [{
                 xtype: 'deviceConfigurationField',
                 itemId: 'multiElementSlaveDeviceConfiguration',
-                deviceTypeStore: 'Mdc.store.AvailableMultiElementSlaveDeviceTypes',
+                deviceTypeStore: deviceTypeStore,
                 queryMode: 'remote',
                 allowBlank: false,
                 width: 570

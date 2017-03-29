@@ -9,6 +9,7 @@ Ext.define('Mdc.view.setup.dataloggerslaves.DataLoggerSlavesLinkWizardStep1', {
     layout: {
         type: 'vbox'
     },
+    purpose: undefined,
     initComponent: function () {
         var me = this;
         me.items = [
@@ -39,7 +40,7 @@ Ext.define('Mdc.view.setup.dataloggerslaves.DataLoggerSlavesLinkWizardStep1', {
                             },
                             {
                                 itemId: 'mdc-new-dataloggerslave-option',
-                                boxLabel: Uni.I18n.translate('linkwizard.step1.option.new', 'MDC', 'New slave device'),
+                                boxLabel: me.purpose.newSlaveOption,
                                 name: 'useExisting',
                                 inputValue: false
                             }
@@ -77,23 +78,11 @@ Ext.define('Mdc.view.setup.dataloggerslaves.DataLoggerSlavesLinkWizardStep1', {
             },
             {
                xtype: 'datalogger-slave-device-add',
-               deviceTypeStore: 'Mdc.store.AvailableSlaveDeviceTypes',
+               deviceTypeStore: 'Mdc.store.AvailableDeviceTypes',
                hidden: true
             }
         ];
         me.callParent(arguments);
-    },
-    setDeviceTypePurpose: function(deviceTypePurpose){
-        switch (deviceTypePurpose) {
-            case Mdc.LinkPurpose.LINK_DATALOGGER_SLAVE.value:
-                this.items.items[1].hidden = false;
-                this.items.items[2].hidden = true;
-                break;
-            case Mdc.LinkPurpose.LINK_MULTI_ELEMENT_SLAVE.value:
-                this.items.items[1].hidden = true;
-                this.items.items[2].hidden = false;
-                break;
-        }
     }
 })
 ;

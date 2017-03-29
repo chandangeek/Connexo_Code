@@ -19,8 +19,7 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
     stores: [
         'Mdc.store.DataLoggerSlaves',
         'Mdc.store.AvailableDataLoggerSlaves',
-        'Mdc.store.AvailableSlaveDeviceTypes',
-        'Mdc.store.AvailableMultiElementSlaveDeviceTypes',
+        'Mdc.store.AvailableDeviceTypes',
         'Mdc.store.AvailableDeviceConfigurations',
         'Mdc.store.Devices',
         'Mdc.store.LoadProfileConfigurationsOnDeviceConfiguration',
@@ -43,7 +42,7 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
 
     refs: [
         {ref: 'wizard', selector: '#mdc-slave-link-wizard'},
-        {ref: 'navigationMenu', selector: 'mdc-link-slave-navigation-menu'},
+        {ref: 'navigationMenu', selector: '#mdc-link-slave-navigation-menu'},
         {ref: 'step1Panel', selector: '#mdc-dataloggerslave-link-wizard-step1'},
         {ref: 'step1PanelForMultiElement', selector: '#mdc-multi-element-slave-link-wizard-step1'},
         {ref: 'step1FormErrorMessage', selector: '#mdc-dataloggerslave-link-wizard-step1-errors'},
@@ -71,10 +70,10 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
             'dataloggerslave-link-wizard-step1 #mdc-step1-radiogroup': {
                 change: this.onStep1OptionChange
             },
-            '#mdc-dataloggerslave-link-wizard button[navigationBtn=true]': {
+            '#mdc-slave-link-wizard button[navigationBtn=true]': {
                 click: this.moveTo
             },
-            'dataloggerslave-link-container #mdc-link-dataloggerslave-navigation-menu': {
+            'dataloggerslave-link-container #mdc-link-slave-navigation-menu': {
                 movetostep: this.moveTo
             },
             '#mdc-dataloggerslaves-action-menu': {
@@ -83,7 +82,7 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
             '#mdc-dataloggerslave-unlink-window-unlink': {
                 click: this.onUnlinkDataLoggerSlave
             },
-            '#mdc-dataloggerslave-link-wizard button[action=cancel]': {
+            '#mdc-slave-link-wizard button[action=cancel]': {
                 click: this.onCancelWizard
             }
         });
@@ -168,7 +167,8 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
             mainView = Ext.ComponentQuery.query('#contentPanel')[0],
             step1Panel = me.getStep1Panel(),
             newDataLoggerSlaveForm = me.getNewDataLoggerSlaveForm(),
-            slaveCombo = step1Panel.down('#mdc-step1-slave-combo');
+            slaveCombo = step1Panel.down('#mdc-step1-slave-combo'),
+            masterDevice = me.wizardInformation.dataLogger;
 
         me.getStep1FormErrorMessage().hide();
         if (selectExistingSlave) {
@@ -179,7 +179,11 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
             if (Ext.isEmpty(me.getStep1PanelForMultiElement())) {
                 slaveCombo.setDisabled(true);
                 mainView.setLoading();
-                var deviceTypeStore = me.getStore('Mdc.store.AvailableSlaveDeviceTypes');
+                var deviceTypeStore = me.getStore('Mdc.store.AvailableDeviceTypes');
+                deviceTypeStore.clearFilter(true);
+                deviceTypeStore.filter([
+                    Ext.create('Ext.util.Filter', {filterFn: Mdc.util.LinkPurpose.forDevice(masterDevice).deviceTypeFilter})
+                ]);
                 deviceTypeStore.load(function () {
                     mainView.setLoading(false);
                     newDataLoggerSlaveForm.show();
@@ -350,7 +354,7 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
                     callback();
                 }
             };
-
+        // Linking datalogger slave to data logger
         if (Ext.isEmpty(me.getStep1PanelForMultiElement())) {
             if (step1RadioGroup.getValue().useExisting) {
                 var slaveCombo = me.getStep1Panel().down('#mdc-step1-slave-combo'),
@@ -391,8 +395,10 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
             var dataLoggerSlaveNameField = me.getDataLoggerSlaveNameField(),
                 name = dataLoggerSlaveNameField.getValue(),
                 nameValid = dataLoggerSlaveNameField.validate(),
-                deviceConfigurationValid = me.getDataLoggerSlaveDeviceConfig().validate(),
-                formRecord = wizard.down('#deviceAdd form').getRecord(),
+                deviceConfigurationWidget = me.getDataLoggerSlaveDeviceConfig(),
+                deviceConfigurationValid = deviceConfigurationWidget.validate(),
+                slaveDeviceType = deviceConfigurationWidget.getDeviceType(),
+                formRecord = wizard.down('#mdc-datalogger-slave-device-add').getRecord(),
                 checkName = function () {
                     wizard.setLoading();
                     me.getStore('Mdc.store.Devices').load({
@@ -412,12 +418,12 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
                                 slaveDeviceModel.id = 0;
                                 slaveDeviceModel.name = formRecord.get('name');
                                 slaveDeviceModel.serialNumber = formRecord.get('serialNumber');
-                                slaveDeviceModel.deviceTypeName =
-                                    wizard.down('#deviceAdd #deviceAddType').findRecordByValue(wizard.down('#deviceAdd #deviceAddType').getValue()).get('name');
+                                slaveDeviceModel.deviceTypeName = slaveDeviceType.get('name');
+                                  //  wizard.down('#deviceAdd #deviceAddType').findRecordByValue(wizard.down('#deviceAdd #deviceAddType').getValue()).get('name');
                                 slaveDeviceModel.deviceConfigurationId = formRecord.get('deviceConfigurationId');
                                 slaveDeviceModel.yearOfCertification = formRecord.get('yearOfCertification');
                                 slaveDeviceModel.batch = formRecord.get('batch');
-                                var slaveShipmentDateWithoutSeconds = wizard.down('#deviceAdd #deviceAddShipmentDate').getValue().getTime();
+                                var slaveShipmentDateWithoutSeconds = wizard.down('#mdc-datalogger-slave-device-add #dataLoggerSlaveShipmentDate').getValue().getTime();
                                 slaveShipmentDateWithoutSeconds = slaveShipmentDateWithoutSeconds - (slaveShipmentDateWithoutSeconds % 60000);
                                 slaveDeviceModel.shipmentDate = slaveShipmentDateWithoutSeconds;
                                 me.wizardInformation.minimalLinkingDates = [];
@@ -443,10 +449,10 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
             if (!nameValid || !deviceConfigurationValid) {
                 step1ErrorMsg.show();
             } else {
-                wizard.down('#deviceAdd form').updateRecord();
+                wizard.down('#mdc-datalogger-slave-device-add').updateRecord();
                 checkName();
             }
-        //Multi-element slave
+        //linking Multi-element slave
         }else{
             var multiElementSlaveName = me.getMultiElementSlaveName().getValue(),
                 nameValid = nameField.validate(),
@@ -846,7 +852,9 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
         if (step1RadioGroup.getValue().useExisting) {
             return slaveCombo.getValue();
         } else {
-            return me.getNameField().getValue();
+            // return me.getNameField().getValue();
+            var formRecord = wizard.down('#mdc-datalogger-slave-device-add').getRecord();
+            return formRecord.get("name");
         }
     },
 
