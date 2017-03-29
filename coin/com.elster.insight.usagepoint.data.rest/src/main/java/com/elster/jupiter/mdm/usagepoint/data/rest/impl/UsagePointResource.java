@@ -5,7 +5,6 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.cbo.QualityCodeSystem;
-import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
@@ -1082,16 +1081,6 @@ public class UsagePointResource {
         UsagePoint usagePoint;
         try (TransactionContext transaction = transactionService.getContext()) {
             UsagePointBuilder usagePointBuilder = usagePointInfoFactory.newUsagePointBuilder(info);
-            for (CustomPropertySetInfo customPropertySetInfo : info.customPropertySets) {
-                RegisteredCustomPropertySet registeredCustomPropertySet = customPropertySetService.findActiveCustomPropertySets(UsagePoint.class).stream()
-                        .filter(propertySet -> propertySet.getId() == customPropertySetInfo.id)
-                        .findAny()
-                        .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_CUSTOM_PROPERTY_SET, customPropertySetInfo.id));
-                CustomPropertySet<?, ?> customPropertySet = registeredCustomPropertySet.getCustomPropertySet();
-                CustomPropertySetValues values = customPropertySetInfoFactory.getCustomPropertySetValues(customPropertySetInfo, customPropertySet.getPropertySpecs());
-                usagePointBuilder.addCustomPropertySetValues(registeredCustomPropertySet, values);
-            }
-
             usagePoint = usagePointBuilder.create();
             info.techInfo.getUsagePointDetailBuilder(usagePoint, clock).create();
             if (info.metrologyConfiguration != null) {
@@ -1103,6 +1092,13 @@ public class UsagePointResource {
                     failStartDateCheck(validationBuilder);
                 }
             }
+            for (CustomPropertySetInfo customPropertySetInfo : info.customPropertySets) {
+                UsagePointPropertySet propertySet = usagePoint.forCustomProperties()
+                        .getPropertySet(customPropertySetInfo.id);
+                propertySet.setValues(customPropertySetInfoFactory.getCustomPropertySetValues(customPropertySetInfo,
+                        propertySet.getCustomPropertySet().getPropertySpecs()));
+            }
+            usagePoint.update();
 
             resourceHelper.activateMeters(info, usagePoint);
             performLifeCycleTransition(info.transitionToPerform, usagePoint, validationBuilder);
