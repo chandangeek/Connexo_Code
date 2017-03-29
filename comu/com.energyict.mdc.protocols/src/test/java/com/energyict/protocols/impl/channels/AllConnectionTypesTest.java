@@ -286,6 +286,10 @@ public class AllConnectionTypesTest {
             bind(DeviceConfigurationService.class).toInstance(deviceConfigurationService);
             bind(CalendarService.class).toInstance(calendarService);
             bind(CollectedDataFactory.class).toInstance(collectedDataFactory);
+            bind(com.energyict.mdc.upl.nls.NlsService.class).toInstance(mock(com.energyict.mdc.upl.nls.NlsService.class));
+            bind(com.energyict.mdc.upl.properties.Converter.class).toInstance(mock(com.energyict.mdc.upl.properties.Converter.class));
+            bind(com.energyict.mdc.upl.properties.PropertySpecService.class).toInstance(mock(com.energyict.mdc.upl.properties.PropertySpecService.class));
+            bind(DeviceMessageFileService.class).toInstance(deviceMessageFileService);
             bind(IdentificationService.class).toInstance(identificationService);
             bind(ProtocolPluggableService.class).toInstance(protocolPluggableService);
             bind(DeviceMessageFileService.class).toInstance(deviceMessageFileService);

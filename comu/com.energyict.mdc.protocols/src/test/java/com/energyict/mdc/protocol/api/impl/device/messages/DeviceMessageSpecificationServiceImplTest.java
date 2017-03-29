@@ -32,6 +32,7 @@ import java.util.stream.Collectors;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Mockito.atLeastOnce;
@@ -53,8 +54,7 @@ public class DeviceMessageSpecificationServiceImplTest {
     private NlsService nlsService;
     @Mock
     private Thesaurus thesaurus;
-    @Mock
-    private PropertySpecService propertySpecService;
+    private PropertySpecService propertySpecService = new MockPropertySpecService();
     @Mock
     private DataVaultService dataVaultService;
     @Mock
@@ -69,6 +69,18 @@ public class DeviceMessageSpecificationServiceImplTest {
     @Before
     public void setUp() throws Exception {
         when(ormService.newDataModel(anyString(), anyString())).thenReturn(dataModel);
+
+        Thesaurus thesaurus = mock(Thesaurus.class);
+
+        when(thesaurus.getFormat(any(TranslationKey.class))).thenAnswer(invocation -> {
+            Object[] args = invocation.getArguments();
+            NlsMessageFormat format = mock(NlsMessageFormat.class);
+            when(format.format()).thenReturn(((TranslationKey) args[0]).getDefaultFormat());
+            when(format.format(anyObject())).thenReturn(((TranslationKey) args[0]).getDefaultFormat());
+            return format;
+        });
+
+        when(nlsService.getThesaurus(anyString())).thenReturn(thesaurus);
     }
 
     @After
@@ -124,7 +136,9 @@ public class DeviceMessageSpecificationServiceImplTest {
                 forEach(DeviceMessageCategory::getName);
 
         // Asserts
-        verify(this.thesaurus, atLeastOnce()).getFormat(any(TranslationKey.class));
+        verify(this.nlsService, atLeastOnce()).getThesaurus(any(String.class));
+        Thesaurus id = nlsService.getThesaurus("ID");
+        verify(id, atLeastOnce()).getFormat(any(TranslationKey.class));
     }
 
     @Test
@@ -152,7 +166,9 @@ public class DeviceMessageSpecificationServiceImplTest {
                 forEach(DeviceMessageSpec::getName);
 
         // Asserts
-        verify(this.thesaurus, atLeastOnce()).getFormat(any(TranslationKey.class));
+        verify(this.nlsService, atLeastOnce()).getThesaurus(any(String.class));
+        Thesaurus id = nlsService.getThesaurus("ID");
+        verify(id, atLeastOnce()).getFormat(any(TranslationKey.class));
     }
 
     @Test
