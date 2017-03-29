@@ -467,8 +467,8 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             bulkStatus = validationResult.bulk === 'suspect';
         }
 
-        menu.down('#estimate-value').setVisible(mainStatus || bulkStatus || menu.record.get('estimatedNotSaved') === true);
-        menu.down('#estimate-value-with-rule').setVisible(estimationRulesCount && (mainStatus || bulkStatus));
+        //menu.down('#estimate-value').setVisible(mainStatus || bulkStatus || menu.record.get('estimatedNotSaved') === true);
+        //menu.down('#estimate-value-with-rule').setVisible(estimationRulesCount && (mainStatus || bulkStatus));
         if (menu.record.get('confirmed') || menu.record.isModified('value') || menu.record.isModified('collectedValue')) {
             menu.down('#confirm-value').hide();
         } else {
@@ -1049,8 +1049,8 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             return (validationResult.main == 'suspect')
                 || (validationResult.bulk == 'suspect') || record.get('estimatedNotSaved') === true;
         });
-        menu.down('#estimate-value').setVisible(suspects.length);
-        menu.down('#estimate-value-with-rule').setVisible(suspects.length && estimationRulesCount);
+        //menu.down('#estimate-value').setVisible(suspects.length);
+        //menu.down('#estimate-value-with-rule').setVisible(suspects.length && estimationRulesCount);
 
         var confirms = suspects.filter(function (record) {
             return !record.get('confirmed') && !record.isModified('value') && !record.isModified('collectedValue')
