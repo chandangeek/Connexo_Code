@@ -72,6 +72,12 @@ Ext.define('Pkj.controller.Certificates', {
             },
             '#pkj-download-csr-menu-item': {
                 click: this.downloadCSR
+            },
+            '#pkj-download-certificate-menu-item': {
+                click: this.downloadCertificate
+            },
+            '#pkj-remove-certificate-menu-item': {
+                click: this.removeCertificate
             }
         });
     },
@@ -281,21 +287,15 @@ Ext.define('Pkj.controller.Certificates', {
     },
 
     downloadCSR: function(menuItem) {
-        var certificateRecord = menuItem.up('certificate-action-menu').record;
-        debugger;
-        Ext.Ajax.request({
-            url: '/api/pir/certificates/' + certificateRecord.get('id') + '/download/csr',
-            method: 'GET',
-            callback: function (config, success, response) {
-                if (response.responseText) {
-                    var responseObject = JSON.parse(response.responseText);
-                    if (!responseObject.success) {
-                        me.getApplication().getController('Uni.controller.Error')
-                            .showError(Uni.I18n.translate('general.certificateUploadFailed', 'PKJ', 'Failed to upload file'), responseObject.message);
-                    }
-                }
-            }
-        });
+        var certificateRecord = menuItem.up('certificate-action-menu').record,
+            url = '/api/pir/certificates/' + certificateRecord.get('id') + '/download/csr';
+        window.open(url, '_blank');
+    },
+
+    downloadCertificate: function(menuItem) {
+        var certificateRecord = menuItem.up('certificate-action-menu').record,
+            url = '/api/pir/certificates/' + certificateRecord.get('id') + '/download/certificate';
+        window.open(url, '_blank');
     },
 
     showCertificateDetailsPage: function(certificateId) {
@@ -316,5 +316,27 @@ Ext.define('Pkj.controller.Certificates', {
                 me.getApplication().fireEvent('certificateLoaded', certificateRecord.get('alias'));
             }
         });
+    },
+
+    removeCertificate: function(menuItem) {
+        var me = this,
+            confirmationWindow = Ext.create('Uni.view.window.Confirmation'),
+            certificateRecord = menuItem.up('certificate-action-menu').record;
+
+        confirmationWindow.show({
+            title: Uni.I18n.translate('general.removeX', 'PKJ', "Remove '{0}'?", certificateRecord.get('alias')),
+            msg: Uni.I18n.translate('certificate.remove.msg', 'PKJ', 'The certificate will no longer be available.'),
+            fn: function (state) {
+                if (state === 'confirm') {
+                    certificateRecord.destroy({
+                        success: function () {
+                            me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.certificateRemoved', 'PKJ', 'Certificate removed'));
+                            me.navigateToCertificatesOverview();
+                        }
+                    });
+                }
+            }
+        });
     }
+
 });
