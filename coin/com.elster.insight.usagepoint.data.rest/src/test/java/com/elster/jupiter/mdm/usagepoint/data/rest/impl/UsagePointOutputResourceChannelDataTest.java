@@ -20,6 +20,7 @@ import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyContract;
@@ -137,6 +138,7 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         when(meterActivation.getRange()).thenReturn(Range.atLeast(INTERVAL_1.lowerEndpoint()));
 
         when(validationService.getEvaluator()).thenReturn(evaluator);
+        when(evaluator.getLastChecked(eq(channelsContainer), any(ReadingType.class))).thenReturn(Optional.of(INTERVAL_1.lowerEndpoint()));
 
         Estimator estimator = mock(Estimator.class);
         EstimationResult estimationResult = mock(EstimationResult.class);
@@ -364,7 +366,6 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         when(channel.getIntervalReadings(any())).thenReturn(intervalReadings); //Intentionally returns more then three
         when(channel.getCalculatedIntervalReadings(any())).thenReturn(intervalReadings);
         when(channel.getPersistedIntervalReadings(any())).thenReturn(Collections.emptyList());
-        ValidationEvaluator evaluator = mock(ValidationEvaluator.class);
         when(validationService.getEvaluator()).thenReturn(evaluator);
 
         String filter = ExtjsFilter.filter()

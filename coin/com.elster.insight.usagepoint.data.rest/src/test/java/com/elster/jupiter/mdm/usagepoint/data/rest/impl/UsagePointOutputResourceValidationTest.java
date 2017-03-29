@@ -146,12 +146,19 @@ public class UsagePointOutputResourceValidationTest extends UsagePointDataRestAp
         setDeliverableStub();
         setValidationRulesStub();
         when(suspectDataValidationStatus.getOffendedRules()).thenReturn(Collections.singletonList(validationRule));
+        when(validationService.getEvaluator(eq(channelsContainer))).thenReturn(validationEvaluator);
         when(validationService.getEvaluator()).thenReturn(validationEvaluator);
         when(validationEvaluator.getLastChecked(channelsContainer, readingType)).thenReturn(Optional.of(DAY_BEFORE));
+        when(validationService.getLastChecked(channelsContainer)).thenReturn(Optional.of(DAY_BEFORE));
         when(validationEvaluator.isAllDataValidated(channelsContainer)).thenReturn(false);
+        when(validationEvaluator.isValidationEnabled(channel)).thenReturn(true);
+        when(validationService.isValidationActive(channelsContainer)).thenReturn(true);
         when(suspectDataValidationStatus.completelyValidated()).thenReturn(false);
-        when(validationEvaluator.getValidationStatus(anySetOf(QualityCodeSystem.class), eq(Collections.singletonList(cimChannel)), eq(Collections.emptyList()), any()))
+        when(validationEvaluator.getValidationStatus(anySetOf(QualityCodeSystem.class), eq(channel), eq(Collections.emptyList()), any()))
                 .thenReturn(Arrays.asList(suspectDataValidationStatus, informativeDataValidationStatus, estimatedDataValidationStatus));
+        when(validationEvaluator.areSuspectsPresent(anySetOf(QualityCodeSystem.class), eq(channelsContainer))).thenReturn(true);
+        when(validationEvaluator.areSuspectsPresent(anySetOf(QualityCodeSystem.class), eq(channel), any(Range.class))).thenReturn(true);
+        when(validationEvaluator.isValidationEnabled(channel)).thenReturn(true);
         ReadingTypeDeliverablesInfo readingTypeDeliverablesInfo = new ReadingTypeDeliverablesInfo();
         readingTypeDeliverablesInfo.formula = new com.elster.jupiter.mdm.usagepoint.config.rest.FormulaInfo();
         readingTypeDeliverablesInfo.formula.description = EXPECTED_FORMULA_DESCRIPTION;
@@ -160,7 +167,8 @@ public class UsagePointOutputResourceValidationTest extends UsagePointDataRestAp
         when(clock.getZone()).thenReturn(ZONED_NOW.getZone());
         when(timeService.findRelativePeriod(5)).thenReturn(Optional.of(TODAY));
         when(effectiveMetrologyConfiguration.getRange()).thenReturn(Range.all());
-        when(usagePointDataCompletionService.getDataCompletionStatistics(eq(channel), any())).thenReturn(Collections.singletonList(summary));
+        when(usagePointDataCompletionService.getDataCompletionStatistics(eq(effectiveMetrologyConfiguration), eq(metrologyContract), any(Range.class))).thenReturn(Collections.singletonMap(deliverable, Collections
+                .singletonList(summary)));
         when(summary.getType()).thenReturn(ChannelDataCompletionSummaryType.GENERAL);
         EstimationRule estimationRule = mock(EstimationRule.class);
         ReadingQualityType estimatedReadingQualityType = ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.ESTIMATED, 13);
