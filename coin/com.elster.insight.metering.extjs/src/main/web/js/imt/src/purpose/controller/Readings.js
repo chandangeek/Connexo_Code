@@ -456,6 +456,9 @@ Ext.define('Imt.purpose.controller.Readings', {
             if (record.get('confirmed')) {
                 record.set('confirmed', false);
             }
+            if(record.get('isProjected')) {
+                record.set('isProjected', false);
+            }
             record.set('validationResult', 'validationStatus.ok');
             record.endEdit(true);
             gridView.refreshNode(store.indexOf(record));
