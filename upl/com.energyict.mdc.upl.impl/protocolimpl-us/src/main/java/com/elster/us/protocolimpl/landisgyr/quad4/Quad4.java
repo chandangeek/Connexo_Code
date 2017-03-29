@@ -252,7 +252,7 @@ public class Quad4 extends PluggableMeterProtocol implements RegisterProtocol,Se
      * </ul>
      */
     protected String getpNodePrefix(Properties p) {
-         return p.getProperty(PK_NODE_PREFIX, PD_NODE_PREFIX);
+        return p.getProperty(PK_NODE_PREFIX, PD_NODE_PREFIX);
     }
 
     public Date getBeginningOfRecording() throws IOException {
@@ -338,7 +338,7 @@ public class Quad4 extends PluggableMeterProtocol implements RegisterProtocol,Se
             obisCodeMapper = new ObisCodeMapper(this);
 
         } catch (ConnectionException e) {
-            logger.severe("MAXSys 2510, " + e.getMessage());
+            logger.severe("Quad4, " + e.getMessage());
             throw e;
         }
 
