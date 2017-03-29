@@ -5,43 +5,11 @@
 Ext.define('Dal.view.ActionMenu', {
     extend: 'Isu.view.issues.ActionMenu',
     requires: [
-        'Dal.privileges.Alarm',
-        //'Isu.privileges.Device'
+        'Dal.privileges.Alarm'
     ],
     alias: 'widget.alarms-action-menu',
-    //store: 'Isu.store.IssueActions',
     urlStoreProxy: '/api/dal/alarms/{0}/actions',
-    predefinedItems: [
-        {
-            text: Uni.I18n.translate('issues.actionMenu.assignToMe', 'DAL', 'Assign to me'),
-            privileges: Dal.privileges.Alarm.assign,
-            action: 'assignIssueToMe',
-            itemId: 'assign-alarm-to-me',
-            hidden: true,
-            section: this.SECTION_ACTION
-        },
-        {
-            text: Uni.I18n.translate('issues.actionMenu.unassign', 'DAL', 'Unassign'),
-            privileges: Dal.privileges.Alarm.assign,
-            action: 'unassign',
-            itemId: 'unassign-alarm',
-            hidden: true,
-            section: this.SECTION_ACTION
-        },
-        {
-            text: Uni.I18n.translate('issues.actionMenu.addComment', 'DAL', 'Add comment'),
-            privileges: Dal.privileges.Alarm.comment,
-            action: 'addComment',
-            section: this.SECTION_ACTION
-        },
-        {
-            text: Uni.I18n.translate('issues.actionMenu.setPriority', 'DAL', 'Set priority'),
-            privileges: Dal.privileges.Alarm.viewAdminAlarm,
-            action: 'setPriority',
-            section: this.SECTION_EDIT
-        }
-
-    ],
+    onBeforeShow: Ext.emptyFn,
 
     addDynamicActions: function () {
         var me = this,
@@ -64,7 +32,7 @@ Ext.define('Dal.view.ActionMenu', {
 
             var menuItem = {
                 text: record.get('name'),
-                section: this.SECTION_ACTION,
+                section: record.get('actionType'),
                 privileges: privileges
             };
 
@@ -91,21 +59,21 @@ Ext.define('Dal.view.ActionMenu', {
             detail = Ext.ComponentQuery.query('alarm-detail-top')[0];
 
         // show/hide 'Assign to me and' and 'Unassign' menu items
-        var assignIssueToMe = me.predefinedItems.filter(function (menu) {
+        var assignIssueToMe = me.getPredefinedItems().filter(function (menu) {
             return menu.action === 'assignIssueToMe';
         })[0];
         assignIssueToMe.hidden = (me.record.get('userId') == me.currentUserId);
         assignIssueToMe.record = me.record;
 
-        var unassign = me.predefinedItems.filter(function (menu) {
+        var unassign = me.getPredefinedItems().filter(function (menu) {
             return menu.action === 'unassign';
         })[0];
         unassign.hidden = (me.record.get('userId') != me.currentUserId);
         unassign.record = me.record;
 
         // add predefined actions
-        if (me.predefinedItems && me.predefinedItems.length) {
-            Ext.Array.each(me.predefinedItems, function (menuItem) {
+        if (me.getPredefinedItems() && me.getPredefinedItems().length) {
+            Ext.Array.each(me.getPredefinedItems(), function (menuItem) {
                 switch (menuItem.action) {
                     case 'assignAlarm':
                         menuItem.href = me.router.getRoute(me.router.currentRoute.replace('/view', '') + '/view/assignIssue').buildUrl(
@@ -151,7 +119,7 @@ Ext.define('Dal.view.ActionMenu', {
                         break;
                 }
             });
-            me.add(me.predefinedItems);
+            me.add(me.getPredefinedItems());
         }
         if (Dal.privileges.Alarm.viewAdminProcesses) {
             me.add({
@@ -160,13 +128,46 @@ Ext.define('Dal.view.ActionMenu', {
                 action: 'startProcess',
                 section: this.SECTION_ACTION,
                 href: me.router.getRoute(me.router.currentRoute.replace('/view', '') + '/view/startProcess').buildUrl({alarmId: itemId}, {details: (detail) ? true : false}),
-                details: false
+                details: false,
+                section: me.SECTION_ACTION
             });
         }
     },
 
     addSpecificActions: function () {
+    },
+
+    getPredefinedItems: function () {
+        var me = this;
+        return [
+            {
+                text: Uni.I18n.translate('issues.actionMenu.assignToMe', 'DAL', 'Assign to me'),
+                privileges: Dal.privileges.Alarm.assign,
+                action: 'assignIssueToMe',
+                itemId: 'assign-alarm-to-me',
+                section: me.SECTION_ACTION,
+                hidden: true
+            },
+            {
+                text: Uni.I18n.translate('issues.actionMenu.unassign', 'DAL', 'Unassign'),
+                privileges: Dal.privileges.Alarm.assign,
+                action: 'unassign',
+                itemId: 'unassign-alarm',
+                section: me.SECTION_ACTION,
+                hidden: true
+            },
+            {
+                text: Uni.I18n.translate('issues.actionMenu.addComment', 'DAL', 'Add comment'),
+                privileges: Dal.privileges.Alarm.comment,
+                section: me.SECTION_ACTION,
+                action: 'addComment'
+            },
+            {
+                text: Uni.I18n.translate('issues.actionMenu.setPriority', 'DAL', 'Set priority'),
+                privileges: Dal.privileges.Alarm.viewAdminAlarm,
+                section: me.SECTION_EDIT,
+                action: 'setPriority'
+            }
+        ];
     }
-
-
 });
