@@ -105,6 +105,7 @@ Ext.define('Imt.purpose.controller.Readings', {
             }
         });
     },
+    valueBeforeEdit: 0,
 
     chooseBulkAction: function (menu, item) {
         var me = this,
@@ -163,6 +164,7 @@ Ext.define('Imt.purpose.controller.Readings', {
     beforeEditRecord: function (editor, context) {
         var intervalFlags = context.record.get('intervalFlags');
         context.column.getEditor().allowBlank = !(intervalFlags && intervalFlags.length);
+        this.valueBeforeEdit = context.record.get('value');
         this.showPreview(context.grid.getSelectionModel(), context.record);
     },
 
@@ -262,7 +264,7 @@ Ext.define('Imt.purpose.controller.Readings', {
                 event.column.getEditor().allowBlank = true;
             }
 
-            if (event.record.isModified('value')) {
+            if (event.record.isModified('value') && this.valueBeforeEdit !== event.record.get('value')) {
                 grid.down('#save-changes-button').isDisabled() && me.showButtons();
 
                 Ext.suspendLayouts(true);
@@ -287,7 +289,6 @@ Ext.define('Imt.purpose.controller.Readings', {
                 if (event.column) {
                     event.record.set('validationResult', 'validationStatus.ok');
                     event.record.set('isProjected', false);
-                    event.record.set('projectedChanged', false);
                     event.record.set('ruleId', 0);
                     grid.getView().refreshNode(grid.getStore().indexOf(event.record));
                     event.record.get('confirmed') && event.record.set('confirmed', false);
