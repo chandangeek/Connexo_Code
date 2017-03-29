@@ -9,6 +9,11 @@ Ext.define('Uni.property.view.property.Period', {
     ],
     unitComboWidth: 128,
     gapWidth: 6,
+    listeners: {
+        afterrender: function () {
+            this.getComboField().getStore().load();
+        }
+    },
 
     getNormalCmp: function () {
         var me = this;
@@ -99,7 +104,6 @@ Ext.define('Uni.property.view.property.Period', {
             } else {
                 this.getField().setValue(count);
                 this.getComboField().setValue(unit);
-                this.getComboField().setRawValue(localizedTimeUnit);
             }
         } else {
             this.callParent([timeDuration]);
