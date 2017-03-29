@@ -9,6 +9,7 @@ import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.ClientCertificateWrapper;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.PkiService;
+import com.elster.jupiter.pki.RequestableCertificateWrapper;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
@@ -19,6 +20,7 @@ import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.X500NameBuilder;
 import org.bouncycastle.asn1.x500.style.BCStyle;
+import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 
@@ -33,8 +35,11 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
+import java.io.IOException;
 import java.io.InputStream;
 import java.security.NoSuchProviderException;
+import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
@@ -91,7 +96,7 @@ public class CertificateWrapperResource {
     @Path("/{id}")
     public CertificateWrapperInfo getCertificate(@PathParam("id") long certificateId) {
         CertificateWrapper certificateWrapper = pkiService.findCertificateWrapper(certificateId)
-                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CERTIFICATE, certificateId));
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CERTIFICATE));
 
         return certificateInfoFactory.asInfo(certificateWrapper);
     }
@@ -113,7 +118,7 @@ public class CertificateWrapperResource {
             throw new LocalizedFieldValidationException(MessageSeeds.CERTIFICATE_TOO_BIG, "file");
         }
         CertificateWrapper certificateWrapper = pkiService.findAndLockCertificateWrapper(certificateWrapperId, version)
-                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CERTIFICATE, certificateWrapperId));
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CERTIFICATE));
         return doImportCertificateForCertificateWrapper(certificateInputStream, certificateWrapper);
     }
 
@@ -144,28 +149,55 @@ public class CertificateWrapperResource {
         return Response.status(Response.Status.CREATED).entity(certificateInfoFactory.asInfo(clientCertificateWrapper)).build();
     }
 
-//    @POST // This should be PUT but has to be POST due to some 3th party issue
-//    @Consumes(MediaType.APPLICATION_JSON)
-//    @Produces(MediaType.APPLICATION_JSON)
-//    @Path("/{id}/csr")
-//    @Transactional
-//    public Response createCSRForExistingCertificateWrapper(@PathParam("id") long id, CsrInfo csrInfo) {
-//        if (csrInfo.CN==null) {
-//            throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "CN");
-//        }
-//        CertificateWrapper certificateWrapper = pkiService.findAndLockCertificateWrapper(id, csrInfo.version)
-//                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_CERTIFICATE, id));
-//        if (ClientCertificateWrapper.class.isAssignableFrom(certificateWrapper.getClass())) {
-//            ClientCertificateWrapper clientCertificateWrapper = (ClientCertificateWrapper) certificateWrapper;
-//            X500Name x500Name = getX500Name(csrInfo);
-//            clientCertificateWrapper.generateCSR(x500Name);
-//            return Response.status(Response.Status.CREATED)
-//                    .entity(certificateInfoFactory.asInfo(clientCertificateWrapper))
-//                    .build();
-//        } else {
-//            throw exceptionFactory.newException(MessageSeeds.NOT_POSSIBLE_TO_CREATE_CSR);
-//        }
-//    }
+    @GET
+    @Path("{id}/download/csr")
+    @Produces({MediaType.APPLICATION_OCTET_STREAM, MediaType.APPLICATION_JSON})
+    public Response downloadCsr(@PathParam("id") long certificateId) {
+        CertificateWrapper certificateWrapper = pkiService.findCertificateWrapper(certificateId)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CERTIFICATE));
+        if (!certificateWrapper.hasCSR()) {
+            throw exceptionFactory.newException(MessageSeeds.NO_CSR_PRESENT);
+        }
+        try {
+            PKCS10CertificationRequest pkcs10CertificationRequest = ((RequestableCertificateWrapper) certificateWrapper).getCSR()
+                    .get();
+            byte[] encoded = pkcs10CertificationRequest.getEncoded();
+            StreamingOutput streamingOutput = output -> {
+                output.write(encoded);
+                output.flush();
+            };
+            return Response
+                    .ok(streamingOutput, MediaType.APPLICATION_OCTET_STREAM)
+                    .header("content-disposition","attachment; filename = "+certificateWrapper.getAlias()+".csr")
+                    .build();
+        } catch (IOException e) {
+            throw exceptionFactory.newException(MessageSeeds.FAILED_TO_READ_CSR, e);
+        }
+    }
+
+    @GET
+    @Path("{id}/download/certificate")
+    @Produces({MediaType.APPLICATION_OCTET_STREAM, MediaType.APPLICATION_JSON})
+    public Response downloadCertificate(@PathParam("id") long certificateId) {
+        CertificateWrapper certificateWrapper = pkiService.findCertificateWrapper(certificateId)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CERTIFICATE));
+        if (!certificateWrapper.getCertificate().isPresent()) {
+            throw exceptionFactory.newException(MessageSeeds.NO_CERTIFICATE_PRESENT);
+        }
+        try {
+            byte[] encoded = certificateWrapper.getCertificate().get().getEncoded();
+            StreamingOutput streamingOutput = output -> {
+                output.write(encoded);
+                output.flush();
+            };
+            return Response
+                    .ok(streamingOutput, MediaType.APPLICATION_OCTET_STREAM)
+                    .header("content-disposition","attachment; filename = "+certificateWrapper.getAlias()+".cert")
+                    .build();
+        } catch (CertificateEncodingException e) {
+            throw exceptionFactory.newException(MessageSeeds.FAILED_TO_READ_CERTIFICATE, e);
+        }
+    }
 
     private X500Name getX500Name(CsrInfo csrInfo) {
         X500NameBuilder x500NameBuilder = new X500NameBuilder();

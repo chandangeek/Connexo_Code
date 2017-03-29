@@ -25,6 +25,7 @@ public class CertificateInfoFactory {
     public CertificateWrapperInfo asInfo(CertificateWrapper certificateWrapper) {
         CertificateWrapperInfo info = new CertificateWrapperInfo();
         info.id = certificateWrapper.getId();
+        info.version = certificateWrapper.getVersion();
         info.hasCSR = certificateWrapper.hasCSR();
         info.hasCertificate = certificateWrapper.getCertificate().isPresent();
         info.hasPrivateKey = certificateWrapper.hasPrivateKey();

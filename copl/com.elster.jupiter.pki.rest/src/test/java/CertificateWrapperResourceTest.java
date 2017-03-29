@@ -23,6 +23,7 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Form;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,6 +39,7 @@ import java.time.ZoneId;
 import java.util.Optional;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
@@ -142,6 +144,7 @@ public class CertificateWrapperResourceTest extends PkiApplicationTest {
         ClientCertificateWrapper certificateWrapper = mock(ClientCertificateWrapper.class);
         when(pkiService.findCertificateWrapper(12345)).thenReturn(Optional.of(certificateWrapper));
         when(certificateWrapper.getAlias()).thenReturn("root");
+        when(certificateWrapper.getVersion()).thenReturn(135L);
         when(certificateWrapper.getCertificate()).thenReturn(Optional.of(loadCertificate("myRootCA.cert")));
         when(certificateWrapper.getExpirationTime()).thenReturn(Optional.of(Instant.now(clock)));
         when(certificateWrapper.getAllKeyUsages()).thenReturn(Optional.of("A, B, C"));
@@ -153,17 +156,48 @@ public class CertificateWrapperResourceTest extends PkiApplicationTest {
         Response response = target("/certificates/12345").request().get();
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
         assertThat(model.<String>get("alias")).isEqualTo("root");
+        assertThat(model.<Integer>get("version")).isEqualTo(135);
         assertThat(model.<String>get("keyEncryptionMethod")).isEqualTo("DataVault");
         assertThat(model.<Long>get("expirationDate")).isEqualTo(1488240000000L);
-        assertThat(model.<String>get("certificate.type")).isEqualTo("A, B, C");
-        assertThat(model.<String>get("certificate.issuer")).isEqualTo("C=BE,ST=Vlaanderen,L=Kortrijk,O=Honeywell,OU=SmartEnergy,CN=MyRootCA");
-        assertThat(model.<String>get("certificate.subject")).isEqualTo("C=BE,ST=Vlaanderen,L=Kortrijk,O=Honeywell,OU=SmartEnergy,CN=MyRootCA");
-        assertThat(model.<Integer>get("certificate.version")).isEqualTo(1);
-        assertThat(model.<BigInteger>get("certificate.serialNumber")).isEqualTo(new BigInteger("12550491392904217459"));
-        assertThat(model.<Instant>get("certificate.notBefore")).isNotNull();
-        assertThat(model.<Instant>get("certificate.notAfter")).isNotNull();
-        assertThat(model.<String>get("certificate.signatureAlgorithm")).isEqualToIgnoringCase("SHA256withECDSA");
-        assertThat(model.<Object>get("csr")).isNull();
+        assertThat(model.<String>get("type")).isEqualTo("A, B, C");
+        assertThat(model.<String>get("issuer")).isEqualTo("C=BE,ST=Vlaanderen,L=Kortrijk,O=Honeywell,OU=SmartEnergy,CN=MyRootCA");
+        assertThat(model.<String>get("subject")).isEqualTo("C=BE,ST=Vlaanderen,L=Kortrijk,O=Honeywell,OU=SmartEnergy,CN=MyRootCA");
+        assertThat(model.<Integer>get("certificateVersion")).isEqualTo(1);
+        assertThat(model.<BigInteger>get("serialNumber")).isEqualTo(new BigInteger("12550491392904217459"));
+        assertThat(model.<Instant>get("notBefore")).isNotNull();
+        assertThat(model.<Instant>get("notAfter")).isNotNull();
+        assertThat(model.<String>get("signatureAlgorithm")).isEqualToIgnoringCase("SHA256withECDSA");
+    }
+
+    @Test
+    public void testDownloadCertificate() throws Exception {
+        ClientCertificateWrapper certificateWrapper = mock(ClientCertificateWrapper.class);
+        when(pkiService.findCertificateWrapper(12345)).thenReturn(Optional.of(certificateWrapper));
+        X509Certificate x509Certificate = loadCertificate("myRootCA.cert");
+        when(certificateWrapper.getCertificate()).thenReturn(Optional.of(x509Certificate));
+        when(certificateWrapper.getAlias()).thenReturn("downloadedRootCa");
+
+
+        Response response = target("/certificates/12345/download/certificate").request().get();
+        InputStream entity = (InputStream) response.getEntity();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        assertThat(entity).hasSameContentAs(new ByteArrayInputStream(x509Certificate.getEncoded()));
+    }
+
+    @Test
+    @Ignore
+    public void testDownloadCSRButThereIsNone() throws Exception {
+        ClientCertificateWrapper certificateWrapper = mock(ClientCertificateWrapper.class);
+        when(pkiService.findCertificateWrapper(12345)).thenReturn(Optional.of(certificateWrapper));
+        when(certificateWrapper.getCertificate()).thenReturn(Optional.empty());
+        when(certificateWrapper.getCSR()).thenReturn(Optional.empty());
+        when(certificateWrapper.hasCSR()).thenReturn(false);
+        when(certificateWrapper.getAlias()).thenReturn("downloadedRootCa");
+
+
+        Response response = target("/certificates/12345/download/csr").request().get();
+        InputStream entity = (InputStream) response.getEntity();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.NO_CONTENT.getStatusCode());
     }
 
     private X509Certificate loadCertificate(String name) throws IOException, CertificateException {

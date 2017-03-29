@@ -5,8 +5,10 @@
 package com.elster.jupiter.pki.rest.impl;
 
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
+import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.pki.TrustStore;
+import com.elster.jupiter.pki.TrustedCertificate;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
@@ -30,9 +32,11 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
 import java.io.InputStream;
 import java.security.KeyStore;
 import java.security.NoSuchProviderException;
+import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
@@ -78,6 +82,35 @@ public class TrustStoreResource {
         TrustStore trustStore = findTrustStoreOrThrowException(id);
         return asPagedInfoList(certificateInfoFactory.asInfo(trustStore.getCertificates()), "certificates", queryParameters);
     }
+
+    @GET
+    @Path("{id}/certificates/{certificateId}/download/certificate")
+    @Produces({MediaType.APPLICATION_OCTET_STREAM, MediaType.APPLICATION_JSON})
+    public Response downloadCertificate(@PathParam("id") long trustStoreId, @PathParam("certificateId") long certificateId) {
+        CertificateWrapper certificateWrapper = pkiService.findCertificateWrapper(certificateId)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CERTIFICATE));
+        if (!TrustedCertificate.class.isAssignableFrom(certificateWrapper.getClass()) ||
+                ((TrustedCertificate)certificateWrapper).getTrustStore().getId()==trustStoreId) {
+            throw exceptionFactory.newException(MessageSeeds.NO_SUCH_CERTIFICATE);
+        }
+        if (!certificateWrapper.getCertificate().isPresent()) {
+            throw exceptionFactory.newException(MessageSeeds.NO_CERTIFICATE_PRESENT);
+        }
+        try {
+            byte[] encoded = certificateWrapper.getCertificate().get().getEncoded();
+            StreamingOutput streamingOutput = output -> {
+                output.write(encoded);
+                output.flush();
+            };
+            return Response
+                    .ok(streamingOutput, MediaType.APPLICATION_OCTET_STREAM)
+                    .header("content-disposition","attachment; filename = "+certificateWrapper.getAlias()+".cert")
+                    .build();
+        } catch (CertificateEncodingException e) {
+            throw exceptionFactory.newException(MessageSeeds.FAILED_TO_READ_CERTIFICATE, e);
+        }
+    }
+
 
     @POST
     @Path("/{id}/certificates/single")
