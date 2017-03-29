@@ -40,6 +40,8 @@ import java.util.Set;
  */
 public class MainCheckValidator extends AbstractValidator {
 
+    private ReadingType readingType;
+
     static final String CHECK_PURPOSE = "checkPurpose";
     static final String MAX_ABSOLUTE_DIFF = "maximumAbsoluteDifference";
     static final String PASS_IF_NO_REF_DATA = "passIfNoRefData";
@@ -104,17 +106,17 @@ public class MainCheckValidator extends AbstractValidator {
 
     @Override
     public void init(Channel channel, ReadingType readingType, Range<Instant> interval) {
-
+        this.readingType = readingType;
     }
 
     @Override
     public ValidationResult validate(IntervalReadingRecord intervalReadingRecord) {
-        return null;
+        return ValidationResult.VALID;
     }
 
     @Override
     public ValidationResult validate(ReadingRecord readingRecord) {
-        return null;
+        return ValidationResult.VALID;
     }
 
     @Override
