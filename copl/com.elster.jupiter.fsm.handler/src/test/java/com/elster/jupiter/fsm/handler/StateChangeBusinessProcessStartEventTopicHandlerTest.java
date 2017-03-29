@@ -7,14 +7,13 @@ package com.elster.jupiter.fsm.handler;
 import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.fsm.State;
-import com.elster.jupiter.fsm.StateChangeBusinessProcess;
 import com.elster.jupiter.fsm.StateChangeBusinessProcessStartEvent;
 
 import java.util.Map;
 
-import org.junit.*;
-import org.junit.runner.*;
-
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -97,12 +96,12 @@ public class StateChangeBusinessProcessStartEventTopicHandlerTest {
         verify(this.bpmService).startProcess(eq(DEPLOYMENT_ID), eq(PROCESS_ID), parameterArgumentCaptor.capture());
         Map<String, Object> parameters = parameterArgumentCaptor.getValue();
         assertThat(parameters).containsKeys(
-                StateChangeBusinessProcess.SOURCE_ID_BPM_PARAMETER_NAME,
-                StateChangeBusinessProcess.STATE_ID_BPM_PARAMETER_NAME,
-                StateChangeBusinessProcess.CHANGE_TYPE_BPM_PARAMETER_NAME);
-        assertThat(parameters.get(StateChangeBusinessProcess.SOURCE_ID_BPM_PARAMETER_NAME)).isEqualTo(SOURCE_ID);
-        assertThat(parameters.get(StateChangeBusinessProcess.STATE_ID_BPM_PARAMETER_NAME)).isEqualTo(this.state.getId());
-        assertThat(parameters.get(StateChangeBusinessProcess.CHANGE_TYPE_BPM_PARAMETER_NAME)).isEqualTo(StateChangeBusinessProcessStartEvent.Type.ENTRY.parameterValue());
+                "sourceId",
+                "stateId",
+                "changeType");
+        assertThat(parameters.get("sourceId")).isEqualTo(SOURCE_ID);
+        assertThat(parameters.get("stateId")).isEqualTo(this.state.getId());
+        assertThat(parameters.get("changeType")).isEqualTo(StateChangeBusinessProcessStartEvent.Type.ENTRY.parameterValue());
     }
 
     private StateChangeBusinessProcessStartEventTopicHandler getTestInstance() {
