@@ -8,15 +8,15 @@ import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
+import com.elster.jupiter.cps.rest.CustomPropertySetAttributeInfo;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
+import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
 import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
-import com.elster.jupiter.metering.UsagePointPropertySet;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
 import com.elster.jupiter.metering.config.Formula;
@@ -32,12 +32,14 @@ import com.elster.jupiter.metering.config.UsagePointRequirement;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecPossibleValues;
 import com.elster.jupiter.properties.ValueFactory;
+import com.elster.jupiter.properties.rest.PropertyInfo;
+import com.elster.jupiter.properties.rest.PropertyTypeInfo;
+import com.elster.jupiter.properties.rest.PropertyValueInfo;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.search.SearchablePropertyOperator;
 import com.elster.jupiter.search.SearchablePropertyValue;
 import com.elster.jupiter.util.units.Quantity;
-import com.elster.jupiter.util.units.Unit;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationRuleSetVersion;
@@ -46,15 +48,18 @@ import com.jayway.jsonpath.JsonModel;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
+
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -239,61 +244,64 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
     }
 
     @Test
-    public void testGetDetailedMetrologyConfiguration() {
+    public void getVersionedCustomPropertySets() {
         UsagePointMetrologyConfiguration metrologyConfiguration = mockMetrologyConfiguration(13L, "Residential", ServiceKind.GAS, MetrologyConfigurationStatus.INACTIVE);
         UsagePoint usagePoint = mock(UsagePoint.class);
-        RegisteredCustomPropertySet cps = mock(RegisteredCustomPropertySet.class);
-        CustomPropertySet set1 = mock(CustomPropertySet.class);
-        UsagePointCustomPropertySetExtension extension = mock(UsagePointCustomPropertySetExtension.class);
-        UsagePointPropertySet set2 = mock(UsagePointPropertySet.class);
+        RegisteredCustomPropertySet rcps = mock(RegisteredCustomPropertySet.class);
+        CustomPropertySet customPropertySet = mock(CustomPropertySet.class);
+        CustomPropertySetAttributeInfo attributeInfo = new CustomPropertySetAttributeInfo();
+        PropertyValueInfo valueInfo = new PropertyValueInfo();
+        PropertySpec spec = mock(PropertySpec.class);
+        PropertyInfo propertyInfo = mock(PropertyInfo.class);
+        PropertyTypeInfo typeInfo = mock(PropertyTypeInfo.class);
+        List<PropertySpec> specList = Collections.singletonList(spec);
         CustomPropertySetValues values = CustomPropertySetValues.empty();
-        values.setProperty("antennaCount",5L);
-        values.setProperty("antennaPower",Quantity.create(BigDecimal.valueOf(3),-3,Unit.WATT_HOUR.getSymbol()));
+        ValueFactory valueFactory = mock(ValueFactory.class);
+        CustomPropertySetInfo info = new CustomPropertySetInfo();
 
+        propertyInfo.key="antennaPower";
+        propertyInfo.name="Antenna power";
+        propertyInfo.propertyValueInfo = valueInfo;
+        propertyInfo.propertyTypeInfo = typeInfo;
+        values.setProperty("Antenna power",Quantity.create(BigDecimal.valueOf(55),-3,"Wh"));
+        valueInfo.value = Quantity.create(BigDecimal.valueOf(55),-3,"Wh");
+        info.isVersioned =true;
+        info.name="Antenna";
+        info.id=36;
+        info.properties = Collections.singletonList(attributeInfo);
+        attributeInfo.name="Antenna power";
+        attributeInfo.key="antennaPower";
+        attributeInfo.propertyValueInfo = valueInfo;
+
+        when(propertyInfo.getPropertyValueInfo()).thenReturn(valueInfo);
+        when(clock.instant()).thenReturn(Instant.now());
         when(metrologyConfigurationService.findMetrologyConfiguration(13L)).thenReturn(Optional.of(metrologyConfiguration));
-        when(metrologyConfiguration.getCustomPropertySets()).thenReturn(Collections.singletonList(cps));
-        when(cps.getCustomPropertySet()).thenReturn(set1);
-        when(set1.isVersioned()).thenReturn(true);
-        when(set1.getName()).thenReturn("Antenna");
-
         when(meteringService.findUsagePointByName("someName")).thenReturn(Optional.of(usagePoint));
-        when(usagePoint.forCustomProperties()).thenReturn(extension);
-        when(extension.getAllPropertySets()).thenReturn(Collections.singletonList(set2));
-        when(set2.getCustomPropertySet()).thenReturn(set1);
-        when(set1.getName()).thenReturn("Antenna");
-        when(set2.getValues()).thenReturn(values);
+        when(metrologyConfiguration.getCustomPropertySets()).thenReturn(Collections.singletonList(rcps));
+        when(rcps.getCustomPropertySet()).thenReturn(customPropertySet);
+        when(this.customPropertySetService.getUniqueValuesFor(any(CustomPropertySet.class), any(UsagePoint.class), any(Instant.class))).thenReturn(values);
+        when(customPropertySet.getName()).thenReturn("Antenna");
+        when(customPropertySet.getId()).thenReturn("13");
+        when(customPropertySet.isVersioned()).thenReturn(true);
+        when(customPropertySet.getPropertySpecs()).thenReturn(specList);
+        when(customPropertySet.isVersioned()).thenReturn(true);
+        when(customPropertySet.getDomainClass()).thenReturn(CustomPropertySetInfoFactory.class);
+        when(this.propertyValueInfoService.getPropertyInfo(any(PropertySpec.class),any(Function.class))).thenReturn(propertyInfo);
+        when(spec.getValueFactory()).thenReturn(valueFactory);
+        when(valueFactory.getValueType()).thenReturn(Integer.class);
 
         //Business method
         String json = target("metrologyconfigurations/13/usagepoint/someName").request().get(String.class);
 
         //Asserts
         JsonModel jsonModel = JsonModel.create(json);
-        assertThat(jsonModel.<Number>get("$.Data[0].id")).isEqualTo(5);
-        assertThat(jsonModel.<String>get("$.Data[0].name")).isEqualTo("antennaCount");
-        assertThat(jsonModel.<String>get("$.Data[1].name")).isEqualTo("antennaPower");
-        assertThat(jsonModel.<String>get("$.Data[1].id.unit")).isEqualTo("Wh");
-        assertThat(jsonModel.<Number>get("$.Data[1].id.multiplier")).isEqualTo(-3);
-        assertThat(jsonModel.<Number>get("$.Data[1].id.value")).isEqualTo(3);
-        assertThat(jsonModel.<Number>get("$.Data[2].id.id")).isEqualTo(13);
-        assertThat(jsonModel.<String>get("$.Data[2].id.name")).isEqualTo("Residential");
-        assertThat(jsonModel.<String>get("$.Data[2].id.description")).isEqualTo("some description");
-        assertThat(jsonModel.<String>get("$.Data[2].id.status.id")).isEqualTo("inactive");
-        assertThat(jsonModel.<String>get("$.Data[2].id.status.name")).isEqualTo("Inactive");
-        assertThat(jsonModel.<String>get("$.Data[2].id.serviceCategory.id")).isEqualTo(ServiceKind.GAS.name());
-        assertThat(jsonModel.<String>get("$.Data[2].id.serviceCategory.name")).isEqualTo(ServiceKind.GAS.getDefaultFormat());
-        assertThat(jsonModel.<List<?>>get("$.Data[2].id.meterRoles").size()).isEqualTo(1);
-        assertThat(jsonModel.<String>get("$.Data[2].id.meterRoles[0].id")).isEqualTo(DefaultMeterRole.DEFAULT.getKey());
-        assertThat(jsonModel.<String>get("$.Data[2].id.meterRoles[0].name")).isEqualTo(DefaultMeterRole.DEFAULT.getDefaultFormat());
-        assertThat(jsonModel.<List<?>>get("$.Data[2].id.purposes")).isNotEmpty();
-        assertThat(jsonModel.<List<?>>get("$.Data[2].id.purposes").size()).isEqualTo(1);
-        assertThat(jsonModel.<Integer>get("$.Data[2].id.purposes[0].id")).isEqualTo(1);
-        assertThat(jsonModel.<String>get("$.Data[2].id.purposes[0].name")).isEqualTo(DefaultMetrologyPurpose.BILLING.getName().getDefaultMessage());
-        assertThat(jsonModel.<List<?>>get("$.Data[2].id.metrologyContracts")).isNotEmpty();
-        assertThat(jsonModel.<Integer>get("$.Data[2].id.metrologyContracts[0].id")).isEqualTo(1);
-        assertThat(jsonModel.<String>get("$.Data[2].id.metrologyContracts[0].name")).isEqualTo(DefaultMetrologyPurpose.BILLING.getName().getDefaultMessage());
-        assertThat(jsonModel.<List<?>>get("$.Data[2].id.metrologyContracts[0].readingTypeDeliverables")).isNotEmpty();
-        assertThat(jsonModel.<Number>get("$.Data[2].id.version")).isEqualTo(1);
-        assertThat(jsonModel.<Boolean>get("$.Data[2].id.haveSameCASesAsUP")).isEqualTo(true);
+        assertThat(jsonModel.<String>get("$.customPropertySets[0].name")).isEqualTo("Antenna");
+        assertThat(jsonModel.<Boolean>get("$.customPropertySets[0].isVersioned")).isEqualTo(true);
+        assertThat(jsonModel.<String>get("$.customPropertySets[0].properties[0].propertyValueInfo.value.unit")).isEqualTo("Wh");
+        assertThat(jsonModel.<Integer>get("$.customPropertySets[0].properties[0].propertyValueInfo.value.multiplier")).isEqualTo(-3);
+        assertThat(jsonModel.<Integer>get("$.customPropertySets[0].properties[0].propertyValueInfo.value.value")).isEqualTo(55);
+        assertThat(jsonModel.<String>get("$.customPropertySets[0].properties[0].key")).isEqualTo("antennaPower");
+        assertThat(jsonModel.<String>get("$.customPropertySets[0].properties[0].name")).isEqualTo("Antenna power");
     }
 
     @Test
