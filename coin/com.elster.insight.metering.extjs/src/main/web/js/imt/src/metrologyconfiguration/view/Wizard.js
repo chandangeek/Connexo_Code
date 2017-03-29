@@ -89,7 +89,7 @@ Ext.define('Imt.metrologyconfiguration.view.Wizard', {
                     },
                     {
                         xtype: 'fieldcontainer',
-                        itemId: 'start-date',
+                        itemId: 'metrology-configuration-start-date',
                         hidden: true,
                         required: true,
                         fieldLabel: Uni.I18n.translate('metrologyConfiguration.wizard.startDate', 'IMT', 'Start date'),
@@ -99,7 +99,7 @@ Ext.define('Imt.metrologyconfiguration.view.Wizard', {
                         items: [
                             {
                                 xtype: 'date-time',
-                                itemId: 'start-date-field',
+                                itemId: 'metrology-configuration-start-date-field',
                                 value: me.createTime || new Date(),
                                 layout: 'hbox',
                                 valueInMilliseconds: true

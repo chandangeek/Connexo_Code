@@ -450,7 +450,7 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
             success: function (record) {
                 if (wizard.rendered) {
                     wizard.down('#purposes-field').setStore(record.metrologyContracts());
-                    wizard.down('#start-date').show();
+                    wizard.down('#metrology-configuration-start-date').show();
                     customAttributeSetsValueStore.load(function (item) {
                         if (item[0].customPropertySets().getCount()) {
                             radioBtn.show();
