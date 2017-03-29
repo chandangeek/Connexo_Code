@@ -290,24 +290,9 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
             wizard.getRecord().customPropertySets().removeAll();
             clearRecords = clearRecords.findRecordByValue(metrologyConfigurationId);
 
-            records = buttonValue.customAttributes ? injectRecord[0] : clearRecords;
+            records = !buttonValue.customAttributes ? injectRecord[0] : clearRecords;
             records.customPropertySets().each(function (record) {
                 name = record.get('name');
-
-                // if (buttonValue) {
-                //     injectRecord.forEach(function (itemValue) {
-                //         if (itemValue.get('name') === name) {
-                //             record.properties().each(function (property) {
-                //                 var propValue = _.find(itemValue.get('id'), function (prop) {
-                //                     return prop.name === property.get('key');
-                //                 });
-                //                 if (propValue) {
-                //                     property.getPropertyValue().set('defaultValue', propValue.id);
-                //                 }
-                //             });
-                //         }
-                //     });
-                // }
 
                 stepNumber++;
                 stepsToAdd.push({
@@ -469,9 +454,12 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
 
     linkUsagePointToMetrologyConfiguration: function () {
         var me = this,
-            router = me.getController('Uni.controller.history.Router');
+            wizard = me.getWizard(),
+            router = me.getController('Uni.controller.history.Router'),
+            buttonValue = wizard.down('#custom-attributes-radiogroup').getValue();
 
         me.doRequest({
+            params: buttonValue.customAttributes ? {createNew: true} : null,
             success: function (record) {
                 router.getRoute('usagepoints/view/metrologyconfiguration').forward();
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('metrologyConfiguration.wizard.successMsg', 'IMT', "Metrology configuration defined"));
