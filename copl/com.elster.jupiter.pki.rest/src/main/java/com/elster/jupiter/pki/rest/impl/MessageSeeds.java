@@ -24,9 +24,8 @@ public enum MessageSeeds implements MessageSeed {
     NO_CSR_PRESENT(11, "noCsrPresent", "No CSR found"),
     FAILED_TO_READ_CSR(12, "FailedToReadCSR", "The CSR could not be read"),
     NO_CERTIFICATE_PRESENT(13, "NoCertificatePresent", "No certificate found"),
-    FAILED_TO_READ_CERTIFICATE(14, "FailedToReadCertificate", "The certificate could not be read");
-    NOT_POSSIBLE_TO_CREATE_CSR(10, "NotPossibleToCreateCSR" , "CSR can not be generated for this type of certificate"),
-    NO_SUCH_CERTIFICATE_IN_STORE(11, "NoSuchCertificateInStore", "No certificate wrapper with id {0} could be located in trust store with id {1}");
+    FAILED_TO_READ_CERTIFICATE(14, "FailedToReadCertificate", "The certificate could not be read"),
+    NO_SUCH_CERTIFICATE_IN_STORE(15, "NoSuchCertificateInStore", "No certificate wrapper with id {0} could be located in trust store with id {1}");
 
     private final int number;
     private final String key;
