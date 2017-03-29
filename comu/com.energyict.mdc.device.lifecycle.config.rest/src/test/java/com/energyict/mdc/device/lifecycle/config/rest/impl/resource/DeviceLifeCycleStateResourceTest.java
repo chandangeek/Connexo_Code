@@ -7,8 +7,11 @@ package com.energyict.mdc.device.lifecycle.config.rest.impl.resource;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.FiniteStateMachineBuilder;
 import com.elster.jupiter.fsm.FiniteStateMachineUpdater;
+import com.elster.jupiter.fsm.Stage;
+import com.elster.jupiter.fsm.StageSet;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransition;
+import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
@@ -30,6 +33,8 @@ import org.junit.Test;
 import org.mockito.Matchers;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -202,17 +207,22 @@ public class DeviceLifeCycleStateResourceTest extends DeviceLifeCycleConfigAppli
         when(deviceLifeCycleConfigurationService.findDeviceLifeCycle(Matchers.anyLong())).thenReturn(Optional.of(dlc));
         FiniteStateMachine stateMachine = mock(FiniteStateMachine.class);
         when(stateMachine.getState("New state")).thenReturn(Optional.of(newState));
+        StageSet stageSet = mock(StageSet.class);
+        Stage stage = mock(Stage.class);
+        when(stageSet.getStageByName(anyString())).thenReturn(Optional.of(stage));
+        when(stateMachine.getStageSet()).thenReturn(Optional.of(stageSet));
         when(dlc.getFiniteStateMachine()).thenReturn(stateMachine);
         FiniteStateMachineUpdater fsmUpdater = mock(FiniteStateMachineUpdater.class);
         when(stateMachine.startUpdate()).thenReturn(fsmUpdater);
         FiniteStateMachineBuilder.StateBuilder stateBuilder = mock(FiniteStateMachineBuilder.StateBuilder.class);
-        when(fsmUpdater.newCustomState(Matchers.anyString())).thenReturn(stateBuilder);
+        when(fsmUpdater.newCustomState(Matchers.anyString(), anyObject())).thenReturn(stateBuilder);
         when(fsmUpdater.complete()).thenReturn(stateMachine);
 
         when(stateBuilder.complete()).thenReturn(newState);
 
         DeviceLifeCycleStateInfo entity = new DeviceLifeCycleStateInfo();
         entity.name = "New state";
+        entity.stageName = EndDeviceStage.OPERATIONAL.getKey();
         Response response = target("/devicelifecycles/1/states").request().post(Entity.json(entity));
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
     }
@@ -225,6 +235,10 @@ public class DeviceLifeCycleStateResourceTest extends DeviceLifeCycleConfigAppli
         when(stateMachine.getStates()).thenReturn(Collections.singletonList(stateForEdit));
         DeviceLifeCycle dlc = mockSimpleDeviceLifeCycle(1L, "Standard");
         when(dlc.getFiniteStateMachine()).thenReturn(stateMachine);
+        StageSet stageSet = mock(StageSet.class);
+        Stage stage = mock(Stage.class);
+        when(stageSet.getStageByName(anyString())).thenReturn(Optional.of(stage));
+        when(stateMachine.getStageSet()).thenReturn(Optional.of(stageSet));
 
         FiniteStateMachineUpdater fsmUpdater = mock(FiniteStateMachineUpdater.class);
         when(stateMachine.startUpdate()).thenReturn(fsmUpdater);
@@ -236,7 +250,7 @@ public class DeviceLifeCycleStateResourceTest extends DeviceLifeCycleConfigAppli
         info.name = "Eddited custom state";
         info.version = stateForEdit.getVersion();
         info.parent = new VersionInfo<>(dlc.getId(), dlc.getVersion());
-
+        info.stageName = EndDeviceStage.OPERATIONAL.getKey();
         Response response = target("/devicelifecycles/1/states/1").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(stateUpdater, times(1)).setName(Matchers.anyString());
@@ -250,6 +264,10 @@ public class DeviceLifeCycleStateResourceTest extends DeviceLifeCycleConfigAppli
         when(stateMachine.getStates()).thenReturn(Collections.singletonList(stateForEdit));
         DeviceLifeCycle dlc = mockSimpleDeviceLifeCycle(1L, "Standard");
         when(dlc.getFiniteStateMachine()).thenReturn(stateMachine);
+        StageSet stageSet = mock(StageSet.class);
+        Stage stage = mock(Stage.class);
+        when(stageSet.getStageByName(anyString())).thenReturn(Optional.of(stage));
+        when(stateMachine.getStageSet()).thenReturn(Optional.of(stageSet));
 
         FiniteStateMachineUpdater fsmUpdater = mock(FiniteStateMachineUpdater.class);
         when(stateMachine.startUpdate()).thenReturn(fsmUpdater);
@@ -261,6 +279,7 @@ public class DeviceLifeCycleStateResourceTest extends DeviceLifeCycleConfigAppli
         info.name = "Eddited custom state";
         info.version = stateForEdit.getVersion();
         info.parent = new VersionInfo<>(dlc.getId(), dlc.getVersion());
+        info.stageName = EndDeviceStage.OPERATIONAL.getKey();
         Response response = target("/devicelifecycles/1/states/1").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(stateUpdater, times(0)).setName(Matchers.anyString());

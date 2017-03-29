@@ -195,6 +195,7 @@ public class DeviceLifeCycleActionResource {
                     .forEach(microChecks::add);
         } else {
             Arrays.stream(MicroCheck.values())
+                    .filter(microCheck -> microCheck != MicroCheck.METROLOGY_CONFIGURATION_IN_CORRECT_STATE_IF_ANY)
                     .map(microActionAndCheckInfoFactory::optional)
                     .forEach(microChecks::add);
         }

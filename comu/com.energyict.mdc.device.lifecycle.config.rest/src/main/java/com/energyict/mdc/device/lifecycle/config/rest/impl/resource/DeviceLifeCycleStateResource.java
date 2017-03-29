@@ -10,11 +10,15 @@ import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.FiniteStateMachineUpdater;
 import com.elster.jupiter.fsm.ProcessReference;
+import com.elster.jupiter.fsm.Stage;
+import com.elster.jupiter.fsm.StageSet;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransition;
+import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.rest.util.RestValidationBuilder;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.services.ListPager;
@@ -42,6 +46,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class DeviceLifeCycleStateResource {
@@ -97,10 +103,12 @@ public class DeviceLifeCycleStateResource {
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.CONFIGURE_DEVICE_LIFE_CYCLE})
     public Response addDeviceLifeCycleState(@PathParam("deviceLifeCycleId") Long deviceLifeCycleId, DeviceLifeCycleStateInfo stateInfo) {
+        validateInfo(stateInfo);
         DeviceLifeCycle deviceLifeCycle = resourceHelper.findDeviceLifeCycleByIdOrThrowException(deviceLifeCycleId);
         FiniteStateMachineUpdater fsmUpdater = deviceLifeCycle.getFiniteStateMachine().startUpdate();
-
-        FiniteStateMachineUpdater.StateBuilder stateUpdater = fsmUpdater.newCustomState(stateInfo.name);
+        StageSet stageSet = deviceLifeCycle.getFiniteStateMachine().getStageSet().orElseThrow(getDefaultStageSetException());
+        Stage stage = stageSet.getStageByName(stateInfo.stageName).orElseThrow(getDefaultStageSetException());
+        FiniteStateMachineUpdater.StateBuilder stateUpdater = fsmUpdater.newCustomState(stateInfo.name, stage);
         stateInfo.onEntry.stream().map(this::findBpmBusinessProcess).forEach(stateUpdater::onEntry);
         stateInfo.onExit.stream().map(this::findBpmBusinessProcess).forEach(stateUpdater::onExit);
 
@@ -114,12 +122,17 @@ public class DeviceLifeCycleStateResource {
         return Response.status(Response.Status.CREATED).entity(deviceLifeCycleStateFactory.from(deviceLifeCycle, newState)).build();
     }
 
+    private Supplier<IllegalStateException> getDefaultStageSetException() {
+        return () -> new IllegalStateException("Default stage set not installed correctly");
+    }
+
     @PUT @Transactional
     @Path("/{stateId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.CONFIGURE_DEVICE_LIFE_CYCLE})
     public Response editDeviceLifeCycleState(@PathParam("deviceLifeCycleId") Long deviceLifeCycleId, @PathParam("stateId") Long stateId, DeviceLifeCycleStateInfo info) {
+        validateInfo(info);
         info.id = stateId;
         State stateForEdit = resourceHelper.lockStateOrThrowException(info);
         DeviceLifeCycle deviceLifeCycle = resourceHelper.findDeviceLifeCycleByIdOrThrowException(deviceLifeCycleId);
@@ -129,7 +142,9 @@ public class DeviceLifeCycleStateResource {
         if (stateForEdit.isCustom()) {
             stateUpdater.setName(info.name);
         }
-
+        StageSet stageSet = deviceLifeCycle.getFiniteStateMachine().getStageSet().orElseThrow(getDefaultStageSetException());
+        Stage stage = stageSet.getStageByName(info.stageName).orElseThrow(getDefaultStageSetException());
+        stateUpdater.stage(stage);
         info.onEntry.stream().map(this::findBpmBusinessProcess).forEach(stateUpdater::onEntry);
         info.onExit.stream().map(this::findBpmBusinessProcess).forEach(stateUpdater::onExit);
         // remove 'obsolete' onEntry processes:
@@ -230,6 +245,13 @@ public class DeviceLifeCycleStateResource {
         if (stateForDeletion.isInitial()){
             throw exceptionFactory.newException(MessageSeeds.DEVICE_LIFECYCLE_STATE_IS_THE_INITIAL_STATE);
         }
+    }
+
+    private void validateInfo(DeviceLifeCycleStateInfo stateInfo) {
+        new RestValidationBuilder()
+                .notEmpty(stateInfo.name, "name", MessageSeeds.FIELD_CAN_NOT_BE_EMPTY)
+                .notEmpty(stateInfo.stageName, "stageName", MessageSeeds.FIELD_CAN_NOT_BE_EMPTY)
+                .validate();
     }
 
 }

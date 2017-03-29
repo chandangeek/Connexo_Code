@@ -6,6 +6,8 @@ package com.energyict.mdc.device.lifecycle.config.rest.info;
 
 import com.elster.jupiter.fsm.ProcessReference;
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.metering.EndDeviceStage;
+import com.elster.jupiter.rest.util.IdWithDisplayValueInfo;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
@@ -23,6 +25,8 @@ public class DeviceLifeCycleStateInfo {
     public boolean isCustom;
     public boolean isInitial;
     public long version;
+    public String stage;
+    public String stageName;
     public List<TransitionBusinessProcessInfo> onEntry = new ArrayList<>();
     public List<TransitionBusinessProcessInfo> onExit = new ArrayList<>();
     public VersionInfo<Long> parent;
@@ -30,11 +34,12 @@ public class DeviceLifeCycleStateInfo {
     public DeviceLifeCycleStateInfo() {}
 
     public DeviceLifeCycleStateInfo(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, DeviceLifeCycle deviceLifeCycle, State state) {
-        super();
         this.id = state.getId();
         this.isCustom = state.isCustom();
         this.isInitial = state.isInitial();
         this.version = state.getVersion();
+        this.stageName = state.getStage().isPresent() ? state.getStage().get().getName() : null;
+        this.stage = state.getStage().isPresent() ? deviceLifeCycleConfigurationService.getStageDisplayName(EndDeviceStage.fromKey(state.getStage().get().getName())) : "";
         this.name = DefaultState.from(state).map(deviceLifeCycleConfigurationService::getDisplayName).orElseGet(state::getName);
         if (deviceLifeCycle != null) {
             this.parent = new VersionInfo<>(deviceLifeCycle.getId(), deviceLifeCycle.getVersion());

@@ -147,7 +147,7 @@ public class DeviceLifeCycleActionResourceTest extends DeviceLifeCycleConfigAppl
                 .get(String.class);
         JsonModel model = JsonModel.create(response);
 
-        assertThat(model.<Number>get("$.total")).isEqualTo(MicroCheck.values().length - 3); // 4 microChecks should be consolidated into one
+        assertThat(model.<Number>get("$.total")).isEqualTo(MicroCheck.values().length - 4); // 4 microChecks should be consolidated into one + one is not shown
         assertThat(model.<List<?>>get("$.microChecks")).isNotNull();
         assertThat(model.<String>get("$.microChecks[0].key")).isNotEmpty();
         assertThat(model.<String>get("$.microChecks[0].name")).isNotEmpty();
