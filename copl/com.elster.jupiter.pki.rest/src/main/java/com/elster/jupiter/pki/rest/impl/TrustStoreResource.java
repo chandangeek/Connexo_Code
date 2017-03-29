@@ -216,6 +216,20 @@ public class TrustStoreResource {
         return Response.status(Response.Status.OK).build();
     }
 
+    @DELETE
+    @Transactional
+    @Path("/{id}/certificates/{certificateId}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public Response removeTrustedCertificate(@PathParam("id") long trustStoreId, @PathParam("certificateId") long certificateId) {
+        CertificateWrapper certificateWrapper = pkiService.findCertificateWrapper(certificateId)
+            .orElseThrow( exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CERTIFICATE, certificateId) );
+        if ( ((TrustedCertificate)certificateWrapper).getTrustStore().getId() != trustStoreId ) {
+            throw exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CERTIFICATE_IN_STORE, certificateId, trustStoreId).get();
+        }
+        certificateWrapper.delete();
+        return Response.status(Response.Status.OK).build();
+    }
+
     private Long getCurrentTrustStoreVersion(long id) {
         return pkiService.findTrustStore(id).map(TrustStore::getVersion).orElse(null);
     }
