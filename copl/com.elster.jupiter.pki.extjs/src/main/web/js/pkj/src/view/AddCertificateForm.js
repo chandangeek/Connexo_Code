@@ -4,7 +4,6 @@
 Ext.define('Pkj.view.AddCertificateForm', {
     extend: 'Ext.form.Panel',
     alias: 'widget.certificate-add-form',
-    edit: false,
 
     requires: [
         'Pkj.view.CertificateFileField',

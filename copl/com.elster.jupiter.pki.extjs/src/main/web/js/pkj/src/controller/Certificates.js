@@ -7,13 +7,19 @@ Ext.define('Pkj.controller.Certificates', {
     views: [
         'Pkj.view.CertificatesOverview',
         'Pkj.view.AddCertificate',
+        'Pkj.view.AddCSR',
         'Pkj.view.CertificateDetails'
     ],
     stores: [
-        'Pkj.store.Certificates'
+        'Pkj.store.Certificates',
+        'Pkj.store.KeyEncryptionMethods',
+        'Pkj.store.CertificateTypes'
     ],
     models: [
-        'Pkj.model.Certificate'
+        'Pkj.model.Certificate',
+        'Pkj.model.KeyEncryptionMethod',
+        'Pkj.model.CertificateType',
+        'Pkj.model.Csr'
     ],
 
     refs: [
@@ -28,6 +34,10 @@ Ext.define('Pkj.controller.Certificates', {
         {
             ref: 'addCertificateForm',
             selector: 'certificate-add certificate-add-form'
+        },
+        {
+            ref: 'addCSRForm',
+            selector: 'csr-add csr-add-form'
         }
     ],
 
@@ -42,11 +52,17 @@ Ext.define('Pkj.controller.Certificates', {
             '#pkj-certificates-grid-add-certificate': {
                 click: this.navigateToAddCertificatePage
             },
+            '#pkj-certificates-grid-add-csr': {
+                click: this.navigateToAddCSRPage
+            },
             'button#pkj-no-certificates-add-certificate-btn': {
                 click: this.navigateToAddCertificatePage
             },
             '#pkj-certificate-add-form-add-btn': {
                 click: this.addCertificate
+            },
+            '#pkj-csr-add-form-add-btn': {
+                click: this.addCSR
             },
             '#pkj-certificates-grid-import-certificate': {
                 click: this.navigateToImportCertificatePage
@@ -77,8 +93,16 @@ Ext.define('Pkj.controller.Certificates', {
 
     },
 
+    navigateToCertificatesOverview: function() {
+        this.getController('Uni.controller.history.Router').getRoute('administration/certificates').forward();
+    },
+
     navigateToAddCertificatePage: function() {
         this.getController('Uni.controller.history.Router').getRoute('administration/certificates/add').forward();
+    },
+
+    navigateToAddCSRPage: function() {
+        this.getController('Uni.controller.history.Router').getRoute('administration/certificates/addcsr').forward();
     },
 
     navigateToImportCertificatePage: function(menuItem) {
@@ -93,6 +117,29 @@ Ext.define('Pkj.controller.Certificates', {
                 }
             )
         );
+    },
+
+    showAddCSRPage: function() {
+        var widget =  Ext.widget('csr-add',
+                {
+                    cancelLink: this.getController('Uni.controller.history.Router').getRoute('administration/certificates').buildUrl()
+                }
+            ),
+            encryptionMethodCombo = widget.down('#pkj-csr-add-form-key-encryption-method-combo'),
+            typeCombo = widget.down('#pkj-csr-add-form-certificate-type-combo');
+
+        this.getApplication().fireEvent('changecontentevent', widget);
+        this.getAddCSRForm().loadRecord(Ext.create('Pkj.model.Csr'));
+        encryptionMethodCombo.getStore().load(function () {
+            if (encryptionMethodCombo.getStore().getCount() > 0) {
+                encryptionMethodCombo.select(encryptionMethodCombo.getStore().getAt(1));
+            }
+        });
+        typeCombo.getStore().load(function () {
+            if (typeCombo.getStore().getCount() > 0) {
+                typeCombo.select(typeCombo.getStore().getAt(1));
+            }
+        });
     },
 
     showImportCertificatePage: function(certificateId) {
@@ -174,6 +221,42 @@ Ext.define('Pkj.controller.Certificates', {
     getFileName: function (fullPath) {
         var filename = fullPath.replace(/^.*[\\\/]/, '');
         return filename;
+    },
+
+    addCSR: function() {
+        var me = this,
+            form = me.getAddCSRForm(),
+            baseForm = form.getForm(),
+            errorMsgPanel = form.down('uni-form-error-message'),
+            viewport = Ext.ComponentQuery.query('viewport')[0],
+            record = form.getRecord();
+
+        Ext.suspendLayouts();
+        baseForm.clearInvalid();
+        errorMsgPanel.hide();
+        Ext.resumeLayouts(true);
+        if (!form.isValid()) {
+            errorMsgPanel.show();
+            return;
+        }
+
+        viewport.setLoading();
+        form.updateRecord(record);
+        record.save({
+            callback: function (record, operation, success) {
+                var responseText = Ext.decode(operation.response.responseText, true);
+                if (success) {
+                    viewport.setLoading(false);
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.csrAdded', 'PKJ', 'CSR added'));
+                    me.navigateToCertificatesOverview();
+                } else {
+                    if (responseText && responseText.errors) {
+                        errorMsgPanel.show();
+                        form.getForm().markInvalid(responseText.errors);
+                    }
+                }
+            }
+        });
     },
 
     showCertificateDetailsPage: function(certificateId) {

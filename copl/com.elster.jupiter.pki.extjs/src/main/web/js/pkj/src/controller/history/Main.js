@@ -78,6 +78,12 @@ Ext.define('Pkj.controller.history.Main', {
                             controller: 'Pkj.controller.Certificates',
                             action: 'showAddCertificatePage'
                         },
+                        addcsr: {
+                            route: 'addcsr',
+                            title: Uni.I18n.translate('general.addCSR', 'PKJ', 'Add CSR'),
+                            controller: 'Pkj.controller.Certificates',
+                            action: 'showAddCSRPage'
+                        },
                         view: {
                             route: '{certificateId}',
                             title: '&nbsp;',

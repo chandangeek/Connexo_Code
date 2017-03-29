@@ -122,10 +122,10 @@ Ext.define('Pkj.view.CertificatePreview', {
         keyContainer.setVisible(hasKey);
         certificateContainer.setVisible(hasCertificate || hasCSR);
         if (hasCSR) {
-            certificateContainer.fieldLabel = Uni.I18n.translate('general.csrAttributes', 'PKJ', 'CSR attributes');
+            certificateContainer.setFieldLabel(Uni.I18n.translate('general.csrAttributes', 'PKJ', 'CSR attributes'));
         }
         if (hasCertificate) {
-            certificateContainer.fieldLabel = Uni.I18n.translate('general.certificateAttributes', 'PKJ', 'Certificate attributes');
+            certificateContainer.setFieldLabel(Uni.I18n.translate('general.certificateAttributes', 'PKJ', 'Certificate attributes'));
         }
         me.down('form').loadRecord(certificateRecord);
     }
