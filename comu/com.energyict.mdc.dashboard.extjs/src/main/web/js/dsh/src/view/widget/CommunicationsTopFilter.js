@@ -21,7 +21,7 @@ Ext.define('Dsh.view.widget.CommunicationsTopFilter', {
                 multiSelect: true,
                 displayField: 'name',
                 valueField: 'id',
-                store: devicesStore,
+                store: 'Dsh.store.filter.CommunicationTask',
                 itemId: 'com-task-filter'
             },
             {
@@ -31,7 +31,7 @@ Ext.define('Dsh.view.widget.CommunicationsTopFilter', {
                 emptyText: Uni.I18n.translate('general.device', 'DSH', 'Device'),
                 displayField: 'name',
                 valueField: 'name',
-                store: 'Dsh.store.filter.Devices',
+                store: devicesStore,
                 queryMode: 'remote',
                 queryParam: 'name',
                 queryCaching: false,
