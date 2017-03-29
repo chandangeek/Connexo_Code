@@ -16,6 +16,13 @@ public enum TranslationKeys implements TranslationKey {
     THRESHOLD_VALIDATOR_MIN(ThresholdValidator.class.getName() + "." + ThresholdValidator.MIN, "Minimum"),
     THRESHOLD_VALIDATOR_MAX(ThresholdValidator.class.getName() + "." + ThresholdValidator.MAX, "Maximum"),
 
+    // section for Main/Check validator
+    MAIN_CHECK_VALIDATOR(MainCheckValidator.class.getName(), "Main/check comparison"),
+    MAIN_CHECK_VALIDATOR_CHECK_PURPOSE(MainCheckValidator.class.getName()+ "." + MainCheckValidator.CHECK_PURPOSE, "Check purpose"),
+    MAIN_CHECK_VALIDATOR_MAX_ABSOLUTE_DIFF(MainCheckValidator.class.getName()+ "." + MainCheckValidator.MAX_ABSOLUTE_DIFF, "Maximum absolute difference"),
+    MAIN_CHECK_VALIDATOR_PASS_IF_NO_REF_DATA(MainCheckValidator.class.getName()+ "." + MainCheckValidator.PASS_IF_NO_REF_DATA, "Pass if no reference data"),
+    MAIN_CHECK_VALIDATOR_MIN_THRESHOLD(MainCheckValidator.class.getName()+ "." + MainCheckValidator.MIN_THRESHOLD, "Minimum threshold"),
+
     ALL_INDEXES("ReadingQualityAllIndexes", "All indexes"),
     ALL_SYSTEMS("ReadingQualityAllSystems", "All systems"),
     DATAVALID("ReadingQualityDataValid", "Data valid"),
