@@ -30,6 +30,7 @@ Ext.define('Dlc.devicelifecycles.view.Grid', {
             },
             {
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 privileges: Dlc.privileges.DeviceLifeCycle.configure,
                 menu: {
                     xtype: 'device-life-cycles-action-menu',
