@@ -137,6 +137,7 @@ Ext.define('Imt.purpose.controller.RegisterData', {
                 widget = Ext.widget(Imt.purpose.view.registers.RegisterTypesMap.getAddEditForms(output.get('deliverableType')), {
                     edit: !!timestamp,
                     router: router,
+                    output: output,
                     returnLink: router.getRoute('usagepoints/view/purpose/output').buildUrl() + previousQueryString,
                     menuHref: timestamp ?
                         router.getRoute('usagepoints/view/purpose/output/editregisterdata').buildUrl() :
@@ -149,7 +150,11 @@ Ext.define('Imt.purpose.controller.RegisterData', {
         };
 
         if (timestamp) {
-            readingModel.getProxy().extraParams = {usagePointId: usagePointName, purposeId: purposeId, outputId: outputId};
+            readingModel.getProxy().extraParams = {
+                usagePointId: usagePointName,
+                purposeId: purposeId,
+                outputId: outputId
+            };
             readingModel.load(timestamp, {
                 success: function (record) {
                     reading = record;
@@ -200,9 +205,8 @@ Ext.define('Imt.purpose.controller.RegisterData', {
             reading,
             addReadingView = me.getAddReading(),
             router = me.getController('Uni.controller.history.Router');
-
         if (!addReadingView.isValid()) {
-            addReadingView.showErrors();
+            addReadingView.down('#registerDataEditFormErrors').show();
         } else {
             Ext.suspendLayouts();
             addReadingView.hideErrors();
@@ -210,9 +214,12 @@ Ext.define('Imt.purpose.controller.RegisterData', {
             Ext.resumeLayouts();
             reading = addReadingView.down('#registerDataEditForm').getRecord();
             reading.set('type', me.output.get('deliverableType'));
-            if (me.output.get('deliverableType') == 'billing') {
+            if (me.output.get('deliverableType') == 'billing' || me.output.get('isBilling')) {
                 reading.set("interval", {start: reading.get('interval.start'), end: reading.get('interval.end')});
+            } else {
+                delete reading.data.interval;
             }
+            addReadingView.setLoading(true);
             reading.getProxy().setParams(router.arguments.usagePointId, router.arguments.purposeId, router.arguments.outputId);
             reading.save({
                 success: function () {
@@ -229,6 +236,7 @@ Ext.define('Imt.purpose.controller.RegisterData', {
                     }
                 },
                 callback: function () {
+                    addReadingView.setLoading(false);
                 }
             });
         }

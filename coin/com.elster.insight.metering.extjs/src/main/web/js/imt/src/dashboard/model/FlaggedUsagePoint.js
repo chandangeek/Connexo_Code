@@ -10,6 +10,7 @@ Ext.define('Imt.dashboard.model.FlaggedUsagePoint', {
         'creationDate',
         'flaggedDate',
         'comment',
+        'state',
         'favorite',
         {
             name: 'parent',
