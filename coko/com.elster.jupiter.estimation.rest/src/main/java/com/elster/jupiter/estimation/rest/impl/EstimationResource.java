@@ -320,7 +320,7 @@ public class EstimationResource {
                     propertyMap.put(propertySpec.getName(), value);
                 }
             } finally {
-                rule = rule.getRuleSet().updateRule(info.id, info.name, info.active, mRIDs, propertyMap);
+                rule = rule.getRuleSet().updateRule(info.id, info.name, info.active, mRIDs, propertyMap, info.markProjected);
             }
 
             return rule;
