@@ -69,7 +69,6 @@ Ext.define('Est.estimationrules.view.EditForm', {
             {
                 xtype: 'property-form',
                 itemId: 'property-form',
-                margin: '20 0 0 0',
                 width: '100%',
                 defaults: {
                     labelWidth: me.defaults.labelWidth,
@@ -85,9 +84,10 @@ Ext.define('Est.estimationrules.view.EditForm', {
                 name: 'markProjected',
                 itemId: 'projected-checkbox',
                 fieldLabel: 'Reading quality',
-                boxLabel: Uni.I18n.translate('general.markAsProjected', 'EST', 'Mark as projected')
+                boxLabel: Uni.I18n.translate('general.markAsProjected', 'EST', 'Mark as projected'),
+                hidden: true,
+                margin: '0 0 12 0'
             },
-
             {
                 xtype: 'fieldcontainer',
                 itemId: 'reading-types-field-container',
