@@ -69,6 +69,9 @@ Ext.define('Pkj.controller.Certificates', {
             },
             '#pkj-import-certificate-menu-item': {
                 click: this.navigateToImportCertificatePage
+            },
+            '#pkj-download-csr-menu-item': {
+                click: this.downloadCSR
             }
         });
     },
@@ -87,10 +90,14 @@ Ext.define('Pkj.controller.Certificates', {
     },
 
     onCertificateSelected: function(grid, record) {
-        var me = this;
+        var me = this,
+            menu = me.getCertificatePreview().down('certificate-action-menu');
+
         me.getCertificatePreview().loadRecordInForm(record);
         me.getCertificatePreview().setTitle(Ext.htmlEncode(record.get('alias')));
-
+        if (menu) {
+            menu.record = record;
+        }
     },
 
     navigateToCertificatesOverview: function() {
@@ -120,26 +127,40 @@ Ext.define('Pkj.controller.Certificates', {
     },
 
     showAddCSRPage: function() {
-        var widget =  Ext.widget('csr-add',
+        var me = this,
+            widget =  Ext.widget('csr-add',
                 {
                     cancelLink: this.getController('Uni.controller.history.Router').getRoute('administration/certificates').buildUrl()
                 }
             ),
+            csrRecord2Load = Ext.create('Pkj.model.Csr'),
             encryptionMethodCombo = widget.down('#pkj-csr-add-form-key-encryption-method-combo'),
-            typeCombo = widget.down('#pkj-csr-add-form-certificate-type-combo');
+            typeCombo = widget.down('#pkj-csr-add-form-certificate-type-combo'),
+            keyEncryptionMethodsStore = Ext.getStore('Pkj.store.KeyEncryptionMethods'),
+            typesStore = Ext.getStore('Pkj.store.CertificateTypes'),
+            onEncryptionMethodsLoaded = function(store, records, successful) {
+                if (successful && store.getCount()===1) {
+                    csrRecord2Load.keyTypeId = store.getAt(0).get('id');
+                }
+                typesStore.on('load', onTypesLoaded, me, {single:true});
+                typesStore.load();
+            },
+            onTypesLoaded = function(store, records, successful) {
+                if (successful && store.getCount()===1) {
+                    csrRecord2Load.keyEncryptionMethod = store.getAt(0).get('id');
+                }
+                me.getApplication().fireEvent('changecontentevent', widget);
+                me.getAddCSRForm().loadRecord(csrRecord2Load);
+                if (!Ext.isEmpty(csrRecord2Load.keyTypeId)) {
+                    encryptionMethodCombo.select(csrRecord2Load.keyTypeId);
+                }
+                if (!Ext.isEmpty(csrRecord2Load.keyEncryptionMethod)) {
+                    typeCombo.select(csrRecord2Load.keyEncryptionMethod);
+                }
+            };
 
-        this.getApplication().fireEvent('changecontentevent', widget);
-        this.getAddCSRForm().loadRecord(Ext.create('Pkj.model.Csr'));
-        encryptionMethodCombo.getStore().load(function () {
-            if (encryptionMethodCombo.getStore().getCount() > 0) {
-                encryptionMethodCombo.select(encryptionMethodCombo.getStore().getAt(1));
-            }
-        });
-        typeCombo.getStore().load(function () {
-            if (typeCombo.getStore().getCount() > 0) {
-                typeCombo.select(typeCombo.getStore().getAt(1));
-            }
-        });
+        keyEncryptionMethodsStore.on('load', onEncryptionMethodsLoaded, me, {single:true});
+        keyEncryptionMethodsStore.load();
     },
 
     showImportCertificatePage: function(certificateId) {
@@ -253,6 +274,24 @@ Ext.define('Pkj.controller.Certificates', {
                     if (responseText && responseText.errors) {
                         errorMsgPanel.show();
                         form.getForm().markInvalid(responseText.errors);
+                    }
+                }
+            }
+        });
+    },
+
+    downloadCSR: function(menuItem) {
+        var certificateRecord = menuItem.up('certificate-action-menu').record;
+        debugger;
+        Ext.Ajax.request({
+            url: '/api/pir/certificates/' + certificateRecord.get('id') + '/download/csr',
+            method: 'GET',
+            callback: function (config, success, response) {
+                if (response.responseText) {
+                    var responseObject = JSON.parse(response.responseText);
+                    if (!responseObject.success) {
+                        me.getApplication().getController('Uni.controller.Error')
+                            .showError(Uni.I18n.translate('general.certificateUploadFailed', 'PKJ', 'Failed to upload file'), responseObject.message);
                     }
                 }
             }

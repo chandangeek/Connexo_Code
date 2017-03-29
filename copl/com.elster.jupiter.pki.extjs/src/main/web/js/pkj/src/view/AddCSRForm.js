@@ -44,13 +44,17 @@ Ext.define('Pkj.view.AddCSRForm', {
             {
                 xtype: 'combo',
                 fieldLabel: Uni.I18n.translate('general.keyEncryptionMethod', 'PKJ', 'Key encryption method'),
+                emptyText: Uni.I18n.translate('general.selectKeyEncryptionMethod', 'PKJ', 'Select a key encryption method...'),
                 store: 'Pkj.store.KeyEncryptionMethods',
-                displayField: 'displayValue',
-                valueField: 'name',
+                queryMode: 'local',
+                displayField: 'name',
+                valueField: 'id',
+                editable: false,
                 itemId: 'pkj-csr-add-form-key-encryption-method-combo',
                 name: 'keyEncryptionMethod',
                 required: true,
-                allowBlank: false
+                allowBlank: false,
+                forceSelection: true
             },
             {
                 xtype: 'fieldcontainer',
@@ -60,13 +64,16 @@ Ext.define('Pkj.view.AddCSRForm', {
             {
                 xtype: 'combo',
                 fieldLabel: Uni.I18n.translate('general.certificateType', 'PKJ', 'Certificate type'),
+                emptyText: Uni.I18n.translate('general.selectCertificateType', 'PKJ', 'Select a certificate type...'),
                 store: 'Pkj.store.CertificateTypes',
-                displayField: 'displayValue',
-                valueField: 'name',
+                displayField: 'name',
+                valueField: 'id',
+                editable: false,
                 itemId: 'pkj-csr-add-form-certificate-type-combo',
                 name: 'keyTypeId',
                 required: true,
-                allowBlank: false
+                allowBlank: false,
+                forceSelection: true
             },
             {
                 xtype: 'displayfield',

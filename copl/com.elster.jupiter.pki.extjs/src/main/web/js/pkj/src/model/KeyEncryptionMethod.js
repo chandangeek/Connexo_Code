@@ -4,13 +4,7 @@
 Ext.define('Pkj.model.KeyEncryptionMethod', {
 extend: 'Ext.data.Model',
     fields: [
-        {
-            name: 'name',
-            type: 'string'
-        },
-        {
-            name: 'displayName',
-            type: 'string'
-        }
+        'id',
+        'name'
     ]
 });

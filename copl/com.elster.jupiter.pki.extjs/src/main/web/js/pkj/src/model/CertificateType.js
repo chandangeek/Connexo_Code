@@ -4,13 +4,7 @@
 Ext.define('Pkj.model.CertificateType', {
     extend: 'Ext.data.Model',
     fields: [
-        {
-            name: 'id',
-            type: 'int'
-        },
-        {
-            name: 'name',
-            type: 'string'
-        }
+        'id',
+        'name'
     ]
 });

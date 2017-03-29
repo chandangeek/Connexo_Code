@@ -7,22 +7,15 @@ Ext.define('Pkj.store.KeyEncryptionMethods', {
 
     autoLoad: false,
 
-    data: [
-        {
-            name: 'DataVault',
-            displayName: 'Data vault'
-        }
-    ]
-
-    //proxy: {
-    //    type: 'rest',
-    //    //url: '/api/pir/keyencryptionmethods',
-    //    url: 'http://localhost:3000/keyencryptionmethods',
-    //    reader: {
-    //        type: 'json'
-    //    },
-    //    pageParam: false,
-    //    startParam: false,
-    //    limitParam: false
-    //}
+    proxy: {
+        type: 'rest',
+        url: '/api/pir/keyencryptionmethods/asymmetric',
+        reader: {
+            type: 'json',
+            root: 'keyEncryptionMethods'
+        },
+        pageParam: false,
+        startParam: false,
+        limitParam: false
+    }
 });
