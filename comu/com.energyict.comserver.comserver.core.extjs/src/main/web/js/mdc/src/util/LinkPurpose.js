@@ -18,7 +18,11 @@ Ext.define('Mdc.util.LinkPurpose', {
             menuWizardStep1: Uni.I18n.translate('general.selectSlave', 'MDC', 'Select slave'),
             titleWizardStep1: Uni.I18n.translate('linkwizard.step1.title.linkSlave', 'MDC', 'Step 1: Select a slave'),
             newSlaveOption: Uni.I18n.translate('linkwizard.step1.option.new.slave', 'MDC', 'New slave device'),
-
+            noChannelsMessage: Uni.I18n.translate('general.slave.noChannels', 'MDC', 'There are no channels on the slave.'),
+            noRegistersMessage: Uni.I18n.translate('general.slave.noRegisters', 'MDC', 'There are no registers on the slave.'),
+            slaveLinkedMessage: Uni.I18n.translate('general.slaveXLinkedToDeviceY.success', 'MDC', "Slave '{0}' has been linked to device '{1}'."),
+            slaveLinkedFailedMessage: Uni.I18n.translate('general.slaveXLinkedToDeviceY.noSuccess', 'MDC', "Slave '{0}' has not been linked to device '{1}' due to a failure. Please try again."),
+            linkConfirmation: Uni.I18n.translate('general.question.linkSlaveXToDeviceY', 'MDC', "Link slave '{0}' to device '{1}'?"),
             deviceTypeFilter: function (deviceType) {
                 return (deviceType.get('deviceTypePurpose') === 'DATALOGGER_SLAVE' || deviceType.get('deviceTypePurpose') === 'MULTI_ELEMENT_SLAVE') && deviceType.get('activeDeviceConfigurationCount') > 0;
             }
@@ -34,7 +38,11 @@ Ext.define('Mdc.util.LinkPurpose', {
             menuWizardStep1: Uni.I18n.translate('general.selectDataLoggerSlave', 'MDC', 'Select data logger slave'),
             titleWizardStep1: Uni.I18n.translate('linkwizard.step1.title', 'MDC', 'Step 1: Select data logger slave'),
             newSlaveOption: Uni.I18n.translate('linkwizard.step1.option.new.datalogger', 'MDC', 'New datalogger slave device'),
-
+            noChannelsMessage: Uni.I18n.translate('general.dataLoggerSlave.noChannels', 'MDC', 'There are no channels on the data logger slave.'),
+            noRegistersMessage: Uni.I18n.translate('general.dataLoggerSlave.noRegisters', 'MDC', 'There are no registers on the data logger slave.'),
+            slaveLinkedMessage: Uni.I18n.translate('general.slaveXLinkedToDataLoggerY.success', 'MDC', "Slave '{0}' has been linked to data logger '{1}'."),
+            slaveLinkedFailedMessage: Uni.I18n.translate('general.slaveXLinkedToDataLoggerY.noSuccess', 'MDC', "Slave '{0}' has not been linked to data logger '{1}' due to a failure. Please try again."),
+            linkConfirmation: Uni.I18n.translate('general.question.linkSlaveXToDataLoggerY', 'MDC', "Link slave '{0}' to data logger '{1}'?"),
             deviceTypeFilter: function (deviceType) {
                 return deviceType.get('deviceTypePurpose') === 'DATALOGGER_SLAVE' && deviceType.get('activeDeviceConfigurationCount') > 0;
             }
@@ -49,6 +57,11 @@ Ext.define('Mdc.util.LinkPurpose', {
             noItemsFoundReasons: [Uni.I18n.translate('multiElementSlavesGrid.empty.reason1', 'MDC', 'No multi-element slaves have been linked yet.')],
             menuWizardStep1: Uni.I18n.translate('general.selectMultiElementSlave', 'MDC', 'Add multi-element slave'),
             titleWizardStep1: Uni.I18n.translate('linkwizard.step1.title.linkMultiElementSlave', 'MDC', 'Step 1: Add multi-element slave'),
+            noChannelsMessage: Uni.I18n.translate('general.multiElementSlave.noChannels', 'MDC', 'There are no channels on the multi-element slave.'),
+            noRegistersMessage: Uni.I18n.translate('general.multiElementSlave.noRegisters', 'MDC', 'There are no registers on the multi-element slave.'),
+            slaveLinkedMessage: Uni.I18n.translate('general.slaveXLinkedToMultiElementDeviceY.success', 'MDC', "Slave '{0}' has been linked to multi-element device '{1}'."),
+            slaveLinkedFailedMessage: Uni.I18n.translate('general.slaveXLinkedToMultiElementDeviceY.noSuccess', 'MDC', "Slave '{0}' has not been linked to multi-element device '{1}' due to a failure. Please try again."),
+            linkConfirmation: Uni.I18n.translate('general.question.linkSlaveXToMultiElementDeviceY', 'MDC', "Link slave '{0}' to multi-element device '{1}'?"),
             newSlaveOption: '',
 
             deviceTypeFilter: function (deviceType) {

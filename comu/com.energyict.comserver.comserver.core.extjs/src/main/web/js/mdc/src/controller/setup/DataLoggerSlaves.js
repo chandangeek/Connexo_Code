@@ -47,7 +47,7 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
         {ref: 'step1PanelForMultiElement', selector: '#mdc-multi-element-slave-link-wizard-step1'},
         {ref: 'step1FormErrorMessage', selector: '#mdc-dataloggerslave-link-wizard-step1-errors'},
         {ref: 'dataLoggerSlaveNameField', selector: '#dataLoggerSlaveDeviceName'},
-        {ref: 'multiElementSlaveName', selector: '#multiElementSlaveName'},
+        {ref: 'multiElementSlaveNameField', selector: '#multiElementSlaveName'},
         {ref: 'dataLoggerSlaveDeviceConfig', selector: '#dataLoggerSlaveDeviceConfiguration'},
         {ref: 'newDataLoggerSlaveForm', selector: '#mdc-datalogger-slave-device-add'},
         {ref: 'newMultiElementSlaveForm', selector: '#mdc-multi-element-slave-device-add'},
@@ -190,7 +190,7 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
                 });
             // multi-element slave
             }else{
-                var nameField = me.getMultiElementSlaveName();
+                var nameField = me.getMultiElementSlaveNameField();
                 if (!Ext.isEmpty(nameField)){
                     nameField.clearInvalid();
                 }
@@ -372,22 +372,7 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
                     me.wizardInformation.minimalLinkingDates.push(slaveDevice.get('shipmentDate'));
                     me.wizardInformation.minimalLinkingDates.push(slaveDevice.get('unlinkingTimeStamp'));
 
-                    var slaveDeviceModel = me.wizardInformation.dataLogger.get('dataLoggerSlaveDevices')[me.wizardInformation.dataLogger.get('dataLoggerSlaveDevices').length - 1];
-                    slaveDeviceModel.id = slaveDevice.get('id');
-                    slaveDeviceModel.name = slaveDevice.get('name');
-                    slaveDeviceModel.serialNumber = slaveDevice.get('serialNumber');
-                    slaveDeviceModel.deviceTypeName = slaveDevice.get('deviceTypeName');
-                    slaveDeviceModel.deviceConfigurationId = slaveDevice.get('deviceConfigurationId');
-                    slaveDeviceModel.deviceConfigurationName = slaveDevice.get('deviceConfigurationName');
-                    slaveDeviceModel.shipmentDate = slaveDevice.get('shipmentDate');
-                    slaveDeviceModel.yearOfCertification = slaveDevice.get('yearOfCertification');
-                    slaveDeviceModel.batch = slaveDevice.get('batch');
-                    slaveDeviceModel.version = slaveDevice.get('version');
-
-                    me.wizardInformation.slaveName = slaveDevice.get('name');
-                    me.wizardInformation.slaveShipmentDate = slaveDevice.get('shipmentDate');
-                    me.wizardInformation.slaveDeviceTypeId = slaveDevice.get('deviceTypeId');
-                    me.wizardInformation.slaveDeviceConfigurationId = slaveDevice.get('deviceConfigurationId');
+                    me.updateWizardInformation(me.addSlaveToMasterDeviceModel(slaveDevice));
                     endMethod();
                 }
                 return;
@@ -398,7 +383,8 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
                 deviceConfigurationWidget = me.getDataLoggerSlaveDeviceConfig(),
                 deviceConfigurationValid = deviceConfigurationWidget.validate(),
                 slaveDeviceType = deviceConfigurationWidget.getDeviceType(),
-                formRecord = wizard.down('#mdc-datalogger-slave-device-add').getRecord(),
+                formRecord = me.getNewDataLoggerSlaveForm().getRecord();
+                // formRecord = wizard.down('#mdc-datalogger-slave-device-add').getRecord(),
                 checkName = function () {
                     wizard.setLoading();
                     me.getStore('Mdc.store.Devices').load({
@@ -414,27 +400,19 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
                                 me.clearPreviousWizardInfoWhenNeeded(formRecord.get('deviceTypeId'), formRecord.get('deviceConfigurationId'));
                                 me.wizardInformation.useExisting = false;
 
-                                var slaveDeviceModel = me.wizardInformation.dataLogger.get('dataLoggerSlaveDevices')[me.wizardInformation.dataLogger.get('dataLoggerSlaveDevices').length - 1];
-                                slaveDeviceModel.id = 0;
-                                slaveDeviceModel.name = formRecord.get('name');
-                                slaveDeviceModel.serialNumber = formRecord.get('serialNumber');
-                                slaveDeviceModel.deviceTypeName = slaveDeviceType.get('name');
-                                  //  wizard.down('#deviceAdd #deviceAddType').findRecordByValue(wizard.down('#deviceAdd #deviceAddType').getValue()).get('name');
-                                slaveDeviceModel.deviceConfigurationId = formRecord.get('deviceConfigurationId');
-                                slaveDeviceModel.yearOfCertification = formRecord.get('yearOfCertification');
-                                slaveDeviceModel.batch = formRecord.get('batch');
                                 var slaveShipmentDateWithoutSeconds = wizard.down('#mdc-datalogger-slave-device-add #dataLoggerSlaveShipmentDate').getValue().getTime();
                                 slaveShipmentDateWithoutSeconds = slaveShipmentDateWithoutSeconds - (slaveShipmentDateWithoutSeconds % 60000);
+
+                                var slaveDeviceModel = me.addSlaveToMasterDeviceModel(formRecord);
+                                slaveDeviceModel.id = 0;
+                                slaveDeviceModel.deviceTypeName = slaveDeviceType.get('name');
                                 slaveDeviceModel.shipmentDate = slaveShipmentDateWithoutSeconds;
+                                slaveDeviceModel.version = formRecord.get('version');
+
                                 me.wizardInformation.minimalLinkingDates = [];
                                 me.wizardInformation.minimalLinkingDates.push(me.wizardInformation.dataLogger.get('shipmentDate'));
                                 me.wizardInformation.minimalLinkingDates.push(slaveDeviceModel.shipmentDate);
-                                slaveDeviceModel.version = formRecord.get('version');
-
-                                me.wizardInformation.slaveName = formRecord.get('name');
-                                me.wizardInformation.slaveShipmentDate = slaveDeviceModel.shipmentDate;
-                                me.wizardInformation.slaveDeviceTypeId = formRecord.get('deviceTypeId');
-                                me.wizardInformation.slaveDeviceConfigurationId = formRecord.get('deviceConfigurationId');
+                                me.updateWizardInformation(slaveDeviceModel);
                                 endMethod();
                             } else {
                                 Ext.suspendLayouts();
@@ -454,26 +432,46 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
             }
         //linking Multi-element slave
         }else{
-            var multiElementSlaveName = me.getMultiElementSlaveName().getValue(),
-                nameValid = nameField.validate(),
-                deviceConfigurationValid = me.getMultiElementSlaveDeviceConfig().validate();
+            var multiElementSlaveNameField = me.getMultiElementSlaveNameField(),
+                multiElementSlaveName = multiElementSlaveNameField.getValue(),
+                nameValid = multiElementSlaveNameField.validate(),
+                deviceConfigurationWidget = me.getMultiElementSlaveDeviceConfig(),
+                deviceConfigurationValid = deviceConfigurationWidget.validate(),
+                slaveDeviceType = deviceConfigurationWidget.getDeviceType(),
+                newMultiElementForm = me.getNewMultiElementSlaveForm();
             var checkName = function () {
                 wizard.setLoading();
                 me.getStore('Mdc.store.Devices').load({
                     params: {
                         filter: Ext.encode([{
                             property: 'name',
-                            value: name
+                            value: multiElementSlaveName
                         }])
                     },
                     callback: function (records) {
                         wizard.setLoading(false);
                         if (!records.length) {
+                            newMultiElementForm.updateRecord();
+                            var formRecord  = newMultiElementForm.getRecord();
+
+                            me.clearPreviousWizardInfoWhenNeeded(formRecord.get('deviceTypeId'), formRecord.get('deviceConfigurationId'));
+                            me.wizardInformation.useExisting = false;
+
+                            var slaveDeviceModel = me.addSlaveToMasterDeviceModel(formRecord);
+                            slaveDeviceModel.id = 0;
+                            slaveDeviceModel.deviceTypeName = slaveDeviceType.get('name');
+                            slaveDeviceModel.shipmentDate = null;
+                            slaveDeviceModel.version = formRecord.get('version');
+
+                            me.wizardInformation.minimalLinkingDates = [];
+                            me.wizardInformation.minimalLinkingDates.push(me.wizardInformation.dataLogger.get('shipmentDate'));
+                            me.wizardInformation.minimalLinkingDates.push(slaveDeviceModel.shipmentDate);
+                            me.updateWizardInformation(slaveDeviceModel);
                             endMethod();
                         } else {
                             Ext.suspendLayouts();
                             step1ErrorMsg.show();
-                            multiElementSlaveName.markInvalid(Uni.I18n.translate('general.name.shouldBeUnique', 'MDC', 'Name must be unique'));
+                            multiElementSlaveNameField.markInvalid(Uni.I18n.translate('general.name.shouldBeUnique', 'MDC', 'Name must be unique'));
                             Ext.resumeLayouts(true);
                         }
                     }
@@ -485,6 +483,32 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
                 checkName();
             }
         }
+    },
+
+    addSlaveToMasterDeviceModel: function(slaveDevice){
+        var slaveDeviceModel = this.wizardInformation.dataLogger.get('dataLoggerSlaveDevices')[this.wizardInformation.dataLogger.get('dataLoggerSlaveDevices').length - 1];
+        slaveDeviceModel.id = slaveDevice.get('id');
+        slaveDeviceModel.deviceTypeId = slaveDevice.get('deviceTypeId');
+        slaveDeviceModel.deviceTypeName = slaveDevice.get('deviceTypeName');
+        slaveDeviceModel.deviceConfigurationId = slaveDevice.get('deviceConfigurationId');
+        slaveDeviceModel.deviceConfigurationName = slaveDevice.get('deviceConfigurationName');
+        slaveDeviceModel.name = slaveDevice.get('name');
+        slaveDeviceModel.serialNumber = slaveDevice.get('serialNumber');
+        slaveDeviceModel.manufacturer = slaveDevice.get('manufacturer');
+        slaveDeviceModel.modelNbr = slaveDevice.get('modelNbr');
+        slaveDeviceModel.modelVersion = slaveDevice.get('modelVersion');
+        slaveDeviceModel.shipmentDate = slaveDevice.get('shipmentDate');
+        slaveDeviceModel.yearOfCertification = slaveDevice.get('yearOfCertification');
+        slaveDeviceModel.batch = slaveDevice.get('batch');
+        slaveDeviceModel.version = slaveDevice.get('version');
+        return slaveDeviceModel;
+    },
+
+    updateWizardInformation: function(slaveDeviceModel){
+        this.wizardInformation.slaveName = slaveDeviceModel.name;
+        this.wizardInformation.slaveShipmentDate = slaveDeviceModel.shipmentDate;
+        this.wizardInformation.slaveDeviceTypeId = slaveDeviceModel.deviceTypeId;
+        this.wizardInformation.slaveDeviceConfigurationId = slaveDeviceModel.deviceConfigurationId;
     },
 
     prepareStep2: function () {
@@ -779,7 +803,7 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
 
     prepareStep5: function() {
         var me = this;
-        me.getWizard().down('dataloggerslave-link-wizard-step5').initialize(me.wizardInformation.dataLogger.get('name'), me.getSlaveName());
+        me.getWizard().down('dataloggerslave-link-wizard-step5').initialize(me.wizardInformation.dataLogger.get('name'), me.wizardInformation.slaveName);
     },
 
     onActionMenuClicked: function (menu, item) {
@@ -812,8 +836,8 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
         me.wizardInformation.dataLogger.save({
             success: function (record) {
                 message = Ext.String.format(
-                    Uni.I18n.translate('general.slaveXLinkedToDataLoggerY.success', 'MDC', "Slave '{0}' has been linked to data logger '{1}'."),
-                    Ext.String.htmlEncode(me.getSlaveName()),
+                    Mdc.util.LinkPurpose.forDevice(me.wizardInformation.dataLogger).slaveLinkedMessage,
+                    Ext.String.htmlEncode(me.wizardInformation.slaveName),
                     Ext.String.htmlEncode(me.wizardInformation.dataLogger.get('name'))
                 );
                 Ext.suspendLayouts();
@@ -824,11 +848,9 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
             },
             failure: function (record, operation) {
                 message = Ext.String.format(
-                    Uni.I18n.translate('general.slaveXLinkedToDataLoggerY.noSuccess', 'MDC',
-                        "Slave '{0}' has not been linked to data logger '{1}' due to a failure. Please try again.",
-                        Ext.String.htmlEncode(me.getSlaveName()),
+                    Mdc.util.LinkPurpose.forDevice(me.wizardInformation.dataLogger).slaveLinkedFailedMessage,
+                        Ext.String.htmlEncode(me.wizardInformation.slaveName),
                         Ext.String.htmlEncode(me.wizardInformation.dataLogger.get('name'))
-                    )
                 );
                 Ext.suspendLayouts();
                 infoMessagePanel.update('');
@@ -841,21 +863,6 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
                 Ext.resumeLayouts(true);
             }
         });
-    },
-
-    getSlaveName: function () {
-        var me = this,
-            wizard = me.getWizard(),
-            step1RadioGroup = wizard.down('#mdc-step1-radiogroup'),
-            slaveCombo = wizard.down('#mdc-step1-slave-combo');
-
-        if (step1RadioGroup.getValue().useExisting) {
-            return slaveCombo.getValue();
-        } else {
-            // return me.getNameField().getValue();
-            var formRecord = wizard.down('#mdc-datalogger-slave-device-add').getRecord();
-            return formRecord.get("name");
-        }
     },
 
     clearPreviousWizardInfoWhenNeeded: function(currentTypeId, currentConfigId) {

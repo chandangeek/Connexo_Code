@@ -35,12 +35,14 @@ Ext.define('Mdc.view.setup.dataloggerslaves.LinkWizard', {
                 xtype: 'dataloggerslave-link-wizard-step2',
                 itemId: 'mdc-dataloggerslave-link-wizard-step2',
                 title: Uni.I18n.translate('linkwizard.step2.title', 'MDC', 'Step 2: Map channels'),
+                purpose: me.purpose,
                 navigationIndex: 2
             },
             {
                 xtype: 'dataloggerslave-link-wizard-step3',
                 itemId: 'mdc-dataloggerslave-link-wizard-step3',
                 title: Uni.I18n.translate('linkwizard.step3.title', 'MDC', 'Step 3: Map registers'),
+                purpose: me.purpose,
                 navigationIndex: 3
             },
             {
@@ -53,6 +55,7 @@ Ext.define('Mdc.view.setup.dataloggerslaves.LinkWizard', {
                 xtype: 'dataloggerslave-link-wizard-step5',
                 itemId: 'mdc-dataloggerslave-link-wizard-step5',
                 title: Uni.I18n.translate('linkwizard.step5.title', 'MDC', 'Step 5: Confirmation'),
+                purpose: me.purpose,
                 navigationIndex: 5
             },
             {
