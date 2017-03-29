@@ -538,6 +538,12 @@ public class UsagePointImpl implements ServerUsagePoint {
                 .collect(Collectors.toList());
     }
 
+    List<EffectiveMetrologyConfigurationOnUsagePoint> getAllEffectiveMetrologyConfigurations() {
+        return this.metrologyConfigurations.stream()
+                .sorted(Comparator.comparing(EffectiveMetrologyConfigurationOnUsagePoint::getStart))
+                .collect(Collectors.toList());
+    }
+
 
     @Override
     public void apply(UsagePointMetrologyConfiguration metrologyConfiguration) {
