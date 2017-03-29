@@ -86,7 +86,7 @@ Ext.define('Est.estimationrules.view.EditForm', {
                 fieldLabel: 'Reading quality',
                 boxLabel: Uni.I18n.translate('general.markAsProjected', 'EST', 'Mark as projected'),
                 hidden: true,
-                margin: '0 0 12 0'
+                margin: '0 0 14 0'
             },
             {
                 xtype: 'fieldcontainer',
