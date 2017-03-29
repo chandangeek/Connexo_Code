@@ -7,6 +7,7 @@ package com.energyict.mdc.device.alarms.impl.actions;
 import com.elster.jupiter.issue.share.AbstractIssueAction;
 import com.elster.jupiter.issue.share.IssueActionResult;
 import com.elster.jupiter.issue.share.IssueActionResult.DefaultActionResult;
+import com.elster.jupiter.issue.share.entity.ActionType;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
@@ -118,6 +119,11 @@ public class CloseDeviceAlarmAction extends AbstractIssueAction {
     @Override
     public boolean isApplicableForUser(User user) {
         return user.getPrivileges().stream().filter(p -> Privileges.Constants.CLOSE_ALARM.equals(p.getName())).findAny().isPresent();
+    }
+
+    @Override
+    public long getActionType() {
+        return ActionType.REMOVE.getValue();
     }
 
     private Optional<IssueStatus> getStatusFromParameters(Map<String, Object> properties){
