@@ -250,7 +250,7 @@ public class ResourceHelper {
                         linker.clear(meterRole);
                         if (meterActivation.meter != null && !Checks.is(meterActivation.meter.name).emptyOrOnlyWhiteSpace()) {
                             Meter meter = findMeterByNameOrThrowException(meterActivation.meter.name);
-                            linker.activate(meter, meterRole);
+                            linker.activate(meterActivation.start, meter, meterRole);
                         }
                     });
             linker.complete();
