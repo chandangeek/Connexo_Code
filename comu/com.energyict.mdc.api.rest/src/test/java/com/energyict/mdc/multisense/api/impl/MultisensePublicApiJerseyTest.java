@@ -87,6 +87,8 @@ import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel.CXOAuthenticationLevelAdapter;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel.CXOEncryptionLevelAdapter;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel.UPLAuthenticationLevelAdapter;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel.UPLEncryptionLevelAdapter;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ClockTask;
@@ -96,6 +98,7 @@ import com.energyict.mdc.tasks.MessagesTask;
 import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
+import org.junit.BeforeClass;
 import org.mockito.Mock;
 
 import javax.ws.rs.core.Application;
@@ -152,8 +155,8 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
     DeviceMessageSpecificationService deviceMessageSpecificationService;
     @Mock
     Clock clock;
-    @Mock
-    ProtocolPluggableService protocolPluggableService;
+
+    static ProtocolPluggableService protocolPluggableService;
     @Mock
     SchedulingService schedulingService;
     @Mock
@@ -168,6 +171,19 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
     MetrologyConfigurationService metrologyConfigurationService;
     @Mock
     PropertyValueInfoService propertyValueInfoService;
+
+    @BeforeClass
+    public static void before() {
+        protocolPluggableService = mock(ProtocolPluggableService.class);
+        when(protocolPluggableService.adapt(any(com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel.class))).thenAnswer(invocation -> {
+            Object[] args = invocation.getArguments();
+            return new UPLAuthenticationLevelAdapter((com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel) args[0]);
+        });
+        when(protocolPluggableService.adapt(any(com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel.class))).thenAnswer(invocation -> {
+            Object[] args = invocation.getArguments();
+            return new UPLEncryptionLevelAdapter((com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel) args[0]);
+        })        ;
+    }
 
     @Override
     protected Application getApplication() {
