@@ -48,7 +48,7 @@ class UpgraderV10_3 implements Upgrader {
     }
 
     private void upgradeUnmeasuredAntennaInstallation(){
-        metrologyConfigurationService.findMetrologyConfiguration("Residential net metering (consumption)")
+        metrologyConfigurationService.findMetrologyConfiguration("Unmeasured antenna installation")
                 .filter(metrologyConfiguration -> metrologyConfiguration instanceof UsagePointMetrologyConfiguration)
                 .map(UsagePointMetrologyConfiguration.class::cast)
                 .ifPresent(config -> {
