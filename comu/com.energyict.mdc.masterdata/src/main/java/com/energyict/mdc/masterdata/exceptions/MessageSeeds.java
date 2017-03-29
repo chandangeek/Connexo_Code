@@ -50,6 +50,7 @@ public enum MessageSeeds implements MessageSeed {
     DUPLICATE_REGISTER_TYPE_IN_LOAD_PROFILE_TYPE(1509, "loadProfileType.registerType.duplicate", "The register type {0} was already added to the load profile type {1}", SEVERE),
     AT_LEAST_ONE_REGISTER_TYPE_REQUIRED(1510, Keys.AT_LEAST_ONE_REGISTER_TYPE_REQUIRED, "You should select at least one register type", SEVERE),
     REGISTER_TYPE_SHOULD_NOT_HAVE_INTERVAL_READINGTYPE(1511, Keys.REGISTER_TYPE_SHOULD_NOT_HAVE_INTERVAL_READINGTYPE, "A register type should have a readingtype without an interval", SEVERE),
+    REGISTER_MAPPING_STILL_USED_BY_REGISTER_GROUP(1512, "registerGroup.registerType.delete", "The register mapping {0} cannot be removed because it is still in use by the following register group(s): {1}", SEVERE)
     ;
 
     private final int number;
