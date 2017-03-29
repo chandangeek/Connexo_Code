@@ -163,10 +163,10 @@ public class MeteringCustomPropertySetsDemoInstaller implements TranslationKeyPr
                 bind(MeteringCustomPropertySetsDemoInstaller.class).toInstance(MeteringCustomPropertySetsDemoInstaller.this);
             }
         });
+        
+        this.registerCustomPropertySets();
 
         upgradeService.register(InstallIdentifier.identifier("Example", "CPM"), dataModel, Installer.class, ImmutableMap.of(version(10, 3), UpgraderV10_3.class));
-
-        this.registerCustomPropertySets();
     }
 
     @Deactivate
