@@ -27,9 +27,8 @@ public class ModemWatchdogMapping extends G3Mapping {
         }
 
         @Override
-        //Set the B-Filed to 0
-        public ObisCode getBaseObisCode() {                 //Set the B-Filed to 0
-            return ProtocolTools.setObisCodeField(super.getBaseObisCode(), 1, (byte) 0);
+        public ObisCode getBaseObisCode() {                 //Set the F-Filed to 255
+            return ProtocolTools.setObisCodeField(super.getBaseObisCode(), 5, (byte) 255);
         }
 
         @Override
@@ -47,7 +46,7 @@ public class ModemWatchdogMapping extends G3Mapping {
         @Override
         public int getAttributeNumber() {
             int attributeValue; // indicates which attribute is being read
-            switch (getObisCode().getB()) {
+            switch (getObisCode().getF()) {
                 case 1: attributeValue = 1;
                     break;
                 case 2: attributeValue = 2;
@@ -79,7 +78,7 @@ public class ModemWatchdogMapping extends G3Mapping {
 
         @Override
         public int getDLMSClassId() {
-            if(getObisCode().equalsIgnoreBChannel(ModemWatchdogConfiguration.getDefaultObisCode()) ){
+            if(getObisCode().equalsIgnoreBillingField(ModemWatchdogConfiguration.getDefaultObisCode()) ){
                 return DLMSClassId.MODEM_WATCHDOG_SETUP.getClassId();
             } else {
                 return -1;

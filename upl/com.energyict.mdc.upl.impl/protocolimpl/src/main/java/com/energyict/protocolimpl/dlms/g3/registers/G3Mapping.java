@@ -1,7 +1,6 @@
 package com.energyict.protocolimpl.dlms.g3.registers;
 
 import com.energyict.cbo.Unit;
-import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.obis.ObisCode;
@@ -67,5 +66,34 @@ public abstract class G3Mapping {
      */
     protected int getAttributeNumber() {
         return 2;
+    }
+
+    /**
+     * Returns the index of the "value" attribute, i.e. the actual attribute to read-out
+     * This will be overwritten in most mappings.
+     *
+     * @return index of value attribute
+     */
+    public int getValueAttribute() {
+        return getAttributeNumber(); // careful, this is overwritten
+    }
+
+    /**
+     * Return the index of the unit attribute, if present.
+     * 0 if not applicable (no unit attribute to be read-out);
+     *
+     * @return index of unit attribute or 0 if n/a
+     */
+    public int getUnitAttribute() {
+        return  0; // no unit attribute to read
+    }
+
+    /**
+     * Return the index of the capture time attribute, if present.
+     * 0 if not applicable (no capture time attribute to read-out)
+     * @return index of the capture time attribute
+     */
+    public int getCaptureTimeAttribute(){
+        return 0;
     }
 }

@@ -1,7 +1,6 @@
 package com.energyict.protocolimpl.dlms.g3.registers;
 
 import com.energyict.cbo.Unit;
-import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.CosemObjectFactory;
@@ -77,6 +76,26 @@ public class SingleActionScheduleMapping extends G3Mapping {
             return new int[]{3, 4};   //2 attributes
         }
         return new int[]{3};
+    }
+
+    @Override
+    public int getValueAttribute(){
+        if (getObisCode().getE() == 1) {
+            return 3;
+        } else if (getObisCode().getE() == 2) {
+            return 4;
+        } else if (getObisCode().getE() == 0) {
+            return 3;
+        }
+        return 3;
+    }
+
+    @Override
+    public int getUnitAttribute() {
+        if (getObisCode().getE() == 0) {
+            return 4;
+        }
+        return 0;
     }
 
     /**

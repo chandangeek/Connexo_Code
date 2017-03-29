@@ -61,6 +61,18 @@ public class Beacon3100RegisterFactory {
     public static final String ALARM_DESCRIPTOR = "0.0.97.98.20.255";
 
 
+    // list of all registers which ComServer asked us to read
+    List<OfflineRegister> allRegisters;
+
+    //Map of attributes (value, unit, captureTime) per register
+    Map<ObisCode, ComposedRegister> composedRegisterMap = new HashMap<>();
+
+    //List of all attributes that need to be read out
+    List<DLMSAttribute> dlmsAttributes = new ArrayList<>();
+
+    // the list of all collected registers
+    List<CollectedRegister> collectedRegisters = new ArrayList<>();
+
     public Beacon3100RegisterFactory(DlmsSession dlmsSession) {
         this.dlmsSession = dlmsSession;
     }
@@ -71,13 +83,164 @@ public class Beacon3100RegisterFactory {
 
     public List<CollectedRegister> readRegisters(List<OfflineRegister> allRegisters) {
 
-        //Map of attributes (value, unit, captureTime) per register
-        Map<ObisCode, ComposedRegister> composedRegisterMap = new HashMap<>();
+        // save what we have to read, for easier access
+        setRegistersToRead(allRegisters);
 
-        //List of all attributes that need to be read out
-        List<DLMSAttribute> dlmsAttributes = new ArrayList<>();
+        // parse the requests and build the composed objects and list of attributes to read
+        prepareReading();
 
-        for (OfflineRegister register : allRegisters) {
+        ComposedCosemObject composedCosemObject = new ComposedCosemObject(this.getDlmsSession(), this.getDlmsSession().getProperties().isBulkRequest(), getDLMSAttributes());
+
+        // do the actual reading and parsing of
+        for (OfflineRegister offlineRegister : allRegisters) {
+            if (offlineRegister.getObisCode().equals(MULTICAST_METER_PROGRESS)) {
+                addResult(createFailureCollectedRegister(offlineRegister, ResultType.InCompatible, "Register with obiscode " + offlineRegister.getObisCode() + " cannot be read out, use the 'read DC multicast progress' message on the Beacon protocol for this."));
+                continue;
+            }
+
+            ComposedRegister composedRegister = getComposedRegisterMap().get(offlineRegister.getObisCode());
+
+            if (composedRegister == null) {
+                addResult(createFailureCollectedRegister(offlineRegister, ResultType.NotSupported));
+                continue;
+            }
+
+            G3Mapping g3Mapping = getBeacon3100G3RegisterMapper().getG3Mapping(offlineRegister.getObisCode());
+            final ObisCode baseObisCode = g3Mapping == null ? offlineRegister.getObisCode() : g3Mapping.getBaseObisCode();
+            final UniversalObject universalObject;
+            try {
+                universalObject = dlmsSession.getMeterConfig().findObject(baseObisCode);
+            } catch (NotInObjectListException e) {
+                addResult(createFailureCollectedRegister(offlineRegister, ResultType.NotSupported));
+                continue;   //Move on to the next register, this one is not supported by the DC
+            }
+
+            try {
+                RegisterValue registerValue = null;
+
+                if (g3Mapping != null) {
+                    if (composedRegister.getRegisterValueAttribute() != null) {
+                        registerValue = g3Mapping.parse(composedCosemObject.getAttribute(composedRegister.getRegisterValueAttribute()));
+                    } else {
+                        registerValue = g3Mapping.readRegister(getDlmsSession().getCosemObjectFactory());
+                    }
+                } else {
+                    registerValue = parseRegisterReading(universalObject, composedCosemObject, offlineRegister, composedRegister, baseObisCode);
+                }
+
+                if (registerValue != null) {
+                    addResult(createCollectedRegister(registerValue, offlineRegister));
+                }
+            } catch (IOException e) {
+                getLogger().warning("Error while reading " + offlineRegister + ": " + e.getMessage());
+                if (DLMSIOExceptionHandler.isUnexpectedResponse(e, getDlmsSession().getProperties().getRetries() + 1)) {
+                    if (DLMSIOExceptionHandler.isNotSupportedDataAccessResultException(e)) {
+                        addResult(createFailureCollectedRegister(offlineRegister, ResultType.NotSupported));
+                    } else {
+                        addResult(createFailureCollectedRegister(offlineRegister, ResultType.InCompatible, e.getMessage()));
+                    }
+                } else {
+                    throw ConnectionCommunicationException.numberOfRetriesReached(e, getDlmsSession().getProperties().getRetries() + 1);
+                }
+            } catch (Exception ex) {
+                getLogger().warning("Error while reading " + offlineRegister + ": " + ex.getMessage());
+                addResult(createFailureCollectedRegister(offlineRegister, ResultType.Other, ex.getMessage()));
+            }
+        }
+        return getCollectedRegisters();
+    }
+
+    private RegisterValue parseRegisterReading(UniversalObject universalObject, ComposedCosemObject composedCosemObject, OfflineRegister offlineRegister, ComposedRegister composedRegister, ObisCode baseObisCode) throws IOException {
+        RegisterValue registerValue = null;
+
+        if (universalObject.getClassID() == DLMSClassId.MEMORY_MANAGEMENT.getClassId()) {
+            AbstractDataType memoryManagementAttribute = composedCosemObject.getAttribute(composedRegister.getRegisterValueAttribute());
+
+            if (memoryManagementAttribute.isStructure() && memoryManagementAttribute.getStructure().nrOfDataTypes() == 4) {
+                //Special parsing for memory statistics
+                final String unit = memoryManagementAttribute.getStructure().getDataType(3).getOctetString().stringValue();
+                registerValue = new RegisterValue(offlineRegister.getObisCode(),
+                        "Used space: " + memoryManagementAttribute.getStructure().getDataType(0).toBigDecimal() + " " + unit +
+                                ", free space: " + memoryManagementAttribute.getStructure().getDataType(1).toBigDecimal() + " " + unit +
+                                ", total space: " + memoryManagementAttribute.getStructure().getDataType(2).toBigDecimal() + " " + unit);
+            } else if (memoryManagementAttribute.isArray()) {
+                //flash devices
+                registerValue = new RegisterValue(offlineRegister.getObisCode(),
+                        "Flash devices: " + memoryManagementAttribute.getArray().toString());
+            } else {
+                addResult(createFailureCollectedRegister(offlineRegister, ResultType.InCompatible, "Cannot parse memory management register, should be a structure with 4 or 8 elements"));
+                return null;
+            }
+        } else  if (baseObisCode.equals(MULTICAST_FIRMWARE_UPGRADE_OBISCODE) && universalObject.getClassID() == DLMSClassId.IMAGE_TRANSFER.getClassId()) {
+            //read out upgrade_state, attribute -1
+            AbstractDataType attributeValue = composedCosemObject.getAttribute(composedRegister.getRegisterValueAttribute());
+            if (attributeValue instanceof TypeEnum) {
+                int value = ((TypeEnum) attributeValue).getValue();
+                String description = MulticastUpgradeState.fromValue(value).getDescription();
+                registerValue = new RegisterValue(offlineRegister.getObisCode(), new Quantity(value, Unit.get(BaseUnit.UNITLESS)), null, null, new Date(), new Date(), 0, description);
+            } else {
+                addResult(createFailureCollectedRegister(offlineRegister, ResultType.InCompatible, "Cannot parse attribute " + ImageTransfer.ATTRIBUTE_PREVIOUS_UPGRADE_STATE + " (previous_upgrade_state) of object " + MULTICAST_FIRMWARE_UPGRADE_OBISCODE
+                        .toString() + ", should be of type Enum."));
+                return null;
+            }
+        } else if (universalObject.getClassID() == DLMSClassId.DATA.getClassId() || universalObject.getClassID() == DLMSClassId.NTP_SERVER_ADDRESS.getClassId()) {
+            //Generic parsing for all data registers
+            final AbstractDataType attribute = composedCosemObject.getAttribute(composedRegister.getRegisterValueAttribute());
+
+            if (attribute.isOctetString()) {
+                registerValue = new RegisterValue(offlineRegister.getObisCode(), attribute.getOctetString().stringValue());
+            } else if (attribute.isVisibleString()) {
+                registerValue = new RegisterValue(offlineRegister.getObisCode(), attribute.getVisibleString().getStr());
+            } else if (attribute.isArray() || attribute.isStructure()) {
+                addResult(createFailureCollectedRegister(offlineRegister, ResultType.NotSupported));
+                registerValue = new RegisterValue(offlineRegister.getObisCode(), attribute.toString());
+            } else if (attribute.isBitString()) {
+                if (isAlarmRegister(universalObject)) {
+                    BitString value = attribute.getBitString();
+                    if (value != null) {
+                        AlarmBitsRegister alarmBitsRegister = new AlarmBitsRegister(universalObject.getObisCode(), attribute.getBitString().toBigDecimal().longValue());
+                        registerValue = alarmBitsRegister.getRegisterValue();
+                    }
+                } else {
+                    registerValue = new RegisterValue(offlineRegister.getObisCode(), new Quantity(attribute.toBigDecimal(), Unit.get(BaseUnit.UNITLESS)));
+                }
+            } else {
+                registerValue = new RegisterValue(offlineRegister.getObisCode(), new Quantity(attribute.toBigDecimal(), Unit.get(BaseUnit.UNITLESS)));
+            }
+        } else {
+            //Generic parsing for all registers & extended registers
+            Unit unit = Unit.get(BaseUnit.UNITLESS);
+            if (composedRegister.getRegisterUnitAttribute() != null) {
+                try {
+                    unit = new ScalerUnit(composedCosemObject.getAttribute(composedRegister.getRegisterUnitAttribute())).getEisUnit();
+                } catch (Exception ex) {
+                    getLogger().warning("Cannot get unit from " + universalObject.getObisCode() + ": " + ex.getMessage());
+                }
+
+            }
+            Date captureTime = null;
+            if (composedRegister.getRegisterCaptureTime() != null) {
+                AbstractDataType captureTimeOctetString = composedCosemObject.getAttribute(composedRegister.getRegisterCaptureTime());
+                captureTime = captureTimeOctetString.getOctetString().getDateTime(getDlmsSession().getTimeZone()).getValue().getTime();
+            }
+
+            AbstractDataType attributeValue = composedCosemObject.getAttribute(composedRegister.getRegisterValueAttribute());
+            registerValue = new RegisterValue(offlineRegister.getObisCode(), new Quantity(attributeValue.toBigDecimal(), unit), captureTime);
+        }
+
+        return registerValue;
+    }
+
+
+
+    /**
+     * Preparation phase before reading the registers.
+     * Will parse all registers to be read and will create a list of actual DLMS attributes to read.
+     * Also for composed registers will create sets of (value, unit, capturedTime)
+     */
+    private void prepareReading() {
+
+        for (OfflineRegister register : getAllRegistersToRead()) {
 
             G3Mapping g3Mapping = getBeacon3100G3RegisterMapper().getG3Mapping(register.getObisCode());
             final UniversalObject universalObject;
@@ -89,197 +252,130 @@ public class Beacon3100RegisterFactory {
             }
 
             if (g3Mapping != null) {
-                // let the mapper do the job
-                ComposedRegister composedRegister = new ComposedRegister();
-                int[] attributeNumbers = g3Mapping.getAttributeNumbers();
-                for (int index = 0; index < attributeNumbers.length; index++) {
-                    int attributeNumber = attributeNumbers[index];
-                    DLMSAttribute dlmsAttribute = new DLMSAttribute(g3Mapping.getBaseObisCode(), attributeNumber, g3Mapping.getDLMSClassId());
-                    dlmsAttributes.add(dlmsAttribute);
-
-                    //If the mapping contains more than 1 attribute, the order is always value, unit, captureTime
-                    if (index == 0) {
-                        composedRegister.setRegisterValue(dlmsAttribute);
-                    } else if (index == 1) {
-                        composedRegister.setRegisterUnit(dlmsAttribute);
-                    } else if (index == 2) {
-                        composedRegister.setRegisterCaptureTime(dlmsAttribute);
-                    }
-                }
-                composedRegisterMap.put(register.getObisCode(), composedRegister);
+                prepareMappedRegister(register, g3Mapping);
             } else {
-
-                ComposedRegister composedRegister = new ComposedRegister();
-
-                if (universalObject.getClassID() == DLMSClassId.DATA.getClassId()) {
-                    DLMSAttribute valueAttribute = new DLMSAttribute(register.getObisCode(), DataAttributes.VALUE.getAttributeNumber(), universalObject.getClassID());
-                    composedRegister.setRegisterValue(valueAttribute);
-                } else if (universalObject.getClassID() == DLMSClassId.REGISTER.getClassId()) {
-                    DLMSAttribute valueAttribute = new DLMSAttribute(register.getObisCode(), RegisterAttributes.VALUE.getAttributeNumber(), universalObject.getClassID());
-                    DLMSAttribute scalerUnitAttribute = new DLMSAttribute(register.getObisCode(), RegisterAttributes.SCALER_UNIT.getAttributeNumber(), universalObject.getClassID());
-                    composedRegister.setRegisterValue(valueAttribute);
-                    composedRegister.setRegisterUnit(scalerUnitAttribute);
-                } else if (universalObject.getClassID() == DLMSClassId.EXTENDED_REGISTER.getClassId()) {
-                    DLMSAttribute valueAttribute = new DLMSAttribute(register.getObisCode(), ExtendedRegisterAttributes.VALUE.getAttributeNumber(), universalObject.getClassID());
-                    DLMSAttribute scalerUnitAttribute = new DLMSAttribute(register.getObisCode(), ExtendedRegisterAttributes.UNIT.getAttributeNumber(), universalObject.getClassID());
-                    DLMSAttribute captureTimeAttribute = new DLMSAttribute(register.getObisCode(), ExtendedRegisterAttributes.CAPTURE_TIME.getAttributeNumber(), universalObject.getClassID());
-                    composedRegister.setRegisterValue(valueAttribute);
-                    composedRegister.setRegisterUnit(scalerUnitAttribute);
-                    composedRegister.setRegisterCaptureTime(captureTimeAttribute);
-                } else if (universalObject.getClassID() == DLMSClassId.MEMORY_MANAGEMENT.getClassId()) {
-                    DLMSAttribute memoryStatisticsAttribute = new DLMSAttribute(register.getObisCode(), MemoryManagementAttributes.MEMORY_STATISTICS.getAttributeNumber(), universalObject.getClassID());
-                    composedRegister.setRegisterValue(memoryStatisticsAttribute);
-                } else if (universalObject.getClassID() == DLMSClassId.NTP_SERVER_ADDRESS.getClassId()) {
-                    DLMSAttribute valueAttribute = new DLMSAttribute(register.getObisCode(), NPTServerAddressAttributes.NTP_SERVER_NAME.getAttributeNumber(), universalObject.getClassID());
-                    composedRegister.setRegisterValue(valueAttribute);
-                } else if (register.getObisCode().equals(CONNECT_CONTROL_MODE)) {
-                    DLMSAttribute valueAttribute = new DLMSAttribute(DISCONNECT_CONTROL_OBISCODE, DisconnectControlAttribute.CONTROL_MODE.getAttributeNumber(), universalObject.getClassID());
-                    composedRegister.setRegisterValue(valueAttribute);
-                } else if (register.getObisCode().equals(CONNECT_CONTROL_STATE)) {
-                    DLMSAttribute valueAttribute = new DLMSAttribute(DISCONNECT_CONTROL_OBISCODE, DisconnectControlAttribute.CONTROL_STATE.getAttributeNumber(), universalObject.getClassID());
-                    composedRegister.setRegisterValue(valueAttribute);
-                } else if (register.getObisCode().equals(CONNECT_CONTROL_BREAKER_STATE)) {
-                    DLMSAttribute valueAttribute = new DLMSAttribute(DISCONNECT_CONTROL_OBISCODE, DisconnectControlAttribute.OUTPUT_STATE.getAttributeNumber(), universalObject.getClassID());
-                    composedRegister.setRegisterValue(valueAttribute);
-                } else if (baseObisCode.equals(MULTICAST_FIRMWARE_UPGRADE_OBISCODE) && universalObject.getClassID() == DLMSClassId.IMAGE_TRANSFER.getClassId()) {
-                    //read out upgrade_state, attribute -1
-                    DLMSAttribute valueAttribute = new DLMSAttribute(baseObisCode, ImageTransfer.ATTRIBUTE_PREVIOUS_UPGRADE_STATE, universalObject.getClassID());
-                    composedRegister.setRegisterValue(valueAttribute);
-                }
-                dlmsAttributes.addAll(composedRegister.getAllAttributes());
-                composedRegisterMap.put(register.getObisCode(), composedRegister);
+                prepareStandardRegister(register, universalObject);
+                prepareSpecialMappedRegisters(register, universalObject, baseObisCode);
             }
         }
 
-        ComposedCosemObject composedCosemObject = new ComposedCosemObject(this.getDlmsSession(), this.getDlmsSession().getProperties().isBulkRequest(), dlmsAttributes);
-        List<CollectedRegister> result = new ArrayList<>();
-        for (OfflineRegister offlineRegister : allRegisters) {
-            if (offlineRegister.getObisCode().equals(MULTICAST_METER_PROGRESS)) {
-                result.add(createFailureCollectedRegister(offlineRegister, ResultType.InCompatible, "Register with obiscode " + offlineRegister.getObisCode() + " cannot be read out, use the 'read DC multicast progress' message on the Beacon protocol for this."));
-                continue;
-            }
-
-            ComposedRegister composedRegister = composedRegisterMap.get(offlineRegister.getObisCode());
-
-            if (composedRegister == null) {
-                result.add(createFailureCollectedRegister(offlineRegister, ResultType.NotSupported));
-            } else {
-
-                G3Mapping g3Mapping = getBeacon3100G3RegisterMapper().getG3Mapping(offlineRegister.getObisCode());
-                final ObisCode baseObisCode = g3Mapping == null ? offlineRegister.getObisCode() : g3Mapping.getBaseObisCode();
-                final UniversalObject universalObject;
-                try {
-                    universalObject = dlmsSession.getMeterConfig().findObject(baseObisCode);
-                } catch (NotInObjectListException e) {
-                    result.add(createFailureCollectedRegister(offlineRegister, ResultType.NotSupported));
-                    continue;   //Move on to the next register, this one is not supported by the DC
-                }
-
-                try {
-                    RegisterValue registerValue = null;
-
-                    if (g3Mapping != null) {
-                        if (composedRegister.getRegisterValueAttribute() != null) {
-                            registerValue = g3Mapping.parse(composedCosemObject.getAttribute(composedRegister.getRegisterValueAttribute()));
-                        } else {
-                            registerValue = g3Mapping.readRegister(getDlmsSession().getCosemObjectFactory());
-                        }
-                    } else if (universalObject.getClassID() == DLMSClassId.MEMORY_MANAGEMENT.getClassId()) {
-                        AbstractDataType memoryManagementAttribute = composedCosemObject.getAttribute(composedRegister.getRegisterValueAttribute());
-
-                        if (memoryManagementAttribute.isStructure() && memoryManagementAttribute.getStructure().nrOfDataTypes() == 4) {
-                            //Special parsing for memory statistics
-                            final String unit = memoryManagementAttribute.getStructure().getDataType(3).getOctetString().stringValue();
-                            registerValue = new RegisterValue(offlineRegister.getObisCode(),
-                                    "Used space: " + memoryManagementAttribute.getStructure().getDataType(0).toBigDecimal() + " " + unit +
-                                            ", free space: " + memoryManagementAttribute.getStructure().getDataType(1).toBigDecimal() + " " + unit +
-                                            ", total space: " + memoryManagementAttribute.getStructure().getDataType(2).toBigDecimal() + " " + unit);
-                        } else if (memoryManagementAttribute.isArray()) {
-                            //flash devices
-                            registerValue = new RegisterValue(offlineRegister.getObisCode(),
-                                    "Flash devices: " + memoryManagementAttribute.getArray().toString());
-                        } else {
-                            result.add(createFailureCollectedRegister(offlineRegister, ResultType.InCompatible, "Cannot parse memory management register, should be a structure with 4 or 8 elements"));
-                            continue;
-                        }
-                    }  else if (baseObisCode.equals(MULTICAST_FIRMWARE_UPGRADE_OBISCODE) && universalObject.getClassID() == DLMSClassId.IMAGE_TRANSFER.getClassId()) {
-                        //read out upgrade_state, attribute -1
-                        AbstractDataType attributeValue = composedCosemObject.getAttribute(composedRegister.getRegisterValueAttribute());
-                        if (attributeValue instanceof TypeEnum) {
-                            int value = ((TypeEnum) attributeValue).getValue();
-                            String description = MulticastUpgradeState.fromValue(value).getDescription();
-                            registerValue = new RegisterValue(offlineRegister.getObisCode(), new Quantity(value, Unit.get(BaseUnit.UNITLESS)), null, null, new Date(), new Date(), 0, description);
-                        } else {
-                            result.add(createFailureCollectedRegister(offlineRegister, ResultType.InCompatible, "Cannot parse attribute " + ImageTransfer.ATTRIBUTE_PREVIOUS_UPGRADE_STATE + " (previous_upgrade_state) of object " + MULTICAST_FIRMWARE_UPGRADE_OBISCODE
-                                    .toString() + ", should be of type Enum."));
-                            continue;
-                        }
-                    } else if (universalObject.getClassID() == DLMSClassId.DATA.getClassId()
-                            || universalObject.getClassID() == DLMSClassId.NTP_SERVER_ADDRESS.getClassId()) {
-
-                        //Generic parsing for all data registers
-                        final AbstractDataType attribute = composedCosemObject.getAttribute(composedRegister.getRegisterValueAttribute());
-
-                        if (attribute.isOctetString()) {
-                            registerValue = new RegisterValue(offlineRegister.getObisCode(), attribute.getOctetString().stringValue());
-                        } else if (attribute.isVisibleString()) {
-                            registerValue = new RegisterValue(offlineRegister.getObisCode(), attribute.getVisibleString().getStr());
-                        } else if (attribute.isArray() || attribute.isStructure()) {
-                            result.add(createFailureCollectedRegister(offlineRegister, ResultType.NotSupported));
-                            continue;
-                        } else if (attribute.isBitString()){
-                            if (isAlarmRegister(universalObject)) {
-                                BitString value = attribute.getBitString();
-                                if (value != null) {
-                                    AlarmBitsRegister alarmBitsRegister = new AlarmBitsRegister(universalObject.getObisCode(), attribute.getBitString().toBigDecimal().longValue());
-                                    registerValue = alarmBitsRegister.getRegisterValue();
-                                }
-                            } else{
-                                registerValue = new RegisterValue(offlineRegister.getObisCode(), new Quantity(attribute.toBigDecimal(), Unit.get(BaseUnit.UNITLESS)));
-                            }
-                        }else {
-                            registerValue = new RegisterValue(offlineRegister.getObisCode(), new Quantity(attribute.toBigDecimal(), Unit.get(BaseUnit.UNITLESS)));
-                        }
-                    } else {
-                        //Generic parsing for all registers & extended registers
-
-                        Unit unit = Unit.get(BaseUnit.UNITLESS);
-                        if (composedRegister.getRegisterUnitAttribute() != null) {
-                            try {
-                                unit = new ScalerUnit(composedCosemObject.getAttribute(composedRegister.getRegisterUnitAttribute())).getEisUnit();
-                            } catch (Exception ex){
-                                Logger.getAnonymousLogger().warning("Cannot get unit from "+universalObject.getObisCode()+": "+ex.getMessage());
-                            }
-
-                        }
-                        Date captureTime = null;
-                        if (composedRegister.getRegisterCaptureTime() != null) {
-                            AbstractDataType captureTimeOctetString = composedCosemObject.getAttribute(composedRegister.getRegisterCaptureTime());
-                            captureTime = captureTimeOctetString.getOctetString().getDateTime(getDlmsSession().getTimeZone()).getValue().getTime();
-                        }
-
-                        AbstractDataType attributeValue = composedCosemObject.getAttribute(composedRegister.getRegisterValueAttribute());
-                        registerValue = new RegisterValue(offlineRegister.getObisCode(), new Quantity(attributeValue.toBigDecimal(), unit), captureTime);
-                    }
-
-                    result.add(createCollectedRegister(registerValue, offlineRegister));
-                } catch (IOException e) {
-                    if (DLMSIOExceptionHandler.isUnexpectedResponse(e, getDlmsSession().getProperties().getRetries() + 1)) {
-                        if (DLMSIOExceptionHandler.isNotSupportedDataAccessResultException(e)) {
-                            result.add(createFailureCollectedRegister(offlineRegister, ResultType.NotSupported));
-                        } else {
-                            result.add(createFailureCollectedRegister(offlineRegister, ResultType.InCompatible, e.getMessage()));
-                        }
-                    } else {
-                        throw ConnectionCommunicationException.numberOfRetriesReached(e, getDlmsSession().getProperties().getRetries() + 1);
-                    }
-                } catch (Exception ex){
-                    result.add(createFailureCollectedRegister(offlineRegister, ResultType.Other, ex.getMessage()));
-                }
-            }
-        }
-        return result;
     }
+
+    /**
+     * Prepare the reading of some lazy-mapped obis codes
+     * TODO: map those into some proper mappers!
+     *
+     * @param register
+     * @param universalObject
+     * @param baseObisCode
+     */
+    private void prepareSpecialMappedRegisters(OfflineRegister register, UniversalObject universalObject, ObisCode baseObisCode) {
+        ComposedRegister composedRegister = new ComposedRegister();
+
+        if (universalObject.getClassID() == DLMSClassId.MEMORY_MANAGEMENT.getClassId()) {
+            DLMSAttribute memoryStatisticsAttribute = new DLMSAttribute(register.getObisCode(), MemoryManagementAttributes.MEMORY_STATISTICS.getAttributeNumber(), universalObject.getClassID());
+            composedRegister.setRegisterValue(memoryStatisticsAttribute);
+        }
+
+        if (universalObject.getClassID() == DLMSClassId.NTP_SERVER_ADDRESS.getClassId()) {
+            DLMSAttribute valueAttribute = new DLMSAttribute(register.getObisCode(), NPTServerAddressAttributes.NTP_SERVER_NAME.getAttributeNumber(), universalObject.getClassID());
+            composedRegister.setRegisterValue(valueAttribute);
+        }
+
+        if (register.getObisCode().equals(CONNECT_CONTROL_MODE)) {
+            DLMSAttribute valueAttribute = new DLMSAttribute(DISCONNECT_CONTROL_OBISCODE, DisconnectControlAttribute.CONTROL_MODE.getAttributeNumber(), universalObject.getClassID());
+            composedRegister.setRegisterValue(valueAttribute);
+        }
+
+        if (register.getObisCode().equals(CONNECT_CONTROL_STATE)) {
+            DLMSAttribute valueAttribute = new DLMSAttribute(DISCONNECT_CONTROL_OBISCODE, DisconnectControlAttribute.CONTROL_STATE.getAttributeNumber(), universalObject.getClassID());
+            composedRegister.setRegisterValue(valueAttribute);
+        }
+
+        if (register.getObisCode().equals(CONNECT_CONTROL_BREAKER_STATE)) {
+            DLMSAttribute valueAttribute = new DLMSAttribute(DISCONNECT_CONTROL_OBISCODE, DisconnectControlAttribute.OUTPUT_STATE.getAttributeNumber(), universalObject.getClassID());
+            composedRegister.setRegisterValue(valueAttribute);
+        }
+
+        if (baseObisCode.equals(MULTICAST_FIRMWARE_UPGRADE_OBISCODE) && universalObject.getClassID() == DLMSClassId.IMAGE_TRANSFER.getClassId()) {
+            //read out upgrade_state, attribute -1
+            DLMSAttribute valueAttribute = new DLMSAttribute(baseObisCode, ImageTransfer.ATTRIBUTE_PREVIOUS_UPGRADE_STATE, universalObject.getClassID());
+            composedRegister.setRegisterValue(valueAttribute);
+        }
+
+        if (composedRegister.getRegisterValueAttribute()!=null) {
+            addAttributesToRead(composedRegister.getAllAttributes());
+            addComposedRegister(register.getObisCode(), composedRegister);
+        }
+    }
+
+    /**
+     * Prepare reading of all standard DLMS Classes (1=DATA, 3=REGISTER, 4=EXTENDED_REGISTER
+     *
+     * @param register
+     * @param universalObject
+     */
+    private void prepareStandardRegister(OfflineRegister register, UniversalObject universalObject) {
+        ComposedRegister composedRegister = new ComposedRegister();
+
+        if (universalObject.getClassID() == DLMSClassId.DATA.getClassId()) {
+            DLMSAttribute valueAttribute = new DLMSAttribute(register.getObisCode(), DataAttributes.VALUE.getAttributeNumber(), universalObject.getClassID());
+            composedRegister.setRegisterValue(valueAttribute);
+        }
+
+        if (universalObject.getClassID() == DLMSClassId.REGISTER.getClassId()) {
+            DLMSAttribute valueAttribute = new DLMSAttribute(register.getObisCode(), RegisterAttributes.VALUE.getAttributeNumber(), universalObject.getClassID());
+            DLMSAttribute scalerUnitAttribute = new DLMSAttribute(register.getObisCode(), RegisterAttributes.SCALER_UNIT.getAttributeNumber(), universalObject.getClassID());
+            composedRegister.setRegisterValue(valueAttribute);
+            composedRegister.setRegisterUnit(scalerUnitAttribute);
+        }
+
+        if (universalObject.getClassID() == DLMSClassId.EXTENDED_REGISTER.getClassId()) {
+            DLMSAttribute valueAttribute = new DLMSAttribute(register.getObisCode(), ExtendedRegisterAttributes.VALUE.getAttributeNumber(), universalObject.getClassID());
+            DLMSAttribute scalerUnitAttribute = new DLMSAttribute(register.getObisCode(), ExtendedRegisterAttributes.UNIT.getAttributeNumber(), universalObject.getClassID());
+            DLMSAttribute captureTimeAttribute = new DLMSAttribute(register.getObisCode(), ExtendedRegisterAttributes.CAPTURE_TIME.getAttributeNumber(), universalObject.getClassID());
+            composedRegister.setRegisterValue(valueAttribute);
+            composedRegister.setRegisterUnit(scalerUnitAttribute);
+            composedRegister.setRegisterCaptureTime(captureTimeAttribute);
+        }
+
+        if (composedRegister.getRegisterValueAttribute()!=null) {
+            addAttributesToRead(composedRegister.getAllAttributes());
+            addComposedRegister(register.getObisCode(), composedRegister);
+        }
+    }
+
+
+    /**
+     * Constructs a composed register from a mapped register
+     * @param g3Mapping
+     * @return
+     */
+    private void prepareMappedRegister(OfflineRegister register, G3Mapping g3Mapping) {
+        ComposedRegister composedRegister = new ComposedRegister();
+
+        // the default value attribute to be read-out
+        DLMSAttribute valueAttribute = new DLMSAttribute(g3Mapping.getBaseObisCode(), g3Mapping.getValueAttribute(), g3Mapping.getDLMSClassId());
+        addAttributeToRead(valueAttribute);
+        composedRegister.setRegisterValue(valueAttribute);
+
+        // optional - the unit attribute
+        if (g3Mapping.getUnitAttribute()!=0){
+            DLMSAttribute unitAttribute = new DLMSAttribute(g3Mapping.getBaseObisCode(), g3Mapping.getUnitAttribute(), g3Mapping.getDLMSClassId());
+            addAttributeToRead(unitAttribute);
+            composedRegister.setRegisterUnit(unitAttribute);
+        }
+
+        // optional - the value attribute
+        if (g3Mapping.getCaptureTimeAttribute()!=0){
+            DLMSAttribute ctAttribute  = new DLMSAttribute(g3Mapping.getBaseObisCode(), g3Mapping.getCaptureTimeAttribute(), g3Mapping.getDLMSClassId());
+            addAttributeToRead(ctAttribute);
+            composedRegister.setRegisterCaptureTime(ctAttribute);
+        }
+
+        addComposedRegister(register.getObisCode(), composedRegister);
+    }
+
 
     private boolean isAlarmRegister(UniversalObject universalObject) {
         return universalObject.getObisCode().equals(ObisCode.fromString(ALARM_BITS_REGISTER)) ||
@@ -289,7 +385,7 @@ public class Beacon3100RegisterFactory {
 
     private Beacon3100G3RegisterMapper getBeacon3100G3RegisterMapper() {
         if (beacon3100G3RegisterMapper == null) {
-            beacon3100G3RegisterMapper = new Beacon3100G3RegisterMapper(getDlmsSession().getCosemObjectFactory(), getDlmsSession().getProperties().getTimeZone(), getDlmsSession().getLogger());
+            beacon3100G3RegisterMapper = new Beacon3100G3RegisterMapper(getDlmsSession().getCosemObjectFactory(), getDlmsSession().getProperties().getTimeZone(), getLogger());
         }
         return beacon3100G3RegisterMapper;
     }
@@ -313,5 +409,48 @@ public class Beacon3100RegisterFactory {
 
     private RegisterIdentifier getRegisterIdentifier(OfflineRegister offlineRtuRegister) {
         return new RegisterIdentifierById(offlineRtuRegister.getRegisterId(), offlineRtuRegister.getObisCode());
+    }
+
+    private List<OfflineRegister> getAllRegistersToRead() {
+        return allRegisters;
+    }
+
+    private void setRegistersToRead(List<OfflineRegister> allRegisters) {
+        this.allRegisters = allRegisters;
+    }
+
+
+    private void addAttributesToRead(List<DLMSAttribute> allAttributes) {
+        getDLMSAttributes().addAll(allAttributes);
+    }
+
+    private void addAttributeToRead(DLMSAttribute dlmsAttribute) {
+        getDLMSAttributes().add(dlmsAttribute);
+    }
+
+    public List<DLMSAttribute> getDLMSAttributes() {
+        return dlmsAttributes;
+    }
+
+
+    public void addComposedRegister(ObisCode obisCode, ComposedRegister composedRegister){
+        getLogger().finest(" - adding for " + obisCode + " > "+ composedRegister.toString());
+        this.composedRegisterMap.put(obisCode, composedRegister);
+    }
+
+    public void addResult(CollectedRegister collectedRegister){
+        this.collectedRegisters.add(collectedRegister);
+    }
+
+    public List<CollectedRegister> getCollectedRegisters() {
+        return this.collectedRegisters;
+    }
+
+    private Logger getLogger() {
+        return dlmsSession.getLogger();
+    }
+
+    public Map<ObisCode,ComposedRegister> getComposedRegisterMap() {
+        return this.composedRegisterMap;
     }
 }

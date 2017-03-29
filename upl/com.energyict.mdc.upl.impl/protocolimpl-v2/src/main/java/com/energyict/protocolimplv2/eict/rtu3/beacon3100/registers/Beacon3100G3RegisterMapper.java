@@ -26,6 +26,7 @@ public class Beacon3100G3RegisterMapper extends G3RegisterMapper {
      */
     @Override
     protected void initializeMappings() {
+        this.mappings.addAll(getModemWatchdogRegistering());
         this.mappings.addAll(getPLCStatisticsMappings());
         this.mappings.addAll(getBeaconPushEventNotificationAttibutesMappings());
         this.mappings.addAll(getIPv4SetupMappings());

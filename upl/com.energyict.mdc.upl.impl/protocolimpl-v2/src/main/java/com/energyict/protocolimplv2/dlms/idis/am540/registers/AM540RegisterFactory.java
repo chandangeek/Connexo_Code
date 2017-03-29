@@ -73,16 +73,16 @@ public class AM540RegisterFactory extends AM130RegisterFactory {
 	        if (g3Mapping != null) {
 	            ComposedRegister composedRegister = new ComposedRegister();
 	            int[] attributeNumbers = g3Mapping.getAttributeNumbers();
-	
+
 	            if (dlmsAttributes.size() + attributeNumbers.length > BULK_REQUEST_ATTRIBUTE_LIMIT) {
 	                return null; //Don't add the new attributes, no more room
 	            }
-	
+
 	            for (int index = 0; index < attributeNumbers.length; index++) {
 	                int attributeNumber = attributeNumbers[index];
 	                DLMSAttribute dlmsAttribute = new DLMSAttribute(g3Mapping.getBaseObisCode(), attributeNumber, g3Mapping.getDLMSClassId());
 	                dlmsAttributes.add(dlmsAttribute);
-	
+
 	                //If the mapping contains more than 1 attribute, the order is always value, unit, captureTime
 	                if (index == 0) {
 	                    composedRegister.setRegisterValue(dlmsAttribute);

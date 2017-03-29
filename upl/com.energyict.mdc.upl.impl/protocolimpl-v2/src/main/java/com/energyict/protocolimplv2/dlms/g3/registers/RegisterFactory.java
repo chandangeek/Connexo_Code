@@ -69,21 +69,25 @@ public class RegisterFactory {
             G3Mapping g3Mapping = getRegisterMapper().getG3Mapping(register.getObisCode());
             if (g3Mapping != null) {
                 ComposedRegister composedRegister = new ComposedRegister();
-                int[] attributeNumbers = g3Mapping.getAttributeNumbers();
-                for (int index = 0; index < attributeNumbers.length; index++) {
-                    int attributeNumber = attributeNumbers[index];
-                    DLMSAttribute dlmsAttribute = new DLMSAttribute(g3Mapping.getBaseObisCode(), attributeNumber, g3Mapping.getDLMSClassId());
-                    dlmsAttributes.add(dlmsAttribute);
+                // the default value attribute to be read-out
+                DLMSAttribute valueAttribute = new DLMSAttribute(g3Mapping.getBaseObisCode(), g3Mapping.getValueAttribute(), g3Mapping.getDLMSClassId());
+                dlmsAttributes.add(valueAttribute);
+                composedRegister.setRegisterValue(valueAttribute);
 
-                    //If the mapping contains more than 1 attribute, the order is always value, unit, captureTime
-                    if (index == 0) {
-                        composedRegister.setRegisterValue(dlmsAttribute);
-                    } else if (index == 1) {
-                        composedRegister.setRegisterUnit(dlmsAttribute);
-                    } else if (index == 2) {
-                        composedRegister.setRegisterCaptureTime(dlmsAttribute);
-                    }
+                // optional - the unit attribute
+                if (g3Mapping.getUnitAttribute()!=0){
+                    DLMSAttribute unitAttribute = new DLMSAttribute(g3Mapping.getBaseObisCode(), g3Mapping.getUnitAttribute(), g3Mapping.getDLMSClassId());
+                    dlmsAttributes.add(unitAttribute);
+                    composedRegister.setRegisterUnit(unitAttribute);
                 }
+
+                // optional - the value attribute
+                if (g3Mapping.getCaptureTimeAttribute()!=0){
+                    DLMSAttribute ctAttribute  = new DLMSAttribute(g3Mapping.getBaseObisCode(), g3Mapping.getCaptureTimeAttribute(), g3Mapping.getDLMSClassId());
+                    dlmsAttributes.add(ctAttribute);
+                    composedRegister.setRegisterCaptureTime(ctAttribute);
+                }
+                
                 composedRegisterMap.put(register.getObisCode(), composedRegister);
             }
         }

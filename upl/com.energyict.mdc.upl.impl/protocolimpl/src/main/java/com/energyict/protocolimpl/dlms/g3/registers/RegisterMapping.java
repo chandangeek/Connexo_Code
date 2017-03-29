@@ -43,4 +43,15 @@ public class RegisterMapping extends G3Mapping {
     public int getDLMSClassId() {
         return DLMSClassId.REGISTER.getClassId();
     }
+
+    @Override
+    public int getValueAttribute(){
+        return RegisterAttributes.VALUE.getAttributeNumber();
+    }
+
+    @Override
+    public int getUnitAttribute(){
+        return RegisterAttributes.SCALER_UNIT.getAttributeNumber();
+    }
+
 }

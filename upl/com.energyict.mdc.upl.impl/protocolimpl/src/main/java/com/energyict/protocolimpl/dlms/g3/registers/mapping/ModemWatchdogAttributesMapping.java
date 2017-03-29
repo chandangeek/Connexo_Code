@@ -1,16 +1,18 @@
 package com.energyict.protocolimpl.dlms.g3.registers.mapping;
 
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.ModemWatchdogConfiguration;
-import com.energyict.dlms.cosem.PPPSetup;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.RegisterValue;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 /**
@@ -28,9 +30,9 @@ public class ModemWatchdogAttributesMapping extends RegisterMapping {
 
     @Override
     public boolean canRead(final ObisCode obisCode) {
-        return PPPSetup.getDefaultObisCode().equalsIgnoreBAndEChannel(obisCode) &&
-                (obisCode.getB() >= MIN_ATTR) &&
-                (obisCode.getB() <= MAX_ATTR);
+        return ModemWatchdogConfiguration.getDefaultObisCode().equalsIgnoreBillingField(obisCode) &&
+                (obisCode.getF() >= MIN_ATTR) &&
+                (obisCode.getF() <= MAX_ATTR);
     }
 
     @Override
@@ -40,7 +42,7 @@ public class ModemWatchdogAttributesMapping extends RegisterMapping {
     }
 
     protected AbstractDataType readAttribute(final ObisCode obisCode, ModemWatchdogConfiguration modemWatchdogConfiguration) throws IOException {
-        switch (obisCode.getB()) {
+        switch (obisCode.getF()) {
             // Logical name
             case 1:
                 return OctetString.fromObisCode(ModemWatchdogConfiguration.getDefaultObisCode());
@@ -49,38 +51,44 @@ public class ModemWatchdogAttributesMapping extends RegisterMapping {
             case 3:
                 return modemWatchdogConfiguration.readModemWatchdogEnabledAttribute();
             default:
-                throw new NoSuchRegisterException("Modem Watchdog Configuration attribute [" + obisCode.getB() + "] not supported!");
+                throw new NoSuchRegisterException("Modem Watchdog Configuration attribute [" + obisCode.getF() + "] not supported!");
         }
     }
 
     @Override
     public RegisterValue parse(ObisCode obisCode, AbstractDataType abstractDataType) throws IOException {
 
-        switch (obisCode.getB()) {
+        switch (obisCode.getF()) {
             // Logical name
             case 1:
                 return new RegisterValue(obisCode, ModemWatchdogConfiguration.getDefaultObisCode().toString());
             case 2:
-                return new RegisterValue(obisCode, "WD Config: " + getWDConfigString(abstractDataType));
+                try {
+                    return new RegisterValue(obisCode, getWDConfigString(abstractDataType));
+                } catch (JSONException e) {
+                    return new RegisterValue(obisCode, abstractDataType.toString());
+                }
             case 3:
-                return new RegisterValue(obisCode, "Is modem watchdog enabled: " + abstractDataType.getBooleanObject().getState());
+                boolean state =  abstractDataType.getBooleanObject().getState();
+                return new RegisterValue(obisCode,  new Quantity(state?1:0, Unit.getUndefined()));
             default:
-                throw new NoSuchRegisterException("Modem Watchdog Configuration attribute [" + obisCode.getB() + "] not supported!");
+                throw new NoSuchRegisterException("Modem Watchdog Configuration attribute [" + obisCode.getE() + "] not supported!");
         }
     }
 
-    public String getWDConfigString(AbstractDataType wdConfigAttribute) throws IOException {
-        StringBuffer builder = new StringBuffer();
+    public String getWDConfigString(AbstractDataType wdConfigAttribute) throws IOException, JSONException {
+        JSONObject json = new JSONObject();
 
         if (wdConfigAttribute.isStructure()) {
             Structure wdConfig = wdConfigAttribute.getStructure();
-            builder.append(" Interval: " + wdConfig.getDataType(0).getUnsigned16().getValue());
-            builder.append(" Initial delay: " + wdConfig.getDataType(1).getUnsigned16().getValue());
-            builder.append(" Ppp reset threshold: " + wdConfig.getDataType(2).getUnsigned16().getValue());
-            builder.append(" Modem reset threshold: " + wdConfig.getDataType(3).getUnsigned16().getValue());
-            builder.append(" Device reset threshold: " + wdConfig.getDataType(4).getUnsigned16().getValue());
 
-            return builder.toString();
+            json.put("interval", wdConfig.getDataType(0).getUnsigned16().getValue());
+            json.put("initialDelay: ", wdConfig.getDataType(1).getUnsigned16().getValue());
+            json.put("pppResetThreshold: ", wdConfig.getDataType(2).getUnsigned16().getValue());
+            json.put("modemResetThreshold: ", wdConfig.getDataType(3).getUnsigned16().getValue());
+            json.put("deviceResetThreshold: ", wdConfig.getDataType(4).getUnsigned16().getValue());
+
+            return json.toString();
         } else {
             throw new ProtocolException("Could not get correct WDConfig attribute format.");
         }
