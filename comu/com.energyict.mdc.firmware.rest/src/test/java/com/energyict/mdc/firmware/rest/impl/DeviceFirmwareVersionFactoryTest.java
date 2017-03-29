@@ -1,5 +1,7 @@
 package com.energyict.mdc.firmware.rest.impl;
 
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.ValueFactory;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
@@ -17,8 +19,8 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.api.firmware.BaseFirmwareVersion;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.StatusInformationTask;
@@ -150,9 +152,21 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
     }
 
     private DeviceMessage mockFirmwareMessage() {
+        return mockFirmwareMessage(true);
+    }
+
+    private DeviceMessage mockFirmwareMessage(boolean withPropertySpecs) {
         DeviceMessage custom = mock(DeviceMessage.class);
         DeviceMessageSpec messageSpec = mock(DeviceMessageSpec.class);
         when(messageSpec.getCategory()).thenReturn(firmwareCategory);
+        if (withPropertySpecs) {
+            PropertySpec propertySpec = mock(PropertySpec.class);
+            ValueFactory valueFactory = mock(ValueFactory.class);
+            when(valueFactory.getValueType()).thenReturn(BaseFirmwareVersion.class);
+            when(propertySpec.getValueFactory()).thenReturn(valueFactory);
+            when(propertySpec.getName()).thenReturn("FirmwareDeviceMessage.upgrade.userfile");
+            when(messageSpec.getPropertySpecs()).thenReturn(Arrays.asList(propertySpec));
+        }
         when(custom.getSpecification()).thenReturn(messageSpec);
         return custom;
     }
@@ -184,7 +198,7 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         when(firmwareVersion.getFirmwareType()).thenReturn(FirmwareType.METER);
         when(firmwareVersion.getFirmwareVersion()).thenReturn("MTR-001-UPGR");
         DeviceMessageAttribute fileAttr = mock(DeviceMessageAttribute.class);
-        when(fileAttr.getName()).thenReturn(DeviceMessageConstants.firmwareUpdateFileAttributeName);
+        when(fileAttr.getName()).thenReturn("FirmwareDeviceMessage.upgrade.userfile");
         when(fileAttr.getValue()).thenReturn(firmwareVersion);
         List<DeviceMessageAttribute> messageAttributes = new ArrayList<>();
         messageAttributes.add(fileAttr);
@@ -428,10 +442,10 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         when(firmwareVersion.getFirmwareType()).thenReturn(FirmwareType.METER);
         when(firmwareVersion.getFirmwareVersion()).thenReturn("MTR-001-UPGR");
         DeviceMessageAttribute fileAttr = mock(DeviceMessageAttribute.class);
-        when(fileAttr.getName()).thenReturn(DeviceMessageConstants.firmwareUpdateFileAttributeName);
+        when(fileAttr.getName()).thenReturn("FirmwareDeviceMessage.upgrade.userfile");
         when(fileAttr.getValue()).thenReturn(firmwareVersion);
         DeviceMessageAttribute dateAttr = mock(DeviceMessageAttribute.class);
-        when(dateAttr.getName()).thenReturn(DeviceMessageConstants.firmwareUpdateActivationDateAttributeName);
+        when(dateAttr.getName()).thenReturn("FirmwareDeviceMessage.upgrade.activationdate");
         when(dateAttr.getValue()).thenReturn(new Date(NOW.minus(1, ChronoUnit.DAYS).toEpochMilli()));
         List<DeviceMessageAttribute> messageAttributes = new ArrayList<>();
         messageAttributes.add(fileAttr);
@@ -501,7 +515,7 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
 
         // Set activation date in future
         DeviceMessageAttribute dateAttr = mock(DeviceMessageAttribute.class);
-        when(dateAttr.getName()).thenReturn(DeviceMessageConstants.firmwareUpdateActivationDateAttributeName);
+        when(dateAttr.getName()).thenReturn("FirmwareDeviceMessage.upgrade.activationdate");
         when(dateAttr.getValue()).thenReturn(new Date(NOW.plus(1, ChronoUnit.DAYS).toEpochMilli()));
         firmwareMessage.getAttributes().remove(1);
         List<com.energyict.mdc.upl.messages.DeviceMessageAttribute> attributes = (List<com.energyict.mdc.upl.messages.DeviceMessageAttribute>) firmwareMessage.getAttributes();
@@ -613,7 +627,7 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         when(firmwareVersion.getFirmwareType()).thenReturn(FirmwareType.METER);
         when(firmwareVersion.getFirmwareVersion()).thenReturn("MTR-001-UPGR");
         DeviceMessageAttribute fileAttr = mock(DeviceMessageAttribute.class);
-        when(fileAttr.getName()).thenReturn(DeviceMessageConstants.firmwareUpdateFileAttributeName);
+        when(fileAttr.getName()).thenReturn("FirmwareDeviceMessage.upgrade.userfile");
         when(fileAttr.getValue()).thenReturn(firmwareVersion);
         List<DeviceMessageAttribute> messageAttributes = new ArrayList<>();
         messageAttributes.add(fileAttr);
@@ -733,7 +747,7 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         when(firmwareExecution.getLastSuccessfulCompletionTimestamp()).thenReturn(TIME);
         messages.add(firmwareMessage);
 
-        DeviceMessage activationMessage = mockFirmwareMessage();
+        DeviceMessage activationMessage = mockFirmwareMessage(false);
         when(activationMessage.getDeviceMessageId()).thenReturn(DeviceMessageId.FIRMWARE_UPGRADE_ACTIVATE);
         when(activationMessage.getTrackingId()).thenReturn("1001");
         when(activationMessage.getModTime()).thenReturn(TIME.plus(1, ChronoUnit.DAYS));
@@ -759,7 +773,7 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         when(firmwareMessage.getModTime()).thenReturn(TIME);
         messages.add(firmwareMessage);
 
-        DeviceMessage activationMessage = mockFirmwareMessage();
+        DeviceMessage activationMessage = mockFirmwareMessage(false);
         when(activationMessage.getDeviceMessageId()).thenReturn(DeviceMessageId.FIRMWARE_UPGRADE_ACTIVATE);
         when(activationMessage.getTrackingId()).thenReturn("1001");
         when(activationMessage.getModTime()).thenReturn(TIME.plus(1, ChronoUnit.DAYS));
@@ -859,7 +873,7 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         when(meterFirmwareVersion.getFirmwareType()).thenReturn(FirmwareType.METER);
         when(meterFirmwareVersion.getFirmwareVersion()).thenReturn("MTR-001-UPGR");
         DeviceMessageAttribute meterFileAttr = mock(DeviceMessageAttribute.class);
-        when(meterFileAttr.getName()).thenReturn(DeviceMessageConstants.firmwareUpdateFileAttributeName);
+        when(meterFileAttr.getName()).thenReturn("FirmwareDeviceMessage.upgrade.userfile");
         when(meterFileAttr.getValue()).thenReturn(meterFirmwareVersion);
         List<DeviceMessageAttribute> meterMessageAttributes = new ArrayList<>();
         meterMessageAttributes.add(meterFileAttr);
@@ -888,7 +902,7 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         when(communicationFirmwareVersion.getFirmwareType()).thenReturn(FirmwareType.COMMUNICATION);
         when(communicationFirmwareVersion.getFirmwareVersion()).thenReturn("COMU-002-UPGR");
         DeviceMessageAttribute communicationFileAttr = mock(DeviceMessageAttribute.class);
-        when(communicationFileAttr.getName()).thenReturn(DeviceMessageConstants.firmwareUpdateFileAttributeName);
+        when(communicationFileAttr.getName()).thenReturn("FirmwareDeviceMessage.upgrade.userfile");
         when(communicationFileAttr.getValue()).thenReturn(communicationFirmwareVersion);
         List<DeviceMessageAttribute> communicationMessageAttributes = new ArrayList<>();
         communicationMessageAttributes.add(communicationFileAttr);
@@ -902,7 +916,7 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         messages.add(uploadCommunicationFirmware);
 
         // ongoing activation for communication firmware
-        DeviceMessage communicationActivationMessage = mockFirmwareMessage();
+        DeviceMessage communicationActivationMessage = mockFirmwareMessage(false);
         when(communicationActivationMessage.getDeviceMessageId()).thenReturn(DeviceMessageId.FIRMWARE_UPGRADE_ACTIVATE);
         when(communicationActivationMessage.getTrackingId()).thenReturn("1003");
         when(communicationActivationMessage.getReleaseDate()).thenReturn(TIME.plusSeconds(3));
@@ -940,7 +954,7 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         when(meterFirmwareVersion.getFirmwareType()).thenReturn(FirmwareType.METER);
         when(meterFirmwareVersion.getFirmwareVersion()).thenReturn("MTR-001-UPGR");
         DeviceMessageAttribute meterFileAttr = mock(DeviceMessageAttribute.class);
-        when(meterFileAttr.getName()).thenReturn(DeviceMessageConstants.firmwareUpdateFileAttributeName);
+        when(meterFileAttr.getName()).thenReturn("FirmwareDeviceMessage.upgrade.userfile");
         when(meterFileAttr.getValue()).thenReturn(meterFirmwareVersion);
         List<DeviceMessageAttribute> meterMessageAttributes = new ArrayList<>();
         meterMessageAttributes.add(meterFileAttr);
@@ -969,7 +983,7 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         when(communicationFirmwareVersion.getFirmwareType()).thenReturn(FirmwareType.COMMUNICATION);
         when(communicationFirmwareVersion.getFirmwareVersion()).thenReturn("COMU-002-UPGR");
         DeviceMessageAttribute communicationFileAttr = mock(DeviceMessageAttribute.class);
-        when(communicationFileAttr.getName()).thenReturn(DeviceMessageConstants.firmwareUpdateFileAttributeName);
+        when(communicationFileAttr.getName()).thenReturn("FirmwareDeviceMessage.upgrade.userfile");
         when(communicationFileAttr.getValue()).thenReturn(communicationFirmwareVersion);
         List<DeviceMessageAttribute> communicationMessageAttributes = new ArrayList<>();
         communicationMessageAttributes.add(communicationFileAttr);
@@ -983,7 +997,7 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         messages.add(uploadCommunicationFirmware);
 
         // ongoing activation for communication firmware
-        DeviceMessage communicationActivationMessage = mockFirmwareMessage();
+        DeviceMessage communicationActivationMessage = mockFirmwareMessage(false);
         when(communicationActivationMessage.getDeviceMessageId()).thenReturn(DeviceMessageId.FIRMWARE_UPGRADE_ACTIVATE);
         when(communicationActivationMessage.getTrackingId()).thenReturn("1003");
         when(communicationActivationMessage.getReleaseDate()).thenReturn(TIME.plusSeconds(3));
