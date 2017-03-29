@@ -29,6 +29,13 @@ Ext.define('Pkj.view.CertificateActionMenu', {
                 //privileges: Sct.privileges.ServiceCallType.admin,
                 action: 'importCertificate',
                 section: this.SECTION_ACTION
+            },
+            {
+                text: Uni.I18n.translate('general.remove', 'PKJ', 'Remove'),
+                itemId: 'pkj-remove-certificate-menu-item',
+                //privileges: Sct.privileges.ServiceCallType.admin,
+                action: 'removeCertificate',
+                section: this.SECTION_REMOVE
             }
         ];
         me.callParent(arguments);

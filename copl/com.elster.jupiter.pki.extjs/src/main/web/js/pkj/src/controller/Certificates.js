@@ -113,6 +113,7 @@ Ext.define('Pkj.controller.Certificates', {
                         certificateRecord: certificateRecord
                     }
                 );
+                widget.down('#pkj-certificate-add-form-version-field').setValue(certificateRecord.get('version'));
                 me.getApplication().fireEvent('changecontentevent', widget);
                 widget.down('#pkj-certificate-add-form-alias').setValue(certificateRecord.get('alias'));
                 me.getApplication().fireEvent('certificateLoaded', certificateRecord.get('alias'));

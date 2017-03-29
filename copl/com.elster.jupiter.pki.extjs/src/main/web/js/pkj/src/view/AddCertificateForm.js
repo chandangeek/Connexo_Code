@@ -8,7 +8,8 @@ Ext.define('Pkj.view.AddCertificateForm', {
 
     requires: [
         'Pkj.view.CertificateFileField',
-        'Uni.util.FormErrorMessage'
+        'Uni.util.FormErrorMessage',
+        'Uni.util.FormInfoMessage'
     ],
     layout: 'anchor',
     margin: '15 0 0 0',
@@ -26,6 +27,22 @@ Ext.define('Pkj.view.AddCertificateForm', {
                 itemId: 'pkj-certificate-add-form-errors',
                 margin: '0 0 10 0',
                 anchor: '40%',
+                hidden: true
+            },
+            {
+                xtype: 'panel',
+                hidden: Ext.isEmpty(me.certificateRecord) || !me.certificateRecord.get('hasCertificate'),
+                items: [
+                    {
+                        xtype: 'uni-form-info-message',
+                        text: Uni.I18n.translate('general.certificateFileAlreadyAvailable', 'PKJ', 'There is already a certificate file available on this certificate.')
+                    }
+                ]
+            },
+            {
+                xtype: 'textfield',
+                name: 'version',
+                itemId: 'pkj-certificate-add-form-version-field',
                 hidden: true
             },
             {
