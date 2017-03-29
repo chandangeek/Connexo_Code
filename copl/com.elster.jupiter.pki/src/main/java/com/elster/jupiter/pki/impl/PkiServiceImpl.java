@@ -37,7 +37,6 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
@@ -97,7 +96,7 @@ public class PkiServiceImpl implements PkiService {
         switch (cryptographicType) {
             case AsymmetricKey: return privateKeyFactories.keySet().stream().sorted().collect(Collectors.toList());
             case SymmetricKey: return symmetricKeyFactories.keySet().stream().sorted().collect(Collectors.toList());
-            case Passphrase: throw new NotImplementedException(); // TODO implement
+            case Passphrase: return null; // TODO implement
             default: return Collections.emptyList(); // No encryption methods for other cryptographic elements
         }
     }
