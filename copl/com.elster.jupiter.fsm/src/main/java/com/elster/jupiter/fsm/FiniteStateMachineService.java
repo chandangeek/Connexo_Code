@@ -31,51 +31,6 @@ public interface FiniteStateMachineService {
 
     void addStandardEventPredicate(StandardEventPredicate predicate);
 
-    /**
-     * Gets the List of {@link StateChangeBusinessProcess}es.
-     *
-     * @return The List of StateChangeBusinessProcess
-     */
-    List<StateChangeBusinessProcess> findStateChangeBusinessProcesses();
-
-    /**
-     * Gets the {@link StateChangeBusinessProcess} with given id.
-     * @param id to find
-     * @return The Optional StateChangeBusinessProcess with given id
-     */
-    Optional<StateChangeBusinessProcess> findStateChangeBusinessProcessById(long id);
-
-    /**
-     * Enables the external business process identified by the specified
-     * deploymentId and processId to be executed when a {@link State}
-     * is entered or exited.
-     *
-     * @param name of the external process
-     * @param deploymentId The deployment id of the external process
-     * @param processId The process id of the external process
-     * @return The StateChangeBusinessProcess
-     */
-    StateChangeBusinessProcess enableAsStateChangeBusinessProcess(String name,String deploymentId, String processId);
-
-    /**
-     * Disables the external business process identified by the specified
-     * deploymentId and processId to be executed when a {@link State}
-     * is entered or exited. This will fail when there is at least
-     * one State on which this external process is configured
-     * to be executed on entry or on exit.
-     *
-     * @param deploymentId The deployment id of the external process
-     * @param processId The process id of the external process
-     */
-    void disableAsStateChangeBusinessProcess(String deploymentId, String processId);
-
-    /**
-     * Creates a new {@link CustomStateTransitionEventType} with the specified symbol.
-     *
-     * @param symbol The symbolic representation of the event
-     * @param context Name in which this custom event type can be used, e.g. devicelifecycle, servicecalllifecycle.
-     * @return The CustomStateTransitionEventType
-     */
     CustomStateTransitionEventType newCustomStateTransitionEventType(String symbol, String context);
 
     /**

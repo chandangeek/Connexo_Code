@@ -8,7 +8,6 @@ import com.elster.jupiter.bpm.BpmProcessDefinition;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.ProcessReference;
 import com.elster.jupiter.fsm.State;
-import com.elster.jupiter.fsm.StateChangeBusinessProcess;
 import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.fsm.StateTransitionEventType;
 import com.elster.jupiter.orm.Column;
@@ -94,21 +93,6 @@ public enum TableSpecs {
                     .onDelete(DeleteRule.CASCADE)
                     .add();
             table.primaryKey("PK_FSM_STATE").on(id).add();
-        }
-    },
-
-    FSM_STATE_CHANGE_PROCESS {
-        @Override
-        void addTo(DataModel dataModel) {
-            Table<StateChangeBusinessProcess> table = dataModel.addTable(this.name(), StateChangeBusinessProcess.class);
-            table.map(StateChangeBusinessProcessImpl.class);
-            Column id = table.addAutoIdColumn();
-            Column name = table.column("NAME").varChar().notNull().map(StateChangeBusinessProcessImpl.Fields.NAME.fieldName()).add();
-            table.column("DEPLOYMENTID").varChar().notNull().map(StateChangeBusinessProcessImpl.Fields.DEPLOYMENT_ID.fieldName()).add();
-            table.column("PROCESSID").varChar().notNull().map(StateChangeBusinessProcessImpl.Fields.PROCESS_ID.fieldName()).add();
-            table.addAuditColumns().forEach(column -> column.since(version(10, 2)));
-            table.primaryKey("PK_STATE_CHANGE_PROCESS").on(id).add();
-            table.unique("UK_FSM_STATE_CHANGE_NAME").on(name).add();
         }
     },
 

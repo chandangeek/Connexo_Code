@@ -54,24 +54,8 @@ public interface FiniteStateMachineBuilder {
      */
     interface StateBuilder {
 
-        /**
-         * Adds the {@link StateChangeBusinessProcess} to the list of
-         * processes that need to execute when the {@link State}
-         * that is currently being built is entered.
-         *
-         * @param process The StateChangeBusinessProcess
-         * @return The StateBuilder
-         */
         StateBuilder onEntry(BpmProcessDefinition process);
 
-        /**
-         * Adds the {@link StateChangeBusinessProcess} to the list of
-         * processes that need to execute when the {@link State}
-         * that is currently being built is exited.
-         *
-         * @param process The StateChangeBusinessProcess
-         * @return The StateBuilder
-         */
         StateBuilder onExit(BpmProcessDefinition process);
 
         /**

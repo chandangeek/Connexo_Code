@@ -4,7 +4,6 @@
 
 package com.elster.jupiter.fsm.impl;
 
-import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.CustomStateTransitionEventType;
 import com.elster.jupiter.fsm.FiniteStateMachine;
@@ -16,11 +15,8 @@ import com.elster.jupiter.fsm.ProcessReference;
 import com.elster.jupiter.fsm.StandardEventPredicate;
 import com.elster.jupiter.fsm.StandardStateTransitionEventType;
 import com.elster.jupiter.fsm.State;
-import com.elster.jupiter.fsm.StateChangeBusinessProcess;
-import com.elster.jupiter.fsm.StateChangeBusinessProcessInUseException;
 import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.fsm.StateTransitionEventType;
-import com.elster.jupiter.fsm.UnknownStateChangeBusinessProcessException;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
@@ -200,46 +196,6 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
     @Reference
     public void setUpgradeService(UpgradeService upgradeService) {
         this.upgradeService = upgradeService;
-    }
-
-    @Override
-    public List<StateChangeBusinessProcess> findStateChangeBusinessProcesses() {
-        return this.dataModel.mapper(StateChangeBusinessProcess.class).find();
-    }
-
-    @Override
-    public Optional<StateChangeBusinessProcess> findStateChangeBusinessProcessById(long id) {
-        return this.dataModel.mapper(StateChangeBusinessProcess.class).getOptional(id);
-    }
-
-    @Override
-    public StateChangeBusinessProcess enableAsStateChangeBusinessProcess(String name, String deploymentId, String processId) {
-        StateChangeBusinessProcessImpl businessProcess = this.dataModel.getInstance(StateChangeBusinessProcessImpl.class).initialize(name, deploymentId, processId);
-        Save.CREATE.validate(this.dataModel, businessProcess);
-        this.dataModel.persist(businessProcess);
-        return businessProcess;
-    }
-
-    @Override
-    public void disableAsStateChangeBusinessProcess(String deploymentId, String processId) {
-        List<StateChangeBusinessProcess> businessProcesses = this.dataModel
-                .mapper(StateChangeBusinessProcess.class)
-                .find(
-                        StateChangeBusinessProcessImpl.Fields.DEPLOYMENT_ID.fieldName(), deploymentId,
-                        StateChangeBusinessProcessImpl.Fields.PROCESS_ID.fieldName(), processId);
-        if (businessProcesses.isEmpty()) {
-            throw new UnknownStateChangeBusinessProcessException(this.thesaurus, deploymentId, processId);
-        }
-        else {
-            Condition condition = where(ProcessReferenceImpl.Fields.PROCESS.fieldName()).in(businessProcesses);
-            List<ProcessReference> processReferences = this.dataModel.mapper(ProcessReference.class).select(condition);
-            if (processReferences.isEmpty()) {
-                businessProcesses.stream().forEach(this.dataModel::remove);
-            }
-            else {
-                throw new StateChangeBusinessProcessInUseException(this.thesaurus, businessProcesses.get(0));
-            }
-        }
     }
 
     @Override

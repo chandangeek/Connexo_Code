@@ -6,14 +6,6 @@ package com.elster.jupiter.fsm;
 
 import aQute.bnd.annotation.ProviderType;
 
-/**
- * Models the event that is produced when a {@link StateChangeBusinessProcess} is executed.
- * @see StateChangeBusinessProcess#executeOnEntry(String, State)
- * @see StateChangeBusinessProcess#executeOnExit(String, State)
- *
- * @author Rudi Vankeirsbilck (rudi)
- * @since 2015-07-02 (11:06)
- */
 @ProviderType
 public interface StateChangeBusinessProcessStartEvent {
 

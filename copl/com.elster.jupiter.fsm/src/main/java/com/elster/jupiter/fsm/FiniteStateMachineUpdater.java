@@ -85,44 +85,12 @@ public interface FiniteStateMachineUpdater extends FiniteStateMachineBuilder {
 
         StateUpdater setName(String newName);
 
-        /**
-         * Adds the {@link StateChangeBusinessProcess} to the list of
-         * processes that need to execute when the {@link State}
-         * that is currently being built is entered.
-         *
-         * @param process The StateChangeBusinessProcess
-         * @return The StateBuilder
-         */
         StateUpdater onEntry(BpmProcessDefinition process);
 
-        /**
-         * Removes the {@link StateChangeBusinessProcess} from the list of
-         * processes that need to execute when the {@link State}
-         * that is currently being built is entered.
-         *
-         * @param process The StateChangeBusinessProcess
-         * @return The StateBuilder
-         */
         StateUpdater removeOnEntry(BpmProcessDefinition process);
 
-        /**
-         * Adds the {@link StateChangeBusinessProcess} to the list of
-         * processes that need to execute when the {@link State}
-         * that is currently being built is exited.
-         *
-         * @param process The StateChangeBusinessProcess
-         * @return The StateBuilder
-         */
         StateUpdater onExit(BpmProcessDefinition process);
 
-        /**
-         * Removes the {@link StateChangeBusinessProcess} from the list of
-         * processes that need to execute when the {@link State}
-         * that is currently being built is exited.
-         *
-         * @param process The StateChangeBusinessProcess
-         * @return The StateBuilder
-         */
         StateUpdater removeOnExit(BpmProcessDefinition process);
 
         /**

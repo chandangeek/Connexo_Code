@@ -15,11 +15,9 @@ import com.elster.jupiter.fsm.FiniteStateMachineUpdater;
 import com.elster.jupiter.fsm.MessageSeeds;
 import com.elster.jupiter.fsm.ProcessReference;
 import com.elster.jupiter.fsm.State;
-import com.elster.jupiter.fsm.StateChangeBusinessProcess;
 import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.fsm.StateTransitionEventType;
 import com.elster.jupiter.fsm.UnknownProcessReferenceException;
-import com.elster.jupiter.fsm.UnknownStateChangeBusinessProcessException;
 import com.elster.jupiter.fsm.UnknownStateException;
 import com.elster.jupiter.fsm.UnsupportedStateTransitionException;
 import com.elster.jupiter.nls.NlsService;
@@ -33,7 +31,6 @@ import com.google.common.base.Strings;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -97,124 +94,6 @@ public class FiniteStateMachineIT {
     @AfterClass
     public static void cleanUpDataBase() throws SQLException {
         inMemoryPersistence.cleanUpDataBase();
-    }
-
-    @Transactional
-    @Test
-    public void findStateChangeBusinessProcessAfterEnable() {
-        FiniteStateMachineServiceImpl testService = this.getTestService();
-        StateChangeBusinessProcess stateChangeBusinessProcess = testService.enableAsStateChangeBusinessProcess("AAA", "111", "222");
-
-        // Business method
-        List<Long> businessProcessIds = testService
-                .findStateChangeBusinessProcesses()
-                .stream()
-                .map(StateChangeBusinessProcess::getId)
-                .collect(Collectors.toList());
-
-        // Asserts
-        assertThat(businessProcessIds).contains(stateChangeBusinessProcess.getId());
-    }
-
-    @Transactional
-    @Test(expected = UnknownStateChangeBusinessProcessException.class)
-    public void disableStateChangeBusinessProcessThatWasNotEnabled() {
-        FiniteStateMachineServiceImpl testService = this.getTestService();
-
-        // Business method
-        testService.disableAsStateChangeBusinessProcess("111", "222");
-
-        // Asserts: see expected exception rule
-    }
-
-    @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}")
-    @Test
-    public void enableStateChangeBusinessProcessWithNullName() {
-        // Business method
-        this.getTestService().enableAsStateChangeBusinessProcess(null, "onEntryDeploymentId", "onEntryProcessId");
-
-        // Asserts: see expected constraint violation rule
-    }
-
-    @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}")
-    @Test
-    public void enableStateChangeBusinessProcessWithEmptyName() {
-        // Business method
-        this.getTestService().enableAsStateChangeBusinessProcess("", "onEntryDeploymentId", "onEntryProcessId");
-
-        // Asserts: see expected constraint violation rule
-    }
-
-    @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
-    @Test
-    public void enableStateChangeBusinessProcessWithToLongName() {
-        // Business method
-        this.getTestService().enableAsStateChangeBusinessProcess(Strings.repeat("name", 200), "onEntryDeploymentId", "onEntryProcessId");
-
-        // Asserts: see expected constraint violation rule
-    }
-
-    @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}")
-    @Test
-    public void enableStateChangeBusinessProcessWithNullBigDeploymentId() {
-        // Business method
-        this.getTestService().enableAsStateChangeBusinessProcess("aName", null, "onEntry");
-
-        // Asserts: see expected constraint violation rule
-    }
-
-    @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}")
-    @Test
-    public void enableStateChangeBusinessProcessWithEmptyBigDeploymentId() {
-        // Business method
-        this.getTestService().enableAsStateChangeBusinessProcess("aName", "", "onEntry");
-
-        // Asserts: see expected constraint violation rule
-    }
-
-    @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
-    @Test
-    public void enableStateChangeBusinessProcessWithTooBigDeploymentId() {
-        // Business method
-        this.getTestService().enableAsStateChangeBusinessProcess("aName", Strings.repeat("deploymentId", 100), "onEntry");
-
-        // Asserts: see expected constraint violation rule
-    }
-
-    @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}")
-    @Test
-    public void enableStateChangeBusinessProcessWithNullProcessId() {
-        // Business method
-        this.getTestService().enableAsStateChangeBusinessProcess("aName", "deploymentId", null);
-
-        // Asserts: see expected constraint violation rule
-    }
-
-    @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}")
-    @Test
-    public void enableStateChangeBusinessProcessWithEmptyProcessId() {
-        // Business method
-        this.getTestService().enableAsStateChangeBusinessProcess("aName", "deploymentId", "");
-
-        // Asserts: see expected constraint violation rule
-    }
-
-    @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
-    @Test
-    public void enableStateChangeBusinessProcessWithTooBigProcessId() {
-        // Business method
-        this.getTestService().enableAsStateChangeBusinessProcess("aName", "deploymentId", Strings.repeat("onEntry", 100));
-
-        // Asserts: see expected constraint violation rule
     }
 
     @Transactional
