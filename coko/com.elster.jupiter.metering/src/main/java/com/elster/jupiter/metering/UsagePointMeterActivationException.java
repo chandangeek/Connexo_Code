@@ -156,10 +156,9 @@ public class UsagePointMeterActivationException extends LocalizedException {
         return ex;
     }
 
-    // TODO: 29.03.2017 invalid message seed, needs to be changed
-    public static class IncorrectDeviceStage extends UsagePointMeterActivationException {
-        public IncorrectDeviceStage(Thesaurus thesaurus, String date) {
-            super(thesaurus, MessageSeeds.INVALID_END_DEVICE_STAGE, date);
+    public static class IncorrectDeviceStageWithoutMetrologyConfig extends UsagePointMeterActivationException {
+        public IncorrectDeviceStageWithoutMetrologyConfig(Thesaurus thesaurus, String meter, String usagePoint, String date) {
+            super(thesaurus, MessageSeeds.INVALID_END_DEVICE_STAGE, meter, usagePoint, date);
         }
     }
 

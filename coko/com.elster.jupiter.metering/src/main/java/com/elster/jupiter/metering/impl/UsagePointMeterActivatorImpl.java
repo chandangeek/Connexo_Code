@@ -141,11 +141,11 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
         }
     }
 
-    private void validateStageWithoutMetrologyConfig(Meter meter, Instant mcActivationDate) {
-        meter.getState(mcActivationDate).get().getStage().ifPresent(stage -> {
+    private void validateStageWithoutMetrologyConfig(Meter meter, Instant meterStartDate) {
+        meter.getState(meterStartDate).get().getStage().ifPresent(stage -> {
             EndDeviceStage deviceStage = EndDeviceStage.fromKey(stage.getName());
-            if (!deviceStage.equals(EndDeviceStage.OPERATIONAL) || !deviceStage.equals(EndDeviceStage.PRE_OPERATIONAL)) {
-                throw new UsagePointMeterActivationException.IncorrectDeviceStage(metrologyConfigurationService.getThesaurus(), formatDate(mcActivationDate));
+            if (!deviceStage.equals(EndDeviceStage.OPERATIONAL) && !deviceStage.equals(EndDeviceStage.PRE_OPERATIONAL)) {
+                throw new UsagePointMeterActivationException.IncorrectDeviceStageWithoutMetrologyConfig(metrologyConfigurationService.getThesaurus(), meter.getName(), this.usagePoint.getName(), formatDate(meterStartDate));
             }
         });
     }
