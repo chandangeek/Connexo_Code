@@ -15,6 +15,7 @@ import java.util.List;
 public class IssueActionTypeInfo {
     public long id;
     public String name;
+    public long actionType;
     public IssueTypeInfo issueType;
     public List<PropertyInfo> properties;
 
