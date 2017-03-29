@@ -326,6 +326,7 @@ public class DataAggregationServiceImplCalculateWithRegisterIT {
         MeterRole defaultMeterRole = getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT);
         this.configuration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("simplestNetConsumption", ELECTRICITY).create();
         this.configuration.addMeterRole(defaultMeterRole);
+        this.contract = configuration.addMetrologyContract(METROLOGY_PURPOSE);
 
         // Setup configuration requirements
         FullySpecifiedReadingTypeRequirement consumption = this.configuration.newReadingTypeRequirement("A-", defaultMeterRole).withReadingType(netConsumptionIndex);
@@ -333,7 +334,7 @@ public class DataAggregationServiceImplCalculateWithRegisterIT {
         System.out.println("simplestNetConsumption::CONSUMPTION_REQUIREMENT_ID = " + this.consumptionRequirementId);
 
         // Setup configuration deliverables
-        ReadingTypeDeliverableBuilder builder = this.configuration.newReadingTypeDeliverable("netConsumptionIndex", netConsumptionIndex, Formula.Mode.AUTO);
+        ReadingTypeDeliverableBuilder builder = this.contract.newReadingTypeDeliverable("netConsumptionIndex", netConsumptionIndex, Formula.Mode.AUTO);
         ReadingTypeDeliverable netConsumption = builder.build(builder.requirement(consumption));
 
         this.netConsumptionDeliverableId = netConsumption.getId();
@@ -343,10 +344,9 @@ public class DataAggregationServiceImplCalculateWithRegisterIT {
         this.initializeSqlBuilders();
 
         // Apply MetrologyConfiguration to UsagePoint
-        this.usagePoint.apply(this.configuration, jan1st2016);
+        this.usagePoint.apply(this.configuration, jan1st2016.plusSeconds(60));
 
         this.contract = this.configuration.addMetrologyContract(METROLOGY_PURPOSE);
-        this.contract.addDeliverable(netConsumption);
 
         // Business method
         try {
@@ -396,6 +396,9 @@ public class DataAggregationServiceImplCalculateWithRegisterIT {
     private void setupUsagePoint(String name) {
         ServiceCategory electricity = getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
         this.usagePoint = electricity.newUsagePoint(name, jan1st2016).create();
+        UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("UP1", electricity).create();
+        usagePointMetrologyConfiguration.addMeterRole(getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT));
+        usagePoint.apply(usagePointMetrologyConfiguration, jan1st2016);
     }
 
     private void activateMeterWithBulkWattRegister() {

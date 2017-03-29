@@ -12,12 +12,13 @@ import java.time.Instant;
 import java.time.Period;
 import java.util.List;
 import java.util.Optional;
+import java.util.TimeZone;
 
 @ProviderType
 public interface SyntheticLoadProfileService {
     String COMPONENTNAME = "SLP";
 
-    SyntheticLoadProfileBuilder newSyntheticLoadProfile(String name, Period duration, Instant startTime, ReadingType readingType);
+    SyntheticLoadProfileBuilder newSyntheticLoadProfile(String name, Period duration, Instant startTime, ReadingType readingType, TimeZone timeZone);
 
     List<SyntheticLoadProfile> findSyntheticLoadProfiles();
 

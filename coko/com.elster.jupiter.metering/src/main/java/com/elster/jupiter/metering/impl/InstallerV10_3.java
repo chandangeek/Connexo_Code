@@ -4,6 +4,10 @@
 
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.fsm.FiniteStateMachineService;
+import com.elster.jupiter.fsm.StageSetBuilder;
+import com.elster.jupiter.metering.EndDeviceStage;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
@@ -13,13 +17,14 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Stream;
 
-public class PrivilegesProviderV10_3 implements PrivilegesProvider {
+public class InstallerV10_3 implements PrivilegesProvider {
 
     private final UserService userService;
 
     @Inject
-    public PrivilegesProviderV10_3(UserService userService) {
+    public InstallerV10_3(UserService userService) {
         this.userService = userService;
     }
 

@@ -372,7 +372,8 @@ public class DataAggregationServiceImplExpertModeIT {
         this.volumeRequirementId = volume.getId();
 
         // Setup configuration deliverables
-        ReadingTypeDeliverableBuilder builder = this.configuration.newReadingTypeDeliverable("Energy", ENERGY_15min, Formula.Mode.EXPERT);
+        this.contract = this.configuration.addMetrologyContract(METROLOGY_PURPOSE);
+        ReadingTypeDeliverableBuilder builder = this.contract.newReadingTypeDeliverable("Energy", ENERGY_15min, Formula.Mode.EXPERT);
         ReadingTypeDeliverable energy = builder.build(
                 builder.multiply(
                         builder.constant(BigDecimal.valueOf(40L)),   // calorific value
@@ -392,9 +393,6 @@ public class DataAggregationServiceImplExpertModeIT {
 
         // Apply MetrologyConfiguration to UsagePoint
         this.usagePoint.apply(this.configuration, jan1st2016);
-
-        this.contract = this.configuration.addMetrologyContract(METROLOGY_PURPOSE);
-        this.contract.addDeliverable(energy);
 
         // Business method
         try {
@@ -485,7 +483,8 @@ public class DataAggregationServiceImplExpertModeIT {
         this.volumeRequirementId = volume.getId();
 
         // Setup configuration deliverables
-        ReadingTypeDeliverableBuilder builder = this.configuration.newReadingTypeDeliverable(
+        this.contract = this.configuration.addMetrologyContract(METROLOGY_PURPOSE);
+        ReadingTypeDeliverableBuilder builder = this.contract.newReadingTypeDeliverable(
                 "Energy",
                 ENERGY_daily,
                 Formula.Mode.EXPERT);
@@ -510,9 +509,6 @@ public class DataAggregationServiceImplExpertModeIT {
 
         // Apply MetrologyConfiguration to UsagePoint
         this.usagePoint.apply(this.configuration, jan1st2016);
-
-        this.contract = this.configuration.addMetrologyContract(METROLOGY_PURPOSE);
-        this.contract.addDeliverable(energy);
 
         // Business method
         try {
@@ -612,7 +608,8 @@ public class DataAggregationServiceImplExpertModeIT {
         System.out.println("volumeRequirementId = " + this.volumeRequirementId);
 
         // Setup configuration deliverables
-        ReadingTypeDeliverableBuilder builder = this.configuration.newReadingTypeDeliverable(
+        this.contract = this.configuration.addMetrologyContract(METROLOGY_PURPOSE);
+        ReadingTypeDeliverableBuilder builder = this.contract.newReadingTypeDeliverable(
                 "Energy",
                 ENERGY_daily,
                 Formula.Mode.EXPERT);
@@ -636,9 +633,6 @@ public class DataAggregationServiceImplExpertModeIT {
 
         // Apply MetrologyConfiguration to UsagePoint
         this.usagePoint.apply(this.configuration, jan1st2016);
-
-        this.contract = this.configuration.addMetrologyContract(METROLOGY_PURPOSE);
-        this.contract.addDeliverable(energy);
 
         // Business method
         try {
@@ -712,7 +706,10 @@ public class DataAggregationServiceImplExpertModeIT {
 
     private void setupUsagePoint(String name) {
         ServiceCategory electricity = getMeteringService().getServiceCategory(ServiceKind.GAS).get();
-        this.usagePoint = electricity.newUsagePoint(name, jan1st2016).create();
+        this.usagePoint = electricity.newUsagePoint(name, jan1st2016.minusSeconds(20)).create();
+        UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("UP1", electricity).create();
+        usagePointMetrologyConfiguration.addMeterRole(getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT));
+        usagePoint.apply(usagePointMetrologyConfiguration, jan1st2016.minusSeconds(20));
     }
 
     private void activateMeter() {

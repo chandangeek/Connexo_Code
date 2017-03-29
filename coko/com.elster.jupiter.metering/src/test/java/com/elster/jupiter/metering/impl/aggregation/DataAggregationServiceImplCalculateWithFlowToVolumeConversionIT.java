@@ -358,6 +358,7 @@ public class DataAggregationServiceImplCalculateWithFlowToVolumeConversionIT {
         // Setup MetrologyConfiguration
         this.configuration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("simplestNetConsumptionOfProsumer", ELECTRICITY).create();
         this.configuration.addMeterRole(DEFAULT_METER_ROLE);
+        this.contract = configuration.addMetrologyContract(METROLOGY_PURPOSE);
 
         // Setup configuration requirements
         ReadingTypeRequirement consumption = this.configuration.newReadingTypeRequirement("A-", DEFAULT_METER_ROLE)
@@ -370,7 +371,7 @@ public class DataAggregationServiceImplCalculateWithFlowToVolumeConversionIT {
         System.out.println("simplestNetConsumptionOfProsumer::PRODUCTION_REQUIREMENT_ID = " + productionRequirementId);
 
         // Setup configuration deliverables
-        ReadingTypeDeliverableBuilder builder = this.configuration.newReadingTypeDeliverable("consumption", fifteenMinutesNetConsumption, Formula.Mode.AUTO);
+        ReadingTypeDeliverableBuilder builder = this.contract.newReadingTypeDeliverable("consumption", fifteenMinutesNetConsumption, Formula.Mode.AUTO);
         ReadingTypeDeliverable netConsumption =
                 builder.build(builder.plus(
                         builder.requirement(production),
@@ -387,7 +388,6 @@ public class DataAggregationServiceImplCalculateWithFlowToVolumeConversionIT {
         this.usagePoint.apply(this.configuration, jan1st2016);
 
         this.contract = this.configuration.addMetrologyContract(METROLOGY_PURPOSE);
-        this.contract.addDeliverable(netConsumption);
 
         // Business method
         try {
@@ -464,6 +464,7 @@ public class DataAggregationServiceImplCalculateWithFlowToVolumeConversionIT {
         // Setup MetrologyConfiguration
         this.configuration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("monthlyNetConsumptionBasedOn15MinValuesOfProsumer", ELECTRICITY).create();
         this.configuration.addMeterRole(DEFAULT_METER_ROLE);
+        this.contract = configuration.addMetrologyContract(METROLOGY_PURPOSE);
 
         // Setup configuration requirements
         ReadingTypeRequirement consumption = this.configuration.newReadingTypeRequirement("A-", DEFAULT_METER_ROLE)
@@ -476,7 +477,7 @@ public class DataAggregationServiceImplCalculateWithFlowToVolumeConversionIT {
         System.out.println("monthlyNetConsumptionBasedOn15MinValuesOfProsumer::PRODUCTION_REQUIREMENT_ID = " + productionRequirementId);
 
         // Setup configuration deliverables
-        ReadingTypeDeliverableBuilder builder = this.configuration.newReadingTypeDeliverable("consumption", monthlyNetConsumption, Formula.Mode.AUTO);
+        ReadingTypeDeliverableBuilder builder = this.contract.newReadingTypeDeliverable("consumption", monthlyNetConsumption, Formula.Mode.AUTO);
         ReadingTypeDeliverable netConsumption =
                 builder.build(
                         builder.plus(
@@ -494,7 +495,6 @@ public class DataAggregationServiceImplCalculateWithFlowToVolumeConversionIT {
         this.usagePoint.apply(this.configuration, jan1st2016);
 
         this.contract = this.configuration.addMetrologyContract(METROLOGY_PURPOSE);
-        this.contract.addDeliverable(netConsumption);
 
         // Business method
         try {
@@ -580,6 +580,7 @@ public class DataAggregationServiceImplCalculateWithFlowToVolumeConversionIT {
         // Setup MetrologyConfiguration
         this.configuration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("monthlyNetConsumptionBasedOn15And60MinValuesOfProsumer", ELECTRICITY).create();
         this.configuration.addMeterRole(DEFAULT_METER_ROLE);
+        this.contract = configuration.addMetrologyContract(METROLOGY_PURPOSE);
 
         // Setup configuration requirements
         ReadingTypeRequirement consumption = this.configuration.newReadingTypeRequirement("A-", DEFAULT_METER_ROLE)
@@ -592,7 +593,7 @@ public class DataAggregationServiceImplCalculateWithFlowToVolumeConversionIT {
         System.out.println("monthlyNetConsumptionBasedOn15And60MinValuesOfProsumer::PRODUCTION_REQUIREMENT_ID = " + productionRequirementId);
 
         // Setup configuration deliverables
-        ReadingTypeDeliverableBuilder builder = this.configuration.newReadingTypeDeliverable("consumption", monthlyNetConsumption, Formula.Mode.AUTO);
+        ReadingTypeDeliverableBuilder builder = this.contract.newReadingTypeDeliverable("consumption", monthlyNetConsumption, Formula.Mode.AUTO);
         ReadingTypeDeliverable netConsumption =
                 builder.build(builder.plus(
                         builder.requirement(consumption),
@@ -611,7 +612,6 @@ public class DataAggregationServiceImplCalculateWithFlowToVolumeConversionIT {
         this.usagePoint.apply(this.configuration, jan1st2016);
 
         this.contract = this.configuration.addMetrologyContract(METROLOGY_PURPOSE);
-        this.contract.addDeliverable(netConsumption);
 
         // Business method
         try {
@@ -679,7 +679,10 @@ public class DataAggregationServiceImplCalculateWithFlowToVolumeConversionIT {
 
     private void setupUsagePoint(String name) {
         ServiceCategory electricity = getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
-        this.usagePoint = electricity.newUsagePoint(name, jan1st2016).create();
+        this.usagePoint = electricity.newUsagePoint(name, jan1st2016.minusSeconds(20)).create();
+        UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("UP1", electricity).create();
+        usagePointMetrologyConfiguration.addMeterRole(getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT));
+        usagePoint.apply(usagePointMetrologyConfiguration, jan1st2016.minusSeconds(20));
     }
 
     private void activateMeterWithAll15MinChannels() {

@@ -17,6 +17,7 @@ import java.time.Instant;
 import java.time.Period;
 import java.util.List;
 import java.util.Optional;
+import java.util.TimeZone;
 
 public class SyntheticLoadProfileServiceImpl implements SyntheticLoadProfileService {
 
@@ -52,11 +53,12 @@ public class SyntheticLoadProfileServiceImpl implements SyntheticLoadProfileServ
     }
 
     @Override
-    public SyntheticLoadProfileBuilder newSyntheticLoadProfile(String name, Period duration, Instant startTime, ReadingType readingType) {
+    public SyntheticLoadProfileBuilder newSyntheticLoadProfile(String name, Period duration, Instant startTime, ReadingType readingType, TimeZone timeZone) {
         SyntheticLoadProfileBuilderImpl syntheticLoadProfileBuilder = new SyntheticLoadProfileBuilderImpl(this, name);
         syntheticLoadProfileBuilder.withDuration(duration);
         syntheticLoadProfileBuilder.withStartTime(startTime);
         syntheticLoadProfileBuilder.withReadingType(readingType);
+        syntheticLoadProfileBuilder.withTimeZone(timeZone);
         return syntheticLoadProfileBuilder;
     }
 

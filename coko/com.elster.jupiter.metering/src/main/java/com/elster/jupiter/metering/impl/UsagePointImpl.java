@@ -546,7 +546,7 @@ public class UsagePointImpl implements ServerUsagePoint {
     }
 
     private void apply(UsagePointMetrologyConfiguration metrologyConfiguration, Set<MetrologyContract> optionalContractsToActivate, Instant start, Instant end) {
-        UsagePointStage.Key usagePointStage = this.getState().getStage().getKey();
+        UsagePointStage.Key usagePointStage = this.getState(start).getStage().getKey();
         if (usagePointStage != UsagePointStage.Key.PRE_OPERATIONAL) {
             throw UsagePointManagementException.incorrectStage(thesaurus);
         }
@@ -847,8 +847,10 @@ public class UsagePointImpl implements ServerUsagePoint {
 
         ReadingTypeRequirementsCollector requirementsCollector = new ReadingTypeRequirementsCollector();
 
-        metrologyConfiguration.getDeliverables()
+        metrologyConfiguration.getContracts()
                 .stream()
+                .map(MetrologyContract::getDeliverables)
+                .flatMap(Collection::stream)
                 .filter(deliverable -> readingTypes.contains(deliverable.getReadingType()))
                 .map(ReadingTypeDeliverable::getFormula)
                 .map(Formula::getExpressionNode)

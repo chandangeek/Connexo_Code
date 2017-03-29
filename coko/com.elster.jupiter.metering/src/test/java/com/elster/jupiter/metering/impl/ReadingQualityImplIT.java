@@ -16,6 +16,7 @@ import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingStorer;
@@ -24,6 +25,8 @@ import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
+import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.pubsub.Subscriber;
 import com.elster.jupiter.pubsub.impl.PublisherImpl;
@@ -83,9 +86,9 @@ public class ReadingQualityImplIT {
         doTest(date);
 
         ArgumentCaptor<LocalEvent> localEventCapture = ArgumentCaptor.forClass(LocalEvent.class);
-        verify(topicHandler, times(5)).handle(localEventCapture.capture());
+        verify(topicHandler, times(6)).handle(localEventCapture.capture());
 
-        LocalEvent localEvent = localEventCapture.getAllValues().get(4);
+        LocalEvent localEvent = localEventCapture.getAllValues().get(5);
         assertThat(localEvent.getType().getTopic()).isEqualTo(EventType.READING_QUALITY_CREATED.topic());
         Event event = localEvent.toOsgiEvent();
         assertThat(event.containsProperty("readingTimestamp")).isTrue();
@@ -122,6 +125,11 @@ public class ReadingQualityImplIT {
         ReadingType readingType = meteringService.getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
         AmrSystem system = meteringService.findAmrSystem(1).get();
         Meter meter = system.newMeter("meter" + date.toEpochMilli(), "myName" + date.toEpochMilli()).create();
+        ServerMetrologyConfigurationService metrologyConfigurationService = inMemoryBootstrapModule.getMetrologyConfigurationService();
+        UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = metrologyConfigurationService.newUsagePointMetrologyConfiguration("UP", meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get()).create();
+        usagePointMetrologyConfiguration.addMeterRole(metrologyConfigurationService.findDefaultMeterRole(DefaultMeterRole.DEFAULT));
+        usagePoint.apply(usagePointMetrologyConfiguration, date);
+
         MeterActivation meterActivation = usagePoint.activate(meter, inMemoryBootstrapModule.getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT), date);
         Channel channel = meterActivation.getChannelsContainer().createChannel(readingType);
         ReadingStorer regularStorer = meteringService.createNonOverrulingStorer();

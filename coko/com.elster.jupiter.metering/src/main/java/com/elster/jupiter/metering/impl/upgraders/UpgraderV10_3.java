@@ -5,9 +5,11 @@
 package com.elster.jupiter.metering.impl.upgraders;
 
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.impl.InstallerV10_3Impl;
 import com.elster.jupiter.metering.impl.PrivilegesProviderV10_3;
+import com.elster.jupiter.metering.impl.RecordSpecs;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.metering.impl.config.ReadingTypeTemplateInstaller;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
@@ -22,6 +24,7 @@ import com.google.common.collect.ImmutableList;
 import org.osgi.framework.BundleContext;
 
 import javax.inject.Inject;
+import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.EnumSet;
 import java.util.logging.Logger;
@@ -39,6 +42,7 @@ public class UpgraderV10_3 implements Upgrader {
     private final ServerMeteringService meteringService;
     private final TimeService timeService;
     private final UserService userService;
+    private final IdsService idsService;
     private final InstallerV10_3Impl installerV10_3;
     private final PrivilegesProviderV10_3 privilegesProviderV10_3;
 
@@ -51,6 +55,7 @@ public class UpgraderV10_3 implements Upgrader {
                          EventService eventService,
                          UserService userService,
                          InstallerV10_3Impl installerV10_3,
+                         IdsService idsService,
                          PrivilegesProviderV10_3 privilegesProviderV10_3) {
         this.bundleContext = bundleContext;
         this.dataModel = dataModel;
@@ -59,12 +64,23 @@ public class UpgraderV10_3 implements Upgrader {
         this.meteringService = meteringService;
         this.timeService = timeService;
         this.userService = userService;
+        this.idsService = idsService;
         this.installerV10_3 = installerV10_3;
         this.privilegesProviderV10_3 = privilegesProviderV10_3;
     }
 
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
+
+        dataModel.useConnectionRequiringTransaction(connection -> {
+            try (Statement statement = connection.createStatement()){
+                statement.execute("ALTER TABLE MTR_RT_DELIVERABLE ADD METROLOGY_CONTRACT NUMBER;");
+                statement.execute(
+                        "UPDATE MTR_RT_DELIVERABLE SET MTR_RT_DELIVERABLE.METROLOGY_CONTRACT = " +
+                                "(SELECT METROLOGY_CONTRACT FROM MTR_CONTRACT_TO_DELIVERABLE WHERE MTR_RT_DELIVERABLE.ID = MTR_CONTRACT_TO_DELIVERABLE.DELIVERABLE);");
+            }
+        });
+
         dataModelUpgrader.upgrade(dataModel, VERSION);
         dataModel.useConnectionRequiringTransaction(connection -> {
             try (Statement statement = connection.createStatement()) {
@@ -77,9 +93,11 @@ public class UpgraderV10_3 implements Upgrader {
         });
         installTemplates();
         installNewEventTypes();
+        installNewRecordSpec();
         GasDayRelativePeriodCreator.createAll(this.meteringService, this.timeService);
         installerV10_3.install(dataModelUpgrader, Logger.getLogger(UpgraderV10_3.class.getName()));
         userService.addModulePrivileges(privilegesProviderV10_3);
+        installerV10_3.installEndDeviceStageSet();
     }
 
     private void installTemplates() {
@@ -89,5 +107,9 @@ public class UpgraderV10_3 implements Upgrader {
     private void installNewEventTypes() {
         EnumSet.of(EventType.METROLOGY_CONTRACT_DELETED)
                 .forEach(eventType -> eventType.install(eventService));
+    }
+
+    private void installNewRecordSpec() {
+        RecordSpecs.BILLINGREGISTER_WITH_MULTIPLIED_REGISTER.create(idsService);
     }
 }
