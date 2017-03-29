@@ -12,7 +12,8 @@ Ext.define('Imt.purpose.view.ReadingsList', {
         'Imt.purpose.view.SingleReadingActionMenu',
         'Imt.purpose.view.MultipleReadingsActionMenu',
         'Uni.grid.column.Edited',
-        'Imt.purpose.util.TooltipRenderer'
+        'Imt.purpose.util.TooltipRenderer',
+        'Uni.grid.plugin.CopyPasteForGrid'
     ],
     selModel: {
         mode: 'MULTI'
@@ -30,6 +31,10 @@ Ext.define('Imt.purpose.view.ReadingsList', {
             unit = readingType && readingType.names ? readingType.names.unitOfMeasure : undefined;
 
         me.plugins = [
+            {
+                ptype: 'gridviewcopypaste',
+                editColumnDataIndex: 'value'
+            },
             {
                 ptype: 'bufferedrenderer',
                 trailingBufferZone: 12,
