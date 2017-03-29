@@ -31,7 +31,9 @@ public interface IssueAction extends HasDynamicPropertiesWithValues {
         return this;
     }
 
-    default IssueAction setReasonName(String reasonName){
+    default IssueAction setReasonName(String reasonName) {
         return this;
     }
+
+    long getActionType();
 }
