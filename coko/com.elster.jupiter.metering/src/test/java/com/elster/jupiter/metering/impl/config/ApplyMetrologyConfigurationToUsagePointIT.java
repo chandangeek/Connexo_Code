@@ -265,20 +265,19 @@ public class ApplyMetrologyConfigurationToUsagePointIT {
         FullySpecifiedReadingTypeRequirement production = metrologyConfiguration.newReadingTypeRequirement("A+", findMeterRole(DefaultMeterRole.PRODUCTION))
                 .withReadingType(fifteenMinuteskWhReverse);
 
-        // Setup configuration deliverables
-        ReadingTypeDeliverableBuilder builder = metrologyConfiguration.newReadingTypeDeliverable("consumption", fifteenMinuteskWhForward, Formula.Mode.AUTO);
-        ReadingTypeDeliverable dConsumption = builder.build(builder.requirement(consumption));
-        ReadingTypeDeliverableBuilder builderProduction = metrologyConfiguration.newReadingTypeDeliverable("production", fifteenMinuteskWhReverse, Formula.Mode.AUTO);
-        ReadingTypeDeliverable dProduction = builderProduction.build(builderProduction.requirement(production));
 
         // add deliverables with requirements to information contract
         MetrologyContract informationMetrologyContract = metrologyConfiguration.addMetrologyContract(findPurpose(DefaultMetrologyPurpose.INFORMATION));
-        informationMetrologyContract.addDeliverable(dConsumption);
         informationMetrologyContract.update();
+
+        // Setup configuration deliverables
+        ReadingTypeDeliverableBuilder builder = informationMetrologyContract.newReadingTypeDeliverable("consumption", fifteenMinuteskWhForward, Formula.Mode.AUTO);
+        builder.build(builder.requirement(consumption));
 
         // add deliverables with requirements to billing contract
         MetrologyContract billingMetrologyContract = metrologyConfiguration.addMandatoryMetrologyContract(findPurpose(DefaultMetrologyPurpose.BILLING));
-        billingMetrologyContract.addDeliverable(dProduction);
+        ReadingTypeDeliverableBuilder builderProduction = billingMetrologyContract.newReadingTypeDeliverable("production", fifteenMinuteskWhReverse, Formula.Mode.AUTO);
+        builderProduction.build(builderProduction.requirement(production));
         billingMetrologyContract.update();
 
         return metrologyConfiguration;
