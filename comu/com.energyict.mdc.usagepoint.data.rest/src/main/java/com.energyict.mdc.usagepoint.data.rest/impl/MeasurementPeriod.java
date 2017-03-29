@@ -4,6 +4,9 @@
 
 package com.energyict.mdc.usagepoint.data.rest.impl;
 
+
+
+
 import com.google.common.collect.Range;
 
 import java.time.Instant;
@@ -21,8 +24,10 @@ public class MeasurementPeriod {
 
     public static MeasurementPeriod from(Range<Instant> range) {
         MeasurementPeriod info = new MeasurementPeriod();
-        info.start = rangeStart(range);
-        info.end = rangeEnd(range);
+        if (range != null) {
+            info.start = rangeStart(range);
+            info.end = rangeEnd(range);
+        }
         return info;
     }
 

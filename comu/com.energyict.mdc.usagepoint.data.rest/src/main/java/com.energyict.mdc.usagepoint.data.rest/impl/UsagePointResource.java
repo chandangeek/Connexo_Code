@@ -51,6 +51,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -230,8 +231,9 @@ public class UsagePointResource {
 
                 Range<Instant> effectiveInterval = usagePointActivationInterval.intersection(requestedInterval);
 
-                DeliverableType deliverableType = resourceHelper.identifyDeliverableType(effectiveMetrologyConfiguration, register, usagePointRegisterInfoFactory
-                        .getChannelType());
+                Map<Instant, ReadingRecord> readingRecordsMap = register.getRegisterReadings(effectiveInterval)
+                        .stream()
+                        .collect(Collectors.toMap(ReadingRecord::getTimeStamp, Function.identity()));
 
                 Map<Instant, RegisterReadingWithValidationStatus> preFilledRegisterDataMap = register.getRegisterReadings(effectiveInterval)
                         .stream()
@@ -239,13 +241,23 @@ public class UsagePointResource {
                                 new RegisterReadingWithValidationStatus(ZonedDateTime.ofInstant(reading.getTimeStamp(), clock
                                         .getZone()), reading)));
 
+                TreeMap<Instant, RegisterReadingWithValidationStatus> sortedPreFilledRegisterDataMap = new TreeMap<>();
+                sortedPreFilledRegisterDataMap.putAll(preFilledRegisterDataMap);
+                ReadingRecord previousReadingRecord = null;
+                for (Map.Entry<Instant, RegisterReadingWithValidationStatus> entry : sortedPreFilledRegisterDataMap.entrySet()) {
+                    Instant readingTimestamp = entry.getKey();
+                    RegisterReadingWithValidationStatus readingWithValidationStatus = entry.getValue();
+                    readingWithValidationStatus.setPreviousReadingRecord(previousReadingRecord);
+                    previousReadingRecord = readingRecordsMap.get(readingTimestamp);
+                }
+
                 RangeMap<Instant, Instant> lastCheckedOfSourceChannels =
                         getLastCheckedOfSourceChannels(effectiveMetrologyConfiguration, register);
 
                 outputRegisterDataInfoList = preFilledRegisterDataMap.entrySet().stream()
                         .sorted(Collections.reverseOrder(Comparator.comparing(Map.Entry::getKey)))
                         .map(Map.Entry::getValue)
-                        .map((reading) -> registerDataInfoFactory.asInfo(reading, lastCheckedOfSourceChannels, deliverableType))
+                        .map((reading) -> registerDataInfoFactory.asInfo(reading, lastCheckedOfSourceChannels))
                         .collect((Collectors.toList()));
             }
         }

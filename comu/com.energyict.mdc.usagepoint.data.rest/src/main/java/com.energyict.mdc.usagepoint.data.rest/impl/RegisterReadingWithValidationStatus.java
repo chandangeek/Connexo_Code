@@ -20,28 +20,37 @@ import java.util.Optional;
  */
 public class RegisterReadingWithValidationStatus {
 
-    private Optional<ReadingRecord> readingRecord = Optional.empty();
+    private ReadingRecord readingRecord;
     private ZonedDateTime readingTimeStamp;
+    private ReadingRecord previousReadingRecord;
 
     public RegisterReadingWithValidationStatus(ZonedDateTime readingTimeStamp, ReadingRecord readingRecord) {
         this.readingTimeStamp = readingTimeStamp;
-        this.readingRecord = Optional.of(readingRecord);
+        this.readingRecord = readingRecord;
     }
 
-    public ReadingType getReadingType() {
-        return readingRecord.map(readingRecord1 -> readingRecord1.getReadingType()).orElse(null);
+    public void setPreviousReadingRecord(ReadingRecord previousReadingRecord) {
+        this.previousReadingRecord = previousReadingRecord;
+    }
+
+    public Optional<ReadingRecord> getPreviousReadingRecord() {
+        return Optional.of(previousReadingRecord);
+    }
+
+    public ReadingRecord getReadingRecord() {
+        return readingRecord;
     }
 
     public BigDecimal getValue() {
-        return readingRecord.map(ReadingRecord::getValue).orElse(null);
+        return readingRecord.getValue();
     }
 
     public ValidationStatus getValidationStatus(Instant lastChecked) {
         if (getTimeStamp().isAfter(lastChecked)) {
             return ValidationStatus.NOT_VALIDATED;
         }
-        if (readingRecord.isPresent()) {
-            List<? extends ReadingQualityRecord> readingQualities = readingRecord.get().getReadingQualities();
+        if (readingRecord != null) {
+            List<? extends ReadingQualityRecord> readingQualities = readingRecord.getReadingQualities();
             if (readingQualities.stream().anyMatch(ReadingQualityRecord::isSuspect)) {
                 return ValidationStatus.SUSPECT;
             }
