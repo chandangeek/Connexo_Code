@@ -279,6 +279,7 @@ public class InMemoryPersistence {
 
             bind(CustomPropertySetInstantiatorService.class).toInstance(mock(CustomPropertySetInstantiatorService.class));
             bind(DeviceMessageSpecificationService.class).toInstance(mock(DeviceMessageSpecificationService.class));
+            bind(com.energyict.mdc.upl.io.SocketService.class).toInstance(mock(com.energyict.mdc.upl.io.SocketService.class));
 
             bind(Thesaurus.class).toInstance(NlsModule.FakeThesaurus.INSTANCE);
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
