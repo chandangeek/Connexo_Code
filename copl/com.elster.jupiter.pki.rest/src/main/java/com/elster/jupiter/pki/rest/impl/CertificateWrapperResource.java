@@ -27,6 +27,7 @@ import org.glassfish.jersey.media.multipart.FormDataParam;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -99,6 +100,17 @@ public class CertificateWrapperResource {
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CERTIFICATE));
 
         return certificateInfoFactory.asInfo(certificateWrapper);
+    }
+
+    @DELETE
+    @Transactional
+    @Path("/{id}")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    public Response removeCertificate(@PathParam("id") long certificateId) {
+        CertificateWrapper certificateWrapper = pkiService.findCertificateWrapper(certificateId)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CERTIFICATE));
+        certificateWrapper.delete();
+        return Response.status(Response.Status.OK).build();
     }
 
     @POST // This should be PUT but has to be POST due to some 3th party issue
