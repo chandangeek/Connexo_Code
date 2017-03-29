@@ -21,6 +21,7 @@ import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.aggregation.CalculatedMetrologyContractData;
+import com.elster.jupiter.metering.aggregation.MetrologyContractCalculationIntrospector;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
@@ -73,6 +74,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockingDetails;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -213,6 +215,13 @@ public class ValidateMetrologyConfigurationChannelsContainerTestIT {
         when(baseReading.getTimeStamp()).thenReturn(firstReadingTimestamp);
         CalculatedMetrologyContractData calculatedMetrologyContractData = mock(CalculatedMetrologyContractData.class);
         doReturn(Collections.singletonList(baseReading)).when(calculatedMetrologyContractData).getCalculatedDataFor(readingTypeDeliverable);
+        MetrologyContractCalculationIntrospector metrologyContractInspector = mock(MetrologyContractCalculationIntrospector.class);
+        when(inMemoryBootstrapModule.getDataAggregationMock().introspect(eq(usagePoint), eq(metrologyContract), any(Range.class))).thenReturn(metrologyContractInspector);
+        MetrologyContractCalculationIntrospector.ChannelUsage channelUsage=mock(MetrologyContractCalculationIntrospector.ChannelUsage.class);
+        when(metrologyContractInspector.getChannelUsagesFor(eq(readingTypeDeliverable))).thenReturn(Collections.singletonList(channelUsage));
+        Channel channel = mock(Channel.class);
+        when(channelUsage.getChannel()).thenReturn(channel);
+        when(channel.getLastDateTime()).thenReturn(firstReadingTimestamp);
         when(inMemoryBootstrapModule.getDataAggregationMock().calculate(eq(usagePoint), eq(metrologyContract), any(Range.class))).thenReturn(calculatedMetrologyContractData);
 
         ChannelsContainer channelsContainer = effectiveMetrologyConfiguration.getChannelsContainer(metrologyContract).get();
