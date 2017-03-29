@@ -9,6 +9,7 @@ import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.FiniteStateMachineBuilder;
 import com.elster.jupiter.fsm.FiniteStateMachineUpdater;
 import com.elster.jupiter.fsm.ProcessReference;
+import com.elster.jupiter.fsm.Stage;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransitionEventType;
 import com.elster.jupiter.fsm.UnknownStateException;
@@ -204,6 +205,11 @@ public class FiniteStateMachineUpdaterImpl extends FiniteStateMachineBuilderImpl
         public StateUpdater prohibit(StateTransitionEventType eventType) {
             FiniteStateMachineUpdaterImpl.this.getUnderConstruction().removeTransition(this.underConstruction, eventType);
             return this;
+        }
+
+        @Override
+        public void stage(Stage stage) {
+            this.underConstruction.setStage(stage);
         }
 
         @Override

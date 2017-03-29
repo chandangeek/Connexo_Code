@@ -12,6 +12,8 @@ import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.MessageSeeds;
 import com.elster.jupiter.fsm.Privileges;
 import com.elster.jupiter.fsm.ProcessReference;
+import com.elster.jupiter.fsm.StageSet;
+import com.elster.jupiter.fsm.StageSetBuilder;
 import com.elster.jupiter.fsm.StandardEventPredicate;
 import com.elster.jupiter.fsm.StandardStateTransitionEventType;
 import com.elster.jupiter.fsm.State;
@@ -29,6 +31,7 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.V10_3SimpleUpgrader;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.concurrent.DelayedRegistrationHandler;
 import com.elster.jupiter.util.concurrent.RegistrationHandler;
@@ -131,7 +134,8 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
     public void activate() {
         dataModel.register(this.getModule());
         upgradeService.register(identifier("Pulse", COMPONENT_NAME), dataModel, Installer.class, ImmutableMap.of(
-                version(10, 2), UpgraderV10_2.class
+                version(10, 2), UpgraderV10_2.class,
+                version(10, 3), V10_3SimpleUpgrader.class
         ));
         registrationHandler.ready();
     }
@@ -297,14 +301,30 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
     }
 
     @Override
+    public StageSetBuilder newStageSet(String name) {
+        return new StageSetBuilderImpl(name, dataModel);
+    }
+
+    @Override
     public FiniteStateMachineBuilder newFiniteStateMachine(String name) {
         FiniteStateMachineImpl stateMachine = this.dataModel.getInstance(FiniteStateMachineImpl.class).initialize(name);
         return new FiniteStateMachineBuilderImpl(dataModel, stateMachine);
     }
 
     @Override
+    public FiniteStateMachineBuilder newFiniteStateMachine(String name, StageSet stageSet) {
+        FiniteStateMachineImpl stateMachine = this.dataModel.getInstance(FiniteStateMachineImpl.class).initialize(name, stageSet);
+        return new FiniteStateMachineBuilderImpl(dataModel, stateMachine);
+    }
+
+    @Override
     public FiniteStateMachine cloneFiniteStateMachine(FiniteStateMachine source, String name) {
-        FiniteStateMachineBuilder builder = this.newFiniteStateMachine(name);
+        FiniteStateMachineBuilder builder;
+        if(!source.getStageSet().isPresent()) {
+            builder = this.newFiniteStateMachine(name);
+        } else {
+            builder = this.newFiniteStateMachine(name, source.getStageSet().get());
+        }
         Map<Long, FiniteStateMachineBuilder.StateBuilder> stateBuilderMap = this.cloneStateAndTransitions(source, builder);
         List<State> initialState = source.getStates().stream()
                 .map(sourceState -> this.completeCloning(sourceState, stateBuilderMap, builder))
@@ -338,11 +358,29 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
     }
 
     private FiniteStateMachineBuilder.StateBuilder startCloning(State source, FiniteStateMachineBuilder builder) {
+        boolean hasStage = source.getStage().isPresent();
+        if(!hasStage) {
+            return addStateWithoutStage(source, builder);
+        } else {
+            return addStageWithStage(source, builder);
+        }
+    }
+
+    private FiniteStateMachineBuilder.StateBuilder addStateWithoutStage(State source, FiniteStateMachineBuilder builder) {
         if (source.isCustom()) {
             return builder.newCustomState(source.getName());
         }
         else {
             return builder.newStandardState(source.getName());
+        }
+    }
+
+    private FiniteStateMachineBuilder.StateBuilder addStageWithStage(State source, FiniteStateMachineBuilder builder) {
+        if (source.isCustom()) {
+            return builder.newCustomState(source.getName(), source.getStage().get());
+        }
+        else {
+            return builder.newStandardState(source.getName(), source.getStage().get());
         }
     }
 
@@ -447,6 +485,22 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
         @Override
         public String getDefaultFormat() {
             return this.key;
+        }
+    }
+
+    @Override
+    public Optional<StageSet> findStageSetByName(String name) {
+        Condition condition = where(StageSetImpl.Fields.NAME.fieldName()).isEqualTo(name);
+        List<StageSet> stageSets = this.dataModel.query(StageSet.class).select(condition);
+        // Expecting at most one
+        if (stageSets.isEmpty()) {
+            return Optional.empty();
+        }
+        else if (stageSets.size() > 1) {
+            throw new NotUniqueException(name);
+        }
+        else {
+            return Optional.of(stageSets.get(0));
         }
     }
 }

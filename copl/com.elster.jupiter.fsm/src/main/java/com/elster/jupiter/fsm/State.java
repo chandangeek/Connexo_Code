@@ -9,6 +9,7 @@ import com.elster.jupiter.util.HasId;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * A State of a {@link FiniteStateMachine}.
@@ -60,5 +61,7 @@ public interface State extends HasId {
      * @return The timestamp of last modification
      */
     public Instant getModifiedTimestamp();
+
+    Optional<Stage> getStage();
 
 }

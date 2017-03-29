@@ -102,4 +102,5 @@ public interface FiniteStateMachine {
      */
     void delete();
 
+    Optional<StageSet> getStageSet();
 }

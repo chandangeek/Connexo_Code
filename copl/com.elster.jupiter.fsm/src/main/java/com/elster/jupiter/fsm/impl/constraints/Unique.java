@@ -28,7 +28,8 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
         UniqueStateTransitionEventTypeValidator.class,
         UniqueFiniteStateMachineNameValidator.class,
         UniqueStateNameValidator.class,
-        UniqueStateTransitionValidator.class})
+        UniqueStateTransitionValidator.class,
+        UniqueStageSetNameValidator.class})
 public @interface Unique {
 
     String message() default "";
