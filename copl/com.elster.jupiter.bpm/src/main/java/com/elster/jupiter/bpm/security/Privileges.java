@@ -4,10 +4,8 @@
 
 package com.elster.jupiter.bpm.security;
 
-import com.elster.jupiter.bpm.BpmAppService;
-import com.elster.jupiter.bpm.BpmService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.users.Privilege;
 
 import java.util.Arrays;
 import java.util.Optional;
@@ -56,10 +54,14 @@ public enum Privileges implements TranslationKey {
         return description;
     }
 
-    public static String getDescriptionForKey(String key){
+    public String getDisplayName(Thesaurus thesaurus) {
+        return thesaurus.getString(this.getKey(), this.getDefaultFormat());
+    }
+
+    public static String getDescriptionForKey(String key, Thesaurus thesaurus){
         Optional<String> description = Arrays.stream(Privileges.values())
                 .filter(s -> s.getKey().equals(key))
-                .map(Privileges::getDescription)
+                .map(p -> p.getDisplayName(thesaurus))
                 .findFirst();
         if(description.isPresent()){
             return description.get();
