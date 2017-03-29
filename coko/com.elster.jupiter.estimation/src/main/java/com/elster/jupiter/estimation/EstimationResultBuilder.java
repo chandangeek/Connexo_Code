@@ -5,9 +5,9 @@
 package com.elster.jupiter.estimation;
 
 
-import aQute.bnd.annotation.ConsumerType;
+import aQute.bnd.annotation.ProviderType;
 
-@ConsumerType
+@ProviderType
 public interface EstimationResultBuilder {
     void addRemaining(EstimationBlock block);
 

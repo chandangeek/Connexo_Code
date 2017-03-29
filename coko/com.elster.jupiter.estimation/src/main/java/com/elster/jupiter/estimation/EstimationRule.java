@@ -57,8 +57,6 @@ public interface EstimationRule {
 
     boolean isObsolete();
 
-    void setMarkProjected(boolean b);
-
     boolean isMarkProjected();
 
     Estimator createNewEstimator();

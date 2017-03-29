@@ -80,7 +80,7 @@ class EstimationRuleBuilderImpl implements EstimationRuleBuilder {
 
     @Override
     public EstimationRule create() {
-        EstimationRule rule = ruleSet.newRule(implementation, name);
+        IEstimationRule rule = ruleSet.newRule(implementation, name);
         readingTypes.forEach(rule::addReadingType);
         readingTypeMRIDs.forEach(rule::addReadingType);
         properties.forEach(rule::addProperty);
