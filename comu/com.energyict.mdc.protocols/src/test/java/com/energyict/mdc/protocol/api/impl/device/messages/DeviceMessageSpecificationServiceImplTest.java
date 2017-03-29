@@ -54,7 +54,7 @@ public class DeviceMessageSpecificationServiceImplTest {
     private NlsService nlsService;
     @Mock
     private Thesaurus thesaurus;
-    private PropertySpecService propertySpecService = new MockPropertySpecService();
+    private PropertySpecService propertySpecService = new com.energyict.propertyspec.MockPropertySpecService ();
     @Mock
     private DataVaultService dataVaultService;
     @Mock
