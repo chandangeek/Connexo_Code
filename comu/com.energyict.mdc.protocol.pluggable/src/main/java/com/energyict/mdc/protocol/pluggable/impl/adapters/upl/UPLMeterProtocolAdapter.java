@@ -194,6 +194,8 @@ public class UPLMeterProtocolAdapter implements MeterProtocol, UPLProtocolAdapte
 
     @Override
     public String getProtocolDescription() {
+        //return new MeterProtocolAdapterImpl(this, ).getProtocolDescription();
+        //TODO also fix test com.energyict.protocols.impl.AllDeviceProtocolsTest.testProtocolCreationAndUniqueDescription()
         return null;
     }
 

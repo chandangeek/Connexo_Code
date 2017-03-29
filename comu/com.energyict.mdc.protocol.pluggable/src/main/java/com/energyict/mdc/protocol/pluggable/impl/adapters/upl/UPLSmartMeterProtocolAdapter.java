@@ -148,6 +148,8 @@ public class UPLSmartMeterProtocolAdapter implements SmartMeterProtocol, UPLProt
 
     @Override
     public String getProtocolDescription() {
+        //return new SmartMeterProtocolAdapterImpl(this, ).getProtocolDescription();
+        //TODO also fix test com.energyict.protocols.impl.AllDeviceProtocolsTest.testProtocolCreationAndUniqueDescription()
         return null;
     }
 
