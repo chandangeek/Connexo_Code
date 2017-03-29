@@ -47,6 +47,7 @@ import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.tasks.TaskService;
+import com.energyict.obis.ObisCode;
 import com.google.common.collect.Sets;
 import org.junit.Before;
 import org.mockito.Mock;
@@ -112,6 +113,7 @@ public class DeviceConfigurationApplicationJerseyTest extends FelixRestApplicati
 
     @Before
     public void setup() {
+        when(obisCodeDescriptor.describe(any(ObisCode.class))).thenReturn("obisCodeDescription");
         readingTypeInfoFactory = new ReadingTypeInfoFactory(thesaurus);
         registerConfigInfoFactory = new RegisterConfigInfoFactory(readingTypeInfoFactory, obisCodeDescriptor);
         registerTypeInfoFactory = new RegisterTypeInfoFactory(readingTypeInfoFactory);
@@ -158,6 +160,7 @@ public class DeviceConfigurationApplicationJerseyTest extends FelixRestApplicati
         application.setCalendarInfoFactory(new CalendarInfoFactoryImpl(thesaurus));
         application.setCalendarService(calendarService);
         application.setPropertyValueInfoService(propertyValueInfoService);
+        application.setObisCodeDescriptor(obisCodeDescriptor);
         return application;
     }
 
