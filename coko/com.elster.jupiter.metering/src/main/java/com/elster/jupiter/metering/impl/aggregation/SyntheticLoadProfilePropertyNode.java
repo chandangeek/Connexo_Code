@@ -108,7 +108,7 @@ class SyntheticLoadProfilePropertyNode  extends CustomPropertyNode {
 
     IntervalLength getIntervalLength() {
         if (this.actual != null) {
-            return IntervalLength.from(this.actual.getInterval());
+            return IntervalLength.from(this.actual.getReadingType());
         } else {
             return IntervalLength.MINUTE15; // The default
         }

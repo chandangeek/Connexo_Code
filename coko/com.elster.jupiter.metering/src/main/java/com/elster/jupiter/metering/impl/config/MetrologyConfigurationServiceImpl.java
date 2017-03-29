@@ -278,17 +278,14 @@ public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigu
             condition = condition.and(where(ReadingTypeDeliverableImpl.Fields.READING_TYPE.fieldName()).in(filter.getReadingTypes()));
         }
         if (!filter.getMetrologyContracts().isEmpty()) {
-            Condition mappingCondition = where(MetrologyContractReadingTypeDeliverableUsage.Fields.METROLOGY_CONTRACT.fieldName())
+            Condition metrologyContractCondition = where(ReadingTypeDeliverableImpl.Fields.METROLOGY_CONTRACT.fieldName())
                     .in(filter.getMetrologyContracts());
-            Subquery subquery = getDataModel().query(MetrologyContractReadingTypeDeliverableUsage.class)
-                    .asSubquery(mappingCondition,
-                            MetrologyContractReadingTypeDeliverableUsage.Fields.DELIVERABLE.fieldName());
-            condition = condition.and(ListOperator.IN.contains(subquery, "id"));
+            condition = condition.and(metrologyContractCondition);
         }
         if (!filter.getMetrologyConfigurations().isEmpty()) {
-            condition = condition.and(where(ReadingTypeDeliverableImpl.Fields.METROLOGY_CONFIGURATION.fieldName()).in(filter.getMetrologyConfigurations()));
+            condition = condition.and(where(ReadingTypeDeliverableImpl.Fields.METROLOGY_CONTRACT.fieldName() + "." + MetrologyContractImpl.Fields.METROLOGY_CONFIG.fieldName() ).in(filter.getMetrologyConfigurations()));
         }
-        return getDataModel().query(ReadingTypeDeliverable.class, MetrologyConfiguration.class).select(condition);
+        return getDataModel().query(ReadingTypeDeliverable.class, MetrologyContract.class, MetrologyConfiguration.class).select(condition);
     }
 
     @Override

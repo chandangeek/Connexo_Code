@@ -54,6 +54,7 @@ import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -607,7 +608,10 @@ public class MeteringConsoleCommands {
     public void deliverables(long id) {
         printDeliverables(metrologyConfigurationService.findMetrologyConfiguration(id)
                 .orElseThrow(() -> new IllegalArgumentException("No such metrology configuration"))
-                .getDeliverables());
+                .getContracts().stream()
+                .map(MetrologyContract::getDeliverables)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList()));
     }
 
     private void printDeliverables(List<ReadingTypeDeliverable> deliverables) {
@@ -629,26 +633,26 @@ public class MeteringConsoleCommands {
         System.out.println("Usage: addDeliverable  <metrology configuration id> <name> <reading type> <formula string>");
     }
 
-    public void addDeliverable(long metrologyConfigId, String name, String readingTypeString, String formulaString) {
-        doAddDeliverable(metrologyConfigId, name, readingTypeString, formulaString, Formula.Mode.AUTO);
+    public void addDeliverable(long metrologyContractId, String name, String readingTypeString, String formulaString) {
+        doAddDeliverable(metrologyContractId, name, readingTypeString, formulaString, Formula.Mode.AUTO);
     }
 
-    public void addDeliverableExpert(long metrologyConfigId, String name, String readingTypeString, String formulaString) {
-        doAddDeliverable(metrologyConfigId, name, readingTypeString, formulaString, Formula.Mode.EXPERT);
+    public void addDeliverableExpert(long metrologyContractId, String name, String readingTypeString, String formulaString) {
+        doAddDeliverable(metrologyContractId, name, readingTypeString, formulaString, Formula.Mode.EXPERT);
     }
 
-    private void doAddDeliverable(long metrologyConfigId, String name, String readingTypeString, String formulaString, Formula.Mode mode) {
+    private void doAddDeliverable(long metrologyContractId, String name, String readingTypeString, String formulaString, Formula.Mode mode) {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
-            MetrologyConfiguration metrologyConfiguration = metrologyConfigurationService.findMetrologyConfiguration(metrologyConfigId)
-                    .orElseThrow(() -> new IllegalArgumentException("No such metrology configuration"));
+            MetrologyContract metrologyContract = metrologyConfigurationService.findMetrologyContract(metrologyContractId)
+                    .orElseThrow(() -> new IllegalArgumentException("No such metrology contract"));
             ReadingType readingType = meteringService.getReadingType(readingTypeString)
                     .orElseThrow(() -> new IllegalArgumentException("No such reading type"));
 
             ServerExpressionNode node = new ExpressionNodeParser(meteringService.getThesaurus(),
-                    metrologyConfigurationService, customPropertySetService, metrologyConfiguration, mode).parse(formulaString);
+                    metrologyConfigurationService, customPropertySetService, metrologyContract.getMetrologyConfiguration(), mode).parse(formulaString);
 
-            long id = ((ReadingTypeDeliverableBuilderImpl) metrologyConfiguration.newReadingTypeDeliverable(name, readingType, mode)).build(node).getId();
+            long id = ((ReadingTypeDeliverableBuilderImpl) metrologyContract.newReadingTypeDeliverable(name, readingType, mode)).build(node).getId();
             System.out.println("Deliverable created: " + id);
             context.commit();
         }
@@ -726,7 +730,7 @@ public class MeteringConsoleCommands {
                     .orElseThrow(() -> new IllegalArgumentException("No such deliverable"));
             MetrologyConfiguration metrologyConfiguration = metrologyConfigurationService.findMetrologyConfiguration(metrologyConfigId)
                     .orElseThrow(() -> new IllegalArgumentException("No such metrology configuration"));
-            metrologyConfiguration.removeReadingTypeDeliverable(deliverable);
+            metrologyConfiguration.getContracts().forEach(contract -> contract.removeDeliverable(deliverable));
             context.commit();
         }
     }
@@ -749,21 +753,6 @@ public class MeteringConsoleCommands {
 
     public void addDeliverableToContract() {
         System.out.println("Usage: addDeliverableToContract <metrology configuration id> <deliverable id> (" + Stream.of(DefaultMetrologyPurpose.values()).map(DefaultMetrologyPurpose::name).collect(Collectors.joining(" | ")) + ")");
-    }
-
-    public void addDeliverableToContract(long metrologyConfigId, long deliverableId, String defaultPurpose) {
-        threadPrincipalService.set(() -> "Console");
-        try (TransactionContext context = transactionService.getContext()) {
-            MetrologyPurpose purpose = metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.valueOf(defaultPurpose))
-                    .orElseThrow(() -> new NoSuchElementException("Default purposes not installed"));
-            ReadingTypeDeliverable deliverable = metrologyConfigurationService.findReadingTypeDeliverable(deliverableId)
-                    .orElseThrow(() -> new IllegalArgumentException("No such deliverable"));
-            MetrologyContract contract = metrologyConfigurationService.findMetrologyConfiguration(metrologyConfigId)
-                    .orElseThrow(() -> new IllegalArgumentException("No such metrology configuration"))
-                    .addMetrologyContract(purpose);
-            contract.addDeliverable(deliverable);
-            context.commit();
-        }
     }
 
     public void removeDeliverableFromContract() {
