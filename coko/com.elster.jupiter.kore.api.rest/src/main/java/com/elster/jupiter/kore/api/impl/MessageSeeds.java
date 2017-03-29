@@ -97,6 +97,7 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_USAGE_POINT_LIFECYCLE_STATE(85, "NoSuchUsagePointLifeCycleState", "No such usage point lifecycle state with id {0}"),
     NO_SUCH_LIFE_CYCLE_TRANSITION(86, "NoSuchUsagePointLifeCycleTransition", "No usage point transition with id {0}"),
     TRANSITION_FAILED(87, "UsagePointLifeCycleTransitionFailed", "Transition failed: {0}"),
+    METERS_ARE_NOT_SPECIFIED_FOR_METER_ROLES(88, "MetersMustBeSpecifiedForMeterRoles", "Meters for required meter roles: {0} are not specified on the usage point")
     ;
 
     private final int number;
