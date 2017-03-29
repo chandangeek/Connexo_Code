@@ -13,5 +13,5 @@ public class TwoValuesPercentDifference extends TwoValuesDifference {
         super(Type.percent);
     }
 
-    public Double percent;
+    public Double value;
 }

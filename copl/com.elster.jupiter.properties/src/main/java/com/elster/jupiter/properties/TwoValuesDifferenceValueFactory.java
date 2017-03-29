@@ -27,7 +27,7 @@ public class TwoValuesDifferenceValueFactory extends AbstractValueFactory<TwoVal
             return diffValue;
         } else if (stringValue.contains(PERCENT_VALUE_TAG)) {
             TwoValuesPercentDifference diffValue = new TwoValuesPercentDifference();
-            diffValue.percent = Double.valueOf(stringValue.replaceAll(PERCENT_VALUE_TAG, ""));
+            diffValue.value = Double.valueOf(stringValue.replaceAll(PERCENT_VALUE_TAG, ""));
             return diffValue;
         } else {
             return null;
@@ -39,7 +39,7 @@ public class TwoValuesDifferenceValueFactory extends AbstractValueFactory<TwoVal
         if (object instanceof TwoValuesAbsoluteDifference) {
             return ABSOLUTE_VALUE_TAG + ((TwoValuesAbsoluteDifference) object).value;
         } else if (object instanceof TwoValuesPercentDifference) {
-            return PERCENT_VALUE_TAG + ((TwoValuesPercentDifference) object).percent;
+            return PERCENT_VALUE_TAG + ((TwoValuesPercentDifference) object).value;
         }
         return null;
     }
