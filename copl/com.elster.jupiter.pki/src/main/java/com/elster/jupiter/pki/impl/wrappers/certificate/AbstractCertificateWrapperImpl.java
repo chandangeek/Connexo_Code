@@ -194,28 +194,45 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
     }
 
     @Override
-    public Set<ExtendedKeyUsage> getExtendedKeyUsages() throws CertificateParsingException {
+    public Set<ExtendedKeyUsage> getExtendedKeyUsages() {
+        EnumSet<ExtendedKeyUsage> extendedKeyUsages = EnumSet.noneOf(ExtendedKeyUsage.class);
         if (this.getCertificate().isPresent()) {
-            if (this.getCertificate().get().getExtendedKeyUsage()!=null) {
-                return this.getCertificate().get().getExtendedKeyUsage()
+            extendedKeyUsages.addAll(getCertificateExtendedKeyUsages(this.getCertificate().get()));
+        }
+        return extendedKeyUsages;
+    }
+
+    protected final Set<ExtendedKeyUsage> getCertificateExtendedKeyUsages(X509Certificate x509Certificate) {
+        try {
+            EnumSet<ExtendedKeyUsage> extendedKeyUsages = EnumSet.noneOf(ExtendedKeyUsage.class);
+            if (x509Certificate.getExtendedKeyUsage() != null) {
+                extendedKeyUsages.addAll(x509Certificate.getExtendedKeyUsage()
                         .stream()
                         .map(ExtendedKeyUsage::byOid)
                         .map(Optional::get)
-                        .collect(toSet());
+                        .collect(toSet()));
             }
+            return extendedKeyUsages;
+        } catch (CertificateParsingException e) {
+            throw new PkiLocalizedException(thesaurus, MessageSeeds.CERTIFICATE_ENCODING_EXCEPTION, e);
         }
-        return EnumSet.noneOf(ExtendedKeyUsage.class);
     }
 
     @Override
     public Set<KeyUsage> getKeyUsages() {
         EnumSet<KeyUsage> keyUsages = EnumSet.noneOf(KeyUsage.class);
         if (this.getCertificate().isPresent()) {
-            if (this.getCertificate().get().getKeyUsage() != null) {
-                for (int index = 0; index < this.getCertificate().get().getKeyUsage().length; index++) {
-                    if (this.getCertificate().get().getKeyUsage()[index]) {
-                        KeyUsage.byBitPosition(index).ifPresent(keyUsages::add);
-                    }
+            keyUsages.addAll(getCertificateKeyUsages(this.getCertificate().get()));
+        }
+        return keyUsages;
+    }
+
+    protected final EnumSet<KeyUsage> getCertificateKeyUsages(X509Certificate certificate) {
+        EnumSet<KeyUsage> keyUsages = EnumSet.noneOf(KeyUsage.class);
+        if (certificate.getKeyUsage() != null) {
+            for (int index = 0; index < certificate.getKeyUsage().length; index++) {
+                if (certificate.getKeyUsage()[index]) {
+                    KeyUsage.byBitPosition(index).ifPresent(keyUsages::add);
                 }
             }
         }

@@ -24,7 +24,6 @@ import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 
 import javax.inject.Inject;
 import java.io.IOException;
-import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -77,7 +76,15 @@ public class RequestableCertificateWrapperImpl extends AbstractCertificateWrappe
                 if (!new org.bouncycastle.asn1.x500.X500Name(certificate.getSubjectDN().getName()).equals(getCSR().get().getSubject())) {
                     throw new PkiLocalizedException(thesaurus, MessageSeeds.CERTIFICATE_SUBJECT_DN_MISMATCH);
                 }
-                // TODO validate key usages
+                if (!getCertificateKeyUsages(certificate).containsAll(this.getCsrKeyUsages())
+                        || !this.getCsrKeyUsages().containsAll(getCertificateKeyUsages(certificate))) {
+                    throw new PkiLocalizedException(thesaurus, MessageSeeds.CERTIFICATE_KEY_USAGE_MISMATCH);
+                }
+                if (!getCertificateExtendedKeyUsages(certificate).containsAll(this.getCsrExtendedKeyUsages(this.getCSR().get()))
+                        || !this.getCsrExtendedKeyUsages(this.getCSR().get()).containsAll(getCertificateExtendedKeyUsages(certificate))) {
+                    throw new PkiLocalizedException(thesaurus, MessageSeeds.CERTIFICATE_EXTENDED_KEY_USAGES_MISMATCH);
+                }
+
             }
         } catch (IOException e) {
             throw new PkiLocalizedException(thesaurus, MessageSeeds.CERTIFICATE_PUBLIC_KEY_MISMATCH);
@@ -133,34 +140,48 @@ public class RequestableCertificateWrapperImpl extends AbstractCertificateWrappe
     }
 
     @Override
-    public Set<ExtendedKeyUsage> getExtendedKeyUsages() throws CertificateParsingException {
+    public Set<ExtendedKeyUsage> getExtendedKeyUsages() {
         if (!this.getCertificate().isPresent() && this.getCSR().isPresent()) {
             EnumSet<ExtendedKeyUsage> extendedKeyUsages = EnumSet.noneOf(ExtendedKeyUsage.class);
-            for (Attribute attribute: getCSR().get().getAttributes(PKCSObjectIdentifiers.pkcs_9_at_extensionRequest)) {
-                for (ASN1Encodable asn1Encodable : attribute.getAttributeValues()) {
-                    Extensions extensions = Extensions.getInstance(asn1Encodable);
-                    Extension extendedKeyUsage = extensions.getExtension(Extension.extendedKeyUsage);
-                    extendedKeyUsages.addAll(ExtendedKeyUsage.fromExtension(extendedKeyUsage));
-                }
-            }
+            extendedKeyUsages.addAll(getCsrExtendedKeyUsages(getCSR().get()));
             return extendedKeyUsages;
         }
         return super.getExtendedKeyUsages();
     }
 
+    private Set<ExtendedKeyUsage> getCsrExtendedKeyUsages(PKCS10CertificationRequest certificationRequest) {
+        Set<ExtendedKeyUsage> extendedKeyUsages = EnumSet.noneOf(ExtendedKeyUsage.class);
+        for (Attribute attribute: certificationRequest.getAttributes(PKCSObjectIdentifiers.pkcs_9_at_extensionRequest)) {
+            for (ASN1Encodable asn1Encodable : attribute.getAttributeValues()) {
+                Extensions extensions = Extensions.getInstance(asn1Encodable);
+                Extension extendedKeyUsage = extensions.getExtension(Extension.extendedKeyUsage);
+                if (extendedKeyUsage!=null) {
+                    extendedKeyUsages.addAll(ExtendedKeyUsage.fromExtension(extendedKeyUsage));
+                }
+            }
+        }
+        return extendedKeyUsages;
+    }
+
     @Override
     public Set<KeyUsage> getKeyUsages() {
         if (!this.getCertificate().isPresent() && this.getCSR().isPresent()) {
-            EnumSet<KeyUsage> keyUsages = EnumSet.noneOf(KeyUsage.class);
-            for (Attribute attribute: getCSR().get().getAttributes(PKCSObjectIdentifiers.pkcs_9_at_extensionRequest)) {
-                for (ASN1Encodable asn1Encodable : attribute.getAttributeValues()) {
-                    Extensions extensions = Extensions.getInstance(asn1Encodable);
-                    Extension keyUsageExtension = extensions.getExtension(Extension.keyUsage);
+            return getCsrKeyUsages();
+        }
+        return super.getKeyUsages();
+    }
+
+    private Set<KeyUsage> getCsrKeyUsages() {
+        EnumSet<KeyUsage> keyUsages = EnumSet.noneOf(KeyUsage.class);
+        for (Attribute attribute: getCSR().get().getAttributes(PKCSObjectIdentifiers.pkcs_9_at_extensionRequest)) {
+            for (ASN1Encodable asn1Encodable : attribute.getAttributeValues()) {
+                Extensions extensions = Extensions.getInstance(asn1Encodable);
+                Extension keyUsageExtension = extensions.getExtension(Extension.keyUsage);
+                if (keyUsageExtension!=null) {
                     keyUsages.addAll(KeyUsage.fromExtension(keyUsageExtension));
                 }
             }
-            return keyUsages;
         }
-        return super.getKeyUsages();
+        return keyUsages;
     }
 }

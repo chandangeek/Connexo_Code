@@ -37,7 +37,7 @@ public enum MessageSeeds implements MessageSeed {
     CERTIFICATE_PUBLIC_KEY_MISMATCH(1021, "PublicKeyMismatchCSR", "The certificate's public key does not match the CSR"),
     UNSUPPORTED_KEY_TYPE(1022, "UnsupportedKeyType", "The key type you requested is not supported: {0}"),
     CERTIFICATE_SUBJECT_DN_MISMATCH(1023, "SubjectMismatchCSR", "The certificate's subject distinguished name does not match the CSR"),
-    CERTIFICATE_KEY_USAGES_MISMATCH(1024, "KeyUsagesMismatchCSR", "The certificate's key usage extension does not match the CSR"),
+    CERTIFICATE_KEY_USAGE_MISMATCH(1024, "KeyUsagesMismatchCSR", "The certificate's key usage extension does not match the CSR"),
     CERTIFICATE_EXTENDED_KEY_USAGES_MISMATCH(1025, "ExtendedKeyUsagesMismatchCSR", "The certificate's extended key usage extension does not match the CSR"),
     ;
 

@@ -621,6 +621,58 @@ public class PKIServiceImplIT {
 
     @Test
     @Transactional
+    @Expected(value = PkiLocalizedException.class, message = "The certificate's key usage extension does not match the CSR")
+    public void testImportCertificateForExistingCsrWithKeyUsageMismatch() throws Exception {
+        KeyType certificateType = inMemoryPersistence.getPkiService()
+                .newClientCertificateType("TLS-DN-KEYUSAGE", "SHA256withRSA")
+                .setKeyUsages(EnumSet.of(KeyUsage.digitalSignature))
+                .RSA()
+                .keySize(1024)
+                .add();
+
+        ClientCertificateWrapper clientCertificateWrapper = inMemoryPersistence.getPkiService().newClientCertificateWrapper(certificateType, "DataVault").alias("comserver-ku-mismatch").add();
+        clientCertificateWrapper.getPrivateKeyWrapper().generateValue();
+
+        X500NameBuilder x500NameBuilder = new X500NameBuilder();
+        x500NameBuilder.addRDN(BCStyle.CN, "ComserverTlsClient");
+        x500NameBuilder.addRDN(BCStyle.C, "Belgium");
+        x500NameBuilder.addRDN(BCStyle.L, "kortrijk");
+        x500NameBuilder.addRDN(BCStyle.O, "Honeywell");
+        x500NameBuilder.addRDN(BCStyle.OU, "SmartEnergy");
+        clientCertificateWrapper.generateCSR(x500NameBuilder.build());
+
+        X509Certificate certificate = generateCertificateFromCSR(x500NameBuilder, clientCertificateWrapper.getCSR().get().getSubjectPublicKeyInfo());
+        clientCertificateWrapper.setCertificate(certificate);
+    }
+
+    @Test
+    @Transactional
+    @Expected(value = PkiLocalizedException.class, message = "The certificate's extended key usage extension does not match the CSR")
+    public void testImportCertificateForExistingCsrWithExtendedKeyUsageMismatch() throws Exception {
+        KeyType certificateType = inMemoryPersistence.getPkiService()
+                .newClientCertificateType("TLS-DN-EXTENDEDKEYUSAGE", "SHA256withRSA")
+                .setExtendedKeyUsages(EnumSet.of(ExtendedKeyUsage.emailProtection))
+                .RSA()
+                .keySize(1024)
+                .add();
+
+        ClientCertificateWrapper clientCertificateWrapper = inMemoryPersistence.getPkiService().newClientCertificateWrapper(certificateType, "DataVault").alias("comserver-eku-mismatch").add();
+        clientCertificateWrapper.getPrivateKeyWrapper().generateValue();
+
+        X500NameBuilder x500NameBuilder = new X500NameBuilder();
+        x500NameBuilder.addRDN(BCStyle.CN, "ComserverTlsClient");
+        x500NameBuilder.addRDN(BCStyle.C, "Belgium");
+        x500NameBuilder.addRDN(BCStyle.L, "kortrijk");
+        x500NameBuilder.addRDN(BCStyle.O, "Honeywell");
+        x500NameBuilder.addRDN(BCStyle.OU, "SmartEnergy");
+        clientCertificateWrapper.generateCSR(x500NameBuilder.build());
+
+        X509Certificate certificate = generateCertificateFromCSR(x500NameBuilder, clientCertificateWrapper.getCSR().get().getSubjectPublicKeyInfo());
+        clientCertificateWrapper.setCertificate(certificate);
+    }
+
+    @Test
+    @Transactional
     @Expected(value = PkiLocalizedException.class, message = "The certificate's public key does not match the CSR")
     public void testImportMismatchingCertificateForExistingCsr() throws Exception {
         KeyType certificateType = inMemoryPersistence.getPkiService()
