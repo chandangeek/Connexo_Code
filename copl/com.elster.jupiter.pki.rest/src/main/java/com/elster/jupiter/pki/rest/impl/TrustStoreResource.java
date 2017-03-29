@@ -62,14 +62,14 @@ public class TrustStoreResource {
     }
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     public PagedInfoList getTrustStores(@BeanParam JsonQueryParameters queryParameters) {
         return PagedInfoList.fromCompleteList("trustStores", trustStoreInfoFactory.asInfoList(this.pkiService.getAllTrustStores()), queryParameters);
     }
 
     @GET
     @Path("/{id}")
-    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     public TrustStoreInfo getTrustStore(@PathParam("id") long id) {
         TrustStore trustStore = findTrustStoreOrThrowException(id);
         return trustStoreInfoFactory.asInfo(trustStore);
@@ -77,7 +77,7 @@ public class TrustStoreResource {
 
     @GET
     @Path("/{id}/certificates")
-    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     public PagedInfoList getCertificates(@PathParam("id") long id, @BeanParam JsonQueryParameters queryParameters) {
         TrustStore trustStore = findTrustStoreOrThrowException(id);
         return asPagedInfoList(certificateInfoFactory.asInfo(trustStore.getCertificates()), "certificates", queryParameters);
@@ -85,7 +85,7 @@ public class TrustStoreResource {
 
     @GET
     @Path("{id}/certificates/{certificateId}/download/certificate")
-    @Produces({MediaType.APPLICATION_OCTET_STREAM, MediaType.APPLICATION_JSON})
+    @Produces({MediaType.APPLICATION_OCTET_STREAM, MediaType.APPLICATION_JSON+";charset=UTF-8"})
     public Response downloadCertificate(@PathParam("id") long trustStoreId, @PathParam("certificateId") long certificateId) {
         CertificateWrapper certificateWrapper = pkiService.findCertificateWrapper(certificateId)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CERTIFICATE));
@@ -168,8 +168,8 @@ public class TrustStoreResource {
     @POST
     @Transactional
     @Path("/{id}/validateKeyStoreFile")
-    @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
 //    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE})
     public Response validateKeyStoreFile(TrustStoreInfo info) {
         if (info.keyStoreFileSize != null && info.keyStoreFileSize.intValue() > MAX_FILE_SIZE) {
@@ -181,7 +181,7 @@ public class TrustStoreResource {
 
     @POST
     @Transactional
-    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     public TrustStoreInfo addTrustStore(TrustStoreInfo info) {
         PkiService.TrustStoreBuilder builder = pkiService.newTrustStore(info.name);
         if (info.description != null) {
@@ -194,7 +194,7 @@ public class TrustStoreResource {
     @PUT
     @Transactional
     @Path("/{id}")
-    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
 //    @RolesAllowed({Privileges.Constants.VIEW_DEVICE_LIFE_CYCLE})
     public Response editTrustStore(@PathParam("id") long id, TrustStoreInfo info) {
         TrustStore trustStore = pkiService.findAndLockTrustStoreByIdAndVersion(id, info.version)
@@ -210,7 +210,7 @@ public class TrustStoreResource {
     @DELETE
     @Transactional
     @Path("/{id}")
-    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     public Response deleteTrustStore(@PathParam("id") long id) {
         findTrustStoreOrThrowException(id).delete();
         return Response.status(Response.Status.OK).build();
@@ -219,7 +219,7 @@ public class TrustStoreResource {
     @DELETE
     @Transactional
     @Path("/{id}/certificates/{certificateId}")
-    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     public Response removeTrustedCertificate(@PathParam("id") long trustStoreId, @PathParam("certificateId") long certificateId) {
         CertificateWrapper certificateWrapper = pkiService.findCertificateWrapper(certificateId)
             .orElseThrow( exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CERTIFICATE, certificateId) );

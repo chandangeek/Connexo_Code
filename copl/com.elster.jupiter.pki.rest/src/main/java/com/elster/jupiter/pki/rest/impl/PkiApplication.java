@@ -34,6 +34,8 @@ public class PkiApplication extends Application {
         return ImmutableSet.of(
             TrustStoreResource.class,
             CertificateWrapperResource.class,
+            KeyEncryptionMethodResource.class,
+            KeyTypeResource.class,
             MultiPartFeature.class
         );
     }

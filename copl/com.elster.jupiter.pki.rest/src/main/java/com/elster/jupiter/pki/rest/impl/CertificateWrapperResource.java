@@ -63,7 +63,7 @@ public class CertificateWrapperResource {
     }
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
 //    @RolesAllowed({Privileges.Constants.VIEW_TASK_OVERVIEW})
     public PagedInfoList getCertificates(@BeanParam JsonQueryParameters queryParameters) {
         List<CertificateWrapperInfo> infoList = pkiService.findAllCertificates()
@@ -91,8 +91,8 @@ public class CertificateWrapperResource {
     }
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Path("/{id}")
     public CertificateWrapperInfo getCertificate(@PathParam("id") long certificateId) {
         CertificateWrapper certificateWrapper = pkiService.findCertificateWrapper(certificateId)
@@ -151,7 +151,7 @@ public class CertificateWrapperResource {
 
     @GET
     @Path("{id}/download/csr")
-    @Produces({MediaType.APPLICATION_OCTET_STREAM, MediaType.APPLICATION_JSON})
+    @Produces({MediaType.APPLICATION_OCTET_STREAM, MediaType.APPLICATION_JSON+";charset=UTF-8"})
     public Response downloadCsr(@PathParam("id") long certificateId) {
         CertificateWrapper certificateWrapper = pkiService.findCertificateWrapper(certificateId)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CERTIFICATE));
@@ -177,7 +177,7 @@ public class CertificateWrapperResource {
 
     @GET
     @Path("{id}/download/certificate")
-    @Produces({MediaType.APPLICATION_OCTET_STREAM, MediaType.APPLICATION_JSON})
+    @Produces({MediaType.APPLICATION_OCTET_STREAM, MediaType.APPLICATION_JSON+";charset=UTF-8"})
     public Response downloadCertificate(@PathParam("id") long certificateId) {
         CertificateWrapper certificateWrapper = pkiService.findCertificateWrapper(certificateId)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CERTIFICATE));
