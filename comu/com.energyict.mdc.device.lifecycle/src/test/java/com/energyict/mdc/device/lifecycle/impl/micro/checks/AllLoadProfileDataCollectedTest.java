@@ -22,6 +22,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -128,7 +129,7 @@ public class AllLoadProfileDataCollectedTest {
     private LoadProfile getMockedLoadProfile(Device device, Instant lastReadingTimestamp) {
         LoadProfile lp1 = mock(LoadProfile.class);
         when(lp1.getDevice()).thenReturn(device);
-        when(lp1.getLastReading()).thenReturn(null);
+        when(lp1.getLastReading()).thenReturn(Date.from(lastReadingTimestamp));
         mockChannelsOnLoadProfile(lp1);
         return lp1;
     }
@@ -203,7 +204,8 @@ public class AllLoadProfileDataCollectedTest {
         Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, effectiveTimestamp);
 
         // Asserts
-        assertThat(violation).isEmpty();    }
+        assertThat(violation).isEmpty();
+    }
 
     private AllLoadProfileDataCollected getTestInstance() {
         return new AllLoadProfileDataCollected(this.thesaurus, meteringService);
