@@ -18,6 +18,7 @@ public class DeviceAlarmActionInfo {
 
     public long id;
     public String name;
+    public long actionType;
     public List<PropertyInfo> properties;
 
     public DeviceAlarmActionInfo() {
@@ -28,6 +29,7 @@ public class DeviceAlarmActionInfo {
         this.id = actionType.getId();
         IssueAction action = actionType.createIssueAction().get();
         this.name = action.getDisplayName();
+        this.actionType = action.getActionType();
         action.setIssue(deviceAlarm);
         List<PropertySpec> propertySpecs = action.getPropertySpecs();
         this.properties = propertySpecs != null && !propertySpecs.isEmpty() ? propertyValueInfoService.getPropertyInfos(propertySpecs) : null;
