@@ -156,6 +156,25 @@ public class UsagePointMeterActivationException extends LocalizedException {
         return ex;
     }
 
+    // TODO: 29.03.2017 invalid message seed, needs to be changed
+    public static class IncorrectDeviceStage extends UsagePointMeterActivationException {
+        public IncorrectDeviceStage(Thesaurus thesaurus, String date) {
+            super(thesaurus, MessageSeeds.INVALID_END_DEVICE_STAGE, date);
+        }
+    }
+
+    public static class IncorrectStartTimeOfMeterAndMetrologyConfig extends UsagePointMeterActivationException {
+        public IncorrectStartTimeOfMeterAndMetrologyConfig(Thesaurus thesaurus, String meter, String mcStartDate) {
+            super(thesaurus, MessageSeeds.METER_ACTIVATION_INVALID_DATE, meter, mcStartDate);
+        }
+    }
+
+    public static class IncorrectMeterActivationDateWhenGapsAreAllowed extends UsagePointMeterActivationException {
+        public IncorrectMeterActivationDateWhenGapsAreAllowed(Thesaurus thesaurus, String meter, String usagePoint) {
+            super(thesaurus, MessageSeeds.INVALID_END_DEVICE_STAGE_WITH_GAPS_ALLOWED, meter, usagePoint);
+        }
+    }
+
     public static class UsagePointIncorrectStage extends UsagePointMeterActivationException{
         public UsagePointIncorrectStage(Thesaurus thesaurus, MessageSeed messageSeed, Object... args) {
             super(thesaurus, messageSeed, args);

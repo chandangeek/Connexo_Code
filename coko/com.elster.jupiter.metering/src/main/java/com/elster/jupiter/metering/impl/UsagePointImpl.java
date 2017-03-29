@@ -579,7 +579,7 @@ public class UsagePointImpl implements ServerUsagePoint {
 
         meterActivations.stream()
                 .filter(meterActivation -> meterActivation.getMeterRole().isPresent() && meterActivation.getEnd() == null)
-                .forEach(meterActivation -> linker.activate(meterActivation.getMeter().get(), meterActivation.getMeterRole().get()));
+                .forEach(meterActivation -> linker.activate(meterActivation.getStart(), meterActivation.getMeter().get(), meterActivation.getMeterRole().get()));
 
         linker.complete();
     }

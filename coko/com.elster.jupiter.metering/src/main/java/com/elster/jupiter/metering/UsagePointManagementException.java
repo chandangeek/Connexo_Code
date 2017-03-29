@@ -23,10 +23,6 @@ public class UsagePointManagementException extends UsagePointMeterActivationExce
         return new UsagePointManagementException(thesaurus, MessageSeeds.START_DATE_MUST_BE_GRATER_THAN_UP_CREATED_DATE);
     }
 
-    public static UsagePointManagementException incorrectMeterActivationTime(Thesaurus thesaurus, String when) {
-        return new UsagePointManagementException(thesaurus, MessageSeeds.METER_ACTIVATION_INVALID_DATE, when);
-    }
-
     public static UsagePointManagementException incorrectMetrologyConfigStartDate(Thesaurus thesaurus, String metroloyConfigurationName, String usagePointName, String when) {
         return new UsagePointManagementException(thesaurus, MessageSeeds.METROLOGY_CONFIGURATION_INVALID_START_DATE, metroloyConfigurationName, usagePointName, when);
     }
