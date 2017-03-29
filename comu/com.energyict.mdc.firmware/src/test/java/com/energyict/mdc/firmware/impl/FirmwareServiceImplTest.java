@@ -131,7 +131,8 @@ public class FirmwareServiceImplTest extends PersistenceTest {
 
     private DeviceType getMockedDeviceTypeWithMessageIds(DeviceMessageId... deviceMessageIds) {
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
-        when(deviceProtocol.getSupportedMessages()).thenReturn(mockMessages(deviceMessageIds));
+        List<DeviceMessageSpec> deviceMessageSpecs = mockMessages(deviceMessageIds);
+        when(deviceProtocol.getSupportedMessages()).thenReturn(deviceMessageSpecs);
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         DeviceType deviceType = mock(DeviceType.class);
