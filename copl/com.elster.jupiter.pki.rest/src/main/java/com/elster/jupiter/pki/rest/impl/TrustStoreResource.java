@@ -104,7 +104,7 @@ public class TrustStoreResource {
             };
             return Response
                     .ok(streamingOutput, MediaType.APPLICATION_OCTET_STREAM)
-                    .header("content-disposition","attachment; filename = "+certificateWrapper.getAlias()+".cert")
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename = "+certificateWrapper.getAlias().replaceAll("[^a-zA-Z0-9-_]", "")+".cert")
                     .build();
         } catch (CertificateEncodingException e) {
             throw exceptionFactory.newException(MessageSeeds.FAILED_TO_READ_CERTIFICATE, e);
