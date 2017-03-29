@@ -127,7 +127,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         deviceMessageCategoryActivityCalendar = DeviceMessageTestCategories.SECOND_TEST_CATEGORY;
         deviceMessageCategoryClock = DeviceMessageTestCategories.THIRD_TEST_CATEGORY;
 
-        List<DeviceMessageCategory> allCategories = Arrays.asList(deviceMessageCategoryDeviceActions, deviceMessageCategoryActivityCalendar, deviceMessageCategoryClock);
+        List<DeviceMessageCategory> allCategories = Arrays.asList(deviceMessageCategoryDeviceActions, deviceMessageCategoryActivityCalendar, deviceMessageCategoryClock, DeviceMessageTestCategories.CONTACTOR);
 
         when(deviceMessageSpecificationService.filteredCategoriesForUserSelection()).thenReturn(allCategories);
         when(deviceMessageSpecificationService.filteredCategoriesForComTaskDefinition()).thenReturn(allCategories);
@@ -176,7 +176,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         assertThat(model.<String>get("$.deviceMessages[0].trackingCategory.id")).isEqualTo("trackingCategory.serviceCall");
         assertThat(model.<String>get("$.deviceMessages[0].trackingCategory.name")).isEqualTo("Service call");
         assertThat(model.<Boolean>get("$.deviceMessages[0].trackingCategory.activeLink")).isEqualTo(false);
-        assertThat(model.<String>get("$.deviceMessages[0].category")).isEqualTo("Device actions");
+        assertThat(model.<String>get("$.deviceMessages[0].category")).isEqualTo("FIRST_TEST_CATEGORY");
         assertThat(model.<String>get("$.deviceMessages[0].status.displayValue")).isEqualTo("Pending");
         assertThat(model.<String>get("$.deviceMessages[0].status.value")).isEqualTo("PENDING");
         assertThat(model.<Long>get("$.deviceMessages[0].releaseDate")).isEqualTo(created.plusSeconds(10).toEpochMilli());
@@ -427,14 +427,14 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         JsonModel jsonModel = JsonModel.model(response);
         assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(1);
         assertThat(jsonModel.<List>get("$.categories")).hasSize(1); // one category
-        assertThat(jsonModel.<String>get("$.categories[0].name")).isEqualTo("Contactor");
-        assertThat(jsonModel.<Integer>get("$.categories[0].id")).isEqualTo(1);
+        assertThat(jsonModel.<String>get("$.categories[0].name")).isEqualTo("CONTACTOR");
+        assertThat(jsonModel.<Integer>get("$.categories[0].id")).isEqualTo(3);
         assertThat(jsonModel.<List>get("$.categories[0].deviceMessageSpecs")).hasSize(2); // 2 device messages
-        assertThat(jsonModel.<String>get("$.categories[0].deviceMessageSpecs[0].name")).isEqualTo("Contactor close");
+        assertThat(jsonModel.<String>get("$.categories[0].deviceMessageSpecs[0].name")).isEqualTo("CONTACTOR_CLOSE");
         assertThat(jsonModel.<String>get("$.categories[0].deviceMessageSpecs[0].id")).isEqualTo("CONTACTOR_CLOSE");
         assertThat(jsonModel.<Boolean>get("$.categories[0].deviceMessageSpecs[0].willBePickedUpByComTask")).isNotNull();
         assertThat(jsonModel.<Boolean>get("$.categories[0].deviceMessageSpecs[0].willBePickedUpByPlannedComTask")).isNotNull();
-        assertThat(jsonModel.<String>get("$.categories[0].deviceMessageSpecs[1].name")).isEqualTo("Contactor open");
+        assertThat(jsonModel.<String>get("$.categories[0].deviceMessageSpecs[1].name")).isEqualTo("CONTACTOR_OPEN");
         assertThat(jsonModel.<String>get("$.categories[0].deviceMessageSpecs[1].id")).isEqualTo("CONTACTOR_OPEN");
     }
 
@@ -483,8 +483,8 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         JsonModel jsonModel = JsonModel.model(response);
         assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(1); // one category
         assertThat(jsonModel.<List>get("$.categories")).hasSize(1); // one category
-        assertThat(jsonModel.<String>get("$.categories[0].name")).isEqualTo("Contactor");
-        assertThat(jsonModel.<Integer>get("$.categories[0].id")).isEqualTo(1);
+        assertThat(jsonModel.<String>get("$.categories[0].name")).isEqualTo("CONTACTOR");
+        assertThat(jsonModel.<Integer>get("$.categories[0].id")).isEqualTo(3);
         assertThat(jsonModel.<List>get("$.categories[0].deviceMessageSpecs")).hasSize(2); // 2 device messages
         assertThat(jsonModel.<List>get("$.categories[0].deviceMessageSpecs[0].properties")).hasSize(1);
         assertThat(jsonModel.<String>get("$.categories[0].deviceMessageSpecs[0].properties[0].key")).isEqualTo("ContactorDeviceMessage.digitalOutput");

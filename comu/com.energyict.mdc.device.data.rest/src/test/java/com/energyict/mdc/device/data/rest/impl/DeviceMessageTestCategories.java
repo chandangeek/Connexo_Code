@@ -47,12 +47,12 @@ public enum DeviceMessageTestCategories implements DeviceMessageCategory {
 
     @Override
     public String getName() {
-        return "DeviceMessageTestCategories";
+        return name();
     }
 
     @Override
     public String getDescription() {
-        return "DeviceMessageTestCategories";
+        return name();
     }
 
     @Override

@@ -30,6 +30,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.yellowfin.groups.YellowfinGroupsService;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
+import com.energyict.mdc.common.services.ObisCodeDescriptor;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -57,6 +58,7 @@ import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+import com.energyict.obis.ObisCode;
 import com.jayway.jsonpath.JsonModel;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.client.ClientConfig;
@@ -91,6 +93,7 @@ import java.util.Set;
 import java.util.TimeZone;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -142,6 +145,8 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
     @Rule
     public TestRule transactionalRule = new TransactionalRule(inMemoryPersistence.getTransactionService());
 
+    static ObisCodeDescriptor obisCodeDescriptor;
+
     @BeforeClass
     public static void initialize() throws SQLException {
         yellowfinGroupsService = mock(YellowfinGroupsService.class);
@@ -161,6 +166,8 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         bpmService = mock(BpmService.class);
         threadPrincipalService = mock(ThreadPrincipalService.class);
         userService = mock(UserService.class);
+        obisCodeDescriptor = mock(ObisCodeDescriptor.class);
+        when(obisCodeDescriptor.describe(any(ObisCode.class))).thenReturn("obisCodeDescription");
 
         inMemoryPersistence = new InMemoryIntegrationPersistence();
         initializeClock();
@@ -375,6 +382,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         application.setPropertyValueInfoService(inMemoryPersistence.getPropertyValueInfoService());
         application.setMeteringTranslationService(inMemoryPersistence.getMeteringTranslationService());
         application.setDeviceLifeCycleConfigurationService(inMemoryPersistence.getDeviceLifeCycleConfigurationService());
+        application.setObisCodeDescriptor(obisCodeDescriptor);
         return application;
     }
 

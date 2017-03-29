@@ -28,18 +28,29 @@ import static org.mockito.Mockito.when;
 public enum DeviceMessageTestSpec implements DeviceMessageSpec {
 
     TEST_SPEC_WITH_SIMPLE_SPECS(
+            1,
             mockPropertySpec("testMessageSpec.simpleBigDecimal", new BigDecimalFactory()),
             mockPropertySpec("testMessageSpec.simpleString", new StringFactory())),
     TEST_SPEC_WITH_EXTENDED_SPECS(
+            2,
             mockPropertySpec("testMessageSpec.codetable", new PasswordFactory(mock(DataVaultService.class))),
             mockPropertySpec("testMessageSpec.activationdate", new TemporalAmountValueFactory())),
-    TEST_SPEC_WITHOUT_SPECS;
+    TEST_SPEC_WITHOUT_SPECS(3),
+    CONTACTOR_OPEN(DeviceMessageId.CONTACTOR_OPEN.dbValue()),
+    CONTACTOR_CLOSE(DeviceMessageId.CONTACTOR_CLOSE.dbValue()),
+    CONTACTOR_OPEN_WITH_OUTPUT(DeviceMessageId.CONTACTOR_OPEN_WITH_OUTPUT.dbValue()),
+    CONTACTOR_CLOSE_WITH_OUTPUT(
+            DeviceMessageId.CONTACTOR_CLOSE_WITH_OUTPUT.dbValue(),
+            mockPropertySpec("ContactorDeviceMessage.digitalOutput", new BigDecimalFactory())
+    );
 
     private static final DeviceMessageCategory activityCalendarCategory = DeviceMessageTestCategories.FIRST_TEST_CATEGORY;
 
     private List<PropertySpec> deviceMessagePropertySpecs;
+    private long id;
 
-    DeviceMessageTestSpec(PropertySpec... deviceMessagePropertySpecs) {
+    DeviceMessageTestSpec(long id, PropertySpec... deviceMessagePropertySpecs) {
+        this.id = id;
         this.deviceMessagePropertySpecs = Arrays.asList(deviceMessagePropertySpecs);
     }
 
@@ -65,7 +76,7 @@ public enum DeviceMessageTestSpec implements DeviceMessageSpec {
 
     @Override
     public DeviceMessageId getId() {
-        return DeviceMessageId.havingId(this.ordinal() + 1);
+        return DeviceMessageId.havingId(id);
     }
 
     @Override
