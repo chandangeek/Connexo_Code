@@ -184,7 +184,7 @@ Ext.define('Imt.metrologyconfiguration.view.Wizard', {
                 me.getRecord().set('id',combo.getValue());
                 me.getRecord().set('name',combo.getRawValue());
                 me.getRecord().set('purposes', step.down('#purposes-field').getValue());
-                me.getRecord().set('activationTime', step.down('#start-date-field').getValue());
+                me.getRecord().set('activationTime', step.down('#metrology-configuration-start-date-field').getValue());
                 record && me.getRecord().set('version', record.get('version'));
                 me.callParent(arguments);
                 break;
