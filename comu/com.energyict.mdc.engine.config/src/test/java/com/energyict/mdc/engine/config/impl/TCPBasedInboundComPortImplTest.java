@@ -20,6 +20,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 
 import java.sql.SQLException;
+import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
