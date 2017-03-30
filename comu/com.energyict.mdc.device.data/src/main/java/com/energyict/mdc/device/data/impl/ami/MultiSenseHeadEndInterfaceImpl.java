@@ -5,27 +5,13 @@
 package com.energyict.mdc.device.data.impl.ami;
 
 import com.elster.jupiter.cps.CustomPropertySetService;
-import com.elster.jupiter.metering.EndDevice;
-import com.elster.jupiter.metering.EndDeviceControlType;
-import com.elster.jupiter.metering.KnownAmrSystem;
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.ami.CommandFactory;
-import com.elster.jupiter.metering.ami.CompletionOptions;
-import com.elster.jupiter.metering.ami.EndDeviceCapabilities;
-import com.elster.jupiter.metering.ami.EndDeviceCommand;
-import com.elster.jupiter.metering.ami.HeadEndInterface;
+import com.elster.jupiter.metering.*;
+import com.elster.jupiter.metering.ami.*;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.servicecall.DefaultState;
-import com.elster.jupiter.servicecall.LogLevel;
-import com.elster.jupiter.servicecall.ServiceCall;
-import com.elster.jupiter.servicecall.ServiceCallBuilder;
-import com.elster.jupiter.servicecall.ServiceCallService;
-import com.elster.jupiter.servicecall.ServiceCallType;
+import com.elster.jupiter.servicecall.*;
 import com.elster.jupiter.users.User;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -36,11 +22,7 @@ import com.energyict.mdc.device.data.ami.EndDeviceCommandFactory;
 import com.energyict.mdc.device.data.ami.MultiSenseHeadEndInterface;
 import com.energyict.mdc.device.data.exceptions.NoSuchElementException;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
-import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertySet;
-import com.energyict.mdc.device.data.impl.ami.servicecall.CommandServiceCallDomainExtension;
-import com.energyict.mdc.device.data.impl.ami.servicecall.CompletionOptionsServiceCallDomainExtension;
-import com.energyict.mdc.device.data.impl.ami.servicecall.OnDemandReadServiceCallDomainExtension;
-import com.energyict.mdc.device.data.impl.ami.servicecall.ServiceCallCommands;
+import com.energyict.mdc.device.data.impl.ami.servicecall.*;
 import com.energyict.mdc.device.data.impl.ami.servicecall.handlers.OnDemandReadServiceCallHandler;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -50,7 +32,6 @@ import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.tasks.LoadProfilesTask;
 import com.energyict.mdc.tasks.MessagesTask;
 import com.energyict.mdc.tasks.RegistersTask;
-
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -63,14 +44,7 @@ import java.net.URL;
 import java.text.MessageFormat;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -431,5 +405,19 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
     @Override
     public String getAmrSystem() {
         return AMR_SYSTEM;
+    }
+
+    @Override
+    public CompletionOptions runCommunicationTask(Device device, List<ComTaskExecution> comTaskExecutions, Instant instant) {
+        return runCommunicationTask(device, comTaskExecutions, instant, null);
+    }
+
+    @Override
+    public CompletionOptions runCommunicationTask(Device multiSenseDevice, List<ComTaskExecution> comTaskExecutions, Instant instant, ServiceCall parentServiceCall) {
+        ServiceCall serviceCall = getOnDemandReadServiceCall(multiSenseDevice, comTaskExecutions.size()
+                , instant, Optional.ofNullable(parentServiceCall));
+        serviceCall.requestTransition(DefaultState.ONGOING);
+        comTaskExecutions.forEach(comTaskExecution -> this.scheduleComTaskExecution(comTaskExecution, instant));
+        return new CompletionOptionsImpl(serviceCall);
     }
 }

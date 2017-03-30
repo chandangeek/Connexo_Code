@@ -12,6 +12,7 @@ import com.elster.jupiter.metering.ami.UnsupportedCommandException;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.units.Quantity;
 import com.energyict.mdc.common.Unit;
@@ -156,6 +157,13 @@ public class EndDeviceCommandFactoryImpl implements EndDeviceCommandFactory {
     @Override
     public EndDeviceCommand createDisableLoadLimitCommand(EndDevice endDevice) {
         return this.createCommand(endDevice, findEndDeviceControlType(EndDeviceControlTypeMapping.LOAD_CONTROL_TERMINATE));
+    }
+
+    @Override
+    public EndDeviceCommand createKeyRenewalCommand(EndDevice endDevice, KeyAccessorType keyAccessorType) {
+        EndDeviceCommand command = this.createCommand(endDevice, findEndDeviceControlType(EndDeviceControlTypeMapping.KEY_RENEWAL));
+        command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.keyAccessorTypeAttributeName), keyAccessorType);
+        return command;
     }
 
     private EndDeviceControlType findEndDeviceControlType(EndDeviceControlTypeMapping controlTypeMapping) {

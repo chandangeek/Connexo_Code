@@ -170,7 +170,8 @@ public enum MessageSeeds implements MessageSeed {
     TEMP_VALUE_NOT_SET(2144, "NoTempValue", "The security accessor does not contain a temporary value"),
     NO_ACTUAL_CERTIFICATE(2145, "NoActualCertificate", "Certificate renewal requires an actual value in order to create a distinguished name"),
     CERTIFICATE_ENCODING_EXCEPTION(2146, "CertificateEncodingError", "The certificate is an unrecognized format"),
-    ACTUAL_VALUE_NOT_SET(2147, "NoActualValue", "The security accessor does not contain an actual value")
+    ACTUAL_VALUE_NOT_SET(2147, "NoActualValue", "The security accessor does not contain an actual value"),
+    NO_BASIC_CHECK_COMTASK(2148, Keys.NO_BASIC_CHECK_COMTASK, "A basic check comtask could not be located")
     ;
     private final int number;
     private final String key;
@@ -356,6 +357,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String INVALID_SHIPMENT_DATE = "InvalidShipmentDate";
         public static final String MULTIPLE_COMSCHEDULES_WITH_SAME_COMTASK = "multiple.comschedules.with.same.comtask";
         public static final String GROUP_IS_USED_BY_ANOTHER_GROUP = "group.is.used.by.another.group";
+        public static final String NO_BASIC_CHECK_COMTASK ="No.comtask.for.basic.check";
 
     }
 }

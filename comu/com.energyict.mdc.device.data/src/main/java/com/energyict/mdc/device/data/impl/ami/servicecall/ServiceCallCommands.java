@@ -14,11 +14,7 @@ import com.elster.jupiter.servicecall.ServiceCallType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
 import com.energyict.mdc.device.data.impl.ami.EndDeviceControlTypeMapping;
-import com.energyict.mdc.device.data.impl.ami.servicecall.handlers.ArmServiceCallHandler;
-import com.energyict.mdc.device.data.impl.ami.servicecall.handlers.ConnectServiceCallHandler;
-import com.energyict.mdc.device.data.impl.ami.servicecall.handlers.DisableLoadLimitServiceCallHandler;
-import com.energyict.mdc.device.data.impl.ami.servicecall.handlers.DisconnectServiceCallHandler;
-import com.energyict.mdc.device.data.impl.ami.servicecall.handlers.EnableLoadLimitServiceCallHandler;
+import com.energyict.mdc.device.data.impl.ami.servicecall.handlers.*;
 
 import java.time.Instant;
 import java.util.Arrays;
@@ -38,7 +34,12 @@ public class ServiceCallCommands {
         armBreaker(ArmServiceCallHandler.SERVICE_CALL_HANDLER_NAME, ArmServiceCallHandler.VERSION, EndDeviceControlTypeMapping.ARM_REMOTE_SWITCH_FOR_CLOSURE),
 
         loadControlInitiate(EnableLoadLimitServiceCallHandler.SERVICE_CALL_HANDLER_NAME, ArmServiceCallHandler.VERSION, EndDeviceControlTypeMapping.LOAD_CONTROL_INITIATE),
-        loadControlTerminate(DisableLoadLimitServiceCallHandler.SERVICE_CALL_HANDLER_NAME, ArmServiceCallHandler.VERSION, EndDeviceControlTypeMapping.LOAD_CONTROL_TERMINATE),;
+        loadControlTerminate(DisableLoadLimitServiceCallHandler.SERVICE_CALL_HANDLER_NAME, ArmServiceCallHandler.VERSION, EndDeviceControlTypeMapping.LOAD_CONTROL_TERMINATE),
+
+        renewKey(KeyRenewalServiceCallHandler.SERVICE_CALL_HANDLER_NAME, KeyRenewalServiceCallHandler.VERSION, EndDeviceControlTypeMapping.KEY_RENEWAL)
+        //testCommunication(TestCommunicationServiceCallHandler.SERVICE_CALL_HANDLER_NAME, TestCommunicationServiceCallHandler.VERSION, EndDeviceControlTypeMapping.OTHER)
+
+        ;
 
         private final String typeName;
         private final String typeVersion;
