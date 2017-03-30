@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.scheduling.model.impl;
 
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
@@ -5,13 +9,14 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.scheduling.SchedulingService;
-import com.energyict.mdc.scheduling.model.ComSchedule;
+
 import com.google.common.collect.ImmutableSet;
+
+import java.time.Clock;
+
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.time.Clock;
 
 import static org.fest.reflect.core.Reflection.field;
 
