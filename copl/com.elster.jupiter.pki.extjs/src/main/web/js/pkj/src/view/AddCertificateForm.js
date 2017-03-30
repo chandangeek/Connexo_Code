@@ -34,7 +34,7 @@ Ext.define('Pkj.view.AddCertificateForm', {
                 items: [
                     {
                         xtype: 'uni-form-info-message',
-                        text: Uni.I18n.translate('general.certificateFileAlreadyAvailable', 'PKJ', 'There is already a certificate file available on this certificate.')
+                        text: Uni.I18n.translate('general.certificateFileAlreadyAvailable', 'PKJ', 'The existing certificate will be overwritten.')
                     }
                 ]
             },
