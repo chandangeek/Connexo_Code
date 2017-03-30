@@ -371,7 +371,7 @@ Ext.define('Pkj.controller.TrustStores', {
 
         switch (item.action) {
             case 'downloadTrustedCertificate':
-                //me.navigateToEditTrustStore(menu.record);
+                me.downloadCertificate(menu.record);
                 break;
             case 'removeTrustedCertificate':
                 me.removeCertificate(menu.record);
@@ -402,6 +402,11 @@ Ext.define('Pkj.controller.TrustStores', {
                 }
             }
         });
+    },
+
+    downloadCertificate: function(certificateRecord) {
+        var url = '/api/pir/truststores/' + this.currentTrustStoreId + '/certificates/' + certificateRecord.get('id') + '/download/certificate';
+        window.open(url, '_blank');
     }
 
 });

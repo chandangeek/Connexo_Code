@@ -272,8 +272,8 @@ Ext.define('Pkj.controller.Certificates', {
         record.save({
             callback: function (record, operation, success) {
                 var responseText = Ext.decode(operation.response.responseText, true);
+                viewport.setLoading(false);
                 if (success) {
-                    viewport.setLoading(false);
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.csrAdded', 'PKJ', 'CSR added'));
                     me.navigateToCertificatesOverview();
                 } else {
