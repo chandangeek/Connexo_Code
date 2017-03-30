@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 /**
  * Models a {@link DeviceProtocol} that was registered in the HeadEnd as a {@link PluggableClass}.
  * <p>
- * Copyrights EnergyICT
+ *
  * Date: 3/07/12
  * Time: 8:58
  */

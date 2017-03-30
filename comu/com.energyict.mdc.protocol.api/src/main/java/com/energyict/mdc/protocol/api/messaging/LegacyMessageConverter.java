@@ -16,7 +16,7 @@ import java.util.Set;
  * Provides functionality to do conversion between the <i>new</i>
  * {@link DeviceMessageSpec}s and the <i>old</i> MessageSpecs.
  * <p>
- * Copyrights EnergyICT
+ *
  * Date: 8/03/13
  * Time: 16:15
  */

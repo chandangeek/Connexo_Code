@@ -4,7 +4,7 @@ import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.cps.CustomPropertySet;
 
 /**
- * Copyrights EnergyICT
+ *
  *
  * @author khe
  * @since 13/02/2017 - 11:17

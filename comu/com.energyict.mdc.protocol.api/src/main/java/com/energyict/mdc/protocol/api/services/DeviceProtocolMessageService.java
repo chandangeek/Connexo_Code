@@ -7,7 +7,7 @@ package com.energyict.mdc.protocol.api.services;
 /**
  * OSGI Service wrapper to create an instance of a DeviceProtocol Message object.
  *
- * Copyrights EnergyICT
+ *
  * Date: 08/11/13
  * Time: 16:07
  */

@@ -18,7 +18,7 @@ import java.util.Optional;
  * Provides functionality to expose a {@link DeviceProtocol DeviceProtocol}
  * his security capabilities.
  * <p/>
- * Copyrights EnergyICT
+ *
  * Date: 21/01/13
  * Time: 16:04
  */
