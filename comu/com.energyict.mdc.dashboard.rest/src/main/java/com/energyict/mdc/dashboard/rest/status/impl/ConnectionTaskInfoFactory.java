@@ -78,7 +78,7 @@ public class ConnectionTaskInfoFactory {
             ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = scheduledConnectionTask.getProtocolDialectConfigurationProperties();
             if (protocolDialectConfigurationProperties != null) {
                 info.protocolDialect = protocolDialectConfigurationProperties.getDeviceProtocolDialectName();
-                info.protocolDialectDisplayName = protocolDialectConfigurationProperties.getDeviceProtocolDialect().getDisplayName();
+                info.protocolDialectDisplayName = protocolDialectConfigurationProperties.getDeviceProtocolDialect().getDeviceProtocolDialectDisplayName();
             }
             ComWindow communicationWindow = scheduledConnectionTask.getCommunicationWindow();
             if (communicationWindow!=null &&

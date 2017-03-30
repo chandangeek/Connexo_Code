@@ -45,7 +45,6 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
 
-
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.time.Instant;
@@ -53,10 +52,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Matchers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -345,7 +340,7 @@ public class CommunicationResourceTest extends DashboardApplicationJerseyTest {
     private ScheduledConnectionTask mockConnectionTask() {
         DeviceProtocolDialect dialect = mock(DeviceProtocolDialect.class);
         when(dialect.getDeviceProtocolDialectName()).thenReturn("Device protocol dialect name");
-        when(dialect.getDisplayName()).thenReturn("Device protocol display name");
+        when(dialect.getDeviceProtocolDialectDisplayName()).thenReturn("Device protocol display name");
         ProtocolDialectConfigurationProperties dialectProperties = mock(ProtocolDialectConfigurationProperties.class);
         when(dialectProperties.getDeviceProtocolDialect()).thenReturn(dialect);
         when(dialectProperties.getDeviceProtocolDialectName()).thenReturn("Device protocol display name");

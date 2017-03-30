@@ -511,7 +511,7 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
     private Optional<ConnectionTask> mockConnectionTask(String javaClassName) {
         DeviceProtocolDialect dialect = mock(DeviceProtocolDialect.class);
         when(dialect.getDeviceProtocolDialectName()).thenReturn("Device protocol dialect name");
-        when(dialect.getDisplayName()).thenReturn("Device protocol display name");
+        when(dialect.getDeviceProtocolDialectDisplayName()).thenReturn("Device protocol display name");
         ProtocolDialectConfigurationProperties dialectProperties = mock(ProtocolDialectConfigurationProperties.class);
         when(dialectProperties.getDeviceProtocolDialect()).thenReturn(dialect);
         when(dialectProperties.getDeviceProtocolDialectName()).thenReturn("Device protocol display name");
