@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.issue.datacollection.rest.response;
 
 import com.elster.jupiter.fsm.State;
@@ -22,7 +26,6 @@ import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.issue.datacollection.entity.IssueDataCollection;
-import com.energyict.mdc.issue.datacollection.rest.IssueDataCollectionApplication;
 import com.energyict.mdc.issue.datacollection.rest.ModuleConstants;
 
 import org.osgi.service.component.annotations.Component;
