@@ -460,7 +460,7 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
                             var slaveDeviceModel = me.addSlaveToMasterDeviceModel(formRecord);
                             slaveDeviceModel.id = 0;
                             slaveDeviceModel.deviceTypeName = slaveDeviceType.get('name');
-                            slaveDeviceModel.shipmentDate = null;
+                            slaveDeviceModel.shipmentDate = me.wizardInformation.dataLogger.get('shipmentDate');
                             slaveDeviceModel.version = formRecord.get('version');
 
                             me.wizardInformation.minimalLinkingDates = [];
