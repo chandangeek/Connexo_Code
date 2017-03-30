@@ -4,12 +4,10 @@ import com.energyict.cbo.Unit;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.dlms.cosem.GPRSModemSetup;
+import com.energyict.dlms.cosem.methods.USBSetup;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.RegisterValue;
-import com.energyict.protocolimpl.dlms.g3.registers.G3Mapping;
-import com.energyict.protocolimpl.dlms.g3.registers.mapping.GprsModemSetupAttributesMapping;
 import com.energyict.protocolimpl.dlms.g3.registers.mapping.USBSetupAttributesMapping;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
@@ -28,9 +26,9 @@ public class USBSetupMapping extends G3Mapping {
     }
 
     @Override
-    //Set the B-Filed to 0
+    //Set the F-Filed to 255
     public ObisCode getBaseObisCode() {                 //Set the E-Filed to 0
-        return ProtocolTools.setObisCodeField(super.getBaseObisCode(), 1, (byte) 0);
+        return ProtocolTools.setObisCodeField(super.getBaseObisCode(), 5, (byte) 255);
     }
 
     @Override
@@ -47,7 +45,7 @@ public class USBSetupMapping extends G3Mapping {
 
     @Override
     public int getAttributeNumber() {
-        return getObisCode().getB();        //The B-field of the obiscode indicates which attribute is being read
+        return getObisCode().getF();        //The B-field of the obiscode indicates which attribute is being read
     }
 
     @Override
@@ -70,7 +68,8 @@ public class USBSetupMapping extends G3Mapping {
 
     @Override
     public int getDLMSClassId() {
-        if (getObisCode().equalsIgnoreBChannel("0.0.128.0.28.255")) {
+        if (    getObisCode().equalsIgnoreBillingField(USBSetup.getDefaultObisCode()) ||
+                getObisCode().equalsIgnoreBillingField(USBSetup.getLegacyObisCode())) {
             return DLMSClassId.USB_SETUP.getClassId();
         } else {
             return -1;

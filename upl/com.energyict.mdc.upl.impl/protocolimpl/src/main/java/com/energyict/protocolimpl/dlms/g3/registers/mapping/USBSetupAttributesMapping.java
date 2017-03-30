@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.dlms.g3.registers.mapping;
 
-import com.energyict.dlms.DLMSUtils;
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
@@ -30,9 +31,9 @@ public class USBSetupAttributesMapping extends RegisterMapping {
 
     @Override
     public boolean canRead(final ObisCode obisCode) {
-        return USBSetup.getDefaultObisCode().equalsIgnoreBAndEChannel(obisCode) &&
-                (obisCode.getB() >= MIN_ATTR) &&
-                (obisCode.getB() <= MAX_ATTR);
+        return (USBSetup.getDefaultObisCode().equalsIgnoreBillingField(obisCode) || USBSetup.getLegacyObisCode().equalsIgnoreBillingField(obisCode)) &&
+                (obisCode.getF() >= MIN_ATTR) &&
+                (obisCode.getF() <= MAX_ATTR);
     }
 
     @Override
@@ -42,7 +43,7 @@ public class USBSetupAttributesMapping extends RegisterMapping {
     }
 
     protected AbstractDataType readAttribute(final ObisCode obisCode, USBSetup usbSetup) throws IOException {
-        switch (obisCode.getB()) {
+        switch (obisCode.getF()) {
             // Logical name
             case 1:
                 return OctetString.fromObisCode(USBSetup.getDefaultObisCode());
@@ -53,27 +54,29 @@ public class USBSetupAttributesMapping extends RegisterMapping {
             case 4:
                 return usbSetup.readLastActivityTimeStamp();
             default:
-                throw new NoSuchRegisterException("USBSetup attribute [" + obisCode.getB() + "] not supported!");
+                throw new NoSuchRegisterException("USBSetup attribute [" + obisCode.getF() + "] not supported!");
         }
     }
 
     @Override
     public RegisterValue parse(ObisCode obisCode, AbstractDataType abstractDataType) throws IOException {
 
-        switch (obisCode.getB()) {
+        switch (obisCode.getF()) {
             // Logical name
             case 1:
                 return new RegisterValue(obisCode, USBSetup.getDefaultObisCode().toString());
             case 2:
-                return new RegisterValue(obisCode, "USB state: " + abstractDataType.getBooleanObject().getState());
+                boolean state =  abstractDataType.getBooleanObject().getState();
+                return new RegisterValue(obisCode,  new Quantity(state?1:0, Unit.getUndefined()));
             case 3:
-                return new RegisterValue(obisCode, "USB activity: " + abstractDataType.getBooleanObject().getState());
+                boolean state1 =  abstractDataType.getBooleanObject().getState();
+                return new RegisterValue(obisCode,  new Quantity(state1?1:0, Unit.getUndefined()));
             case 4:
                 OctetString octetString = abstractDataType.getOctetString();
                 Date dateTime = parseDateTime(octetString);
-                return new RegisterValue(obisCode, "Last activity timestamp:" + dateTime.toString());
+                return new RegisterValue(obisCode,  new Quantity(dateTime.getTime(), Unit.getUndefined()));
             default:
-                throw new NoSuchRegisterException("USB Setup attribute [" + obisCode.getB() + "] not supported!");
+                throw new NoSuchRegisterException("USB Setup attribute [" + obisCode.getF() + "] not supported!");
         }
     }
 

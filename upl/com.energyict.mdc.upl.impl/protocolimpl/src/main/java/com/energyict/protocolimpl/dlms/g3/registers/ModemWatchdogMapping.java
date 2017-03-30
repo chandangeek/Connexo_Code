@@ -80,9 +80,13 @@ public class ModemWatchdogMapping extends G3Mapping {
         public int getDLMSClassId() {
             if(getObisCode().equalsIgnoreBillingField(ModemWatchdogConfiguration.getDefaultObisCode()) ){
                 return DLMSClassId.MODEM_WATCHDOG_SETUP.getClassId();
-            } else {
-                return -1;
             }
+
+            if(getObisCode().equalsIgnoreBillingField(ModemWatchdogConfiguration.getLegacyObisCode()) ){
+                return DLMSClassId.MODEM_WATCHDOG_SETUP.getClassId();
+            }
+
+            return -1;
         }
     }
 

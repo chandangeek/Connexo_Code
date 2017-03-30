@@ -207,10 +207,14 @@ public class G3RegisterMapper {
     private static final ObisCode WWAN_PRIMARY_DNS_ADDRESS  = ObisCode.fromString("0.3.25.1.9.255");
     private static final ObisCode WWAN_SECONDARY_DNS_ADDRESS = ObisCode.fromString("0.3.25.1.10.255");
 
-    private static final ObisCode USB_SETUP_ATTR1 = ObisCode.fromString("0.1.128.0.28.255");
-    private static final ObisCode USB_SETUP_ATTR2 = ObisCode.fromString("0.2.128.0.28.255");
-    private static final ObisCode USB_SETUP_ATTR3 = ObisCode.fromString("0.3.128.0.28.255");
-    private static final ObisCode USB_SETUP_ATTR4 = ObisCode.fromString("0.4.128.0.28.255");
+    private static final ObisCode USB_SETUP_ATTR1 = ObisCode.fromString("0.194.96.144.0.1");
+    private static final ObisCode USB_SETUP_ATTR2 = ObisCode.fromString("0.194.96.144.0.2");
+    private static final ObisCode USB_SETUP_ATTR3 = ObisCode.fromString("0.194.96.144.0.3");
+    private static final ObisCode USB_SETUP_ATTR4 = ObisCode.fromString("0.194.96.144.0.4");
+    private static final ObisCode USB_SETUP_ATTR1_LEGACY = ObisCode.fromString("0.0.128.0.28.1");
+    private static final ObisCode USB_SETUP_ATTR2_LEGACY = ObisCode.fromString("0.0.128.0.28.2");
+    private static final ObisCode USB_SETUP_ATTR3_LEGACY = ObisCode.fromString("0.0.128.0.28.3");
+    private static final ObisCode USB_SETUP_ATTR4_LEGACY = ObisCode.fromString("0.0.128.0.28.4");
 
     public static final ObisCode DISCONNECT_CONTROL_ATTR1 = ObisCode.fromString("0.1.96.3.10.255");
     public static final ObisCode DISCONNECT_CONTROL_ATTR2 = ObisCode.fromString("0.2.96.3.10.255");
@@ -488,6 +492,10 @@ public class G3RegisterMapper {
         usbSetupMappings.add(new USBSetupMapping(USB_SETUP_ATTR2));
         usbSetupMappings.add(new USBSetupMapping(USB_SETUP_ATTR3));
         usbSetupMappings.add(new USBSetupMapping(USB_SETUP_ATTR4));
+        usbSetupMappings.add(new USBSetupMapping(USB_SETUP_ATTR1_LEGACY));
+        usbSetupMappings.add(new USBSetupMapping(USB_SETUP_ATTR2_LEGACY));
+        usbSetupMappings.add(new USBSetupMapping(USB_SETUP_ATTR3_LEGACY));
+        usbSetupMappings.add(new USBSetupMapping(USB_SETUP_ATTR4_LEGACY));
         return usbSetupMappings;
     }
 
