@@ -4,6 +4,7 @@
 
 package com.energyict.protocolimplv2.nta.dsmr23;
 
+import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.dynamic.PropertySpecService;
@@ -33,6 +34,7 @@ import static com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties.NTA_
 import static com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties.REQUEST_TIMEZONE;
 import static com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties.TIMEZONE;
 import static com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties.VALIDATE_INVOKE_ID;
+import static com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties.MASTER_KEY;
 
 
 public class DlmsConfigurationSupport implements ConfigurationSupport {
@@ -70,7 +72,8 @@ public class DlmsConfigurationSupport implements ConfigurationSupport {
                 this.validateInvokeIdPropertySpec(),
                 this.serverUpperMacAddressPropertySpec(),
                 this.serverLowerMacAddressPropertySpec(),
-                this.deviceId());
+                this.deviceId(),
+                this.masterKeyPropertySpec());
     }
 
     protected PropertySpec serverUpperMacAddressPropertySpec() {
@@ -151,5 +154,12 @@ public class DlmsConfigurationSupport implements ConfigurationSupport {
 
     protected PropertySpec fixMbusHexShortIdPropertySpec() {
         return propertySpecService.booleanSpec().named(FIX_MBUS_HEX_SHORT_ID, FIX_MBUS_HEX_SHORT_ID).describedAs(FIX_MBUS_HEX_SHORT_ID).finish();
+    }
+
+    protected PropertySpec masterKeyPropertySpec() {
+        return propertySpecService.referenceSpec(KeyAccessorType.class)
+                .named(MASTER_KEY, MASTER_KEY)
+                .describedAs(MASTER_KEY)
+                .finish();
     }
 }

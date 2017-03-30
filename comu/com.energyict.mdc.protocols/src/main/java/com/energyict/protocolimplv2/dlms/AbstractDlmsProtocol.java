@@ -58,6 +58,7 @@ import com.energyict.protocolimplv2.nta.dsmr23.profiles.LoadProfileBuilder;
 import com.energyict.protocolimplv2.nta.dsmr23.registers.Dsmr23RegisterFactory;
 import com.energyict.protocolimplv2.nta.dsmr23.topology.MeterTopology;
 import com.energyict.protocolimplv2.security.DlmsSecuritySupport;
+import com.energyict.protocolimplv2.security.DlmsSecuritySupportCryptography;
 import com.energyict.protocolimplv2.security.DsmrSecuritySupport;
 
 import javax.inject.Provider;
@@ -98,7 +99,7 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
     protected AbstractMeterTopology meterTopology;
     private Dsmr23LogBookFactory logBookFactory;
     private Dsmr23Messaging dsmr23Messaging;
-    protected DlmsSecuritySupport dlmsSecuritySupport;
+    protected DeviceProtocolSecurityCapabilities dlmsSecuritySupport;
     /**
      * Indicating if the meter has a breaker.
      * This implies whether or not we can control the breaker and read the control logbook.

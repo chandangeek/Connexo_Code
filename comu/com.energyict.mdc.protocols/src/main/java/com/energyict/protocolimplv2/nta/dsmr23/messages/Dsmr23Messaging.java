@@ -8,6 +8,7 @@ import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.ExceptionalOccurrence;
 import com.elster.jupiter.calendar.FixedExceptionalOccurrence;
 import com.elster.jupiter.calendar.RecurrentExceptionalOccurrence;
+import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.Password;
@@ -39,22 +40,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.activityCalendarActivationDateAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.activityCalendarAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.authenticationLevelAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.contactorActivationDateAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.encryptionLevelAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.firmwareUpdateActivationDateAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.firmwareUpdateFileAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.fromDateAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.loadProfileAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.meterTimeAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.newAuthenticationKeyAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.newEncryptionKeyAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.newPasswordAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.overThresholdDurationAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.specialDaysAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.toDateAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.*;
 
 public class Dsmr23Messaging extends AbstractDlmsMessaging implements DeviceMessageSupport {
 
@@ -91,7 +77,8 @@ public class Dsmr23Messaging extends AbstractDlmsMessaging implements DeviceMess
             DeviceMessageId.CONFIGURATION_CHANGE_CHANGE_DEFAULT_RESET_WINDOW,
             DeviceMessageId.DEVICE_ACTIONS_ALARM_REGISTER_RESET,
             DeviceMessageId.LOAD_PROFILE_PARTIAL_REQUEST,
-            DeviceMessageId.LOAD_PROFILE_REGISTER_REQUEST
+            DeviceMessageId.LOAD_PROFILE_REGISTER_REQUEST,
+            DeviceMessageId.SECURITY_KEY_RENEWAL
     );
     private final AbstractMessageExecutor messageExecutor;
     private final TopologyService topologyService;
@@ -157,6 +144,8 @@ public class Dsmr23Messaging extends AbstractDlmsMessaging implements DeviceMess
             case activityCalendarActivationDateAttributeName:
             case firmwareUpdateActivationDateAttributeName:
                 return String.valueOf(((Date) messageAttribute).getTime());  //Epoch (millis)
+            case keyAccessorTypeAttributeName:
+                return String.valueOf(((KeyAccessorType) messageAttribute).getName());
             default:
                 return messageAttribute.toString();  //Used for String and BigDecimal attributes
         }

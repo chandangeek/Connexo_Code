@@ -59,6 +59,7 @@ public abstract class DlmsProtocolProperties extends AbstractProtocolProperties 
     public static final String GBT_WINDOW_SIZE = "GBT-windowSize";
     public static final String TIMEZONE = "TimeZone";
     public static final String FIX_MBUS_HEX_SHORT_ID = "FixMbusHexShortId";
+    public static final String MASTER_KEY = "MasterKey";
 
     public static final String DEFAULT_CONNECTION = ConnectionMode.TCPIP.getModeAsString();
     public static final String DEFAULT_SECURITY_LEVEL = DEFAULT_AUTHENTICATION_SECURITY_LEVEL + ":" + DEFAULT_DATA_TRANSPORT_SECURITY_LEVEL;
