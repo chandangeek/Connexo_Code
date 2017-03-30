@@ -1,7 +1,17 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.alarms.rest;
 
 import com.elster.jupiter.bpm.BpmService;
+import com.elster.jupiter.issue.rest.response.IssueActionInfoFactory;
+import com.elster.jupiter.issue.rest.response.cep.CreationRuleActionInfoFactory;
+import com.elster.jupiter.issue.rest.response.cep.CreationRuleInfoFactory;
+import com.elster.jupiter.issue.rest.response.cep.CreationRuleTemplateInfoFactory;
 import com.elster.jupiter.issue.share.service.IssueActionService;
+import com.elster.jupiter.issue.share.service.IssueAssignmentService;
+import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
@@ -11,14 +21,19 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
+import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.alarms.rest.i18n.DeviceAlarmTranslationKeys;
 import com.energyict.mdc.device.alarms.rest.i18n.MessageSeeds;
+import com.energyict.mdc.device.alarms.rest.resource.ActionResource;
+import com.energyict.mdc.device.alarms.rest.resource.AlarmRuleResource;
+import com.energyict.mdc.device.alarms.rest.resource.DeviceAlarmCreationRuleResource;
 import com.energyict.mdc.device.alarms.rest.resource.DeviceAlarmPriorityResorce;
 import com.energyict.mdc.device.alarms.rest.resource.DeviceAlarmResource;
+import com.energyict.mdc.device.alarms.rest.resource.HistoryResource;
 import com.energyict.mdc.device.alarms.rest.resource.MeterResource;
 import com.energyict.mdc.device.alarms.rest.resource.ReasonResource;
 import com.energyict.mdc.device.alarms.rest.resource.StatusResource;
@@ -35,6 +50,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.ws.rs.core.Application;
+import java.time.Clock;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -52,16 +68,21 @@ public class DeviceAlarmApplication extends Application implements MessageSeedPr
     private volatile DeviceAlarmService deviceAlarmService;
     private volatile DeviceService deviceService;
     private volatile LogBookService logBookService;
-    private volatile IssueService issueService;
     private volatile MeteringService meteringService;
     private volatile UserService userService;
     private volatile Thesaurus thesaurus;
     private volatile NlsService nlsService;
     private volatile PropertyValueInfoService propertyValueInfoService;
+    private volatile IssueService issueService;
     private volatile IssueActionService issueActionService;
+    private volatile IssueCreationService issueCreationService;
+    private volatile IssueAssignmentService issueAssignmentService;
     private volatile BpmService bpmService;
+    private volatile TimeService timeService;
+    private volatile Clock clock;
 
-    public DeviceAlarmApplication(){
+
+    public DeviceAlarmApplication() {
 
     }
 
@@ -75,7 +96,11 @@ public class DeviceAlarmApplication extends Application implements MessageSeedPr
                 MeterResource.class,
                 DeviceAlarmPriorityResorce.class,
                 TopAlarmsResource.class,
-                UserResource.class);
+                UserResource.class,
+                DeviceAlarmCreationRuleResource.class,
+                AlarmRuleResource.class,
+                HistoryResource.class,
+                ActionResource.class);
     }
 
     @Override
@@ -112,7 +137,7 @@ public class DeviceAlarmApplication extends Application implements MessageSeedPr
     }
 
     @Reference
-    public void setUserService(UserService userService){
+    public void setUserService(UserService userService) {
         this.userService = userService;
     }
 
@@ -122,12 +147,12 @@ public class DeviceAlarmApplication extends Application implements MessageSeedPr
     }
 
     @Reference
-    public void setMeteringService(MeteringService meteringService){
+    public void setMeteringService(MeteringService meteringService) {
         this.meteringService = meteringService;
     }
 
     @Reference
-    public void setLogBookService(LogBookService logBookService){
+    public void setLogBookService(LogBookService logBookService) {
         this.logBookService = logBookService;
     }
 
@@ -142,9 +167,11 @@ public class DeviceAlarmApplication extends Application implements MessageSeedPr
     }
 
     @Reference
-    public void setIssueService(IssueService issueService){
+    public void setIssueService(IssueService issueService) {
         this.issueService = issueService;
         this.issueActionService = issueService.getIssueActionService();
+        this.issueCreationService = issueService.getIssueCreationService();
+        this.issueAssignmentService = issueService.getIssueAssignmentService();
     }
 
     @Reference
@@ -158,6 +185,16 @@ public class DeviceAlarmApplication extends Application implements MessageSeedPr
         this.propertyValueInfoService = propertyValueInfoService;
     }
 
+    @Reference
+    public void setTimeService(TimeService timeService) {
+        this.timeService = timeService;
+    }
+
+    @Reference
+    public void setClock(Clock clock) {
+        this.clock = clock;
+    }
+
     class HK2Binder extends AbstractBinder {
 
         @Override
@@ -169,12 +206,20 @@ public class DeviceAlarmApplication extends Application implements MessageSeedPr
             bind(logBookService).to(LogBookService.class);
             bind(issueService).to(IssueService.class);
             bind(issueActionService).to(IssueActionService.class);
+            bind(issueAssignmentService).to(IssueAssignmentService.class);
+            bind(issueCreationService).to(IssueCreationService.class);
             bind(meteringService).to(MeteringService.class);
             bind(userService).to(UserService.class);
             bind(thesaurus).to(Thesaurus.class);
             bind(nlsService).to(NlsService.class);
             bind(propertyValueInfoService).to(PropertyValueInfoService.class);
             bind(bpmService).to(BpmService.class);
+            bind(timeService).to(TimeService.class);
+            bind(clock).to(Clock.class);
+            bind(CreationRuleInfoFactory.class).to(CreationRuleInfoFactory.class);
+            bind(CreationRuleTemplateInfoFactory.class).to(CreationRuleTemplateInfoFactory.class);
+            bind(CreationRuleActionInfoFactory.class).to(CreationRuleActionInfoFactory.class);
+            bind(IssueActionInfoFactory.class).to(IssueActionInfoFactory.class);
         }
     }
 }

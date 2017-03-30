@@ -1,7 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.alarms.rest.response;
 
 
 import com.elster.jupiter.issue.share.entity.Issue;
+import com.elster.jupiter.issue.share.entity.OpenIssue;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -17,7 +22,7 @@ public class TopAlarmsInfo {
 
     }
 
-    public TopAlarmsInfo(List<Issue> issues, long totalUserAssigned, long totalWorkGroupAssigned){
+    public TopAlarmsInfo(List<OpenIssue> issues, long totalUserAssigned, long totalWorkGroupAssigned){
         items = issues.stream().map(AlarmInfo::new).collect(Collectors.toList());
         total = items.size();
         this.totalUserAssigned = totalUserAssigned;

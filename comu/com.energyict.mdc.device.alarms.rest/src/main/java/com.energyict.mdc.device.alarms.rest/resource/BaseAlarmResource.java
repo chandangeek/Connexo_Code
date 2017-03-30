@@ -1,6 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.alarms.rest.resource;
 
 import com.elster.jupiter.issue.share.service.IssueActionService;
+import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -22,6 +27,7 @@ public class BaseAlarmResource {
     private PropertyValueInfoService propertyValueInfoService;
     private IssueActionService issueActionService;
     private TransactionService transactionService;
+    private IssueCreationService issueCreationService;
 
     public BaseAlarmResource(){
 
@@ -97,5 +103,14 @@ public class BaseAlarmResource {
     @Inject
     public void setTransactionService(TransactionService transactionService) {
         this.transactionService = transactionService;
+    }
+
+    public IssueCreationService getIssueCreationService() {
+        return issueCreationService;
+    }
+
+    @Inject
+    public void setIssueCreationService(IssueCreationService issueCreationService) {
+        this.issueCreationService = issueCreationService;
     }
 }
