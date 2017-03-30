@@ -10,7 +10,7 @@ import com.elster.jupiter.orm.Encrypter;
 import java.io.Serializable;
 
 /**
- * Copyrights EnergyICT
+ *
  *
  * @since 9/6/12 3:39 PM
  */
