@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.master.data.rest.impl;
 
 import com.elster.jupiter.cbo.Accumulation;
@@ -53,6 +57,7 @@ public class LoadProfileTypeResourceTest extends MasterDataApplicationJerseyTest
     public void testIntervalsList() throws Exception {
         List<Object> intervals = target("/loadprofiles/intervals").request().get(List.class);
         assertThat(intervals).hasSize(16);
+        assertThat(((Map) intervals.get(0)).get("name")).isEqualTo("1 minute");
     }
 
     @Test
