@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.cbo.QualityCodeSystem;
@@ -217,7 +221,6 @@ public class UsagePointResourceTest extends UsagePointApplicationJerseyTest {
         when(channel.getId()).thenReturn(1L);
         when(channel.getChannelsContainer()).thenReturn(channelsContainer);
         when(metrologyContract.getDeliverables()).thenReturn(Collections.singletonList(deliverable));
-        when(metrologyConfiguration.getDeliverables()).thenReturn(Collections.singletonList(deliverable));
         when(deliverable.getReadingType()).thenReturn(readingType);
         doReturn(Arrays.asList(oldMeterActivation, meterActivation)).when(usagePoint).getMeterActivations();
         when(deliverable.getFormula()).thenReturn(formula);

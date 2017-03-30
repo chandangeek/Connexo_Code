@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.cbo.ReadingTypeUnitConversion;
@@ -6,6 +10,7 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirementsCollector;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
@@ -20,6 +25,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -53,6 +59,9 @@ public class UsagePointChannelInfoFactory {
                 case MONTHLY:
                     info.interval = new TimeDurationInfo(TimeDuration.months(Math.toIntExact(intervalLength.get().get(ChronoUnit.MONTHS))));
                     break;
+                case YEARLY:
+                    info.interval = new TimeDurationInfo(TimeDuration.months(Math.toIntExact(intervalLength.get().get(ChronoUnit.YEARS))));
+                    break;
                 default:
                     info.interval = new TimeDurationInfo(TimeDuration.minutes(Math.toIntExact(intervalLength.get().get(ChronoUnit.SECONDS)) / SECONDS_PER_MINUTE));
             }
@@ -60,7 +69,9 @@ public class UsagePointChannelInfoFactory {
 
         info.deviceChannels = new ArrayList<>();
 
-        ReadingTypeDeliverable readingTypeDeliverable = metrologyConfiguration.getDeliverables().stream()
+        ReadingTypeDeliverable readingTypeDeliverable = metrologyConfiguration.getContracts().stream()
+                .map(MetrologyContract::getDeliverables)
+                .flatMap(Collection::stream)
                 .filter(deliverable -> deliverable.getReadingType().equals(readingType))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Mismatch between channels configuration and reading type deliverable"));
