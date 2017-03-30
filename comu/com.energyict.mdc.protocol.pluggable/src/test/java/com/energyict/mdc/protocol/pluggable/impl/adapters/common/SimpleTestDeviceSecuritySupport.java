@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.pluggable.impl.adapters.common;
 
 import com.elster.jupiter.cps.CustomPropertySet;
@@ -25,7 +29,6 @@ import java.util.stream.Collectors;
  * Simple implementation of a {@link DeviceSecuritySupport} component.
  * Will only be used for testing
  * <p>
- * Copyrights EnergyICT
  * Date: 15/01/13
  * Time: 10:54
  */

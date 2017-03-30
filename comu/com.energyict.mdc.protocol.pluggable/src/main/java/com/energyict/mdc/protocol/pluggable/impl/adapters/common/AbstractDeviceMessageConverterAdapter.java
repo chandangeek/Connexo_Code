@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.pluggable.impl.adapters.common;
 
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -42,7 +46,6 @@ import java.util.stream.Collectors;
  * Abstract class for implementing the {@link DeviceMessageSupport}
  * for legacy protocols.
  * <p>
- * Copyrights EnergyICT
  * Date: 11/03/13
  * Time: 11:27
  */

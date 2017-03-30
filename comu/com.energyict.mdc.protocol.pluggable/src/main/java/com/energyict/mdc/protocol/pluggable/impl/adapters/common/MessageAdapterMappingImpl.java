@@ -1,10 +1,9 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.pluggable.impl.adapters.common;
 
-/**
- * Copyrights EnergyICT
- * Date: 15/04/13
- * Time: 11:23
- */
 public class MessageAdapterMappingImpl implements MessageAdapterMapping {
 
     private String deviceProtocolJavaClassName;

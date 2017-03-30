@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.pluggable.impl.adapters.common;
 
 import com.elster.jupiter.metering.MeteringService;
@@ -40,7 +44,6 @@ import static org.mockito.Mockito.withSettings;
 /**
  * Tests for the {@link DeviceProtocolAdapterImpl} component.
  * <p>
- * Copyrights EnergyICT
  * Date: 31/08/12
  * Time: 15:03
  */

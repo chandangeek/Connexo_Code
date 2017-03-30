@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.pluggable.impl.adapters.common;
 
 import com.elster.jupiter.properties.PropertySpec;
@@ -10,14 +14,6 @@ import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import java.util.EnumSet;
 import java.util.Set;
 
-/**
- * Represents a {@link LegacyMessageConverter} for Protocols
- * which are not yet correctly mapped/migrated.
- * <p/>
- * Copyrights EnergyICT
- * Date: 11/03/13
- * Time: 11:08
- */
 public class NonExistingMessageConverter implements LegacyMessageConverter {
 
     @Override

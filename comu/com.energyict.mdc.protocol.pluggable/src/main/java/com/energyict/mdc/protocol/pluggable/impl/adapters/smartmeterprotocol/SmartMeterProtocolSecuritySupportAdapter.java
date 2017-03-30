@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol;
 
 import com.energyict.mdc.dynamic.PropertySpecService;
@@ -15,7 +19,6 @@ import com.energyict.mdc.upl.security.LegacySecurityPropertyConverter;
  * Provides a mapping for the legacy {@link SmartMeterProtocol}s
  * and the new {@link DeviceSecuritySupport}
  * <p>
- * Copyrights EnergyICT
  * Date: 14/01/13
  * Time: 14:45
  */

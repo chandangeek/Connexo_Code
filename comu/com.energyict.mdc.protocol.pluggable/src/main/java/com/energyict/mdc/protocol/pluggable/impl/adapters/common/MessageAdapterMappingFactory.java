@@ -1,10 +1,9 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.pluggable.impl.adapters.common;
 
-/**
- * Copyrights EnergyICT
- * Date: 15/04/13
- * Time: 11:17
- */
 public interface MessageAdapterMappingFactory {
 
     /**

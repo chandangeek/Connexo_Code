@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol;
 
 import com.elster.jupiter.properties.PropertySpec;
@@ -41,13 +45,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 
-/**
- * Tests the {@link MeterProtocolSecuritySupportAdapter} component
- * <p/>
- * Copyrights EnergyICT
- * Date: 15/01/13
- * Time: 9:19
- */
 @RunWith(MockitoJUnitRunner.class)
 public class MeterProtocolSecuritySupportAdapterTest {
 

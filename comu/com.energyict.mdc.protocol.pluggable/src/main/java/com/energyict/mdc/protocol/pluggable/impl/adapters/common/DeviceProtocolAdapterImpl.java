@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.pluggable.impl.adapters.common;
 
 import com.elster.jupiter.cps.CustomPropertySet;
@@ -35,13 +39,6 @@ import java.util.Optional;
 import java.util.TimeZone;
 import java.util.stream.Collectors;
 
-/**
- * Abstract adapter class that can provide general functionality for the {@link SmartMeterProtocol} and {@link MeterProtocol}.
- * <p/>
- * Copyrights EnergyICT
- * Date: 31/08/12
- * Time: 14:48
- */
 public abstract class DeviceProtocolAdapterImpl implements DeviceProtocolAdapter, DeviceCachingSupport {
 
     public static final String DEFAULT_TIMEZONE = "GMT";

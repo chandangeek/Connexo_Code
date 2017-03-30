@@ -1,9 +1,14 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.pluggable;
 
-import aQute.bnd.annotation.ProviderType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolAdapter;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
+
+import aQute.bnd.annotation.ProviderType;
 
 /**
  * Adapter between a {@link SmartMeterProtocol} and a {@link DeviceProtocol}.

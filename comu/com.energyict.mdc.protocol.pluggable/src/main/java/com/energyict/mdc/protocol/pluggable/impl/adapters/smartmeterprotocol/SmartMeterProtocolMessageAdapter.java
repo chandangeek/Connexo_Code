@@ -1,5 +1,10 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol;
 
+import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;

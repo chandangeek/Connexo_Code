@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.pluggable.mocks;
 
 import com.elster.jupiter.properties.PropertySpec;
@@ -12,13 +16,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * Test enum implementing DeviceMessageSpec.
- * <p/>
- * Copyrights EnergyICT
- * Date: 8/02/13
- * Time: 15:16
- */
 public final class DeviceMessageTestSpec implements DeviceMessageSpec {
 
     public static final String ACTIVATIONDATE_PROPERTY_SPEC_NAME = "testMessageSpec.activationdate";

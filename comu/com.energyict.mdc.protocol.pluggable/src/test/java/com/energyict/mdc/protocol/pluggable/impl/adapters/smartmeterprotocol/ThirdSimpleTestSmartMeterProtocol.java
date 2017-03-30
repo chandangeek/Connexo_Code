@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol;
 
 import com.elster.jupiter.properties.PropertySpec;
@@ -23,13 +27,6 @@ import java.util.List;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
-/**
- * A third simple test protocol.
- * <p/>
- * Copyrights EnergyICT
- * Date: 15/01/13
- * Time: 13:10
- */
 public class ThirdSimpleTestSmartMeterProtocol implements SmartMeterProtocol {
 
     public ThirdSimpleTestSmartMeterProtocol() {

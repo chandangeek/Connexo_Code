@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.pluggable;
 
 import aQute.bnd.annotation.ProviderType;
@@ -8,6 +12,8 @@ import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
+
+import aQute.bnd.annotation.ProviderType;
 
 import java.util.List;
 

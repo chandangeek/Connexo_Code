@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.pluggable.impl;
 
 import com.elster.jupiter.properties.InvalidValueException;
@@ -6,11 +10,10 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.protocol.api.exceptions.ProtocolCreationException;
 import com.energyict.mdc.protocol.pluggable.MessageSeeds;
 
-import java.text.MessageFormat;
-import java.util.List;
-
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
+import java.text.MessageFormat;
+import java.util.List;
 
 public class HasValidPropertiesValidator implements ConstraintValidator<HasValidProperties, DeviceProtocolPluggableClassImpl> {
 
