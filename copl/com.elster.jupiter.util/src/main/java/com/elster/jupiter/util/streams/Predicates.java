@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.util.streams;
 
 import java.util.function.Function;
@@ -14,6 +18,10 @@ public enum Predicates {
     }
 
     public static <T> Predicate<T> either(Predicate<T> predicate) {
+        return predicate;
+    }
+
+    public static <T> Predicate<T> both(Predicate<T> predicate) {
         return predicate;
     }
 

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.util.conditions;
 
 import com.elster.jupiter.util.time.Interval;
@@ -79,14 +83,23 @@ public final class Where {
             value=value.replace(keyword,"\\"+keyword);
         }
         // transform un-escaped wildcards * and ? to sql like operators
-        value=value.replaceAll("([^\\\\]|^)\\*", "$1%");
-        value=value.replaceAll("([^\\\\]|^)\\?", "$1_");
+        value=replaceAll(value, "([^\\\\]|^)\\*", "$1%");
+        value = replaceAll(value, "([^\\\\]|^)\\?", "$1_");
 
         // transform escaped wildcards * and ? to their unescaped literal that does not have any meaning in SQL anyway
         // We need to search for double escape: it was doubled in the little loop on top of this method
         value=value.replaceAll("\\\\\\\\\\*", "*");
         value=value.replaceAll("\\\\\\\\\\?", "?");
 
+        return value;
+    }
+
+    private static String replaceAll(String value, String regex, String replacement) {
+        String oldValue;
+        do {
+            oldValue = value;
+            value = value.replaceAll(regex, replacement);
+        } while (!oldValue.equals(value));
         return value;
     }
 

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.util.conditions;
 
 public enum Operator {
@@ -7,6 +11,7 @@ public enum Operator {
     LESSTHAN("<"),
     GREATERTHANOREQUAL(">="),
     LESSTHANOREQUAL("<="),
+    IN("IN"),
     LIKE("LIKE") {
         @Override
         public String getFormat() {
@@ -92,5 +97,13 @@ public enum Operator {
 
     public static Comparison isFalse(String fieldName) {
         return Operator.EQUAL.compare(fieldName, false);
+    }
+
+    public static Comparison isNull(String fieldName) {
+        return Operator.ISNULL.compare(fieldName);
+    }
+
+    public static Comparison isNotNull(String fieldName) {
+        return Operator.ISNOTNULL.compare(fieldName);
     }
 }

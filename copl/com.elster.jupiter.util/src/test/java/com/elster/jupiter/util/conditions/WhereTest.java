@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.util.conditions;
 
 import com.elster.jupiter.util.time.Interval;
@@ -11,29 +15,29 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class WhereTest {
 
-	@Test
-	public void testInfiniteIn() {
-		Interval interval = Interval.of(null,null);
-		assertThat(where("test").inOpen(interval)).isEqualTo(Condition.TRUE);
-		assertThat(where("test").inClosed(interval)).isEqualTo(Condition.TRUE);
-		assertThat(where("test").inOpenClosed(interval)).isEqualTo(Condition.TRUE);
-		assertThat(where("test").inClosedOpen(interval)).isEqualTo(Condition.TRUE);
-	}
+    @Test
+    public void testInfiniteIn() {
+        Interval interval = Interval.of(null, null);
+        assertThat(where("test").inOpen(interval)).isEqualTo(Condition.TRUE);
+        assertThat(where("test").inClosed(interval)).isEqualTo(Condition.TRUE);
+        assertThat(where("test").inOpenClosed(interval)).isEqualTo(Condition.TRUE);
+        assertThat(where("test").inClosedOpen(interval)).isEqualTo(Condition.TRUE);
+    }
 
-	@Test
-	public void testFiniteIn() {
-		Interval interval = Interval.of(Instant.EPOCH, Instant.now());
-		assertThat(where("test").inOpen(interval).toString()).matches(".*test.*>[ ?].*AND.*test.*<[ ?].*");
-		assertThat(where("test").inOpenClosed(interval).toString()).matches(".*test.*>[ ?].*AND.*test.*<=[ ?].*");
-		assertThat(where("test").inClosedOpen(interval).toString()).matches(".*test.*>=[ ?].*AND.*test.*<[ ?].*");
-		assertThat(where("test").inClosed(interval).toString()).matches(".*test.*>=[ ?].*AND.*test.*<=[ ?].*");
-	}
+    @Test
+    public void testFiniteIn() {
+        Interval interval = Interval.of(Instant.EPOCH, Instant.now());
+        assertThat(where("test").inOpen(interval).toString()).matches(".*test.*>[ ?].*AND.*test.*<[ ?].*");
+        assertThat(where("test").inOpenClosed(interval).toString()).matches(".*test.*>[ ?].*AND.*test.*<=[ ?].*");
+        assertThat(where("test").inClosedOpen(interval).toString()).matches(".*test.*>=[ ?].*AND.*test.*<[ ?].*");
+        assertThat(where("test").inClosed(interval).toString()).matches(".*test.*>=[ ?].*AND.*test.*<=[ ?].*");
+    }
 
-	@Test
-	public void testCurrentAt() {
-		Instant date = Instant.now();
-		assertThat(where("test").isEffective(date).toString()).matches(".*test\\.start\\s*<=[ ?].*AND.*test\\.end.\\s*>[ ?].*");
-	}
+    @Test
+    public void testCurrentAt() {
+        Instant date = Instant.now();
+        assertThat(where("test").isEffective(date).toString()).matches(".*test\\.start\\s*<=[ ?].*AND.*test\\.end.\\s*>[ ?].*");
+    }
 
     @Test
     public void testLikeSqlUnderscore() throws Exception {
@@ -133,6 +137,26 @@ public class WhereTest {
     @Test
     public void testLikeSqlMultipleEscapedExclamation() throws Exception {
         assertThat(Where.toOracleSql("!!!")).isEqualTo("!!!");
+    }
+
+    @Test
+    public void testLikeSqlMultipleConsecutiveQuestionMarks() {
+        assertThat(Where.toOracleSql("*BLA??")).isEqualTo("%BLA__");
+    }
+
+    @Test
+    public void testLikeSqlMultipleQuestionMarks() {
+        assertThat(Where.toOracleSql("*B?LA?")).isEqualTo("%B_LA_");
+    }
+
+   @Test
+    public void testLikeSqlMultipleConsecutiveAsterix() {
+        assertThat(Where.toOracleSql("*BLA**")).isEqualTo("%BLA%%");
+    }
+
+    @Test
+    public void testLikeSqlMultipleAsterix() {
+        assertThat(Where.toOracleSql("*B*LA*")).isEqualTo("%B%LA%");
     }
 
 }
