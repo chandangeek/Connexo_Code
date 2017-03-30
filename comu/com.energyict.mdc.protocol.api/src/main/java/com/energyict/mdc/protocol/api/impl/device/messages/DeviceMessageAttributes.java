@@ -225,6 +225,7 @@ public enum DeviceMessageAttributes implements TranslationKey {
     prepaidCreditAttributeName(DeviceMessageConstants.prepaidCreditAttributeName, "PrepaidConfigurationDeviceMessage.prepaidCredit"),
     SetSumMaskAttributeName(DeviceMessageConstants.SetSumMaskAttributeName, "Set sumMask"),
     SetSubstractMaskAttributeName(DeviceMessageConstants.SetSubstractMaskAttributeName, "Set substractMask"),
+    KeyAccessorTypeAttributeName(DeviceMessageConstants.keyAccessorTypeAttributeName, "Key accessor type")
     ;
 
     private final String key;

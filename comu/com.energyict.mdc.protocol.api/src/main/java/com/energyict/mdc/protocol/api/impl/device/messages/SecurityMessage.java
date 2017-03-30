@@ -5,6 +5,7 @@
 package com.energyict.mdc.protocol.api.impl.device.messages;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.device.messages.DlmsAuthenticationLevelMessageValues;
@@ -469,6 +470,19 @@ public enum SecurityMessage implements DeviceMessageSpecEnum {
                     propertySpecService
                             .passwordSpec()
                             .named(DeviceMessageAttributes.newPasswordAttributeName)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
+        }
+    },
+    KEY_RENEWAL(DeviceMessageId.SECURITY_KEY_RENEWAL, "Renew key") {
+        @Override
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
+            propertySpecs.add(
+                    propertySpecService
+                            .referenceSpec(KeyAccessorType.class)
+                            .named(DeviceMessageAttributes.KeyAccessorTypeAttributeName)
                             .fromThesaurus(thesaurus)
                             .markRequired()
                             .finish());

@@ -573,4 +573,6 @@ public class DeviceMessageConstants {
     public static final String sslCertificateUserFile = "sslCertificateUserFile";
     public static final String servletURL = "servletURL";
     public static final String logLevel = "logLevel";
+
+    public static final String keyAccessorTypeAttributeName = "keyAccessorType";
 }

@@ -164,4 +164,11 @@ public interface OfflineDevice extends Offline {
 
     Optional<MacException> getMacException();
 
+    /**
+     * Get a list of all offlineKeyAccessors
+     *
+     * @return a list of offlineKeyAccessors
+     */
+    List<OfflineKeyAccessor> getAllOfflineKeyAccessors();
+
 }
