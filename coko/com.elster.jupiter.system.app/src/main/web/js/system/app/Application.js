@@ -19,7 +19,7 @@ Ext.define('SystemApp.Application', {
         'Bpm.privileges.BpmManagement',
         'Cal.privileges.Calendar',
         'Wss.privileges.Webservices',
-        'Pkj.privileges.TrustStore'
+        'Pkj.privileges.CertificateManagement'
     ],
 
     controllers: [
