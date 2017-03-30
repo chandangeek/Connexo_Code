@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.dashboard.rest.status.impl;
 
 import com.elster.jupiter.domain.util.Finder;
@@ -7,8 +11,10 @@ import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.OnlineComServer;
 import com.energyict.mdc.engine.status.ComServerStatus;
 import com.energyict.mdc.engine.status.ComServerType;
+
 import java.util.Arrays;
 import java.util.Collections;
+
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;

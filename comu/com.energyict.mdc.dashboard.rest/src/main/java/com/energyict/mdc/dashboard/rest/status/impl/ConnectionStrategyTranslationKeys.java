@@ -1,9 +1,12 @@
-package com.energyict.mdc.dashboard.rest.status.impl;
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 
-import com.energyict.mdc.device.config.ConnectionStrategy;
+package com.energyict.mdc.dashboard.rest.status.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
+import com.energyict.mdc.device.config.ConnectionStrategy;
 
 import java.util.stream.Stream;
 

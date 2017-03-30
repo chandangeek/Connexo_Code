@@ -1,10 +1,13 @@
-package com.energyict.mdc.dashboard.rest.status.impl;
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 
-import com.energyict.mdc.dashboard.Counter;
-import com.energyict.mdc.dashboard.DashboardCounters;
+package com.energyict.mdc.dashboard.rest.status.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
+import com.energyict.mdc.dashboard.Counter;
+import com.energyict.mdc.dashboard.DashboardCounters;
 
 import javax.inject.Inject;
 import java.util.ArrayList;

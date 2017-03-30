@@ -1,8 +1,19 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.dashboard.rest.status.impl;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.rest.util.Transactional;
+import com.elster.jupiter.users.User;
+import com.elster.jupiter.util.Checks;
+import com.energyict.mdc.device.data.security.Privileges;
+import com.energyict.mdc.favorites.DeviceLabel;
+import com.energyict.mdc.favorites.FavoritesService;
+import com.energyict.mdc.favorites.LabelCategory;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -16,17 +27,9 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
-
-import com.elster.jupiter.users.User;
-import com.elster.jupiter.util.Checks;
-import com.elster.jupiter.rest.util.ExceptionFactory;
-import com.elster.jupiter.rest.util.PagedInfoList;
-import com.elster.jupiter.rest.util.JsonQueryParameters;
-import com.elster.jupiter.rest.util.Transactional;
-import com.energyict.mdc.device.data.security.Privileges;
-import com.energyict.mdc.favorites.DeviceLabel;
-import com.energyict.mdc.favorites.FavoritesService;
-import com.energyict.mdc.favorites.LabelCategory;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 @Path("/mylabeleddevices")

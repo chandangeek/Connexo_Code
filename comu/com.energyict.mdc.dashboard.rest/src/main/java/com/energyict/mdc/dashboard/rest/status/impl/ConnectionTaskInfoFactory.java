@@ -1,9 +1,14 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.dashboard.rest.status.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.configuration.rest.DeviceConfigurationIdInfo;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.rest.DeviceConnectionTaskInfo;
@@ -67,9 +72,14 @@ public class ConnectionTaskInfoFactory {
                 TaskStatusTranslationKeys taskStatusTranslationKey = TaskStatusTranslationKeys.from(scheduledConnectionTask.getTaskStatus());
                 info.currentState = new TaskStatusInfo(taskStatusTranslationKey.getKey(), thesaurus.getFormat(taskStatusTranslationKey).format());
             }
-            info.connectionStrategy=new DeviceConnectionTaskInfo.ConnectionStrategyInfo();
-            info.connectionStrategy.id = scheduledConnectionTask.getConnectionStrategy().name();
-            info.connectionStrategy.displayValue = ConnectionStrategyTranslationKeys.translationFor(scheduledConnectionTask.getConnectionStrategy(), thesaurus);
+            info.connectionStrategyInfo=new DeviceConnectionTaskInfo.ConnectionStrategyInfo();
+            info.connectionStrategyInfo.connectionStrategy = scheduledConnectionTask.getConnectionStrategy().name();
+            info.connectionStrategyInfo.localizedValue = ConnectionStrategyTranslationKeys.translationFor(scheduledConnectionTask.getConnectionStrategy(), thesaurus);
+            ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = scheduledConnectionTask.getProtocolDialectConfigurationProperties();
+            if (protocolDialectConfigurationProperties != null) {
+                info.protocolDialect = protocolDialectConfigurationProperties.getDeviceProtocolDialectName();
+                info.protocolDialectDisplayName = protocolDialectConfigurationProperties.getDeviceProtocolDialect().getDisplayName();
+            }
             ComWindow communicationWindow = scheduledConnectionTask.getCommunicationWindow();
             if (communicationWindow!=null &&
                     (communicationWindow.getStart().getMillis()!=0 || communicationWindow.getEnd().getMillis()!=0)) {

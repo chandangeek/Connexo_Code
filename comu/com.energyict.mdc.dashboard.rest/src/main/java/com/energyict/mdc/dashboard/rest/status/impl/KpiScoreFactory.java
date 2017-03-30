@@ -1,9 +1,16 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.dashboard.rest.status.impl;
 
-import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.util.Ranges;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiScore;
+
 import com.google.common.collect.Range;
+
+import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.DayOfWeek;
@@ -17,7 +24,6 @@ import java.time.temporal.TemporalAdjusters;
 import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.List;
-import javax.inject.Inject;
 
 /**
  * Created by bvn on 10/14/14.

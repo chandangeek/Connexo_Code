@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.dashboard.rest.status.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
@@ -10,7 +14,6 @@ import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
-import java.util.ArrayList;
 import java.util.Optional;
 import java.util.function.Supplier;
 
