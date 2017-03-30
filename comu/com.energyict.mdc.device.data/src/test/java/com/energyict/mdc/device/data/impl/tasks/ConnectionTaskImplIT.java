@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl.tasks;
 
 import com.elster.jupiter.cps.CustomPropertySet;
@@ -48,12 +52,14 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -280,7 +286,7 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     }
 
     private static InboundComPortPool createInactiveInboundIpComPortPool(String name) {
-        return inMemoryPersistence.getEngineConfigurationService().newInboundComPortPool(name, ComPortType.TCP, discoveryProtocolPluggableClass);
+        return inMemoryPersistence.getEngineConfigurationService().newInboundComPortPool(name, ComPortType.TCP, discoveryProtocolPluggableClass, Collections.emptyMap());
     }
 
     @Before
@@ -346,28 +352,28 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
         ComTask comTaskWithLogBooks = createComTaskWithLogBooks();
         ComTask comTaskWithRegisters = createComTaskWithRegisters();
 
-        this.comTaskEnablement1 = enableComTask(true, configDialect, comTaskWithBasicCheck);
-        this.comTaskEnablement2 = enableComTask(true, configDialect, comTaskWithLogBooks);
-        this.comTaskEnablement3 = enableComTask(true, configDialect, comTaskWithRegisters);
+        this.comTaskEnablement1 = enableComTask(true, comTaskWithBasicCheck);
+        this.comTaskEnablement2 = enableComTask(true, comTaskWithLogBooks);
+        this.comTaskEnablement3 = enableComTask(true, comTaskWithRegisters);
 
-        partialInboundConnectionTask = deviceConfiguration.newPartialInboundConnectionTask("Inbound (1)", inboundNoParamsConnectionTypePluggableClass).
+        partialInboundConnectionTask = deviceConfiguration.newPartialInboundConnectionTask("Inbound (1)", inboundNoParamsConnectionTypePluggableClass, configDialect).
                 build();
 
-        partialInboundConnectionTask2 = deviceConfiguration.newPartialInboundConnectionTask("Inbound (2)", inboundNoParamsConnectionTypePluggableClass).
+        partialInboundConnectionTask2 = deviceConfiguration.newPartialInboundConnectionTask("Inbound (2)", inboundNoParamsConnectionTypePluggableClass, configDialect).
                 build();
 
-        partialScheduledConnectionTask = deviceConfiguration.newPartialScheduledConnectionTask("Outbound (1)", outboundNoParamsConnectionTypePluggableClass, TimeDuration.minutes(5), ConnectionStrategy.AS_SOON_AS_POSSIBLE).
+        partialScheduledConnectionTask = deviceConfiguration.newPartialScheduledConnectionTask("Outbound (1)", outboundNoParamsConnectionTypePluggableClass, TimeDuration.minutes(5), ConnectionStrategy.AS_SOON_AS_POSSIBLE, configDialect).
                 comWindow(new ComWindow(0, 7200)).
                 build();
 
-        partialScheduledConnectionTask2 = deviceConfiguration.newPartialScheduledConnectionTask("Outbound (2)", outboundNoParamsConnectionTypePluggableClass, TimeDuration.minutes(5), ConnectionStrategy.AS_SOON_AS_POSSIBLE).
+        partialScheduledConnectionTask2 = deviceConfiguration.newPartialScheduledConnectionTask("Outbound (2)", outboundNoParamsConnectionTypePluggableClass, TimeDuration.minutes(5), ConnectionStrategy.AS_SOON_AS_POSSIBLE, configDialect).
                 comWindow(new ComWindow(0, 7200)).
                 build();
 
-        partialConnectionInitiationTask = deviceConfiguration.newPartialConnectionInitiationTask("Initiation (1)", outboundNoParamsConnectionTypePluggableClass, TimeDuration.minutes(5)).
+        partialConnectionInitiationTask = deviceConfiguration.newPartialConnectionInitiationTask("Initiation (1)", outboundNoParamsConnectionTypePluggableClass, TimeDuration.minutes(5), configDialect).
                 build();
 
-        partialConnectionInitiationTask2 = deviceConfiguration.newPartialConnectionInitiationTask("Initiation (2)", outboundIpConnectionTypePluggableClass, TimeDuration.minutes(5)).
+        partialConnectionInitiationTask2 = deviceConfiguration.newPartialConnectionInitiationTask("Initiation (2)", outboundIpConnectionTypePluggableClass, TimeDuration.minutes(5), configDialect).
                 build();
 
         deviceConfiguration.save();
@@ -431,15 +437,25 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
         }
     }
 
-    private ComTaskEnablement enableComTask(boolean useDefault, ProtocolDialectConfigurationProperties configDialect, ComTask comTask) {
-        ComTaskEnablementBuilder builder = this.deviceConfiguration.enableComTask(comTask, this.securityPropertySet, configDialect);
+    protected ProtocolDialectConfigurationProperties dialectConfigurationPropertiesToUpdate(){
+        ProtocolDialectConfigurationProperties propertiesToUpdate = createDialectConfigProperties();
+        propertiesToUpdate.setProperty("capitalA", "A");
+        propertiesToUpdate.setProperty("capitalB", "B");
+        propertiesToUpdate.setProperty("capitalC", "C");
+        propertiesToUpdate.setProperty("capitalD", "D");
+        return propertiesToUpdate;
+
+    }
+
+    private ComTaskEnablement enableComTask(boolean useDefault, ComTask comTask) {
+        ComTaskEnablementBuilder builder = this.deviceConfiguration.enableComTask(comTask, this.securityPropertySet);
         builder.useDefaultConnectionTask(useDefault);
         builder.setPriority(this.comTaskEnablementPriority);
         return builder.add();
     }
 
-    private ProtocolDialectConfigurationProperties createDialectConfigProperties() {
-        ProtocolDialectConfigurationProperties configDialect = deviceConfiguration.findOrCreateProtocolDialectConfigurationProperties(new ComTaskExecutionDialect());
+    protected ProtocolDialectConfigurationProperties createDialectConfigProperties() {
+        ProtocolDialectConfigurationProperties configDialect = deviceConfiguration.findOrCreateProtocolDialectConfigurationProperties(new ConnectionTaskProtocolDialect());
         deviceConfiguration.save();
         return configDialect;
     }
@@ -517,9 +533,10 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
         when(viewPrivilege.getName()).thenReturn(ViewPrivilege.LEVEL_1.getPrivilege());
         privileges.add(viewPrivilege);
         when(inMemoryPersistence.getMockedUser().getPrivileges()).thenReturn(privileges);
+        when(inMemoryPersistence.getMockedUser().getPrivileges(anyString())).thenReturn(privileges);
     }
 
-    private class ComTaskExecutionDialect implements DeviceProtocolDialect {
+    class ConnectionTaskProtocolDialect implements DeviceProtocolDialect {
 
         @Override
         public String getDeviceProtocolDialectName() {
@@ -540,7 +557,6 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
         public Optional<CustomPropertySet<DeviceProtocolDialectPropertyProvider, ? extends PersistentDomainExtension<DeviceProtocolDialectPropertyProvider>>> getCustomPropertySet() {
             return Optional.empty();
         }
-
     }
 
 }

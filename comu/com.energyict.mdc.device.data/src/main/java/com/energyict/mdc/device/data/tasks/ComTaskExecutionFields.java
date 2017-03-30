@@ -1,12 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.tasks;
 
 import com.energyict.mdc.common.ImplField;
 
-/**
- * Copyrights EnergyICT
- * Date: 17/04/14
- * Time: 15:12
- */
 public enum ComTaskExecutionFields implements ImplField {
 
     ID("id"),
@@ -28,7 +27,6 @@ public enum ComTaskExecutionFields implements ImplField {
     LASTEXECUTIONFAILED("lastExecutionFailed"),
     IGNORENEXTEXECUTIONSPECSFORINBOUND("ignoreNextExecutionSpecsForInbound"),
     COMPORT("comPort"),
-    PROTOCOLDIALECTCONFIGURATIONPROPERTIES("protocolDialectConfigurationProperties"),
     COM_SCHEDULE("comSchedule"),
     LAST_SESSION("lastSession"),
     LAST_SESSION_HIGHEST_PRIORITY_COMPLETION_CODE("lastSessionHighestPriorityCompletionCode"),

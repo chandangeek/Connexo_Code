@@ -1,12 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl.configchange;
 
 import com.energyict.mdc.device.data.QueueMessage;
 
-/**
- * Copyrights EnergyICT
- * Date: 29.10.15
- * Time: 09:59
- */
 public class SingleConfigChangeQueueMessage implements QueueMessage {
     public long deviceId;
     public long destinationDeviceConfigurationId;

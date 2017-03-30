@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.cps.EditPrivilege;
@@ -20,6 +24,7 @@ import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTaskBuilder;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTaskBuilder;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.tasks.InboundNoParamsConnectionTypeImpl;
 import com.energyict.mdc.device.data.impl.tasks.IpConnectionProperties;
@@ -49,20 +54,17 @@ import javax.validation.ConstraintViolationException;
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.time.Instant;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-/**
- * Copyrights EnergyICT
- * Date: 04/04/14
- * Time: 12:06
- */
 @RunWith(MockitoJUnitRunner.class)
 public class DeviceCommunicationTest extends PersistenceIntegrationTest {
 
@@ -120,11 +122,11 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
         InboundDeviceProtocolPluggableClass inboundDeviceProtocolPluggableClass = inMemoryPersistence.getProtocolPluggableService()
                 .newInboundDeviceProtocolPluggableClass("MyInboundDeviceProtocolPluggableClass", SimpleDiscoveryProtocol.class.getName());
         inboundDeviceProtocolPluggableClass.save();
-        inboundComPortPool = inMemoryPersistence.getEngineConfigurationService().newInboundComPortPool("InboundComPortPool", ComPortType.TCP, inboundDeviceProtocolPluggableClass);
+        inboundComPortPool = inMemoryPersistence.getEngineConfigurationService().newInboundComPortPool("InboundComPortPool", ComPortType.TCP, inboundDeviceProtocolPluggableClass, Collections.emptyMap());
         inboundComPortPool.setActive(true);
         inboundComPortPool.update();
 
-        otherInboundComPortPool = inMemoryPersistence.getEngineConfigurationService().newInboundComPortPool("OtherInboundPool", ComPortType.TCP, inboundDeviceProtocolPluggableClass);
+        otherInboundComPortPool = inMemoryPersistence.getEngineConfigurationService().newInboundComPortPool("OtherInboundPool", ComPortType.TCP, inboundDeviceProtocolPluggableClass, Collections.emptyMap());
         otherInboundComPortPool.setActive(true);
         otherInboundComPortPool.update();
         IssueStatus wontFix = mock(IssueStatus.class);
@@ -192,7 +194,8 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
     }
 
     private void addPartialOutboundConnectionTaskFor(DeviceConfiguration communicationConfiguration, ConnectionTypePluggableClass connectionTypePluggableClass) {
-        PartialScheduledConnectionTaskBuilder partialScheduledConnectionTaskBuilder = communicationConfiguration.newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, TimeDuration.seconds(60), ConnectionStrategy.AS_SOON_AS_POSSIBLE)
+        ProtocolDialectConfigurationProperties dialectProperties = communicationConfiguration.getProtocolDialectConfigurationPropertiesList().get(0);
+        PartialScheduledConnectionTaskBuilder partialScheduledConnectionTaskBuilder = communicationConfiguration.newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, TimeDuration.seconds(60), ConnectionStrategy.AS_SOON_AS_POSSIBLE, dialectProperties )
                 .comPortPool(outboundComPortPool)
                 .comWindow(COM_WINDOW)
                 .asDefault(true);
@@ -205,7 +208,8 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
     }
 
     private void addPartialInboundConnectionTaskFor(DeviceConfiguration deviceConfiguration, ConnectionTypePluggableClass connectionTypePluggableClass) {
-        PartialInboundConnectionTaskBuilder partialInboundConnectionTaskBuilder = deviceConfiguration.newPartialInboundConnectionTask("MyInboundConnectionTask", connectionTypePluggableClass)
+        ProtocolDialectConfigurationProperties dialectProperties = deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(0);
+        PartialInboundConnectionTaskBuilder partialInboundConnectionTaskBuilder = deviceConfiguration.newPartialInboundConnectionTask("MyInboundConnectionTask", connectionTypePluggableClass, dialectProperties)
                 .comPortPool(inboundComPortPool)
                 .asDefault(false);
         partialInboundConnectionTask = partialInboundConnectionTaskBuilder.build();
@@ -213,12 +217,15 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
     }
 
     private void addPartialConnectionInitiationConnectionTask(DeviceConfiguration deviceConfiguration) {
+        ProtocolDialectConfigurationProperties dialectProperties = deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(0);
         PartialConnectionInitiationTaskBuilder partialConnectionInitiationTaskBuilder = deviceConfiguration.newPartialConnectionInitiationTask("MyConnectionInitiationTask", outboundNoParamsPluggableClass, TimeDuration
-                .seconds(60))
+                .seconds(60), dialectProperties)
                 .comPortPool(outboundComPortPool);
         partialConnectionInitiationTask = partialConnectionInitiationTaskBuilder.build();
         deviceConfiguration.save();
     }
+
+
 
     @Test
     @Transactional
@@ -689,6 +696,7 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
         when(viewPrivilege.getName()).thenReturn(ViewPrivilege.LEVEL_1.getPrivilege());
         privileges.add(viewPrivilege);
         when(inMemoryPersistence.getMockedUser().getPrivileges()).thenReturn(privileges);
+        when(inMemoryPersistence.getMockedUser().getPrivileges(anyString())).thenReturn(privileges);
     }
 
 }

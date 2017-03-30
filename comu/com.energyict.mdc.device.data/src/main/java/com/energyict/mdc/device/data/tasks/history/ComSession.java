@@ -1,6 +1,9 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.tasks.history;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.device.data.Device;
@@ -12,7 +15,6 @@ import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.tasks.ComTask;
 
 import aQute.bnd.annotation.ProviderType;
-import com.elster.jupiter.domain.util.Finder;
 import com.google.common.collect.Range;
 
 import java.time.Duration;
@@ -21,12 +23,6 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
-/**
- * Copyrights EnergyICT
- * User: sva
- * Date: 23/04/12
- * Time: 14:25
- */
 @ProviderType
 public interface ComSession extends HasId, TaskExecutionSummary {
 

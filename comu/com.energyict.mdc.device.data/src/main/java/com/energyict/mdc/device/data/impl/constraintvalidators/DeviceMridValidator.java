@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl.constraintvalidators;
 
 import com.energyict.mdc.device.data.Device;
@@ -9,13 +13,6 @@ import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import java.util.Optional;
 
-/**
- * Validates that each device has a unique external name.
- * <p>
- * Copyrights EnergyICT
- * Date: 10/03/14
- * Time: 16:13
- */
 public class DeviceMridValidator implements ConstraintValidator<UniqueMrid, Device> {
 
     private final DeviceService deviceService;

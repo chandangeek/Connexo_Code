@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl.configchange;
 
 import com.elster.jupiter.events.LocalEvent;
@@ -6,13 +10,9 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.config.DeviceConfigConflictMapping;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.ServerDeviceService;
+
 import org.osgi.service.component.annotations.Reference;
 
-/**
- * Copyrights EnergyICT
- * Date: 12.10.15
- * Time: 11:40
- */
 public class ConflictCreationEventHandler implements TopicHandler {
 
     private static final String TOPIC = "com/energyict/mdc/device/config/deviceconfigconflict/VALIDATE_CREATE";

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.domain.util.NotEmpty;
@@ -18,13 +22,6 @@ import java.io.Serializable;
 import java.time.Instant;
 import java.util.Optional;
 
-/**
- * Represents a <i>typed</i> property of a Device.
- * <p>
- * Copyrights EnergyICT
- * Date: 3/14/14
- * Time: 9:03 AM
- */
 @ValidDeviceProtocolProperties(groups = {Save.Create.class, Save.Update.class})
 public class DeviceProtocolPropertyImpl implements ServerDeviceProtocolPropertyForValidation, Serializable {
 

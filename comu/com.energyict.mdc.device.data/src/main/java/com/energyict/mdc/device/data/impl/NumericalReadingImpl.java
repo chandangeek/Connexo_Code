@@ -1,13 +1,26 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.device.data.NumericalReading;
 
 import com.elster.jupiter.metering.ReadingRecord;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.validation.DataValidationStatus;
+import com.energyict.mdc.device.data.NumericalReading;
+
+import com.energyict.mdc.device.data.NumericalRegister;
+
+import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.Optional;
 
 /**
  * Provides an implementation for the {@link NumericalReading} interface.
@@ -17,12 +30,12 @@ import java.math.BigDecimal;
  */
 public class NumericalReadingImpl extends ReadingImpl implements NumericalReading {
 
-    protected NumericalReadingImpl(ReadingRecord actualReading) {
-        super(actualReading);
+    protected NumericalReadingImpl(ReadingRecord actualReading, NumericalRegister register, ReadingRecord previousReading) {
+        super(actualReading, register, previousReading);
     }
 
-    protected NumericalReadingImpl(ReadingRecord actualReading, DataValidationStatus validationStatus) {
-        super(actualReading, validationStatus);
+    protected NumericalReadingImpl(ReadingRecord actualReading, DataValidationStatus validationStatus, NumericalRegister register, ReadingRecord previousReading) {
+        super(actualReading, validationStatus, register, previousReading);
     }
 
     @Override
@@ -38,6 +51,72 @@ public class NumericalReadingImpl extends ReadingImpl implements NumericalReadin
     @Override
     public BigDecimal getValue() {
         return this.getActualReading().getValue();
+    }
+
+    @Override
+    public Optional<Quantity> getCollectedValue() {
+        return Optional.ofNullable(getQuantityFor(getRegister().getReadingType()));
+    }
+
+    @Override
+    public Optional<Quantity> getCalculatedValue() {
+        return Optional.ofNullable(getCalculatedReadingType(getTimeStamp()).map(this::getQuantityFor).orElse(null));
+    }
+
+    private Optional<ReadingType> getCalculatedReadingType(Instant timeStamp) {
+        return getRegister().getCalculatedReadingType(timeStamp);
+    }
+
+    @Override
+    public Optional<BigDecimal> getDelta() {
+        //todo verify whether the getCalculatedReadingType call isn't blocking performance
+        if (getPreviousReading().isPresent()) {
+            ReadingRecord previousReadingRecord = getPreviousReading().get();
+            if (this.getCalculatedValue().isPresent()) {
+                Optional<ReadingType> calculatedReadingTypeForPrevious = getCalculatedReadingType(previousReadingRecord.getTimeStamp());
+                if (calculatedReadingTypeForPrevious.isPresent()) {
+                    Quantity previousQuantity = previousReadingRecord.getQuantity(calculatedReadingTypeForPrevious.get());
+                    if (previousQuantity != null) {
+                        return Optional.of(getCalculatedValue().get().getValue().subtract(previousQuantity.getValue()));
+                    }
+                }
+            } else {
+                Quantity previousQuantity = previousReadingRecord.getQuantity(previousReadingRecord.getReadingType());
+                if (previousQuantity != null) {
+                    return Optional.of(getCollectedValue().get().getValue().subtract(previousQuantity.getValue()));
+                }
+            }
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<Range<Instant>> getRange() {
+        if (getRegister().getReadingType().isCumulative()) {
+            return getRangeIfCumulative();
+        } else if (getRegister().isBilling()) {
+            return this.getActualReading().getTimePeriod();
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    private Optional<Range<Instant>> getRangeIfCumulative() {
+        if (getPreviousReading().isPresent()) {
+            return getRangeFromPrevious();
+        } else if (getRegister().isBilling()) {
+            return getActualReading().getTimePeriod();
+        } else {
+            return Optional.of(Range.atMost(this.getActualReading().getTimeStamp()));
+        }
+    }
+
+    private Optional<Range<Instant>> getRangeFromPrevious() {
+        if(getRegister().isBilling() && getActualReading().getTimePeriod().isPresent()){
+            return Optional.of(Range.openClosed(getPreviousReading().get().getTimeStamp(), getActualReading().getTimePeriod().get().upperEndpoint()));
+        } else {
+            return Optional.of(Range.openClosed(getPreviousReading().get().getTimeStamp(), getActualReading().getTimeStamp()));
+        }
     }
 
 }

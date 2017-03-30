@@ -1,18 +1,20 @@
-package com.energyict.mdc.device.data.impl.events;
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 
-import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
+package com.energyict.mdc.device.data.impl.events;
 
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.MessageService;
+import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
+
 import com.google.inject.Injector;
 
-import org.junit.*;
-import org.junit.runner.*;
-
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 

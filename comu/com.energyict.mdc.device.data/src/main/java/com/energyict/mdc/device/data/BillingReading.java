@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data;
 
 import aQute.bnd.annotation.ProviderType;
@@ -18,12 +22,5 @@ import java.util.Optional;
  */
 @ProviderType
 public interface BillingReading extends NumericalReading {
-
-    /**
-     * Returns the Interval to which the event applies.
-     *
-     * @return The Interval
-     */
-    Optional<Range<Instant>> getRange();
 
 }

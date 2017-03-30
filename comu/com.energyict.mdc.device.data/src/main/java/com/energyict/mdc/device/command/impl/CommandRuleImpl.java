@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.command.impl;
 
 import com.elster.jupiter.domain.util.NotEmpty;
@@ -21,7 +25,6 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
-import com.google.common.collect.Range;
 import com.google.inject.Inject;
 
 import javax.validation.Valid;

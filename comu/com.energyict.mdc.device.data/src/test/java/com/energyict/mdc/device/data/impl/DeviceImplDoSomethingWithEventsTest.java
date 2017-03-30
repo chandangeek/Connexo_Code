@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
@@ -144,11 +148,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-/**
- * Copyrights EnergyICT
- * Date: 25/03/14
- * Time: 10:42
- */
 @RunWith(MockitoJUnitRunner.class)
 public class DeviceImplDoSomethingWithEventsTest {
 
@@ -303,6 +302,7 @@ public class DeviceImplDoSomethingWithEventsTest {
                     new IdsModule(),
                     new FiniteStateMachineModule(),
                     new UsagePointLifeCycleConfigurationModule(),
+                    new CalendarModule(),
                     new MeteringModule(),
                     new InMemoryMessagingModule(),
                     new OrmModule(),

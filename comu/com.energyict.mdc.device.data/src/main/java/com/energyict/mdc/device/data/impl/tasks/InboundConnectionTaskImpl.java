@@ -1,10 +1,15 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl.tasks;
 
-import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.energyict.mdc.device.config.PartialInboundConnectionTask;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -16,13 +21,6 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import javax.inject.Inject;
 import java.time.Clock;
 
-/**
- * Provides an implementation for the {@link InboundConnectionTask} interface.
- * <p>
- * Copyrights EnergyICT
- * Date: 25/09/12
- * Time: 9:49
- */
 @UniqueInboundComPortPoolPerDevice(groups = {Save.Create.class, Save.Update.class})
 public class InboundConnectionTaskImpl extends ConnectionTaskImpl<PartialInboundConnectionTask, InboundComPortPool> implements InboundConnectionTask {
 
@@ -67,6 +65,12 @@ public class InboundConnectionTaskImpl extends ConnectionTaskImpl<PartialInbound
         @Override
         public Device.InboundConnectionTaskBuilder setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus status) {
             this.inboundConnectionTask.setStatus(status);
+            return this;
+        }
+
+        @Override
+        public Device.InboundConnectionTaskBuilder setProtocolDialectConfigurationProperties(ProtocolDialectConfigurationProperties properties) {
+            this.inboundConnectionTask.setProtocolDialectConfigurationProperties(properties);
             return this;
         }
     }

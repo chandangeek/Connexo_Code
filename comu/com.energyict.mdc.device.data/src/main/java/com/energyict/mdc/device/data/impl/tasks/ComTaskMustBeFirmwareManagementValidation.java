@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl.tasks;
 
 import com.energyict.mdc.device.data.impl.MessageSeeds;
@@ -7,11 +11,6 @@ import com.energyict.mdc.tasks.FirmwareManagementTask;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
-/**
- * Copyrights EnergyICT
- * Date: 3/16/15
- * Time: 4:54 PM
- */
 public class ComTaskMustBeFirmwareManagementValidation implements ConstraintValidator<ComTaskMustBeFirmwareManagement, ComTaskExecutionImpl> {
 
     @Override

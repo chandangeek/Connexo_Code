@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl.events;
 
 import com.elster.jupiter.domain.util.Finder;
@@ -47,11 +51,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-/**
- * Copyrights EnergyICT
- * Date: 22.12.15
- * Time: 09:46
- */
 @RunWith(MockitoJUnitRunner.class)
 public class ComTaskEnablementChangeMessageHandlerTest {
 

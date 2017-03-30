@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.domain.util.Save;
@@ -14,6 +18,8 @@ import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.obis.ObisCode;
 import com.google.common.collect.Range;
 
+import com.google.common.collect.Range;
+
 import javax.inject.Inject;
 import java.time.Instant;
 import java.util.Collections;
@@ -21,11 +27,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Copyrights EnergyICT
- * Date: 25/03/14
- * Time: 15:50
- */
 public class LogBookImpl implements ServerLogBookForConfigChange {
 
     private final DataModel dataModel;

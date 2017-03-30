@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl.tasks;
 
 import com.elster.jupiter.domain.util.Save;
@@ -9,13 +13,6 @@ import com.energyict.mdc.device.data.impl.CreateEventType;
 import com.energyict.mdc.device.data.impl.DeleteEventType;
 import com.energyict.mdc.device.data.impl.UpdateEventType;
 
-/**
- * Provides code reuse opportunities for entities in this bundle that are persistable
- * <p>
- * Copyrights EnergyICT
- * Date: 31/01/14
- * Time: 15:29
- */
 public abstract class PersistentObject<T> {
 
     protected final Class<T> domainClass;

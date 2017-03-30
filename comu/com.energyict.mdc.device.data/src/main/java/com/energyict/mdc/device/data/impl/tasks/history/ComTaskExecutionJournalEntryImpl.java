@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl.tasks.history;
 
 import com.elster.jupiter.events.EventService;
@@ -10,18 +14,10 @@ import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.engine.config.ComServer;
 
 import com.google.common.collect.ImmutableMap;
+
 import java.time.Instant;
 import java.util.Map;
 
-/**
- * Serves as the root for ComTaskExecutionJournalEntry, implementation classes.
- * <br>
- * Copyrights EnergyICT
- *
- * User: sva
- * Date: 24/04/12
- * Time: 10:00
- */
 public abstract class ComTaskExecutionJournalEntryImpl<T extends ComTaskExecutionJournalEntry> extends PersistentIdObject<T> implements ComTaskExecutionJournalEntry {
 
     public static long ComCommandJournalEntryImplDiscriminator = 0;

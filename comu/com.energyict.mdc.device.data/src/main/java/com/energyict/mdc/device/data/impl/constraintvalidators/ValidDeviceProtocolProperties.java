@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl.constraintvalidators;
 
 import javax.validation.Constraint;
@@ -8,12 +12,6 @@ import java.lang.annotation.Target;
 
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
-/**
- * Copyrights EnergyICT
- *
- * @author khe
- * @since 8/01/2016 - 13:30
- */
 @Target({ java.lang.annotation.ElementType.TYPE })
 @Retention(RUNTIME)
 @Documented

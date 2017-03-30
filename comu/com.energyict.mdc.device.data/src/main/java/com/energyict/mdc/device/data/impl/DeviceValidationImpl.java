@@ -1,9 +1,14 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.ReadingQuality;
@@ -117,7 +122,7 @@ class DeviceValidationImpl implements DeviceValidation {
             if (channelsContainerLastChecked.isPresent() && lastChecked.isAfter(channelsContainerLastChecked.get())) {
                 throw InvalidLastCheckedException.lastCheckedAfterCurrentLastChecked(this.device, channelsContainerLastChecked.get(), lastChecked, this.thesaurus, MessageSeeds.LAST_CHECKED_AFTER_CURRENT_LAST_CHECKED);
             }
-            this.validationService.updateLastChecked(channelsContainer, lastChecked);
+            validationService.updateLastChecked(channelsContainer, lastChecked);
         } else {
             Instant lastCheckedDateToSet = this.smallest(channelsContainerLastChecked.orElse(channelsContainer.getStart()), lastChecked);
             validationService.updateLastChecked(channelsContainer, lastCheckedDateToSet);
@@ -204,11 +209,28 @@ class DeviceValidationImpl implements DeviceValidation {
     }
 
     @Override
+    public DataValidationStatus getValidationStatus(Channel channel, Instant timeStamp, List<ReadingQualityRecord> readingQualities, Range<Instant> interval) {
+        Stream<com.elster.jupiter.metering.Channel> koreChannels = ((DeviceImpl) channel.getDevice()).findKoreChannels(channel).stream();
+        return koreChannels
+                .filter(k -> does(k.getChannelsContainer().getRange()).overlap(interval))
+                .map(k -> getEvaluator().getValidationStatus(ImmutableSet.of(QualityCodeSystem.MDC, QualityCodeSystem.MDM), k, timeStamp, readingQualities))
+                .collect(Collectors.toList()).get(0);
+    }
+
+    @Override
     public List<DataValidationStatus> getValidationStatus(Register<?, ?> register, List<? extends BaseReading> readings, Range<Instant> interval) {
         return ((DeviceImpl) register.getDevice()).findKoreChannels(register).stream()
                 .filter(k -> does(k.getChannelsContainer().getRange()).overlap(interval))
                 .flatMap(k -> getEvaluator().getValidationStatus(ImmutableSet.of(QualityCodeSystem.MDC, QualityCodeSystem.MDM), k, readings,
                         k.getChannelsContainer().getRange().intersection(interval)).stream())
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<DataValidationStatus> getHistoryValidationStatus(Register<?, ?> register, List<? extends BaseReading> readings, List<ReadingQualityRecord> readingQualities, Range<Instant> interval) {
+        return ((DeviceImpl) register.getDevice()).findKoreChannels(register).stream()
+                .filter(k -> does(k.getChannelsContainer().getRange()).overlap(interval))
+                .flatMap(k -> getEvaluator().getHistoryValidationStatus(ImmutableSet.of(QualityCodeSystem.MDC, QualityCodeSystem.MDM), k, readings, readingQualities, interval).stream())
                 .collect(Collectors.toList());
     }
 

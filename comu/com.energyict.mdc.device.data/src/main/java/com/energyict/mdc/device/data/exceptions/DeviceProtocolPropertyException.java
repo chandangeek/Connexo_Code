@@ -1,20 +1,15 @@
-package com.energyict.mdc.device.data.exceptions;
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
+package com.energyict.mdc.device.data.exceptions;
 
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.protocol.api.DeviceProtocol;
 
-/**
- * Models the exceptional situation that occurs when an attempt is made to try
- * create a DeviceProtocolProperty but something is wrong ...
- * <p/>
- * Copyrights EnergyICT
- * Date: 24/03/14
- * Time: 14:08
- */
 public class DeviceProtocolPropertyException extends LocalizedException {
 
     private DeviceProtocolPropertyException(Thesaurus thesaurus, MessageSeed messageSeed, Object... arguments) {

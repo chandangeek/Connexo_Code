@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl.search;
 
 import com.elster.jupiter.datavault.DataVaultService;
@@ -58,7 +62,7 @@ public class MasterDeviceSearchablePropertyTest {
     public void initializeMocks() {
         NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
         when(messageFormat.format(anyVararg())).thenReturn(PropertyTranslationKeys.DEVICE_MASTER_NAME.getDefaultFormat());
-        when(thesaurus.getFormat(PropertyTranslationKeys.DEVICE_MASTER_NAME)).thenReturn(messageFormat);
+        when(thesaurus.getFormat(PropertyTranslationKeys.DEVICE_MASTER_SEARCH_CRITERION_NAME)).thenReturn(messageFormat);
         when(ormService.newDataModel(anyString(), anyString())).thenReturn(this.dataModel);
         this.jupiterPropertySpecService = new com.elster.jupiter.properties.impl.PropertySpecServiceImpl(timeService, this.ormService, this.beanService);
         this.propertySpecService = new PropertySpecServiceImpl(jupiterPropertySpecService, dataVaultService, ormService);
@@ -118,7 +122,7 @@ public class MasterDeviceSearchablePropertyTest {
         property.getDisplayName();
 
         // Asserts
-        verify(this.thesaurus).getFormat(PropertyTranslationKeys.DEVICE_MASTER_NAME);
+        verify(this.thesaurus).getFormat(PropertyTranslationKeys.DEVICE_MASTER_SEARCH_CRITERION_NAME);
     }
 
     @Test

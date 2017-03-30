@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl.gogo;
 
 import com.elster.jupiter.calendar.Calendar;
@@ -22,7 +26,6 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
-import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -60,6 +63,7 @@ import java.util.stream.Collectors;
                 "osgi.command.function=devices",
                 "osgi.command.function=comTaskExecution"
         }, immediate = true)
+@SuppressWarnings("unused")
 public class DeviceDataGoGoCommands {
 
     private volatile ThreadPrincipalService threadPrincipalService;
@@ -94,18 +98,6 @@ public class DeviceDataGoGoCommands {
 
         public abstract void enableOutboundCommunication(TransactionService transactionService, DeviceService deviceService, String scheduleOption, List<Device> devices);
 
-    }
-
-    @Activate
-    public void activate() {
-        System.out.println("DeviceDataGoGoCommands are ready for business");
-        this.help();
-    }
-
-    private void help() {
-        this.enableOutboundCommunication();
-        this.sendCalendarMessage();
-        System.out.println("devices: prints the list of available devices");
     }
 
     @SuppressWarnings("unused")

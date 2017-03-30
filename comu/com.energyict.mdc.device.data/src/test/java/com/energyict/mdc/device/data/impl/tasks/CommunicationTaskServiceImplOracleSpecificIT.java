@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl.tasks;
 
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
@@ -338,11 +342,6 @@ public class CommunicationTaskServiceImplOracleSpecificIT {
     }
 
     private SearchablePropertyValue buildSearchablePropertyCondition(String property, SearchablePropertyOperator operator, List<String> values) {
-        SearchablePropertyValue.ValueBean valueBean = new SearchablePropertyValue.ValueBean();
-        valueBean.propertyName = property;
-        valueBean.operator = operator;
-        valueBean.values = values;
-        SearchablePropertyValue searchablePropertyValue = new SearchablePropertyValue(null, valueBean);
-        return searchablePropertyValue;
+        return new SearchablePropertyValue(null, new SearchablePropertyValue.ValueBean(property, operator, values));
     }
 }

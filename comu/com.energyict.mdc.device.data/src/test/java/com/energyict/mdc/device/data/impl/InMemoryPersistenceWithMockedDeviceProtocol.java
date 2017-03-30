@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
@@ -117,11 +121,6 @@ import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-/**
- * Copyrights EnergyICT
- * Date: 05/03/14
- * Time: 13:52
- */
 public class InMemoryPersistenceWithMockedDeviceProtocol {
 
     private final Clock clock;
@@ -176,6 +175,7 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
                 new IdsModule(),
                 new FiniteStateMachineModule(),
                 new UsagePointLifeCycleConfigurationModule(),
+                new CalendarModule(),
                 new MeteringModule(
                         "0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0",
                         "0.0.0.1.1.2.12.0.0.0.0.0.0.0.0.3.72.0",

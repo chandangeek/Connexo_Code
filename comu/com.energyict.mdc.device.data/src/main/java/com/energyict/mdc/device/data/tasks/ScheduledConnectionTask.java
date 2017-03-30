@@ -1,14 +1,17 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.tasks;
 
+import com.elster.jupiter.time.TemporalExpression;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
-import com.energyict.mdc.device.data.impl.ServerComTaskExecution;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 
 import aQute.bnd.annotation.ProviderType;
-import com.elster.jupiter.time.TemporalExpression;
 
 import java.time.Instant;
 import java.util.List;

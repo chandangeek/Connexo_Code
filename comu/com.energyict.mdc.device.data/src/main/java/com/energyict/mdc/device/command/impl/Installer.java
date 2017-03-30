@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.command.impl;
 
 import com.elster.jupiter.domain.util.Save;
@@ -9,8 +13,6 @@ import com.elster.jupiter.upgrade.FullInstaller;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.PrivilegeCategory;
 import com.elster.jupiter.users.UserService;
-
-
 import com.energyict.mdc.device.command.CommandRuleService;
 import com.energyict.mdc.device.command.security.Privileges;
 

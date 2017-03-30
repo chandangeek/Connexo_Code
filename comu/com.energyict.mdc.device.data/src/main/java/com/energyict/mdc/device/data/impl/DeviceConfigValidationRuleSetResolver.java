@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.metering.KnownAmrSystem;
@@ -15,11 +19,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Copyrights EnergyICT
- * Date: 24/06/2014
- * Time: 17:56
- */
 @Component(name = "com.energyict.mdc.device.config.validationruleSetResolver", service = ValidationRuleSetResolver.class)
 public class DeviceConfigValidationRuleSetResolver implements ValidationRuleSetResolver {
 

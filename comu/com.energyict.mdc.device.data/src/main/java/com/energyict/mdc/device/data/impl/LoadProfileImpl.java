@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.cbo.QualityCodeSystem;
@@ -16,6 +20,7 @@ import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.ChannelDataUpdater;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.device.data.LoadProfileJournalReading;
 import com.energyict.mdc.device.data.LoadProfileReading;
 import com.energyict.mdc.device.data.ReadingTypeObisCodeUsage;
 import com.energyict.mdc.device.data.impl.configchange.ServerLoadProfileForConfigChange;
@@ -37,13 +42,6 @@ import java.util.stream.Collectors;
 import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toList;
 
-/**
- * Provides an implementation of a LoadProfile of a {@link com.energyict.mdc.device.data.Device}
- * <p>
- * Copyrights EnergyICT
- * Date: 3/17/14
- * Time: 3:57 PM
- */
 public class LoadProfileImpl implements ServerLoadProfileForConfigChange {
 
     private final DataModel dataModel;
@@ -326,6 +324,11 @@ public class LoadProfileImpl implements ServerLoadProfileForConfigChange {
         }
 
         @Override
+        public List<LoadProfileJournalReading> getChannelWithHistoryData(Range<Instant> interval, boolean changedDataOnly) {
+            return LoadProfileImpl.this.device.get().getChannelWithHistoryData(this, interval, changedDataOnly);
+        }
+
+        @Override
         public Optional<Instant> getLastDateTime() {
             Optional<com.elster.jupiter.metering.Channel> channelWithLastDateTime = LoadProfileImpl.this.getDevice()
                     .getMeterActivationsMostRecentFirst()
@@ -360,6 +363,8 @@ public class LoadProfileImpl implements ServerLoadProfileForConfigChange {
         private final List<BaseReading> edited = new ArrayList<>();
         private final List<BaseReading> editedBulk = new ArrayList<>();
         private final List<BaseReading> confirmed = new ArrayList<>();
+        private final List<BaseReading> estimated = new ArrayList<>();
+        private final List<BaseReading> estimatedBulk = new ArrayList<>();
         private final List<Instant> removed = new ArrayList<>();
 
         private ChannelDataUpdaterImpl(Channel channel) {
@@ -391,6 +396,18 @@ public class LoadProfileImpl implements ServerLoadProfileForConfigChange {
         }
 
         @Override
+        public ChannelDataUpdater estimateChannelData(List<BaseReading> modifiedChannelData) {
+            this.estimated.addAll(modifiedChannelData);
+            return this;
+        }
+
+        @Override
+        public ChannelDataUpdater estimateBulkChannelData(List<BaseReading> modifiedChannelData) {
+            this.estimatedBulk.addAll(modifiedChannelData);
+            return this;
+        }
+
+        @Override
         public void complete() {
             groupReadingsByKoreChannel(this.edited).entrySet().forEach(entry -> entry.getKey().editReadings(QualityCodeSystem.MDC, entry.getValue()));
             groupReadingsByKoreChannel(this.editedBulk).entrySet().forEach(entry -> {
@@ -398,6 +415,13 @@ public class LoadProfileImpl implements ServerLoadProfileForConfigChange {
                 koreChannel.getBulkQuantityReadingType().ifPresent(bulkReadingType ->
                         koreChannel.getCimChannel(bulkReadingType).ifPresent(bulkCimChannel ->
                                 bulkCimChannel.editReadings(QualityCodeSystem.MDC, this.editedBulk)));
+            });
+            groupReadingsByKoreChannel(this.estimated).entrySet().forEach(entry -> entry.getKey().estimateReadings(QualityCodeSystem.MDC, entry.getValue()));
+            groupReadingsByKoreChannel(this.estimatedBulk).entrySet().forEach(entry -> {
+                com.elster.jupiter.metering.Channel koreChannel = entry.getKey();
+                koreChannel.getBulkQuantityReadingType().ifPresent(bulkReadingType ->
+                        koreChannel.getCimChannel(bulkReadingType).ifPresent(bulkCimChannel ->
+                                bulkCimChannel.estimateReadings(QualityCodeSystem.MDC, this.estimatedBulk)));
             });
             groupReadingsByKoreChannel(this.confirmed).entrySet().forEach(entry ->
                     entry.getKey().confirmReadings(QualityCodeSystem.MDC, entry.getValue()));

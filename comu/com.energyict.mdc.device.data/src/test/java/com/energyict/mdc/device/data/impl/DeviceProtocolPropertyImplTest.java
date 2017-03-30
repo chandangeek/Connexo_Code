@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
@@ -24,13 +28,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Fail.fail;
 import static org.mockito.Mockito.when;
 
-/**
- * Tests the {@link com.energyict.mdc.device.data.impl.DeviceProtocolPropertyImpl} component
- * <p>
- * Copyrights EnergyICT
- * Date: 24/03/14
- * Time: 09:58
- */
 public class DeviceProtocolPropertyImplTest extends PersistenceTestWithMockedDeviceProtocol {
 
     private static final String MRID = "MyUniqueMRID";

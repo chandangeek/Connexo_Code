@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data;
 
 import aQute.bnd.annotation.ProviderType;
@@ -13,11 +17,6 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Copyrights EnergyICT
- * Date: 3/14/14
- * Time: 11:43 AM
- */
 @ProviderType
 public interface Channel {
 
@@ -92,6 +91,8 @@ public interface Channel {
      * @return data for this channel
      */
     List<LoadProfileReading> getChannelData(Range<Instant> interval);
+
+    List<LoadProfileJournalReading> getChannelWithHistoryData(Range<Instant> interval, boolean changedDataOnly);
 
     Optional<Instant> getLastDateTime();
 

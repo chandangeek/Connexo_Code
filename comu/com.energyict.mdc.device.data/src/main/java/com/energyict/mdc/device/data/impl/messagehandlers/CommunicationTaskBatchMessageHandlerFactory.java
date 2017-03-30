@@ -1,12 +1,16 @@
-package com.energyict.mdc.device.data.impl.messagehandlers;
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 
-import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
+package com.energyict.mdc.device.data.impl.messagehandlers;
 
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.util.json.JsonService;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;

@@ -1,28 +1,18 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl.ami.servicecall.handlers;
 
-import com.elster.jupiter.messaging.DestinationSpec;
-import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.ami.CompletionMessageInfo;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
-import com.energyict.mdc.device.data.DeviceDataServices;
-import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.ami.CompletionOptionsCallBack;
-import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertySet;
-import com.energyict.mdc.device.data.impl.ami.servicecall.CommandServiceCallDomainExtension;
-import com.energyict.mdc.device.data.impl.ami.servicecall.CompletionOptionsCustomPropertySet;
-import com.energyict.mdc.device.data.impl.ami.servicecall.CompletionOptionsServiceCallDomainExtension;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
-
-import java.text.MessageFormat;
-import java.util.Optional;
 
 @Component(name = "com.energyict.servicecall.ami.on.demand.read.handler",
         service = ServiceCallHandler.class,

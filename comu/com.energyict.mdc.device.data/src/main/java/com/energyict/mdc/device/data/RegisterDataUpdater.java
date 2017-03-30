@@ -1,7 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.metering.readings.BaseReading;
+
+import aQute.bnd.annotation.ProviderType;
 
 import java.time.Instant;
 
@@ -16,9 +21,9 @@ import java.time.Instant;
 @ProviderType
 public interface RegisterDataUpdater {
 
-    RegisterDataUpdater editReading(BaseReading modified);
+    RegisterDataUpdater editReading(BaseReading modified, Instant editTimeStamp);
 
-    RegisterDataUpdater confirmReading(BaseReading modified);
+    RegisterDataUpdater confirmReading(BaseReading modified, Instant editTimeStamp);
 
     RegisterDataUpdater removeReading(Instant timestamp);
 

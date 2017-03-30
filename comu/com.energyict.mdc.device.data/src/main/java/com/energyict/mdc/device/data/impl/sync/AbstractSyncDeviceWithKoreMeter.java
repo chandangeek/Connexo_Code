@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl.sync;
 
 import com.elster.jupiter.events.EventService;
@@ -23,19 +27,6 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 
-/**
- * Base methods that can be used to sync the (Kore) Meter with the configuration of this (MDC) Device
- * <p>
- * Additional behaviour related to 'Kore' objects.
- * <p>
- * Note: always try to use the {@link #generalizeDatesToMinutes(Instant)} method for start and end dates.
- * This way it is more clear that all start and end dates begin at zero seconds. This should prevent overlap
- * when we have FrontEnd fields that don't contain seconds
- * <p>
- * Copyrights EnergyICT
- * Date: 21/04/2016
- * Time: 13:14
- */
 public abstract class AbstractSyncDeviceWithKoreMeter implements SyncDeviceWithKoreMeter {
 
     private final ServerDeviceService deviceService;

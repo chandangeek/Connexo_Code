@@ -1,11 +1,14 @@
-package com.energyict.mdc.device.data.exceptions;
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 
-import com.energyict.mdc.device.config.SecurityPropertySet;
-import com.energyict.mdc.protocol.api.security.SecurityProperty;
+package com.energyict.mdc.device.data.exceptions;
 
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.device.config.SecurityPropertySet;
+import com.energyict.mdc.protocol.api.security.SecurityProperty;
 
 /**
  * Models all security violations related to {@link SecurityProperty SecurityProperties}.

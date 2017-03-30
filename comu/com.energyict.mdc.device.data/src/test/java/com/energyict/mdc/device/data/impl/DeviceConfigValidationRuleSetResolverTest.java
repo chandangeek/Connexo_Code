@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.metering.AmrSystem;
@@ -24,11 +28,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
 
-/**
- * Copyrights EnergyICT
- * Date: 25/06/2014
- * Time: 14:01
- */
 @RunWith(MockitoJUnitRunner.class)
 public class DeviceConfigValidationRuleSetResolverTest {
 

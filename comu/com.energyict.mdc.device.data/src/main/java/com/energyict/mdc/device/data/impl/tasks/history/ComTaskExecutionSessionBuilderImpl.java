@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl.tasks.history;
 
 import com.elster.jupiter.util.Counters;
@@ -17,11 +21,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
-* Copyrights EnergyICT
-* Date: 5/05/2014
-* Time: 9:59
-*/
 class ComTaskExecutionSessionBuilderImpl implements ComTaskExecutionSessionBuilder {
     private LongCounter sentBytes = Counters.newStrictLongCounter();
     private LongCounter receivedBytes = Counters.newStrictLongCounter();

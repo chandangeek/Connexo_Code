@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.metering.ReadingRecord;
@@ -19,13 +23,13 @@ public class TextRegisterImpl extends RegisterImpl<TextReading, TextualRegisterS
     }
 
     @Override
-    protected TextReading newUnvalidatedReading(ReadingRecord actualReading) {
-        return new TextReadingImpl(actualReading);
+    protected TextReading newUnvalidatedReading(ReadingRecord actualReading, ReadingRecord previousReading) {
+        return new TextReadingImpl(actualReading, this, previousReading);
     }
 
     @Override
-    protected TextReading newValidatedReading(ReadingRecord actualReading, DataValidationStatus validationStatus) {
-        return new TextReadingImpl(actualReading, validationStatus);
+    protected TextReading newValidatedReading(ReadingRecord actualReading, DataValidationStatus validationStatus, ReadingRecord previous) {
+        return new TextReadingImpl(actualReading, validationStatus, this, null);
     }
 
 }

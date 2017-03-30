@@ -1,11 +1,14 @@
-package com.energyict.mdc.device.data.impl;
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 
-import com.energyict.mdc.device.data.DeviceLifeCycleChangeEvent;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
+package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTimeSlice;
 import com.elster.jupiter.users.User;
+import com.energyict.mdc.device.data.DeviceLifeCycleChangeEvent;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 
 import java.time.Instant;
 import java.util.Optional;

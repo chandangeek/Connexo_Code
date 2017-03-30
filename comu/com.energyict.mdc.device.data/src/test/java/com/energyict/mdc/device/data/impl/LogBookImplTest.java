@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
@@ -21,13 +25,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-/**
- * Tests the {@link com.energyict.mdc.device.data.impl.LogBookImpl} component
- * <p>
- * Copyrights EnergyICT
- * Date: 26/03/14
- * Time: 10:29
- */
 public class LogBookImplTest extends PersistenceIntegrationTest {
 
     private static final ObisCode logBookObiscode = ObisCode.fromString("0.0.99.98.0.255");

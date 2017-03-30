@@ -1,7 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.metering.readings.BaseReading;
+
+import aQute.bnd.annotation.ProviderType;
 
 import java.time.Instant;
 import java.util.List;
@@ -24,6 +29,10 @@ public interface ChannelDataUpdater {
     ChannelDataUpdater editBulkChannelData(List<BaseReading> modifiedChannelData);
 
     ChannelDataUpdater confirmChannelData(List<BaseReading> modifiedChannelData);
+
+    ChannelDataUpdater estimateChannelData(List<BaseReading> modifiedChannelData);
+
+    ChannelDataUpdater estimateBulkChannelData(List<BaseReading> modifiedChannelData);
 
     /**
      * Completes the transaction, effectively applying all the changes

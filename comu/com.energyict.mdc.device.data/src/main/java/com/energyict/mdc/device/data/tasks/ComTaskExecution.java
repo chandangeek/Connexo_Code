@@ -1,7 +1,10 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.tasks;
 
 import com.elster.jupiter.util.HasId;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.TaskPriorityConstants;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
@@ -399,11 +402,6 @@ public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
      * @return The ComTask
      */
     ComTask getComTask();
-
-    /**
-     * Gets the {@link ProtocolDialectConfigurationProperties}.
-     */
-    ProtocolDialectConfigurationProperties getProtocolDialectConfigurationProperties();
 
     Optional<ComSchedule> getComSchedule();
 }

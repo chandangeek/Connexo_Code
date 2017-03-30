@@ -1,7 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.metering.readings.Reading;
 import com.elster.jupiter.metering.readings.ReadingQuality;
+
 import com.google.common.collect.Range;
 
 import java.math.BigDecimal;

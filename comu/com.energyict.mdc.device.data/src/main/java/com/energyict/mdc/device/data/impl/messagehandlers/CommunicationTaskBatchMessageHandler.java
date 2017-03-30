@@ -1,12 +1,15 @@
-package com.energyict.mdc.device.data.impl.messagehandlers;
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ComTaskExecutionQueueMessage;
-import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
+package com.energyict.mdc.device.data.impl.messagehandlers;
 
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.util.json.JsonService;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ComTaskExecutionQueueMessage;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;

@@ -1,17 +1,20 @@
-package com.energyict.mdc.device.data.impl.kpi;
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 
-import com.energyict.mdc.device.data.kpi.DataCollectionKpiScore;
+package com.energyict.mdc.device.data.impl.kpi;
 
 import com.elster.jupiter.kpi.KpiEntry;
 import com.elster.jupiter.kpi.KpiMember;
+import com.energyict.mdc.device.data.kpi.DataCollectionKpiScore;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 

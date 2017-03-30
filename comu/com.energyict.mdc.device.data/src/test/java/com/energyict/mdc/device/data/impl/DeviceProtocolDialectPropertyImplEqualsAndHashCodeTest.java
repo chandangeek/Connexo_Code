@@ -1,14 +1,19 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl;
+
+import com.energyict.mdc.pluggable.PluggableClass;
 
 import com.google.common.collect.Range;
 
-import com.energyict.mdc.pluggable.PluggableClass;
-import org.junit.*;
-import org.junit.runner.*;
+import java.time.Instant;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.time.Instant;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

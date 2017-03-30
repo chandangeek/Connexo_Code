@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl.events;
 
 import com.elster.jupiter.events.LocalEvent;
@@ -5,8 +9,6 @@ import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Operator;
 import com.energyict.mdc.device.config.DeviceMessageFile;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.events.EventType;

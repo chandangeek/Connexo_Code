@@ -1,6 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl.tasks;
 
 import com.energyict.mdc.device.config.PartialConnectionTask;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -54,5 +59,7 @@ public interface ServerConnectionTask<CPPT extends ComPortPool, PCTT extends Par
      * @param comTask The ScheduledComTask whose priority changed
      */
     void scheduledComTaskChangedPriority(ComTaskExecution comTask);
+
+    void setProtocolDialectConfigurationProperties(ProtocolDialectConfigurationProperties dialectConfigurationProperties);
 
 }

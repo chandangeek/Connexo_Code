@@ -1,6 +1,9 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.command.impl;
 
-import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.dualcontrol.Monitor;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
@@ -8,12 +11,12 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Encrypter;
 import com.elster.jupiter.orm.Table;
-import static com.elster.jupiter.orm.Version.version;
-
 import com.energyict.mdc.device.command.CommandInRule;
 import com.energyict.mdc.device.command.CommandRule;
 import com.energyict.mdc.device.command.CommandRulePendingUpdate;
 import com.energyict.mdc.device.command.ICommandRuleCounter;
+
+import static com.elster.jupiter.orm.Version.version;
 
 /**
  * Models the database tables that hold the data of the

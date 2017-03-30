@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl.constraintvalidators;
 
 import com.energyict.mdc.device.data.DeviceMessageService;
@@ -8,11 +12,6 @@ import javax.inject.Inject;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
-/**
- * Copyrights EnergyICT
- * Date: 11/4/14
- * Time: 2:48 PM
- */
 class UserHasTheMessagePrivilegeValidator implements ConstraintValidator<UserHasTheMessagePrivilege, DeviceMessageImpl> {
 
     private final DeviceMessageService deviceMessageService;

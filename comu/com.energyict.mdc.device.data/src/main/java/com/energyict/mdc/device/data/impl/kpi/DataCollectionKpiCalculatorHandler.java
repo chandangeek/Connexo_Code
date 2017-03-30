@@ -1,11 +1,14 @@
-package com.energyict.mdc.device.data.impl.kpi;
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 
-import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
-import com.energyict.mdc.device.data.tasks.CommunicationTaskReportService;
-import com.energyict.mdc.device.data.tasks.ConnectionTaskReportService;
+package com.energyict.mdc.device.data.impl.kpi;
 
 import com.elster.jupiter.tasks.TaskExecutor;
 import com.elster.jupiter.tasks.TaskOccurrence;
+import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskReportService;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskReportService;
 
 /**
  * Calculates the scores for a {@link DataCollectionKpiImpl}.

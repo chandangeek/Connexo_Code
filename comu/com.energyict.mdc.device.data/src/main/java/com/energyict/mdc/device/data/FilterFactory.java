@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data;
 
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
@@ -11,10 +15,11 @@ import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+
+import javax.inject.Inject;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.stream.Collectors;
-import javax.inject.Inject;
 
 import static com.elster.jupiter.util.streams.Functions.asStream;
 import static java.util.stream.Collectors.toList;

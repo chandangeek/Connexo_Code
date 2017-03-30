@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl.tasks.history;
 
 import com.elster.jupiter.domain.util.DefaultFinder;
@@ -35,12 +39,6 @@ import java.util.Set;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
-/**
- * Copyrights EnergyICT
- * User: sva
- * Date: 25/04/12
- * Time: 17:06
- */
 public class ComTaskExecutionSessionImpl extends PersistentIdObject<ComTaskExecution> implements ComTaskExecutionSession, HasId {
 
     public enum Fields {

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl.tasks.report;
 
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
@@ -165,6 +169,15 @@ public abstract class AbstractTaskFilterSqlBuilder {
         }
         else {
             this.append(") ");
+        }
+    }
+
+    protected void appendDeviceNameSql(String deviceName) {
+        if (deviceName != null) {
+            this.appendWhereOrAnd();
+            this.append(" (dev.name = '");
+            this.append(deviceName);
+            this.append("')");
         }
     }
 

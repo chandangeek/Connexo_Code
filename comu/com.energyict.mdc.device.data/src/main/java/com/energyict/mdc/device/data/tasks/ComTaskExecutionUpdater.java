@@ -1,7 +1,10 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.tasks;
 
 import com.elster.jupiter.time.TemporalExpression;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 
 import aQute.bnd.annotation.ProviderType;
@@ -64,8 +67,6 @@ public interface ComTaskExecutionUpdater {
      * @return the updated created ComTaskExecution
      */
     ComTaskExecution updateFields(String... fieldNames);
-
-    ComTaskExecutionUpdater protocolDialectConfigurationProperties(ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties);
 
     /**
      * Sets the specifications for the calculation of the next

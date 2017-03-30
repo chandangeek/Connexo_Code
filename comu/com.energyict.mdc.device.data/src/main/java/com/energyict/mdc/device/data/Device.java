@@ -1,5 +1,10 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data;
 
+import com.elster.jupiter.fsm.Stage;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTimeline;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
@@ -59,11 +64,6 @@ import java.util.Optional;
 import java.util.TimeZone;
 import java.util.function.Consumer;
 
-/**
- * Copyrights EnergyICT
- * Date: 19/12/12
- * Time: 10:35
- */
 @ProviderType
 public interface Device extends com.energyict.mdc.upl.meterdata.Device, HasId, HasName {
 
@@ -327,6 +327,8 @@ public interface Device extends com.energyict.mdc.upl.meterdata.Device, HasId, H
 
     Optional<? extends MeterActivation> getCurrentMeterActivation();
 
+    Optional<? extends MeterActivation> getMeterActivation(Instant when);
+
     List<MeterActivation> getMeterActivationsMostRecentFirst();
 
     /**
@@ -466,6 +468,13 @@ public interface Device extends com.energyict.mdc.upl.meterdata.Device, HasId, H
     State getState();
 
     /**
+     * Gets the current {@link Stage} of the State of this Device.
+     *
+     * @return The current Stage
+     */
+    Stage getStage();
+
+    /**
      * Gets the {@link State} of this Device as it was
      * known at the specified point in time.
      * May return an empty optional when the point in time
@@ -527,6 +536,15 @@ public interface Device extends com.energyict.mdc.upl.meterdata.Device, HasId, H
 
     void setConnectionTaskForComTaskExecutions(ConnectionTask connectionTask);
 
+    String getManufacturer();
+    void setManufacturer(String manufacturer);
+
+    String getModelNumber();
+    void setModelNumber(String modelNumber);
+
+    String getModelVersion();
+    void setModelVersion(String modelVersion);
+
     /**
      * Builder that support basic value setters for a ScheduledConnectionTask.
      */
@@ -549,6 +567,8 @@ public interface Device extends com.energyict.mdc.upl.meterdata.Device, HasId, H
 
         ScheduledConnectionTaskBuilder setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus status);
 
+        ScheduledConnectionTaskBuilder setProtocolDialectConfigurationProperties(ProtocolDialectConfigurationProperties properties);
+
         /**
          * Creates the actual ScheduledConnectionTask with the objects set in this builder.
          *
@@ -569,6 +589,8 @@ public interface Device extends com.energyict.mdc.upl.meterdata.Device, HasId, H
 
         InboundConnectionTaskBuilder setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus status);
 
+        InboundConnectionTaskBuilder setProtocolDialectConfigurationProperties(ProtocolDialectConfigurationProperties properties);
+
         /**
          * Creates the actual InboundConnectionTask with the objects set in this builder.
          *
@@ -586,6 +608,7 @@ public interface Device extends com.energyict.mdc.upl.meterdata.Device, HasId, H
 
         ConnectionInitiationTaskBuilder setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus status);
 
+        ConnectionInitiationTaskBuilder setProtocolDialectConfigurationProperties(ProtocolDialectConfigurationProperties properties);
 
         /**
          * Creates the actual ConnectionInitiationTask with the objects set in this builder.

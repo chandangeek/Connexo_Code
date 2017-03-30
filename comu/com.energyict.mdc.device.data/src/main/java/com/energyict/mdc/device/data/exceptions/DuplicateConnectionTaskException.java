@@ -1,12 +1,15 @@
-package com.energyict.mdc.device.data.exceptions;
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 
-import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
+package com.energyict.mdc.device.data.exceptions;
 
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.device.config.PartialConnectionTask;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
 
 /**
  * Models the exceptional situation that occurs when

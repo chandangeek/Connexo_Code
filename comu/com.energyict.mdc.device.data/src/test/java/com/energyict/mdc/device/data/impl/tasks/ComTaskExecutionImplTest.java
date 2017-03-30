@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl.tasks;
 
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
@@ -6,7 +10,6 @@ import com.elster.jupiter.devtools.tests.rules.Expected;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.TaskPriorityConstants;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.exceptions.CannotSetMultipleComSchedulesWithSameComTask;
@@ -37,13 +40,6 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/**
- * Tests the ComTaskExecutionImpl component
- * <p>
- * Copyrights EnergyICT
- * Date: 14/04/14
- * Time: 14:40
- */
 public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
 
     @Test
@@ -70,7 +66,6 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
         assertThat(comTaskExecution.getMaxNumberOfTries()).isEqualTo(maxNrOfTries);
         assertThat(comTaskExecution.getObsoleteDate()).isNull();
         assertThat(comTaskExecution.getPlannedPriority()).isEqualTo(comTaskEnablementPriority);
-        assertThat(comTaskExecution.getProtocolDialectConfigurationProperties().getId()).isEqualTo(protocolDialectConfigurationProperties.getId());
         assertThat(comTaskExecution.isAdHoc()).isTrue();
         assertThat(comTaskExecution.usesSharedSchedule()).isFalse();
         assertThat(comTaskExecution.isExecuting()).isFalse();
@@ -136,7 +131,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
     public void removeComTasksTest() {
         TemporalExpression myTemporalExpression = new TemporalExpression(TimeDuration.hours(3));
         ComTaskEnablement comTaskEnablement1 = enableComTask(true);
-        ComTaskEnablement comTaskEnablement2 = enableComTask(true, this.protocolDialectConfigurationProperties, COM_TASK_NAME + "2");
+        ComTaskEnablement comTaskEnablement2 = enableComTask(true, COM_TASK_NAME + "2");
         ComSchedule comSchedule = this.createComSchedule(comTaskEnablement1.getComTask());
         Device device = inMemoryPersistence.getDeviceService()
                 .newDevice(deviceConfiguration, "WithoutViolations", "WithoutViolations", Instant.now());
@@ -447,43 +442,43 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
         assertThat(reloadedComTaskExecution.isIgnoreNextExecutionSpecsForInbound()).isTrue();
     }
 
-    @Test
-    @ExpectedConstraintViolation(messageId = "{field.required}", property = "protocolDialectConfigurationProperties")
-    @Transactional
-    public void setNullProtocolDialectTest() {
-        deviceConfiguration.save();
-        ComTaskEnablement comTaskEnablement = enableComTask(true, null, COM_TASK_NAME);
-        Device device = inMemoryPersistence.getDeviceService()
-                .newDevice(deviceConfiguration, "Dialect", "Dialect", Instant.now());
+//    @Test
+//    @ExpectedConstraintViolation(messageId = "{field.required}", property = "protocolDialectConfigurationProperties")
+//    @Transactional
+//    public void setNullProtocolDialectTest() {
+//        deviceConfiguration.save();
+//        ComTaskEnablement comTaskEnablement = enableComTask(true, COM_TASK_NAME);
+//        Device device = inMemoryPersistence.getDeviceService()
+//                .newDevice(deviceConfiguration, "Dialect", "Dialect", Instant.now());
+//
+//        ComTaskExecutionBuilder comTaskExecutionBuilder = device.newAdHocComTaskExecution(comTaskEnablement);
+//        comTaskExecutionBuilder.add();
+//
+//        // Asserts: see expected constraint violation rule
+//    }
 
-        ComTaskExecutionBuilder comTaskExecutionBuilder = device.newAdHocComTaskExecution(comTaskEnablement);
-        comTaskExecutionBuilder.add();
-
-        // Asserts: see expected constraint violation rule
-    }
-
-    @Test
-    @Transactional
-    public void setProtocolDialectOnUpdaterTest() {
-        ProtocolDialectConfigurationProperties otherDialect = deviceConfiguration.findOrCreateProtocolDialectConfigurationProperties(new OtherComTaskExecutionDialect());
-        deviceConfiguration.save();
-        ComTaskEnablement comTaskEnablement = enableComTask(true);
-        Device device = inMemoryPersistence.getDeviceService()
-                .newDevice(deviceConfiguration, "Dialect", "Dialect", Instant.now());
-
-        ComTaskExecutionBuilder comTaskExecutionBuilder = device.newAdHocComTaskExecution(comTaskEnablement);
-        ComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
-
-        ComTaskExecutionUpdater comTaskExecutionUpdater = device.getComTaskExecutionUpdater(comTaskExecution);
-        comTaskExecutionUpdater.protocolDialectConfigurationProperties(otherDialect);
-
-        // Business method
-        comTaskExecutionUpdater.update();
-
-        // Asserts
-        ComTaskExecution reloadedComTaskExecution = this.reloadComTaskExecution(device, comTaskExecution);
-        assertThat(reloadedComTaskExecution.getProtocolDialectConfigurationProperties().getId()).isEqualTo(otherDialect.getId());
-    }
+//    @Test
+//    @Transactional
+//    public void setProtocolDialectOnUpdaterTest() {
+//        ProtocolDialectConfigurationProperties otherDialect = deviceConfiguration.findOrCreateProtocolDialectConfigurationProperties(new OtherPartialConnectionTaskDialect());
+//        deviceConfiguration.save();
+//        ComTaskEnablement comTaskEnablement = enableComTask(true);
+//        Device device = inMemoryPersistence.getDeviceService()
+//                .newDevice(deviceConfiguration, "Dialect", "Dialect", Instant.now());
+//
+//        ComTaskExecutionBuilder comTaskExecutionBuilder = device.newAdHocComTaskExecution(comTaskEnablement);
+//        ComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
+//
+//        ComTaskExecutionUpdater comTaskExecutionUpdater = device.getComTaskExecutionUpdater(comTaskExecution);
+//        comTaskExecutionUpdater.protocolDialectConfigurationProperties(otherDialect);
+//
+//        // Business method
+//        comTaskExecutionUpdater.update();
+//
+//        // Asserts
+//        ComTaskExecution reloadedComTaskExecution = this.reloadComTaskExecution(device, comTaskExecution);
+//        assertThat(reloadedComTaskExecution.getProtocolDialectConfigurationProperties().getId()).isEqualTo(otherDialect.getId());
+//    }
 
     @Test
     @Transactional

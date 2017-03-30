@@ -1,24 +1,19 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.tasks;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.data.impl.ServerComTaskExecution;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.time.Instant;
 
-/**
- * Models a {@link ConnectionTask} that take initative to connect to external devices.
- * They are said to support outbound communication, i.e. communication that
- * is directed from inside the platform to the outside world.
- * An OutboundConnectionTask connects to external devices.
- * <p>
- * Copyrights EnergyICT
- * Date: 13/09/12
- * Time: 13:25
- */
 @ProviderType
 public interface OutboundConnectionTask<PCTT extends PartialConnectionTask> extends ConnectionTask<OutboundComPortPool, PCTT>, OutboundConnectionTaskExecutionAspects {
 

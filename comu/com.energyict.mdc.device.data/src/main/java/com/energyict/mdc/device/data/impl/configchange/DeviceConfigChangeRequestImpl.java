@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl.configchange;
 
 import com.elster.jupiter.domain.util.Save;
@@ -11,11 +15,6 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- * Date: 08.10.15
- * Time: 11:43
- */
 public final class DeviceConfigChangeRequestImpl implements DeviceConfigChangeRequest {
 
     public enum Fields {

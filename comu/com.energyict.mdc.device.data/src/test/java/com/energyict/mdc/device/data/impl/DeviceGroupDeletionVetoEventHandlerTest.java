@@ -1,11 +1,15 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.GroupEventData;
-import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.ValueFactory;
@@ -56,9 +60,7 @@ public class DeviceGroupDeletionVetoEventHandlerTest {
     @Before
     public void setUp() {
         deviceGroupDeletionVetoEventHandler = new DeviceGroupDeletionVetoEventHandler(meteringGroupsService, thesaurus);
-        valueBean = new SearchablePropertyValue.ValueBean();
-        valueBean.propertyName = DeviceGroupSearchableProperty.PROPERTY_NAME;
-        valueBean.operator = SearchablePropertyOperator.EQUAL;
+        valueBean = new SearchablePropertyValue.ValueBean(DeviceGroupSearchableProperty.PROPERTY_NAME, SearchablePropertyOperator.EQUAL);
         searchablePropertyValue = new SearchablePropertyValue(deviceGroupSearchableProperty, valueBean);
 
         when(localEvent.getSource()).thenReturn(eventSource);
@@ -75,14 +77,14 @@ public class DeviceGroupDeletionVetoEventHandlerTest {
 
     @Test(expected = VetoDeleteDeviceGroupException.class)
     public void catchVetoDeleteDeviceGroupException() {
-        valueBean.values = Collections.singletonList(String.valueOf(queryEndDeviceGroup.getId()));
+        valueBean.setValues(Collections.singletonList(String.valueOf(queryEndDeviceGroup.getId())));
 
         deviceGroupDeletionVetoEventHandler.handle(localEvent);
     }
 
     @Test
     public void noVetoDeleteDeviceGroupException() {
-        valueBean.values = Collections.emptyList();
+        valueBean.setValues(Collections.emptyList());
         deviceGroupDeletionVetoEventHandler.handle(localEvent);
 
         // Asserts

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
@@ -158,11 +162,6 @@ import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-/**
- * Copyrights EnergyICT
- * Date: 05/03/14
- * Time: 13:52
- */
 public class InMemoryIntegrationPersistence {
 
     private BundleContext bundleContext;
@@ -253,6 +252,7 @@ public class InMemoryIntegrationPersistence {
                 new FiniteStateMachineModule(),
                 new UsagePointLifeCycleConfigurationModule(),
                 new UsagePointLifeCycleModule(),
+                new CalendarModule(),
                 new MeteringModule(
                         "0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0",
                         "0.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0",
@@ -294,7 +294,8 @@ public class InMemoryIntegrationPersistence {
                 new TasksModule(),
                 new DeviceDataModule(),
                 new SchedulingModule(),
-                new CalendarModule());
+                new CalendarModule(),
+                new UsagePointLifeCycleConfigurationModule());
         this.transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = this.transactionService.getContext()) {
             this.jsonService = injector.getInstance(JsonService.class);

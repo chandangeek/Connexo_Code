@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.cps.EditPrivilege;
@@ -80,14 +84,10 @@ import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-/**
- * Copyrights EnergyICT
- * Date: 15.09.15
- * Time: 11:58
- */
 @RunWith(MockitoJUnitRunner.class)
 public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
 
@@ -163,15 +163,6 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
                         dt.getConfigurations().forEach(dc -> {
                             final List<ComTask> comTasks = dc.getComTaskEnablements().stream().map(ComTaskEnablement::getComTask).collect(Collectors.toList());
                             comTasks.forEach(dc::disableComTask);
-
-                            final List<PartialConnectionTask> partialConnectionTasks = dc.getPartialConnectionTasks();
-                            for (int i = 0; i < partialConnectionTasks.size(); i++) {
-                                dc.remove(partialConnectionTasks.get(i));
-                            }
-                            final List<SecurityPropertySet> securityPropertySets = dc.getSecurityPropertySets();
-                            for (int i = 0; i < securityPropertySets.size(); i++) {
-                                dc.removeSecurityPropertySet(securityPropertySets.get(i));
-                            }
                             dt.removeConfiguration(dc);
                         });
                         dt.delete();
@@ -1446,9 +1437,7 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
     }
 
     private ComTaskEnablement createComTaskEnablement(ComTask comTaskForTesting, DeviceConfiguration firstDeviceConfiguration, SecurityPropertySet firstSecurityPropertySet) {
-        return firstDeviceConfiguration.enableComTask(comTaskForTesting, firstSecurityPropertySet, firstDeviceConfiguration
-                .getProtocolDialectConfigurationPropertiesList()
-                .get(0))
+        return firstDeviceConfiguration.enableComTask(comTaskForTesting, firstSecurityPropertySet)
                 .useDefaultConnectionTask(true)
                 .add();
     }
@@ -1473,7 +1462,7 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
     }
 
     private PartialScheduledConnectionTaskImpl createPartialConnectionTask(DeviceConfiguration deviceConfiguration, String connectionTaskName, OutboundComPortPool comPortPool) {
-        final PartialScheduledConnectionTaskBuilder partialScheduledConnectionTaskBuilder = deviceConfiguration.newPartialScheduledConnectionTask(connectionTaskName, outboundIpConnectionTypePluggableClass, scheduledConnectionTaskInterval, ConnectionStrategy.AS_SOON_AS_POSSIBLE);
+        final PartialScheduledConnectionTaskBuilder partialScheduledConnectionTaskBuilder = deviceConfiguration.newPartialScheduledConnectionTask(connectionTaskName, outboundIpConnectionTypePluggableClass, scheduledConnectionTaskInterval, ConnectionStrategy.AS_SOON_AS_POSSIBLE, deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(0));
         partialScheduledConnectionTaskBuilder.comPortPool(comPortPool);
         return partialScheduledConnectionTaskBuilder.build();
     }
@@ -1534,6 +1523,7 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
         when(viewPrivilege.getName()).thenReturn(ViewPrivilege.LEVEL_1.getPrivilege());
         privileges.add(viewPrivilege);
         when(inMemoryPersistence.getMockedUser().getPrivileges()).thenReturn(privileges);
+        when(inMemoryPersistence.getMockedUser().getPrivileges(anyString())).thenReturn(privileges);
     }
 
     private DeviceLifeCycle getDefaultDeviceLifeCycle() {

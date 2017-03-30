@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl.configchange;
 
 import com.elster.jupiter.fsm.State;
@@ -115,10 +119,10 @@ public class DeviceConfigChangeHandler implements MessageHandler {
             private void validateUniqueDeviceConfiguration(DevicesForConfigChangeSearch search, Thesaurus thesaurus) {
                 SearchablePropertyValue.ValueBean deviceConfigValueBean = search.searchItems.get(deviceConfigurationSearchPropertyName);
                 if (deviceConfigValueBean == null
-                        || deviceConfigValueBean.values == null
-                        || deviceConfigValueBean.values.isEmpty()) {
+                        || deviceConfigValueBean.getValues() == null
+                        || deviceConfigValueBean.getValues().isEmpty()) {
                     throw DeviceConfigurationChangeException.needToSearchOnDeviceConfigForBulkAction(thesaurus);
-                } else if (deviceConfigValueBean.values.size() > 1) {
+                } else if (deviceConfigValueBean.getValues().size() > 1) {
                     throw DeviceConfigurationChangeException.needToSearchOnSingleDeviceConfigForBulkAction(thesaurus);
                 }
             }

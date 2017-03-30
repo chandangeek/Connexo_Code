@@ -1,11 +1,14 @@
-package com.energyict.mdc.device.data.impl.tasks.report;
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 
-import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskStatus;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.TaskStatus;
+package com.energyict.mdc.device.data.impl.tasks.report;
 
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.util.sql.SqlBuilder;
+import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskStatus;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.TaskStatus;
 
 import java.util.Optional;
 import java.util.Set;

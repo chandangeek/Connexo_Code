@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.events.EventService;
@@ -11,11 +15,6 @@ import java.math.BigDecimal;
 import java.time.Clock;
 import java.util.Optional;
 
-/**
- * Copyrights EnergyICT
- * Date: 2/06/2016
- * Time: 17:10
- */
 public class ChannelUpdaterImpl implements Channel.ChannelUpdater {
 
     private final Channel channel;

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl.events;
 
 import com.elster.jupiter.events.LocalEvent;
@@ -18,11 +22,6 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 
-/**
- * Copyrights EnergyICT
- * Date: 27/03/2014
- * Time: 10:37
- */
 @Component(name = "com.energyict.mdc.device.data.delete.queryenddevicegroup.eventhandler", service = TopicHandler.class, immediate = true)
 public class EndDeviceGroupDeletionVetoEventHandler implements TopicHandler {
 

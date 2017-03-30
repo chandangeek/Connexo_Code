@@ -1,21 +1,26 @@
-package com.energyict.mdc.device.data.impl.events;
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 
-import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.config.events.EventType;
-import com.energyict.mdc.device.config.events.PartialConnectionTaskUpdateDetails;
+package com.energyict.mdc.device.data.impl.events;
 
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageBuilder;
 import com.elster.jupiter.messaging.MessageService;
+import com.energyict.mdc.device.config.PartialConnectionTask;
+import com.energyict.mdc.device.config.events.EventType;
+import com.energyict.mdc.device.config.events.PartialConnectionTaskUpdateDetails;
+
 import com.google.common.collect.ImmutableMap;
 import org.osgi.service.event.Event;
 
 import java.math.BigDecimal;
 import java.util.Optional;
 
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl.tasks.history;
 
 import com.elster.jupiter.orm.DataModel;
@@ -22,12 +26,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-
-/**
- * Copyrights EnergyICT
- * Date: 28/04/2014
- * Time: 17:19
- */
 
 public class ComSessionBuilderImpl implements ComSessionBuilder {
     private class UnderConstruction implements ComSessionBuilder {

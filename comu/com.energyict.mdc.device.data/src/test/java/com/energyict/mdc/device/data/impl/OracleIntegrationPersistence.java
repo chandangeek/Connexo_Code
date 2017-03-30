@@ -1,6 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.bootstrap.oracle.impl.OracleBootstrapModule;
+import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
@@ -193,6 +198,7 @@ public class OracleIntegrationPersistence {
                 new UserModule(),
                 new IdsModule(),
                 new UsagePointLifeCycleConfigurationModule(),
+                new CalendarModule(),
                 new MeteringModule(),
                 new MeteringGroupsModule(),
                 new ServiceCallModule(),

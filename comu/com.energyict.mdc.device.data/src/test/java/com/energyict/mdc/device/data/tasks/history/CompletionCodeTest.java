@@ -1,9 +1,13 @@
-package com.energyict.mdc.device.data.tasks.history;
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 
-import org.junit.Test;
+package com.energyict.mdc.device.data.tasks.history;
 
 import java.util.EnumSet;
 import java.util.Set;
+
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

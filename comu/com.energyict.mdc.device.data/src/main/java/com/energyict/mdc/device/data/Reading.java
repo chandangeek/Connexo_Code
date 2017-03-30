@@ -1,9 +1,14 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.validation.DataValidationStatus;
+
+import aQute.bnd.annotation.ProviderType;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -22,6 +27,8 @@ public interface Reading {
 
     Instant getTimeStamp();
 
+    Optional<Instant> getEventDate();
+
     Instant getReportedDateTime();
 
     BigDecimal getSensorAccuracy();
@@ -31,5 +38,9 @@ public interface Reading {
     ReadingRecord getActualReading();
 
     Optional<DataValidationStatus> getValidationStatus();
+
+    Instant getJournalTime();
+
+    String getUserName();
 
 }

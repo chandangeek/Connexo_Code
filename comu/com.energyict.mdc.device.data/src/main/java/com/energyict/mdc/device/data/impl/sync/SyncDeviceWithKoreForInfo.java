@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl.sync;
 
 import com.elster.jupiter.events.EventService;
@@ -13,11 +17,6 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Copyrights EnergyICT
- * Date: 26.07.16
- * Time: 14:18
- */
 public class SyncDeviceWithKoreForInfo extends AbstractSyncDeviceWithKoreMeter {
 
     private DeviceImpl device;

@@ -1,8 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
-import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.upgrade.Upgrader;
 import com.energyict.mdc.device.config.ComTaskEnablement;
@@ -11,6 +14,7 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 
 import javax.inject.Inject;
+import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +36,7 @@ class UpgraderV10_3 implements Upgrader {
     public void migrate(DataModelUpgrader dataModelUpgrader) {
         upgradeExistingScheduledComTaskExecutions();
         dataModelUpgrader.upgrade(dataModel, Version.version(10,3));
+        moveProtocolDialectProperties();
     }
 
     private void upgradeExistingScheduledComTaskExecutions() {
@@ -58,17 +63,17 @@ class UpgraderV10_3 implements Upgrader {
 
     private void doSQL(List<ComTaskEnablement> validEnablementsForSchedule, ComTaskExecution comTaskExecution) {
         List<String> sql = new ArrayList<>();
-        String updateSQL = "UPDATE DDC_COMTASKEXEC SET COMTASK ='" + validEnablementsForSchedule.get(0).getComTask().getId() + "', PROTOCOLDIALECTCONFIGPROPS = '" + validEnablementsForSchedule.get(0).getProtocolDialectConfigurationProperties().getId() + "' WHERE ID='" + comTaskExecution.getId() + "'";
+        String updateSQL = "UPDATE DDC_COMTASKEXEC SET COMTASK ='" + validEnablementsForSchedule.get(0).getComTask().getId() + "' WHERE ID='" + comTaskExecution.getId() + "'";
         sql.add(updateSQL);
 
         for (int i = 1; i < validEnablementsForSchedule.size(); i++) {
             ComTaskEnablement comTaskEnablement = validEnablementsForSchedule.get(i);
             String insertSQL = "INSERT INTO DDC_COMTASKEXEC (ID, VERSIONCOUNT, CREATETIME, MODTIME, USERNAME, DISCRIMINATOR, DEVICE, COMTASK, COMSCHEDULE, NEXTEXECUTIONSPECS, LASTEXECUTIONTIMESTAMP, " +
                     "NEXTEXECUTIONTIMESTAMP, COMPORT, OBSOLETE_DATE, PRIORITY, USEDEFAULTCONNECTIONTASK, CURRENTRETRYCOUNT, PLANNEDNEXTEXECUTIONTIMESTAMP, EXECUTIONPRIORITY, EXECUTIONSTART, LASTSUCCESSFULCOMPLETION, " +
-                    "LASTEXECUTIONFAILED, CONNECTIONTASK, PROTOCOLDIALECTCONFIGPROPS, IGNORENEXTEXECSPECS, LASTSESSION, LASTSESS_HIGHESTPRIOCOMPLCODE, LASTSESS_SUCCESSINDICATOR, ONHOLD) " +
+                    "LASTEXECUTIONFAILED, CONNECTIONTASK, IGNORENEXTEXECSPECS, LASTSESSION, LASTSESS_HIGHESTPRIOCOMPLCODE, LASTSESS_SUCCESSINDICATOR, ONHOLD) " +
                     "SELECT DDC_COMTASKEXECID.nextval, '0', CREATETIME, MODTIME, USERNAME, DISCRIMINATOR, DEVICE, '" + comTaskEnablement.getComTask().getId() + "', COMSCHEDULE, NEXTEXECUTIONSPECS, LASTEXECUTIONTIMESTAMP, " +
                     "NEXTEXECUTIONTIMESTAMP, COMPORT, OBSOLETE_DATE, PRIORITY, USEDEFAULTCONNECTIONTASK, CURRENTRETRYCOUNT, PLANNEDNEXTEXECUTIONTIMESTAMP, EXECUTIONPRIORITY, EXECUTIONSTART, LASTSUCCESSFULCOMPLETION, " +
-                    "LASTEXECUTIONFAILED, CONNECTIONTASK, '" + comTaskEnablement.getProtocolDialectConfigurationProperties().getId() + "', IGNORENEXTEXECSPECS, LASTSESSION, LASTSESS_HIGHESTPRIOCOMPLCODE, LASTSESS_SUCCESSINDICATOR, ONHOLD " +
+                    "LASTEXECUTIONFAILED, CONNECTIONTASK, IGNORENEXTEXECSPECS, LASTSESSION, LASTSESS_HIGHESTPRIOCOMPLCODE, LASTSESS_SUCCESSINDICATOR, ONHOLD " +
                     "FROM DDC_COMTASKEXEC " +
                     "WHERE ID='" + comTaskExecution.getId() + "'";
             sql.add(insertSQL);
@@ -80,4 +85,21 @@ class UpgraderV10_3 implements Upgrader {
             }
         });
     }
+
+    // Move ProtocolDialectProperties from Communication Task to Connection Task
+    private void moveProtocolDialectProperties(){
+        dataModel.useConnectionRequiringTransaction(connection -> {
+            try (Statement retrieveDialectPropertiesIdStatement = connection.createStatement();
+                Statement updateConnectionTaskStatement = connection.createStatement()) {
+                String sql = "SELECT DISTINCT DDC_COMTASKEXEC.PROTOCOLDIALECTCONFIGPROPS, NVL(CONNECTIONTASK, DECODE(USEDEFAULTCONNECTIONTASK, 0, NULL, 1, DDC_CONNECTIONTASK.ID )) AS CONNECTIONTASKID \n" +
+                        "FROM DDC_COMTASKEXEC, DDC_CONNECTIONTASK WHERE DDC_COMTASKEXEC.DEVICE = DDC_CONNECTIONTASK.DEVICE AND DDC_CONNECTIONTASK.ISDEFAULT = 1 AND DDC_COMTASKEXEC.PROTOCOLDIALECTCONFIGPROPS IS NOT NULL";
+                ResultSet rs = retrieveDialectPropertiesIdStatement.executeQuery(sql);
+                while (rs.next()){
+                    updateConnectionTaskStatement.addBatch(String.format("UPDATE DDC_CONNECTIONTASK SET PROTOCOLDIALECTCONFIGPROPS = %1s WHERE ID = %2s", rs.getLong(1), rs.getLong(2)));
+                }
+                updateConnectionTaskStatement.executeBatch();
+            }
+        });
+    }
+
 }

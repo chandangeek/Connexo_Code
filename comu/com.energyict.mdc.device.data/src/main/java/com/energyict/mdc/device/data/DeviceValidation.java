@@ -1,5 +1,10 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data;
 
+import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.validation.DataValidationStatus;
@@ -70,6 +75,10 @@ public interface DeviceValidation {
     List<DataValidationStatus> getValidationStatus(Channel channel, List<? extends BaseReading> readings, Range<Instant> interval);
 
     List<DataValidationStatus> getValidationStatus(Register<?, ?> register, List<? extends BaseReading> readings, Range<Instant> interval);
+
+    List<DataValidationStatus> getHistoryValidationStatus(Register<?, ?> register, List<? extends BaseReading> readings, List<ReadingQualityRecord> readingQualities, Range<Instant> interval);
+
+    DataValidationStatus getValidationStatus(Channel channel, Instant instant, List<ReadingQualityRecord> readingQualities, Range<Instant> interval);
 
     void validateData();
 

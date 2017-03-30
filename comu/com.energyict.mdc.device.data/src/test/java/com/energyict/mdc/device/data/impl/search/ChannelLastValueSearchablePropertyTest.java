@@ -1,7 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl.search;
 
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.search.SearchableProperty;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

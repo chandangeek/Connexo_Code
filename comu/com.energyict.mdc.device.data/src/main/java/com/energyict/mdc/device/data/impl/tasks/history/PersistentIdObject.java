@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl.tasks.history;
 
 import com.elster.jupiter.domain.util.Save;
@@ -6,11 +10,6 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 
-/**
- * Copyrights EnergyICT
- * Date: 20/05/14
- * Time: 10:59
- */
 abstract class PersistentIdObject<T> {
 
     private long id;

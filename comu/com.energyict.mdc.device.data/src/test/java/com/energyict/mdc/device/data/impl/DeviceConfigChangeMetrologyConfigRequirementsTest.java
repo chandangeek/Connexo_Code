@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.devtools.tests.rules.Expected;
@@ -23,11 +27,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
-/**
- * Copyrights EnergyICT
- * Date: 22.12.15
- * Time: 09:46
- */
 @RunWith(MockitoJUnitRunner.class)
 public class DeviceConfigChangeMetrologyConfigRequirementsTest {
 

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.cbo.Accumulation;
@@ -57,11 +61,6 @@ import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-/**
- * Copyrights EnergyICT
- * Date: 31.05.16
- * Time: 11:08
- */
 public class DeviceServiceImplTest extends PersistenceIntegrationTest {
 
     private static final String DEVICENAME = "deviceName";

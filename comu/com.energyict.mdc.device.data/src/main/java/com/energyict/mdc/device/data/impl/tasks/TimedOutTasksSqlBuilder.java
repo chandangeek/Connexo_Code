@@ -1,10 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl.tasks;
 
+import com.elster.jupiter.util.sql.SqlBuilder;
 import com.energyict.mdc.device.data.impl.TableSpecs;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
-
-import com.elster.jupiter.util.sql.SqlBuilder;
 
 /**
  * Provides sql building services that support cleaning marker flags on

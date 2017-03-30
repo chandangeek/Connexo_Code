@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl.search;
 
 import com.elster.jupiter.nls.Thesaurus;
@@ -240,7 +244,12 @@ public abstract class AbstractSearchableDeviceProperty implements SearchableDevi
 
     @Override
     public void visitMembership(Membership membership) {
+        this.visitMembership(membership, this.columnName);
+    }
+
+    public void visitMembership(Membership membership, String columnName) {
         this.underConstruction.append(this.columnName);
+        this.underConstruction.space();
         this.underConstruction.append(membership.getOperator().getSymbol());
         this.underConstruction.spaceOpenBracket();
         this.underConstruction.add(membership.getSubquery().toFragment());

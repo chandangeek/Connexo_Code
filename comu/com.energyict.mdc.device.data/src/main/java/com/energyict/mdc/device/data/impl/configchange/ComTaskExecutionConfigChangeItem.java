@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl.configchange;
 
 import com.energyict.mdc.device.config.ComTaskEnablement;
@@ -11,11 +15,6 @@ import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-/**
- * Copyrights EnergyICT
- * Date: 23.09.15
- * Time: 14:00
- */
 public class ComTaskExecutionConfigChangeItem extends AbstractConfigChangeItem {
 
     private static final ComTaskExecutionConfigChangeItem INSTANCE = new ComTaskExecutionConfigChangeItem();

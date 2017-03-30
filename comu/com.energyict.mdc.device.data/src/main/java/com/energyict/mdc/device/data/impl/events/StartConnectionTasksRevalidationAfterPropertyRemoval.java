@@ -1,9 +1,12 @@
-package com.energyict.mdc.device.data.impl.events;
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 
-import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
+package com.energyict.mdc.device.data.impl.events;
 
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.util.streams.DecoratedStream;
+import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
 
 import javax.inject.Inject;
 import java.util.List;

@@ -1,7 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.kpi;
 
-import aQute.bnd.annotation.ProviderType;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
+
+import aQute.bnd.annotation.ProviderType;
 
 import java.math.BigDecimal;
 import java.time.Instant;

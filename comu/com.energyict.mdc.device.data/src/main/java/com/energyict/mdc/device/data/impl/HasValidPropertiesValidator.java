@@ -1,11 +1,14 @@
-package com.energyict.mdc.device.data.impl;
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 
-import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
+package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.protocol.api.DeviceProtocol;
+import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
