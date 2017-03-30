@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.issue.issue.datavalidation.rest;
 
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
@@ -156,6 +160,7 @@ public class IssueDataValidationApplicationJerseyTest extends FelixRestApplicati
         when(issue.getAssignee()).thenReturn(assingee);
         when(issue.getDevice()).thenReturn(meter);
         when(issue.getCreateTime()).thenReturn(Instant.EPOCH);
+        when(issue.getCreateDateTime()).thenReturn(Instant.EPOCH);
         when(issue.getModTime()).thenReturn(Instant.EPOCH);
         when(issue.getVersion()).thenReturn(1L);
         when(issue.getPriority()).thenReturn(Priority.DEFAULT);
