@@ -1,22 +1,18 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.tasks.impl;
 
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.tasks.ProtocolTask;
 
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.ValueReference;
-
 import javax.inject.Inject;
 import java.time.Instant;
 
-/**
- * Provides an implementation for the {@link MessagesTaskTypeUsage} interface.
- *
- * Copyrights EnergyICT
- * Date: 26/02/13
- * Time: 14:38
- */
 public class MessagesTaskTypeUsageImpl implements MessagesTaskTypeUsage {
 
     enum Fields {

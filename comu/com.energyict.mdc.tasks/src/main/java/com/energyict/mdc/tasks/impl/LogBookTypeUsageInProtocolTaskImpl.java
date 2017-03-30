@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.tasks.impl;
 
 import com.elster.jupiter.orm.associations.Reference;
@@ -7,11 +11,6 @@ import com.energyict.mdc.tasks.LogBooksTask;
 
 import java.time.Instant;
 
-/**
- * Copyrights EnergyICT
- * Date: 13/05/14
- * Time: 14:29
- */
 public class LogBookTypeUsageInProtocolTaskImpl implements LogBookTypeUsageInProtocolTask {
 
     enum Fields {
