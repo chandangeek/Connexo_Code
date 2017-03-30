@@ -1,11 +1,17 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.pluggable.impl;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.NlsService;
-import java.time.Clock;
 import com.energyict.mdc.pluggable.PluggableService;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
+
+import java.time.Clock;
 
 /**
  * Insert your comments here.

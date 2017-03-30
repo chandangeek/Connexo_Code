@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.pluggable.impl;
 
 import com.elster.jupiter.orm.Column;
@@ -6,7 +10,8 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.energyict.mdc.pluggable.PluggableClass;
 
-import static com.elster.jupiter.orm.Table.*;
+import static com.elster.jupiter.orm.Table.NAME_LENGTH;
+import static com.elster.jupiter.orm.Table.SHORT_DESCRIPTION_LENGTH;
 
 /**
  * Models the database tables that hold the data of the {@link PluggableClass}es.
