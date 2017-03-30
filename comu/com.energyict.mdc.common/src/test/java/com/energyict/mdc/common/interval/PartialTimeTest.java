@@ -1,10 +1,15 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.common.interval;
 
 import org.joda.time.DateTimeConstants;
-import org.junit.*;
 
 import java.util.Calendar;
 import java.util.TimeZone;
+
+import org.junit.Test;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 

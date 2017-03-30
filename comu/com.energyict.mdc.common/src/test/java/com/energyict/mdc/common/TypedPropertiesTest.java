@@ -1,12 +1,16 @@
-package com.energyict.mdc.common;
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 
-import org.junit.*;
+package com.energyict.mdc.common;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
+
+import org.junit.Test;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 

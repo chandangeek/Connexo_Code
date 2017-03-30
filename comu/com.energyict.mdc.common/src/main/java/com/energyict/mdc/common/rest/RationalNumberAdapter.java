@@ -1,7 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.common.rest;
 
 import com.elster.jupiter.cbo.RationalNumber;
 import com.elster.jupiter.util.Checks;
+
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 
 public class RationalNumberAdapter extends XmlAdapter<String, RationalNumber> {

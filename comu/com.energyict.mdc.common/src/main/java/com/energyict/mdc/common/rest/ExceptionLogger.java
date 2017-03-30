@@ -1,12 +1,17 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.common.rest;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.ws.rs.WebApplicationException;
 import org.glassfish.jersey.server.monitoring.ApplicationEvent;
 import org.glassfish.jersey.server.monitoring.ApplicationEventListener;
 import org.glassfish.jersey.server.monitoring.RequestEvent;
 import org.glassfish.jersey.server.monitoring.RequestEventListener;
+
+import javax.ws.rs.WebApplicationException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * This listener writes all exceptions to a logger
