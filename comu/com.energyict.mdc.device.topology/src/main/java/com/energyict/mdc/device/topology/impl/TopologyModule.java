@@ -1,10 +1,14 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.topology.impl;
 
+import com.elster.jupiter.nls.NlsService;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.topology.TopologyService;
 
-import com.elster.jupiter.nls.NlsService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 

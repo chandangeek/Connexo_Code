@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.topology.impl;
 
 import com.elster.jupiter.cps.CustomPropertySet;
@@ -97,14 +101,12 @@ public abstract class AbstractComTaskExecutionInTopologyTest extends Persistence
     }
 
     protected ComTaskEnablement enableComTask(boolean useDefault) {
-        ProtocolDialectConfigurationProperties configDialect = deviceConfiguration.findOrCreateProtocolDialectConfigurationProperties(new ComTaskExecutionDialect());
-        deviceConfiguration.save();
-        return enableComTask(useDefault, configDialect, COM_TASK_NAME);
+        return enableComTask(useDefault,COM_TASK_NAME);
     }
 
-    protected ComTaskEnablement enableComTask(boolean useDefault, ProtocolDialectConfigurationProperties configDialect, String comTaskName) {
+    protected ComTaskEnablement enableComTask(boolean useDefault, String comTaskName) {
         ComTask comTaskWithBasicCheck = createComTaskWithBasicCheck(comTaskName);
-        ComTaskEnablementBuilder builder = this.deviceConfiguration.enableComTask(comTaskWithBasicCheck, this.securityPropertySet, configDialect);
+        ComTaskEnablementBuilder builder = this.deviceConfiguration.enableComTask(comTaskWithBasicCheck, this.securityPropertySet);
         builder.useDefaultConnectionTask(useDefault);
         builder.setPriority(COM_TASK_ENABLEMENT_PRIORITY);
         return builder.add();
@@ -131,6 +133,8 @@ public abstract class AbstractComTaskExecutionInTopologyTest extends Persistence
     }
 
     protected PartialScheduledConnectionTask createPartialScheduledConnectionTask(TimeDuration frequency) {
+        ProtocolDialectConfigurationProperties configDialect = deviceConfiguration.findOrCreateProtocolDialectConfigurationProperties(new ComTaskExecutionDialect());
+        deviceConfiguration.save();
         ConnectionTypePluggableClass connectionTypePluggableClass =
                 inMemoryPersistence.getProtocolPluggableService()
                         .newConnectionTypePluggableClass(
@@ -142,7 +146,8 @@ public abstract class AbstractComTaskExecutionInTopologyTest extends Persistence
                         "Outbound (1)",
                         connectionTypePluggableClass,
                         frequency,
-                        ConnectionStrategy.AS_SOON_AS_POSSIBLE).
+                        ConnectionStrategy.AS_SOON_AS_POSSIBLE,
+                        configDialect).
                 comWindow(new ComWindow(0, 7200)).
                 build();
     }

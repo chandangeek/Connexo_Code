@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.topology.impl;
 
 import com.elster.jupiter.metering.ReadingType;
@@ -8,11 +12,6 @@ import com.energyict.mdc.device.data.Device;
 
 import java.time.Instant;
 
-/**
- * Copyrights EnergyICT
- * Date: 28/04/2016
- * Time: 15:29
- */
 public class DataLoggerLinkException extends LocalizedException {
 
     static final String NO_MAPPING_FOR_ALL_SLAVE_CHANNELS = "DataLoggerLinkException.allSlaveChannelsShouldBeIncludedInTheMapping";

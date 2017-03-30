@@ -1,10 +1,8 @@
-package com.energyict.mdc.device.topology.impl;
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 
-import com.energyict.mdc.common.ImplField;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.topology.Modulation;
-import com.energyict.mdc.device.topology.ModulationScheme;
-import com.energyict.mdc.device.topology.PLCNeighbor;
+package com.energyict.mdc.device.topology.impl;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
@@ -12,6 +10,12 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.time.Interval;
+import com.energyict.mdc.common.ImplField;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.topology.Modulation;
+import com.energyict.mdc.device.topology.ModulationScheme;
+import com.energyict.mdc.device.topology.PLCNeighbor;
+
 import com.google.common.collect.ImmutableMap;
 
 import javax.validation.constraints.NotNull;

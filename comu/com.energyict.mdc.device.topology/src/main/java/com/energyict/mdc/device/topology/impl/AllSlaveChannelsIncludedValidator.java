@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.topology.impl;
 
 import com.energyict.mdc.device.data.Device;
@@ -6,13 +10,6 @@ import com.energyict.mdc.device.topology.DataLoggerChannelUsage;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
-/**
- * Validates that the DataLoggerReference includes all slave channels.
- * <p/>
- * Copyrights EnergyICT
- * Date: 3/14/14
- * Time: 3:57 PM
- */
 class AllSlaveChannelsIncludedValidator implements ConstraintValidator<AllSlaveChannelsIncluded, DataLoggerReferenceImpl> {
 
     @Override

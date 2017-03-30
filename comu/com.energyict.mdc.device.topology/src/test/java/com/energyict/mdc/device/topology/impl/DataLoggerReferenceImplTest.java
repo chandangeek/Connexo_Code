@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.topology.impl;
 
 import com.elster.jupiter.cbo.QualityCodeIndex;
@@ -49,18 +53,13 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.junit.Ignore;
+import org.junit.Test;
+
 import static com.elster.jupiter.util.streams.Predicates.not;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.mockito.Mockito.when;
-
-/**
- * Test covering the data transfer between channels when slave is linked to data logger, or
- * when slave is unlinked from data logger.
- * <p>
- * Copyrights EnergyICT
- * Date: 25/05/2016
- * Time: 9:04
- */
+@Ignore
 public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
 
     private final static Unit kiloWattHours = Unit.get("kWh");
@@ -861,7 +860,7 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
         registerMapping.put(slaveRegister3, dataLoggerR3);
 
         dataLoggerR2.startEditingData()
-                .editReading(ReadingImpl.of(dataLoggerR2.getReadingType().getMRID(), new BigDecimal(0), readingsDataLoggerR2.get(readingsDataLoggerR2.size()-2).getTimeStamp()))
+                .editReading(ReadingImpl.of(dataLoggerR2.getReadingType().getMRID(), new BigDecimal(0), readingsDataLoggerR2.get(readingsDataLoggerR2.size()-2).getTimeStamp()),readingsDataLoggerR2.get(readingsDataLoggerR2.size()-2).getTimeStamp())
                 .complete();
 
         inMemoryPersistence.getTopologyService().setDataLogger(slave, dataLogger, startLink, channelMapping, registerMapping);

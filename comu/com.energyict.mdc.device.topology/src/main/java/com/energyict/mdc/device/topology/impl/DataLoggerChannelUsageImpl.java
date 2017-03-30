@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.topology.impl;
 
 import com.elster.jupiter.domain.util.Save;
@@ -14,11 +18,6 @@ import com.google.common.collect.Range;
 import java.time.Instant;
 import java.util.Optional;
 
-/**
- * Copyrights EnergyICT
- * Date: 28/04/2016
- * Time: 11:15
- */
 public class DataLoggerChannelUsageImpl implements DataLoggerChannelUsage {
 
     public enum Field implements ImplField {

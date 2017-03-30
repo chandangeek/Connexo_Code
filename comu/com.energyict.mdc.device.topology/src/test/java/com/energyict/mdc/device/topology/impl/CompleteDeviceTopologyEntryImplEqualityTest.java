@@ -1,15 +1,19 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.topology.impl;
 
+import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import com.energyict.mdc.device.data.Device;
 
-import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import com.google.common.collect.Range;
 import org.joda.time.DateMidnight;
 
 import java.time.Instant;
 import java.util.Arrays;
 
-import org.junit.*;
+import org.junit.BeforeClass;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;

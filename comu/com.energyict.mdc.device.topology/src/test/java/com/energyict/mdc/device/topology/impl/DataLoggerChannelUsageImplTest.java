@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.topology.impl;
 
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
@@ -34,11 +38,6 @@ import java.util.stream.Collectors;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.mockito.Mockito.when;
 
-/**
- * Copyrights EnergyICT
- * Date: 2/05/2016
- * Time: 16:11
- */
 @RunWith(MockitoJUnitRunner.class)
 public class DataLoggerChannelUsageImplTest extends PersistenceIntegrationTest {
 

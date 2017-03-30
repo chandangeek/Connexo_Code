@@ -1,12 +1,14 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.topology.impl;
 
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.topology.G3CommunicationPathSegment;
-
-import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.time.Interval;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.topology.G3CommunicationPathSegment;
 
 import java.time.Duration;
 import java.util.Optional;

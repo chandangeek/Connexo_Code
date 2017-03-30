@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.topology.impl;
 
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
@@ -30,11 +34,6 @@ import java.util.stream.Collectors;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
-/**
- * Copyrights EnergyICT
- * Date: 22/06/2016
- * Time: 15:37
- */
 public class AvailabilityDateTest extends PersistenceIntegrationTest {
 
     private final static Unit kiloWattHours = Unit.get("kWh");

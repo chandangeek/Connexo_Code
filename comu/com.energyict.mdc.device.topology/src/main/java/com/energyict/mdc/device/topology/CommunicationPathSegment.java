@@ -1,9 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.topology;
 
+import com.elster.jupiter.orm.associations.Effectivity;
 import com.energyict.mdc.device.data.Device;
 
 import aQute.bnd.annotation.ProviderType;
-import com.elster.jupiter.orm.associations.Effectivity;
 
 /**
  * Models one segment of a {@link CommunicationPath}
