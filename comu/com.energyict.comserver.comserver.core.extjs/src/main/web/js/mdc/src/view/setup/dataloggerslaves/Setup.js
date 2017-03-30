@@ -48,6 +48,7 @@ Ext.define('Mdc.view.setup.dataloggerslaves.Setup', {
                     xtype: 'preview-container',
                     grid: {
                         xtype: 'dataLoggerSlavesGrid',
+                        purpose: me.purpose,
                         router: me.router,
                         store: me.store
                     },

@@ -23,6 +23,10 @@ Ext.define('Mdc.util.LinkPurpose', {
             slaveLinkedMessage: Uni.I18n.translate('general.slaveXLinkedToDeviceY.success', 'MDC', "Slave '{0}' has been linked to device '{1}'."),
             slaveLinkedFailedMessage: Uni.I18n.translate('general.slaveXLinkedToDeviceY.noSuccess', 'MDC', "Slave '{0}' has not been linked to device '{1}' due to a failure. Please try again."),
             linkConfirmation: Uni.I18n.translate('general.question.linkSlaveXToDeviceY', 'MDC', "Link slave '{0}' to device '{1}'?"),
+            slavesGridDisplayMsg: Uni.I18n.translate('slaves.pagingtoolbartop.displayMsg', 'MDC', '{0} - {1} of {2} slaves'),
+            slavesGridDisplayMoreMsg: Uni.I18n.translate('slaves.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} slaves'),
+            slavesGridEmptyMsg: Uni.I18n.translate('slaves.pagingtoolbartop.emptyMsg', 'MDC', 'There are no slaves to display'),
+            slavesGridItemsPerPageMsg: Uni.I18n.translate('slaves.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Slaves per page'),
             deviceTypeFilter: function (deviceType) {
                 return (deviceType.get('deviceTypePurpose') === 'DATALOGGER_SLAVE' || deviceType.get('deviceTypePurpose') === 'MULTI_ELEMENT_SLAVE') && deviceType.get('activeDeviceConfigurationCount') > 0;
             }
@@ -43,6 +47,10 @@ Ext.define('Mdc.util.LinkPurpose', {
             slaveLinkedMessage: Uni.I18n.translate('general.slaveXLinkedToDataLoggerY.success', 'MDC', "Slave '{0}' has been linked to data logger '{1}'."),
             slaveLinkedFailedMessage: Uni.I18n.translate('general.slaveXLinkedToDataLoggerY.noSuccess', 'MDC', "Slave '{0}' has not been linked to data logger '{1}' due to a failure. Please try again."),
             linkConfirmation: Uni.I18n.translate('general.question.linkSlaveXToDataLoggerY', 'MDC', "Link slave '{0}' to data logger '{1}'?"),
+            slavesGridDisplayMsg: Uni.I18n.translate('dataLoggerSlaves.pagingtoolbartop.displayMsg', 'MDC', '{0} - {1} of {2} data logger slaves'),
+            slavesGridDisplayMoreMsg: Uni.I18n.translate('dataLoggerSlaves.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} data logger slaves'),
+            slavesGridEmptyMsg: Uni.I18n.translate('dataLoggerSlaves.pagingtoolbartop.emptyMsg', 'MDC', 'There are no data logger slaves to display'),
+            slavesGridItemsPerPageMsg: Uni.I18n.translate('dataLoggerSlaves.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Data logger slaves per page'),
             deviceTypeFilter: function (deviceType) {
                 return deviceType.get('deviceTypePurpose') === 'DATALOGGER_SLAVE' && deviceType.get('activeDeviceConfigurationCount') > 0;
             }
@@ -62,6 +70,10 @@ Ext.define('Mdc.util.LinkPurpose', {
             slaveLinkedMessage: Uni.I18n.translate('general.slaveXLinkedToMultiElementDeviceY.success', 'MDC', "Slave '{0}' has been linked to multi-element device '{1}'."),
             slaveLinkedFailedMessage: Uni.I18n.translate('general.slaveXLinkedToMultiElementDeviceY.noSuccess', 'MDC', "Slave '{0}' has not been linked to multi-element device '{1}' due to a failure. Please try again."),
             linkConfirmation: Uni.I18n.translate('general.question.linkSlaveXToMultiElementDeviceY', 'MDC', "Link slave '{0}' to multi-element device '{1}'?"),
+            slavesGridDisplayMsg: Uni.I18n.translate('multiElementSlaves.pagingtoolbartop.displayMsg', 'MDC', '{0} - {1} of {2} multi-element slaves'),
+            slavesGridDisplayMoreMsg: Uni.I18n.translate('multiElementSlaves.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} multi-element slaves'),
+            slavesGridEmptyMsg: Uni.I18n.translate('multiElementSlaves.pagingtoolbartop.emptyMsg', 'MDC', 'There are no multi-element slaves to display'),
+            slavesGridItemsPerPageMsg: Uni.I18n.translate('multiElementSlaves.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Multi-element slaves per page'),
             newSlaveOption: '',
 
             deviceTypeFilter: function (deviceType) {
