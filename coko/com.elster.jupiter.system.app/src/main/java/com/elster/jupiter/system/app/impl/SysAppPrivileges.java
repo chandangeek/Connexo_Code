@@ -4,6 +4,8 @@
 
 package com.elster.jupiter.system.app.impl;
 
+import com.elster.jupiter.pki.security.Privileges;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -54,7 +56,11 @@ class SysAppPrivileges {
                 //dual control
                 com.elster.jupiter.dualcontrol.Privileges.Constants.GRANT_APPROVAL,
                 //public api
-                com.elster.jupiter.kore.api.security.Privileges.Constants.PUBLIC_REST_API
+                com.elster.jupiter.kore.api.security.Privileges.Constants.PUBLIC_REST_API,
+                // PKI
+                Privileges.Constants.VIEW_CERTIFICATES,
+                Privileges.Constants.ADMINISTRATE_CERTIFICATES,
+                Privileges.Constants.ADMINISTRATE_TRUST_STORES
         );
     }
 }
