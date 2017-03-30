@@ -474,18 +474,33 @@ public class UsagePointResource {
         }
         for (CustomPropertySetInfo customPropertySetInfo : info.customPropertySets) {
             if(!createNew){
-                UsagePointPropertySet propertySet = usagePoint.forCustomProperties()
-                        .getPropertySet(customPropertySetInfo.id);
-                propertySet.setValues(customPropertySetInfoFactory.getCustomPropertySetValues(customPropertySetInfo,
-                        propertySet.getCustomPropertySet().getPropertySpecs()));
+                updateCustomPropertySetValues(usagePoint,customPropertySetInfo);
             }
-            else if (customPropertySetInfo.isVersioned){
-                UsagePointVersionedPropertySet propertySet = usagePoint.forCustomProperties()
-                        .getVersionedPropertySet(customPropertySetInfo.id);
-                propertySet.setVersionValues(null,customPropertySetInfoFactory.getCustomPropertySetValues(customPropertySetInfo,
-                        propertySet.getCustomPropertySet().getPropertySpecs()));
-            }
+            else if (customPropertySetInfo.isVersioned && createNew){
+                UsagePointVersionedPropertySet propertySet = usagePoint.forCustomProperties().getVersionedPropertySet(customPropertySetInfo.id);
+                CustomPropertySetValues existingVersion= propertySet.getValues();
 
+                if (existingVersion!=null){
+                    Range<Instant> existingRange = existingVersion.getEffectiveRange();
+                    if(!existingRange.hasUpperBound() && info.activationTime.isAfter(existingRange.lowerEndpoint())){
+                        Range<Instant> range = Range.closedOpen(existingVersion.getEffectiveRange().lowerEndpoint(),info.activationTime);
+                        CustomPropertySetValues existingValues = CustomPropertySetValues.emptyDuring(range);
+                        copyPropertyValues(propertySet,existingValues,customPropertySetInfo);
+                        propertySet.setVersionValues(info.activationTime,existingValues);
+                        CustomPropertySetValues values = CustomPropertySetValues.emptyFrom(info.activationTime);
+                        copyPropertyValues(propertySet,values,customPropertySetInfo);
+                        propertySet.setVersionValues(info.activationTime,values);
+                    }
+                    else {
+                        CustomPropertySetValues values = CustomPropertySetValues.emptyFrom(info.activationTime);
+                        copyPropertyValues(propertySet,values,customPropertySetInfo);
+                        propertySet.setVersionValues(info.activationTime,values);
+                    }
+                }
+                else {
+                    updateCustomPropertySetValues(usagePoint,customPropertySetInfo);
+                }
+            }
         }
         usagePoint.update();
 
@@ -1125,5 +1140,26 @@ public class UsagePointResource {
     private void failStartDateCheck(RestValidationBuilder validationBuilder) {
         validationBuilder.addValidationError(new LocalizedFieldValidationException(MessageSeeds.START_DATE_MUST_BE_GRATER_THAN_UP_CREATED_DATE, "activationTime"));
         validationBuilder.validate();
+    }
+
+    private void copyPropertyValues(UsagePointVersionedPropertySet from,CustomPropertySetValues to, CustomPropertySetInfo info){
+        List<String> propertyNames = from.getCustomPropertySet().getPropertySpecs()
+                .stream()
+                .map(PropertySpec::getName)
+                .collect(Collectors.toList());
+
+        for (String propertyName: propertyNames){
+            CustomPropertySetValues fromValues= customPropertySetInfoFactory.getCustomPropertySetValues(info,
+                    from.getCustomPropertySet().getPropertySpecs());
+            Object property =fromValues.getProperty(propertyName);
+            to.setProperty(propertyName,property);
+        }
+    }
+
+    private void updateCustomPropertySetValues(UsagePoint usagePoint,CustomPropertySetInfo customPropertySetInfo){
+        UsagePointPropertySet propertySet = usagePoint.forCustomProperties()
+                .getPropertySet(customPropertySetInfo.id);
+        propertySet.setValues(customPropertySetInfoFactory.getCustomPropertySetValues(customPropertySetInfo,
+                propertySet.getCustomPropertySet().getPropertySpecs()));
     }
 }
