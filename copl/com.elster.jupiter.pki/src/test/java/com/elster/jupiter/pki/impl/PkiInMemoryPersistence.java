@@ -67,6 +67,7 @@ public class PkiInMemoryPersistence {
         );
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             injector.getInstance(ThreadPrincipalService.class);
+            injector.getInstance(UserService.class);
             pkiService = injector.getInstance(PkiService.class);
             ctx.commit();
         }

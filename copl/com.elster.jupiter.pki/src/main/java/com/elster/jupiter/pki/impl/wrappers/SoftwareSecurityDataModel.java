@@ -16,6 +16,7 @@ import com.elster.jupiter.pki.impl.Installer;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.users.UserService;
 
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
@@ -44,6 +45,7 @@ public class SoftwareSecurityDataModel {
     private volatile Thesaurus thesaurus;
     private volatile UpgradeService upgradeService;
     private volatile EventService eventService;
+    private volatile UserService userService;
     private PkiService pkiService;
 
     // OSGi
@@ -53,7 +55,7 @@ public class SoftwareSecurityDataModel {
     @Inject // Testing purposes
     public SoftwareSecurityDataModel(OrmService ormService, UpgradeService upgradeService, NlsService nlsService,
                                      DataVaultService dataVaultService, PropertySpecService propertySpecService,
-                                     PkiService pkiService, EventService eventService) {
+                                     PkiService pkiService, EventService eventService, UserService userService) {
         this.setOrmService(ormService);
         this.setUpGradeService(upgradeService);
         this.setNlsService(nlsService);
@@ -61,6 +63,7 @@ public class SoftwareSecurityDataModel {
         this.setDataVaultService(dataVaultService);
         this.setPkiService(pkiService);
         this.setEventService(eventService);
+        this.setUserService(userService);
         activate();
     }
 
@@ -95,6 +98,11 @@ public class SoftwareSecurityDataModel {
     }
 
     @Reference
+    public void setUserService(UserService userService) {
+        this.userService = userService;
+    }
+
+    @Reference
     public void setPropertySpecService(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
     }
@@ -125,6 +133,7 @@ public class SoftwareSecurityDataModel {
                 bind(PropertySpecService.class).toInstance(propertySpecService);
                 bind(PkiService.class).toInstance(pkiService);
                 bind(EventService.class).toInstance(eventService);
+                bind(UserService.class).toInstance(userService);
             }
         };
     }

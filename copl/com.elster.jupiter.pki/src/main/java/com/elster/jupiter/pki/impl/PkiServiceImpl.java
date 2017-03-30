@@ -7,6 +7,8 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.pki.CertificateWrapper;
@@ -26,9 +28,11 @@ import com.elster.jupiter.pki.impl.wrappers.asymmetric.AbstractPlaintextPrivateK
 import com.elster.jupiter.pki.impl.wrappers.certificate.AbstractCertificateWrapperImpl;
 import com.elster.jupiter.pki.impl.wrappers.certificate.ClientCertificateWrapperImpl;
 import com.elster.jupiter.pki.impl.wrappers.certificate.RequestableCertificateWrapperImpl;
+import com.elster.jupiter.pki.security.Privileges;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.users.UserService;
 
 import com.google.inject.AbstractModule;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -48,6 +52,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -60,7 +65,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
         service = PkiService.class,
         property = "name=" + PkiService.COMPONENTNAME,
         immediate = true)
-public class PkiServiceImpl implements PkiService {
+public class PkiServiceImpl implements PkiService, TranslationKeyProvider {
 
     private final Map<String, PrivateKeyFactory> privateKeyFactories = new ConcurrentHashMap<>();
     private final Map<String, SymmetricKeyFactory> symmetricKeyFactories = new ConcurrentHashMap<>();
@@ -72,17 +77,19 @@ public class PkiServiceImpl implements PkiService {
     private volatile OrmService ormService;
     private volatile PropertySpecService propertySpecService;
     private volatile EventService eventService;
+    private volatile UserService userService;
 
     @Inject
     public PkiServiceImpl(OrmService ormService, UpgradeService upgradeService, NlsService nlsService,
                           DataVaultService dataVaultService, PropertySpecService propertySpecService,
-                          EventService eventService) {
+                          EventService eventService, UserService userService) {
         this.setOrmService(ormService);
         this.setUpgradeService(upgradeService);
         this.setNlsService(nlsService);
         this.setDataVaultService(dataVaultService);
         this.setPropertySpecService(propertySpecService);
         this.setEventService(eventService);
+        this.setUserService(userService);
         this.activate();
     }
 
@@ -128,6 +135,11 @@ public class PkiServiceImpl implements PkiService {
     @Reference
     public void setOrmService(OrmService ormService) {
         this.ormService = ormService;
+    }
+
+    @Reference
+    public void setUserService(UserService userService) {
+        this.userService = userService;
     }
 
     @Reference
@@ -180,6 +192,7 @@ public class PkiServiceImpl implements PkiService {
                 bind(PkiService.class).toInstance(PkiServiceImpl.this);
                 bind(PropertySpecService.class).toInstance(propertySpecService);
                 bind(EventService.class).toInstance(eventService);
+                bind(UserService.class).toInstance(userService);
             }
         };
     }
@@ -296,6 +309,25 @@ public class PkiServiceImpl implements PkiService {
         ClientCertificateWrapperImpl clientCertificate = getDataModel().getInstance(ClientCertificateWrapperImpl.class)
                 .init(privateKeyWrapper, clientCertificateKeyType);
         return new ClientCertificateWrapperBuilder(clientCertificate);
+    }
+
+    @Override
+    public String getComponentName() {
+        return PkiServiceImpl.COMPONENTNAME;
+    }
+
+    @Override
+    public Layer getLayer() {
+        return Layer.DOMAIN;
+    }
+
+    @Override
+    public List<TranslationKey> getKeys() {
+        return Stream.of(
+                Arrays.stream(TranslationKeys.values()),
+                Arrays.stream(Privileges.values()))
+                .flatMap(Function.identity())
+                .collect(Collectors.toList());
     }
 
     class ClientCertificateWrapperBuilder implements PkiService.ClientCertificateWrapperBuilder {

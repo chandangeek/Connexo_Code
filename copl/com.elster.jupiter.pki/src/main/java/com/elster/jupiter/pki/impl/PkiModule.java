@@ -4,6 +4,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.users.UserService;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
@@ -17,6 +18,7 @@ public class PkiModule extends AbstractModule {
         requireBinding(OrmService.class);
         requireBinding(NlsService.class);
         requireBinding(PropertySpecService.class);
+        requireBinding(UserService.class);
 
         bind(PkiService.class).to(PkiServiceImpl.class).in(Scopes.SINGLETON);
     }
