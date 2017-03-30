@@ -616,6 +616,7 @@ public class UsagePointResource {
         List<MetrologyConfigurationHistoryInfo> infos = usagePoint.getEffectiveMetrologyConfigurations()
                 .stream()
                 .map(metrologyConfiguration -> metrologyConfigurationHistoryInfoFactory.from(metrologyConfiguration, usagePoint, auth))
+                .sorted(Comparator.comparing((MetrologyConfigurationHistoryInfo info) -> !info.current).thenComparing(info -> info.start))
                 .collect(Collectors.toList());
 
         return PagedInfoList.fromCompleteList("data", infos, queryParameters);
