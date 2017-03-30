@@ -30,8 +30,10 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
-
 import com.jayway.jsonpath.JsonModel;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
@@ -40,10 +42,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -306,7 +304,7 @@ public class ConnectionMethodResourceTest extends DeviceConfigurationApplication
     protected DeviceProtocolDialect mockDeviceProtocolDialect(){
         DeviceProtocolDialect dialect = mock(DeviceProtocolDialect.class);
         when(dialect.getDeviceProtocolDialectName()).thenReturn("Mocked Protocol Dialect");
-        when(dialect.getDisplayName()).thenReturn("DisplayName of the mocked Protocol Dialect");
+        when(dialect.getDeviceProtocolDialectDisplayName()).thenReturn("DisplayName of the mocked Protocol Dialect");
         return dialect;
     }
 

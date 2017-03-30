@@ -21,7 +21,6 @@ import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -130,7 +129,7 @@ public abstract class ConnectionMethodInfo<T extends PartialConnectionTask> {
             } else {
                 protocolDialectConfigurationPropertiesInfo.id = protocolDialectConfigurationProperties.getId();
                 protocolDialectConfigurationPropertiesInfo.name = protocolDialectConfigurationProperties.getDeviceProtocolDialect().getDeviceProtocolDialectName();
-                protocolDialectConfigurationPropertiesInfo.displayName = protocolDialectConfigurationProperties.getDeviceProtocolDialect().getDisplayName();
+                protocolDialectConfigurationPropertiesInfo.displayName = protocolDialectConfigurationProperties.getDeviceProtocolDialect().getDeviceProtocolDialectDisplayName();
             }
             return protocolDialectConfigurationPropertiesInfo;
         }
