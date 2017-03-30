@@ -274,16 +274,19 @@
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>pki</artifactId>
                 <version>1.0.0${revision}</version>
+                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>pki.rest</artifactId>
                 <version>1.0.0${revision}</version>
+                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>pki.extjs</artifactId>
                 <version>1.0.0${revision}</version>
+                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
