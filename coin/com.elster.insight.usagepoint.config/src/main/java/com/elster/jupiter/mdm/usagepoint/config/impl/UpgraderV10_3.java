@@ -235,7 +235,7 @@ class UpgraderV10_3 implements Upgrader, PrivilegesProvider {
     }
 
     private void upgradeResidentialProsumerWith2Meter() {
-        Optional<MetrologyConfiguration> usagePointMetrologyConfiguration = metrologyConfigurationService.findMetrologyConfiguration("Residential prosumer with 2 meter");
+        Optional<MetrologyConfiguration> usagePointMetrologyConfiguration = metrologyConfigurationService.findMetrologyConfiguration("Residential prosumer with 2 meters");
         if (usagePointMetrologyConfiguration.isPresent() && usagePointMetrologyConfiguration.get() instanceof UsagePointMetrologyConfiguration) {
             UsagePointMetrologyConfiguration config = (UsagePointMetrologyConfiguration) usagePointMetrologyConfiguration
                     .get();
@@ -260,48 +260,53 @@ class UpgraderV10_3 implements Upgrader, PrivilegesProvider {
                     .orElseThrow(() -> new NoSuchElementException("Billing metrology purpose not found"));
             MetrologyContract contractBilling = config.addMandatoryMetrologyContract(purposeBilling);
 
-            metrologyConfigurationService.findMeterRole(DefaultMeterRole.DEFAULT.getKey()).ifPresent(
-                    meterRole -> {
+            metrologyConfigurationService.findMeterRole(DefaultMeterRole.PRODUCTION.getKey()).ifPresent(
+                    meterRoleProduction -> {
                         ReadingTypeTemplate readingTypeAminusTemplate = metrologyConfigurationService.findReadingTypeTemplate(
                                 DefaultReadingTypeTemplate.A_MINUS.getNameTranslation().getDefaultFormat()).get();
                         ReadingTypeTemplate readingTypeAplusTemplate = metrologyConfigurationService.findReadingTypeTemplate(
                                 DefaultReadingTypeTemplate.A_PLUS.getNameTranslation().getDefaultFormat()).get();
 
-                        ReadingTypeRequirement requirementAminus = config.getRequirements(meterRole).stream()
+                        ReadingTypeRequirement requirementAminus = config.getRequirements(meterRoleProduction).stream()
                                 .filter(requirement -> requirement instanceof PartiallySpecifiedReadingTypeRequirement)
                                 .map(PartiallySpecifiedReadingTypeRequirement.class::cast)
                                 .filter(requirement -> readingTypeAminusTemplate.equals(requirement.getReadingTypeTemplate()))
                                 .findAny()
-                                .orElseGet(() -> config.newReadingTypeRequirement(DefaultReadingTypeTemplate.A_MINUS.getNameTranslation().getDefaultFormat(), meterRole)
+                                .orElseGet(() -> config.newReadingTypeRequirement(DefaultReadingTypeTemplate.A_MINUS.getNameTranslation().getDefaultFormat(), meterRoleProduction)
                                         .withReadingTypeTemplate(readingTypeAminusTemplate));
-                        ReadingTypeRequirement requirementAplus = config.getRequirements(meterRole).stream()
-                                .filter(requirement -> requirement instanceof PartiallySpecifiedReadingTypeRequirement)
-                                .map(PartiallySpecifiedReadingTypeRequirement.class::cast)
-                                .filter(requirement -> readingTypeAplusTemplate.equals(requirement.getReadingTypeTemplate()))
-                                .findAny()
-                                .orElseGet(() -> config.newReadingTypeRequirement(DefaultReadingTypeTemplate.A_PLUS.getNameTranslation().getDefaultFormat(), meterRole)
-                                        .withReadingTypeTemplate(readingTypeAplusTemplate));
 
-                        if (contractBilling.getDeliverables().stream()
-                                .noneMatch(deliverable -> readingTypeMonthlyNetWh.equals(deliverable.getReadingType()))) {
-                            Optional<ReadingTypeDeliverable> oldDeliverable = contractBilling.getDeliverables().stream()
-                                    .filter(deliverable -> readingTypeMonthlyAplusWh.equals(deliverable.getReadingType()))
-                                    .findFirst();
-                            if(oldDeliverable.isPresent()){
-                                oldDeliverable.get().startUpdate().setName("Monthly Net kWh").setReadingType(readingTypeMonthlyNetWh).complete();
-                            } else {
-                                metrologyConfigurationsInstaller.
-                                        buildNonNegativeNetFormula(contractBilling, readingTypeMonthlyNetWh, requirementAplus, requirementAminus, "Monthly Net kWh");
-                            }
-                        }
-                        if (contractBilling.getDeliverables().stream().noneMatch(deliverable -> readingTypeYearlyNetWh.equals(deliverable.getReadingType()))) {
-                            metrologyConfigurationsInstaller.
-                                    buildNonNegativeNetFormula(contractBilling, readingTypeYearlyNetWh, requirementAplus, requirementAminus, "Yearly Net kWh");
-                        }
                         if (contractBilling.getDeliverables().stream().noneMatch(deliverable -> readingTypeYearlyAminusWh.equals(deliverable.getReadingType()))) {
                             metrologyConfigurationsInstaller.
                                     buildFormulaSingleRequirement(contractBilling, readingTypeYearlyAminusWh, requirementAminus, "Yearly A- kWh");
                         }
+                        metrologyConfigurationService.findMeterRole(DefaultMeterRole.CONSUMPTION.getKey()).ifPresent(
+                                meterRoleConsumption -> {
+                                    ReadingTypeRequirement requirementAplus = config.getRequirements(meterRoleConsumption).stream()
+                                            .filter(requirement -> requirement instanceof PartiallySpecifiedReadingTypeRequirement)
+                                            .map(PartiallySpecifiedReadingTypeRequirement.class::cast)
+                                            .filter(requirement -> readingTypeAplusTemplate.equals(requirement.getReadingTypeTemplate()))
+                                            .findAny()
+                                            .orElseGet(() -> config.newReadingTypeRequirement(DefaultReadingTypeTemplate.A_PLUS.getNameTranslation().getDefaultFormat(), meterRoleConsumption)
+                                                    .withReadingTypeTemplate(readingTypeAplusTemplate));
+
+                                    if (contractBilling.getDeliverables().stream()
+                                            .noneMatch(deliverable -> readingTypeMonthlyNetWh.equals(deliverable.getReadingType()))) {
+                                        Optional<ReadingTypeDeliverable> oldDeliverable = contractBilling.getDeliverables().stream()
+                                                .filter(deliverable -> readingTypeMonthlyAplusWh.equals(deliverable.getReadingType()))
+                                                .findFirst();
+                                        if(oldDeliverable.isPresent()){
+                                            oldDeliverable.get().startUpdate().setName("Monthly Net kWh").setReadingType(readingTypeMonthlyNetWh).complete();
+                                        } else {
+                                            metrologyConfigurationsInstaller.
+                                                    buildNonNegativeNetFormula(contractBilling, readingTypeMonthlyNetWh, requirementAplus, requirementAminus, "Monthly Net kWh");
+                                        }
+                                    }
+                                    if (contractBilling.getDeliverables().stream().noneMatch(deliverable -> readingTypeYearlyNetWh.equals(deliverable.getReadingType()))) {
+                                        metrologyConfigurationsInstaller.
+                                                buildNonNegativeNetFormula(contractBilling, readingTypeYearlyNetWh, requirementAplus, requirementAminus, "Yearly Net kWh");
+                                    }
+                                }
+                        );
                     }
             );
         }
