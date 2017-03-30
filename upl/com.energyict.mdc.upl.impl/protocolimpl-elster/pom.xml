@@ -59,6 +59,7 @@
 
     <build>
         <plugins>
+<!--
             <plugin>
                 <groupId>com.github.wvengen</groupId>
                 <artifactId>proguard-maven-plugin</artifactId>
@@ -359,6 +360,7 @@
                     </exclusions>
                 </configuration>
             </plugin>
+-->
 
         </plugins>
     </build>

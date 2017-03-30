@@ -48,6 +48,7 @@
     <build>
         <plugins>
             <!-- This proguard plugin is used to obfuscate the protocolimpl jar-->
+<!--
             <plugin>
                 <groupId>com.github.wvengen</groupId>
                 <artifactId>proguard-maven-plugin</artifactId>
@@ -75,6 +76,7 @@
                     </libs>
                 </configuration>
             </plugin>
+-->
 
         </plugins>
     </build>
