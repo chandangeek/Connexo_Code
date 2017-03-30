@@ -559,8 +559,11 @@ public class MasterDataSerializer {
         Iterator<SchedulableItem> iterator = obisCodes.iterator();
         while (iterator.hasNext()) {
             SchedulableItem item = iterator.next();
-            if (item.getObisCode().equals(Clock.getDefaultObisCode()) || item.equals(FIXED_SERIAL_NUMBER_OBISCODE)) {
-                getLogger().warning("Filtering out register with obiscode '" + item.getObisCode().toString() + "', it is already present in the mirror logical device by default.");
+            ObisCode obisCode = item.getObisCode();
+            if (    Clock.getDefaultObisCode().equals(obisCode) ||
+                    FIXED_SERIAL_NUMBER_OBISCODE.equals(obisCode)
+                ) {
+                getLogger().warning("Filtering out register with obiscode '" + obisCode.toString() + "', it is already present in the mirror logical device by default.");
                 iterator.remove();
             }
         }
