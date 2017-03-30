@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.engine.impl.commands.offline;
 
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
@@ -27,7 +28,7 @@ import java.util.stream.Collectors;
 /**
  * Straightforward implementation of an OfflineDeviceMessage
  * <p>
- * Copyrights EnergyICT
+ *
  * Date: 11/6/14
  * Time: 8:55 AM
  */

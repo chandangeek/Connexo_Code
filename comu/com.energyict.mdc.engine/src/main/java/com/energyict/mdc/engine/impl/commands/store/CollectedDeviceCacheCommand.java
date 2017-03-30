@@ -23,7 +23,7 @@ import java.util.Optional;
 /**
  * Provides functionality to update the cache of a Device in the database.
  * <p>
- * Copyrights EnergyICT
+ *
  * Date: 31/08/12
  * Time: 16:22
  */

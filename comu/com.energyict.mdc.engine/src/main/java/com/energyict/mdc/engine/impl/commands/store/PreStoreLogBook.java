@@ -22,7 +22,7 @@ import java.util.Set;
 /**
  * Performs several actions on the given LogBook which are required before storing.
  * <p>
- * Copyrights EnergyICT
+ *
  * Date: 9/18/14
  * Time: 11:46 AM
  */

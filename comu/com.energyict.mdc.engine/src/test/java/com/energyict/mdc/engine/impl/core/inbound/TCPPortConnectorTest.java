@@ -13,17 +13,16 @@ import com.energyict.mdc.io.InboundCommunicationException;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.api.services.HexService;
 import com.energyict.mdc.upl.io.SocketService;
-
-import java.io.IOException;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.time.Clock;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.time.Clock;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -36,7 +35,7 @@ import static org.mockito.Mockito.when;
 /**
  * Tests the {@link TCPPortConnector} component.
  * <p>
- * Copyrights EnergyICT
+ *
  * Date: 18/10/12
  * Time: 14:43
  */

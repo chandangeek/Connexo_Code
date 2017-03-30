@@ -35,10 +35,21 @@ import com.energyict.mdc.device.data.ProtocolDialectProperties;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.RegisterService;
 import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
-import com.energyict.mdc.device.data.tasks.*;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskProperty;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
+import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
+import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
+import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
-import com.energyict.mdc.device.topology.*;
+import com.energyict.mdc.device.topology.DataLoggerChannelUsage;
+import com.energyict.mdc.device.topology.Modulation;
+import com.energyict.mdc.device.topology.ModulationScheme;
+import com.energyict.mdc.device.topology.PhaseInfo;
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComServer;
@@ -92,7 +103,6 @@ import com.energyict.mdc.upl.offline.OfflineLoadProfile;
 import com.energyict.mdc.upl.offline.OfflineLogBook;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.security.CertificateAlias;
-
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 import com.google.common.collect.TreeRangeSet;
@@ -109,6 +119,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.streams.Currying.use;
@@ -820,13 +831,8 @@ public class ComServerDAOImpl implements ComServerDAO {
         Device device = this.findDevice(deviceIdentifier);
         InboundConnectionTask connectionTask = this.getInboundConnectionTask(inboundComPort, device);
         if (connectionTask != null) {
-            //TODO get dialect from connectiontask, it is currently modelled on the comtask instead
-            Optional<ComTaskExecution> comTaskExecution = device.getComTaskExecutions()
-                    .stream()
-                    .filter(cte -> cte.getConnectionTaskId() == connectionTask.getId())
-                    .findAny();
-            if (comTaskExecution.isPresent() && comTaskExecution.get().getProtocolDialectConfigurationProperties() != null) {
-                ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = comTaskExecution.get().getProtocolDialectConfigurationProperties();
+            if (connectionTask.getProtocolDialectConfigurationProperties() != null) {
+                ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = connectionTask.getProtocolDialectConfigurationProperties();
                 String dialectName = protocolDialectConfigurationProperties.getDeviceProtocolDialectName();
                 Device masterDevice = connectionTask.getDevice();   //Use the master device, this one holds the actual dialect properties
                 Optional<ProtocolDialectProperties> protocolDialectProperties = masterDevice.getProtocolDialectProperties(dialectName);
@@ -1125,22 +1131,6 @@ public class ComServerDAOImpl implements ComServerDAO {
         logBookUpdate.entrySet().stream().forEach(entrySet -> this.updateLogBook(this.findLogBook(entrySet.getKey()), entrySet.getValue()));
     }
 
-    private void updateLoadProfile(LoadProfile loadProfile, Instant lastReading) {
-        loadProfile
-                .getDevice()
-                .getLoadProfileUpdaterFor(loadProfile)
-                .setLastReadingIfLater(lastReading)
-                .update();
-    }
-
-    private void updateLogBook(LogBook logBook, Instant lastLogBook) {
-        logBook
-                .getDevice()
-                .getLogBookUpdaterFor(logBook)
-                .setLastReadingIfLater(lastLogBook)
-                .update();
-    }
-
     @Override
     public Boolean getInboundComTaskOnHold(DeviceIdentifier deviceIdentifier, InboundComPort inboundComPort) {
         Optional<Device> device = getDeviceFor(deviceIdentifier);
@@ -1156,7 +1146,7 @@ public class ComServerDAOImpl implements ComServerDAO {
         return null;
     }
 
-    private Function<Device, Void> updateLoadProfile(BaseLoadProfile<?> loadProfile, Instant lastReading) {
+    private Function<Device, Void> updateLoadProfile(LoadProfile loadProfile, Instant lastReading) {
         return device -> {
             LoadProfile refreshedLoadProfile = device.getLoadProfiles().stream().filter(each -> each.getId() == loadProfile.getId()).findAny().get();
             LoadProfile.LoadProfileUpdater loadProfileUpdater = device.getLoadProfileUpdaterFor(refreshedLoadProfile);
@@ -1166,7 +1156,7 @@ public class ComServerDAOImpl implements ComServerDAO {
         };
     }
 
-    private Function<Device, Void> updateLogBook(BaseLogBook logBook, Instant lastLogBook) {
+    private Function<Device, Void> updateLogBook(LogBook logBook, Instant lastLogBook) {
         return device -> {
             LogBook refreshedLogBook = device.getLogBooks().stream().filter(each -> each.getId() == logBook.getId()).findAny().get();
             LogBook.LogBookUpdater logBookUpdater = device.getLogBookUpdaterFor(refreshedLogBook);

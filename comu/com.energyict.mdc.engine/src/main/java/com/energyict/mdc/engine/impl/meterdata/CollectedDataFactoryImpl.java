@@ -42,7 +42,7 @@ import java.time.Clock;
 import java.util.List;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 14/05/13
  * Time: 11:31
  */

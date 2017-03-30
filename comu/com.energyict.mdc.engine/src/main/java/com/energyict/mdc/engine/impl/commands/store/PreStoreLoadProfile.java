@@ -12,6 +12,7 @@ import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.collections.DualIterable;
+import com.energyict.cbo.Unit;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.masterdata.LoadProfileIntervals;
@@ -21,8 +22,6 @@ import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.upl.offline.OfflineLoadProfile;
 import com.energyict.mdc.upl.offline.OfflineLoadProfileChannel;
-
-import com.energyict.cbo.Unit;
 import com.energyict.protocol.ChannelInfo;
 import com.google.common.collect.Range;
 
@@ -47,7 +46,7 @@ import static com.elster.jupiter.util.streams.Predicates.not;
 /**
  * Performs several actions on the given LoadProfile data which are required before storing.
  * <p>
- * Copyrights EnergyICT
+ *
  * Date: 7/30/14
  * Time: 9:34 AM
  */

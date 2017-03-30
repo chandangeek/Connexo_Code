@@ -9,7 +9,7 @@ import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 /**
  * Represents a simple object that holds a <i>cache</i> {@link Object} for a specific {@link com.energyict.mdc.upl.meterdata.Device}
  * <p/>
- * Copyrights EnergyICT
+ *
  * Date: 31/08/12
  * Time: 16:30
  */

@@ -17,7 +17,7 @@ import java.util.Set;
  * of the RegisterType or the
  * {@link com.energyict.mdc.device.config.RegisterSpec#getDeviceObisCode() RegisterSpec.getDeviceObisCode}
  * <p>
- * Copyrights EnergyICT
+ *
  * Date: 15/10/12
  * Time: 16:29
  */

@@ -34,7 +34,7 @@ import java.time.Clock;
  * for a {@link com.energyict.mdc.engine.config.ComPort}
  * of the type {@link ComPortType#SERIAL}
  * <p>
- * Copyrights EnergyICT
+ *
  * Date: 18/10/12
  * Time: 13:49
  */

@@ -15,7 +15,7 @@ import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
 /**
  * Implementation of a DeviceProtocolCache collected during communication with a Device.
  * <p>
- * Copyrights EnergyICT
+ *
  * Date: 31/08/12
  * Time: 16:14
  */

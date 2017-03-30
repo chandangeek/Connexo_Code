@@ -29,7 +29,7 @@ import org.json.JSONWriter;
  * {@link ComTaskExecution comTask} with a {@link ConnectionTask connectionTask}
  * for a {@link com.energyict.mdc.upl.meterdata.Device device} on a specific {@link ComPort comPort}.
  * <p/>
- * Copyrights EnergyICT
+ *
  * Date: 22/11/12
  * Time: 15:30
  */

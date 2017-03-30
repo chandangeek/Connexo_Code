@@ -17,7 +17,7 @@ import java.util.Optional;
 /**
  * Provides services that relate to {@link com.energyict.mdc.device.data.Device}s.
  * <p>
- * Copyrights EnergyICT
+ *
  * Date: 08/05/14
  * Time: 12:01
  */

@@ -15,7 +15,6 @@ import com.energyict.mdc.engine.impl.events.datastorage.CollectedLoadProfileEven
 import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.offline.OfflineLoadProfile;
-
 import com.energyict.protocol.ChannelInfo;
 
 import java.sql.Date;
@@ -25,7 +24,7 @@ import java.util.Optional;
 /**
  * Provides functionality to store {@link com.energyict.mdc.upl.meterdata.LoadProfile} data.
  * <p>
- * Copyrights EnergyICT
+ *
  * Date: 29/08/12
  * Time: 14:52
  */

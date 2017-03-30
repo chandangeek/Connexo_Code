@@ -96,8 +96,8 @@ public class ReadLegacyLoadProfileLogBooksDataCommandImpl extends SimpleComComma
                         MessageFormat.format(
                                 "{0} [{1,date,yyyy-MM-dd HH:mm:ss} - {2,date,yyy-MM-dd HH:mm:ss}]",
                                 loadProfileReader.getProfileObisCode(),
-                                Date.from(loadProfileReader.getStartReadingTime()),
-                                Date.from(loadProfileReader.getEndReadingTime())));
+                                loadProfileReader.getStartReadingTime(),
+                                loadProfileReader.getEndReadingTime()));
                 loadProfilesToReadBuilder.next();
             }
         }

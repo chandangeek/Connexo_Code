@@ -8,9 +8,11 @@ import com.energyict.mdc.engine.config.InboundComPort;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler;
 import com.energyict.mdc.engine.impl.core.inbound.InboundDiscoveryContextImpl;
+import com.energyict.mdc.protocol.api.exceptions.NestedPropertyValidationException;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLInboundDeviceProtocolAdapter;
 import com.energyict.mdc.upl.BinaryInboundDeviceProtocol;
 import com.energyict.mdc.upl.Services;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
 
 import java.util.logging.Logger;
 
@@ -71,7 +73,11 @@ public class InboundComPortExecutorImpl implements InboundComPortExecutor {
         if (inboundDeviceProtocol instanceof UPLInboundDeviceProtocolAdapter) {
             inboundDeviceProtocol = ((UPLInboundDeviceProtocolAdapter) inboundDeviceProtocol).getUplInboundDeviceProtocol();
         }
-        inboundDeviceProtocol.copyProperties(comPort.getComPortPool().getTypedProperties());
+        try {
+            inboundDeviceProtocol.setUPLProperties(comPort.getComPortPool().getTypedProperties());
+        } catch (PropertyValidationException e) {
+            throw new NestedPropertyValidationException(e);
+        }
         return (BinaryInboundDeviceProtocol) inboundDeviceProtocol;
     }
 

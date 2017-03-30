@@ -76,7 +76,7 @@ import java.util.logging.Logger;
  * {@link ComChannel ComChannl}
  * will already be created by the ComPortListener
  * <p>
- * Copyrights EnergyICT
+ *
  * Date: 9/3/13
  * Time: 3:38 PM
  */

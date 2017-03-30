@@ -28,7 +28,7 @@ import static com.energyict.mdc.upl.crypto.KeyStoreService.StoreType.TRUST;
  * Note that the truststore only contains subCa and rootCA certificates.
  * The server end-device certificates are stored as {@link com.energyict.mdc.upl.security.CertificateWrapper}s, not in this truststore.
  * <p/>
- * Copyrights EnergyICT
+ *
  *
  * @author khe
  * @since 29/01/2016 - 15:18

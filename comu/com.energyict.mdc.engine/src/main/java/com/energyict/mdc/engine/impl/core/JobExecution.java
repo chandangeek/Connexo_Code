@@ -78,7 +78,7 @@ import static com.energyict.mdc.upl.DeviceProtocolDialect.Property.DEVICE_PROTOC
  * which perform one or more ComTasks.
  * It will be useful to group the AOP logging as well.
  * <p>
- * Copyrights EnergyICT
+ *
  * Date: 25/10/12
  * Time: 16:27
  */

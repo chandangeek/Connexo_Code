@@ -13,7 +13,7 @@ import com.energyict.mdc.protocol.ComChannelType;
  * that can be handled by the ComServer framework, but that basically does nothing.
  * It will mostly be created when exceptions occur during the creation of Inbound connections.
  * <p>
- * Copyrights EnergyICT
+ *
  * Date: 18/10/12
  * Time: 14:06
  */
