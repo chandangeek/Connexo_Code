@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.domain.util.Query;
@@ -61,9 +65,6 @@ class ValidationEvaluatorImpl extends AbstractValidationEvaluator {
                 return false;
             }
             for (ChannelsContainerValidation validation : validations) {
-                if (validation.getLastRun() == null) { // if validation by that ruleset never run before
-                    return false;
-                }
                 Optional<ChannelValidation> channelValidation = validation.getChannelValidation(channel);
                 if (!channelValidation.isPresent()
                         || !channelValidation.get().hasActiveRules()
@@ -92,7 +93,6 @@ class ValidationEvaluatorImpl extends AbstractValidationEvaluator {
                 .map(channelsContainerValidation -> channelsContainerValidation.getChannelValidation(channel))
                 .flatMap(asStream())
                 .anyMatch(ChannelValidation::hasActiveRules);
-
     }
 
     @Override

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.cbo.QualityCodeSystem;
@@ -13,6 +17,7 @@ import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.MetrologyContractChannelsContainer;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
@@ -36,6 +41,7 @@ import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Pair;
+import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Order;
@@ -45,6 +51,7 @@ import com.elster.jupiter.validation.DataValidationOccurrence;
 import com.elster.jupiter.validation.DataValidationTask;
 import com.elster.jupiter.validation.DataValidationTaskBuilder;
 import com.elster.jupiter.validation.DataValidationTaskStatus;
+import com.elster.jupiter.validation.EventType;
 import com.elster.jupiter.validation.ValidationContext;
 import com.elster.jupiter.validation.ValidationContextImpl;
 import com.elster.jupiter.validation.ValidationEvaluator;
@@ -166,6 +173,7 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
                 bind(DataModel.class).toInstance(dataModel);
                 bind(ValidationService.class).toInstance(ValidationServiceImpl.this);
                 bind(ServerValidationService.class).toInstance(ValidationServiceImpl.this);
+                bind(ValidationServiceImpl.class).toInstance(ValidationServiceImpl.this);
                 bind(ValidatorCreator.class).toInstance(new DefaultValidatorCreator());
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(KpiService.class).toInstance(kpiService);
@@ -185,7 +193,8 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
                 dataModel,
                 InstallerImpl.class,
                 ImmutableMap.of(
-                        Version.version(10, 2), UpgraderV10_2.class, Version.version(10, 3), UpgraderV10_3.class
+                        Version.version(10, 2), UpgraderV10_2.class,
+                        Version.version(10, 3), UpgraderV10_3.class
                 ));
     }
 
@@ -376,10 +385,20 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
         updatedChannelsContainerValidationsFor(new ValidationContextImpl(channelsContainer)).updateLastChecked(Objects.requireNonNull(date));
     }
 
+    /**
+     * Please consider {@link #moveLastCheckedBefore(Channel, Instant)} instead
+     */
+    @Deprecated
     @Override
     public void updateLastChecked(Channel channel, Instant date) {
         activeChannelsContainerValidationsFor(Objects.requireNonNull(channel).getChannelsContainer())
                 .updateLastChecked(channel, Objects.requireNonNull(date));
+    }
+
+    @Override
+    public void moveLastCheckedBefore(Channel channel, Instant date) {
+        activeChannelsContainerValidationsFor(Objects.requireNonNull(channel).getChannelsContainer())
+                .moveLastCheckedBefore(channel, Objects.requireNonNull(date));
     }
 
     @Override
@@ -453,21 +472,42 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
             // Update the list of requested quality systems, because it is possible that some of them were restricted
             validationContext.setQualityCodeSystems(allowedQualityCodeSystems);
             if (validationContext.getReadingType().isPresent()) {
-                updatedChannelsContainerValidationsFor(validationContext).validate(validationContext.getReadingType().get());
+                validationContext.getChannelsContainer().getChannel(validationContext.getReadingType().get()).ifPresent(channel ->
+                        updatedChannelsContainerValidationsFor(validationContext).validate(Collections.singleton(channel)));
             } else {
                 updatedChannelsContainerValidationsFor(validationContext).validate();
             }
         }
     }
 
-    public void validate(ChannelsContainer channelsContainer, Map<Channel, Range<Instant>> ranges) {
-        ChannelsContainerValidationList container = updatedChannelsContainerValidationsFor(new ValidationContextImpl(channelsContainer));
-        container.moveLastCheckedBefore(ranges);
-        if (isValidationActiveOnStorage(channelsContainer)) {
-            container.validate();
-        } else {
-            container.update();
+    @Override
+    public void validate(Map<Channel, Range<Instant>> rangeByChannelMap) {
+        rangeByChannelMap.entrySet()
+                .stream()
+                .collect(Collectors.groupingBy(entry -> entry.getKey().getChannelsContainer(),
+                        Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)))
+                .forEach(this::validate);
+    }
+
+    @Override
+    public void validate(ChannelsContainer channelsContainer, Map<Channel, Range<Instant>> rangeByChannelMap) {
+        if (!rangeByChannelMap.isEmpty()) {
+            ChannelsContainerValidationList container = updatedChannelsContainerValidationsFor(new ValidationContextImpl(channelsContainer));
+            container.moveLastCheckedBefore(rangeByChannelMap.entrySet().stream()
+                    .collect(Collectors.toMap(entry -> entry.getKey().getId(), Map.Entry::getValue)));
+            if (isValidationActiveOnStorage(channelsContainer)) {
+                container.validate(rangeByChannelMap.keySet());
+            } else {
+                container.update();
+                Map<Channel, Range<Instant>> actualScope = rangeByChannelMap.entrySet().stream()
+                        .collect(Collectors.toMap(Map.Entry::getKey, entry -> makeEndless(entry.getValue())));
+                eventService.postEvent(EventType.VALIDATION_RESET.topic(), new ValidationScopeImpl(channelsContainer, actualScope));
+            }
         }
+    }
+
+    private static Range<Instant> makeEndless(Range<Instant> range) {
+        return Ranges.copy(range).withoutUpperBound();
     }
 
     private Set<QualityCodeSystem> getQualityCodeSystemsWithAllowedValidation(ValidationContext validationContext) {
@@ -491,12 +531,21 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
     }
 
     private boolean isValidationActiveOnStorage(ChannelsContainer channelsContainer) {
-        Optional<Meter> meter = channelsContainer.getMeter();
-        return meter
-                .flatMap(this::getMeterValidation)
-                .filter(MeterValidationImpl::getActivationStatus) // validation should be active
-                .map(MeterValidationImpl::getValidateOnStorage)
-                .orElse(!meter.isPresent());
+        if (channelsContainer instanceof MetrologyContractChannelsContainer) {
+            // no validation on storage for output channels yet;
+            // once it is available, there's a need to reconsider case of
+            // com.elster.jupiter.validation.impl.ValidationServiceImpl.validate(com.elster.jupiter.metering.ChannelsContainer,
+            // java.util.Map<com.elster.jupiter.metering.Channel,com.google.common.collect.Range<java.time.Instant>>),
+            // which is called by event of validation performed or reset, so performance problems up to infinite loop are probable.
+            return false;
+        } else {
+            Optional<Meter> meter = channelsContainer.getMeter();
+            return meter
+                    .flatMap(this::getMeterValidation)
+                    .filter(MeterValidationImpl::getActivationStatus) // validation should be active
+                    .map(MeterValidationImpl::getValidateOnStorage)
+                    .orElse(!meter.isPresent());
+        }
     }
 
     List<ChannelsContainerValidation> getUpdatedChannelsContainerValidations(ValidationContext validationContext) {
@@ -527,11 +576,11 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
     }
 
     ChannelsContainerValidationList activeChannelsContainerValidationsFor(ChannelsContainer channelsContainer) {
-        return ChannelsContainerValidationList.of(getActivePersistedChannelsContainerValidations(channelsContainer));
+        return dataModel.getInstance(ChannelsContainerValidationList.class).ofActivePersistedValidations(channelsContainer);
     }
 
     ChannelsContainerValidationList updatedChannelsContainerValidationsFor(ValidationContext validationContext) {
-        return ChannelsContainerValidationList.of(getUpdatedChannelsContainerValidations(validationContext));
+        return dataModel.getInstance(ChannelsContainerValidationList.class).ofUpdatedValidations(validationContext);
     }
 
     private Optional<ChannelsContainerValidation> getForRuleSet(List<ChannelsContainerValidation> channelsContainerValidations, ValidationRuleSet ruleSet) {
@@ -544,7 +593,7 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
         return dataModel.query(ChannelsContainerValidation.class, ChannelValidation.class).select(condition);
     }
 
-    private List<ChannelsContainerValidation> getActivePersistedChannelsContainerValidations(ChannelsContainer channelsContainer) {
+    List<ChannelsContainerValidation> getActivePersistedChannelsContainerValidations(ChannelsContainer channelsContainer) {
         Condition condition = where("channelsContainer").isEqualTo(channelsContainer)
                 .and(where(ValidationRuleSetImpl.OBSOLETE_TIME_FIELD).isNull())
                 .and(where("active").isEqualTo(true));

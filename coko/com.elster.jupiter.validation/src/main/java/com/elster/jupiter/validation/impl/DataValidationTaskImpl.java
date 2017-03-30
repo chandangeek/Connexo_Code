@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.cbo.QualityCodeSystem;
@@ -5,6 +9,7 @@ import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.metering.config.MetrologyContract;
+import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.nls.Thesaurus;
@@ -28,11 +33,13 @@ import com.elster.jupiter.validation.DataValidationTaskStatus;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
+import javax.validation.Valid;
 import javax.validation.constraints.Size;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.logging.Level;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -59,10 +66,13 @@ final class DataValidationTaskImpl implements DataValidationTask {
     private String userName;
     private final Thesaurus thesaurus;
     private transient Instant nextExecution;
+    private transient int logLevel;
 
     private Reference<EndDeviceGroup> endDeviceGroup = ValueReference.absent();
 
     private Reference<UsagePointGroup> usagePointGroup = ValueReference.absent();
+
+    private Reference<MetrologyPurpose> metrologyPurpose = ValueReference.absent();
 
     private Reference<RecurrentTask> recurrentTask = ValueReference.absent();
 
@@ -81,15 +91,17 @@ final class DataValidationTaskImpl implements DataValidationTask {
         this.dataModel = dataModel;
         this.thesaurus = thesaurus;
         this.destinationSpecProvider = destinationSpecProvider;
+        this.logLevel = Level.WARNING.intValue();
     }
 
-    static DataValidationTaskImpl from(DataModel model, String name, Instant nextExecution, QualityCodeSystem qualityCodeSystem) {
-        return model.getInstance(DataValidationTaskImpl.class).init(name, nextExecution, qualityCodeSystem);
+    static DataValidationTaskImpl from(DataModel model, String name, Instant nextExecution, QualityCodeSystem qualityCodeSystem, int logLevel) {
+        return model.getInstance(DataValidationTaskImpl.class).init(name, nextExecution, qualityCodeSystem, logLevel);
     }
 
-    DataValidationTaskImpl init(String name, Instant nextExecution, QualityCodeSystem qualityCodeSystem) {
+    DataValidationTaskImpl init(String name, Instant nextExecution, QualityCodeSystem qualityCodeSystem, int logLevel) {
         this.nextExecution = nextExecution;
         this.name = name.trim();
+        this.logLevel = logLevel;
         this.qualityCodeSystem = qualityCodeSystem;
         return this;
     }
@@ -214,6 +226,16 @@ final class DataValidationTaskImpl implements DataValidationTask {
     }
 
     @Override
+    public Optional<MetrologyPurpose> getMetrologyPurpose(){
+        return metrologyPurpose.getOptional();
+    }
+
+    @Override
+    public void setMetrologyPurpose(MetrologyPurpose metrologyPurpose){
+        this.metrologyPurpose.set(metrologyPurpose);
+    }
+
+    @Override
     public Optional<DataValidationOccurrence> getLastOccurrence() {
         return dataModel.query(DataValidationOccurrence.class, TaskOccurrence.class).select(Operator.EQUAL.compare("dataValidationTask", this), new Order[]{Order.descending("taskocc")},
                 false, new String[]{}, 1, 1).stream().findAny();
@@ -292,6 +314,7 @@ final class DataValidationTaskImpl implements DataValidationTask {
                 if (!recurrentTask.get().getName().equals(this.name)) {
                     recurrentTask.get().setName(name);
                 }
+                recurrentTask.get().setLogLevel(this.logLevel);
                 recurrentTask.get().save();
             } else {
                 persistRecurrentTask();
@@ -322,7 +345,9 @@ final class DataValidationTaskImpl implements DataValidationTask {
                 .setDestination(destinationSpecProvider.get())
                 .setPayLoad(getName())
                 .scheduleImmediately(scheduleImmediately)
-                .setFirstExecution(nextExecution).build();
+                .setFirstExecution(nextExecution)
+                .setLogLevel(logLevel)
+                .build();
         recurrentTask.set(task);
     }
 
@@ -373,5 +398,20 @@ final class DataValidationTaskImpl implements DataValidationTask {
 
     void setRecurrentTask(RecurrentTask task) {
         this.recurrentTask.set(task);
+    }
+
+    public RecurrentTask getRecurrentTask() {
+        return recurrentTask.get();
+    }
+
+    public int getLogLevel() {
+        return recurrentTask.isPresent() ? this.getRecurrentTask().getLogLevel() : logLevel;
+    }
+
+    public void setLogLevel(int newLevel) {
+        this.logLevel = newLevel;
+        if (recurrentTask.isPresent()) {
+            recurrentTaskDirty = true;
+        }
     }
 }

@@ -1,5 +1,10 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.validation.impl;
 
+import com.elster.jupiter.metering.AggregatedChannel;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.MeterActivation;
@@ -11,12 +16,14 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.validation.ValidationRuleSet;
 
+import com.google.common.collect.BoundType;
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -36,6 +43,8 @@ class ChannelsContainerValidationImpl implements ChannelsContainerValidation {
     private long id;
     private Reference<ChannelsContainer> channelsContainer = ValueReference.absent();
     private Reference<IValidationRuleSet> ruleSet = ValueReference.absent();
+    // CXO-6043 TODO: lastRun better should not be here but one per ChannelValidation,
+    // because it's possible to validate a separate channel / set of channels
     private Instant lastRun;
     private List<ChannelValidation> channelValidations = new ArrayList<>();
     private Instant obsoleteTime;
@@ -132,11 +141,9 @@ class ChannelsContainerValidationImpl implements ChannelsContainerValidation {
     }
 
     @Override
-    public void validate(ReadingType readingType) {
+    public void validate(Collection<Channel> channels) {
         if (isActive()) {
-            getChannelsContainer().getChannels().stream()
-                    .filter(channel -> channel.hasReadingType(readingType))
-                    .forEach(this::validateChannel);
+            channels.forEach(this::validateChannel);
             save();
         }
     }
@@ -201,7 +208,7 @@ class ChannelsContainerValidationImpl implements ChannelsContainerValidation {
 
     @Override
     public boolean isAllDataValidated() {
-        if (channelValidations.isEmpty() || (lastRun == null && !getChannelsContainer().getChannels().parallelStream().anyMatch(Channel::hasData))) {
+        if (channelValidations.isEmpty() || (lastRun == null && getChannelsContainer().getChannels().parallelStream().noneMatch(Channel::hasData))) {
             return false;
         }
         Comparator<? super Instant> comparator = nullsLast(naturalOrder());
@@ -262,32 +269,45 @@ class ChannelsContainerValidationImpl implements ChannelsContainerValidation {
     }
 
     /**
-     * Only updates the lastChecked in memory !!! for performance optimisation COPL-882
+     * Only updates the lastChecked in memory!!! For performance optimization COPL-882.
      *
-     * @param ranges
+     * @param rangeByChannelIdMap: Map of channelId-range to move the last checked before.
+     * Channel must be identified by id here because there can be {@link AggregatedChannel}
+     * that is just a wrapping on {@link Channel} with the same id.
      */
     @Override
-    public void moveLastCheckedBefore(Map<Channel, Range<Instant>> ranges) {
-        channelValidations.stream()
-                .filter(channelValidation -> ranges.containsKey(channelValidation.getChannel()))
-                .forEach(channelValidation -> channelValidation.moveLastCheckedBefore(ranges.get(channelValidation.getChannel()).lowerEndpoint()));
+    public void moveLastCheckedBefore(Map<Long, Range<Instant>> rangeByChannelIdMap) {
+        channelValidations
+                .forEach(channelValidation -> {
+                    Range<Instant> scope = rangeByChannelIdMap.get(channelValidation.getChannel().getId());
+                    if (scope != null) {
+                        channelValidation.moveLastCheckedBefore(scope.hasLowerBound() ?
+                                scope.lowerBoundType() == BoundType.CLOSED ? scope.lowerEndpoint() : scope.lowerEndpoint().plusMillis(1) :
+                                Instant.EPOCH);
+                    }
+                });
     }
 
     @Override
     public void moveLastCheckedBefore(Instant date) {
-        channelValidations.stream()
-                .forEach(channelValidation -> channelValidation.moveLastCheckedBefore(date));
+        long updateCount = channelValidations.stream()
+                .filter(channelValidation -> channelValidation.moveLastCheckedBefore(date))
+                .count();
+        if (updateCount > 0) {
+            save();
+        }
     }
 
     private void updateLastRun(){
-        if(getMinLastChecked() != null) {
+        Instant minLastChecked = getMinLastChecked();
+        if (minLastChecked != null) {
             Instant firstMeterActivation = getChannelsContainer().getMeter().flatMap(meter -> {
                 List<? extends MeterActivation> meterActivations = meter.getMeterActivations();
                 Collections.reverse(meterActivations);
                 return Optional.of(meterActivations.get(0).getStart());
             }).orElseGet(() -> null);
-            lastRun = getMinLastChecked().equals(firstMeterActivation) ? null : getMinLastChecked();
-        }else{
+            lastRun = minLastChecked.equals(firstMeterActivation) ? null : minLastChecked;
+        } else {
             lastRun = null;
         }
         save();

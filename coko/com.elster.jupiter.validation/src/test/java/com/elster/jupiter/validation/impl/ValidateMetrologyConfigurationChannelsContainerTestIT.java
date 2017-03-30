@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.cbo.QualityCodeIndex;
@@ -32,6 +36,7 @@ import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.ValidationContext;
 import com.elster.jupiter.validation.ValidationResult;
@@ -104,7 +109,7 @@ public class ValidateMetrologyConfigurationChannelsContainerTestIT {
     @Rule
     public TransactionalRule transactionalRule = new TransactionalRule(inMemoryBootstrapModule.get(TransactionService.class));
 
-    private void createValidationConfiguration() {
+    private static void createValidationConfiguration() {
         ValidationServiceImpl validationService = (ValidationServiceImpl) inMemoryBootstrapModule.get(ValidationService.class);
         ValidationRuleSet validationRuleSet = validationService.createValidationRuleSet("RS", QualityCodeSystem.MDM);
         ValidationRuleSetVersion ruleSetVersion = validationRuleSet.addRuleSetVersion("Always", Instant.ofEpochMilli(0));
@@ -198,11 +203,10 @@ public class ValidateMetrologyConfigurationChannelsContainerTestIT {
         UsagePointMetrologyConfiguration metrologyConfiguration = metrologyConfigurationService.newUsagePointMetrologyConfiguration("MC", serviceCategory).create();
         metrologyConfiguration.addMeterRole(meterRole);
         FullySpecifiedReadingTypeRequirement readingTypeRequirement = metrologyConfiguration.newReadingTypeRequirement("RTR", meterRole).withReadingType(inputReadingType);
-        ReadingTypeDeliverableBuilder builder = metrologyConfiguration.newReadingTypeDeliverable("RTD", outputReadingType, Formula.Mode.AUTO);
-        ReadingTypeDeliverable readingTypeDeliverable = builder.build(builder.divide(builder.requirement(readingTypeRequirement), builder.constant(1000L)));
         MetrologyContract metrologyContract = metrologyConfiguration.addMandatoryMetrologyContract(metrologyPurpose);
-        metrologyContract.addDeliverable(readingTypeDeliverable);
-        UsagePoint usagePoint = serviceCategory.newUsagePoint("UP", inMemoryBootstrapModule.get(Clock.class).instant()).create();
+        ReadingTypeDeliverableBuilder builder = metrologyContract.newReadingTypeDeliverable("RTD", outputReadingType, Formula.Mode.AUTO);
+        ReadingTypeDeliverable readingTypeDeliverable = builder.build(builder.divide(builder.requirement(readingTypeRequirement), builder.constant(1000L)));
+        UsagePoint usagePoint = serviceCategory.newUsagePoint("UP", firstReadingTimestamp.minus(1, ChronoUnit.DAYS)).create();
         usagePoint.apply(metrologyConfiguration, firstReadingTimestamp.minus(1, ChronoUnit.DAYS));
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = usagePoint.getCurrentEffectiveMetrologyConfiguration().get();
         BaseReadingRecord baseReading = mock(BaseReadingRecord.class);

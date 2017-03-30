@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.kpi.Kpi;
@@ -6,6 +10,7 @@ import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.MetrologyContract;
+import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.orm.Column;
@@ -50,14 +55,15 @@ public enum TableSpecs {
             Column idColumn = table.addAutoIdColumn();
             Column mRIDColumn = table.column("MRID").varChar(NAME_LENGTH).map("mRID").add();
             Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).map("name").add();
-            table.column("QUALITY_SYSTEM").number().conversion(ColumnConversion.NUMBER2ENUM).map("qualityCodeSystem").add();
+            Column qualitySystemColumn = table.column("QUALITY_SYSTEM").number().conversion(ColumnConversion.NUMBER2ENUM).map("qualityCodeSystem").add();
             table.column("ALIASNAME").varChar(NAME_LENGTH).map("aliasName").add();
             table.column("DESCRIPTION").varChar(DESCRIPTION_LENGTH).map("description").add();
             Column obsoleteColumn = table.column("OBSOLETE_TIME").map("obsoleteTime").number().conversion(NUMBER2INSTANT).add();
             table.addAuditColumns();
             table.primaryKey("VAL_PK_VALIDATIONRULESET").on(idColumn).add();
             table.unique("VAL_U_VALIDATIONRULESET").on(mRIDColumn).add();
-            table.unique("VAL_UQ_RULESET_NAME").on(nameColumn, obsoleteColumn).add();
+            table.unique("VAL_UQ_RULESET_NAME").on(nameColumn, obsoleteColumn).upTo(version(10, 3)).add();
+            table.unique("VAL_UQ_RULESET_NAME").on(nameColumn, obsoleteColumn, qualitySystemColumn).since(version(10, 3)).add();
         }
     },
     VAL_VALIDATIONRULESETVERSION {
@@ -200,6 +206,7 @@ public enum TableSpecs {
             Column endDeviceGroupId = table.column("ENDDEVICEGROUP").number().conversion(ColumnConversion.NUMBER2LONG).add();
             Column metrologyContractId = table.column("METROLOGYCONTRACT").number().conversion(ColumnConversion.NUMBER2LONG).upTo(version(10, 3)).add();
             Column usagePointGroupId = table.column("USAGEPOINTGROUP").number().conversion(ColumnConversion.NUMBER2LONG).since(version(10, 3)).add();
+            Column metrologyPurposeId = table.column("METROLOGYPURPOSE").number().conversion(ColumnConversion.NUMBER2LONG).since(version(10, 3)).add();
             Column recurrentTaskId = table.column("RECURRENTTASK").number().notNull().conversion(ColumnConversion.NUMBER2LONG).add();
             table.column("LASTRUN").number().conversion(NUMBER2INSTANT).map("lastRun").notAudited().add();
             table.column("QUALITY_SYSTEM").number().conversion(ColumnConversion.NUMBER2ENUM).map("qualityCodeSystem").add();
@@ -220,6 +227,12 @@ public enum TableSpecs {
                     .on(usagePointGroupId)
                     .references(UsagePointGroup.class)
                     .map("usagePointGroup")
+                    .since(version(10, 3))
+                    .add();
+            table.foreignKey("VAL_FK_METROLOGYPURPOSE")
+                    .on(metrologyPurposeId)
+                    .references(MetrologyPurpose.class)
+                    .map("metrologyPurpose")
                     .since(version(10, 3))
                     .add();
             table.primaryKey("VAL_PK_DATAVALIDATIONTASK")

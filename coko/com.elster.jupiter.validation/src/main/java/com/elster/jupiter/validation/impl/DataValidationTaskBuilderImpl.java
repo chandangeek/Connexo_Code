@@ -1,7 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.config.MetrologyContract;
+import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.orm.DataModel;
@@ -22,8 +27,10 @@ public class DataValidationTaskBuilderImpl implements DataValidationTaskBuilder 
     private boolean scheduleImmediately;
     private EndDeviceGroup endDeviceGroup;
     private UsagePointGroup usagePointGroup;
+    private MetrologyPurpose metrologyPurpose;
     private ValidationService dataValidationService;
     private QualityCodeSystem qualityCodeSystem;
+    private int logLevel;
 
     public DataValidationTaskBuilderImpl(DataModel dataModel, ValidationService dataValidationService) {
         this.dataModel = dataModel;
@@ -56,6 +63,12 @@ public class DataValidationTaskBuilderImpl implements DataValidationTaskBuilder 
     }
 
     @Override
+    public DataValidationTaskBuilder setMetrologyPurpose(MetrologyPurpose metrologyPurpose) {
+        this.metrologyPurpose = metrologyPurpose;
+        return this;
+    }
+
+    @Override
     public DataValidationTaskBuilder setScheduleExpression(ScheduleExpression scheduleExpression) {
         this.scheduleExpression = scheduleExpression;
         return this;
@@ -75,12 +88,19 @@ public class DataValidationTaskBuilderImpl implements DataValidationTaskBuilder 
     }
 
     @Override
+    public DataValidationTaskBuilder setLogLevel(int logLevel) {
+        this.logLevel = logLevel;
+        return this;
+    }
+
+    @Override
     public DataValidationTask create() {
-        DataValidationTaskImpl task = DataValidationTaskImpl.from(dataModel, name, nextExecution, qualityCodeSystem);
+        DataValidationTaskImpl task = DataValidationTaskImpl.from(dataModel, name, nextExecution, qualityCodeSystem, logLevel);
         task.setScheduleImmediately(scheduleImmediately);
         task.setScheduleExpression(scheduleExpression);
         task.setEndDeviceGroup(endDeviceGroup);
         task.setUsagePointGroup(usagePointGroup);
+        task.setMetrologyPurpose(metrologyPurpose);
         task.doSave();
         return task;
     }

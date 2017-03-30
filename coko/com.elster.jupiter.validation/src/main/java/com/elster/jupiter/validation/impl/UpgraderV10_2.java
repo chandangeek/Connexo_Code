@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.messaging.DestinationSpec;
@@ -27,12 +31,6 @@ import java.util.Optional;
 
 import static com.elster.jupiter.orm.Version.version;
 
-/**
- * Copyrights EnergyICT
- *
- * @author khe
- * @since 21/06/2016 - 12:07
- */
 @LiteralSql
 public class UpgraderV10_2 implements Upgrader {
 

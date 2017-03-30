@@ -1,6 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
@@ -171,6 +176,7 @@ public class ValidationOnStoreIT {
                     new KpiModule(),
                     new ValidationModule(),
                     new NlsModule(),
+                    new CalendarModule(),
                     new DataVaultModule(),
                     new CustomPropertySetsModule()
             );
