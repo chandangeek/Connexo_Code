@@ -1,21 +1,17 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.metering.impl;
 
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
 import java.util.Optional;
-import org.junit.Test;
 
-import java.util.Currency;
+import org.junit.Test;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-/**
- * Tests for the {@link CurrencyMapping} component
- *
- * Copyrights EnergyICT
- * Date: 17/12/13
- * Time: 11:30
- */
 public class CurrencyMappingTest {
 
     @Test

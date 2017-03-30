@@ -1,19 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.metering.impl.matchers;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * Combines several Matchers.
- * Calling {@link #match(T)} will delegate the match to the listed matchers.
- * If at least one match matches, then True is returned, false otherwise.
- * <p/>
- * <p/>
- * Copyrights EnergyICT
- * Date: 18/12/13
- * Time: 13:13
- */
 public class CompositeMatcher<T> implements Matcher<T> {
 
     private List<Matcher<T>> matchers = new ArrayList<>();

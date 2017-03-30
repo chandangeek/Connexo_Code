@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.metering.impl;
 
 import com.elster.jupiter.cbo.FlowDirection;
@@ -6,17 +10,6 @@ import com.energyict.mdc.metering.impl.matchers.ItemMatcher;
 import com.energyict.mdc.metering.impl.matchers.Matcher;
 
 
-/**
- * The <i>Flow direction</i> is defined by CIM as follow:
- * <p>
- * Anything involving current might have a flow direction.
- * Flow direction is very important, but when it is unknown, it should remain unspecified.</p>
- * <p/>
- *
- * Copyrights EnergyICT
- * Date: 26/11/13
- * Time: 15:03
- */
 enum FlowDirectionMapping {
 
     FORWARD(ItemMatcher.itemMatcherFor(1, 3, 9, 21, 23, 29, 41, 43, 49, 61, 63, 69), FlowDirection.FORWARD),

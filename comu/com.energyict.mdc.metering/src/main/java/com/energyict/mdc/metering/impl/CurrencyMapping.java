@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.metering.impl;
 
 import com.energyict.cbo.BaseUnit;
@@ -5,21 +9,8 @@ import com.energyict.cbo.Unit;
 import java.util.Optional;
 
 import java.util.Currency;
+import java.util.Optional;
 
-/**
- * The <i>Currency</i> is defined by CIM as follow:
- * <p>
- * Currency codes are defined in ISO 4217
- * </p>
- * <p/>
- *
- * {@link BaseUnit} contains several <i>currencies</i>.
- * These are mapped in this enumeration.
- *
- * Copyrights EnergyICT
- * Date: 26/11/13
- * Time: 15:29
- */
 enum CurrencyMapping {
 
     POUND(BaseUnit.POUND, Currency.getInstance("GBP")),

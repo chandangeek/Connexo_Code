@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.metering.impl;
 
 import com.elster.jupiter.cbo.MeasurementKind;
@@ -8,13 +12,6 @@ import org.junit.Test;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-/**
- * Tests the {@link MeasurementKindMapping}
- * <p/>
- * Copyrights EnergyICT
- * Date: 18/12/13
- * Time: 15:26
- */
 public class MeasurementKindMappingTest {
 
     private static final Unit unitLess = Unit.get(BaseUnit.UNITLESS);

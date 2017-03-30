@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.metering.impl;
 
 import com.elster.jupiter.cbo.Phase;
@@ -6,11 +10,6 @@ import org.junit.Test;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-/**
- * Copyrights EnergyICT
- * Date: 17/12/13
- * Time: 14:48
- */
 public class PhaseMappingTest {
 
     @Test

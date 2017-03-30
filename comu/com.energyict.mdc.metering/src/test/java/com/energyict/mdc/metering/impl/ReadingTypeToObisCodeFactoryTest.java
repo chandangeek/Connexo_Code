@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.metering.impl;
 
 import com.elster.jupiter.cbo.Accumulation;
@@ -13,18 +17,12 @@ import com.energyict.obis.ObisCode;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.cbo.Unit;
 import com.energyict.mdc.metering.ReadingTypeInformation;
+
 import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
-/**
- * Tests the {@link ReadingTypeToObisCodeFactory} component
- *
- * Copyrights EnergyICT
- * Date: 17/01/14
- * Time: 15:22
- */
 public class ReadingTypeToObisCodeFactoryTest {
 
     private String forwardActiveEnergyReadingType = ReadingTypeCodeBuilder

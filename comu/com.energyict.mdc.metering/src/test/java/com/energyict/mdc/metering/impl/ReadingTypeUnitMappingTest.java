@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.metering.impl;
 
 import com.elster.jupiter.cbo.MetricMultiplier;
@@ -15,17 +19,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.junit.*;
+import org.junit.Test;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-/**
- * Tests the {@link ReadingTypeUnitMapping} component
- * <p/>
- * Copyrights EnergyICT
- * Date: 13/12/13
- * Time: 16:54
- */
 public class ReadingTypeUnitMappingTest {
 
     private final Set<Unit> unmappableUnits = new HashSet<>(Arrays.asList(

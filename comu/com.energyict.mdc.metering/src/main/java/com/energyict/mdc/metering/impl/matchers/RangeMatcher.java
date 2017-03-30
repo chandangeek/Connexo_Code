@@ -1,14 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.metering.impl.matchers;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- * Date: 18/12/13
- * Time: 13:17
- */
 public class RangeMatcher implements Matcher<Integer>{
 
     private List<Range> ranges = new ArrayList<>();

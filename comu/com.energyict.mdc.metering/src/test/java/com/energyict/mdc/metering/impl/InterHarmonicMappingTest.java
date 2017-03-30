@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.metering.impl;
 
 import com.elster.jupiter.cbo.RationalNumber;
@@ -6,13 +10,6 @@ import org.junit.Test;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-/**
- * Tests the {@link InterHarmonicMapping} component
- * <p/>
- * Copyrights EnergyICT
- * Date: 18/12/13
- * Time: 11:14
- */
 public class InterHarmonicMappingTest {
 
     @Test

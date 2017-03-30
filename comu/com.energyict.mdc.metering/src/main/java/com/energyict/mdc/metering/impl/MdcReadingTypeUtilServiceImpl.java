@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.metering.impl;
 
 import com.elster.jupiter.cbo.MacroPeriod;
@@ -18,13 +22,6 @@ import javax.inject.Inject;
 import java.util.Optional;
 import java.util.logging.Logger;
 
-/**
- * Provides an implementation for the {@link MdcReadingTypeUtilService} interface.
- *
- * Copyrights EnergyICT
- * Date: 17/02/14
- * Time: 13:58
- */
 @Component(name = "com.energyict.mdc.metering.mapping.MdcReadingTypeUtilService", service = MdcReadingTypeUtilService.class,
         property = {"osgi.command.scope=mdc.metering",
                 "osgi.command.function=getReadingTypeInformation",
@@ -121,6 +118,9 @@ public class MdcReadingTypeUtilServiceImpl implements MdcReadingTypeUtilService 
         } else if (interval.isPresent() && interval.get().equals(TimeDuration.months(1))) {
             readingTypeCodeBuilder.period(MacroPeriod.MONTHLY);
             readingTypeCodeBuilder.period(TimeAttribute.NOTAPPLICABLE);
+        } else if (interval.isPresent() && interval.get().equals(TimeDuration.years(1))) {
+            readingTypeCodeBuilder.period(MacroPeriod.YEARLY);
+            readingTypeCodeBuilder.period(TimeAttribute.NOTAPPLICABLE);
         } else {
             readingTypeCodeBuilder.period(MeasuringPeriodMapping.getMeasuringPeriodFor(registerObisCode, interval.orElse(null)));
             readingTypeCodeBuilder.period(MacroPeriod.NOTAPPLICABLE);
@@ -131,22 +131,16 @@ public class MdcReadingTypeUtilServiceImpl implements MdcReadingTypeUtilService 
     @Override
     public ReadingType getOrCreateIntervalAppliedReadingType(ReadingType readingType, Optional<TimeDuration> interval, ObisCode registerObisCode) {
         ReadingTypeCodeBuilder readingTypeCodeBuilder = getReadingTypeCodeBuilderWithInterval(readingType, interval, registerObisCode);
-        Optional<ReadingType> intervalAppliedReadingType = this.meteringService.getReadingType(readingTypeCodeBuilder.code());
-        if (intervalAppliedReadingType.isPresent()) {
-            return intervalAppliedReadingType.get();
-        } else {
-            return this.meteringService.createReadingType(readingTypeCodeBuilder.code(), readingType.getAliasName());
-        }
+        return this.meteringService
+                .getReadingType(readingTypeCodeBuilder.code())
+                .orElseGet(() -> this.meteringService.createReadingType(readingTypeCodeBuilder.code(), readingType.getAliasName()));
     }
 
     @Override
     public ReadingType findOrCreateReadingType(String mrid, String alias) {
-        Optional<ReadingType> primaryReadingType = meteringService.getReadingType(mrid);
-        if(primaryReadingType.isPresent()){
-            return primaryReadingType.get();
-        } else {
-            return meteringService.createReadingType(mrid, alias);
-        }
+        return meteringService
+                .getReadingType(mrid)
+                .orElseGet(() -> meteringService.createReadingType(mrid, alias));
     }
 
     @Override
