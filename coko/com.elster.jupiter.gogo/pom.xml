@@ -66,5 +66,9 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>data.lifecycle</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>events</artifactId>
+        </dependency>
     </dependencies>
 </project>
