@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.masterdata;
 
 import com.elster.jupiter.time.TimeDuration;
@@ -6,11 +10,6 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/**
- * Copyrights EnergyICT
- * Date: 13/01/2017
- * Time: 13:37
- */
 public class LoadProfileIntervalsTest {
     private final static TimeDuration[] expected =  {new TimeDuration(1, TimeDuration.TimeUnit.MINUTES),   //0
                                            new TimeDuration(2, TimeDuration.TimeUnit.MINUTES),             //1

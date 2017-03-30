@@ -1,9 +1,13 @@
-package com.energyict.mdc.masterdata.exceptions;
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 
-import org.junit.*;
+package com.energyict.mdc.masterdata.exceptions;
 
 import java.util.HashSet;
 import java.util.Set;
+
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

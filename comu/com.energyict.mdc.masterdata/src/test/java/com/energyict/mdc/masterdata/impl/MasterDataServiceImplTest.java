@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.masterdata.impl;
 
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
@@ -29,11 +33,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
-/**
- * Copyrights EnergyICT
- * Date: 15.12.15
- * Time: 15:00
- */
 @RunWith(MockitoJUnitRunner.class)
 public class MasterDataServiceImplTest {
 

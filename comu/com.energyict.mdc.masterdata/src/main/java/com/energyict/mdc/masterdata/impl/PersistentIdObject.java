@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.masterdata.impl;
 
 import com.elster.jupiter.domain.util.Save;
@@ -8,14 +12,6 @@ import com.elster.jupiter.orm.DataModel;
 
 import java.time.Instant;
 
-/**
- * Provides code reuse opportunities for entities in this bundle
- * that are persistable and have a unique ID.
- * <p/>
- * Copyrights EnergyICT
- * Date: 31/01/14
- * Time: 15:29
- */
 public abstract class PersistentIdObject<T> {
 
     @SuppressWarnings("unused")

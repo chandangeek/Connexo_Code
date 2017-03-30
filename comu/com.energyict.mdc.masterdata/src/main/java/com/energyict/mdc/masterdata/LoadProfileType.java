@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.masterdata;
 
 import aQute.bnd.annotation.ProviderType;
@@ -9,11 +13,6 @@ import com.energyict.obis.ObisCode;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Copyrights EnergyICT
- * Date: 11-jan-2011
- * Time: 15:55:54
- */
 @ProviderType
 public interface LoadProfileType extends HasId, HasName, com.energyict.mdc.upl.meterdata.LoadProfileType {
 

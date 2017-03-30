@@ -1,6 +1,8 @@
-package com.energyict.mdc.masterdata.impl;
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 
-import java.time.Instant;
+package com.energyict.mdc.masterdata.impl;
 
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresent;
@@ -8,6 +10,8 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.masterdata.RegisterType;
+
+import java.time.Instant;
 
 class RegisterTypeInGroup {
     @IsPresent

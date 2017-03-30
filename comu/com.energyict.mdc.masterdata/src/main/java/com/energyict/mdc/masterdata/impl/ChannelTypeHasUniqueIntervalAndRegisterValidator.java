@@ -1,19 +1,18 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.masterdata.impl;
 
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.exceptions.MessageSeeds;
-import java.util.Optional;
 
 import javax.inject.Inject;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
+import java.util.Optional;
 
-/**
- * Copyrights EnergyICT
- * Date: 7/22/14
- * Time: 1:21 PM
- */
 public class ChannelTypeHasUniqueIntervalAndRegisterValidator implements ConstraintValidator<ChannelTypeHasUniqueIntervalAndRegister, ChannelType> {
 
     private final MasterDataService masterDataService;

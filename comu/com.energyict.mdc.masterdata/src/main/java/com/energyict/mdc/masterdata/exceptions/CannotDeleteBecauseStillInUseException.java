@@ -1,10 +1,13 @@
-package com.energyict.mdc.masterdata.exceptions;
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 
-import com.energyict.mdc.masterdata.LoadProfileType;
-import com.energyict.mdc.masterdata.MeasurementType;
+package com.energyict.mdc.masterdata.exceptions;
 
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
+import com.energyict.mdc.masterdata.LoadProfileType;
+import com.energyict.mdc.masterdata.MeasurementType;
 
 import java.util.List;
 import java.util.stream.Collectors;

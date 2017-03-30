@@ -1,8 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.masterdata.exceptions;
 
-import com.energyict.mdc.masterdata.MasterDataService;
-
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.masterdata.MasterDataService;
 
 import java.util.logging.Level;
 
