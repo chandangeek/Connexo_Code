@@ -8,7 +8,7 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import java.util.List;
 
 /**
- * Copyrights EnergyICT
+ *
  *
  * @author khe
  * @since 19/12/2016 - 17:29

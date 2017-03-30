@@ -26,6 +26,7 @@ import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.ConnectionType;
+import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.jayway.jsonpath.JsonModel;
 import org.junit.Before;
@@ -263,7 +264,7 @@ public class ConnectionResourceTest extends DeviceDataRestApplicationJerseyTest 
         ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = mock(ProtocolDialectConfigurationProperties.class);
         DeviceProtocolDialect deviceProtocolDialect = mock(DeviceProtocolDialect.class);
         when(deviceProtocolDialect.getDeviceProtocolDialectName()).thenReturn("Protocol Dialect Name");
-        when(deviceProtocolDialect.getDisplayName()).thenReturn("Display Name of Protocol Dialect");
+        when(deviceProtocolDialect.getDeviceProtocolDialectDisplayName()).thenReturn("Display Name of Protocol Dialect");
         when(protocolDialectConfigurationProperties.getDeviceProtocolDialect()).thenReturn(deviceProtocolDialect);
         when(protocolDialectConfigurationProperties.getDeviceProtocolDialectName()).thenReturn("Protocol Dialect Name");
         when(connectionTask.getProtocolDialectConfigurationProperties()).thenReturn(protocolDialectConfigurationProperties);

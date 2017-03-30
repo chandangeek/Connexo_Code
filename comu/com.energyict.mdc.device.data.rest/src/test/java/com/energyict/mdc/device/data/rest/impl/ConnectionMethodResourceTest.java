@@ -33,6 +33,7 @@ import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.pluggable.rest.impl.properties.SimplePropertyType;
 import com.energyict.mdc.protocol.api.ConnectionType;
+import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
 import com.jayway.jsonpath.JsonModel;
@@ -408,7 +409,7 @@ public class ConnectionMethodResourceTest extends DeviceDataRestApplicationJerse
 
     private ProtocolDialectConfigurationProperties mockProtocolDialectConfigurationProperties(){
         DeviceProtocolDialect protocolDialect = mock(DeviceProtocolDialect.class);
-        when(protocolDialect.getDisplayName()).thenReturn("Protocol Dialect DisplayName");
+        when(protocolDialect.getDeviceProtocolDialectDisplayName()).thenReturn("Protocol Dialect DisplayName");
         ProtocolDialectConfigurationProperties properties = mock(ProtocolDialectConfigurationProperties.class);
         when(properties.getDeviceProtocolDialectName()).thenReturn("Protocol Dialect Name");
         when(properties.getDeviceProtocolDialect()).thenReturn(protocolDialect);

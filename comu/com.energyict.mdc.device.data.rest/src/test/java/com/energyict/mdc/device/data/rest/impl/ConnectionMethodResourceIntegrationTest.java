@@ -41,7 +41,6 @@ import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.impl.PartialScheduledConnectionTaskImpl;
@@ -62,7 +61,6 @@ import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
 import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
@@ -71,6 +69,7 @@ import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.obis.ObisCode;
 import com.jayway.jsonpath.JsonModel;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
@@ -100,7 +99,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -110,7 +108,6 @@ import java.util.TimeZone;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 /**
@@ -253,7 +250,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
             when(deviceProtocol.getDeviceProtocolCapabilities()).thenReturn(Arrays.asList(DeviceProtocolCapabilities.values()));
             freezeClock(2014, Calendar.JANUARY, 1); // Experiencing timing issues in tests that set clock back in time and the respective devices need their device life cycle
             deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(DEVICE_TYPE_NAME, deviceProtocolPluggableClass);
-      //      when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(deviceProtocolPluggableClass));
+            //      when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(deviceProtocolPluggableClass));
             DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration(DEVICE_CONFIGURATION_NAME);
             deviceConfigurationBuilder.isDirectlyAddressable(true);
             deviceConfiguration = deviceConfigurationBuilder.add();
@@ -697,13 +694,13 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         info.nextExecutionSpecs.every.count = 15;
         info.nextExecutionSpecs.every.timeUnit = "minutes";
         info.version = scheduledConnectionTask.getVersion();
-        DeviceConnectionTaskInfo.ConnectionStrategyInfo strategyInfo= new DeviceConnectionTaskInfo.ConnectionStrategyInfo();
+        DeviceConnectionTaskInfo.ConnectionStrategyInfo strategyInfo = new DeviceConnectionTaskInfo.ConnectionStrategyInfo();
         strategyInfo.connectionStrategy = "AS_SOON_AS_POSSIBLE";
         strategyInfo.localizedValue = "As soon as Possible";
         info.connectionStrategyInfo = strategyInfo;
         info.comPortPool = "Whirlpool";
         info.protocolDialect = protocolDialectConfigurationProperties.getDeviceProtocolDialectName();
-        info.protocolDialectDisplayName = protocolDialectConfigurationProperties.getDeviceProtocolDialect().getDisplayName();
+        info.protocolDialectDisplayName = protocolDialectConfigurationProperties.getDeviceProtocolDialect().getDeviceProtocolDialectDisplayName();
         info.parent = new VersionInfo<>(device.getName(), device.getVersion());
         info.properties = new ArrayList<>();
         info.properties.add(new PropertyInfo("ipAddress", "ipAddress", new PropertyValueInfo<Object>("10.10.10.1", null, null), new PropertyTypeInfo(com.elster.jupiter.properties.rest.SimplePropertyType.TEXT, null, null, null), true));
@@ -720,7 +717,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         assertThat(connectionTask.getProperty("ipAddress").getValue()).isEqualTo("10.10.10.1");
     }
 
-    private ScheduledConnectionMethodInfo updateInfo(ConnectionTask task){
+    private ScheduledConnectionMethodInfo updateInfo(ConnectionTask task) {
         ScheduledConnectionMethodInfo info = new ScheduledConnectionMethodInfo();
         info.name = AS_1440_INCOMPLETE;
         info.status = ConnectionTaskLifecycleStatus.ACTIVE;
@@ -732,23 +729,23 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
             info.version = task.getVersion();
         else
             info.version = 0L;
-        DeviceConnectionTaskInfo.ConnectionStrategyInfo strategyInfo= new DeviceConnectionTaskInfo.ConnectionStrategyInfo();
+        DeviceConnectionTaskInfo.ConnectionStrategyInfo strategyInfo = new DeviceConnectionTaskInfo.ConnectionStrategyInfo();
         strategyInfo.connectionStrategy = "AS_SOON_AS_POSSIBLE";
         strategyInfo.localizedValue = "As soon as Possible";
         info.connectionStrategyInfo = strategyInfo;
         info.comPortPool = "Whirlpool";
         info.protocolDialect = protocolDialectConfigurationProperties.getDeviceProtocolDialectName();
-        info.protocolDialectDisplayName = protocolDialectConfigurationProperties.getDeviceProtocolDialect().getDisplayName();
+        info.protocolDialectDisplayName = protocolDialectConfigurationProperties.getDeviceProtocolDialect().getDeviceProtocolDialectDisplayName();
         if (task != null)
             info.parent = new VersionInfo<>(task.getDevice().getName(), task.getDevice().getVersion());
         return info;
     }
 
-    private Device createDevice(String name){
+    private Device createDevice(String name) {
         return inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, name, Instant.now());
     }
 
-    private ScheduledConnectionTask addScheduledConnectionTask(Device device, PartialOutboundConnectionTask partialConnectionTask, ConnectionTaskLifecycleStatus status, boolean complete, BigDecimal port, String ipAddress ){
+    private ScheduledConnectionTask addScheduledConnectionTask(Device device, PartialOutboundConnectionTask partialConnectionTask, ConnectionTaskLifecycleStatus status, boolean complete, BigDecimal port, String ipAddress) {
         Device.ScheduledConnectionTaskBuilder taskbuilder = device.getScheduledConnectionTaskBuilder(partialConnectionTask);
         taskbuilder.setComPortPool(whirlpool).
                 setProtocolDialectConfigurationProperties(protocolDialectConfigurationProperties).
@@ -756,12 +753,17 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
                 setConnectionTaskLifecycleStatus(status).
                 setNextExecutionSpecsFrom(new TemporalExpression(TimeDuration.days(1)));
         if (complete)
-            taskbuilder.setProperty("port", port == null ? BigDecimal.valueOf(666): port)
-                       .setProperty("ipAddress", ipAddress == null ?  "6.6.6.6" : ipAddress);
+            taskbuilder.setProperty("port", port == null ? BigDecimal.valueOf(666) : port)
+                    .setProperty("ipAddress", ipAddress == null ? "6.6.6.6" : ipAddress);
         return taskbuilder.add();
     }
 
     private static class PartialConnectionTaskProtocolDialect implements DeviceProtocolDialect {
+
+        @Override
+        public List<PropertySpec> getUPLPropertySpecs() {
+            return Collections.emptyList();
+        }
 
         @Override
         public String getDeviceProtocolDialectName() {
@@ -769,7 +771,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         }
 
         @Override
-        public String getDisplayName() {
+        public String getDeviceProtocolDialectDisplayName() {
             return "It's a Dell Display";
         }
 
