@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * DiscoverInfo.java
  *
  * Created on 16 juni 2005, 13:41

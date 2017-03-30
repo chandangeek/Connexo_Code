@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.api.impl.device.messages;
 
 import com.elster.jupiter.nls.Thesaurus;
@@ -10,13 +14,6 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Provides a summary of all messages related to general Device Actions.
- * <p/>
- * Copyrights EnergyICT
- * Date: 11/03/13
- * Time: 11:59
- */
 enum DeviceActionMessage implements DeviceMessageSpecEnum {
 
     BILLING_RESET(DeviceMessageId.DEVICE_ACTIONS_BILLING_RESET, "Billing reset"),

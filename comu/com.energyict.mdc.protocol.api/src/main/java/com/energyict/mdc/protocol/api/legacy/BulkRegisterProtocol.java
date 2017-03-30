@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.api.legacy;
 
 import com.energyict.mdc.protocol.api.device.data.Register;
@@ -7,20 +11,6 @@ import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import java.io.IOException;
 import java.util.List;
 
-/**
- * BulkRegisterProtocol interface must be implemented in the protocolclass if meter
- * register readings are needed. The collection software used an universal
- * identification mechanism based on OBIS codes.
- * translateRegisters(...) method is used at configuration time. The returned
- * BulkRegisterInfo object informs the collection software if the meter protocol
- * supports a register for the given ObisCode.
- * readRegisters(...) method is used by the collection software at runtime to
- * retrieve the meter's register value for the given List of ObisCodes.
- * <p/>
- * Copyrights EnergyICT
- * Date: 4-feb-2011
- * Time: 9:54:07
- */
 public interface BulkRegisterProtocol {
 
     /**

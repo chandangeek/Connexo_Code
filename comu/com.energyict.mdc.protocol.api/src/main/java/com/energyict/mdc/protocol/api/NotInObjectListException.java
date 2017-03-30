@@ -1,13 +1,9 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.api;
 
-/**
- * Exception thrown when the request DLMS object is not present in the instantiated object list of the meter.
- *
- * Copyrights EnergyICT
- *
- * @author khe
- * @since 4/06/2015 - 11:13
- */
 public class NotInObjectListException extends ProtocolException {
 
     public NotInObjectListException() {super();}

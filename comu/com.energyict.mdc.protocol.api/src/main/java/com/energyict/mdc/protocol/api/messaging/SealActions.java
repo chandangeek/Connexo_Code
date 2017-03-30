@@ -1,12 +1,9 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.api.messaging;
 
-import com.energyict.mdc.protocol.api.impl.device.messages.SecurityMessage;
-
-/**
-* Copyrights EnergyICT
-* Date: 12/11/14
-* Time: 9:11 AM
-*/
 public enum SealActions {
 
     UNCHANGED(null, "Unchanged"),

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.api.impl.device.messages;
 
 import com.elster.jupiter.nls.SimpleTranslationKey;
@@ -12,11 +16,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
-/**
- * Copyrights EnergyICT
- * Date: 28/02/13
- * Time: 9:10
- */
 enum DLMSConfigurationDeviceMessage implements DeviceMessageSpecEnum {
 
     SetDLMSDeviceID(DeviceMessageId.DLMS_CONFIGURATION_SET_DEVICE_ID, "Set DLMS device ID") {

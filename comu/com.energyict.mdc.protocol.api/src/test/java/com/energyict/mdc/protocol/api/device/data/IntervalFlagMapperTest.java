@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.api.device.data;
 
 import com.energyict.mdc.common.interval.IntervalStateBits;
@@ -10,12 +14,6 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-/**
- * Copyrights EnergyICT
- *
- * @author khe
- * @since 13/05/2016 - 17:25
- */
 public class IntervalFlagMapperTest {
 
     @Test

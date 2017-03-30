@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.api.impl.device.messages;
 
 import com.elster.jupiter.nls.Thesaurus;
@@ -10,15 +14,6 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Provides a summary of all messages that have no unique goal.
- * For example, this can be a message that writes a general value to a certain DLMS object, chosen by the user (obiscode).
- * <p/>
- * <p/>
- * Copyrights EnergyICT
- * Date: 3/04/13
- * Time: 8:38
- */
 enum GeneralDeviceMessage implements DeviceMessageSpecEnum {
 
     WRITE_RAW_IEC1107_CLASS(DeviceMessageId.GENERAL_WRITE_RAW_IEC1107_CLASS, "Write raw IEC1107 class") {

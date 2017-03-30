@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.api;
 
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
@@ -6,11 +10,6 @@ import com.energyict.protocol.ChannelInfo;
 
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- * Date: 9/23/13
- * Time: 11:05 AM
- */
 public class LoadProfileConfiguration {
 
     /**

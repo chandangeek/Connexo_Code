@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.api.impl.device.messages;
 
 import com.elster.jupiter.nls.Thesaurus;
@@ -8,13 +12,6 @@ import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Provides a summary of all <i>Advanced Test</i> related messages
- *
- * Copyrights EnergyICT
- * Date: 2/05/13
- * Time: 9:52
- */
 enum AdvancedTestMessage implements DeviceMessageSpecEnum {
 
     XML_CONFIG(DeviceMessageId.ADVANCED_TEST_XML_CONFIG, "XML configuration") {

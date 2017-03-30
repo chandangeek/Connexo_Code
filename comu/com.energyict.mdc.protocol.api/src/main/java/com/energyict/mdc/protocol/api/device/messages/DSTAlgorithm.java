@@ -1,11 +1,9 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.api.device.messages;
 
-/**
- * Copyrights EnergyICT
- * Date: 30/10/13
- * Time: 9:12
- * Author: khe
- */
 public enum DSTAlgorithm {
 
     once(0, "Repeated once exactly on day, month and year"),

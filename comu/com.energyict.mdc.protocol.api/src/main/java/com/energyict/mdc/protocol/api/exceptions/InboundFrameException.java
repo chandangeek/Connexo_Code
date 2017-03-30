@@ -1,8 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.api.exceptions;
 
-import com.energyict.mdc.io.CommunicationException;
-
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.io.CommunicationException;
 
 /**
  * Models the expected but exceptional situations that can occur with frames.

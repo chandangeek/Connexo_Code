@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.api.impl.device.messages;
 
 import com.elster.jupiter.nls.Thesaurus;
@@ -14,13 +18,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
-/**
- * Provides a summary of all <i>Security</i> related messages.
- * <p/>
- * Copyrights EnergyICT
- * Date: 13/03/13
- * Time: 15:18
- */
 public enum SecurityMessage implements DeviceMessageSpecEnum {
 
     ACTIVATE_DLMS_ENCRYPTION(DeviceMessageId.SECURITY_ACTIVATE_DLMS_ENCRYPTION, "Activate encryption") {

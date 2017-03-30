@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.api.impl.device.messages;
 
 import com.elster.jupiter.nls.Thesaurus;
@@ -10,11 +14,6 @@ import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- * Date: 28/02/13
- * Time: 9:10
- */
 enum ZigBeeConfigurationDeviceMessage implements DeviceMessageSpecEnum {
 
     CreateHANNetwork(DeviceMessageId.ZIGBEE_CONFIGURATION_CREATE_HAN_NETWORK, "Create HAN network"),
