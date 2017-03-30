@@ -5,11 +5,9 @@
 package com.energyict.mdc.masterdata.rest;
 
 import com.elster.jupiter.rest.util.VersionInfo;
-import com.energyict.obis.ObisCode;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.rest.ObisCodeAdapter;
-
+import com.energyict.obis.ObisCode;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.xml.bind.annotation.XmlRootElement;
