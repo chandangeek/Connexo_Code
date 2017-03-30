@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.lifecycle.config.rest.impl.resource;
 
 import com.elster.jupiter.fsm.State;
@@ -191,6 +195,7 @@ public class DeviceLifeCycleActionResource {
                     .forEach(microChecks::add);
         } else {
             Arrays.stream(MicroCheck.values())
+                    .filter(microCheck -> microCheck != MicroCheck.METROLOGY_CONFIGURATION_IN_CORRECT_STATE_IF_ANY)
                     .map(microActionAndCheckInfoFactory::optional)
                     .forEach(microChecks::add);
         }
