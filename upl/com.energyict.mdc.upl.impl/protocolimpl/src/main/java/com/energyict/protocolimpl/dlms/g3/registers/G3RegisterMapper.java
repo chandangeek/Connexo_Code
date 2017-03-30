@@ -245,10 +245,12 @@ public class G3RegisterMapper {
     public static final ObisCode INSTANTANEOUS_PHASE_ANGLE_L3 = ObisCode.fromString("1.0.81.7.2.255");
 
     // Beacon custom class for Modem Watchdog parameters
-    // old: 0.x.128.0.11.255
     public static final ObisCode MODEM_WATCHDOG_ATTR1 = ObisCode.fromString("0.162.96.128.0.1");
     public static final ObisCode MODEM_WATCHDOG_ATTR2 = ObisCode.fromString("0.162.96.128.0.2");
     public static final ObisCode MODEM_WATCHDOG_ATTR3 = ObisCode.fromString("0.162.96.128.0.3");
+    public static final ObisCode MODEM_WATCHDOG_ATTR1_LEGACY = ObisCode.fromString("0.0.128.0.11.1");
+    public static final ObisCode MODEM_WATCHDOG_ATTR2_LEGACY = ObisCode.fromString("0.0.128.0.11.2");
+    public static final ObisCode MODEM_WATCHDOG_ATTR3_LEGACY = ObisCode.fromString("0.0.128.0.11.3");
 
 
     public static final ObisCode MULTI_APN_CONFIG = ObisCode.fromString("0.128.25.3.0.255");
@@ -542,6 +544,9 @@ public class G3RegisterMapper {
         ModemWatchdogMappings.add(new ModemWatchdogMapping(MODEM_WATCHDOG_ATTR1));
         ModemWatchdogMappings.add(new ModemWatchdogMapping(MODEM_WATCHDOG_ATTR2));
         ModemWatchdogMappings.add(new ModemWatchdogMapping(MODEM_WATCHDOG_ATTR3));
+        ModemWatchdogMappings.add(new ModemWatchdogMapping(MODEM_WATCHDOG_ATTR1_LEGACY));
+        ModemWatchdogMappings.add(new ModemWatchdogMapping(MODEM_WATCHDOG_ATTR2_LEGACY));
+        ModemWatchdogMappings.add(new ModemWatchdogMapping(MODEM_WATCHDOG_ATTR3_LEGACY));
         return ModemWatchdogMappings;
     }
 

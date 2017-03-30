@@ -30,7 +30,8 @@ public class ModemWatchdogAttributesMapping extends RegisterMapping {
 
     @Override
     public boolean canRead(final ObisCode obisCode) {
-        return ModemWatchdogConfiguration.getDefaultObisCode().equalsIgnoreBillingField(obisCode) &&
+        return (ModemWatchdogConfiguration.getDefaultObisCode().equalsIgnoreBillingField(obisCode) ||
+                ModemWatchdogConfiguration.getLegacyObisCode().equalsIgnoreBillingField(obisCode)) &&
                 (obisCode.getF() >= MIN_ATTR) &&
                 (obisCode.getF() <= MAX_ATTR);
     }
