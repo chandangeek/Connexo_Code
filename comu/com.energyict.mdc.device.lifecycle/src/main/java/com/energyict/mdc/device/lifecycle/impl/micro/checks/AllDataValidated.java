@@ -1,5 +1,10 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.validation.ValidationService;
@@ -11,11 +16,6 @@ import com.energyict.mdc.device.lifecycle.impl.MessageSeeds;
 import java.time.Instant;
 import java.util.Optional;
 
-/**
- * Copyrights EnergyICT
- * Date: 16/06/2015
- * Time: 14:17
- */
 public class AllDataValidated extends TranslatableServerMicroCheck {
 
     private final ValidationService validationService;
@@ -26,7 +26,7 @@ public class AllDataValidated extends TranslatableServerMicroCheck {
     }
 
     @Override
-    public Optional<DeviceLifeCycleActionViolation> evaluate(Device device, Instant effectiveTimestamp) {
+    public Optional<DeviceLifeCycleActionViolation> evaluate(Device device, Instant effectiveTimestamp, State state) {
         Optional<? extends MeterActivation> current = device.getCurrentMeterActivation();
         if (current.isPresent()) {
             if (validationService.validationEnabled(current.get().getMeter().get())) {

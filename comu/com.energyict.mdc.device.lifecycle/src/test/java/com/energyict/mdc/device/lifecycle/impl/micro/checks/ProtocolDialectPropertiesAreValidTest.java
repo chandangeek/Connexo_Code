@@ -1,26 +1,28 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.ProtocolDialectProperties;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolation;
 import com.energyict.mdc.device.lifecycle.config.MicroCheck;
-
-import com.elster.jupiter.nls.Thesaurus;
+import com.energyict.mdc.pluggable.PluggableClassUsageProperty;
 
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
 
-import com.energyict.mdc.pluggable.PluggableClassUsageProperty;
-import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
-import org.junit.*;
-import org.junit.runner.*;
-
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -45,13 +47,11 @@ public class ProtocolDialectPropertiesAreValidTest {
     @Mock
     private ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties1;
     @Mock
-    private ComTaskEnablement comTaskEnablement1;
+    private PartialConnectionTask partialConnectionTask1, partialConnectionTask2;
     @Mock
     private ProtocolDialectProperties protocolDialectProperties1;
     @Mock
     private ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties2;
-    @Mock
-    private ComTaskEnablement comTaskEnablement2;
     @Mock
     private ProtocolDialectProperties protocolDialectProperties2;
     @Mock
@@ -63,9 +63,9 @@ public class ProtocolDialectPropertiesAreValidTest {
     public void initializeMocks() {
         when(this.protocolDialectConfigurationProperties1.getDeviceProtocolDialectName()).thenReturn(DIALECT1_NAME);
         when(this.protocolDialectConfigurationProperties2.getDeviceProtocolDialectName()).thenReturn(DIALECT2_NAME);
-        when(this.comTaskEnablement1.getProtocolDialectConfigurationProperties()).thenReturn(this.protocolDialectConfigurationProperties1);
-        when(this.comTaskEnablement2.getProtocolDialectConfigurationProperties()).thenReturn(this.protocolDialectConfigurationProperties2);
-        when(this.deviceConfiguration.getComTaskEnablements()).thenReturn(Arrays.asList(comTaskEnablement1, comTaskEnablement2));
+        when(this.partialConnectionTask1.getProtocolDialectConfigurationProperties()).thenReturn(this.protocolDialectConfigurationProperties1);
+        when(this.partialConnectionTask2.getProtocolDialectConfigurationProperties()).thenReturn(this.protocolDialectConfigurationProperties2);
+        when(this.deviceConfiguration.getPartialConnectionTasks()).thenReturn(Arrays.asList(partialConnectionTask1, partialConnectionTask2));
         when(this.protocolDialectProperties1.getProtocolDialectConfigurationProperties()).thenReturn(this.protocolDialectConfigurationProperties1);
         when(this.protocolDialectProperties1.getDeviceProtocolDialectName()).thenReturn(DIALECT1_NAME);
         when(this.protocolDialectProperties2.getProtocolDialectConfigurationProperties()).thenReturn(this.protocolDialectConfigurationProperties2);
@@ -81,7 +81,7 @@ public class ProtocolDialectPropertiesAreValidTest {
         ProtocolDialectPropertiesAreValid microCheck = this.getTestInstance();
 
         // Business method
-        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, Instant.now());
+        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, Instant.now(), null);
 
         // Asserts
         assertThat(violation).isEmpty();
@@ -99,7 +99,7 @@ public class ProtocolDialectPropertiesAreValidTest {
         ProtocolDialectPropertiesAreValid microCheck = this.getTestInstance();
 
         // Business method
-        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, Instant.now());
+        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, Instant.now(), null);
 
         // Asserts
         assertThat(violation).isPresent();
@@ -123,7 +123,7 @@ public class ProtocolDialectPropertiesAreValidTest {
         ProtocolDialectPropertiesAreValid microCheck = this.getTestInstance();
 
         // Business method
-        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, Instant.now());
+        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, Instant.now(), null);
 
         // Asserts
         assertThat(violation).isEmpty();
@@ -144,7 +144,7 @@ public class ProtocolDialectPropertiesAreValidTest {
         ProtocolDialectPropertiesAreValid microCheck = this.getTestInstance();
 
         // Business method
-        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, Instant.now());
+        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, Instant.now(), null);
 
         // Asserts
         assertThat(violation).isEmpty();

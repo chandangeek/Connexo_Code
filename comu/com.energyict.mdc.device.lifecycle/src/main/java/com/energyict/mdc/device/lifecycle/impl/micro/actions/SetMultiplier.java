@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.lifecycle.impl.micro.actions;
 
 import com.elster.jupiter.nls.Thesaurus;
@@ -13,14 +17,6 @@ import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * Provides an implementation of a {@link com.energyict.mdc.device.lifecycle.impl.ServerMicroAction}
- * which will set a multiplier value on the device
- *
- * Copyrights EnergyICT
- * Date: 09.12.15
- * Time: 13:36
- */
 public class SetMultiplier extends TranslatableServerMicroAction {
 
     public SetMultiplier(Thesaurus thesaurus) {
