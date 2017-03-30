@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.calendar.Calendar;
@@ -12,7 +16,9 @@ import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.devtools.ExtjsFilter;
 import com.elster.jupiter.devtools.tests.Answers;
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.fsm.Stage;
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.metering.IncompatibleFiniteStateMachineChangeException;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
@@ -45,6 +51,7 @@ import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.configuration.rest.RegisterConfigInfo;
 import com.energyict.mdc.device.data.Device;
@@ -448,7 +455,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         assertThat((List) map.get("deviceConfigurations")).hasSize(1)
                 .describedAs("JSon representation of a field, JavaScript impact if it changed");
         Map jsonDeviceConfiguration = (Map) ((List) map.get("deviceConfigurations")).get(0);
-        assertThat(jsonDeviceConfiguration).hasSize(15);
+        assertThat(jsonDeviceConfiguration).hasSize(16);
         assertThat(jsonDeviceConfiguration.get("id")).isEqualTo(113)
                 .describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonDeviceConfiguration.get("name")).isEqualTo("defcon")
@@ -1289,7 +1296,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         List<Map<String, Object>> connectionMethods = (List<Map<String, Object>>) response.get("data");
         assertThat(connectionMethods).hasSize(1);
         Map<String, Object> connectionMethod = connectionMethods.get(0);
-        assertThat(connectionMethod).hasSize(15)
+        assertThat(connectionMethod).hasSize(16)
                 .containsKey("id")
                 .containsKey("name")
                 .containsKey("direction")
@@ -1299,10 +1306,11 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
                 .containsKey("isDefault")
                 .containsKey("numberOfSimultaneousConnections")
                 .containsKey("rescheduleRetryDelay")
-                .containsKey("connectionStrategy")
+                .containsKey("connectionStrategyInfo")
                 .containsKey("properties")
                 .containsKey("temporalExpression")
                 .containsKey("version")
+                .containsKey("protocolDialectConfigurationProperties")
                 .containsKey("parent");
         List<Map<String, Object>> propertyInfos = (List<Map<String, Object>>) connectionMethod.get("properties");
         assertThat(propertyInfos).isNotNull().hasSize(1);
@@ -1369,6 +1377,11 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         ConnectionTypePluggableClass connectionTypePluggableClass = mock(ConnectionTypePluggableClass.class);
         when(protocolPluggableService.findConnectionTypePluggableClassByName("ConnType")).thenReturn(Optional.of(connectionTypePluggableClass));
 
+        ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = mock(ProtocolDialectConfigurationProperties.class);
+        when(protocolDialectConfigurationProperties.getId()).thenReturn(1234L);
+        when(protocolDialectConfigurationProperties.getDeviceProtocolDialectName()).thenReturn("Dialectje");
+        when(deviceConfigurationService.getProtocolDialectConfigurationProperties(1234L)).thenReturn(Optional.of(protocolDialectConfigurationProperties));
+
         ScheduledConnectionMethodInfo connectionMethodInfo = new ScheduledConnectionMethodInfo();
         connectionMethodInfo.name = "connection method";
         connectionMethodInfo.id = connectionMethodId;
@@ -1379,6 +1392,9 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         connectionMethodInfo.connectionTypePluggableClass = "ConnType";
         connectionMethodInfo.version = OK_VERSION;
         connectionMethodInfo.parent = new VersionInfo<>(deviceConfig_id, OK_VERSION);
+        connectionMethodInfo.protocolDialectConfigurationProperties = new ConnectionMethodInfo.ProtocolDialectConfigurationPropertiesInfo();
+        connectionMethodInfo.protocolDialectConfigurationProperties.id = 1234L;
+        connectionMethodInfo.protocolDialectConfigurationProperties.name = "Dialectje";
 
         Entity<ScheduledConnectionMethodInfo> json = Entity.json(connectionMethodInfo);
         PropertyInfo propertyInfo = new PropertyInfo("key", "key", new PropertyValueInfo<>("value", null, null, true), new PropertyTypeInfo(), false);
@@ -1580,6 +1596,9 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         State state = mock(State.class, RETURNS_DEEP_STUBS);
         when(state.getId()).thenReturn(1L);
         when(state.getName()).thenReturn("Some state");
+        Stage stage = mock(Stage.class);
+        when(state.getStage()).thenReturn(Optional.of(stage));
+        when(stage.getName()).thenReturn(EndDeviceStage.OPERATIONAL.getKey());
 
         IncompatibleFiniteStateMachineChangeException fsmEx = new IncompatibleFiniteStateMachineChangeException(state);
         IncompatibleDeviceLifeCycleChangeException dldEx = IncompatibleDeviceLifeCycleChangeException.wrapping(fsmEx);

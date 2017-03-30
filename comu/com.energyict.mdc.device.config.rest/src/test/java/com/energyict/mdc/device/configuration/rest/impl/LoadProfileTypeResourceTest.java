@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
@@ -6,18 +10,17 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.mdc.masterdata.rest.LoadProfileTypeInfoFactory;
 import com.energyict.mdc.masterdata.rest.RegisterTypeInfoFactory;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Optional;
 
 import static java.util.Arrays.asList;
 import static org.mockito.Matchers.eq;

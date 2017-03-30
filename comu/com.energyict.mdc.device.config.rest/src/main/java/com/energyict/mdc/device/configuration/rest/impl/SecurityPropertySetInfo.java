@@ -1,9 +1,14 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.configuration.rest.SecurityLevelInfo;
 import com.energyict.mdc.protocol.api.security.DeviceAccessLevel;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;

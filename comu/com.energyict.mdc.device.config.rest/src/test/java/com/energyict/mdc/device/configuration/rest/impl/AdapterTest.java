@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.cbo.Accumulation;
@@ -25,6 +29,8 @@ import com.energyict.mdc.upl.DeviceFunction;
 import org.junit.Test;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
+
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

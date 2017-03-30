@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.metering.ReadingType;
@@ -292,6 +296,9 @@ public class DeviceConfigurationResource {
         }
         if (deviceConfigurationInfo.dataloggerEnabled != null) {
             deviceConfigurationBuilder.dataloggerEnabled(deviceConfigurationInfo.dataloggerEnabled);
+        }
+        if(deviceConfigurationInfo.validateOnStore != null){
+            deviceConfigurationBuilder.validateOnStore(deviceConfigurationInfo.validateOnStore);
         }
         DeviceConfiguration deviceConfiguration = deviceConfigurationBuilder.add();
         return new DeviceConfigurationInfo(deviceConfiguration);

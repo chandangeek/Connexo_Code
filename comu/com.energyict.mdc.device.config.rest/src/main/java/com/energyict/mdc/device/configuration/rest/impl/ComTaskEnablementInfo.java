@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
@@ -5,9 +9,9 @@ import com.elster.jupiter.rest.util.VersionInfo;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.tasks.ComTask;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.ArrayList;
@@ -22,8 +26,6 @@ public class ComTaskEnablementInfo {
     public SecurityPropertySetInfo securityPropertySet;
     @JsonProperty("partialConnectionTask")
     public PartialConnectionTaskInfo partialConnectionTask;
-    @JsonProperty("protocolDialectConfigurationProperties")
-    public ProtocolDialectConfigurationPropertiesInfo protocolDialectConfigurationProperties;
     @JsonProperty("priority")
     public Integer priority;
     @JsonProperty("suspended")
@@ -45,7 +47,6 @@ public class ComTaskEnablementInfo {
                         .getPartialConnectionTask()
                         .map(pct -> PartialConnectionTaskInfo.from(pct, comTaskEnablement.usesDefaultConnectionTask(), thesaurus))
                         .orElse(PartialConnectionTaskInfo.defaultPartialConnectionTaskInfo(thesaurus));
-        comTaskEnablementInfo.protocolDialectConfigurationProperties = ProtocolDialectConfigurationPropertiesInfo.from(comTaskEnablement.getProtocolDialectConfigurationProperties(), thesaurus);
         comTaskEnablementInfo.priority = comTaskEnablement.getPriority();
         comTaskEnablementInfo.suspended = comTaskEnablement.isSuspended();
         comTaskEnablementInfo.ignoreNextExecutionSpecsForInbound = comTaskEnablement.isIgnoreNextExecutionSpecsForInbound();
@@ -115,7 +116,7 @@ public class ComTaskEnablementInfo {
             PartialConnectionTaskInfo partialConnectionTaskInfo = new PartialConnectionTaskInfo();
             if(partialConnectionTask.isDefault()) {
                 partialConnectionTaskInfo.id = useDefaultConnectionTask ? DEFAULT_PARTIAL_CONNECTION_TASK_ID : partialConnectionTask.getId();
-                partialConnectionTaskInfo.name = thesaurus.getFormat(TranslationKeys.DEFAULT).format();
+                partialConnectionTaskInfo.name = thesaurus.getFormat(TranslationKeys.DEFAULT).format() + " (" + partialConnectionTask.getName() + ")";
             } else {
                 partialConnectionTaskInfo.id = partialConnectionTask.getId();
                 partialConnectionTaskInfo.name = partialConnectionTask.getName();
