@@ -1,7 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.rest.impl.comserver;
 
 import com.energyict.mdc.channel.serial.NrOfStopBits;
 import com.energyict.mdc.common.rest.MapBasedXmlAdapter;
+import com.energyict.mdc.io.NrOfStopBits;
 
 public class NrOfStopBitsAdapter extends MapBasedXmlAdapter<NrOfStopBits> {
     public NrOfStopBitsAdapter() {

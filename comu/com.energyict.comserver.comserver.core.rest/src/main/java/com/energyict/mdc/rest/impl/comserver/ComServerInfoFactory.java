@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.rest.impl.comserver;
 
 import com.elster.jupiter.nls.Thesaurus;
@@ -7,8 +11,8 @@ import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.OfflineComServer;
 import com.energyict.mdc.engine.config.OnlineComServer;
 import com.energyict.mdc.engine.config.RemoteComServer;
-import javax.inject.Inject;
 
+import javax.inject.Inject;
 import java.util.List;
 
 public class ComServerInfoFactory {

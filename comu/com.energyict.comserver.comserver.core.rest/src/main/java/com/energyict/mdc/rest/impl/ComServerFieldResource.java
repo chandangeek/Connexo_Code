@@ -1,9 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.rest.FieldResource;
-import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.engine.config.security.Privileges;
 import com.energyict.mdc.rest.impl.comserver.BaudrateAdapter;
 import com.energyict.mdc.rest.impl.comserver.ComPortTypeAdapter;
@@ -19,7 +23,6 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

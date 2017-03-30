@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.rest.impl;
 
 import com.energyict.mdc.channel.serial.FlowControl;
@@ -5,6 +9,7 @@ import com.energyict.mdc.rest.impl.comserver.ComPortInfo;
 import com.energyict.mdc.rest.impl.comserver.FlowControlInfo;
 import com.energyict.mdc.rest.impl.comserver.InboundComPortInfo;
 import com.energyict.mdc.rest.impl.comserver.ModemInboundComPortInfo;
+
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.DeserializationFeature;

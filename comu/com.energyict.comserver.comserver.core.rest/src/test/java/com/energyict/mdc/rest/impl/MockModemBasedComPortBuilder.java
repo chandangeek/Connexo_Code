@@ -1,8 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.rest.impl;
 
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.engine.config.ModemBasedInboundComPort;
+
 import java.math.BigDecimal;
 import java.util.List;
 

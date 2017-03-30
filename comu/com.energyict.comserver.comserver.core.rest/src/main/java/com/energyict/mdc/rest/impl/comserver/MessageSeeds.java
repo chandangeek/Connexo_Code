@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.rest.impl.comserver;
 
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -10,6 +14,7 @@ public enum MessageSeeds implements MessageSeed {
     CHANGE_STATUS_CONCURRENT_BODY(2, "ChangeStatusConcurrentMessage", "{0} has changed since the page was last updated.", Level.SEVERE),
     EDIT_POOL_CONCURRENT_TITLE(3, "EditPoolConcurrentTitle", "Failed to save ''{0}''", Level.SEVERE),
     EDIT_POOL_CONCURRENT_BODY(4, "EditPoolConcurrentMessage", "{0} has changed since the page was last updated.", Level.SEVERE),
+    FIELD_REQUIRED(5, "FieldRequired", "This field is required", Level.SEVERE),
     ;
 
     private final int number;
