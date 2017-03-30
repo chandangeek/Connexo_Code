@@ -149,20 +149,20 @@ public class KeyFunctionTypeResource {
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
     public KeyFunctionTypeInfo changeKeyFunctionType(@PathParam("deviceTypeId") long id, @PathParam("keyFunctionTypeId") long keyFunctionTypeId, KeyFunctionTypeInfo keyFunctionTypeInfo) {
         DeviceType deviceType = resourceHelper.lockDeviceTypeOrThrowException(id, keyFunctionTypeInfo.parent.version, keyFunctionTypeInfo.parent.id);
-        KeyAccessorType keyFunctionType = deviceType.getKeyAccessorTypes().stream()
+        KeyAccessorType keyAccessorType = deviceType.getKeyAccessorTypes().stream()
                 .filter(kFType -> kFType.getId() == keyFunctionTypeId)
                 .findAny()
-                .orElseThrow(() -> new WebApplicationException("No key function type with id " + keyFunctionTypeId, Response.Status.NOT_FOUND));
-        KeyAccessorTypeUpdater updater = deviceType.getKeyAccessorTypeUpdater(keyFunctionType).get();
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_KEY_ACCESSOR_TYPE));
+        KeyAccessorTypeUpdater updater = deviceType.getKeyAccessorTypeUpdater(keyAccessorType).get();
         updater.name(keyFunctionTypeInfo.name);
         updater.description(keyFunctionTypeInfo.description);
-        if(keyFunctionTypeInfo.validityPeriod != null && keyFunctionType.getKeyType().getCryptographicType().requiresDuration()) {
+        if(keyFunctionTypeInfo.validityPeriod != null && keyAccessorType.getKeyType().getCryptographicType().requiresDuration()) {
             checkValidDurationOrThrowException(keyFunctionTypeInfo.validityPeriod);
             updater.duration(keyFunctionTypeInfo.validityPeriod.asTimeDuration());
         } else {
             updater.duration(null);
         }
-        Set<DeviceSecurityUserAction> keyAccessorTypeUserActions = deviceType.getKeyAccessorTypeUserActions(keyFunctionType);
+        Set<DeviceSecurityUserAction> keyAccessorTypeUserActions = deviceType.getKeyAccessorTypeUserActions(keyAccessorType);
         keyAccessorTypeUserActions.stream()
                 .forEach(updater::removeUserAction);
         keyFunctionTypeInfo.viewLevels.stream()
