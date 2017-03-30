@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.firmware.impl;
 
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
@@ -33,11 +37,6 @@ import static junit.framework.Assert.assertTrue;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-/**
- * Copyrights EnergyICT
- * Date: 1/04/2016
- * Time: 15:45
- */
 @RunWith(MockitoJUnitRunner.class)
 public class FirmwareHistoryImplTest extends PersistenceTest {
     private static final long DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID = 139;

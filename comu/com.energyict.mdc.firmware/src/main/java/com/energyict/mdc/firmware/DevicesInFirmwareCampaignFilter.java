@@ -1,14 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.firmware;
 
-import com.elster.jupiter.util.conditions.*;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.firmware.impl.DeviceInFirmwareCampaignImpl;
-import com.energyict.mdc.firmware.impl.DevicesInFirmwareCampaignStatusImpl;
-import com.energyict.mdc.tasks.ComTask;
+import com.elster.jupiter.util.conditions.Condition;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.List;
 
 /**
  * Models the filtering that can be applied by client code to count
