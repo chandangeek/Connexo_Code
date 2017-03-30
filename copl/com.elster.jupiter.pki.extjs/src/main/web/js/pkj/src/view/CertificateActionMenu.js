@@ -11,7 +11,7 @@ Ext.define('Pkj.view.CertificateActionMenu', {
             {
                 text: Uni.I18n.translate('general.downloadCertificate', 'PKJ', 'Download certificate'),
                 itemId: 'pkj-download-certificate-menu-item',
-                //privileges: Sct.privileges.ServiceCallType.admin,
+                privileges: Pkj.privileges.CertificateManagement.adminCertificates,
                 action: 'downloadCertificate',
                 hidden: Ext.isEmpty(me.record) || !me.record.get('hasCertificate'),
                 section: this.SECTION_ACTION
@@ -19,21 +19,21 @@ Ext.define('Pkj.view.CertificateActionMenu', {
             {
                 text: Uni.I18n.translate('general.downloadCSR', 'PKJ', 'Download CSR'),
                 itemId: 'pkj-download-csr-menu-item',
-                //privileges: Sct.privileges.ServiceCallType.admin,
+                privileges: Pkj.privileges.CertificateManagement.adminCertificates,
                 action: 'downloadCSR',
                 section: this.SECTION_ACTION
             },
             {
                 text: Uni.I18n.translate('general.importCertificate', 'PKJ', 'Import certificate'),
                 itemId: 'pkj-import-certificate-menu-item',
-                //privileges: Sct.privileges.ServiceCallType.admin,
+                privileges: Pkj.privileges.CertificateManagement.adminCertificates,
                 action: 'importCertificate',
                 section: this.SECTION_ACTION
             },
             {
                 text: Uni.I18n.translate('general.remove', 'PKJ', 'Remove'),
                 itemId: 'pkj-remove-certificate-menu-item',
-                //privileges: Sct.privileges.ServiceCallType.admin,
+                privileges: Pkj.privileges.CertificateManagement.adminCertificates,
                 action: 'removeCertificate',
                 section: this.SECTION_REMOVE
             }

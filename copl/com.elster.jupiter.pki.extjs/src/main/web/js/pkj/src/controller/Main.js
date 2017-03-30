@@ -34,7 +34,7 @@ Ext.define('Pkj.controller.Main', {
     },
 
     initMenu: function () {
-        if (Pkj.privileges.TrustStore.canView() ){
+        if (Pkj.privileges.CertificateManagement.canView() ){
 
             var menuItem = Ext.create('Uni.model.MenuItem', {
                 text: Uni.I18n.translate('general.administration', 'PKJ', 'Administration'),
@@ -51,8 +51,6 @@ Ext.define('Pkj.controller.Main', {
                     {
                         text: Uni.I18n.translate('general.trustStores', 'PKJ', 'Trust stores'),
                         href: '#/administration/truststores'
-                        //hidden: Uni.Auth.hasNoPrivilege('privilege.view.trustStores'),
-                        //route: 'truststores'
                     },
                     {
                         text: Uni.I18n.translate('general.certificates', 'PKJ', 'Certificates'),

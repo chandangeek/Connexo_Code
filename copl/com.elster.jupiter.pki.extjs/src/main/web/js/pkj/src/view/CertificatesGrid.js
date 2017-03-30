@@ -60,10 +60,10 @@ Ext.define('Pkj.view.CertificatesGrid', {
             {
                 xtype: 'uni-actioncolumn',
                 width: 150,
-                //privileges: Apr.privileges.AppServer.admin,
+                privileges: Pkj.privileges.CertificateManagement.adminCertificates,
                 menu: {
                     xtype: 'certificate-action-menu',
-                    itemId: 'pkj-certificates-grid-action-menu'
+                    itemId: 'pkj-certificates-grid-certificate-action-menu'
                 }
             }
         ];
@@ -79,8 +79,10 @@ Ext.define('Pkj.view.CertificatesGrid', {
                 items: [
                     {
                         xtype: 'uni-button-action',
+                        privileges: Pkj.privileges.CertificateManagement.adminCertificates,
                         menu: {
-                            xtype: 'certificates-grid-action-menu'
+                            xtype: 'certificates-grid-action-menu',
+                            itemId: 'pkj-certificates-grid-action-menu'
                         }
                     }
                 ]

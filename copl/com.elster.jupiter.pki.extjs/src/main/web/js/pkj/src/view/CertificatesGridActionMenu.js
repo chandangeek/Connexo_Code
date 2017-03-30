@@ -9,11 +9,13 @@ Ext.define('Pkj.view.CertificatesGridActionMenu', {
             {
                 text: Uni.I18n.translate('general.addCertificate', 'PKJ', 'Add certificate'),
                 itemId: 'pkj-certificates-grid-add-certificate',
+                privileges: Pkj.privileges.CertificateManagement.adminCertificates,
                 section: this.SECTION_ACTION
             },
             {
                 text: Uni.I18n.translate('general.addCSR', 'PKJ', 'Add CSR'),
                 itemId: 'pkj-certificates-grid-add-csr',
+                privileges: Pkj.privileges.CertificateManagement.adminCertificates,
                 section: this.SECTION_ACTION
             }
         ];

@@ -54,7 +54,7 @@ Ext.define('Pkj.view.TrustedCertificatesGrid', {
             {
                 xtype: 'uni-actioncolumn',
                 width: '150',
-                //privileges: Apr.privileges.AppServer.admin,
+                privileges: Pkj.privileges.CertificateManagement.adminTrustStores,
                 menu: {
                     xtype: 'trusted-certificate-action-menu',
                     itemId: 'pkj-truststore-detail-view-certificate-menu'

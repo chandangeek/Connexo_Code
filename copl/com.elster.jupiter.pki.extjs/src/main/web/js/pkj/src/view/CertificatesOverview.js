@@ -48,11 +48,13 @@ Ext.define('Pkj.view.CertificatesOverview', {
                                 {
                                     xtype: 'button',
                                     text: Uni.I18n.translate('general.addCSR', 'PKJ', 'Add CSR'),
+                                    privileges: Pkj.privileges.CertificateManagement.adminCertificates,
                                     itemId: 'pkj-no-certificates-add-csr-btn'
                                 },
                                 {
                                     xtype: 'button',
                                     text: Uni.I18n.translate('general.addCertificate', 'PKJ', 'Add certificate'),
+                                    privileges: Pkj.privileges.CertificateManagement.adminCertificates,
                                     itemId: 'pkj-no-certificates-add-certificate-btn'
                                 }
                             ]
@@ -63,9 +65,10 @@ Ext.define('Pkj.view.CertificatesOverview', {
                             tools: [
                                 {
                                     xtype: 'uni-button-action',
-                                    //privileges: Mdc.privileges.Communication.admin,
+                                    privileges: Pkj.privileges.CertificateManagement.adminCertificates,
                                     menu: {
-                                        xtype: 'certificate-action-menu'
+                                        xtype: 'certificate-action-menu',
+                                        itemId: 'pkj-certificate-preview-action-menu'
                                     }
                                 }
                             ]

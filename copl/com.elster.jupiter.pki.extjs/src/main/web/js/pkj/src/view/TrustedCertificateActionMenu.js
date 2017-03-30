@@ -7,16 +7,16 @@ Ext.define('Pkj.view.TrustedCertificateActionMenu', {
     initComponent: function () {
         this.items = [
             {
-                itemId: 'pkj-trusted-certificate-download-action',
                 text: Uni.I18n.translate('general.download', 'PKJ', 'Download'),
-                //privileges: Sct.privileges.ServiceCallType.admin,
+                itemId: 'pkj-trusted-certificate-download-action',
+                privileges: Pkj.privileges.CertificateManagement.adminTrustStores,
                 action: 'downloadTrustedCertificate',
                 section: this.SECTION_ACTION
             },
             {
-                itemId: 'pkj-trusted-certificate-remove-action',
                 text: Uni.I18n.translate('general.remove', 'PKJ', 'Remove'),
-                //privileges: Sct.privileges.ServiceCallType.admin,
+                itemId: 'pkj-trusted-certificate-remove-action',
+                privileges: Pkj.privileges.CertificateManagement.adminTrustStores,
                 action: 'removeTrustedCertificate',
                 section: this.SECTION_REMOVE
             }

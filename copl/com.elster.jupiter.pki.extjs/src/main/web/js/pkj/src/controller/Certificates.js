@@ -61,6 +61,9 @@ Ext.define('Pkj.controller.Certificates', {
             '#pkj-certificate-add-form-add-btn': {
                 click: this.addCertificate
             },
+            '#pkj-no-certificates-add-csr-btn': {
+                click: this.navigateToAddCSRPage
+            },
             '#pkj-csr-add-form-add-btn': {
                 click: this.addCSR
             },

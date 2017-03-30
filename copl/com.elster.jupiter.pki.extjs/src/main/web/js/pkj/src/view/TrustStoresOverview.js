@@ -36,8 +36,9 @@ Ext.define('Pkj.view.TrustStoresOverview', {
                         ],
                         stepItems: [
                             {
-                                text: Uni.I18n.translate('trustStores.add', 'PKJ', 'Add trust store'),
                                 xtype: 'button',
+                                text: Uni.I18n.translate('trustStores.add', 'PKJ', 'Add trust store'),
+                                privileges: Pkj.privileges.CertificateManagement.adminTrustStores,
                                 itemId: 'pkj-add-truststore-btn',
                                 action: 'addTrustStore'
                             }

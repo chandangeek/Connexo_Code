@@ -34,6 +34,7 @@ Ext.define('Pkj.view.TrustedCertificatesView', {
                             tools: [
                                 {
                                     xtype: 'uni-button-action',
+                                    privileges: Pkj.privileges.CertificateManagement.adminTrustStores,
                                     menu: {
                                         xtype: 'truststore-action-menu',
                                         itemId: 'pkj-truststore-certificates-view-menu'
@@ -82,6 +83,7 @@ Ext.define('Pkj.view.TrustedCertificatesView', {
                                         stepItems: [
                                             {
                                                 text: Uni.I18n.translate('general.importTrustedCertificates', 'PKJ', 'Import trusted certificates'),
+                                                privileges: Pkj.privileges.CertificateManagement.adminTrustStores,
                                                 xtype: 'button',
                                                 itemId: 'pkj-import-certificates-step'
                                             }

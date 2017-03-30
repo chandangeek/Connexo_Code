@@ -15,9 +15,10 @@ Ext.define('Pkj.view.TrustStorePreview', {
         me.tools = [
             {
                 xtype: 'uni-button-action',
-                //  privileges: Apr.privileges.AppServer.admin,
+                privileges: Pkj.privileges.CertificateManagement.adminTrustStores,
                 menu: {
-                    xtype: 'truststore-action-menu'
+                    xtype: 'truststore-action-menu',
+                    itemId: 'pkj-truststore-preview-action-menu'
                 }
             }
         ];

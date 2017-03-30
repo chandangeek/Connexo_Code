@@ -19,7 +19,7 @@ Ext.define('Pkj.view.CertificateDetails', {
                 tools: [
                     {
                         xtype: 'uni-button-action',
-                        //privileges: Mdc.privileges.Communication.admin,
+                        privileges: Pkj.privileges.CertificateManagement.adminCertificates,
                         menu: {
                             xtype: 'certificate-action-menu'
                         }

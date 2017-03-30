@@ -28,7 +28,7 @@ Ext.define('Pkj.view.TrustStoresGrid', {
             },
             {
                 xtype: 'uni-actioncolumn',
-                // privileges: Apr.privileges.AppServer.admin,
+                privileges: Pkj.privileges.CertificateManagement.adminTrustStores,
                 menu: {
                     xtype: 'truststore-action-menu',
                     itemId: 'pkj-truststore-action-menu'
@@ -48,6 +48,7 @@ Ext.define('Pkj.view.TrustStoresGrid', {
                     {
                         xtype: 'button',
                         text: Uni.I18n.translate('general.addTrustStore', 'PKJ', 'Add trust store'),
+                        privileges: Pkj.privileges.CertificateManagement.adminTrustStores,
                         itemId: 'pkj-truststores-grid-add-truststore'
                     }
                 ]

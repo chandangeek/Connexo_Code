@@ -15,7 +15,7 @@ Ext.define('Pkj.controller.history.Main', {
             items: {
                 truststores: {
                     title: Uni.I18n.translate('general.trustStores', 'PKJ', 'Trust stores'),
-                    //privileges: Pkj.privileges.TrustStore.view,
+                    privileges: Pkj.privileges.CertificateManagement.view,
                     route: 'truststores',
                     controller: 'Pkj.controller.TrustStores',
                     action: 'showTrustStores',
@@ -23,13 +23,13 @@ Ext.define('Pkj.controller.history.Main', {
                         add: {
                             route: 'add',
                             title: Uni.I18n.translate('general.addTrustStore', 'PKJ', 'Add trust store'),
-                            //privileges: Wss.privileges.Webservices.admin,
+                            privileges: Pkj.privileges.CertificateManagement.adminTrustStores,
                             controller: 'Pkj.controller.TrustStores',
                             action: 'showAddTrustStore'
                         },
                         view: {
                             route: '{trustStoreId}',
-                            //privileges: Pkj.privileges.view,
+                            privileges: Pkj.privileges.CertificateManagement.view,
                             title: Uni.I18n.translate('general.trustedCertificates', 'PKJ', 'Trusted certificates'),
                             controller: 'Pkj.controller.TrustStores',
                             action: 'showTrustedStoreAndCertificates',
@@ -44,6 +44,7 @@ Ext.define('Pkj.controller.history.Main', {
                                 importcertificates: {
                                     route: 'importcertificates',
                                     title: Uni.I18n.translate('general.importTrustedCertificates', 'PKJ', 'Import trusted certificates'),
+                                    privileges: Pkj.privileges.CertificateManagement.adminTrustStores,
                                     controller: 'Pkj.controller.TrustStores',
                                     action: 'showImportCertificatesPage'
                                 }
@@ -52,7 +53,7 @@ Ext.define('Pkj.controller.history.Main', {
                         edit: {
                             route: '{trustStoreId}/edit',
                             title: Uni.I18n.translate('general.Edit', 'PKJ', 'Edit'),
-                            //privileges: Wss.privileges.Webservices.admin,
+                            privileges: Pkj.privileges.CertificateManagement.adminTrustStores,
                             controller: 'Pkj.controller.TrustStores',
                             action: 'showEditTrustStore',
                             callback: function (route) {
@@ -67,7 +68,7 @@ Ext.define('Pkj.controller.history.Main', {
                 },
                 certificates: {
                     title: Uni.I18n.translate('general.certificates', 'PKJ', 'Certificates'),
-                    //privileges: Pkj.privileges.TrustStore.view,
+                    privileges: Pkj.privileges.CertificateManagement.view,
                     route: 'certificates',
                     controller: 'Pkj.controller.Certificates',
                     action: 'showCertificates',
@@ -75,18 +76,21 @@ Ext.define('Pkj.controller.history.Main', {
                         add: {
                             route: 'add',
                             title: Uni.I18n.translate('general.addCertificate', 'PKJ', 'Add certificate'),
+                            privileges: Pkj.privileges.CertificateManagement.adminCertificates,
                             controller: 'Pkj.controller.Certificates',
                             action: 'showAddCertificatePage'
                         },
                         addcsr: {
                             route: 'addcsr',
                             title: Uni.I18n.translate('general.addCSR', 'PKJ', 'Add CSR'),
+                            privileges: Pkj.privileges.CertificateManagement.adminCertificates,
                             controller: 'Pkj.controller.Certificates',
                             action: 'showAddCSRPage'
                         },
                         view: {
                             route: '{certificateId}',
                             title: '&nbsp;',
+                            privileges: Pkj.privileges.CertificateManagement.view,
                             controller: 'Pkj.controller.Certificates',
                             action: 'showCertificateDetailsPage',
                             callback: function (route) {
@@ -100,6 +104,7 @@ Ext.define('Pkj.controller.history.Main', {
                                 import: {
                                     route: 'import',
                                     title: Uni.I18n.translate('general.importCertificate', 'PKJ', 'Import certificate'),
+                                    privileges: Pkj.privileges.CertificateManagement.adminCertificates,
                                     controller: 'Pkj.controller.Certificates',
                                     action: 'showImportCertificatePage'
                                 }
