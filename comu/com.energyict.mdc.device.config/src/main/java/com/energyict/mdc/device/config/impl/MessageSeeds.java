@@ -147,7 +147,7 @@ public enum MessageSeeds implements MessageSeed {
     INCORRECT_GATEWAY_TYPE(14009, Keys.INCORRECT_GATEWAY_TYPE, "You must specify the gateway type if your configuration can act as gateway"),
     VETO_COMTASK_DELETION(14010, "comTaskXstillInUse", "ComTask {0} is still in use by at least one device configuration"),
     VETO_CALENDAR_DELETION(14011, "calendarXStillInUse", "Calendar {0} is still in use by at least one device type"),
-    VETO_TRUSTSTORE_DELETION(14012, "trustStoreXstillInUse", "Trust store {0} is still referenced by at least one certificate"),
+    VETO_TRUSTSTORE_DELETION(14012, "trustStoreXstillInUse", "Trust store {0} is still in use"),
     PARTIAL_CONNECTION_TASK_NAME_DOES_NOT_EXIST(15001, "partialConnectionTask.doesNotExistName", "There is no Partial Connection Task by name {0}"),
     PARTIAL_CONNECTION_TASK_ID_DOES_NOT_EXIST(15002, "partialConnectionTask.doesNotExistId", "There is no Partial Connection Task with id {0}"),
     PARTIAL_CONNECTION_TASK_PROPERTY_HAS_NO_SPEC(15003, Keys.PARTIAL_CONNECTION_TASK_PROPERTY_HAS_NO_SPEC, "There is no spec for connection type property with name {0}"),
