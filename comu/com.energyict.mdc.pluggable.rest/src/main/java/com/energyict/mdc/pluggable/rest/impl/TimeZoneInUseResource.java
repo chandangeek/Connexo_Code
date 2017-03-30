@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.pluggable.rest.impl;
 
 import com.elster.jupiter.rest.util.Transactional;
@@ -9,11 +13,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 
-/**
- * Copyrights EnergyICT
- * Date: 20/11/13
- * Time: 15:20
- */
 @Path("/timezoneinuses")
 public class TimeZoneInUseResource {
 

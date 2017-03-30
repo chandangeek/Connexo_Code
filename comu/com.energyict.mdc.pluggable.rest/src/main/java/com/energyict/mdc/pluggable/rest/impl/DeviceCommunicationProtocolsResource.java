@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.pluggable.rest.impl;
 
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
@@ -36,11 +40,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * Copyrights EnergyICT
- * Date: 05/11/13
- * Time: 12:29
- */
 @Path("/devicecommunicationprotocols")
 public class DeviceCommunicationProtocolsResource {
 

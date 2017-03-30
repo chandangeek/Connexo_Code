@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.pluggable.rest.impl;
 
 import com.elster.jupiter.calendar.CalendarService;
@@ -13,11 +17,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 
-/**
- * Copyrights EnergyICT
- * Date: 21/11/13
- * Time: 15:07
- */
 @Path("/calendars")
 public class CalendarResource {
 
