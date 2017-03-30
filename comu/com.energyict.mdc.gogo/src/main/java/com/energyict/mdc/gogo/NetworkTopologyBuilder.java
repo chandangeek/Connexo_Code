@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.gogo;
 
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
@@ -19,13 +23,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-/**
- * This factory builds a GraphInfo starting from a given device.
- * The underlaying devices are created
- * Copyrights EnergyICT
- * Date: 10/01/2017
- * Time: 9:34
- */
 public class NetworkTopologyBuilder {
 
     private final ThreadPrincipalService threadPrincipalService;
