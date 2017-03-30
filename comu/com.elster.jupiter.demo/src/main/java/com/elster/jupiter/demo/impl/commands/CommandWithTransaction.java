@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.demo.impl.commands;
 
 import com.elster.jupiter.dualcontrol.DualControlService;
@@ -69,6 +73,7 @@ public abstract class CommandWithTransaction {
                 System.out.println("Transaction completed successfully");
             } catch (Exception ex) {
                 System.out.println("Transaction failed!");
+                ex.printStackTrace();
                 throw ex;
             } finally {
                 clearPrincipal();

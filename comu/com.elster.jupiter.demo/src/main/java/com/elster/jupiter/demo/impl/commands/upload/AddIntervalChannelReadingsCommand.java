@@ -1,5 +1,10 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.demo.impl.commands.upload;
 
+import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.demo.impl.UnableToCreate;
 import com.elster.jupiter.demo.impl.commands.upload.time.IntervalReadingTimeProvider;
@@ -25,7 +30,7 @@ public class AddIntervalChannelReadingsCommand extends AddChannelReadingsCommand
     protected void validateReadingTypes() {
         super.validateReadingTypes();
         for (ReadingType readingType : getReadingTypes()) {
-            if (readingType.getMeasuringPeriod() == TimeAttribute.NOTAPPLICABLE){
+            if (readingType.getMeasuringPeriod() == TimeAttribute.NOTAPPLICABLE && !(readingType.getMacroPeriod().equals(MacroPeriod.DAILY) || readingType.getMacroPeriod().equals(MacroPeriod.MONTHLY))) {
                 throw new UnableToCreate("You should use the special command for non-interval reading types");
             }
         }
@@ -36,4 +41,13 @@ public class AddIntervalChannelReadingsCommand extends AddChannelReadingsCommand
         return this.timeProvider.getTimeForReading(readingType, startDate, controlValue);
     }
 
+    @Override
+    protected void saveRecord(ReadingType readingType, String controlValue, String value) {
+        //todo
+    }
+
+    @Override
+    protected void saveRecord(ReadingType readingType, String controlValue, Double value, String from, String to) {
+        //todo
+    }
 }

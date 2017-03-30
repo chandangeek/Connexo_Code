@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.demo.impl.builders;
 
 import com.elster.jupiter.demo.impl.Log;
@@ -15,11 +19,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-/**
- * Copyrights EnergyICT
- * Date: 15/09/2015
- * Time: 11:24
- */
 public class ImportScheduleBuilder extends NamedBuilder<ImportSchedule, ImportScheduleBuilder>{
 
     private FileSystem fileSystem;

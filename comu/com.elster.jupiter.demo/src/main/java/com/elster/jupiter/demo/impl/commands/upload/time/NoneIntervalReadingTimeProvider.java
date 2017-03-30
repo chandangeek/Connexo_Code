@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.demo.impl.commands.upload.time;
 
 import com.elster.jupiter.demo.impl.UnableToCreate;
@@ -11,7 +15,7 @@ import java.time.temporal.ChronoUnit;
 public class NoneIntervalReadingTimeProvider implements TimeProvider{
     @Override
     public Instant getTimeForReading(ReadingType readingType, Instant startDate, String controlValue) {
-        int counter = 0;
+        int counter;
         try {
             counter = Integer.parseInt(controlValue);
         } catch (NumberFormatException ex){
@@ -19,6 +23,9 @@ public class NoneIntervalReadingTimeProvider implements TimeProvider{
         }
         ZonedDateTime local = ZonedDateTime.ofInstant(startDate, ZoneId.systemDefault());
         switch (readingType.getMacroPeriod()) {
+            case YEARLY:
+                local = local.plus(1 * counter, ChronoUnit.YEARS);
+                break;
             case MONTHLY:
                 local = local.plus(1 * counter, ChronoUnit.MONTHS);
                 break;

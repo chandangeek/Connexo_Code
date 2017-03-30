@@ -1,22 +1,18 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.demo.impl.templates;
 
+import com.elster.jupiter.demo.impl.builders.SecurityPropertySetBuilder;
 import com.energyict.mdc.device.config.DeviceSecurityUserAction;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.protocol.api.device.messages.DlmsAuthenticationLevelMessageValues;
 import com.energyict.mdc.protocol.api.device.messages.DlmsEncryptionLevelMessageValues;
 
-import com.elster.jupiter.demo.impl.builders.SecurityPropertySetBuilder;
-
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * {@link Template} holding a set of predefined attributes for creating {@link SecurityPropertySet}s used on device configurations
- *
- * Copyrights EnergyICT
- * Date: 17/09/2015
- * Time: 9:56
- */
 public enum SecurityPropertySetTpl implements Template<SecurityPropertySet, SecurityPropertySetBuilder> {
     NO_SECURITY("No security",
             DlmsAuthenticationLevelMessageValues.NO_AUTHENTICATION.getValue(),

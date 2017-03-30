@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.demo.impl.commands;
 
 import com.elster.jupiter.demo.impl.Builders;
@@ -28,6 +32,7 @@ import com.elster.jupiter.demo.impl.templates.RegisterGroupTpl;
 import com.elster.jupiter.demo.impl.templates.RegisterTypeTpl;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.license.LicenseService;
+import com.elster.jupiter.util.streams.DecoratedStream;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
@@ -126,10 +131,9 @@ public class CreateCollectRemoteDataSetupCommand extends CommandWithTransaction 
             createDataCollectionKpi();
             createDataValidationKpi();
         });
-        executeTransaction(() -> {
-            processDevices();
-            corruptDeviceSettingsForIssueManagement();
-        });
+        processDevices();
+        executeTransaction(this::addLocationAndUsagePoints);
+        executeTransaction(this::corruptDeviceSettingsForIssueManagement);
     }
 
     private void parametersCheck() {
@@ -282,6 +286,8 @@ public class CreateCollectRemoteDataSetupCommand extends CommandWithTransaction 
         createDeviceCommand.setDeviceConfiguration(configuration);
         createDeviceCommand.setSerialNumber(serialNumber);
         createDeviceCommand.setHost(this.host);
+        createDeviceCommand.withLocation();
+        //createDeviceCommand.withUsagePoint();
         createDeviceCommand.run();
     }
 
@@ -309,8 +315,15 @@ public class CreateCollectRemoteDataSetupCommand extends CommandWithTransaction 
             }
             return device.getId() % (deviceCount / (1 + (int) (deviceCount * 0.05))) != 0;
         };
-        this.activateDevicesCommandProvider.get().setDevices(devices).setDeviceTransitionFilter(skipActivationFilter).run();
-        devices = this.deviceService.deviceQuery().select(where("name").like(Constants.Device.STANDARD_PREFIX + "*"));
+        DecoratedStream.decorate(devices.stream()).partitionPer(100).forEach(
+
+                deviceList -> executeTransaction(() -> this.activateDevicesCommandProvider.get().setDevices(deviceList).setDeviceTransitionFilter(skipActivationFilter).run())
+        );
+
+    }
+
+    private void addLocationAndUsagePoints() {
+        List<Device> devices = this.deviceService.deviceQuery().select(where("name").like(Constants.Device.STANDARD_PREFIX + "*"));
         this.addLocationInfoToDevicesCommandProvider.get().setDevices(devices).run();
         this.createUsagePointsForDevicesCommandProvider.get().setDevices(devices).run();
     }

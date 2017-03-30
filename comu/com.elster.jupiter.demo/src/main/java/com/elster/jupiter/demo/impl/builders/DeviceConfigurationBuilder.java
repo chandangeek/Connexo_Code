@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.demo.impl.builders;
 
 import com.elster.jupiter.demo.impl.Log;
@@ -166,7 +170,7 @@ public class DeviceConfigurationBuilder extends NamedBuilder<DeviceConfiguration
                     .filter(sps -> SecurityPropertySetTpl.NO_SECURITY.getName().equals(sps.getName()))
                     .findFirst()
                     .orElse(securityPropertySets.get(0));
-            deviceConfiguration.enableComTask(comTask, securityPropertySet, getProtocolDialectConfigurationProperties(deviceConfiguration))
+            deviceConfiguration.enableComTask(comTask, securityPropertySet)
                     .setIgnoreNextExecutionSpecsForInbound(false)
                     .setPriority(100).add().save();
         }

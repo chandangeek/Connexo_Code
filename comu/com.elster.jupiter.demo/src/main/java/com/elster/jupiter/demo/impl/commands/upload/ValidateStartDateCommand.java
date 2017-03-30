@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.demo.impl.commands.upload;
 
 import com.elster.jupiter.cbo.MacroPeriod;
@@ -93,6 +97,16 @@ public class ValidateStartDateCommand extends ReadDataFromFileCommand{
         if (current == null || current.isBefore(timeForReading)){
             readingTypeInstantMap.put(readingType, timeForReading);
         }
+    }
+
+    @Override
+    protected void saveRecord(ReadingType readingType, String controlValue, String value) {
+        //todo
+    }
+
+    @Override
+    protected void saveRecord(ReadingType readingType, String controlValue, Double value, String from, String to) {
+        //todo
     }
 
     @Override

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.demo.impl.commands;
 
 import com.elster.jupiter.demo.impl.builders.UserBuilder;
@@ -13,12 +17,6 @@ import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * Purpose for this command is to install a User having the 'Read Only' role: only 'view' privileges.
- * Copyrights EnergyICT
- * Date: 17/09/2015
- * Time: 9:46
- */
 public class CreateDemoUserCommand extends CommandWithTransaction {
 
     private final static String APPLICATION = "MDC";

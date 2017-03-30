@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.demo.impl.templates;
 
 import com.elster.jupiter.demo.impl.Constants;
@@ -7,13 +11,6 @@ import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
-/**
- * {@link Template} holding a set of predefined attributes for creating {@link EndDeviceGroup}s
- * <p>
- * Copyrights EnergyICT
- * Date: 17/09/2015
- * Time: 9:56
- */
 public enum DeviceGroupTpl implements Template<EndDeviceGroup, DeviceGroupBuilder> {
     NORTH_REGION("North region", Constants.Device.STANDARD_PREFIX + "*",
             DeviceTypeTpl.Elster_AS1440, DeviceTypeTpl.Landis_Gyr_ZMD, DeviceTypeTpl.Actaris_SL7000

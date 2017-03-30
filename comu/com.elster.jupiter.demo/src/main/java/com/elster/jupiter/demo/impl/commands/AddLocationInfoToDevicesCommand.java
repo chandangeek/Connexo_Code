@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.demo.impl.commands;
 
 import com.elster.jupiter.demo.impl.Constants;
@@ -59,13 +63,15 @@ public class AddLocationInfoToDevicesCommand {
     }
 
     public void run() {
-        getDeviceList().forEach(device -> {
-            if (!this.dataModel.getSqlDialect().name().equalsIgnoreCase("H2")) {
-                device.setSpatialCoordinates(createSpatialCoordinates());
-            }
-            device.setLocation(createLocation());
-            device.save();
-        });
+        getDeviceList().stream()
+                .filter(device -> !device.getLocation().isPresent())
+                .forEach(device -> {
+                    if (!this.dataModel.getSqlDialect().name().equalsIgnoreCase("H2")) {
+                        device.setSpatialCoordinates(createSpatialCoordinates());
+                    }
+                    device.setLocation(createLocation());
+                    device.save();
+                });
     }
 
     private List<Device> getDeviceList() {

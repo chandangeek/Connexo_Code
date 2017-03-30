@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.demo.impl.templates;
 
 import com.elster.jupiter.demo.impl.builders.ImportScheduleBuilder;
@@ -13,11 +17,6 @@ import java.util.Map;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
-/**
- * Copyrights EnergyICT
- * Date: 15/09/2015
- * Time: 11:04
- */
 public enum FileImporterTpl implements Template<ImportSchedule, ImportScheduleBuilder> {
 
     DEVICE_INSTALLATION_IMPORTER("Installation", "DeviceInstallationImporterFactory", "devicelifecycle", "installation") {

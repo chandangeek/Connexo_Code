@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.demo.impl.commands;
 
 import com.elster.jupiter.appserver.AppServer;
@@ -8,15 +12,6 @@ import com.elster.jupiter.demo.impl.templates.FileImporterTpl;
 
 import javax.inject.Inject;
 
-/**
- *
- * Purpose for this command is to install default Importers in the demo system, with their
- * respective properties so they can be used without additional configuration.
- *
- * Copyrights EnergyICT
- * Date: 15/09/2015
- * Time: 10:47
- */
 public class CreateImportersCommand extends CommandWithTransaction {
 
     private AppService appService;

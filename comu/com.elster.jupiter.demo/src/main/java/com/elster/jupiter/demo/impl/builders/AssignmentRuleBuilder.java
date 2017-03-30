@@ -1,18 +1,18 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.demo.impl.builders;
 
 import com.elster.jupiter.demo.impl.Log;
 import com.elster.jupiter.demo.impl.UnableToCreate;
-import com.elster.jupiter.demo.impl.templates.UserTpl;
 import com.elster.jupiter.issue.share.entity.AssignmentRule;
 import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.service.IssueAssignmentService;
 import com.elster.jupiter.issue.share.service.IssueService;
 
 import javax.inject.Inject;
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.demo.impl.commands;
 
 import com.elster.jupiter.appserver.AppService;
@@ -14,13 +18,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
-/**
- * Purpose for this command is to create directories for all available importers
- * <p>
- * Copyrights EnergyICT
- * Date: 10/10/2016
- * Time: 10:47
- */
 public class CreateImporterDirectoriesCommand {
     private final FileImportService fileImportService;
     private final AppService appService;

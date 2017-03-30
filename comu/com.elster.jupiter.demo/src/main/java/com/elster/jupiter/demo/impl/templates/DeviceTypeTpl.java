@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.demo.impl.templates;
 
 import com.elster.jupiter.demo.impl.Builders;
@@ -13,13 +17,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * {@link Template} holding a set of predefined attributes for creating Device Types based on a number of standard protocols
- * <p>
- * Copyrights EnergyICT
- * Date: 17/09/2015
- * Time: 9:56
- */
 public enum DeviceTypeTpl implements Template<DeviceType, DeviceTypeBuilder> {
     Elster_AS1440("Elster AS1440", "com.energyict.protocolimplv2.nta.dsmr23.eict.WebRTUKP", 245, OutboundTCPComPortPoolTpl.ORANGE,
             Arrays.<RegisterTypeTpl>asList(RegisterTypeTpl.SECONDARY_BULK_A_PLUS, RegisterTypeTpl.SECONDARY_BULK_A_MINUS, RegisterTypeTpl.SECONDARY_SUM_A_PLUS_TOU_1, RegisterTypeTpl.SECONDARY_SUM_A_PLUS_TOU_2, RegisterTypeTpl.SECONDARY_SUM_A_MINUS_TOU_1, RegisterTypeTpl.SECONDARY_SUM_A_MINUS_TOU_2),
