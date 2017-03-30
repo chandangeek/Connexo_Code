@@ -44,7 +44,7 @@ import java.util.stream.Collectors;
 /**
  * Provides an implementation for the {@link LoadProfileType} interface.
  * <p>
- * Copyrights EnergyICT
+ *
  * Date: 11-jan-2011
  * Time: 16:05:54
  */
