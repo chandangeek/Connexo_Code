@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties;
 
 import com.energyict.mdc.common.TypedProperties;
@@ -8,11 +12,6 @@ import com.energyict.dlms.DLMSUtils;
 import com.energyict.protocolimpl.dlms.g3.G3RespondingFrameCounterHandler;
 import com.energyict.protocolimplv2.nta.abstractnta.NTASecurityProvider;
 
-/**
- * Copyrights EnergyICT
- * Date: 10/10/16
- * Time: 14:38
- */
 public class Beacon3100SecurityProvider extends NTASecurityProvider {
     /**
      * Create a new instance of NTASecurityProvider

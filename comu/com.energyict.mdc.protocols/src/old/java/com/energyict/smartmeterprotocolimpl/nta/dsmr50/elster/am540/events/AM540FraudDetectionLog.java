@@ -1,19 +1,18 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.events;
+
+import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
-import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eventhandling.FraudDetectionLog;
 
 import java.util.Date;
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- *
- * @author khe
- * @since 5/06/2014 - 13:51
- */
 public class AM540FraudDetectionLog extends FraudDetectionLog {
 
     protected static final int CONFIG_CHANGE = 47;

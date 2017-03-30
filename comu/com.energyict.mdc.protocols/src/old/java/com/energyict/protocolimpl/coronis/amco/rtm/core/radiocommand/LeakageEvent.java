@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.coronis.amco.rtm.core.radiocommand;
 
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
@@ -6,11 +10,6 @@ import com.energyict.protocolimpl.coronis.core.TimeDateRTCParser;
 import java.io.IOException;
 import java.util.Date;
 
-/**
- * Copyrights EnergyICT
- * Date: 1-mrt-2011
- * Time: 14:59:47
- */
 public class LeakageEvent {
 
     int status;

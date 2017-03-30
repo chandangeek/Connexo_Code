@@ -1,7 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.dlms.JanzC280.events;
 
-import com.energyict.dlms.DataContainer;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
+
+import com.energyict.dlms.DataContainer;
 
 import java.io.IOException;
 import java.util.ArrayList;

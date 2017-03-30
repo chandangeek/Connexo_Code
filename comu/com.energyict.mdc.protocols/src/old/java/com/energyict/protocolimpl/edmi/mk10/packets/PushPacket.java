@@ -1,8 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.edmi.mk10.packets;
 
-import java.io.IOException;
-
 import com.energyict.protocolimpl.base.CRCGenerator;
+
+import java.io.IOException;
 
 public abstract class PushPacket {
 

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.dlms.as220.gmeter;
 
 import com.energyict.mdc.common.interval.IntervalStateBits;

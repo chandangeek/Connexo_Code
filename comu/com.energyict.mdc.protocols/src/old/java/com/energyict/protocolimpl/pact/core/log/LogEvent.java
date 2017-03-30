@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * LogEvent.java
  *
  * Created on 30 maart 2004, 11:17
@@ -7,6 +11,7 @@
 package com.energyict.protocolimpl.pact.core.log;
 
 import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.pact.core.common.PactUtils;
 
 import java.io.IOException;

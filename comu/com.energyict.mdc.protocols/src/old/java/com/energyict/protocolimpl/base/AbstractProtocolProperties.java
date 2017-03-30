@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.base;
 
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
@@ -10,11 +14,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Properties;
 
-/**
- * Copyrights EnergyICT
- * Date: 5-okt-2010
- * Time: 16:53:17
- */
 public abstract class AbstractProtocolProperties implements ProtocolProperties {
 
     private final Properties protocolProperties;
@@ -28,6 +27,7 @@ public abstract class AbstractProtocolProperties implements ProtocolProperties {
     public static final String DEFAULT_TIMEOUT = "10000";
     public static final String DEFAULT_RETRIES = "3";
     public static final String DEFAULT_FORCED_DELAY = "0 seconds";
+    public static final String DEFAULT_FORCED_DELAY_IN_SECONDS = "0";
     public static final String DEFAULT_DELAY_AFTER_ERROR = "100";
     public static final String DEFAULT_PROFILE_INTERVAL = "900";
 
@@ -73,7 +73,7 @@ public abstract class AbstractProtocolProperties implements ProtocolProperties {
 
     @ProtocolProperty
     public int getForcedDelay() {
-        return getIntProperty(FORCED_DELAY, DEFAULT_FORCED_DELAY);
+        return getIntProperty(FORCED_DELAY, DEFAULT_FORCED_DELAY_IN_SECONDS);
     }
 
     @ProtocolProperty

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.modbus.flonidan.uniflo1200.connection;
 
 import com.energyict.protocolimpl.modbus.core.connection.RequestData;
@@ -5,11 +9,6 @@ import com.energyict.protocolimpl.modbus.core.connection.ResponseData;
 
 import java.io.ByteArrayOutputStream;
 
-/**
- * Copyrights EnergyICT
- * Date: 28-mei-2010
- * Time: 9:25:17
- */
 public class ConnectionState {
 
     public static final int WAIT_FOR_ADDRESS = 0;

@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * LoadProfileControlTable.java
  *
  * Created on 7 november 2005, 17:11

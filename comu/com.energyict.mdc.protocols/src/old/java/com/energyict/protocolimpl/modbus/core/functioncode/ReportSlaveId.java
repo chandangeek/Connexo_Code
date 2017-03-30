@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * ReportSlaveId.java
  *
  * Created on 20 september 2005, 14:16
@@ -11,6 +15,7 @@
 package com.energyict.protocolimpl.modbus.core.functioncode;
 
 import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.modbus.core.connection.RequestData;
 import com.energyict.protocolimpl.modbus.core.connection.ResponseData;
 

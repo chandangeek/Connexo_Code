@@ -1,7 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.elster.apollo5.eventhandling;
 
-import com.energyict.dlms.DataContainer;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
+
+import com.energyict.dlms.DataContainer;
 import com.energyict.smartmeterprotocolimpl.elster.apollo5.AS300DPET;
 import com.energyict.smartmeterprotocolimpl.elster.apollo5.eventhandling.groups.CommonEvents;
 import com.energyict.smartmeterprotocolimpl.elster.apollo5.eventhandling.groups.DemandManagementEvents;
@@ -19,14 +24,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-/**
- * TODO the events are fetched without using the fromCalendar
- * Provides functionality to collect the events from the device and return them as a list of {@link com.energyict.protocol.MeterEvent}
- * <p/>
- * Copyrights EnergyICT
- * Date: 2-dec-2010
- * Time: 13:01:44
- */
 public class EventLogs {
 
     /**

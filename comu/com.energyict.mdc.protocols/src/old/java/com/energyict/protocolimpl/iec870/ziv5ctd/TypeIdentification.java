@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * TypeIdentification.java
  *
  * Created on 11 January 2006, 09:11

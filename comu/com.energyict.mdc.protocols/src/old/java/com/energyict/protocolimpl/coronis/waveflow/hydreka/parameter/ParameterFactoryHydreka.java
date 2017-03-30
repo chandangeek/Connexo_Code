@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.coronis.waveflow.hydreka.parameter;
 
 import com.energyict.protocolimpl.coronis.waveflow.core.WaveFlow;
@@ -6,12 +10,6 @@ import com.energyict.protocolimpl.coronis.waveflow.core.parameter.ParameterFacto
 import java.io.IOException;
 import java.util.Date;
 
-/**
- * Copyrights EnergyICT
- * Date: 17/12/12
- * Time: 11:10
- * Author: khe
- */
 public class ParameterFactoryHydreka extends ParameterFactory {
 
     private OperatingModeHydreka operatingMode = null;

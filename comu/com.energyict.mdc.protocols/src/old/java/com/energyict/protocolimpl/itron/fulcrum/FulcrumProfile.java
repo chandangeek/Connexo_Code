@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * FulcrumProfile.java
  *
  * Created on 18 september 2006, 13:55
@@ -10,10 +14,11 @@
 
 package com.energyict.protocolimpl.itron.fulcrum;
 
+import com.energyict.mdc.common.interval.IntervalStateBits;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
-import com.energyict.mdc.common.interval.IntervalStateBits;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
+
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.itron.fulcrum.basepages.MassMemoryRecordBasePage;
 

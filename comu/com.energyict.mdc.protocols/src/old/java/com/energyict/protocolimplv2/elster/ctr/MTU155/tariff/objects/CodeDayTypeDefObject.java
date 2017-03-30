@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.objects;
 
 import com.elster.jupiter.calendar.EventOccurrence;
@@ -5,11 +9,6 @@ import com.elster.jupiter.calendar.EventOccurrence;
 import java.io.Serializable;
 import java.time.LocalTime;
 
-/**
- * Copyrights EnergyICT
- * Date: 4/04/11
- * Time: 14:50
- */
 public class CodeDayTypeDefObject implements Serializable, Comparable<CodeDayTypeDefObject> {
 
     private long dayTypeId;

@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * SetDateTime.java
  *
  * Created on 24 oktober 2005, 11:01
@@ -11,6 +15,7 @@
 package com.energyict.protocolimpl.ansi.c12.procedures;
 
 import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
 
 import java.io.ByteArrayOutputStream;

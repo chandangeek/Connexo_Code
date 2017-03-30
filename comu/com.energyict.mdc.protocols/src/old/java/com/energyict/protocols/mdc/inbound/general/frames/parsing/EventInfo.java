@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocols.mdc.inbound.general.frames.parsing;
 
 import com.elster.jupiter.metering.MeteringService;
@@ -13,14 +17,6 @@ import java.util.Date;
 import java.util.Optional;
 import java.util.TimeZone;
 
-/**
- * Class that parses a received string (containing event information) into a MeterEvent object.
- * <p/>
- * Copyrights EnergyICT
- * Date: 26/06/12
- * Time: 15:22
- * Author: khe
- */
 public class EventInfo {
 
     private static final int UNKNOWN = 0;

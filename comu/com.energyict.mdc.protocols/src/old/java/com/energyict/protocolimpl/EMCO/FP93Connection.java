@@ -1,8 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.EMCO;
 
-import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
 import com.energyict.mdc.common.NestedIOException;
+import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
 import com.energyict.mdc.protocol.api.inbound.MeterType;
+
 import com.energyict.protocolimpl.EMCO.frame.ErrorResponseFrame;
 import com.energyict.protocolimpl.EMCO.frame.RegisterResponseFrame;
 import com.energyict.protocolimpl.EMCO.frame.RequestFrame;
@@ -16,14 +21,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-/**
- * Used to send / receive requests.
- * <p/>
- * Copyrights EnergyICT
- * User: sva
- * Date: 22/02/12
- * Time: 14:25
- */
 public class FP93Connection implements ProtocolConnection {
 
     private FP93 meterProtocol;

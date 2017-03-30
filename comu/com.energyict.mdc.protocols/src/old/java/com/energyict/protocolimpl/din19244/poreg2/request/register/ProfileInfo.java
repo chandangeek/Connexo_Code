@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.din19244.poreg2.request.register;
 
 import com.energyict.protocolimpl.din19244.poreg2.core.ExtendedValue;
@@ -5,11 +9,6 @@ import com.energyict.protocolimpl.din19244.poreg2.core.ExtendedValue;
 import java.io.IOException;
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- * Date: 5-mei-2011
- * Time: 9:58:39
- */
 public class ProfileInfo {
 
     private int location;

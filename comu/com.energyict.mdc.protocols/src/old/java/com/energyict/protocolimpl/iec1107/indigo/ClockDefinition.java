@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * ClockDefinition.java
  *
  * Created on 8 juli 2004, 17:17

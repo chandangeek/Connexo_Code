@@ -1,14 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.messaging;
 
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
 
-/**
- * Copyrights EnergyICT
- * Date: 31/08/11
- * Time: 12:09
- */
 public class ZigBeeMessagingUtils {
 
     public static final int LINK_KEY_LENGTH = 16;

@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * RangeCoder.java
  *
  * Created on 4 oktober 2007, 10:34

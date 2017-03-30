@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.dlms.idis.am130.properties;
 
 import com.elster.jupiter.nls.Thesaurus;
@@ -12,12 +16,6 @@ import com.energyict.protocolimplv2.dlms.idis.am500.properties.IDISProperties;
 
 import static com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties.CIPHERING_TYPE;
 
-/**
- * Copyrights EnergyICT
- *
- * @author khe
- * @since 12/02/2015 - 9:18
- */
 public class AM130Properties extends IDISProperties {
 
     public AM130Properties(PropertySpecService propertySpecService, Thesaurus thesaurus) {

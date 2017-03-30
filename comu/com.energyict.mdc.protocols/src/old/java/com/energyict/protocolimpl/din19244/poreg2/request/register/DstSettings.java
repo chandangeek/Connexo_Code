@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.din19244.poreg2.request.register;
 
 import com.energyict.protocolimpl.din19244.poreg2.Poreg;
@@ -12,14 +16,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-/**
- * Class to read the DST settings.
- * These are used to determine if the device is in summer or winter time.
- *
- * Copyrights EnergyICT
- * Date: 12-mei-2011
- * Time: 9:49:35
- */
 public class DstSettings extends AbstractRegister {
 
     public DstSettings(Poreg poreg, int registerAddress, int fieldAddress, int numberOfRegisters, int numberOfFields) {

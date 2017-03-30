@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.elster.a1800.tables;
 
 import com.energyict.protocolimpl.ansi.c12.tables.AbstractTable;
@@ -7,11 +11,6 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
 
-/**
- * Copyrights EnergyICT
- * Date: 18-jan-2011
- * Time: 17:05:58
- */
 public class PowerQualityMonitorTests extends AbstractTable {
 
     private byte[] pqm_logEntries;

@@ -1,13 +1,9 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.din19244.poreg2.request.register;
 
-/**
- * The device stores multiple profile definitions.
- * Each entry is an instance of this class, containing a number of registers.
- *
- * Copyrights EnergyICT
- * Date: 5-mei-2011
- * Time: 11:07:12
- */
 public class ProfileDescription {
 
     private int gid;

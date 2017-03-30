@@ -1,15 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD;
 
 import com.energyict.mdc.common.interval.IntervalStateBits;
+
 import com.energyict.protocolimpl.base.ProfileIntervalStatusBits;
 
-
-/**
- * Copyrights EnergyICT
- * User: sva
- * Date: 19/12/11
- * Time: 17:17
- */
 
 public class ZMDProfileIntervalStatusBits implements ProfileIntervalStatusBits {
 

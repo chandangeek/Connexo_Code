@@ -1,10 +1,17 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.edmi.mk10.streamfilters;
+
+import com.energyict.protocols.util.OutputStreamDecorator;
 
 import com.energyict.protocolimpl.edmi.mk10.parsers.MK10OutputStreamParser;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocols.util.OutputStreamDecorator;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 

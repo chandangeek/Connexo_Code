@@ -1,12 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.dlms.cosem.attributes;
 
 import com.energyict.dlms.cosem.DLMSClassId;
 
-/**
- * Copyrights EnergyICT
- * Date: 20/07/11
- * Time: 17:59
- */
 public interface DLMSAttributes {
 
     /**

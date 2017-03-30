@@ -1,11 +1,9 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.elster.ctr.MTU155.info;
 
-/**
- * Class with all common meter diagnostics
- * Copyrights EnergyICT
- * Date: 19-okt-2010
- * Time: 16:29:27
- */
 public class Diagnostics {
 
     private static final int POWER_NOT_AVAILABLE_BIT = 0x0001;

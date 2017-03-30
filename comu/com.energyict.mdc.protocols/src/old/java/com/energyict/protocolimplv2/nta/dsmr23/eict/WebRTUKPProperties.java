@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.nta.dsmr23.eict;
 
 import com.elster.jupiter.nls.Thesaurus;
@@ -9,12 +13,6 @@ import com.energyict.protocolimplv2.dlms.DlmsProperties;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- *
- * @author khe
- * @since 17/08/2016 - 13:05
- */
 public class WebRTUKPProperties extends DlmsProperties {
 
     public WebRTUKPProperties(PropertySpecService propertySpecService, Thesaurus thesaurus) {

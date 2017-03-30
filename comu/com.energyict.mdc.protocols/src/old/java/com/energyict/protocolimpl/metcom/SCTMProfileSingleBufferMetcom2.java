@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * SCTMProfileMetcom2.java
  *
  * Created on 6 februari 2003, 11:45
@@ -6,8 +10,9 @@
 
 package com.energyict.protocolimpl.metcom;
 
-import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.common.interval.IntervalStateBits;
+import com.energyict.mdc.protocol.api.device.data.IntervalData;
+
 import com.energyict.protocolimpl.siemens7ED62.SCTMProfileSingleBuffer;
 /**
  *

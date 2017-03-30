@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.common;
 
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
@@ -6,11 +10,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- * Date: 22/07/11
- * Time: 9:10
- */
 public class SswgEvents {
 
     private static final List<SswgEvent> EVENTS;

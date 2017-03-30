@@ -1,12 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.dlms.cosem.methods;
 
 import com.energyict.dlms.cosem.DLMSClassId;
 
-/**
- * Copyrights EnergyICT
- * Date: 25-nov-2010
- * Time: 15:46:18
- */
 public enum MbusClientMethods implements DLMSClassMethods {
 
     SLAVE_INSTALL(1, 0x68, 0x60),

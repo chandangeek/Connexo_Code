@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.dlms.idis.am500.messages.mbus;
 
 import com.elster.jupiter.properties.PropertySpec;
@@ -13,12 +17,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-/**
- * Copyrights EnergyICT
- *
- * @author khe
- * @since 6/01/2015 - 15:34
- */
 public class IDISMBusMessaging extends AbstractDlmsMessaging implements DeviceMessageSupport {
 
     public IDISMBusMessaging(AbstractDlmsProtocol protocol) {

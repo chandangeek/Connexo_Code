@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * LoadProfileReadByDate.java
  *
  * Created on 21 February 2006, 10:00

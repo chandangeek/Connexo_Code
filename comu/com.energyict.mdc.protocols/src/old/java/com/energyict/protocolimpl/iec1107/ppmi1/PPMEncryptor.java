@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 /* Created on Nov 19, 2004 2:05:35 PM */
 package com.energyict.protocolimpl.iec1107.ppmi1;
 

@@ -1,12 +1,9 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.dlms;
 
-/**
- * The 3 possible block cipher (encryption) keys that can be used to encrypt the content of a general ciphering APDU.
- * <p/>
- * Copyrights EnergyICT
- * Date: 11/02/11
- * Time: 14:38
- */
 public enum GeneralCipheringKeyType {
 
     /**

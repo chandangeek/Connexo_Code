@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40;
 
 import com.energyict.protocolimpl.dlms.common.NTASecurityProvider;
@@ -5,11 +9,6 @@ import com.energyict.protocolimpl.dlms.common.NTASecurityProvider;
 import java.util.Properties;
 import java.util.Random;
 
-/**
- * Copyrights EnergyICT
- * Date: 1-sep-2011
- * Time: 11:22:36
- */
 public class Dsmr40SecurityProvider extends NTASecurityProvider {
 
     /**

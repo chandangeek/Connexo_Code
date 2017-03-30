@@ -1,9 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocols.messaging;
 
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.protocol.api.legacy.dynamic.ConfigurationSupport;
 import com.energyict.mdc.protocol.api.messaging.AdvancedMessaging;
-import com.energyict.protocols.messaging.MessageBuilder;
+
 import org.xml.sax.SAXException;
 
 import java.io.IOException;

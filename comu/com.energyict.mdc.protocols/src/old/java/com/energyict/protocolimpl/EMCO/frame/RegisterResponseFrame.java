@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.EMCO.frame;
 
 import com.energyict.protocolimpl.EMCO.FP93Connection;
@@ -7,12 +11,6 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 import java.math.BigDecimal;
 import java.util.StringTokenizer;
 
-/**
- * Copyrights EnergyICT
- * User: sva
- * Date: 23/02/12
- * Time: 10:16
- */
 public class RegisterResponseFrame implements ResponseFrame {
 
     public static final char TYPE_FLOATING_POINT = 'a';

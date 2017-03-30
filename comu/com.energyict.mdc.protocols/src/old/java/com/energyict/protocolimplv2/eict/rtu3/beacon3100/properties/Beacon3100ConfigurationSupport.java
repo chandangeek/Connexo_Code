@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties;
 
 import com.elster.jupiter.properties.PropertySpec;
@@ -14,11 +18,6 @@ import com.energyict.protocolimplv2.nta.dsmr23.DlmsConfigurationSupport;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- * Date: 10/10/16
- * Time: 14:31
- */
 public class Beacon3100ConfigurationSupport extends DlmsConfigurationSupport {
 
     public static final String READCACHE_PROPERTY = "ReadCache";

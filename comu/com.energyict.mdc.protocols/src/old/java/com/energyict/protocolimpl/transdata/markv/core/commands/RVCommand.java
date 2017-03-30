@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * RVCommand.java
  *
  * Created on 11 augustus 2005, 16:57
@@ -12,6 +16,7 @@ package com.energyict.protocolimpl.transdata.markv.core.commands;
 
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.base.ParseUtils;
 
 import java.io.BufferedReader;

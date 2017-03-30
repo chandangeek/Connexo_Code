@@ -1,43 +1,19 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.sdksample;
 
+import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 import com.energyict.mdc.protocol.api.device.data.Register;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.legacy.BulkRegisterProtocol;
-import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * This class describes the registers in the virtual sdk setup:
- *
- * <pre>
- *  _________
- * |         |  Active Import register total:  1.0.1.8.0.255
- * | Master  |  Active Import register rate 1: 1.0.1.8.1.255
- * | 6 regs  |  Active Import register rate 2: 1.0.1.8.2.255
- * |         |
- * |         |  Active Export register total:  1.0.2.8.0.255
- * |         |  Active Export register rate 1: 1.0.2.8.1.255
- * |_________|  Active Export register rate 2: 1.0.2.8.2.255
- *      |      _________
- *      |---->|         |  Gas consumption register: 0.x.24.2.0.255
- *      |     | Slave1  |
- *      |     | 1 reg   |
- *      |     |_________|
- *      |
- *      |      _________
- *      |---->|         |  Gas consumption register: 0.x.24.2.0.255
- *            | Slave2  |
- *            | 1 reg   |
- *            |_________|
- * </pre>
- * Copyrights EnergyICT
- * Date: 9-feb-2011
- * Time: 13:41:09
- */
 public class SDKSmartMeterRegisterFactory implements BulkRegisterProtocol {
 
     private static final String MASTER_SERIAL_NUMBER = "Master";

@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * LogicalAddressFactory.java
  *
  * Created on 6 juli 2004, 19:07

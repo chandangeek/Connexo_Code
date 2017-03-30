@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * LogonRequest.java
  *
  * Created on 17 oktober 2005, 17:17

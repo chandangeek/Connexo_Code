@@ -1,12 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.coronis.amco.rtm.core;
 
 import com.energyict.protocolimpl.coronis.amco.rtm.core.radiocommand.LeakageEvent;
 
-/**
- * Copyrights EnergyICT
- * Date: 13-mei-2011
- * Time: 14:29:13
- */
 public class EventStatusAndDescription {
 
     public static final int EVENTCODE_DEFAULT = 0x00;

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.din19244.poreg2.request;
 
 import com.energyict.protocolimpl.din19244.poreg2.Poreg;
@@ -13,14 +17,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
-/**
- * Class to write the alarm configuration.
- * The configuration is a table of time alarms used for triggering events.
- *
- * Copyrights EnergyICT
- * Date: 10-mei-2011
- * Time: 10:55:47
- */
 public class AlarmParameters extends AbstractRegister {
 
     public AlarmParameters(Poreg poreg, int registerAddress, int fieldAddress, int numberOfRegisters, int numberOfFields) {

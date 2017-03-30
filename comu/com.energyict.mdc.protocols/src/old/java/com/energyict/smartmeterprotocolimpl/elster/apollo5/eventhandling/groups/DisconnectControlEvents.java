@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.elster.apollo5.eventhandling.groups;
 
 import com.energyict.dlms.DataContainer;
@@ -5,11 +9,6 @@ import com.energyict.smartmeterprotocolimpl.elster.apollo5.eventhandling.Abstrac
 
 import java.util.TimeZone;
 
-/**
- * Contains all events related to power contract change.
- * <br/>
- * Copyrights EnergyICT<br/>
- */
 public class DisconnectControlEvents extends AbstractEvent {
 
     public static final int DisconnectControlEventsGroup = 2;

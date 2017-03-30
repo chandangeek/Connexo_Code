@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * StatusCodeProfile.java
  *
  * Created on 5 december 2007, 16:05

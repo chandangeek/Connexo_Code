@@ -1,14 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.elster.ctr.MTU155.frame;
 
 import com.energyict.protocolimplv2.elster.ctr.MTU155.GprsConnection;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRConnectionException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRParsingException;
 
-/**
- * Copyrights EnergyICT
- * Date: 27-sep-2010
- * Time: 8:35:22
- */
 public class GPRSFrame extends AbstractCTRFrame<GPRSFrame> {
 
     public static final int STX = 0x0A;

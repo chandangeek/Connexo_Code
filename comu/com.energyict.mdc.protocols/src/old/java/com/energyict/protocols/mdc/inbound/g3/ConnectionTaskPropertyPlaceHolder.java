@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocols.mdc.inbound.g3;
 
 import com.energyict.mdc.device.data.tasks.ConnectionTaskProperty;
@@ -7,14 +11,6 @@ import com.google.common.collect.Range;
 
 import java.time.Instant;
 
-/**
- * Dummy implementations that simply holds the name and value.
- * <p/>
- * Copyrights EnergyICT
- *
- * @author khe
- * @since 8/06/2015 - 13:00
- */
 public class ConnectionTaskPropertyPlaceHolder implements ConnectionTaskProperty {
 
     private String name;

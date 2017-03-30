@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.coronis.amco.rtm.core.radiocommand;
 
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
@@ -5,11 +9,6 @@ import com.energyict.protocolimpl.coronis.amco.rtm.RTMFactory;
 
 import java.io.IOException;
 
-/**
- * Copyrights EnergyICT
- * Date: 1-mrt-2011
- * Time: 16:27:00
- */
 public class OpenWaterValveCommand extends AbstractRadioCommand {
 
     protected OpenWaterValveCommand(RTM rtm) {

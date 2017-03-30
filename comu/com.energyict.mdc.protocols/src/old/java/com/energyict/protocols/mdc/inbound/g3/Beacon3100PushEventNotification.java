@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocols.mdc.inbound.g3;
 
 import com.elster.jupiter.metering.MeteringService;
@@ -23,15 +27,6 @@ import java.time.Clock;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Does pretty much the same as the PushEventNotification of the G3 gateway,
- * but uses the Beacon3100 protocol to connect to the DC device.
- * <p>
- * Copyrights EnergyICT
- *
- * @author khe
- * @since 17/06/2015 - 11:33
- */
 public class Beacon3100PushEventNotification extends PushEventNotification {
 
     //TODO junit test with encrypted traces

@@ -1,10 +1,9 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.din19244.poreg2.request.register;
 
-/**
- * Copyrights EnergyICT
- * Date: 9-mei-2011
- * Time: 9:42:35
- */
 public class BankConfiguration {
 
     private int resultType;

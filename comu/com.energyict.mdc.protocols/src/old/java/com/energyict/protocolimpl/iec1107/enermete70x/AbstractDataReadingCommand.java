@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * AbstractDataReadingCommand.java
  *
  * Created on 25 oktober 2004

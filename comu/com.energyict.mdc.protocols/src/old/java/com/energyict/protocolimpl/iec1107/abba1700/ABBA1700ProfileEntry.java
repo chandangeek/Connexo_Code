@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * ABBA1700ProfileEntry.java
  *
  * Created on 30 april 2003, 10:45

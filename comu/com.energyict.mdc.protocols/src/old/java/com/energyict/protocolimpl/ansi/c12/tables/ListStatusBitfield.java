@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * ListStatusBitfield.java
  *
  * Created on 17 november 2005, 17:14

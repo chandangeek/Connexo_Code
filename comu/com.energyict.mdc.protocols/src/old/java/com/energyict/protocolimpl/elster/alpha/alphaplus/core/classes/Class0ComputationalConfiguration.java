@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * Class0ComputationalConfiguration.java
  *
  * Created on 8 juli 2005, 11:12
@@ -11,6 +15,7 @@
 package com.energyict.protocolimpl.elster.alpha.alphaplus.core.classes;
 
 import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.base.ParseUtils;
 
 import java.io.IOException;

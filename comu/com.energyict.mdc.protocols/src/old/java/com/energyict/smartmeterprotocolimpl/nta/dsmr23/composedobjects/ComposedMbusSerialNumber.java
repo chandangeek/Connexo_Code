@@ -1,12 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.composedobjects;
 
 import com.energyict.dlms.DLMSAttribute;
 
-/**
- * Copyrights EnergyICT
- * Date: 15-jul-2011
- * Time: 8:34:09
- */
 public class ComposedMbusSerialNumber {
 
     private final DLMSAttribute manufacturerId;

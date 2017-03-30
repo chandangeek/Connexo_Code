@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * RequestData.java
  *
  * Created on 19 september 2005, 16:42
@@ -11,6 +15,7 @@
 package com.energyict.protocolimpl.modbus.core.connection;
 
 import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 /**

@@ -1,10 +1,9 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.dlms.cosem.attributeobjects;
 
-/**
- * Copyrights EnergyICT
- * Date: 10/15/12
- * Time: 10:01 AM
- */
 public enum ImageTransferStatus {
 
     TRANSFER_NOT_INITIATED(0, "Image transfer not initiated"),

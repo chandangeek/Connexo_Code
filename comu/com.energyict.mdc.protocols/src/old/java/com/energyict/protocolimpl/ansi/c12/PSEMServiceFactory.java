@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * PSEMServiceFactory.java
  *
  * Created on 16 oktober 2005, 17:13
@@ -11,6 +15,7 @@
 package com.energyict.protocolimpl.ansi.c12;
 
 import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.ansi.c12.tables.IdentificationFeature;
 import com.energyict.protocolimpl.base.ParseUtils;
 

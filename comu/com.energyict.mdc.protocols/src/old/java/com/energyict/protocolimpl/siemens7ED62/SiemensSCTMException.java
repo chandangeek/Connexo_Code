@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * SiemensSCTMException.java
  *
  * Created on 24 januari 2003, 14:44

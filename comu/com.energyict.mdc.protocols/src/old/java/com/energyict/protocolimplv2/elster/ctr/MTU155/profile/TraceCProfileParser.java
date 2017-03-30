@@ -1,8 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.elster.ctr.MTU155.profile;
 
-import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.common.interval.IntervalStateBits;
+import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.protocol.api.device.data.IntervalValue;
+
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRParsingException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.frame.GPRSFrame;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.AbstractCTRObject;
@@ -18,11 +23,6 @@ import java.util.TimeZone;
 
 import static com.energyict.protocolimpl.utils.ProtocolTools.isInDST;
 
-/**
- * Copyrights EnergyICT
- * Date: 26-jan-2011
- * Time: 9:02:14
- */
 public class TraceCProfileParser {
 
     private final Trace_CQueryResponseStructure response;

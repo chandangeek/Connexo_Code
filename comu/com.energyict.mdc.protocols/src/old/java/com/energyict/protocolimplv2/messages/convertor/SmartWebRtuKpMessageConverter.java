@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.elster.jupiter.calendar.Calendar;
@@ -61,13 +65,6 @@ import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConsta
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.whiteListPhoneNumbersAttributeName;
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.xmlConfigAttributeName;
 
-/**
- * Represents a MessageConverter for the legacy WebRTUKP protocol.
- * <p>
- * Copyrights EnergyICT
- * Date: 8/03/13
- * Time: 16:26
- */
 public class SmartWebRtuKpMessageConverter extends AbstractMessageConverter {
 
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss z");

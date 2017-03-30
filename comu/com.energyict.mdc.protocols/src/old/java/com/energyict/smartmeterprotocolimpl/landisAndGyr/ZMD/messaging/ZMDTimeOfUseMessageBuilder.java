@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD.messaging;
 
 import com.elster.jupiter.calendar.CalendarService;
@@ -10,13 +14,6 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 
-/**
- * MessageBuilder for the TimeOfUse Message.
- * Copyrights EnergyICT
- * User: sva
- * Date: 20/12/11
- * Time: 15:09
- */
 public class ZMDTimeOfUseMessageBuilder extends TimeOfUseMessageBuilder {
 
     public static final String RAW_CONTENT_TAG = "Activity_Calendar";

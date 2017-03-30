@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * TemplateCommand.java
  *
  * Created on 22 mei 2006, 15:54
@@ -14,8 +18,9 @@ import com.energyict.mdc.common.interval.IntervalStateBits;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
-import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocols.util.ProtocolUtils;
+
+import com.energyict.protocolimpl.base.ParseUtils;
 
 import java.io.IOException;
 import java.math.BigDecimal;

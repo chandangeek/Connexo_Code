@@ -1,6 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.coronis.amco.rtm.core.alarmframe;
 
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
+
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
 import com.energyict.protocolimpl.coronis.amco.rtm.core.EventStatusAndDescription;
 
@@ -8,11 +13,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- * Date: 11-apr-2011
- * Time: 13:45:40
- */
 public class AlarmFrameEncoderAndValveProfile extends AbstractAlarmFrame {
 
     public AlarmFrameEncoderAndValveProfile(RTM rtm, int optionalValue, int status, Date date) {

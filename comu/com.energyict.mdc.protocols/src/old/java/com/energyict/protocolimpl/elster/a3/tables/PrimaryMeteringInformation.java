@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * PrimaryMeteringInformation.java
  *
  * Created on 11 februari 2006, 10:56

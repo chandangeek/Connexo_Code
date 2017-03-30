@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.dlms.idis.am500.messages;
 
 
@@ -31,12 +35,6 @@ import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConsta
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.overThresholdDurationAttributeName;
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.underThresholdDurationAttributeName;
 
-/**
- * Copyrights EnergyICT
- *
- * @author khe
- * @since 6/01/2015 - 15:34
- */
 public class IDISMessaging extends AbstractDlmsMessaging implements DeviceMessageSupport {
 
     protected Set<DeviceMessageId> supportedMessages = EnumSet.of(

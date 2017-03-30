@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.elster.ctr.MTU155.structure;
 
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -11,11 +15,6 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.NumberOfEl
 import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.PeriodTrace;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.StartDate;
 
-/**
- * Copyrights EnergyICT
- * Date: 8-okt-2010
- * Time: 16:26:00
- */
 public class TraceQueryRequestStructure extends Data<TraceQueryRequestStructure> {
 
     private CTRAbstractValue<String> pssw;

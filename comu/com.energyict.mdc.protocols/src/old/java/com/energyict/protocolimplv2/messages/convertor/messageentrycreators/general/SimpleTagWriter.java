@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general;
 
 import com.energyict.mdc.protocol.api.messaging.MessageAttribute;
@@ -7,15 +11,6 @@ import com.energyict.mdc.protocol.api.messaging.MessageValue;
 
 import java.util.Iterator;
 
-/**
- * Common functionality to convert a given MessageTag into an XML string.
- * Use this for MessageProtocols that do not provide a usable writeTag() method.
- * <p/>
- * Copyrights EnergyICT
- * Date: 25/10/13
- * Time: 14:11
- * Author: khe
- */
 public class SimpleTagWriter {
 
     public static String writeTag(MessageTag msgTag) {

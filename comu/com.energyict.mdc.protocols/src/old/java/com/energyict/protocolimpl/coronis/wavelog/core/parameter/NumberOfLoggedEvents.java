@@ -1,16 +1,16 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.coronis.wavelog.core.parameter;
 
 import com.energyict.mdc.protocol.api.UnsupportedException;
+
 import com.energyict.protocolimpl.coronis.wavelog.WaveLog;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
 
-/**
- * Copyrights EnergyICT
- * Date: 29-mrt-2011
- * Time: 14:57:50
- */
 public class NumberOfLoggedEvents extends AbstractParameter {
 
     NumberOfLoggedEvents(WaveLog waveLog) {

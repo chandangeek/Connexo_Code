@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.elster.ctr.MTU155.structure;
 
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -10,11 +14,6 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.ReferenceD
 import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.Segment;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.WriteDataBlock;
 
-/**
- * Copyrights EnergyICT
- * Date: 10/10/11
- * Time: 16:37
- */
 public class DownloadRequestStructure extends Data<DownloadRequestStructure> {
 
 

@@ -1,15 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocols.messaging;
 
 import com.elster.jupiter.calendar.Calendar;
 import com.energyict.mdc.protocol.api.DeviceMessageFile;
 
-/**
- * Gives a summary of all the TimeOfUseMessaging features that are supported by the protocol
- * <p/>
- * Copyrights EnergyICT
- * Date: 17/08/11
- * Time: 11:44
- */
 public class TimeOfUseMessagingConfig {
 
     private boolean needsName;

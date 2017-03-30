@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * AXDRDecoder.java
  *
  * Created on 17 oktober 2007, 15:37
@@ -10,8 +14,9 @@
 
 package com.energyict.dlms.axrdencoding;
 
-import com.energyict.dlms.DLMSUtils;
 import com.energyict.mdc.protocol.api.ProtocolException;
+
+import com.energyict.dlms.DLMSUtils;
 
 import java.io.IOException;
 

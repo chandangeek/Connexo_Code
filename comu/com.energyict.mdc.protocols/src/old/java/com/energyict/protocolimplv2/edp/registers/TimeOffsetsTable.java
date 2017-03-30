@@ -1,16 +1,16 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.edp.registers;
 
-import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.util.AXDRDate;
 
 import java.io.IOException;
 
-/**
- * Copyrights EnergyICT
- * Date: 10/02/14
- * Time: 9:19
- * Author: khe
- */
 public class TimeOffsetsTable {
 
     private static final String SEPARATOR = ",";

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.registers;
 
 import com.energyict.dlms.cosem.CosemObjectFactory;
@@ -6,12 +10,6 @@ import com.energyict.protocolimpl.dlms.g3.registers.G3RegisterMapper;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
-/**
- * Copyrights EnergyICT
- *
- * @author khe
- * @since 2/09/2015 - 9:16
- */
 public class Beacon3100G3RegisterMapper extends G3RegisterMapper {
 
     /**

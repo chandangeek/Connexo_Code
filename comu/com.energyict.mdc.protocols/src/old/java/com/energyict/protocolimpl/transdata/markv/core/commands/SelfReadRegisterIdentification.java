@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * SelfReadRegisterIdentification.java
  *
  * Created on 1 september 2005, 11:24

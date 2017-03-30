@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * IdentificationService.java
  *
  * Created on 16 oktober 2005, 17:09

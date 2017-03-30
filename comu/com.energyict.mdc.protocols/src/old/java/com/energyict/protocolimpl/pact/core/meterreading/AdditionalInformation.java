@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * AdditionalInformation.java
  *
  * Created on 22 maart 2004, 16:37

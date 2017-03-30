@@ -1,16 +1,16 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.elster.apollo;
 
 import com.energyict.mdc.common.interval.IntervalStateBits;
+
 import com.energyict.protocolimpl.base.ProfileIntervalStatusBits;
 
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Copyrights EnergyICT
- * Date: 8-dec-2010
- * Time: 9:34:57
- */
 public class AS300ProfileIntervalStatusBits implements ProfileIntervalStatusBits {
 
     /**

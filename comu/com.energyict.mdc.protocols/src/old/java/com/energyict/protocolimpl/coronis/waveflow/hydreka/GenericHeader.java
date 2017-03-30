@@ -1,14 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.coronis.waveflow.hydreka;
 
 import com.energyict.protocolimpl.coronis.waveflow.core.WaveFlow;
 import com.energyict.protocolimpl.coronis.waveflow.core.radiocommand.ModuleType;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
-/**
- * Copyrights EnergyICT
- * Date: 21/10/11
- * Time: 16:11
- */
 public class GenericHeader {
 
     private WaveFlow waveFlow;

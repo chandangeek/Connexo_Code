@@ -1,7 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.dlms.as220.emeter;
 
-import com.energyict.dlms.DLMSUtils;
 import com.energyict.protocols.util.ProtocolUtils;
+
+import com.energyict.dlms.DLMSUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;

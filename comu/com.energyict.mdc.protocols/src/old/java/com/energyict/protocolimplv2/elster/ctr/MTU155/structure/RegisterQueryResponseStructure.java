@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.elster.ctr.MTU155.structure;
 
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -8,11 +12,6 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.object.AbstractCTRObject;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.CTRObjectFactory;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.NumberOfObjects;
 
-/**
- * Copyrights EnergyICT
- * Date: 11-okt-2010
- * Time: 9:50:05
- */
 public class RegisterQueryResponseStructure extends Data<RegisterQueryResponseStructure> {
 
     private AbstractCTRObject[] objects;

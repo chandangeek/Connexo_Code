@@ -1,14 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field;
 
 import com.energyict.protocolimplv2.elster.ctr.MTU155.common.AbstractField;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRParsingException;
 
-/**
- * Class for the P_Session field in a CTR Structure Object
- * Copyrights EnergyICT
- * Date: 18-okt-2010
- * Time: 11:18:42
- */
 public class P_Session extends AbstractField<P_Session> {
     private int p_Session;
     private static final int LENGTH = 1;

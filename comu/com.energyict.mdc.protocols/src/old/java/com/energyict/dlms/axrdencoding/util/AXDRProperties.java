@@ -1,7 +1,16 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.dlms.axrdencoding.util;
 
-import com.energyict.dlms.axrdencoding.*;
 import com.energyict.mdc.protocol.api.ProtocolException;
+
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.Integer32;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
 
 import java.io.IOException;
 import java.util.Enumeration;

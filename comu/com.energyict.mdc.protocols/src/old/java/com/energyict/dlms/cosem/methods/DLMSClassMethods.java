@@ -1,14 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.dlms.cosem.methods;
 
 import com.energyict.dlms.cosem.attributes.DLMSAttributes;
 
-/**
- * Interface to provide access to DLMS class <b>Method</b> functionality
- * <br/>
- * Copyrights EnergyICT<br/>
- * Date: 25-nov-2010<br/>
- * Time: 15:45:46<br/>
- */
 public interface DLMSClassMethods extends DLMSAttributes {
 
     /**

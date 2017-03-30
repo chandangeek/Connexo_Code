@@ -1,6 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.iec1107.abba1700;
 
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
+
 import com.energyict.protocolimpl.iec1107.abba1700.counters.PhaseFailureCounter;
 import com.energyict.protocolimpl.iec1107.abba1700.counters.PhaseFailureCounter2;
 import com.energyict.protocolimpl.iec1107.abba1700.counters.PowerDownCounter;
@@ -24,11 +29,6 @@ import static com.energyict.protocolimpl.iec1107.abba1700.ABBA1700RegisterFactor
 import static com.energyict.protocolimpl.iec1107.abba1700.ABBA1700RegisterFactory.ReverseRunCounterKey;
 import static com.energyict.protocolimpl.iec1107.abba1700.ABBA1700RegisterFactory.ReverseRunCounterKey2;
 
-/**
- * Copyrights EnergyICT
- * Date: 25-mei-2011
- * Time: 13:54:00
- */
 public class ABBA1700MeterEvents {
 
     private final ABBA1700 protocol;

@@ -1,11 +1,9 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.elster.ctr.MTU155.frame.field;
 
-/**
- * Enum with all common encryption statuses
- * Copyrights EnergyICT
- * Date: 30-sep-2010
- * Time: 17:21:38
- */
 public enum EncryptionStatus {
 
     NO_ENCRYPTION(0, false, "No encryption used"),

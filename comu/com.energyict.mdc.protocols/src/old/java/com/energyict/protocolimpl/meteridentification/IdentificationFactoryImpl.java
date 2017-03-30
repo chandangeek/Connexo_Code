@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * IEC1107IdFactory.java
  *
  * Created on 15 april 2005, 11:44

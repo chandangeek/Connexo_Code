@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * CauseOfTransmission.java
  *
  * Created on 10 January 2006, 15:37

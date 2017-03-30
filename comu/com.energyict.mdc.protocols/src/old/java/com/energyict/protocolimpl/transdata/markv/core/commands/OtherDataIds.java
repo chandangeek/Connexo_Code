@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * OtherDataIds.java
  *
  * Created on 6 september 2005, 8:43

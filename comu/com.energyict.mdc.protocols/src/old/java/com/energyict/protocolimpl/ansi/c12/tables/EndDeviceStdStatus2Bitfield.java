@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * EndDeviceStdStatus2Bitfield.java
  *
  * Created on 23 februari 2006, 15:34

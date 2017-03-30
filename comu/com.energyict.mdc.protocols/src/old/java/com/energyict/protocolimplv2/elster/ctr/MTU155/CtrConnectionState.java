@@ -1,10 +1,9 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.elster.ctr.MTU155;
 
-/**
- * Copyrights EnergyICT
- * Date: 6-okt-2010
- * Time: 9:14:03
- */
 public enum CtrConnectionState {
 
     WAIT_FOR_STX,

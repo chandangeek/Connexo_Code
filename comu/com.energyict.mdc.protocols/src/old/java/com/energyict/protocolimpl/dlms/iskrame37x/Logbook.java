@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * Logbook.java
  *
  * Created on 17 november 2004, 9:12
@@ -6,9 +10,10 @@
 
 package com.energyict.protocolimpl.dlms.iskrame37x;
 
+import com.energyict.mdc.protocol.api.device.events.MeterEvent;
+
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.DataStructure;
-import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 
 import java.util.ArrayList;
 import java.util.Date;

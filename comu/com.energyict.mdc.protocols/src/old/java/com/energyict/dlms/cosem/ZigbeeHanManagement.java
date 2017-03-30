@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.dlms.cosem;
 
 import com.energyict.dlms.DLMSUtils;
@@ -12,13 +16,6 @@ import com.energyict.dlms.cosem.methods.ZigbeeHanManagementMethods;
 
 import java.io.IOException;
 
-/**
- * Straightforward implementation of the Zigbee HAN Management object according the the SSWG documentation. (NOTE not officially from the BlueBook yet)
- * </br>
- * Copyrights EnergyICT</br>
- * Date: 22-jul-2011</br>
- * Time: 11:48:10</br>
- */
 public class ZigbeeHanManagement extends AbstractCosemObject {
 
     public static final byte[] LN = new byte[]{0, 0, 35, 5, 0, (byte) 255};

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.din19244.poreg2.core;
 
 import com.energyict.protocolimpl.din19244.poreg2.Poreg;
@@ -9,13 +13,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
-/**
- * Class to convert epochs / timestamps into byte arrays and vice versa.
- *
- * Copyrights EnergyICT
- * Date: 2-mei-2011
- * Time: 10:05:34
- */
 public class DinTimeParser {
 
     /**

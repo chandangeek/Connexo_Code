@@ -1,8 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.din19244.poreg2.factory;
 
 
-import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+import com.energyict.mdc.protocol.api.device.events.MeterEvent;
+
 import com.energyict.protocolimpl.din19244.poreg2.Poreg;
 import com.energyict.protocolimpl.din19244.poreg2.core.ExtendedValue;
 import com.energyict.protocolimpl.din19244.poreg2.request.register.BankConfiguration;
@@ -29,13 +34,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-/**
- * Factory able to request registers.
- * <p/>
- * Copyrights EnergyICT
- * Date: 20-apr-2011
- * Time: 14:09:45
- */
 public class RegisterFactory {
 
     Poreg poreg;

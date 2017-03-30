@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * RealTimeRW.java
  *
  * Created on 25 oktober 2004, 16:35

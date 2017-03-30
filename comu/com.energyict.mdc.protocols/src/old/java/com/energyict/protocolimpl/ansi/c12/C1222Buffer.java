@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.ansi.c12;
 
 import com.energyict.protocolimpl.ansi.c12.C1222Layer.ResponseControlEnum;

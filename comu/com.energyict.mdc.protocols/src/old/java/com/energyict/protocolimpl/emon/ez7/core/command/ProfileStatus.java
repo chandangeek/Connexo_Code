@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * ProfileStatus.java
  *
  * Created on 13 mei 2005, 13:55

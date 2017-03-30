@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * PACTRegister.java
  *
  * Created on 26 maart 2004, 17:27

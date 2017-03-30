@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * Siemens7ED62Registry.java
  *
  * Created on 5 juli 2004, 18:03
@@ -7,6 +11,7 @@
 package com.energyict.protocolimpl.iec1107.siemens7ED62;
 
 import com.energyict.mdc.protocol.api.MeterExceptionInfo;
+
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import com.energyict.protocolimpl.iec1107.vdew.AbstractVDEWRegistry;
 import com.energyict.protocolimpl.iec1107.vdew.VDEWRegister;

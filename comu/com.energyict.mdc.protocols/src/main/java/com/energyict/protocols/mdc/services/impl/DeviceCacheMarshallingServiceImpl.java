@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocols.mdc.services.impl;
 
 import com.energyict.mdc.protocol.api.services.DeviceCacheMarshallingException;
@@ -18,11 +22,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- * Copyrights EnergyICT
- * Date: 6/3/14
- * Time: 5:32 PM
- */
 @Component(name = "com.energyict.protocols.mdc.services.impl.DeviceCacheMarshallingServiceImpl", service = DeviceCacheMarshallingService.class, immediate = true)
 public class DeviceCacheMarshallingServiceImpl implements DeviceCacheMarshallingService {
 

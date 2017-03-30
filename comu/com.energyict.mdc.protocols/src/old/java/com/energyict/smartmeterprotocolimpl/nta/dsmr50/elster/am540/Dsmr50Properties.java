@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540;
 
 import com.energyict.dlms.aso.SecurityProvider;
@@ -7,14 +11,6 @@ import com.energyict.smartmeterprotocolimpl.nta.dsmr40.Dsmr40Properties;
 
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- * This class combines the DSMR4.0 properties with some of the G3 properties.
- * Note that the server mac address property is overruled with the contents of the node address field (RMR tab)
- *
- * @author khe
- * @since 6/06/2014 - 14:42
- */
 public class Dsmr50Properties extends Dsmr40Properties {
 
     private G3SecurityProvider g3SecurityProvider;

@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * DataDumpFactory.java
  *
  * Created on 31 juli 2006, 10:52

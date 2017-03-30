@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.logbooks;
 
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
@@ -7,10 +11,6 @@ import com.energyict.dlms.DataContainer;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
-
-/**
- * Copyrights EnergyICT
- */
 
 public class Beacon3100StandardEventLog extends Beacon3100AbstractEventLog {
     public Beacon3100StandardEventLog(DataContainer dc, TimeZone timeZone) {

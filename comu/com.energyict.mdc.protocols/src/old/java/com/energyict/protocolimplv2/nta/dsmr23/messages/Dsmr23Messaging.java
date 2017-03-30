@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.nta.dsmr23.messages;
 
 import com.elster.jupiter.calendar.Calendar;
@@ -52,17 +56,6 @@ import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConsta
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.specialDaysAttributeName;
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.toDateAttributeName;
 
-/**
- * Class that:
- * - Formats the device message attributes from objects to proper string values
- * - Executes a given message
- * - Has a list of all supported device message specs
- * <p>
- * Copyrights EnergyICT
- * Date: 22/11/13
- * Time: 11:32
- * Author: khe
- */
 public class Dsmr23Messaging extends AbstractDlmsMessaging implements DeviceMessageSupport {
 
     public static final String SEPARATOR = ";";

@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * DeviceFactory.java
  *
  * Created on 2 april 2007, 15:12

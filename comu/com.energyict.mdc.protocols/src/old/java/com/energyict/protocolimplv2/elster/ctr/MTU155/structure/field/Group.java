@@ -1,15 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field;
 
 import com.energyict.protocolimplv2.elster.ctr.MTU155.common.AbstractField;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRParsingException;
 
-/**
- * Class for the Group field in a CTR Structure Object- used in firmware upgrade process
- * This class can be used for bytes Group_s, Group_c and Group_r
- * Copyrights EnergyICT
- * Date: 8-okt-2010
- * Time: 16:39:27
- */
 public class Group extends AbstractField<Group> {
 
     private int group;

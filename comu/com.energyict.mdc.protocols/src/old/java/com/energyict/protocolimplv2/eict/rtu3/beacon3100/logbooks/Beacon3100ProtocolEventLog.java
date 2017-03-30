@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.logbooks;
 
 import com.energyict.mdc.protocol.api.ProtocolException;
@@ -14,10 +18,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
-
-/**
- * Copyrights EnergyICT
- */
 
 public class Beacon3100ProtocolEventLog extends Beacon3100AbstractEventLog {
 

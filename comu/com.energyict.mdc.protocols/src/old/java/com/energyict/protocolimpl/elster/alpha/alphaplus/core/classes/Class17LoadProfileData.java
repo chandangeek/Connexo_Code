@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * Class17LoadProfileData.java
  *
  * Created on 25 juli 2005, 10:45

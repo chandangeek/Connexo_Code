@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.edp.messages;
 
 import com.elster.jupiter.calendar.Calendar;
@@ -12,6 +16,7 @@ import com.energyict.mdc.protocol.api.exceptions.GeneralParseException;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
+import com.energyict.protocols.messaging.DeviceMessageFileStringContentConsumer;
 
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.OctetString;
@@ -21,7 +26,6 @@ import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractDlmsMessaging;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
-import com.energyict.protocols.messaging.DeviceMessageFileStringContentConsumer;
 
 import java.io.IOException;
 import java.util.Date;
@@ -35,17 +39,6 @@ import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConsta
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.firmwareUpdateFileAttributeName;
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.specialDaysAttributeName;
 
-/**
- * Class that:
- * - Formats the device message attributes from objects to proper string values
- * - Executes a given message
- * - Has a list of all supported device message specs
- * <p>
- * Copyrights EnergyICT
- * Date: 22/11/13
- * Time: 11:32
- * Author: khe
- */
 public class EDPMessaging extends AbstractDlmsMessaging implements DeviceMessageSupport {
 
     private final Set<DeviceMessageId> supportedMessages = EnumSet.of(

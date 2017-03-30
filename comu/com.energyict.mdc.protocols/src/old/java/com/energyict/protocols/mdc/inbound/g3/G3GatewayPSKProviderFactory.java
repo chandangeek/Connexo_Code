@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocols.mdc.inbound.g3;
 
 import com.elster.jupiter.metering.MeteringService;
@@ -16,11 +20,6 @@ import javax.inject.Provider;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Copyrights EnergyICT
- * Date: 18/10/16
- * Time: 15:16
- */
 public class G3GatewayPSKProviderFactory {
 
     private static G3GatewayPSKProviderFactory instance;

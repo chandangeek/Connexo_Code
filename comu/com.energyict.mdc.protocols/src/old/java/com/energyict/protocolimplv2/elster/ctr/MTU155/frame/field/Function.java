@@ -1,11 +1,9 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.elster.ctr.MTU155.frame.field;
 
-/**
- * Enum with all common function objects
- * Copyrights EnergyICT
- * Date: 1-okt-2010
- * Time: 17:53:49
- */
 public enum Function {
 
     ACK(0x2B, "APlication ACK"),

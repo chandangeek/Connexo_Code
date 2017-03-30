@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.coronis.amco.rtm.core.radiocommand;
 
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
@@ -11,11 +15,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
-/**
- * Copyrights EnergyICT
- * Date: 28-apr-2011
- * Time: 11:27:20
- */
 public class ReadTOUBuckets extends AbstractRadioCommand {
 
     public ReadTOUBuckets(RTM rtm) {

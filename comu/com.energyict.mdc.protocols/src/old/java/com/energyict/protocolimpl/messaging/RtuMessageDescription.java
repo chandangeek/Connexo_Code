@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.messaging;
 
 import java.lang.annotation.Documented;
@@ -7,13 +11,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-/**
- * This Annotation should be used to describe an annotated message (Message category, description, ...).
- * <p/>
- * Copyrights EnergyICT
- * Date: 6/6/12
- * Time: 11:16 PM
- */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited

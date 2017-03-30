@@ -1,10 +1,9 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.dlms.axrdencoding;
 
-/**
- * Copyrights EnergyICT
- * Date: 4/16/12
- * Time: 8:39 AM
- */
 public enum AxdrType {
 
     NULL(0x00),

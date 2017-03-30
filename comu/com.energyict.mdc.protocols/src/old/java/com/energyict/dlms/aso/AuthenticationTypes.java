@@ -1,25 +1,9 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.dlms.aso;
 
-/**
- * Enumeration of all current DLMS AuthenticationLevels.<br>
- * Currently there are 8:<br>
- * <ul>
- * <li>{@link #LOWEST_LEVEL}
- * <li>{@link #LOW_LEVEL}
- * <li>{@link #MAN_SPECIFIC_LEVEL}
- * <li>{@link #HLS3_MD5}
- * <li>{@link #HLS4_SHA1}
- * <li>{@link #HLS5_GMAC}
- * <li>{@link #HLS6_SHA256}
- * <li>{@link #HLS7_ECDSA}
- * </ul>
- * <p/>
- * <p>
- * Copyrights EnergyICT
- * Date: 6-sep-2010
- * Time: 14:03:59
- * </p>
- */
 public enum AuthenticationTypes {
 
     /**

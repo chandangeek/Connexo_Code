@@ -1,13 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.din19244.poreg2.request.register;
 
 import java.io.IOException;
 
-/**
- * Copyrights EnergyICT
- * User: sva
- * Date: 31/05/12
- * Time: 16:12
- */
 public enum DaylightAlgorithm {
     once,
     yearly,

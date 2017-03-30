@@ -1,13 +1,18 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * ProtocolLink.java
  * Created on 18 augustus 2004, 12:01
  */
 
 package com.energyict.dlms;
 
+import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
+
 import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.cosem.StoredValues;
-import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 
 import java.util.TimeZone;
 import java.util.logging.Logger;

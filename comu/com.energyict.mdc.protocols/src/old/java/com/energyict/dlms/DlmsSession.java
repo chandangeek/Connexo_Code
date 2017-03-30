@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.dlms;
 
 import com.energyict.mdc.common.NestedIOException;
@@ -19,13 +23,6 @@ import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- * The old DlmsSession used by V1 and V11 protocols
- * <p/>
- * Copyrights EnergyICT
- * Date: 11/02/11
- * Time: 18:18
- */
 public class DlmsSession implements ProtocolLink {
 
     private DlmsSessionProperties properties;

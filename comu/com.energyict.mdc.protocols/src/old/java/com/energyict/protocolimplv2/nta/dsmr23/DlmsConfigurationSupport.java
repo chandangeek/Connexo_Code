@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.nta.dsmr23;
 
 import com.elster.jupiter.properties.PropertySpec;
@@ -31,16 +35,6 @@ import static com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties.TIME
 import static com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties.VALIDATE_INVOKE_ID;
 
 
-/**
- * A collection of general DLMS properties.
- * These properties are not related to the security or the protocol dialects.
- * The parsing and the usage of the property values is done in implementations of {@link com.energyict.dlms.protocolimplv2.DlmsSessionProperties}
- * <p>
- * Copyrights EnergyICT
- * Date: 22/10/13
- * Time: 15:41
- * Author: khe
- */
 public class DlmsConfigurationSupport implements ConfigurationSupport {
 
     private static final boolean DEFAULT_VALIDATE_INVOKE_ID = true;

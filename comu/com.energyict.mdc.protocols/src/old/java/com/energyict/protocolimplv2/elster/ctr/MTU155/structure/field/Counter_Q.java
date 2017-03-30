@@ -1,14 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field;
 
 import com.energyict.protocolimplv2.elster.ctr.MTU155.common.AbstractField;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRParsingException;
 
-/**
- * Class for the Counter_Q field in a CTR Structure Object
- * Copyrights EnergyICT
- * Date: 8-okt-2010
- * Time: 16:39:27
- */
 public class Counter_Q extends AbstractField<Counter_Q> {
 
     private int counter_Q;

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.elster.jupiter.calendar.Calendar;
@@ -24,13 +28,6 @@ import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConsta
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.hour;
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.month;
 
-/**
- * Represents a MessageConverter for the smart ZMD protocol.
- * <p/>
- * Copyrights EnergyICT
- * Date: 8/03/13
- * Time: 16:26
- */
 public class SmartZmdMessageConverter extends AbstractMessageConverter {
 
     /**

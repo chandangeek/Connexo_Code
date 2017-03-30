@@ -1,11 +1,9 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.elster.ctr.MTU155.info;
 
-/**
- * Enumeration with all common Device Statuses
- * Copyrights EnergyICT
- * Date: 2-nov-2010
- * Time: 16:24:57
- */
 public enum DeviceStatus {
 
     TO_BE_CONFIGURED(0, "To be configured"),

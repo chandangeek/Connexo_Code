@@ -1,11 +1,8 @@
-package com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD;
-
-/**
- * Copyrights EnergyICT
- * User: sva
- * Date: 14/12/11
- * Time: 11:36
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
+
+package com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD;
 
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.protocolimpl.dlms.common.NTASecurityProvider;

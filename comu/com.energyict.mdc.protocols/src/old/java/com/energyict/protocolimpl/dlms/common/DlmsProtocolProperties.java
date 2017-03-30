@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.dlms.common;
 
 import com.energyict.dlms.CipheringType;
@@ -15,11 +19,6 @@ import com.energyict.protocolimpl.base.ProtocolProperty;
 
 import java.util.Properties;
 
-/**
- * Copyrights EnergyICT
- * Date: 11-feb-2011
- * Time: 13:27:58
- */
 public abstract class DlmsProtocolProperties extends AbstractProtocolProperties implements DlmsSessionProperties {
 
     public static final int INVALID = -1;

@@ -1,10 +1,9 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.coronis.amco.rtm.core.radiocommand;
 
-/**
- * Copyrights EnergyICT
- * Date: 28-apr-2011
- * Time: 11:32:23
- */
 public class PortTotalizers {
 
     private int port;

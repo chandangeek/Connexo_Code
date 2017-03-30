@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.common.customdlms.cosem;
 
 import com.energyict.dlms.ProtocolLink;
@@ -12,11 +16,6 @@ import com.energyict.smartmeterprotocolimpl.nta.dsmr40.common.customdlms.cosem.m
 
 import java.io.IOException;
 
-/**
- * Copyrights EnergyICT
- * Date: 31-aug-2011
- * Time: 14:54:13
- */
 public class DSMR4_MbusClient extends MBusClient {
 
     private Unsigned16 encryptionStatus;

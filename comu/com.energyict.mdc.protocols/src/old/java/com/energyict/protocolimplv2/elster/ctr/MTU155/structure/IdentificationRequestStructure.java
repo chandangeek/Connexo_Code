@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.elster.ctr.MTU155.structure;
 
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -6,11 +10,6 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.Puk_S;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.ST;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.STCode;
 
-/**
- * Copyrights EnergyICT
- * Date: 6-okt-2010
- * Time: 15:47:10
- */
 public class IdentificationRequestStructure extends Data<IdentificationRequestStructure> {
 
     private Puk_S puks;

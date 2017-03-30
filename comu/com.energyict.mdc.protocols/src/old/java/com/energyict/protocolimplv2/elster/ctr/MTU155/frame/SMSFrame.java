@@ -1,13 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.elster.ctr.MTU155.frame;
 
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRParsingException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.WriteDataBlock;
 
-/**
- * Copyrights EnergyICT
- * Date: 27-sep-2010
- * Time: 8:36:04
- */
 public class SMSFrame extends AbstractCTRFrame<SMSFrame> {
 
     private WriteDataBlock wdb;

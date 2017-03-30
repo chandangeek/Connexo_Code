@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * MeterProgramConstants2.java
  *
  * Created on 10 november 2005, 14:15

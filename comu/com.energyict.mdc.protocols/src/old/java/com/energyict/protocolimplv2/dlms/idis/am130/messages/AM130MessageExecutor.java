@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.dlms.idis.am130.messages;
 
 import com.energyict.mdc.common.ObisCode;
@@ -41,12 +45,6 @@ import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConsta
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.usernameAttributeName;
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.whiteListPhoneNumbersAttributeName;
 
-/**
- * Copyrights EnergyICT
- *
- * @author khe
- * @since 10/02/2015 - 15:10
- */
 public class AM130MessageExecutor extends IDISMessageExecutor {
 
     protected static final ObisCode ALARM_BITS_OBISCODE_1 = ObisCode.fromString("0.0.97.98.0.255");

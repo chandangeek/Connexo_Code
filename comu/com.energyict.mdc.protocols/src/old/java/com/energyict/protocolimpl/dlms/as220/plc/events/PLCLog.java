@@ -1,18 +1,18 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.dlms.as220.plc.events;
 
-import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
+
+import com.energyict.dlms.axrdencoding.Array;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TimeZone;
 
-/**
- * Copyrights
- * Date: 17/06/11
- * Time: 15:21
- */
 public class PLCLog extends Array {
 
     private final TimeZone timeZone;

@@ -1,15 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.elster.ctr.MTU155.object.field;
 
 import com.energyict.protocolimplv2.elster.ctr.MTU155.common.AbstractField;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRParsingException;
 
 
-/**
- * Class for the qualifier field in a CTR Object.
- * Copyrights EnergyICT
- * Date: 7-okt-2010
- * Time: 13:12:44
- */
 public class Qualifier extends AbstractField<Qualifier> {
 
     private int qlf;

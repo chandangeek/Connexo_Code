@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.dlms.idis.am500.messages;
 
 import com.energyict.mdc.common.ObisCode;
@@ -78,12 +82,6 @@ import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConsta
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.underThresholdDurationAttributeName;
 
 
-/**
- * Copyrights EnergyICT
- *
- * @author khe
- * @since 6/01/2015 - 15:31
- */
 public class IDISMessageExecutor extends AbstractMessageExecutor {
 
     protected static final ObisCode MBUS_CLIENT_OBISCODE = ObisCode.fromString("0.1.24.1.0.255");

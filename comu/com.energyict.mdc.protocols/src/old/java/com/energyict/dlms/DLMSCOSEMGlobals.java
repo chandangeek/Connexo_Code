@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * DLMSCOSEMGlobals.java
  *
  * Created on 16 september 2002, 16:38

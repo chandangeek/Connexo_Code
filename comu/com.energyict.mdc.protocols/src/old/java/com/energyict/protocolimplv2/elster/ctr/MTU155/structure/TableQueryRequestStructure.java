@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.elster.ctr.MTU155.structure;
 
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -7,13 +11,6 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.frame.field.Data;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.CTRObjectFactory;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.field.CTRAbstractValue;
 
-/**
- * Response to this query is determined by the structure field of the Frame.
- *
- * Copyrights EnergyICT
- * Date: 8-okt-2010
- * Time: 16:26:00
- */
 public class TableQueryRequestStructure extends Data<TableQueryRequestStructure> {
 
     private CTRAbstractValue<String> pssw;

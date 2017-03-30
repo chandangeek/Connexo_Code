@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * InformationObject8E.java
  *
  * Created on 11 april 2006, 15:13

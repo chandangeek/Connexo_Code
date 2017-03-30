@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * DemandRegister.java
  *
  * Created on 13 september 2006, 15:02
@@ -11,6 +15,7 @@
 package com.energyict.protocolimpl.itron.fulcrum.basepages;
 
 import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.itron.protocol.Utils;
 
 import java.io.IOException;

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.coronis.waveflow.hydreka.radiocommand;
 
 import com.energyict.protocolimpl.coronis.waveflow.core.radiocommand.RadioCommandFactory;
@@ -5,12 +9,6 @@ import com.energyict.protocolimpl.coronis.waveflow.hydreka.Hydreka;
 
 import java.io.IOException;
 
-/**
- * Copyrights EnergyICT
- * Date: 19/12/12
- * Time: 14:18
- * Author: khe
- */
 public class RadioCommandFactoryHydreka extends RadioCommandFactory {
 
     private DailyHydrekaDataReading dailyHydrekaDataReading;

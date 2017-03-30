@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * InformationObject19.java
  *
  * Created on 12 april 2006, 7:56

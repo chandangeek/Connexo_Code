@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * TOURegisterIdentification.java
  *
  * Created on 2 september 2005, 16:52

@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * LittleEndianInputStream.java
  *
  * Created on 18 september 2002, 15:31

@@ -1,16 +1,16 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.coronis.waveflow.core.parameter;
 
 import com.energyict.mdc.protocol.api.UnsupportedException;
+
 import com.energyict.protocolimpl.coronis.core.WaveFlowException;
 import com.energyict.protocolimpl.coronis.waveflow.core.WaveFlow;
 
 import java.io.IOException;
 
-/**
- * Copyrights EnergyICT
- * Date: 5-apr-2011
- * Time: 14:13:24
- */
 public class NumberOfFrameInRxAndTx extends AbstractParameter {
 
     NumberOfFrameInRxAndTx(WaveFlow waveFlow) {

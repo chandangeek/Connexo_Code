@@ -1,10 +1,9 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.elster.ctr.MTU155.info;
 
-/**
- * Copyrights EnergyICT
- * Date: 24/02/11
- * Time: 18:32
- */
 public enum VolumeCalculationMethod {
 
     NONE(0, "None"),

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.nta.dsmr50.sagemcom.messages;
 
 import com.elster.jupiter.calendar.Calendar;
@@ -13,12 +17,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- *
- * @author khe
- * @since 3/10/2014 - 9:14
- */
 public class SagemComDsmr50ActivityCalendarParser extends Dsmr50ActivityCalendarParser {
 
     public SagemComDsmr50ActivityCalendarParser(Calendar calendar, DLMSMeterConfig meterConfig) {

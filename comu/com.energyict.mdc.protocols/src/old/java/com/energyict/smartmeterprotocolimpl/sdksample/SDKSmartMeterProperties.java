@@ -1,18 +1,18 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.sdksample;
 
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
+
 import com.energyict.protocolimpl.base.AbstractProtocolProperties;
 import com.energyict.protocolimpl.base.ProtocolProperty;
 
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- * Date: 7-feb-2011
- * Time: 10:46:48
- */
 public class SDKSmartMeterProperties extends AbstractProtocolProperties {
 
     public static final String SIMULATE_REAL_COMMUNICATION = "SimulateRealCommunication";

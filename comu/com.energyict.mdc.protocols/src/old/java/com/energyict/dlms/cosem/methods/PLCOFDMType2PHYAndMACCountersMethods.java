@@ -1,14 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.dlms.cosem.methods;
 
 import com.energyict.dlms.cosem.DLMSClassId;
 
-/**
- * Copyrights EnergyICT
- * Date: 19/03/12
- * Time: 16:59
- *
- * @author jme
- */
 public enum PLCOFDMType2PHYAndMACCountersMethods implements DLMSClassMethods {
 
     RESET(1, 0x10);

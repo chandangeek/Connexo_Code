@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.nta.dsmr23;
 
 import com.energyict.mdc.io.CommunicationException;
@@ -17,11 +21,6 @@ import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import java.io.IOException;
 import java.util.Date;
 
-/**
- * Copyrights EnergyICT
- * Date: 14-jul-2011
- * Time: 11:39:32
- */
 public class ComposedMeterInfo extends ComposedCosemObject {
 
     public static final DLMSAttribute SERIALNR = DLMSAttribute.fromString("1:0.0.96.1.0.255:2");

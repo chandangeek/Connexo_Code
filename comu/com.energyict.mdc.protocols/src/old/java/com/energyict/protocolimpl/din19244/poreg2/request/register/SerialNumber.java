@@ -1,16 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.din19244.poreg2.request.register;
 
 import com.energyict.protocolimpl.din19244.poreg2.Poreg;
 import com.energyict.protocolimpl.din19244.poreg2.core.RegisterDataParser;
 import com.energyict.protocolimpl.din19244.poreg2.core.RegisterGroupID;
 
-/**
- * Class to read out the serial number (device ID)
- *
- * Copyrights EnergyICT
- * Date: 4-mei-2011
- * Time: 13:23:17
- */
 public class SerialNumber extends AbstractRegister {
 
     public SerialNumber(Poreg poreg, int registerAddress, int fieldAddress, int numberOfRegisters, int numberOfFields) {

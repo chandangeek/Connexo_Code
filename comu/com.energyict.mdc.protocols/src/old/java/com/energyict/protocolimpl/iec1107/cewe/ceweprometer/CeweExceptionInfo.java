@@ -1,13 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.iec1107.cewe.ceweprometer;
 
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Copyrights EnergyICT
- * Date: 6/05/11
- * Time: 8:58
- */
 public class CeweExceptionInfo {
 
     private static final Map<String, String> EXCEPTION_INFO = new HashMap<String, String>();

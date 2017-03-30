@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * EventLogUpload.java
  *
  * Created on 3 januari 2007, 11:15

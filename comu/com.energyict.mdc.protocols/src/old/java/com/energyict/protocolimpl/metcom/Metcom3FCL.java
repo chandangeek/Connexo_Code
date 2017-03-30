@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * Metcom3FCL.java
  *
  * Created on 14 december 2004, 18:19

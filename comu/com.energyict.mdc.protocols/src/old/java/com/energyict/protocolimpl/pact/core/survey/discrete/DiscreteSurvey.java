@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * DiscreteSurvey.java
  *
  * Created on 11 maart 2004, 13:10
@@ -8,6 +12,7 @@ package com.energyict.protocolimpl.pact.core.survey.discrete;
 
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
+
 import com.energyict.protocolimpl.base.ProfileDataReverser;
 import com.energyict.protocolimpl.pact.core.common.ChannelMap;
 import com.energyict.protocolimpl.pact.core.common.EnergyTypeCode;

@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * HistoricalValues.java
  *
  * Created on 10 juni 2004, 15:54

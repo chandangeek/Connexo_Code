@@ -1,13 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.elster.ctr.MTU155.frame.field;
 
 import com.energyict.protocolimplv2.elster.ctr.MTU155.common.AbstractField;
 
-/**
- * Class for the structure code field in a frame
- * Copyrights EnergyICT
- * Date: 30-sep-2010
- * Time: 9:29:10
- */
 public class StructureCode extends AbstractField<StructureCode> {
 
     public static final int IDENTIFICATION = 0x30;

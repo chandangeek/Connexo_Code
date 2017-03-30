@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * Datalink6205641.java
  *
  * Created on 13 februari 2007, 17:15
@@ -12,6 +16,7 @@ package com.energyict.protocolimpl.edf.trimarandlms.protocol;
 
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
 
 import java.io.IOException;

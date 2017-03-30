@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocols.mdc.services.impl;
 
 import com.energyict.mdc.pluggable.PluggableClass;
@@ -14,11 +18,6 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * Copyrights EnergyICT
- * Date: 15/11/13
- * Time: 12:03
- */
 @Component(name = "com.energyict.mdc.service.inbounddeviceprotocols", service = InboundDeviceProtocolService.class, immediate = true)
 public class InboundDeviceProtocolServiceImpl implements InboundDeviceProtocolService {
 

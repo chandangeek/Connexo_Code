@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocols.impl.channels.sms;
 
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -25,12 +29,6 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- * Copyrights EnergyICT
- * User: sva
- * Date: 12/03/12
- * Time: 15:49
- */
 public class ProximusSmsSender {
 
     private static final String PARAM_ID = "id";

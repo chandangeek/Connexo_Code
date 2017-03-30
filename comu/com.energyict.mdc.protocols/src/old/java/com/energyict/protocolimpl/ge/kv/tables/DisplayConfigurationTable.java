@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * DisplayConfigurationTable.java
  *
  * Created on 14 november 2005, 9:16

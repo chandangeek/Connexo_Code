@@ -1,7 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.base;
 
 import com.energyict.mdc.protocol.api.dialer.core.InputStreamObserver;
 import com.energyict.mdc.protocol.api.dialer.core.OutputStreamObserver;
+
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.util.Date;

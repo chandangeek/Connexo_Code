@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.common;
 
 import com.elster.jupiter.properties.PropertySpec;
@@ -18,11 +22,6 @@ import java.util.List;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
-/**
- * Copyrights EnergyICT
- * Date: 7-feb-2011
- * Time: 10:15:35
- */
 public abstract class AbstractSmartMeterProtocol implements SmartMeterProtocol {
 
     private final PropertySpecService propertySpecService;

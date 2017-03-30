@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.dlms.idis.am130.events;
 
 import com.energyict.mdc.common.ObisCode;
@@ -18,12 +22,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- *
- * @author khe
- * @since 9/02/2015 - 14:33
- */
 public class AM130LogBookFactory extends IDISLogBookFactory {
 
     private static ObisCode COMMUNICATION_LOG = ObisCode.fromString("0.0.99.98.5.255");

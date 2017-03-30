@@ -1,29 +1,21 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.nta;
 
-import com.energyict.dlms.cosem.DataAccessResultException;
-import com.energyict.dlms.cosem.ExceptionResponseException;
-import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.common.ComServerExecutionException;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.protocol.api.ProtocolException;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
+import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.dlms.cosem.ExceptionResponseException;
+import com.energyict.dlms.protocolimplv2.DlmsSession;
+
 import java.io.IOException;
 
-/**
- * Handler for any kind of IOException (or one of its subclasses) received from the DLMS framework and its lower connection layers.
- * This can be used for the new V2 protocols.
- * <p/>
- * In general:
- * ExceptionResponseException, ProtocolException or DataAccessResultException mean that the meter has returned something unexpected (e.g. some kind of error code).
- * Other IOExceptions are related to problems with the communication (e.g. timeout, socket closed,... )
- * <p/>
- * Copyrights EnergyICT
- * Date: 25/11/13
- * Time: 14:50
- * Author: khe
- */
 public class IOExceptionHandler {
 
     /**

@@ -1,11 +1,9 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.edp.registers;
 
-/**
- * Copyrights EnergyICT
- * Date: 11/02/14
- * Time: 11:23
- * Author: khe
- */
 public enum DisconnectControlState {
 
     DISCONNECTED(0, "Disconnected"),

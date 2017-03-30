@@ -1,14 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocols.mdc.services.impl;
 
 import com.elster.jupiter.nls.TranslationKey;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
 import com.energyict.mdc.upl.meterdata.Device;
 
-/**
- * Copyrights EnergyICT
- * Date: 16/05/14
- * Time: 09:12
- */
 public enum TranslationKeys implements TranslationKey {
 
     DIALECT_CPS_DOMAIN_NAME(DeviceProtocolDialectPropertyProvider.class.getName(), "Device protocol dialect"),

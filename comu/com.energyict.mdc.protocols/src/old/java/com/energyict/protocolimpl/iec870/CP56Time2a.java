@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * CP56Time2A.java
  *
  * Created on 1 juli 2003, 9:02

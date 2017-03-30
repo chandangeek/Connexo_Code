@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * Class16LoadProfileHistory.java
  *
  * Created on 25 juli 2005, 11:23
@@ -12,6 +16,7 @@ package com.energyict.protocolimpl.elster.alpha.alphabasic.core.classes;
 
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.elster.alpha.core.classes.ClassParseUtils;
 
 import java.io.IOException;

@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * WriteResponse.java
  *
  * Created on 16 februari 2007, 15:00
@@ -11,6 +15,7 @@
 package com.energyict.protocolimpl.edf.trimarandlms.dlmscore.dlmspdu;
 
 import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.edf.trimarandlms.dlmscore.ConfirmedRespAPSE;
 import com.energyict.protocolimpl.edf.trimarandlms.dlmscore.StatusIdentify;
 

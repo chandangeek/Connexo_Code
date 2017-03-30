@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.coronis.waveflow.core.radiocommand.v210;
 
 import com.energyict.protocolimpl.coronis.core.WaveFlowException;
@@ -6,11 +10,6 @@ import com.energyict.protocolimpl.coronis.waveflow.core.radiocommand.AbstractRad
 
 import java.io.IOException;
 
-/**
- * Copyrights EnergyICT
- * Date: 16-mei-2011
- * Time: 11:34:02
- */
 public class WriteDateOfInstallation extends AbstractRadioCommand {
 
     public WriteDateOfInstallation(WaveFlow waveFlow) {

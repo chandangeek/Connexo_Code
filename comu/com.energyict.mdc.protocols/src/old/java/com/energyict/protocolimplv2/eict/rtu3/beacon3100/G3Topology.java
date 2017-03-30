@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100;
 
 import com.energyict.dlms.axrdencoding.AbstractDataType;
@@ -17,11 +21,6 @@ import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- * Copyrights EnergyICT
- * Date: 11/20/12
- * Time: 5:00 PM
- */
 public class G3Topology {
 
     private static final Logger logger = Logger.getLogger(G3Topology.class.getName());

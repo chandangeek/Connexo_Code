@@ -1,33 +1,18 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.dlms.as220.plc.events;
 
-import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
+
+import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
 import java.util.Date;
 import java.util.TimeZone;
 
-/**
- * Structure with the following format:
- * <p/><pre>
- * sequence {
- *      time:           octet-string    = OctetString
- *      channel:        unsigned        = Unsigned8
- *      master-address: long-unsigned   = Unsigned16
- *      rejected:       boolean         = BooleanObject
- *      s0:             long-unsigned   = Unsigned16
- *      n0:             long-unsigned   = Unsigned16
- *      s1:             long-unsigned   = Unsigned16
- *      n1:             long-unsigned   = Unsigned16
- *      gain:           unsigned        = Unsigned8
- *      method:         unsigned        = Unsigned8
- * }
- * </pre><p/>
- * Copyrights
- * Date: 17/06/11
- * Time: 13:19
- */
 public class PLCEvent extends Structure {
 
     private final TimeZone timeZone;

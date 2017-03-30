@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.coronis.waveflow100mwencoder.severntrent;
 
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;

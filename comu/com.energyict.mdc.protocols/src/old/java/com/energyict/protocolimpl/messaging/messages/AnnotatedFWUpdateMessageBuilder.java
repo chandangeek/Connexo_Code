@@ -1,9 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.messaging.messages;
 
 import com.energyict.mdc.common.NestedIOException;
-import com.energyict.mdc.protocol.api.DeviceMessageFileService;
 import com.energyict.protocols.messaging.FirmwareUpdateMessageBuilder;
 import com.energyict.protocols.messaging.MessageBuilder;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
@@ -14,11 +18,6 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
-/**
- * Copyrights EnergyICT
- * Date: 7/11/12
- * Time: 1:13 PM
- */
 public class AnnotatedFWUpdateMessageBuilder extends FirmwareUpdateMessageBuilder {
 
     public static final String TAG_FIRMWARE_UPGRADE = "FirmwareUpgrade";

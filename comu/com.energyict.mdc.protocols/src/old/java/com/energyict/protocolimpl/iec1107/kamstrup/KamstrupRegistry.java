@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * KamstrupRegister.java
  *
  * Created on 16 juni 2003, 16:35

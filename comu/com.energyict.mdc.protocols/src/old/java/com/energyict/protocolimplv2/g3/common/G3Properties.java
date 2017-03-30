@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.g3.common;
 
 import com.elster.jupiter.nls.Thesaurus;
@@ -11,13 +15,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * Common G3 identification properties for the DeviceProtocol versions
- *
- * Copyrights EnergyICT
- * Date: 1/6/15
- * Time: 10:56 AM
- */
 public class G3Properties extends DlmsProperties {
 
     public static final String G3_MAC_ADDRESS_PROP_NAME = TranslationKeys.G3_MAC_ADDRESS_PROP_NAME_TK.getPropertySpecName();

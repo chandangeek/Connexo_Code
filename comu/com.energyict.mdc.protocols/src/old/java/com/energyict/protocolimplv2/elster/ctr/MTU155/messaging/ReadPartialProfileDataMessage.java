@@ -1,29 +1,33 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.elster.ctr.MTU155.messaging;
 
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
-import com.energyict.mdc.protocol.api.device.data.*;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
+import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
+import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
+import com.energyict.mdc.protocol.api.device.data.ResultType;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
-
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.protocols.messaging.LegacyPartialLoadProfileMessageBuilder;
-import com.energyict.mdc.protocol.api.LoadProfileReader;
+
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
 
-/**
-* Copyrights EnergyICT
-* Date: 23/02/11
-* Time: 9:33
-*/
 public class ReadPartialProfileDataMessage extends AbstractMTU155Message {
 
     private final Clock clock;

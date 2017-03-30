@@ -1,26 +1,22 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.protocol.api.DeviceMessageFile;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+import com.energyict.protocols.messaging.DeviceMessageFileStringContentConsumer;
 
-import com.energyict.protocolimpl.generic.messages.GenericMessaging;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.ABBA230UserFileMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.MultipleAttributeMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.SimpleTagMessageEntry;
-import com.energyict.protocols.messaging.DeviceMessageFileStringContentConsumer;
 
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Represents a MessageConverter for the legacy ABBA230 IEC1107 protocol.
- * <p/>
- * Copyrights EnergyICT
- * Date: 8/03/13
- * Time: 16:26
- */
 public class ABBA230MessageConverter extends AbstractMessageConverter {
 
     private static final String CHARSET = "UTF-8";

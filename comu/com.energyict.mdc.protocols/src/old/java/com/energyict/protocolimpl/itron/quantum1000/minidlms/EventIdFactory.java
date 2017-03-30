@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * EventIdFactory.java
  *
  * Created on 22 december 2006, 15:48

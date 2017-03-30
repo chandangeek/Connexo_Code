@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.dlms.idis.am500.properties;
 
 
@@ -13,12 +17,6 @@ import com.energyict.protocolimplv2.dlms.DlmsProperties;
 
 import java.math.BigDecimal;
 
-/**
- * Copyrights EnergyICT
- *
- * @author khe
- * @since 19/12/2014 - 16:39
- */
 public class IDISProperties extends DlmsProperties {
 
     public static final String READCACHE_PROPERTY = "ReadCache";

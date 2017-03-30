@@ -1,15 +1,15 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.dlms.axrdencoding;
 
-import com.energyict.dlms.DLMSUtils;
 import com.energyict.mdc.protocol.api.ProtocolException;
+
+import com.energyict.dlms.DLMSUtils;
 
 import java.io.IOException;
 
-/**
- * Copyrights EnergyICT
- * Date: 26/03/12
- * Time: 9:54
- */
 public class CompactArrayConverter {
 
     /**

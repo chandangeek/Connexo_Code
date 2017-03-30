@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * ValueInformationBlock.java
  *
  * Created on 3 oktober 2007, 15:17
@@ -11,6 +15,7 @@
 package com.energyict.protocolimpl.mbus.core;
 
 import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;

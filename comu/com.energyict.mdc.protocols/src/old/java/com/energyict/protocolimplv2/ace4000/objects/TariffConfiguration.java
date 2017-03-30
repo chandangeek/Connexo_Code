@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.ace4000.objects;
 
 import com.elster.jupiter.calendar.DayType;
@@ -20,11 +24,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-/**
- * Copyrights EnergyICT
- * Date: 10/08/11
- * Time: 13:18
- */
 public class TariffConfiguration extends AbstractActarisObject {
 
     private static final String FAILURE_MESSAGE = "Cannot configure tariff settings, invalid arguments";

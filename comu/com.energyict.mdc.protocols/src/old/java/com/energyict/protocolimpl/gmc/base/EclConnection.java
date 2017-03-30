@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * EclConnection.java
  *
  * Created on 26. August 2004, 16:18
@@ -6,11 +10,12 @@
 
 package com.energyict.protocolimpl.gmc.base;
 
-import com.energyict.dialer.connection.Connection;
+import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
-import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.protocol.api.inbound.MeterType;
+
+import com.energyict.dialer.connection.Connection;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;

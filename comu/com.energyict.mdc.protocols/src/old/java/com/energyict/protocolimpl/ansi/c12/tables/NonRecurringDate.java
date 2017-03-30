@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * NonRecurringDate.java
  *
  * Created on 30 oktober 2005, 2:55

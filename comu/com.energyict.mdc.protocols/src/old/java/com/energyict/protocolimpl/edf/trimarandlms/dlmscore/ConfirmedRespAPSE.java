@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * ConfirmedRespAPSE.java
  *
  * Created on 16 februari 2007, 14:57

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.coronis.amco.rtm.core.radiocommand;
 
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
@@ -8,11 +12,6 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
 
-/**
- * Copyrights EnergyICT
- * Date: 8-apr-2011
- * Time: 10:22:22
- */
 public class ReadEncoderInternalData extends AbstractRadioCommand {
 
     protected ReadEncoderInternalData(RTM rtm) {

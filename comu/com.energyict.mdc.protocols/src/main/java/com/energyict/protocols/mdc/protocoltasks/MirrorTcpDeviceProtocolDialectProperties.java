@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocols.mdc.protocoltasks;
 
 import com.elster.jupiter.cps.CustomPropertySetValues;
@@ -12,11 +16,6 @@ import com.energyict.protocolimplv2.common.CommonV2TranslationKeys;
 
 import java.math.BigDecimal;
 
-/**
- * Copyrights EnergyICT
- * Date: 17/10/16
- * Time: 14:47
- */
 public class MirrorTcpDeviceProtocolDialectProperties extends CommonDeviceProtocolDialectProperties {
 
     private BigDecimal retries;

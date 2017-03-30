@@ -1,14 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.elster.ctr.MTU155.common;
 
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.util.Arrays;
 
-/**
- * Copyrights EnergyICT
- * Date: 29-sep-2010
- * Time: 17:24:22
- */
 public abstract class AbstractField<T extends Field> implements Field<T> {
 
     protected int getIntFromBytes(byte[] rawData, int offset, int length) {

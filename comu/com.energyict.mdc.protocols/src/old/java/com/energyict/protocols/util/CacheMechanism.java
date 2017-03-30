@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * CacheMechanism.java
  *
  * Created on 11 oktober 2004, 13:47

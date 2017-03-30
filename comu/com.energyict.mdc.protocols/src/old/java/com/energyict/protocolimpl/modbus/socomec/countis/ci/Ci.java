@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.modbus.socomec.countis.ci;
 
 import com.energyict.mdc.dynamic.PropertySpecService;

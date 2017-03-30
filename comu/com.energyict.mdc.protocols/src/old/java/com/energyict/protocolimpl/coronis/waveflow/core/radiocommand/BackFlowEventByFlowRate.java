@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.coronis.waveflow.core.radiocommand;
 
 import com.energyict.protocolimpl.coronis.waveflow.core.WaveFlow;
@@ -5,11 +9,6 @@ import com.energyict.protocolimpl.coronis.waveflow.core.WaveFlow;
 import java.util.Calendar;
 import java.util.Date;
 
-/**
- * Copyrights EnergyICT
- * Date: 24-feb-2011
- * Time: 15:07:53
- */
 public class BackFlowEventByFlowRate {
 
     private Date endDate;

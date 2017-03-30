@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocols.mdc.inbound.general.frames.parsing;
 
 import java.text.ParseException;
@@ -5,14 +9,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 
-/**
- * Class that parses the common received parameters from an inbound frame.
- * <p/>
- * Copyrights EnergyICT
- * Date: 26/06/12
- * Time: 10:55
- * Author: khe
- */
 public class InboundParameters {
 
     private static final String DB_ID_ATTR = "dbaseId";

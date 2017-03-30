@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * ResponseData.java
  *
  * Created on 20 maart 2006, 17:31
@@ -10,8 +14,9 @@
 
 package com.energyict.protocolimpl.edmi.mk10.core;
 
-import com.energyict.dialer.connection.Connection;
 import com.energyict.protocols.util.ProtocolUtils;
+
+import com.energyict.dialer.connection.Connection;
 
 /**
  *

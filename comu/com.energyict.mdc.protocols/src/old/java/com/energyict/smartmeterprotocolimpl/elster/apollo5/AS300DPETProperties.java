@@ -1,13 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.elster.apollo5;
 
 import com.energyict.smartmeterprotocolimpl.elster.apollo.AS300Properties;
 
-/**
- * Copyrights EnergyICT
- * Date: 12/09/12
- * Time: 15:11
- * Author: khe
- */
 public class AS300DPETProperties extends AS300Properties {
 
     private static final int FIRMWARE_CLIENT = 3;

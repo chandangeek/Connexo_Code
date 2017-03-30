@@ -1,16 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.din19244.poreg2.request;
 
 import com.energyict.protocolimpl.din19244.poreg2.Poreg;
 import com.energyict.protocolimpl.din19244.poreg2.core.ASDU;
 import com.energyict.protocolimpl.din19244.poreg2.core.Response;
 
-/**
- * Class to read out the firmware version.
- *
- * Copyrights EnergyICT
- * Date: 21-apr-2011
- * Time: 22:01:39
- */
 public class Firmware extends AbstractRequest {
 
     public Firmware(Poreg poreg) {

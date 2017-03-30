@@ -1,26 +1,22 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.Password;
 import com.energyict.mdc.protocol.api.DeviceMessageFile;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
-import com.energyict.protocols.util.TempFileLoader;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.protocols.messaging.DeviceMessageFileStringContentConsumer;
-
-import com.energyict.protocolimpl.generic.messages.GenericMessaging;
+import com.energyict.protocols.util.TempFileLoader;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * List of all supported messages for the RTU+Server using the EIWeb+ servlet
- * Copyrights EnergyICT
- * Date: 8/03/13
- * Time: 16:26
- */
 public class EIWebPlusMessageConverter extends AbstractMessageConverter {
 
     /**

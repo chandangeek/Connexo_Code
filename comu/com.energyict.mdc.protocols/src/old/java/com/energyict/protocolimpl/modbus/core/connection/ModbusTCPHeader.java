@@ -1,15 +1,14 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.modbus.core.connection;
 
 import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.modbus.core.ModbusException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
-/**
- * Copyrights EnergyICT
- * User: sva
- * Date: 4/01/12
- * Time: 14:17
- */
 public class ModbusTCPHeader {
 
     /**

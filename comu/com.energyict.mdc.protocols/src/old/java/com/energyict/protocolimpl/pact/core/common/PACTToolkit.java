@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * PACTToolkit.java
  *
  * Created on 1 april 2004, 11:14

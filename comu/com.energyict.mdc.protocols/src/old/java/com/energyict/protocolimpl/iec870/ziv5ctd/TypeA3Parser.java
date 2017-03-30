@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * Type0xa3Parser.java
  *
  * Created on 4 april 2006, 15:24

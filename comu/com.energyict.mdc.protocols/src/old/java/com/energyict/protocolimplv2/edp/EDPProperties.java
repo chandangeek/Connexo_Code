@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.edp;
 
 import com.elster.jupiter.nls.Thesaurus;
@@ -11,15 +15,6 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Wrapper class that holds the EDP DLMS protocol properties, parses them and returns the proper values.
- * This reuses the general DlmsProperties functionality and adds a few things.
- * <p/>
- * Copyrights EnergyICT
- * Date: 10/02/14
- * Time: 16:11
- * Author: khe
- */
 public class EDPProperties extends DlmsProperties {
 
     public static final String READCACHE_PROPERTY = "ReadCache";

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.dlms.g3;
 
 import com.energyict.dlms.axrdencoding.OctetString;
@@ -8,11 +12,6 @@ import com.energyict.dlms.axrdencoding.Unsigned8;
 
 import java.io.IOException;
 
-/**
- * Copyrights EnergyICT
- * Date: 21/03/12
- * Time: 14:18
- */
 public class FirmwareVersion {
 
     private static final int REQUIRED_NR_FIELDS = 5;

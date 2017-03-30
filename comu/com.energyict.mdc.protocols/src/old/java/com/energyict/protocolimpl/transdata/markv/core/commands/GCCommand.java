@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * GCCommand.java
  *
  * Created on 13 oktober 2005, 14:15

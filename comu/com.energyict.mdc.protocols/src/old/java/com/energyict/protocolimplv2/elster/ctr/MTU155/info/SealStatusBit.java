@@ -1,14 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.elster.ctr.MTU155.info;
 
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Enumeration with all common seal status bits and their meanings
- * Copyrights EnergyICT
- * Date: 2-nov-2010
- * Time: 16:24:57
- */
 public enum SealStatusBit {
 
     RESERVED_0(0, "Reserved [0]", false),

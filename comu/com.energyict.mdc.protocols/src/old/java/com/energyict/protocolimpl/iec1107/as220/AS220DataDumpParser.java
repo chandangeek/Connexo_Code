@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.iec1107.as220;
 
 import com.energyict.mdc.protocol.api.NoSuchRegisterException;
@@ -5,12 +9,6 @@ import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 import java.io.IOException;
 import java.util.HashMap;
 
-/**
- * Copyrights EnergyICT
- * User: sva
- * Date: 21/06/12
- * Time: 15:47
- */
 public class AS220DataDumpParser extends com.energyict.protocolimpl.base.DataDumpParser {
 
     private HashMap<Integer, Integer> billingPointsHashMap;

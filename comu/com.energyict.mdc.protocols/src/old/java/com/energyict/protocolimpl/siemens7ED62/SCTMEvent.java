@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * SCTMEvent.java
  *
  * Created on 6 februari 2003, 15:31

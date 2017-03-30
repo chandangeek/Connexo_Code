@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.coronis.waveflow.core.parameter;
 
 import com.energyict.protocolimpl.coronis.core.TimeDateRTCParser;
@@ -6,11 +10,6 @@ import com.energyict.protocolimpl.coronis.waveflow.core.WaveFlow;
 import java.io.IOException;
 import java.util.Date;
 
-/**
- * Copyrights EnergyICT
- * Date: 28-feb-2011
- * Time: 11:12:46
- */
 public class ReedFaultDetectionDate extends AbstractParameter {
 
     private int inputChannel;

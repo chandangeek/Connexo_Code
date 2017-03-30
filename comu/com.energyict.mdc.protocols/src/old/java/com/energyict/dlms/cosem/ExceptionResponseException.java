@@ -1,12 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.dlms.cosem;
 
 import java.io.IOException;
 
-/**
- * Copyrights EnergyICT
- * Date: 4-jan-2011
- * Time: 15:34:33
- */
 public class ExceptionResponseException extends IOException {
 
     private final int stateError;

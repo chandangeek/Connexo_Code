@@ -1,10 +1,9 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.dlms;
 
-/**
- * Copyrights EnergyICT
- * Date: 14/02/11
- * Time: 10:41
- */
 public enum DLMSReference {
 
     LN(ProtocolLink.LN_REFERENCE, "Long name reference"),

@@ -1,14 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.dlms.cosem.attributeobjects;
 
 import com.energyict.dlms.axrdencoding.Structure;
 
 import java.io.IOException;
 
-/**
- * Copyrights EnergyICT
- * Date: 10/24/12
- * Time: 3:43 PM
- */
 public class QualityOfServiceElement extends Structure {
 
     int precedence;

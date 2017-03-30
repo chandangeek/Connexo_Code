@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 /**
  * UNIFLO_1200v28_Registers.java
  *
@@ -8,6 +12,7 @@ package com.energyict.protocolimpl.modbus.flonidan.uniflo1200.register;
 
 import com.energyict.mdc.protocol.api.ProtocolException;
 import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.parsers.UNIFLO1200Parsers;
 
 import java.io.IOException;

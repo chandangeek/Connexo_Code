@@ -1,19 +1,21 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372;
+
+import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.DataStructure;
-import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- * Copyrights EnergyICT
- * User: sva
- * Date: 23/01/12
- * Time: 15:36
- */
 public class Logbook {
 
     private static final int DEBUG = 0;

@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * KamstrupRegister.java
  *
  * Created on 04 mei 2004, 10:00
@@ -7,6 +11,7 @@
 package com.energyict.protocolimpl.iec1107.abba1350;
 
 import com.energyict.mdc.protocol.api.MeterExceptionInfo;
+
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import com.energyict.protocolimpl.iec1107.vdew.AbstractVDEWRegistry;

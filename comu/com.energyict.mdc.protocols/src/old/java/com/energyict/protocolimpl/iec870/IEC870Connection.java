@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * IEC870Connection.java
  *
  * Created on 19 juni 2003, 11:20
@@ -6,10 +10,10 @@
 
 package com.energyict.protocolimpl.iec870;
 
-import com.energyict.dialer.connection.Connection;
-import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.common.NestedIOException;
-import com.energyict.protocols.util.ProtocolUtils;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+
+import com.energyict.dialer.connection.Connection;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

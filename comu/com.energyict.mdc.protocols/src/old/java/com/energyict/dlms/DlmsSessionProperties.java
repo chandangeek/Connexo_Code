@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.dlms;
 
 import com.energyict.dlms.aso.ConformanceBlock;
@@ -5,11 +9,6 @@ import com.energyict.dlms.aso.SecurityProvider;
 
 import java.util.Properties;
 
-/**
- * Copyrights EnergyICT
- * Date: 8/02/12
- * Time: 15:08
- */
 public interface DlmsSessionProperties {
 
     DLMSReference getReference();

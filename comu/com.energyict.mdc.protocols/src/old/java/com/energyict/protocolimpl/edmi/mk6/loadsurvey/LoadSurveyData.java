@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * LoadSurveyData.java
  *
  * Created on 3 april 2006, 11:35
@@ -11,6 +15,7 @@
 package com.energyict.protocolimpl.edmi.mk6.loadsurvey;
 
 import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.edmi.mk6.command.FileAccessReadCommand;
 import com.energyict.protocolimpl.edmi.mk6.command.FileAccessSearchCommand;
 import com.energyict.protocolimpl.edmi.mk6.core.AbstractRegisterType;

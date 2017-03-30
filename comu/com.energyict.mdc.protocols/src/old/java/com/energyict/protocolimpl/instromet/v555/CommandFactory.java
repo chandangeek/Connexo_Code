@@ -1,6 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.instromet.v555;
 
 import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.instromet.connection.LogoffCommand;
 import com.energyict.protocolimpl.instromet.connection.ReadCommand;
 import com.energyict.protocolimpl.instromet.connection.TableSwitchCommand;

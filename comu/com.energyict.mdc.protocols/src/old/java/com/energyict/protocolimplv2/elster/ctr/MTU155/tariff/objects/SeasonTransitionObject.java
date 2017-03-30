@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.objects;
 
 import com.elster.jupiter.calendar.Calendar;
@@ -8,11 +12,6 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 
-/**
- * Copyrights EnergyICT
- * Date: 4/04/11
- * Time: 14:07
- */
 public class SeasonTransitionObject implements Serializable {
 
     private long seasonId;

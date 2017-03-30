@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * ParameterDay.java
  *
  * Created on 12 maart 2004, 14:35
@@ -6,9 +10,10 @@
 
 package com.energyict.protocolimpl.pact.core.survey.discrete;
 
-import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.common.interval.IntervalStateBits;
+import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.pact.core.common.EnergyTypeCode;
 import com.energyict.protocolimpl.pact.core.meterreading.MeterReadingsInterpreter;
 

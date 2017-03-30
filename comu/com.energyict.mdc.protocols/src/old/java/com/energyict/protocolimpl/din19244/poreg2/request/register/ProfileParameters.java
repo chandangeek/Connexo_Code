@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.din19244.poreg2.request.register;
 
 import com.energyict.protocolimpl.din19244.poreg2.Poreg;
@@ -9,14 +13,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Class to read out the profile data configuration.
- * The configuration sets which registers should be added to the profile data.
- *
- * Copyrights EnergyICT
- * Date: 4-mei-2011
- * Time: 13:23:17
- */
 public class ProfileParameters extends AbstractRegister {
 
     public ProfileParameters(Poreg poreg, int registerAddress, int fieldAddress, int numberOfRegisters, int numberOfFields) {

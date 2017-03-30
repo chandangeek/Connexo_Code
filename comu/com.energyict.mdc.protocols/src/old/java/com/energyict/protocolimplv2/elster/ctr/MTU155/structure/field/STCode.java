@@ -1,13 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field;
 
 import com.energyict.protocolimplv2.elster.ctr.MTU155.common.AbstractField;
 
-/**
- * Class for the STCode field in a CTR Structure Object
- * Copyrights EnergyICT
- * Date: 7-okt-2010
- * Time: 8:41:06
- */
 public class STCode extends AbstractField<STCode> {
 
     public static final int UNDEFINED = 0;

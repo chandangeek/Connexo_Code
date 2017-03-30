@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * TransmitterStateMachine.java
  *
  * Created on 30 november 2006, 11:32
@@ -12,6 +16,7 @@ package com.energyict.protocolimpl.itron.quantum1000.minidlms;
 
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
 
 import java.io.IOException;

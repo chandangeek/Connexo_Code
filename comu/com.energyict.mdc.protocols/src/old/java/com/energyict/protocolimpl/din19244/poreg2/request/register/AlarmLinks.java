@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.din19244.poreg2.request.register;
 
 import com.energyict.protocolimpl.din19244.poreg2.Poreg;
@@ -7,13 +11,6 @@ import com.energyict.protocolimpl.din19244.poreg2.core.RegisterGroupID;
 
 import java.io.IOException;
 
-/**
- * Class used for writing the alarm link settings.
- *
- * Copyrights EnergyICT
- * Date: 19-mei-2011
- * Time: 11:20:40
- */
 public class AlarmLinks extends AbstractRegister {
 
     private int writeValue;

@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * EnermetE70X.java
  *
  * Created on 28 juli 2004, 10:28

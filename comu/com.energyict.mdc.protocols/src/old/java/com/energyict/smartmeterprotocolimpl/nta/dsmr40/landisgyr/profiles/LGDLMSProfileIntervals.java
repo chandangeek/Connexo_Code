@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.profiles;
 
 import com.energyict.dlms.axrdencoding.AbstractDataType;
@@ -11,11 +15,6 @@ import com.energyict.protocolimpl.dlms.DLMSProfileIntervals;
 import java.io.IOException;
 import java.util.Calendar;
 
-/**
- * Copyrights EnergyICT
- * Date: 13-okt-2011
- * Time: 11:56:17
- */
 public class LGDLMSProfileIntervals extends DLMSProfileIntervals {
 
     /**

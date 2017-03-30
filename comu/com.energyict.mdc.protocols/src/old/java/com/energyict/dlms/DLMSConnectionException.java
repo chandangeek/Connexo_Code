@@ -1,13 +1,8 @@
-package com.energyict.dlms;
-
-/**
- * <p>Title: Meter Dialup package.</p>
- * <p>Description: Modem dialup and Energy Meter protocol implementation.</p>
- * <p>Copyright: Copyright (c) 2002</p>
- * <p>Company: EnergyICT</p>
- * @author Koenraad Vanderschaeve
- * @version 1.0
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
+
+package com.energyict.dlms;
 
 public class DLMSConnectionException extends Exception {
 

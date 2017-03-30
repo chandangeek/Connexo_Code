@@ -1,12 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field;
 
 import com.energyict.protocolimplv2.elster.ctr.MTU155.common.AbstractField;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRParsingException;
 
-/**
- * Class for the AckAdditionalDownloadData field in a CTR Structure Object (AdditionalData field when the ACK is of type '$' [download])
- * Copyrights EnergyICT
- */
 public class AckAdditionalDownloadData extends AbstractField<AckAdditionalDownloadData> {
 
     private byte[] additionalData;

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.elster.ctr.MTU155.structure;
 
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -17,11 +21,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- * Date: 8-okt-2010
- * Time: 16:26:00
- */
 public class Trace_CQueryResponseStructure extends Data<Trace_CQueryResponseStructure> {
 
     private AbstractCTRObject pdr;

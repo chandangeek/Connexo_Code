@@ -1,11 +1,9 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.dlms.g3;
 
-/**
- * Copyrights EnergyICT
- * Date: 18/12/12
- * Time: 12:56
- * Author: khe
- */
 public class SagemComG3Properties extends G3Properties {
 
     public static final String DEFAULT_VALIDATE_INVOKE_ID = "0";

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.elster.ctr.MTU155.structure;
 
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -7,12 +11,6 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.frame.field.FunctionCode;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.AckAdditionalData;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.AckCode;
 
-/**
- * The ACK Structure
- * Copyrights EnergyICT
- * Date: 7-okt-2010
- * Time: 16:00:48
- */
 public class AckStructure extends Data<AckStructure> {
 
     private AckCode ackCode;

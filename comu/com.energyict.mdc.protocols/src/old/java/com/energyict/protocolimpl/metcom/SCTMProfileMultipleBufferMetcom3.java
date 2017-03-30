@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * SCTMProfileMetcom3FAF.java
  *
  * Created on 15 december 2004, 10:35
@@ -6,8 +10,8 @@
 
 package com.energyict.protocolimpl.metcom;
 
-import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.common.interval.IntervalStateBits;
+import com.energyict.mdc.protocol.api.device.data.IntervalData;
 
 import java.util.List;
 

@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * ActivateSpecificPendingTables.java
  *
  * Created on 26 oktober 2005, 10:40

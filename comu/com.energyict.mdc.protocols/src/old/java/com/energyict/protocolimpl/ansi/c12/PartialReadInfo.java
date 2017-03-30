@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * PartialReadInfo.java
  *
  * Created on 9 november 2005, 11:07

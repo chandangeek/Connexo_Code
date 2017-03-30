@@ -1,12 +1,9 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.din19244.poreg2.core;
 
-/**
- * Enum containing all relevant register ID's.
- *
- * Copyrights EnergyICT
- * Date: 21-apr-2011
- * Time: 22:53:49
- */
 public enum RegisterGroupID {
 
     DateTime(3),

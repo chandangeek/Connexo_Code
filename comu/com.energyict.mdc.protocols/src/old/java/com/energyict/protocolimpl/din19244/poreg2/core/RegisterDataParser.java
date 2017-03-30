@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.din19244.poreg2.core;
 
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -5,14 +9,6 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Class containing logic to parse received bytes.
- * The first byte is the data type (each type has an implicit length), followed by a value.
- * <p/>
- * Copyrights EnergyICT
- * Date: 21-apr-2011
- * Time: 14:43:50
- */
 public class RegisterDataParser {
 
     /**

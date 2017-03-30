@@ -1,16 +1,16 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.dlms;
 
-import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
+
+import com.energyict.dlms.axrdencoding.AbstractDataType;
 
 import java.util.Date;
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- * Date: 24/02/12
- * Time: 15:16
- */
 public abstract class DefaultDLMSMeterEventMapper implements DLMSMeterEventMapper {
 
     public MeterEvent getMeterEvent(Date eventTime, int meterEventCode, int eventLogId, final List<AbstractDataType> capturedObjects) {

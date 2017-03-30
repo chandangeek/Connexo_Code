@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocols.impl.channels.inbound;
 
 import com.elster.jupiter.cps.AbstractVersionedPersistentDomainExtension;

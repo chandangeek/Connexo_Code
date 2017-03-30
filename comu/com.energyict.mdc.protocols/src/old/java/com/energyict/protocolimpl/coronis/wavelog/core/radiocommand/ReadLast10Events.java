@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.coronis.wavelog.core.radiocommand;
 
 import com.energyict.protocolimpl.coronis.core.TimeDateRTCParser;
@@ -7,11 +11,6 @@ import com.energyict.protocolimpl.coronis.wavelog.core.parameter.ApplicationStat
 import java.io.IOException;
 import java.util.Date;
 
-/**
- * Copyrights EnergyICT
- * Date: 1-apr-2011
- * Time: 15:49:53
- */
 public class ReadLast10Events extends AbstractRadioCommand {
 
     protected ReadLast10Events(WaveLog waveLog) {

@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * DiscreteEOD.java
  *
  * Created on 11 maart 2004, 13:15
@@ -7,6 +11,7 @@
 package com.energyict.protocolimpl.pact.core.survey.discrete;
 
 import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.pact.core.common.EnergyTypeCode;
 import com.energyict.protocolimpl.pact.core.common.PactUtils;
 

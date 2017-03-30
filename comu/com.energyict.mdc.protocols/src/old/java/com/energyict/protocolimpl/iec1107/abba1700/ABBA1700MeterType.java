@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * ABBA1700MeterType.java
  *
  * Created on 24 juni 2004, 8:35

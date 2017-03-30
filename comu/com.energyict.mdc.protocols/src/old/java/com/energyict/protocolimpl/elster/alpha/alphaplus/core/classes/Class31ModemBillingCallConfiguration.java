@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * Class31ModemBillingCallConfiguration.java
  *
  * Created on 11 juli 2005, 15:36

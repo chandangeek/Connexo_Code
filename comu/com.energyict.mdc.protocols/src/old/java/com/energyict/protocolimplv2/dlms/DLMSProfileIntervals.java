@@ -1,4 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.dlms;
+
+import com.energyict.mdc.protocol.api.ProtocolException;
+import com.energyict.mdc.protocol.api.device.data.IntervalData;
 
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Array;
@@ -8,8 +15,6 @@ import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
 import com.energyict.dlms.axrdencoding.util.DateTime;
-import com.energyict.mdc.protocol.api.ProtocolException;
-import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.protocolimpl.base.ProfileIntervalStatusBits;
 
 import java.io.IOException;
@@ -21,14 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
-/**
- * A default DLMS {@link com.energyict.dlms.cosem.ProfileGeneric} buffer parser to a list of IntervalData.
- * Depending on the default or given masks, a profile can be build.
- * <br/>
- * Copyrights EnergyICT<br/>
- * Date: 7-dec-2010<br/>
- * Time: 11:26:42<br/>
- */
 public class DLMSProfileIntervals extends Array {
 
     /**

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.elster.jupiter.properties.PropertySpec;
@@ -24,13 +28,6 @@ import java.util.Map;
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.overThresholdDurationAttributeName;
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.powerQualityThresholdAttributeName;
 
-/**
- * Represents a MessageConverter for the legacy WebRTUKP protocol.
- * <p/>
- * Copyrights EnergyICT
- * Date: 8/03/13
- * Time: 16:26
- */
 public class A1440MessageConverter extends AbstractMessageConverter {
 
     /**

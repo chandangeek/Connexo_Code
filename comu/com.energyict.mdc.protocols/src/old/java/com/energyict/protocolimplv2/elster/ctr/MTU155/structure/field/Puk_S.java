@@ -1,15 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field;
 
 import com.energyict.protocolimplv2.elster.ctr.MTU155.common.AbstractField;
 
 import java.util.Random;
 
-/**
- * Class for the Puk_S field in a CTR Structure Object
- * Copyrights EnergyICT
- * Date: 7-okt-2010
- * Time: 8:02:24
- */
 public class Puk_S extends AbstractField<Puk_S> {
 
     private byte[] puks;

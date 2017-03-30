@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.din19244.poreg2.request.register;
 
 import com.energyict.protocolimpl.din19244.poreg2.Poreg;
@@ -8,12 +12,6 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
 
-/**
- * Parent class containing methods common for all registers, e.g. the doRequest()
- * Copyrights EnergyICT
- * Date: 20-apr-2011
- * Time: 14:10:38
- */
 abstract public class AbstractRegister extends AbstractRequest {
 
     /**

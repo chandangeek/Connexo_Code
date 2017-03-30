@@ -1,13 +1,9 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.din19244.poreg2.core;
 
-/**
- * Enum containing all relevant ASDU ID's.
- * Each ID represents an request / response.
- *
- * Copyrights EnergyICT
- * Date: 20-apr-2011
- * Time: 17:35:30
- */
 public enum ASDU {
 
     ReadRegister(140),

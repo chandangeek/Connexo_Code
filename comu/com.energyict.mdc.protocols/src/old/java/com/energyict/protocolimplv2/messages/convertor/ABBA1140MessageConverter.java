@@ -1,21 +1,17 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.messages.convertor;
 
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.BillingResetMessageEntry;
 
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Represents a MessageConverter for the legacy ABBA1140 protocol.
- * <p/>
- * Copyrights EnergyICT
- * Date: 11/03/13
- * Time: 12:03
- */
 public class ABBA1140MessageConverter extends AbstractMessageConverter {
 
     public ABBA1140MessageConverter() {

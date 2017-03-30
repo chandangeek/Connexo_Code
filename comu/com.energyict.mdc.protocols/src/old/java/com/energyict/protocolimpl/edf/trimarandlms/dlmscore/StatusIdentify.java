@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * StatusIdentify.java
  *
  * Created on 23 februari 2007, 13:07

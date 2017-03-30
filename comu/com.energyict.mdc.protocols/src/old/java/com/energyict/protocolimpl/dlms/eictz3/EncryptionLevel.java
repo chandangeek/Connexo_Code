@@ -1,10 +1,9 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.dlms.eictz3;
 
-/**
- * Copyrights EnergyICT
- * Date: 18-mei-2011
- * Time: 10:02:32
- */
 public enum EncryptionLevel {
 
     NO_ENCRYPTION(0), MESSAGE_AUTHENTICATION(1), MESSAGE_ENCRYPTION(2), BOTH(3);

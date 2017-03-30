@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.dlms.xmlparsing;
 
 import com.energyict.dlms.ParseUtils;
@@ -33,11 +37,6 @@ import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- * Date: 10-aug-2011
- * Time: 15:31:20
- */
 public class XmlToDlms {
 
     public static final String SetRequestNormalTag = "SetRequestNormal";

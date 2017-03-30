@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.nta.dsmr50.elster.am540;
 
 import com.energyict.dlms.DLMSCache;
@@ -8,11 +12,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.io.Serializable;
 
-/**
- * Copyrights EnergyICT
- * Date: 29.09.15
- * Time: 10:41
- */
 @XmlRootElement
 @XmlJavaTypeAdapter(DeviceProtocolCacheXmlMarshallAdapter.class)
 public class AM540Cache extends DLMSCache implements Serializable {

@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * MeterDataCommand.java
  *
  * Created on 26 juli 2006, 17:23
@@ -12,6 +16,7 @@ package com.energyict.protocolimpl.landisgyr.sentry.s200.core;
 
 
 import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.base.ParseUtils;
 
 import java.io.IOException;

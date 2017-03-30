@@ -1,10 +1,9 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.elster.ctr.MTU155.info;
 
-/**
- * Copyrights EnergyICT
- * Date: 17/02/11
- * Time: 10:10
- */
 public enum ConverterType {
 
     VOL1("Type 1 vol"),

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.dlms.cosem.attributeobjects;
 
 import com.energyict.dlms.DLMSUtils;
@@ -7,11 +11,6 @@ import com.energyict.dlms.axrdencoding.Unsigned32;
 
 import java.io.IOException;
 
-/**
- * Copyrights EnergyICT
- * Date: 10/12/12
- * Time: 9:44 AM
- */
 public class ImageBlockTransferStructure extends Structure {
 
     public ImageBlockTransferStructure(final int imageBlockNumber, final byte[] imageBlockValue) {

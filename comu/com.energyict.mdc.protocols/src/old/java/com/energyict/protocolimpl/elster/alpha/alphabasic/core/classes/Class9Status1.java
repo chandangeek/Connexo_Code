@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * Class9Status1.java
  *
  * Created on 20 juli 2005, 11:44
@@ -11,6 +15,7 @@
 package com.energyict.protocolimpl.elster.alpha.alphabasic.core.classes;
 
 import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.elster.alpha.core.classes.ClassParseUtils;
 
 import java.io.IOException;
