@@ -46,16 +46,6 @@ public class Beacon3100RegisterFactory {
     private static final ObisCode MULTICAST_FIRMWARE_UPGRADE_OBISCODE = ObisCode.fromString("0.0.44.0.128.255");
     private static final ObisCode MULTICAST_METER_PROGRESS = ProtocolTools.setObisCodeField(MULTICAST_FIRMWARE_UPGRADE_OBISCODE, 1, (byte) (-1 * ImageTransfer.ATTRIBUTE_UPGRADE_PROGRESS));
 
-    public static final ObisCode DISCONNECT_CONTROL_OBISCODE = ObisCode.fromString("0.0.96.3.10.255");
-    public static final ObisCode CONNECT_CONTROL_MODE = ObisCode.fromString("0.0.96.3.128.255");
-    public static final ObisCode CONNECT_CONTROL_STATE = ObisCode.fromString("0.0.96.3.129.255");
-    public static final ObisCode CONNECT_CONTROL_BREAKER_STATE = ObisCode.fromString("0.0.96.3.130.255");
-
-    public static final boolean DISABLED = false;
-    public static final boolean ENABLED = true;
-    public static final boolean IDLE = false;
-    public static final boolean ACTIVE = true;
-
     public static final String ALARM_BITS_REGISTER = "0.0.97.98.0.255";
     public static final String ALARM_FILTER = "0.0.97.98.10.255";
     public static final String ALARM_DESCRIPTOR = "0.0.97.98.20.255";
@@ -153,25 +143,7 @@ public class Beacon3100RegisterFactory {
     private RegisterValue parseRegisterReading(UniversalObject universalObject, ComposedCosemObject composedCosemObject, OfflineRegister offlineRegister, ComposedRegister composedRegister, ObisCode baseObisCode) throws IOException {
         RegisterValue registerValue = null;
 
-        if (universalObject.getClassID() == DLMSClassId.MEMORY_MANAGEMENT.getClassId()) {
-            AbstractDataType memoryManagementAttribute = composedCosemObject.getAttribute(composedRegister.getRegisterValueAttribute());
-
-            if (memoryManagementAttribute.isStructure() && memoryManagementAttribute.getStructure().nrOfDataTypes() == 4) {
-                //Special parsing for memory statistics
-                final String unit = memoryManagementAttribute.getStructure().getDataType(3).getOctetString().stringValue();
-                registerValue = new RegisterValue(offlineRegister.getObisCode(),
-                        "Used space: " + memoryManagementAttribute.getStructure().getDataType(0).toBigDecimal() + " " + unit +
-                                ", free space: " + memoryManagementAttribute.getStructure().getDataType(1).toBigDecimal() + " " + unit +
-                                ", total space: " + memoryManagementAttribute.getStructure().getDataType(2).toBigDecimal() + " " + unit);
-            } else if (memoryManagementAttribute.isArray()) {
-                //flash devices
-                registerValue = new RegisterValue(offlineRegister.getObisCode(),
-                        "Flash devices: " + memoryManagementAttribute.getArray().toString());
-            } else {
-                addResult(createFailureCollectedRegister(offlineRegister, ResultType.InCompatible, "Cannot parse memory management register, should be a structure with 4 or 8 elements"));
-                return null;
-            }
-        } else  if (baseObisCode.equals(MULTICAST_FIRMWARE_UPGRADE_OBISCODE) && universalObject.getClassID() == DLMSClassId.IMAGE_TRANSFER.getClassId()) {
+        if (baseObisCode.equals(MULTICAST_FIRMWARE_UPGRADE_OBISCODE) && universalObject.getClassID() == DLMSClassId.IMAGE_TRANSFER.getClassId()) {
             //read out upgrade_state, attribute -1
             AbstractDataType attributeValue = composedCosemObject.getAttribute(composedRegister.getRegisterValueAttribute());
             if (attributeValue instanceof TypeEnum) {
@@ -263,7 +235,6 @@ public class Beacon3100RegisterFactory {
 
     /**
      * Prepare the reading of some lazy-mapped obis codes
-     * TODO: map those into some proper mappers!
      *
      * @param register
      * @param universalObject
@@ -272,28 +243,8 @@ public class Beacon3100RegisterFactory {
     private void prepareSpecialMappedRegisters(OfflineRegister register, UniversalObject universalObject, ObisCode baseObisCode) {
         ComposedRegister composedRegister = new ComposedRegister();
 
-        if (universalObject.getClassID() == DLMSClassId.MEMORY_MANAGEMENT.getClassId()) {
-            DLMSAttribute memoryStatisticsAttribute = new DLMSAttribute(register.getObisCode(), MemoryManagementAttributes.MEMORY_STATISTICS.getAttributeNumber(), universalObject.getClassID());
-            composedRegister.setRegisterValue(memoryStatisticsAttribute);
-        }
-
         if (universalObject.getClassID() == DLMSClassId.NTP_SERVER_ADDRESS.getClassId()) {
             DLMSAttribute valueAttribute = new DLMSAttribute(register.getObisCode(), NPTServerAddressAttributes.NTP_SERVER_NAME.getAttributeNumber(), universalObject.getClassID());
-            composedRegister.setRegisterValue(valueAttribute);
-        }
-
-        if (register.getObisCode().equals(CONNECT_CONTROL_MODE)) {
-            DLMSAttribute valueAttribute = new DLMSAttribute(DISCONNECT_CONTROL_OBISCODE, DisconnectControlAttribute.CONTROL_MODE.getAttributeNumber(), universalObject.getClassID());
-            composedRegister.setRegisterValue(valueAttribute);
-        }
-
-        if (register.getObisCode().equals(CONNECT_CONTROL_STATE)) {
-            DLMSAttribute valueAttribute = new DLMSAttribute(DISCONNECT_CONTROL_OBISCODE, DisconnectControlAttribute.CONTROL_STATE.getAttributeNumber(), universalObject.getClassID());
-            composedRegister.setRegisterValue(valueAttribute);
-        }
-
-        if (register.getObisCode().equals(CONNECT_CONTROL_BREAKER_STATE)) {
-            DLMSAttribute valueAttribute = new DLMSAttribute(DISCONNECT_CONTROL_OBISCODE, DisconnectControlAttribute.OUTPUT_STATE.getAttributeNumber(), universalObject.getClassID());
             composedRegister.setRegisterValue(valueAttribute);
         }
 

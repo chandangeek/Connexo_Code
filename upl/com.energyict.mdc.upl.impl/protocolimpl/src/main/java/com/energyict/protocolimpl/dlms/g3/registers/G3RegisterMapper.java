@@ -12,6 +12,7 @@ import com.energyict.protocolimpl.dlms.g3.G3ProfileType;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.TimeZone;
 import java.util.logging.Logger;
@@ -240,14 +241,6 @@ public class G3RegisterMapper {
     public static final ObisCode PPP_SETUP_ATTR5 = ObisCode.fromString("0.5.25.3.0.255");
     public static final ObisCode PPP_SETUP_ATTR6 = ObisCode.fromString("0.6.25.3.0.255");
 
-    public static final ObisCode INSTANTANEOUS_VOLTAGE_L1 = ObisCode.fromString("1.0.32.7.0.255");
-    public static final ObisCode INSTANTANEOUS_VOLTAGE_L2 = ObisCode.fromString("1.0.52.7.0.255");
-    public static final ObisCode INSTANTANEOUS_VOLTAGE_L3 = ObisCode.fromString("1.0.72.7.0.255");
-    public static final ObisCode INSTANTANEOUS_FREQUENCY = ObisCode.fromString("1.0.34.7.0.255");
-    public static final ObisCode INSTANTANEOUS_PHASE_ANGLE_L1 = ObisCode.fromString("1.0.81.7.0.255");
-    public static final ObisCode INSTANTANEOUS_PHASE_ANGLE_L2 = ObisCode.fromString("1.0.81.7.1.255");
-    public static final ObisCode INSTANTANEOUS_PHASE_ANGLE_L3 = ObisCode.fromString("1.0.81.7.2.255");
-
     // Beacon custom class for Modem Watchdog parameters
     public static final ObisCode MODEM_WATCHDOG_ATTR1 = ObisCode.fromString("0.162.96.128.0.1");
     public static final ObisCode MODEM_WATCHDOG_ATTR2 = ObisCode.fromString("0.162.96.128.0.2");
@@ -257,7 +250,8 @@ public class G3RegisterMapper {
     public static final ObisCode MODEM_WATCHDOG_ATTR3_LEGACY = ObisCode.fromString("0.0.128.0.11.3");
 
 
-    public static final ObisCode MULTI_APN_CONFIG = ObisCode.fromString("0.128.25.3.0.255");
+    public static final ObisCode MULTI_APN_CONFIG = ObisCode.fromString("0.162.96.160.0.255");
+    public static final ObisCode MULTI_APN_CONFIG_LEGACY = ObisCode.fromString("0.128.25.3.0.255");
 
     /**
      * ObisCode mappers for the ConcentratorSetup attributes, found on base OBISCode 0.187.96.128.0.255
@@ -270,7 +264,13 @@ public class G3RegisterMapper {
     public static final ObisCode CONCENTRATOR_SETUP_METER_INFO_MAC              = ObisCode.fromString("0.187.96.128.0.42");
     public static final ObisCode CONCENTRATOR_SETUP_PROTOCOL_EVENT_LOG_LEVEL    = ObisCode.fromString("0.187.96.128.0.5");
 
-
+    /**
+     * ObisCode mappers for the MemoryManagement attributes, found on 0.194.96.128.0.255 classId 20021
+     */
+    public static final ObisCode MEMORY_MANAGEMENT_ATTR2 = ObisCode.fromString("0.194.96.128.0.2");
+    public static final ObisCode MEMORY_MANAGEMENT_ATTR3 = ObisCode.fromString("0.194.96.128.0.3");
+    public static final ObisCode MEMORY_MANAGEMENT_ATTR2_LEGACY = ObisCode.fromString("0.0.128.0.20.2");
+    public static final ObisCode MEMORY_MANAGEMENT_ATTR3_LEGACY = ObisCode.fromString("0.0.128.0.20.3");
 
 
     protected final List<G3Mapping> mappings = new ArrayList<G3Mapping>();
@@ -305,12 +305,11 @@ public class G3RegisterMapper {
         this.mappings.addAll(getRatedEnergyRegistering());
         this.mappings.addAll(getVoltageQualityMeasurements());
         this.mappings.addAll(getPLCStatisticsMappings());
-        this.mappings.addAll(getUsbSetupRegistering());
+        this.mappings.addAll(getUsbSetupMappings());
         this.mappings.addAll(getDisconnectControlRegistering());
-        this.mappings.addAll(getGprsModemSetupRegistering());
+        this.mappings.addAll(getGprsModemSetupMappings());
         this.mappings.addAll(getPPPSetupRegistering());
-        this.mappings.addAll(getMetrologyRegistering());
-        this.mappings.addAll(getModemWatchdogRegistering());
+        this.mappings.addAll(getModemWatchdogMappings());
     }
 
     /**
@@ -377,6 +376,15 @@ public class G3RegisterMapper {
         List<G3Mapping> basicChecks = new ArrayList<G3Mapping>();
         basicChecks.add(new ClockMapping(Clock.getDefaultObisCode()));
         return basicChecks;
+    }
+
+    protected Collection<? extends G3Mapping> getMemoryManagementMappings() {
+        List<G3Mapping> memoryManagement = new ArrayList<G3Mapping>();
+        memoryManagement.add(new MemoryManagementMapping(MEMORY_MANAGEMENT_ATTR2));
+        memoryManagement.add(new MemoryManagementMapping(MEMORY_MANAGEMENT_ATTR3));
+        memoryManagement.add(new MemoryManagementMapping(MEMORY_MANAGEMENT_ATTR2_LEGACY));
+        memoryManagement.add(new MemoryManagementMapping(MEMORY_MANAGEMENT_ATTR3_LEGACY));
+        return memoryManagement;
     }
 
     private final List<G3Mapping> getBillingPeriodMappings() {
@@ -486,7 +494,7 @@ public class G3RegisterMapper {
         return voltageMappings;
     }
 
-    protected final List<G3Mapping> getUsbSetupRegistering() {
+    protected final List<G3Mapping> getUsbSetupMappings() {
         final List<G3Mapping> usbSetupMappings = new ArrayList<G3Mapping>();
         usbSetupMappings.add(new USBSetupMapping(USB_SETUP_ATTR1));
         usbSetupMappings.add(new USBSetupMapping(USB_SETUP_ATTR2));
@@ -508,7 +516,7 @@ public class G3RegisterMapper {
         return disconnectControlMappings;
     }
 
-    protected final List<G3Mapping> getGprsModemSetupRegistering() {
+    protected final List<G3Mapping> getGprsModemSetupMappings() {
         final List<G3Mapping> gprsModemSetupMappings = new ArrayList<G3Mapping>();
         gprsModemSetupMappings.add(new GprsModemSetupMapping(GPRS_MODEM_SETUP_ATTR1));
         gprsModemSetupMappings.add(new GprsModemSetupMapping(GPRS_MODEM_SETUP_ATTR2));
@@ -535,19 +543,7 @@ public class G3RegisterMapper {
         return pppSetupMappings;
     }
 
-    protected final List<G3Mapping> getMetrologyRegistering() {
-        final List<G3Mapping> MetrologyMappings = new ArrayList<G3Mapping>();
-        MetrologyMappings.add(new MetrologyMapping(INSTANTANEOUS_VOLTAGE_L1));
-        MetrologyMappings.add(new MetrologyMapping(INSTANTANEOUS_VOLTAGE_L2));
-        MetrologyMappings.add(new MetrologyMapping(INSTANTANEOUS_VOLTAGE_L3));
-        MetrologyMappings.add(new MetrologyMapping(INSTANTANEOUS_FREQUENCY));
-        MetrologyMappings.add(new MetrologyMapping(INSTANTANEOUS_PHASE_ANGLE_L1));
-        MetrologyMappings.add(new MetrologyMapping(INSTANTANEOUS_PHASE_ANGLE_L2));
-        MetrologyMappings.add(new MetrologyMapping(INSTANTANEOUS_PHASE_ANGLE_L3));
-        return MetrologyMappings;
-    }
-
-    protected final List<G3Mapping> getModemWatchdogRegistering() {
+    protected final List<G3Mapping> getModemWatchdogMappings() {
         final List<G3Mapping> ModemWatchdogMappings = new ArrayList<G3Mapping>();
         ModemWatchdogMappings.add(new ModemWatchdogMapping(MODEM_WATCHDOG_ATTR1));
         ModemWatchdogMappings.add(new ModemWatchdogMapping(MODEM_WATCHDOG_ATTR2));
@@ -680,6 +676,7 @@ public class G3RegisterMapper {
     protected final List<G3Mapping> getMultiAPNConfigurationMappings() {
         final List<G3Mapping> apnConfigsMappings = new ArrayList<G3Mapping>();
         apnConfigsMappings.add(new MultiAPNConfigMapping(MULTI_APN_CONFIG));
+        apnConfigsMappings.add(new MultiAPNConfigMapping(MULTI_APN_CONFIG_LEGACY));
         return apnConfigsMappings;
     }
 

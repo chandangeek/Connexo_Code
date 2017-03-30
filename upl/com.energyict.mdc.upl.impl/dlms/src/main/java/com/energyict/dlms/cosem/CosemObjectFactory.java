@@ -814,4 +814,8 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
     public InactiveFirmwareIC getInactiveFirmwareIC() throws NotInObjectListException {
         return new InactiveFirmwareIC(this.protocolLink, this.getObjectReference(InactiveFirmwareIC.OBIS_CODE));
     }
+
+    public MemoryManagement getMemoryManagement(ObisCode obisCode) throws NotInObjectListException {
+        return new MemoryManagement(this.protocolLink, this.getObjectReference(obisCode));
+    }
 }

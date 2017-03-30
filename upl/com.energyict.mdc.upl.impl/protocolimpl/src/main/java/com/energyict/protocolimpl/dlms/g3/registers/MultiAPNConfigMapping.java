@@ -9,6 +9,8 @@ import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.Data;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.Date;
@@ -28,21 +30,57 @@ public class MultiAPNConfigMapping extends G3Mapping{
         return parse(data.getValueAttr());
     }
 
+    /**
+     * "Configured APNs ::= STRUCTURE {
+     * active_configuration ::= long-unsiged (-1 for automatic scan),
+     * apn_configurations ::= ARRAY {
+     *          apn_configuration ::= STRUCTURE {
+     *                  active_selection:           boolean,
+     *                  apn_name:                   octet-string,
+     *                  pdp_user_name:              octet-string,
+     *                  pdp_password:               octet-string,
+     *                  authentication_protocol     enum (ignored),
+     *                  chap_algorithm              unsigned (ignored),
+     *                  ip_comp_protocol            long-unsigned (ignored),													i
+     *                  p_version                  enum (ignored)									}	}"
+
+     * @param abstractDataType
+     * @param unit
+     * @param captureTime
+     * @return
+     * @throws IOException
+     */
     public RegisterValue parse(AbstractDataType abstractDataType, Unit unit, Date captureTime) throws IOException {
         Structure structure = abstractDataType.getStructure();
-        long activeAPN = structure.getDataType(0).longValue();
+
         Array apnConfigs = structure.getDataType(1).getArray();
-        StringBuilder multiApnSetup = new StringBuilder();
-        multiApnSetup.append("Active APN: " + activeAPN + ".");
-        multiApnSetup.append(" Available APN configurations:");
-        int index = 1;
-        for(AbstractDataType config: apnConfigs){
-            multiApnSetup.append(" APN config " + index + ":");
-            multiApnSetup.append(" APN name: " + getStringValueFromStructureEntry(config, 0));
-            multiApnSetup.append(" User name: " + getStringValueFromStructureEntry(config, 1));
-            multiApnSetup.append(" Passwrod: " + getStringValueFromStructureEntry(config, 2));
+        JSONObject json = new JSONObject();
+
+        try {
+            json.put("activeAPN", structure.getDataType(0).longValue());
+
+            JSONArray jsonArray = new JSONArray();
+            int index = 1;
+            for(AbstractDataType config: apnConfigs){
+                Structure struct = config.getStructure();
+                JSONObject j = new JSONObject();
+                j.put("index", index);
+                j.put("active", struct.getDataType(0).getBooleanObject().getState());
+                j.put("APN", getStringValueFromStructureEntry(config, 1));
+                j.put("userName", getStringValueFromStructureEntry(config, 2));
+                j.put("password", getStringValueFromStructureEntry(config, 3));
+                jsonArray.put(j);
+            }
+
+            json.put("configurations", jsonArray);
+
+            return new RegisterValue(getObisCode(), json.toString());
+
+        } catch (Exception e) {
+            // swallow and return default
         }
-        return new RegisterValue(getObisCode(), multiApnSetup.toString());
+
+        return new RegisterValue(getObisCode(), abstractDataType.toString());
     }
 
     private String getStringValueFromStructureEntry(AbstractDataType config, int entryIndex) {
