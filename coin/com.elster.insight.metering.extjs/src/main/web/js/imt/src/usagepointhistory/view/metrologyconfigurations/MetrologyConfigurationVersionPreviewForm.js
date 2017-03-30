@@ -71,6 +71,7 @@ Ext.define('Imt.usagepointhistory.view.metrologyconfigurations.MetrologyConfigur
 
     loadPurposes: function (purposes) {
         var me = this;
+        me.down('#fld-container-active-purposes').removeAll();
         _.each(purposes, function(purpose, key){
             _.each(purpose, function(readingType, index){
                 me.down('#fld-container-active-purposes').add({
