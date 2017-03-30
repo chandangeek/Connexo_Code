@@ -1,20 +1,14 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.io;
 
-import com.energyict.mdc.common.ComServerRuntimeException;
-import com.energyict.mdc.io.CommunicationException;
-
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.common.ComServerRuntimeException;
 
 import java.io.IOException;
 
-/**
- * Wrapper around a {@link CommunicationException} indicating that an exception occurred
- * during the <b>setup</b> of an inbound call.
- * <p/>
- * Copyrights EnergyICT
- * Date: 5/11/12
- * Time: 14:26
- */
 public class InboundCommunicationException extends ComServerRuntimeException {
 
     /**

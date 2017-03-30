@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.io;
 
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -5,14 +9,6 @@ import com.energyict.mdc.upl.io.SerialComponentService;
 
 import java.util.logging.Level;
 
-/**
- * Provides functionality to create proper exceptions
- * related to an AT modem serial connection.
- * <p/>
- * Copyrights EnergyICT
- * Date: 12/11/12
- * Time: 15:04
- */
 public class ModemException extends CommunicationException {
 
     public ModemException(MessageSeed messageSeed, Object... messageArguments) {
