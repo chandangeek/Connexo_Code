@@ -1,7 +1,8 @@
-package com.energyict.mdc.issue.datavalidation.impl.event;
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
+package com.energyict.mdc.issue.datavalidation.impl.event;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
@@ -15,10 +16,13 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 @Component(name = "com.energyict.mdc.issue.datavalidation.DataValidationEventHandlerFactory",
            service = MessageHandlerFactory.class,

@@ -1,8 +1,8 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.issue.datavalidation.impl.entity;
-
-import java.time.Instant;
-
-import javax.validation.constraints.NotNull;
 
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ReadingType;
@@ -10,6 +10,9 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.energyict.mdc.issue.datavalidation.NotEstimatedBlock;
+
+import javax.validation.constraints.NotNull;
+import java.time.Instant;
 
 public class NotEstimatedBlockImpl implements NotEstimatedBlock {
     

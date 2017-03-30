@@ -1,13 +1,17 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.issue.datavalidation.impl.entity;
 
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.issue.share.Priority;
 import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueAssignee;
 import com.elster.jupiter.issue.share.entity.IssueComment;
 import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
-import com.elster.jupiter.issue.share.Priority;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.orm.DataModel;
@@ -208,7 +212,7 @@ public class IssueDataValidationImpl implements IssueDataValidation {
 
     @Override
     public List<NotEstimatedBlock> getNotEstimatedBlocks() {
-        Optional<? extends IssueDataValidation> issue = null;
+        Optional<? extends IssueDataValidation> issue;
         if (getStatus().isHistorical()) {
             issue = issueDataValidationService.findHistoricalIssue(getId());
         } else {
@@ -229,6 +233,16 @@ public class IssueDataValidationImpl implements IssueDataValidation {
     @Override
     public void setPriority(Priority priority) {
         getBaseIssue().setPriority(priority);
+    }
+
+    @Override
+    public Instant getCreateDateTime() {
+        return getBaseIssue().getCreateDateTime();
+    }
+
+    @Override
+    public void setCreateDateTime(Instant dateTime) {
+        getBaseIssue().setCreateDateTime(dateTime);
     }
 
     @Override

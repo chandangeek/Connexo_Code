@@ -1,10 +1,15 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.issue.datavalidation;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.users.User;
+
+import aQute.bnd.annotation.ProviderType;
 
 import java.util.ArrayList;
 import java.util.Collections;

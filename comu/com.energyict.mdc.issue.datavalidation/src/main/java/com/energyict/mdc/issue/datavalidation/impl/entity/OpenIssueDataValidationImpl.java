@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.issue.datavalidation.impl.entity;
 
 import com.elster.jupiter.issue.share.entity.HistoricalIssue;
@@ -15,6 +19,7 @@ import com.energyict.mdc.issue.datavalidation.HistoricalIssueDataValidation;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
 import com.energyict.mdc.issue.datavalidation.NotEstimatedBlock;
 import com.energyict.mdc.issue.datavalidation.OpenIssueDataValidation;
+
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;

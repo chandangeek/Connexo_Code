@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.issue.datavalidation.impl;
 
 import com.elster.jupiter.cbo.Accumulation;
@@ -12,7 +16,10 @@ import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
+import com.elster.jupiter.fsm.CustomStateTransitionEventType;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
+import com.elster.jupiter.fsm.Stage;
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.issue.impl.service.IssueServiceImpl;
 import com.elster.jupiter.issue.share.Priority;
 import com.elster.jupiter.issue.share.entity.CreationRule;
@@ -35,10 +42,13 @@ import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.properties.HasIdAndName;
+import com.elster.jupiter.properties.InstantFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecPossibleValues;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.users.Privilege;
+import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -46,12 +56,18 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
+import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
+import com.energyict.mdc.device.lifecycle.ExecutableAction;
+import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
+import com.energyict.mdc.device.lifecycle.config.DefaultCustomStateTransitionEventType;
 import com.energyict.mdc.issue.datavalidation.DataValidationIssueFilter;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidation;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
 import com.energyict.mdc.issue.datavalidation.impl.DataValidationIssueCreationRuleTemplate.DeviceConfigurationInfo;
 import com.energyict.mdc.issue.datavalidation.impl.event.DataValidationEventHandlerFactory;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import java.math.BigDecimal;
 import java.sql.SQLException;
@@ -60,9 +76,11 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.TimeZone;
 
 import org.junit.AfterClass;
@@ -71,9 +89,11 @@ import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
+import org.mockito.Matchers;
 import org.mockito.Mockito;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -333,7 +353,11 @@ public class DataValidationIssueCreationRuleTemplateTest {
 
     private DeviceType createDeviceType() {
         DeviceConfigurationService deviceConfigurationService = inMemoryPersistence.getService(DeviceConfigurationService.class);
-        return deviceConfigurationService.newDeviceType("DeviceType", mock(DeviceProtocolPluggableClass.class, Mockito.RETURNS_DEEP_STUBS));
+        ProtocolPluggableService protocolPluggableService = inMemoryPersistence.getService(ProtocolPluggableService.class);
+        protocolPluggableService.addDeviceProtocolService(new BareMinimumDeviceProtocolService());
+        DeviceProtocolPluggableClass deviceProtocolPluggableClass = protocolPluggableService.newDeviceProtocolPluggableClass("DVALIDATION", BareMinimumDeviceProtocol.class.getName());
+        deviceProtocolPluggableClass.save();
+        return deviceConfigurationService.newDeviceType("DeviceType", deviceProtocolPluggableClass);
     }
 
     private DeviceConfiguration createDeviceConfiguration(DeviceType deviceType, String name) {
@@ -345,8 +369,20 @@ public class DataValidationIssueCreationRuleTemplateTest {
 
     private Meter createMeter(DeviceConfiguration deviceConfiguration, String name, Instant creationTime) {
         DeviceService deviceService = inMemoryPersistence.getService(DeviceService.class);
-        Device device = deviceService.newDevice(deviceConfiguration, name, name, creationTime);
+        Device device = deviceService.newDevice(deviceConfiguration, name, name, creationTime.minusMillis(1));
         device.save();
+        CustomStateTransitionEventType activatedEventType = DefaultCustomStateTransitionEventType.ACTIVATED.findOrCreate(inMemoryPersistence.getFiniteStateMachineService());
+
+        User user = mock(User.class);
+        when(user.getName()).thenReturn("name");
+        when(user.getLocale()).thenReturn(Optional.empty());
+        inMemoryPersistence.getThreadPrincipalService().set(user);
+        when(user.hasPrivilege(anyString(), (Privilege) Matchers.any())).thenReturn(true);
+
+        ExecutableAction installAndActivateAction = inMemoryPersistence.getDeviceLifeCycleService().getExecutableActions(device, activatedEventType).get();
+        // Business method
+        installAndActivateAction.execute(creationTime, Collections.emptyList());
+
         MeteringService meteringService = inMemoryPersistence.getService(MeteringService.class);
         AmrSystem amrSystem = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
         return amrSystem.findMeter(String.valueOf(device.getId())).get();
@@ -367,9 +403,22 @@ public class DataValidationIssueCreationRuleTemplateTest {
                 .setIssueType(issueService.findIssueType(IssueDataValidationService.ISSUE_TYPE_NAME).get())
                 .setReason(issueService.findReason(IssueDataValidationService.DATA_VALIDATION_ISSUE_REASON).get())
                 .setPriority(Priority.DEFAULT)
+                .activate()
                 .setDueInTime(DueInType.YEAR, 5)
                 .setProperties(props)
                 .complete();
+    }
+
+    private static class BareMinimumDeviceProtocolService implements DeviceProtocolService {
+        @Override
+        public Object createProtocol(String className) {
+            if (BareMinimumDeviceProtocol.class.getName().equals(className)) {
+                return new BareMinimumDeviceProtocol();
+            }
+            else {
+                return null;
+            }
+        }
     }
 
 }

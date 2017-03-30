@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.issue.datavalidation.impl.actions;
 
 
@@ -85,7 +89,7 @@ public class RetryEstimationAction extends AbstractIssueAction {
         IssueDataValidation dviIssue = (IssueDataValidation) issue;
 
         List<EstimationBlock> nonEstimatedBlocks = new ArrayList<>();
-        dviIssue.getNotEstimatedBlocks().stream().forEach(block -> {
+        dviIssue.getNotEstimatedBlocks().forEach(block -> {
             Channel channel = block.getChannel();
             Optional<Meter> meter = channel.getChannelsContainer().getMeter();
             if (meter.isPresent()) {
