@@ -17,6 +17,7 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.TemporalReference;
 import com.elster.jupiter.orm.associations.Temporals;
+import com.elster.jupiter.pki.CryptographicType;
 import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.TrustStore;
@@ -78,6 +79,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -88,6 +90,8 @@ import java.util.stream.Collectors;
 @ValidChangesWithExistingConfigurations(groups = {Save.Update.class})
 @DeviceProtocolPluggableClassValidation(groups = {Save.Create.class, Save.Update.class})
 public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements ServerDeviceType {
+
+    public static final EnumSet<CryptographicType> CERTIFICATES = EnumSet.of(CryptographicType.Certificate, CryptographicType.ClientCertificate, CryptographicType.TrustedCertificate);
 
     enum Fields {
         DEVICE_PROTOCOL_PLUGGABLE_CLASS("deviceProtocolPluggableClassId"),
@@ -368,10 +372,12 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
 
         @Override
         public KeyAccessorType add() {
-            underConstruction.addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1);
-            underConstruction.addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES2);
-            underConstruction.addUserAction(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES1);
-            underConstruction.addUserAction(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES2);
+            if (!CERTIFICATES.contains(underConstruction.getKeyType().getCryptographicType())) {
+                underConstruction.addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1);
+                underConstruction.addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES2);
+                underConstruction.addUserAction(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES1);
+                underConstruction.addUserAction(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES2);
+            }
             Save.CREATE.validate(getDataModel(), underConstruction);
             DeviceTypeImpl.this.keyAccessors.add(underConstruction);
             return underConstruction;
