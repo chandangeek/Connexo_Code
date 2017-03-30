@@ -1,16 +1,18 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.tasks.rest.impl.util;
 
-import com.elster.jupiter.rest.util.ConcurrentModificationExceptionBuilder;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
+import com.energyict.mdc.tasks.rest.impl.ComTaskInfo;
 
 import javax.inject.Inject;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
-import java.util.Objects;
 import java.util.Optional;
-import com.energyict.mdc.tasks.rest.impl.ComTaskInfo;
 
 @SuppressWarnings("PackageAccessibility")
 public class ResourceHelper {

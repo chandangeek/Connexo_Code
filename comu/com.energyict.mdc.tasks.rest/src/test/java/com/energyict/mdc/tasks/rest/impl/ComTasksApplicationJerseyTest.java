@@ -1,10 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.tasks.rest.impl;
 
+import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.tasks.TaskService;
-
-import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 
 import javax.ws.rs.core.Application;
 

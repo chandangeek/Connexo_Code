@@ -1,10 +1,14 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.tasks.rest.impl;
 
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.tasks.rest.Categories;
+
 import com.jayway.jsonpath.JsonModel;
-import org.junit.Test;
 
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;
@@ -12,6 +16,8 @@ import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -34,13 +40,14 @@ public class ComTaskResourceTest extends ComTasksApplicationJerseyTest {
         String response = target("/comtasks/categories").request().get(String.class);
 
         JsonModel jsonModel = JsonModel.create(response);
-        assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(6);
+        assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(7);
         assertThat(jsonModel.<String>get("$.data[?(@.id=='logbooks')].name[0]")).isEqualTo(MessageSeeds.LOGBOOKS.getDefaultFormat());
         assertThat(jsonModel.<String>get("$.data[?(@.id=='registers')].name[0]")).isEqualTo(MessageSeeds.REGISTERS.getDefaultFormat());
         assertThat(jsonModel.<String>get("$.data[?(@.id=='topology')].name[0]")).isEqualTo(MessageSeeds.TOPOLOGY.getDefaultFormat());
         assertThat(jsonModel.<String>get("$.data[?(@.id=='loadprofiles')].name[0]")).isEqualTo(MessageSeeds.LOADPROFILES.getDefaultFormat());
         assertThat(jsonModel.<String>get("$.data[?(@.id=='clock')].name[0]")).isEqualTo(MessageSeeds.CLOCK.getDefaultFormat());
         assertThat(jsonModel.<String>get("$.data[?(@.id=='statusInformation')].name[0]")).isEqualTo(MessageSeeds.STATUS_INFORMATION.getDefaultFormat());
+        assertThat(jsonModel.<String>get("$.data[?(@.id=='basiccheck')].name[0]")).isEqualTo(MessageSeeds.BASIC_CHECK.getDefaultFormat());
     }
 
     @Test
