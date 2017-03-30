@@ -385,7 +385,7 @@ Ext.define('Pkj.controller.TrustStores', {
 
         confirmationWindow.show({
             title: Uni.I18n.translate('general.removeX', 'PKJ', "Remove '{0}'?", certificateRecord.get('alias')),
-            msg: Uni.I18n.translate('certificate.remove.msg', 'PKJ', 'Removing this trusted certificate could break a trust chain.'),
+            msg: Uni.I18n.translate('trustedCertificate.remove.msg', 'PKJ', 'Removing this trusted certificate could break a trust chain.'),
             fn: function (state) {
                 if (state === 'confirm') {
 
@@ -394,7 +394,7 @@ Ext.define('Pkj.controller.TrustStores', {
                         method: 'DELETE',
                         callback: function (config, success, response) {
                             if (Ext.isEmpty(response.responseText)) {
-                                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.certificateRemoved', 'PKJ', 'Trusted certificate removed'));
+                                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.trustedCertificateRemoved', 'PKJ', 'Trusted certificate removed'));
                                 me.navigateToTrustStoreAndCertificatesPage();
                             }
                         }
