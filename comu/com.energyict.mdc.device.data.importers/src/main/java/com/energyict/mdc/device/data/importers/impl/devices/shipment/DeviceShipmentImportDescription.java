@@ -1,8 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.importers.impl.devices.shipment;
 
+import com.elster.jupiter.fileimport.csvimport.fields.CommonField;
+import com.elster.jupiter.fileimport.csvimport.fields.FileImportField;
 import com.energyict.mdc.device.data.importers.impl.FileImportDescription;
-import com.energyict.mdc.device.data.importers.impl.fields.CommonField;
-import com.energyict.mdc.device.data.importers.impl.fields.FileImportField;
 import com.energyict.mdc.device.data.importers.impl.parsers.DateParser;
 import com.energyict.mdc.device.data.importers.impl.parsers.LiteralStringParser;
 import com.energyict.mdc.device.data.importers.impl.parsers.NumberParser;
@@ -41,6 +45,18 @@ public class DeviceShipmentImportDescription implements FileImportDescription<De
                 .withSetter(record::setDeviceConfiguration)
                 .markMandatory()
                 .build());
+        // Manufacturer
+        fields.add(CommonField.withParser(stringParser)
+                .withSetter(record::setManufacturer)
+                .build());
+        // Model number
+        fields.add(CommonField.withParser(stringParser)
+                .withSetter(record::setModelNbr)
+                .build());
+        // Model Version
+        fields.add(CommonField.withParser(stringParser)
+                .withSetter(record::setModelVersion)
+                .build());
         // Shipment date
         fields.add(CommonField.withParser(dateParser)
                 .withSetter(record::setShipmentDate)
@@ -50,6 +66,7 @@ public class DeviceShipmentImportDescription implements FileImportDescription<De
         fields.add(CommonField.withParser(stringParser)
                 .withSetter(record::setSerialNumber)
                 .build());
+
         // Year or certification
         fields.add(CommonField.withParser(new NumberParser())
                 .withSetter(number -> record.setYearOfCertification(number != null ? number.intValue() : null))

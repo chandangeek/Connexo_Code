@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.importers.impl;
 
 import com.elster.jupiter.fileimport.FileImporterProperty;
@@ -7,6 +11,7 @@ import com.elster.jupiter.properties.PropertySpecBuilder;
 import com.elster.jupiter.users.PreferenceType;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserPreference;
+
 import com.energyict.mdc.device.data.importers.impl.properties.DateFormatPropertySpec;
 import com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat;
 import com.energyict.mdc.device.data.importers.impl.properties.TimeZonePropertySpec;

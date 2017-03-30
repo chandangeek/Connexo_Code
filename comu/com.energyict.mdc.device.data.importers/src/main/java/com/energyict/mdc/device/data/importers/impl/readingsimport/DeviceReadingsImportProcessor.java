@@ -1,6 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.importers.impl.readingsimport;
 
 import com.elster.jupiter.cbo.MacroPeriod;
+import com.elster.jupiter.fileimport.csvimport.exceptions.ProcessorException;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
@@ -22,7 +27,6 @@ import com.energyict.mdc.device.data.importers.impl.AbstractDeviceDataFileImport
 import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterContext;
 import com.energyict.mdc.device.data.importers.impl.FileImportLogger;
 import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
-import com.energyict.mdc.device.data.importers.impl.exceptions.ProcessorException;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 
@@ -161,6 +165,9 @@ public class DeviceReadingsImportProcessor extends AbstractDeviceDataFileImportP
             }
             if (MacroPeriod.MONTHLY == readingType.getMacroPeriod() && !(readingDate.getDayOfMonth() == 1 && validTimeOfDay(readingDate))) {
                 throw new ProcessorException(MessageSeeds.READING_DATE_INCORRECT_FOR_MONTHLY_CHANNEL, lineNumber, readingType.getMRID(), readingDate.getZone());
+            }
+            if (MacroPeriod.YEARLY == readingType.getMacroPeriod() && !(readingDate.getDayOfYear() == 1 && validTimeOfDay(readingDate))) {
+                throw new ProcessorException(MessageSeeds.READING_DATE_INCORRECT_FOR_YEARLY_CHANNEL, lineNumber, readingType.getMRID(), readingDate.getZone());
             }
         }
     }

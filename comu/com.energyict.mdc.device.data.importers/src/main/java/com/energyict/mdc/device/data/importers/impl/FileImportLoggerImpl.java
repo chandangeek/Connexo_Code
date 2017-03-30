@@ -1,6 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.importers.impl;
 
 import com.elster.jupiter.fileimport.FileImportOccurrence;
+import com.elster.jupiter.fileimport.csvimport.exceptions.ImportException;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.data.importers.impl.exceptions.ImportException;

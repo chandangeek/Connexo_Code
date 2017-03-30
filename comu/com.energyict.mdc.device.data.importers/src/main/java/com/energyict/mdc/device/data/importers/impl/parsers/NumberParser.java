@@ -1,6 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.importers.impl.parsers;
 
-import com.energyict.mdc.device.data.importers.impl.exceptions.ValueParserException;
+import com.elster.jupiter.fileimport.csvimport.FieldParser;
+import com.elster.jupiter.fileimport.csvimport.exceptions.ValueParserException;
 
 import java.text.NumberFormat;
 import java.text.ParsePosition;
@@ -9,6 +14,11 @@ import java.util.Locale;
 import static com.elster.jupiter.util.Checks.is;
 
 public class NumberParser implements FieldParser<Number> {
+
+    @Override
+    public Class<Number> getValueType() {
+        return Number.class;
+    }
 
     public Number parse(String value) throws ValueParserException {
         if (is(value).emptyOrOnlyWhiteSpace()) {

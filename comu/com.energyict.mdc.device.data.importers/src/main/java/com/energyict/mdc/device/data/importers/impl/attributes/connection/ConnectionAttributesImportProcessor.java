@@ -1,5 +1,10 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.importers.impl.attributes.connection;
 
+import com.elster.jupiter.fileimport.csvimport.exceptions.ProcessorException;
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.ValueFactory;
@@ -14,7 +19,6 @@ import com.energyict.mdc.device.data.importers.impl.FileImportLogger;
 import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
 import com.energyict.mdc.device.data.importers.impl.attributes.DynamicPropertyConverter;
 import com.energyict.mdc.device.data.importers.impl.attributes.DynamicPropertyConverter.PropertiesConverterConfig;
-import com.energyict.mdc.device.data.importers.impl.exceptions.ProcessorException;
 import com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
@@ -50,7 +54,7 @@ public class ConnectionAttributesImportProcessor extends AbstractDeviceDataFileI
             validateConnectionMethodProperties(data, connectionTask.get().getConnectionType(), logger);
             ConnectionTask task = connectionTask.get();
             setConnectionAttributes(data, task.getConnectionType(), task::setProperty);
-            task.save();
+            task.saveAllProperties();
             logMissingPropertiesIfIncomplete(task, data, logger);
         } else {
             PartialConnectionTask partialConnectionTask = device.getDeviceConfiguration().getPartialConnectionTasks()

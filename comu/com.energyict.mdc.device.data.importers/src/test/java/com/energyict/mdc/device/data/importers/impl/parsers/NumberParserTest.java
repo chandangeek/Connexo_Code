@@ -1,10 +1,10 @@
 /*
- * Copyright (c) 2016 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
 package com.energyict.mdc.device.data.importers.impl.parsers;
 
-import com.energyict.mdc.device.data.importers.impl.exceptions.ValueParserException;
+import com.elster.jupiter.fileimport.csvimport.exceptions.ValueParserException;
 
 import org.junit.Test;
 
