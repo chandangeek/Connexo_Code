@@ -39,6 +39,7 @@ import org.junit.Before;
 
 import java.time.Instant;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.TimeZone;
@@ -71,7 +72,7 @@ public abstract class AbstractComTaskExecutionImplTest extends PersistenceIntegr
     protected static InboundComPortPool createInboundComPortPool(String name) {
         InboundDeviceProtocolPluggableClass inboundDeviceProtocolPluggableClass = mock(InboundDeviceProtocolPluggableClass.class);
         when(inboundDeviceProtocolPluggableClass.getId()).thenReturn(1L);
-        InboundComPortPool inboundComPortPool = inMemoryPersistence.getEngineConfigurationService().newInboundComPortPool(name, ComPortType.TCP, inboundDeviceProtocolPluggableClass);
+        InboundComPortPool inboundComPortPool = inMemoryPersistence.getEngineConfigurationService().newInboundComPortPool(name, ComPortType.TCP, inboundDeviceProtocolPluggableClass, Collections.emptyMap());
         inboundComPortPool.setActive(true);
         inboundComPortPool.update();
         return inboundComPortPool;
@@ -79,9 +80,6 @@ public abstract class AbstractComTaskExecutionImplTest extends PersistenceIntegr
 
     @Before
     public void getFirstProtocolDialectConfigurationPropertiesFromDeviceConfiguration() {
-        deviceConfiguration.findOrCreateProtocolDialectConfigurationProperties(new ComTaskExecutionDialect());
-        deviceConfiguration.save();
-        this.protocolDialectConfigurationProperties = this.deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(0);
         IssueStatus wontFix = mock(IssueStatus.class);
         when(inMemoryPersistence.getIssueService().findStatus(IssueStatus.WONT_FIX)).thenReturn(Optional.of(wontFix));
     }
@@ -96,10 +94,10 @@ public abstract class AbstractComTaskExecutionImplTest extends PersistenceIntegr
     }
 
     protected ComTaskEnablement enableComTask(boolean useDefault) {
-        return enableComTask(useDefault,COM_TASK_NAME);
+        return enableComTask(useDefault, COM_TASK_NAME);
     }
 
-    protected ComTaskEnablement enableComTask(boolean useDefault,String comTaskName) {
+    protected ComTaskEnablement enableComTask(boolean useDefault, String comTaskName) {
         ComTask comTaskWithBasicCheck = createComTaskWithBasicCheck(comTaskName);
         ComTaskEnablementBuilder builder = this.deviceConfiguration.enableComTask(comTaskWithBasicCheck, this.securityPropertySet);
         builder.useDefaultConnectionTask(useDefault);
@@ -293,14 +291,6 @@ public abstract class AbstractComTaskExecutionImplTest extends PersistenceIntegr
         @Override
         public Optional<CustomPropertySet<DeviceProtocolDialectPropertyProvider, ? extends PersistentDomainExtension<DeviceProtocolDialectPropertyProvider>>> getCustomPropertySet() {
             return Optional.empty();
-        }
-    }
-
-    protected class OtherComTaskExecutionDialect extends ComTaskExecutionDialect {
-
-        @Override
-        public String getDeviceProtocolDialectName() {
-            return OTHER_DEVICE_PROTOCOL_DIALECT_NAME;
         }
     }
 }

@@ -16,7 +16,7 @@ import java.util.Set;
  * Implementation of a {@link MessageIdentifier} that uniquely identifies a {@link DeviceMessage}
  * based on the ID of the DeviceMessage
  * <p>
- * Copyrights EnergyICT
+ *
  * Date: 22/03/13
  * Time: 9:05
  */

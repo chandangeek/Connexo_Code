@@ -5,7 +5,7 @@ import com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel.CXOEncrypti
 import com.energyict.mdc.upl.security.SecurityPropertySet;
 
 /**
- * Copyrights EnergyICT
+ *
  *
  * @author khe
  * @since 23/02/2017 - 15:47

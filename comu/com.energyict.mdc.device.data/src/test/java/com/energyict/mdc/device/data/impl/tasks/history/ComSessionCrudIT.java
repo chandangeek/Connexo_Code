@@ -287,7 +287,7 @@ public class ComSessionCrudIT {
             DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration(DEVICE_CONFIGURATION_NAME);
             deviceConfigurationBuilder.isDirectlyAddressable(true);
             deviceConfiguration = deviceConfigurationBuilder.add();
-            configDialectProps = deviceConfiguration.findOrCreateProtocolDialectConfigurationProperties(new PartialConnectionTaskProtocolDialect());
+            configDialectProps = deviceConfiguration.findOrCreateProtocolDialectConfigurationProperties(new ComTaskExecutionDialect());
             deviceConfiguration.save();
             deviceConfiguration.activate();
             device = this.deviceDataModelService.deviceService()

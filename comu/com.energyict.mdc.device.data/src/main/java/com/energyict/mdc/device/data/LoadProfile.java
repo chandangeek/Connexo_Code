@@ -17,7 +17,7 @@ import java.util.List;
  * Models a LoadProfile on a Device. It <i>bundles</i> channels
  * with the same interval.
  * <p>
- * Copyrights EnergyICT
+ *
  * Date: 3/17/14
  * Time: 3:30 PM
  */

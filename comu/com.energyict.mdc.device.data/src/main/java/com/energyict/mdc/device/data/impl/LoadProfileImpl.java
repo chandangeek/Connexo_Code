@@ -187,7 +187,7 @@ public class LoadProfileImpl implements ServerLoadProfileForConfigChange {
      * of the {@link com.energyict.mdc.device.config.DeviceConfiguration}.
      * <i>Currently a {@link Device} can only have Channel if it is owned by a LoadProfile</i>
      * <p>
-     * Copyrights EnergyICT
+     *
      * Date: 3/17/14
      * Time: 2:17 PM
      */

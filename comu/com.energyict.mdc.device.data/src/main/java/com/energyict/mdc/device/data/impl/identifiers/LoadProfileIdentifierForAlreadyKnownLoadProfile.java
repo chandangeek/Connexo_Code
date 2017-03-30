@@ -7,7 +7,6 @@ package com.energyict.mdc.device.data.impl.identifiers;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
-
 import com.energyict.obis.ObisCode;
 
 import java.text.MessageFormat;
@@ -16,7 +15,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 8/1/14
  * Time: 2:59 PM
  */

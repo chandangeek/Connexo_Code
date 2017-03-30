@@ -3,7 +3,6 @@ package com.energyict.mdc.device.data.impl.identifiers;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
-
 import com.energyict.obis.ObisCode;
 
 import java.util.Collections;
@@ -12,7 +11,7 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
- * Copyrights EnergyICT
+ *
  *
  * @author khe
  * @since 8/12/2016 - 16:04

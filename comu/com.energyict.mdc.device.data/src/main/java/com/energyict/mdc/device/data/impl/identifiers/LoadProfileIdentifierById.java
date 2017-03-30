@@ -17,7 +17,7 @@ import java.util.Set;
 /**
  * Implementation of a LoadProfileIdentifier that uniquely identifies a LoadProfile with its database ID.
  * <p>
- * Copyrights EnergyICT
+ *
  * Date: 13/05/13
  * Time: 13:30
  */

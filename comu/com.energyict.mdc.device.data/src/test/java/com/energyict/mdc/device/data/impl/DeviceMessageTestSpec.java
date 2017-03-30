@@ -24,7 +24,7 @@ import static org.mockito.Mockito.when;
 /**
  * Test enum implementing DeviceMessageSpec
  * <p>
- * Copyrights EnergyICT
+ *
  * Date: 8/02/13
  * Time: 15:16
  */

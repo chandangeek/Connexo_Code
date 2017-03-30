@@ -66,7 +66,7 @@ import static org.mockito.Mockito.mock;
 /**
  * Integration test for the {@link ProtocolDialectPropertiesImpl} component.
  * <p>
- * Copyrights EnergyICT
+ *
  * Date: 26/04/13
  * Time: 16:46
  */

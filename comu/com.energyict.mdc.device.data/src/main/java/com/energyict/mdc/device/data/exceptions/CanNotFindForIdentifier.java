@@ -15,7 +15,7 @@ import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
  * Generate exceptions for situations where an identifier could not find a corresponding object based on
  * the parameters in the identifier
  * <p>
- * Copyrights EnergyICT
+ *
  * Date: 12/18/14
  * Time: 1:15 PM
  */

@@ -10,7 +10,7 @@ import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 /**
  * Adds functionality to a DeviceMessage which should not be in the public API
  *
- * Copyrights EnergyICT
+ *
  * Date: 11/5/14
  * Time: 10:57 AM
  */
