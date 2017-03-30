@@ -156,6 +156,11 @@ public class UsagePointMeterActivationException extends LocalizedException {
         return ex;
     }
 
+    public static class ActivationTimeBeforeUsagePointInstallationDate extends UsagePointMeterActivationException {
+        public ActivationTimeBeforeUsagePointInstallationDate(Thesaurus thesaurus, String usagePointInstallationTime) {
+            super(thesaurus, MessageSeeds.METER_ACTIVATION_BEFORE_UP_INSTALLATION_TIME, usagePointInstallationTime);
+        }
+    }
     public static class IncorrectDeviceStageWithoutMetrologyConfig extends UsagePointMeterActivationException {
         public IncorrectDeviceStageWithoutMetrologyConfig(Thesaurus thesaurus, String meter, String usagePoint, String date) {
             super(thesaurus, MessageSeeds.INVALID_END_DEVICE_STAGE, meter, usagePoint, date);

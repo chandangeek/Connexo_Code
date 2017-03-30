@@ -102,7 +102,7 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
 
     private Instant checkTimeBounds(Instant time) {
         if (time == null || this.usagePoint.getInstallationTime().isAfter(time)) {
-            throw new IllegalArgumentException("Activation time can't be less than usage point installation time");
+            throw new UsagePointMeterActivationException.ActivationTimeBeforeUsagePointInstallationDate(metrologyConfigurationService.getThesaurus(), formatDate(this.usagePoint.getInstallationTime()));
         }
         return time;
     }
