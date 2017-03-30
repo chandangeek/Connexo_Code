@@ -11,7 +11,7 @@ import java.util.Arrays;
 public enum Privileges implements TranslationKey {
     //Resources
     RESOURCE_CERTIFICATE("pki.certificateMgmt", "Certificate management"),
-    RESOURCE_CERTIFICATES_DESCRIPTION("pki.certificates.description", "Manage certificates"),
+    RESOURCE_CERTIFICATES_DESCRIPTION("pki.certificates.description", "Manage trust stores and certificates"),
 
     //Privileges
     VIEW_CERTIFICATES(Constants.VIEW_CERTIFICATES, "View"),
