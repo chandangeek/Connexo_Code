@@ -13,10 +13,12 @@ import javax.validation.ConstraintValidatorContext;
 import java.util.EnumSet;
 
 /**
- * Created by bvn on 3/13/17.
+ * Validate the KeyEncryptionMethod is present on KeyAccessorTypes that require one: Symmetric key, Asymmetric keys,
+ * passphrases and ClientCertificates (the latter have a private key attached)
  */
 public class KeyEncryptionMethodValidValidator implements ConstraintValidator<KeyEncryptionMethodValid, KeyAccessorType> {
-    private static final EnumSet<CryptographicType> SECRETS = EnumSet.of(CryptographicType.AsymmetricKey, CryptographicType.Passphrase, CryptographicType.SymmetricKey);
+    private static final EnumSet<CryptographicType> SECRETS = EnumSet.of(CryptographicType.AsymmetricKey, CryptographicType.Passphrase,
+            CryptographicType.SymmetricKey, CryptographicType.ClientCertificate);
     private String message;
 
     @Override
