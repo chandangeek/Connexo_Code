@@ -39,7 +39,7 @@ public class UnitMatcher implements Matcher<Integer> {
     /**
      * Defines a matcher to indicate if the given field is a BaseUnit which is a 'flow unit'
      * <p/>
-     * Copyrights EnergyICT
+     *
      * Date: 18/12/13
      * Time: 18:09
      */
@@ -67,7 +67,7 @@ public class UnitMatcher implements Matcher<Integer> {
     /**
      * Defines a matcher to indicate if the given field is a BaseUnit which is a 'volume unit'
      * <p/>
-     * Copyrights EnergyICT
+     *
      * Date: 18/12/13
      * Time: 18:10
      */

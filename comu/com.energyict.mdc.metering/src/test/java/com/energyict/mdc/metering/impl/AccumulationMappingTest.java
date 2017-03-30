@@ -5,10 +5,8 @@
 package com.energyict.mdc.metering.impl;
 
 import com.elster.jupiter.cbo.Accumulation;
-import com.energyict.obis.ObisCode;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.common.ObisCode;
-
+import com.energyict.obis.ObisCode;
 import org.junit.Test;
 
 import static org.fest.assertions.Assertions.assertThat;
