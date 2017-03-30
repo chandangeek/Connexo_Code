@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.monitor.app.security;
 
 import com.elster.jupiter.nls.TranslationKey;
@@ -5,11 +9,6 @@ import com.elster.jupiter.nls.TranslationKey;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
-/**
- * Copyrights EnergyICT
- * Date: 12/02/2016
- * Time: 9:23
- */
 public enum PrivilegeTranslationKeyPair implements TranslationKey {
 
     //Resources

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('CSMonitor.view.performance.ThreadsChart', {
     extend: 'Ext.chart.Chart',
     requires: ['Ext.chart.Chart', 'Ext.chart.series.Pie', 'CSMonitor.theme.Elster'],

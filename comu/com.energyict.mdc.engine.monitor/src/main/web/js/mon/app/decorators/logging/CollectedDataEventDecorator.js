@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('CSMonitor.decorators.logging.CollectedDataEventDecorator', {
     extend: 'CSMonitor.decorators.logging.DefaultEventDecorator',
     alternateClassName: ['CollectedDataEventDecorator'],

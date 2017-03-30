@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('CSMonitor.decorators.logging.EventDecoratorFactory', {
     alternateClassName: ['EventDecoratorFactory'],
     requires: ['CSMonitor.decorators.logging.DefaultEventDecorator', 'CSMonitor.decorators.logging.LoggingEventDecorator', 'CSMonitor.decorators.logging.ReadWriteEventDecorator', 'CSMonitor.decorators.logging.CollectedDataEventDecorator',],

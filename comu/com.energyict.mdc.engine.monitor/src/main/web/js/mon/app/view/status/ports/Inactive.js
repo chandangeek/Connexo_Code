@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('CSMonitor.view.status.ports.Inactive', {
     extend: 'Ext.grid.Panel',
     xtype: 'inactivePorts',

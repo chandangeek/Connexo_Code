@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('CSMonitor.controller.logging.Text', {
     extend: 'Ext.app.Controller',
     requires: ['CSMonitor.decorators.logging.EventDecoratorFactory'],

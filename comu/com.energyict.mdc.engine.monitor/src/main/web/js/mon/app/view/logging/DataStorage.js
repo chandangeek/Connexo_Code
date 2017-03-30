@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('CSMonitor.view.logging.DataStorage', {
     extend: 'Ext.container.Container',
     xtype: 'dataStorage',
