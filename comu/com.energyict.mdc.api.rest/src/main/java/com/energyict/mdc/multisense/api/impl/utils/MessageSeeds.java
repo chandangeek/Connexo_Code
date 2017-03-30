@@ -71,7 +71,8 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_METROLOGY_CONFIGURATION(58, "NoSuchMetrologyConfig", "No such metrology configuration"),
     NO_SUCH_METER_ACTIVATION(59, "NoSuchMeterActivation", "No such meter activation on the usage point"),
     EMPTY_REQUEST(60, "NoData", "No data found in your request"),
-    NO_SUCH_METER(61, "NoSuchMeter", "No such meter");
+    NO_SUCH_METER(61, "NoSuchMeter", "No such meter"),
+    NO_SUCH_KEYACCESSORTYPE_FOR_DEVICE(62, "NoSuchKeyAccessorTypeForDevice", "No such security accessor type for this devicetype");
 
     private final int number;
     private final String key;

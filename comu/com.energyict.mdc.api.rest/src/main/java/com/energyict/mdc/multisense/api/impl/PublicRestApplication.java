@@ -124,7 +124,7 @@ public class PublicRestApplication extends Application implements TranslationKey
                 PartialConnectionTaskResource.class,
                 ProtocolDialectConfigurationPropertiesResource.class,
                 ProtocolTaskResource.class,
-
+                KeyAccessorTypeResource.class,
                 RestExceptionMapper.class,
                 DeviceLifeCycleActionViolationExceptionMapper.class
         );
@@ -355,6 +355,7 @@ public class PublicRestApplication extends Application implements TranslationKey
             bind(DeviceMessageEnablementInfoFactory.class).to(DeviceMessageEnablementInfoFactory.class);
             bind(DeviceSecurityPropertySetInfoFactory.class).to(DeviceSecurityPropertySetInfoFactory.class);
             bind(CustomPropertySetInfoFactory.class).to(CustomPropertySetInfoFactory.class);
+            bind(KeyAccessorTypeInfoFactory.class).to(KeyAccessorTypeInfoFactory.class);
         }
     }
 
