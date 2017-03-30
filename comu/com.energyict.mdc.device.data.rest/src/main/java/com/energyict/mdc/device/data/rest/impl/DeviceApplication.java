@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.appserver.AppService;
@@ -161,6 +165,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
                 ProtocolDialectResource.class,
                 RegisterResource.class,
                 RegisterDataResource.class,
+                RegisterHistoryDataResource.class,
                 DeviceValidationResource.class,
                 LoadProfileResource.class,
                 BulkScheduleResource.class,

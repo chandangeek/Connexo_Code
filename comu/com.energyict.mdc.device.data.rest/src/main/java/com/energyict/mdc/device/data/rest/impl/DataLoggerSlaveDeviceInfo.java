@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.energyict.mdc.device.data.Batch;
@@ -11,12 +15,6 @@ import java.util.List;
 
 import static com.elster.jupiter.util.Checks.is;
 
-/**
- * Slave devices linked to a data logger : rest counterpart of {@link com.energyict.mdc.device.topology.impl.DataLoggerReferenceImpl}
- * Copyrights EnergyICT
- * Date: 10/05/2016
- * Time: 10:41
- */
 public class DataLoggerSlaveDeviceInfo {
 
     public long id;
@@ -26,6 +24,9 @@ public class DataLoggerSlaveDeviceInfo {
     public long deviceTypeId;
     public String deviceConfigurationName;
     public String serialNumber;
+    public String manufacturer;
+    public String modelNbr;
+    public String modelVersion;
     public int yearOfCertification;
     public long version;
     public long shipmentDate;
@@ -80,6 +81,9 @@ public class DataLoggerSlaveDeviceInfo {
         info.deviceConfigurationId = device.getDeviceConfiguration().getId();
         info.deviceConfigurationName = device.getDeviceConfiguration().getName();
         info.serialNumber = device.getSerialNumber();
+        info.manufacturer = device.getManufacturer();
+        info.modelNbr = device.getModelNumber();
+        info.modelVersion = device.getManufacturer();
         info.yearOfCertification = device.getYearOfCertification();
         info.version = device.getVersion();
         info.fromExistingLink = true;

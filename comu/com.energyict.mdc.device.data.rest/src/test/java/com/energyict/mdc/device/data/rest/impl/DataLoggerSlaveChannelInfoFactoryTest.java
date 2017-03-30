@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.rest.impl;
 
 import java.util.Optional;
@@ -6,11 +10,6 @@ import org.junit.Test;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
-/**
- * Copyrights EnergyICT
- * Date: 22/06/2016
- * Time: 15:14
- */
 public class DataLoggerSlaveChannelInfoFactoryTest {
 
     @Test

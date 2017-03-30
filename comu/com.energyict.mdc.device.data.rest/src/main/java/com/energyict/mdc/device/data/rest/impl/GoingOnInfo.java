@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.rest.impl;
 
 import java.time.Instant;
@@ -5,7 +9,7 @@ import java.util.Comparator;
 
 public class GoingOnInfo {
     public String type;
-    public long id;
+    public String id;
     public String reference;
     public String description;
     public Instant dueDate;

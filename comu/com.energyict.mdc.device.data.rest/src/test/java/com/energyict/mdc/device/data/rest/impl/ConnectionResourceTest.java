@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.nls.NlsMessageFormat;
@@ -7,6 +11,7 @@ import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.interval.PartialTime;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.rest.DeviceConnectionTaskInfo;
 import com.energyict.mdc.device.data.rest.DeviceConnectionTaskInfo.ConnectionMethodInfo;
@@ -35,6 +40,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoField;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -86,7 +92,8 @@ public class ConnectionResourceTest extends DeviceDataRestApplicationJerseyTest 
     @Test
     public void testGetAllConnections() {
         ConnectionTask<?, ?> connectionTask = mockConnectionTask();
-        when(device.getConnectionTasks()).thenReturn(Arrays.asList(connectionTask));
+
+        when(device.getConnectionTasks()).thenReturn(Collections.singletonList(connectionTask));
 
         String response = target("/devices/ZABF0000000/connections").request().get(String.class);
 
@@ -121,16 +128,17 @@ public class ConnectionResourceTest extends DeviceDataRestApplicationJerseyTest 
         assertThat(jsonModel.<Boolean>get("$.connections[0].connectionMethod.isDefault")).isTrue();
         assertThat(jsonModel.<String>get("$.connections[0].connectionMethod.status")).isEqualTo("active");
         assertThat(jsonModel.<String>get("$.connections[0].window")).isEqualTo("00:01 - 00:02");
-        assertThat(jsonModel.<String>get("$.connections[0].connectionStrategy.id")).isEqualTo(ConnectionStrategy.AS_SOON_AS_POSSIBLE.name());
-        assertThat(jsonModel.<String>get("$.connections[0].connectionStrategy.displayValue")).isEqualTo(ConnectionStrategyTranslationKeys.AS_SOON_AS_POSSIBLE.getDefaultFormat());
+        assertThat(jsonModel.<String>get("$.connections[0].connectionStrategyInfo.connectionStrategy")).isEqualTo(ConnectionStrategy.AS_SOON_AS_POSSIBLE.name());
+        assertThat(jsonModel.<String>get("$.connections[0].connectionStrategyInfo.localizedValue")).isEqualTo(ConnectionStrategyTranslationKeys.AS_SOON_AS_POSSIBLE.getDefaultFormat());
         assertThat(jsonModel.<Long>get("$.connections[0].nextExecution")).isEqualTo(nextExecution.toEpochMilli());
         assertThat(jsonModel.<Integer>get("$.connections[0].comSessionId")).isEqualTo(1);
+        assertThat(jsonModel.<String>get("$.connections[0].protocolDialect")).isEqualTo("Protocol Dialect Name");
+        assertThat(jsonModel.<String>get("$.connections[0].protocolDialectDisplayName")).isEqualTo("Display Name of Protocol Dialect");
     }
 
     @Test
     public void testActivateConnection() {
         ConnectionTask<?, ?> connectionTask = mockConnectionTask();
-        when(device.getConnectionTasks()).thenReturn(Arrays.asList(connectionTask));
 
         DeviceConnectionTaskInfo info = new DeviceConnectionTaskInfo();
         info.connectionMethod = new ConnectionMethodInfo();
@@ -147,7 +155,7 @@ public class ConnectionResourceTest extends DeviceDataRestApplicationJerseyTest 
     @Test
     public void testDeactivateConnection() {
         ConnectionTask<?, ?> connectionTask = mockConnectionTask();
-        when(device.getConnectionTasks()).thenReturn(Arrays.asList(connectionTask));
+        when(device.getConnectionTasks()).thenReturn(Collections.singletonList(connectionTask));
 
         DeviceConnectionTaskInfo info = new DeviceConnectionTaskInfo();
         info.connectionMethod = new ConnectionMethodInfo();
@@ -164,7 +172,7 @@ public class ConnectionResourceTest extends DeviceDataRestApplicationJerseyTest 
     @Test
     public void testActivateDeactivateWrongStatus() {
         ConnectionTask<?, ?> connectionTask = mockConnectionTask();
-        when(device.getConnectionTasks()).thenReturn(Arrays.asList(connectionTask));
+        when(device.getConnectionTasks()).thenReturn(Collections.singletonList(connectionTask));
 
         DeviceConnectionTaskInfo info = new DeviceConnectionTaskInfo();
         info.connectionMethod = new ConnectionMethodInfo();
@@ -251,6 +259,15 @@ public class ConnectionResourceTest extends DeviceDataRestApplicationJerseyTest 
         when(connectionTask.isObsolete()).thenReturn(false);
         when(connectionTaskService.findAndLockConnectionTaskByIdAndVersion(connectionTask.getId(), connectionTask.getVersion())).thenReturn(Optional.of(connectionTask));
         when(connectionTaskService.findConnectionTask(connectionTask.getId())).thenReturn(Optional.of(connectionTask));
+
+        ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = mock(ProtocolDialectConfigurationProperties.class);
+        DeviceProtocolDialect deviceProtocolDialect = mock(DeviceProtocolDialect.class);
+        when(deviceProtocolDialect.getDeviceProtocolDialectName()).thenReturn("Protocol Dialect Name");
+        when(deviceProtocolDialect.getDisplayName()).thenReturn("Display Name of Protocol Dialect");
+        when(protocolDialectConfigurationProperties.getDeviceProtocolDialect()).thenReturn(deviceProtocolDialect);
+        when(protocolDialectConfigurationProperties.getDeviceProtocolDialectName()).thenReturn("Protocol Dialect Name");
+        when(connectionTask.getProtocolDialectConfigurationProperties()).thenReturn(protocolDialectConfigurationProperties);
+
         return connectionTask;
     }
 

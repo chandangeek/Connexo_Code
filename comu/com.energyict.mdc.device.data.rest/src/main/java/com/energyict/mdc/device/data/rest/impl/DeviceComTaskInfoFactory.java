@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
@@ -5,7 +9,6 @@ import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.rest.CompletionCodeInfo;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -58,9 +61,9 @@ public class DeviceComTaskInfoFactory {
                 if (comTaskExecution.usesSharedSchedule()) {
                     setFieldsForSharedScheduleExecution(deviceComTasksInfo, comTaskExecution, comTaskEnablement);
                 } else if (comTaskExecution.isScheduledManually() && !comTaskExecution.isAdHoc()) {
-                    setFieldsForIndividualScheduleExecution(deviceComTasksInfo, comTaskExecution);
+                    setFieldsForIndividualScheduleExecution(deviceComTasksInfo, comTaskExecution, comTaskEnablement);
                 } else if (comTaskExecution.isAdHoc()) {
-                    setFieldsForIndividualScheduleExecution(deviceComTasksInfo, comTaskExecution);
+                    setFieldsForIndividualScheduleExecution(deviceComTasksInfo, comTaskExecution, comTaskEnablement);
                     deviceComTasksInfo.scheduleType = thesaurus.getFormat(DefaultTranslationKey.ON_REQUEST).format();
                 }
             }
@@ -69,10 +72,10 @@ public class DeviceComTaskInfoFactory {
         return deviceComTasksInfo;
     }
 
-    private void setFieldsForIndividualScheduleExecution(DeviceComTaskInfo deviceComTasksInfo, ComTaskExecution comTaskExecution) {
+    private void setFieldsForIndividualScheduleExecution(DeviceComTaskInfo deviceComTasksInfo, ComTaskExecution comTaskExecution, ComTaskEnablement comTaskEnablement) {
         deviceComTasksInfo.scheduleTypeKey = ScheduleTypeKey.INDIVIDUAL.name();
         deviceComTasksInfo.scheduleType = thesaurus.getFormat(DefaultTranslationKey.INDIVIDUAL_SCHEDULE).format();
-        deviceComTasksInfo.protocolDialect = comTaskExecution.getProtocolDialectConfigurationProperties().getDeviceProtocolDialect().getDeviceProtocolDialectDisplayName();
+//        deviceComTasksInfo.protocolDialect = comTaskExecution.getProtocolDialectConfigurationProperties().getDeviceProtocolDialect().getDisplayName();
         if (comTaskExecution.getNextExecutionSpecs().isPresent()) {
             deviceComTasksInfo.temporalExpression = TemporalExpressionInfo.from(comTaskExecution.getNextExecutionSpecs().get().getTemporalExpression());
         }
@@ -97,8 +100,13 @@ public class DeviceComTaskInfoFactory {
             }
         }
         else {
-            deviceComTasksInfo.connectionMethod = comTaskExecution.getConnectionTask().get().getName();
-            deviceComTasksInfo.connectionDefinedOnDevice = true;
+            if(comTaskExecution.getConnectionTask().isPresent()) {
+                deviceComTasksInfo.connectionMethod = comTaskExecution.getConnectionTask().get().getName();
+            } else {
+                Optional<PartialConnectionTask> partialConnectionTask = comTaskEnablement.getPartialConnectionTask();
+                deviceComTasksInfo.connectionMethod = partialConnectionTask.isPresent() ? partialConnectionTask.get().getName() : null;
+            }
+            deviceComTasksInfo.connectionDefinedOnDevice = comTaskExecution.getConnectionTask().isPresent();
         }
         setConnectionStrategy(deviceComTasksInfo, comTaskExecution);
         deviceComTasksInfo.urgency = comTaskExecution.getPlannedPriority();
@@ -125,7 +133,7 @@ public class DeviceComTaskInfoFactory {
         deviceComTasksInfo.scheduleTypeKey = ScheduleTypeKey.SHARED.name();
         deviceComTasksInfo.scheduleType = thesaurus.getFormat(DefaultTranslationKey.SHARED_SCHEDULE).format();
         deviceComTasksInfo.lastCommunicationStart = comTaskExecution.getLastExecutionStartTimestamp();
-        deviceComTasksInfo.protocolDialect = comTaskExecution.getProtocolDialectConfigurationProperties().getDeviceProtocolDialect().getDeviceProtocolDialectDisplayName();
+//        deviceComTasksInfo.protocolDialect = comTaskExecution.getProtocolDialectConfigurationProperties().getDeviceProtocolDialect().getDisplayName();
         deviceComTasksInfo.latestResult =
                 comTaskExecution
                         .getLastSession()
@@ -222,11 +230,6 @@ public class DeviceComTaskInfoFactory {
         deviceComTasksInfo.urgency = comTaskEnablement.getPriority();
         deviceComTasksInfo.securitySettings = comTaskEnablement.getSecurityPropertySet().getName();
         deviceComTasksInfo.ignoreNextExecutionSpecsForInbound = comTaskEnablement.isIgnoreNextExecutionSpecsForInbound();
-        ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = comTaskEnablement.getProtocolDialectConfigurationProperties();
-        if (protocolDialectConfigurationProperties.getDeviceProtocolDialect() != null) {
-            deviceComTasksInfo.protocolDialect = protocolDialectConfigurationProperties.getDeviceProtocolDialect()
-                    .getDeviceProtocolDialectDisplayName();
-        }
         return deviceComTasksInfo;
     }
 

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.cbo.QualityCodeIndex;
@@ -8,7 +12,6 @@ import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.readings.ReadingQuality;
-import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
@@ -45,11 +48,6 @@ import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.streams.DecoratedStream.decorate;
 
-/**
- * Copyrights EnergyICT
- * Date: 28/05/15
- * Time: 10:44
- */
 public class ValidationInfoFactory {
 
     private final MeteringTranslationService meteringTranslationService;
@@ -231,6 +229,17 @@ public class ValidationInfoFactory {
                 .collect(Collectors.toList());
     }
 
+    VeeReadingInfo createVeeReadingInfoWithModificationFlags(Channel channel, DataValidationStatus dataValidationStatus, DeviceValidation deviceValidation, IntervalReadingRecord reading, List<ReadingQualityRecord> readingQualities, Boolean validationActive) {
+        VeeReadingInfo veeReadingInfo = createVeeReadingInfo(channel, dataValidationStatus, deviceValidation);
+        veeReadingInfo.readingQualities = getReadingQualities(readingQualities);
+        veeReadingInfo.validationActive = validationActive;
+        setVeeReadingValueInfo(veeReadingInfo.mainValidationInfo, reading, dataValidationStatus.getReadingQualities());
+        if (channel.getReadingType().getCalculatedReadingType().isPresent()) {
+            setVeeReadingValueInfo(veeReadingInfo.bulkValidationInfo, reading, dataValidationStatus.getBulkReadingQualities());
+        }
+        return veeReadingInfo;
+    }
+
     VeeReadingInfo createVeeReadingInfoWithModificationFlags(Channel channel, DataValidationStatus dataValidationStatus, DeviceValidation deviceValidation, IntervalReadingRecord reading, Boolean validationActive) {
         VeeReadingInfo veeReadingInfo = createVeeReadingInfo(channel, dataValidationStatus, deviceValidation);
         veeReadingInfo.readingQualities = getReadingQualities(reading);
@@ -261,6 +270,18 @@ public class ValidationInfoFactory {
     /**
      * Returns the CIM code and the full translation of all distinct reading qualities on the given interval reading
      */
+    private List<ReadingQualityInfo> getReadingQualities(List<ReadingQualityRecord> readingQualities) {
+        return readingQualities.stream().filter(ReadingQualityRecord::isActual)
+                .map(ReadingQuality::getType)
+                .distinct()
+                .filter(type -> type.system().isPresent())
+                .filter(type -> type.category().isPresent())
+                .filter(type -> type.qualityIndex().isPresent())
+                .filter(type -> type.system().get() != QualityCodeSystem.MDM || !type.hasValidationCategory())
+                .map(type -> ReadingQualityInfo.fromReadingQualityType(meteringTranslationService, type))
+                .collect(Collectors.toList());
+    }
+
     private List<ReadingQualityInfo> getReadingQualities(IntervalReadingRecord intervalReadingRecord) {
         if (intervalReadingRecord == null) {
             return Collections.emptyList();
@@ -300,10 +321,16 @@ public class ValidationInfoFactory {
                 .findFirst()
                 .orElse(null);
         // Estimation
-        veeReadingInfo.estimatedByRule = readingQualities.stream()
+        Optional<ReadingQualityType> estimationReadingQualityType = readingQualities.stream()
                 .map(ReadingQuality::getType)
-                .anyMatch(ReadingQualityType::hasEstimatedCategory);
+                .filter(ReadingQualityType::hasEstimatedCategory)
+                .findAny();
+        veeReadingInfo.estimatedByRule = estimationReadingQualityType.isPresent();
         // Editing
+        if(veeReadingInfo.estimatedByRule) {
+            veeReadingInfo.editedInApp = estimationRuleInfoFactory.getEstimationApplicationInfo(estimationReadingQualityType.get());
+        }
+        //hier
         Pair<ReadingModificationFlag, QualityCodeSystem> modificationFlag = ReadingModificationFlag.getModificationFlag(reading, readingQualities);
         if (modificationFlag != null) {
             veeReadingInfo.valueModificationFlag = modificationFlag.getFirst();

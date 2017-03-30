@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.metering.readings.BaseReading;
@@ -11,8 +15,11 @@ import com.energyict.mdc.device.data.rest.BigDecimalAsStringAdapter;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.Set;
 
 public class NumericalReadingInfo extends ReadingInfo {
@@ -50,10 +57,19 @@ public class NumericalReadingInfo extends ReadingInfo {
     @JsonProperty("multiplier")
     public BigDecimal multiplier;
     public NumericalReadingInfo() {}
+    @JsonProperty("interval")
+    public IntervalInfo interval;
+    @JsonProperty("eventDate")
+    public Instant eventDate;
 
     @Override
     protected BaseReading createNew(Register<?, ?> register) {
-        return ReadingImpl.of(register.getReadingType().getMRID(), this.value, this.timeStamp);
+        if(interval != null){
+            return ReadingImpl.of(register.getReadingType().getMRID(), this.value, register.isBilling()?this.eventDate:this.timeStamp, Instant.ofEpochMilli(interval.start), Instant.ofEpochMilli(interval.end));
+        } else if (!register.isBilling()){
+            return ReadingImpl.of(register.getReadingType().getMRID(), this.value, register.isBilling()?this.eventDate:this.timeStamp);
+        } else {
+            throw new WebApplicationException(Response.Status.BAD_REQUEST);
+        }
     }
-
 }

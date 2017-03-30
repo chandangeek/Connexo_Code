@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.fsm.State;
@@ -20,6 +24,9 @@ public class DeviceAttributesInfo {
     public DeviceAttributeInfo<String> deviceType;
     public DeviceAttributeInfo<String> deviceConfiguration;
     public DeviceAttributeInfo<String> serialNumber;
+    public DeviceAttributeInfo<String> manufacturer;
+    public DeviceAttributeInfo<String> modelNbr;
+    public DeviceAttributeInfo<String> modelVersion;
     public DeviceAttributeInfo<BigDecimal> multiplier;
     public DeviceAttributeInfo<Integer> yearOfCertification;
     public DeviceAttributeInfo<String> lifeCycleState;
@@ -93,6 +100,9 @@ public class DeviceAttributesInfo {
             }
         },
         SERIAL_NUMBER,
+        MANUFACTURER,
+        MODEL_NUMBER,
+        MODEL_VERSION,
         YEAR_OF_CERTIFICATION,
         LIFE_CYCLE_STATE {
             @Override

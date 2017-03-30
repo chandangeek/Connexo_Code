@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.metering.ReadingType;
@@ -7,11 +11,6 @@ import com.energyict.mdc.device.topology.DataLoggerChannelUsage;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Copyrights EnergyICT
- * Date: 11.07.16
- * Time: 15:28
- */
 public class ChannelHistoryInfo {
     public Long startDate;
     public Long endDate;

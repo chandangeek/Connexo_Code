@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.metering.ReadingType;
@@ -30,12 +34,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-
-/**
- * Copyrights EnergyICT
- * Date: 22/06/2016
- * Time: 11:38
- */
 
 public class DataLoggerSlaveDeviceInfoFactoryTest extends DeviceDataRestApplicationJerseyTest {
 

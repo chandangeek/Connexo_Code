@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.rest.util.JsonQueryFilter;
@@ -30,11 +34,6 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-/**
- * Copyrights EnergyICT
- * Date: 22.12.15
- * Time: 08:33
- */
 @RunWith(MockitoJUnitRunner.class)
 public class DevicesForConfigChangeSearchFactoryTest {
 
@@ -87,13 +86,13 @@ public class DevicesForConfigChangeSearchFactoryTest {
         assertThat(devicesForConfigChangeSearch.searchItems.values()).haveExactly(1, new Condition<SearchablePropertyValue.ValueBean>(){
             @Override
             public boolean matches(SearchablePropertyValue.ValueBean value) {
-                return value.values.containsAll(Arrays.asList("1001", "1002")) && value.propertyName.equals("deviceConfiguration");
+                return value.getValues().containsAll(Arrays.asList("1001", "1002")) && value.getPropertyName().equals("deviceConfiguration");
             }
         });
         assertThat(devicesForConfigChangeSearch.searchItems.values()).haveExactly(1, new Condition<SearchablePropertyValue.ValueBean>(){
             @Override
             public boolean matches(SearchablePropertyValue.ValueBean value) {
-                return value.values.containsAll(Arrays.asList("1001")) && value.propertyName.equals("deviceType");
+                return value.getValues().containsAll(Arrays.asList("1001")) && value.getPropertyName().equals("deviceType");
             }
         });
 

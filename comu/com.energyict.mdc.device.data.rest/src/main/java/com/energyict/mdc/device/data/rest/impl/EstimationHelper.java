@@ -1,9 +1,14 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.estimation.Estimatable;
 import com.elster.jupiter.estimation.EstimationBlock;
 import com.elster.jupiter.estimation.EstimationResult;
+import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.estimation.Estimator;
 import com.elster.jupiter.metering.MeterActivation;
@@ -116,6 +121,13 @@ public class EstimationHelper {
 
         }
         return channelDataInfos;
+    }
+
+    List<EstimationRule> getAllEstimationRules() {
+        return estimationService.getEstimationRuleSets()
+                .stream()
+                .flatMap(ruleSet -> ruleSet.getRules().stream())
+                .collect(Collectors.toList());
     }
 
     private List<ChannelDataInfo> fillChannelDataInfoList(Channel channel, EstimationBlock block, Estimatable estimatable, List<LoadProfileReading> channelData, boolean isValidationActive, DeviceValidation deviceValidation) {

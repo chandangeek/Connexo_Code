@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.fsm.State;
@@ -28,6 +32,9 @@ public class DeviceInfo extends DeviceVersionInfo {
     public long id;
     public String mRID;
     public String serialNumber;
+    public String manufacturer;
+    public String modelNbr;
+    public String modelVersion;
     public String deviceTypeName;
     public long deviceTypeId;
     public String deviceConfigurationName;
@@ -73,6 +80,9 @@ public class DeviceInfo extends DeviceVersionInfo {
         deviceInfo.name = device.getName();
         deviceInfo.mRID = device.getmRID();
         deviceInfo.serialNumber = device.getSerialNumber();
+        deviceInfo.manufacturer = device.getManufacturer();
+        deviceInfo.modelNbr = device.getModelNumber();
+        deviceInfo.modelVersion = device.getModelVersion();
         deviceInfo.deviceTypeId = device.getDeviceType().getId();
         deviceInfo.deviceTypeName = device.getDeviceType().getName();
         deviceInfo.deviceConfigurationId = deviceConfiguration.getId();

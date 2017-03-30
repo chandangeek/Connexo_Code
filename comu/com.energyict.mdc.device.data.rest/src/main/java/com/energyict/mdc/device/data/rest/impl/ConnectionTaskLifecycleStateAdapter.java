@@ -1,13 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.energyict.mdc.common.rest.MapBasedXmlAdapter;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 
-/**
- * Copyrights EnergyICT
- * Date: 7/1/14
- * Time: 9:40 AM
- */
 public class ConnectionTaskLifecycleStateAdapter extends MapBasedXmlAdapter<ConnectionTask.ConnectionTaskLifecycleStatus> {
 
     public ConnectionTaskLifecycleStateAdapter() {

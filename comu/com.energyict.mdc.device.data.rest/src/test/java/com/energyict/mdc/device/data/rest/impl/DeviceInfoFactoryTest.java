@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.cbo.Accumulation;
@@ -12,6 +16,7 @@ import com.elster.jupiter.cbo.RationalNumber;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.fsm.Stage;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
@@ -19,6 +24,7 @@ import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
@@ -81,11 +87,6 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-/**
- * Copyrights EnergyICT
- * Date: 11/05/2016
- * Time: 9:07
- */
 @RunWith(MockitoJUnitRunner.class)
 public class DeviceInfoFactoryTest {
 
@@ -127,6 +128,10 @@ public class DeviceInfoFactoryTest {
     private static final long DATALOGGER_ID = 397L;
     private static final String DATALOGGER_NAME = "TheDataLoggersName";
     private static final String DATALOGGER_SERIAL = "TheDataLoggersSerialNumber";
+    private static final String DATALOGGER_MANUFACTURER = "TheDataLogger's manufacturer";
+    private static final String DATALOGGER_MODELNBR = "TheDataLogger's model number";
+    private static final String DATALOGGER_MODELVERSION = "TheDataLogger's model version";
+
     private static final int DATALOGGER_YEAR_OF_CERTIFICATION = 1960;
     private static final long DATALOGGER_VERSION = 1L;
     private static final String SLAVE_1 = "TheFirstSlave";
@@ -199,6 +204,8 @@ public class DeviceInfoFactoryTest {
     private DeviceEstimation deviceEstimation;
     @Mock
     private State state;
+    @Mock
+    private Stage stage;
     @Mock
     private DeviceService deviceService;
     private Clock clock = Clock.systemDefaultZone();
@@ -332,6 +339,7 @@ public class DeviceInfoFactoryTest {
 
         when(deviceEstimation.isEstimationActive()).thenReturn(true);
         when(state.getName()).thenReturn(STATE_NAME);
+        when(stage.getName()).thenReturn(EndDeviceStage.OPERATIONAL.getKey());
 
         when(dataLoggerChn1.getDevice()).thenReturn(dataLogger);
         when(dataLoggerChn2.getDevice()).thenReturn(dataLogger);
@@ -408,6 +416,9 @@ public class DeviceInfoFactoryTest {
         when(dataLogger.getId()).thenReturn(DATALOGGER_ID);
         when(dataLogger.getName()).thenReturn(DATALOGGER_NAME);
         when(dataLogger.getSerialNumber()).thenReturn(DATALOGGER_SERIAL);
+        when(dataLogger.getManufacturer()).thenReturn(DATALOGGER_MANUFACTURER);
+        when(dataLogger.getModelNumber()).thenReturn(DATALOGGER_MODELNBR);
+        when(dataLogger.getModelVersion()).thenReturn(DATALOGGER_MODELVERSION);
         when(dataLogger.getYearOfCertification()).thenReturn(DATALOGGER_YEAR_OF_CERTIFICATION);
         when(dataLogger.getConfigurationGatewayType()).thenReturn(GatewayType.NONE);
         when(dataLogger.getLoadProfiles()).thenReturn(Arrays.asList(loadProfile1, loadProfile2));
@@ -415,6 +426,7 @@ public class DeviceInfoFactoryTest {
         when(dataLogger.getRegisters()).thenReturn(Collections.emptyList());
         doReturn(Optional.of(meterActivation)).when(dataLogger).getCurrentMeterActivation();
         when(dataLogger.getState()).thenReturn(state);
+        when(state.getStage()).thenReturn(Optional.of(stage));
         when(dataLogger.getVersion()).thenReturn(DATALOGGER_VERSION);
         when(dataLogger.forEstimation()).thenReturn(deviceEstimation);
         when(dataLogger.getChannels()).thenReturn(Arrays.asList(dataLoggerChn1, dataLoggerChn2, dataLoggerChn3, dataLoggerChn4, dataLoggerChn5, dataLoggerChn6));
@@ -489,6 +501,10 @@ public class DeviceInfoFactoryTest {
 
         assertThat(info.id).isEqualTo(DATALOGGER_ID);
         assertThat(info.name).isEqualTo(DATALOGGER_NAME);
+        assertThat(info.serialNumber).isEqualTo(DATALOGGER_SERIAL);
+        assertThat(info.manufacturer).isEqualTo(DATALOGGER_MANUFACTURER);
+        assertThat(info.modelNbr).isEqualTo(DATALOGGER_MODELNBR);
+        assertThat(info.modelVersion).isEqualTo(DATALOGGER_MODELVERSION);
         assertThat(info.deviceTypeId).isEqualTo(DATA_LOGGER_DEVICE_TYPE_ID);
         assertThat(info.deviceTypeName).isEqualTo(DATA_LOGGER_DEVICE_TYPE_NAME);
         assertThat(info.deviceConfigurationId).isEqualTo(DATALOGGER_DEVICE_CONFIGURATION_ID);

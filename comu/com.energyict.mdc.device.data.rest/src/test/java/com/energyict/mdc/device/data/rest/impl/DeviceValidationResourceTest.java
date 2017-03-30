@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.devtools.tests.rules.Using;
@@ -10,8 +14,6 @@ import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.ReadingQuality;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.ValidationEvaluator;
@@ -28,13 +30,12 @@ import com.energyict.mdc.device.data.DeviceValidation;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.NumericalRegister;
 import com.energyict.mdc.masterdata.LoadProfileType;
-import com.energyict.mdc.masterdata.RegisterType;
-import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 
 import com.google.common.collect.Range;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -72,11 +73,9 @@ public class DeviceValidationResourceTest extends DeviceDataRestApplicationJerse
     private static final String DEVICE_NAME = "name";
     private static final long DEVICE_ID = 56854L;
     private static final Instant NOW = ZonedDateTime.of(2014, 6, 14, 10, 43, 13, 0, ZoneId.systemDefault()).toInstant();
+    private static final Instant FROM = ZonedDateTime.ofInstant(NOW, ZoneId.systemDefault()).minusYears(2).toInstant();
+    private static final Instant TO = ZonedDateTime.ofInstant(NOW, ZoneId.systemDefault()).minusDays(10).toInstant();
 
-    @Mock
-    private MdcPropertyUtils mdcPropertyUtils;
-    @Mock
-    private Thesaurus thesaurus;
     @Mock
     private AmrSystem mdcAmrSystem;
     @Mock
@@ -90,8 +89,6 @@ public class DeviceValidationResourceTest extends DeviceDataRestApplicationJerse
     private NumericalRegister register1;
     @Mock
     private RegisterSpec registerSpec;
-    @Mock
-    private RegisterType registerType;
     @Mock
     private ReadingType regReadingType, channelReadingType1, channelReadingType2;
     @Mock
@@ -134,6 +131,7 @@ public class DeviceValidationResourceTest extends DeviceDataRestApplicationJerse
         when(clock.instant()).thenReturn(NOW);
         when(clock.getZone()).thenReturn(ZoneId.systemDefault());
         when(device.forValidation()).thenReturn(deviceValidation);
+        when(deviceValidation.isValidationActive()).thenReturn(true);
         when(deviceValidation.getLastValidationRun()).thenReturn(Optional.empty());
         when(ch1.getDevice()).thenReturn(device);
         when(ch2.getDevice()).thenReturn(device);
@@ -144,21 +142,51 @@ public class DeviceValidationResourceTest extends DeviceDataRestApplicationJerse
     }
 
     @Test
-    public void testGetValidationFeatureStatusCheckRegisterCount() {
+    public void testGetValidationFeatureStatusWithLastChecked() {
+        when(device.hasData()).thenReturn(true);
+        Instant lastChecked = NOW.minus(1, ChronoUnit.DAYS);
+        when(deviceValidation.getLastChecked()).thenReturn(Optional.of(lastChecked));
+        when(deviceValidation.getLastValidationRun()).thenReturn(Optional.of(NOW));
+
         DeviceValidationStatusInfo response = target("devices/" + DEVICE_NAME + "/validationrulesets/validationstatus").request().get(DeviceValidationStatusInfo.class);
 
         assertThat(response.registerSuspectCount).isEqualTo(5);
+        assertThat(response.loadProfileSuspectCount).isEqualTo(4);
+        assertThat(response.device.id).isEqualTo(DEVICE_ID);
+        assertThat(response.device.name).isEqualTo(DEVICE_NAME);
+        assertThat(response.isActive).isEqualTo(true);
+        assertThat(response.isStorage).isEqualTo(false);
+        assertThat(response.validateOnStorageConfiguration).isEqualTo(false);
+        assertThat(response.lastChecked).isEqualTo(lastChecked);
+        assertThat(response.lastRun).isEqualTo(NOW);
+        assertThat(response.hasValidation).isEqualTo(true);
+        assertThat(response.allDataValidated).isEqualTo(false);
     }
 
     @Test
-    public void testGetValidationFeatureStatusCheckLoadProfileCount() {
+    public void testGetValidationFeatureStatusWithValidateOnStorage() {
+        when(deviceValidation.isValidationOnStorage()).thenReturn(true);
+        when(deviceConfiguration.getValidateOnStore()).thenReturn(true);
+        when(deviceValidation.getLastChecked()).thenReturn(Optional.of(TO));
+        when(deviceValidation.getLastValidationRun()).thenReturn(Optional.of(TO));
+
         DeviceValidationStatusInfo response = target("devices/" + DEVICE_NAME + "/validationrulesets/validationstatus").request().get(DeviceValidationStatusInfo.class);
 
+        assertThat(response.registerSuspectCount).isEqualTo(5);
         assertThat(response.loadProfileSuspectCount).isEqualTo(4);
+        assertThat(response.device.id).isEqualTo(DEVICE_ID);
+        assertThat(response.device.name).isEqualTo(DEVICE_NAME);
+        assertThat(response.isActive).isEqualTo(true);
+        assertThat(response.isStorage).isEqualTo(true);
+        assertThat(response.validateOnStorageConfiguration).isEqualTo(true);
+        assertThat(response.lastChecked).isEqualTo(TO);
+        assertThat(response.lastRun).isNull();
+        assertThat(response.hasValidation).isEqualTo(false);
+        assertThat(response.allDataValidated).isEqualTo(false);
     }
 
     @Test
-    public void testGetValidationMonitoringConfigurationView() {
+    public void testGetValidationMonitoringConfigurationView() throws UnsupportedEncodingException {
         String loadProfilePeriodsInfo =
                 "{\"id\":1," +
                         "\"intervalStart\":" + ZonedDateTime.ofInstant(NOW, ZoneId.systemDefault()).minusMonths(1).truncatedTo(ChronoUnit.DAYS).plusDays(1).toInstant().toEpochMilli() + "," +
@@ -175,7 +203,7 @@ public class DeviceValidationResourceTest extends DeviceDataRestApplicationJerse
                 "},{\"property\":\"intervalRegisterEnd\",\"value\":" + ZonedDateTime.ofInstant(NOW, ZoneId.systemDefault()).truncatedTo(ChronoUnit.DAYS).plusDays(1).toInstant().toEpochMilli() + "}]";
 
         MonitorValidationInfo response = target("devices/" + DEVICE_NAME + "/validationrulesets/validationmonitoring/configurationview")
-                .queryParam("filter", URLEncoder.encode(filter))
+                .queryParam("filter", URLEncoder.encode(filter, "UTF-8"))
                 .request().get(MonitorValidationInfo.class);
 
         assertThat(response.detailedRuleSets.size()).isEqualTo(1);
@@ -185,7 +213,7 @@ public class DeviceValidationResourceTest extends DeviceDataRestApplicationJerse
     }
 
     @Test
-    public void testGetValidationMonitoringDataView() {
+    public void testGetValidationMonitoringDataView() throws UnsupportedEncodingException {
         String loadProfilePeriodsInfo =
                 "{\"id\":1," +
                         "\"intervalStart\":" + ZonedDateTime.ofInstant(NOW, ZoneId.systemDefault()).minusMonths(1).truncatedTo(ChronoUnit.DAYS).plusDays(1).toInstant().toEpochMilli() + "," +
@@ -202,7 +230,7 @@ public class DeviceValidationResourceTest extends DeviceDataRestApplicationJerse
                 "},{\"property\":\"intervalRegisterEnd\",\"value\":" + ZonedDateTime.ofInstant(NOW, ZoneId.systemDefault()).truncatedTo(ChronoUnit.DAYS).plusDays(1).toInstant().toEpochMilli() + "}]";
 
         MonitorValidationInfo response = target("devices/" + DEVICE_NAME + "/validationrulesets/validationmonitoring/dataview")
-                .queryParam("filter", URLEncoder.encode(filter))
+                .queryParam("filter", URLEncoder.encode(filter, "UTF-8"))
                 .request().get(MonitorValidationInfo.class);
 
         assertThat(response.detailedValidationLoadProfile.size()).isEqualTo(1);
@@ -262,11 +290,8 @@ public class DeviceValidationResourceTest extends DeviceDataRestApplicationJerse
 
         doReturn(Arrays.asList(channelsContainer1, channelsContainer2, channelsContainer3)).when(meter).getChannelsContainers();
         ZonedDateTime fromReg = ZonedDateTime.ofInstant(NOW, ZoneId.systemDefault()).minusYears(1).truncatedTo(ChronoUnit.DAYS).plusDays(1);
-        ZonedDateTime from = ZonedDateTime.ofInstant(NOW, ZoneId.systemDefault()).minusYears(2);
-        ZonedDateTime to = ZonedDateTime.ofInstant(NOW, ZoneId.systemDefault()).minusDays(10);
-        when(meterActivation1.getInterval()).thenReturn(Interval.endAt(from.toInstant()));
-        when(meterActivation2.getInterval()).thenReturn(Interval.of(from.toInstant(), to.toInstant()));
-        when(meterActivation3.getInterval()).thenReturn(Interval.startAt(to.toInstant()));
+        when(device.getMeterActivationsMostRecentFirst()).thenReturn(Arrays.asList(meterActivation3, meterActivation2, meterActivation1));
+        when(meterActivation3.getStart()).thenReturn(TO);
         when(meterActivation3.getChannelsContainer()).thenReturn(channelsContainer3);
         doReturn(Optional.of(meterActivation3)).when(device).getCurrentMeterActivation();
         when(channelsContainer1.getChannels()).thenReturn(Arrays.asList(channel1, channel2, channel3));
@@ -281,9 +306,6 @@ public class DeviceValidationResourceTest extends DeviceDataRestApplicationJerse
         when(channel7.getChannelsContainer()).thenReturn(channelsContainer3);
         when(channel8.getChannelsContainer()).thenReturn(channelsContainer3);
         when(channel9.getChannelsContainer()).thenReturn(channelsContainer3);
-        when(validationService.getLastChecked(channelsContainer1)).thenReturn(Optional.of(NOW));
-        when(validationService.getLastChecked(channelsContainer2)).thenReturn(Optional.of(NOW));
-        when(validationService.getLastChecked(channelsContainer3)).thenReturn(Optional.of(NOW));
         when(channel1.getMainReadingType()).thenReturn(regReadingType);
         when(channel2.getMainReadingType()).thenReturn(channelReadingType1);
         when(channel3.getMainReadingType()).thenReturn(channelReadingType2);

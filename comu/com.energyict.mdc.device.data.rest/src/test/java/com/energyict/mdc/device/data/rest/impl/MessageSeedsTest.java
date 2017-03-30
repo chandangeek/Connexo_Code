@@ -1,9 +1,13 @@
-package com.energyict.mdc.device.data.rest.impl;
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 
-import org.junit.Test;
+package com.energyict.mdc.device.data.rest.impl;
 
 import java.util.HashSet;
 import java.util.Set;
+
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

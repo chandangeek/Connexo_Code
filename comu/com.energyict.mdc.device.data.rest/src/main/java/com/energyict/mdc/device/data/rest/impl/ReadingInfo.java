@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.metering.readings.BaseReading;
@@ -17,7 +21,6 @@ import java.util.List;
 @XmlRootElement
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = BillingReadingInfo.class, name = "billing"),
         @JsonSubTypes.Type(value = NumericalReadingInfo.class, name = "numerical"),
         @JsonSubTypes.Type(value = TextReadingInfo.class, name = "text"),
         @JsonSubTypes.Type(value = FlagsReadingInfo.class, name = "flags")
@@ -35,6 +38,8 @@ public abstract class ReadingInfo {
     @JsonProperty("modificationFlag")
     @XmlJavaTypeAdapter(ReadingModificationFlagAdapter.class)
     public ReadingModificationFlag modificationFlag;
+    @JsonProperty("userName")
+    public String userName;
     @JsonProperty("editedInApp")
     public IdWithNameInfo editedInApp;
     public SlaveRegisterInfo slaveRegister;
