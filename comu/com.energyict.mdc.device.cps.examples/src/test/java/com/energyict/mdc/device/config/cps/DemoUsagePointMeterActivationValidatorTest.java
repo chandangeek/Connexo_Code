@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.config.cps;
 
 import com.elster.jupiter.cps.CustomPropertySet;
@@ -97,10 +101,7 @@ public class DemoUsagePointMeterActivationValidatorTest {
         when(metrologyConfigurationOnUsagePoint.getMetrologyConfiguration()).thenReturn(metrologyConfiguration);
         when(metrologyConfiguration.getUsagePointRequirements()).thenReturn(Collections.singletonList(usagePointRequirement));
 
-        SearchablePropertyValue.ValueBean valueBean = new SearchablePropertyValue.ValueBean();
-        valueBean.propertyName = "prepay";
-        valueBean.operator = SearchablePropertyOperator.EQUAL;
-        valueBean.values = Collections.singletonList("true");
+        SearchablePropertyValue.ValueBean valueBean = new SearchablePropertyValue.ValueBean("prepay", SearchablePropertyOperator.EQUAL, "true" );
         when(usagePointRequirement.toValueBean()).thenReturn(valueBean);
 
         when(device.getDeviceType()).thenReturn(deviceType);
