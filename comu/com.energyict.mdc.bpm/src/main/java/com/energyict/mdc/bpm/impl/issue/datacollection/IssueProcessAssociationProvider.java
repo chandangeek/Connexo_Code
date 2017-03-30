@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.bpm.impl.issue.datacollection;
 
 import com.elster.jupiter.bpm.ProcessAssociationProvider;
@@ -140,7 +144,7 @@ public class IssueProcessAssociationProvider implements ProcessAssociationProvid
 
     @Override
     public List<TranslationKey> getKeys() {
-        return Arrays.asList(com.energyict.mdc.bpm.impl.device.TranslationKeys.values());
+        return Arrays.asList(TranslationKeys.values());
     }
 
     @XmlRootElement
