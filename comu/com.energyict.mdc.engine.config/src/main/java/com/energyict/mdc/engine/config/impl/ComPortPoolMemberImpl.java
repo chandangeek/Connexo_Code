@@ -1,14 +1,15 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.config.impl;
 
-import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-
 import com.energyict.mdc.engine.config.ComPortPoolMember;
-
 import com.energyict.mdc.engine.config.OutboundComPort;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
-import javax.inject.Inject;
+
 import java.time.Instant;
 import java.util.Objects;
 

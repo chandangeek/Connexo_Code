@@ -1,14 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.config.impl;
 
 import com.energyict.mdc.engine.config.ComServer;
 
 import java.util.Collections;
 
-/**
- * Copyrights EnergyICT
- * Date: 15.10.15
- * Time: 11:51
- */
 public class RemoteComServerEqualsImplTest extends AbstractComServerEqualsContractTest {
 
     private ComServer comServerInstanceA;

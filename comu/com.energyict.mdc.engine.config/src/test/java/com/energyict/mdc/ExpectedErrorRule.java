@@ -1,17 +1,17 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
+
 import org.junit.internal.AssumptionViolatedException;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 
-/**
- * Copyrights EnergyICT
- * Date: 12/02/13
- * Time: 15:49
- */
 public class ExpectedErrorRule implements TestRule {
 
     public ExpectedErrorRule() {

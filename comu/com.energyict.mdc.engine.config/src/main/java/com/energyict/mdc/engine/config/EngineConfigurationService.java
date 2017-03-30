@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.config;
 
 import aQute.bnd.annotation.ProviderType;
@@ -8,6 +12,7 @@ import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @ProviderType
@@ -209,7 +214,7 @@ public interface EngineConfigurationService {
      *
      * @return The newly created InboundComPortPool
      */
-    InboundComPortPool newInboundComPortPool(String name, ComPortType comPortType, InboundDeviceProtocolPluggableClass discoveryProtocol);
+    InboundComPortPool newInboundComPortPool(String name, ComPortType comPortType, InboundDeviceProtocolPluggableClass discoveryProtocol, Map<String, Object> properties);
 
     /**
      * Creates a new {@link OutboundComPortPool} from the specifications.

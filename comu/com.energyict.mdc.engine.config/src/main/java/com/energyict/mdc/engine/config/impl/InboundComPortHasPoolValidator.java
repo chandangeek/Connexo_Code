@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.config.impl;
 
 import com.energyict.mdc.engine.config.InboundComPort;
@@ -5,11 +9,6 @@ import com.energyict.mdc.engine.config.InboundComPort;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
-/**
- * Copyrights EnergyICT
- * Date: 6/27/14
- * Time: 11:27 AM
- */
 public class InboundComPortHasPoolValidator implements ConstraintValidator<ActiveComPortHasInboundComPortPool, InboundComPort> {
 
     @Override

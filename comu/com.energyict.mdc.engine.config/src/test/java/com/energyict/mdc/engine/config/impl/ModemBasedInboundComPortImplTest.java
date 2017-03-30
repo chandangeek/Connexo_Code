@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.config.impl;
 
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
@@ -25,6 +29,7 @@ import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static junit.framework.Assert.assertEquals;
@@ -511,7 +516,7 @@ public class ModemBasedInboundComPortImplTest extends PersistenceTest {
 
     private int comPortPoolId=1;
     private InboundComPortPool createComPortPool() {
-        return getEngineModelService().newInboundComPortPool("comPortPool "+comPortPoolId++, ComPortType.SERIAL, inboundDeviceProtocolPluggableClass);
+        return getEngineModelService().newInboundComPortPool("comPortPool "+comPortPoolId++, ComPortType.SERIAL, inboundDeviceProtocolPluggableClass, Collections.emptyMap());
     }
 
     private ModemBasedInboundComPort createSimpleComPort() {

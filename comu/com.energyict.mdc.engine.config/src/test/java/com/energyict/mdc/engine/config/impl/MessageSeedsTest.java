@@ -1,8 +1,14 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.config.impl;
 
 import com.energyict.mdc.engine.config.EngineConfigurationService;
+
 import java.util.HashSet;
 import java.util.Set;
+
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;

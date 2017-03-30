@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.config.impl;
 
 import com.elster.jupiter.domain.util.NotEmpty;
@@ -13,10 +17,13 @@ import com.energyict.mdc.ports.ComPortType;
 import com.google.common.collect.ImmutableMap;
 
 import javax.inject.Inject;
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 import javax.validation.constraints.Size;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 
@@ -54,7 +61,7 @@ public abstract class ComPortPoolImpl implements ComPortPool {
                     INBOUND_COMPORTPOOL_DISCRIMINATOR, InboundComPortPoolImpl.class,
                     OUTBOUND_COMPORTPOOL_DISCRIMINATOR, OutboundComPortPoolImpl.class);
 
-    private final DataModel dataModel;
+    protected final DataModel dataModel;
     protected final Thesaurus thesaurus;
     protected final EventService eventService;
 

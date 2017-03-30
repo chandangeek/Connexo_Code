@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.config;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
@@ -22,8 +26,10 @@ import com.energyict.mdc.ExpectedErrorRule;
 import com.energyict.mdc.engine.config.impl.EngineModelModule;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import org.osgi.framework.BundleContext;
 
 import java.util.Optional;
 
@@ -32,7 +38,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.rules.TestRule;
-import org.osgi.framework.BundleContext;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
