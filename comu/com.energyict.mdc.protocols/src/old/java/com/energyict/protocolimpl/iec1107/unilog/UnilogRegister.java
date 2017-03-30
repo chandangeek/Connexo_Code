@@ -5,7 +5,7 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.iec1107.vdew.VDEWRegister;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 8-dec-2010
  * Time: 10:21:47
  */

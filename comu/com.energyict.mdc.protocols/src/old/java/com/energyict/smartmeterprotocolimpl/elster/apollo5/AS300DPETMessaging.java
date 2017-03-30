@@ -14,7 +14,7 @@ import com.energyict.smartmeterprotocolimpl.elster.apollo.messaging.AS300Messagi
 import java.util.List;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 28/11/11
  * Time: 15:59
  */

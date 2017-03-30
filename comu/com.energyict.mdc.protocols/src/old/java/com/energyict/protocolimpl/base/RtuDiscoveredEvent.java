@@ -3,7 +3,7 @@ package com.energyict.protocolimpl.base;
 import com.energyict.mdc.upl.meterdata.Device;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 22/02/11
  * Time: 14:56
  */

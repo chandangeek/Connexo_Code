@@ -35,7 +35,7 @@ import java.util.TimeZone;
 import java.util.logging.Logger;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 6-dec-2010
  * Time: 9:28:03
  */

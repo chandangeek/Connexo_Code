@@ -11,7 +11,7 @@ import java.io.IOException;
 /**
  * Represents an overview of all attributes of the PushEventNotificationSetup object
  * <p/>
- * Copyrights EnergyICT
+ *
  * Date: 15/05/14
  * Time: 15:38
  * Author: khe

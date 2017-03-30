@@ -17,7 +17,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 22/07/11
  * Time: 11:33
  */

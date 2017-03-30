@@ -19,7 +19,7 @@ import java.util.List;
  * Provides an implementation for the {@link ConnectionType}
  * interface for Serial AT-Modem communication, using the Sio library.
  * <p>
- * Copyrights EnergyICT
+ *
  * Date: 12/11/12
  * Time: 13:16
  */

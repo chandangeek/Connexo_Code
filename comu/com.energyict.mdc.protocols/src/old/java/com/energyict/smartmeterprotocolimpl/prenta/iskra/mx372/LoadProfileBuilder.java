@@ -26,7 +26,7 @@ import java.util.Map;
 import java.util.logging.Level;
 
 /**
- * Copyrights EnergyICT
+ *
  * User: sva
  * Date: 23/01/12
  * Time: 15:54

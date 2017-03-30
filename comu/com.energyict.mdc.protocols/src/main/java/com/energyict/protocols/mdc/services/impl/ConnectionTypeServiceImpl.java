@@ -30,7 +30,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Provides an implementation for the {@link ConnectionTypeService} interface
  * and registers as a OSGi component.
  * <p>
- * Copyrights EnergyICT
+ *
  * Date: 28/11/13
  * Time: 16:27
  */

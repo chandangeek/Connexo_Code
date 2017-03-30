@@ -21,7 +21,7 @@ import java.time.Clock;
  * We send a request (I frame) for identification to know which Device and schedule has to be executed.
  * Extra requests are sent in the normal protocol session to fetch meter data.
  * <p/>
- * Copyrights EnergyICT
+ *
  * Date: 21/06/12
  * Time: 14:50
  */

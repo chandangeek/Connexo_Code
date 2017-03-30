@@ -33,7 +33,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Copyrights EnergyICT
+ *
  *
  * @author khe
  * @since 11/06/2014 - 14:28

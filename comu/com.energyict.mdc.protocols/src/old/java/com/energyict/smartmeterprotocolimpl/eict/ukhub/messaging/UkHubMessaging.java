@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 20-jul-2011
  * Time: 17:13:53
  */

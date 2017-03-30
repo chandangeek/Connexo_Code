@@ -46,7 +46,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Copyrights EnergyICT
+ *
  *
  * @author khe
  * @since 9/06/2015 - 16:22

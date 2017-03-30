@@ -1,7 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD.messaging;
 
 /**
- * Copyrights EnergyICT
+ *
  * User: sva
  * Date: 20/12/11
  * Time: 16:16

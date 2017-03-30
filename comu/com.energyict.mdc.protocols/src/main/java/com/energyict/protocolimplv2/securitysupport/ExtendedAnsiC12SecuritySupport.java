@@ -15,7 +15,7 @@ import java.util.Optional;
  * Provides general security <b>capabilities</b> for an Ansi C12 protocol with
  * <i>extended security functionality</i>
  * <p>
- * Copyrights EnergyICT
+ *
  * Date: 28/01/13
  * Time: 11:30
  */

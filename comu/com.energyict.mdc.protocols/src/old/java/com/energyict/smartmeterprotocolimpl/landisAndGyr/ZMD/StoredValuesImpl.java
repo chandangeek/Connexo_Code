@@ -22,7 +22,7 @@ import java.io.IOException;
 import java.util.Date;
 
 /**
- * Copyrights EnergyICT
+ *
  * User: sva
  * Date: 14/12/11
  * Time: 9:30

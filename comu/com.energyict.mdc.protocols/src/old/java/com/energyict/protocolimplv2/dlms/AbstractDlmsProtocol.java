@@ -62,7 +62,7 @@ import java.util.logging.Logger;
 /**
  * Common functionality that is shared between the smart V2 DLMS protocols.
  * <p>
- * Copyrights EnergyICT
+ *
  * Date: 18/10/13
  * Time: 13:30
  * Author: khe

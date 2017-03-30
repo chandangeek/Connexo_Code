@@ -13,7 +13,7 @@ import java.io.IOException;
  * layers exchanges. The objective of these counters is to provide statistical information for
  * management purposes.
  * <p/>
- * Copyrights EnergyICT
+ *
  * Date: 6/6/12
  * Time: 9:05 AM
  */

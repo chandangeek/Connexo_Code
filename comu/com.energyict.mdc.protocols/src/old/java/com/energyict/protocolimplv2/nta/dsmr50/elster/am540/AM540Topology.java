@@ -11,7 +11,7 @@ import com.energyict.protocolimplv2.g3.common.G3Properties;
 import com.energyict.protocolimplv2.g3.common.G3Topology;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 1/13/15
  * Time: 2:10 PM
  */

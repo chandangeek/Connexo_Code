@@ -8,7 +8,7 @@ import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedTopology;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 26/06/12
  * Time: 9:52
  * Author: khe

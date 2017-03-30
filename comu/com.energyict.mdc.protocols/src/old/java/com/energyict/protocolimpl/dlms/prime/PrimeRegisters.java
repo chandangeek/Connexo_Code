@@ -34,7 +34,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 27/02/12
  * Time: 13:22
  */

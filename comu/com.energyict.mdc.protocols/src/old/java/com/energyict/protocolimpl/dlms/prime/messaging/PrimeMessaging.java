@@ -13,7 +13,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 27/02/12
  * Time: 13:57
  */

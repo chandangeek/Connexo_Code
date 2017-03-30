@@ -13,7 +13,7 @@ import com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator;
 /**
  * Creates a MessageEntry based on the "StartOfDST" xml tag with 4 attributes
  * <p/>
- * Copyrights EnergyICT
+ *
  * Date: 12/03/13
  * Time: 14:59
  */

@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 /**
  * Groups common behavior for outbound IP related connectionTypes.
  * <p>
- * Copyrights EnergyICT
+ *
  *
  * @since 9/11/12 (11:28)
  */

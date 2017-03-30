@@ -21,7 +21,7 @@ import java.io.OutputStream;
 import java.util.Date;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 19-apr-2011
  * Time: 14:37:53
  */

@@ -42,7 +42,7 @@ import java.util.logging.Level;
  * Provides functionality to fetch and create {@link com.energyict.mdc.protocol.api.device.data.ProfileData} objects for a {@link SmartMeterProtocol}
  * <p/>
  * <pre>
- * Copyrights EnergyICT
+ *
  * Date: 3-mrt-2011
  * Time: 17:02:07
  * </pre>

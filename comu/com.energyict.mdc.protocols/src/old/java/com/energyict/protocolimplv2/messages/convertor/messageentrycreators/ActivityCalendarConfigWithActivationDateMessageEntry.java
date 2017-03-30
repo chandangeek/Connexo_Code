@@ -17,7 +17,7 @@ import com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator;
  * {@link com.energyict.protocolimpl.messages.RtuMessageConstant#TOU_ACTIVITY_CODE_TABLE} and
  * {@link com.energyict.protocolimpl.messages.RtuMessageConstant#TOU_ACTIVITY_DATE}
  * <p/>
- * Copyrights EnergyICT
+ *
  * Date: 13/03/13
  * Time: 13:20
  */

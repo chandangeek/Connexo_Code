@@ -54,7 +54,7 @@ import java.util.TimeZone;
 import java.util.logging.Logger;
 
 /**
- * Copyrights EnergyICT
+ *
  * User: sva
  * Date: 19/01/12
  * Time: 16:21

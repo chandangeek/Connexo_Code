@@ -14,7 +14,7 @@ import javax.inject.Inject;
 import java.time.Clock;
 
 /**
- * Copyrights EnergyICT
+ *
  *
  * @author khe
  * @since 16/09/2014 - 9:49

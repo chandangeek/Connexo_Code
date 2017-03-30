@@ -13,7 +13,7 @@ import java.text.MessageFormat;
  * a {@link com.energyict.mdc.upl.meterdata.Register} based on the ObisCode of the mapping or the
  * ObisCode of the register spec.
  *
- * Copyrights EnergyICT
+ *
  * Date: 13/05/13
  * Time: 13:24
  */

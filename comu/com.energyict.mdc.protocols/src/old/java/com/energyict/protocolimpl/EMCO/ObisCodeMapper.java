@@ -29,7 +29,7 @@ import java.util.logging.Level;
  * ObisCodeMapper
  * Provides a mapping between all the device registers and their obiscode.
  *
- * Copyrights EnergyICT
+ *
  * User: sva
  * Date: 21/02/12
  * Time: 9:22

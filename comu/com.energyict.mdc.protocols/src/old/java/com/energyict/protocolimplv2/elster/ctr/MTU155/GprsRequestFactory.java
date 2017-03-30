@@ -73,7 +73,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 12-okt-2010
  * Time: 11:04:01
  */

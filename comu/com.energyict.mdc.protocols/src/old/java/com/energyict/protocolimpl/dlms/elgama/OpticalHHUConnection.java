@@ -13,7 +13,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 21-dec-2010
  * Time: 12:04:28
  */

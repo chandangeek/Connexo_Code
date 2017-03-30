@@ -11,7 +11,7 @@ import java.util.Date;
 import java.util.TimeZone;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 7/2/12
  * Time: 8:28 AM
  */

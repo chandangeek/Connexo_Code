@@ -20,7 +20,7 @@ import java.util.Map;
  * Class for reading out registers.
  * Unsupported registers throw an exception.
  * <p/>
- * Copyrights EnergyICT
+ *
  * Date: 2-mei-2011
  * Time: 13:26:34
  */

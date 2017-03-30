@@ -14,7 +14,7 @@ import java.util.Optional;
 /**
  * This is the same as DlmsSecuritySupport, but without the Manufacturer specific authentication level.
  * <p>
- * Copyrights EnergyICT
+ *
  * Date: 8/11/13
  * Time: 9:27
  * Author: khe

@@ -9,7 +9,7 @@ import com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator;
 import com.energyict.protocolimplv2.messages.convertor.utils.LoadProfileMessageUtils;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 2/05/13
  * Time: 13:33
  */

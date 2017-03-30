@@ -43,7 +43,7 @@ import java.util.logging.Logger;
  * Most of the methods throw an {@link UnsupportedException}, if your subclass wants
  * to use one of these, then simple override them.
  * <p/>
- * Copyrights EnergyICT
+ *
  * Date: 15-jul-2011
  * Time: 10:31:14
  */

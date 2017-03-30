@@ -22,7 +22,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 25/06/12
  * Time: 11:08
  * Author: khe

@@ -49,7 +49,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 9-dec-2010
  * Time: 11:09:31
  */

@@ -5,7 +5,7 @@ import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.obis.ObisCode;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 21/05/13
  * Time: 12:04
  * Author: khe

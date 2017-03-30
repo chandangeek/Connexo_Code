@@ -23,7 +23,7 @@ import java.util.List;
  * Class that parses and executes the messages for the WaveFlow V1, V2 and V210 protocol.
  * Only the implementation of getMessageCategories() is different for each protocol.
  * <p/>
- * Copyrights EnergyICT
+ *
  * Date: 18-mei-2011
  * Time: 15:38:34
  */

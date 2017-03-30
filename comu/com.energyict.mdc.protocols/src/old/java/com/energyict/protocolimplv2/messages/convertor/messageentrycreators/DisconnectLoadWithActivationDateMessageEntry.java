@@ -17,7 +17,7 @@ import com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator;
  * xml tag with an additional
  * {@link RtuMessageConstant#DISCONNECT_CONTROL_ACTIVATE_DATE} attribute.
  * <p/>
- * Copyrights EnergyICT
+ *
  * Date: 12/03/13
  * Time: 14:49
  */

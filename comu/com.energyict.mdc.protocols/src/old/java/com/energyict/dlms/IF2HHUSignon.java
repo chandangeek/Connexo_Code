@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.util.logging.Logger;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 5/22/12
  * Time: 2:47 PM
  */

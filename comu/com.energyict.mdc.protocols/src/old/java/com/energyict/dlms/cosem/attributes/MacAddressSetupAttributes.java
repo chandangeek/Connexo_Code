@@ -7,7 +7,7 @@ import com.energyict.obis.ObisCode;
 /**
  * Straightforward summation of the {@link com.energyict.dlms.cosem.IPv4Setup} attributes
  *
- * Copyrights EnergyICT
+ *
  * Date: 8-jul-2010
  * Time: 10:28:52
  * </p>

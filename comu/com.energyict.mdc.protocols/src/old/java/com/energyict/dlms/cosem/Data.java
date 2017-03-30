@@ -21,7 +21,7 @@ import java.util.Date;
  * This class represents the dlms Data object (class_id: 1, version: 0)
  * This object allows modelling various data, such as configuration data and parameters.
  * <p/>
- * Copyrights EnergyICT
+ *
  * User: jme
  * Date: 06/01/2012
  * Time: 11:35

@@ -7,7 +7,7 @@ import com.energyict.protocolimplv2.ace4000.ACE4000Outbound;
 import com.energyict.protocolimplv2.ace4000.requests.tracking.RequestType;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 12/11/12
  * Time: 14:00
  * Author: khe

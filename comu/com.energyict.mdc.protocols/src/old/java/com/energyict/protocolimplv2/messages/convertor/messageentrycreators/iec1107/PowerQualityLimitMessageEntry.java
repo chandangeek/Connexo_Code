@@ -12,7 +12,7 @@ import com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator;
 /**
  * Creates a MessageEntry based on the "CLASS_37_UPDATE" xml tag with a value
  * <p/>
- * Copyrights EnergyICT
+ *
  * Date: 12/03/13
  * Time: 14:59
  */

@@ -11,7 +11,7 @@ import com.energyict.protocolimplv2.messages.convertor.utils.LoadProfileMessageU
 /**
  * Creates a MessageEntry based on the old {@link com.energyict.protocol.messaging.PartialLoadProfileMessageBuilder}
  * <p/>
- * Copyrights EnergyICT
+ *
  * Date: 2/05/13
  * Time: 13:33
  */

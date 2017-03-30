@@ -17,7 +17,7 @@ import java.util.Arrays;
 
 /**
  * Parent class for all CTR Objects.
- * Copyrights EnergyICT
+ *
  * Date: 21-sep-2010
  * Time: 10:51:36
  */

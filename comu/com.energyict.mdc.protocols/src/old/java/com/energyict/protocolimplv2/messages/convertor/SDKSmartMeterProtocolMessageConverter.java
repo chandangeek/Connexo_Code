@@ -76,7 +76,7 @@ import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConsta
 /**
  * Represents a MessageConverter for the SDKSmartMeterProtocol protocol.
  * <p>
- * Copyrights EnergyICT
+ *
  * Date: 8/03/13
  * Time: 16:26
  */

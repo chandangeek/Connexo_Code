@@ -6,7 +6,7 @@ import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.protocolimplv2.g3.common.G3Properties;
 
 /**
- * Copyrights EnergyICT
+ *
  *
  * @author khe
  * @since 10/06/2015 - 10:52

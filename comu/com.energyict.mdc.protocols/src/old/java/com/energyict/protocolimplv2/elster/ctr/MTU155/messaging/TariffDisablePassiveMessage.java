@@ -14,7 +14,7 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.rawobjects.RawTarif
 
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 14/04/11
  * Time: 14:09
  */

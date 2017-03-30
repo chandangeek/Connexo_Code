@@ -17,7 +17,7 @@ import java.util.List;
 /**
  * Provides an implementation for the {@link ConnectionType} interface for Serial communication.
  * <p/>
- * Copyrights EnergyICT
+ *
  * Date: 17/08/12
  * Time: 11:39
  */

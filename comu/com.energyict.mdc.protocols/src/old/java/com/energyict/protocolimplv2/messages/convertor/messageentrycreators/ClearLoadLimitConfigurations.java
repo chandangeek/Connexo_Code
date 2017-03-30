@@ -8,7 +8,7 @@ import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 3/04/13
  * Time: 11:24
  */

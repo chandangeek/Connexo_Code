@@ -25,7 +25,7 @@ import java.math.BigDecimal;
  * <p/>
  * Only the sign on is currently implemented, feel free to complete this class :)
  * <p/>
- * Copyrights EnergyICT
+ *
  * Date: 8/11/13
  * Time: 12:27
  * Author: khe

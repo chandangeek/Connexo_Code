@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.logging.Level;
 
 /**
- * Copyrights EnergyICT
+ *
  *
  * @author khe
  * @since 12/03/2015 - 10:27

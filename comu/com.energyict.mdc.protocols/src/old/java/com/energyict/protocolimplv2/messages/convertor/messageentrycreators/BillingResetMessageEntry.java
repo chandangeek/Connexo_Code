@@ -11,7 +11,7 @@ import com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator;
  * Creates a MessageEntry based on the {@link com.energyict.protocolimpl.messages.RtuMessageConstant#BILLINGRESET}
  * xml tag with no additional parameters
  * <p/>
- * Copyrights EnergyICT
+ *
  * Date: 12/03/13
  * Time: 15:17
  */

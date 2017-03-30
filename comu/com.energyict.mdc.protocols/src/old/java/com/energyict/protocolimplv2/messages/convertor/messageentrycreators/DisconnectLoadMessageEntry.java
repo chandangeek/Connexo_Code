@@ -13,7 +13,7 @@ import com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator;
  * {@link com.energyict.protocolimpl.messages.RtuMessageConstant#DISCONNECT_LOAD}
  * xml tag with no additional parameters
  * <p/>
- * Copyrights EnergyICT
+ *
  * Date: 12/03/13
  * Time: 14:47
  */

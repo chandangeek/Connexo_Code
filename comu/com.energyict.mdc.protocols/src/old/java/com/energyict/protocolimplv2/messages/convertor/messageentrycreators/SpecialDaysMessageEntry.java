@@ -18,7 +18,7 @@ import java.io.IOException;
  * Generates XML: <Special_Days> <RawContent> (base64 encoded XML description of CodeTable) </RawContent></Special_Days>
  * The calendar name is "" and the activationDate is "1" in the XML description, because they are not used in the message executor of the protocol.
  * <p/>
- * Copyrights EnergyICT
+ *
  * Date: 12/03/13
  * Time: 14:59
  */

@@ -12,7 +12,7 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.info.SealStatusBit;
 
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 2/03/11
  * Time: 16:40
  */

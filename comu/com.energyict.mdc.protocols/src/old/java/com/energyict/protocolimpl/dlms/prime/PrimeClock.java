@@ -12,7 +12,7 @@ import java.util.Date;
 import java.util.logging.Level;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 24/02/12
  * Time: 9:38
  */

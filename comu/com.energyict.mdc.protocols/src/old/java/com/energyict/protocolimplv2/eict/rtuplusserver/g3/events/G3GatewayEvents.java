@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.TimeZone;
 
 /**
- * Copyrights EnergyICT
+ *
  *
  * @author khe
  * @since 11/06/2014 - 16:29

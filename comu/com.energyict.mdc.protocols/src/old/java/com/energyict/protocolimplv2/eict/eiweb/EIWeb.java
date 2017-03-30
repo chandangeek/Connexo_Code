@@ -53,7 +53,7 @@ import java.util.Set;
  * Basic implementation of the EIWeb DeviceProtocol.
  * The basic implementation will not do much, mainly serve as a placeholder so the DeviceType can be created.
  *
- * Copyrights EnergyICT
+ *
  * Date: 9/10/13
  * Time: 12:02 PM
  */

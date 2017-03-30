@@ -13,7 +13,7 @@ import javax.inject.Named;
 /**
  * Provides an implementation for the {@link ConnectionType} interface for Serial communication.
  * <p/>
- * Copyrights EnergyICT
+ *
  * Date: 13/08/12
  * Time: 11:14
  */

@@ -29,7 +29,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 /**
- * Copyrights EnergyICT
+ *
  * User: sva
  * Date: 14/12/11
  * Time: 10:29

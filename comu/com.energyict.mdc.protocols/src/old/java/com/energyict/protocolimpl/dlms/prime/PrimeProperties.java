@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Properties;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 21/02/12
  * Time: 14:47
  */

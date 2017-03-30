@@ -62,7 +62,7 @@ import java.util.logging.Logger;
 
 /**
  * <p>
- * Copyrights EnergyICT
+ *
  * Date: 2-jul-2010
  * Time: 11:09:10
  * </p>

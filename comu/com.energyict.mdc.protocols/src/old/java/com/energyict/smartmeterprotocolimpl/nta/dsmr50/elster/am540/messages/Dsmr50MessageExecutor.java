@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
  * Important: for DSMR5.0, the new keys (message to change AK and/or EK) are used immediately, instead of only at the start of the next message!
  * Also, when changing the encryption key, the framecounter is restarted.
  * <p/>
- * Copyrights EnergyICT
+ *
  *
  * @author khe
  * @since 12/06/2014 - 15:20

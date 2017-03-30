@@ -29,7 +29,7 @@ import java.util.logging.Logger;
  * V2 version of the DlmsSession object, using a comChannel instead of input/output streams.
  * For usage with DeviceProtocols (not MeterProtocol or SmartMeterProtocol)
  * <p/>
- * Copyrights EnergyICT
+ *
  * Date: 11/02/11
  * Time: 18:18
  */

@@ -12,7 +12,7 @@ import java.io.IOException;
 /**
  * Creates an overview (for the text field of a register) of the attributes of the FirewallSetup object.
  * <p/>
- * Copyrights EnergyICT
+ *
  * Date: 15/05/14
  * Time: 15:38
  * Author: khe

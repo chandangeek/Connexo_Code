@@ -18,7 +18,7 @@ import com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator;
  *
  * This is NOT for the message that is created using the FirmwareUpdateMessaging interface!
  * <p/>
- * Copyrights EnergyICT
+ *
  * Date: 12/03/13
  * Time: 17:13
  */

@@ -75,7 +75,7 @@ import java.util.Random;
 import java.util.Set;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 9/04/13
  * Time: 16:00
  */

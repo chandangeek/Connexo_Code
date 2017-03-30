@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.TimeZone;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 22/03/12
  * Time: 10:27
  */

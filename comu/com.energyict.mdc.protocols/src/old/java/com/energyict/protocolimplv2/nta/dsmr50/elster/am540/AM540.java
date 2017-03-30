@@ -78,7 +78,7 @@ import java.util.Set;
 import java.util.logging.Level;
 
 /**
- * Copyrights EnergyICT
+ *
  * V2 version of the AM540 protocol.
  * This version adds breaker & relais support and other IDIS features.
  *

@@ -19,7 +19,7 @@ import java.util.List;
  * Provides an implementation for the {@link ConnectionType}
  * interface for Serial AT-Modem communication, using the RxTx library.
  * <p>
- * Copyrights EnergyICT
+ *
  * Date: 20/11/12
  * Time: 16:22
  */

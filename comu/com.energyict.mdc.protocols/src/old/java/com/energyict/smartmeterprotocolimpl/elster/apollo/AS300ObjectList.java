@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 22/07/11
  * Time: 17:09
  */

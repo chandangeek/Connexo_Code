@@ -36,7 +36,7 @@ import java.util.Optional;
 import java.util.logging.Level;
 
 /**
- * Copyrights EnergyICT
+ *
  * User: sva
  * Date: 19/07/12
  * Time: 10:13

@@ -53,7 +53,7 @@ import java.util.logging.Level;
  * Provides functionality to fetch and create {@link ProfileData} objects for a SmartMeterProtocol
  * <p/>
  * <pre>
- * Copyrights EnergyICT
+ *
  * Date: 3-mrt-2011
  * Time: 17:02:07
  * </pre>

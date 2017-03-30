@@ -9,7 +9,7 @@ import com.energyict.smartmeterprotocolimpl.eict.ukhub.common.MultipleClientRela
  * Straightforward summary of the possible ObisCodes of the Apollo meter
  * </p>
  * <p>
- * Copyrights EnergyICT<br/>
+ * <br/>
  * Date: 23-nov-2010<br/>
  * Time: 16:32:14<br/>
  * </p>

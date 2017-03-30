@@ -7,7 +7,7 @@ import com.energyict.obis.ObisCode;
 /**
  * Contains functionality to access attributes of the ActivityCalendar (independent whether or not shortName or logicalNames are used)
  * <br/>
- * Copyrights EnergyICT<br/>
+ * <br/>
  * Date: 17-dec-2010<br/>
  * Time: 10:27:28<br/>
  */

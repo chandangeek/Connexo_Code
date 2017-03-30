@@ -29,7 +29,7 @@ import java.util.logging.Logger;
  * This is used for the Prime and the G3 protocol.
  * It also contains the common method to fetch and parse intervals from a LP buffer.
  * <p/>
- * Copyrights EnergyICT
+ *
  * Date: 16/08/12
  * Time: 10:39
  * Author: khe

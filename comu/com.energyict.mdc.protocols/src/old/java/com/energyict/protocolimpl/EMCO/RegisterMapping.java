@@ -7,7 +7,7 @@ import com.energyict.obis.ObisCode;
  * RegisterMapping
  * Maps an individual register to an obiscode
  *
- * Copyrights EnergyICT
+ *
  * User: sva
  * Date: 21/02/12
  * Time: 9:22

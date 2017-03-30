@@ -16,7 +16,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Date;
 /**
- * Copyrights EnergyICT
+ *
  * Date: 22/03/12
  * Time: 10:47
  */

@@ -15,7 +15,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * Copyrights EnergyICT
+ *
  * User: sva
  * Date: 26/11/14
  * Time: 15:19

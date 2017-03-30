@@ -12,7 +12,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 9-feb-2011
  * Time: 14:57:57
  */

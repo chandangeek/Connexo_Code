@@ -34,7 +34,7 @@ import java.util.Properties;
 import java.util.logging.Level;
 
 /**
- * Copyrights EnergyICT
+ *
  * User: sva
  * Date: 17/01/12
  * Time: 15:22

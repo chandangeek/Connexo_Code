@@ -16,7 +16,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 4-okt-2010
  * Time: 11:17:33
  */

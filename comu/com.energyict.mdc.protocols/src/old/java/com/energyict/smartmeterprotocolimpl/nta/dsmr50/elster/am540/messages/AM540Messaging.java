@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Copyrights EnergyICT
+ *
  * <p/>
  * This class is a combination of the G3 PLC message functionality (using the annotated framework) and the
  * DSMR4.0 messages (using the old XML framework).

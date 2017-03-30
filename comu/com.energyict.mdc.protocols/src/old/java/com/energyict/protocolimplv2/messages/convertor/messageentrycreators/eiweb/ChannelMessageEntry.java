@@ -8,7 +8,7 @@ import com.energyict.mdc.protocol.api.messaging.Messaging;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 12/03/13
  * Time: 14:59
  */

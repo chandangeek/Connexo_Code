@@ -7,7 +7,7 @@ import com.energyict.obis.ObisCode;
 /**
  * Straightforward summation of the IPv6Setup attributes
  *
- * Copyrights EnergyICT
+ *
  * Date: 1/6/15
  * Time: 8:30 AM
  */

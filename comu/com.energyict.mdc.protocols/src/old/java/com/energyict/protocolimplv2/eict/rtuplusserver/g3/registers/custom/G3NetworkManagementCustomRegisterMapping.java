@@ -12,7 +12,7 @@ import com.energyict.obis.ObisCode;
 import java.io.IOException;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 15/05/14
  * Time: 15:38
  * Author: khe

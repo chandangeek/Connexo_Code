@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.TimeZone;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 18-okt-2010
  * Time: 16:14:08
  */

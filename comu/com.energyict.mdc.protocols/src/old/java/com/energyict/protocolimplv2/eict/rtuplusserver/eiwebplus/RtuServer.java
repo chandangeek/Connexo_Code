@@ -61,7 +61,7 @@ import java.util.Set;
  * On this connection task, you can then define a connection strategy (read now vs read every X), this configures when the RTU+Server will post its the collected data.
  * Note2: in order to prevent this device from being executed by the comserver, its communication port pool should be a placeholder that is empty (has no ports).
  * <p/>
- * Copyrights EnergyICT
+ *
  * Date: 25/03/14
  * Time: 13:40
  * Author: khe

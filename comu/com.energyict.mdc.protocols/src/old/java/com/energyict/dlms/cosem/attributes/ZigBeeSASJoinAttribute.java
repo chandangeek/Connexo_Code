@@ -11,7 +11,7 @@ import com.energyict.obis.ObisCode;
  * TODO the SN attribute numbering is purely based on logical sequence numbering. This object is not defined in the BlueBook yet, <br>
  * TODO so additional attributes may be added in the future
  * </b></p>
- * Copyrights EnergyICT
+ *
  * Date: 8-aug-2011
  * Time: 13:26:17
  */

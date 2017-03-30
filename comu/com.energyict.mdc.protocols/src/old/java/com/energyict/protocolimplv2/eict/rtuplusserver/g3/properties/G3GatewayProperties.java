@@ -16,7 +16,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Copyrights EnergyICT
+ *
  *
  * @author khe
  * @since 11/06/2014 - 13:46

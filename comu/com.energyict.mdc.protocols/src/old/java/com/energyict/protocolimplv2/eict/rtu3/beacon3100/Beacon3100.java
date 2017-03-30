@@ -77,7 +77,7 @@ import java.util.Set;
 import java.util.logging.Level;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 06/10/16
  * Time: 13:32
  */

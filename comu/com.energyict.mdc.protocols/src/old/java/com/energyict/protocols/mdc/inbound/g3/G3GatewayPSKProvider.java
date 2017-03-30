@@ -55,7 +55,7 @@ import java.util.Set;
 import java.util.logging.Level;
 
 /**
- * Copyrights EnergyICT
+ *
  *
  * @author khe
  * @since 10/11/2015 - 17:35

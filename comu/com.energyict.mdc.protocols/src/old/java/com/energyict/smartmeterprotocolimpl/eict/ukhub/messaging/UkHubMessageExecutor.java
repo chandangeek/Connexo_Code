@@ -65,7 +65,7 @@ import java.util.logging.Logger;
 import static com.energyict.protocolimpl.utils.ProtocolTools.getBytesFromHexString;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 20-jul-2011
  * Time: 17:15:18
  */

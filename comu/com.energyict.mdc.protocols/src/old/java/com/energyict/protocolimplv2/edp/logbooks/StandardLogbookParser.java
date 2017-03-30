@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 11/02/14
  * Time: 10:01
  * Author: khe

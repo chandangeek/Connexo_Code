@@ -15,7 +15,7 @@ import java.io.IOException;
  * These attributes influence the functional behaviour of an implementation. Implementations may allow changes to the attributes
  * during normal running, i.e. even after the device start-up sequence has been executed.
  * <p/>
- * Copyrights EnergyICT
+ *
  * Date: 20/03/12
  * Time: 7:57
  */

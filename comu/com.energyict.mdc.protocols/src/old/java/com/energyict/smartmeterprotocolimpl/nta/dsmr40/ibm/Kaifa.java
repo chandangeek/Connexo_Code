@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.time.Clock;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 11/03/13
  * Time: 16:17
  * Author: khe

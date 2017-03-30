@@ -15,7 +15,7 @@ import java.util.Optional;
  * Provides general security <b>capabilities</b> for a DLMS protocol, which
  * has a SecurityObject for each possible client.
  * <p>
- * Copyrights EnergyICT
+ *
  * Date: 18/06/13
  * Time: 15:02
  */

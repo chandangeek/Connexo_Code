@@ -8,7 +8,7 @@ import com.energyict.protocolimpl.coronis.amco.rtm.RTMFactory;
 import java.io.IOException;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 7-apr-2011
  * Time: 16:45:00
  */

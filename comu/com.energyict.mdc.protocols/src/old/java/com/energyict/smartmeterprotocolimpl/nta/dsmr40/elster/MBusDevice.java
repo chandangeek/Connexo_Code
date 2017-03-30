@@ -13,7 +13,7 @@ import java.time.Clock;
  * Protocol for the Elster g-meter, following the DSMR 4.0 spec.
  * This meter should behave exactly the same as the L+G DSMR 4.0 g-meter
  * <p/>
- * Copyrights EnergyICT
+ *
  * Date: 2/04/13
  * Time: 9:24
  * Author: khe

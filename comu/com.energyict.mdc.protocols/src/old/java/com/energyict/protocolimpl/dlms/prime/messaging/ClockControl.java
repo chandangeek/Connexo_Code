@@ -9,7 +9,7 @@ import com.energyict.protocolimpl.dlms.prime.PrimeClock;
 import java.io.IOException;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 27/02/12
  * Time: 14:32
  */

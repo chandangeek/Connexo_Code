@@ -21,7 +21,7 @@ import java.util.logging.Logger;
 /**
  * Has common methods and fields for the inbound and the outbound ACE4000 protocol class
  * <p/>
- * Copyrights EnergyICT
+ *
  * Date: 6/11/12
  * Time: 16:47
  * Author: khe

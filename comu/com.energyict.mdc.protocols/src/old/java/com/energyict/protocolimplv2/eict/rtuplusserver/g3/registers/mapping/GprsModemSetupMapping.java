@@ -14,7 +14,7 @@ import com.energyict.protocolimpl.dlms.g3.registers.mapping.RegisterMapping;
 import java.io.IOException;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 7/12/12
  * Time: 2:08 PM
  */

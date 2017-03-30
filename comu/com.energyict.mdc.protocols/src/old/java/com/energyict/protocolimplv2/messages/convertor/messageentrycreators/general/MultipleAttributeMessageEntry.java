@@ -15,7 +15,7 @@ import java.util.List;
 /**
  * Creates XML: <tag attributeName1="value1" attributeName2="value2" attributeName3="value3"> </tag>
  * <p/>
- * Copyrights EnergyICT
+ *
  * Date: 24/10/13
  * Time: 9:48
  * Author: khe

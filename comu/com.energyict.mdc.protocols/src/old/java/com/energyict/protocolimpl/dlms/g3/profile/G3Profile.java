@@ -28,7 +28,7 @@ import java.util.TimeZone;
 import java.util.logging.Logger;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 22/02/12
  * Time: 13:39
  */

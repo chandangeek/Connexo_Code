@@ -13,7 +13,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 16/05/13
  * Time: 11:50
  * Author: khe

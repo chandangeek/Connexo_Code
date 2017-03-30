@@ -23,7 +23,7 @@ import java.util.Properties;
 import java.util.logging.Logger;
 
 /**
- * Copyrights EnergyICT
+ *
  * User: sva
  * Date: 24/01/12
  * Time: 16:27

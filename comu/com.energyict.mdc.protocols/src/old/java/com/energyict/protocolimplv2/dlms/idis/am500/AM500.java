@@ -75,7 +75,7 @@ import java.util.logging.Level;
 
 /**
  * This V2 protocol is a port from the old V1 IDIS protocol.
- * Copyrights EnergyICT
+ *
  *
  * @author khe
  * @since 19/12/2014 - 10:42

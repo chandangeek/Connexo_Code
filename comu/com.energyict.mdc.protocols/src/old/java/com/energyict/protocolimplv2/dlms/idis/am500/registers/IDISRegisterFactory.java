@@ -43,7 +43,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Copyrights EnergyICT
+ *
  *
  * @author khe
  * @since 5/01/2015 - 11:13

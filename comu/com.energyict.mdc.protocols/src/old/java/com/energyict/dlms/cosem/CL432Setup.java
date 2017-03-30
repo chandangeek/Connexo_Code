@@ -16,7 +16,7 @@ import java.io.IOException;
  * service issued by the base node. They allow the service node to be part of the network managed by
  * the base node.
  * <p/>
- * Copyrights EnergyICT
+ *
  * Date: 6/5/12
  * Time: 4:01 PM
  */

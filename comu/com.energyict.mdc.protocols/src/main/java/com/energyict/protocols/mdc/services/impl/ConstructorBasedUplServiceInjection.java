@@ -8,7 +8,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.stream.Stream;
 
 /**
- * Copyrights EnergyICT
+ *
  *
  * @author khe
  * @since 23/01/2017 - 10:47

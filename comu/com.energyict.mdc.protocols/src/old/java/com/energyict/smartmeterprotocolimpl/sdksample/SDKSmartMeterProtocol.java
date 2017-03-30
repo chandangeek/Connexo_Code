@@ -49,7 +49,7 @@ import java.util.TimeZone;
 import java.util.logging.Logger;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 17-jan-2011
  * Time: 15:14:31
  */

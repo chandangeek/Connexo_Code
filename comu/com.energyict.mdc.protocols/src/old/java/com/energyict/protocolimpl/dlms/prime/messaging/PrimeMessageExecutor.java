@@ -28,7 +28,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 5/29/12
  * Time: 8:39 AM
  */

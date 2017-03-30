@@ -22,7 +22,7 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 30-dec-2010
  * Time: 9:21:41
  */

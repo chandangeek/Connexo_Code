@@ -15,7 +15,7 @@ import java.util.Optional;
  * Provides general security <b>capabilities</b> for Wavenis protocols
  * that use a single password for authentication and an encryptionKey for data encryption.
  * <p>
- * Copyrights EnergyICT
+ *
  * Date: 11/01/13
  * Time: 16:13
  */

@@ -34,7 +34,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 29.09.15
  * Time: 12:00
  */

@@ -11,7 +11,7 @@ import com.energyict.cbo.Unit;
  * from DLMS to EIServer without worrying about these exceptions. It also simplifies the mapping
  * if there are new units added to the blue book or EIServer (single point of changes).
  * <p/>
- * Copyrights EnergyICT
+ *
  * Date: 27/12/11
  * Time: 10:23
  */

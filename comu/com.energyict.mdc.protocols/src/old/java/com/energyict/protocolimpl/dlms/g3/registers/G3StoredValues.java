@@ -16,7 +16,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 28/03/13
  * Time: 15:04
  * Author: khe

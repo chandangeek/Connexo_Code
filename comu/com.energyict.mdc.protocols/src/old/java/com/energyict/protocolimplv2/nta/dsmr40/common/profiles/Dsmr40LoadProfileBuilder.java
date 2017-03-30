@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Copyrights EnergyICT
+ *
  *
  * @author khe
  * @since 19/12/2014 - 9:28

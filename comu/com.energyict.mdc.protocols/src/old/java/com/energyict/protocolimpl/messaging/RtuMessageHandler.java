@@ -23,7 +23,7 @@ import java.lang.annotation.Target;
  * There should never be two message handler methods that have the same signature (even if the method name is different),
  * and are both using the same tag value (default value of "" or a user defined value.
  * <p/>
- * Copyrights EnergyICT
+ *
  * Date: 6/6/12
  * Time: 11:16 PM
  */

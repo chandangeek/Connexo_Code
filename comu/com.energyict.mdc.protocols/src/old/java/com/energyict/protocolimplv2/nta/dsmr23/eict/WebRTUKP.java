@@ -76,7 +76,7 @@ import java.util.Set;
  * These exceptions need to be caught and handled first! They all extend from IOException.
  * After that, all remaining IOExceptions are related to communication problems (e.g. timeout, connection broken,...).
  * <p>
- * Copyrights EnergyICT
+ *
  * Date: 18/10/13
  * Time: 11:40
  * Author: khe

@@ -25,7 +25,7 @@ import javax.inject.Provider;
 import java.time.Clock;
 
 /**
- * Copyrights EnergyICT
+ *
  * <p/>
  * Logical slave protocol that does not read out any data, it's merely a placeholder for the supported messages, properties, ...
  * The read out of the MBus registers, logbook, load profile, etc is implemented in the AM450 e-meter (master) protocol.

@@ -18,7 +18,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * Copyrights EnergyICT
+ *
  *
  * @author khe
  * @since 12/01/2017 - 10:15

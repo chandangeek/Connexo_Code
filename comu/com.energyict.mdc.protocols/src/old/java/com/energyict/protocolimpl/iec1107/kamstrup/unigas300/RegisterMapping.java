@@ -13,7 +13,7 @@ package com.energyict.protocolimpl.iec1107.kamstrup.unigas300;
 import com.energyict.obis.ObisCode;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 6-dec-2010
  * Time: 9:28:03
  */

@@ -33,7 +33,7 @@ import static com.energyict.protocolimpl.utils.ProtocolTools.getHexStringFromByt
 import static com.energyict.protocolimpl.utils.ProtocolTools.getIntFromByte;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 20-okt-2010
  * Time: 11:19:11
  */

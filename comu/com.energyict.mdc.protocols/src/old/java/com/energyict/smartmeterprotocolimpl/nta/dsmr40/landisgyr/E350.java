@@ -27,7 +27,7 @@ import java.io.IOException;
 import java.time.Clock;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 13-okt-2011
  * Time: 12:04:50
  */

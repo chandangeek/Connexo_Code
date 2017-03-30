@@ -7,7 +7,7 @@ import com.energyict.obis.ObisCode;
 /**
  * Contains functionality to access attributes of the SpecialDay table (independent whether or not shortName or logicalNames are used)
  * <br/>
- * Copyrights EnergyICT<br/>
+ * <br/>
  * Date: 17-dec-2010<br/>
  * Time: 9:53:02<br/>
  */

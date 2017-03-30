@@ -34,7 +34,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 10/02/14
  * Time: 16:06
  * Author: khe

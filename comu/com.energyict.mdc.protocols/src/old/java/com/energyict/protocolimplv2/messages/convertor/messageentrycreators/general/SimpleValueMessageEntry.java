@@ -10,7 +10,7 @@ import com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator;
 /**
  * Creates XML: <tag>value</tag>
  * <p/>
- * Copyrights EnergyICT
+ *
  * Date: 24/10/13
  * Time: 10:23
  * Author: khe

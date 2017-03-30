@@ -11,7 +11,7 @@ import com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator;
  * Creates XML: <tagX> </tagX>, where X is the value of the (only) device message attribute.
  * E.g. <ConnectRelay1></ConnectRelay1>, when the user chooses the "Connect relay" message and attribute value "1".
  * <p/>
- * Copyrights EnergyICT
+ *
  * Date: 24/10/13
  * Time: 10:23
  * Author: khe

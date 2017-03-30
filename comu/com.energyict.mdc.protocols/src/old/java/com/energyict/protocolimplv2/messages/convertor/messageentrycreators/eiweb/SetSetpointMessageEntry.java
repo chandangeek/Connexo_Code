@@ -10,7 +10,7 @@ import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 12/03/13
  * Time: 14:59
  */

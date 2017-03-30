@@ -17,7 +17,7 @@ import java.time.Clock;
  * In the case of RequestDiscover, a meter starts an inbound session and pushes its serial number and meter data.
  * There are no extra requests sent by the comserver.
  * <p/>
- * Copyrights EnergyICT
+ *
  * Date: 21/06/12
  * Time: 14:50
  */

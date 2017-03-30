@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.TimeZone;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 4/10/11
  * Time: 16:49
  */

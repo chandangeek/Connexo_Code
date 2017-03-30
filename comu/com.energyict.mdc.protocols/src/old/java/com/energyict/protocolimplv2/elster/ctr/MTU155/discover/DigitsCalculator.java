@@ -6,7 +6,7 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.info.MeterType;
 import java.math.BigDecimal;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 18/02/11
  * Time: 11:01
  */

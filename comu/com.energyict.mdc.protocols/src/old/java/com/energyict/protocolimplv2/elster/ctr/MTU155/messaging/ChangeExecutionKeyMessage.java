@@ -14,7 +14,7 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.object.field.CTRObjectID;
 import java.util.Arrays;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 4/03/11
  * Time: 8:40
  */

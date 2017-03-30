@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Copyrights EnergyICT
+ *
  * User: sva
  * Date: 23/04/12
  * Time: 9:12

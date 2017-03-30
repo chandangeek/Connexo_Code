@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 25/07/11
  * Time: 9:50
  */

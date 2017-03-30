@@ -11,7 +11,7 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.field.CTRObjectID;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 2/03/11
  * Time: 16:40
  */

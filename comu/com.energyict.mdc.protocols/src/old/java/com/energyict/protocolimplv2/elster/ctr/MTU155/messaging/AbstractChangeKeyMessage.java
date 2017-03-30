@@ -6,7 +6,7 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 2/03/11
  * Time: 16:40
  */

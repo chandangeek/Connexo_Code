@@ -16,7 +16,7 @@ import com.energyict.protocolimplv2.common.AbstractDialectCustomPropertySet;
 import javax.inject.Inject;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 17/10/16
  * Time: 14:47
  */

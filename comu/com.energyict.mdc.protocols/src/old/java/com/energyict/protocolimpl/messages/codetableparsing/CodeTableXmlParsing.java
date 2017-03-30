@@ -24,7 +24,7 @@ import java.util.Map;
 /**
  * Parser object to convert the structure of a CodeTable to an XML format
  * <p/>
- * Copyrights EnergyICT
+ *
  */
 public class CodeTableXmlParsing {
 

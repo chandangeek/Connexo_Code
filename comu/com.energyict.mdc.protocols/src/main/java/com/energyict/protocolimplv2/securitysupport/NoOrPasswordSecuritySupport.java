@@ -18,7 +18,7 @@ import java.util.Optional;
  * <li>A password</li>
  * </ul>
  * <p>
- * Copyrights EnergyICT
+ *
  * Date: 21/01/13
  * Time: 14:41
  */

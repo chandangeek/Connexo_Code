@@ -56,7 +56,7 @@ import java.util.List;
 
 /**
  * Extension of the old AM500 protocol (IDIS package 1), adding extra features (IDIS package 2)
- * Copyrights EnergyICT
+ *
  *
  * @author khe
  * @since 9/02/2015 - 13:43

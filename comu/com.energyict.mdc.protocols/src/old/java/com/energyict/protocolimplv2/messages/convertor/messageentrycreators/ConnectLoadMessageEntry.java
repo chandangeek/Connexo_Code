@@ -12,7 +12,7 @@ import com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator;
  * Creates a MessageEntry based on the {@link RtuMessageConstant#CONNECT_LOAD}
  * xml tag with no additional parameters
  * <p/>
- * Copyrights EnergyICT
+ *
  * Date: 12/03/13
  * Time: 14:33
  */

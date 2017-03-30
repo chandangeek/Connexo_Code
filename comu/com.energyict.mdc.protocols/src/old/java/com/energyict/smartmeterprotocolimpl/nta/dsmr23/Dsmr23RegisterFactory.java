@@ -43,7 +43,7 @@ import java.util.Map;
 import java.util.logging.Level;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 14-jul-2011
  * Time: 13:12:35
  */

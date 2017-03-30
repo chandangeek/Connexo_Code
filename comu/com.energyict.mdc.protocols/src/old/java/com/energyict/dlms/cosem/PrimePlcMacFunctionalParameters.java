@@ -14,7 +14,7 @@ import java.io.IOException;
  * The attributes of this DLMS interface class belong to the functional behaviour of MAC. They provide
  * information on specific aspects.
  * <p/>
- * Copyrights EnergyICT
+ *
  * Date: 6/6/12
  * Time: 11:46 AM
  */

@@ -30,7 +30,7 @@ import java.io.IOException;
  * for each of these interfaces.
  * </p>
  * <p>
- * Copyrights EnergyICT
+ *
  * Date: 1/6/15
  * Time: 8:46 AM
  */

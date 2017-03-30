@@ -12,7 +12,7 @@ import javax.inject.Inject;
 import java.util.Optional;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 15/01/13
  * Time: 10:42
  * Author: khe

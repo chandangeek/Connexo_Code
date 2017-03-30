@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 24/02/11
  * Time: 14:46
  */

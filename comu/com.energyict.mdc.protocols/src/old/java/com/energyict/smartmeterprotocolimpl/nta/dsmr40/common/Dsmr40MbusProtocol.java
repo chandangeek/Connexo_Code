@@ -12,7 +12,7 @@ import javax.inject.Inject;
 import java.time.Clock;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 18/07/11
  * Time: 17:22
  */

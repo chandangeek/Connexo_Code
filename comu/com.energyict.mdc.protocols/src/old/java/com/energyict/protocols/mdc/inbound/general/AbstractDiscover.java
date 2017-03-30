@@ -32,7 +32,7 @@ import java.util.List;
 /**
  * Abstract super class containing common elements (properties, connection,...) for the 3 discover protocols.
  * <p/>
- * Copyrights EnergyICT
+ *
  * Date: 22/06/12
  * Time: 16:50
  * Author: khe

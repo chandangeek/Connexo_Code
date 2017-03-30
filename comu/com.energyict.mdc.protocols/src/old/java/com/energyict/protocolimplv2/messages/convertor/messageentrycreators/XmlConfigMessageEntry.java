@@ -11,7 +11,7 @@ import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 2/05/13
  * Time: 10:04
  */

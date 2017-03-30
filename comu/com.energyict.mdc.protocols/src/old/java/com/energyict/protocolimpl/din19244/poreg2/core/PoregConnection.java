@@ -22,7 +22,7 @@ import java.util.Arrays;
 /**
  * Used to send / receive requests, or to dis/connect to the device.
  *
- * Copyrights EnergyICT
+ *
  * Date: 19-apr-2011
  * Time: 15:08:41
  */

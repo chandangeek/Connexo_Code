@@ -6,7 +6,7 @@ import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.idis.am500.profiledata.IDISProfileDataReader;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 29.09.15
  * Time: 10:36
  */

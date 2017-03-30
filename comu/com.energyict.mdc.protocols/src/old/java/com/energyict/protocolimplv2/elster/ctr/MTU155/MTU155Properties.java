@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.TimeZone;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 29-sep-2010
  * Time: 15:58:55
  */

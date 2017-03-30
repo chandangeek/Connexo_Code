@@ -10,7 +10,7 @@ import com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator;
 /**
  * Creates a MessageEntry for the GlobalMeterReset message
  * <p/>
- * Copyrights EnergyICT
+ *
  * Date: 3/04/13
  * Time: 9:28
  */

@@ -25,7 +25,7 @@ import java.util.logging.Level;
  * The L&G E350 uses a custom {@link LoadProfileBuilder} because their interpretation of the deviation in the dateTime is different then the default.
  * <p/>
  * <pre>
- * Copyrights EnergyICT
+ *
  * Date: 13-okt-2011
  * Time: 11:55:59
  * </pre>

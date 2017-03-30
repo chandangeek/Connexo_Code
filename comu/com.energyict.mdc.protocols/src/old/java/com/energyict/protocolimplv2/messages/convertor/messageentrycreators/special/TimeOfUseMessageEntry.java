@@ -19,7 +19,7 @@ import java.io.IOException;
  * Creates a MessageEntry based on the "TimeOfUse" xml tag with 2 attributes and 2 values
  * This is the message that can be parsed by protocols that implement the TimeOfUseMessaging interface and use the TimeOfUseMessageBuilder
  * <p/>
- * Copyrights EnergyICT
+ *
  * Date: 12/03/13
  * Time: 14:59
  */

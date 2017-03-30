@@ -31,7 +31,7 @@ import java.util.TimeZone;
  * Class that holds all DLMS device properties (general, dialect & security related)
  * Based on these properties, a DLMS session and its connection layer can be fully configured.
  *
- * Copyrights EnergyICT
+ *
  * Date: 14-jul-2011
  * Time: 11:26:48
  */

@@ -24,7 +24,7 @@ import java.util.Optional;
 import java.util.TimeZone;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 25/06/12
  * Time: 11:08
  * Author: khe

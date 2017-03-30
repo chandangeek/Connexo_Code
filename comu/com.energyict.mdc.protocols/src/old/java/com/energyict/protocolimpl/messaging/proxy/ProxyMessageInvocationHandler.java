@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 6/29/12
  * Time: 08:37 AM
  */

@@ -9,7 +9,7 @@ import com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator;
 /**
  * Creates a MessageEntry based on the "DemandReset" xml tag with no additional parameters or values
  * <p/>
- * Copyrights EnergyICT
+ *
  * Date: 12/03/13
  * Time: 14:33
  */

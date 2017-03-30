@@ -14,7 +14,7 @@ import java.util.Optional;
 /**
  * Provides general security <b>capabilities</b> for an IEC1107 protocol.
  * <p>
- * Copyrights EnergyICT
+ *
  * Date: 21/01/13
  * Time: 11:10
  */

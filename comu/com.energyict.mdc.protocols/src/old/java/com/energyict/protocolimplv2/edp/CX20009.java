@@ -45,7 +45,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 5/02/14
  * Time: 11:34
  * Author: khe

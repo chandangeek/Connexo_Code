@@ -45,7 +45,7 @@ import java.util.TimeZone;
 
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 25/02/14
  * Time: 15:09
  * Author: khe

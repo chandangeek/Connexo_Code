@@ -20,7 +20,7 @@ import java.time.Clock;
 import java.util.List;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 15-jul-2011
  * Time: 12:00:53
  */

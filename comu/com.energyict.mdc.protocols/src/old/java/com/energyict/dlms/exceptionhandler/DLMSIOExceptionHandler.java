@@ -18,7 +18,7 @@ import java.io.IOException;
  * ExceptionResponseException, ProtocolException or DataAccessResultException mean that the meter has returned something unexpected (e.g. some kind of error code).
  * Other IOExceptions are related to problems with the communication (e.g. timeout, socket closed,... )
  * <p/>
- * Copyrights EnergyICT
+ *
  * Date: 25/11/13
  * Time: 14:50
  * Author: khe

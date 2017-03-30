@@ -17,7 +17,7 @@ import java.util.Set;
  * not be used or adjusted for 'real' protocols, make your own
  * implementation if you need it!
  *
- * Copyrights EnergyICT
+ *
  * Date: 10/07/13
  * Time: 9:07
  */

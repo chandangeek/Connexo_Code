@@ -24,7 +24,7 @@ import java.util.Set;
 /**
  * Provides an implementation for the {@link ConnectionType} interface for UDP.
  * <p>
- * Copyrights EnergyICT
+ *
  * Date: 9/11/12
  * Time: 11:20
  */

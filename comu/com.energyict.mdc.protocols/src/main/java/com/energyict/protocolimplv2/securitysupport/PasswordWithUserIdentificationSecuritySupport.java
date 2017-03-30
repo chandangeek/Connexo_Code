@@ -17,7 +17,7 @@ import java.util.Optional;
  * Be aware that the UserIdentification is validated as a string, but can also just
  * contain a numerical value.
  * <p>
- * Copyrights EnergyICT
+ *
  * Date: 14/01/13
  * Time: 9:28
  */

@@ -5,7 +5,7 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.object.field.CTRObjectID;
 
 /**
  * Maps a CTR register to an obiscode
- * Copyrights EnergyICT
+ *
  * Date: 14-okt-2010
  * Time: 11:44:31
  */

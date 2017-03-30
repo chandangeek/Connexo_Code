@@ -8,7 +8,7 @@ import com.energyict.protocolimpl.coronis.core.WaveFlowException;
 import java.io.IOException;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 12-apr-2011
  * Time: 9:12:14
  */

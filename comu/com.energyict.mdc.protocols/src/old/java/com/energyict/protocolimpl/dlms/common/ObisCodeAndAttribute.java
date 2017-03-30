@@ -5,7 +5,7 @@ import com.energyict.obis.ObisCode;
 import java.io.Serializable;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 24/08/12
  * Time: 15:04
  * Author: khe

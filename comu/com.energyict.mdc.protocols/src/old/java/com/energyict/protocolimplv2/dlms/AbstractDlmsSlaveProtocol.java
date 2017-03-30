@@ -49,7 +49,7 @@ import java.util.Optional;
 import java.util.Set;
 
 /**
- * Copyrights EnergyICT
+ *
  *
  * @author khe
  * @since 15/01/2015 - 10:18

@@ -62,7 +62,7 @@ import java.util.TimeZone;
 import java.util.logging.Logger;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 6/11/12
  * Time: 16:46
  * Author: khe

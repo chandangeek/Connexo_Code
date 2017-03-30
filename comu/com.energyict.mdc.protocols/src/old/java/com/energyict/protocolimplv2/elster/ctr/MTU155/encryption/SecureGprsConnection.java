@@ -13,7 +13,7 @@ import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 import java.util.logging.Logger;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 5-okt-2010
  * Time: 15:02:43
  */

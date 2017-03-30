@@ -15,7 +15,7 @@ import java.util.Optional;
 /**
  * Provides general security <b>capabilities</b> for a Garnet protocol.
  * <p>
- * Copyrights EnergyICT
+ *
  * Date: 10/01/13
  * Time: 16:39
  */

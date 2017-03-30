@@ -40,7 +40,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 /**
- * Copyrights EnergyICT
+ *
  * User: sva
  * Date: 23/04/12
  * Time: 11:58

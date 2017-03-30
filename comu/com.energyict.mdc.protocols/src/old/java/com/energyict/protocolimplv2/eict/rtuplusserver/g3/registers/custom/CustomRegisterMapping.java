@@ -12,7 +12,7 @@ import java.io.IOException;
 
 /**
  * Custom registers mappers return a register value that describes all the attributes of an abstract COSEM object.
- * Copyrights EnergyICT
+ *
  * Date: 15/05/14
  * Time: 15:37
  * Author: khe

@@ -17,7 +17,7 @@ import com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator;
  * xml tag with an additional
  * {@link com.energyict.protocolimpl.messages.RtuMessageConstant#SET_TIME_VALUE} attribute.
  * <p/>
- * Copyrights EnergyICT
+ *
  * Date: 12/03/13
  * Time: 14:49
  */

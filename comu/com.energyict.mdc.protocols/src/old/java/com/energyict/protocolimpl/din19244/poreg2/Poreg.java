@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Properties;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 11-mei-2011
  * Time: 11:59:59
  */

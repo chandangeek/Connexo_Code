@@ -15,7 +15,7 @@ import java.util.List;
 /**
  * Provides functionality to collect the events from the device and return them as a list of {@link com.energyict.protocol.MeterEvent}
  * <p/>
- * Copyrights EnergyICT
+ *
  * Date: 24-02-2012
  * Time: 13:33:07
  */

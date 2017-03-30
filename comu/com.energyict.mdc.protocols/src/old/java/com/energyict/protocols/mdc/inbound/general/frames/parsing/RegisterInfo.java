@@ -12,7 +12,7 @@ import java.util.Date;
 import java.util.TimeZone;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 26/06/12
  * Time: 15:36
  * Author: khe

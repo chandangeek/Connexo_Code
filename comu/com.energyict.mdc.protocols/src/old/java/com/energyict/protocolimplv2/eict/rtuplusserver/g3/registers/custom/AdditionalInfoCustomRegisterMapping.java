@@ -11,7 +11,7 @@ import java.io.IOException;
  * Contains a register that represents the custom name and the NTP server of the concentrator.
  * These 2 are stored in the text field of the register, separated by a semi colon.
  * <p/>
- * Copyrights EnergyICT
+ *
  * Date: 15/05/14
  * Time: 15:38
  * Author: khe

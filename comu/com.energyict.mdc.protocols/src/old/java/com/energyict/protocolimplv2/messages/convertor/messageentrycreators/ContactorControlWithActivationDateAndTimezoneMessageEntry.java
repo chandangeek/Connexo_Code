@@ -16,7 +16,7 @@ import java.util.TimeZone;
  * or
  * Creates XML: <TimedReconnect Date (dd/mm/yyyy hh:mm)="10/10/2010 10:50" TimeZone="Europe/Paris" ></TimedReconnect>
  * <p/>
- * Copyrights EnergyICT
+ *
  * Date: 24/10/13
  * Time: 10:23
  * Author: khe

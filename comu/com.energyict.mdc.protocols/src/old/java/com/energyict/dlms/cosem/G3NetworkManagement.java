@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.util.Date;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 11/20/12
  * Time: 3:39 PM
  */

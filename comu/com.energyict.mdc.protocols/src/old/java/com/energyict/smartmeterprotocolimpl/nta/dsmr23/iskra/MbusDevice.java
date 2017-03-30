@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Properties;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 15-jul-2011
  * Time: 12:04:42
  */

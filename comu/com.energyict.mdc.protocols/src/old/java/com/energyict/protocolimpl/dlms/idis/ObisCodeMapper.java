@@ -32,7 +32,7 @@ import java.math.BigDecimal;
 /**
  * Class that takes an obiscode, reads out the proper value and unit from the meter and returns the register.
  * <p/>
- * Copyrights EnergyICT
+ *
  * Date: 19/03/12
  * Time: 17:04
  */

@@ -14,7 +14,7 @@ import java.util.List;
  * Abstract super class for all inbound frames.
  * Parsing depends on the type of the frame, but has a common part for received parameters
  * <p/>
- * Copyrights EnergyICT
+ *
  * Date: 25/06/12
  * Time: 17:07
  * Author: khe

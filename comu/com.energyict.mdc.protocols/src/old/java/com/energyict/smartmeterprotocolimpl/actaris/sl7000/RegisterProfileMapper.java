@@ -14,7 +14,7 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * Copyrights EnergyICT
+ *
  * User: sva
  * Date: 17/08/12
  * Time: 13:56

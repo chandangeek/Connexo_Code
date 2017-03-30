@@ -19,7 +19,7 @@ import java.util.List;
 /**
  * Extension of the standard DLMS properties, adding DSMR50 stuff.
  * <p>
- * Copyrights EnergyICT
+ *
  *
  * @author khe
  * @since 17/12/2014 - 17:27

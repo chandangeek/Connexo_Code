@@ -18,7 +18,7 @@ import javax.inject.Provider;
 import java.time.Clock;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 17/02/14
  * Time: 11:11
  * Author: khe

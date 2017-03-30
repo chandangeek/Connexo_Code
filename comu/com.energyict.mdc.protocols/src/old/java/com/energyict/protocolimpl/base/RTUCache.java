@@ -6,7 +6,7 @@ import java.sql.SQLException;
 /**
  * Provides functionality to have access to the CES_DEVICECACHE table.
  *
- * Copyrights EnergyICT
+ *
  * Date: 20-mei-2010
  * Time: 11:29:25
  */

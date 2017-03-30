@@ -14,7 +14,7 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 19/05/11
  * Time: 16:50
  */

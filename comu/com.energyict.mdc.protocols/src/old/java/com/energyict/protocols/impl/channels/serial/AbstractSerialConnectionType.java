@@ -27,7 +27,7 @@ import java.util.Optional;
 import java.util.Set;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 17/08/12
  * Time: 11:39
  */

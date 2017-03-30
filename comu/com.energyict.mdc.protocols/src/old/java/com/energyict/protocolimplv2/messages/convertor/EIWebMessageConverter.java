@@ -20,7 +20,7 @@ import java.util.Map;
 /**
  * Represents a MessageConverter that maps the new EIWeb messages to legacy XML
  * <p/>
- * Copyrights EnergyICT
+ *
  * Date: 8/03/13
  * Time: 16:26
  */

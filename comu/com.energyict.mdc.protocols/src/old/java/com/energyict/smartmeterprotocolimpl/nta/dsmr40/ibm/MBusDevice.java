@@ -10,7 +10,7 @@ import javax.inject.Inject;
 import java.time.Clock;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 11/03/13
  * Time: 16:18
  * Author: khe

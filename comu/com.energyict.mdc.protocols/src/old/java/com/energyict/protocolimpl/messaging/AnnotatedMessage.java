@@ -3,7 +3,7 @@ package com.energyict.protocolimpl.messaging;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 6/29/12
  * Time: 8:37 AM
  */

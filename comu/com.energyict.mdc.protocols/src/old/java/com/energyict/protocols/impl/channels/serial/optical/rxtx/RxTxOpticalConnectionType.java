@@ -19,7 +19,7 @@ import java.util.List;
  * Provides an implementation of a {@link ConnectionType} interface for optical
  * communication using the open source RxTX libraries.
  * <p/>
- * Copyrights EnergyICT
+ *
  * Date: 12/11/12
  * Time: 13:00
  */

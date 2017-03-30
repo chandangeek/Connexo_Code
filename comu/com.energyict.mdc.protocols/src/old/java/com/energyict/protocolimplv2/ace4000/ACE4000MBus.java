@@ -22,7 +22,7 @@ import java.util.List;
 /**
  * Place holder protocol, requests are handled and parsed in the master protocol.
  * <p/>
- * Copyrights EnergyICT
+ *
  * Date: 4/12/12
  * Time: 13:44
  * Author: khe

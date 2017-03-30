@@ -10,7 +10,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 12/11/12
  * Time: 14:00
  * Author: khe

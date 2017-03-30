@@ -45,7 +45,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 14-jul-2011
  * Time: 11:20:34
  */

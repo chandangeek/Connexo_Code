@@ -20,7 +20,7 @@ import java.time.Clock;
 import java.util.TimeZone;
 
 /**
- * Copyrights EnergyICT
+ *
  * User: sva
  * Date: 24/01/12
  * Time: 16:38

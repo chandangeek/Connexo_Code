@@ -8,7 +8,7 @@ import com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages.Dsmr23MbusMessag
 import java.time.Clock;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 17/04/13
  * Time: 17:37
  * Author: khe

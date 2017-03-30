@@ -18,7 +18,7 @@ import java.util.Map;
  * Reads out the error registers (FF, FF1, FF2 and FF3) and generates matching events.
  * This is the same for AS253 and AS1253.
  * <p/>
- * Copyrights EnergyICT
+ *
  * Date: 14/05/13
  * Time: 15:58
  * Author: khe

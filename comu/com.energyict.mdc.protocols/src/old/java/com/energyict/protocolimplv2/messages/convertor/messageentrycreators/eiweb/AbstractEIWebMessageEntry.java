@@ -13,7 +13,7 @@ import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.gene
  * Abstract class with some utility methods for generating a legacy XML message from a given MessageTag.
  * writeTag() is the same method as used in com.energyict.genericprotocolimpl.common.messages.GenericMessaging
  * <p/>
- * Copyrights EnergyICT
+ *
  * Date: 1/10/13
  * Time: 16:54
  * Author: khe

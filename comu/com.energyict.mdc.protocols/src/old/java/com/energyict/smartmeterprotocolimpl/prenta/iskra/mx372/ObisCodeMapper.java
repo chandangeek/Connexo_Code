@@ -23,7 +23,7 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 /**
- * Copyrights EnergyICT
+ *
  * User: sva
  * Date: 20/01/12
  * Time: 10:35

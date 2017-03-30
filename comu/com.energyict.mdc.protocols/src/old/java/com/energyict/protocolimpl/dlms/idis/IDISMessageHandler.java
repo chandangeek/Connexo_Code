@@ -61,7 +61,7 @@ import java.util.TimeZone;
 import java.util.logging.Level;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 20/09/11
  * Time: 17:22
  */

@@ -19,7 +19,7 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.WriteDataB
 import java.util.Date;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 2/03/11
  * Time: 16:40
  */

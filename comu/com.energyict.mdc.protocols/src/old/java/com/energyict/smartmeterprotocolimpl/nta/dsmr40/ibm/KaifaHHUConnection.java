@@ -16,7 +16,7 @@ import java.io.IOException;
  * IEC1107 HHU connection for the IBM Kaifa meter.
  * This meter does not send an acknowledgement after you changed the baudrate to 9600...
  * <p/>
- * Copyrights EnergyICT
+ *
  * Date: 2/05/13
  * Time: 11:00
  * Author: khe

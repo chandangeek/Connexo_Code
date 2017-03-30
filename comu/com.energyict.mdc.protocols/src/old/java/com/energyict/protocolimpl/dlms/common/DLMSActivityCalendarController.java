@@ -44,7 +44,7 @@ import java.util.TimeZone;
 import java.util.TreeSet;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 4/10/11
  * Time: 16:49
  */

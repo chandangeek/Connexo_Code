@@ -16,7 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Provides an implementation for the {@link DeviceProtocolMessageService} interface
  * and registers as a OSGi component.
  * <p>
- * Copyrights EnergyICT
+ *
  * Date: 08/11/13
  * Time: 16:08
  */

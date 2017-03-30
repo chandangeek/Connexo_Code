@@ -28,7 +28,7 @@ import java.util.List;
  * If we have CapturedObject definitions with a B-field set to <i>128</i>,
  * then we map it to 0
  * <p/>
- * Copyrights EnergyICT
+ *
  * Date: 30/11/12
  * Time: 12:08
  */

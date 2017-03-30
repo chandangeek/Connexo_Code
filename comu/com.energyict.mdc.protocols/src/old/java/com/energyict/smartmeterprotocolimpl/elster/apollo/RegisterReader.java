@@ -35,7 +35,7 @@ import java.util.Map;
 import java.util.logging.Level;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 26-nov-2010
  * Time: 9:53:09
  */

@@ -15,7 +15,7 @@ import java.io.IOException;
 /**
  * SE T C = SEcurity Trust Center
  *
- * Copyrights EnergyICT
+ *
  * Date: 4/08/11
  * Time: 7:31
  */

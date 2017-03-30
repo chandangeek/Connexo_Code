@@ -14,7 +14,7 @@ import java.io.OutputStream;
  * Serves as an implementation of a SerialCommunicationChannel wrapped around a
  * {@link ComChannel}
  *
- * Copyrights EnergyICT
+ *
  * Date: 14/05/13
  * Time: 9:38
  */

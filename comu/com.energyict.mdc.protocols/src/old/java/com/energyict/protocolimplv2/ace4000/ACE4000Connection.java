@@ -11,7 +11,7 @@ import java.util.List;
 
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 5/11/12
  * Time: 14:55
  * Author: khe

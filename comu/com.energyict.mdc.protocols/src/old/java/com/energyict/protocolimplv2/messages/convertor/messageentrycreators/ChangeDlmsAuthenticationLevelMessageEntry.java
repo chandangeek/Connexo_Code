@@ -15,7 +15,7 @@ import com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator;
  * Creates a MessageEntry based on the {@link com.energyict.protocolimpl.messages.RtuMessageConstant#AEE_CHANGE_AUTHENTICATION_LEVEL}
  * xml tag with an additional {@link com.energyict.protocolimpl.messages.RtuMessageConstant#AEE_AUTHENTICATIONLEVEL}
  * <p/>
- * Copyrights EnergyICT
+ *
  * Date: 19/03/13
  * Time: 9:09
  */

@@ -25,7 +25,7 @@ import java.util.Map;
 /**
  * The ObjectFactory provides and serves all objects required for the protocol.
  * <p/>
- * Copyrights EnergyICT
+ *
  * Date: 26-nov-2010
  * Time: 11:28:56
  */

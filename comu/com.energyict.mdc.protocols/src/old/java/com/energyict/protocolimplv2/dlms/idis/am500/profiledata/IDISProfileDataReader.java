@@ -42,7 +42,7 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 29.09.15
  * Time: 10:10
  */

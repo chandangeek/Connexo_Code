@@ -15,7 +15,7 @@ import org.xml.sax.SAXException;
 import java.io.IOException;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 5/29/12
  * Time: 8:38 AM
  */

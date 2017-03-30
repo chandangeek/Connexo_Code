@@ -10,7 +10,7 @@ import com.energyict.protocolimpl.iec1107.cewe.ceweprometer.register.ProRegister
 import java.io.IOException;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 20/05/11
  * Time: 15:17
  */

@@ -15,7 +15,7 @@ import java.util.Optional;
  * Provides general security <b>capabilities</b> for DeviceProtocols
  * that use a single password to do authentication/encryption
  * <p>
- * Copyrights EnergyICT
+ *
  * Date: 11/01/13
  * Time: 14:47
  */

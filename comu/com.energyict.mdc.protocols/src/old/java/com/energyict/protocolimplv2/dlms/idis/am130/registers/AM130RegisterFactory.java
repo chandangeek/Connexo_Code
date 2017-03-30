@@ -60,7 +60,7 @@ import java.util.Map;
 import java.util.TimeZone;
 
 /**
- * Copyrights EnergyICT
+ *
  *
  * @author khe
  * @since 5/01/2015 - 11:13

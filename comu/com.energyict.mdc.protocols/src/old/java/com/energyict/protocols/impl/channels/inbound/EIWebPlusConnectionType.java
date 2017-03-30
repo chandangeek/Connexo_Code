@@ -22,7 +22,7 @@ import java.util.Set;
 /**
  * Specific ConnectionType used for the EIWeb plus Protocol.
  *
- * Copyrights EnergyICT
+ *
  * Date: 13/12/12
  * Time: 15:46
  */

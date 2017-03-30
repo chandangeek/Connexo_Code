@@ -9,7 +9,6 @@ import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.upl.security.LegacySecurityPropertyConverter;
-
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
@@ -18,7 +17,7 @@ import java.util.List;
 /**
  * Adapts the given UPL {@link DeviceProtocolSecurityCapabilities} (from protocols 9.1) to the CXO format (that has CPS support etc).
  * <p>
- * Copyrights EnergyICT
+ *
  *
  * @author khe
  * @since 4/01/2017 - 13:49

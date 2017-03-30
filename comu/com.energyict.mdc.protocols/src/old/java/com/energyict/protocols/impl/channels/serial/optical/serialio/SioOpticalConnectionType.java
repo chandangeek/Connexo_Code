@@ -19,7 +19,7 @@ import java.util.List;
  * Provides an implementation of a {@link ConnectionType} interface for optical
  * communication using the SerialIO libraries
  * <p/>
- * Copyrights EnergyICT
+ *
  * Date: 12/11/12
  * Time: 12:58
  */

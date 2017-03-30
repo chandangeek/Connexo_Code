@@ -21,7 +21,7 @@ import java.util.logging.Logger;
 /**
  * Connection class used to drop SMS messages on the Outbound SMS Queue.
  * <p/>
- * Copyrights EnergyICT
+ *
  * User: sva
  * Date: 8/03/12
  * Time: 15:02

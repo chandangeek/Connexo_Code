@@ -21,7 +21,7 @@ import static com.energyict.protocolimpl.utils.ProtocolTools.getBytesFromHexStri
 import static com.energyict.protocolimpl.utils.ProtocolTools.isOdd;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 17/03/11
  * Time: 10:22
  */

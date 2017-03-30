@@ -16,7 +16,7 @@ import com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator;
  * xml tag with an additional {@link com.energyict.protocolimpl.messages.RtuMessageConstant#TOU_ACTIVITY_NAME}
  * and {@link com.energyict.protocolimpl.messages.RtuMessageConstant#TOU_ACTIVITY_CODE_TABLE}
  * <p/>
- * Copyrights EnergyICT
+ *
  * Date: 13/03/13
  * Time: 12:05
  */

@@ -7,7 +7,7 @@ import com.energyict.obis.ObisCode;
  * Common getters for ObisCodes
  *
  * <pre>
- * Copyrights EnergyICT
+ *
  * Date: 23-nov-2010
  * Time: 16:30:45
  * </pre>

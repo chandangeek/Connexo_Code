@@ -11,7 +11,7 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 import java.io.IOException;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 24/08/11
  * Time: 14:54
  */

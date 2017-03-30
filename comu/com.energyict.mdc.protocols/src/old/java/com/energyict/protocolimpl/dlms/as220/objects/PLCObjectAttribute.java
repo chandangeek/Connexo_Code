@@ -7,7 +7,7 @@ import com.energyict.obis.ObisCode;
 
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 31-mei-2010
  * Time: 14:56:35
  */

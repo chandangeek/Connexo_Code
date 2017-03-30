@@ -21,7 +21,7 @@ import java.util.Properties;
 /**
  * Place holder class for the MBus device.
  * Contains the standard DSMR 2.3 MBus messages (connect control and setup)
- * Copyrights EnergyICT
+ *
  * Date: 11/03/13
  * Time: 16:04
  * Author: khe

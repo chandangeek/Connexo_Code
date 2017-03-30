@@ -10,7 +10,7 @@ import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.SimpleTagWriter;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 12/03/13
  * Time: 14:59
  */

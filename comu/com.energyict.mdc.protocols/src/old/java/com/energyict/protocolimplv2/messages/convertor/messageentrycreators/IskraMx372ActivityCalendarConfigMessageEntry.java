@@ -12,7 +12,7 @@ import com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator;
 /**
  * Creates a MessageEntry for tariff programming
  * <p/>
- * Copyrights EnergyICT
+ *
  * Date: 13/03/13
  * Time: 12:05
  */

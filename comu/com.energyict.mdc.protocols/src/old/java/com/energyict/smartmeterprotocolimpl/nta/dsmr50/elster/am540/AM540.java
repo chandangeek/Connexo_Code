@@ -34,7 +34,7 @@ import java.util.logging.Level;
  * Protocol for the Elster AM540 module (connected to an AS3000 e-meter), following the DSMR 5.0 spec.
  * This is a hybrid supporting both the DSMR4.0 functionality and the G3 PLC objects.
  * <p/>
- * Copyrights EnergyICT
+ *
  * Author: khe
  */
 public class AM540 extends E350 {

@@ -17,7 +17,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 27/02/12
  * Time: 14:32
  */

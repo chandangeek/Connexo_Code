@@ -8,7 +8,7 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.object.CTRObjectFactory;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.field.CTRObjectID;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 20-okt-2010
  * Time: 17:23:00
  */

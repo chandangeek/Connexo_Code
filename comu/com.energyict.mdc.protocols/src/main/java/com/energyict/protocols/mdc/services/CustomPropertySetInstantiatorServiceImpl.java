@@ -19,7 +19,7 @@ import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 
 /**
- * Copyrights EnergyICT
+ *
  *
  * @author khe
  * @since 13/02/2017 - 11:18

@@ -19,7 +19,7 @@ import java.io.IOException;
  * The communication settings should remain 7E1 through whole communication.
  *
  * <p/>
- * Copyrights EnergyICT
+ *
  * Date: 2/05/13
  * Time: 11:00
  * Author: khe

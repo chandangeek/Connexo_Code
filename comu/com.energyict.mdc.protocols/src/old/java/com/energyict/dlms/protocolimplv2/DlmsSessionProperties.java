@@ -12,7 +12,7 @@ import java.util.TimeZone;
 /**
  * Contains access to all properties to configure a DLMS session and its connection layers (TCP, HDLC,...)
  * <p>
- * Copyrights EnergyICT
+ *
  * Date: 8/02/12
  * Time: 15:08
  */

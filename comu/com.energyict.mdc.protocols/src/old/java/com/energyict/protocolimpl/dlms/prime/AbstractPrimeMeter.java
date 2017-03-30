@@ -27,7 +27,7 @@ import java.util.logging.Level;
 /**
  * Prime protocol, that should be able to read all the prime compliant devices (L&G, ZIV, Current, Elster, ...)
  *
- * Copyrights EnergyICT
+ *
  * Date: 21/02/12
  * Time: 14:43
  */

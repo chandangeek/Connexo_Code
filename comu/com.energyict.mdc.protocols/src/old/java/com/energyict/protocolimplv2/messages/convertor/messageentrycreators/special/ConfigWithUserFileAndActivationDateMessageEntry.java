@@ -16,7 +16,7 @@ import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.gene
  * <p/>
  * E.g.: <tag><IncludedFile> (bytes as string) </IncludedFile><ActivationDate> date </ActivationDate></tag>
  * <p/>
- * Copyrights EnergyICT
+ *
  * Date: 12/03/13
  * Time: 16:54
  */

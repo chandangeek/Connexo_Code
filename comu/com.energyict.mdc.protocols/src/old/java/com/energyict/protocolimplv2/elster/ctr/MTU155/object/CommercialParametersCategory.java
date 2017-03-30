@@ -7,7 +7,7 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.object.field.CTRObjectID;
 import java.math.BigDecimal;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 15-okt-2010
  * Time: 9:42:46
  */

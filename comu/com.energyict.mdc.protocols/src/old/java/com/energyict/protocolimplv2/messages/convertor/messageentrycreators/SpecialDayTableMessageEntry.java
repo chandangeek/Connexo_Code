@@ -15,7 +15,7 @@ import com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator;
  * Creates a MessageEntry based on the {@link com.energyict.protocolimpl.messages.RtuMessageConstant#TOU_SPECIAL_DAYS}
  * xml tag with an additional {@link com.energyict.protocolimpl.messages.RtuMessageConstant#TOU_SPECIAL_DAYS_CODE_TABLE}
  * <p/>
- * Copyrights EnergyICT
+ *
  * Date: 13/03/13
  * Time: 14:28
  */

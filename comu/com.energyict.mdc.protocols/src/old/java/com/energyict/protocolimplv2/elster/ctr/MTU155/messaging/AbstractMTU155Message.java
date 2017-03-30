@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 27-dec-2010
  * Time: 9:28:57
  */

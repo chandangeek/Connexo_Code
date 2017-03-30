@@ -11,7 +11,7 @@ import com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator;
  * Creates a MessageEntry based on the {@link com.energyict.protocolimpl.messages.RtuMessageConstant#WAKEUP_ACTIVATE}
  * xml tag with NO an additional values.
  * <p/>
- * Copyrights EnergyICT
+ *
  * Date: 2/04/13
  * Time: 10:17
  */
