@@ -837,7 +837,7 @@ public class BpmResource {
         String jsonContent;
         JSONArray arr = null;
         try {
-            jsonContent = bpmService.getBpmServer().doGet("/rest/deployment/processes", auth);
+            jsonContent = bpmService.getBpmServer().doGet("/rest/deployment/processes?p=0&s=1000", auth);
             if (!"".equals(jsonContent)) {
                 JSONObject jsnobject = new JSONObject(jsonContent);
                 arr = jsnobject.getJSONArray("processDefinitionList");
