@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.usagepoint.data.rest.impl;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.Meter;
@@ -25,6 +26,8 @@ import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.streams.Functions;
+import com.elster.jupiter.validation.DataValidationStatus;
+import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.ValidationService;
 
 import com.google.common.collect.Range;
@@ -48,12 +51,14 @@ import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Path("/usagepoints")
 public class UsagePointResource {
@@ -251,8 +256,7 @@ public class UsagePointResource {
                     previousReadingRecord = readingRecordsMap.get(readingTimestamp);
                 }
 
-                RangeMap<Instant, Instant> lastCheckedOfSourceChannels =
-                        getLastCheckedOfSourceChannels(effectiveMetrologyConfiguration, register);
+                RangeMap<Instant, Instant> lastCheckedOfSourceChannels = getLastCheckedOfSourceChannels(effectiveMetrologyConfiguration, register);
 
                 outputRegisterDataInfoList = preFilledRegisterDataMap.entrySet().stream()
                         .sorted(Collections.reverseOrder(Comparator.comparing(Map.Entry::getKey)))

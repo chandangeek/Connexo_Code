@@ -17,6 +17,7 @@ import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.transaction.TransactionService;
@@ -57,6 +58,8 @@ public class UsagePointApplicationJerseyTest extends FelixRestApplicationJerseyT
     @Mock
     ValidationService validationService;
     @Mock
+    MeteringTranslationService meteringTranslationService;
+    @Mock
     DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
     @Mock
     Clock clock;
@@ -76,6 +79,7 @@ public class UsagePointApplicationJerseyTest extends FelixRestApplicationJerseyT
         app.setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
         app.setMeteringService(meteringService);
         app.setTransactionService(transactionService);
+        app.setMeteringTranslationService(meteringTranslationService);
         app.setNlsService(nlsService);
         app.setDeviceService(deviceService);
         app.setValidationService(validationService);

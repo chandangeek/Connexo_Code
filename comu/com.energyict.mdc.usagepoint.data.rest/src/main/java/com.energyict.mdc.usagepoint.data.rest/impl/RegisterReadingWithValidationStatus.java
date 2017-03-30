@@ -7,12 +7,17 @@ package com.energyict.mdc.usagepoint.data.rest.impl;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.readings.ReadingQuality;
+import com.elster.jupiter.validation.DataValidationStatus;
 
+import javax.swing.text.html.Option;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Represents {@link ReadingRecord} with validation status. <br>
@@ -23,10 +28,17 @@ public class RegisterReadingWithValidationStatus {
     private ReadingRecord readingRecord;
     private ZonedDateTime readingTimeStamp;
     private ReadingRecord previousReadingRecord;
+    private List<? extends ReadingQuality> suspectReadingQualities = new ArrayList<>();
 
     public RegisterReadingWithValidationStatus(ZonedDateTime readingTimeStamp, ReadingRecord readingRecord) {
         this.readingTimeStamp = readingTimeStamp;
         this.readingRecord = readingRecord;
+        if (readingRecord != null) {
+            suspectReadingQualities = readingRecord.getReadingQualities()
+                    .stream()
+                    .filter(ReadingQualityRecord::isSuspect)
+                    .collect(Collectors.toList());
+        }
     }
 
     public void setPreviousReadingRecord(ReadingRecord previousReadingRecord) {
@@ -34,7 +46,7 @@ public class RegisterReadingWithValidationStatus {
     }
 
     public Optional<ReadingRecord> getPreviousReadingRecord() {
-        return Optional.of(previousReadingRecord);
+        return previousReadingRecord == null ? Optional.empty() : Optional.of(previousReadingRecord);
     }
 
     public ReadingRecord getReadingRecord() {
@@ -49,16 +61,18 @@ public class RegisterReadingWithValidationStatus {
         if (getTimeStamp().isAfter(lastChecked)) {
             return ValidationStatus.NOT_VALIDATED;
         }
-        if (readingRecord != null) {
-            List<? extends ReadingQualityRecord> readingQualities = readingRecord.getReadingQualities();
-            if (readingQualities.stream().anyMatch(ReadingQualityRecord::isSuspect)) {
-                return ValidationStatus.SUSPECT;
-            }
+        if (suspectReadingQualities.size() > 0) {
+            return ValidationStatus.SUSPECT;
+        } else {
+            return ValidationStatus.OK;
         }
-        return ValidationStatus.OK;
     }
 
     public Instant getTimeStamp() {
         return this.readingTimeStamp.toInstant();
+    }
+
+    public List<? extends ReadingQuality> getReadingQualities() {
+        return suspectReadingQualities.stream().collect(Collectors.toList());
     }
 }

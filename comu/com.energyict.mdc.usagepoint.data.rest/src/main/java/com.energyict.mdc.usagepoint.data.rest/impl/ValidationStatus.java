@@ -27,4 +27,13 @@ public enum ValidationStatus {
     public String toString() {
         return getNameKey();
     }
+
+    public static ValidationStatus forResult(ValidationResult result) {
+        for (ValidationStatus validationStatus : values()) {
+            if (validationStatus.match.equals(result)) {
+                return validationStatus;
+            }
+        }
+        return null;
+    }
 }

@@ -42,8 +42,7 @@ public class UsagePointRegisterInfoFactory extends AbstractUsagePointChannelInfo
         UsagePointRegisterInfo info = new UsagePointRegisterInfo();
         ReadingType readingType = channel.getMainReadingType();
         info.id = channel.getId();
-        //Instant lastDateTime = channel.getLastDateTime();
-        Instant lastDateTime = null;
+        Instant lastDateTime = channel.getLastDateTime();
         info.dataUntil = lastDateTime != null ? lastDateTime : null;
         info.measurementTime = lastDateTime != null ? lastDateTime : null;
         info.readingType = readingTypeInfoFactory.from(readingType);

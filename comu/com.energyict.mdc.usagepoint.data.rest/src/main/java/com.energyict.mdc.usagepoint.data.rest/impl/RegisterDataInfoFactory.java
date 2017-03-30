@@ -12,26 +12,35 @@ import com.elster.jupiter.metering.ReadingType;
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeMap;
 
+import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Factory to create {@link RegisterDataInfo} objects
  */
 public class RegisterDataInfoFactory {
 
+
+    private final ReadingQualityInfoFactory readingQualityInfoFactory;
+
+    @Inject
+    public RegisterDataInfoFactory(ReadingQualityInfoFactory readingQualityInfoFactory) {
+        this.readingQualityInfoFactory = readingQualityInfoFactory;
+    }
+
     /**
      * Represents {@link RegisterReadingWithValidationStatus} as {@link RegisterDataInfo}
      *
      * @param readingRecord {@link RegisterReadingWithValidationStatus} object to be represented as {@link RegisterDataInfo}
-     * @param lastCheckedMap {@link RangeMap} map of last checked {@link Instant} entries
      * @return {@link RegisterDataInfo} info object
      */
-    public RegisterDataInfo asInfo(RegisterReadingWithValidationStatus readingRecord,
-                                   RangeMap<Instant, Instant> lastCheckedMap) {
-        return RegisterType.determineRegisterType(readingRecord).getRegisterDataInfo();
+    public RegisterDataInfo asInfo(RegisterReadingWithValidationStatus readingRecord, RangeMap<Instant, Instant> lastChecked) {
+        return RegisterType.determineRegisterType(readingRecord)
+                .getRegisterDataInfo(readingQualityInfoFactory, lastChecked);
     }
 
     private enum RegisterType {
@@ -88,11 +97,6 @@ public class RegisterDataInfoFactory {
                 registerType.setCollectedValue();
                 registerType.setDeltaValue();
             }
-        },
-        UNKNOWN {
-            @Override
-            void createRegisterDataInfo(RegisterType registerType) {
-            }
         };
 
         private RegisterType withReading(RegisterReadingWithValidationStatus reading) {
@@ -105,6 +109,7 @@ public class RegisterDataInfoFactory {
             registerDataInfo.isCumulative = isCumulative;
             registerDataInfo.hasEvent = hasEvent;
             registerDataInfo.isBilling = isBilling;
+            this.registerDataInfo = registerDataInfo;
             return this;
         }
 
@@ -112,15 +117,17 @@ public class RegisterDataInfoFactory {
             Range<Instant> range = null;
             if (registerDataInfo.isCumulative) {
 
-                if (registerDataInfo.isBilling && reading.getReadingRecord().getTimePeriod().isPresent()) {
-                    range = Range.openClosed(reading.getPreviousReadingRecord()
-                            .get()
-                            .getTimeStamp(), reading.getReadingRecord().getTimePeriod().get().upperEndpoint());
+                Optional<ReadingRecord> previousReadingRecord = reading.getPreviousReadingRecord();
+
+                Instant actualReadingUpperInstant;
+                if (reading.getReadingRecord().getTimePeriod().isPresent()) {
+                    actualReadingUpperInstant = reading.getReadingRecord().getTimePeriod().get().upperEndpoint();
                 } else {
-                    range = Range.openClosed(reading.getPreviousReadingRecord()
-                            .get()
-                            .getTimeStamp(), reading.getReadingRecord().getTimeStamp());
+                    actualReadingUpperInstant = reading.getReadingRecord().getTimeStamp();
                 }
+
+                range = previousReadingRecord.map(readingRecord -> Range.openClosed(previousReadingRecord.get()
+                        .getTimeStamp(), actualReadingUpperInstant)).orElse(Range.atMost(actualReadingUpperInstant));
 
             } else if (registerDataInfo.isBilling) {
                 range = reading.getReadingRecord().getTimePeriod().orElse(null);
@@ -141,8 +148,8 @@ public class RegisterDataInfoFactory {
             BigDecimal delta = null;
             BigDecimal value = reading.getValue();
             BigDecimal previousValue = reading.getPreviousReadingRecord().map(ReadingRecord::getValue).orElse(null);
-            if(value != null && previousValue != null) {
-                 delta = value.subtract(previousValue);
+            if (value != null && previousValue != null) {
+                delta = value.subtract(previousValue);
             }
             registerDataInfo.deltaValue = delta;
         }
@@ -151,6 +158,16 @@ public class RegisterDataInfoFactory {
             if (registerDataInfo.hasEvent) {
                 registerDataInfo.eventDate = reading.getReadingRecord().getTimeStamp();
             }
+        }
+
+        private void setReadingQualities(ReadingQualityInfoFactory readingQualityInfoFactory) {
+            registerDataInfo.readingQualities = readingQualityInfoFactory.asInfos(reading.getReadingQualities());
+        }
+
+        private void setValidationResult(RangeMap<Instant, Instant> lastCheckedMap) {
+            Optional<Instant> lastChecked = Optional.ofNullable(lastCheckedMap.get(reading.getReadingRecord()
+                    .getTimeStamp()));
+            registerDataInfo.validationResult = reading.getValidationStatus(lastChecked.orElse(Instant.MIN));
         }
 
         private RegisterDataInfo registerDataInfo;
@@ -193,12 +210,14 @@ public class RegisterDataInfoFactory {
                 registerType = NOT_CUMULATIVE_VALUE;
             }
 
-            return (registerType != null ? registerType : UNKNOWN).withReading(reading)
+            return registerType.withReading(reading)
                     .withRegisterDataInfo(isCumulative, hasEvent, isBilling);
         }
 
-        public RegisterDataInfo getRegisterDataInfo() {
+        public RegisterDataInfo getRegisterDataInfo(ReadingQualityInfoFactory readingQualityInfoFactory, RangeMap<Instant, Instant> lastChecked) {
             createRegisterDataInfo(this);
+            setReadingQualities(readingQualityInfoFactory);
+            setValidationResult(lastChecked);
             return registerDataInfo;
         }
 

@@ -7,8 +7,10 @@ package com.energyict.mdc.usagepoint.data.rest.impl;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.List;
 
 /**
  * Represents register data.<br>
@@ -36,6 +38,11 @@ public class RegisterDataInfo {
     public BigDecimal deltaValue;
 
     public Instant eventDate;
+
+    @XmlJavaTypeAdapter(ValidationStatusAdapter.class)
+    ValidationStatus validationResult;
+
+    public List<ReadingQualityInfo> readingQualities;
 }
 
 

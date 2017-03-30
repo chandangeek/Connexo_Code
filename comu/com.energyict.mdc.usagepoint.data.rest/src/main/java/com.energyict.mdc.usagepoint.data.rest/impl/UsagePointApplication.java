@@ -5,6 +5,7 @@
 package com.energyict.mdc.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
@@ -40,6 +41,7 @@ public class UsagePointApplication extends Application implements MessageSeedPro
     private volatile DeviceService deviceService;
     private volatile MeteringService meteringService;
     private volatile TransactionService transactionService;
+    private volatile MeteringTranslationService meteringTranslationService;
     private volatile Thesaurus thesaurus;
     private volatile NlsService nlsService;
     private volatile ValidationService validationService;
@@ -82,6 +84,11 @@ public class UsagePointApplication extends Application implements MessageSeedPro
     }
 
     @Reference
+    public void setMeteringTranslationService(MeteringTranslationService meteringTranslationService) {
+        this.meteringTranslationService = meteringTranslationService;
+    }
+
+    @Reference
     public void setClock(Clock clock) {
         this.clock = clock;
     }
@@ -110,6 +117,7 @@ public class UsagePointApplication extends Application implements MessageSeedPro
             bind(deviceLifeCycleConfigurationService).to(DeviceLifeCycleConfigurationService.class);
             bind(deviceService).to(DeviceService.class);
             bind(meteringService).to(MeteringService.class);
+            bind(meteringTranslationService).to(MeteringTranslationService.class);
             bind(thesaurus).to(Thesaurus.class);
             bind(nlsService).to(NlsService.class);
             bind(transactionService).to(TransactionService.class);
@@ -124,6 +132,7 @@ public class UsagePointApplication extends Application implements MessageSeedPro
             bind(ChannelDataInfoFactory.class).to(ChannelDataInfoFactory.class);
             bind(RegisterDataInfoFactory.class).to(RegisterDataInfoFactory.class);
             bind(ValidationRuleInfoFactory.class).to(ValidationRuleInfoFactory.class);
+            bind(ReadingQualityInfoFactory.class).to(ReadingQualityInfoFactory.class);
         }
     }
 }
