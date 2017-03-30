@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
@@ -18,13 +22,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
-/**
- * Tests the {@link LogBookSpecImpl} component
- * <p/>
- * Copyrights EnergyICT
- * Date: 14/02/14
- * Time: 11:22
- */
 @RunWith(MockitoJUnitRunner.class)
 public class LogBookSpecImplTest extends DeviceTypeProvidingPersistenceTest {
 

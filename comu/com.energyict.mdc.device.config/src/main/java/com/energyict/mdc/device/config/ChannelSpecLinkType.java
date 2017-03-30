@@ -1,10 +1,9 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.config;
 
-/**
- * Copyrights EnergyICT
- * Date: 20/06/13
- * Time: 11:17
- */
 public enum ChannelSpecLinkType {
     PRIME(0, "prime"), TIME_OF_USE(1, "timeOfUse");
 

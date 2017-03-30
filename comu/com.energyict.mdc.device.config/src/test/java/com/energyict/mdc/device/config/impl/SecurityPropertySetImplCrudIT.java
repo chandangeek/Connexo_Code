@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
@@ -51,11 +55,7 @@ import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationModule;
-import com.energyict.mdc.device.config.ConflictingSecuritySetSolution;
-import com.energyict.mdc.device.config.DeviceConfigConflictMapping;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.SecurityPropertySet;
+import com.energyict.mdc.device.config.*;
 import com.energyict.mdc.device.config.impl.deviceconfigchange.DeviceConfigConflictMappingHandler;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
@@ -78,6 +78,7 @@ import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.scheduling.SchedulingService;
+import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
 import com.google.common.collect.ImmutableMap;
@@ -117,17 +118,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
-/**
- * Persistence integration test for the {@link SecurityPropertySetImpl} component.
- * <p>
- * Copyrights EnergyICT
- * Date: 10/04/2014
- * Time: 9:59
- */
 @RunWith(MockitoJUnitRunner.class)
 public class SecurityPropertySetImplCrudIT {
 
@@ -360,6 +352,37 @@ public class SecurityPropertySetImplCrudIT {
         Optional<SecurityPropertySet> found = deviceConfigurationService.findSecurityPropertySet(propertySet.getId());
 
         assertThat(found.isPresent()).isFalse();
+    }
+
+    @Test
+    @Transactional
+    public void testDeleteDeviceTypeDeletesSecuritySets() {
+        SecurityPropertySet propertySet;
+        DeviceConfiguration deviceConfiguration;
+        DeviceType deviceType = createDeviceType("MyType");
+
+        deviceConfiguration = createNewInactiveConfiguration(deviceType, "Normal");
+        ComTask testComTask = createTestComTask();
+        propertySet = deviceConfiguration.createSecurityPropertySet("Name")
+                .authenticationLevel(1)
+                .encryptionLevel(2)
+                .addUserAction(EDITDEVICESECURITYPROPERTIES1)
+                .addUserAction(EDITDEVICESECURITYPROPERTIES2)
+                .build();
+        deviceConfiguration.enableComTask(testComTask, propertySet).add();
+        // prepareDelete should delete everything
+        deviceType.delete();
+
+        Optional<SecurityPropertySet> found = deviceConfigurationService.findSecurityPropertySet(propertySet.getId());
+
+        assertThat(found.isPresent()).isFalse();
+    }
+
+    private ComTask createTestComTask() {
+        TaskService taskService = injector.getInstance(TaskService.class);
+        ComTask testComTask = taskService.newComTask("TestComTask");
+        testComTask.save();
+        return testComTask;
     }
 
     @Test

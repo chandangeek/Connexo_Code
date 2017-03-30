@@ -1,12 +1,17 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.config.impl.deviceconfigchange;
 
 import com.elster.jupiter.events.LocalEvent;
+import com.elster.jupiter.pubsub.EventHandler;
+import com.elster.jupiter.pubsub.Subscriber;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.config.events.PartialConnectionTaskUpdateDetails;
-import com.elster.jupiter.pubsub.EventHandler;
-import com.elster.jupiter.pubsub.Subscriber;
+
 import org.osgi.service.component.annotations.Component;
 
 import javax.inject.Inject;

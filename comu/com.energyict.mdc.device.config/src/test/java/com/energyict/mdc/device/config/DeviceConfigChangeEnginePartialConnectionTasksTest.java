@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.config;
 
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
@@ -18,11 +22,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-/**
- * Copyrights EnergyICT
- * Date: 15/07/15
- * Time: 11:21
- */
 @RunWith(MockitoJUnitRunner.class)
 public class DeviceConfigChangeEnginePartialConnectionTasksTest {
 

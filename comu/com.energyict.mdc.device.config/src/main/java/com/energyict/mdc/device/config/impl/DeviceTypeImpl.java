@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.calendar.Calendar;
@@ -1314,6 +1318,12 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         @Override
         public DeviceConfigurationBuilder isDirectlyAddressable(boolean isDirectlyAddressable) {
             underConstruction.setDirectlyAddressable(isDirectlyAddressable);
+            return this;
+        }
+
+        @Override
+        public DeviceConfigurationBuilder validateOnStore(boolean validateOnStore) {
+            underConstruction.setValidateOnStore(validateOnStore);
             return this;
         }
 

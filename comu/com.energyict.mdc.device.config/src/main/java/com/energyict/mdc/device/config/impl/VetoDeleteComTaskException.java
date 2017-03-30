@@ -1,15 +1,13 @@
-package com.energyict.mdc.device.config.impl;
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 
-import com.energyict.mdc.tasks.ComTask;
+package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
+import com.energyict.mdc.tasks.ComTask;
 
-/**
- * Copyrights EnergyICT
- * Date: 27/03/2014
- * Time: 11:19
- */
 public class VetoDeleteComTaskException extends LocalizedException {
 
     public VetoDeleteComTaskException(Thesaurus thesaurus, ComTask comTask) {

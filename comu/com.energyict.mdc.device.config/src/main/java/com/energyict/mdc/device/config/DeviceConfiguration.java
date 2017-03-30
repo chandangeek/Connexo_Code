@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.config;
 
 
@@ -140,6 +144,10 @@ public interface DeviceConfiguration extends HasId, HasName, DeviceCommunication
     public long getVersion();
 
     public void setDataloggerEnabled(boolean enabled);
+
+    public boolean getValidateOnStore();
+
+    public void setValidateOnStore(boolean validateOnStore);
 
     /**
      * Indicate whether or not this DeviceConfiguration allows itself to be

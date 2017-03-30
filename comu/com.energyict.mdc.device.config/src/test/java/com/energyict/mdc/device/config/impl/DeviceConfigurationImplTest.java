@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.cbo.Accumulation;
@@ -53,16 +57,8 @@ import static com.elster.jupiter.cbo.ReadingTypeUnit.WATTHOUR;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.api.Fail.fail;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-/**
- * Tests the {@link DeviceConfigurationImpl} component.
- * <p>
- * Copyrights EnergyICT
- * Date: 20/02/14
- * Time: 10:21
- */
 public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceTest {
     private final BigDecimal overflowValue = BigDecimal.valueOf(10000);
 

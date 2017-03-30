@@ -1,14 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.config;
 
 import com.elster.jupiter.util.HasId;
 
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- * Date: 08.09.15
- * Time: 16:51
- */
 public interface ConflictingSolution<S extends HasId> {
 
     DeviceConfigConflictMapping.ConflictingMappingAction getConflictingMappingAction();

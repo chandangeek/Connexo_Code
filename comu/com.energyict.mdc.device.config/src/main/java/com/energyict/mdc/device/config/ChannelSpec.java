@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.config;
 
 import com.elster.jupiter.metering.ReadingType;
@@ -13,11 +17,6 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Copyrights EnergyICT
- * Date: 7/11/12
- * Time: 13:16
- */
 @ProviderType
 public interface ChannelSpec extends HasId {
 

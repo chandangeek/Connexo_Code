@@ -1,19 +1,17 @@
-package com.energyict.mdc.device.config.impl;
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 
-import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.engine.config.ComPortPool;
+package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
+import com.energyict.mdc.device.config.PartialConnectionTask;
+import com.energyict.mdc.engine.config.ComPortPool;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * Copyrights EnergyICT
- * Date: 27/03/2014
- * Time: 11:19
- */
 public class VetoDeleteComPortPoolException extends LocalizedException {
 
     public VetoDeleteComPortPoolException(Thesaurus thesaurus, ComPortPool comPortPool, List<PartialConnectionTask> clients) {

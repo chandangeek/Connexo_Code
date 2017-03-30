@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.license.License;
@@ -32,11 +36,6 @@ import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-/**
- * Copyrights EnergyICT
- * Date: 7/07/2015
- * Time: 10:05
- */
 @RunWith(MockitoJUnitRunner.class)
 public class ProtocolDialectConfigurationPropertiesIsCompleteTest {
 

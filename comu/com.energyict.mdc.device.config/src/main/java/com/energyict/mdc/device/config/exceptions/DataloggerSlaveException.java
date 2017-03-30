@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.config.exceptions;
 
 import com.elster.jupiter.nls.LocalizedException;
@@ -7,15 +11,6 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.impl.MessageSeeds;
 
-/**
- * Models the exceptional behavior that occurs for specific Datalogger slave
- * device types. Mostly these will be coding exception, just to indicate
- * that certain functionality is not foreseen for Datalogger slaves
- * <p>
- * Copyrights EnergyICT
- * Date: 29.02.16
- * Time: 09:42
- */
 public class DataloggerSlaveException extends LocalizedException {
 
     private DataloggerSlaveException(Thesaurus thesaurus, MessageSeed messageSeed, Object... args) {

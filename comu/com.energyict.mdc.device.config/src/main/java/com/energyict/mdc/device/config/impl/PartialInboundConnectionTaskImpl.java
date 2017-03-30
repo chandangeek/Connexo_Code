@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.domain.util.Save;
@@ -74,7 +78,7 @@ public class PartialInboundConnectionTaskImpl extends PartialConnectionTaskImpl 
 
     @Override
     public PartialConnectionTask cloneForDeviceConfig(DeviceConfiguration deviceConfiguration) {
-        PartialInboundConnectionTaskBuilder builder = deviceConfiguration.newPartialInboundConnectionTask(getName(), getPluggableClass());
+        PartialInboundConnectionTaskBuilder builder = deviceConfiguration.newPartialInboundConnectionTask(getName(), getPluggableClass(), getProtocolDialectConfigurationProperties());
         builder.asDefault(isDefault());
         getProperties().stream().forEach(partialConnectionTaskProperty -> builder.addProperty(partialConnectionTaskProperty.getName(), partialConnectionTaskProperty.getValue()));
         builder.comPortPool(getComPortPool());

@@ -1,23 +1,17 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.config.exceptions;
 
+import com.elster.jupiter.nls.LocalizedException;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.masterdata.MeasurementType;
 
-import com.elster.jupiter.nls.LocalizedException;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.util.exception.MessageSeed;
-
-/**
- * Models the exceptional situation that occurs when an attempt is made
- * to add a {@link ChannelSpec} to a {@link com.energyict.mdc.device.config.DeviceConfiguration}
- * which is linked to a {@link com.energyict.mdc.masterdata.MeasurementType} which is not configured on the correct object.
- * <p/>
- * Copyrights EnergyICT
- * Date: 07/02/14
- * Time: 09:21
- */
 public class RegisterTypeIsNotConfiguredException extends LocalizedException {
 
     /**

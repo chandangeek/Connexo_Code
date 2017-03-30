@@ -1,13 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.config.impl;
 
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 
-/**
- * Copyrights EnergyICT
- * Date: 08/07/15
- * Time: 15:52
- */
 public interface ServerComTaskEnablement extends ComTaskEnablement {
 
     /**

@@ -1,14 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.config.impl;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import java.math.BigDecimal;
 
-/**
- * Copyrights EnergyICT
- * Date: 26.01.16
- * Time: 13:19
- */
 public class RegisterOverflowValueValidator implements ConstraintValidator<RegisterOverflowValueValidation, NumericalRegisterSpecImpl> {
     @Override
     public void initialize(RegisterOverflowValueValidation registerOverflowValueValidation) {

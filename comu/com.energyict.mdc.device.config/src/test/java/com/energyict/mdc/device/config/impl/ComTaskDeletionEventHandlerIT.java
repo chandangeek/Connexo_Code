@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
@@ -63,14 +67,13 @@ public class ComTaskDeletionEventHandlerIT extends DeviceTypeProvidingPersistenc
 
         // Enable the ComTask in a newly created configuration
         DeviceConfiguration deviceConfiguration = this.deviceType.newConfiguration("testDeleteWhenInUse").add();
-        ProtocolDialectConfigurationProperties properties = deviceConfiguration.findOrCreateProtocolDialectConfigurationProperties(sharedData.getProtocolDialect());
         SecurityPropertySet securityPropertySet =
                 deviceConfiguration
                         .createSecurityPropertySet("testDeleteWhenInUse")
                         .authenticationLevel(0)
                         .encryptionLevel(0)
                         .build();
-        deviceConfiguration.enableComTask(comTask, securityPropertySet, properties).add();
+        deviceConfiguration.enableComTask(comTask, securityPropertySet).add();
         deviceConfiguration.save();
 
 

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.domain.util.Range;
@@ -211,7 +215,7 @@ public class PartialScheduledConnectionTaskImpl extends PartialOutboundConnectio
 
     @Override
     public PartialConnectionTask cloneForDeviceConfig(DeviceConfiguration deviceConfiguration) {
-        PartialScheduledConnectionTaskBuilder builder = deviceConfiguration.newPartialScheduledConnectionTask(getName(), getPluggableClass(), getRescheduleDelay(), getConnectionStrategy());
+        PartialScheduledConnectionTaskBuilder builder = deviceConfiguration.newPartialScheduledConnectionTask(getName(), getPluggableClass(), getRescheduleDelay(), getConnectionStrategy(), getProtocolDialectConfigurationProperties());
         builder.setNumberOfSimultaneousConnections(getNumberOfSimultaneousConnections());
         builder.asDefault(isDefault());
         builder.comWindow(new ComWindow(getCommunicationWindow().getStart(), getCommunicationWindow().getEnd()));

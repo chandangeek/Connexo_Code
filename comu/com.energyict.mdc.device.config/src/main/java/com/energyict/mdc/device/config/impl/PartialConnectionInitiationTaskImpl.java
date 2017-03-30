@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.events.EventService;
@@ -61,7 +65,7 @@ public class PartialConnectionInitiationTaskImpl extends PartialOutboundConnecti
 
     @Override
     public PartialConnectionTask cloneForDeviceConfig(DeviceConfiguration deviceConfiguration) {
-        PartialConnectionInitiationTaskBuilder builder = deviceConfiguration.newPartialConnectionInitiationTask(getName(), getPluggableClass(), getRescheduleDelay());
+        PartialConnectionInitiationTaskBuilder builder = deviceConfiguration.newPartialConnectionInitiationTask(getName(), getPluggableClass(), getRescheduleDelay(), getProtocolDialectConfigurationProperties());
         getProperties().forEach(partialConnectionTaskProperty -> builder.addProperty(partialConnectionTaskProperty.getName(), partialConnectionTaskProperty.getValue()));
         builder.comPortPool(getComPortPool());
         return builder.build();

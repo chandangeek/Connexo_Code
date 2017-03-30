@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.metering.ReadingType;
@@ -5,11 +9,6 @@ import com.elster.jupiter.metering.ReadingType;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
-/**
- * Copyrights EnergyICT
- * Date: 18.11.15
- * Time: 14:51
- */
 public class ChannelSpecMultiplierConfigurationValidator extends AbstractMultiplierConfigurationValidator implements ConstraintValidator<ValidChannelSpecMultiplierConfiguration, ChannelSpecImpl> {
 
     @Override

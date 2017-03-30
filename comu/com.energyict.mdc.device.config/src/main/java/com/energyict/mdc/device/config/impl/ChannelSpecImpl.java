@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.domain.util.Range;
@@ -40,11 +44,6 @@ import java.util.Set;
 
 import static com.elster.jupiter.util.Checks.is;
 
-/**
- * Copyrights EnergyICT
- * Date: 7/11/12
- * Time: 13:22
- */
 @ValidChannelSpecMultiplierConfiguration(groups = {Save.Create.class, Save.Update.class})
 @ValidateUpdatableChannelSpecFields(groups = {Save.Update.class})
 @ChannelOverflowValueValidation(groups = {Save.Create.class, Save.Update.class})

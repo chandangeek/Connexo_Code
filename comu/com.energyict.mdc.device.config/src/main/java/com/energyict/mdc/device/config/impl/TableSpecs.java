@@ -1,12 +1,38 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.orm.*;
+import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.ColumnConversion;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.validation.ValidationRuleSet;
-import com.energyict.mdc.device.config.*;
+import com.energyict.mdc.device.config.AllowedCalendar;
+import com.energyict.mdc.device.config.ChannelSpec;
+import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.device.config.ConflictingConnectionMethodSolution;
+import com.energyict.mdc.device.config.ConflictingSecuritySetSolution;
+import com.energyict.mdc.device.config.DeviceConfValidationRuleSetUsage;
+import com.energyict.mdc.device.config.DeviceConfigConflictMapping;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceConfigurationEstimationRuleSetUsage;
+import com.energyict.mdc.device.config.DeviceMessageEnablement;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.LoadProfileSpec;
+import com.energyict.mdc.device.config.LogBookSpec;
+import com.energyict.mdc.device.config.PartialConnectionTask;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperty;
+import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.device.config.SecurityPropertySet;
+import com.energyict.mdc.device.config.TimeOfUseOptions;
 import com.energyict.mdc.device.config.impl.deviceconfigchange.ConflictingConnectionMethodSolutionImpl;
 import com.energyict.mdc.device.config.impl.deviceconfigchange.ConflictingSecuritySetSolutionImpl;
 import com.energyict.mdc.device.config.impl.deviceconfigchange.DeviceConfigConflictMappingImpl;
@@ -23,7 +49,6 @@ import com.energyict.mdc.tasks.ComTask;
 
 import java.util.List;
 
-import static com.elster.jupiter.orm.ColumnConversion.*;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2BOOLEAN;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUM;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INSTANT;
@@ -195,6 +220,7 @@ public enum TableSpecs {
             table.column("USERACTIONS").number().conversion(NUMBER2LONG).notNull().map("supportsAllProtocolMessagesUserActionsBitVector").add();
             table.column("GATEWAY_TYPE").number().conversion(ColumnConversion.NUMBER2ENUM).map(DeviceConfigurationImpl.Fields.GATEWAY_TYPE.fieldName()).notNull().add();
             table.column("DATALOGGERENABLED").number().conversion(ColumnConversion.NUMBER2BOOLEAN).map(DeviceConfigurationImpl.Fields.DATALOGGER_ENABLED.fieldName()).since(version(10, 2)).add();
+            table.column("VALIDATEONSTORE").number().conversion(ColumnConversion.NUMBER2BOOLEAN).map(DeviceConfigurationImpl.Fields.VALIDATE_ON_STORE.fieldName()).since(version(10, 3)).add();
             table.setJournalTableName("DTC_DEVICECONFIGJRNL").since(version(10, 2));
             table.addAuditColumns();
             table.primaryKey("PK_DTC_DEVICECONFIG").on(id).add();
@@ -433,6 +459,7 @@ public enum TableSpecs {
             table.column("RESCHEDULERETRYDELAY").number().conversion(NUMBER2INT).map("rescheduleRetryDelay.count").add();
             Column comportpool = table.column("COMPORTPOOL").number().add();
             table.column("RESCHEDULERETRYDELAYCODE").number().conversion(NUMBER2INT).map("rescheduleRetryDelay.timeUnitCode").add();
+            Column dialectConfigurationProperties = table.column("DIALECTCONFIGPROPERTIES").number().since(Version.version(10, 3)).add();
             table.setJournalTableName("DTC_PARTIALCONNECTIONTASKJRNL").since(version(10, 2));
             table.addAuditColumns();
             table.primaryKey("PK_DTC_PARTIALCONNTASK").on(id).add();
@@ -462,6 +489,12 @@ public enum TableSpecs {
                     .on(initiator)
                     .references(DTC_PARTIALCONNECTIONTASK.name())
                     .map("initiator")
+                    .add();
+            table.foreignKey("FK_DTC_PARTIALCT_PDCP")
+                    .on(dialectConfigurationProperties)
+                    .references(DTC_DIALECTCONFIGPROPERTIES.name())
+                    .map(PartialConnectionTaskImpl.Fields.PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES.fieldName())
+                    .since(Version.version(10,3))
                     .add();
             table.unique("UQ_DTC_PARTIALCT_NAME").on(deviceConfiguration, nameColumn).add();
         }
@@ -590,7 +623,7 @@ public enum TableSpecs {
             Column partialConnectionTask = table.column("PARTIALCONNECTIONTASK").number().add();
             table.column("USEDEFAULTCONNECTIONTASK").number().notNull().conversion(NUMBER2BOOLEAN).map(ComTaskEnablementImpl.Fields.USE_DEFAULT_CONNECTION_TASK.fieldName()).add();
             table.column("PRIORITY").number().notNull().conversion(NUMBER2INT).map(ComTaskEnablementImpl.Fields.PRIORITY.fieldName()).add();
-            Column dialectConfigurationProperties = table.column("DIALECTCONFIGPROPERTIES").number().notNull().add();
+            Column dialectConfigurationProperties = table.column("DIALECTCONFIGPROPERTIES").number().notNull().add().upTo(Version.version(10, 2));
             table.column("IGNORENEXTEXECSPECS").number().notNull().conversion(NUMBER2BOOLEAN).map(ComTaskEnablementImpl.Fields.IGNORE_NEXT_EXECUTION_SPECS_FOR_INBOUND.fieldName()).add();
             table.foreignKey("FK_DTC_COMTASKENABLMNT_OPARTCT")
                     .on(partialConnectionTask)
@@ -618,8 +651,9 @@ public enum TableSpecs {
             table.foreignKey("FK_DTC_COMTASKENABLMNT_PDCP")
                     .on(dialectConfigurationProperties)
                     .references(DTC_DIALECTCONFIGPROPERTIES.name())
-                    .map(ComTaskEnablementImpl.Fields.PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES.fieldName())
+                    .map("protocolDialectConfigurationProperties")
                     .onDelete(CASCADE)
+                    .upTo(Version.version(10,2))
                     .add();
             table.unique("UK_DTC_COMTASKENABLEMENT").on(comtask, deviceCommunicationConfigation).add();
             table.primaryKey("PK_DTC_COMTASKENABLEMENT").on(id).add();

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.config.impl.deviceconfigchange;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
@@ -119,11 +123,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-/**
- * Copyrights EnergyICT
- * Date: 15.09.15
- * Time: 10:16
- */
 @RunWith(MockitoJUnitRunner.class)
 public abstract class AbstractConflictIT {
     public static final TimeDuration FIFTEEN_MINUTES = TimeDuration.minutes(15);
@@ -154,6 +153,8 @@ public abstract class AbstractConflictIT {
 
     @Mock
     DeviceProtocolPluggableClass deviceProtocolPluggableClass;
+    @Mock
+    DeviceProtocolDialect deviceProtocolDialect1, deviceProtocolDialect2, deviceProtocolDialect3;
 
     public DeviceType getReloadedDeviceType(ServerDeviceType deviceType) {
         return deviceConfigurationService.findDeviceType(deviceType.getId()).get();
@@ -315,8 +316,12 @@ public abstract class AbstractConflictIT {
 
     @Before
     public void initializeMocks() throws SQLException {
+        when(deviceProtocolDialect1.getDeviceProtocolDialectName()).thenReturn("Protocol Dialect 1");
+        when(deviceProtocolDialect2.getDeviceProtocolDialectName()).thenReturn("Protocol Dialect 2");
+        when(deviceProtocolDialect3.getDeviceProtocolDialectName()).thenReturn("Protocol Dialect 3");
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         when(deviceProtocol.getDeviceProtocolCapabilities()).thenReturn(Arrays.asList(DeviceProtocolCapabilities.values()));
+        when(deviceProtocol.getDeviceProtocolDialects()).thenReturn(Arrays.asList(deviceProtocolDialect1, deviceProtocolDialect2, deviceProtocolDialect3));
     }
 
     private static void enhanceEventServiceForConflictCalculation() {

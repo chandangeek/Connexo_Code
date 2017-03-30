@@ -1,16 +1,22 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.config.impl;
 
-import com.energyict.mdc.common.ComWindow;
 import com.elster.jupiter.time.TimeDuration;
+import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.interval.PartialTime;
+
 import org.joda.time.DateTimeConstants;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.beans.XMLDecoder;
 import java.io.ByteArrayInputStream;
 import java.util.Calendar;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;

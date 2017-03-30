@@ -1,16 +1,14 @@
-package com.energyict.mdc.device.config.exceptions;
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 
-import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
+package com.energyict.mdc.device.config.exceptions;
 
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 
-/**
- * Copyrights EnergyICT
- * Date: 7/03/14
- * Time: 13:49
- */
 public class NoSuchPropertyOnDialectException extends LocalizedException {
 
     public NoSuchPropertyOnDialectException(DeviceProtocolDialect dialect, String propertyName, Thesaurus thesaurus, MessageSeed messageSeed) {

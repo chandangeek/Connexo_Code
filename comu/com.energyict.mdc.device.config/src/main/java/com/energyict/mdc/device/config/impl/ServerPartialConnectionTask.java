@@ -1,13 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.config.impl;
 
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 
-/**
- * Copyrights EnergyICT
- * Date: 08/07/15
- * Time: 14:48
- */
 interface ServerPartialConnectionTask extends PartialConnectionTask {
 
     DeleteEventType deleteEventType();

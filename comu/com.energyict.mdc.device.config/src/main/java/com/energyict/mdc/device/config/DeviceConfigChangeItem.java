@@ -1,6 +1,8 @@
-package com.energyict.mdc.device.config;
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 
-import com.energyict.mdc.device.config.DeviceConfiguration;
+package com.energyict.mdc.device.config;
 
 import com.elster.jupiter.util.HasId;
 

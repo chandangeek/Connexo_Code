@@ -1,19 +1,19 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.device.config.PartialConnectionTaskBuilder;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Copyrights EnergyICT
- * Date: 13/03/14
- * Time: 15:03
- */
 abstract class AbstractPartialConnectionTaskBuilder<S, T extends ComPortPool, U extends PartialConnectionTaskImpl> implements PartialConnectionTaskBuilder<S, T, U> {
 
     final S myself;
@@ -25,6 +25,7 @@ abstract class AbstractPartialConnectionTaskBuilder<S, T extends ComPortPool, U 
     boolean asDefault;
     Map<String, Object> properties = new HashMap<>();
     private final EventService eventService;
+    private ProtocolDialectConfigurationProperties protocolDialectProperties;
 
     @SuppressWarnings("unchecked")
     AbstractPartialConnectionTaskBuilder(EventService eventService, Class<?> selfType, DataModel dataModel, DeviceConfigurationImpl configuration) {
@@ -59,6 +60,12 @@ abstract class AbstractPartialConnectionTaskBuilder<S, T extends ComPortPool, U 
     }
 
     @Override
+    public S setProtocolDialectConfigurationProperties(ProtocolDialectConfigurationProperties properties) {
+        this.protocolDialectProperties = properties;
+        return myself;
+    }
+
+    @Override
     public U build() {
         U instance = newInstance();
         instance.setName(name);
@@ -78,7 +85,9 @@ abstract class AbstractPartialConnectionTaskBuilder<S, T extends ComPortPool, U 
         return configuration;
     }
 
-    abstract void populate(U instance);
+    void populate(U instance){
+       instance.setProtocolDialectConfigurationProperties(protocolDialectProperties);
+    }
 
     abstract U newInstance();
 

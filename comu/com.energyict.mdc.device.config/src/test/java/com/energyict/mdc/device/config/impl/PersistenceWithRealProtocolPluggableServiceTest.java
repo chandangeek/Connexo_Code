@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
@@ -5,6 +9,7 @@ import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.devtools.tests.rules.ExpectedExceptionRule;
 import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
@@ -40,6 +45,12 @@ public abstract class PersistenceWithRealProtocolPluggableServiceTest {
     DeviceProtocol deviceProtocol;
     @Mock
     private DeviceCommunicationConfiguration deviceCommunicationConfiguration;
+    @Mock
+    DeviceProtocolDialect deviceProtocolDialect1, deviceProtocolDialect2;
+    @Mock
+    ProtocolDialectConfigurationProperties dialectConfigurationProperties1, dialectConfigurationProperties2;
+
+    static InMemoryPersistence inMemoryPersistence = new InMemoryPersistence();
 
     public PersistenceWithRealProtocolPluggableServiceTest() {
     }
@@ -64,12 +75,18 @@ public abstract class PersistenceWithRealProtocolPluggableServiceTest {
         when(deviceProtocolPluggableClass.getId()).thenReturn(DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID);
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel authenticationAccessLevel = mock(com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel.class);
+        when(deviceProtocolDialect1.getDeviceProtocolDialectName()).thenReturn("DeviceProtocolDialect1");
+        when(deviceProtocolDialect2.getDeviceProtocolDialectName()).thenReturn("DeviceProtocolDialect2");
+        when(deviceProtocolDialect1.getDisplayName()).thenReturn("Device Protocol dialect 1");
+        when(deviceProtocolDialect2.getDisplayName()).thenReturn("Device Protocol dialect 2");
+        AuthenticationDeviceAccessLevel authenticationAccessLevel = mock(AuthenticationDeviceAccessLevel.class);
         when(authenticationAccessLevel.getId()).thenReturn(0);
         when(this.deviceProtocol.getAuthenticationAccessLevels()).thenReturn(Arrays.asList(authenticationAccessLevel));
         com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel encryptionAccessLevel = mock(com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel.class);
         when(encryptionAccessLevel.getId()).thenReturn(0);
         when(this.deviceProtocol.getEncryptionAccessLevels()).thenReturn(Arrays.asList(encryptionAccessLevel));
         when(this.deviceProtocol.getDeviceProtocolCapabilities()).thenReturn(Arrays.asList(DeviceProtocolCapabilities.values()));
+        when(this.deviceProtocol.getDeviceProtocolDialects()).thenReturn(Arrays.asList(deviceProtocolDialect1,deviceProtocolDialect2));
     }
 
 }

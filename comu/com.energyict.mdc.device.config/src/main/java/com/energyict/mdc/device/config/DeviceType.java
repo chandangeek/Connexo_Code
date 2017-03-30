@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.config;
 
 import com.elster.jupiter.calendar.Calendar;
@@ -253,6 +257,7 @@ public interface DeviceType extends HasId, HasName {
         DeviceType create();
     }
 
+    @ProviderType
     interface DeviceConfigurationBuilder {
 
         /**
@@ -354,6 +359,8 @@ public interface DeviceType extends HasId, HasName {
         DeviceConfigurationBuilder gatewayType(GatewayType gatewayType);
 
         DeviceConfigurationBuilder dataloggerEnabled(boolean dataloggerEnabled);
+
+        DeviceConfigurationBuilder validateOnStore(boolean validateOnStore);
     }
 
     /**

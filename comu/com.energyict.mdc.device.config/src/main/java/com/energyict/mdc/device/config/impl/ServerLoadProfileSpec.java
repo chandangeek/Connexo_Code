@@ -1,14 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.config.impl;
 
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 
-/**
- * Copyrights EnergyICT
- * Date: 13/07/15
- * Time: 11:34
- */
 public interface ServerLoadProfileSpec extends LoadProfileSpec {
 
     /**

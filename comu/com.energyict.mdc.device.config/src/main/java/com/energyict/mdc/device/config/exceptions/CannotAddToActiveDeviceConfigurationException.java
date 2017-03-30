@@ -1,17 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.config.exceptions;
 
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
 
-/**
- * Models the exceptional situation that occurs when an attempt is made
- * to add something to an <i>active</i> {@link com.energyict.mdc.device.config.DeviceConfiguration}
- * <p/>
- * Copyrights EnergyICT
- * Date: 04/02/14
- * Time: 16:06
- */
 public class CannotAddToActiveDeviceConfigurationException extends LocalizedException {
 
     private CannotAddToActiveDeviceConfigurationException(Thesaurus thesaurus, MessageSeed messageSeed) {

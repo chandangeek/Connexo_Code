@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.cbo.Commodity;
@@ -8,11 +12,6 @@ import com.elster.jupiter.metering.ReadingTypeMridFilter;
 import javax.validation.ConstraintValidatorContext;
 import java.util.Optional;
 
-/**
- * Copyrights EnergyICT
- * Date: 24.11.15
- * Time: 16:53
- */
 public abstract class AbstractMultiplierConfigurationValidator {
 
     abstract String getReadingTypeFieldName();

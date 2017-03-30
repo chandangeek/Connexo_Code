@@ -1,6 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.config.security;
 
 import com.elster.jupiter.nls.TranslationKey;
+
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
@@ -28,10 +33,10 @@ public enum Privileges implements TranslationKey {
     EDIT_DEVICE_SECURITY_PROPERTIES_2(Constants.EDIT_DEVICE_SECURITY_PROPERTIES_2, "Edit level 2"),
     EDIT_DEVICE_SECURITY_PROPERTIES_3(Constants.EDIT_DEVICE_SECURITY_PROPERTIES_3, "Edit level 3"),
     EDIT_DEVICE_SECURITY_PROPERTIES_4(Constants.EDIT_DEVICE_SECURITY_PROPERTIES_4, "Edit level 4"),
-    EXECUTE_COM_TASK_1(Constants.EXECUTE_COM_TASK_1, "Execute com task (level 1)"),
-    EXECUTE_COM_TASK_2(Constants.EXECUTE_COM_TASK_2, "Execute com task (level 2)"),
-    EXECUTE_COM_TASK_3(Constants.EXECUTE_COM_TASK_3, "Execute com task (level 3)"),
-    EXECUTE_COM_TASK_4(Constants.EXECUTE_COM_TASK_4, "Execute com task (level 4)"),
+    EXECUTE_COM_TASK_1(Constants.EXECUTE_COM_TASK_1, "Execute level 1"),
+    EXECUTE_COM_TASK_2(Constants.EXECUTE_COM_TASK_2, "Execute level 2"),
+    EXECUTE_COM_TASK_3(Constants.EXECUTE_COM_TASK_3, "Execute level 3"),
+    EXECUTE_COM_TASK_4(Constants.EXECUTE_COM_TASK_4, "Execute level 4"),
     EXECUTE_DEVICE_MESSAGE_1(Constants.EXECUTE_DEVICE_MESSAGE_1, "Execute level 1"),
     EXECUTE_DEVICE_MESSAGE_2(Constants.EXECUTE_DEVICE_MESSAGE_2, "Execute level 2"),
     EXECUTE_DEVICE_MESSAGE_3(Constants.EXECUTE_DEVICE_MESSAGE_3, "Execute level 3"),

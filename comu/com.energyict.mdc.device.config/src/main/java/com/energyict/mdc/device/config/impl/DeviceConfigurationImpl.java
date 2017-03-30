@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.domain.util.NotEmpty;
@@ -49,20 +53,8 @@ import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.config.SecurityPropertySetBuilder;
 import com.energyict.mdc.device.config.TextualRegisterSpec;
 import com.energyict.mdc.device.config.events.EventType;
-import com.energyict.mdc.device.config.exceptions.CannotAddToActiveDeviceConfigurationException;
-import com.energyict.mdc.device.config.exceptions.CannotDeleteFromActiveDeviceConfigurationException;
-import com.energyict.mdc.device.config.exceptions.CannotDisableComTaskThatWasNotEnabledException;
-import com.energyict.mdc.device.config.exceptions.DataloggerSlaveException;
-import com.energyict.mdc.device.config.exceptions.DeviceConfigurationIsActiveException;
-import com.energyict.mdc.device.config.exceptions.DeviceTypeIsRequiredException;
-import com.energyict.mdc.device.config.exceptions.DuplicateLoadProfileTypeException;
-import com.energyict.mdc.device.config.exceptions.DuplicateLogBookTypeException;
-import com.energyict.mdc.device.config.exceptions.DuplicateObisCodeException;
-import com.energyict.mdc.masterdata.ChannelType;
-import com.energyict.mdc.masterdata.LoadProfileType;
-import com.energyict.mdc.masterdata.LogBookType;
-import com.energyict.mdc.masterdata.MeasurementType;
-import com.energyict.mdc.masterdata.RegisterType;
+import com.energyict.mdc.device.config.exceptions.*;
+import com.energyict.mdc.masterdata.*;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
@@ -79,28 +71,13 @@ import javax.validation.Valid;
 import javax.validation.constraints.Size;
 import java.security.Principal;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
  * Provides an implementation for the {@link DeviceConfiguration} interface.
- * <p>
- * User: gde
- * Date: 5/11/12
  */
 @DeviceFunctionsAreSupportedByProtocol(groups = {Save.Update.class, Save.Create.class})
 @ImmutablePropertiesCanNotChangeForActiveConfiguration(groups = {Save.Update.class, Save.Create.class})
@@ -118,7 +95,8 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         SECURITY_PROPERTY_SETS("securityPropertySets"),
         DEVICE_MESSAGE_ENABLEMENTS("deviceMessageEnablements"),
         DEVICECONF_ESTIMATIONRULESET_USAGES("deviceConfigurationEstimationRuleSetUsages"),
-        DATALOGGER_ENABLED("dataloggerEnabled"),;
+        DATALOGGER_ENABLED("dataloggerEnabled"),
+        VALIDATE_ON_STORE("validateOnStore");
         private final String javaFieldName;
 
         Fields(String javaFieldName) {
@@ -182,6 +160,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     private List<DeviceConfigurationEstimationRuleSetUsage> deviceConfigurationEstimationRuleSetUsages = new ArrayList<>();
     private final Provider<DeviceConfigurationEstimationRuleSetUsageImpl> deviceConfigEstimationRuleSetUsageFactory;
     private boolean dataloggerEnabled;
+    private boolean validateOnStore;
 
     private PropertySpecService propertySpecService;
 
@@ -371,14 +350,15 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         this.logBookSpecs.clear();
         this.loadProfileSpecs.forEach(LoadProfileSpec::prepareDelete);
         this.loadProfileSpecs.clear();
+        this.comTaskEnablements.clear();
+        this.partialConnectionTasks.forEach(ServerPartialConnectionTask::prepareDelete);
+        this.partialConnectionTasks.clear();
         this.configurationPropertiesList.forEach(ProtocolDialectConfigurationPropertiesImpl::prepareDelete);
         this.configurationPropertiesList.clear();
         this.deviceConfValidationRuleSetUsages.clear();
         this.deviceConfigurationEstimationRuleSetUsages.clear();
         this.deleteChannelSpecs();
         this.deleteDeviceMessageEnablements();
-        this.partialConnectionTasks.forEach(ServerPartialConnectionTask::prepareDelete);
-        this.partialConnectionTasks.clear();
         this.protocolProperties.clear();
         this.securityPropertySets.forEach(ServerSecurityPropertySet::prepareDelete);
         this.securityPropertySets.clear();
@@ -1169,27 +1149,30 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     }
 
     @Override
-    public PartialScheduledConnectionTaskBuilder newPartialScheduledConnectionTask(String name, ConnectionTypePluggableClass connectionType, TimeDuration rescheduleRetryDelay, ConnectionStrategy connectionStrategy) {
+    public PartialScheduledConnectionTaskBuilder newPartialScheduledConnectionTask(String name, ConnectionTypePluggableClass connectionType, TimeDuration rescheduleRetryDelay, ConnectionStrategy connectionStrategy, ProtocolDialectConfigurationProperties configurationProperties) {
         return new PartialScheduledConnectionTaskBuilderImpl(this.getDataModel(), this, this.schedulingService, this.getEventService())
                 .name(name)
                 .pluggableClass(connectionType)
                 .rescheduleDelay(rescheduleRetryDelay)
-                .connectionStrategy(connectionStrategy);
+                .connectionStrategy(connectionStrategy)
+                .setProtocolDialectConfigurationProperties(configurationProperties);
     }
 
     @Override
-    public PartialInboundConnectionTaskBuilder newPartialInboundConnectionTask(String name, ConnectionTypePluggableClass connectionType) {
+    public PartialInboundConnectionTaskBuilder newPartialInboundConnectionTask(String name, ConnectionTypePluggableClass connectionType, ProtocolDialectConfigurationProperties configurationProperties) {
         return new PartialInboundConnectionTaskBuilderImpl(this.getDataModel(), this)
                 .name(name)
-                .pluggableClass(connectionType);
+                .pluggableClass(connectionType)
+                .setProtocolDialectConfigurationProperties(configurationProperties);
     }
 
     @Override
-    public PartialConnectionInitiationTaskBuilder newPartialConnectionInitiationTask(String name, ConnectionTypePluggableClass connectionType, TimeDuration rescheduleRetryDelay) {
+    public PartialConnectionInitiationTaskBuilder newPartialConnectionInitiationTask(String name, ConnectionTypePluggableClass connectionType, TimeDuration rescheduleRetryDelay, ProtocolDialectConfigurationProperties configurationProperties) {
         return new PartialConnectionInitiationTaskBuilderImpl(this.getDataModel(), this, this.schedulingService, this.getEventService())
                 .name(name)
                 .pluggableClass(connectionType)
-                .rescheduleDelay(rescheduleRetryDelay);
+                .rescheduleDelay(rescheduleRetryDelay)
+                .setProtocolDialectConfigurationProperties(configurationProperties);
     }
 
     void addPartialConnectionTask(ServerPartialConnectionTask partialConnectionTask) {
@@ -1198,10 +1181,10 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     }
 
     @Override
-    public ComTaskEnablementBuilder enableComTask(ComTask comTask, SecurityPropertySet securityPropertySet, ProtocolDialectConfigurationProperties configurationProperties) {
+    public ComTaskEnablementBuilder enableComTask(ComTask comTask, SecurityPropertySet securityPropertySet) {
         ComTaskEnablementImpl underConstruction = this.getDataModel()
                 .getInstance(ComTaskEnablementImpl.class)
-                .initialize(this, comTask, securityPropertySet, configurationProperties);
+                .initialize(this, comTask, securityPropertySet);
         return new ComTaskEnablementBuilderImpl(underConstruction);
     }
 
@@ -1380,7 +1363,6 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
             }
         }
         return null;
-
     }
 
     @Override
@@ -1486,6 +1468,15 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
 
     public boolean isDataloggerEnabled() {
         return this.dataloggerEnabled;
+    }
+
+    public boolean getValidateOnStore() {
+        return validateOnStore;
+    }
+
+    @Override
+    public void setValidateOnStore(boolean validateOnStore) {
+        this.validateOnStore = validateOnStore;
     }
 
     List<DeviceProtocolConfigurationProperty> getProtocolPropertyList() {
@@ -1653,13 +1644,6 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         }
 
         @Override
-        public ComTaskEnablementBuilder setProtocolDialectConfigurationProperties(ProtocolDialectConfigurationProperties properties) {
-            this.mode.verify();
-            this.underConstruction.setProtocolDialectConfigurationProperties(properties);
-            return this;
-        }
-
-        @Override
         public ComTaskEnablementBuilder useDefaultConnectionTask(boolean flagValue) {
             this.mode.verify();
             this.underConstruction.useDefaultConnectionTask(flagValue);
@@ -1690,6 +1674,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
                 .gatewayType(getGatewayType())
                 .isDirectlyAddressable(isDirectlyAddressable())
                 .dataloggerEnabled(isDataloggerEnabled())
+                .validateOnStore(getValidateOnStore())
                 .add();
         this.getDeviceProtocolProperties().getPropertySpecs().forEach(cloneDeviceProtocolProperties(clone));
         this.getProtocolDialectConfigurationPropertiesList().forEach(cloneDeviceProtocolDialectProperties(clone));

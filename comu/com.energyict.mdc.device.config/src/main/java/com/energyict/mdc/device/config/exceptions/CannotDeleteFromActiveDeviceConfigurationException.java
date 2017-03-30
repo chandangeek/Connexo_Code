@@ -1,23 +1,18 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.config.exceptions;
 
+import com.elster.jupiter.nls.LocalizedException;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.config.RegisterSpec;
 
-import com.elster.jupiter.nls.LocalizedException;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.util.exception.MessageSeed;
-
-/**
- * Models the exceptional situation that occurs when an attempt is made
- * to delete an object from an <i>active</i> {@link com.energyict.mdc.device.config.DeviceConfiguration}
- * <p/>
- * Copyrights EnergyICT
- * Date: 05/02/14
- * Time: 08:37
- */
 public class CannotDeleteFromActiveDeviceConfigurationException extends LocalizedException {
 
     private CannotDeleteFromActiveDeviceConfigurationException(Thesaurus thesaurus, MessageSeed messageSeed, Object... arguments) {
