@@ -306,7 +306,6 @@ public class PartialInboundConnectionTaskCrudIT {
         assertThat(partialInboundConnectionTask.getComPortPool().getId()).isEqualTo(inboundComPortPool.getId());
         assertThat(partialInboundConnectionTask.isDefault()).isTrue();
         assertThat(partialInboundConnectionTask.getConfiguration().getId()).isEqualTo(deviceConfiguration.getId());
-        assertThat(partialInboundConnectionTask.getConnectionType()).isEqualTo(connectionTypePluggableClass.getConnectionType());
         assertThat(partialInboundConnectionTask.getName()).isEqualTo("MyInbound");
 
     }
@@ -399,7 +398,6 @@ public class PartialInboundConnectionTaskCrudIT {
         assertThat(reloadedPartialInboundConnectionTask.getComPortPool().getId()).isEqualTo(inboundComPortPool2.getId());
         assertThat(reloadedPartialInboundConnectionTask.isDefault()).isFalse();
         assertThat(reloadedPartialInboundConnectionTask.getConfiguration().getId()).isEqualTo(deviceConfiguration.getId());
-        assertThat(reloadedPartialInboundConnectionTask.getConnectionType()).isEqualTo(connectionTypePluggableClass2.getConnectionType());
         assertThat(reloadedPartialInboundConnectionTask.getName()).isEqualTo("Changed");
     }
 
@@ -618,7 +616,6 @@ public class PartialInboundConnectionTaskCrudIT {
         assertThat(partialInboundConnectionTask.getComPortPool().getId()).isEqualTo(inboundComPortPool.getId());
         assertThat(partialInboundConnectionTask.isDefault()).isTrue();
         assertThat(partialInboundConnectionTask.getConfiguration().getId()).isEqualTo(clonedDeviceConfig.getId());
-        assertThat(partialInboundConnectionTask.getConnectionType()).isEqualTo(connectionTypePluggableClass.getConnectionType());
         assertThat(partialInboundConnectionTask.getName()).isEqualTo("MyInbound");
 
     }
