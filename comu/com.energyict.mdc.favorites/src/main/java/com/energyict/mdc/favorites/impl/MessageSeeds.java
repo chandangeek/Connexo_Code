@@ -1,10 +1,13 @@
-package com.energyict.mdc.favorites.impl;
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 
-import com.energyict.mdc.favorites.FavoritesService;
+package com.energyict.mdc.favorites.impl;
 
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.favorites.FavoritesService;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;

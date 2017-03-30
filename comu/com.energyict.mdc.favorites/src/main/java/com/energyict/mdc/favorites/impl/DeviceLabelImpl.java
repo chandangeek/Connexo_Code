@@ -1,6 +1,8 @@
-package com.energyict.mdc.favorites.impl;
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 
-import java.time.Instant;
+package com.energyict.mdc.favorites.impl;
 
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
@@ -9,6 +11,8 @@ import com.elster.jupiter.users.User;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.favorites.DeviceLabel;
 import com.energyict.mdc.favorites.LabelCategory;
+
+import java.time.Instant;
 
 public class DeviceLabelImpl implements DeviceLabel {
 

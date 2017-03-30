@@ -1,9 +1,13 @@
-package com.energyict.mdc.favorites;
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 
-import java.time.Instant;
+package com.energyict.mdc.favorites;
 
 import com.elster.jupiter.users.User;
 import com.energyict.mdc.device.data.Device;
+
+import java.time.Instant;
 
 public interface DeviceLabel {
 

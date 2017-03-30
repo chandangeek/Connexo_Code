@@ -1,11 +1,14 @@
-package com.energyict.mdc.favorites.impl;
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
+package com.energyict.mdc.favorites.impl;
 
 import javax.validation.Constraint;
 import javax.validation.Payload;
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 
 @Target({ java.lang.annotation.ElementType.TYPE })
 @Retention(java.lang.annotation.RetentionPolicy.RUNTIME)
