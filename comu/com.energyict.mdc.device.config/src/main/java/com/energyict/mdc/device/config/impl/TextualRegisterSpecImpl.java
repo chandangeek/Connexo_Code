@@ -4,11 +4,15 @@
 
 package com.energyict.mdc.device.config.impl;
 
-import com.energyict.obis.ObisCode;
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.TextualRegisterSpec;
 import com.energyict.mdc.masterdata.RegisterType;
+import com.energyict.obis.ObisCode;
 
 import javax.inject.Inject;
 import javax.inject.Provider;

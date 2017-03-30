@@ -4,31 +4,29 @@
 
 package com.energyict.mdc.device.config;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.HasId;
-import com.energyict.obis.ObisCode;
-import com.elster.jupiter.time.TimeDuration;
-
+import com.elster.jupiter.validation.ValidationRule;
 import com.energyict.mdc.masterdata.LoadProfileType;
-
-import aQute.bnd.annotation.ProviderType;
+import com.energyict.obis.ObisCode;
 
 import java.util.List;
 
 @ProviderType
 public interface LoadProfileSpec extends HasId {
 
-    public LoadProfileType getLoadProfileType();
+    LoadProfileType getLoadProfileType();
 
-    public DeviceConfiguration getDeviceConfiguration();
+    DeviceConfiguration getDeviceConfiguration();
 
-    public ObisCode getDeviceObisCode();
+    ObisCode getDeviceObisCode();
 
-    public ObisCode getObisCode();
+    ObisCode getObisCode();
 
-    public TimeDuration getInterval();
+    TimeDuration getInterval();
 
-    public void setOverruledObisCode(ObisCode overruledObisCode);
+    void setOverruledObisCode(ObisCode overruledObisCode);
 
     void validateDelete();
 
@@ -38,9 +36,9 @@ public interface LoadProfileSpec extends HasId {
 
     void save();
 
-    public List<ValidationRule> getValidationRules();
+    List<ValidationRule> getValidationRules();
 
-    public List<ChannelSpec> getChannelSpecs();
+    List<ChannelSpec> getChannelSpecs();
 
     long getVersion();
 
