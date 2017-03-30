@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine;
 
 import com.energyict.mdc.device.data.DeviceService;
@@ -22,6 +26,11 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import org.fest.assertions.data.MapEntry;
+
+import java.time.Clock;
+import java.util.Map;
+import java.util.logging.Logger;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,22 +38,12 @@ import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.time.Clock;
-import java.util.Map;
-import java.util.logging.Logger;
-
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-/**
- * Copyrights EnergyICT
- * Date: 29/01/13
- * Time: 15:10
- * Author: khe
- */
 @RunWith(MockitoJUnitRunner.class)
 public class GenericDeviceProtocolTest {
 

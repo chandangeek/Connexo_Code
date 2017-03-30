@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.core.inbound;
 
 import com.energyict.mdc.device.data.DeviceMessageService;
@@ -18,13 +22,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.time.Clock;
 
-/**
- * Implementation of an {@link InboundComPortConnector} for a {@link ComPort} of the type {@link ComPortType#TCP}.
- * <p>
- * Copyrights EnergyICT
- * Date: 18/10/12
- * Time: 13:49
- */
 public class TCPPortConnector implements InboundComPortConnector {
 
     /**

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.core;
 
 import com.elster.jupiter.util.Pair;
@@ -64,11 +68,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
-/**
- * Copyrights EnergyICT
- * Date: 04.04.16
- * Time: 16:08
- */
 @RunWith(MockitoJUnitRunner.class)
 public abstract class AbstractRescheduleBehaviorTest {
 

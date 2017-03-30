@@ -1,7 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.events;
 
 import org.fest.assertions.Assertions;
-import org.junit.*;
+
+import org.junit.Test;
 
 /**
  * Tests the {@link com.energyict.mdc.engine.events.Category} component.

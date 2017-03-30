@@ -1,9 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.events.io;
 
+import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.events.Category;
 import com.energyict.mdc.engine.events.CommunicationEvent;
 import com.energyict.mdc.engine.impl.events.connection.AbstractConnectionEventImpl;
-import com.energyict.mdc.engine.config.ComPort;
 
 import org.json.JSONException;
 import org.json.JSONWriter;

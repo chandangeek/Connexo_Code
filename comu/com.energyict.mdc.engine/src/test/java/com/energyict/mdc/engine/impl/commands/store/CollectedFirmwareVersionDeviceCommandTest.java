@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.commands.store;
 
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -8,15 +12,10 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.Optional;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-import static org.mockito.Mockito.*;
-
-/**
- * Copyrights EnergyICT
- * Date: 04.05.15
- * Time: 13:49
- */
 @RunWith(MockitoJUnitRunner.class)
 public class CollectedFirmwareVersionDeviceCommandTest  {
 

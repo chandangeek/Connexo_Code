@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.core;
 
 import com.elster.jupiter.events.EventService;
@@ -309,10 +313,12 @@ public class SingleThreadedScheduledComPortTest {
         when(this.serialConnectionTask1.getConnectionType()).thenReturn(this.serialConnectionType);
         when(this.serialConnectionTask1.getComPortPool()).thenReturn(this.comPortPool);
         when(this.serialConnectionTask1.getConnectionStrategy()).thenReturn(this.connectionStrategy);
+        when(this.serialConnectionTask1.getProtocolDialectConfigurationProperties()).thenReturn(this.protocolDialectConfigurationProperties);
         when(this.serialConnectionTask2.getDevice()).thenReturn(this.device);
         when(this.serialConnectionTask2.getConnectionType()).thenReturn(this.serialConnectionType);
         when(this.serialConnectionTask2.getComPortPool()).thenReturn(this.comPortPool);
         when(this.serialConnectionTask2.getConnectionStrategy()).thenReturn(this.connectionStrategy);
+        when(this.serialConnectionTask2.getProtocolDialectConfigurationProperties()).thenReturn(this.protocolDialectConfigurationProperties);
     }
 
     @Test(timeout = 7000)
@@ -666,7 +672,6 @@ public class SingleThreadedScheduledComPortTest {
         when(comTask.getConnectionTask()).thenReturn(Optional.of(connectionTask));
         when(comTask.getDevice()).thenReturn(this.device);
         when(comTask.getComTask()).thenReturn(this.comTask);
-        when(comTask.getProtocolDialectConfigurationProperties()).thenReturn(this.protocolDialectConfigurationProperties);
         return comTask;
     }
 

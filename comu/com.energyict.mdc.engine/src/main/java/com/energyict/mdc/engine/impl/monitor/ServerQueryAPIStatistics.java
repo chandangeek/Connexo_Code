@@ -1,13 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.monitor;
 
 import com.energyict.mdc.engine.impl.tools.JmxStatistics;
 import com.energyict.mdc.engine.monitor.QueryAPIStatistics;
 
-/**
- * Copyrights EnergyICT
- * Date: 13/01/2016
- * Time: 16:28
- */
 public interface ServerQueryAPIStatistics extends QueryAPIStatistics{
 
     /**

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.core;
 
 import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
@@ -59,8 +63,12 @@ public class ComCommandJournalist {
         StringBuilder builder = new StringBuilder();
         if (hasIssues(comCommand)) {
             appendHeader(builder, comCommand);
-            appendIssues(builder, "Problems", comCommand.getProblems(), () -> "\n");
-            appendIssues(builder, "Warnings", comCommand.getWarnings(), () -> "");
+            if(comCommand.getProblems().size() > 0) {
+                appendIssues(builder, "Problems", comCommand.getProblems(), () -> "\n");
+            }
+            if(comCommand.getWarnings().size() > 0) {
+                appendIssues(builder, "Warnings", comCommand.getWarnings(), () -> "");
+            }
         }
         return builder.toString();
     }
@@ -91,7 +99,6 @@ public class ComCommandJournalist {
     private void appendIssue(StringBuilder builder, int issueNumber, Issue issue) {
         builder.append('\n').append('\t').append(NUMBER_FORMAT.format(issueNumber)).append('.').append(' ');
         builder.append(issue.getDescription());
-        builder.append(' ').append('(').append(DATE_FORMAT.format(issue.getTimestamp())).append(')');
         issue.getException().ifPresent(ex -> builder.append("\r\n").append(StackTracePrinter.print(ex)));
     }
 

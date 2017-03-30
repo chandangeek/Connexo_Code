@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.commands.store.legacy;
 
 import com.elster.jupiter.cps.CustomPropertySet;
@@ -46,6 +50,12 @@ import java.util.Set;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doThrow;
@@ -54,13 +64,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-/**
- * Tests for the {@link HandHeldUnitEnablerCommand} component
- * <p>
- * Copyrights EnergyICT
- * Date: 24/08/12
- * Time: 11:50
- */
 @RunWith(MockitoJUnitRunner.class)
 public class HandHeldUnitEnablerCommandTest extends AbstractComCommandExecuteTest {
 

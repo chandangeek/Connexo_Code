@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.commands.store;
 
 import com.elster.jupiter.events.EventService;
@@ -35,13 +39,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-/**
- * Tests for the {@link CollectedDeviceCacheCommand} component.
- * <p>
- * Copyrights EnergyICT
- * Date: 3/09/12
- * Time: 15:12
- */
 @RunWith(MockitoJUnitRunner.class)
 public class CollectedDeviceCacheCommandTest {
 

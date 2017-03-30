@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.commands.store;
 
 import com.elster.jupiter.metering.readings.EndDeviceEvent;
@@ -11,11 +15,6 @@ import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
 import java.time.Instant;
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- * Date: 05.08.15
- * Time: 16:09
- */
 public interface MeterDataStoreCommand extends DeviceCommand, CanProvideDescriptionTitle {
 
     String DESCRIPTION_TITLE = "Store meter data";

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.core;
 
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
@@ -10,14 +14,6 @@ import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- * JobExecutor that takes jobs from a blocking queue.
- * If not jobs are available, then the Thread will wait.
- * <p>
- * Copyrights EnergyICT
- * Date: 9/17/13
- * Time: 11:12 AM
- */
 class MultiThreadedScheduledJobExecutor extends ScheduledJobExecutor implements Runnable {
 
     private static final Logger LOGGER = Logger.getLogger(MultiThreadedScheduledJobExecutor.class.getName());

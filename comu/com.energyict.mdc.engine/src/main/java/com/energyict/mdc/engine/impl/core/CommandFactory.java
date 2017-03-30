@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.core;
 
 import com.energyict.mdc.common.TypedProperties;
@@ -30,13 +34,6 @@ import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 
 import java.util.List;
 
-/**
- * Provides proper functionality to create ComCommands based on relevant information
- * <p>
- * Copyrights EnergyICT
- * Date: 27/06/12
- * Time: 16:25
- */
 public final class CommandFactory {
 
     /**

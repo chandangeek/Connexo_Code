@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.core.inbound;
 
 import java.io.ByteArrayOutputStream;
@@ -9,12 +13,6 @@ import java.net.Socket;
 import org.junit.Ignore;
 import org.junit.Test;
 
-/**
- * Just a 'script' to test the (Inbound communication)logging in the ComServer monitor
- * Copyrights EnergyICT
- * Date: 20/01/2016
- * Time: 14:40
- */
 @Ignore // local testing only
 public class InboundCommunicationLoggingTest {
 

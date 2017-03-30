@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.core;
 
 import com.elster.jupiter.util.Pair;
@@ -38,13 +42,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-/**
- * Tests for the {@link ComTaskExecutionOrganizer} component.
- * <p/>
- * Copyrights EnergyICT
- * Date: 5/04/13
- * Time: 8:38
- */
 @RunWith(MockitoJUnitRunner.class)
 public class ComTaskExecutionOrganizerTest {
 

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.core;
 
 import com.energyict.mdc.engine.config.InboundComPort;
@@ -10,11 +14,6 @@ import com.energyict.mdc.upl.Services;
 
 import java.util.logging.Logger;
 
-/**
- * Copyrights EnergyICT
- * Date: 22/10/12
- * Time: 11:14
- */
 public class InboundComPortExecutorImpl implements InboundComPortExecutor {
 
     private final InboundComPort comPort;
@@ -72,6 +71,7 @@ public class InboundComPortExecutorImpl implements InboundComPortExecutor {
         if (inboundDeviceProtocol instanceof UPLInboundDeviceProtocolAdapter) {
             inboundDeviceProtocol = ((UPLInboundDeviceProtocolAdapter) inboundDeviceProtocol).getUplInboundDeviceProtocol();
         }
+        inboundDeviceProtocol.copyProperties(comPort.getComPortPool().getTypedProperties());
         return (BinaryInboundDeviceProtocol) inboundDeviceProtocol;
     }
 

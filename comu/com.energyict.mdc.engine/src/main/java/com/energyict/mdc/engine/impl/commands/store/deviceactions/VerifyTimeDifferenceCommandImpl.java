@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
 import com.elster.jupiter.time.TimeDuration;
@@ -15,6 +19,8 @@ import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 
 import java.util.Optional;
+
+import static java.lang.Math.toIntExact;
 
 /**
  * Proper implementation for a {@link VerifyTimeDifferenceCommand}.
@@ -56,8 +62,8 @@ public class VerifyTimeDifferenceCommandImpl extends SimpleComCommand implements
             addIssue(getIssueService().newProblem(
                     getCommandType(),
                     MessageSeeds.MAXIMUM_TIME_DIFFERENCE_EXCEEDED,
-                    this.timeDifference,
-                    this.maximumClockDifference),
+                    new TimeDuration(toIntExact(this.maximumClockDifference.getMilliSeconds()), TimeDuration.TimeUnit.MILLISECONDS),
+                    new TimeDuration(toIntExact(Math.abs(this.timeDifference.getMilliSeconds())), TimeDuration.TimeUnit.MILLISECONDS)),
                     CompletionCode.TimeError);
         }
     }

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.core;
 
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
@@ -14,12 +18,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
 
-/**
- * Copyrights EnergyICT
- *
- * @author khe
- * @since 12/08/2016 - 16:44
- */
 public class ParallelRootScheduledJob extends ScheduledComTaskExecutionGroup {
 
     private final BlockingQueue<GroupedDeviceCommand> groupedDeviceCommands = new LinkedBlockingQueue<>();

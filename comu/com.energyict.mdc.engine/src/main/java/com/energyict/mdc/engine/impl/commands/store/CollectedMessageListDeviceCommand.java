@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.commands.store;
 
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
@@ -17,14 +21,6 @@ import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Provides functionality to store {@link DeviceMessage DeviceMessage}
- * results in the database.
- * <p>
- * Copyrights EnergyICT
- * Date: 21/03/13
- * Time: 16:40
- */
 public class CollectedMessageListDeviceCommand extends DeviceCommandImpl<CollectedMessageListEvent> {
 
     public static final String DESCRIPTION_TITLE = "Collected message data";

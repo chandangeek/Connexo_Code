@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.commands.offline;
 
 import com.elster.jupiter.properties.PropertySpec;
@@ -12,13 +16,6 @@ import com.energyict.mdc.upl.offline.OfflineDevice;
 
 import java.io.File;
 
-/**
- * Straightforward implementation of an OfflineDeviceMessageAttribute
- * <p>
- * Copyrights EnergyICT
- * Date: 11/6/14
- * Time: 8:57 AM
- */
 public class OfflineDeviceMessageAttributeImpl implements OfflineDeviceMessageAttribute {
 
     private final DeviceMessageAttribute deviceMessageAttribute;

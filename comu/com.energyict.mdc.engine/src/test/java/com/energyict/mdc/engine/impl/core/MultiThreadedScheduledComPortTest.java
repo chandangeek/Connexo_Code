@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.core;
 
 import com.elster.jupiter.events.EventService;
@@ -385,14 +389,17 @@ public class MultiThreadedScheduledComPortTest {
         when(this.serialConnectionTask1.getConnectionType()).thenReturn(this.serialConnectionType);
         when(this.serialConnectionTask1.getComPortPool()).thenReturn(this.comPortPool);
         when(this.serialConnectionTask1.getConnectionStrategy()).thenReturn(ConnectionStrategy.AS_SOON_AS_POSSIBLE);
+        when(this.serialConnectionTask1.getProtocolDialectConfigurationProperties()).thenReturn(this.protocolDialectConfigurationProperties);
         when(this.serialConnectionTask2.getDevice()).thenReturn(this.device);
         when(this.serialConnectionTask2.getConnectionType()).thenReturn(this.serialConnectionType);
         when(this.serialConnectionTask2.getComPortPool()).thenReturn(this.comPortPool);
         when(this.serialConnectionTask2.getConnectionStrategy()).thenReturn(ConnectionStrategy.MINIMIZE_CONNECTIONS);
+        when(this.serialConnectionTask2.getProtocolDialectConfigurationProperties()).thenReturn(this.protocolDialectConfigurationProperties);
         when(this.serialConnectionTask3.getDevice()).thenReturn(this.device);
         when(this.serialConnectionTask3.getConnectionType()).thenReturn(this.serialConnectionType);
         when(this.serialConnectionTask3.getComPortPool()).thenReturn(this.comPortPool);
         when(this.serialConnectionTask3.getConnectionStrategy()).thenReturn(ConnectionStrategy.MINIMIZE_CONNECTIONS);
+        when(this.serialConnectionTask3.getProtocolDialectConfigurationProperties()).thenReturn(this.protocolDialectConfigurationProperties);
     }
 
     @Before
@@ -687,6 +694,7 @@ public class MultiThreadedScheduledComPortTest {
         when(comServerDAOMock.areStillPending(anyCollection())).thenReturn(true);
         this.comChannel = new ComPortRelatedComChannelImpl(mock(ComChannel.class), comPort, clock, deviceMessageService, this.hexService, eventPublisher);
         when(this.simultaneousConnectionTask1.connect(eq(comPort), anyList())).thenReturn(this.comChannel);
+        when(this.simultaneousConnectionTask1.getProtocolDialectConfigurationProperties()).thenReturn(protocolDialectConfigurationProperties);
         final List<ComJob> work = new ArrayList<>();
         for (int i = 0; i < NUMBER_OF_TASKS; i++) {
             work.add(this.toComJob(this.mockComTask(i + 1, this.simultaneousConnectionTask1)));
@@ -1191,7 +1199,6 @@ public class MultiThreadedScheduledComPortTest {
         when(comTaskExecution.getConnectionTask()).thenReturn(Optional.of(connectionTask));
         when(comTaskExecution.getDevice()).thenReturn(this.device);
         when(comTaskExecution.getComTask()).thenReturn(this.comTask);
-        when(comTaskExecution.getProtocolDialectConfigurationProperties()).thenReturn(this.protocolDialectConfigurationProperties);
         return comTaskExecution;
     }
 

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.commands.store.core;
 
 import com.energyict.mdc.common.TypedProperties;
@@ -7,20 +11,12 @@ import com.energyict.mdc.engine.impl.core.CommandCreator;
 import com.energyict.mdc.engine.impl.core.CommandFactory;
 import com.energyict.mdc.engine.impl.core.inbound.ComChannelPlaceHolder;
 import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 
 import java.util.List;
 
-/**
- * A {@link CommandCreator} which will be used for creating commands for a {@link DeviceProtocol}
- * <p/>
- * Copyrights EnergyICT
- * Date: 7/08/12
- * Time: 16:41
- */
 public class DeviceProtocolCommandCreator implements CommandCreator {
 
     @Override

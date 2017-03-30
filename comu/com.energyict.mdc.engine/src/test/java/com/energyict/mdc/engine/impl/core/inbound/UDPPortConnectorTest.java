@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.core.inbound;
 
 import com.energyict.mdc.device.data.DeviceMessageService;
@@ -40,13 +44,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-/**
- * Tests for the {@link UDPPortConnector} component
- * <p>
- * Copyrights EnergyICT
- * Date: 5/11/12
- * Time: 16:31
- */
 @RunWith(MockitoJUnitRunner.class)
 public class UDPPortConnectorTest {
 

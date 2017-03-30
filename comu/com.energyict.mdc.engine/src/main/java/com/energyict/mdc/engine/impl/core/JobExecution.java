@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.core;
 
 import com.elster.jupiter.events.EventService;
@@ -98,14 +102,6 @@ public abstract class JobExecution implements ScheduledJob {
         this.deviceCommandExecutor = deviceCommandExecutor;
         this.serviceProvider = serviceProvider;
         this.preparationContext = new PreparationContext();
-    }
-
-    protected static TypedProperties getProtocolDialectTypedProperties(ComTaskExecution comTaskExecution) {
-        if (comTaskExecution != null) {
-            return getProtocolDialectTypedProperties(comTaskExecution.getDevice(), comTaskExecution.getProtocolDialectConfigurationProperties());
-        } else {
-            return TypedProperties.empty();
-        }
     }
 
     protected static TypedProperties getProtocolDialectTypedProperties(Device device, ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties) {
@@ -219,7 +215,7 @@ public abstract class JobExecution implements ScheduledJob {
         final List<ProtocolTask> protocolTasks = generateProtocolTaskList(comTaskExecution);
         commandCreator.createCommands(
                 groupedDeviceCommand,
-                getProtocolDialectTypedProperties(comTaskExecution),
+                getProtocolDialectTypedProperties(getConnectionTask().getDevice(), getConnectionTask().getProtocolDialectConfigurationProperties()),
                 this.preparationContext.getComChannelPlaceHolder(),
                 protocolTasks,
                 deviceProtocolSecurityPropertySet,
@@ -234,11 +230,11 @@ public abstract class JobExecution implements ScheduledJob {
      * Each <i>set</i> of ProtocolTasks of a ComTask will be preceded by a CreateComTaskSession command.
      */
     private List<ProtocolTask> generateProtocolTaskList(ComTaskExecution comTaskExecution) {
-        return generateProtocolTaskList(comTaskExecution.getComTask(), comTaskExecution)
+        return generateProtocolTaskList(comTaskExecution.getComTask())
                 .collect(Collectors.toList());
     }
 
-    private Stream<ProtocolTask> generateProtocolTaskList(ComTask comTask, ComTaskExecution comTaskExecution) {
+    private Stream<ProtocolTask> generateProtocolTaskList(ComTask comTask) {
         List<ProtocolTask> protocolTasks = new ArrayList<>(comTask.getProtocolTasks()); // Copies the unmodifiable list
         Collections.sort(protocolTasks, BasicCheckTasks.FIRST);
         return protocolTasks.stream();

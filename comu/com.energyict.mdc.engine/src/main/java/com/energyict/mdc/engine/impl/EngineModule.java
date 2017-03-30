@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl;
 
 import com.elster.jupiter.events.EventService;
@@ -26,11 +30,6 @@ import com.google.inject.Scopes;
 
 import java.time.Clock;
 
-/**
- * Copyrights EnergyICT
- * Date: 22/05/2014
- * Time: 11:30
- */
 public class EngineModule extends AbstractModule {
 
     @Override

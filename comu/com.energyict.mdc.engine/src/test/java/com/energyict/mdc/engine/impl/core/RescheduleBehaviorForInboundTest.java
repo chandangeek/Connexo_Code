@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.core;
 
 import com.elster.jupiter.util.Pair;
@@ -8,26 +12,25 @@ import com.energyict.mdc.engine.impl.commands.store.core.CommandRootImpl;
 import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
 import com.energyict.mdc.tasks.ComTask;
+
 import org.joda.time.DateTime;
+
+import java.time.Clock;
+import java.time.ZoneId;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.time.Clock;
-import java.time.ZoneId;
-
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-/**
- * Tests the {@link com.energyict.mdc.engine.impl.core.RescheduleBehaviorForInbound} component
- * <p>
- * Copyrights EnergyICT
- * Date: 5/06/13
- * Time: 11:44
- */
 @RunWith(MockitoJUnitRunner.class)
 public class RescheduleBehaviorForInboundTest extends AbstractRescheduleBehaviorTest {
 

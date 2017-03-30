@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine;
 
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
@@ -7,11 +11,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- * Copyrights EnergyICT
- * Date: 8/4/14
- * Time: 1:43 PM
- */
 public class TestSerialNumberDeviceIdentifier implements DeviceIdentifier {
 
     private final String serialNumber;

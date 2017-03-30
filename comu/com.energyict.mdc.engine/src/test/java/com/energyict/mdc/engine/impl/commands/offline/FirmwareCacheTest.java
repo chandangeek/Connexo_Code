@@ -1,8 +1,10 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.commands.offline;
 
 import com.energyict.mdc.firmware.FirmwareVersion;
-import org.junit.Assert;
-import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -11,16 +13,13 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.Instant;
 
+import org.junit.Assert;
+import org.junit.Test;
+
 import static junit.framework.TestCase.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-/**
- * Copyrights EnergyICT
- *
- * @author khe
- * @since 27/05/2016 - 15:04
- */
 public class FirmwareCacheTest {
 
     private static final byte[] CONTENT = new byte[20];

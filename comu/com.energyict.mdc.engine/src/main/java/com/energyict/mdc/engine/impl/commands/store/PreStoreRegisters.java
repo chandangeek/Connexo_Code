@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.commands.store;
 
 import com.elster.jupiter.metering.readings.Reading;
@@ -20,11 +24,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-/**
- * Copyrights EnergyICT
- * Date: 8/4/14
- * Time: 8:24 AM
- */
 public class PreStoreRegisters {
 
     private final MdcReadingTypeUtilService mdcReadingTypeUtilService;

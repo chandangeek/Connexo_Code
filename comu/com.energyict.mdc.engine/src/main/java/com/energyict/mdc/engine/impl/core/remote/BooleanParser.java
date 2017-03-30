@@ -1,6 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.core.remote;
 
 import com.energyict.mdc.engine.impl.core.RemoteComServerQueryJSonPropertyNames;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 

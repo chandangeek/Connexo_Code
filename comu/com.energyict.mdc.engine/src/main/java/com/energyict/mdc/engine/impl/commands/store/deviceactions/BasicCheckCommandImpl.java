@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
 import com.elster.jupiter.time.TimeDuration;
@@ -5,7 +9,12 @@ import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.impl.MessageSeeds;
-import com.energyict.mdc.engine.impl.commands.collect.*;
+import com.energyict.mdc.engine.impl.commands.collect.BasicCheckCommand;
+import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
+import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
+import com.energyict.mdc.engine.impl.commands.collect.TimeDifferenceCommand;
+import com.energyict.mdc.engine.impl.commands.collect.VerifySerialNumberCommand;
+import com.energyict.mdc.engine.impl.commands.collect.VerifyTimeDifferenceCommand;
 import com.energyict.mdc.engine.impl.commands.store.core.CompositeComCommandImpl;
 import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
@@ -96,19 +105,7 @@ public class BasicCheckCommandImpl extends CompositeComCommandImpl implements Ba
         }
 
         if (this.verifyTimeDifferenceCommand != null) {
-            builder.addLabel("check time difference");
-            if (this.isJournalingLevelEnabled(serverLogLevel, LogLevel.DEBUG)) {
-                if (getMaximumClockDifference().isPresent()) {
-                    TimeDuration maxDiffInSeconds = new TimeDuration(getMaximumClockDifference().orElse(new TimeDuration(0)).getSeconds(), TimeDuration.TimeUnit.SECONDS);
-                    builder.addProperty("maximumClockDifference").append(maxDiffInSeconds);
-                }
-            }
-
-            if (this.verifyTimeDifferenceCommand != null
-                    && this.verifyTimeDifferenceCommand.getTimeDifference() != null && this.verifyTimeDifferenceCommand.getTimeDifference().isPresent()) {
-                TimeDuration diffInSeconds = new TimeDuration(this.verifyTimeDifferenceCommand.getTimeDifference().orElse(new TimeDuration(0)).getSeconds(), TimeDuration.TimeUnit.SECONDS);
-                builder.addProperty("timeDifference").append(diffInSeconds);
-            }
+            builder.addLabel("check maximum clock difference");
         }
     }
 

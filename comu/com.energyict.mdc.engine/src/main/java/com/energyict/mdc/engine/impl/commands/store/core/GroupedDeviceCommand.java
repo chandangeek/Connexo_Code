@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.commands.store.core;
 
 import com.elster.jupiter.orm.MacException;
@@ -82,12 +86,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Copyrights EnergyICT
- *
- * @author khe
- * @since 11/07/2016 - 14:12
- */
 public class GroupedDeviceCommand implements Iterable<ComTaskExecutionComCommandImpl>, CanProvideDescriptionTitle {
 
     private final OfflineDevice offlineDevice;

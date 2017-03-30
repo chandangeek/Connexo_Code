@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.commands.store;
 
 import com.elster.jupiter.metering.ReadingQualityType;
@@ -24,14 +28,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-/**
- * Creates {@link Reading Readings} and {@link com.elster.jupiter.metering.readings.IntervalReading}s
- * based on a specific <i>CollectedData</i>.
- * <p>
- * Copyrights EnergyICT
- * Date: 26/11/13
- * Time: 09:49
- */
 public final class MeterDataFactory {
 
     /**
@@ -75,6 +71,9 @@ public final class MeterDataFactory {
             EndDeviceEventImpl endDeviceEvent = EndDeviceEventImpl.of(meterProtocolEvent.getEventType().getCode(), meterProtocolEvent.getTime().toInstant());
             endDeviceEvent.setLogBookId(logBookId);
             endDeviceEvent.setLogBookPosition(meterProtocolEvent.getDeviceEventId());
+            endDeviceEvent.setType(String.valueOf(meterProtocolEvent.getProtocolCode()));
+            endDeviceEvent.setDescription(meterProtocolEvent.getMessage());
+            endDeviceEvent.setEventData(meterProtocolEvent.getAdditionalInformation());
             endDeviceEvents.add(endDeviceEvent);
         }
         return endDeviceEvents;

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.events.datastorage;
 
 import com.energyict.mdc.device.data.LoadProfileService;
@@ -24,11 +28,6 @@ import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-/**
- * Copyrights EnergyICT
- * Date: 24/02/2016
- * Time: 14:29
- */
 @RunWith(MockitoJUnitRunner.class)
 public class CollectedLoadProfileEventTest {
 

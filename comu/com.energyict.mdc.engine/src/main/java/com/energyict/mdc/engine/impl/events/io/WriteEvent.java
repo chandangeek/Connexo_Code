@@ -1,7 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.events.io;
 
-import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannel;
 import com.energyict.mdc.engine.config.ComPort;
+import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannel;
 
 /**
  * Models an event that represent a write session for a {@link ComPortRelatedComChannel}.

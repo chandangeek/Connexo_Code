@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.core;
 
 import com.elster.jupiter.metering.MeteringService;
@@ -260,7 +264,7 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
 
             commandCreator.createCommands(
                     groupedDeviceCommand,
-                    getProtocolDialectTypedProperties(comTaskExecution),
+                    getProtocolDialectTypedProperties(getConnectionTask().getDevice(), getConnectionTask().getProtocolDialectConfigurationProperties()),
                     super.preparationContext.getComChannelPlaceHolder(),
                     protocolTasks,
                     deviceProtocolSecurityPropertySet,

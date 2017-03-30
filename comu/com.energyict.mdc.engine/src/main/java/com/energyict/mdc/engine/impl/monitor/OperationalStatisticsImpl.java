@@ -1,11 +1,15 @@
-package com.energyict.mdc.engine.impl.monitor;
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 
-import com.energyict.mdc.engine.exceptions.CodingException;
-import com.energyict.mdc.engine.impl.MessageSeeds;
+package com.energyict.mdc.engine.impl.monitor;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.time.TimeDuration;
+import com.energyict.mdc.engine.exceptions.CodingException;
+import com.energyict.mdc.engine.impl.MessageSeeds;
 import com.energyict.mdc.engine.monitor.OperationalStatistics;
+
 import org.joda.time.DateTimeConstants;
 
 import javax.management.openmbean.CompositeType;

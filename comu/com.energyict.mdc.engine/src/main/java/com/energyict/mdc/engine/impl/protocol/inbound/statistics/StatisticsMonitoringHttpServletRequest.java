@@ -1,10 +1,13 @@
-package com.energyict.mdc.engine.impl.protocol.inbound.statistics;
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 
-import com.energyict.mdc.engine.impl.tools.Strings;
+package com.energyict.mdc.engine.impl.protocol.inbound.statistics;
 
 import com.elster.jupiter.util.Counter;
 import com.elster.jupiter.util.Counters;
 import com.elster.jupiter.util.time.StopWatch;
+import com.energyict.mdc.engine.impl.tools.Strings;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletInputStream;

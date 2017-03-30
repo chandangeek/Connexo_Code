@@ -1,14 +1,18 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.monitor;
 
 import com.elster.jupiter.nls.Thesaurus;
-import java.time.Clock;
-
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.engine.impl.core.RunningComServer;
 import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.impl.core.RunningComServer;
 import com.energyict.mdc.engine.monitor.ComServerOperationalStatistics;
 
-import javax.management.openmbean.*;
+import javax.management.openmbean.OpenType;
+import javax.management.openmbean.SimpleType;
+import java.time.Clock;
 import java.util.List;
 
 /**

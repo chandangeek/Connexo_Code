@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine;
 
 import com.elster.jupiter.cps.CustomPropertySet;
@@ -43,13 +47,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Dummy DeviceProtocol for PluggableClassTestUsages
- * <p>
- * Copyrights EnergyICT
- * Date: 3/07/12
- * Time: 15:16
- */
 public class MockGenericDeviceProtocol implements GenericDeviceProtocol {
 
     @Override

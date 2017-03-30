@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.commands.store.core;
 
 import com.energyict.mdc.common.TypedProperties;
@@ -51,13 +55,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-/**
- * Tests the DeviceProtocolCommandCreator
- * <p>
- * Copyrights EnergyICT
- * Date: 10/10/12
- * Time: 8:49
- */
 @RunWith(MockitoJUnitRunner.class)
 public class DeviceProtocolCommandCreatorTest {
 

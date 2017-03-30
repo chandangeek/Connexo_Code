@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.commands.store.common;
 
 import com.energyict.mdc.common.TypedProperties;
@@ -21,13 +25,6 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-/**
- * Tests for the {@link AddPropertiesCommand} component
- * <p>
- * Copyrights EnergyICT
- * Date: 9/08/12
- * Time: 14:43
- */
 @RunWith(MockitoJUnitRunner.class)
 public class AddPropertiesCommandTest extends AbstractComCommandExecuteTest {
 

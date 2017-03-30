@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.meterdata;
 
 import com.energyict.mdc.upl.meterdata.ResultType;
@@ -8,6 +12,8 @@ import com.energyict.cbo.Quantity;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
+
+import org.junit.Test;
 
 import org.junit.Test;
 

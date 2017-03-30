@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.core.factories;
 
 import com.energyict.mdc.engine.config.InboundComPort;
@@ -5,11 +9,6 @@ import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.InboundComPortExecutor;
 
-/**
- * Copyrights EnergyICT
- * Date: 23/10/12
- * Time: 9:43
- */
 public interface InboundComPortExecutorFactory {
 
     /**

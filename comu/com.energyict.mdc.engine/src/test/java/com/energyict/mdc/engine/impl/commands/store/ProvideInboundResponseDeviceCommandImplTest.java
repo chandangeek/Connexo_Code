@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.commands.store;
 
 import com.elster.jupiter.metering.readings.Reading;
@@ -45,11 +49,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-/**
- * Copyrights EnergyICT
- * Date: 07.08.15
- * Time: 13:55
- */
 @RunWith(MockitoJUnitRunner.class)
 public class ProvideInboundResponseDeviceCommandImplTest {
 
@@ -129,7 +128,6 @@ public class ProvideInboundResponseDeviceCommandImplTest {
         when(comTaskExecution.getId()).thenReturn(COM_TASK_EXECUTION_ID);
         when(comTaskExecution.getDevice()).thenReturn(device);
         when(comTaskExecution.getComTask()).thenReturn(comTask);
-        when(comTaskExecution.getProtocolDialectConfigurationProperties()).thenReturn(mock(ProtocolDialectConfigurationProperties.class));
         ComServer comServer = mock(OnlineComServer.class);
         when(comServer.getCommunicationLogLevel()).thenReturn(ComServer.LogLevel.INFO);
         ComPortPool comPortPool = mock(ComPortPool.class);
@@ -141,6 +139,7 @@ public class ProvideInboundResponseDeviceCommandImplTest {
         when(connectionTask.getId()).thenReturn(CONNECTION_TASK_ID);
         when(connectionTask.getComPortPool()).thenReturn(comPortPool);
         when(connectionTask.getDevice()).thenReturn(device);
+        when(connectionTask.getProtocolDialectConfigurationProperties()).thenReturn(mock(ProtocolDialectConfigurationProperties.class));
         JobExecution jobExecution = mock(JobExecution.class);
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
         when(jobExecution.getComServerDAO()).thenReturn(comServerDAO);

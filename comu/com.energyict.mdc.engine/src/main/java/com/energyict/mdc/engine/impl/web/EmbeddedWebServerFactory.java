@@ -1,11 +1,15 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.web;
 
+import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.config.ServletBasedInboundComPort;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.RunningOnlineComServer;
 import com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler;
-import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.engine.config.ServletBasedInboundComPort;
 
 /**
  * Provides factory services for {@link EmbeddedWebServer}s.

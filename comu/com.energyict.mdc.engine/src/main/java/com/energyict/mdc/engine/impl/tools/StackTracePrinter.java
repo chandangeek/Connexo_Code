@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.tools;
 
 import com.energyict.mdc.engine.impl.logging.LogLevel;
@@ -6,12 +10,6 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 
-/**
- * Copyrights EnergyICT
- *
- * @author khe
- * @since 12/07/2016 - 15:42
- */
 public final class StackTracePrinter {
 
     /**

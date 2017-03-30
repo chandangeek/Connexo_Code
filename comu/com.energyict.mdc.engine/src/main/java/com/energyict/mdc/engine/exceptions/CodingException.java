@@ -1,11 +1,14 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.exceptions;
 
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.ComServerRuntimeException;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComServer;
-
-import com.elster.jupiter.util.exception.MessageSeed;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.openmbean.OpenDataException;

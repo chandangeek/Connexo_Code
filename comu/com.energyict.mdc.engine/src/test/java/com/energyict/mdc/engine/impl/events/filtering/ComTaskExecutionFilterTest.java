@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.events.filtering;
 
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -6,7 +10,7 @@ import com.energyict.mdc.engine.events.ConnectionEvent;
 
 import java.util.Arrays;
 
-import org.junit.*;
+import org.junit.Test;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;

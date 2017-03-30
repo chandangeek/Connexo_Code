@@ -1,15 +1,19 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.events.comtask;
 
 import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.engine.events.Category;
-import com.energyict.mdc.engine.events.ComTaskExecutionEvent;
-import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.InboundComPort;
+import com.energyict.mdc.engine.events.Category;
+import com.energyict.mdc.engine.events.ComTaskExecutionEvent;
+import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
 
 import org.json.JSONException;
 import org.json.JSONWriter;

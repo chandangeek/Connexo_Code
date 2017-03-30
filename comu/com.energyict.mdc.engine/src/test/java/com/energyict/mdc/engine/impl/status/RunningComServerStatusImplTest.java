@@ -1,16 +1,20 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.status;
 
 import com.elster.jupiter.time.TimeDuration;
+import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.monitor.ComServerMonitor;
 import com.energyict.mdc.engine.monitor.ComServerOperationalStatistics;
 import com.energyict.mdc.engine.monitor.ScheduledComPortMonitor;
 import com.energyict.mdc.engine.monitor.ScheduledComPortOperationalStatistics;
-import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.status.ComServerType;
 
-import java.time.Clock;
 import org.joda.time.DateTimeConstants;
 
+import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
@@ -18,8 +22,9 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Optional;
 
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.commands.store.access;
 
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
@@ -11,21 +15,17 @@ import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.pluggable.MeterProtocolAdapter;
 import com.energyict.mdc.protocol.pluggable.SmartMeterProtocolAdapter;
-import org.junit.Before;
-import org.junit.Test;
 
 import java.time.Clock;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.*;
+import org.junit.Before;
+import org.junit.Test;
 
-/**
- * Tests the {@link DaisyChainedLogOnCommand}
- * <p>
- * Copyrights EnergyICT
- * Date: 9/10/12
- * Time: 16:39
- */
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 public class DaisyChainedLogOnCommandTest extends AbstractComCommandExecuteTest {
 
     @Before
