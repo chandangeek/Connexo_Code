@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
  * The contents of securitymappings.properties has changed drastically between version 10.2 and 10.3.
  * This ugprader updates all entries in the database, according to the securitymappings.properties
  * <p>
- * Copyrights EnergyICT
+ *
  *
  * @author khe
  * @since 5/01/2017 - 14:52

@@ -10,7 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
 /**
- * Copyrights EnergyICT
+ *
  *
  * @author khe
  * @since 2/01/2017 - 14:05

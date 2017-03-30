@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 /**
  * Adapts a given UPL DeviceAccessLevel into a proper CXO DeviceAccessLevel
  * <p>
- * Copyrights EnergyICT
+ *
  *
  * @author khe
  * @since 3/01/2017 - 14:25

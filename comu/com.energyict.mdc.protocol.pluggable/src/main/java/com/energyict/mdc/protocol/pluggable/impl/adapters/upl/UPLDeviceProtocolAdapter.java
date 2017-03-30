@@ -49,7 +49,7 @@ import java.util.stream.Collectors;
 /**
  * Adapter between a {@link com.energyict.mdc.upl.DeviceProtocol} and a {@link DeviceProtocol}.
  * <p>
- * Copyrights EnergyICT
+ *
  *
  * @author khe
  * @since 23/11/2016 - 16:56

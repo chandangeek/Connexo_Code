@@ -29,7 +29,7 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
- * Copyrights EnergyICT
+ *
  *
  * @author khe
  * @since 10/02/2017 - 16:08

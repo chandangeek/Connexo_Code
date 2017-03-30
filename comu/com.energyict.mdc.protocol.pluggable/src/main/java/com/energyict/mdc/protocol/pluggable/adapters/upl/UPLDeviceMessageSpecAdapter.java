@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
  * Adapts a given UPL DeviceMessageSpec to the Connexo DeviceMessageSpec interface.
  * This is straight forward for all fields except for the PropertySpecs, they need adaptation.
  * <p>
- * Copyrights EnergyICT
+ *
  *
  * @author khe
  * @since 14/12/2016 - 11:40

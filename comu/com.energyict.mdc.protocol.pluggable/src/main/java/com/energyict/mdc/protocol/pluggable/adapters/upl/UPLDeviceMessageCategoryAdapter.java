@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
  * Adapts a given UPL DeviceMessageCategory to the Connexo DeviceMessageCategory interface.
  * This is straight forward for most fields, except the DeviceMessageSpec that needs adaptation.
  * <p>
- * Copyrights EnergyICT
+ *
  *
  * @author khe
  * @since 14/12/2016 - 12:50

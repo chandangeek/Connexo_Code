@@ -6,7 +6,7 @@ import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 /**
  * Maps the securityPropertySet to a usable property set for a DeviceProtocol.
  * <p>
- * Copyrights EnergyICT
+ *
  * Date: 22/01/13
  * Time: 15:05
  */

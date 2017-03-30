@@ -5,7 +5,7 @@ import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.TypedProperties;
 
 /**
- * Copyrights EnergyICT
+ *
  * <p>
  * Adapts the CXO values of the given TypedProperties to UPL values, so that the 9.1 protocols can use them.
  *

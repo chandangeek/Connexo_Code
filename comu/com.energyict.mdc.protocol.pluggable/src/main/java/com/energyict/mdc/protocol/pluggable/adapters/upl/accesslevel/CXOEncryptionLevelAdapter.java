@@ -4,7 +4,7 @@ import com.energyict.mdc.protocol.api.security.DeviceAccessLevel;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 
 /**
- * Copyrights EnergyICT
+ *
  *
  * @author khe
  * @since 3/01/2017 - 16:05

@@ -21,7 +21,7 @@ import java.util.Optional;
 import java.util.Set;
 
 /**
- * Copyrights EnergyICT
+ *
  * <p>
  * Adapts a given UPL ConnectionType to the CXO ConnectionType interface
  *

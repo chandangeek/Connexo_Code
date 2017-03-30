@@ -55,7 +55,7 @@ import java.util.stream.Stream;
  * {@link SmartMeterProtocolAdapterImpl})
  * or a correct cast to {@link DeviceProtocol}.
  * <p>
- * Copyrights EnergyICT
+ *
  * Date: 3/07/12
  * Time: 9:00
  */

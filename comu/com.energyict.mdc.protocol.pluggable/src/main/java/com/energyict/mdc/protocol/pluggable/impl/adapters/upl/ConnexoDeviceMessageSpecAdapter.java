@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
  * This is used when given pending messages (in offline form) from the framework to the protocols that need to execute them.
  * The framework uses CXO interfaces, the protocols use UPL interfaces.
  * <p>
- * Copyrights EnergyICT
+ *
  *
  * @author khe
  * @since 14/12/2016 - 11:40

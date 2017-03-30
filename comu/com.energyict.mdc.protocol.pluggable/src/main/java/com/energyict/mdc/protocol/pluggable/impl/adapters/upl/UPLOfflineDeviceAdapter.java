@@ -19,7 +19,7 @@ import java.util.Optional;
 import java.util.TimeZone;
 
 /**
- * Copyrights EnergyICT
+ *
  *
  * @author khe
  * @since 17/01/2017 - 10:52

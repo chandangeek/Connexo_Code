@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Copyrights EnergyICT
+ *
  * <p>
  * Adapts a given UPL InboundDeviceProtocol to the CXO InboundDeviceProtocol interface
  *

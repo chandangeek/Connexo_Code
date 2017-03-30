@@ -11,7 +11,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 8/4/14
  * Time: 12:09 PM
  */

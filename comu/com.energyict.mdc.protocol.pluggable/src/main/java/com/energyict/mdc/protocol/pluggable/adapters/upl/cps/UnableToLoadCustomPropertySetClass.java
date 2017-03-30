@@ -1,7 +1,7 @@
 package com.energyict.mdc.protocol.pluggable.adapters.upl.cps;
 
 /**
- * Copyrights EnergyICT
+ *
  *
  * @author khe
  * @since 2/01/2017 - 14:06
