@@ -41,11 +41,11 @@ public class ConnectionTypeInfo {
         connectionTypeInfo.properties = new ArrayList<>();
         List<PropertySpec> propertySpecs = connectionTypePluggableClass
                 .getPropertySpecs().stream()
-                .map(propertySpec -> {
-                    return deviceConfigurationOption.map(deviceConfiguration1 ->
+                .map(propertySpec ->
+                    deviceConfigurationOption.map(deviceConfiguration1 ->
                                  KeyAccessorPropertySpecWithPossibleValues.addValuesIfApplicable(() -> deviceConfiguration1.getDeviceType().getKeyAccessorTypes(), propertySpec))
-                            .orElse(propertySpec);
-                })
+                            .orElse(propertySpec)
+                )
                 .collect(toList());
         TypedProperties typedProperties = connectionTypePluggableClass.getProperties(propertySpecs);
         mdcPropertyUtils.convertPropertySpecsToPropertyInfos(uriInfo, propertySpecs, typedProperties, connectionTypeInfo.properties);
