@@ -1,5 +1,10 @@
 <?xml version="1.0"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<!--
+  ~ Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+  -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
 
@@ -36,6 +41,14 @@
         <serialio.version>10.0.4.2</serialio.version>
         <org.rxtx.version>2.2pre2</org.rxtx.version>
         <json.version>20090211</json.version>
+        <javadoc.excluded.package.names>
+            com.energyict.mdc.device.alarms.security:com.energyict.mdc.device.command.security:com.energyict.mdc.device.config.security:com.energyict.mdc.device.data.security:${line.separator}
+            com.energyict.mdc.engine.config.security:com.energyict.mdc.firmware.security:com.energyict.mdc.masterdata.security:com.energyict.mdc.multisense.api.security:com.energyict.mdc.scheduling.security:${line.separator}
+            com.energyict.mdc.device.lifecycle.config.bpmhandler:com.energyict.mdc.gogo
+            com.energyict.assembly:com.energyict.dialer:com.energyict.dlms:com.energyict.encryption:com.energyict.genericprotocolimpl:com.energyict.license:com.energyict.protocolimpl:${line.separator}
+            com.energyict.protocolimplv2:com.energyict.protocols.exception:com.energyict.protocols.mdc:com.energyict.protocols.messaging:com.energyict.protocols.sms:com.energyict.protocols.util:${line.separator}
+            com.energyict.smartmeterprotocolimpl:com.energyict.xml
+        </javadoc.excluded.package.names>
     </properties>
 
     <scm>
@@ -175,7 +188,7 @@
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.device.data</artifactId>
-                <version>5.0.0${revision}</version>
+                <version>6.0.0${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
@@ -673,7 +686,6 @@
                 <module>../com.energyict.mdc.protocols</module>
                 <module>../com.energyict.mdc.scheduling</module>
                 <module>../com.energyict.mdc.scheduling.rest</module>
-                <module>../com.energyict.mdc.servicecall.examples</module>
                 <module>../com.energyict.mdc.tasks</module>
                 <module>../com.energyict.mdc.tasks.rest</module>
                 <module>../com.energyict.mdc.usagepoint.data.rest</module>
@@ -686,6 +698,7 @@
                 <module>../com.elster.jupiter.demo</module>
                 <module>../com.energyict.mdc.device.cps.examples</module>
                 <module>../com.energyict.mdc.protocols.test</module>
+                <module>../com.energyict.mdc.servicecall.examples</module>
                 <module>../com.energyict.mdc.test.api.rest</module>
             </modules>
         </profile>
