@@ -179,11 +179,11 @@ Ext.define('Mdc.view.setup.deviceregisterdata.MainPreview', {
                 calculatedValueField.show()
             }
 
-            if (calculatedValueField) {
+            if (deltaValueField) {
                 deltaValueField.show()
             }
 
-            if (deltaValueField) {
+            if (multiplierField) {
                 multiplierField.show()
             }
 
@@ -198,7 +198,6 @@ Ext.define('Mdc.view.setup.deviceregisterdata.MainPreview', {
             if (eventTime) {
                 eventTime.show()
             }
-
         } else {
             if (calculatedValueField) {
                 calculatedValueField.setVisible(hasCalculatedValue);
