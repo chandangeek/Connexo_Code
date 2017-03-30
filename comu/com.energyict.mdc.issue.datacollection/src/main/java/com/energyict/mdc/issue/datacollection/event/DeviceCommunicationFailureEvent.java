@@ -1,5 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.issue.datacollection.event;
 
+import com.elster.jupiter.issue.share.entity.Issue;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
@@ -10,10 +18,6 @@ import com.energyict.mdc.issue.datacollection.entity.OpenIssueDataCollection;
 import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
 import com.energyict.mdc.issue.datacollection.impl.event.EventDescription;
 
-import com.elster.jupiter.issue.share.entity.Issue;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.util.conditions.Condition;
 import com.google.inject.Injector;
 
 import javax.inject.Inject;

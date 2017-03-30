@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.issue.datacollection.impl.event;
 
 import com.elster.jupiter.issue.share.IssueEvent;
@@ -5,6 +9,7 @@ import com.elster.jupiter.issue.share.UnableToCreateEventException;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
+import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.device.data.Device;
@@ -16,10 +21,13 @@ import com.google.inject.Injector;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Logger;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class DataCollectionEventHandler implements MessageHandler {
@@ -48,10 +56,24 @@ public class DataCollectionEventHandler implements MessageHandler {
 
     @Override
     public void process(Message message) {
-        Map<?, ?> map = getJsonService().deserialize(message.getPayload(), Map.class);
-        List<IssueEvent> events = createEvents(map);
-        if (events != null && !events.isEmpty()) {
-            getIssueCreationService().dispatchCreationEvent(events);
+        List<IssueEvent> events = createEvents(getJsonService().deserialize(message.getPayload(), Map.class));
+        if(events!= null && !events.isEmpty()) {
+
+            List<IssueEvent> eventsWithEndDevice = events.stream()
+                    .filter(e -> e.getEndDevice().isPresent())
+                    .collect(Collectors.toList());
+            if(eventsWithEndDevice.isEmpty()) {
+                getIssueCreationService().dispatchCreationEvent(events);
+            }
+            List<IssueEvent> filteredEvents = eventsWithEndDevice.stream()
+                    .filter(e -> e.getEndDevice().get().getState().isPresent())
+                    .filter(e -> e.getEndDevice().get().getState().get().getStage().isPresent())
+                    .filter(e -> e.getEndDevice().get().getState().get().getStage().get().getName().equals(EndDeviceStage.OPERATIONAL.getKey()))
+                    .collect(Collectors.toList());
+
+            if(!filteredEvents.isEmpty()) {
+                getIssueCreationService().dispatchCreationEvent(filteredEvents);
+            }
         }
     }
 

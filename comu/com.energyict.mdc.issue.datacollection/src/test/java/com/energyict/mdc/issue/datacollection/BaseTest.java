@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.issue.datacollection;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
@@ -285,6 +289,7 @@ public abstract class BaseTest {
         builder.setReason(getIssueService().findReason(reasonKey).orElse(null));
         builder.setDueInTime(DueInType.DAY, 15L);
         builder.setPriority(Priority.DEFAULT);
+        builder.activate();
         CreationRuleTemplate template = getMockCreationRuleTemplate();
         builder.setTemplate(template.getName());
         return builder.complete();
