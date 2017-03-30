@@ -52,11 +52,11 @@ public class UsagePointLifeCycleStateResource {
     }
 
     /**
-     * @param id Unique identifier of the usage point life cycle
+     * @param id Unique identifier of the usage point life cycle state
      * @param uriInfo uriInfo
      * @param fieldSelection field selection
-     * @return The usage point life cycle as identified
-     * @summary fetch a usage point life cycle by id
+     * @return The usage point life cycle state as identified
+     * @summary Fetch a usage point life cycle state by id
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
@@ -73,8 +73,8 @@ public class UsagePointLifeCycleStateResource {
      * @param uriInfo uriInfo
      * @param fieldSelection field selection
      * @param queryParameters queryParameters
-     * @return Paged list of usage point life cycles
-     * @summary fetch all usage point life cycles
+     * @return Paged list of usage point life cycle states
+     * @summary Fetch all usage point life cycle states
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
@@ -92,6 +92,11 @@ public class UsagePointLifeCycleStateResource {
         return PagedInfoList.from(infos, queryParameters, uriBuilder, uriInfo);
     }
 
+    /**
+     * @param usagePointMrid unique identifier of usage point
+     * @param info UsagePointTransitionInfo
+     * @summary Perform life cycle transition on the usage point
+     */
     @Path("{usagePointMrid}/transition")
     @POST
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
