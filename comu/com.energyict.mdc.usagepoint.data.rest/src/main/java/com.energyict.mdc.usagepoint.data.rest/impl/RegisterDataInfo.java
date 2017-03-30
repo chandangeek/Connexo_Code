@@ -14,9 +14,9 @@ import java.util.List;
 
 /**
  * Represents register data.<br>
- * There are a lot of register types that are represented differently in front end.<br>
- * Type of register type depends on attributes such as {@link RegisterDataInfo#isCumulative}, {@link RegisterDataInfo#hasEvent},
- * {@link RegisterDataInfo#isBilling} etc.<br>
+ * There are a lot of register types, ref to {@link RegisterDataInfoFactory.RegisterType} that are represented differently in front end.<br>
+ * Type of register type depends on attributes such as {@link RegisterDataInfo#isCumulative}, {@link RegisterDataInfo#hasEvent} and
+ * {@link RegisterDataInfo#isBilling}<br>
  * Different set of attributes are used for different register types.
  */
 @XmlRootElement

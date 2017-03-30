@@ -24,7 +24,6 @@ import java.util.Optional;
  */
 public class RegisterDataInfoFactory {
 
-
     private final ReadingQualityInfoFactory readingQualityInfoFactory;
 
     @Inject
@@ -36,15 +35,30 @@ public class RegisterDataInfoFactory {
      * Represents {@link RegisterReadingWithValidationStatus} as {@link RegisterDataInfo}
      *
      * @param readingRecord {@link RegisterReadingWithValidationStatus} object to be represented as {@link RegisterDataInfo}
+     * @param lastChecked {@link RangeMap} representing last checks for register
      * @return {@link RegisterDataInfo} info object
      */
-    public RegisterDataInfo asInfo(RegisterReadingWithValidationStatus readingRecord, RangeMap<Instant, Instant> lastChecked) {
+    RegisterDataInfo asInfo(RegisterReadingWithValidationStatus readingRecord, RangeMap<Instant, Instant> lastChecked) {
         return RegisterType.determineRegisterType(readingRecord)
                 .getRegisterDataInfo(readingQualityInfoFactory, lastChecked);
     }
 
-    private enum RegisterType {
+    /*
+     * RegisterType enum defines all possible (supported) register types
+     * Type of register depends on register reading type and defined by the following attributes
+     *    Is reading type:
+     *       - cumulative
+     *       - having event
+     *       - billing
+     *
+     * Each enum value have to override createRegisterDataInfo method to fill internal registerDataInfo object
+     * by required data. It uses internal functions, that can fill any registerDataInfo field.
+     */
+    enum RegisterType {
         CUMULATIVE_VALUE {
+            /*
+            this type will produce registerDataInfo containing measurement period, collected value and delta value
+             */
             @Override
             void createRegisterDataInfo(RegisterType registerType) {
                 registerType.setMeasurementPeriod();
@@ -53,6 +67,9 @@ public class RegisterDataInfoFactory {
             }
         },
         NOT_CUMULATIVE_VALUE {
+            /*
+            this type will produce registerDataInfo containing measurement period and collected value
+             */
             @Override
             void createRegisterDataInfo(RegisterType registerType) {
                 registerType.setMeasurementTime();
@@ -99,6 +116,20 @@ public class RegisterDataInfoFactory {
             }
         };
 
+
+
+        // internal RegisterDataInfo that will be created by enum instance
+        private RegisterDataInfo registerDataInfo;
+
+        private RegisterReadingWithValidationStatus reading;
+        private static final List<Aggregate> aggregatesWithEventDate = Arrays.asList(Aggregate.MAXIMUM, Aggregate.FIFTHMAXIMIMUM,
+                Aggregate.FOURTHMAXIMUM, Aggregate.MINIMUM, Aggregate.SECONDMAXIMUM, Aggregate.SECONDMINIMUM, Aggregate.THIRDMAXIMUM);
+
+        /*
+            each type will put required data into registerDataInfo object
+         */
+        abstract void createRegisterDataInfo(RegisterType registerType);
+
         private RegisterType withReading(RegisterReadingWithValidationStatus reading) {
             this.reading = reading;
             return this;
@@ -113,6 +144,9 @@ public class RegisterDataInfoFactory {
             return this;
         }
 
+        /**
+         * Method to set measurement period value into registerDataInfo object
+         */
         private void setMeasurementPeriod() {
             Range<Instant> range = null;
             if (registerDataInfo.isCumulative) {
@@ -136,14 +170,23 @@ public class RegisterDataInfoFactory {
             registerDataInfo.measurementPeriod = MeasurementPeriod.from(range);
         }
 
+        /**
+         * Method to set measurement time value into registerDataInfo object
+         */
         private void setMeasurementTime() {
             registerDataInfo.measurementTime = reading.getTimeStamp();
         }
 
+        /**
+         * Method to set collected value into registerDataInfo object
+         */
         private void setCollectedValue() {
             registerDataInfo.collectedValue = reading.getValue();
         }
 
+        /**
+         * Method to set delta value into registerDataInfo object
+         */
         private void setDeltaValue() {
             BigDecimal delta = null;
             BigDecimal value = reading.getValue();
@@ -154,29 +197,52 @@ public class RegisterDataInfoFactory {
             registerDataInfo.deltaValue = delta;
         }
 
+        /**
+         * Method to set event date into registerDataInfo object
+         */
         private void setEventDate() {
             if (registerDataInfo.hasEvent) {
                 registerDataInfo.eventDate = reading.getReadingRecord().getTimeStamp();
             }
         }
 
+        /**
+         * Method to set reading qualities into registerDataInfo object
+         */
         private void setReadingQualities(ReadingQualityInfoFactory readingQualityInfoFactory) {
             registerDataInfo.readingQualities = readingQualityInfoFactory.asInfos(reading.getReadingQualities());
         }
 
+        /**
+         * Method to set validation result into registerDataInfo object
+         */
         private void setValidationResult(RangeMap<Instant, Instant> lastCheckedMap) {
             Optional<Instant> lastChecked = Optional.ofNullable(lastCheckedMap.get(reading.getReadingRecord()
                     .getTimeStamp()));
             registerDataInfo.validationResult = reading.getValidationStatus(lastChecked.orElse(Instant.MIN));
         }
 
-        private RegisterDataInfo registerDataInfo;
-        private RegisterReadingWithValidationStatus reading;
 
-        private static final List<Aggregate> aggregatesWithEventDate = Arrays.asList(Aggregate.MAXIMUM, Aggregate.FIFTHMAXIMIMUM,
-                Aggregate.FOURTHMAXIMUM, Aggregate.MINIMUM, Aggregate.SECONDMAXIMUM, Aggregate.SECONDMINIMUM, Aggregate.THIRDMAXIMUM);
+        /**
+         * Method to create {@link RegisterDataInfo}
+         *
+         * @param readingQualityInfoFactory {@link ReadingQualityInfoFactory} factory to create info objects for reading qualities
+         * @param lastChecked {@link RangeMap} representing last checks for register
+         * @return {@link RegisterDataInfo} info object
+         */
+        public RegisterDataInfo getRegisterDataInfo(ReadingQualityInfoFactory readingQualityInfoFactory, RangeMap<Instant, Instant> lastChecked) {
+            createRegisterDataInfo(this);
+            setReadingQualities(readingQualityInfoFactory);
+            setValidationResult(lastChecked);
+            return registerDataInfo;
+        }
 
-
+        /**
+         * Method to create appropriate {@link RegisterType} instance by using data from {@link RegisterReadingWithValidationStatus}
+         *
+         * @param reading {@link RegisterReadingWithValidationStatus} object representing data about register reading
+         * @return {@link RegisterType} instance
+         */
         public static RegisterType determineRegisterType(RegisterReadingWithValidationStatus reading) {
 
             ReadingType readingType = reading.getReadingRecord().getReadingType();
@@ -185,42 +251,38 @@ public class RegisterDataInfoFactory {
             boolean hasEvent = aggregatesWithEventDate.contains(readingType.getAggregate());
             boolean isBilling = readingType.getMacroPeriod().equals(MacroPeriod.BILLINGPERIOD);
 
-            RegisterType registerType;
+            RegisterType registerType = null;
 
             // event register block
             if (isCumulative && hasEvent && isBilling) {
                 registerType = CUMULATIVE_EVENT_BILLING_VALUE;
-            } else if (hasEvent && isBilling) {
+            }
+            if (hasEvent && isBilling && registerType == null) {
                 registerType = EVENT_BILLING_VALUE;
-            } else if (hasEvent) {
+            }
+            if (hasEvent && registerType == null) {
                 registerType = EVENT_VALUE;
             }
 
             // billing register block
-            if (!isCumulative && isBilling) {
+            if (!isCumulative && isBilling && registerType == null) {
                 registerType = NOT_CUMULATIVE_BILLING_VALUE;
-            } else if (isCumulative && isBilling) {
+            }
+            if (isCumulative && isBilling && registerType == null) {
                 registerType = CUMULATIVE_BILLING_VALUE;
             }
 
             // other
-            if (isCumulative) {
+            if (isCumulative && registerType == null) {
                 registerType = CUMULATIVE_VALUE;
-            } else {
+            }
+
+            if (registerType == null){
                 registerType = NOT_CUMULATIVE_VALUE;
             }
 
             return registerType.withReading(reading)
                     .withRegisterDataInfo(isCumulative, hasEvent, isBilling);
         }
-
-        public RegisterDataInfo getRegisterDataInfo(ReadingQualityInfoFactory readingQualityInfoFactory, RangeMap<Instant, Instant> lastChecked) {
-            createRegisterDataInfo(this);
-            setReadingQualities(readingQualityInfoFactory);
-            setValidationResult(lastChecked);
-            return registerDataInfo;
-        }
-
-        abstract void createRegisterDataInfo(RegisterType registerType);
     }
 }

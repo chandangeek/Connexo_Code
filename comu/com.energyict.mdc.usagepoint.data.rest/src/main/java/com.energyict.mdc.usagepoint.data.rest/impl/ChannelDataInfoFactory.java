@@ -12,9 +12,9 @@ import com.google.common.collect.RangeMap;
 import java.time.Instant;
 import java.util.Optional;
 
-public class ChannelDataInfoFactory {
+class ChannelDataInfoFactory {
 
-    public ChannelDataInfo asInfo(IntervalReadingWithValidationStatus readingRecord, RangeMap<Instant, Instant> lastCheckedMap) {
+    ChannelDataInfo asInfo(IntervalReadingWithValidationStatus readingRecord, RangeMap<Instant, Instant> lastCheckedMap) {
         ChannelDataInfo channelDataInfo = new ChannelDataInfo();
         channelDataInfo.interval = IntervalInfo.from(readingRecord.getTimePeriod());
         channelDataInfo.value = readingRecord.getValue();

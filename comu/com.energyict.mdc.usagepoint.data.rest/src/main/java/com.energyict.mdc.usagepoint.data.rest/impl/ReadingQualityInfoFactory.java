@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Created by dantonov on 30.03.2017.
+ * Factory to create {@link ReadingQualityInfo} info objects from {@link ReadingQuality} objects
  */
 public class ReadingQualityInfoFactory {
 
@@ -24,7 +24,13 @@ public class ReadingQualityInfoFactory {
         this.meteringTranslationService = meteringTranslationService;
     }
 
-    public List<ReadingQualityInfo> asInfos(List<? extends ReadingQuality> readingQualities) {
+    /**
+     * Provide list of {@link ReadingQualityInfo} info objects from list of {@link ReadingQuality} objects
+     *
+     * @param readingQualities list of {@link ReadingQuality} objects to be represented as {@link ReadingQualityInfo} info objects
+     * @return list of {@link ReadingQualityInfo} info objects
+     */
+    List<ReadingQualityInfo> asInfos(List<? extends ReadingQuality> readingQualities) {
         return readingQualities.stream()
                 .map(ReadingQuality::getType)
                 .distinct()

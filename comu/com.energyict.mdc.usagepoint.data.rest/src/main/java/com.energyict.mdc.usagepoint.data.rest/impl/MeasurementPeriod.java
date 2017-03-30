@@ -4,9 +4,6 @@
 
 package com.energyict.mdc.usagepoint.data.rest.impl;
 
-
-
-
 import com.google.common.collect.Range;
 
 import java.time.Instant;

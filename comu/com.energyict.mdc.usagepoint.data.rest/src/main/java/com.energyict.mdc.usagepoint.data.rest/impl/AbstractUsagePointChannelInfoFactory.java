@@ -22,7 +22,7 @@ import java.util.List;
  * Abstract class for providing info objects.<br>
  * Currently, there are {@link UsagePointChannelInfoFactory} and {@link UsagePointRegisterInfoFactory}
  */
-public abstract class AbstractUsagePointChannelInfoFactory {
+abstract class AbstractUsagePointChannelInfoFactory {
 
     abstract DeviceService getDeviceService();
 

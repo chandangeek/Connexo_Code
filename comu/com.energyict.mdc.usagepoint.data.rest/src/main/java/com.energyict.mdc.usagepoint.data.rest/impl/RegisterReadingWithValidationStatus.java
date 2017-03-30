@@ -20,7 +20,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
- * Represents {@link ReadingRecord} with validation status. <br>
+ * Represents {@link ReadingRecord} with validation status.<br>
+ * This object is used to put all required reading record data together<br>
  * Data, collected by this class will be represented as {@link RegisterDataInfo} by corresponding factory
  */
 public class RegisterReadingWithValidationStatus {
@@ -30,7 +31,13 @@ public class RegisterReadingWithValidationStatus {
     private ReadingRecord previousReadingRecord;
     private List<? extends ReadingQuality> suspectReadingQualities = new ArrayList<>();
 
-    public RegisterReadingWithValidationStatus(ZonedDateTime readingTimeStamp, ReadingRecord readingRecord) {
+    /**
+     * Constructor
+     *
+     * @param readingTimeStamp {@link ZonedDateTime} time of reading
+     * @param readingRecord {@link ReadingRecord} reading record
+     */
+    RegisterReadingWithValidationStatus(ZonedDateTime readingTimeStamp, ReadingRecord readingRecord) {
         this.readingTimeStamp = readingTimeStamp;
         this.readingRecord = readingRecord;
         if (readingRecord != null) {
@@ -41,23 +48,49 @@ public class RegisterReadingWithValidationStatus {
         }
     }
 
-    public void setPreviousReadingRecord(ReadingRecord previousReadingRecord) {
+    /**
+     * Method to set previous reading record
+     *
+     * @param previousReadingRecord {@link ReadingRecord} previous reading record. may be null
+     */
+    void setPreviousReadingRecord(ReadingRecord previousReadingRecord) {
         this.previousReadingRecord = previousReadingRecord;
     }
 
-    public Optional<ReadingRecord> getPreviousReadingRecord() {
+    /**
+     * Method to provide previous reading record
+     *
+     * @return {@link Optional} of {@link ReadingRecord} previous reading record
+     */
+    Optional<ReadingRecord> getPreviousReadingRecord() {
         return previousReadingRecord == null ? Optional.empty() : Optional.of(previousReadingRecord);
     }
 
-    public ReadingRecord getReadingRecord() {
+    /**
+     * Method to provide actual {@link ReadingRecord} reading record
+     *
+     * @return {@link ReadingRecord} reading record
+     */
+    ReadingRecord getReadingRecord() {
         return readingRecord;
     }
 
-    public BigDecimal getValue() {
+    /**
+     * Method to provide numeric value from reading
+     *
+     * @return {@link BigDecimal} value
+     */
+    BigDecimal getValue() {
         return readingRecord.getValue();
     }
 
-    public ValidationStatus getValidationStatus(Instant lastChecked) {
+    /**
+     * Method to provide {@link ValidationStatus} for reading
+     *
+     * @param lastChecked {@link Instant} representing last checks for register
+     * @return {@link ValidationStatus} instance
+     */
+    ValidationStatus getValidationStatus(Instant lastChecked) {
         if (getTimeStamp().isAfter(lastChecked)) {
             return ValidationStatus.NOT_VALIDATED;
         }
@@ -68,11 +101,21 @@ public class RegisterReadingWithValidationStatus {
         }
     }
 
-    public Instant getTimeStamp() {
+    /**
+     * Method to get reading time
+     *
+     * @return {@link Instant} time of reading
+     */
+    Instant getTimeStamp() {
         return this.readingTimeStamp.toInstant();
     }
 
-    public List<? extends ReadingQuality> getReadingQualities() {
+    /**
+     * Method to provide {@link ReadingQuality} suspected reading qualities
+     *
+     * @return list of suspected {@link ReadingQuality} reading qualities
+     */
+    List<? extends ReadingQuality> getReadingQualities() {
         return suspectReadingQualities.stream().collect(Collectors.toList());
     }
 }

@@ -4,19 +4,18 @@
 
 package com.energyict.mdc.usagepoint.data.rest.impl;
 
-import com.elster.jupiter.validation.ValidationResult;
-
+/**
+ * Enum to represent validation status for reading
+ */
 public enum ValidationStatus {
-    OK("validationStatus.ok", ValidationResult.VALID),
-    SUSPECT("validationStatus.suspect", ValidationResult.SUSPECT),
-    NOT_VALIDATED("validationStatus.notValidated", ValidationResult.NOT_VALIDATED);
+    OK("validationStatus.ok"),
+    SUSPECT("validationStatus.suspect"),
+    NOT_VALIDATED("validationStatus.notValidated");
 
     private final String nameKey;
-    private final ValidationResult match;
 
-    ValidationStatus(String nameKey, ValidationResult match) {
+    ValidationStatus(String nameKey) {
         this.nameKey = nameKey;
-        this.match = match;
     }
 
     public String getNameKey() {
@@ -26,14 +25,5 @@ public enum ValidationStatus {
     @Override
     public String toString() {
         return getNameKey();
-    }
-
-    public static ValidationStatus forResult(ValidationResult result) {
-        for (ValidationStatus validationStatus : values()) {
-            if (validationStatus.match.equals(result)) {
-                return validationStatus;
-            }
-        }
-        return null;
     }
 }
