@@ -22,7 +22,7 @@ import java.util.List;
  * </body>
  * </table>
  * <p/>
- * Copyrights EnergyICT
+ *
  * Date: 26/11/12
  * Time: 15:31
  *

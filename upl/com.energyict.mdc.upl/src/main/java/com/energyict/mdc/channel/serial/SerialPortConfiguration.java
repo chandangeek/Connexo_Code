@@ -9,7 +9,7 @@ import java.time.temporal.TemporalAmount;
 /**
  * Groups relevant serial port configuration options
  * <p>
- * Copyrights EnergyICT
+ *
  * Date: 14/08/12
  * Time: 13:23
  */

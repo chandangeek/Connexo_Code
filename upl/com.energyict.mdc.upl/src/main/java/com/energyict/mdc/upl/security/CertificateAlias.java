@@ -6,7 +6,7 @@ import java.security.cert.CertificateException;
 /**
  * Models a certificate alias as a String.
  * <p>
- * Copyrights EnergyICT
+ *
  * Date: 08/12/16
  * Time: 15:03
  */

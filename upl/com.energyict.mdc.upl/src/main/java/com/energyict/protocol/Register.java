@@ -3,7 +3,7 @@ package com.energyict.protocol;
 import com.energyict.obis.ObisCode;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 4-feb-2011
  * Time: 9:54:07
  */

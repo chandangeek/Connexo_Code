@@ -13,7 +13,7 @@ import java.net.SocketException;
 /**
  * Straightforward version of an inbound UDP session.
  * <p>
- * Copyrights EnergyICT
+ *
  * Date: 9/11/12
  * Time: 10:56
  */

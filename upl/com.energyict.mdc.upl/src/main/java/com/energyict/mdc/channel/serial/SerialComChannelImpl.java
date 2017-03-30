@@ -10,7 +10,7 @@ import com.energyict.mdc.protocol.SerialPortComChannel;
  * Implementing the {@link SerialPortComChannel} interface allows protocols to change the baud rate and the line control parameters.
  * This is e.g. necessary for doing an IEC1107 HHU sign on.
  * <p>
- * Copyrights EnergyICT
+ *
  * Date: 17/08/12
  * Time: 9:34
  */

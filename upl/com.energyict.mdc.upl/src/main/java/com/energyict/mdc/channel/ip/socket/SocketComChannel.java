@@ -11,7 +11,7 @@ import java.net.Socket;
  * Creates a simple {@link com.energyict.mdc.protocol.ComChannel}
  * wrapped around a {@link Socket}
  * <p/>
- * Copyrights EnergyICT
+ *
  * Date: 17/08/12
  * Time: 16:33
  */

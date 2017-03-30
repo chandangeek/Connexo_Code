@@ -4,7 +4,6 @@ import com.energyict.mdc.upl.DeviceProtocol;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
 import com.energyict.mdc.upl.offline.Offline;
-
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import javax.xml.bind.annotation.XmlAttribute;
@@ -16,7 +15,7 @@ import java.util.List;
  * Represents an Offline version of a {@link com.energyict.mdc.upl.messages.DeviceMessage}
  * which should contain all necessary information needed to perform the actual DeviceMessage.
  * <p>
- * Copyrights EnergyICT
+ *
  * Date: 18/02/13
  * Time: 16:27
  */

@@ -21,7 +21,7 @@ import java.util.List;
 /**
  * Provides an implementation for the {@link ModemComponent} interface
  * for the standard AT modem type.<br>
- * Copyrights EnergyICT
+ *
  * Date: 20/11/12
  * Time: 17:00
  */

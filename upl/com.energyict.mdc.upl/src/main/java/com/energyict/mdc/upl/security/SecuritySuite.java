@@ -7,7 +7,7 @@ import java.util.List;
  * A security set can have one or more security suites that
  * each specifies a number of supported security levels.
  * <p>
- * Copyrights EnergyICT
+ *
  *
  * @author khe
  * @since 5/02/2016 - 17:20

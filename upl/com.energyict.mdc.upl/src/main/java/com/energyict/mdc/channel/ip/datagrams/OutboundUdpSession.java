@@ -8,7 +8,7 @@ import java.net.InetSocketAddress;
 /**
  * Straightforward version of an Outbound UDP session
  * <p>
- * Copyrights EnergyICT
+ *
  * Date: 9/11/12
  * Time: 11:41
  */

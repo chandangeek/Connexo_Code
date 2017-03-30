@@ -11,7 +11,7 @@ import com.energyict.mdc.upl.io.VirtualUdpSession;
  * Note that this comChannel is marked to FIRST WRITE data, if reading is your first task,
  * make sure you call the proper {@link #startReading()} method.
  * <p>
- * Copyrights EnergyICT
+ *
  * Date: 5/11/12
  * Time: 15:26
  */

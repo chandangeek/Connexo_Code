@@ -3,7 +3,7 @@ package com.energyict.mdc.upl.migration;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
 /**
- * Copyrights EnergyICT
+ *
  *
  * @author khe
  * @since 19/01/2015 - 14:48

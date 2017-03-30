@@ -3,7 +3,7 @@ package com.energyict.mdc.channel.serial;
 /**
  * Provides functionality to manipulate the signals of the Serial Port
  * <p/>
- * Copyrights EnergyICT
+ *
  * Date: 24/08/12
  * Time: 16:00
  */

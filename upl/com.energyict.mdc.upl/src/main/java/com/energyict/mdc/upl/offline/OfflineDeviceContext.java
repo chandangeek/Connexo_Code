@@ -3,7 +3,7 @@ package com.energyict.mdc.upl.offline;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 14/03/13
  * Time: 14:42
  */

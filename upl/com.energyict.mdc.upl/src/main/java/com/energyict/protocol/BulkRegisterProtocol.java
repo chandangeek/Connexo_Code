@@ -13,7 +13,7 @@ import java.util.List;
  * readRegisters(...) method is used by the collection software at runtime to
  * retrieve the meter's register value for the given List of ObisCodes.
  * <p/>
- * Copyrights EnergyICT
+ *
  * Date: 4-feb-2011
  * Time: 9:54:07
  */

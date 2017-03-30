@@ -5,7 +5,7 @@ import com.energyict.obis.ObisCode;
 import java.util.List;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 9/23/13
  * Time: 11:05 AM
  */

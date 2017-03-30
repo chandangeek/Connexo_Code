@@ -5,7 +5,7 @@ import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 /**
  * Straightforward ValueObject for a Topology neighbour
  * <p>
- * Copyrights EnergyICT
+ *
  * Date: 1/5/15
  * Time: 9:49 AM
  */

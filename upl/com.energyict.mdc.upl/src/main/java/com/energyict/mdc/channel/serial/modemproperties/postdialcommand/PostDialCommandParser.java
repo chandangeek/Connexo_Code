@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * Copyrights EnergyICT
+ *
  *
  * @author khe
  * @since 20/01/2017 - 13:09

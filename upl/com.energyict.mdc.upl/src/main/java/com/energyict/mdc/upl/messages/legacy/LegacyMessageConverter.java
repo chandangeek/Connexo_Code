@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * Provides functionality to do conversion between the new and old-style device message specs.
  * <p/>
- * Copyrights EnergyICT
+ *
  * Date: 8/03/13
  * Time: 16:15
  */

@@ -7,14 +7,13 @@ import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
 import com.energyict.mdc.upl.security.CertificateAlias;
-
 import com.energyict.obis.ObisCode;
 
 import java.security.cert.X509Certificate;
 import java.util.List;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 8/05/13
  * Time: 16:30
  */

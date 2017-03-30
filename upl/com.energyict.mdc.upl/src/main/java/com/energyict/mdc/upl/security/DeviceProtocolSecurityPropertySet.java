@@ -9,7 +9,7 @@ import com.energyict.mdc.upl.properties.TypedProperties;
  * and/or {@link EncryptionDeviceAccessLevel} select in the SecurityPropertySet.
  * That in turn depends on the actual {@link DeviceProtocolSecurityCapabilities}.
  * <p/>
- * Copyrights EnergyICT
+ *
  * Date: 21/01/13
  * Time: 15:24
  */

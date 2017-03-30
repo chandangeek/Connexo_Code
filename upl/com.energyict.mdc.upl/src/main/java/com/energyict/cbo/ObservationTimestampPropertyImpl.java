@@ -8,7 +8,7 @@ import java.util.Date;
 /**
  * Used in the collected DeviceTopology to indicate when a readout slave device was last seen by the gateway/DC.
  * <p>
- * Copyrights EnergyICT
+ *
  *
  * @author khe
  * @since 5/04/2016 - 11:17

@@ -6,7 +6,7 @@ import java.util.stream.Stream;
  * Common known reading qualities that can be readout from a device, by a protocol.
  * These were previously known as interval flags.
  * <p>
- * Copyrights EnergyICT
+ *
  *
  * @author khe
  * @since 13/05/2016 - 17:08

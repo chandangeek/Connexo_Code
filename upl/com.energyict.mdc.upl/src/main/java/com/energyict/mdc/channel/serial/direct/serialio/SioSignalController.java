@@ -9,7 +9,7 @@ import java.io.IOException;
 /**
  * The SignalController for a SerialPort working with the SerialIO library
  * <p>
- * Copyrights EnergyICT
+ *
  * Date: 24/08/12
  * Time: 16:19
  */

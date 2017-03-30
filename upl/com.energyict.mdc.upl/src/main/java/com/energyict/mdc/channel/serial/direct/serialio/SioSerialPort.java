@@ -22,7 +22,7 @@ import java.math.BigDecimal;
 /**
  * A hardware SerialPort driven by the SerialIO java library.
  * <p>
- * Copyrights EnergyICT
+ *
  * Date: 17/08/12
  * Time: 11:43
  *

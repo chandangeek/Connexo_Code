@@ -16,7 +16,7 @@ import java.nio.ByteBuffer;
 /**
  * The abstract UDP session handles the Input- and OutputStream as well as the common components.
  * <p>
- * Copyrights EnergyICT
+ *
  * Date: 9/11/12
  * Time: 10:57
  */

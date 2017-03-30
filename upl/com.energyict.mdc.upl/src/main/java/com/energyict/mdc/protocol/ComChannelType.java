@@ -3,7 +3,7 @@ package com.energyict.mdc.protocol;
 /**
  * This type can be used by the protocols to determine which connection layer should be used.
  * <p>
- * Copyrights EnergyICT
+ *
  * Date: 7/11/13
  * Time: 9:27
  * Author: khe

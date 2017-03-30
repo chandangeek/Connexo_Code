@@ -6,7 +6,7 @@ import com.energyict.mdc.upl.security.ResponseSecurityLevel;
 import com.energyict.mdc.upl.security.SecuritySuite;
 
 /**
- * Copyrights EnergyICT
+ *
  *
  * @author khe
  * @since 8/02/2016 - 11:33

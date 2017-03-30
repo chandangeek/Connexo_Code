@@ -23,7 +23,7 @@ import java.util.Set;
 /**
  * A hardware SerialPort driven by the Rx/Tx java library
  * <p>
- * Copyrights EnergyICT
+ *
  * Date: 14/08/12
  * Time: 15:41
  *

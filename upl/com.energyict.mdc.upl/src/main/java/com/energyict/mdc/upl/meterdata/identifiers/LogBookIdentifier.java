@@ -17,7 +17,7 @@ import javax.xml.bind.annotation.XmlAttribute;
  * <tr><td>Actual</td><td>databaseValue -&gt; the log book's database identifier<br>actual -&gt; the log book</td></tr>
  * </table>
  * <p/>
- * Copyrights EnergyICT
+ *
  * Date: 16/10/12
  * Time: 8:32
  */

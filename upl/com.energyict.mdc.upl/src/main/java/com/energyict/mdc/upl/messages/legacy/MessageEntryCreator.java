@@ -5,7 +5,7 @@ import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 /**
  * Defines functionality to create {@link MessageEntry MessageEntries}.
  * <p/>
- * Copyrights EnergyICT
+ *
  * Date: 12/03/13
  * Time: 14:29
  */

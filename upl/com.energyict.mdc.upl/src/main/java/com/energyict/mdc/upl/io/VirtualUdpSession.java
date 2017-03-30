@@ -8,7 +8,7 @@ import java.net.DatagramSocket;
 /**
  * Models the fact that an UDP session has no real session, but want to use an Input- and OutputStream.
  * <p/>
- * Copyrights EnergyICT
+ *
  * Date: 9/11/12
  * Time: 10:56
  */

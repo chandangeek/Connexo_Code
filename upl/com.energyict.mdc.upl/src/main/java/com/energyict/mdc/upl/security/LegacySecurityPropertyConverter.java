@@ -6,7 +6,7 @@ import com.energyict.mdc.upl.properties.TypedProperties;
  * Converts the <i>new</i> {@link DeviceProtocolSecurityPropertySet}
  * to old property values which are used in legacy protocols.
  *
- * Copyrights EnergyICT
+ *
  * Date: 22/01/13
  * Time: 9:15
  */

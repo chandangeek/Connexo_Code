@@ -6,7 +6,7 @@ import gnu.io.SerialPort;
 /**
  * The SignalController for a SerialPort working with the RxTx library.
  * <p>
- * Copyrights EnergyICT
+ *
  * Date: 24/08/12
  * Time: 16:23
  */

@@ -8,7 +8,7 @@ import javax.xml.bind.annotation.XmlElement;
 /**
  * Represents an Offline version of a DeviceMessageAttribute.
  * <p/>
- * Copyrights EnergyICT
+ *
  * Date: 18/02/13
  * Time: 16:34
  */

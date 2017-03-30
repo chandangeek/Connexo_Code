@@ -12,7 +12,7 @@ import com.energyict.mdc.upl.messages.DeviceMessage;
  * <tr><td>Actual</td><td>databaseValue -&gt; the message's database identifier<br>actual -&gt; the device message</td></tr>
  * </table>
  * <p>
- * Copyrights EnergyICT
+ *
  * Date: 22/03/13
  * Time: 8:59
  */

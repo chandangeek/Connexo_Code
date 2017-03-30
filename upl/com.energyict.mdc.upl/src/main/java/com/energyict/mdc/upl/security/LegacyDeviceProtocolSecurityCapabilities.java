@@ -3,7 +3,7 @@ package com.energyict.mdc.upl.security;
 import java.util.List;
 
 /**
- * Copyrights EnergyICT
+ *
  *
  * @author khe
  * @since 9/10/2014 - 17:58

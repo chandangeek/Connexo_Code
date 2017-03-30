@@ -9,7 +9,7 @@ import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
  * (e.g. change from DlmsSecuritySupport to DlmsSecuritySuite1And2Support) and support the migration of old, existing security
  * properties (e.g. Password, EncryptionKey, etc) that were created for the previous security set, to the security set of the new type.
  * <p/>
- * Copyrights EnergyICT
+ *
  *
  * @author khe
  * @since 3/02/2016 - 13:46

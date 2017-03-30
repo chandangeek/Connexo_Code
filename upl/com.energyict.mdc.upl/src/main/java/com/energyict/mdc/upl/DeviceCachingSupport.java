@@ -6,7 +6,7 @@ import com.energyict.mdc.upl.cache.DeviceProtocolCache;
  * Provides functionality to allow to fetch and store certain cache objects a {@link DeviceProtocol}
  * can reuse across different communication sessions.
  * <p/>
- * Copyrights EnergyICT
+ *
  * Date: 31/08/12
  * Time: 14:23
  */

@@ -4,7 +4,7 @@ import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.SerialPortComChannel;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 09/12/16
  * Time: 15:23
  */

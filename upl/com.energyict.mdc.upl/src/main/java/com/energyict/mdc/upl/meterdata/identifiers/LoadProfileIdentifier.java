@@ -16,7 +16,7 @@ import com.energyict.obis.ObisCode;
  * <tr><td>Actual</td><td>databaseValue -&gt; the load profile's database identifier<br>actual -&gt; the load profile</td></tr>
  * </table>
  * <p/>
- * Copyrights EnergyICT
+ *
  * Date: 15/10/12
  * Time: 14:01
  */

@@ -7,7 +7,7 @@ import com.energyict.mdc.upl.meterdata.Device;
  * for identifier types that are not guaranteed to be unique
  * and may therefore return multiple Devices.
  * <p>
- * Copyrights EnergyICT
+ *
  * Date: 9/25/13
  * Time: 11:05 AM
  */

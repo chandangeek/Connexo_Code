@@ -5,7 +5,7 @@ import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 /**
  * Straightforward ValueObject for the G3 deviceAddressInformation
  * <p>
- * Copyrights EnergyICT
+ *
  * Date: 1/13/15
  * Time: 12:11 PM
  */

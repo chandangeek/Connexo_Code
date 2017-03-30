@@ -7,7 +7,7 @@ import com.energyict.mdc.channel.serial.ServerSerialPort;
  * Implementers of this interface allow protocols to change the baud rate and the line control parameters of this ComChannel.
  * This is e.g. necessary for doing an IEC1107 HHU sign on.
  * <p>
- * Copyrights EnergyICT
+ *
  * Date: 8/11/13
  * Time: 13:56
  * Author: khe

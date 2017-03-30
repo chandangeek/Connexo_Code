@@ -6,7 +6,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 15/03/13
  * Time: 13:19
  */

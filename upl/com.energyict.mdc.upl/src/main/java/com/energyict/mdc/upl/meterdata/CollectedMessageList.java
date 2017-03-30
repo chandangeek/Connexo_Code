@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
  * A CollectedMessageList identifies a list of {@link com.energyict.mdc.upl.messages.DeviceMessage}s
  * executed by the device and the result from the execution.
  * <p>
- * Copyrights EnergyICT
+ *
  * Date: 21/03/13
  * Time: 16:31
  */
