@@ -6,7 +6,6 @@ package com.energyict.mdc.rest.impl.comserver;
 
 import com.energyict.mdc.channel.serial.Parities;
 import com.energyict.mdc.common.rest.MapBasedXmlAdapter;
-import com.energyict.mdc.io.Parities;
 
 public class ParitiesAdapter extends MapBasedXmlAdapter<Parities> {
 

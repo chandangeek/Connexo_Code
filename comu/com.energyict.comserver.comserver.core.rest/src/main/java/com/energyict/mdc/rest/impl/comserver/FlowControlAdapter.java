@@ -6,7 +6,6 @@ package com.energyict.mdc.rest.impl.comserver;
 
 import com.energyict.mdc.channel.serial.FlowControl;
 import com.energyict.mdc.common.rest.MapBasedXmlAdapter;
-import com.energyict.mdc.io.FlowControl;
 
 public class FlowControlAdapter extends MapBasedXmlAdapter<FlowControl> {
 
