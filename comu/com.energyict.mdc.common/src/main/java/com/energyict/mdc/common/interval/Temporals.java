@@ -9,7 +9,7 @@ import java.time.temporal.TemporalAmount;
 /**
  * Provides utility methods for TemporalAmount classes.
  * <p>
- * Copyrights EnergyICT
+ *
  *
  * @author khe
  * @since 17/01/2017 - 10:18
