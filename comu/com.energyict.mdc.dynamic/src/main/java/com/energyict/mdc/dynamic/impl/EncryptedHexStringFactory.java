@@ -10,7 +10,7 @@ import com.energyict.mdc.common.HexString;
 import javax.inject.Inject;
 
 /**
- * Copyrights EnergyICT
+ *
  * Date: 10/08/2016
  * Time: 13:40
  */
