@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeAddRegisterTypesGrid', {
     extend: 'Uni.view.grid.BulkSelection',
     alias: 'widget.load-profile-type-add-register-types-grid',

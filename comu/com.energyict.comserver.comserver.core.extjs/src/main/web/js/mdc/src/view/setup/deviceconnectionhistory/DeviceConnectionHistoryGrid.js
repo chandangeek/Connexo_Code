@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionHistoryGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.deviceConnectionHistoryGrid',
@@ -71,6 +75,7 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionHistoryGrid',
             {
                 itemId: 'action',
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 menu: {
                     xtype: 'mdc-device-connection-history-grid-action-menu'
                 }

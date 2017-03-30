@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.model.ChannelOfLoadProfileOfDeviceData', {
     extend: 'Ext.data.Model',
     idProperty: 'interval_end',
@@ -9,12 +13,14 @@ Ext.define('Mdc.model.ChannelOfLoadProfileOfDeviceData', {
         {name: 'collectedValue', type: 'float', useNull: true},
         {name: 'intervalFlags', type: 'auto'},
         {name: 'validationStatus', type: 'auto'},
+        {name: 'estimatedNotSaved', type: 'auto'},
         {name: 'validationActive', type: 'auto'},
         {name: 'mainValidationInfo', type: 'auto'},
         {name: 'bulkValidationInfo', type: 'auto'},
         {name: 'confirmed', type: 'auto'},
         {name: 'dataValidated', type: 'auto'},
         {name: 'multiplier', type: 'auto'},
+        {name: 'reportedDateTime', dateFormat: 'time',type: 'date'},
         {name: 'slaveChannel', type: 'auto', defaultValue: null},
         'plotband',
         {name: 'readingQualities', type: 'auto', defaultValue: null},
@@ -50,6 +56,17 @@ Ext.define('Mdc.model.ChannelOfLoadProfileOfDeviceData', {
                     main: data.mainValidationInfo ? data.mainValidationInfo.validationResult.split('.')[1] : '',
                     bulk: data.bulkValidationInfo ? data.bulkValidationInfo.validationResult.split('.')[1] : ''
                 }
+            }
+        },
+        {
+            name: 'estimatedNotSaved',
+            persist: false,
+            mapping: function (data) {
+                return data.mainValidationInfo && data.mainValidationInfo.estimatedNotSaved
+                        ? true
+                        : data.bulkValidationInfo && data.bulkValidationInfo.estimatedNotSaved
+                            ? true
+                            : false
             }
         },
         {

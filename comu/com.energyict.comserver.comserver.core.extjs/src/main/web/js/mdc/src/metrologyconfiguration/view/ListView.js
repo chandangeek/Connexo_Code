@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.metrologyconfiguration.view.ListView', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.metrology-configurations-list-view',

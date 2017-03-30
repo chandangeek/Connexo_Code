@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.deviceregisterconfiguration.text.Detail', {
     extend: 'Mdc.view.setup.deviceregisterconfiguration.GeneralDetail',
     alias: 'widget.deviceRegisterConfigurationDetail-text',
@@ -84,7 +88,8 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.text.Detail', {
                                     },
                                     {
                                         fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.latestValue', 'MDC', 'Latest value'),
-                                        name: 'value'
+                                        name: 'value',
+                                        width: 450
                                     }
                                 ]
                             },

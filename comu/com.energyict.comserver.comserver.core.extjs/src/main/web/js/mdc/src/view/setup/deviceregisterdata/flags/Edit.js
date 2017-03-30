@@ -1,10 +1,15 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.deviceregisterdata.flags.Edit', {
     extend: 'Mdc.view.setup.deviceregisterdata.MainEdit',
     alias: 'widget.deviceregisterreportedit-flags',
     itemId: 'deviceregisterreportedit',
 
     requires: [
-        'Uni.form.field.DateTime'
+        'Uni.form.field.DateTime',
+        'Uni.util.FormErrorMessage'
     ],
 
     setEdit: function (edit, returnLink) {
@@ -38,15 +43,9 @@ Ext.define('Mdc.view.setup.deviceregisterdata.flags.Edit', {
                 },
                 items: [
                     {
-                        name: 'errors',
-                        ui: 'form-error-framed',
                         itemId: 'registerDataEditFormErrors',
-                        layout: 'hbox',
-                        margin: '0 0 10 0',
-                        hidden: true,
-                        defaults: {
-                            xtype: 'container'
-                        }
+                        xtype: 'uni-form-error-message',
+                        hidden: true
                     },
                     {
                         xtype: 'displayfield',

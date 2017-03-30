@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.model.Register', {
     extend: 'Mdc.model.RegisterConfiguration',
     fields: [
@@ -31,6 +35,8 @@ Ext.define('Mdc.model.Register', {
             }
         },
         {name: 'isCumulative', type: 'boolean'},
+        {name: 'hasEvent', type: 'boolean'},
+        {name: 'isBilling', type: 'boolean'},
         {name: 'timeStamp', mapping: 'lastReading.timeStamp', useNull: true},
         {name: 'reportedDateTime', mapping: 'lastReading.reportedDateTime', useNull: true},
         {name: 'interval', mapping: 'lastReading.interval', useNull: true},

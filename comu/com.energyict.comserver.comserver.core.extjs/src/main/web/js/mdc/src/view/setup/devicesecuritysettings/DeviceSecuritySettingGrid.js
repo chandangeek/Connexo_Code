@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.deviceSecuritySettingGrid',
@@ -49,6 +53,7 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingGrid', {
             },
             {
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 privileges:Mdc.privileges.DeviceSecurity.viewOrEditLevels,
                 menu: {
                     xtype: 'device-security-setting-action-menu',

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.customattributesonvaluesobjects.view.form.OverlapGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.custom-attribute-set-versions-overlap-grid',

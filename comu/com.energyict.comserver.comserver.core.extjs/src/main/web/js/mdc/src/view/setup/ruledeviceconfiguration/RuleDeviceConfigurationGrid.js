@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.ruledeviceconfiguration.RuleDeviceConfigurationGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.rule-device-configuration-grid',
@@ -23,6 +27,7 @@ Ext.define('Mdc.view.setup.ruledeviceconfiguration.RuleDeviceConfigurationGrid',
             },
             {
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 privileges: Cfg.privileges.Validation.deviceConfiguration,
                 menu: {
                     xtype: 'rule-device-configuration-action-menu'

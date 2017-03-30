@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.util.DeviceDataValidationActivation', {
     requires: [
         'Mdc.view.setup.device.DeviceDataValidationPanel',
@@ -41,8 +45,9 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
             success: function (response) {
                 var res = Ext.JSON.decode(response.responseText);
                 if (view.down('#dataValidationStatusPanel')) {
+                    var validateOnStorage = res.isStorage?'(' + Uni.I18n.translate('general.validateOnStore', 'MDC', 'Validate data on storage') + ')':'(' + Uni.I18n.translate('general.validateOnValidationTask', 'MDC', 'Validate data using validation task')+')';
                     view.down('#deviceDataValidationStatusField').setValue(res.isActive ?
-                        Uni.I18n.translate('general.active', 'MDC', 'Active') :
+                        Uni.I18n.translate('general.active', 'MDC', 'Active') + ' ' + validateOnStorage:
                         Uni.I18n.translate('general.inactive', 'MDC', 'Inactive')
                     );
                     if (!!view.down('#deviceDataValidationStateChangeBtn')) {
@@ -71,6 +76,8 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
         var me = this,
             confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
                 itemId: 'activationConfirmationWindow',
+                green: true,
+                confirmBtnUi: 'action',
                 confirmText: Uni.I18n.translate('general.activate', 'MDC', 'Activate'),
 				confirmAndRunText: Uni.I18n.translate('general.activateAndRun', 'MDC', 'Activate & Run'),
                 confirmation: function () {
@@ -82,7 +89,7 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
 				
             });
         Ext.Ajax.request({
-            url: '/api/ddr/devices/' + encodeURIComponent(me.deviceId) + '/validationrulesets/validationstatusactivation',
+            url: '/api/ddr/devices/' + encodeURIComponent(me.deviceId) + '/validationrulesets/validationstatus',
             method: 'GET',
             timeout: 60000,
             success: function (response) {
@@ -93,7 +100,7 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
                 } else {
                     me.dataValidationLastChecked = new Date();
                 }
-				if (res.isStorage) {
+				if (res.validateOnStorageConfiguration) {
                     me.validationOnStorage = true;
                 } else {
                     me.validationOnStorage = false;
@@ -215,8 +222,8 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
                     }
                 }).show({
                     ui: 'notification-error',
-                    title: Uni.I18n.translate('device.dataValidation.timeout.title', 'MDC', 'Data validation takes longer as expected'),
-                    msg: Uni.I18n.translate('device.dataValidation.timeout.msg', 'MDC', 'Data validation takes longer as expected. Data validation will continue in the background'),
+                    title: Uni.I18n.translate('device.dataValidation.timeout.title1', 'MDC', 'Data validation takes longer than expected'),
+                    msg: Uni.I18n.translate('device.dataValidation.timeout.message', 'MDC', 'Data validation takes longer than expected and will continue in the background.'),
                     icon: Ext.MessageBox.ERROR
                 });
             }

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.devicecommunicationtask.DeviceCommunicationTaskPreview', {
     extend: 'Ext.panel.Panel',
     frame: true,
@@ -145,11 +149,6 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.DeviceCommunicationTaskPrevie
                                     xtype: 'displayfield',
                                     name: 'securitySettings',
                                     fieldLabel: Uni.I18n.translate('deviceCommunicationTask.securitySettings', 'MDC', 'Security settings')
-                                },
-                                {
-                                    xtype: 'displayfield',
-                                    name: 'protocolDialect',
-                                    fieldLabel: Uni.I18n.translate('deviceCommunicationTask.protocolDialect', 'MDC', 'Protocol dialect')
                                 },
                                 {
                                     xtype: 'displayfield',

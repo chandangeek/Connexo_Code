@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.deviceregisterdata.flags.Preview', {
     extend: 'Mdc.view.setup.deviceregisterdata.MainPreview',
     alias: 'widget.deviceregisterreportpreview-flags',
@@ -12,14 +16,14 @@ Ext.define('Mdc.view.setup.deviceregisterdata.flags.Preview', {
                 name: 'timeStamp',
                 renderer: me.renderDateTimeLong
             },
-            {
-                fieldLabel: Uni.I18n.translate('device.registerData.readingTime', 'MDC', 'Reading time'),
-                name: 'reportedDateTime',
-                renderer: me.renderDateTimeLong
-            },
+            //{
+            //    fieldLabel: Uni.I18n.translate('device.registerData.readingTime', 'MDC', 'Reading time'),
+            //    name: 'reportedDateTime',
+            //    renderer: me.renderDateTimeLong
+            //},
             {
                 xtype: 'fieldcontainer',
-                fieldLabel: Uni.I18n.translate('device.registerData.value', 'MDC', 'Value'),
+                fieldLabel: Uni.I18n.translate('device.registerData.collectedValue', 'MDC', 'Collected value'),
                 layout: {
                     type: 'hbox'
                 },
@@ -34,6 +38,16 @@ Ext.define('Mdc.view.setup.deviceregisterdata.flags.Preview', {
                         name: 'modificationState'
                     }
                 ]
+            },
+            {
+                fieldLabel: Uni.I18n.translate('device.registerData.lastUpdated', 'MDC', 'Last updated'),
+                name: 'reportedDateTime',
+                renderer: function(value){
+                    if(value) {
+                        var date = new Date(value);
+                        return Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}', [Uni.DateTime.formatDateShort(date), Uni.DateTime.formatTimeShort(date)]);
+                    }
+                }
             }
         ];
     }

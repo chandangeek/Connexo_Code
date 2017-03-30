@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Grid', {
     extend: 'Mdc.view.setup.deviceregisterdata.MainGrid',
     alias: 'widget.deviceregisterreportgrid-numerical',
@@ -19,6 +23,30 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Grid', {
                 flex: 1
             },
             {
+                header: Uni.I18n.translate('general.measurementPeriod', 'MDC', 'Measurement period'),
+                dataIndex: 'interval',
+                renderer: function (value) {
+                    if(!Ext.isEmpty(value)) {
+                        var endDate = new Date(value.end);
+                        if (!!value.start && !!value.end) {
+                            var startDate = new Date(value.start);
+                            return Uni.DateTime.formatDateTimeShort(startDate) + ' - ' + Uni.DateTime.formatDateTimeShort(endDate);
+                        } else {
+                            return Uni.DateTime.formatDateTimeShort(endDate);
+                        }
+                    }
+                    return '-';
+                },
+                flex: 2
+            },
+            {
+                header: Uni.I18n.translate('device.registerData.eventTime', 'MDC', 'Event time'),
+                dataIndex: 'eventDate',
+                itemId: 'eventTime',
+                renderer: me.renderMeasurementTime,
+                flex: 1
+            },
+            {
                 xtype: 'validation-flag-column',
                 dataIndex: 'value',
                 align: 'right',
@@ -29,11 +57,14 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Grid', {
                         var status = record.data.validationResult ? record.data.validationResult.split('.')[1] : 'unknown',
                             icon = '';
                         if (record.get('isConfirmed')) {
-                            icon = '<span class="icon-checkmark" style="margin-left:10px; position:absolute;"></span>'
+                            icon = '<span class="icon-checkmark" style="margin-left:10px; position:absolute;" data-qtip="'
+                                + Uni.I18n.translate('reading.validationResult.confirmed', 'MDC', 'Confirmed') + '"></span>'
                         } else if (status === 'suspect') {
-                            icon = '<span class="icon-flag5" style="margin-left:10px; position:absolute; color:red;"></span>';
+                            icon = '<span class="icon-flag5" style="margin-left:10px; position:absolute; color:red;" data-qtip="'
+                                + Uni.I18n.translate('general.suspect', 'MDC', 'Suspect') + '"></span>';
                         } else if (status === 'notValidated') {
-                            icon = '<span class="icon-flag6" style="margin-left:10px; position:absolute;"></span>';
+                            icon = '<span class="icon-flag6" style="margin-left:10px; position:absolute;" data-qtip="'
+                                + Uni.I18n.translate('general.notValidated', 'MDC', 'Not validated') + '"></span>';
                         }
                         return Uni.Number.formatNumber(data, -1) + icon;
                     }
@@ -57,7 +88,8 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Grid', {
                         var status = record.data.validationResult ? record.data.validationResult.split('.')[1] : 'unknown',
                             icon = '';
                         if (record.get('isConfirmed')) {
-                            icon = '<span class="icon-checkmark" style="margin-left:10px; position:absolute"></span>'
+                            icon = '<span class="icon-checkmark" style="margin-left:10px; position:absolute" data-qtip="'
+                                + Uni.I18n.translate('reading.validationResult.confirmed', 'MDC', 'Confirmed') + '"></span>'
                         } else if (status === 'suspect') {
                             icon = '<span class="icon-flag5" style="margin-left:10px; position:absolute; color:red;"></span>';
                         } else if (status === 'notValidated') {
@@ -85,10 +117,21 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Grid', {
                     if (!Ext.isEmpty(data)) {
                         return Uni.Number.formatNumber(data, -1);
                     }
+                    return '-';
+                }
+            },
+            {
+                header: Uni.I18n.translate('device.registerData.reportedTime', 'MDC', 'Last updated'),
+                dataIndex: 'reportedDateTime',
+                flex: 1,
+                renderer: function(value){
+                    var date = new Date(value);
+                    return Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}', [Uni.DateTime.formatDateShort(date), Uni.DateTime.formatTimeShort(date)]);
                 }
             },
             {
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 privileges: Mdc.privileges.Device.administrateDeviceData,
                 dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.deviceDataEditActions,
                 menu: {

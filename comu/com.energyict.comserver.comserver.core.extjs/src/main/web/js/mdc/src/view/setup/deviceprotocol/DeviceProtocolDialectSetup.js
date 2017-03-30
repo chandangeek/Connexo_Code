@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.deviceprotocol.DeviceProtocolDialectSetup', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.deviceProtocolDialectSetup',
@@ -39,7 +43,7 @@ Ext.define('Mdc.view.setup.deviceprotocol.DeviceProtocolDialectSetup', {
                         itemId: 'protocolDialectsGridContainer',
                         grid: {
                             xtype: 'deviceProtocolDialectsGrid',
-                            deviceId: encodeURIComponent(me.device.get('name'))
+                            deviceId: me.device.get('name')
                         },
                         emptyComponent: {
                             xtype: 'uni-form-empty-message',

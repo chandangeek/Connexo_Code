@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.deviceevents.DataGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.deviceLogbookDataGrid',
@@ -42,8 +46,8 @@ Ext.define('Mdc.view.setup.deviceevents.DataGrid', {
             flex: 1
         },
         {
-            header: Uni.I18n.translate('deviceevents.message', 'MDC', 'Message'),
-            dataIndex: 'message',
+            header: Uni.I18n.translate('deviceevents.deviceCode', 'MDC', 'Device code'),
+            dataIndex: 'deviceCode',
             flex: 1,
             renderer: function(value) {
                 return Ext.isEmpty(value) ? '-' : value;

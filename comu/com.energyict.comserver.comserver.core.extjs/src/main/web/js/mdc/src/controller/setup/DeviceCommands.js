@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define("Mdc.controller.setup.DeviceCommands", {
     extend: 'Ext.app.Controller',
     requires: [
@@ -139,10 +143,10 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
         var me = this;
         Ext.widget('confirmation-window', {
             confirmText: Uni.I18n.translate('deviceCommand.overview.trigger', 'MDC', 'Trigger'),
-            confirmBtnUi: 'action'
+            confirmBtnUi: 'action',
+            green: true
         }).show({
                 closable: false,
-                icon: '',
                 fn: function (btnId) {
                     if (btnId == 'confirm') {
                         var store = me.getStore('Mdc.store.DeviceCommands');

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
     extend: 'Ext.app.Controller',
 
@@ -291,10 +295,10 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
                 view = Ext.widget('tou-devicetype-view-calendar-setup', {
                     url: '/api/dtc/devicetypes/' + deviceTypeId + '/timeofuse',
                     calendarId: calendarId,
-                    deviceTypeId: deviceTypeId,
+                    deviceTypeId: deviceTypeId
                 });
-                view.on('timeofusecalendarloaded', function (newRecord) {
-                    me.getApplication().fireEvent('timeofusecalendarloaded', newRecord.get('name'))
+                view.down('timeOfUseCalendar').on('timeofusecalendarloaded', function (newRecord) {
+                    me.getApplication().fireEvent('timeofusecalendarloaded', newRecord.get('name'));
                     return true;
                 }, {single: true});
                 me.deviceTypeId = deviceTypeId;
@@ -350,7 +354,7 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
         var me = this;
         me.getApplication().fireEvent('loadDeviceType', deviceType);
         if (view.down('deviceTypeSideMenu')) {
-            view.down('deviceTypeSideMenu').setDeviceTypeLink(deviceType.get('name'));
+            view.down('deviceTypeSideMenu').setDeviceTypeTitle(deviceType.get('name'));
             view.down('deviceTypeSideMenu #conflictingMappingLink').setText(
                 Uni.I18n.translate('deviceConflictingMappings.ConflictingMappingCount', 'MDC', 'Conflicting mappings ({0})', deviceType.get('deviceConflictsCount'))
             );

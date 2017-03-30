@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.commandrules.CommandRulesGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.commandRulesGrid',
@@ -32,7 +36,7 @@ Ext.define('Mdc.view.setup.commandrules.CommandRulesGrid', {
                 renderer: function (value, metaData, record) {
                     var pendingChanges = record.get('statusMessage'),
                         icon = Ext.isEmpty(pendingChanges) ? '' :
-                                '<span class="icon-info" style="margin-left:10px; position:absolute;" data-qtip="' + pendingChanges + '"></span>',
+                                '<span class="icon-info" style="margin-left:10px; font-size:16px; color:#A9A9A9; position:absolute;" data-qtip="' + pendingChanges + '"></span>',
                         text = value ? Uni.I18n.translate('general.active', 'MDC', 'Active') : Uni.I18n.translate('general.inactive', 'MDC', 'Inactive');
                     return text + icon;
                 }
@@ -42,6 +46,7 @@ Ext.define('Mdc.view.setup.commandrules.CommandRulesGrid', {
                 sortable: false,
                 menuDisabled: true,
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 privileges: Mdc.privileges.CommandLimitationRules.view,
                 menu: {
                     xtype: 'commandRuleActionMenu'

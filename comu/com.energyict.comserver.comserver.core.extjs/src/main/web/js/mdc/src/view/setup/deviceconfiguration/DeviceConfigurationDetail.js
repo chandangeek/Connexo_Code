@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationDetail', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.deviceConfigurationDetail',
@@ -20,7 +24,8 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationDetail', {
             items: [
                 {
                     ui: 'large',
-                    title: Uni.I18n.translate('general.overview', 'MDC', 'Overview'),
+                    itemId: 'device-configuration-detail-panel',
+                    title: Uni.I18n.translate('general.details', 'MDC', 'Details'),
                     flex: 1
                 },
                 {
@@ -124,6 +129,16 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationDetail', {
                                             ? Uni.I18n.translate('general.yes', 'MDC', 'Yes')
                                             : Uni.I18n.translate('general.no', 'MDC', 'No');
                                     }
+                                },
+                                {
+                                    xtype: 'displayfield',
+                                    fieldLabel: Uni.I18n.translate('deviceconfiguration.validateOnStore', 'MDC', 'Validate data on storage'),
+                                    name: 'validateOnStore',
+                                    renderer: function (value) {
+                                        return value === true
+                                            ? Uni.I18n.translate('general.yes', 'MDC', 'Yes')
+                                            : Uni.I18n.translate('general.no', 'MDC', 'No');
+                                    }
                                 }
                             ]
                         },
@@ -157,13 +172,11 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationDetail', {
                                             text: Uni.I18n.translate('deviceconfig.registerconfigs', 'MDC', 'Register configurations'),
                                             itemId: 'deviceConfigurationDetailRegistersLink'
                                         },
-
                                         {
                                             name: 'loadProfileCount',
                                             text: Uni.I18n.translate('general.loadProfileConfigurations', 'MDC', 'Load profile configurations'),
                                             itemId: 'deviceConfigurationDetailLoadProfilesLink'
                                         },
-
                                         {
                                             name: 'logBookCount',
                                             text: Uni.I18n.translate('general.logbookConfigurations', 'MDC', 'Logbook configurations'),

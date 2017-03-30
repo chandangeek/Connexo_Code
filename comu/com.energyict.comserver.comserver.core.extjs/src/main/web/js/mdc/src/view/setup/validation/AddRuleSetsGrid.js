@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.validation.AddRuleSetsGrid', {
     extend: 'Uni.view.grid.BulkSelection',
     xtype: 'validation-add-rulesets-grid',
@@ -61,6 +65,7 @@ Ext.define('Mdc.view.setup.validation.AddRuleSetsGrid', {
             },
             {
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 menu: {xtype: 'validation-add-ruleset-actionmenu'}
             }
         ];

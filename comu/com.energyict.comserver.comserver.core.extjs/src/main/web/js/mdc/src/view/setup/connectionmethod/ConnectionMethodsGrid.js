@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodsGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.connectionMethodsGrid',
@@ -43,6 +47,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodsGrid', {
 
             {
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 privileges: Mdc.privileges.DeviceType.admin,
                 menu: {xtype: 'connection-method-action-menu'}
             }

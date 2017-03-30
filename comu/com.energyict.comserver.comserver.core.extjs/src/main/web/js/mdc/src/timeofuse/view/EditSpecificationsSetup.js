@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.timeofuse.view.EditSpecificationsSetup', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.tou-devicetype-edit-specs-setup',

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.comtasks.ComtaskActionsGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.comtaskActionsGrid',
@@ -35,6 +39,7 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskActionsGrid', {
                 sortable: false,
                 menuDisabled: true,
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 privileges: Mdc.privileges.Communication.admin,
                 menu: {xtype: 'comtaskActionActionMenu'}
             }

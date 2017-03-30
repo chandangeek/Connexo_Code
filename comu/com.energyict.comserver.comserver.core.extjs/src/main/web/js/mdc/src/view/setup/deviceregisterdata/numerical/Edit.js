@@ -1,10 +1,15 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Edit', {
     extend: 'Mdc.view.setup.deviceregisterdata.MainEdit',
     alias: 'widget.deviceregisterreportedit-numerical',
     itemId: 'deviceregisterreportedit',
 
     requires: [
-        'Uni.form.field.DateTime'
+        'Uni.form.field.DateTime',
+        'Uni.util.FormErrorMessage'
     ],
 
     setEdit: function (edit, returnLink) {
@@ -48,16 +53,9 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Edit', {
                 },
                 items: [
                     {
-                        name: 'errors',
-                        ui: 'form-error-framed',
                         itemId: 'registerDataEditFormErrors',
-                        layout: 'hbox',
-                        margin: '0 0 10 0',
-                        hidden: true,
-                        width: 530,
-                        defaults: {
-                            xtype: 'container'
-                        }
+                        xtype: 'uni-form-error-message',
+                        hidden: true
                     },
                     {
                         xtype: 'displayfield',
@@ -78,7 +76,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Edit', {
                         xtype: 'fieldcontainer',
                         itemId: 'timeStampContainer',
                         required: true,
-                        fieldLabel: Uni.I18n.translate('device.registerData.measurementTime', 'MDC', 'Measurement time'),
+                        fieldLabel: this.hasEvent?Uni.I18n.translate('device.registerData.eventTime', 'MDC', 'Event time'):Uni.I18n.translate('device.registerData.measurementTime', 'MDC', 'Measurement time'),
                         defaults: {
                             width: '100%'
                         },
@@ -148,5 +146,6 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Edit', {
         me.callParent(arguments);
         me.setEdit(me.isEdit(), me.returnLink);
     }
+
 });
 

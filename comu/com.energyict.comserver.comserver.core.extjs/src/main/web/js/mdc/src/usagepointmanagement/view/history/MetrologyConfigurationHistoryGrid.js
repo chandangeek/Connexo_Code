@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.usagepointmanagement.view.history.MetrologyConfigurationHistoryGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.metrology-configuration-history-grid',
@@ -60,7 +64,7 @@ Ext.define('Mdc.usagepointmanagement.view.history.MetrologyConfigurationHistoryG
                     usagePoint: me.usagePoint,
                     itemId: 'metrology-configuration-versions-action-menu-id'
                 },
-                flex: 1
+                width: 120
             }
         ];
 

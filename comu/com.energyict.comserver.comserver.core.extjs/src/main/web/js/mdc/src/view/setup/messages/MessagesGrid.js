@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.messages.MessagesGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.messages-grid',
@@ -60,6 +64,7 @@ Ext.define('Mdc.view.setup.messages.MessagesGrid', {
         },
         {
             xtype: 'uni-actioncolumn',
+            width: 120,
             privileges: Mdc.privileges.DeviceType.admin,
             menu: {
                 xtype: 'menu',

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.usagepointmanagement.view.ChannelDataPreview', {
     extend: 'Ext.tab.Panel',
     alias: 'widget.channel-data-preview',
@@ -41,7 +45,7 @@ Ext.define('Mdc.usagepointmanagement.view.ChannelDataPreview', {
                         },
                         {
                             itemId: 'readingTime-field',
-                            fieldLabel: Uni.I18n.translate('deviceloadprofiles.readingTime', 'MDC', 'Reading time'),
+                            fieldLabel: Uni.I18n.translate('deviceloadprofiles.lastUpdate', 'MDC', 'Last update'),
                             name: 'readingTime',
                             htmlEncode: false,
                             renderer: function (value) {

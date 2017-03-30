@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.logbooktype.LogbookTypeGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.logbookTypeGrid',
@@ -29,6 +33,7 @@ Ext.define('Mdc.view.setup.logbooktype.LogbookTypeGrid', {
             },
             {
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 privileges: Mdc.privileges.MasterData.admin,
                 menu: {xtype: 'logbook-type-action-menu'}
             }

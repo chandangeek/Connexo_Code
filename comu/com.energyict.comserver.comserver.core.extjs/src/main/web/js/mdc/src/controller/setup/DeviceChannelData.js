@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.controller.setup.DeviceChannelData', {
     extend: 'Ext.app.Controller',
 
@@ -10,7 +14,9 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         'Mdc.view.setup.devicechannels.TabbedDeviceChannelsView',
         'Mdc.view.setup.devicechannels.Overview',
         'Mdc.view.setup.devicechannels.ReadingEstimationWindow',
-        'Mdc.view.setup.devicechannels.EditCustomAttributes'
+        'Mdc.view.setup.devicechannels.ReadingEstimationWithRuleWindow',
+        'Mdc.view.setup.devicechannels.EditCustomAttributes',
+        'Mdc.view.setup.devicechannels.History'
     ],
 
     models: [
@@ -31,7 +37,10 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         'Mdc.store.Estimators',
         'Mdc.store.ValidationBlocks',
         'Mdc.store.TimeUnits',
-        'Mdc.store.DataLoggerSlaveChannelHistory'
+        'Mdc.store.DataLoggerSlaveChannelHistory',
+        'Mdc.store.EstimationRulesOnChannelMainValue',
+        'Mdc.store.DataLoggerSlaveChannelHistory',
+        'Mdc.store.HistoryChannels'
     ],
 
     refs: [
@@ -52,6 +61,10 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             selector: '#deviceLoadProfileChannelDataSideFilter'
         },
         {
+            ref: 'deviceLoadProfileHistoryChannelDataPreview',
+            selector: '#deviceLoadProfileHistoryChannelDataPreview'
+        },
+        {
             ref: 'deviceLoadProfileChannelDataPreview',
             selector: '#deviceLoadProfileChannelDataPreview'
         },
@@ -61,11 +74,15 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         },
         {
             ref: 'filterPanel',
-            selector: '#deviceLoadProfileChannelData #deviceloadprofileschanneldatafilterpanel'
+            selector: '#deviceLoadProfileChannelData #mdc-device-channels-topfilter'
         },
         {
             ref: 'readingEstimationWindow',
             selector: 'reading-estimation-window'
+        },
+        {
+            ref: 'readingEstimationWithRuleWindow',
+            selector: 'reading-estimation-with-rule-window'
         },
         {
             ref: 'editPropertyForm',
@@ -83,9 +100,13 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
 
     channelModel: null,
     fromSpecification: false,
+    hasEstimationRule: false,
 
     init: function () {
         this.control({
+            'device-channels-history-grid': {
+                select: this.showHistoryPreview
+            },
             '#deviceLoadProfileChannelData #deviceLoadProfileChannelDataGrid': {
                 select: this.showPreview,
                 beforeedit: this.beforeEditRecord,
@@ -100,6 +121,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 tabchange: this.onTabChange
             },
             'deviceLoadProfileChannelDataActionMenu': {
+                beforeshow: this.beforeShowMenu,
                 click: this.chooseAction
             },
             '#deviceLoadProfileChannelData #save-changes-button': {
@@ -110,6 +132,9 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             },
             '#channel-reading-estimation-window #estimate-reading-button': {
                 click: this.estimateReading
+            },
+            '#channel-reading-estimation-with-rule-window #estimate-reading-button': {
+                click: this.estimateReadingWithRule
             },
             'channel-data-bulk-action-menu': {
                 click: this.chooseBulkAction
@@ -125,6 +150,9 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             },
             '#deviceLoadProfileChannelsEditCustomAttributes #channel-custom-attributes-property-form': {
                 showRestoreAllBtn: this.showRestoreAllBtn
+            },
+            '#channel-reading-estimation-with-rule-window #value-to-estimate-radio-group': {
+                change: this.updateEstimateWithRuleWindow
             }
         });
     },
@@ -170,7 +198,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             activeTab = contentName === 'spec' ? 0 : 1,
             timeUnitsStore = Ext.getStore('Mdc.store.TimeUnits'),
             slaveHistoryStore = me.getStore('Mdc.store.DataLoggerSlaveChannelHistory'),
-            dependencyCounter = 3,
+            dependencyCounter = 4,
             onDependenciesLoad = function () {
                 dependencyCounter--;
                 if (!dependencyCounter) {
@@ -251,6 +279,20 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 } else {
                     onDependenciesLoad();
                 }
+            }
+        });
+        var estimationRulesStore = me.getStore('Mdc.store.EstimationRulesOnChannelMainValue');
+        estimationRulesStore.getProxy().extraParams = {deviceId: deviceId, channelId: channelId, isBulk: false};
+        estimationRulesStore.load(function(records){
+            if (records.length) {
+                me.hasEstimationRule = true;
+                onDependenciesLoad();
+            } else {
+                estimationRulesStore.getProxy().extraParams = {deviceId: deviceId, channelId: channelId, isBulk: true};
+                estimationRulesStore.load(function(records){
+                    me.hasEstimationRule = Boolean(records.length);
+                    onDependenciesLoad();
+                });
             }
         });
     },
@@ -396,6 +438,16 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         }
     },
 
+    showHistoryPreview: function (selectionModel, record) {
+        var me = this,
+            previewPanel;
+
+        if (selectionModel.getSelection().length === 1) {
+            previewPanel = me.getDeviceLoadProfileHistoryChannelDataPreview();
+            previewPanel.updateForm(record);
+        }
+    },
+
     onGraphResize: function (graphView, width, height) {
         if (graphView.chart) {
             graphView.chart.setSize(width, height, false);
@@ -403,7 +455,13 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
     },
 
     chooseAction: function (menu, item) {
-        var me = this;
+        var me = this,
+            records = me.getPage().down('deviceLoadProfileChannelDataGrid').getSelectionModel().getSelection(),
+            router = this.getController('Uni.controller.history.Router'),
+            routeParams = router.arguments,
+            route,
+            filterParams = {};
+
         switch (item.action) {
             case 'editValue':
                 me.getPage().down('#deviceLoadProfileChannelDataGrid').getPlugin('cellplugin').startEdit(menu.record, 1);
@@ -414,9 +472,47 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             case 'estimateValue':
                 me.estimateValue(menu.record);
                 break;
+            case 'estimateWithRule':
+                me.estimateValueWithRule(menu.record);
+                break;
             case 'confirmValue':
                 me.confirmValue(menu.record, false);
                 break;
+            case 'viewHistory':
+                route = 'devices/device/channels/channeldata/history';
+                filterParams = {
+                    endInterval: Number(menu.record.get('interval').end - 1) + '-' + Number(menu.record.get('interval').end),
+                    isBulk: false
+                };
+                route && (route = router.getRoute(route));
+                route && route.forward(routeParams, filterParams);
+                break;
+        }
+
+    },
+
+    beforeShowMenu: function (menu) {
+        var me = this,
+            validationResult = menu.record.get('validationResult'),
+            estimationRulesCount = me.hasEstimationRule,
+            mainStatus = false,
+            bulkStatus = false;
+
+        if (validationResult) {
+            mainStatus = validationResult.main === 'suspect';
+            bulkStatus = validationResult.bulk === 'suspect';
+        }
+
+        menu.down('#estimate-value').setVisible(mainStatus || bulkStatus || menu.record.get('estimatedNotSaved') === true);
+        menu.down('#estimate-value-with-rule').setVisible(estimationRulesCount && (mainStatus || bulkStatus));
+        if (menu.record.get('confirmed') || menu.record.isModified('value') || menu.record.isModified('collectedValue')) {
+            menu.down('#confirm-value').hide();
+        } else {
+            menu.down('#confirm-value').setVisible(mainStatus || bulkStatus);
+        }
+
+        if (menu.down('#remove-reading')) {
+            menu.down('#remove-reading').setVisible(menu.record.get('value') || menu.record.get('collectedValue'));
         }
     },
 
@@ -494,8 +590,31 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                     }
                 };
                 changedData.push(confirmedObj);
+            } else if (record.get('mainValidationInfo').ruleId || record.get('bulkValidationInfo').ruleId) {
+                confirmedObj = {
+                    interval: record.get('interval'),
+                    value: record.get('value'),
+                    collectedValue: record.get('collectedValue'),
+                    mainValidationInfo: {
+                        isConfirmed: false,
+                        ruleId: record.get('mainValidationInfo').estimatedNotSaved ? record.get('mainValidationInfo').ruleId : null
+                    },
+                    bulkValidationInfo: {
+                        isConfirmed: false,
+                        ruleId: record.get('bulkValidationInfo').estimatedNotSaved ? record.get('bulkValidationInfo').ruleId : null
+                    }
+                };
+                changedData.push(confirmedObj);
             } else if (record.isModified('value')) {
-                changedData.push(_.pick(record.getData(), 'interval', 'value'));
+                confirmedObj = {
+                    interval: record.get('interval'),
+                    value: record.get('value')
+                };
+                if (record.isModified('collectedValue')) {
+                    confirmedObj.collectedValue = record.get('collectedValue');
+                }
+                changedData.push(confirmedObj);
+
             } else if (record.isModified('collectedValue')) {
                 changedData.push(_.pick(record.getData(), 'interval', 'collectedValue'));
             }
@@ -524,9 +643,11 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             event.column.getEditor().allowBlank = true;
         }
 
+
         if (event.record.isModified('value')) {
             me.getPage().down('#save-changes-button').isDisabled() && me.showButtons();
 
+            Ext.suspendLayouts(true);
             if (!event.record.get('value')) {
                 point.update({y: null});
             } else {
@@ -540,6 +661,8 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                     color: 'rgba(112,187,81,0.3)'
                 };
                 point.update(updatedObj);
+                point.select(false);
+                me.getPage().down('#channel-data-preview-container').fireEvent('rowselect', event.record);
             }
 
             if (event.column) {
@@ -547,7 +670,8 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 grid.getView().refreshNode(grid.getStore().indexOf(event.record));
                 event.record.get('confirmed') && event.record.set('confirmed', false);
             }
-        } else if (condition) {
+            Ext.resumeLayouts();
+        } else if (!event.record.isModified('collectedValue') && condition) {
             me.resetChanges(event.record, point);
         }
     },
@@ -615,27 +739,83 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         });
     },
 
+    estimateValueWithRule: function (record) {
+        var me = this,
+            bothSuspected = false,
+            mainValueSuspect = false,
+            bulkValueSuspect = false,
+            estimationRulesStore = me.getStore('Mdc.store.EstimationRulesOnChannelMainValue');
 
+        if (!Ext.isArray(record)) {
+            if (record.get('validationResult')) {
+                mainValueSuspect = record.get('validationResult').main == 'suspect';
+                bulkValueSuspect = record.get('validationResult').bulk == 'suspect';
+                bothSuspected = mainValueSuspect && bulkValueSuspect;
+            }
+        } else {
+            Ext.Array.findBy(record, function (item) {
+                mainValueSuspect = item.get('validationResult') && item.get('validationResult').main == 'suspect';
+                return mainValueSuspect;
+            });
+            Ext.Array.findBy(record, function (item) {
+                bulkValueSuspect = item.get('validationResult') && item.get('validationResult').bulk == 'suspect';
+                return bulkValueSuspect;
+            });
+            bothSuspected = mainValueSuspect && bulkValueSuspect;
+        }
+
+        estimationRulesStore.getProxy().setExtraParam('isBulk', !bothSuspected ? bulkValueSuspect : false);
+        estimationRulesStore.load(function (records) {
+            showWindow(Boolean(records.length));
+        });
+
+        function showWindow(hasRules) {
+            Ext.widget('reading-estimation-with-rule-window', {
+                itemId: 'channel-reading-estimation-with-rule-window',
+                record: record,
+                bothSuspected: bothSuspected,
+                hasRules: hasRules
+            }).show();
+        }
+    },
+
+    updateEstimateWithRuleWindow: function (radiogroup, newValue, oldValue, eOpts) {
+        var me = this,
+            estimationRulesStore = me.getStore('Mdc.store.EstimationRulesOnChannelMainValue'),
+            window = me.getReadingEstimationWithRuleWindow();
+
+        window.down('#estimator-field').reset();
+        estimationRulesStore.getProxy().setExtraParam('isBulk', newValue.isBulk);
+        estimationRulesStore.load(function(records) {
+            var isNotEmpty = Boolean(records.length);
+            Ext.suspendLayouts();
+            window.down('#estimator-field').setVisible(isNotEmpty);
+            window.down('#no-estimation-rules-component').setVisible(!isNotEmpty);
+            window.down('#property-form').removeAll(true);
+            Ext.resumeLayouts(true);
+        });
+    },
 
     estimateReading: function () {
         var me = this,
-            propertyForm = me.getReadingEstimationWindow().down('#property-form'),
+            window = me.getReadingEstimationWindow(),
+            propertyForm = window.down('#property-form'),
             model = Ext.create('Mdc.model.DeviceChannelDataEstimate'),
             estimateBulk = false,
-            record = me.getReadingEstimationWindow().record,
+            record = window.record,
             intervalsArray = [];
 
-        !me.getReadingEstimationWindow().down('#form-errors').isHidden() && me.getReadingEstimationWindow().down('#form-errors').hide();
-        !me.getReadingEstimationWindow().down('#error-label').isHidden() && me.getReadingEstimationWindow().down('#error-label').hide();
+        !window.down('#form-errors').isHidden() && window.down('#form-errors').hide();
+        !window.down('#error-label').isHidden() && window.down('#error-label').hide();
         propertyForm.clearInvalid();
 
         if (propertyForm.getRecord()) {
             propertyForm.updateRecord();
-            model.set('estimatorImpl', me.getReadingEstimationWindow().down('#estimator-field').getValue());
+            model.set('estimatorImpl', window.down('#estimator-field').getValue());
             model.propertiesStore = propertyForm.getRecord().properties();
         }
-        if (!me.getReadingEstimationWindow().down('#value-to-estimate-radio-group').isHidden()) {
-            estimateBulk = me.getReadingEstimationWindow().down('#value-to-estimate-radio-group').getValue().isBulk;
+        if (!window.down('#value-to-estimate-radio-group').isHidden()) {
+            estimateBulk = window.down('#value-to-estimate-radio-group').getValue().isBulk;
         } else {
             if (!Ext.isArray(record)) {
                 estimateBulk = record.get('validationResult') && (record.get('validationResult').bulk == 'suspect');
@@ -661,15 +841,63 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         }
         model.set('estimateBulk', estimateBulk);
         model.set('intervals', intervalsArray);
-        me.saveChannelDataEstimateModelr(model, record);
+        me.saveChannelDataEstimateModelr(model, record, window);
     },
 
-    saveChannelDataEstimateModelr: function (record, readings) {
+    estimateReadingWithRule: function () {
+        var me = this,
+            window = me.getReadingEstimationWithRuleWindow(),
+            propertyForm = window.down('#property-form'),
+            estimationRuleId = window.down('#estimator-field').getValue(),
+            model = Ext.create('Mdc.model.DeviceChannelDataEstimate'),
+            estimateBulk = false,
+            record = window.record,
+            intervalsArray = [];
+
+        !window.down('#form-errors').isHidden() && window.down('#form-errors').hide();
+        !window.down('#error-label').isHidden() && window.down('#error-label').hide();
+
+
+        if (propertyForm.getRecord()) {
+            model.set('estimatorImpl', window.getEstimator());
+            model.propertiesStore = propertyForm.getRecord().properties();
+        }
+        if (!window.down('#value-to-estimate-radio-group').isHidden()) {
+            estimateBulk = window.down('#value-to-estimate-radio-group').getValue().isBulk;
+        } else {
+            if (!Ext.isArray(record)) {
+                estimateBulk = record.get('validationResult') && (record.get('validationResult').bulk == 'suspect');
+            } else {
+                Ext.Array.findBy(record, function (item) {
+                    estimateBulk = item.get('validationResult') && (item.get('validationResult').bulk == 'suspect');
+                    return estimateBulk;
+                });
+            }
+        }
+        if (!Ext.isArray(record)) {
+            intervalsArray.push({
+                start: record.get('interval').start,
+                end: record.get('interval').end
+            });
+        } else {
+            Ext.Array.each(record, function (item) {
+                intervalsArray.push({
+                    start: item.get('interval').start,
+                    end: item.get('interval').end
+                });
+            });
+        }
+        model.set('estimateBulk', estimateBulk);
+        model.set('intervals', intervalsArray);
+        me.saveChannelDataEstimateModelr(model, record, window, estimationRuleId);
+    },
+
+    saveChannelDataEstimateModelr: function (record, readings, window, ruleId) {
         var me = this,
             router = me.getController('Uni.controller.history.Router');
 
         record.getProxy().setParams(encodeURIComponent(router.arguments.deviceId),router.arguments.channelId);
-        me.getReadingEstimationWindow().setLoading();
+        window.setLoading();
         Ext.Ajax.suspendEvent('requestexception');
         record.save({
             callback: function (rec, operation, success) {
@@ -680,37 +908,37 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 Ext.suspendLayouts();
                 if (success && responseText[0]) {
                     if (!Ext.isArray(readings)) {
-                        me.updateEstimatedValues(record, readings, responseText[0]);
+                        me.updateEstimatedValues(record, readings, responseText[0], ruleId);
                     } else {
                         Ext.Array.each(responseText, function (estimatedReading) {
                             Ext.Array.findBy(readings, function (reading) {
                                 if (estimatedReading.interval.start == reading.get('interval').start) {
-                                    me.updateEstimatedValues(record, reading, estimatedReading);
+                                    me.updateEstimatedValues(record, reading, estimatedReading, ruleId);
                                     return true;
                                 }
                             });
                         });
                     }
-                    me.getReadingEstimationWindow().destroy();
+                    window.destroy();
                     me.getPage().down('#save-changes-button').isDisabled() && me.showButtons();
                 } else {
-                    me.getReadingEstimationWindow().setLoading(false);
+                    window.setLoading(false);
                     if (responseText) {
                         if (responseText.message) {
-                            me.getReadingEstimationWindow().down('#error-label').show();
-                            me.getReadingEstimationWindow().down('#error-label').setText('<div style="color: #EB5642">' + responseText.message + '</div>', false);
+                            window.down('#error-label').show();
+                            window.down('#error-label').setText('<div style="color: #EB5642">' + responseText.message + '</div>', false);
                         } else if (responseText.readings) {
-                            me.getReadingEstimationWindow().down('#error-label').show();
+                            window.down('#error-label').show();
                             var listOfFailedReadings = [];
                             Ext.Array.each(responseText.readings, function (readingTimestamp) {
                                 listOfFailedReadings.push(Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}', [Uni.DateTime.formatDateShort(new Date(readingTimestamp)), Uni.DateTime.formatTimeShort(new Date(readingTimestamp))], false));
                             });
-                            me.getReadingEstimationWindow().down('#error-label').setText('<div style="color: #EB5642">' +
+                            window.down('#error-label').setText('<div style="color: #EB5642">' +
                                 Uni.I18n.translate('devicechannels.estimationErrorMessage', 'MDC', 'Could not estimate {0} with {1}',
-                                    [listOfFailedReadings.join(', '), me.getReadingEstimationWindow().down('#estimator-field').getRawValue().toLowerCase()]) + '</div>', false);
+                                    [listOfFailedReadings.join(', '), window.down('#estimator-field').getRawValue().toLowerCase()]) + '</div>', false);
                         } else if (responseText.errors) {
-                            me.getReadingEstimationWindow().down('#form-errors').show();
-                            me.getReadingEstimationWindow().down('#property-form').markInvalid(responseText.errors);
+                            window.down('#form-errors').show();
+                            window.down('#property-form').markInvalid(responseText.errors);
                         }
                     }
 
@@ -720,16 +948,24 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         });
     },
 
-    updateEstimatedValues: function (record, reading, estimatedReading) {
+    updateEstimatedValues: function (record, reading, estimatedReading, ruleId) {
         var me = this,
             grid = me.getPage().down('deviceLoadProfileChannelDataGrid');
 
         if (record.get('estimateBulk')) {
             reading.set('collectedValue', estimatedReading.collectedValue);
+            if(ruleId){
+                reading.get('bulkValidationInfo').ruleId =  ruleId;
+            }
             reading.get('bulkValidationInfo').validationResult = 'validationStatus.ok';
+            reading.get('bulkValidationInfo').estimatedNotSaved = true;
         } else {
             reading.set('value', estimatedReading.value);
+            if(ruleId){
+                reading.get('mainValidationInfo').ruleId =  ruleId;
+            }
             reading.get('mainValidationInfo').validationResult = 'validationStatus.ok';
+            reading.get('mainValidationInfo').estimatedNotSaved = true;
         }
         grid.getView().refreshNode(grid.getStore().indexOf(reading));
 
@@ -741,11 +977,18 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
 
     chooseBulkAction: function (menu, item) {
         var me = this,
-            records = me.getPage().down('deviceLoadProfileChannelDataGrid').getSelectionModel().getSelection();
+            records = me.getPage().down('deviceLoadProfileChannelDataGrid').getSelectionModel().getSelection(),
+            router = this.getController('Uni.controller.history.Router'),
+            routeParams = router.arguments,
+            route,
+            filterParams = {};
 
         switch (item.action) {
             case 'estimateValue':
                 me.estimateValue(records);
+                break;
+            case 'estimateWithRule':
+                me.estimateValueWithRule(records);
                 break;
             case 'confirmValue':
                 me.confirmValue(records, true);
@@ -753,7 +996,18 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             case 'removeReadings':
                 me.removeReadings(records, true);
                 break;
+            case 'viewHistory':
+                route = 'devices/device/channels/channeldata/history';
+                filterParams = {
+                    interval: me.getFilterPanel().down('#devicechannels-topfilter-duration').getParamValue(),
+                    isBulk: true,
+                    changedDataOnly: 'yes'
+                };
+                break;
         }
+
+        route && (route = router.getRoute(route));
+        route && route.forward(routeParams, filterParams);
     },
 
     confirmValue: function (record, isBulk) {
@@ -776,6 +1030,8 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                     if (mainStatus) {
                         rec.get('mainValidationInfo').confirmedNotSaved = true;
                         chart.get(rec.get('interval').start).update({color: 'rgba(112,187,81,0.3)'});
+                        chart.get(rec.get('interval').start).select(false);
+                        me.getPage().down('#channel-data-preview-container').fireEvent('rowselect', record)
                     }
 
                     if (bulkStatus) {
@@ -789,6 +1045,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 }
             };
 
+        Ext.suspendLayouts(true);
         if (isBulk) {
             Ext.Array.each(record, function (reading) {
                 func(reading);
@@ -796,6 +1053,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         } else {
             func(record);
         }
+        Ext.resumeLayouts(true);
 
         me.getPage().down('#save-changes-button').isDisabled() && me.showButtons();
     },
@@ -833,15 +1091,17 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
     onDataGridSelectionChange: function (selectionModel, selectedRecords) {
         var me = this,
             button = me.getPage().down('#device-channel-data-bulk-action-button'),
+            estimationRulesCount = me.hasEstimationRule,
             menu = button.down('menu');
 
         Ext.suspendLayouts();
         var suspects = selectedRecords.filter(function (record) {
             var validationResult = record.get('validationResult');
             return (validationResult.main == 'suspect')
-                || (validationResult.bulk == 'suspect');
+                || (validationResult.bulk == 'suspect') || record.get('estimatedNotSaved') === true;
         });
         menu.down('#estimate-value').setVisible(suspects.length);
+        menu.down('#estimate-value-with-rule').setVisible(suspects.length && estimationRulesCount);
 
         var confirms = suspects.filter(function (record) {
             return !record.get('confirmed') && !record.isModified('value') && !record.isModified('collectedValue')
@@ -952,5 +1212,58 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 restoreBtn.enable();
             }
         }
+    },
+
+    viewHistory: function (deviceId, channelId) {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            viewport = Ext.ComponentQuery.query('viewport')[0];
+
+        viewport.setLoading(true);
+        Ext.ModelManager.getModel('Mdc.model.Device').load(deviceId, {
+            success: function (device) {
+                var model = Ext.ModelManager.getModel('Mdc.model.ChannelOfLoadProfilesOfDevice');
+                model.getProxy().setExtraParam('deviceId', deviceId);
+                model.load(channelId, {
+                    success: function (channel) {
+                        var intervalStore = me.getStore('Uni.store.DataIntervalAndZoomLevels'),
+                            dataIntervalAndZoomLevels = intervalStore.getIntervalRecord(channel.get('interval')),
+                            durationsStore = me.getStore('Mdc.store.LoadProfileDataDurations');
+
+                        durationsStore.loadData(dataIntervalAndZoomLevels.get('duration'));
+
+                        var widget = Ext.widget('device-channels-history', {
+                            device: device,
+                            router: router,
+                            channel: channel,
+                            filterDefault: {
+                                durationStore: Ext.getStore('Mdc.store.LoadProfileDataDurations'),
+                                fromDate: router.queryParams.interval ? new Date(Number(router.queryParams.interval.split('-')[0])) : undefined,
+                                duration: router.queryParams.interval ? router.queryParams.interval.split('-')[1] : undefined
+                            },
+                            showFilter: router.queryParams.isBulk == "true"
+                        });
+                        var store = me.getStore('Mdc.store.HistoryChannels');
+
+                        store.getProxy().setUrl(router.arguments.deviceId, router.arguments.channelId);
+                        store.load({
+                            callback: function () {
+                                me.getApplication().fireEvent('loadDevice', device);
+                                me.getApplication().fireEvent('channelOfLoadProfileOfDeviceLoad', channel);
+                                me.getApplication().fireEvent('changecontentevent', widget);
+                                viewport.setLoading(false);
+                            }
+                        });
+
+                    },
+                    failure: function () {
+                        viewport.setLoading(false);
+                    }
+                });
+            },
+            failure: function () {
+                viewport.setLoading(false);
+            }
+        });
     }
 });

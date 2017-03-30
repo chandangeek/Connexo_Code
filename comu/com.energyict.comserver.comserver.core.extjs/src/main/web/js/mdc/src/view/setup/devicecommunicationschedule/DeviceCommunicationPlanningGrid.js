@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.devicecommunicationschedule.DeviceCommunicationPlanningGrid', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.DeviceCommunicationPlanningGrid',
@@ -96,6 +100,7 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.DeviceCommunicationPlanni
                     },
                     {
                         xtype: 'uni-actioncolumn',
+                        width: 120,
                         menu: {
                             plain: true,
                             border: false,

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.controller.setup.DeviceValidationResults', {
     extend: 'Ext.app.Controller',
     requires: [
@@ -236,7 +240,7 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
                 viewport.setLoading(false);
 
                 var res = Ext.JSON.decode(response.responseText);
-                if (!res.isActive || res.allDataValidated) {
+                if (!res.isActive) {
                     return;
                 }
 
@@ -322,7 +326,7 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
                     }).show({
                             ui: 'notification-error',
                             title: Uni.I18n.translate('device.dataValidation.timeout.title1', 'MDC', 'Data validation takes longer than expected'),
-                            msg: Uni.I18n.translate('device.dataValidation.timeout.msg1', 'MDC', 'Data validation takes longer than expected. Data validation will continue in the background.'),
+                            msg: Uni.I18n.translate('device.dataValidation.timeout.message', 'MDC', 'Data validation takes longer than expected and will continue in the background.'),
                             icon: Ext.MessageBox.ERROR
                         });
                 }
@@ -378,7 +382,8 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
                     },
                     items: [
                         {
-                            boxLabel: Uni.I18n.translate('validationResults.validate.fromLast', 'MDC', 'Validate data from last validation'),
+                            boxLabel: Uni.I18n.translate('validationResults.validate.fromLastChecked', 'MDC', 'Validate data from last validation ({0})',
+                                Uni.DateTime.formatDateShort(me.dataValidationLastChecked)),
                             inputValue: 'lastValidation',
                             itemId: 'rdo-validate-from-last',
                             xtype: 'radiofield',

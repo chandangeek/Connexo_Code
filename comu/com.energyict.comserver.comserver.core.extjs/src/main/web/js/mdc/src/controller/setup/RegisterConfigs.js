@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.controller.setup.RegisterConfigs', {
     extend: 'Ext.app.Controller',
 
@@ -200,7 +204,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
                     success: function (deviceConfig) {
                         if (mainView) mainView.setLoading(false);
                         me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfig);
-                        widget.down('#stepsMenu #deviceConfigurationOverviewLink').setText(deviceConfig.get('name'));
+                        widget.down('#stepsMenu').setHeader(deviceConfig.get('name'));
                         me.getApplication().fireEvent('changecontentevent', widget);
                     }
                 });
@@ -261,10 +265,10 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
             view = me.getRegisterConfigEditForm(),
             registerType = undefined,
             useMultiplier = undefined;
-
         if (field.name === 'registerType') {
             view.down('#multiplierRadioGroup').setDisabled(false);
-            registerType = me.getAvailableRegisterTypesForDeviceConfigurationStore().findRecord('id', value);
+            var registerTypeId = me.getAvailableRegisterTypesForDeviceConfigurationStore().findExact('id', value);
+            registerType = me.getAvailableRegisterTypesForDeviceConfigurationStore().getAt(registerTypeId);
             useMultiplier = view.down('#multiplierRadioGroup').getValue().useMultiplier;
             me.updateReadingTypeFields(registerType, useMultiplier);
             me.registerTypesObisCode = registerType.get('obisCode');
@@ -569,7 +573,6 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
             overflowField = form.down('#editOverflowValueField'),
             possibleCalculatedReadingTypes = dataContainer.get('possibleCalculatedReadingTypes'),
             isCumulative = dataContainer.get('isCumulative');
-
         if (dataContainer.get('collectedReadingType') !== undefined) {
             collectedReadingTypeField.setValue(dataContainer.get('collectedReadingType'));
         } else {

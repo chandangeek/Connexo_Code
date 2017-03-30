@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.devicetype.DeviceTypesGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.deviceTypesGrid',
@@ -43,6 +47,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesGrid', {
             },
             {
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 privileges: Mdc.privileges.DeviceType.admin,
                 menu: {
                     xtype: 'device-type-action-menu'

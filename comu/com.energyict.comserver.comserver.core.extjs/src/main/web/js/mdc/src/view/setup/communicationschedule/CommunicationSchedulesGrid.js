@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.communicationschedule.CommunicationSchedulesGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.communicationSchedulesGrid',
@@ -49,6 +53,7 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationSchedulesGrid', {
             },
             {
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 privileges: Mdc.privileges.CommunicationSchedule.admin,
                 menu: {xtype: 'communication-schedule-action-menu'}
             }

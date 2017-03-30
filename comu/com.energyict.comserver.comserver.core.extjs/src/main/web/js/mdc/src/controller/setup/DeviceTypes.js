@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.controller.setup.DeviceTypes', {
     extend: 'Ext.app.Controller',
 
@@ -177,7 +181,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                     Ext.suspendLayouts();
                     if (widget.rendered) {
 
-                        widget.down('deviceTypeSideMenu #overviewLink').setText(deviceType.get('name'));
+                        widget.down('deviceTypeSideMenu').setDeviceTypeTitle(deviceType.get('name'));
                         widget.down('deviceTypeSideMenu #conflictingMappingLink').setText(
                         Uni.I18n.translate('deviceConflictingMappings.ConflictingMappingCount', 'MDC', 'Conflicting mappings ({0})', deviceType.get('deviceConflictsCount'))
                     );
@@ -533,7 +537,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                 me.getApplication().fireEvent('loadDeviceType', deviceType);
 
                 if (widget.down('deviceTypeSideMenu')) {
-                    widget.down('deviceTypeSideMenu').setDeviceTypeLink(deviceType.get('name'));
+                    widget.down('deviceTypeSideMenu').setDeviceTypeTitle(deviceType.get('name'));
                     widget.down('deviceTypeSideMenu #conflictingMappingLink').setText(
                         Uni.I18n.translate('deviceConflictingMappings.ConflictingMappingCount', 'MDC', 'Conflicting mappings ({0})', deviceType.get('deviceConflictsCount'))
                     );

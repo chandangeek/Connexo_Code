@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.customattributesonvaluesobjects.view.CustomAttributeSetVersionsGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.custom-attribute-set-versions-grid',

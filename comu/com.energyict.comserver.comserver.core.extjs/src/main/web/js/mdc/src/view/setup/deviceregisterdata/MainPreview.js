@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.deviceregisterdata.MainPreview', {
     extend: 'Ext.tab.Panel',
     itemId: 'mdc-register-data-tab-panel',
@@ -75,7 +79,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.MainPreview', {
                     xtype: 'form',
                     itemId: 'mdc-register-general-form',
                     frame: true,
-                    layout: 'vbox',
+                    align: 'stretch',
                     defaults: {
                         xtype: 'displayfield',
                         labelWidth: 200
@@ -114,7 +118,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.MainPreview', {
         ];
 
         if (me.mentionDataLoggerSlave) {
-            me.on('afterrender', function() {
+            me.on('afterrender', function () {
                 me.down('#mdc-register-general-form').insert(1,
                     {
                         xtype: 'displayfield',
@@ -122,7 +126,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.MainPreview', {
                         fieldLabel: Uni.I18n.translate('general.dataLoggerSlave', 'MDC', 'Data logger slave'),
                         itemId: 'mdc-register-data-preview-data-logger-slave',
                         name: 'slaveRegister',
-                        renderer: function() {
+                        renderer: function () {
                             var record = this.up('form').getRecord(),
                                 slaveRegister = record ? record.get('slaveRegister') : undefined;
                             if (Ext.isEmpty(slaveRegister)) {
@@ -147,7 +151,8 @@ Ext.define('Mdc.view.setup.deviceregisterdata.MainPreview', {
         me.callParent(arguments);
     },
 
-    updateContent: function (registerRecord) {
+
+    updateContent: function (registerRecord, registerBeingViewed) {
         var me = this,
             measurementDate = new Date(registerRecord.get('timeStamp')),
             title = Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}',
@@ -155,6 +160,9 @@ Ext.define('Mdc.view.setup.deviceregisterdata.MainPreview', {
                 false),
             calculatedValueField = me.down('#mdc-calculated-value-field'),
             deltaValueField = me.down('displayfield[name=deltaValue]'),
+            measurementTime = me.down('displayfield[name=timeStamp]'),
+            eventTime = me.down('displayfield[name=eventDate]'),
+            intervalField = me.down('displayfield[name=interval]'),
             multiplierField = me.down('#mdc-register-preview-' + registerRecord.get('type') + '-multiplier'),
             hasCalculatedValue = !Ext.isEmpty(registerRecord.get('calculatedValue')),
             hasDeltaValue = !Ext.isEmpty(registerRecord.get('deltaValue'));
@@ -166,18 +174,64 @@ Ext.define('Mdc.view.setup.deviceregisterdata.MainPreview', {
         me.down('#mdc-register-qualities-form').setTitle(title);
         me.down('#mdc-register-general-form').loadRecord(registerRecord);
         me.down('#mdc-register-validation-form').loadRecord(registerRecord);
-
-        if (calculatedValueField) {
-            calculatedValueField.setVisible(hasCalculatedValue);
-        }
-        if (deltaValueField) {
-            deltaValueField.setVisible(hasDeltaValue);
-        }
-        if (multiplierField) {
-            if (hasCalculatedValue) {
-                multiplierField.setValue(registerRecord.get('multiplier'));
+        if (!registerBeingViewed) {
+            if (calculatedValueField) {
+                calculatedValueField.show()
             }
-            multiplierField.setVisible(hasCalculatedValue);
+
+            if (calculatedValueField) {
+                deltaValueField.show()
+            }
+
+            if (deltaValueField) {
+                multiplierField.show()
+            }
+
+            if (measurementTime) {
+                measurementTime.show()
+            }
+
+            if (intervalField) {
+                intervalField.show()
+            }
+
+            if (eventTime) {
+                eventTime.show()
+            }
+
+        } else {
+            if (calculatedValueField) {
+                calculatedValueField.setVisible(hasCalculatedValue);
+                //           calculatedValueField.setValue(registerRecord.get('calculatedValue'));
+            }
+            if (deltaValueField) {
+                deltaValueField.setVisible(hasDeltaValue);
+            }
+            if (multiplierField) {
+                if (hasCalculatedValue) {
+                    multiplierField.setValue(registerRecord.get('multiplier'));
+                }
+                multiplierField.setVisible(hasCalculatedValue);
+            }
+            if (!!intervalField) {
+                if (!Ext.isDefined(registerBeingViewed) || registerBeingViewed.get('isCumulative')) {
+                    measurementTime.hide();
+                    intervalField.show();
+                } else {
+                    measurementTime.show();
+                    intervalField.hide();
+                }
+                if (registerBeingViewed.get('hasEvent')) {
+                    eventTime.show();
+                } else {
+                    eventTime.hide();
+                }
+                if (!registerBeingViewed.get('isCumulative') && !registerBeingViewed.get('isBilling') && registerBeingViewed.get('hasEvent')) {
+                    measurementTime.hide();
+                    intervalField.hide();
+                    eventTime.show();
+                }
+            }
         }
 
         me.setDataQualities(registerRecord.get('readingQualities'));

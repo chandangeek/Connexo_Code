@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.devicetype.DeviceTypeDetail', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.deviceTypeDetail',
@@ -24,7 +28,8 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeDetail', {
                 items: [
                     {
                         ui: 'large',
-                        title: Uni.I18n.translate('general.overview', 'MDC', 'Overview'),
+                        itemId: 'device-type-detail-panel',
+                        title: Uni.I18n.translate('general.details', 'MDC', 'Details'),
                         flex: 1
                     },
                     {

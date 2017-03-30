@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtocolGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.deviceCommunicationProtocolGrid',
@@ -53,6 +57,7 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtoc
 
             {
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 menu: {xtype: 'device-communication-protocol-action-menu'},
                 privileges: Mdc.privileges.Communication.admin
             }

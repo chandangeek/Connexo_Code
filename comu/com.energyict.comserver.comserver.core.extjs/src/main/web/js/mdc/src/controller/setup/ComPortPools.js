@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.controller.setup.ComPortPools', {
     extend: 'Ext.app.Controller',
 
@@ -135,7 +139,7 @@ Ext.define('Mdc.controller.setup.ComPortPools', {
         var router = this.getController('Uni.controller.history.Router'),
             id = record.getId();
 
-        router.getRoute('administration/comportpools/edit').forward({id: id});
+        router.getRoute('administration/comportpools/detail/edit').forward({id: id});
     },
 
     showDeleteConfirmation: function (record) {

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.model.DeviceRegister', {
     extend: 'Uni.model.ParentVersion',
     requires: [
@@ -11,6 +15,7 @@ Ext.define('Mdc.model.DeviceRegister', {
         {name: 'overruledObisCode', type: 'string', useNull: true},
         {name: 'type', type: 'string', useNull: true},
         {name: 'isCumulative', type: 'boolean'},
+        {name: 'hasEvent', type: 'boolean'},
         {name: 'numberOfFractionDigits', type: 'number', useNull: true},
         {name: 'overruledNumberOfFractionDigits', type: 'number', useNull: true},
         {name: 'overflow', type: 'number', useNull: true},

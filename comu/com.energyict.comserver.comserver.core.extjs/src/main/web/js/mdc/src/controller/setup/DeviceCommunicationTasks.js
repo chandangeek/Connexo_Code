@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
     extend: 'Ext.app.Controller',
 
@@ -14,8 +18,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
 
     stores: [
         'CommunicationTasksOfDevice',
-        'ConnectionMethodsOfDevice',
-        'ProtocolDialectsOfDevice'
+        'ConnectionMethodsOfDevice'
     ],
 
     refs: [
@@ -42,9 +45,6 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
                 '#changeConnectionMethodOfDeviceComTask[action=changeConnectionMethodOfDeviceComTask]': {
                     click: this.showChangePopUp
                 },
-                '#changeProtocolDialectOfDeviceComTask[action=changeProtocolDialectOfDeviceComTask]': {
-                    click: this.showChangePopUp
-                },
                 '#changeUrgencyOfDeviceComTask[action=changeUrgencyOfDeviceComTask]': {
                     click: this.showChangePopUp
                 },
@@ -59,9 +59,6 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
                 },
                 '#changeButton[action=changeUrgencyOfDeviceComTask]': {
                     click: this.changeUrgency
-                },
-                '#changeButton[action=changeProtocolDialectOfDeviceComTask]': {
-                    click: this.changeProtocolDialect
                 },
                 '#changeButton[action=changeFrequencyOfDeviceComTask]': {
                     click: this.changeFrequency
@@ -122,11 +119,6 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
 
         if(menu.down('#changeConnectionMethodOfDeviceComTask')) {
             menu.down('#changeConnectionMethodOfDeviceComTask').show();
-        }
-        if(menu.down('#changeProtocolDialectOfDeviceComTask')) {
-            if (isNotShared) {
-                menu.down('#changeProtocolDialectOfDeviceComTask').show();
-            }
         }
         if(menu.down('#changeUrgencyOfDeviceComTask')) {
             menu.down('#changeUrgencyOfDeviceComTask').show();
@@ -221,18 +213,6 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
                     }
                 });
                 break;
-//            case 'changeFrequencyOfDeviceComTask':
-//                me.showPopUp(menuItem.action,null,comTask.get('temporalExpression'));
-//                break;
-            case 'changeProtocolDialectOfDeviceComTask':
-                var protocolDialectsOfDeviceStore = this.getProtocolDialectsOfDeviceStore();
-                protocolDialectsOfDeviceStore.getProxy().setExtraParam('deviceId', this.deviceId);
-                protocolDialectsOfDeviceStore.load({
-                    callback: function () {
-                        me.showPopUp(menuItem.action, protocolDialectsOfDeviceStore, comTask.get('protocolDialect'));
-                    }
-                });
-                break;
             case 'changeUrgencyOfDeviceComTask':
                 me.showPopUp(menuItem.action, null, comTask.get('urgency'),comTask.get('scheduleName'));
                 break;
@@ -276,14 +256,14 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
             Uni.I18n.translate('deviceCommunicationTask.frequencyChanged', 'MDC', 'Frequency changed'));
     },
 
-    changeProtocolDialect: function () {
-        var request = {};
-        var values = this.getChangeConnectionItemForm().getForm().getValues();
-        request.protocolDialect = values.name;
-        this.sendToServer(request,
-            '/api/ddr/devices/' + encodeURIComponent(this.deviceId) + '/comtasks/' + this.comTask.id + '/protocoldialect',
-            Uni.I18n.translate('deviceCommunicationTask.protocolDialectChanged', 'MDC', 'Protocol dialect changed'));
-    },
+    //changeProtocolDialect: function () {
+    //    var request = {};
+    //    var values = this.getChangeConnectionItemForm().getForm().getValues();
+    //    request.protocolDialect = values.name;
+    //    this.sendToServer(request,
+    //        '/api/ddr/devices/' + encodeURIComponent(this.deviceId) + '/comtasks/' + this.comTask.id + '/protocoldialect',
+    //        Uni.I18n.translate('deviceCommunicationTask.protocolDialectChanged', 'MDC', 'Protocol dialect changed'));
+    //},
 
     activateDeviceComTask: function () {
         var request = {};

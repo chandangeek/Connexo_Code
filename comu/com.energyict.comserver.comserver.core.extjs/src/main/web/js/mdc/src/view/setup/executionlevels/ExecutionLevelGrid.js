@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.executionlevels.ExecutionLevelGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.execution-level-grid',
@@ -36,6 +40,7 @@ Ext.define('Mdc.view.setup.executionlevels.ExecutionLevelGrid', {
             },
             {
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 privileges: Mdc.privileges.DeviceType.admin,
                 menu: {
                     xtype: 'execution-level-action-menu'

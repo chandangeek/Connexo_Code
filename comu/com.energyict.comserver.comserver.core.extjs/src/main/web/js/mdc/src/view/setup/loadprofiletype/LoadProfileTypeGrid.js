@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.loadProfileTypeGrid',
@@ -32,6 +36,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeGrid', {
             },
             {
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 itemId: 'load-profile-type-action-menu-column',
                 menu: {xtype: 'load-profile-type-action-menu'}
             }

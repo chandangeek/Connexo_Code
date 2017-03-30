@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.register.RegisterMappingsGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.registerMappingsGrid',
@@ -24,15 +28,17 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsGrid', {
             {
                 xtype: 'reading-type-column',
                 dataIndex: 'readingType',
-                flex: 1
+                flex: 4
             },
             {
                 xtype: 'obis-column',
-                dataIndex: 'obisCode'
+                dataIndex: 'obisCode',
+                flex: 1
             },
 
             {
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 privileges: Mdc.privileges.DeviceType.admin,
                 menu: {
                     xtype: 'register-mapping-action-menu',

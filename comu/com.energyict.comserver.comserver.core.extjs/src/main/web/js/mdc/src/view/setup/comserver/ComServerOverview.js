@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.comserver.ComServerOverview', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.comServerOverview',
@@ -16,7 +20,8 @@ Ext.define('Mdc.view.setup.comserver.ComServerOverview', {
             items: [
                 {
                     ui: 'large',
-                    title: Uni.I18n.translate('general.overview','MDC','Overview'),
+                    itemId: 'comserver-overview-panel',
+                    title: Uni.I18n.translate('general.details', 'MDC', 'Details'),
                     flex: 1
                 },
                 {

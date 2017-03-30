@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.devicelogbooks.Grid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.deviceLogbooksGrid',
@@ -52,6 +56,7 @@ Ext.define('Mdc.view.setup.devicelogbooks.Grid', {
         if (Mdc.privileges.Device.canAdministrateDeviceData()) {
             me.columns.push({
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 menu: {
                     xtype: 'deviceLogbooksActionMenu'
                 }

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.controller.setup.ComPortPoolComPortsView', {
     extend: 'Mdc.controller.setup.ComServerComPortsView',
 
@@ -114,7 +118,7 @@ Ext.define('Mdc.controller.setup.ComPortPoolComPortsView', {
         Uni.util.Common.loadNecessaryStores(storesArr, function () {
             comPortPoolModel.load(id, {
                 success: function (record) {
-                    widget.down('comportpoolsidemenu #comportpoolLink').setText(record.get('name'));
+                    widget.down('comportpoolsidemenu').setHeader(record.get('name'));
                     widget.comPortPool = record;
                     me.getApplication().fireEvent('comPortPoolOverviewLoad', record);
                     widget.setLoading(false);

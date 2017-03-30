@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.controller.setup.ComServerOverview', {
     extend: 'Mdc.controller.setup.ComServersView',
 
@@ -78,7 +82,7 @@ Ext.define('Mdc.controller.setup.ComServerOverview', {
                         me.getApplication().fireEvent('changecontentevent', widget);
                         form.loadRecord(record);
                         form.up('container').down('container').down('button').menu.record = record;
-                        widget.down('comserversidemenu #comserverLink').setText(record.get('name'));
+                        widget.down('comserversidemenu').setHeader(record.get('name'));
                         me.getApplication().fireEvent('comServerOverviewLoad', record);
                     },
                     callback: function () {

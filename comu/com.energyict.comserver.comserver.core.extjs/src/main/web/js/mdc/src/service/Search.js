@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.service.Search', {
     extend: 'Uni.service.Search',
 
@@ -5,7 +9,7 @@ Ext.define('Mdc.service.Search', {
         var me = this;
         me.defaultColumns = {
             'com.energyict.mdc.device.data.Device': ['id', 'name', 'serialNumber', 'deviceTypeName', 'deviceConfigurationName', 'state', 'location'],
-            'com.elster.jupiter.metering.UsagePoint': ['name', 'displayServiceCategory', 'displayMetrologyConfiguration']
+            'com.elster.jupiter.metering.UsagePoint': ['name', 'displayServiceCategory', 'displayMetrologyConfiguration', 'location']
         };
         me.callParent(arguments);
     },

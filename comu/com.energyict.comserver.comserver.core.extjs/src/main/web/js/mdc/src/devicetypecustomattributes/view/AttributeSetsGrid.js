@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.devicetypecustomattributes.view.AttributeSetsGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.device-type-custom-attribute-sets-grid',
@@ -39,6 +43,7 @@ Ext.define('Mdc.devicetypecustomattributes.view.AttributeSetsGrid', {
             },
             {
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 privileges: Mdc.privileges.DeviceType.admin,
                 menu: {
                     xtype: 'device-type-custom-attribute-sets-action-menu',

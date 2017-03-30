@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.store.ProtocolDialectsOfDevice', {
     extend: 'Ext.data.Store',
     requires: [
@@ -7,10 +11,13 @@ Ext.define('Mdc.store.ProtocolDialectsOfDevice', {
     storeId: 'ProtocolDialectsOfDevice',
     proxy: {
         type: 'rest',
-        url: '/api/ddr/devices/{deviceId}/protocoldialects',
+        urlTpl: '/api/ddr/devices/{deviceId}/protocoldialects',
         reader: {
             type: 'json',
             root: 'protocolDialects'
+        },
+        setUrl: function (deviceId) {
+            this.url = this.urlTpl.replace('{deviceId}', deviceId);
         }
     }
 });
