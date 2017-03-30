@@ -10,6 +10,7 @@ import com.elster.jupiter.pki.ClientCertificateWrapper;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.pki.RequestableCertificateWrapper;
+import com.elster.jupiter.pki.security.Privileges;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
@@ -24,6 +25,7 @@ import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
@@ -65,7 +67,7 @@ public class CertificateWrapperResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-//    @RolesAllowed({Privileges.Constants.VIEW_TASK_OVERVIEW})
+    @RolesAllowed({Privileges.Constants.VIEW_CERTIFICATES, Privileges.Constants.ADMINISTRATE_CERTIFICATES})
     public PagedInfoList getCertificates(@BeanParam JsonQueryParameters queryParameters) {
         List<CertificateWrapperInfo> infoList = pkiService.findAllCertificates()
                 .from(queryParameters)
@@ -79,6 +81,7 @@ public class CertificateWrapperResource {
     @POST
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.TEXT_PLAIN)
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_CERTIFICATES})
     @Transactional
     public Response importNewCertificate(
             @FormDataParam("file") InputStream certificateInputStream,
@@ -95,6 +98,7 @@ public class CertificateWrapperResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Path("/{id}")
+    @RolesAllowed({Privileges.Constants.VIEW_CERTIFICATES, Privileges.Constants.ADMINISTRATE_CERTIFICATES})
     public CertificateWrapperInfo getCertificate(@PathParam("id") long certificateId) {
         CertificateWrapper certificateWrapper = pkiService.findCertificateWrapper(certificateId)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CERTIFICATE));
@@ -106,6 +110,7 @@ public class CertificateWrapperResource {
     @Transactional
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_CERTIFICATES})
     public Response removeCertificate(@PathParam("id") long certificateId) {
         CertificateWrapper certificateWrapper = pkiService.findCertificateWrapper(certificateId)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CERTIFICATE));
@@ -116,6 +121,7 @@ public class CertificateWrapperResource {
     @POST // This should be PUT but has to be POST due to some 3th party issue
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.TEXT_PLAIN)
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_CERTIFICATES})
     @Path("/{id}")
     @Transactional
     public Response importCertificateIntoExistingWrapper(
@@ -137,6 +143,7 @@ public class CertificateWrapperResource {
     @POST // This should be PUT but has to be POST due to some 3th party issue
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_CERTIFICATES})
     @Path("/csr")
     @Transactional
     public Response createCertificateWrapperWithKeysAndCSR(CsrInfo csrInfo) {
@@ -164,6 +171,7 @@ public class CertificateWrapperResource {
     @GET
     @Path("{id}/download/csr")
     @Produces({MediaType.APPLICATION_OCTET_STREAM, MediaType.APPLICATION_JSON+";charset=UTF-8"})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_CERTIFICATES})
     public Response downloadCsr(@PathParam("id") long certificateId) {
         CertificateWrapper certificateWrapper = pkiService.findCertificateWrapper(certificateId)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CERTIFICATE));
@@ -190,6 +198,7 @@ public class CertificateWrapperResource {
     @GET
     @Path("{id}/download/certificate")
     @Produces({MediaType.APPLICATION_OCTET_STREAM, MediaType.APPLICATION_JSON+";charset=UTF-8"})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_CERTIFICATES})
     public Response downloadCertificate(@PathParam("id") long certificateId) {
         CertificateWrapper certificateWrapper = pkiService.findCertificateWrapper(certificateId)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CERTIFICATE));

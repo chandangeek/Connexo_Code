@@ -9,6 +9,7 @@ import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.pki.TrustedCertificate;
+import com.elster.jupiter.pki.security.Privileges;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
@@ -19,6 +20,7 @@ import com.elster.jupiter.rest.util.Transactional;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
@@ -63,6 +65,7 @@ public class TrustStoreResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_CERTIFICATES, Privileges.Constants.ADMINISTRATE_TRUST_STORES})
     public PagedInfoList getTrustStores(@BeanParam JsonQueryParameters queryParameters) {
         return PagedInfoList.fromCompleteList("trustStores", trustStoreInfoFactory.asInfoList(this.pkiService.getAllTrustStores()), queryParameters);
     }
@@ -70,6 +73,7 @@ public class TrustStoreResource {
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_CERTIFICATES, Privileges.Constants.ADMINISTRATE_TRUST_STORES})
     public TrustStoreInfo getTrustStore(@PathParam("id") long id) {
         TrustStore trustStore = findTrustStoreOrThrowException(id);
         return trustStoreInfoFactory.asInfo(trustStore);
@@ -78,6 +82,7 @@ public class TrustStoreResource {
     @GET
     @Path("/{id}/certificates")
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_CERTIFICATES, Privileges.Constants.ADMINISTRATE_TRUST_STORES})
     public PagedInfoList getCertificates(@PathParam("id") long id, @BeanParam JsonQueryParameters queryParameters) {
         TrustStore trustStore = findTrustStoreOrThrowException(id);
         return asPagedInfoList(certificateInfoFactory.asInfo(trustStore.getCertificates()), "certificates", queryParameters);
@@ -85,6 +90,7 @@ public class TrustStoreResource {
 
     @GET
     @Path("{id}/certificates/{certificateId}/download/certificate")
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_TRUST_STORES})
     @Produces({MediaType.APPLICATION_OCTET_STREAM, MediaType.APPLICATION_JSON+";charset=UTF-8"})
     public Response downloadCertificate(@PathParam("id") long trustStoreId, @PathParam("certificateId") long certificateId) {
         CertificateWrapper certificateWrapper = pkiService.findCertificateWrapper(certificateId)
@@ -116,6 +122,7 @@ public class TrustStoreResource {
     @Path("/{id}/certificates/single")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.TEXT_PLAIN)
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_TRUST_STORES})
     @Transactional
     public Response importSingleCertificate(
             @PathParam("id") long trustStoreId,
@@ -145,6 +152,7 @@ public class TrustStoreResource {
     @Path("/{id}/certificates/keystore")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.TEXT_PLAIN)
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_TRUST_STORES})
     @Transactional
     public Response importKeyStore(
             @PathParam("id") long trustStoreId,
@@ -170,7 +178,7 @@ public class TrustStoreResource {
     @Path("/{id}/validateKeyStoreFile")
     @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-//    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_TRUST_STORES})
     public Response validateKeyStoreFile(TrustStoreInfo info) {
         if (info.keyStoreFileSize != null && info.keyStoreFileSize.intValue() > MAX_FILE_SIZE) {
             throw new LocalizedFieldValidationException(MessageSeeds.FILE_TOO_BIG, "keyStoreFile");
@@ -182,6 +190,7 @@ public class TrustStoreResource {
     @POST
     @Transactional
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_TRUST_STORES})
     public TrustStoreInfo addTrustStore(TrustStoreInfo info) {
         PkiService.TrustStoreBuilder builder = pkiService.newTrustStore(info.name);
         if (info.description != null) {
@@ -195,7 +204,7 @@ public class TrustStoreResource {
     @Transactional
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-//    @RolesAllowed({Privileges.Constants.VIEW_DEVICE_LIFE_CYCLE})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_TRUST_STORES})
     public Response editTrustStore(@PathParam("id") long id, TrustStoreInfo info) {
         TrustStore trustStore = pkiService.findAndLockTrustStoreByIdAndVersion(id, info.version)
             .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
@@ -210,6 +219,7 @@ public class TrustStoreResource {
     @DELETE
     @Transactional
     @Path("/{id}")
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_TRUST_STORES})
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     public Response deleteTrustStore(@PathParam("id") long id) {
         findTrustStoreOrThrowException(id).delete();
@@ -220,6 +230,7 @@ public class TrustStoreResource {
     @Transactional
     @Path("/{id}/certificates/{certificateId}")
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_TRUST_STORES})
     public Response removeTrustedCertificate(@PathParam("id") long trustStoreId, @PathParam("certificateId") long certificateId) {
         CertificateWrapper certificateWrapper = pkiService.findCertificateWrapper(certificateId)
             .orElseThrow( exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CERTIFICATE, certificateId) );
