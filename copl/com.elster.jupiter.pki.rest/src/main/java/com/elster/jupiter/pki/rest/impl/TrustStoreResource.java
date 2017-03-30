@@ -90,7 +90,7 @@ public class TrustStoreResource {
         CertificateWrapper certificateWrapper = pkiService.findCertificateWrapper(certificateId)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CERTIFICATE));
         if (!TrustedCertificate.class.isAssignableFrom(certificateWrapper.getClass()) ||
-                ((TrustedCertificate)certificateWrapper).getTrustStore().getId()==trustStoreId) {
+                ((TrustedCertificate)certificateWrapper).getTrustStore().getId()!=trustStoreId) {
             throw exceptionFactory.newException(MessageSeeds.NO_SUCH_CERTIFICATE);
         }
         if (!certificateWrapper.getCertificate().isPresent()) {
