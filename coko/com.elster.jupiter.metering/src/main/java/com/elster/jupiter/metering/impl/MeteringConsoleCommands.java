@@ -55,6 +55,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -89,14 +90,15 @@ import java.util.stream.Stream;
         "osgi.command.function=addRequirement",
         "osgi.command.function=addRequirementWithTemplateReadingType",
         "osgi.command.function=deliverables",
+        "osgi.command.function=contracts",
         "osgi.command.function=addDeliverable",
         "osgi.command.function=addDeliverableExpert",
+        "osgi.command.function=addContract",
         "osgi.command.function=updateDeliverable",
         "osgi.command.function=updateDeliverableReadingType",
         "osgi.command.function=updateDeliverableFormula",
         "osgi.command.function=deleteDeliverable",
         "osgi.command.function=getDeliverablesOnContract",
-        "osgi.command.function=addDeliverableToContract",
         "osgi.command.function=removeDeliverableFromContract",
         "osgi.command.function=metrologyConfigs",
         "osgi.command.function=addDeviceLocation",
@@ -621,6 +623,20 @@ public class MeteringConsoleCommands {
                 .forEach(System.out::println);
     }
 
+    public void contracts(){System.out.println("Usage: contracts <metrology configuration id>");}
+
+    public void contracts(long id) {
+        printContracts(metrologyConfigurationService.findMetrologyConfiguration(id)
+                .orElseThrow(() -> new IllegalArgumentException("No such metrology configuration"))
+                .getContracts());
+    }
+
+    private void printContracts(List<MetrologyContract> contracts) {
+        contracts.stream()
+                .map(contract -> "Id : " + contract.getId() + " metrology purpose: " + contract.getMetrologyPurpose().getName())
+                .forEach(System.out::println);
+    }
+
     private ServerExpressionNode getExpressionNode(ReadingTypeDeliverable deliverable) {
         return this.getExpressionNode(deliverable.getFormula());
     }
@@ -629,8 +645,21 @@ public class MeteringConsoleCommands {
         return (ServerExpressionNode) formula.getExpressionNode();
     }
 
+    public void addContract(){
+        System.out.println("Usage: addContract  <metrology configuration id> <default purpose>");
+    }
+
+    public void addContract(long id, String defaultPurpose){
+        MetrologyPurpose purpose = metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.valueOf(defaultPurpose))
+                .orElseThrow(() -> new NoSuchElementException("Default purposes not installed"));
+        MetrologyContract contract = metrologyConfigurationService.findMetrologyConfiguration(id)
+                .orElseThrow(() -> new IllegalArgumentException("No such metrology configuration"))
+                .addMetrologyContract(purpose);
+        System.out.println(Collections.singletonList(contract));
+    }
+
     public void addDeliverable() {
-        System.out.println("Usage: addDeliverable  <metrology configuration id> <name> <reading type> <formula string>");
+        System.out.println("Usage: addDeliverable  <metrology contract id> <name> <reading type> <formula string>");
     }
 
     public void addDeliverable(long metrologyContractId, String name, String readingTypeString, String formulaString) {
@@ -749,10 +778,6 @@ public class MeteringConsoleCommands {
                     .addMetrologyContract(purpose);
             printDeliverables(contract.getDeliverables());
         }
-    }
-
-    public void addDeliverableToContract() {
-        System.out.println("Usage: addDeliverableToContract <metrology configuration id> <deliverable id> (" + Stream.of(DefaultMetrologyPurpose.values()).map(DefaultMetrologyPurpose::name).collect(Collectors.joining(" | ")) + ")");
     }
 
     public void removeDeliverableFromContract() {
