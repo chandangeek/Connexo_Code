@@ -1,4 +1,8 @@
 
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.alarms.impl.actions;
 
 import com.elster.jupiter.issue.share.AbstractIssueAction;
@@ -18,7 +22,6 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.WorkGroup;
 import com.elster.jupiter.util.sql.SqlBuilder;
-import com.energyict.mdc.device.alarms.impl.i18n.MessageSeeds;
 import com.energyict.mdc.device.alarms.impl.i18n.TranslationKeys;
 import com.energyict.mdc.device.alarms.impl.records.DeviceAlarmAssigneeImpl;
 import com.energyict.mdc.device.alarms.security.Privileges;
@@ -63,13 +66,9 @@ public class AssignDeviceAlarmAction extends AbstractIssueAction {
         issue.update();
         getCommentFromParameters(properties).ifPresent(comment -> issue.addComment(comment, (User) threadPrincipalService.getPrincipal()));
         if (assignee.getUser() == null && assignee.getWorkGroup() == null) {
-            result.success(getThesaurus().getFormat(MessageSeeds.ACTION_ALARM_WAS_UNASSIGNED).format());
-        } else if (assignee.getUser() == null) {
-            result.success(getThesaurus().getFormat(MessageSeeds.ACTION_ALARM_WAS_ASSIGNED_WORKGROUP).format(assignee.getWorkGroup().getName()));
-        } else if (assignee.getWorkGroup() == null) {
-            result.success(getThesaurus().getFormat(MessageSeeds.ACTION_ALARM_WAS_ASSIGNED_USER).format(assignee.getUser().getName()));
+            result.success(getThesaurus().getFormat(TranslationKeys.ACTION_ALARM_UNASSIGNED).format());
         } else {
-            result.success(getThesaurus().getFormat(MessageSeeds.ACTION_ALARM_WAS_ASSIGNED_USER_AND_WORKGROUP).format(assignee.getUser().getName(), assignee.getWorkGroup().getName()));
+            result.success(getThesaurus().getFormat(TranslationKeys.ACTION_ALARM_ASSIGNED).format());
         }
         return result;
     }

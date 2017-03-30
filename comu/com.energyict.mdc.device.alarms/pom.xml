@@ -1,3 +1,7 @@
+<!--
+  ~ Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+  -->
+
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
@@ -108,16 +112,31 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>upgrade</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>fsm</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.device.lifecycle.config</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>time</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.servicemix.bundles</groupId>
+            <artifactId>org.apache.servicemix.bundles.json</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>bpm</artifactId>
+        </dependency>
 
         <!-- Test dependencies -->
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>datavault</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>fsm</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -138,11 +157,6 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>pubsub</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>time</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -226,11 +240,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.energyict</groupId>
-            <artifactId>mdc.device.lifecycle.config</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.core</artifactId>
             <scope>test</scope>
@@ -248,11 +257,6 @@
         <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.servicemix.bundles</groupId>
-            <artifactId>org.apache.servicemix.bundles.json</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -288,10 +292,6 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>servicecall</artifactId>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.servicemix.bundles</groupId>
-            <artifactId>org.apache.servicemix.bundles.json</artifactId>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>

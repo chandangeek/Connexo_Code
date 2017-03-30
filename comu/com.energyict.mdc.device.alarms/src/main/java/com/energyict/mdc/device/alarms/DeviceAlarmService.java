@@ -1,15 +1,21 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.alarms;
 
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.share.IssueEvent;
+import com.elster.jupiter.issue.share.IssueGroupFilter;
 import com.elster.jupiter.issue.share.entity.Entity;
+import com.elster.jupiter.issue.share.entity.IssueGroup;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
-import com.elster.jupiter.issue.share.service.IssueService;
-import com.energyict.mdc.device.alarms.entity.HistoricalDeviceAlarm;
 import com.energyict.mdc.device.alarms.entity.DeviceAlarm;
+import com.energyict.mdc.device.alarms.entity.HistoricalDeviceAlarm;
 import com.energyict.mdc.device.alarms.entity.OpenDeviceAlarm;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface DeviceAlarmService {
@@ -31,4 +37,6 @@ public interface DeviceAlarmService {
     Finder<? extends DeviceAlarm> findAlarms(DeviceAlarmFilter filter, Class<?>... eagers);
 
     OpenDeviceAlarm createAlarm(OpenIssue baseIssue, IssueEvent issueEvent);
+
+    List<IssueGroup> getDeviceAlarmGroupList(IssueGroupFilter builder);
 }

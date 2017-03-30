@@ -1,9 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.alarms;
 
+import com.elster.jupiter.issue.share.Priority;
 import com.elster.jupiter.issue.share.entity.DueDateRange;
 import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
-import com.elster.jupiter.issue.share.Priority;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.WorkGroup;
@@ -13,7 +17,6 @@ import aQute.bnd.annotation.ProviderType;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 @ProviderType
 public class DeviceAlarmFilter {

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.alarms.entity;
 
 import com.elster.jupiter.issue.share.entity.Issue;
@@ -11,5 +15,5 @@ public interface DeviceAlarm extends Issue {
 
     Boolean isStatusCleared();
 
-    void setClearedStatus();
+    void toggleClearedStatus();
 }

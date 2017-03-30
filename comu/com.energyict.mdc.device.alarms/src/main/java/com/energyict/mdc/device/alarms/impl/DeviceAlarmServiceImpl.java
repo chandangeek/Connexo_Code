@@ -1,16 +1,23 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.alarms.impl;
 
+import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.issue.share.IssueEvent;
+import com.elster.jupiter.issue.share.IssueGroupFilter;
 import com.elster.jupiter.issue.share.IssueProvider;
 import com.elster.jupiter.issue.share.Priority;
 import com.elster.jupiter.issue.share.entity.Entity;
 import com.elster.jupiter.issue.share.entity.HistoricalIssue;
 import com.elster.jupiter.issue.share.entity.Issue;
+import com.elster.jupiter.issue.share.entity.IssueGroup;
 import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.IssueType;
@@ -30,6 +37,8 @@ import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.QueryExecutor;
+import com.elster.jupiter.time.TimeService;
+import com.elster.jupiter.time.spi.RelativePeriodCategoryTranslationProvider;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
@@ -41,6 +50,7 @@ import com.energyict.mdc.device.alarms.entity.DeviceAlarm;
 import com.energyict.mdc.device.alarms.entity.HistoricalDeviceAlarm;
 import com.energyict.mdc.device.alarms.entity.OpenDeviceAlarm;
 import com.energyict.mdc.device.alarms.impl.database.TableSpecs;
+import com.energyict.mdc.device.alarms.impl.database.groups.DeviceAlarmGroupOperation;
 import com.energyict.mdc.device.alarms.impl.i18n.MessageSeeds;
 import com.energyict.mdc.device.alarms.impl.i18n.TranslationKeys;
 import com.energyict.mdc.device.alarms.impl.install.Installer;
@@ -68,10 +78,10 @@ import static com.elster.jupiter.upgrade.InstallIdentifier.identifier;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(name = "com.energyict.mdc.device.alarms.DeviceAlarmServiceImpl",
-        service = {TranslationKeyProvider.class, MessageSeedProvider.class, DeviceAlarmService.class, IssueProvider.class, IssueGroupTranslationProvider.class},
+        service = {TranslationKeyProvider.class, MessageSeedProvider.class, DeviceAlarmService.class, IssueProvider.class, IssueGroupTranslationProvider.class, RelativePeriodCategoryTranslationProvider.class},
         property = "name=" + DeviceAlarmService.COMPONENT_NAME,
         immediate = true)
-public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSeedProvider, DeviceAlarmService, IssueProvider, IssueGroupTranslationProvider {
+public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSeedProvider, DeviceAlarmService, IssueProvider, IssueGroupTranslationProvider, RelativePeriodCategoryTranslationProvider {
     private volatile IssueService issueService;
     private volatile IssueActionService issueActionService;
     private volatile MessageService messageService;
@@ -83,6 +93,8 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
     private volatile UpgradeService upgradeService;
     private volatile UserService userService;
     private volatile MeteringService meteringService;
+    private volatile TimeService timeService;
+    private volatile BpmService bpmService;
 
     // For OSGi framework
     public DeviceAlarmServiceImpl() {
@@ -99,7 +111,9 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
                                   EventService eventService,
                                   UpgradeService upgradeService,
                                   UserService userService,
-                                  MeteringService meteringService) {
+                                  MeteringService meteringService,
+                                  BpmService bpmService,
+                                  TimeService timeService) {
         this();
         setMessageService(messageService);
         setIssueService(issueService);
@@ -111,6 +125,8 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
         setUpgradeService(upgradeService);
         setUserService(userService);
         setMeteringService(meteringService);
+        setTimeService(timeService);
+        setBpmService(bpmService);
 
         activate();
     }
@@ -131,6 +147,8 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
                 bind(DeviceService.class).toInstance(deviceService);
                 bind(EventService.class).toInstance(eventService);
                 bind(UserService.class).toInstance(userService);
+                bind(TimeService.class).toInstance(timeService);
+                bind(BpmService.class).toInstance(bpmService);
             }
         });
         upgradeService.register(identifier("MultiSense", DeviceAlarmService.COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
@@ -148,8 +166,14 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
     }
 
     @Reference
+    public final void setBpmService(BpmService bpmService) {
+        this.bpmService = bpmService;
+    }
+
+    @Reference
     public final void setNlsService(NlsService nlsService) {
-        this.thesaurus = nlsService.getThesaurus(DeviceAlarmService.COMPONENT_NAME, Layer.DOMAIN);
+        this.thesaurus = nlsService.getThesaurus(DeviceAlarmService.COMPONENT_NAME, Layer.DOMAIN)
+                .join(nlsService.getThesaurus(TimeService.COMPONENT_NAME, Layer.DOMAIN));
     }
 
     @Reference
@@ -183,6 +207,11 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
     @Reference
     public void setEventService(EventService eventService) {
         this.eventService = eventService;
+    }
+
+    @Reference
+    public void setTimeService(TimeService timeService) {
+        this.timeService = timeService;
     }
 
     @Reference
@@ -253,6 +282,11 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
                 .size()]));
     }
 
+    @Override
+    public List<IssueGroup> getDeviceAlarmGroupList(IssueGroupFilter filter) {
+        return DeviceAlarmGroupOperation.from(filter, this.dataModel, thesaurus).execute();
+    }
+
     public DataModel getDataModel() {
         return this.dataModel;
     }
@@ -260,7 +294,7 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
     private List<Class<?>> determineMainApiClass(DeviceAlarmFilter filter) {
         List<Class<?>> eagerClasses = new ArrayList<>();
         List<IssueStatus> statuses = filter.getStatuses();
-        if (!statuses.isEmpty() && statuses.stream().allMatch(status -> !status.isHistorical())) {
+        if (!statuses.isEmpty() && statuses.stream().noneMatch(IssueStatus::isHistorical)) {
             eagerClasses.add(OpenDeviceAlarm.class);
             eagerClasses.add(OpenIssue.class);
         } else if (!statuses.isEmpty() && statuses.stream().allMatch(IssueStatus::isHistorical)) {
@@ -339,10 +373,10 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
         }
         //filter by create time
         if (filter.getStartCreateTime() != null) {
-            condition = condition.and(where("createTime").isGreaterThanOrEqual(filter.getStartCreateTime()));
+            condition = condition.and(where("baseIssue.createDateTime").isGreaterThanOrEqual(filter.getStartCreateTime()));
         }
         if (filter.getEndCreateTime() != null) {
-            condition = condition.and(where("createTime").isLessThanOrEqual(filter.getEndCreateTime()));
+            condition = condition.and(where("baseIssue.createDateTime").isLessThanOrEqual(filter.getEndCreateTime()));
         }
         return condition;
     }

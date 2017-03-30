@@ -1,9 +1,8 @@
-package com.energyict.mdc.device.alarms.impl;
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 
-import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.device.alarms.DeviceAlarmService;
-import com.energyict.mdc.device.alarms.impl.event.DeviceAlarmEventHandlerFactory;
+package com.energyict.mdc.device.alarms.impl;
 
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
@@ -12,6 +11,11 @@ import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.orm.OrmService;
+import com.energyict.mdc.device.alarms.DeviceAlarmService;
+import com.energyict.mdc.device.alarms.impl.event.DeviceAlarmEventHandlerFactory;
+import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.dynamic.PropertySpecService;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 
