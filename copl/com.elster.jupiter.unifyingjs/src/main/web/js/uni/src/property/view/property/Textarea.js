@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Uni.property.view.property.Textarea', {
     extend: 'Uni.property.view.property.Base',
 
@@ -8,7 +12,7 @@ Ext.define('Uni.property.view.property.Textarea', {
             name: this.getName(),
             itemId: me.key + 'textareafield',
             width: me.width,
-            grow: true,
+            height: 150,
             msgTarget: 'under',
             readOnly: me.isReadOnly,
             inputType: me.inputType,

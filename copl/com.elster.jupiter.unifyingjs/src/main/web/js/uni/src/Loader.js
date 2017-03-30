@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 /**
  * @class Uni.Loader
  *
@@ -62,6 +66,7 @@ Ext.define('Uni.Loader', {
         'Uni.override.menu.Item',
         'Uni.override.panel.Header',
         'Uni.override.panel.Panel',
+        'Uni.override.panel.Tool',
         'Uni.override.ux.window.Notification',
         'Uni.override.view.Table',
         'Uni.override.window.MessageBox',

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 /**
  * @class Uni.util.ReadingsGraph
  *
@@ -24,8 +28,22 @@ Ext.define('Uni.util.ReadingsGraph', {
                 opposite: false,
                 gridLineDashStyle: 'Dot',
                 showEmpty: false,
+                labels: {
+                    style: {
+                        color: '#686868',
+                        fontWeight: 'normal',
+                        fontSize: '14px',
+                        fontFamily: 'Lato, Helvetica, Arial, Verdana, Sans-serif'
+                    }
+                },
                 title: {
                     rotation: 270,
+                    style: {
+                        color: '#686868',
+                        fontWeight: 'normal',
+                        fontSize: '14px',
+                        fontFamily: 'Lato, Helvetica, Arial, Verdana, Sans-serif'
+                    },
                     text: unitOfMeasure
                 }
             },
@@ -77,7 +95,13 @@ Ext.define('Uni.util.ReadingsGraph', {
 
         graphView.chart = new Highcharts.StockChart({
             title: {
-                text: channelName
+                text: channelName,
+                style: {
+                    color: '#74af74',
+                    fontSize: '25px',
+                    fontWeight: 'normal',
+                    fontFamily: 'Lato, Helvetica, Arial, Verdana, Sans-serif'
+                }
             },
 
             chart: {
@@ -92,6 +116,14 @@ Ext.define('Uni.util.ReadingsGraph', {
             xAxis: {
                 type: 'datetime',
                 gridLineDashStyle: 'Dot',
+                labels: {
+                    style: {
+                        color: '#686868',
+                        fontWeight: 'normal',
+                        fontSize: '13px',
+                        fontFamily: 'Lato, Helvetica, Arial, Verdana, Sans-serif'
+                    }
+                },
                 gridLineWidth: 1,
                 dateTimeLabelFormats: {
                     second: '%H:%M<br/>%a %e %b',
@@ -138,6 +170,14 @@ Ext.define('Uni.util.ReadingsGraph', {
                         week: '%a %e<br/>%b %Y',
                         month: '%b %Y',
                         year: '%Y'
+                    },
+                    labels: {
+                        style: {
+                            color: '#686868',
+                            fontWeight: 'normal',
+                            fontSize: '14px',
+                            fontFamily: 'Lato, Helvetica, Arial, Verdana, Sans-serif'
+                        }
                     }
                 }
             },
@@ -145,15 +185,37 @@ Ext.define('Uni.util.ReadingsGraph', {
             rangeSelector: {
                 selected: 0,
                 inputEnabled: true,
-                buttons: zoomLevels
+                buttons: zoomLevels,
+                labelStyle: {
+                    color: '#686868',
+                    fontWeight: 'normal',
+                    fontSize: '14px',
+                    fontFamily: 'Lato, Helvetica, Arial, Verdana, Sans-serif'
+                },
+                inputStyle: {
+                    color: '#686868',
+                    fontWeight: 'normal',
+                    fontSize: '14px',
+                    fontFamily: 'Lato, Helvetica, Arial, Verdana, Sans-serif'
+                },
+                buttonTheme: {
+                    style: {
+                        color: '#686868',
+                        fontWeight: 'normal',
+                        fontSize: '14px',
+                        fontFamily: 'Lato, Helvetica, Arial, Verdana, Sans-serif'
+                    }
+                }
             },
 
             tooltip: {
                 shared: false,
                 style: {
-                    color: '#333333',
-                    fontSize: '12px',
-                    padding: '0px'
+                    color: '#686868',
+                    fontWeight: 'normal',
+                    fontSize: '14px',
+                    whiteSpace: 'nowrap',
+                    fontFamily: 'Lato, Helvetica, Arial, Verdana, Sans-serif'
                 },
                 useHTML: true,
                 formatter: function () {

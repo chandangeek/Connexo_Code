@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Uni.view.search.field.internal.QuantityRange', {
     extend: 'Ext.form.FieldSet',
     alias: 'widget.uni-search-internal-quantityrange',

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Uni.view.widget.WhatsGoingOn', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.whatsgoingon',
@@ -32,10 +36,32 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
                 }
             }
         };
-        this.store = 'Uni.store.WhatsGoingOn';
+        me.store = 'Uni.store.WhatsGoingOn';
 
+        var healthTypeStore = Ext.create('Uni.store.HealthCategories', {
+            filters : function(item){
+                if(item.data.type == 'issue'){
+                    return me.type == 'device'&& Isu.privileges.Issue.canViewAdminDevice();
+                }
+                if(item.data.type == 'alarm'){
+                    return me.type == 'device'&& Dal.privileges.Alarm.canViewAdmimAlarm();
+                }
+                if(item.data.type == 'process'){
+                    return Bpm.privileges.BpmManagement.canViewProcesses();
+                }
 
-        var healthTypeStore = Ext.getStore('Uni.store.HealthCategories') || Ext.create('Uni.store.HealthCategories');
+                if(item.data.type == 'servicecall') {
+                    return me.type == 'device'&& Scs.privileges.ServiceCall.canView();
+                }
+                return true;
+            }
+        });
+
+        if(healthTypeStore.data.items.length <= 1){
+            me.setVisible(false);
+            return;
+        }
+
         me.tools = [
             {
                 xtype: 'toolbar',
@@ -46,9 +72,11 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
                     {
                         xtype: 'combobox',
                         itemId: 'uni-whatsgoingon-combo',
+                        hidden: healthTypeStore.data.items.length <= 2,
                         value: 'all',
                         store: healthTypeStore,
                         displayField: 'displayValue',
+                        cls: 'uni-cb-item',
                         valueField: 'type',
                         listeners: {
                             change: function (combo, newvalue) {
@@ -57,14 +85,12 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
                         }
                     }
                 ]
-
             }
         ];
         me.callParent(arguments);
         if(this.autoBuild){
             me.buildWidget();
         }
-
     },
 
     buildWidget: function (type) {
@@ -98,6 +124,7 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
         }
         me.store.load({
             callback: function(){
+                me.setLoading(false);
                 me.store.clearFilter();
                 if (me.down('tabpanel')) {
                     me.down('tabpanel').removeAll();
@@ -144,7 +171,11 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
                             emptyText = Uni.I18n.translate('whatsGoingOn.nothingToShowProcesses', 'UNI', 'No active processes to show');
                             break;
                         default:
-                            emptyText = Uni.I18n.translate('whatsGoingOn.nothingToShow', 'UNI', 'No active alarms, issues, processes or service calls to show');
+                            if(me.type == 'device') {
+                                emptyText = Uni.I18n.translate('whatsGoingOn.nothingToShow', 'UNI', 'No active alarms, issues, processes or service calls to show');
+                            }else{
+                                emptyText = Uni.I18n.translate('whatsGoingOn.nothingToShowUP', 'UNI', 'No active processes to show');
+                            }
                             break;
 
                     }
@@ -307,7 +338,7 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
 
         switch (value.type) {
             case 'issue':
-                href = this.router.getRoute('workspace/issues/view').buildUrl({issueId: value.id}, {issueType: value.issueType});
+                href = this.router.getRoute('workspace/issues/view').buildUrl({issueId: value.id.replace(/\D/g,'')}, {issueType: value.issueType});
                 html = '<a class="a-underline" style="color:' + textColor + ';" href="' + href + '">' + value.description;
                 break;
             case 'servicecall':
@@ -315,7 +346,7 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
                 html = '<a class="a-underline" style="color:' + textColor + ';" href="' + href + '">' + value.reference + ' (' + value.description + ')';
                 break;
             case 'alarm':
-                href = this.router.getRoute('workspace/alarms/view').buildUrl({alarmId: value.id});
+                href = this.router.getRoute('workspace/alarms/view').buildUrl({alarmId: value.id.replace(/\D/g,'')});
                 html = '<a class="a-underline" style="color:' + textColor + ';" href="' + href + '">' + value.description;
                 break;
             case 'process':

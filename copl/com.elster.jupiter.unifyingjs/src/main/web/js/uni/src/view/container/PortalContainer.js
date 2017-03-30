@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Uni.view.container.PortalContainer', {
     extend: 'Ext.panel.Panel',
     xtype: 'portal-container',
@@ -32,6 +36,8 @@ Ext.define('Uni.view.container.PortalContainer', {
             return widget;
         }
 
+        me.applyBullets(items);
+
         widget = Ext.create('Ext.panel.Panel', {
             title: title,
             ui: 'tile',
@@ -52,6 +58,7 @@ Ext.define('Uni.view.container.PortalContainer', {
                 var menu = me.down('menu');
                 if(menu) {
                     menu.removeAll();
+                    me.applyBullets(items);
                     menu.add(items);
                 }
             }
@@ -62,5 +69,14 @@ Ext.define('Uni.view.container.PortalContainer', {
         }
 
         return widget;
+    },
+
+    applyBullets: function(items) {
+        Ext.Array.each(items, function(item) {
+            if (!item.text.startsWith('<span')) {
+                item.text = '<span class="icon-target" style="margin-right: 3px; cursor:pointer; text-decoration:none; display:inline-block; color:#A9A9A9; font-size:12px;"></span>'
+                    + item.text;
+            }
+        });
     }
 });

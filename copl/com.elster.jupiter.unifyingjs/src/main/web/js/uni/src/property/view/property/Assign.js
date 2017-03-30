@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Uni.property.view.property.Assign', {
     extend: 'Uni.property.view.property.Base',
     requires: [
@@ -42,9 +46,6 @@ Ext.define('Uni.property.view.property.Assign', {
                         listeners: {
                             render: function () {
                                 this.store.load();
-                            },
-                            change1: function (combo, newValue) {
-                                this.ownerCt.down('#cbo-user-assignee').fireEvent('workgroupChanged', newValue);
                             },
                             select: function (combo, newValue) {
                                 this.ownerCt.down('#cbo-user-assignee').fireEvent('workgroupChanged', newValue[0].get('id'));
@@ -113,6 +114,7 @@ Ext.define('Uni.property.view.property.Assign', {
         workgroupCombo.suspendEvents();
         workgroupCombo.setValue(jsonValue.workgroupId);
         workgroupCombo.resumeEvents();
+        userCombo.setWorkgroupId(jsonValue.workgroupId);
         userCombo.setValue(jsonValue.userId);
     },
 

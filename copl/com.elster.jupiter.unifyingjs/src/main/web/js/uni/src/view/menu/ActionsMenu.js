@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Uni.view.menu.ActionsMenu', {
     extend: 'Ext.menu.Menu',
     alias: 'widget.uni-actions-menu',

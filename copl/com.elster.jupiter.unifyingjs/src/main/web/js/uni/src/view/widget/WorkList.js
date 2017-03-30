@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Uni.view.widget.WorkList', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.work-list',
@@ -45,6 +49,7 @@ Ext.define('Uni.view.widget.WorkList', {
                         editable: false,
                         hidden: true,
                         displayField: 'name',
+                        cls: 'uni-cb-item',
                         listeners: {
                             change: function (combo, newValue) {
                                 var workItem = combo.findRecordByValue(newValue);

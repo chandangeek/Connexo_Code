@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Uni.property.view.property.Date', {
     extend: 'Uni.property.view.property.Base',
 
@@ -66,8 +70,9 @@ Ext.define('Uni.property.view.property.Date', {
                     this.callParent([value]);
                 }
             }
+        } else if (value === '') {
+            this.callParent([value]);
         }
-
     },
 
     getValue: function () {

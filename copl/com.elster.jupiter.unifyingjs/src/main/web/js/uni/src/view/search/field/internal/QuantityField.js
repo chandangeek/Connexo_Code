@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Uni.view.search.field.internal.QuantityField', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.uni-search-internal-quantityfield',

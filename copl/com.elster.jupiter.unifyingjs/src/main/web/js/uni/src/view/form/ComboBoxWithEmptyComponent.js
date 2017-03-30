@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 /**
  * @class Uni.view.form.ComboBoxWithEmptyComponent
  * This is a combobox which will show a text if the store of the combobox is empty
