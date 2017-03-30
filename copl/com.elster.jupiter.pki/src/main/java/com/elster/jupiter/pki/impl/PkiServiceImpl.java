@@ -62,7 +62,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
  * Created by bvn on 1/26/17.
  */
 @Component(name="PkiService",
-        service = PkiService.class,
+        service = { PkiService.class, TranslationKeyProvider.class },
         property = "name=" + PkiService.COMPONENTNAME,
         immediate = true)
 public class PkiServiceImpl implements PkiService, TranslationKeyProvider {
