@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.metering.config;
 
 import aQute.bnd.annotation.ProviderType;
@@ -6,6 +10,8 @@ import aQute.bnd.annotation.ProviderType;
 public interface UsagePointMetrologyConfigurationBuilder {
 
     UsagePointMetrologyConfigurationBuilder withDescription(String description);
+
+    UsagePointMetrologyConfigurationBuilder withGapAllowed(boolean isGapAllowed);
 
     UsagePointMetrologyConfiguration create();
 

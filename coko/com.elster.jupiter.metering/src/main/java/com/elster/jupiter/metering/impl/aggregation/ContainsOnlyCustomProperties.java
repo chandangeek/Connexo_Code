@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
 package com.elster.jupiter.metering.impl.aggregation;
@@ -45,7 +45,7 @@ class ContainsOnlyCustomProperties implements ExpressionNode.Visitor<Boolean> {
     @Override
     public Boolean visitOperation(OperationNode operationNode) {
         return operationNode.getLeftOperand().accept(this)
-            || operationNode.getRightOperand().accept(this);
+            && operationNode.getRightOperand().accept(this);
     }
 
     @Override

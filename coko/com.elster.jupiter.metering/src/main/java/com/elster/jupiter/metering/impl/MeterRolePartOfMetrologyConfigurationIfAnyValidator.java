@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
 package com.elster.jupiter.metering.impl;
@@ -58,7 +58,7 @@ class MeterRolePartOfMetrologyConfigurationIfAnyValidator implements ConstraintV
                 .map(emc -> emc.getMetrologyConfiguration().getMeterRoles())
                 .flatMap(Collection::stream)
                 .collect(Collectors.toSet());
-        if (effectiveMeterRoles.contains(meterRole)) {
+        if (effectiveMeterRoles.contains(meterRole) || effectiveMeterRoles.isEmpty()) {
             return true;
         } else {
             context.disableDefaultConstraintViolation();

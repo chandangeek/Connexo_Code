@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.cps.CustomPropertySet;
@@ -26,7 +30,6 @@ import javax.inject.Provider;
 import javax.validation.ValidatorFactory;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.Collections;
 
 import org.junit.Before;
@@ -116,7 +119,7 @@ public class ServiceCategoryImplTest {
     @Test
     public void testNewUsagePoint() {
         when(dataModel.getInstance(UsagePointImpl.class)).thenReturn(new UsagePointImpl(clock, dataModel, eventService, thesaurus, () -> null, () -> null, customPropertySetService, metrologyConfigurationService, dataAggregationService, usagePointLifeCycleConfigurationService));
-        when(dataModel.getInstance(UsagePointConnectionStateImpl.class)).thenAnswer(invocation -> new UsagePointConnectionStateImpl());
+        when(dataModel.getInstance(UsagePointConnectionStateImpl.class)).thenAnswer(invocation -> new UsagePointConnectionStateImpl(dataModel, thesaurus));
         UsagePointState usagePointState = mock(UsagePointState.class);
         when(usagePointState.isInitial()).thenReturn(true);
         UsagePointLifeCycle usagePointLifeCycle = mock(UsagePointLifeCycle.class);
@@ -178,7 +181,7 @@ public class ServiceCategoryImplTest {
         when(registeredCustomPropertySet.getViewPrivileges()).thenReturn(Sets.newHashSet(ViewPrivilege.LEVEL_1));
         when(registeredCustomPropertySet.getEditPrivileges()).thenReturn(Sets.newHashSet(EditPrivilege.LEVEL_2));
         when(registeredCustomPropertySet.getCustomPropertySet()).thenReturn(customPropertySet);
-        when(registeredCustomPropertySet.getCustomPropertySet().getPropertySpecs()).thenReturn(Arrays.asList(propertySpec));
+        when(registeredCustomPropertySet.getCustomPropertySet().getPropertySpecs()).thenReturn(Collections.singletonList(propertySpec));
         return registeredCustomPropertySet;
     }
 

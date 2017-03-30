@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.metering.impl.aggregation;
 
 import com.elster.jupiter.cbo.MetricMultiplier;
@@ -52,6 +56,12 @@ class ApplyUnitConversion implements ServerExpressionNode.Visitor<ServerExpressi
     public ServerExpressionNode visitProperty(CustomPropertyNode property) {
         // No replacement
         return property;
+    }
+
+    @Override
+    public ServerExpressionNode visitSyntheticLoadProfile(SyntheticLoadProfilePropertyNode slp) {
+        // No replacement
+        return slp;
     }
 
     @Override

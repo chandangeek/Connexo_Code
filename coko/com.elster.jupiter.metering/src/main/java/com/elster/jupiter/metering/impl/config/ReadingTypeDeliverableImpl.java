@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.cps.CustomPropertySetService;
@@ -10,9 +14,10 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.DeliverableType;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
+import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverableFilter;
-import com.elster.jupiter.metering.config.ReadingTypeDeliverableNode;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverablesCollector;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
@@ -24,7 +29,8 @@ import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.Instant;
-import java.util.List;
+import java.util.Collection;
+import java.util.stream.Collectors;
 
 
 @ValidDeliverable(groups = { Save.Create.class, Save.Update.class })
@@ -34,10 +40,10 @@ public class ReadingTypeDeliverableImpl implements ReadingTypeDeliverable, HasUn
     public enum Fields {
         ID("id"),
         NAME("name"),
-        METROLOGY_CONFIGURATION("metrologyConfiguration"),
         DELIVERABLE_TYPE("deliverableType"),
         READING_TYPE("readingType"),
-        FORMULA("formula"),;
+        FORMULA("formula"),
+        METROLOGY_CONTRACT("metrologyContract"),;
 
         private String javaFieldName;
 
@@ -63,7 +69,7 @@ public class ReadingTypeDeliverableImpl implements ReadingTypeDeliverable, HasUn
     @Size(max = Table.NAME_LENGTH, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
     private String name;
     @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
-    private Reference<ServerMetrologyConfiguration> metrologyConfiguration = ValueReference.absent();
+    private Reference<MetrologyContractImpl> metrologyContract = ValueReference.absent();
     @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     private Reference<ReadingType> readingType = ValueReference.absent();
     @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
@@ -94,9 +100,9 @@ public class ReadingTypeDeliverableImpl implements ReadingTypeDeliverable, HasUn
         this.customPropertySetService = customPropertySetService;
     }
 
-    public ReadingTypeDeliverableImpl init(ServerMetrologyConfiguration metrologyConfiguration, String name, DeliverableType deliverableType, ReadingType readingType, ServerFormula formula) {
+    public ReadingTypeDeliverableImpl init(MetrologyContractImpl metrologyContract, String name, DeliverableType deliverableType, ReadingType readingType, ServerFormula formula) {
         this.name = name;
-        this.metrologyConfiguration.set(metrologyConfiguration);
+        this.metrologyContract.set(metrologyContract);
         this.readingType.set(readingType);
         this.formula.set(formula);
         this.deliverableType = deliverableType;
@@ -119,7 +125,12 @@ public class ReadingTypeDeliverableImpl implements ReadingTypeDeliverable, HasUn
 
     @Override
     public MetrologyConfiguration getMetrologyConfiguration() {
-        return this.metrologyConfiguration.orNull();
+        return this.metrologyContract.getOptional().map(MetrologyContract::getMetrologyConfiguration).orElse(null);
+    }
+
+    @Override
+    public MetrologyContract getMetrologyContract() {
+        return this.metrologyContract.orNull();
     }
 
     @Override
@@ -139,20 +150,17 @@ public class ReadingTypeDeliverableImpl implements ReadingTypeDeliverable, HasUn
 
     private void setReadingType(ReadingType readingType) {
         doSetReadingType(readingType);
-        ReadingTypeDeliverable deliverableToUpdate =  this.getMetrologyConfiguration().getDeliverables().stream().filter(del -> del.equals(this)).findAny().orElse(null);
         // following code is necessary because to be able check for invalid formulas where this deliverable is used (check is done by the ValidDeliverable class)
         // we also need to set the new readingtype in the expression nodes (ReadingTypeDeliveryNodes) in the formulas that use the deliverable that is updated.
         // Otherwise they still contains the old readingtypes, because the nodes contains copies of the deliverables, no references (ORM framework)
-        if (deliverableToUpdate != null) {
-            //((ReadingTypeDeliverableImpl) deliverableToUpdate).doSetReadingType(readingType);
-        }
-        for (ReadingTypeDeliverable deliverable : this.getMetrologyConfiguration().getDeliverables()) {
-            List<ReadingTypeDeliverableNode> deliverableNodes = deliverable.getFormula().getExpressionNode().accept(new DeliverableNodesFromExpressionNode());
-            for (ReadingTypeDeliverableNode deliverableNode : deliverableNodes) {
-                if (deliverableNode.getReadingTypeDeliverable().equals(this)) {
-                    ((ReadingTypeDeliverableImpl) deliverableNode.getReadingTypeDeliverable()).doSetReadingType(readingType);
-                }
-            }
+        for (ReadingTypeDeliverable deliverable : this.getMetrologyConfiguration().getContracts().stream()
+                .map(MetrologyContract::getDeliverables)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList())) {
+            deliverable.getFormula().getExpressionNode().accept(ReadingTypeDeliverablesCollector.flat()).stream()
+                    .filter(this::equals)
+                    .map(ReadingTypeDeliverableImpl.class::cast)
+                    .forEach(deliverableImpl -> deliverableImpl.doSetReadingType(readingType));
         }
     }
 
@@ -181,7 +189,7 @@ public class ReadingTypeDeliverableImpl implements ReadingTypeDeliverable, HasUn
 
     private void completeUpdate() {
         Save.action(getId()).save(this.dataModel, this);
-        this.metrologyConfiguration.get().deliverableUpdated(this);
+        this.metrologyContract.get().deliverableUpdated(this);
         this.eventService.postEvent(EventType.READING_TYPE_DELIVERABLE_UPDATED.topic(), this);
     }
 
@@ -194,7 +202,7 @@ public class ReadingTypeDeliverableImpl implements ReadingTypeDeliverable, HasUn
 
     @Override
     public boolean validateName() {
-        ReadingTypeDeliverableFilter filter = new ReadingTypeDeliverableFilter().withMetrologyConfigurations(getMetrologyConfiguration());
+        ReadingTypeDeliverableFilter filter = new ReadingTypeDeliverableFilter().withMetrologyContracts(getMetrologyContract());
         return !this.metrologyConfigurationService.findReadingTypeDeliverable(filter)
                 .stream()
                 .anyMatch(candidate -> candidate.getId() != getId() && candidate.getName().equals(getName()));

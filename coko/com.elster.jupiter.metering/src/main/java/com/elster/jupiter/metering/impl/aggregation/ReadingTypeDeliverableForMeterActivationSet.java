@@ -1,11 +1,18 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.metering.impl.aggregation;
 
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
+import com.elster.jupiter.metering.impl.ChannelContract;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
+import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
 import com.google.common.collect.ImmutableList;
@@ -14,6 +21,7 @@ import com.google.common.collect.Range;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
@@ -51,8 +59,12 @@ class ReadingTypeDeliverableForMeterActivationSet {
         this.meterActivationSequenceNumber = meterActivationSequenceNumber;
         this.expressionNode = expressionNode;
         this.expressionReadingType = expressionReadingType;
-        this.requirements = this.expressionNode.accept(new RequirementsFromExpressionNode()).stream()
-                .map(VirtualRequirementNode::getRequirement).collect(Collectors.toList());
+        this.requirements =
+                this.expressionNode
+                        .accept(RequirementsFromExpressionNode.nonRecursiveOnDeliverables())
+                        .stream()
+                        .map(VirtualRequirementNode::getRequirement)
+                        .collect(Collectors.toList());
         this.targetReadingType = VirtualReadingType.from(deliverable.getReadingType());
     }
 
@@ -74,7 +86,7 @@ class ReadingTypeDeliverableForMeterActivationSet {
         return meterActivationSequenceNumber;
     }
 
-    private Range<Instant> getRange() {
+    Range<Instant> getRange() {
         return this.meterActivationSet.getRange();
     }
 
@@ -251,6 +263,8 @@ class ReadingTypeDeliverableForMeterActivationSet {
         this.appendTimelineToSelectClause(sqlBuilder);
         sqlBuilder.append(", ");
         this.appendReadingQualityToSelectClause(sqlBuilder);
+        sqlBuilder.append(", ");
+        this.appendSourceChannelsToSelectClause(sqlBuilder);
         sqlBuilder.append("\n  FROM ");
         sqlBuilder.append(this.sqlName());
         this.appendGroupByClauseIfApplicable(sqlBuilder);
@@ -339,8 +353,18 @@ class ReadingTypeDeliverableForMeterActivationSet {
 
     private void appendAggregatedReadingQuality(SqlBuilder sqlBuilder) {
         sqlBuilder.append("MAX(");
-        sqlBuilder.append(this.sqlName() + "." + SqlConstants.TimeSeriesColumnNames.READINGQUALITY.sqlName());
+        this.appendTimeSeriesColumnName(SqlConstants.TimeSeriesColumnNames.READINGQUALITY, sqlBuilder, this.sqlName());
         sqlBuilder.append(")");
+    }
+
+    private void appendSourceChannelsToSelectClause(SqlBuilder sqlBuilder) {
+        if (this.resultValueNeedsTimeBasedAggregation()) {
+            sqlBuilder.append("MAX(");
+            this.appendTimeSeriesColumnName(SqlConstants.TimeSeriesColumnNames.SOURCECHANNELS, sqlBuilder, this.sqlName());
+            sqlBuilder.append(")");
+        } else {
+            this.appendTimeSeriesColumnName(SqlConstants.TimeSeriesColumnNames.SOURCECHANNELS, sqlBuilder, this.sqlName());
+        }
     }
 
     private void appendGroupByClauseIfApplicable(SqlBuilder sqlBuilder) {
@@ -390,6 +414,18 @@ class ReadingTypeDeliverableForMeterActivationSet {
         } else {
             return Optional.empty();
         }
+    }
+
+    Collection<Pair<ReadingTypeRequirement, ChannelContract>> getPreferredChannels() {
+        return this.expressionNode
+                    .accept(RequirementsFromExpressionNode.recursiveOnDeliverables())
+                    .stream()
+                    .map(node -> Pair.of(node.getRequirement(), node.getPreferredChannel()))
+                    .collect(Collectors.toList());
+    }
+
+    List<VirtualRequirementNode> nestedRequirements(ServerExpressionNode.Visitor<List<VirtualRequirementNode>> visitor) {
+        return this.expressionNode.accept(visitor);
     }
 
 }

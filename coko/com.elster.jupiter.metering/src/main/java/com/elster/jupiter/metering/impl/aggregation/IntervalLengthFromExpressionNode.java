@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.metering.impl.aggregation;
 
 import com.elster.jupiter.metering.config.ExpressionNode;
@@ -31,6 +35,11 @@ class IntervalLengthFromExpressionNode implements ServerExpressionNode.Visitor<I
     @Override
     public IntervalLength visitProperty(CustomPropertyNode property) {
         return null;
+    }
+
+    @Override
+    public IntervalLength visitSyntheticLoadProfile(SyntheticLoadProfilePropertyNode slp) {
+        return slp.getIntervalLength();
     }
 
     @Override

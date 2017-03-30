@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.metering.impl.aggregation;
 
 /**
@@ -33,6 +37,12 @@ class FinishRequirementAndDeliverableNodes implements ServerExpressionNode.Visit
 
     @Override
     public Void visitProperty(CustomPropertyNode property) {
+        // Nothing to finish here
+        return null;
+    }
+
+    @Override
+    public Void visitSyntheticLoadProfile(SyntheticLoadProfilePropertyNode slp) {
         // Nothing to finish here
         return null;
     }

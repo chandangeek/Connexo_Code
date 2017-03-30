@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.metering.impl.aggregation;
 
 import com.elster.jupiter.cbo.Commodity;
@@ -62,6 +66,11 @@ class InferReadingType implements ServerExpressionNode.Visitor<VirtualReadingTyp
     @Override
     public VirtualReadingType visitProperty(CustomPropertyNode property) {
         return VirtualReadingType.dontCare();
+    }
+
+    @Override
+    public VirtualReadingType visitSyntheticLoadProfile(SyntheticLoadProfilePropertyNode slp) {
+        return slp.getSourceReadingType();
     }
 
     @Override
@@ -234,6 +243,11 @@ class InferReadingType implements ServerExpressionNode.Visitor<VirtualReadingTyp
         }
 
         @Override
+        public Void visitSyntheticLoadProfile(SyntheticLoadProfilePropertyNode slp) {
+            return null;
+        }
+
+        @Override
         public Void visitNull(NullNode nullNode) {
             return null;
         }
@@ -317,6 +331,11 @@ class InferReadingType implements ServerExpressionNode.Visitor<VirtualReadingTyp
 
         @Override
         public Void visitProperty(CustomPropertyNode property) {
+            return null;
+        }
+
+        @Override
+        public Void visitSyntheticLoadProfile(SyntheticLoadProfilePropertyNode slp) {
             return null;
         }
 

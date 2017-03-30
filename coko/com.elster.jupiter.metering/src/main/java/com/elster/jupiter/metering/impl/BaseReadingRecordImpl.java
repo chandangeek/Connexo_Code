@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.ids.TimeSeriesEntry;
@@ -31,7 +35,7 @@ public abstract class BaseReadingRecordImpl implements BaseReadingRecord {
         return entry;
     }
 
-    Channel getChannel() {
+    public Channel getChannel() {
         return channel;
     }
 
@@ -138,6 +142,16 @@ public abstract class BaseReadingRecordImpl implements BaseReadingRecord {
     // TODO: check if sorting is always needed here
     public List<? extends ReadingQualityRecord> getReadingQualities() {
         return getChannel().findReadingQualities().atTimestamp(getTimeStamp()).sorted().collect();
+    }
+
+    @Override
+    public Instant getJournalTime() {
+        return getEntry().getJournalTime();
+    }
+
+    @Override
+    public String getUserName() {
+        return getEntry().getUserName();
     }
 
 }

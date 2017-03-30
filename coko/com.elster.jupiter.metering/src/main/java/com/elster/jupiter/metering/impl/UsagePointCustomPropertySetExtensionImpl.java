@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.cps.CustomPropertySet;
@@ -139,7 +143,7 @@ class UsagePointCustomPropertySetExtensionImpl implements UsagePointCustomProper
         }
 
         @Override
-        @SuppressWarnings("uncheked")
+        @SuppressWarnings("unchecked")
         public CustomPropertySet<UsagePoint, ?> getCustomPropertySet() {
             return delegate.getCustomPropertySet();
         }

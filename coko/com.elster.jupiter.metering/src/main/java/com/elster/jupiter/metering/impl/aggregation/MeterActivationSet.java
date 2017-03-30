@@ -1,10 +1,18 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.metering.impl.aggregation;
 
+import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MultiplierType;
 import com.elster.jupiter.metering.ReadingQualityRecord;
+import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
+import com.elster.jupiter.metering.impl.ServerCalendarUsage;
+import com.elster.jupiter.metering.slp.SyntheticLoadProfile;
 
 import com.google.common.collect.Range;
 
@@ -26,13 +34,25 @@ import java.util.Optional;
  */
 public interface MeterActivationSet {
 
-    void add(MeterActivation meterActivation);
+    UsagePoint getUsagePoint();
 
     int sequenceNumber();
 
     Range<Instant> getRange();
 
+    void avoidOverlapWith(MeterActivationSet other);
+
     List<MeterActivation> getMeterActivations();
+
+    void add(MeterActivation meterActivation);
+
+    Calendar getCalendar();
+
+    void setCalendar(ServerCalendarUsage calendarUsage);
+
+    SyntheticLoadProfile getSyntheticLoadProfile(String propertySpecName);
+
+    void addSyntheticLoadProfile(SyntheticLoadProfileUsage syntheticLoadProfileUsage);
 
     /**
      * Return the complete List of {@link Channel}s that are available
@@ -58,6 +78,6 @@ public interface MeterActivationSet {
 
     ZoneId getZoneId();
 
-    List<? extends ReadingQualityRecord> getReadingQualitiesFor(ReadingTypeRequirement requirement, Range range);
+    List<? extends ReadingQualityRecord> getReadingQualitiesFor(ReadingTypeRequirement requirement, Range<Instant> range);
 
 }

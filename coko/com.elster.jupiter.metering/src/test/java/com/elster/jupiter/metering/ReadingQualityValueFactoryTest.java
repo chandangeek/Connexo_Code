@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.metering;
 
 import com.elster.jupiter.properties.ReadingQualityPropertyValue;
@@ -6,12 +10,6 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;
 
-/**
- * Copyrights EnergyICT
- *
- * @author khe
- * @since 15/06/2016 - 11:50
- */
 public class ReadingQualityValueFactoryTest {
 
     @Test

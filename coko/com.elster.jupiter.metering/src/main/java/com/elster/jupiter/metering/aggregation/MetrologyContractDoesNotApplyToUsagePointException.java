@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.metering.aggregation;
 
 import com.elster.jupiter.metering.MessageSeeds;
@@ -13,7 +17,8 @@ import java.time.Instant;
 /**
  * Models the exceptional situation that occurs when
  * data aggregation of a {@link MetrologyContract}
- * is requested for a period.
+ * is requested for a period during which the contract
+ * was not active on the usage point.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-03-24 (11:53)

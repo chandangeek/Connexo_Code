@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.cbo.QualityCodeIndex;
@@ -24,6 +28,7 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -127,6 +132,20 @@ public abstract class ChannelsContainerImpl implements ChannelsContainer {
     }
 
     @Override
+    public List<? extends BaseReadingRecord> getJournalReadings(Range<Instant> range, ReadingType readingType) {
+        if (!getRange().isConnected(range)) {
+            return Collections.emptyList();
+        }
+        return getChannel(readingType)
+                .map(channel -> {
+                    Function<Interval, Range<Instant>> toRange = channel.isRegular() ? Interval::toOpenClosedRange : Interval::toClosedRange;
+                    Range<Instant> active = range.intersection(toRange.apply(getInterval()));
+                    return readingType.isRegular() ? channel.getIntervalJournalReadings(readingType, active) : channel.getRegisterJournalReadings(readingType, active);
+                })
+                .orElse(Collections.emptyList());
+    }
+
+    @Override
     public List<? extends BaseReadingRecord> getReadingsUpdatedSince(Range<Instant> range, ReadingType readingType, Instant since) {
         if (!range.isConnected(getRange())) {
             return Collections.emptyList();
@@ -193,5 +212,22 @@ public abstract class ChannelsContainerImpl implements ChannelsContainer {
     @Override
     public List<ChannelsContainer> getChannelsContainers() {
         return Collections.singletonList(this);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ChannelsContainerImpl channelsContainer = (ChannelsContainerImpl) o;
+        return id == channelsContainer.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

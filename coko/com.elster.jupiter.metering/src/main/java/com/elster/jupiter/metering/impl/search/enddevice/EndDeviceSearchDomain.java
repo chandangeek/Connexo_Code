@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.metering.impl.search.enddevice;
 
 import com.elster.jupiter.domain.util.DefaultFinder;
@@ -111,7 +115,7 @@ public class EndDeviceSearchDomain implements SearchDomain {
         return getProperties()
                 .stream()
                 .map(mapper)
-                .filter(propertyValue -> propertyValue != null && propertyValue.getValueBean() != null && propertyValue.getValueBean().values != null)
+                .filter(propertyValue -> propertyValue != null && propertyValue.getValueBean() != null && propertyValue.getValueBean().isValid())
                 .collect(Collectors.toList());
     }
 

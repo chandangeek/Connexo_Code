@@ -1,5 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.calendar.Category;
+import com.elster.jupiter.calendar.OutOfTheBoxCategory;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
@@ -10,6 +16,7 @@ import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.aggregation.CalculatedMetrologyContractData;
 import com.elster.jupiter.metering.aggregation.DataAggregationService;
+import com.elster.jupiter.metering.aggregation.MetrologyContractCalculationIntrospector;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.impl.aggregation.MeterActivationSet;
@@ -19,11 +26,12 @@ import com.elster.jupiter.metering.impl.aggregation.SqlBuilderFactoryImpl;
 import com.elster.jupiter.metering.impl.aggregation.VirtualFactory;
 import com.elster.jupiter.metering.impl.aggregation.VirtualFactoryImpl;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.metering.slp.SyntheticLoadProfileService;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.search.SearchService;
-import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
 import com.elster.jupiter.users.UserService;
 
 import com.google.common.collect.Range;
@@ -85,7 +93,7 @@ public class MeteringModule extends AbstractModule {
         requireBinding(CustomPropertySetService.class);
         requireBinding(PropertySpecService.class);
         requireBinding(SearchService.class);
-        requireBinding(UsagePointLifeCycleConfigurationService.class);
+//        requireBinding(UsagePointLifeCycleConfigurationService.class);
 
         bindConstant().annotatedWith(Names.named("requiredReadingTypes")).to(readingTypes);
         bindConstant().annotatedWith(Names.named("createReadingTypes")).to(createReadingTypes);
@@ -95,6 +103,7 @@ public class MeteringModule extends AbstractModule {
         bind(ServerMeteringService.class).toProvider(MeteringServiceProvider.class);
         bind(ServerMetrologyConfigurationService.class).toProvider(MetrologyConfigurationServiceProvider.class);
         bind(MetrologyConfigurationService.class).toProvider(MetrologyConfigurationServiceProvider.class);
+        bind(SyntheticLoadProfileService.class).toProvider(SyntheticLoadProfileServiceProvider.class);
         bind(VirtualFactory.class).to(VirtualFactoryImpl.class).in(Scopes.SINGLETON);
         bind(SqlBuilderFactory.class).to(SqlBuilderFactoryImpl.class).in(Scopes.SINGLETON);
         bind(DataAggregationService.class).annotatedWith(Names.named("dataAggregationMock")).toProvider(() -> dataAggregationMock);
@@ -112,6 +121,20 @@ public class MeteringModule extends AbstractModule {
         @Override
         public ServerMeteringService get() {
             return this.meteringDataModelService.getMeteringService();
+        }
+    }
+
+    private static class ThesaurusProvider implements Provider<Thesaurus> {
+        private final MeteringDataModelService meteringDataModelService;
+
+        @Inject
+        private ThesaurusProvider(MeteringDataModelService meteringDataModelService) {
+            this.meteringDataModelService = meteringDataModelService;
+        }
+
+        @Override
+        public Thesaurus get() {
+            return this.meteringDataModelService.getThesaurus();
         }
     }
 
@@ -143,6 +166,20 @@ public class MeteringModule extends AbstractModule {
         }
     }
 
+    private static class SyntheticLoadProfileServiceProvider implements Provider<SyntheticLoadProfileService> {
+        private final MeteringDataModelService meteringDataModelService;
+
+        @Inject
+        private SyntheticLoadProfileServiceProvider(MeteringDataModelService meteringDataModelService) {
+            this.meteringDataModelService = meteringDataModelService;
+        }
+
+        @Override
+        public SyntheticLoadProfileService get() {
+            return this.meteringDataModelService.getSyntheticLoadProfileService();
+        }
+    }
+
     private static class DataAggregationServiceProvider implements Provider<DataAggregationService> {
         private final MeteringDataModelService meteringDataModelService;
 
@@ -165,18 +202,50 @@ public class MeteringModule extends AbstractModule {
         }
 
         @Override
-        public List<MeterActivationSet> getMeterActivationSets(UsagePoint usagePoint, Range<Instant> period) {
+        public List<MeterActivationSet> getMeterActivationSets(ServerUsagePoint usagePoint, Range<Instant> period) {
             return Collections.emptyList();
         }
 
         @Override
-        public List<MeterActivationSet> getMeterActivationSets(UsagePoint usagePoint, Instant when) {
+        public List<MeterActivationSet> getMeterActivationSets(ServerUsagePoint usagePoint, Instant when) {
             return Collections.emptyList();
         }
 
         @Override
         public CalculatedMetrologyContractData calculate(UsagePoint usagePoint, MetrologyContract contract, Range<Instant> period) {
             return dataAggregationService.calculate(usagePoint, contract, period);
+        }
+
+        @Override
+        public MetrologyContractCalculationIntrospector introspect(UsagePoint usagePoint, MetrologyContract contract, Range<Instant> period) {
+            return dataAggregationService.introspect(usagePoint, contract, period);
+        }
+
+        @Override
+        public Category getTimeOfUseCategory() {
+            return new TimeOfUse();
+        }
+    }
+
+    private static class TimeOfUse implements Category {
+        @Override
+        public void save() {
+            // No implementation required
+        }
+
+        @Override
+        public String getDisplayName() {
+            return OutOfTheBoxCategory.TOU.getDefaultDisplayName();
+        }
+
+        @Override
+        public long getId() {
+            return 0;
+        }
+
+        @Override
+        public String getName() {
+            return getDisplayName();
         }
     }
 

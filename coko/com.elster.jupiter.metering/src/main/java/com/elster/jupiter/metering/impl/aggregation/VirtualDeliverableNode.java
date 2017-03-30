@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.metering.impl.aggregation;
 
 import com.elster.jupiter.cbo.Commodity;
@@ -6,6 +10,8 @@ import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.util.sql.SqlBuilder;
+
+import java.util.List;
 
 /**
  * Provides an implementation for the {@link ExpressionNode} interface
@@ -94,6 +100,10 @@ class VirtualDeliverableNode implements ServerExpressionNode {
 
     String sqlName() {
         return this.deliverable.sqlName();
+    }
+
+    List<VirtualRequirementNode> nestedRequirements(Visitor<List<VirtualRequirementNode>> visitor) {
+        return this.deliverable.nestedRequirements(visitor);
     }
 
 }

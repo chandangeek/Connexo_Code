@@ -1,7 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.metering.impl.aggregation;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
+import com.elster.jupiter.calendar.CalendarService;
+import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.DataVaultService;
@@ -35,13 +41,16 @@ import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverableBuilder;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
+import com.elster.jupiter.metering.impl.MeteringDataModelService;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.metering.impl.config.ServerFormulaBuilder;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsKey;
+import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.impl.OrmModule;
@@ -61,6 +70,7 @@ import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigu
 import com.elster.jupiter.usagepoint.lifecycle.config.impl.UsagePointLifeCycleConfigurationModule;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
 import com.google.common.collect.Range;
@@ -119,13 +129,15 @@ public class DataAggregationServiceImplCalculateWithVolumeToFlowConversionIT {
     private static Instant jan1st2016 = Instant.ofEpochMilli(1451602800000L);
     private static SqlBuilderFactory sqlBuilderFactory = mock(SqlBuilderFactory.class);
     private static ClauseAwareSqlBuilder clauseAwareSqlBuilder = mock(ClauseAwareSqlBuilder.class);
+    private static MeteringDataModelService dataModelService;
+    private static Thesaurus thesaurus;
     private long productionRequirementId;
     private long consumptionRequirementId;
+
     private long netConsumptionDeliverableId;
 
     @Rule
     public TransactionalRule transactionalRule = new TransactionalRule(injector.getInstance(TransactionService.class));
-
     @Mock
     private UsagePointMetrologyConfiguration configuration;
     @Mock
@@ -142,10 +154,8 @@ public class DataAggregationServiceImplCalculateWithVolumeToFlowConversionIT {
     private Channel production15MinChannel;
     private Channel production60MinChannel;
     private Channel consumption15MinChannel;
-    private UsagePoint usagePoint;
 
-    @Mock
-    private Thesaurus thesaurus;
+    private UsagePoint usagePoint;
 
     private static class MockModule extends AbstractModule {
         @Override
@@ -161,10 +171,21 @@ public class DataAggregationServiceImplCalculateWithVolumeToFlowConversionIT {
 
     @BeforeClass
     public static void setUp() {
+        dataModelService = mock(MeteringDataModelService.class);
+        setupThesaurus();
         setupServices();
         setupReadingTypes();
         setupMetrologyPurposeAndRole();
         setupDefaultUsagePointLifeCycle();
+    }
+
+    private static void setupThesaurus() {
+        NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
+        when(messageFormat.format(anyVararg())).thenReturn("Translation not supported in unit tests");
+        thesaurus = mock(Thesaurus.class);
+        when(thesaurus.getFormat(any(TranslationKey.class))).thenReturn(messageFormat);
+        when(thesaurus.getFormat(any(MessageSeed.class))).thenReturn(messageFormat);
+        when(dataModelService.getThesaurus()).thenReturn(thesaurus);
     }
 
     private static void setupServices() {
@@ -196,6 +217,7 @@ public class DataAggregationServiceImplCalculateWithVolumeToFlowConversionIT {
                     new BpmModule(),
                     new FiniteStateMachineModule(),
                     new NlsModule(),
+                    new CalendarModule(),
                     new CustomPropertySetsModule(),
                     new BasicPropertiesModule(),
                     new UsagePointLifeCycleConfigurationModule()
@@ -221,11 +243,12 @@ public class DataAggregationServiceImplCalculateWithVolumeToFlowConversionIT {
     private static DataAggregationService getDataAggregationService() {
         ServerMeteringService meteringService = injector.getInstance(ServerMeteringService.class);
         return new DataAggregationServiceImpl(
+                mock(CalendarService.class),
                 mock(CustomPropertySetService.class),
                 meteringService,
                 new InstantTruncaterFactory(meteringService),
                 DataAggregationServiceImplCalculateWithVolumeToFlowConversionIT::getSqlBuilderFactory,
-                VirtualFactoryImpl::new,
+                () -> new VirtualFactoryImpl(dataModelService),
                 () -> new ReadingTypeDeliverableForMeterActivationFactoryImpl(meteringService));
     }
 
@@ -333,6 +356,7 @@ public class DataAggregationServiceImplCalculateWithVolumeToFlowConversionIT {
         // Setup MetrologyConfiguration
         this.configuration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("simplestNetConsumptionOfProsumer", ELECTRICITY).create();
         this.configuration.addMeterRole(DEFAULT_METER_ROLE);
+        this.contract = configuration.addMetrologyContract(METROLOGY_PURPOSE);
 
         // Setup configuration requirements
         ReadingTypeRequirement consumption = this.configuration.newReadingTypeRequirement("A-", DEFAULT_METER_ROLE)
@@ -345,7 +369,7 @@ public class DataAggregationServiceImplCalculateWithVolumeToFlowConversionIT {
         System.out.println("simplestNetConsumptionOfProsumer::PRODUCTION_REQUIREMENT_ID = " + productionRequirementId);
 
         // Setup configuration deliverables
-        ReadingTypeDeliverableBuilder builder = newDeliveryBuilder("consumption", configuration, fifteenMinutesNetConsumption);
+        ReadingTypeDeliverableBuilder builder = newDeliveryBuilder("consumption", contract, fifteenMinutesNetConsumption);
         ReadingTypeDeliverable netConsumption =
                 builder.build(builder.plus(
                         builder.requirement(production),
@@ -361,7 +385,6 @@ public class DataAggregationServiceImplCalculateWithVolumeToFlowConversionIT {
         this.usagePoint.apply(this.configuration, jan1st2016);
 
         this.contract = this.configuration.addMetrologyContract(METROLOGY_PURPOSE);
-        this.contract.addDeliverable(netConsumption);
 
         // Business method
         try {
@@ -438,6 +461,7 @@ public class DataAggregationServiceImplCalculateWithVolumeToFlowConversionIT {
         // Setup MetrologyConfiguration
         this.configuration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("monthlyNetConsumptionBasedOn15MinValuesOfProsumer", ELECTRICITY).create();
         this.configuration.addMeterRole(DEFAULT_METER_ROLE);
+        this.contract = configuration.addMetrologyContract(METROLOGY_PURPOSE);
 
         // Setup configuration requirements
         ReadingTypeRequirement consumption = this.configuration.newReadingTypeRequirement("A-", DEFAULT_METER_ROLE)
@@ -450,7 +474,7 @@ public class DataAggregationServiceImplCalculateWithVolumeToFlowConversionIT {
         System.out.println("monthlyNetConsumptionBasedOn15MinValuesOfProsumer::PRODUCTION_REQUIREMENT_ID = " + productionRequirementId);
 
         // Setup configuration deliverables
-        ReadingTypeDeliverableBuilder builder = newDeliveryBuilder("consumption", configuration, monthlyNetConsumption);
+        ReadingTypeDeliverableBuilder builder = newDeliveryBuilder("consumption", contract, monthlyNetConsumption);
         ReadingTypeDeliverable netConsumption =
                 builder.build(builder.plus(
                         builder.requirement(production),
@@ -467,7 +491,6 @@ public class DataAggregationServiceImplCalculateWithVolumeToFlowConversionIT {
         this.usagePoint.apply(this.configuration, jan1st2016);
 
         this.contract = this.configuration.addMetrologyContract(METROLOGY_PURPOSE);
-        this.contract.addDeliverable(netConsumption);
 
         // Business method
         try {
@@ -553,6 +576,7 @@ public class DataAggregationServiceImplCalculateWithVolumeToFlowConversionIT {
         // Setup MetrologyConfiguration
         this.configuration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("monthlyNetConsumptionBasedOn15And60MinValuesOfProsumer", ELECTRICITY).create();
         this.configuration.addMeterRole(DEFAULT_METER_ROLE);
+        this.contract = configuration.addMetrologyContract(METROLOGY_PURPOSE);
 
         // Setup configuration requirements
         ReadingTypeRequirement consumption = this.configuration.newReadingTypeRequirement("A-", DEFAULT_METER_ROLE)
@@ -565,7 +589,7 @@ public class DataAggregationServiceImplCalculateWithVolumeToFlowConversionIT {
         System.out.println("monthlyNetConsumptionBasedOn15And60MinValuesOfProsumer::PRODUCTION_REQUIREMENT_ID = " + productionRequirementId);
 
         // Setup configuration deliverables
-        ReadingTypeDeliverableBuilder builder = newDeliveryBuilder("consumption", configuration, monthlyNetConsumption);
+        ReadingTypeDeliverableBuilder builder = newDeliveryBuilder("consumption", contract, monthlyNetConsumption);
         ReadingTypeDeliverable netConsumption =
                 builder.build(builder.plus(
                         builder.requirement(consumption),
@@ -584,7 +608,6 @@ public class DataAggregationServiceImplCalculateWithVolumeToFlowConversionIT {
         this.usagePoint.apply(this.configuration, jan1st2016);
 
         this.contract = this.configuration.addMetrologyContract(METROLOGY_PURPOSE);
-        this.contract.addDeliverable(netConsumption);
 
         // Business method
         try {
@@ -660,7 +683,10 @@ public class DataAggregationServiceImplCalculateWithVolumeToFlowConversionIT {
 
     private void setupUsagePoint(String name) {
         ServiceCategory electricity = getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
-        this.usagePoint = electricity.newUsagePoint(name, jan1st2016).create();
+        this.usagePoint = electricity.newUsagePoint(name, jan1st2016.minusSeconds(20)).create();
+        UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("UP1", electricity).create();
+        usagePointMetrologyConfiguration.addMeterRole(getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT));
+        usagePoint.apply(usagePointMetrologyConfiguration, jan1st2016.minusSeconds(20));
     }
 
     private void activateMeterWithAll15MinChannels() {
@@ -679,8 +705,8 @@ public class DataAggregationServiceImplCalculateWithVolumeToFlowConversionIT {
         return mRID.replace(".", "\\.");
     }
 
-    private ReadingTypeDeliverableBuilder newDeliveryBuilder(String name, MetrologyConfiguration configuration, ReadingType readingType) {
-        return configuration.newReadingTypeDeliverable(name, readingType, Formula.Mode.AUTO);
+    private ReadingTypeDeliverableBuilder newDeliveryBuilder(String name, MetrologyContract configuration, ReadingType readingType) {
+        return contract.newReadingTypeDeliverable(name, readingType, Formula.Mode.AUTO);
 
     }
 

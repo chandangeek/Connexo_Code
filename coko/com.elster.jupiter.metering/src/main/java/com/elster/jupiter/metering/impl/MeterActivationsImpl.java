@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.cbo.QualityCodeIndex;
@@ -35,6 +39,14 @@ public class MeterActivationsImpl implements ReadingContainer {
         return meterActivations.stream()
                 .map(MeterActivation::getChannelsContainer)
                 .flatMap(channelsContainer -> channelsContainer.getReadings(range, readingType).stream())
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<? extends BaseReadingRecord> getJournalReadings(Range<Instant> range, ReadingType readingType) {
+        return meterActivations.stream()
+                .map(MeterActivation::getChannelsContainer)
+                .flatMap(channelsContainer -> channelsContainer.getJournalReadings(range, readingType).stream())
                 .collect(Collectors.toList());
     }
 

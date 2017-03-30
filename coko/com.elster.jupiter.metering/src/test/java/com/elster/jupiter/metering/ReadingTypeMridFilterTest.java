@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.metering;
 
 import com.elster.jupiter.cbo.Accumulation;
@@ -24,11 +28,6 @@ import java.util.List;
 
 import static com.elster.jupiter.devtools.tests.assertions.JupiterAssertions.assertThat;
 
-/**
- * Copyrights EnergyICT
- * Date: 18.11.15
- * Time: 15:40
- */
 @RunWith(MockitoJUnitRunner.class)
 public class ReadingTypeMridFilterTest {
 

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.metering;
 
 import com.elster.jupiter.nls.TranslationKey;
@@ -47,5 +51,17 @@ public enum ConnectionState implements TranslationKey {
     @Override
     public String getDefaultFormat() {
         return this.name;
+    }
+
+    /**
+     * Returns the values of enum that are currently supported. Deprecated values are excluded.
+     * Remove the method when deprecated values are removed. Then normal values() method can be used instead.
+     */
+    public static ConnectionState[] supportedValues() {
+        return new ConnectionState[]{
+                ConnectionState.CONNECTED,
+                ConnectionState.LOGICALLY_DISCONNECTED,
+                ConnectionState.PHYSICALLY_DISCONNECTED
+        };
     }
 }

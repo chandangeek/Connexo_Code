@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.metering.readings.beans;
 
 import com.elster.jupiter.metering.readings.IntervalBlock;
@@ -7,14 +11,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * Our default implementation of a <i>series</i> of {@link IntervalReading IntervalReadings}.
- * The interval of the readings will be defined in the <i>ReadingTypeCode</i>
- *
- * Copyrights EnergyICT
- * Date: 25/11/13
- * Time: 15:17
- */
 public class IntervalBlockImpl implements IntervalBlock {
 
     private final String readingTypeCode;

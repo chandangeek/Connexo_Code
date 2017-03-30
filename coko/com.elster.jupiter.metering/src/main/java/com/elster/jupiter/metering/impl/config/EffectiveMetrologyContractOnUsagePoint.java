@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.metering.ChannelsContainer;
@@ -17,6 +21,7 @@ import java.time.Instant;
  */
 @ProviderType
 public interface EffectiveMetrologyContractOnUsagePoint extends HasId, Effectivity {
+
     EffectiveMetrologyConfigurationOnUsagePoint getMetrologyConfigurationOnUsagePoint();
 
     MetrologyContract getMetrologyContract();

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.metering.impl.upgraders;
 
 import com.elster.jupiter.metering.impl.ReadingTypeGeneratorForDataLogger;

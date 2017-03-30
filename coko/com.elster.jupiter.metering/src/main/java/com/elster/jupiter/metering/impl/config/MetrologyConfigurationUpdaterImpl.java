@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.metering.ServiceCategory;
@@ -21,6 +25,12 @@ public class MetrologyConfigurationUpdaterImpl implements MetrologyConfiguration
     @Override
     public MetrologyConfigurationUpdater setDescription(String description) {
         this.underConstruction.setDescription(description);
+        return this;
+    }
+
+    @Override
+    public MetrologyConfigurationUpdater setGapAllowed(boolean isGapAllowed) {
+        this.underConstruction.setGapAllowed(isGapAllowed);
         return this;
     }
 

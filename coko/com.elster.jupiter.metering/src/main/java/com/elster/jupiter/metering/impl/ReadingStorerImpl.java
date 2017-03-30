@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.cbo.QualityCodeSystem;
@@ -213,7 +217,7 @@ class ReadingStorerImpl implements ReadingStorer {
     public void execute(QualityCodeSystem system) {
         doDeltas();
         doMultiplications();
-        consolidatedValues.entrySet().stream()
+        consolidatedValues.entrySet()
                 .forEach(entry -> {
                     ChannelContract channel = entry.getKey().getFirst();
                     Instant timestamp = entry.getKey().getLast();
@@ -227,7 +231,7 @@ class ReadingStorerImpl implements ReadingStorer {
     }
 
     private void overflowBackflowDetection(QualityCodeSystem system, ChannelContract channel, Instant timestamp, Object[] values) {
-        // for each readingtype (that has an overflow value configured at the time of the reading, check overflow
+        // for each readingType, that has an overflow value configured at the time of the reading, check overflow
         HashSet<ReadingType> readingTypes = new HashSet<>(channel.getReadingTypes());
         List<MeterReadingTypeConfiguration> meterReadingTypeConfigurations = getMeterReadingTypeConfigurations(channel, timestamp);
         meterReadingTypeConfigurations
@@ -522,7 +526,6 @@ class ReadingStorerImpl implements ReadingStorer {
 
     private void calculateDelta(ChannelContract channel) {
         deltaDerivations.get(channel)
-                .stream()
                 .forEach(perform(this::applyDerivation).on(channel));
     }
 

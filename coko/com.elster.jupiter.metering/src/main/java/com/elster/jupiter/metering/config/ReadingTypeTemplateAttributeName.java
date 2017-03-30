@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.metering.config;
 
 import com.elster.jupiter.cbo.Accumulation;
@@ -39,7 +43,8 @@ public enum ReadingTypeTemplateAttributeName {
                     MacroPeriod.NOTAPPLICABLE,
                     MacroPeriod.BILLINGPERIOD,
                     MacroPeriod.DAILY,
-                    MacroPeriod.MONTHLY
+                    MacroPeriod.MONTHLY,
+                    MacroPeriod.YEARLY
             );
         }
 

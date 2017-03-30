@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.metering.impl.aggregation;
 
 import java.util.ArrayList;
@@ -36,6 +40,12 @@ class Flatten implements ServerExpressionNode.Visitor<Void> {
     @Override
     public Void visitProperty(CustomPropertyNode property) {
         this.flattened.add(property);
+        return null;
+    }
+
+    @Override
+    public Void visitSyntheticLoadProfile(SyntheticLoadProfilePropertyNode slp) {
+        this.flattened.add(slp);
         return null;
     }
 

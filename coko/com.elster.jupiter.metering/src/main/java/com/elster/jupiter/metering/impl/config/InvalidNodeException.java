@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.cps.CustomPropertySet;
@@ -66,6 +70,14 @@ class InvalidNodeException extends LocalizedException {
         throw new InvalidNodeException(
                 thesaurus,
                 MessageSeeds.CUSTOM_PROPERTY_MUST_BE_NUMERICAL,
+                propertySpec.getDisplayName(),
+                customPropertySet.getName());
+    }
+
+    static InvalidNodeException customPropertyMustBeSyntheticLoadProfile(Thesaurus thesaurus, CustomPropertySet customPropertySet, PropertySpec propertySpec) {
+        throw new InvalidNodeException(
+                thesaurus,
+                MessageSeeds.CUSTOM_PROPERTY_MUST_BE_SLP,
                 propertySpec.getDisplayName(),
                 customPropertySet.getName());
     }

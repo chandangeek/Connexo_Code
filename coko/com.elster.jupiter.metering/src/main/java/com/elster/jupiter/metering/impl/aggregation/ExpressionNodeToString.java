@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.metering.impl.aggregation;
 
 import com.elster.jupiter.metering.config.ExpressionNode;
@@ -42,6 +46,11 @@ class ExpressionNodeToString implements ServerExpressionNode.Visitor<String> {
     @Override
     public String visitProperty(CustomPropertyNode property) {
         return property.sqlName() + "." + SqlConstants.TimeSeriesColumnNames.VALUE.sqlName();
+    }
+
+    @Override
+    public String visitSyntheticLoadProfile(SyntheticLoadProfilePropertyNode slp) {
+        return this.visitProperty(slp);
     }
 
     @Override

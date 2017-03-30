@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.metering;
 
 import com.elster.jupiter.metering.config.MeterRole;
@@ -8,6 +12,11 @@ import java.time.Instant;
 
 @ProviderType
 public interface UsagePointMeterActivator {
+
+    enum FormValidation {
+        DEFINE_METROLOGY_CONFIGURATION,
+        SET_METERS
+    }
 
     UsagePointMeterActivator activate(Meter meter, MeterRole meterRole);
 
@@ -23,6 +32,8 @@ public interface UsagePointMeterActivator {
      * @return the activator
      */
     UsagePointMeterActivator throwingValidation();
+
+    UsagePointMeterActivator withFormValidation(FormValidation validation);
 
     /**
      * Apply changes. Note that after this operation some meters may have obsolete info regarding meter activations.

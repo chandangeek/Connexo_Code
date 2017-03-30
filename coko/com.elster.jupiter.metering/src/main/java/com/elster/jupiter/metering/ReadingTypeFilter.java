@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.metering;
 
 import com.elster.jupiter.util.conditions.Condition;
@@ -29,7 +33,7 @@ public class ReadingTypeFilter {
     }
 
     public void addFullAliasNameCondition(String name) {
-        condition = condition.and(Operator.LIKE.compare("fullAliasName", Where.toOracleSql(name)));
+        condition = condition.and(Operator.LIKEIGNORECASE.compare("fullAliasName", Where.toOracleSql(name)));
     }
 
     public void addMRIDCondition(String mRID) {

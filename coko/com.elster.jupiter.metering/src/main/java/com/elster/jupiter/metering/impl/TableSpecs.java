@@ -1,5 +1,10 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.State;
@@ -67,6 +72,8 @@ import com.elster.jupiter.metering.impl.config.ReadingTypeTemplateImpl;
 import com.elster.jupiter.metering.impl.config.ServiceCategoryMeterRoleUsage;
 import com.elster.jupiter.metering.impl.config.UsagePointRequirementImpl;
 import com.elster.jupiter.metering.impl.config.UsagePointRequirementValue;
+import com.elster.jupiter.metering.impl.slp.SyntheticLoadProfileImpl;
+import com.elster.jupiter.metering.slp.SyntheticLoadProfile;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
@@ -85,6 +92,7 @@ import java.util.Map;
 
 import static com.elster.jupiter.orm.ColumnConversion.CHAR2BOOLEAN;
 import static com.elster.jupiter.orm.ColumnConversion.CHAR2ENUM;
+import static com.elster.jupiter.orm.ColumnConversion.CHAR2UNIT;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUM;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUMPLUSONE;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INSTANT;
@@ -383,6 +391,9 @@ public enum TableSpecs {
             Column stateMachine = table.column("FSM").number().conversion(ColumnConversion.NUMBER2LONG).add();
             Column locationIdColumn = table.column("LOCATIONID").number().conversion(NUMBER2LONGNULLZERO).since(version(10, 2)).add();
             table.column("GEOCOORDINATES").sdoGeometry().conversion(SDOGEOMETRY2SPATIALGEOOBJ).map("spatialCoordinates").since(version(10, 2)).add();
+            table.column("MANUFACTURER").varChar(NAME_LENGTH).map("manufacturer").since(version(10, 3)).add();
+            table.column("MODELNBR").varChar(NAME_LENGTH).map("modelNbr").since(version(10, 3)).add();
+            table.column("MODELVERSION").varChar(NAME_LENGTH).map("modelVersion").since(version(10, 3)).add();
             table.addAuditColumns();
             table.primaryKey("PK_MTR_METER").on(idColumn).add();
             table.foreignKey("FK_MTR_METERAMRSYSTEM")
@@ -727,6 +738,14 @@ public enum TableSpecs {
                     .varChar()
                     .map(MetrologyConfigurationImpl.Fields.DESCRIPTION.fieldName())
                     .add();
+            table.column(MetrologyConfigurationImpl.Fields.ALLOW_GAP.name())
+                    .type("char(1)")
+                    .notNull()
+                    .conversion(CHAR2BOOLEAN)
+                    .map(MetrologyConfigurationImpl.Fields.ALLOW_GAP.fieldName())
+                    .since(version(10,3))
+                    .installValue("'N'")
+                    .add();
             table.column(MetrologyConfigurationImpl.Fields.STATUS.name())
                     .number()
                     .conversion(NUMBER2ENUM)
@@ -804,7 +823,7 @@ public enum TableSpecs {
             Column id = table.addAutoIdColumn();
             Column usagePoint = table.column("USAGEPOINT").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
             Column metrologyConfiguration = table.column("METROLOGYCONFIG").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
-            table.column("ACTIVE").type("char(1)").notNull().conversion(CHAR2BOOLEAN).map("active").add();
+            table.column("ACTIVE").type("char(1)").notNull().conversion(CHAR2BOOLEAN).map("active").add().upTo(version(10, 3));
             table.addIntervalColumns("interval");
             table.addAuditColumns();
             table.primaryKey("PK_MTR_UPMTRCONFIG").on(id).add();
@@ -1165,6 +1184,7 @@ public enum TableSpecs {
             table.map(ReadingTypeTemplateImpl.class);
             table.since(version(10, 2));
             table.setJournalTableName("MTR_RT_TEMPLATE_JRNL");
+            table.cache();
 
             Column idColumn = table.addAutoIdColumn();
             table.column(ReadingTypeTemplateImpl.Fields.NAME.name())
@@ -1176,6 +1196,12 @@ public enum TableSpecs {
                     .number()
                     .conversion(NUMBER2ENUM)
                     .map(ReadingTypeTemplateImpl.Fields.DEFAULT_TEMPLATE.fieldName())
+                    .add();
+            table.column(ReadingTypeTemplateImpl.Fields.EQUIDISTANT.name())
+                    .varChar(NAME_LENGTH)
+                    .conversion(CHAR2ENUM)
+                    .since(version(10,3))
+                    .map(ReadingTypeTemplateImpl.Fields.EQUIDISTANT.fieldName())
                     .add();
             table.addAuditColumns();
 
@@ -1278,6 +1304,7 @@ public enum TableSpecs {
                     .column(ReadingTypeRequirementImpl.Fields.TEMPLATE.name())
                     .number()
                     .conversion(ColumnConversion.NUMBER2LONG)
+                    .map(ReadingTypeRequirementImpl.Fields.TEMPLATE.fieldName())
                     .add();
             Column readingTypeColumn = table
                     .column(ReadingTypeRequirementImpl.Fields.READING_TYPE.name())
@@ -1297,7 +1324,7 @@ public enum TableSpecs {
             table.foreignKey("FK_RT_REQUIREMENT_TO_TPL")
                     .references(ReadingTypeTemplate.class)
                     .on(templateColumn)
-                    .map(ReadingTypeRequirementImpl.Fields.TEMPLATE.fieldName())
+                    .map("readingTypeTemplate")
                     .add();
             table.foreignKey("FK_RT_REQUIREMENT_TO_RT")
                     .references(ReadingType.class)
@@ -1481,11 +1508,19 @@ public enum TableSpecs {
                     .map(ReadingTypeDeliverableImpl.Fields.NAME.fieldName())
                     .add();
             Column metrologyConfigColumn = table
-                    .column(ReadingTypeDeliverableImpl.Fields.METROLOGY_CONFIGURATION.name())
+                    .column("METROLOGY_CONFIGURATION")
                     .number()
                     .conversion(ColumnConversion.NUMBER2LONG)
                     .notNull()
-                    .add();
+                    .add()
+                    .upTo(version(10, 3));
+            Column metrologyContractColumn = table
+                    .column(ReadingTypeDeliverableImpl.Fields.METROLOGY_CONTRACT.name())
+                    .number()
+                    .conversion(ColumnConversion.NUMBER2LONG)
+                    .notNull()
+                    .add()
+                    .since(version(10, 3));
             Column readingTypeColumn = table
                     .column(ReadingTypeDeliverableImpl.Fields.READING_TYPE.name())
                     .varChar(NAME_LENGTH)
@@ -1506,13 +1541,23 @@ public enum TableSpecs {
             table.addAuditColumns();
 
             table.primaryKey("PK_MTR_DELIVERABLE").on(idColumn).add();
-            table.unique("UK_MTR_DELIVERABLE_NAME").on(nameColumn, metrologyConfigColumn).add();
+            table.unique("UK_MTR_DELIVERABLE_NAME").on(nameColumn, metrologyConfigColumn).upTo(version(10, 3)).add();
+            table.unique("UK_MTR_DELIVERABLE_NAME").on(nameColumn, metrologyContractColumn).since(version(10, 3)).add();
             table.foreignKey("MTR_DELIVERABLE_TO_CONFIG")
                     .references(MetrologyConfiguration.class)
                     .on(metrologyConfigColumn)
-                    .map(ReadingTypeDeliverableImpl.Fields.METROLOGY_CONFIGURATION.fieldName())
+                    .map("METROLOGY_CONFIGURATION")
                     .reverseMap(MetrologyConfigurationImpl.Fields.DELIVERABLES.fieldName())
                     .composition()
+                    .upTo(version(10, 3))
+                    .add();
+            table.foreignKey("MTR_DELIVERABLE_TO_CONTRACT")
+                    .references(MetrologyContract.class)
+                    .on(metrologyContractColumn)
+                    .map(ReadingTypeDeliverableImpl.Fields.METROLOGY_CONTRACT.fieldName())
+                    .reverseMap(MetrologyContractImpl.Fields.DELIVERABLES.fieldName())
+                    .composition()
+                    .since(version(10, 3))
                     .add();
             table.foreignKey("MTR_DELIVERABLE_TO_RT")
                     .references(ReadingType.class)
@@ -1559,6 +1604,7 @@ public enum TableSpecs {
                     .on(deliverableColumn)
                     .map(MetrologyContractReadingTypeDeliverableUsage.Fields.DELIVERABLE.fieldName())
                     .add();
+            table.upTo(version(10, 3));
         }
     },
     MTR_UP_REQUIREMENT {
@@ -1645,7 +1691,7 @@ public enum TableSpecs {
             table.since(version(10, 2));
 
             Column idColumn = table.addAutoIdColumn();
-            List<Column> intervalColumns = table.addIntervalColumns(EffectiveMetrologyContractOnUsagePointImpl.Fields.INTERVAL.fieldName());
+            table.addIntervalColumns(EffectiveMetrologyContractOnUsagePointImpl.Fields.INTERVAL.fieldName());
             Column effectiveConfColumn = table.column(EffectiveMetrologyContractOnUsagePointImpl.Fields.EFFECTIVE_CONF.name()).number().conversion(ColumnConversion.NUMBER2LONG).add();
             Column metrologyContractColumn = table.column(EffectiveMetrologyContractOnUsagePointImpl.Fields.METROLOGY_CONTRACT.name()).number().conversion(ColumnConversion.NUMBER2LONG).add();
 
@@ -1921,7 +1967,64 @@ public enum TableSpecs {
                     .map("state")
                     .add();
         }
-    },;
+    },
+    MTR_CALENDAR_ON_USAGEPOINT {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<UsagePoint.CalendarUsage> table = dataModel.addTable(this.name(), UsagePoint.CalendarUsage.class).since(version(10, 3));
+            table.map(CalendarUsageImpl.class);
+            Column idColumn = table.addAutoIdColumn();
+            Column usagePoint = table.column("USAGEPOINT").number().notNull().add();
+            Column calendar = table.column("CALENDAR").number().notNull().add();
+            table.addIntervalColumns(CalendarUsageImpl.Fields.INTERVAL.fieldName());
+            table.setJournalTableName("MTR_CALENDAR_ON_USAGEPOINTJRNL");
+            table.addAuditColumns();
+            table.primaryKey("MTR_PK_CAL_ON_UP").on(idColumn).add();
+            table.foreignKey("MTR_FK_MTRP_UP")
+                    .on(usagePoint)
+                    .references(UsagePoint.class)
+                    .map(CalendarUsageImpl.Fields.USAGEPOINT.fieldName())
+                    .composition()
+                    .reverseMap("calendarUsages")
+                    .add();
+            table.foreignKey("MTR_FK_MTRP_CAL")
+                    .on(calendar)
+                    .map(CalendarUsageImpl.Fields.CALENDAR.fieldName())
+                    .references(Calendar.class)
+                    .add();
+        }
+    },
+    MTR_SYNTHETICLOADPROFILE{
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<SyntheticLoadProfile> table = dataModel.addTable(name(), SyntheticLoadProfile.class);
+            table.since(Version.version(10, 3));
+            table.map(SyntheticLoadProfileImpl.class);
+            table.cache();
+            table.setJournalTableName("MTR_SYNTHETICLOADPROFILEJRNL");
+            Column idColumn = table.addAutoIdColumn();
+            Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).map("name").add();
+            table.column("DESCRIPTION").varChar(SHORT_DESCRIPTION_LENGTH).map("description").add();
+            table.column("DURATION").varChar(NAME_LENGTH).notNull().map("duration").add();
+            Column readingTypeMRIDColumn = table.column("READINGTYPE").varChar(NAME_LENGTH).add();
+            table.column("START_TIME").number().notNull().conversion(ColumnConversion.NUMBER2INSTANT).map("startTime").add();
+            Column timeseriesColumn = table.column("TIMESERIES").number().add();
+            table.addAuditColumns();
+            table.primaryKey("PK_MTR_SLP").on(idColumn).add();
+            table.unique("UK_SLP_NAME").on(nameColumn).add();
+            table.foreignKey("FK_MTR_SLP_TIMESERIES")
+                    .on(timeseriesColumn)
+                    .references(TimeSeries.class)
+                    .map("timeSeries")
+                    .add();
+            table.foreignKey("FK_MTR_SLP_READINGTYPE")
+                    .references(ReadingType.class)
+                    .onDelete(DeleteRule.RESTRICT)
+                    .map("readingType")
+                    .on(readingTypeMRIDColumn)
+                    .add();
+        }
+    };
 
     abstract void addTo(DataModel dataModel);
 

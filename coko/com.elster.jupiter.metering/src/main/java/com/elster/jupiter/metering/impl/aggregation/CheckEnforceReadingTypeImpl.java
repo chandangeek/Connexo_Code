@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.metering.impl.aggregation;
 
 import java.util.List;
@@ -52,6 +56,11 @@ class CheckEnforceReadingTypeImpl implements CheckEnforceReadingType {
 
     @Override
     public Boolean visitProperty(CustomPropertyNode property) {
+        return Boolean.TRUE;
+    }
+
+    @Override
+    public Boolean visitSyntheticLoadProfile(SyntheticLoadProfilePropertyNode slp) {
         return Boolean.TRUE;
     }
 

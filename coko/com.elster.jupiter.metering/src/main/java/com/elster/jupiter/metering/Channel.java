@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.metering;
 
 import com.elster.jupiter.cbo.QualityCodeSystem;
@@ -41,7 +45,15 @@ public interface Channel {
 
     List<ReadingRecord> getRegisterReadings(ReadingType readingType, Range<Instant> interval);
 
+    default List<ReadingRecord> getRegisterJournalReadings(ReadingType readingType, Range<Instant> interval) {
+        return null;
+    }
+
     List<IntervalReadingRecord> getIntervalReadings(ReadingType readingType, Range<Instant> interval);
+
+    default List<IntervalReadingRecord> getIntervalJournalReadings(ReadingType readingType, Range<Instant> interval) {
+        return null;
+    }
 
     List<BaseReadingRecord> getReadings(ReadingType readingType, Range<Instant> interval);
 
@@ -93,6 +105,8 @@ public interface Channel {
      * @param readings A list of {@link BaseReadingRecord BaseReadingRecords} to remove from channel.
      */
     void removeReadings(QualityCodeSystem system, List<? extends BaseReadingRecord> readings);
+
+    void estimateReadings(QualityCodeSystem system, List<? extends BaseReading> readings);
 
     Instant getFirstDateTime();
 

@@ -1,9 +1,14 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.metering;
 
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.util.units.Quantity;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -44,5 +49,17 @@ public interface BaseReadingRecord extends BaseReading {
 
     default boolean confirmed() {
         return getProcessStatus().get(ProcessStatus.Flag.CONFIRMED);
+    }
+
+    default Instant getJournalTime() {
+        return Instant.EPOCH;
+    }
+
+    default String getUserName() {
+        return "";
+    }
+
+    default Channel getChannel() {
+        throw new UnsupportedOperationException();
     }
 }

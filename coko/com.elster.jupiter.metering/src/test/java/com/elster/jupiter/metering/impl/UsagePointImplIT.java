@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
 package com.elster.jupiter.metering.impl;
@@ -179,7 +179,7 @@ public class UsagePointImplIT {
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
         UsagePoint usagePoint =
                 serviceCategory
-                        .newUsagePoint("twoEffectiveMetrologyConfigurationsOverlapsWithPeriodAtTheirBoundary", AUG_1ST_2016)
+                        .newUsagePoint("twoEffectiveMetrologyConfigurationsOverlapsWithPeriodAtTheirBoundary", JULY_1ST_2016)
                         .create();
         UsagePointMetrologyConfiguration configuration1 =
                 inMemoryBootstrapModule

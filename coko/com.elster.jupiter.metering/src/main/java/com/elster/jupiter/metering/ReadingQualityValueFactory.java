@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.metering;
 
 import com.elster.jupiter.properties.ReadingQualityPropertyValue;
@@ -9,15 +13,6 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.util.NoSuchElementException;
 
-/**
- * - Parse a given {@link ReadingQualityPropertyValue} to a string value that can be stored to the database
- * - Parse a string value from the database into a {@link ReadingQualityPropertyValue}
- * <p>
- * Copyrights EnergyICT
- *
- * @author khe
- * @since 8/06/2016 - 17:53
- */
 public class ReadingQualityValueFactory implements ValueFactory<ReadingQualityPropertyValue> {
 
     @Override

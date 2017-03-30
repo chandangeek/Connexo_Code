@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.metering;
 
 import com.elster.jupiter.events.EventService;
@@ -112,6 +116,7 @@ public enum EventType {
                     .withProperty("endDeviceId", ValueType.LONG, "endDevice.id")
                     .withProperty("endDeviceEventType", ValueType.STRING, "eventTypeCode")
                     .withProperty("eventTimestamp", ValueType.LONG, "createdDateTime.epochSecond")
+                    .withProperty("deviceEventType", ValueType.STRING, "deviceEventType")
                     .create();
 
         }

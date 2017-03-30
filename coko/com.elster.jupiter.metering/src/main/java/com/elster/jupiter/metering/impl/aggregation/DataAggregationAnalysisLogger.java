@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
 package com.elster.jupiter.metering.impl.aggregation;
@@ -25,6 +25,10 @@ import java.util.stream.Collectors;
  * @since 2016-08-19 (13:02)
  */
 class DataAggregationAnalysisLogger {
+
+    String introspectionStarted(UsagePoint usagePoint, MetrologyContract contract, Range<Instant> period) {
+        return "Start: introspection of calculation of aggregated data for usagePoint(name=" + usagePoint.getName() + "), contract(id=" + contract.getId() + ") and period " + period;
+    }
 
     String calculationStarted(UsagePoint usagePoint, MetrologyContract contract, Range<Instant> period) {
         return "Start: calculate aggregated data for usagePoint(name=" + usagePoint.getName() + "), contract(id=" + contract.getId() + ") and period " + period;

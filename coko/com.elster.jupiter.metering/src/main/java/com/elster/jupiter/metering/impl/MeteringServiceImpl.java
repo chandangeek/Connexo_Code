@@ -1,5 +1,10 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
@@ -43,6 +48,8 @@ import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.UsagePointFilter;
 import com.elster.jupiter.metering.ami.HeadEndInterface;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
+import com.elster.jupiter.metering.config.MetrologyContract;
+import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.metering.impl.config.EffectiveMetrologyContractOnUsagePoint;
 import com.elster.jupiter.nls.NlsKey;
@@ -50,6 +57,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.JournalEntry;
 import com.elster.jupiter.orm.QueryExecutor;
+import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRepresentation;
 import com.elster.jupiter.upgrade.UpgradeService;
@@ -94,16 +102,16 @@ public class MeteringServiceImpl implements ServerMeteringService {
     private static final String LOCATION_TEMPLATE = "com.elster.jupiter.location.template";
     private static final String LOCATION_TEMPLATE_MANDATORY_FIELDS = "com.elster.jupiter.location.template.mandatoryfields";
 
-    private IdsService idsService;
-    private QueryService queryService;
-    private Clock clock;
-    private EventService eventService;
-    private DataModel dataModel;
-    private Thesaurus thesaurus;
-    private MessageService messageService;
-    private JsonService jsonService;
-    private UpgradeService upgradeService;
-    private MeteringDataModelService meteringDataModelService;
+    private final IdsService idsService;
+    private final QueryService queryService;
+    private final Clock clock;
+    private final EventService eventService;
+    private final DataModel dataModel;
+    private final Thesaurus thesaurus;
+    private final MessageService messageService;
+    private final JsonService jsonService;
+    private final UpgradeService upgradeService;
+    private final MeteringDataModelService meteringDataModelService;
 
     private volatile LocationTemplate locationTemplate;
     private static ImmutableList<TemplateField> locationTemplateMembers;
@@ -162,7 +170,7 @@ public class MeteringServiceImpl implements ServerMeteringService {
 
     @Override
     public Finder<ReadingType> findReadingTypes(ReadingTypeFilter filter) {
-        return DefaultFinder.of(ReadingType.class, filter.getCondition(), dataModel);
+        return DefaultFinder.of(ReadingType.class, filter.getCondition(), dataModel).sorted("fullAliasName", true);
     }
 
     @Override
@@ -326,7 +334,7 @@ public class MeteringServiceImpl implements ServerMeteringService {
     @Override
     public Query<ChannelsContainer> getChannelsContainerWithReadingQualitiesQuery(Range<Instant> readingQualityTimestamp, ReadingQualityType... readingQualityTypes) {
         QueryExecutor<ChannelsContainer> query = dataModel.query(ChannelsContainer.class, Channel.class,
-                EffectiveMetrologyContractOnUsagePoint.class, EffectiveMetrologyConfigurationOnUsagePoint.class);
+                EffectiveMetrologyContractOnUsagePoint.class, EffectiveMetrologyConfigurationOnUsagePoint.class, MetrologyContract.class, MetrologyPurpose.class);
 
         Condition suspectCondition = where("typeCode").in(Stream.of(readingQualityTypes).map(ReadingQualityType::getCode).collect(Collectors.toList()));
         if (!Range.all().equals(readingQualityTimestamp)) {
@@ -729,6 +737,22 @@ public class MeteringServiceImpl implements ServerMeteringService {
     @Override
     public Optional<GasDayOptions> getGasDayOptions() {
         return this.dataModel.mapper(GasDayOptions.class).getOptional(GasDayOptionsImpl.SINGLETON_ID);
+    }
+
+    @Override
+    public boolean isCalendarEffectiveForAnyUsagePoint(Calendar calendar) {
+        return this.getCalendarUsagesStream(calendar).anyMatch(effectiveNowOfInFutureCondition());
+    }
+
+    private QueryStream<UsagePoint.CalendarUsage> getCalendarUsagesStream(Calendar calendar) {
+        return this.dataModel
+                .stream(UsagePoint.CalendarUsage.class)
+                .filter(where(CalendarUsageImpl.Fields.CALENDAR.fieldName()).isEqualTo(calendar));
+    }
+
+    private Condition effectiveNowOfInFutureCondition() {
+        Instant now = this.clock.instant();
+        return where(CalendarUsageImpl.Fields.INTERVAL.fieldName()).isEffective(Range.atLeast(now));
     }
 
 }

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.metering;
 
 import com.elster.jupiter.metering.config.MeterRole;
@@ -149,6 +153,17 @@ public class UsagePointMeterActivationException extends LocalizedException {
         ex.meterRole = meterRole;
         ex.usagePoint = usagePoint;
         ex.cause = cause;
+        return ex;
+    }
+
+    public static class UsagePointIncorrectStage extends UsagePointMeterActivationException{
+        public UsagePointIncorrectStage(Thesaurus thesaurus, MessageSeed messageSeed, Object... args) {
+            super(thesaurus, messageSeed, args);
+        }
+    }
+
+    public static UsagePointIncorrectStage usagePointIncorrectStage(Thesaurus thesaurus){
+        UsagePointIncorrectStage ex = new UsagePointIncorrectStage(thesaurus, MessageSeeds.USAGE_POINT_INCORRECT_STAGE);
         return ex;
     }
 }

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.domain.util.DefaultFinder;
@@ -103,7 +107,7 @@ public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigu
 
     @Override
     public Optional<MetrologyConfiguration> findMetrologyConfiguration(long id) {
-        return this.getDataModel().mapper(MetrologyConfiguration.class).getUnique("id", id);
+        return this.getDataModel().mapper(MetrologyConfiguration.class).getOptional(id);
     }
 
     @Override
@@ -190,6 +194,11 @@ public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigu
     }
 
     @Override
+    public Optional<ReadingTypeTemplate> findReadingTypeTemplate(long id) {
+        return getDataModel().mapper(ReadingTypeTemplate.class).getOptional(id);
+    }
+
+    @Override
     public MeterRole newMeterRole(NlsKey name) {
         String localKey = METER_ROLE_KEY_PREFIX + name.getKey();
         this.meteringDataModelService.copyKeyIfMissing(name, localKey);
@@ -269,17 +278,14 @@ public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigu
             condition = condition.and(where(ReadingTypeDeliverableImpl.Fields.READING_TYPE.fieldName()).in(filter.getReadingTypes()));
         }
         if (!filter.getMetrologyContracts().isEmpty()) {
-            Condition mappingCondition = where(MetrologyContractReadingTypeDeliverableUsage.Fields.METROLOGY_CONTRACT.fieldName())
+            Condition metrologyContractCondition = where(ReadingTypeDeliverableImpl.Fields.METROLOGY_CONTRACT.fieldName())
                     .in(filter.getMetrologyContracts());
-            Subquery subquery = getDataModel().query(MetrologyContractReadingTypeDeliverableUsage.class)
-                    .asSubquery(mappingCondition,
-                            MetrologyContractReadingTypeDeliverableUsage.Fields.DELIVERABLE.fieldName());
-            condition = condition.and(ListOperator.IN.contains(subquery, "id"));
+            condition = condition.and(metrologyContractCondition);
         }
         if (!filter.getMetrologyConfigurations().isEmpty()) {
-            condition = condition.and(where(ReadingTypeDeliverableImpl.Fields.METROLOGY_CONFIGURATION.fieldName()).in(filter.getMetrologyConfigurations()));
+            condition = condition.and(where(ReadingTypeDeliverableImpl.Fields.METROLOGY_CONTRACT.fieldName() + "." + MetrologyContractImpl.Fields.METROLOGY_CONFIG.fieldName() ).in(filter.getMetrologyConfigurations()));
         }
-        return getDataModel().query(ReadingTypeDeliverable.class, MetrologyConfiguration.class).select(condition);
+        return getDataModel().query(ReadingTypeDeliverable.class, MetrologyContract.class, MetrologyConfiguration.class).select(condition);
     }
 
     @Override

@@ -1,5 +1,10 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.metering.impl.aggregation;
 
+import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.MeasurementKind;
 import com.elster.jupiter.cbo.MetricMultiplier;
@@ -11,6 +16,7 @@ import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MultiplierType;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.aggregation.MetrologyContractDoesNotApplyToUsagePointException;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
@@ -26,6 +32,7 @@ import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.impl.ChannelContract;
 import com.elster.jupiter.metering.impl.MeteringDataModelService;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
+import com.elster.jupiter.metering.impl.ServerUsagePoint;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationServiceImpl;
 import com.elster.jupiter.metering.impl.config.ServerFormula;
 import com.elster.jupiter.metering.impl.config.ServerFormulaBuilder;
@@ -83,9 +90,11 @@ public class DataAggregationServiceImplCalculateTest {
     @Mock
     private VirtualFactory virtualFactory;
     @Mock
-    private UsagePoint usagePoint;
+    private ServerUsagePoint usagePoint;
     @Mock
     private UsagePointMetrologyConfiguration configuration;
+    @Mock
+    private ServiceCategory serviceCategory;
     @Mock
     private MetrologyPurpose metrologyPurpose;
     @Mock
@@ -100,6 +109,8 @@ public class DataAggregationServiceImplCalculateTest {
     private QueryExecutor<EffectiveMetrologyConfigurationOnUsagePoint> queryExecutor;
     @Mock
     private EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration;
+    @Mock
+    private CalendarService calendarService;
     @Mock
     private CustomPropertySetService customPropertySetService;
     @Mock
@@ -158,6 +169,8 @@ public class DataAggregationServiceImplCalculateTest {
         when(this.effectiveMetrologyConfiguration.getRange()).thenReturn(year2016());
         when(this.effectiveMetrologyConfiguration.getInterval()).thenReturn(Interval.of(year2016()));
         when(this.usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMetrologyConfiguration));
+        when(this.usagePoint.getServiceCategory()).thenReturn(this.serviceCategory);
+        when(this.serviceCategory.getCustomPropertySets()).thenReturn(Collections.emptyList());
     }
 
     /**
@@ -231,6 +244,7 @@ public class DataAggregationServiceImplCalculateTest {
         when(this.configuration.getRequirements()).thenReturn(Arrays.asList(consumption, production));
         when(this.configuration.getMeterRoleFor(consumption)).thenReturn(Optional.of(this.meterRole));
         when(this.configuration.getMeterRoleFor(production)).thenReturn(Optional.of(this.meterRole));
+        when(this.usagePoint.getEffectiveMetrologyConfigurations(any(Range.class))).thenReturn(Collections.singletonList(this.effectiveMetrologyConfiguration));
         // Setup configuration deliverables
         ReadingTypeDeliverable netConsumption = mock(ReadingTypeDeliverable.class);
         when(netConsumption.getName()).thenReturn("consumption");
@@ -282,13 +296,13 @@ public class DataAggregationServiceImplCalculateTest {
         when(netConsumptionForMeterActivation.sqlName()).thenReturn("vrt-netConsumption");
         when(this.readingTypeDeliverableForMeterActivationFactory
                 .from(
-                        eq(Formula.Mode.AUTO),
-                        eq(netConsumption),
-                        any(MeterActivationSet.class),
-                        eq(aggregationPeriod),
-                        anyInt(),
-                        any(ServerExpressionNode.class),
-                        any(VirtualReadingType.class)))
+                    eq(Formula.Mode.AUTO),
+                    eq(netConsumption),
+                    any(MeterActivationSet.class),
+                    eq(aggregationPeriod),
+                    anyInt(),
+                    any(ServerExpressionNode.class),
+                    any(VirtualReadingType.class)))
                 .thenReturn(netConsumptionForMeterActivation);
 
         // Business method
@@ -349,10 +363,11 @@ public class DataAggregationServiceImplCalculateTest {
         when(this.configuration.getRequirements()).thenReturn(Arrays.asList(consumption, production));
         when(this.configuration.getMeterRoleFor(consumption)).thenReturn(Optional.of(this.meterRole));
         when(this.configuration.getMeterRoleFor(production)).thenReturn(Optional.of(this.meterRole));
+        when(this.usagePoint.getEffectiveMetrologyConfigurations(any(Range.class))).thenReturn(Collections.singletonList(this.effectiveMetrologyConfiguration));
         // Setup configuration deliverables
         ReadingTypeDeliverable netConsumption = mock(ReadingTypeDeliverable.class);
         when(netConsumption.getName()).thenReturn("consumption");
-        ReadingType netConsumptionReadingType = this.mock15minReadingType("13.0.0.1.4.2.12.0.0.0.0.0.0.0.0.3.72.0");
+        ReadingType netConsumptionReadingType = this.mockMonhtlyReadingType("13.0.0.1.4.2.12.0.0.0.0.0.0.0.0.3.72.0");
         when(netConsumption.getReadingType()).thenReturn(netConsumptionReadingType);
         ServerFormulaBuilder formulaBuilder = this.newFormulaBuilder();
         ExpressionNode node = formulaBuilder.plus(
@@ -401,13 +416,13 @@ public class DataAggregationServiceImplCalculateTest {
         when(netConsumptionForMeterActivation.sqlName()).thenReturn("vrt-netConsumption");
         when(this.readingTypeDeliverableForMeterActivationFactory
                 .from(
-                        eq(Formula.Mode.AUTO),
-                        eq(netConsumption),
-                        any(MeterActivationSet.class),
-                        eq(aggregationPeriod),
-                        anyInt(),
-                        any(ServerExpressionNode.class),
-                        any(VirtualReadingType.class)))
+                    eq(Formula.Mode.AUTO),
+                    eq(netConsumption),
+                    any(MeterActivationSet.class),
+                    eq(aggregationPeriod),
+                    anyInt(),
+                    any(ServerExpressionNode.class),
+                    any(VirtualReadingType.class)))
                 .thenReturn(netConsumptionForMeterActivation);
 
         // Business method
@@ -444,7 +459,7 @@ public class DataAggregationServiceImplCalculateTest {
      * netConsumption (15m kWh) ::= A- + A+
      * Device:
      * meter activations:
-     * Jan 1st 2015 -> forever
+     * Jan 1st 2015 -> Feb 1st 2015
      * A- -> 15 min kWh
      * A+ -> 15 min kWh
      * Feb 1st 2015 -> forever
@@ -467,6 +482,7 @@ public class DataAggregationServiceImplCalculateTest {
         when(this.configuration.getRequirements()).thenReturn(Arrays.asList(consumption, production));
         when(this.configuration.getMeterRoleFor(consumption)).thenReturn(Optional.of(this.meterRole));
         when(this.configuration.getMeterRoleFor(production)).thenReturn(Optional.of(this.meterRole));
+        when(this.usagePoint.getEffectiveMetrologyConfigurations(any(Range.class))).thenReturn(Collections.singletonList(this.effectiveMetrologyConfiguration));
         // Setup configuration deliverables
         ReadingTypeDeliverable netConsumption = mock(ReadingTypeDeliverable.class);
         when(netConsumption.getName()).thenReturn("consumption");
@@ -540,16 +556,16 @@ public class DataAggregationServiceImplCalculateTest {
         when(netConsumptionForJan.sqlName()).thenReturn("vrt-netConsumption-feb");
         when(this.readingTypeDeliverableForMeterActivationFactory
                 .from(
-                        eq(Formula.Mode.AUTO),
-                        eq(netConsumption),
-                        any(MeterActivationSet.class),
-                        eq(aggregationPeriod),
-                        anyInt(),
-                        any(ServerExpressionNode.class),
-                        any(VirtualReadingType.class)))
+                    eq(Formula.Mode.AUTO),
+                    eq(netConsumption),
+                    any(MeterActivationSet.class),
+                    eq(aggregationPeriod),
+                    anyInt(),
+                    any(ServerExpressionNode.class),
+                    any(VirtualReadingType.class)))
                 .thenReturn(
-                        netConsumptionForJan,
-                        netConsumptionForFeb);
+                    netConsumptionForJan,
+                    netConsumptionForFeb);
 
         // Business method
         service.calculate(this.usagePoint, this.contract, aggregationPeriod);
@@ -605,8 +621,20 @@ public class DataAggregationServiceImplCalculateTest {
         return readingType;
     }
 
+    private ReadingType mockMonhtlyReadingType(String mRID) {
+        ReadingType readingType = mock(ReadingType.class);
+        when(readingType.getMRID()).thenReturn(mRID);
+        when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.MONTHLY);
+        when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.NOTAPPLICABLE);
+        when(readingType.getUnit()).thenReturn(ReadingTypeUnit.WATTHOUR);
+        when(readingType.getMultiplier()).thenReturn(MetricMultiplier.KILO);
+        when(readingType.getMeasurementKind()).thenReturn(MeasurementKind.ENERGY);
+        return readingType;
+    }
+
     private DataAggregationServiceImpl testInstance() {
         return new DataAggregationServiceImpl(
+                this.calendarService,
                 this.customPropertySetService,
                 this.meteringService,
                 new InstantTruncaterFactory(this.meteringService),

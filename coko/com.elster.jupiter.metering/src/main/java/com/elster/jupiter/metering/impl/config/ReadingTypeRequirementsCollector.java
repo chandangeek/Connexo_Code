@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.metering.impl.config;
 
 
@@ -23,7 +27,7 @@ import java.util.stream.Collectors;
  * @since 2016-02-18 (13:28)
  */
 
-public class RequirementsFromExpressionNode implements ExpressionNode.Visitor<List<ReadingTypeRequirement>> {
+public class ReadingTypeRequirementsCollector implements ExpressionNode.Visitor<List<ReadingTypeRequirement>> {
 
     @Override
     public List<ReadingTypeRequirement> visitConstant(ConstantNode constant) {
@@ -42,7 +46,7 @@ public class RequirementsFromExpressionNode implements ExpressionNode.Visitor<Li
 
     @Override
     public List<ReadingTypeRequirement> visitDeliverable(ReadingTypeDeliverableNode deliverable) {
-        return deliverable.getReadingTypeDeliverable().getFormula().getExpressionNode().accept(new RequirementsFromExpressionNode());
+        return deliverable.getReadingTypeDeliverable().getFormula().getExpressionNode().accept(new ReadingTypeRequirementsCollector());
     }
 
     @Override
@@ -63,7 +67,7 @@ public class RequirementsFromExpressionNode implements ExpressionNode.Visitor<Li
     private List<ReadingTypeRequirement> getRequirementsFromChildren(ExpressionNode node) {
         return node.getChildren()
                 .stream()
-                .map(child -> child.accept(new RequirementsFromExpressionNode()))
+                .map(child -> child.accept(new ReadingTypeRequirementsCollector()))
                 .flatMap(List::stream)
                 .collect(Collectors.toList());
     }

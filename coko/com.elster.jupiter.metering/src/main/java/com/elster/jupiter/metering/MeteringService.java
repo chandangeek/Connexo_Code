@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.metering;
 
 import com.elster.jupiter.domain.util.Finder;
@@ -21,6 +25,7 @@ import java.util.Optional;
 @ProviderType
 public interface MeteringService {
     String COMPONENTNAME = "MTR";
+    String END_DEVICE_STAGE_SET_NAME = "END_DEVICE_STAGE_SET";
 
     ServiceLocationBuilder newServiceLocation();
 

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.metering.config;
 
 import com.elster.jupiter.metering.ReadingType;
@@ -23,9 +27,16 @@ public interface ReadingTypeDeliverable extends HasId, HasName {
     /**
      * Returns the {@link MetrologyConfiguration} that defines this ReadingTypeDeliverable.
      *
-     * @return The MetrologyContract
+     * @return The MetrologyConfiguration
      */
     MetrologyConfiguration getMetrologyConfiguration();
+
+    /**
+     * Returns the {@link MetrologyContract} that defines this ReadingTypeDeliverable.
+     *
+     * @return The MetrologyContract
+     */
+    MetrologyContract getMetrologyContract();
 
     /**
      * Returns the {@link Formula} that defines

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.metering.impl.aggregation;
 
 import com.elster.jupiter.metering.config.ExpressionNode;
@@ -31,6 +35,11 @@ class LocalDateFromExpressionNode implements ServerExpressionNode.Visitor<String
     @Override
     public String visitProperty(CustomPropertyNode property) {
         return null;
+    }
+
+    @Override
+    public String visitSyntheticLoadProfile(SyntheticLoadProfilePropertyNode slp) {
+        return slp.sqlName() + "." + SqlConstants.TimeSeriesColumnNames.LOCALDATE.sqlName();
     }
 
     @Override

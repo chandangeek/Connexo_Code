@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.metering.readings.beans;
 
 import com.elster.jupiter.metering.ReadingQualityType;
@@ -10,14 +14,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-/**
- * Our default implementation of an {@link IntervalReading}.
- * An IntervalReading serves as a single <i>entry</i> for a series of readings
- * <p>
- * Copyrights EnergyICT
- * Date: 25/11/13
- * Time: 15:18
- */
 public class IntervalReadingImpl extends BaseReadingImpl implements IntervalReading {
 
     private IntervalReadingImpl(Instant timeStamp, BigDecimal value) {
