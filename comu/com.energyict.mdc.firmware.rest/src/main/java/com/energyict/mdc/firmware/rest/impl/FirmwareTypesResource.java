@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.firmware.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
@@ -16,11 +20,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-/**
- * Copyrights EnergyICT
- * Date: 07/05/15
- * Time: 13:44
- */
 @Path("/devicetypes/{deviceTypeId}/supportedfirmwaretypes")
 public class FirmwareTypesResource {
 

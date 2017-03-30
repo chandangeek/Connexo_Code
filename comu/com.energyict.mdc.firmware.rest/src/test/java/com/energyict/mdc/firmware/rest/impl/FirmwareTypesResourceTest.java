@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.firmware.rest.impl;
 
 import com.energyict.mdc.device.config.DeviceType;
@@ -16,11 +20,6 @@ import org.mockito.Mock;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-/**
- * Copyrights EnergyICT
- * Date: 07/05/15
- * Time: 15:25
- */
 public class FirmwareTypesResourceTest extends BaseFirmwareTest {
 
     @Mock
