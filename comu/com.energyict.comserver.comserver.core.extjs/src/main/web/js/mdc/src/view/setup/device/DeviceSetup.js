@@ -177,7 +177,7 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
             panel = me.content[0],
             isGateway = me.device.get('isGateway'),
             isDirectlyAddressable = me.device.get('isDirectlyAddressed'),
-            disableChangeConfigSinceDataLoggerOrSlave = me.device.get('isDataLogger') || me.device.get('isDataLoggerSlave'),
+            disableChangeConfigSinceDataLoggerOrSlave = me.device.get('isDataLogger') || me.device.get('isDataLoggerSlave') || me.device.get('isMultiElementDevice') || me.device.get('isMultiElementSlave'),
             hasValidationRules = me.device.get('hasValidationRules');
 
         panel.tools = [

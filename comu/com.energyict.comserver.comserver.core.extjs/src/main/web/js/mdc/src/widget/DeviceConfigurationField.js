@@ -120,6 +120,11 @@ Ext.define('Mdc.widget.DeviceConfigurationField', {
              })
         }
     },
+
+    getDeviceTypeStore: function(){
+        return this.down('#deviceType').getStore();
+    },
+
     getDeviceType: function(){
         var deviceTypeCombo =  this.down('#deviceType');
         return deviceTypeCombo.findRecordByValue(deviceTypeCombo.getValue());

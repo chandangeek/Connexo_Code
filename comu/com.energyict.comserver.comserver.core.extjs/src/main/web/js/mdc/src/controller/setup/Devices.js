@@ -8,7 +8,8 @@ Ext.define('Mdc.controller.setup.Devices', {
     requires: [
         'Mdc.model.DeviceAttribute',
         'Mdc.model.Device',
-        'Cfg.privileges.Validation'
+        'Cfg.privileges.Validation',
+        'Mdc.widget.DeviceConfigurationField'
     ],
     views: [
         'Mdc.view.setup.device.DeviceSetup',
@@ -411,7 +412,7 @@ Ext.define('Mdc.controller.setup.Devices', {
         widget.down('form').loadRecord(Ext.create('Mdc.model.Device'));
         this.getApplication().fireEvent('changecontentevent', widget);
         widget.setLoading();
-        widget.down('#deviceAddType').getStore().load(function () {
+        widget.down('#deviceConfiguration').getDeviceTypeStore().load(function () {
             widget.setLoading(false);
         });
     },
@@ -422,11 +423,14 @@ Ext.define('Mdc.controller.setup.Devices', {
 
         form.getForm().isValid();
         form.updateRecord();
-        if (!form.down('#deviceAddType').getValue()) {
+        var deviceType = form.down('#deviceConfiguration').getDeviceType();
+        var deviceConfig = form.down('#deviceConfiguration').getDeviceConfiguration();
+        if (!deviceConfig){
             form.getRecord().set('deviceTypeId', null);
-        }
-        if (!form.down('#deviceAddConfig').getValue()) {
             form.getRecord().set('deviceConfigurationId', null);
+        }else{
+            form.getRecord().set('deviceTypeId', deviceType.get('id'));
+            form.getRecord().set('deviceConfigurationId', deviceConfig.get('id'));
         }
         form.getRecord().set('shipmentDate', form.down('#deviceAddShipmentDate').getValue().getTime());
         me.getAddDevicePage().setLoading();
@@ -444,8 +448,8 @@ Ext.define('Mdc.controller.setup.Devices', {
                             if (item.id != 'deviceType') { // JP-6865 #hide device type error returned from backend
                                 errorsToShow.push(item)
                             } else {
-                                if (!form.down('#deviceAddType').getValue()) {
-                                    errorsToShow.push(item)
+                                if (!deviceType) {
+                                    errorsToShow.push(item);
                                 }
                             }
                         });
