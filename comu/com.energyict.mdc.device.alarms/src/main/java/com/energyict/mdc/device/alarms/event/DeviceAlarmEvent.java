@@ -21,6 +21,7 @@ import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeService;
+import com.energyict.cim.EndDeviceEventTypeMapping;
 import com.energyict.mdc.device.alarms.DeviceAlarmFilter;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.alarms.entity.DeviceAlarm;
@@ -29,8 +30,6 @@ import com.energyict.mdc.device.alarms.impl.event.EventDescription;
 import com.energyict.mdc.device.alarms.impl.i18n.MessageSeeds;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.protocol.api.cim.EndDeviceEventTypeMapping;
-
 import com.google.inject.Injector;
 
 import java.time.Clock;
@@ -208,10 +207,10 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
     private int getTotalOccurenceCount(List<EndDeviceEventRecord> loggedEvents, List<String> triggeringEvents, List<String> deviceCodes) {
         return getMatchingEventOccurenceCount(triggeringEvents, loggedEvents.stream()
                 .map(EndDeviceEventRecord::getEventTypeCode)
-                .filter(eventTypeMrid -> !eventTypeMrid.equals(EndDeviceEventTypeMapping.OTHER.getEndDeviceEventTypeMRID()))
+                .filter(eventTypeMrid -> !eventTypeMrid.equals(EndDeviceEventTypeMapping.OTHER.getEventType().getCode()))
                 .collect(Collectors.toList())) +
                 loggedEvents.stream()
-                        .filter(event -> event.getEventType().getMRID().equals(EndDeviceEventTypeMapping.OTHER.getEndDeviceEventTypeMRID()))
+                        .filter(event -> event.getEventType().getMRID().equals(EndDeviceEventTypeMapping.OTHER.getEventType().getCode()))
                         .map(EndDeviceEventRecord::getDeviceEventType)
                         .collect(Collectors.collectingAndThen(Collectors.toList(), Collection::stream)).filter(deviceCodes::contains)
                         .collect(Collectors.toList()).size();
