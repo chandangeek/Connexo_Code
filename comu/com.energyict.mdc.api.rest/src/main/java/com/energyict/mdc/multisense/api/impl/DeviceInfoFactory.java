@@ -1,5 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.multisense.api.impl;
 
+import com.elster.jupiter.cbo.IdentifiedObject;
+import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.LinkInfo;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.PropertyCopier;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.Relation;
@@ -87,6 +93,9 @@ public class DeviceInfoFactory extends SelectableFieldFactory<DeviceInfo, Device
         map.put("name", (deviceInfo, device, uriInfo) -> deviceInfo.name = device.getName());
         map.put("mRID", (deviceInfo, device, uriInfo) -> deviceInfo.mRID = device.getmRID());
         map.put("serialNumber", (deviceInfo, device, uriInfo) -> deviceInfo.serialNumber = device.getSerialNumber());
+        map.put("manufacturer", (deviceInfo, device, uriInfo) -> deviceInfo.manufacturer = device.getManufacturer());
+        map.put("modelNumber", (deviceInfo, device, uriInfo) -> deviceInfo.modelNbr = device.getModelNumber());
+        map.put("modelVersion", (deviceInfo, device, uriInfo) -> deviceInfo.modelVersion = device.getModelVersion());
         map.put("deviceProtocolPluggeableClassId", (deviceInfo, device, uriInfo) -> deviceInfo.deviceProtocolPluggeableClassId = device.getDeviceType()
                 .getDeviceProtocolPluggableClass()
                 .map(HasId::getId)
@@ -207,6 +216,13 @@ public class DeviceInfoFactory extends SelectableFieldFactory<DeviceInfo, Device
                     .title("Device type")
                     .build(device.getDeviceType().getId());
         });
+        map.put("installationDate", (deviceInfo, device, uriInfo) ->  device.getLifecycleDates()
+                .getInstalledDate()
+                .ifPresent(installationDate -> deviceInfo.installationDate = installationDate));
+        map.put("usagePoint", (deviceInfo, device, uriInfo) ->  device.getUsagePoint().ifPresent(usagePoint -> deviceInfo.usagePoint = usagePoint.getMRID()));
+        map.put("meterRole", (deviceInfo, device, uriInfo) -> device.getCurrentMeterActivation()
+                .flatMap(MeterActivation::getMeterRole)
+                .ifPresent(meterRole -> deviceInfo.meterRole = meterRole.getKey()));
         return map;
     }
 

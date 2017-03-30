@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.multisense.api.impl;
 
 import com.elster.jupiter.rest.api.util.v1.hypermedia.LinkInfo;
@@ -25,21 +29,20 @@ import java.util.Map;
 
 import static java.util.stream.Collectors.toList;
 
-/**
- * Created by bvn on 7/15/15.
- */
 public class PartialConnectionTaskInfoFactory extends SelectableFieldFactory<PartialConnectionTaskInfo, PartialConnectionTask> {
 
     private final MdcPropertyUtils mdcPropertyUtils;
     private final Provider<ComPortPoolInfoFactory> comPortPoolInfoFactoryProvider;
+    private final Provider<ProtocolDialectConfigurationPropertiesInfoFactory> protocolDialectConfigurationPropertiesInfoFactoryProvider;
 
     @Inject
-    public PartialConnectionTaskInfoFactory(MdcPropertyUtils mdcPropertyUtils, Provider<ComPortPoolInfoFactory> comPortPoolInfoFactory) {
+    public PartialConnectionTaskInfoFactory(MdcPropertyUtils mdcPropertyUtils, Provider<ComPortPoolInfoFactory> comPortPoolInfoFactory, Provider<ProtocolDialectConfigurationPropertiesInfoFactory> protocolDialectConfigurationPropertiesInfoFactoryProvider) {
         this.mdcPropertyUtils = mdcPropertyUtils;
         this.comPortPoolInfoFactoryProvider = comPortPoolInfoFactory;
+        this.protocolDialectConfigurationPropertiesInfoFactoryProvider = protocolDialectConfigurationPropertiesInfoFactoryProvider;
     }
 
-    public LinkInfo asLink(PartialConnectionTask partialConnectionTask, Relation relation, UriInfo uriInfo) {
+    public LinkInfo<Long> asLink(PartialConnectionTask partialConnectionTask, Relation relation, UriInfo uriInfo) {
         PartialConnectionTaskInfo info = new PartialConnectionTaskInfo();
         copySelectedFields(info,partialConnectionTask,uriInfo, Arrays.asList("id","version"));
         info.link = link(partialConnectionTask,relation,uriInfo);
@@ -121,7 +124,9 @@ public class PartialConnectionTaskInfoFactory extends SelectableFieldFactory<Par
                 }
             }
         });
-        
+        map.put("protocolDialectConfigurationProperties", ((partialConnectionTaskInfo, partialConnectionTask, uriInfo) ->
+                partialConnectionTaskInfo.protocolDialectConfigurationProperties = protocolDialectConfigurationPropertiesInfoFactoryProvider.get().asLink(partialConnectionTask.getProtocolDialectConfigurationProperties(), Relation.REF_RELATION, uriInfo)));
+
         return map;
     }
 }

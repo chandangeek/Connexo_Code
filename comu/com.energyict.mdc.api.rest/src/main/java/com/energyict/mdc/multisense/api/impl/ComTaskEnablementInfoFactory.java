@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.multisense.api.impl;
 
 import com.elster.jupiter.rest.api.util.v1.hypermedia.LinkInfo;
@@ -24,17 +28,15 @@ public class ComTaskEnablementInfoFactory extends SelectableFieldFactory<ComTask
     private final Provider<PartialConnectionTaskInfoFactory> partialConnectionTaskInfoFactoryProvider;
     private final Provider<ComTaskInfoFactory> comTaskInfoFactoryProvider;
     private final Provider<ConfigurationSecurityPropertySetInfoFactory> configurationSecurityPropertySetInfoFactoryProvider;
-    private final Provider<ProtocolDialectConfigurationPropertiesInfoFactory> protocolDialectConfigurationPropertiesInfoFactoryProvider;
+//    private final Provider<ProtocolDialectConfigurationPropertiesInfoFactory> protocolDialectConfigurationPropertiesInfoFactoryProvider;
 
     @Inject
     public ComTaskEnablementInfoFactory(Provider<PartialConnectionTaskInfoFactory> partialConnectionTaskInfoFactoryProvider,
                                         Provider<ComTaskInfoFactory> comTaskInfoFactoryProvider,
-                                        Provider<ConfigurationSecurityPropertySetInfoFactory> configurationSecurityPropertySetInfoFactoryProvider,
-                                        Provider<ProtocolDialectConfigurationPropertiesInfoFactory> protocolDialectConfigurationPropertiesInfoFactoryProvider) {
+                                        Provider<ConfigurationSecurityPropertySetInfoFactory> configurationSecurityPropertySetInfoFactoryProvider) {
         this.partialConnectionTaskInfoFactoryProvider = partialConnectionTaskInfoFactoryProvider;
         this.comTaskInfoFactoryProvider = comTaskInfoFactoryProvider;
         this.configurationSecurityPropertySetInfoFactoryProvider = configurationSecurityPropertySetInfoFactoryProvider;
-        this.protocolDialectConfigurationPropertiesInfoFactoryProvider = protocolDialectConfigurationPropertiesInfoFactoryProvider;
     }
 
     public LinkInfo asLink(ComTaskEnablement comTaskEnablement, Relation relation, UriInfo uriInfo) {
@@ -86,8 +88,8 @@ public class ComTaskEnablementInfoFactory extends SelectableFieldFactory<ComTask
         map.put("comTask", ((comTaskEnablementInfo, comTaskEnablement, uriInfo) -> comTaskEnablementInfo.comTask = comTaskInfoFactoryProvider.get().asLink(comTaskEnablement.getComTask(), Relation.REF_RELATION, uriInfo)));
         map.put("securityPropertySet", ((comTaskEnablementInfo, comTaskEnablement, uriInfo) ->
             comTaskEnablementInfo.securityPropertySet = configurationSecurityPropertySetInfoFactoryProvider.get().asLink(comTaskEnablement.getSecurityPropertySet(), Relation.REF_RELATION, uriInfo)));
-        map.put("protocolDialectConfigurationProperties", ((comTaskEnablementInfo, comTaskEnablement, uriInfo) ->
-            comTaskEnablementInfo.protocolDialectConfigurationProperties = protocolDialectConfigurationPropertiesInfoFactoryProvider.get().asLink(comTaskEnablement.getProtocolDialectConfigurationProperties(), Relation.REF_RELATION, uriInfo)));
+//        map.put("protocolDialectConfigurationProperties", ((comTaskEnablementInfo, comTaskEnablement, uriInfo) ->
+//            comTaskEnablementInfo.protocolDialectConfigurationProperties = protocolDialectConfigurationPropertiesInfoFactoryProvider.get().asLink(comTaskEnablement.getProtocolDialectConfigurationProperties(), Relation.REF_RELATION, uriInfo)));
         return map;
     }
 
