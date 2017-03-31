@@ -20,7 +20,7 @@ import java.util.logging.Logger;
 public enum PrivateMessageSeeds implements MessageSeed {
 
     UNDERLYING_IO_EXCEPTION(10000, "io.failed", "Underlying IO Exception"),
-    UNSATISFIED_TOU(10001, Constants.UNSATISFIED_TOU, "Not all the time of use buckets of required contract deliverables are satisfied. The following are missing {0}"),
+    UNSATISFIED_TOU(10001, Constants.UNSATISFIED_TOU, "The metrology configuration has purposes that could not be matched by the calendar. Add another calendar or change the metrology configuration to be able to match these"),
     ILLEGAL_CURRENCY_CODE(10002, "currency.illegalcode", "Invalid currency code : ''{0}''"),
 
     METER_EVENT_IGNORED(2001, "meter.event.ignored", "Ignored event {0} on meter {1}, since it is not defined in the system", Level.INFO),
