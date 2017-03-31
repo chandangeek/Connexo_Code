@@ -12,6 +12,7 @@ import com.elster.jupiter.metering.config.CustomPropertyNode;
 import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.FunctionCallNode;
+import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.NullNode;
 import com.elster.jupiter.metering.config.OperationNode;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
@@ -23,8 +24,10 @@ import com.elster.jupiter.metering.impl.aggregation.UnitConversionSupport;
 import javax.inject.Inject;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.elster.jupiter.cbo.Accumulation.BULKQUANTITY;
 
@@ -52,7 +55,10 @@ class DeliverableValidator implements ConstraintValidator<ValidDeliverable, Read
                 }
             }
             Formula formula = deliverable.getFormula();
-            for (ReadingTypeDeliverable del : deliverable.getMetrologyConfiguration().getDeliverables()) {
+            for (ReadingTypeDeliverable del : deliverable.getMetrologyConfiguration().getContracts()
+                    .stream().map(MetrologyContract::getDeliverables)
+                    .flatMap(Collection::stream)
+                    .collect(Collectors.toList())) {
                 if (!del.equals(deliverable)) {
                     if (formula.getMode().equals(Formula.Mode.AUTO) &&
                             !UnitConversionSupport.isAssignable(del.getReadingType(), del.getFormula().getExpressionNode().getDimension())) {

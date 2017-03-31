@@ -18,6 +18,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import java.math.BigDecimal;
+import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.Period;
@@ -25,6 +26,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import java.util.Optional;
+import java.util.TimeZone;
 
 @SuppressWarnings("unused")
 @Component(name = "com.elster.jupiter.metering.slp.console", service = SyntheticLoadProfileConsoleCommands.class, property = {
@@ -40,6 +42,7 @@ public class SyntheticLoadProfileConsoleCommands {
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile TransactionService transactionService;
     private volatile MeteringService meteringService;
+    private volatile Clock clock;
 
     @Reference
     public void setTransactionService(TransactionService transactionService) {
@@ -61,15 +64,20 @@ public class SyntheticLoadProfileConsoleCommands {
         this.meteringService = meteringService;
     }
 
+    @Reference
+    public void setClock(Clock clock) {
+        this.clock = clock;
+    }
 
     public void createSyntheticLoadProfile(String name, String durationName, String startTime, String readingType){
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
-            final Instant startDate = LocalDate.from(dateTimeFormat.parse(startTime)).atStartOfDay().atZone(ZoneId.systemDefault()).toInstant();
+            final Instant startDate = LocalDate.from(dateTimeFormat.parse(startTime)).atStartOfDay().atZone(clock.getZone()).toInstant();
             SyntheticLoadProfileBuilder builder = syntheticLoadProfileService.newSyntheticLoadProfile(name,
                     Period.parse(durationName.toUpperCase()),
                     startDate,
-                    meteringService.getReadingType(readingType).get());
+                    meteringService.getReadingType(readingType).get(),
+                    TimeZone.getTimeZone(clock.getZone()));
             builder.withDescription(name);
             builder.build();
             context.commit();
@@ -90,7 +98,7 @@ public class SyntheticLoadProfileConsoleCommands {
 
     private String toString(SyntheticLoadProfile slp) {
         return slp.getName()
-                + ", started: " + DefaultDateTimeFormatters.shortDate().withShortTime().build().format(slp.getStartTime().atZone(ZoneId.systemDefault()))
+                + ", started: " + DefaultDateTimeFormatters.shortDate().withShortTime().build().format(slp.getStartTime().atZone(clock.getZone()))
                 + ", interval: " + slp.getInterval()
                 + ", duration: " + slp.getDuration()
                 + ", readingtype: " + slp.getReadingType().getMRID();
@@ -102,7 +110,7 @@ public class SyntheticLoadProfileConsoleCommands {
         if(correctionFactor.isPresent()){
             Map<Instant, BigDecimal> returnedValues = correctionFactor.get().getValues(Range.atLeast(correctionFactor.get().getStartTime()));
             returnedValues.entrySet().stream()
-                    .map(e -> "" + DefaultDateTimeFormatters.shortDate().withShortTime().build().format(e.getKey().atZone(ZoneId.systemDefault())) + " : " + e.getValue())
+                    .map(e -> "" + DefaultDateTimeFormatters.shortDate().withShortTime().build().format(e.getKey().atZone(clock.getZone())) + " : " + e.getValue())
                     .forEach(System.out::println);
         }
     }

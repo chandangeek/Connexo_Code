@@ -15,9 +15,9 @@ import aQute.bnd.annotation.ProviderType;
 import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
-import java.time.Duration;
 import java.time.Instant;
 import java.time.Period;
+import java.time.temporal.TemporalAmount;
 import java.util.Map;
 import java.util.Optional;
 
@@ -25,7 +25,7 @@ import java.util.Optional;
 public interface SyntheticLoadProfile extends HasId, HasName{
     String getDescription();
 
-    Duration getInterval();
+    TemporalAmount getInterval();
 
     ReadingType getReadingType();
 

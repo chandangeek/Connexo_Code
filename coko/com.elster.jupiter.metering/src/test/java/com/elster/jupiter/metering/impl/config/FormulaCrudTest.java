@@ -25,6 +25,7 @@ import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.AggregationLevel;
 import com.elster.jupiter.metering.config.ConstantNode;
+import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
 import com.elster.jupiter.metering.config.DefaultReadingTypeTemplate;
 import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Formula;
@@ -34,6 +35,8 @@ import com.elster.jupiter.metering.config.Function;
 import com.elster.jupiter.metering.config.FunctionCallNode;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationBuilder;
+import com.elster.jupiter.metering.config.MetrologyContract;
+import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.OperationNode;
 import com.elster.jupiter.metering.config.Operator;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
@@ -63,6 +66,7 @@ import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import org.junit.AfterClass;
@@ -91,6 +95,8 @@ public class FormulaCrudTest {
     private Thesaurus thesaurus;
     @Mock
     private MetrologyConfiguration config;
+    @Mock
+    private MetrologyContract contract;
 
     private static MeteringInMemoryBootstrapModule inMemoryBootstrapModule = new MeteringInMemoryBootstrapModule("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0");
 
@@ -464,11 +470,14 @@ public class FormulaCrudTest {
         MetrologyConfigurationBuilder metrologyConfigurationBuilder =
                 service.newMetrologyConfiguration("test5", serviceCategory.get());
         MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+        MetrologyPurpose purposeInformation = service.findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION)
+                .orElseThrow(() -> new NoSuchElementException("Information metrology purpose not found"));
+        MetrologyContract contractInformation = config.addMandatoryMetrologyContract(purposeInformation);
         assertThat(config).isNotNull();
         ReadingType readingType = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.3.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0", "test");
         assertThat(readingType).isNotNull();
 
-        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable(name, readingType, myMode);
+        ReadingTypeDeliverableBuilder builder = contractInformation.newReadingTypeDeliverable(name, readingType, myMode);
 
         ReadingTypeDeliverable deliverable = builder.build(builder.maximum(builder.constant(10), builder.constant(20)));
         assertThat(deliverable.getFormula().getExpressionNode().toString()).isEqualTo("max(constant(10), constant(20))");
@@ -500,9 +509,12 @@ public class FormulaCrudTest {
         metrologyConfigurationBuilder =
                 service.newMetrologyConfiguration("test2", serviceCategory.get());
         MetrologyConfiguration config2 = metrologyConfigurationBuilder.create();
+        MetrologyPurpose purposeInformation = service.findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION)
+                .orElseThrow(() -> new NoSuchElementException("Information metrology purpose not found"));
+        MetrologyContract contractInformation = config2.addMandatoryMetrologyContract(purposeInformation);
 
         ReadingTypeDeliverableBuilder builder =
-                config2.newReadingTypeDeliverable("deliverable", readingType, Formula.Mode.AUTO);
+                contractInformation.newReadingTypeDeliverable("deliverable", readingType, Formula.Mode.AUTO);
 
         try {
             builder.build(builder.requirement(req));
@@ -524,6 +536,9 @@ public class FormulaCrudTest {
         MetrologyConfigurationBuilder metrologyConfigurationBuilder =
                 service.newMetrologyConfiguration("test3", serviceCategory.get());
         MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+        MetrologyPurpose purposeInformation = service.findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION)
+                .orElseThrow(() -> new NoSuchElementException("Information metrology purpose not found"));
+        MetrologyContract contractInformation = config.addMandatoryMetrologyContract(purposeInformation);
         assertThat(config).isNotNull();
         ReadingType readingTypeRequirement =
                 inMemoryBootstrapModule.getMeteringService().createReadingType(
@@ -541,7 +556,7 @@ public class FormulaCrudTest {
         assertThat(readingTypeDeliverable).isNotNull();
 
         ReadingTypeDeliverableBuilder builder =
-                config.newReadingTypeDeliverable("deliverable", readingTypeDeliverable, Formula.Mode.AUTO);
+                contractInformation.newReadingTypeDeliverable("deliverable", readingTypeDeliverable, Formula.Mode.AUTO);
 
         builder.build(builder.requirement(req));
     }
@@ -558,6 +573,9 @@ public class FormulaCrudTest {
         MetrologyConfigurationBuilder metrologyConfigurationBuilder =
                 service.newMetrologyConfiguration("test4", serviceCategory.get());
         MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+        MetrologyPurpose purposeInformation = service.findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION)
+                .orElseThrow(() -> new NoSuchElementException("Information metrology purpose not found"));
+        MetrologyContract contractInformation = config.addMandatoryMetrologyContract(purposeInformation);
         assertThat(config).isNotNull();
         ReadingType readingTypeRequirement =
                 inMemoryBootstrapModule.getMeteringService().createReadingType(
@@ -575,7 +593,7 @@ public class FormulaCrudTest {
         assertThat(readingTypeDeliverable).isNotNull();
 
         ReadingTypeDeliverableBuilder builder =
-                config.newReadingTypeDeliverable("deliverable", readingTypeDeliverable, Formula.Mode.AUTO);
+                contractInformation.newReadingTypeDeliverable("deliverable", readingTypeDeliverable, Formula.Mode.AUTO);
 
         try {
             builder.build(builder.requirement(req));
@@ -599,6 +617,9 @@ public class FormulaCrudTest {
         MetrologyConfigurationBuilder metrologyConfigurationBuilder =
                 service.newMetrologyConfiguration("config2", serviceCategory.get());
         MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+        MetrologyPurpose purposeInformation = service.findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION)
+                .orElseThrow(() -> new NoSuchElementException("Information metrology purpose not found"));
+        MetrologyContract contractInformation = config.addMandatoryMetrologyContract(purposeInformation);
         assertThat(config).isNotNull();
         ReadingType conskWhRT15min =
                 inMemoryBootstrapModule.getMeteringService().getReadingType(
@@ -610,7 +631,7 @@ public class FormulaCrudTest {
         ReadingTypeRequirement req = service.findReadingTypeRequirement(
                 config.getRequirements().get(0).getId()).get();
 
-        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("Del1", conskWhRT15min, Formula.Mode.AUTO);
+        ReadingTypeDeliverableBuilder builder = contractInformation.newReadingTypeDeliverable("Del1", conskWhRT15min, Formula.Mode.AUTO);
         ReadingTypeDeliverable deliverable1 = builder.build(builder.requirement(req));
 
         ReadingType temperatureRT =
@@ -652,6 +673,9 @@ public class FormulaCrudTest {
         MetrologyConfigurationBuilder metrologyConfigurationBuilder =
                 service.newMetrologyConfiguration("config3", serviceCategory.get());
         MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+        MetrologyPurpose purposeInformation = service.findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION)
+                .orElseThrow(() -> new NoSuchElementException("Information metrology purpose not found"));
+        MetrologyContract contractInformation = config.addMandatoryMetrologyContract(purposeInformation);
         assertThat(config).isNotNull();
 
         ReadingType conskWhRT15min =
@@ -672,10 +696,10 @@ public class FormulaCrudTest {
         ReadingTypeRequirement req = service.findReadingTypeRequirement(
                 config.getRequirements().get(0).getId()).get();
 
-        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("Del1", conskWhRT15min, Formula.Mode.AUTO);
+        ReadingTypeDeliverableBuilder builder = contractInformation.newReadingTypeDeliverable("Del1", conskWhRT15min, Formula.Mode.AUTO);
         ReadingTypeDeliverable deliverable1 = builder.build(builder.requirement(req));
 
-        ReadingTypeDeliverableBuilder builder2 = config.newReadingTypeDeliverable("Del2", conskWhRT60min, Formula.Mode.AUTO);
+        ReadingTypeDeliverableBuilder builder2 = contractInformation.newReadingTypeDeliverable("Del2", conskWhRT60min, Formula.Mode.AUTO);
         builder2.build(builder2.deliverable(deliverable1));
 
         ReadingType temperatureRT =
@@ -720,12 +744,15 @@ public class FormulaCrudTest {
         MetrologyConfigurationBuilder metrologyConfigurationBuilder =
                 service.newMetrologyConfiguration("config3", serviceCategory.get());
         MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+        MetrologyPurpose purposeInformation = service.findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION)
+                .orElseThrow(() -> new NoSuchElementException("Information metrology purpose not found"));
+        MetrologyContract contractInformation = config.addMandatoryMetrologyContract(purposeInformation);
         assertThat(config).isNotNull();
         ReadingType irregularRT =
                 inMemoryBootstrapModule.getMeteringService().createReadingType(
                         "0.12.0.0.1.9.58.0.0.0.0.0.0.0.0.0.72.0", "irregularRT");
         assertThat(irregularRT).isNotNull();
-        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("Irregular", irregularRT, Formula.Mode.AUTO);
+        ReadingTypeDeliverableBuilder builder = contractInformation.newReadingTypeDeliverable("Irregular", irregularRT, Formula.Mode.AUTO);
 
         // Business method
         ReadingTypeDeliverable deliverable = builder.build(builder.constant(10));
@@ -744,13 +771,16 @@ public class FormulaCrudTest {
         MetrologyConfigurationBuilder metrologyConfigurationBuilder =
                 service.newMetrologyConfiguration("config3", serviceCategory.get());
         MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+        MetrologyPurpose purposeInformation = service.findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION)
+                .orElseThrow(() -> new NoSuchElementException("Information metrology purpose not found"));
+        MetrologyContract contractInformation = config.addMandatoryMetrologyContract(purposeInformation);
         assertThat(config).isNotNull();
         ReadingType irregularRT =
                 inMemoryBootstrapModule.getMeteringService().createReadingType(
                         "0.12.0.0.1.9.58.0.0.0.0.0.0.0.0.0.72.0", "irregularRT");
         FullySpecifiedReadingTypeRequirement regularRequirement = config.newReadingTypeRequirement("Irregular").withReadingType(irregularRT);
         assertThat(irregularRT).isNotNull();
-        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("IrregularDelOnIregularReq", irregularRT, Formula.Mode.AUTO);
+        ReadingTypeDeliverableBuilder builder = contractInformation.newReadingTypeDeliverable("IrregularDelOnIregularReq", irregularRT, Formula.Mode.AUTO);
 
         // Business method
         ReadingTypeDeliverable deliverable = builder.build(builder.requirement(regularRequirement));
@@ -770,6 +800,9 @@ public class FormulaCrudTest {
         MetrologyConfigurationBuilder metrologyConfigurationBuilder =
                 service.newMetrologyConfiguration("config3", serviceCategory.get());
         MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+        MetrologyPurpose purposeInformation = service.findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION)
+                .orElseThrow(() -> new NoSuchElementException("Information metrology purpose not found"));
+        MetrologyContract contractInformation = config.addMandatoryMetrologyContract(purposeInformation);
         assertThat(config).isNotNull();
         ReadingType regularRT =
                 inMemoryBootstrapModule.getMeteringService().getReadingType(
@@ -780,7 +813,7 @@ public class FormulaCrudTest {
                 inMemoryBootstrapModule.getMeteringService().createReadingType(
                         "0.12.0.0.1.2.12.0.0.0.0.0.0.0.0.0.72.0", "irregularRT");
         assertThat(irregularRT).isNotNull();
-        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("Irregular", irregularRT, Formula.Mode.AUTO);
+        ReadingTypeDeliverableBuilder builder = contractInformation.newReadingTypeDeliverable("Irregular", irregularRT, Formula.Mode.AUTO);
 
         try {
             // Business method
@@ -803,6 +836,9 @@ public class FormulaCrudTest {
         MetrologyConfigurationBuilder metrologyConfigurationBuilder =
                 service.newMetrologyConfiguration("config3", serviceCategory.get());
         MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+        MetrologyPurpose purposeInformation = service.findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION)
+                .orElseThrow(() -> new NoSuchElementException("Information metrology purpose not found"));
+        MetrologyContract contractInformation = config.addMandatoryMetrologyContract(purposeInformation);
         assertThat(config).isNotNull();
         ReadingType regularRT =
                 inMemoryBootstrapModule.getMeteringService().getReadingType(
@@ -813,7 +849,7 @@ public class FormulaCrudTest {
                         "0.12.0.0.1.2.12.0.0.0.0.0.0.0.0.0.72.0", "irregularRT");
         FullySpecifiedReadingTypeRequirement regularRequirement = config.newReadingTypeRequirement("Irregular").withReadingType(irregularRT);
         assertThat(irregularRT).isNotNull();
-        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("Regular", regularRT, Formula.Mode.AUTO);
+        ReadingTypeDeliverableBuilder builder = contractInformation.newReadingTypeDeliverable("Regular", regularRT, Formula.Mode.AUTO);
 
         try {
             // Business method
@@ -836,6 +872,9 @@ public class FormulaCrudTest {
         MetrologyConfigurationBuilder metrologyConfigurationBuilder =
                 service.newMetrologyConfiguration("config3", serviceCategory.get());
         MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+        MetrologyPurpose purposeInformation = service.findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION)
+                .orElseThrow(() -> new NoSuchElementException("Information metrology purpose not found"));
+        MetrologyContract contractInformation = config.addMandatoryMetrologyContract(purposeInformation);
         assertThat(config).isNotNull();
 
         ReadingType monthly =
@@ -856,7 +895,7 @@ public class FormulaCrudTest {
         ReadingTypeRequirement req = service.findReadingTypeRequirement(
                 config.getRequirements().get(0).getId()).get();
 
-        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("fifteenMinDeliverable", fifteenMinRT, Formula.Mode.AUTO);
+        ReadingTypeDeliverableBuilder builder = contractInformation.newReadingTypeDeliverable("fifteenMinDeliverable", fifteenMinRT, Formula.Mode.AUTO);
         try {
             builder.build(builder.requirement(req));
         } catch (ConstraintViolationException e) {
@@ -877,6 +916,9 @@ public class FormulaCrudTest {
         MetrologyConfigurationBuilder metrologyConfigurationBuilder =
                 service.newMetrologyConfiguration("config3", serviceCategory.get());
         MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+        MetrologyPurpose purposeInformation = service.findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION)
+                .orElseThrow(() -> new NoSuchElementException("Information metrology purpose not found"));
+        MetrologyContract contractInformation = config.addMandatoryMetrologyContract(purposeInformation);
         assertThat(config).isNotNull();
 
         ReadingType monthly =
@@ -897,7 +939,7 @@ public class FormulaCrudTest {
         ReadingTypeRequirement req = service.findReadingTypeRequirement(
                 config.getRequirements().get(0).getId()).get();
 
-        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("monthly", monthly, Formula.Mode.AUTO);
+        ReadingTypeDeliverableBuilder builder = contractInformation.newReadingTypeDeliverable("monthly", monthly, Formula.Mode.AUTO);
         builder.build(builder.requirement(req));
     }
 
@@ -912,6 +954,9 @@ public class FormulaCrudTest {
         MetrologyConfigurationBuilder metrologyConfigurationBuilder =
                 service.newMetrologyConfiguration("config3", serviceCategory.get());
         MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+        MetrologyPurpose purposeInformation = service.findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION)
+                .orElseThrow(() -> new NoSuchElementException("Information metrology purpose not found"));
+        MetrologyContract contractInformation = config.addMandatoryMetrologyContract(purposeInformation);
         assertThat(config).isNotNull();
 
         ReadingType thirtyMinTR =
@@ -942,7 +987,7 @@ public class FormulaCrudTest {
         ReadingTypeRequirement req2 = service.findReadingTypeRequirement(
                 config.getRequirements().get(1).getId()).get();
 
-        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("deliverable", thirtyMinTR, Formula.Mode.AUTO);
+        ReadingTypeDeliverableBuilder builder = contractInformation.newReadingTypeDeliverable("deliverable", thirtyMinTR, Formula.Mode.AUTO);
         try {
             builder.build(builder.plus(builder.requirement(req1), builder.requirement(req2)));
         } catch (ConstraintViolationException e) {
@@ -963,6 +1008,9 @@ public class FormulaCrudTest {
         MetrologyConfigurationBuilder metrologyConfigurationBuilder =
                 service.newMetrologyConfiguration("config3", serviceCategory.get());
         MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+        MetrologyPurpose purposeInformation = service.findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION)
+                .orElseThrow(() -> new NoSuchElementException("Information metrology purpose not found"));
+        MetrologyContract contractInformation = config.addMandatoryMetrologyContract(purposeInformation);
         assertThat(config).isNotNull();
 
         ReadingType thirtyMinTR =
@@ -991,7 +1039,7 @@ public class FormulaCrudTest {
                 config.getRequirements().get(1).getId()).get();
 
         //30 min = 15 min + *
-        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("deliverable", thirtyMinTR, Formula.Mode.AUTO);
+        ReadingTypeDeliverableBuilder builder = contractInformation.newReadingTypeDeliverable("deliverable", thirtyMinTR, Formula.Mode.AUTO);
         try {
             builder.build(builder.plus(builder.requirement(req1), builder.requirement(req2)));
         } catch (ConstraintViolationException e) {
@@ -1011,6 +1059,9 @@ public class FormulaCrudTest {
         MetrologyConfigurationBuilder metrologyConfigurationBuilder =
                 service.newMetrologyConfiguration("config3", serviceCategory.get());
         MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+        MetrologyPurpose purposeInformation = service.findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION)
+                .orElseThrow(() -> new NoSuchElementException("Information metrology purpose not found"));
+        MetrologyContract contractInformation = config.addMandatoryMetrologyContract(purposeInformation);
         assertThat(config).isNotNull();
 
         ReadingType thirtyMinTR =
@@ -1041,7 +1092,7 @@ public class FormulaCrudTest {
 
         try {
             //30 min = 15 min + 5min
-            ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("deliverable", thirtyMinTR, Formula.Mode.AUTO);
+            ReadingTypeDeliverableBuilder builder = contractInformation.newReadingTypeDeliverable("deliverable", thirtyMinTR, Formula.Mode.AUTO);
             builder.build(builder.plus(builder.requirement(req1), builder.requirement(req2)));
         } catch (ConstraintViolationException e) {
             assertThat(e.getConstraintViolations().iterator().next().getMessage()).isEqualTo("MINUTE15 values cannot be aggregated to MINUTE30 values.");
@@ -1060,6 +1111,9 @@ public class FormulaCrudTest {
         MetrologyConfigurationBuilder metrologyConfigurationBuilder =
                 service.newMetrologyConfiguration("config3", serviceCategory.get());
         MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+        MetrologyPurpose purposeInformation = service.findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION)
+                .orElseThrow(() -> new NoSuchElementException("Information metrology purpose not found"));
+        MetrologyContract contractInformation = config.addMandatoryMetrologyContract(purposeInformation);
         assertThat(config).isNotNull();
 
         ReadingType thirtyMinTR =
@@ -1089,7 +1143,7 @@ public class FormulaCrudTest {
                 config.getRequirements().get(1).getId()).get();
 
         //30 min = 15 min + 5min
-        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("deliverable", thirtyMinTR, Formula.Mode.AUTO);
+        ReadingTypeDeliverableBuilder builder = contractInformation.newReadingTypeDeliverable("deliverable", thirtyMinTR, Formula.Mode.AUTO);
         try {
             builder.build(builder.plus(builder.requirement(req1), builder.requirement(req2)));
         } catch (ConstraintViolationException e) {
@@ -1110,6 +1164,9 @@ public class FormulaCrudTest {
         MetrologyConfigurationBuilder metrologyConfigurationBuilder =
                 service.newMetrologyConfiguration("config3", serviceCategory.get());
         MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+        MetrologyPurpose purposeInformation = service.findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION)
+                .orElseThrow(() -> new NoSuchElementException("Information metrology purpose not found"));
+        MetrologyContract contractInformation = config.addMandatoryMetrologyContract(purposeInformation);
         assertThat(config).isNotNull();
 
         ReadingType monthly =
@@ -1137,9 +1194,9 @@ public class FormulaCrudTest {
         ReadingTypeRequirement req = service.findReadingTypeRequirement(
                 config.getRequirements().get(0).getId()).get();
 
-        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("thirtyMinDelivrable", sixtyMinTR, Formula.Mode.AUTO);
+        ReadingTypeDeliverableBuilder builder = contractInformation.newReadingTypeDeliverable("thirtyMinDelivrable", sixtyMinTR, Formula.Mode.AUTO);
         ReadingTypeDeliverable deliverable = builder.build(builder.requirement(req));
-        ReadingTypeDeliverableBuilder builder2 = config.newReadingTypeDeliverable("monthlyDelivrable", monthly, Formula.Mode.AUTO);
+        ReadingTypeDeliverableBuilder builder2 = contractInformation.newReadingTypeDeliverable("monthlyDelivrable", monthly, Formula.Mode.AUTO);
         builder2.build(builder2.deliverable(deliverable));
     }
 
@@ -1154,6 +1211,9 @@ public class FormulaCrudTest {
         MetrologyConfigurationBuilder metrologyConfigurationBuilder =
                 service.newMetrologyConfiguration("config3", serviceCategory.get());
         MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+        MetrologyPurpose purposeInformation = service.findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION)
+                .orElseThrow(() -> new NoSuchElementException("Information metrology purpose not found"));
+        MetrologyContract contractInformation = config.addMandatoryMetrologyContract(purposeInformation);
         assertThat(config).isNotNull();
 
         ReadingType conskWhRT15min =
@@ -1172,10 +1232,10 @@ public class FormulaCrudTest {
 
         assertThat(config.getRequirements()).hasSize(1);
 
-        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("Deliverable1", conskWhRT15min, Formula.Mode.AUTO);
+        ReadingTypeDeliverableBuilder builder = contractInformation.newReadingTypeDeliverable("Deliverable1", conskWhRT15min, Formula.Mode.AUTO);
         ReadingTypeDeliverable deliverable1 = builder.build(builder.constant(10));
 
-        ReadingTypeDeliverableBuilder builder2 = config.newReadingTypeDeliverable("Deliverable2", conskWhRT60min, Formula.Mode.AUTO);
+        ReadingTypeDeliverableBuilder builder2 = contractInformation.newReadingTypeDeliverable("Deliverable2", conskWhRT60min, Formula.Mode.AUTO);
         ReadingTypeDeliverable deliverable2 = builder2.build(builder2.deliverable(deliverable1));
 
         ReadingType temperatureRT =
@@ -1207,6 +1267,9 @@ public class FormulaCrudTest {
         MetrologyConfigurationBuilder metrologyConfigurationBuilder =
                 service.newMetrologyConfiguration("config3", serviceCategory.get());
         MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+        MetrologyPurpose purposeInformation = service.findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION)
+                .orElseThrow(() -> new NoSuchElementException("Information metrology purpose not found"));
+        MetrologyContract contractInformation = config.addMandatoryMetrologyContract(purposeInformation);
         assertThat(config).isNotNull();
         ReadingType conskWhRT15min =
                 inMemoryBootstrapModule.getMeteringService().getReadingType(
@@ -1217,11 +1280,11 @@ public class FormulaCrudTest {
 
         assertThat(config.getRequirements()).hasSize(1);
 
-        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("Deliverable1", conskWhRT15min, Formula.Mode.AUTO);
+        ReadingTypeDeliverableBuilder builder = contractInformation.newReadingTypeDeliverable("Deliverable1", conskWhRT15min, Formula.Mode.AUTO);
         ReadingTypeDeliverable deliverable1 = builder.build(builder.constant(10));
 
         try {
-            ReadingTypeDeliverableBuilder builder2 = config.newReadingTypeDeliverable("Deliverable2", conskWhRT15min, Formula.Mode.EXPERT);
+            ReadingTypeDeliverableBuilder builder2 = contractInformation.newReadingTypeDeliverable("Deliverable2", conskWhRT15min, Formula.Mode.EXPERT);
             builder2.build(builder2.deliverable(deliverable1));
         } catch (InvalidNodeException e) {
             assertThat(e.getMessage()).isEqualTo("Auto mode and export mode cannot be combined.");
@@ -1240,6 +1303,9 @@ public class FormulaCrudTest {
         MetrologyConfigurationBuilder metrologyConfigurationBuilder =
                 service.newMetrologyConfiguration("config3", serviceCategory.get());
         MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+        MetrologyPurpose purposeInformation = service.findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION)
+                .orElseThrow(() -> new NoSuchElementException("Information metrology purpose not found"));
+        MetrologyContract contractInformation = config.addMandatoryMetrologyContract(purposeInformation);
         assertThat(config).isNotNull();
         ReadingType conskWhRT15min =
                 inMemoryBootstrapModule.getMeteringService().getReadingType(
@@ -1250,11 +1316,11 @@ public class FormulaCrudTest {
 
         assertThat(config.getRequirements()).hasSize(1);
 
-        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("Deliverable1", conskWhRT15min, Formula.Mode.EXPERT);
+        ReadingTypeDeliverableBuilder builder = contractInformation.newReadingTypeDeliverable("Deliverable1", conskWhRT15min, Formula.Mode.EXPERT);
         ReadingTypeDeliverable deliverable1 = builder.build(builder.constant(10));
 
         try {
-            ReadingTypeDeliverableBuilder builder2 = config.newReadingTypeDeliverable("Deliverable2", conskWhRT15min, Formula.Mode.AUTO);
+            ReadingTypeDeliverableBuilder builder2 = contractInformation.newReadingTypeDeliverable("Deliverable2", conskWhRT15min, Formula.Mode.AUTO);
             builder2.build(builder2.deliverable(deliverable1));
         } catch (InvalidNodeException e) {
             assertThat(e.getMessage()).isEqualTo("Auto mode and export mode cannot be combined.");
@@ -1271,6 +1337,9 @@ public class FormulaCrudTest {
         assertThat(serviceCategory).isPresent();
         MetrologyConfigurationBuilder metrologyConfigurationBuilder = service.newMetrologyConfiguration("config4", serviceCategory.get());
         MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+        MetrologyPurpose purposeInformation = service.findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION)
+                .orElseThrow(() -> new NoSuchElementException("Information metrology purpose not found"));
+        MetrologyContract contractInformation = config.addMandatoryMetrologyContract(purposeInformation);
         assertThat(config).isNotNull();
 
         ReadingType conskWhRT15min =
@@ -1282,7 +1351,7 @@ public class FormulaCrudTest {
         FullySpecifiedReadingTypeRequirement requirement = config.newReadingTypeRequirement("Req1").withReadingType(conskWhRT15min);
 
         try {
-            ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("conskWhRT15min", conskWhRT15min, Formula.Mode.EXPERT);
+            ReadingTypeDeliverableBuilder builder = contractInformation.newReadingTypeDeliverable("conskWhRT15min", conskWhRT15min, Formula.Mode.EXPERT);
             builder.build(builder.plus(builder.maximum(AggregationLevel.DAY, builder.requirement(requirement)), builder.maximum(AggregationLevel.MONTH, builder.requirement(requirement))));
         } catch (ConstraintViolationException e) {
             assertThat(e.getConstraintViolations().iterator().next().getMessage()).isEqualTo("All aggregation functions must use the same aggregation level argument.");
@@ -1301,6 +1370,9 @@ public class FormulaCrudTest {
         MetrologyConfigurationBuilder metrologyConfigurationBuilder =
                 service.newMetrologyConfiguration("config4", serviceCategory.get());
         MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+        MetrologyPurpose purposeInformation = service.findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION)
+                .orElseThrow(() -> new NoSuchElementException("Information metrology purpose not found"));
+        MetrologyContract contractInformation = config.addMandatoryMetrologyContract(purposeInformation);
         assertThat(config).isNotNull();
         ReadingType status =
                 inMemoryBootstrapModule.getMeteringService().createReadingType(
@@ -1308,7 +1380,7 @@ public class FormulaCrudTest {
         assertThat(status).isNotNull();
 
         try {
-            ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("InvalidDeliverable", status, Formula.Mode.AUTO);
+            ReadingTypeDeliverableBuilder builder = contractInformation.newReadingTypeDeliverable("InvalidDeliverable", status, Formula.Mode.AUTO);
             builder.build(builder.constant(10));
         } catch (ConstraintViolationException e) {
             assertThat(e.getConstraintViolations().iterator().next().getMessage())
@@ -1328,13 +1400,16 @@ public class FormulaCrudTest {
         MetrologyConfigurationBuilder metrologyConfigurationBuilder =
                 service.newMetrologyConfiguration("config4", serviceCategory.get());
         MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+        MetrologyPurpose purposeInformation = service.findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION)
+                .orElseThrow(() -> new NoSuchElementException("Information metrology purpose not found"));
+        MetrologyContract contractInformation = config.addMandatoryMetrologyContract(purposeInformation);
         assertThat(config).isNotNull();
         ReadingType status =
                 inMemoryBootstrapModule.getMeteringService().createReadingType(
                         "0.0.5.12.0.41.109.0.0.0.0.0.0.0.0.0.108.0", "status");
         assertThat(status).isNotNull();
 
-        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("InvalidDeliverable", status, Formula.Mode.EXPERT);
+        ReadingTypeDeliverableBuilder builder = contractInformation.newReadingTypeDeliverable("InvalidDeliverable", status, Formula.Mode.EXPERT);
         builder.build(builder.constant(10));
     }
 
@@ -1349,6 +1424,9 @@ public class FormulaCrudTest {
         MetrologyConfigurationBuilder metrologyConfigurationBuilder =
                 service.newMetrologyConfiguration("config2", serviceCategory.get());
         MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+        MetrologyPurpose purposeInformation = service.findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION)
+                .orElseThrow(() -> new NoSuchElementException("Information metrology purpose not found"));
+        MetrologyContract contractInformation = config.addMandatoryMetrologyContract(purposeInformation);
         assertThat(config).isNotNull();
         ReadingType regRT =
                 inMemoryBootstrapModule.getMeteringService().createReadingType(
@@ -1361,7 +1439,7 @@ public class FormulaCrudTest {
         ReadingTypeRequirement req = service.findReadingTypeRequirement(
                 config.getRequirements().get(0).getId()).get();
 
-        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("Del3", regRT, Formula.Mode.AUTO);
+        ReadingTypeDeliverableBuilder builder = contractInformation.newReadingTypeDeliverable("Del3", regRT, Formula.Mode.AUTO);
         try {
             builder.build(builder.requirement(req));
         } catch (InvalidNodeException e) {
@@ -1409,6 +1487,9 @@ public class FormulaCrudTest {
         assertThat(serviceCategory.isPresent());
         MetrologyConfigurationBuilder metrologyConfigurationBuilder = service.newMetrologyConfiguration("config2", serviceCategory.get());
         MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+        MetrologyPurpose purposeInformation = service.findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION)
+                .orElseThrow(() -> new NoSuchElementException("Information metrology purpose not found"));
+        MetrologyContract contractInformation = config.addMandatoryMetrologyContract(purposeInformation);
         assertThat(config).isNotNull();
         ReadingType bulkRT = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.5.1.0.41.109.0.0.0.0.0.0.0.0.0.72.0", "Bulk");
         assertThat(bulkRT).isNotNull();
@@ -1417,7 +1498,7 @@ public class FormulaCrudTest {
 
         FullySpecifiedReadingTypeRequirement bulkRequirement = config.newReadingTypeRequirement("Bulk").withReadingType(bulkRT);
 
-        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("Del3", regRT, Formula.Mode.AUTO);
+        ReadingTypeDeliverableBuilder builder = contractInformation.newReadingTypeDeliverable("Del3", regRT, Formula.Mode.AUTO);
         try {
             builder.build(builder.requirement(bulkRequirement));
         } catch (VerboseConstraintViolationException e) {
@@ -1435,6 +1516,9 @@ public class FormulaCrudTest {
         assertThat(serviceCategory.isPresent());
         MetrologyConfigurationBuilder metrologyConfigurationBuilder = service.newMetrologyConfiguration("config2", serviceCategory.get());
         MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+        MetrologyPurpose purposeInformation = service.findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION)
+                .orElseThrow(() -> new NoSuchElementException("Information metrology purpose not found"));
+        MetrologyContract contractInformation = config.addMandatoryMetrologyContract(purposeInformation);
         assertThat(config).isNotNull();
         ReadingType bulkRT = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.5.1.0.41.109.0.0.0.0.0.0.0.0.0.72.0", "Bulk");
         assertThat(bulkRT).isNotNull();
@@ -1443,7 +1527,7 @@ public class FormulaCrudTest {
 
         FullySpecifiedReadingTypeRequirement deltaRequirement = config.newReadingTypeRequirement("Delta").withReadingType(deltaRT);
 
-        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("Del3", bulkRT, Formula.Mode.AUTO);
+        ReadingTypeDeliverableBuilder builder = contractInformation.newReadingTypeDeliverable("Del3", bulkRT, Formula.Mode.AUTO);
         try {
             builder.build(builder.requirement(deltaRequirement));
         } catch (VerboseConstraintViolationException e) {
@@ -1461,16 +1545,19 @@ public class FormulaCrudTest {
         assertThat(serviceCategory.isPresent());
         MetrologyConfigurationBuilder metrologyConfigurationBuilder = service.newMetrologyConfiguration("config2", serviceCategory.get());
         MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+        MetrologyPurpose purposeInformation = service.findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION)
+                .orElseThrow(() -> new NoSuchElementException("Information metrology purpose not found"));
+        MetrologyContract contractInformation = config.addMandatoryMetrologyContract(purposeInformation);
         assertThat(config).isNotNull();
         ReadingType bulkRT = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.5.1.0.41.109.0.0.0.0.0.0.0.0.0.72.0", "Bulk");
         assertThat(bulkRT).isNotNull();
         ReadingType regRT  = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.5.4.0.41.109.0.0.0.0.0.0.0.0.0.72.0", "Regular");
         assertThat(regRT).isNotNull();
 
-        ReadingTypeDeliverableBuilder bulkBuilder = config.newReadingTypeDeliverable("Bulk", bulkRT, Formula.Mode.AUTO);
+        ReadingTypeDeliverableBuilder bulkBuilder = contractInformation.newReadingTypeDeliverable("Bulk", bulkRT, Formula.Mode.AUTO);
         ReadingTypeDeliverable bulkDeliverable = bulkBuilder.build(bulkBuilder.constant(BigDecimal.TEN));
 
-        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("DelUsingBulkDel", regRT, Formula.Mode.AUTO);
+        ReadingTypeDeliverableBuilder builder = contractInformation.newReadingTypeDeliverable("DelUsingBulkDel", regRT, Formula.Mode.AUTO);
         try {
             builder.build(builder.deliverable(bulkDeliverable));
         } catch (VerboseConstraintViolationException e) {
@@ -1521,6 +1608,9 @@ public class FormulaCrudTest {
         assertThat(serviceCategory.isPresent());
         MetrologyConfigurationBuilder metrologyConfigurationBuilder = service.newMetrologyConfiguration("config2", serviceCategory.get());
         MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+        MetrologyPurpose purposeInformation = service.findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION)
+                .orElseThrow(() -> new NoSuchElementException("Information metrology purpose not found"));
+        MetrologyContract contractInformation = config.addMandatoryMetrologyContract(purposeInformation);
         assertThat(config).isNotNull();
         ReadingType bulkRT = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.0.1.0.41.109.0.0.0.0.0.0.0.0.0.72.0", "Bulk");
         assertThat(bulkRT).isNotNull();
@@ -1529,7 +1619,7 @@ public class FormulaCrudTest {
 
         FullySpecifiedReadingTypeRequirement bulkRequirement = config.newReadingTypeRequirement("Bulk").withReadingType(bulkRT);
 
-        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("Del3", regRT, Formula.Mode.AUTO);
+        ReadingTypeDeliverableBuilder builder = contractInformation.newReadingTypeDeliverable("Del3", regRT, Formula.Mode.AUTO);
 
         // Business method
         ReadingTypeDeliverable readingTypeDeliverable = builder.build(builder.requirement(bulkRequirement));
@@ -1548,13 +1638,16 @@ public class FormulaCrudTest {
         assertThat(serviceCategory.isPresent());
         MetrologyConfigurationBuilder metrologyConfigurationBuilder = service.newMetrologyConfiguration("config2", serviceCategory.get());
         MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+        MetrologyPurpose purposeInformation = service.findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION)
+                .orElseThrow(() -> new NoSuchElementException("Information metrology purpose not found"));
+        MetrologyContract contractInformation = config.addMandatoryMetrologyContract(purposeInformation);
         assertThat(config).isNotNull();
         ReadingType bulkRT = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0", "Bulk");
         assertThat(bulkRT).isNotNull();
 
         FullySpecifiedReadingTypeRequirement bulkRequirement = config.newReadingTypeRequirement("Bulk").withReadingType(bulkRT);
 
-        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("Del3", bulkRT, Formula.Mode.AUTO);
+        ReadingTypeDeliverableBuilder builder = contractInformation.newReadingTypeDeliverable("Del3", bulkRT, Formula.Mode.AUTO);
 
         // Business method
         ReadingTypeDeliverable readingTypeDeliverable = builder.build(builder.requirement(bulkRequirement));
@@ -1590,6 +1683,9 @@ public class FormulaCrudTest {
         MetrologyConfigurationBuilder metrologyConfigurationBuilder =
                 service.newMetrologyConfiguration("config10", serviceCategory.get());
         MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+        MetrologyPurpose purposeInformation = service.findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION)
+                .orElseThrow(() -> new NoSuchElementException("Information metrology purpose not found"));
+        MetrologyContract contractInformation = config.addMandatoryMetrologyContract(purposeInformation);
         assertThat(config).isNotNull();
 
         ReadingType tenMinRT =
@@ -1610,7 +1706,7 @@ public class FormulaCrudTest {
         ReadingTypeRequirement req = service.findReadingTypeRequirement(
                 config.getRequirements().get(0).getId()).get();
 
-        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("fifteenMinDeliverable", fifteenMinRT, Formula.Mode.AUTO);
+        ReadingTypeDeliverableBuilder builder = contractInformation.newReadingTypeDeliverable("fifteenMinDeliverable", fifteenMinRT, Formula.Mode.AUTO);
         try {
             ReadingTypeDeliverable deliverable = builder.build(builder.requirement(req));
             fail("InvalidNodeException expected");
@@ -1630,6 +1726,9 @@ public class FormulaCrudTest {
         MetrologyConfigurationBuilder metrologyConfigurationBuilder =
                 service.newMetrologyConfiguration("config3", serviceCategory.get());
         MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+        MetrologyPurpose purposeInformation = service.findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION)
+                .orElseThrow(() -> new NoSuchElementException("Information metrology purpose not found"));
+        MetrologyContract contractInformation = config.addMandatoryMetrologyContract(purposeInformation);
         assertThat(config).isNotNull();
 
         ReadingType tenMinRT =
@@ -1657,7 +1756,7 @@ public class FormulaCrudTest {
         ReadingTypeRequirement req2 = service.findReadingTypeRequirement(
                 config.getRequirements().get(1).getId()).get();
 
-        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("deliverable", tenMinRT, Formula.Mode.AUTO);
+        ReadingTypeDeliverableBuilder builder = contractInformation.newReadingTypeDeliverable("deliverable", tenMinRT, Formula.Mode.AUTO);
         try {
             ReadingTypeDeliverable deliverable = builder.build(builder.plus(builder.requirement(req1), builder.requirement(req2)));
             fail("InvalidNodeException expected");
@@ -1678,6 +1777,9 @@ public class FormulaCrudTest {
         MetrologyConfigurationBuilder metrologyConfigurationBuilder =
                 service.newMetrologyConfiguration("config3", serviceCategory.get());
         MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+        MetrologyPurpose purposeInformation = service.findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION)
+                .orElseThrow(() -> new NoSuchElementException("Information metrology purpose not found"));
+        MetrologyContract contractInformation = config.addMandatoryMetrologyContract(purposeInformation);
         assertThat(config).isNotNull();
 
         ReadingType sixtyMinTR =
@@ -1706,7 +1808,7 @@ public class FormulaCrudTest {
                 config.getRequirements().get(1).getId()).get();
 
         //60 min = 15 min + *
-        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("deliverable", sixtyMinTR, Formula.Mode.AUTO);
+        ReadingTypeDeliverableBuilder builder = contractInformation.newReadingTypeDeliverable("deliverable", sixtyMinTR, Formula.Mode.AUTO);
 
         // Business method
         builder.build(builder.plus(builder.requirement(req1), builder.requirement(req2)));
@@ -1724,6 +1826,9 @@ public class FormulaCrudTest {
         MetrologyConfigurationBuilder metrologyConfigurationBuilder =
                 service.newMetrologyConfiguration("config3", serviceCategory.get());
         MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+        MetrologyPurpose purposeInformation = service.findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION)
+                .orElseThrow(() -> new NoSuchElementException("Information metrology purpose not found"));
+        MetrologyContract contractInformation = config.addMandatoryMetrologyContract(purposeInformation);
         assertThat(config).isNotNull();
 
         ReadingType fifteenMinRT =
@@ -1738,7 +1843,7 @@ public class FormulaCrudTest {
         ReadingTypeRequirement req = service.findReadingTypeRequirement(
                 config.getRequirements().get(0).getId()).get();
 
-        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("monthly", fifteenMinRT, Formula.Mode.AUTO);
+        ReadingTypeDeliverableBuilder builder = contractInformation.newReadingTypeDeliverable("monthly", fifteenMinRT, Formula.Mode.AUTO);
 
         // Business method
         builder.build(builder.divide(builder.requirement(req), builder.constant(10)));
@@ -1754,6 +1859,9 @@ public class FormulaCrudTest {
         MetrologyConfigurationBuilder metrologyConfigurationBuilder =
                 service.newMetrologyConfiguration("config3", serviceCategory.get());
         MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+        MetrologyPurpose purposeInformation = service.findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION)
+                .orElseThrow(() -> new NoSuchElementException("Information metrology purpose not found"));
+        MetrologyContract contractInformation = config.addMandatoryMetrologyContract(purposeInformation);
         assertThat(config).isNotNull();
 
         ReadingType fifteenMinRT =
@@ -1768,7 +1876,7 @@ public class FormulaCrudTest {
         ReadingTypeRequirement req = service.findReadingTypeRequirement(
                 config.getRequirements().get(0).getId()).get();
 
-        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("monthly", fifteenMinRT, Formula.Mode.AUTO);
+        ReadingTypeDeliverableBuilder builder = contractInformation.newReadingTypeDeliverable("monthly", fifteenMinRT, Formula.Mode.AUTO);
 
         // Business method
         builder.build(
@@ -1787,6 +1895,9 @@ public class FormulaCrudTest {
         assertThat(serviceCategory.isPresent());
         MetrologyConfigurationBuilder metrologyConfigurationBuilder = service.newMetrologyConfiguration("config3", serviceCategory.get());
         MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+        MetrologyPurpose purposeInformation = service.findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION)
+                .orElseThrow(() -> new NoSuchElementException("Information metrology purpose not found"));
+        MetrologyContract contractInformation = config.addMandatoryMetrologyContract(purposeInformation);
         assertThat(config).isNotNull();
 
         ReadingType fifteenMinRT =
@@ -1802,7 +1913,7 @@ public class FormulaCrudTest {
         ReadingTypeRequirement req_kWh = config.newReadingTypeRequirement("15Min_kWh").withReadingType(fifteenMinRT);
         ReadingTypeRequirement req_Wh = config.newReadingTypeRequirement("15Min_Wh").withReadingType(fifteenMinWhRT);
 
-        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("monthly", fifteenMinRT, Formula.Mode.AUTO);
+        ReadingTypeDeliverableBuilder builder = contractInformation.newReadingTypeDeliverable("monthly", fifteenMinRT, Formula.Mode.AUTO);
 
         // Business method
         builder.build(
@@ -1821,6 +1932,9 @@ public class FormulaCrudTest {
         assertThat(serviceCategory.isPresent());
         MetrologyConfigurationBuilder metrologyConfigurationBuilder = service.newMetrologyConfiguration("config3", serviceCategory.get());
         MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+        MetrologyPurpose purposeInformation = service.findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION)
+                .orElseThrow(() -> new NoSuchElementException("Information metrology purpose not found"));
+        MetrologyContract contractInformation = config.addMandatoryMetrologyContract(purposeInformation);
         assertThat(config).isNotNull();
 
         ReadingType fifteenMinRT =
@@ -1829,7 +1943,7 @@ public class FormulaCrudTest {
                         "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "fifteenMinRT"));
         ReadingTypeRequirement req_kWh = config.newReadingTypeRequirement("15Min_kWh").withReadingType(fifteenMinRT);
 
-        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("monthly", fifteenMinRT, Formula.Mode.AUTO);
+        ReadingTypeDeliverableBuilder builder = contractInformation.newReadingTypeDeliverable("monthly", fifteenMinRT, Formula.Mode.AUTO);
 
         // Business method
         builder.build(
@@ -1850,6 +1964,9 @@ public class FormulaCrudTest {
         MetrologyConfigurationBuilder metrologyConfigurationBuilder =
                 service.newMetrologyConfiguration("config3", serviceCategory.get());
         MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+        MetrologyPurpose purposeInformation = service.findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION)
+                .orElseThrow(() -> new NoSuchElementException("Information metrology purpose not found"));
+        MetrologyContract contractInformation = config.addMandatoryMetrologyContract(purposeInformation);
         assertThat(config).isNotNull();
         ReadingType AplusRT =
                 inMemoryBootstrapModule.getMeteringService().createReadingType(
@@ -1878,10 +1995,10 @@ public class FormulaCrudTest {
         ReadingTypeRequirement aMinReq = service.findReadingTypeRequirement(
                 config.getRequirements().get(1).getId()).get();
 
-        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("Del1", noUnitRT, Formula.Mode.AUTO);
+        ReadingTypeDeliverableBuilder builder = contractInformation.newReadingTypeDeliverable("Del1", noUnitRT, Formula.Mode.AUTO);
         ReadingTypeDeliverable deliverable1 = builder.build(builder.divide(builder.requirement(aPlusReq), builder.requirement(aMinReq)));
 
-        ReadingTypeDeliverableBuilder builder2 = config.newReadingTypeDeliverable("Del2", otherRT, Formula.Mode.AUTO);
+        ReadingTypeDeliverableBuilder builder2 = contractInformation.newReadingTypeDeliverable("Del2", otherRT, Formula.Mode.AUTO);
         ReadingTypeDeliverable deliverable2 = builder2.build(builder2.deliverable(deliverable1));
 
         ReadingType incompatibleRT =
@@ -1911,6 +2028,9 @@ public class FormulaCrudTest {
         MetrologyConfigurationBuilder metrologyConfigurationBuilder =
                 service.newMetrologyConfiguration("config3", serviceCategory.get());
         MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+        MetrologyPurpose purposeInformation = service.findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION)
+                .orElseThrow(() -> new NoSuchElementException("Information metrology purpose not found"));
+        MetrologyContract contractInformation = config.addMandatoryMetrologyContract(purposeInformation);
         assertThat(config).isNotNull();
         ReadingType AplusRT =
                 inMemoryBootstrapModule.getMeteringService().createReadingType(
@@ -1939,17 +2059,17 @@ public class FormulaCrudTest {
         ReadingTypeRequirement aMinReq = service.findReadingTypeRequirement(
                 config.getRequirements().get(1).getId()).get();
 
-        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("Del1", noUnitRT, Formula.Mode.AUTO);
+        ReadingTypeDeliverableBuilder builder = contractInformation.newReadingTypeDeliverable("Del1", noUnitRT, Formula.Mode.AUTO);
         ReadingTypeDeliverable deliverable1 = builder.build(builder.divide(builder.requirement(aPlusReq), builder.requirement(aMinReq)));
 
-        ReadingTypeDeliverableBuilder builder2 = config.newReadingTypeDeliverable("Del2", otherRT, Formula.Mode.AUTO);
+        ReadingTypeDeliverableBuilder builder2 = contractInformation.newReadingTypeDeliverable("Del2", otherRT, Formula.Mode.AUTO);
         ReadingTypeDeliverable deliverable2 = builder2.build(builder2.deliverable(deliverable1));
 
         ReadingType incompatibleRT =
                 inMemoryBootstrapModule.getMeteringService().createReadingType(
                         "0.0.2.4.1.9.58.0.0.0.0.0.0.0.0.0.42.0", "incompatibleRT");
         try {
-            ReadingTypeDeliverable toUpdate = config.getDeliverables().get(0);
+            ReadingTypeDeliverable toUpdate = contractInformation.getDeliverables().get(0);
             assertThat(toUpdate.getName()).isEqualTo("Del1");
             toUpdate.startUpdate().setReadingType(incompatibleRT).complete();
             fail("InvalidNodeException expected");
@@ -1963,10 +2083,10 @@ public class FormulaCrudTest {
         }
     }
 
-    @Test(expected = ReadingTypeAlreadyUsedOnMetrologyConfiguration.class)
+    @Test(expected = ReadingTypeAlreadyUsedOnMetrologyContract.class)
     @Transactional
     // formula = Requirement
-    public void testMultipleDeliverableWithSameReadingTypeOnSameMetrologyConfig() {
+    public void testMultipleDeliverableWithSameReadingTypeOnSameMetrologyContract() {
         ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
         Optional<ServiceCategory> serviceCategory =
                 inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
@@ -1975,21 +2095,24 @@ public class FormulaCrudTest {
                 service.newMetrologyConfiguration("config11", serviceCategory.get());
         MetrologyConfiguration config = metrologyConfigurationBuilder.create();
         assertThat(config).isNotNull();
+        MetrologyPurpose purposeInformation = service.findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION)
+                .orElseThrow(() -> new NoSuchElementException("Information metrology purpose not found"));
+        MetrologyContract contractInformation = config.addMandatoryMetrologyContract(purposeInformation);
         ReadingType AplusRT =
                 inMemoryBootstrapModule.getMeteringService().createReadingType(
                         "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0", "AplusRT");
 
         assertThat(AplusRT).isNotNull();
 
-        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("Del1", AplusRT, Formula.Mode.AUTO);
-        ReadingTypeDeliverable deliverable1 = builder.build(builder.constant(10));
+        ReadingTypeDeliverableBuilder builder = contractInformation.newReadingTypeDeliverable("Del1", AplusRT, Formula.Mode.AUTO);
+        builder.build(builder.constant(10));
 
-        ReadingTypeDeliverableBuilder builder2 = config.newReadingTypeDeliverable("Del2", AplusRT, Formula.Mode.AUTO);
+        ReadingTypeDeliverableBuilder builder2 = contractInformation.newReadingTypeDeliverable("Del2", AplusRT, Formula.Mode.AUTO);
 
         try {
             builder2.build(builder2.constant(10));
-        } catch (ReadingTypeAlreadyUsedOnMetrologyConfiguration e) {
-            assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.READING_TYPE_FOR_DELIVERABLE_ALREADY_USED);
+        } catch (ReadingTypeAlreadyUsedOnMetrologyContract e) {
+            assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.READING_TYPE_FOR_DELIVERABLE_ALREADY_USED_ON_CONTRACT);
             throw e;
         }
     }
@@ -2063,6 +2186,9 @@ public class FormulaCrudTest {
         MetrologyConfigurationBuilder metrologyConfigurationBuilder =
                 service.newMetrologyConfiguration("config11", serviceCategory.get());
         MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+        MetrologyPurpose purposeInformation = service.findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION)
+                .orElseThrow(() -> new NoSuchElementException("Information metrology purpose not found"));
+        MetrologyContract contractInformation = config.addMandatoryMetrologyContract(purposeInformation);
         assertThat(config).isNotNull();
 
         ReadingType AplusRT =
@@ -2071,7 +2197,7 @@ public class FormulaCrudTest {
 
         assertThat(AplusRT).isNotNull();
 
-        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("Del1", AplusRT, Formula.Mode.AUTO);
+        ReadingTypeDeliverableBuilder builder = contractInformation.newReadingTypeDeliverable("Del1", AplusRT, Formula.Mode.AUTO);
 
         // Business method
         ReadingTypeDeliverable deliverable = builder.build(builder.safeDivide(builder.constant(10), builder.constant(20), builder.nullValue()));
@@ -2099,13 +2225,16 @@ public class FormulaCrudTest {
         MetrologyConfigurationBuilder metrologyConfigurationBuilder =
                 service.newMetrologyConfiguration("config11", serviceCategory.get());
         MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+        MetrologyPurpose purposeInformation = service.findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION)
+                .orElseThrow(() -> new NoSuchElementException("Information metrology purpose not found"));
+        MetrologyContract contractInformation = config.addMandatoryMetrologyContract(purposeInformation);
         assertThat(config).isNotNull();
 
         ReadingType AplusRT = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0", "AplusRT");
         assertThat(AplusRT).isNotNull();
         FullySpecifiedReadingTypeRequirement aPlus = config.newReadingTypeRequirement("AplusRT").withReadingType(AplusRT);
 
-        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("Del1", AplusRT, Formula.Mode.AUTO);
+        ReadingTypeDeliverableBuilder builder = contractInformation.newReadingTypeDeliverable("Del1", AplusRT, Formula.Mode.AUTO);
 
         // Business method
         ReadingTypeDeliverable deliverable = builder.build(builder.minimum(AggregationLevel.DAY, builder.requirement(aPlus)));
@@ -2124,13 +2253,16 @@ public class FormulaCrudTest {
         MetrologyConfigurationBuilder metrologyConfigurationBuilder =
                 service.newMetrologyConfiguration("config11", serviceCategory.get());
         MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+        MetrologyPurpose purposeInformation = service.findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION)
+                .orElseThrow(() -> new NoSuchElementException("Information metrology purpose not found"));
+        MetrologyContract contractInformation = config.addMandatoryMetrologyContract(purposeInformation);
         assertThat(config).isNotNull();
 
         ReadingType AplusRT = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0", "AplusRT");
         assertThat(AplusRT).isNotNull();
         FullySpecifiedReadingTypeRequirement aPlus = config.newReadingTypeRequirement("AplusRT").withReadingType(AplusRT);
 
-        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("Del1", AplusRT, Formula.Mode.AUTO);
+        ReadingTypeDeliverableBuilder builder = contractInformation.newReadingTypeDeliverable("Del1", AplusRT, Formula.Mode.AUTO);
 
         // Business method
         ReadingTypeDeliverable deliverable = builder.build(builder.maximum(AggregationLevel.DAY, builder.requirement(aPlus)));
@@ -2149,13 +2281,16 @@ public class FormulaCrudTest {
         MetrologyConfigurationBuilder metrologyConfigurationBuilder =
                 service.newMetrologyConfiguration("config11", serviceCategory.get());
         MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+        MetrologyPurpose purposeInformation = service.findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION)
+                .orElseThrow(() -> new NoSuchElementException("Information metrology purpose not found"));
+        MetrologyContract contractInformation = config.addMandatoryMetrologyContract(purposeInformation);
         assertThat(config).isNotNull();
 
         ReadingType AplusRT = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0", "AplusRT");
         assertThat(AplusRT).isNotNull();
         FullySpecifiedReadingTypeRequirement aPlus = config.newReadingTypeRequirement("AplusRT").withReadingType(AplusRT);
 
-        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("Del1", AplusRT, Formula.Mode.AUTO);
+        ReadingTypeDeliverableBuilder builder = contractInformation.newReadingTypeDeliverable("Del1", AplusRT, Formula.Mode.AUTO);
 
         // Business method
         ReadingTypeDeliverable deliverable = builder.build(builder.average(AggregationLevel.DAY, builder.requirement(aPlus)));
@@ -2174,6 +2309,9 @@ public class FormulaCrudTest {
         MetrologyConfigurationBuilder metrologyConfigurationBuilder =
                 service.newMetrologyConfiguration("config11", serviceCategory.get());
         MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+        MetrologyPurpose purposeInformation = service.findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION)
+                .orElseThrow(() -> new NoSuchElementException("Information metrology purpose not found"));
+        MetrologyContract contractInformation = config.addMandatoryMetrologyContract(purposeInformation);
         assertThat(config).isNotNull();
 
         ReadingType AplusRT = inMemoryBootstrapModule.getMeteringService().getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0")
@@ -2181,7 +2319,7 @@ public class FormulaCrudTest {
         assertThat(AplusRT).isNotNull();
         FullySpecifiedReadingTypeRequirement aPlus = config.newReadingTypeRequirement("AplusRT").withReadingType(AplusRT);
 
-        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("Del1", AplusRT, Formula.Mode.AUTO);
+        ReadingTypeDeliverableBuilder builder = contractInformation.newReadingTypeDeliverable("Del1", AplusRT, Formula.Mode.AUTO);
 
         // Business method
         ReadingTypeDeliverable deliverable = builder.build(builder.sum(AggregationLevel.DAY, builder.requirement(aPlus)));
@@ -2253,6 +2391,9 @@ public class FormulaCrudTest {
         ServerMetrologyConfigurationService service = this.getMetrologyConfigurationService();
         MetrologyConfigurationBuilder metrologyConfigurationBuilder = service.newMetrologyConfiguration("config12", serviceCategory.get());
         MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+        MetrologyPurpose purposeInformation = service.findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION)
+                .orElseThrow(() -> new NoSuchElementException("Information metrology purpose not found"));
+        MetrologyContract contractInformation = config.addMandatoryMetrologyContract(purposeInformation);
         assertThat(config).isNotNull();
         PropertySpec propertySpec = mock(PropertySpec.class);
         when(propertySpec.getName()).thenReturn("dummy");
@@ -2262,7 +2403,7 @@ public class FormulaCrudTest {
         RegisteredCustomPropertySet registeredCustomPropertySet = mock(RegisteredCustomPropertySet.class);
         when(registeredCustomPropertySet.getCustomPropertySet()).thenReturn(customPropertySet);
         ReadingType AplusRT = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0", "AplusRT");
-        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("Del1", AplusRT, Formula.Mode.AUTO);
+        ReadingTypeDeliverableBuilder builder = contractInformation.newReadingTypeDeliverable("Del1", AplusRT, Formula.Mode.AUTO);
 
         try {
             // Business method
@@ -2304,10 +2445,13 @@ public class FormulaCrudTest {
         ServerMetrologyConfigurationService service = this.getMetrologyConfigurationService();
         MetrologyConfigurationBuilder metrologyConfigurationBuilder = service.newMetrologyConfiguration("config12", serviceCategory.get());
         MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+        MetrologyPurpose purposeInformation = service.findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION)
+                .orElseThrow(() -> new NoSuchElementException("Information metrology purpose not found"));
+        MetrologyContract contractInformation = config.addMandatoryMetrologyContract(purposeInformation);
         config.addCustomPropertySet(registeredCustomPropertySet);
         assertThat(config).isNotNull();
         ReadingType AplusRT = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0", "AplusRT");
-        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("Del1", AplusRT, Formula.Mode.AUTO);
+        ReadingTypeDeliverableBuilder builder = contractInformation.newReadingTypeDeliverable("Del1", AplusRT, Formula.Mode.AUTO);
 
         // Now unregister the CustomPropertySet
         customPropertySetService.removeCustomPropertySet(customPropertySet);
@@ -2352,10 +2496,13 @@ public class FormulaCrudTest {
         ServerMetrologyConfigurationService service = this.getMetrologyConfigurationService();
         MetrologyConfigurationBuilder metrologyConfigurationBuilder = service.newMetrologyConfiguration("config12", serviceCategory.get());
         MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+        MetrologyPurpose purposeInformation = service.findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION)
+                .orElseThrow(() -> new NoSuchElementException("Information metrology purpose not found"));
+        MetrologyContract contractInformation = config.addMandatoryMetrologyContract(purposeInformation);
         config.addCustomPropertySet(registeredCustomPropertySet);
         assertThat(config).isNotNull();
         ReadingType AplusRT = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0", "AplusRT");
-        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("Del1", AplusRT, Formula.Mode.AUTO);
+        ReadingTypeDeliverableBuilder builder = contractInformation.newReadingTypeDeliverable("Del1", AplusRT, Formula.Mode.AUTO);
 
         try {
             // Business method
@@ -2397,10 +2544,13 @@ public class FormulaCrudTest {
         ServerMetrologyConfigurationService service = this.getMetrologyConfigurationService();
         MetrologyConfigurationBuilder metrologyConfigurationBuilder = service.newMetrologyConfiguration("config12", serviceCategory.get());
         MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+        MetrologyPurpose purposeInformation = service.findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION)
+                .orElseThrow(() -> new NoSuchElementException("Information metrology purpose not found"));
+        MetrologyContract contractInformation = config.addMandatoryMetrologyContract(purposeInformation);
         config.addCustomPropertySet(registeredCustomPropertySet);
         assertThat(config).isNotNull();
         ReadingType AplusRT = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0", "AplusRT");
-        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("Del1", AplusRT, Formula.Mode.AUTO);
+        ReadingTypeDeliverableBuilder builder = contractInformation.newReadingTypeDeliverable("Del1", AplusRT, Formula.Mode.AUTO);
 
         // Business method
         FormulaBuilder property = builder.property(customPropertySet, propertySpec);
@@ -2441,10 +2591,13 @@ public class FormulaCrudTest {
         ServerMetrologyConfigurationService service = this.getMetrologyConfigurationService();
         MetrologyConfigurationBuilder metrologyConfigurationBuilder = service.newMetrologyConfiguration("config12", serviceCategory.get());
         MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+        MetrologyPurpose purposeInformation = service.findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION)
+                .orElseThrow(() -> new NoSuchElementException("Information metrology purpose not found"));
+        MetrologyContract contractInformation = config.addMandatoryMetrologyContract(purposeInformation);
         config.addCustomPropertySet(registeredCustomPropertySet);
         assertThat(config).isNotNull();
         ReadingType AplusRT = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0", "AplusRT");
-        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("Del1", AplusRT, Formula.Mode.AUTO);
+        ReadingTypeDeliverableBuilder builder = contractInformation.newReadingTypeDeliverable("Del1", AplusRT, Formula.Mode.AUTO);
 
         // Business method
         FormulaBuilder property = builder.property(customPropertySet, propertySpec);
@@ -2485,10 +2638,13 @@ public class FormulaCrudTest {
         ServerMetrologyConfigurationService service = this.getMetrologyConfigurationService();
         MetrologyConfigurationBuilder metrologyConfigurationBuilder = service.newMetrologyConfiguration("config12", serviceCategory.get());
         MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+        MetrologyPurpose purposeInformation = service.findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION)
+                .orElseThrow(() -> new NoSuchElementException("Information metrology purpose not found"));
+        MetrologyContract contractInformation = config.addMandatoryMetrologyContract(purposeInformation);
         config.addCustomPropertySet(registeredCustomPropertySet);
         assertThat(config).isNotNull();
         ReadingType AplusRT = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0", "AplusRT");
-        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("Del1", AplusRT, Formula.Mode.AUTO);
+        ReadingTypeDeliverableBuilder builder = contractInformation.newReadingTypeDeliverable("Del1", AplusRT, Formula.Mode.AUTO);
 
         try {
             // Business method
@@ -2535,10 +2691,13 @@ public class FormulaCrudTest {
         ServerMetrologyConfigurationService service = this.getMetrologyConfigurationService();
         MetrologyConfigurationBuilder metrologyConfigurationBuilder = service.newMetrologyConfiguration("config12", serviceCategory.get());
         MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+        MetrologyPurpose purposeInformation = service.findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION)
+                .orElseThrow(() -> new NoSuchElementException("Information metrology purpose not found"));
+        MetrologyContract contractInformation = config.addMandatoryMetrologyContract(purposeInformation);
         config.addCustomPropertySet(registeredCustomPropertySet);
         assertThat(config).isNotNull();
         ReadingType AplusRT = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0", "AplusRT");
-        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("Del1", AplusRT, Formula.Mode.AUTO);
+        ReadingTypeDeliverableBuilder builder = contractInformation.newReadingTypeDeliverable("Del1", AplusRT, Formula.Mode.AUTO);
 
         try {
             // Business method

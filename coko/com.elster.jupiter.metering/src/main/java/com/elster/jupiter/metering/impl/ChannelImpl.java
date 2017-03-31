@@ -481,11 +481,33 @@ public final class ChannelImpl implements ChannelContract {
     }
 
     @Override
+    public List<IntervalReadingRecord> getIntervalJournalReadings(ReadingType readingType, Range<Instant> interval) {
+        if (!isRegular()) {
+            return Collections.emptyList();
+        }
+        return getTimeSeries().getJournalEntries(interval).stream()
+                .map(entry -> new IntervalReadingRecordImpl(this, entry))
+                .map(reading -> reading.filter(readingType))
+                .collect(ExtraCollectors.toImmutableList());
+    }
+
+    @Override
     public List<ReadingRecord> getRegisterReadings(ReadingType readingType, Range<Instant> interval) {
         if (isRegular()) {
             return Collections.emptyList();
         }
         return getTimeSeries().getEntries(interval).stream()
+                .map(entry -> new ReadingRecordImpl(this, entry))
+                .map(reading -> reading.filter(readingType))
+                .collect(ExtraCollectors.toImmutableList());
+    }
+
+    @Override
+    public List<ReadingRecord> getRegisterJournalReadings(ReadingType readingType, Range<Instant> interval) {
+        if (isRegular()) {
+            return Collections.emptyList();
+        }
+        return getTimeSeries().getJournalEntries(interval).stream()
                 .map(entry -> new ReadingRecordImpl(this, entry))
                 .map(reading -> reading.filter(readingType))
                 .collect(ExtraCollectors.toImmutableList());
