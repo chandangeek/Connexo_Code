@@ -287,7 +287,7 @@ public class ConnectionResource {
             comTaskExecutionSessions.addAll(lastComSessionOptional.get().getComTaskExecutionSessions());
         }
 
-        return PagedInfoList.fromPagedList("communications", comTaskExecutionSessionInfoFactory.from(comTaskExecutionSessions), queryParameters);
+        return PagedInfoList.fromCompleteList("communications", comTaskExecutionSessionInfoFactory.from(comTaskExecutionSessions), queryParameters);
     }
 
     @PUT @Transactional

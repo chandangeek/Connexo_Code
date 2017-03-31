@@ -308,6 +308,11 @@ public class CommunicationResource {
             filter.deviceName = jsonQueryFilter.getString("device");
         }
 
+        if(jsonQueryFilter.hasProperty(FilterOption.connectionMethods.name())) {
+            filter.connectionMethods = jsonQueryFilter.getLongList(FilterOption.connectionMethods.name());
+        }
+
+        filter.showSlaveComTaskExecutions = true;
         return filter;
     }
 
