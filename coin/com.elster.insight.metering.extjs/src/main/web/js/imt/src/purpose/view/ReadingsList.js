@@ -163,7 +163,7 @@ Ext.define('Imt.purpose.view.ReadingsList', {
             icon = '<span class="icon-flag5" style="margin-left:10px; color: #dedc49; position:absolute;" data-qtip="'
                 + Uni.I18n.translate('validationStatus.informative', 'IMT', 'Informative') + '"></span>';
         }
-        if ((!Ext.isEmpty(estimatedByRule)) && (!record.isModified('value') || record.isModified('isProjected'))) {
+        if ((!Ext.isEmpty(estimatedByRule)) && !record.get('removedNotSaved') &&  (!record.isModified('value') || record.isModified('isProjected'))) {
             icon = '<span class="icon-flag5" style="margin-left:10px; position:absolute; color:#33CC33;" data-qtip="'
                 + Uni.I18n.translate('reading.estimated', 'IMT', 'Estimated in {0} on {1} at {2}', [
                     estimatedByRule.application.name,

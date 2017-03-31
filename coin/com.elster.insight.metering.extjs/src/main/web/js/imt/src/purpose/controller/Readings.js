@@ -298,6 +298,7 @@ Ext.define('Imt.purpose.controller.Readings', {
                 me.resetChanges(event.record, point);
             }
         }
+        me.valueBeforeEdit = null;
     },
 
     resetChanges: function (record, point) {
@@ -460,6 +461,7 @@ Ext.define('Imt.purpose.controller.Readings', {
             if(record.get('isProjected')) {
                 record.set('isProjected', false);
             }
+            record.set('ruleId', 0);
             record.set('validationResult', 'validationStatus.ok');
             record.endEdit(true);
             gridView.refreshNode(store.indexOf(record));
