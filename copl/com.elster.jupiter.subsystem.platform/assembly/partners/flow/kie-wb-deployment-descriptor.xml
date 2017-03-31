@@ -35,10 +35,17 @@
         </work-item-handler>
         <work-item-handler>
             <resolver>mvel</resolver>
-            <identifier>new org.jbpm.process.workitem.rest.RESTWorkItemHandler(classLoader, "${user}", "${password}")
+            <identifier>new org.jbpm.process.workitem.rest.RESTWorkItemHandler("${user}", "${password}", classLoader)
             </identifier>
             <parameters/>
             <name>Rest</name>
+        </work-item-handler>
+        <work-item-handler>
+            <resolver>mvel</resolver>
+            <identifier>new com.elster.partners.flow.components.workitems.ConnexoRESTWorkItemHandler()
+            </identifier>
+            <parameters/>
+            <name>ConnexoREST</name>
         </work-item-handler>
     </work-item-handlers>
     <environment-entries/>
