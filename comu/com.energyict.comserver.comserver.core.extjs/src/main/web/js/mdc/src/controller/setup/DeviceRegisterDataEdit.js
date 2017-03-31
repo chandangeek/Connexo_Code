@@ -125,7 +125,6 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
                 callback: function (record, operation) {
                     if (operation.wasSuccessful()) {
                         me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('device.registerData.removed', 'MDC', 'Register data successfully removed'));
-                        router.getRoute('devices/device/registers/registerdata').forward();
                         dataStore.load();
                     }
                 }
