@@ -9,6 +9,7 @@ import com.elster.jupiter.export.DataExportProperty;
 import com.elster.jupiter.export.DataSelectorConfig;
 import com.elster.jupiter.export.EndDeviceEventTypeFilter;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.orm.Column;
@@ -71,6 +72,7 @@ enum TableSpecs {
             Column endDeviceGroupId_10_2 = table.column("ENDDEVICEGROUP").number().notNull().conversion(ColumnConversion.NUMBER2LONG).upTo(version(10, 3)).add();
             Column endDeviceGroup = table.column("ENDDEVICEGROUP").number().conversion(ColumnConversion.NUMBER2LONG).since(version(10, 3)).previously(endDeviceGroupId_10_2).add();
             Column usagePointGroup = table.column("USAGEPOINTGROUP").number().conversion(ColumnConversion.NUMBER2LONG).since(version(10, 3)).add();
+            Column purposeColumn = table.column("METROLOGY_PURPOSE").number().conversion(ColumnConversion.NUMBER2LONG).since(version(10, 3)).add();
             Column exportUpdate_10_2 =
                     table.column("EXPORT_UPDATE").bool().map("exportUpdate").upTo(version(10, 3)).add();
             table.column("EXPORT_UPDATE").bool().map("exportUpdate").bool().notNull(false).since(version(10, 3)).previously(exportUpdate_10_2).add();
@@ -113,6 +115,12 @@ enum TableSpecs {
                     .on(usagePointGroup)
                     .references(UsagePointGroup.class)
                     .map("usagePointGroup")
+                    .since(version(10, 3))
+                    .add();
+            table.foreignKey("DES_FK_RTDS_METROLOGYPURPOSE")
+                    .on(purposeColumn)
+                    .references(MetrologyPurpose.class)
+                    .map("metrologyPurpose")
                     .since(version(10, 3))
                     .add();
             table.primaryKey("DES_PK_RTDATASELECTOR").on(idColumn).add();

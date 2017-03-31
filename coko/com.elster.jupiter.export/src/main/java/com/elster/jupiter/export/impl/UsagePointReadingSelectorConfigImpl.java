@@ -13,6 +13,7 @@ import com.elster.jupiter.export.UsagePointReadingSelectorConfig;
 import com.elster.jupiter.export.ValidatedDataOption;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.groups.Membership;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.orm.DataModel;
@@ -30,6 +31,7 @@ import javax.inject.Inject;
 import java.time.Instant;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -43,6 +45,7 @@ class UsagePointReadingSelectorConfigImpl extends ReadingDataSelectorConfigImpl 
 
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
     private Reference<UsagePointGroup> usagePointGroup = ValueReference.absent();
+    private Reference<MetrologyPurpose> metrologyPurpose = ValueReference.absent();
 
     @Inject
     public UsagePointReadingSelectorConfigImpl(DataModel dataModel) {
@@ -58,6 +61,11 @@ class UsagePointReadingSelectorConfigImpl extends ReadingDataSelectorConfigImpl 
     @Override
     public UsagePointGroup getUsagePointGroup() {
         return usagePointGroup.get();
+    }
+
+    @Override
+    public Optional<MetrologyPurpose> getMetrologyPurpose() {
+        return metrologyPurpose.getOptional();
     }
 
     @Override
@@ -130,6 +138,12 @@ class UsagePointReadingSelectorConfigImpl extends ReadingDataSelectorConfigImpl 
         @Override
         public UsagePointReadingSelectorConfig.Updater setUsagePointGroup(UsagePointGroup group) {
             usagePointGroup.set(group);
+            return this;
+        }
+
+        @Override
+        public UsagePointReadingSelectorConfig.Updater setMetrologyPurpose(MetrologyPurpose purpose) {
+            metrologyPurpose.set(purpose);
             return this;
         }
 
