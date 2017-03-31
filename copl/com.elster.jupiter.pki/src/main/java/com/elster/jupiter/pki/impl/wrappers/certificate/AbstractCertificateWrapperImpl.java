@@ -5,12 +5,14 @@
 package com.elster.jupiter.pki.impl.wrappers.certificate;
 
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.ExtendedKeyUsage;
 import com.elster.jupiter.pki.KeyUsage;
+import com.elster.jupiter.pki.impl.EventType;
 import com.elster.jupiter.pki.impl.MessageSeeds;
 import com.elster.jupiter.pki.impl.TranslationKeys;
 import com.elster.jupiter.pki.impl.UniqueAlias;
@@ -50,6 +52,7 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
     public static final String CERTIFICATE_DISCRIMINATOR = "R";
 
     private final DataModel dataModel;
+    private final EventService eventService;
 
     private final Thesaurus thesaurus;
     private final PropertySpecService propertySpecService;
@@ -96,10 +99,11 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
     @SuppressWarnings("unused")
     private Instant modTime;
 
-    public AbstractCertificateWrapperImpl(DataModel dataModel, Thesaurus thesaurus, PropertySpecService propertySpecService) {
+    public AbstractCertificateWrapperImpl(DataModel dataModel, Thesaurus thesaurus, PropertySpecService propertySpecService, EventService eventService) {
         this.dataModel = dataModel;
         this.thesaurus = thesaurus;
         this.propertySpecService = propertySpecService;
+        this.eventService = eventService;
     }
 
     @Override
@@ -241,7 +245,9 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
 
     @Override
     public void delete() {
+        this.eventService.postEvent(EventType.CERTIFICATE_VALIDATE_DELETE.topic(), this);
         dataModel.remove(this);
+        this.eventService.postEvent(EventType.CERTIFICATE_DELETED.topic(), this);
     }
 
     @Override

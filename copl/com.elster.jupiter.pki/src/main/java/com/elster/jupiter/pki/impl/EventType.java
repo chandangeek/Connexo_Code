@@ -11,12 +11,14 @@ import com.elster.jupiter.orm.TransactionRequired;
 import com.elster.jupiter.pki.PkiService;
 
 /**
- * Models the different event types that are produced by this task bundle.
+ * Models the different event types that are produced by this bundle.
  */
 public enum EventType {
 
     TRUSTSTORE_DELETED("truststore/DELETED"),
-    TRUSTSTORE_VALIDATE_DELETE("truststore/VALIDATE_DELETE");
+    TRUSTSTORE_VALIDATE_DELETE("truststore/VALIDATE_DELETE"),
+    CERTIFICATE_DELETED("certificate/DELETED"),
+    CERTIFICATE_VALIDATE_DELETE("certificate/VALIDATE_DELETE");
 
     private static final String NAMESPACE = "com/elster/jupiter/pki/";
     private final String topic;

@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.pki.impl.wrappers.certificate;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.RefAny;
@@ -25,8 +26,8 @@ public class ClientCertificateWrapperImpl extends RequestableCertificateWrapperI
     private Reference<KeyType> keyTypeReference = ValueReference.absent();
 
     @Inject
-    public ClientCertificateWrapperImpl(DataModel dataModel, Thesaurus thesaurus, PropertySpecService propertySpecService) {
-        super(dataModel, thesaurus, propertySpecService);
+    public ClientCertificateWrapperImpl(DataModel dataModel, Thesaurus thesaurus, PropertySpecService propertySpecService, EventService eventService) {
+        super(dataModel, thesaurus, propertySpecService, eventService);
         this.dataModel = dataModel;
     }
 
