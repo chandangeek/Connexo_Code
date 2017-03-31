@@ -56,7 +56,8 @@ Ext.define('Uni.property.controller.Registry', {
         'Uni.property.view.property.LifeCycleStatusInDeviceType',
         'Uni.property.view.property.RaisedEventProps',
         'Uni.property.view.property.EventTime',
-        'Uni.property.view.property.StartAlarmProcess'
+        'Uni.property.view.property.StartAlarmProcess',
+        'Uni.property.view.property.CalendarWithEventCode'
     ],
 
     /**
@@ -104,7 +105,9 @@ Ext.define('Uni.property.controller.Registry', {
         TIMEDURATION: 'Uni.property.view.property.Period',
         TIMEOFDAY: 'Uni.property.view.property.Time',
         TIMESTAMP: 'Uni.property.view.property.DateTime',
-        UNKNOWN: 'Uni.property.view.property.Text'
+        UNKNOWN: 'Uni.property.view.property.Text',
+        CALENDARWITHEVENTCODE: 'Uni.property.view.property.CalendarWithEventCode',
+
     },
 
 // store must be registered on some ctrl (not in the responsibility of this class: move later?)
