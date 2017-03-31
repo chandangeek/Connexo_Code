@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+  -->
+
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
@@ -13,22 +17,17 @@
     <packaging>pom</packaging>
     <name>[MDM] mdm.parent</name>
 
-
-    <organization>
-        <name>Elster</name>
-        <url>www.elster.com</url>
-    </organization>
-
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-        <jetty-server.version>7.6.3.v20120416</jetty-server.version>
-        <json.version>20090211</json.version>
         <!-- next line is the argLine for the maven-surefire-plugin
              but it must be declared as a property because of the jacoco plugin (defined$
              see http://docs.codehaus.org/display/SONAR/JaCoCo+Plugin
              -->
         <argLine>-Xms512m -Xmx1024m</argLine>
+        <javadoc.excluded.package.names>
+            *.security.*
+        </javadoc.excluded.package.names>
     </properties>
 
     <issueManagement>
