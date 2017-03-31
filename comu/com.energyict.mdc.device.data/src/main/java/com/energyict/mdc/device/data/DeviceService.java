@@ -6,6 +6,7 @@ package com.energyict.mdc.device.data;
 
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -165,4 +166,10 @@ public interface DeviceService {
      */
     void deleteOutdatedComTaskExecutionTriggers();
 
+    /**
+     * Returns tue if the provided {@link CertificateWrapper} is still referenced by a KeyAccessor
+     * @param certificate The to-be-checked for usage {@link CertificateWrapper}
+     * @return true if in use, false otherwise
+     */
+    boolean usedByKeyAccessor(CertificateWrapper certificate);
 }

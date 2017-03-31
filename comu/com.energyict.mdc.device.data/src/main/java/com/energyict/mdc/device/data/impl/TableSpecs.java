@@ -207,7 +207,6 @@ public enum TableSpecs {
                     .reverseMap("loadProfiles")
                     .composition()
                     .add();
-
         }
     },
 
