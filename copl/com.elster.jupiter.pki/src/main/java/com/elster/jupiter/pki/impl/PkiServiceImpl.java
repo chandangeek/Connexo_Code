@@ -101,6 +101,7 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider {
     @Override
     public List<String> getKeyEncryptionMethods(CryptographicType cryptographicType) {
         switch (cryptographicType) {
+            case ClientCertificate:
             case AsymmetricKey: return privateKeyFactories.keySet().stream().sorted().collect(Collectors.toList());
             case SymmetricKey: return symmetricKeyFactories.keySet().stream().sorted().collect(Collectors.toList());
             case Passphrase: return null; // TODO implement
