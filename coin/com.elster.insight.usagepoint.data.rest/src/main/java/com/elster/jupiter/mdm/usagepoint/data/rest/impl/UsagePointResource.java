@@ -5,7 +5,6 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.cbo.QualityCodeSystem;
-import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
@@ -25,6 +24,7 @@ import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointBuilder;
 import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
+import com.elster.jupiter.metering.UsagePointMeterActivationException;
 import com.elster.jupiter.metering.UsagePointPropertySet;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
@@ -62,6 +62,7 @@ import com.elster.jupiter.servicecall.rest.ServiceCallInfoFactory;
 import com.elster.jupiter.time.DefaultRelativePeriodDefinition;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeService;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointStage;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.usagepoint.lifecycle.ExecutableMicroCheck;
@@ -167,6 +168,7 @@ public class UsagePointResource {
     private final UsagePointDataCompletionService usagePointDataCompletionService;
     private final ReadingTypeDeliverableFactory readingTypeDeliverableFactory;
     private final DataValidationTaskInfoFactory dataValidationTaskInfoFactory;
+    private final HistoricalMeterActivationInfoFactory historicalMeterActivationInfoFactory;
     private final TransactionService transactionService;
     private final UsagePointLifeCycleService usagePointLifeCycleService;
     private final PropertyValueInfoService propertyValueInfoService;
@@ -197,6 +199,7 @@ public class UsagePointResource {
                               Provider<UsagePointOutputResource> usagePointOutputResourceProvider,
                               ReadingTypeDeliverableFactory readingTypeDeliverableFactory,
                               DataValidationTaskInfoFactory dataValidationTaskInfoFactory,
+                              HistoricalMeterActivationInfoFactory historicalMeterActivationInfoFactory,
                               TransactionService transactionService,
                               UsagePointLifeCycleService usagePointLifeCycleService,
                               PropertyValueInfoService propertyValueInfoService,
@@ -225,6 +228,7 @@ public class UsagePointResource {
         this.usagePointOutputResourceProvider = usagePointOutputResourceProvider;
         this.readingTypeDeliverableFactory = readingTypeDeliverableFactory;
         this.dataValidationTaskInfoFactory = dataValidationTaskInfoFactory;
+        this.historicalMeterActivationInfoFactory = historicalMeterActivationInfoFactory;
         this.transactionService = transactionService;
         this.usagePointLifeCycleService = usagePointLifeCycleService;
         this.propertyValueInfoService = propertyValueInfoService;
@@ -386,6 +390,10 @@ public class UsagePointResource {
     @Path("/{name}/activatemeters")
     public Response activateMeters(@PathParam("name") String name, UsagePointInfo info) {
         UsagePoint usagePoint = resourceHelper.findAndLockUsagePointByNameOrThrowException(name, info.version);
+        UsagePointStage.Key usagePointStage = usagePoint.getState().getStage().getKey();
+        if(usagePointStage != UsagePointStage.Key.PRE_OPERATIONAL){
+            throw UsagePointMeterActivationException.usagePointIncorrectStage(thesaurus);
+        }
         resourceHelper.performMeterActivations(info, usagePoint);
         return Response.ok().entity(usagePointInfoFactory.fullInfoFrom(usagePoint)).build();
     }
@@ -890,6 +898,20 @@ public class UsagePointResource {
                 .collect(Collectors.toList());
         return PagedInfoList.fromCompleteList("deliverables", deliverables, queryParameters);
     }
+    
+    @GET
+    @Path("/{name}/history/meters")
+    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT,
+            Privileges.Constants.ADMINISTER_OWN_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public PagedInfoList getHistoryOfMeters(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters, @HeaderParam("Authorization") String auth) {
+        UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
+        List<HistoricalMeterActivationInfo> meterActivationInfoList = usagePoint.getMeterActivations().stream()
+                .map(ma -> historicalMeterActivationInfoFactory.from(ma, usagePoint, auth))
+                .sorted(Comparator.comparing((HistoricalMeterActivationInfo info) -> info.start).reversed().thenComparing(info -> info.meterRole).thenComparing(info -> info.meter))
+                .collect(Collectors.toList());
+        return PagedInfoList.fromCompleteList("meters", meterActivationInfoList, queryParameters);
+    }
 
     @GET
     @Path("/{name}/validationtasks")
@@ -1007,22 +1029,19 @@ public class UsagePointResource {
         UsagePoint usagePoint;
         try (TransactionContext transaction = transactionService.getContext()) {
             UsagePointBuilder usagePointBuilder = usagePointInfoFactory.newUsagePointBuilder(info);
-            for (CustomPropertySetInfo customPropertySetInfo : info.customPropertySets) {
-                RegisteredCustomPropertySet registeredCustomPropertySet = customPropertySetService.findActiveCustomPropertySets(UsagePoint.class).stream()
-                        .filter(propertySet -> propertySet.getId() == customPropertySetInfo.id)
-                        .findAny()
-                        .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_CUSTOM_PROPERTY_SET, customPropertySetInfo.id));
-                CustomPropertySet<?, ?> customPropertySet = registeredCustomPropertySet.getCustomPropertySet();
-                CustomPropertySetValues values = customPropertySetInfoFactory.getCustomPropertySetValues(customPropertySetInfo, customPropertySet.getPropertySpecs());
-                usagePointBuilder.addCustomPropertySetValues(registeredCustomPropertySet, values);
-            }
-
             usagePoint = usagePointBuilder.create();
             info.techInfo.getUsagePointDetailBuilder(usagePoint, clock).create();
             if (info.metrologyConfiguration != null) {
                 usagePoint.apply((UsagePointMetrologyConfiguration)resourceHelper
                         .findMetrologyConfigurationOrThrowException(info.metrologyConfiguration.id));
             }
+            for (CustomPropertySetInfo customPropertySetInfo : info.customPropertySets) {
+                UsagePointPropertySet propertySet = usagePoint.forCustomProperties()
+                        .getPropertySet(customPropertySetInfo.id);
+                propertySet.setValues(customPropertySetInfoFactory.getCustomPropertySetValues(customPropertySetInfo,
+                        propertySet.getCustomPropertySet().getPropertySpecs()));
+            }
+            usagePoint.update();
 
             resourceHelper.activateMeters(info, usagePoint);
             performLifeCycleTransition(info.transitionToPerform, usagePoint, validationBuilder);

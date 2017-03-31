@@ -224,7 +224,7 @@ public class UsagePointOutputResourceTest extends UsagePointDataRestApplicationJ
         when(effectiveMC.getChannelsContainer(eq(metrologyContract), any(Instant.class))).thenReturn(Optional.of(channelsContainer));
         ValidationEvaluator validationEvaluator = mock(ValidationEvaluator.class);
         when(validationService.getEvaluator()).thenReturn(validationEvaluator);
-        doReturn(Collections.emptyList()).when(validationEvaluator).getValidationStatus(any(), any(Channel.class), any(), any());
+        doReturn(Collections.emptyList()).when(validationEvaluator).getValidationStatus(any(), any(Channel.class), any());
         // Business method
         Response response = target("usagepoints/" + USAGE_POINT_NAME + "/purposes/101/deactivate").request().put(Entity.json(purposeInfo));
 
