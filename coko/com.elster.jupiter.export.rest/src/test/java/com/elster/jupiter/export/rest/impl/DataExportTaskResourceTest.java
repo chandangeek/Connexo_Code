@@ -37,12 +37,15 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointConnectionState;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
+import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.orm.History;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
+import com.elster.jupiter.rest.util.LongIdWithNameInfo;
 import com.elster.jupiter.time.RelativeDate;
 import com.elster.jupiter.time.RelativeField;
 import com.elster.jupiter.time.RelativePeriod;
@@ -109,6 +112,8 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
     @Mock
     private UsagePointGroup usagePointGroup;
     @Mock
+    private MetrologyPurpose metrologyPurpose;
+    @Mock
     private RelativePeriod exportPeriod;
     @Mock
     private RelativePeriod updatePeriod, updateWindow;
@@ -128,6 +133,8 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
     private QueryStream queryStream;
     @Mock
     private History<ExportTask> exportTaskHistory;
+    @Mock
+    private MetrologyConfigurationService metrologyConfigurationService;
 
     private DataExportTaskBuilder builder;
 
@@ -154,6 +161,7 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
         when(exportTask.getNextExecution()).thenReturn(NEXT_EXECUTION.toInstant());
         when(meteringGroupsService.findEndDeviceGroup(5)).thenReturn(Optional.of(endDeviceGroup));
         when(meteringGroupsService.findUsagePointGroup(5)).thenReturn(Optional.of(usagePointGroup));
+        when(metrologyConfigurationService.findMetrologyPurpose(anyLong())).thenReturn(Optional.ofNullable(metrologyPurpose));
         when(exportTask.getScheduleExpression()).thenReturn(Never.NEVER);
         when(dataExportService.newBuilder()).thenReturn(builder);
         when(exportTask.getOccurrencesFinder()).thenReturn(dataExportOccurrenceFinder);
@@ -570,6 +578,7 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
         info.standardDataSelector = new StandardDataSelectorInfo();
         info.standardDataSelector.usagePointGroup = new IdWithNameInfo();
         info.standardDataSelector.usagePointGroup.id = 5;
+        info.standardDataSelector.purpose = new LongIdWithNameInfo();
         info.standardDataSelector.exportComplete = true;
         info.standardDataSelector.exportContinuousData = true;
         info.standardDataSelector.exportPeriod = new RelativePeriodInfo();

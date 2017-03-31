@@ -8,6 +8,7 @@ import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.RestQueryService;
@@ -28,6 +29,8 @@ public class DataExportApplicationJerseyTest extends FelixRestApplicationJerseyT
     @Mock
     protected MeteringService meteringService;
     @Mock
+    protected MetrologyConfigurationService metrologyConfigurationService;
+    @Mock
     protected MeteringGroupsService meteringGroupsService;
     @Mock
     protected RestQueryService restQueryService;
@@ -47,6 +50,7 @@ public class DataExportApplicationJerseyTest extends FelixRestApplicationJerseyT
         application.setRestQueryService(restQueryService);
         application.setDataExportService(dataExportService);
         application.setMeteringService(meteringService);
+        application.setMetrologyConfigurationService(metrologyConfigurationService);
         application.setMeteringGroupsService(meteringGroupsService);
         application.setTimeService(timeService);
         application.setAppService(appService);
