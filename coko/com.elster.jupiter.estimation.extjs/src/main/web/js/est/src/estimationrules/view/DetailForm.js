@@ -42,7 +42,8 @@ Ext.define('Est.estimationrules.view.DetailForm', {
             isEdit: false,
             defaults: {
                 labelWidth: 250
-            }
+            },
+            margin: '0 0 -5 0'
         },
         {
             fieldLabel: Uni.I18n.translate('general.markAsProjected', 'EST', 'Mark as projected'),
