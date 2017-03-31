@@ -45,15 +45,7 @@ Ext.define('Mdc.view.setup.dataloggerslaves.MultiElementSlaveDeviceAdd', {
                 enforceMaxLength: true,
                 allowBlank: false,
                 validateOnBlur: false,
-                validateOnChange: false,
-                enableKeyEvents: true,
-                listeners: {
-                    keyup: function (field) {
-                        if (Ext.isEmpty(field.getValue())){
-                            field.setValue(me.proposeDeviceName(me.datalogger));
-                        }
-                    }
-                }
+                validateOnChange: false
             }
         ];
         me.callParent(arguments);
