@@ -185,6 +185,7 @@ public abstract class RegisterImpl<R extends Reading, RS extends RegisterSpec> i
 
     private List<R> toReadings(List<ReadingRecord> koreReadings) {
         List<R> readings = new ArrayList<>(koreReadings.size());
+
         ReadingRecord previous = null;
         for (ReadingRecord current : koreReadings) {
             List<DataValidationStatus> validationStatus = this.getValidationStatus(Collections.singletonList(current), Range.closed(current.getTimeStamp(), current.getTimeStamp()));
