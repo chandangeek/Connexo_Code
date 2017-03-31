@@ -61,7 +61,7 @@ Ext.define('Mdc.view.setup.dataloggerslaves.MultiElementSlaveDeviceAdd', {
         var deviceConfigField = this.down('#multiElementSlaveDeviceConfiguration'),
             proposal = '';
         if (!Ext.isEmpty(datalogger)){
-            proposal = datalogger.get('name') + ' ';
+            proposal = datalogger.get('name') + '-';
         }
         proposal += deviceConfigField.getDeviceConfiguration().get('name');
         return proposal;
