@@ -12,6 +12,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.billing.Edit', {
     ],
 
     setEdit: function (edit, returnLink) {
+
         var me = this;
         me.callParent(arguments);
 
@@ -38,6 +39,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.billing.Edit', {
     },
 
     initComponent: function () {
+
         var me = this;
         me.content = [
             {
