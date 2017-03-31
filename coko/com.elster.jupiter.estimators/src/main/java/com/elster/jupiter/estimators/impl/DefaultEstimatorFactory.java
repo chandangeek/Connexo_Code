@@ -92,7 +92,9 @@ public class DefaultEstimatorFactory implements EstimatorFactory, TranslationKey
 
     @Override
     public String getComponentName() {
-        // Translation keys are shared with estimation bundle
+        // Translation keys from estimators are historically shared with estimation bundle, most likely due to the fact
+        // that estimation thesaurus is asked for these translations somewhere outside of this bundle,
+        // so need to persist them with estimation component name for the time being. To be corrected in the future.
         return EstimationService.COMPONENTNAME;
     }
 
