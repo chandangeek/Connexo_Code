@@ -96,8 +96,9 @@ Ext.define('Imt.usagepointsetup.controller.MetrologyConfig', {
             meterActivations = me.getMetersForm().getValue();
 
         _.each(meterActivations, function (meterActivation) {
-            meterActivation.activationTime = undefined;
             meterActivation.meterRole.meter = meterActivation.meter;
+            meterActivation.meterRole.activationTime = meterActivation.activationTime;
+            meterActivation.activationTime = undefined;
             meterActivation.meter = {
                 name: meterActivation.meterRole.meter
             }

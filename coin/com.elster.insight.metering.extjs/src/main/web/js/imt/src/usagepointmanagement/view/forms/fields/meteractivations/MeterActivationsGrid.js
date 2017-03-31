@@ -84,7 +84,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.meteractivations.MeterAct
                         width: 60
                     }
                 }
-            },
+            }
         ];
         if (me.meterRoles) {
             me.columns.push(

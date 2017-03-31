@@ -451,7 +451,6 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
                     wizard.down('#purposes-field').setStore(record.metrologyContracts());
                     wizard.down('#start-date').show();
                     customAttributeSetsValueStore.load(function (item) {
-                        console.log(item[0].get('id').length);
                         if (item[0].get('id').length) {
                             radioBtn.show();
                         } else {
