@@ -18,7 +18,6 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.license.LicensedProtocolRule;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.issues.IssueService;
@@ -31,15 +30,11 @@ import com.energyict.mdc.upl.io.SerialComponentService;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.protocols.mdc.services.impl.InboundDeviceProtocolRule;
 import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
+
+import com.energyict.license.LicensedProtocolRule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
@@ -51,6 +46,13 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
@@ -177,13 +179,11 @@ public class AllDeviceProtocolsTest {
 
         String description = null;
         if (protocol instanceof com.energyict.mdc.upl.MeterProtocol) {
-            return; //TODO Uncomment lines below when the UPL adapter is finished
-            //com.energyict.mdc.upl.MeterProtocol uplMeterProtocol = (com.energyict.mdc.upl.MeterProtocol) protocol;
-            //description = new UPLMeterProtocolAdapter(uplMeterProtocol).getProtocolDescription();
+            com.energyict.mdc.upl.MeterProtocol uplMeterProtocol = (com.energyict.mdc.upl.MeterProtocol) protocol;
+            description = uplMeterProtocol.getProtocolDescription();
         } else if (protocol instanceof com.energyict.mdc.upl.SmartMeterProtocol) {
-            return; //TODO Uncomment lines below when the UPL adapter is finished
-            //com.energyict.mdc.upl.SmartMeterProtocol uplSmartMeterProtocol = (com.energyict.mdc.upl.SmartMeterProtocol) protocol;
-            //description = new UPLSmartMeterProtocolAdapter(uplSmartMeterProtocol).getProtocolDescription();
+            com.energyict.mdc.upl.SmartMeterProtocol uplSmartMeterProtocol = (com.energyict.mdc.upl.SmartMeterProtocol) protocol;
+            description = uplSmartMeterProtocol.getProtocolDescription();
         } else if (protocol instanceof com.energyict.mdc.upl.DeviceProtocol) {
             description = ((com.energyict.mdc.upl.DeviceProtocol) protocol).getProtocolDescription();
         }
