@@ -12,7 +12,8 @@ import java.sql.SQLException;
 import java.sql.Types;
 
 /**
- * Insert your comments here.
+ * Provides an implementation for the {@link ValueFactory} interface
+ * for {@link TimeDuration} values.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-11-29 (17:39)
