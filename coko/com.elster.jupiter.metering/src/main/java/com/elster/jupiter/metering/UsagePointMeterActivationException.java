@@ -179,6 +179,12 @@ public class UsagePointMeterActivationException extends LocalizedException {
         }
     }
 
+    public static class MeterCannotBeUnlinked extends UsagePointMeterActivationException {
+        public MeterCannotBeUnlinked(Thesaurus thesaurus, String meter, String usagePoint, String date) {
+            super(thesaurus, MessageSeeds.METER_CANNOT_BE_UNLINKED, meter, usagePoint, date);
+        }
+    }
+
     public static class UsagePointIncorrectStage extends UsagePointMeterActivationException{
         public UsagePointIncorrectStage(Thesaurus thesaurus, MessageSeed messageSeed, Object... args) {
             super(thesaurus, messageSeed, args);
