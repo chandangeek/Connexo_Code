@@ -6,6 +6,7 @@ package com.elster.jupiter.kore.api.v2;
 
 import com.elster.jupiter.kore.api.impl.MessageSeeds;
 import com.elster.jupiter.kore.api.security.Privileges;
+import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
@@ -30,6 +31,7 @@ import javax.ws.rs.core.UriInfo;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -40,13 +42,15 @@ public class EndDeviceResource {
 
     private final EndDeviceInfoFactory endDeviceInfoFactory;
     private final MeterReadingsFactory meterReadingsFactory;
+    private final EndDeviceLifeCycleStateInfoFactory endDeviceLifeCycleStateInfoFactory;
     private final MeteringService meteringService;
     private final ExceptionFactory exceptionFactory;
     private final Clock clock;
 
     @Inject
-    public EndDeviceResource(EndDeviceInfoFactory endDeviceInfoFactory, MeterReadingsFactory meterReadingsFactory, MeteringService meteringService, ExceptionFactory exceptionFactory, Clock clock) {
+    public EndDeviceResource(EndDeviceInfoFactory endDeviceInfoFactory, MeterReadingsFactory meterReadingsFactory, EndDeviceLifeCycleStateInfoFactory endDeviceLifeCycleStateInfoFactory, MeteringService meteringService, ExceptionFactory exceptionFactory, Clock clock) {
         this.endDeviceInfoFactory = endDeviceInfoFactory;
+        this.endDeviceLifeCycleStateInfoFactory = endDeviceLifeCycleStateInfoFactory;
         this.meteringService = meteringService;
         this.exceptionFactory = exceptionFactory;
         this.meterReadingsFactory = meterReadingsFactory;
@@ -120,6 +124,23 @@ public class EndDeviceResource {
         }
 
         return readings;
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @Path("/{meterMrid}/lifecyclestates")
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
+    public List<EndDeviceLifeCycleStateInfo> getEndDeviceLifeCycleStates(@PathParam("meterMrid") String meterMrid, @QueryParam("from") Long from, @QueryParam("to") Long to, @Context UriInfo uriInfo) {
+        Range<Instant> range = Range.openClosed(from != null ? Instant.ofEpochMilli(from) : Instant.EPOCH, to != null ? Instant.ofEpochMilli(to) : Instant.MAX);
+
+        EndDevice meter = meteringService.findMeterByMRID(meterMrid)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_END_DEVICE));
+
+        return meter.getStateTimeline().map(stateTimeline -> stateTimeline.getSlices().stream()
+                .filter(stateTimeSlice -> stateTimeSlice.getPeriod().isConnected(range))
+                .map(endDeviceLifeCycleStateInfoFactory::asInfo)
+                .collect(Collectors.toList()))
+                .orElse(Collections.emptyList());
     }
 
     /**

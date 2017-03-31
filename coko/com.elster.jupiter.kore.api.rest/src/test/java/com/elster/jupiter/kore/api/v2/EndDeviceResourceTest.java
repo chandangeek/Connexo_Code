@@ -4,7 +4,10 @@
 
 package com.elster.jupiter.kore.api.v2;
 
+import com.elster.jupiter.fsm.Stage;
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.fsm.StateTimeSlice;
+import com.elster.jupiter.fsm.StateTimeline;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
@@ -40,6 +43,14 @@ public class EndDeviceResourceTest extends PlatformPublicApiJerseyTest {
 
     @Mock
     Meter meter;
+    @Mock
+    StateTimeline timeline;
+    @Mock
+    StateTimeSlice timeSlice;
+    @Mock
+    State state;
+    @Mock
+    Stage stage;
 
     @Override
     @Before
@@ -53,6 +64,13 @@ public class EndDeviceResourceTest extends PlatformPublicApiJerseyTest {
         when(meter.getMRID()).thenReturn(METER_MRID);
         when(meter.getName()).thenReturn("testName");
         when(meter.getVersion()).thenReturn(1L);
+        when(meter.getStateTimeline()).thenReturn(Optional.of(timeline));
+        when(timeline.getSlices()).thenReturn(Collections.singletonList(timeSlice));
+        when(timeSlice.getPeriod()).thenReturn(Range.atLeast(Instant.EPOCH));
+        when(timeSlice.getState()).thenReturn(state);
+        when(state.getName()).thenReturn("state");
+        when(state.getStage()).thenReturn(Optional.of(stage));
+        when(stage.getName()).thenReturn("stage");
         when(meteringService.findMeterById(123)).thenReturn(Optional.of(meter));
         when(meteringService.findMeterByMRID(METER_MRID)).thenReturn(Optional.of(meter));
         ReadingType readingType1 = mockReadingType("0.0.0.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0");
@@ -91,6 +109,9 @@ public class EndDeviceResourceTest extends PlatformPublicApiJerseyTest {
         assertThat(model.<String>get("$.name")).isEqualTo("testName");
         assertThat(model.<String>get("$.link.params.rel")).isEqualTo(Relation.REF_SELF.rel());
         assertThat(model.<String>get("$.link.href")).isEqualTo("http://localhost:9998/enddevices/123");
+        assertThat(model.<String>get("$.lifecycleState.stage")).isEqualTo("stage");
+        assertThat(model.<String>get("$.lifecycleState.name")).isEqualTo("state");
+        assertThat(model.<Integer>get("$.lifecycleState.interval.start")).isEqualTo(0);
     }
 
     @Test
