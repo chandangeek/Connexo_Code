@@ -43,20 +43,21 @@ Ext.define('Dsh.view.widget.CommunicationsTopFilter', {
                         fn: me.comboLimitNotification
                     },
                     change: {
-                        fn: me.updateConnectionTypeFilter
+                        fn: me.updateConnectionMethodFilter
                     }
                 }
             },
             {
                 type: 'combobox',
-                dataIndex: 'connectionTypes',
-                emptyText: Uni.I18n.translate('general.connectionType', 'DSH', 'Connection type'),
+                dataIndex: 'connectionMethods',
+                emptyText: Uni.I18n.translate('general.connectionMethod', 'DSH', 'Connection method'),
                 multiSelect: true,
                 displayField: 'name',
                 valueField: 'id',
                 disabled: true,
-                store: 'Dsh.store.filter.ConnectionType',
-                itemId: 'connection-type-filter'
+                store: 'Dsh.store.filter.ConnectionMethods',
+                itemId: 'connection-method-filter',
+                loadStore: false
             },
             {
                 type: 'combobox',
@@ -148,13 +149,22 @@ Ext.define('Dsh.view.widget.CommunicationsTopFilter', {
         }, combo, {single: true});
     },
 
-    updateConnectionTypeFilter: function(combo, newValue) {
-        var connectionTypeFilter = combo.up('dsh-view-widget-communicationstopfilter').down('#connection-type-filter');
-
-        if (Ext.isEmpty(newValue)) {
-            connectionTypeFilter.setValue();
+    updateConnectionMethodFilter: function (combo, newValue) {
+        var connectionTypeFilter = combo.up('dsh-view-widget-communicationstopfilter').down('#connection-method-filter'),
+            store = connectionTypeFilter.getStore();
+        //if (records.length === 1) {
+        //    newValue = records[0].get('name');
+        //}
+        connectionTypeFilter.setValue();
+        if (!Ext.isEmpty(newValue)) {
+            store.getProxy().setUrl(newValue);
+            store.load(function (records, operation, success) {
+                connectionTypeFilter.setDisabled(records.length <= 0);
+                return;
+            });
+        } else {
+            connectionTypeFilter.setDisabled(true);
         }
-        connectionTypeFilter.setDisabled(Ext.isEmpty(newValue));
     }
 
 });
