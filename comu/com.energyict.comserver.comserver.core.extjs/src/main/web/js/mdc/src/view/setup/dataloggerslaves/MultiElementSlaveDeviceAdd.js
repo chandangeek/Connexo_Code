@@ -16,6 +16,7 @@ Ext.define('Mdc.view.setup.dataloggerslaves.MultiElementSlaveDeviceAdd', {
     defaults: {
         labelWidth: 145
     },
+    dataLogger: null,
     initComponent: function () {
         var me = this,
             deviceTypeStore = Ext.getStore('Mdc.store.AvailableDeviceTypes');
@@ -29,6 +30,7 @@ Ext.define('Mdc.view.setup.dataloggerslaves.MultiElementSlaveDeviceAdd', {
                 itemId: 'multiElementSlaveDeviceConfiguration',
                 deviceTypeStore: deviceTypeStore,
                 queryMode: 'remote',
+                extraConfigListener: [{listener: me.setDeviceNameProposal, scope: me}],
                 allowBlank: false,
                 width: 570
             },
@@ -43,10 +45,34 @@ Ext.define('Mdc.view.setup.dataloggerslaves.MultiElementSlaveDeviceAdd', {
                 enforceMaxLength: true,
                 allowBlank: false,
                 validateOnBlur: false,
-                validateOnChange: false
+                validateOnChange: false,
+                enableKeyEvents: true,
+                listeners: {
+                    keyup: function (field) {
+                        if (Ext.isEmpty(field.getValue())){
+                            field.setValue(me.proposeDeviceName(me.datalogger));
+                        }
+                    }
+                }
             }
         ];
         me.callParent(arguments);
+    },
+    setDeviceNameProposal: function(){
+        var me = this,
+            nameTextField = me.down('#multiElementSlaveName');
+        if (me.dataLogger && nameTextField && !nameTextField.getValue()) {
+            nameTextField.setValue(me.proposeDeviceName(me.dataLogger));
+        }
+    },
+    proposeDeviceName: function (datalogger) {
+        var deviceConfigField = this.down('#multiElementSlaveDeviceConfiguration'),
+            proposal = '';
+        if (!Ext.isEmpty(datalogger)){
+            proposal = datalogger.get('name') + ' ';
+        }
+        proposal += deviceConfigField.getDeviceConfiguration().get('name');
+        return proposal;
     }
 });
 

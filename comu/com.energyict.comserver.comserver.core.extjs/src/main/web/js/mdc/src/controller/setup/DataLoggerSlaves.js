@@ -107,8 +107,9 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
                       router: router,
                       store:slavesStore });
                 me.getApplication().fireEvent('changecontentevent', widget);
-                mainView.setLoading(false);
-                slavesStore.load();
+                slavesStore.load(function () {
+                    mainView.setLoading(false);
+                });
             }
         });
     },
@@ -141,6 +142,7 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
                     newDataLoggerSlaveForm.loadRecord(slaveDevice);
                 }
                 if (!Ext.isEmpty(newMultiElementSlaveForm)){
+                    newMultiElementSlaveForm.dataLogger = device;
                     newMultiElementSlaveForm.loadRecord(slaveDevice);
                 }
 
