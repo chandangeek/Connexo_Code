@@ -4,10 +4,10 @@
 
 package com.energyict.mdc.protocol.pluggable.impl.adapters.common;
 
+import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterProtocol;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.obis.ObisCode;
 
 import java.io.IOException;
