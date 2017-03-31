@@ -20,6 +20,7 @@ import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.V10_3SimpleUpgrader;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.time.Interval;
 
@@ -209,12 +210,7 @@ public class MultiElementDeviceServiceImpl implements MultiElementDeviceService,
         return findMultiElementDeviceReference(slave, when).map(MultiElementDeviceReference::getGateway);
     }
 
-    private Optional<MultiElementDeviceReference> findMultiElementDeviceReference(Device slave, Instant effective) {
-        Condition condition = where(PhysicalGatewayReferenceImpl.Field.ORIGIN.fieldName()).isEqualTo(slave).and(where("interval").isEffective(effective));
-        return topologyService.dataModel().mapper(MultiElementDeviceReference.class).select(condition).stream().findAny();
-    }
-
-    @Override
+     @Override
     public List<Device> findMultiElementSlaves(Device multiElementDevice) {
         Condition condition = this.getDevicesInTopologyCondition(multiElementDevice);
         List<MultiElementDeviceReferenceImpl> multiElementDeviceReferences = getDataModel().mapper(MultiElementDeviceReferenceImpl.class).select(condition);
@@ -260,5 +256,11 @@ public class MultiElementDeviceServiceImpl implements MultiElementDeviceService,
 
     private MultiElementDeviceReferenceImpl newMultiElementReference(Device slave, Device gateway, Instant start) {
         return getDataModel().getInstance(MultiElementDeviceReferenceImpl.class).createFor(slave, gateway, Interval.of(Range.atLeast(start)));
+    }
+
+    @Override
+    public Optional<MultiElementDeviceReference> findMultiElementDeviceReference(Device slaveDevice, Instant effective) {
+        Condition condition = where(PhysicalGatewayReferenceImpl.Field.ORIGIN.fieldName()).isEqualTo(slaveDevice).and(where("interval").isEffective(effective));
+        return getDataModel().mapper(MultiElementDeviceReference.class).select(condition).stream().findAny(); // the business logic of the effectivity requires that there is only one object effective at a
     }
 }

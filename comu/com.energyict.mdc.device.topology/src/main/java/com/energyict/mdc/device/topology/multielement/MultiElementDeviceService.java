@@ -65,6 +65,16 @@ public interface MultiElementDeviceService {
     Finder<? extends MultiElementDeviceReference> findAllEffectiveMultiElementSlaveDevices();
 
     /**
+     * Finds the MultiElementDeviceReference which is effective at the given timestamp.
+     * If no reference was active, an empty optional will be returned
+     *
+     * @param slaveDevice the multi-element slave device which has potentially a MultiElementDeviceReference for the given timestamp
+     * @param effective the timeStamp at which you want the reference
+     * @return the MultiElementDeviceReference which was active at the given timestamp
+     */
+    Optional<MultiElementDeviceReference> findMultiElementDeviceReference(Device slaveDevice, Instant effective);
+
+    /**
      * Provides an ordered list which contains pairs of channels (of different devices) vs ranges in which they should contain data
      * for the requested range.
      *
