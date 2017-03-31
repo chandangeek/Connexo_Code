@@ -1138,8 +1138,13 @@ public class ResourceHelper {
     }
 
     private Optional<Instant> getLinkingDate(Device slave) {
-        return topologyService.findDataloggerReference(slave, clock.instant())
-                .map(dataLoggerReference -> dataLoggerReference.getRange().lowerEndpoint());
+        if (slave.getDeviceType().isDataloggerSlave()) {
+            return topologyService.findDataloggerReference(slave, clock.instant())
+                    .map(dataLoggerReference -> dataLoggerReference.getRange().lowerEndpoint());
+        }else{
+            return multiElementDeviceService.findMultiElementDeviceReference(slave, clock.instant())
+                    .map(dataLoggerReference -> dataLoggerReference.getRange().lowerEndpoint());
+        }
     }
 
     /**

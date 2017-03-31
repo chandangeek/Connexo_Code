@@ -113,14 +113,24 @@ public class DataLoggerSlaveDeviceInfoFactory {
 
     DataLoggerSlaveDeviceInfo newSlaveWithLinkingInfo(Device slave){
         DataLoggerSlaveDeviceInfo newSlaveDeviceInfo = new DataLoggerSlaveDeviceInfo(slave);
-        topologyService.findDataloggerReference(slave, clock.instant()).ifPresent(
-                dataLoggerReference -> {newSlaveDeviceInfo.linkingTimeStamp = dataLoggerReference.getRange().lowerEndpoint().toEpochMilli();}
-        );
-        topologyService.findLastDataloggerReference(slave).ifPresent(dataLoggerReference -> {
-             if (dataLoggerReference.isTerminated()) {
-                 newSlaveDeviceInfo.unlinkingTimeStamp = dataLoggerReference.getRange().upperEndpoint().toEpochMilli();
-             }
-        });
+        if (slave.getDeviceType().isDataloggerSlave()) {
+            topologyService.findDataloggerReference(slave, clock.instant()).ifPresent(
+                    dataLoggerReference -> {
+                        newSlaveDeviceInfo.linkingTimeStamp = dataLoggerReference.getRange().lowerEndpoint().toEpochMilli();
+                    }
+            );
+            topologyService.findLastDataloggerReference(slave).ifPresent(dataLoggerReference -> {
+                if (dataLoggerReference.isTerminated()) {
+                    newSlaveDeviceInfo.unlinkingTimeStamp = dataLoggerReference.getRange().upperEndpoint().toEpochMilli();
+                }
+            });
+        }else{
+            multiElementDeviceService.findMultiElementDeviceReference(slave, clock.instant()).ifPresent(
+                    multiElementDeviceReference -> {
+                        newSlaveDeviceInfo.linkingTimeStamp = multiElementDeviceReference.getRange().lowerEndpoint().toEpochMilli();
+                    }
+            );
+        }
         return newSlaveDeviceInfo;
     }
 }
