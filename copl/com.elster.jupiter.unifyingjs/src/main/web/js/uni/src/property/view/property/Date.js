@@ -70,8 +70,9 @@ Ext.define('Uni.property.view.property.Date', {
                     this.callParent([value]);
                 }
             }
+        } else if (value === '') {
+            this.callParent([value]);
         }
-
     },
 
     getValue: function () {
