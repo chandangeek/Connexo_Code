@@ -5,6 +5,7 @@
 package com.elster.jupiter.metering.impl.upgraders;
 
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.events.ValueType;
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.impl.InstallerV10_3Impl;
@@ -15,6 +16,7 @@ import com.elster.jupiter.metering.impl.config.ReadingTypeTemplateInstaller;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
+import com.elster.jupiter.orm.OptimisticLockException;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.upgrade.Upgrader;
@@ -70,6 +72,16 @@ public class UpgraderV10_3 implements Upgrader {
 
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
+
+        dataModel.useConnectionRequiringTransaction(connection -> {
+            try (Statement statement = connection.createStatement()) {
+                statement.execute("ALTER TABLE MTR_RT_DELIVERABLE ADD METROLOGY_CONTRACT NUMBER;");
+                statement.execute(
+                        "UPDATE MTR_RT_DELIVERABLE SET MTR_RT_DELIVERABLE.METROLOGY_CONTRACT = " +
+                                "(SELECT METROLOGY_CONTRACT FROM MTR_CONTRACT_TO_DELIVERABLE WHERE MTR_RT_DELIVERABLE.ID = MTR_CONTRACT_TO_DELIVERABLE.DELIVERABLE);");
+            }
+        });
+
         dataModelUpgrader.upgrade(dataModel, VERSION);
         dataModel.useConnectionRequiringTransaction(connection -> {
             try (Statement statement = connection.createStatement()) {
@@ -82,6 +94,7 @@ public class UpgraderV10_3 implements Upgrader {
         });
         installTemplates();
         installNewEventTypes();
+        updateEventPropertyTypes();
         installNewRecordSpec();
         GasDayRelativePeriodCreator.createAll(this.meteringService, this.timeService);
         installerV10_3.install(dataModelUpgrader, Logger.getLogger(UpgraderV10_3.class.getName()));
@@ -96,6 +109,29 @@ public class UpgraderV10_3 implements Upgrader {
     private void installNewEventTypes() {
         EnumSet.of(EventType.METROLOGY_CONTRACT_DELETED)
                 .forEach(eventType -> eventType.install(eventService));
+    }
+
+    private void updateEventPropertyTypes() {
+        EnumSet.of(EventType.END_DEVICE_EVENT_CREATED, EventType.END_DEVICE_EVENT_UPDATED)
+                .forEach(eventType ->
+                        updatePropertyType(eventService, eventType, "deviceEventType", ValueType.STRING, "deviceEventType")
+                );
+    }
+
+    private void updatePropertyType(EventService eventService, EventType eventType, String name, ValueType type, String accessPath) {
+        eventService.getEventType(eventType.topic()).ifPresent(evtTyp -> {
+            com.elster.jupiter.events.EventType lockedEventType = eventService.findAndLockEventTypeByNameAndVersion(evtTyp.getTopic(), evtTyp.getVersion())
+                    .orElseThrow(OptimisticLockException::new);
+            lockedEventType.getPropertyTypes()
+                    .stream().filter(propertyType ->
+                    !(propertyType.getName().equals(name) &&
+                            propertyType.getValueType().equals(type) &&
+                            propertyType.getAccessPath().equals(accessPath)))
+                    .findAny().ifPresent(found -> {
+                lockedEventType.addProperty(name, type, accessPath);
+                lockedEventType.update();
+            });
+        });
     }
 
     private void installNewRecordSpec() {
