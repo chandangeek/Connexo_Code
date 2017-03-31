@@ -208,6 +208,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
             router = me.getController('Uni.controller.history.Router');
 
         contentPanel.setLoading(true);
+
         Ext.ModelManager.getModel('Mdc.model.Device').load(deviceId, {
             success: function (device) {
                 me.getApplication().fireEvent('loadDevice', device);
