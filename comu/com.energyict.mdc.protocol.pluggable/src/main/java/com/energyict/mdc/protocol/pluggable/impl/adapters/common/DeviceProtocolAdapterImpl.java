@@ -10,7 +10,6 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecBuilder;
-import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.ConnectionType;
@@ -20,7 +19,6 @@ import com.energyict.mdc.protocol.api.HHUEnabler;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.protocol.api.legacy.CachingProtocol;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
-import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.TranslationKeys;
@@ -30,7 +28,8 @@ import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 
-import java.sql.SQLException;
+import com.energyict.dialer.core.SerialCommunicationChannel;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -109,26 +108,6 @@ public abstract class DeviceProtocolAdapterImpl implements DeviceProtocolAdapter
     @Override
     public Object getCache() {
         return getCachingProtocol().getCache();
-    }
-
-    @Override
-    public Object fetchCache(int deviceId) throws SQLException {
-
-        /*
-       This method will never get called. All cached objects will be fetched during initialization of the task
-        */
-
-        return getCachingProtocol().fetchCache(deviceId);
-    }
-
-    @Override
-    public void updateCache(int deviceId, Object cacheObject) throws SQLException {
-
-        /*
-       This method will never get called. All cached objects will be fetched during initialization of the task
-        */
-
-        getCachingProtocol().updateCache(deviceId, cacheObject);
     }
 
     @Override

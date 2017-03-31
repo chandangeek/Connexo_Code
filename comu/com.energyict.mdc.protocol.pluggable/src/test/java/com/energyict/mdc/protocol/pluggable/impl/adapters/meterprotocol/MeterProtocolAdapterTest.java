@@ -363,14 +363,10 @@ public class MeterProtocolAdapterTest {
         // Calling all business method on CachingProtocol
         meterProtocolAdapter.setCache(cacheObject);
         meterProtocolAdapter.getCache();
-        meterProtocolAdapter.fetchCache(deviceId);
-        meterProtocolAdapter.updateCache(deviceId, cacheObject);
 
         // Verify that the adapter properly forwarded the method calls to the meterProtocol
         verify(meterProtocol).setCache(cacheObject);
         verify(meterProtocol).getCache();
-        verify(meterProtocol).fetchCache(deviceId);
-        verify(meterProtocol).updateCache(deviceId, cacheObject);
     }
 
     @Test

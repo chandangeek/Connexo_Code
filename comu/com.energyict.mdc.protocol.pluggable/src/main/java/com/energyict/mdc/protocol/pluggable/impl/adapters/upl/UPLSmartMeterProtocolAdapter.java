@@ -13,6 +13,7 @@ import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.TypedPropertiesValueAdapter;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLToConnexoPropertySpecAdapter;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
+
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.ProfileData;
@@ -20,7 +21,6 @@ import com.energyict.protocol.ProfileData;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -37,20 +37,20 @@ import java.util.stream.Collectors;
 public class UPLSmartMeterProtocolAdapter implements SmartMeterProtocol, UPLProtocolAdapter {
 
     //TODO implement/adapt all methods
-    private final com.energyict.mdc.upl.SmartMeterProtocol uplSmartMeterProtocol;
+    private final com.energyict.mdc.upl.SmartMeterProtocol actual;
 
-    public UPLSmartMeterProtocolAdapter(com.energyict.mdc.upl.SmartMeterProtocol uplSmartMeterProtocol) {
-        this.uplSmartMeterProtocol = uplSmartMeterProtocol;
+    public UPLSmartMeterProtocolAdapter(com.energyict.mdc.upl.SmartMeterProtocol actual) {
+        this.actual = actual;
     }
 
     @Override
     public Class getActualClass() {
-        return uplSmartMeterProtocol.getClass();
+        return actual.getClass();
     }
 
     @Override
     public List<PropertySpec> getRequiredProperties() {
-        return new ArrayList<>(uplSmartMeterProtocol.getUPLPropertySpecs()
+        return new ArrayList<>(actual.getUPLPropertySpecs()
                 .stream()
                 .filter(com.energyict.mdc.upl.properties.PropertySpec::isRequired)
                 .map(UPLToConnexoPropertySpecAdapter::new)
@@ -59,7 +59,7 @@ public class UPLSmartMeterProtocolAdapter implements SmartMeterProtocol, UPLProt
 
     @Override
     public List<PropertySpec> getOptionalProperties() {
-        return new ArrayList<>(uplSmartMeterProtocol.getUPLPropertySpecs()
+        return new ArrayList<>(actual.getUPLPropertySpecs()
                 .stream()
                 .filter((propertySpec) -> !propertySpec.isRequired())
                 .map(UPLToConnexoPropertySpecAdapter::new)
@@ -137,20 +137,8 @@ public class UPLSmartMeterProtocolAdapter implements SmartMeterProtocol, UPLProt
     }
 
     @Override
-    public Object fetchCache(int rtuId) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public void updateCache(int rtuId, Object cacheObject) throws SQLException {
-
-    }
-
-    @Override
     public String getProtocolDescription() {
-        //return new SmartMeterProtocolAdapterImpl(this, ).getProtocolDescription();
-        //TODO also fix test com.energyict.protocols.impl.AllDeviceProtocolsTest.testProtocolCreationAndUniqueDescription()
-        return null;
+        return this.actual.getProtocolDescription();
     }
 
     @Override
@@ -177,7 +165,7 @@ public class UPLSmartMeterProtocolAdapter implements SmartMeterProtocol, UPLProt
     public void addProperties(TypedProperties properties) {
         com.energyict.mdc.upl.properties.TypedProperties adaptedProperties = TypedPropertiesValueAdapter.adaptToUPLValues(properties);
         try {
-            uplSmartMeterProtocol.setUPLProperties(adaptedProperties);
+            actual.setUPLProperties(adaptedProperties);
         } catch (PropertyValidationException e) {
             throw new NestedPropertyValidationException(e);
         }

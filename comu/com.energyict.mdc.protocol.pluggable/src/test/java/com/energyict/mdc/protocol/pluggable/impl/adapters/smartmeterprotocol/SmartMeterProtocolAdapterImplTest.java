@@ -323,14 +323,10 @@ public class SmartMeterProtocolAdapterImplTest {
         // Calling all business method on CachingProtocol
         smartMeterProtocolAdapter.setCache(cacheObject);
         smartMeterProtocolAdapter.getCache();
-        smartMeterProtocolAdapter.fetchCache(deviceId);
-        smartMeterProtocolAdapter.updateCache(deviceId, cacheObject);
 
         // Verify that the adapter properly forwarded the method calls to the smartMeterProtocol
         verify(smartMeterProtocol).setCache(cacheObject);
         verify(smartMeterProtocol).getCache();
-        verify(smartMeterProtocol).fetchCache(deviceId);
-        verify(smartMeterProtocol).updateCache(deviceId, cacheObject);
     }
 
     @Test
