@@ -114,6 +114,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -1125,10 +1126,37 @@ public class ComServerDAOImpl implements ComServerDAO {
         loadProfileUpdater.update();
     }
 
-    @Override
     public void updateLastDataSourceReadingsFor(Map<LoadProfileIdentifier, Instant> loadProfileUpdate, Map<LogBookIdentifier, Instant> logBookUpdate) {
-        loadProfileUpdate.entrySet().stream().forEach(entrySet -> this.updateLoadProfile(this.findLoadProfile(entrySet.getKey()), entrySet.getValue()));
-        logBookUpdate.entrySet().stream().forEach(entrySet -> this.updateLogBook(this.findLogBook(entrySet.getKey()), entrySet.getValue()));
+        Map<DeviceIdentifier, List<Function<Device, Void>>> updateMap = new HashMap<>();
+
+        // first do the loadprofiles
+        loadProfileUpdate.entrySet().stream().forEach(entrySet -> {
+            DeviceIdentifier deviceIdentifier = entrySet.getKey().getDeviceIdentifier();
+            List<Function<Device, Void>> functionList = updateMap.get(deviceIdentifier);
+            if (functionList == null) {
+                functionList = new ArrayList<>();
+                updateMap.put(deviceIdentifier, functionList);
+            }
+
+            functionList.add(updateLoadProfile(findLoadProfile(entrySet.getKey()), entrySet.getValue()));
+        });
+        // then do the logbooks
+        logBookUpdate.entrySet().stream().forEach(entrySet -> {
+            DeviceIdentifier deviceIdentifier = entrySet.getKey().getDeviceIdentifier();
+            List<Function<Device, Void>> functionList = updateMap.get(deviceIdentifier);
+            if (functionList == null) {
+                functionList = new ArrayList<>();
+                updateMap.put(deviceIdentifier, functionList);
+            }
+            functionList.add(updateLogBook(findLogBook(entrySet.getKey()), entrySet.getValue()));
+        });
+
+        // then do your thing
+        updateMap.entrySet().stream().forEach(entrySet -> {
+            Device oldDevice = findDevice(entrySet.getKey());
+            Device device = this.serviceProvider.deviceService().findDeviceById(oldDevice.getId()).get();
+            entrySet.getValue().stream().forEach(deviceVoidFunction -> deviceVoidFunction.apply(device));
+        });
     }
 
     @Override

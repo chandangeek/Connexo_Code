@@ -10,6 +10,7 @@ import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.users.User;
+import com.energyict.cbo.Unit;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
@@ -31,8 +32,6 @@ import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.upl.offline.OfflineLoadProfile;
-
-import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
@@ -40,6 +39,11 @@ import com.energyict.protocol.IntervalValue;
 import com.google.common.collect.Range;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -52,12 +56,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
@@ -977,7 +975,7 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
         doReturn(Optional.of(offlineLoadProfile)).when(comServerDAO).findOfflineLoadProfile(any(LoadProfileIdentifier.class));
         DeviceIdentifier deviceIdentifier = offlineLoadProfile.getDeviceIdentifier();
         doReturn(deviceIdentifier).when(comServerDAO).getDeviceIdentifierFor(any(LoadProfileIdentifier.class));
-        doCallRealMethod().when(comServerDAO).updateLastReadingFor(any(LoadProfileIdentifier.class), any(Instant.class));
+        doCallRealMethod().when(comServerDAO).updateLastDataSourceReadingsFor(any(Map.class), any(Map.class));
         return comServerDAO;
     }
 
