@@ -4,15 +4,15 @@
 
 package com.energyict.mdc.protocol.api.legacy;
 
-import com.energyict.cbo.Quantity;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 import com.energyict.mdc.protocol.api.UnsupportedException;
-import com.energyict.mdc.upl.meterdata.BreakerStatus;
-import com.energyict.protocol.ProfileData;
 import com.energyict.mdc.protocol.api.legacy.dynamic.Pluggable;
-import com.energyict.mdc.upl.DeviceDescriptionSupport;
+import com.energyict.mdc.upl.meterdata.BreakerStatus;
+
+import com.energyict.cbo.Quantity;
+import com.energyict.protocol.ProfileData;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,7 +35,7 @@ import java.util.logging.Logger;
  * @author Karel
  *         KV 15122003 serialnumber of the device
  */
-public interface MeterProtocol extends Pluggable, CachingProtocol, DeviceDescriptionSupport, com.energyict.mdc.upl.MeterProtocol {
+public interface MeterProtocol extends Pluggable, CachingProtocol, com.energyict.mdc.upl.MeterProtocol {
 
     /**
      * The string typically used for the device address property
