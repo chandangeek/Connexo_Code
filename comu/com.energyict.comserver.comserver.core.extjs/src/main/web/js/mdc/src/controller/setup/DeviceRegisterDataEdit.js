@@ -63,16 +63,13 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
             me[operation + 'RegisterDataRecord'](form.getValues(), {operation: operation});
         } else {
             me.clearPreLoader();
-            me.showErrorPanel();
+            form.down('#registerDataEditFormErrors').show();
         }
     },
 
     editRegisterDataRecord: function (values, cfg) {
         var me = this,
             record = me.getDeviceregisterreportedit().down('#registerDataEditForm').getRecord();
-        if(values.eventDate && !values.timeStamp){
-            values.timeStamp = values.eventDate;
-        }
         me.updateRecord(record, values, Ext.apply({
             successMessage: Uni.I18n.translate('device.registerData.updated', 'MDC', 'Register data saved')
         }, cfg));
@@ -80,12 +77,8 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
 
     addRegisterDataRecord: function (values, cfg) {
         var me = this,
-         //   registerType = me.getDeviceregisterreportedit().registerType,
-            registerSubType = me.getDeviceregisterreportedit().subType,
-            record = me.getReadingModelInstanceByType(registerSubType);
-        if(values.eventDate && !values.timeStamp){
-            values.timeStamp = values.eventDate;
-        }
+            registerType = me.getDeviceregisterreportedit().registerType,
+            record = me.getReadingModelInstanceByType(registerType);
         me.updateRecord(record, values, Ext.apply({
             successMessage: Uni.I18n.translate('device.registerData.created', 'MDC', 'Register data saved')
         }, cfg));
@@ -151,7 +144,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
             modelClass = me.getReadingModelClassByType(type),
             record = Ext.create(modelClass);
 
-        record.set("type", type==='billing'?'numerical':type);
+        record.set("type", type);
 
         return record;
     },
@@ -166,16 +159,12 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
             record.save({
                 success: function () {
                     me.getApplication().fireEvent('acknowledge', cfg.successMessage);
-                    window.location = me.getRegisterDataEditForm().up('contentcontainer').returnLink
+                    window.history.back();
                 },
                 failure: function (record, resp) {
                     var response = resp.response;
                     if (response.status == 400) {
-                        var responseText = Ext.decode(response.responseText, true);
-                        if (responseText && !Ext.isEmpty(responseText.errors)) {
-                            me.getRegisterDataEditForm().getForm().markInvalid(responseText.errors);
-                            me.showErrorPanel();
-                        }
+                        me.showErrorPanel();
                     }
                 },
                 callback: function () {
@@ -189,16 +178,11 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
         if (!Ext.isEmpty(values.value)) {
             record.data.value = values.value;
         }
-        record.set("timeStamp", values.timeStamp==="null"?values.eventDate:values.timeStamp);
-        record.set("eventDate", values.eventDate);
+        record.set("timeStamp", values.timeStamp);
+
         record.get('isConfirmed') && record.set('isConfirmed', false);
-        if (record.get("type") == 'billing' || record.get("type") == 'numerical') {
+        if (record.get("type") == 'billing') {
             record.set("interval", {start: values['interval.start'], end: values['interval.end']});
-        } else {
-            delete record.data.interval;
-        }
-        if(!values['interval.start'] && !values['interval.end']){
-            delete record.data.interval;
         }
         if (record.get("type") == 'text') {
             delete record.data.deltaValue;
@@ -211,7 +195,11 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
             grid = me.getDeviceregisterreportgrid(),
             lastSelected = grid.getView().getSelectionModel().getLastSelected(),
             router = me.getController('Uni.controller.history.Router');
-        router.getRoute('devices/device/registers/registerdata/edit').forward({registerId:registerBeingViewed.get('id'), timestamp: lastSelected.getData().timeStamp});
+
+        router.getRoute('devices/device/registers/registerdata/edit').forward({
+            registerId: grid.registerId,
+            timestamp: lastSelected.getData().timeStamp
+        });
     },
 
     showDeviceRegisterConfigurationDataEditView: function (deviceId, registerId, timestamp) {
@@ -232,23 +220,14 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
                         model.load(timestamp, {
                             success: function (reading) {
                                 var type = register.get('type');
-                                var subType = type;
-                                if(type === 'numerical' && register.get('isBilling')){
-                                    subType = 'billing';
-                                } else {
-                                    subType = type;
-                                }
-
-                                var widget = Ext.widget('deviceregisterreportedit-' + subType, {
+                                var widget = Ext.widget('deviceregisterreportedit-' + type, {
                                     edit: true,
                                     returnLink: router.getRoute('devices/device/registers/registerdata').buildUrl({
                                         deviceId: encodeURIComponent(deviceId),
                                         registerId: registerId
                                     }) + (me.getController('Uni.controller.history.EventBus').getPreviousQueryString() !== null ? '?' + me.getController('Uni.controller.history.EventBus').getPreviousQueryString() : ''),
                                     registerType: type,
-                                    subType: subType,
-                                    router: router,
-                                    hasEvent: register.get('hasEvent')
+                                    router: router
                                 });
                                 me.getApplication().fireEvent('loadRegisterConfiguration', register);
                                 if (reading.get('calculatedValue')) {
@@ -261,7 +240,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
                                 me.getApplication().fireEvent('changecontentevent', widget);
                                 widget.down('#stepsMenu').setTitle(
                                     Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}',
-                                        [ Uni.DateTime.formatDateShort(new Date(reading.get('timeStamp'))), Uni.DateTime.formatTimeShort(new Date(reading.get('timeStamp')))]
+                                        [Uni.DateTime.formatDateShort(new Date(reading.get('timeStamp'))), Uni.DateTime.formatTimeShort(new Date(reading.get('timeStamp')))]
                                     )
                                 );
                                 widget.down('#stepsMenu #editReading').setText(Uni.I18n.translate('device.registerData.editReading', 'MDC', 'Edit reading'));
@@ -291,21 +270,16 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
                 model.load(registerId, {
                     success: function (register) {
                         var type = register.get('type');
-                        var subType = type;
-                        if(type === 'numerical' && register.get('isBilling')){
-                            subType = 'billing';
-                        } else {
-                            subType = type;
-                        }
-                        var widget = Ext.widget('deviceregisterreportedit-' + subType, {
+                        var widget = Ext.widget('deviceregisterreportedit-' + type, {
                             edit: false,
-                            returnLink: router.getRoute('devices/device/registers/registerdata').buildUrl({deviceId: encodeURIComponent(deviceId), registerId: registerId}),
+                            returnLink: router.getRoute('devices/device/registers/registerdata').buildUrl({
+                                deviceId: encodeURIComponent(deviceId),
+                                registerId: registerId
+                            }),
                             registerType: type,
-                            subType: subType,
                             deviceId: deviceId,
                             registerId: registerId,
-                            router: router,
-                            hasEvent: register.get('hasEvent')
+                            router: router
                         });
                         widget.setValues(register);
                         me.getApplication().fireEvent('loadRegisterConfiguration', register);
@@ -342,22 +316,20 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
         var me = this,
             formErrorsPlaceHolder = me.getDeviceregisterreportedit().down('#registerDataEditForm #registerDataEditFormErrors');
 
-        formErrorsPlaceHolder.hide();
         Ext.suspendLayouts();
-        formErrorsPlaceHolder.removeAll();
-        formErrorsPlaceHolder.add({
-            html: Uni.I18n.translate('general.formErrors', 'MDC', 'There are errors on this page that require your attention.')
-        });
-        Ext.resumeLayouts();
+        me.getRegisterDataEditForm().getForm().markInvalid();
         formErrorsPlaceHolder.show();
+        Ext.resumeLayouts(true);
     },
 
     hideErrorPanel: function () {
         var me = this,
             formErrorsPlaceHolder = me.getDeviceregisterreportedit().down('#registerDataEditForm #registerDataEditFormErrors');
 
+        Ext.suspendLayouts();
+        me.getRegisterDataEditForm().getForm().clearInvalid();
         formErrorsPlaceHolder.hide();
-        formErrorsPlaceHolder.removeAll();
+        Ext.resumeLayouts(true);
     }
 });
 
