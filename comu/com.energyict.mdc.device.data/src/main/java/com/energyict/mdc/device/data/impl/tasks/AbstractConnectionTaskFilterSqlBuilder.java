@@ -93,7 +93,7 @@ abstract class AbstractConnectionTaskFilterSqlBuilder extends AbstractTaskFilter
         this.appendConnectionTypeSql();
         this.appendComPortPoolSql();
         this.appendDeviceTypeSql();
-        this.appendDeviceNameSql(this.deviceName);
+        this.appendDeviceNameSql(this.deviceName, false);
     }
 
     void appendJoinedTables() {

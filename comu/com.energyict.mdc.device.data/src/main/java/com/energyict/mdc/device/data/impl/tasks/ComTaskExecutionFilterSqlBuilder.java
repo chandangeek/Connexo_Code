@@ -7,6 +7,7 @@ package com.energyict.mdc.device.data.impl.tasks;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.util.sql.SqlBuilder;
+import com.elster.jupiter.util.streams.FancyJoiner;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.ClauseAwareSqlBuilder;
@@ -22,6 +23,7 @@ import java.time.Clock;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -40,6 +42,7 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
     public Interval lastSessionStart = null;
     public Interval lastSessionEnd = null;
     private final Set<ConnectionTypePluggableClass> connectionTypes;
+    private List<Long> connectionTasksIds;
 
     public ComTaskExecutionFilterSqlBuilder(ComTaskExecutionFilterSpecification filterSpecification, Clock clock, QueryExecutor<Device> queryExecutor) {
         super(clock, filterSpecification, queryExecutor);
@@ -49,6 +52,7 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
         this.completionCodes.addAll(filterSpecification.latestResults);
         this.lastSessionStart = filterSpecification.lastSessionStart;
         this.lastSessionEnd = filterSpecification.lastSessionEnd;
+        this.connectionTasksIds = filterSpecification.connectionMethods;
         this.connectionTypes = new HashSet<>(filterSpecification.connectionTypes);
     }
 
@@ -98,6 +102,10 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
         }
         if (this.taskStatuses.isEmpty()) {
             this.appendNonStatusWhereClauses();
+        }
+        if(!this.connectionTasksIds.isEmpty()){
+            this.appendWhereOrAnd();
+            this.append("cte.connectiontask IN (" + connectionTasksIds.stream().collect(FancyJoiner.joining(",","")) + ")");
         }
         this.appendWhereOrAnd();
         this.append("obsolete_date is null");

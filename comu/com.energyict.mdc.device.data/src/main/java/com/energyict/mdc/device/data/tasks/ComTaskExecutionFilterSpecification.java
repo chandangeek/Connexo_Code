@@ -14,9 +14,11 @@ import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -98,10 +100,18 @@ public class ComTaskExecutionFilterSpecification {
     public Set<ConnectionTypePluggableClass> connectionTypes = new HashSet<>();
 
     /**
+     * The Set of {@link ConnectionTask} or an empty set
+     * if you want all ConnectionTasks
+     */
+    public List<Long> connectionMethods = new ArrayList<>();
+
+    /**
      * The Set of device stages
      * Comtasks of devices in such stages will be excluded from the result
      * Default value: exclude comtasks of "Pre-operational" and "Post-operational" devices
      */
     public Set<String> restrictedDeviceStages = new HashSet<>(Arrays.asList(EndDeviceStage.PRE_OPERATIONAL.getKey(), EndDeviceStage.POST_OPERATIONAL.getKey()));
 
+
+    public boolean showSlaveComTaskExecutions;
 }

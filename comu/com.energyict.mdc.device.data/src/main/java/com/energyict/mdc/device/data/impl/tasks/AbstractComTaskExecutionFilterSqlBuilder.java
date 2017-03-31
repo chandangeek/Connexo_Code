@@ -41,10 +41,12 @@ public abstract class AbstractComTaskExecutionFilterSqlBuilder extends AbstractT
     private final Set<EndDeviceStage> restrictedDeviceStages;
     private final QueryExecutor<Device> queryExecutor;
     private final List<EndDeviceGroup> deviceGroups;
+    private final boolean showSlaveComTaskExecutions;
 
     public AbstractComTaskExecutionFilterSqlBuilder(Clock clock, ComTaskExecutionFilterSpecification filter, QueryExecutor<Device> queryExecutor) {
         super(clock);
         this.deviceName = filter.deviceName;
+        this.showSlaveComTaskExecutions = filter.showSlaveComTaskExecutions;
         this.deviceTypes = new HashSet<>(filter.deviceTypes);
         this.comTasks = new HashSet<>(filter.comTasks);
         this.comSchedules = new HashSet<>(filter.comSchedules);
@@ -90,7 +92,7 @@ public abstract class AbstractComTaskExecutionFilterSqlBuilder extends AbstractT
         this.appendDeviceInGroupSql();
         this.appendComTaskSql();
         this.appendComSchedulesSql();
-        this.appendDeviceNameSql(this.deviceName);
+        this.appendDeviceNameSql(this.deviceName, showSlaveComTaskExecutions);
     }
 
     private void appendDeviceTypeSql() {
