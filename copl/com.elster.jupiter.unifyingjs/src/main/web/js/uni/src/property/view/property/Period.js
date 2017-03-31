@@ -11,7 +11,9 @@ Ext.define('Uni.property.view.property.Period', {
     gapWidth: 6,
     listeners: {
         afterrender: function () {
-            this.getComboField().getStore().load();
+            if (this.isEdit) {
+                this.getComboField().getStore().load();
+            }
         }
     },
 
