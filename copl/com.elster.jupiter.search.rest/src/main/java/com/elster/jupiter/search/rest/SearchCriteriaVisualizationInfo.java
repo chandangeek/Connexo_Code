@@ -24,13 +24,12 @@ public class SearchCriteriaVisualizationInfo extends PropertyInfo {
     }
 
     public SearchCriteriaVisualizationInfo() {
-
     }
 
     public SearchCriteriaVisualizationInfo(SearchableProperty property, SearchablePropertyValue.ValueBean valueBean) {
         super(property);
-        super.withSpecDetails();  // Initialize spec details
-        super.withPossibleValues(); // Initialize possible values
+        withSpecDetails();  // Initialize spec details
+        withPossibleValues(); // Initialize possible values
         if (valueBean != null) {
             SearchCriteriaVisualizationInfo.ValueInfo value = new SearchCriteriaVisualizationInfo.ValueInfo();
             value.operator = valueBean.getOperator().code();
@@ -40,4 +39,5 @@ public class SearchCriteriaVisualizationInfo extends PropertyInfo {
             this.value = Collections.singletonList(value);
         }
     }
+
 }
