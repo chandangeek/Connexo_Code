@@ -7,13 +7,14 @@
 package com.energyict.protocolimpl.emon.ez7;
 
 
-import com.energyict.dialer.core.HalfDuplexController;
-import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
+
+import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterInfo;
@@ -59,6 +60,11 @@ public class EZ7 extends AbstractProtocol implements SerialNumberSupport {
         } catch (IOException e) {
             throw ProtocolIOExceptionHandler.handle(e, getInfoTypeRetries() + 1);
         }
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "EMON EZ7";
     }
 
     @Override

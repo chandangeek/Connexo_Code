@@ -1,6 +1,5 @@
 package com.energyict.protocolimpl.kenda.meteor;
 
-import com.energyict.cbo.Quantity;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.nls.TranslationKey;
@@ -10,6 +9,8 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
+
+import com.energyict.cbo.Quantity;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.ProfileData;
@@ -127,6 +128,11 @@ public class Meteor extends PluggableMeterProtocol implements RegisterProtocol {
     @Override
     public String getProtocolVersion() {
         return "$Date: 2014-06-02 13:26:25 +0200 (Mon, 02 Jun 2014) $";
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "Kenda Meteor";
     }
 
     @Override

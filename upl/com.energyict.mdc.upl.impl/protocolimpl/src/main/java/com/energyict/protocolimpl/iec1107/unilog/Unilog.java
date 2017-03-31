@@ -6,8 +6,6 @@
 
 package com.energyict.protocolimpl.iec1107.unilog;
 
-import com.energyict.cbo.Quantity;
-import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.nls.NlsService;
@@ -17,6 +15,9 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
+
+import com.energyict.cbo.Quantity;
+import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterValue;
@@ -308,6 +309,11 @@ public class Unilog extends AbstractUnilog implements SerialNumberSupport {
     @Override
     public int getNrOfRetries() {
         return pRetries;
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "Kamstrup Unilog IEC1107";
     }
 
     @Override

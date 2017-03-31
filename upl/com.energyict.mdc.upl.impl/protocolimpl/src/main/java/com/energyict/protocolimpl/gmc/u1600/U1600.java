@@ -99,6 +99,11 @@ public class U1600 extends AbstractProtocol {
         return "$Date: Thu Nov 3 10:52:06 2016 +0100 $";
     }
 
+    @Override
+    public String getProtocolDescription() {
+        return "GMC U1600";
+    }
+
     // KV 04122006
     @Override
     public void setTime() throws IOException {

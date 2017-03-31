@@ -1,8 +1,9 @@
 package com.energyict.protocolimpl.dlms.prime;
 
-import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.protocol.support.SerialNumberSupport;
 
 import java.io.IOException;
@@ -22,6 +23,11 @@ public class AS330D extends AbstractPrimeMeter implements SerialNumberSupport {
     @Override
     public String getProtocolVersion() {
         return "$Date: Thu Nov 26 15:23:57 2015 +0200 $";
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "Elster AS330D DLMS (PRIME1.5)";
     }
 
     @Override

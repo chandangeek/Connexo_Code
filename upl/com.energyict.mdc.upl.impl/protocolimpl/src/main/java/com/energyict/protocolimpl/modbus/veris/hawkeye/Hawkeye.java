@@ -56,6 +56,11 @@ public class Hawkeye extends Modbus  {
     }
 
     @Override
+    public String getProtocolDescription() {
+        return "Veris Hawkeye h80xx Modbus";
+    }
+
+    @Override
     protected void initRegisterFactory() {
         setRegisterFactory(new RegisterFactory(this));
     }

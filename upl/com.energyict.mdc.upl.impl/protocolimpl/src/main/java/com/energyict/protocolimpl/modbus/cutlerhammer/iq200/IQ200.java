@@ -58,6 +58,11 @@ public class IQ200 extends Modbus  {
     }
 
     @Override
+    public String getProtocolDescription() {
+        return "Cutler-Hammer IQ200 Modbus";
+    }
+
+    @Override
     protected void initRegisterFactory() {
         setRegisterFactory(new RegisterFactory(this));
     }

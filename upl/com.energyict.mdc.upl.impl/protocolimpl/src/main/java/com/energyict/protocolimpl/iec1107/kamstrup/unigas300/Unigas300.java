@@ -6,7 +6,6 @@
 
 package com.energyict.protocolimpl.iec1107.kamstrup.unigas300;
 
-import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
@@ -15,6 +14,8 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
+
+import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterValue;
@@ -209,6 +210,11 @@ public class Unigas300 extends AbstractUnigas300 implements SerialNumberSupport 
     @Override
     public String getProtocolVersion() {
         return "$Date: 2015-11-26 15:24:27 +0200 (Thu, 26 Nov 2015)$";
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "Kampstrup Unigas 300 IEC1107";
     }
 
     @Override

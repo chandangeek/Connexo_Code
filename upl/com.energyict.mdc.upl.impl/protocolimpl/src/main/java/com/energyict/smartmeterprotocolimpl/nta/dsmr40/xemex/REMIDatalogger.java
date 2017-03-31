@@ -7,6 +7,7 @@ import com.energyict.mdc.upl.messages.legacy.NumberLookupFinder;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.BulkRegisterProtocol;
 import com.energyict.protocol.MessageProtocol;
@@ -112,6 +113,11 @@ public class REMIDatalogger extends E350 {
             this.meterTopology = new XemexMeterTopology(this);
         }
         return meterTopology;
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "XEMEX ReMI Datalogger DLMS";
     }
 
     @Override

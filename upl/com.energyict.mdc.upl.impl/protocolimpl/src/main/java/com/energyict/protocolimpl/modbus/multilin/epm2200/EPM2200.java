@@ -61,6 +61,11 @@ public class EPM2200 extends Modbus implements SerialNumberSupport {
     }
 
     @Override
+    public String getProtocolDescription() {
+        return "GE Multilin EPM 2200 Modbus";
+    }
+
+    @Override
     public String getProtocolVersion() {
         return "$Date: 2015-11-26 15:24:28 +0200 (Thu, 26 Nov 2015)$";
     }

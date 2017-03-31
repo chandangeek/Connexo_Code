@@ -81,6 +81,11 @@ public class EIMeterFlexSlaveModule extends Modbus {
     }
 
     @Override
+    public String getProtocolDescription() {
+        return "EnergyICT EIFlex Meter Modbus";
+    }
+
+    @Override
     public final String getProtocolVersion() {
         return "$Date: 2013-04-15 16:48:48 +0200 (ma, 15 apr 2013) $";
     }

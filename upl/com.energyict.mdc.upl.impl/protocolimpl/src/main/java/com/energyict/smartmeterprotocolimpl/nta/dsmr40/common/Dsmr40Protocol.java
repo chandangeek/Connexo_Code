@@ -1,8 +1,5 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.common;
 
-import com.energyict.dlms.DLMSCache;
-import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
 import com.energyict.mdc.upl.messages.legacy.NumberLookupExtractor;
@@ -10,6 +7,10 @@ import com.energyict.mdc.upl.messages.legacy.NumberLookupFinder;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+
+import com.energyict.dlms.DLMSCache;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
 import com.energyict.protocol.BulkRegisterProtocol;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
@@ -84,6 +85,11 @@ public class Dsmr40Protocol extends AbstractSmartNtaProtocol {
             this.properties = new Dsmr40Properties(this.getPropertySpecService());
         }
         return this.properties;
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "Elster DSMR4.0";
     }
 
     @Override

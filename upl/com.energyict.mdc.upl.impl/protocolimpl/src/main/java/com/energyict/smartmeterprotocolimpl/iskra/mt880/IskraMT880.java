@@ -5,13 +5,13 @@ import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
-import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocol.LoadProfileConfiguration;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.MessageProtocol;
@@ -188,6 +188,11 @@ public class IskraMT880 extends AbstractSmartDlmsProtocol implements MessageProt
 
     public String getFirmwareVersion() throws IOException {
         return getComposedMeterInfo().getFirmwareVersion();
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "Iskraemeco MT880 DLMS";
     }
 
     public String getVersion() {

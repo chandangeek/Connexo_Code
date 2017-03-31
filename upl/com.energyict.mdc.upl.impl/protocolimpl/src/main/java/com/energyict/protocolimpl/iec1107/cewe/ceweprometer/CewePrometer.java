@@ -1,7 +1,5 @@
 package com.energyict.protocolimpl.iec1107.cewe.ceweprometer;
 
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.io.NestedIOException;
 import com.energyict.mdc.upl.nls.NlsService;
@@ -9,6 +7,9 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
+
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.ProfileData;
@@ -298,6 +299,11 @@ public class CewePrometer extends AbstractProtocol implements SerialNumberSuppor
         } catch (IOException e) {
             throw ProtocolIOExceptionHandler.handle(e, getRetries() + 1);
         }
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "CEWE CEWEPrometer IEC1107";
     }
 
     @Override

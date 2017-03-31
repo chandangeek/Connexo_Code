@@ -1,5 +1,15 @@
 package com.elster.protocolimpl.dlms;
 
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.properties.TypedProperties;
+
 import com.elster.dlms.cosem.simpleobjectmodel.Ek280Defs;
 import com.elster.dlms.types.basic.ObisCode;
 import com.elster.protocolimpl.dlms.messaging.DlmsMessageExecutor;
@@ -10,15 +20,6 @@ import com.elster.protocolimpl.dlms.registers.HistoricalObisCode;
 import com.elster.protocolimpl.dlms.registers.IReadableRegister;
 import com.elster.protocolimpl.dlms.registers.RegisterMap;
 import com.elster.protocolimpl.nls.PropertyTranslationKeys;
-import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
-import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
-import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
-import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
-import com.energyict.mdc.upl.nls.NlsService;
-import com.energyict.mdc.upl.properties.PropertySpec;
-import com.energyict.mdc.upl.properties.PropertySpecService;
-import com.energyict.mdc.upl.properties.PropertyValidationException;
-import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.util.ArrayList;
@@ -240,6 +241,11 @@ public class EK280 extends Dlms {
 
     public String getProtocolVersion() {
         return "$Date: 2012-10-09 09:00:00 +0200 (vr, 10 sep 2012) $";
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "Elster EK280 DLMS";
     }
 
     @Override

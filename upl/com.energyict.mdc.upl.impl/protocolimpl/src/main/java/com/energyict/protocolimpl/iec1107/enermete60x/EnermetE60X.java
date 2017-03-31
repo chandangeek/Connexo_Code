@@ -8,6 +8,7 @@ package com.energyict.protocolimpl.iec1107.enermete60x;
 
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.customerconfig.RegisterConfig;
 import com.energyict.protocolimpl.customerconfig.UcontoRegisterConfig;
@@ -52,6 +53,11 @@ public class EnermetE60X extends EnermetBase implements SerialNumberSupport {
     @Override
     public String getProtocolVersion() {
         return "$Date: 2015-11-26 15:26:00 +0200 (Thu, 26 Nov 2015)$";
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "Enernet E6xx IEC1107 (VDEW)";
     }
 
 }

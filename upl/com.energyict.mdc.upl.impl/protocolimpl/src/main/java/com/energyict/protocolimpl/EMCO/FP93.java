@@ -1,6 +1,5 @@
 package com.energyict.protocolimpl.EMCO;
 
-import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.messages.legacy.Message;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
@@ -13,6 +12,8 @@ import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
+
+import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.MessageResult;
@@ -116,11 +117,13 @@ public class FP93 extends AbstractProtocol implements MessageProtocol {
         //ToDo - replace if device supports clock synchronisation
     }
 
-    /**
-     * Getter for the device ID
-     */
     public int getDeviceID() {
         return deviceID;
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "EMCO FP93 Steam Meter";
     }
 
     @Override

@@ -127,6 +127,11 @@ public class G3B extends AbstractDLMSProtocol {
     }
 
     @Override
+    public String getProtocolDescription() {
+        return "Elgama G3B DLMS";
+    }
+
+    @Override
     public String getProtocolVersion() {
         return "$Date: 2015-11-26 15:25:58 +0200 (Thu, 26 Nov 2015)$";
     }

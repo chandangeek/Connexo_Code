@@ -1,11 +1,12 @@
 package com.energyict.protocolimpl.elster.opus;
 
-import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
+
+import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterInfo;
@@ -189,7 +190,12 @@ public class Opus extends AbstractProtocol {
 		return "$Date: 2015-11-26 15:25:59 +0200 (Thu, 26 Nov 2015)$";
 	}
 
-    @Override
+	@Override
+	public String getProtocolDescription() {
+		return "Elster OPUS";
+	}
+
+	@Override
    public RegisterValue readRegister(ObisCode obisCode) throws IOException {
 	   if (ocm == null) {
            ocm = new ObisCodeMapper(this);

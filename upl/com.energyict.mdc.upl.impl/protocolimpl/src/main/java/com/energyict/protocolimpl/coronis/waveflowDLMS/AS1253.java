@@ -126,6 +126,11 @@ public class AS1253 extends AbstractDLMS {
     }
 
     @Override
+    public String getProtocolDescription() {
+        return "Elster AS1253 WaveFlow AC";
+    }
+
+    @Override
     public String getProtocolVersion() {
         return "$Date: 2014-06-02 13:26:25 +0200 (Mon, 02 Jun 2014) $";
     }

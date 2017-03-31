@@ -216,6 +216,11 @@ public class Sentinel extends AbstractProtocol implements C12ProtocolLink, Seria
     }
 
     @Override
+    public String getProtocolDescription() {
+        return "Itron/Schlumberger Sentinel ANSI";
+    }
+
+    @Override
     public String getProtocolVersion() {
         return "$Date: 2016-09-08 09:36:35 +0300 (Thu, 08 Sep 2016)$";
     }

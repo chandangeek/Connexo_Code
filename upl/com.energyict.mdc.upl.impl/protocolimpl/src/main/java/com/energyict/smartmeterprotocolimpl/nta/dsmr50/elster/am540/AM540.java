@@ -1,11 +1,5 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540;
 
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dlms.DLMSCache;
-import com.energyict.dlms.DLMSConnectionException;
-import com.energyict.dlms.UniversalObject;
-import com.energyict.dlms.aso.ApplicationServiceObject;
-import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.mdc.upl.io.NestedIOException;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
@@ -15,6 +9,13 @@ import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dlms.DLMSCache;
+import com.energyict.dlms.DLMSConnectionException;
+import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.aso.ApplicationServiceObject;
+import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.protocol.BulkRegisterProtocol;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocolimpl.dlms.idis.AM540ObjectList;
@@ -162,15 +163,6 @@ public class AM540 extends E350 {
         return (Dsmr50Properties) this.properties;
     }
 
-    /**
-     * Supported:
-     * - all DSMR4.0 registers that are explicitly mapped in E350 protocol
-     * - every normal register, extended register and demand register
-     * - all data registers that contain a simple number, enum or string value
-     * - G3 PLC object attributes
-     * <p>
-     * Note: a maximum of 5 registers can be read out in bulk (should always be less than 16 attributes)
-     */
     @Override
     public BulkRegisterProtocol getRegisterFactory() {
         if (registerFactory == null) {
@@ -179,11 +171,7 @@ public class AM540 extends E350 {
         return registerFactory;
     }
 
-    /**
-     * Getter for the <b>DSMR 4.2</b> EventProfile
-     *
-     * @return the lazy loaded EventProfile
-     */
+    @Override
     public EventProfile getEventProfile() {
         if (this.eventProfile == null) {
             this.eventProfile = new AM540EventProfile(this);
@@ -191,10 +179,6 @@ public class AM540 extends E350 {
         return eventProfile;
     }
 
-    /**
-     * Getter for the AM540 message protocol.
-     * Note that this is a special hybrid between the XML based DSMR4.0 message framework and the G3 annotated message framework.
-     */
     @Override
     public MessageProtocol getMessageProtocol() {
         if (messageProtocol == null) {
@@ -203,9 +187,11 @@ public class AM540 extends E350 {
         return messageProtocol;
     }
 
-    /**
-     * The protocol version date
-     */
+    @Override
+    public String getProtocolDescription() {
+        return "Elster AM540 DLMS (NTA DSMR5.0)";
+    }
+
     @Override
     public String getVersion() {
         return "$Date: 2015-01-14 09:42:21 +0100 (Wed, 14 Jan 2015) $";

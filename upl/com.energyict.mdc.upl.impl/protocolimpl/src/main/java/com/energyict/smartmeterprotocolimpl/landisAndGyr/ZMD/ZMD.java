@@ -1,5 +1,17 @@
 package com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD;
 
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
+import com.energyict.mdc.upl.messages.legacy.Message;
+import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.MessageTag;
+import com.energyict.mdc.upl.messages.legacy.MessageValue;
+import com.energyict.mdc.upl.properties.InvalidPropertyException;
+import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connections.IEC1107HHUConnection;
@@ -18,17 +30,6 @@ import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.GenericInvoke;
 import com.energyict.dlms.cosem.ObjectReference;
 import com.energyict.dlms.cosem.StoredValues;
-import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
-import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
-import com.energyict.mdc.upl.messages.legacy.Message;
-import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
-import com.energyict.mdc.upl.messages.legacy.MessageEntry;
-import com.energyict.mdc.upl.messages.legacy.MessageTag;
-import com.energyict.mdc.upl.messages.legacy.MessageValue;
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
-import com.energyict.mdc.upl.properties.PropertySpec;
-import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileConfiguration;
 import com.energyict.protocol.LoadProfileReader;
@@ -102,6 +103,7 @@ public class ZMD extends AbstractSmartDlmsProtocol implements MessageProtocol, P
         storedValuesImpl = new StoredValuesImpl(cosemObjectFactory);
     }
 
+    @Override
     public void enableHHUSignOn(SerialCommunicationChannel commChannel, boolean datareadout) throws ConnectionException {
         try {
             getDlmsSession().init();
@@ -120,7 +122,6 @@ public class ZMD extends AbstractSmartDlmsProtocol implements MessageProtocol, P
         return getProperties().getSecurityProvider();
     }
 
-
     protected byte[] getSystemIdentifier() {
         return null;
     }
@@ -128,7 +129,6 @@ public class ZMD extends AbstractSmartDlmsProtocol implements MessageProtocol, P
     @Override
     protected void initAfterConnect() throws ConnectionException {
     }
-
 
     @Override
     public Date getTime() throws IOException {
@@ -143,6 +143,7 @@ public class ZMD extends AbstractSmartDlmsProtocol implements MessageProtocol, P
         }
     }
 
+    @Override
     public void setTime(Date newMeterTime) throws IOException {
         this.dlmsSession.getCosemObjectFactory().getClock().setAXDRDateTimeAttr(new AXDRDateTime(newMeterTime, getTimeZone()));
     }
@@ -164,6 +165,7 @@ public class ZMD extends AbstractSmartDlmsProtocol implements MessageProtocol, P
         return iMeterTimeZoneOffset;
     }
 
+    @Override
     public String getFirmwareVersion() throws IOException {
         if (firmwareVersion == null) {
             UniversalObject uo = getMeterConfig().getVersionObject();
@@ -172,6 +174,7 @@ public class ZMD extends AbstractSmartDlmsProtocol implements MessageProtocol, P
         return firmwareVersion;
     }
 
+    @Override
     public String getMeterSerialNumber() throws ConnectionException {
 
         try {
@@ -195,18 +198,22 @@ public class ZMD extends AbstractSmartDlmsProtocol implements MessageProtocol, P
         return ObisCodeMapper.getRegisterInfo(register.getObisCode());
     }
 
+    @Override
     public List<RegisterValue> readRegisters(List<Register> registers) throws IOException {
         return getRegisterReader().read(registers);
     }
 
+    @Override
     public List<MeterEvent> getMeterEvents(Date lastLogbookDate) throws IOException {
         return getLogBookReader().getMeterEvents(lastLogbookDate);
     }
 
+    @Override
     public List<LoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfilesToRead) throws IOException {
         return getLoadProfileBuilder().fetchLoadProfileConfiguration(loadProfilesToRead);
     }
 
+    @Override
     public List<ProfileData> getLoadProfileData(List<LoadProfileReader> loadProfiles) throws IOException {
         return getLoadProfileBuilder().getLoadProfileData(loadProfiles);
     }
@@ -232,9 +239,12 @@ public class ZMD extends AbstractSmartDlmsProtocol implements MessageProtocol, P
         return loadProfileBuilder;
     }
 
-    /**
-     * Returns the protocol version date
-     */
+    @Override
+    public String getProtocolDescription() {
+        return "Landis+Gyr ICG Family DLMS";
+    }
+
+    @Override
     public String getVersion() {
         return "$Date: 2015-11-26 15:23:42 +0200 (Thu, 26 Nov 2015)$";
     }
@@ -249,26 +259,32 @@ public class ZMD extends AbstractSmartDlmsProtocol implements MessageProtocol, P
         // no additional validation is done
     }
 
+    @Override
     public void applyMessages(List messageEntries) throws IOException {
         this.messageProtocol.applyMessages(messageEntries);
     }
 
+    @Override
     public MessageResult queryMessage(MessageEntry messageEntry) throws IOException {
         return this.messageProtocol.queryMessage(messageEntry);
     }
 
+    @Override
     public List<MessageCategorySpec> getMessageCategories() {
         return this.messageProtocol.getMessageCategories();
     }
 
+    @Override
     public String writeMessage(Message msg) {
         return this.messageProtocol.writeMessage(msg);
     }
 
+    @Override
     public String writeTag(MessageTag tag) {
         return this.messageProtocol.writeTag(tag);
     }
 
+    @Override
     public String writeValue(MessageValue value) {
         return this.messageProtocol.writeValue(value);
     }
@@ -277,26 +293,32 @@ public class ZMD extends AbstractSmartDlmsProtocol implements MessageProtocol, P
         return dstFlag;
     }
 
+    @Override
     public DLMSConnection getDLMSConnection() {
         return getDlmsSession().getDLMSConnection();
     }
 
+    @Override
     public DLMSMeterConfig getMeterConfig() {
         return getDlmsSession().getMeterConfig();
     }
 
+    @Override
     public boolean isRequestTimeZone() {
         return (getProperties().getRequestTimeZone() != 0);
     }
 
+    @Override
     public int getRoundTripCorrection() {
         return getProperties().getRoundTripCorrection();
     }
 
+    @Override
     public int getReference() {
         return getProperties().getReference().getReference();
     }
 
+    @Override
     public StoredValues getStoredValues() {
         if (storedValuesImpl == null) {
             storedValuesImpl = new StoredValuesImpl(getCosemObjectFactory());
@@ -324,4 +346,5 @@ public class ZMD extends AbstractSmartDlmsProtocol implements MessageProtocol, P
     public List<PropertySpec> getUPLPropertySpecs() {
         return getProperties().getUPLPropertySpecs();
     }
+
 }

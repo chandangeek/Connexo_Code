@@ -1,10 +1,11 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.ihd;
 
-import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+
+import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.protocol.LoadProfileConfiguration;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.MessageProtocol;
@@ -41,6 +42,11 @@ public class InHomeDisplay extends UkHub {
             messageProtocol = new InHomeDisplayMessaging(new InHomeDisplayMessageExecutor(this));
         }
         return messageProtocol;
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "Elster AM110R DLMS (SSWG IC) Zigbee IHD";
     }
 
     @Override

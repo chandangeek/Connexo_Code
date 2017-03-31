@@ -62,6 +62,11 @@ public class EIMeter extends Modbus {
     }
 
     @Override
+    public String getProtocolDescription() {
+        return "EnergyICT EIMeter Modbus";
+    }
+
+    @Override
     protected void initRegisterFactory() {
         setRegisterFactory(new RegisterFactory(this));
     }

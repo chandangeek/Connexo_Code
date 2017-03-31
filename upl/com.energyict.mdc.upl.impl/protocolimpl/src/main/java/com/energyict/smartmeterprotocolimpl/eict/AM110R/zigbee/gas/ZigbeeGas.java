@@ -233,6 +233,11 @@ public class ZigbeeGas extends AbstractSmartDlmsProtocol implements SmartMeterPr
     }
 
     @Override
+    public String getProtocolDescription() {
+        return "Elster BK-G4E DLMS (SSWG EC) Zigbee Slave";
+    }
+
+    @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         return getProperties().getUPLPropertySpecs();
     }

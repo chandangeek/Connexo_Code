@@ -8,6 +8,7 @@ package com.energyict.protocolimpl.iec1107.sdc;
 
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.customerconfig.EDPRegisterConfig;
@@ -50,6 +51,11 @@ public class Sdc extends SdcBase implements SerialNumberSupport {
         } catch (IOException e) {
             throw ProtocolIOExceptionHandler.handle(e, getInfoTypeRetries() + 1);
         }
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "SDC LM30x IEC1107";
     }
 
     @Override

@@ -1,13 +1,14 @@
 package com.energyict.smartmeterprotocolimpl.elster.apollo5;
 
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connections.IEC1107HHUConnection;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
-import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
-import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocolimpl.generic.ParseUtils;
 import com.energyict.smartmeterprotocolimpl.elster.apollo.AS300;
@@ -93,6 +94,11 @@ public class AS300DPET extends AS300 {
     @Override
     public String getVersion() {
         return "$Date: 2013-05-06 17:15:55 +0200 (ma, 06 mei 2013) $";
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "Elster AS300D-PET DLMS";
     }
 
     @Override

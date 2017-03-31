@@ -1,6 +1,5 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas;
 
-import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
 import com.energyict.mdc.upl.messages.legacy.Message;
@@ -9,6 +8,8 @@ import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+
+import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.protocol.LoadProfileConfiguration;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.MessageProtocol;
@@ -225,6 +226,11 @@ public class ZigbeeGas extends AbstractSmartDlmsProtocol implements SimpleMeter,
      */
     public String getVersion() {
         return "$Date: 2015-11-26 15:23:42 +0200 (Thu, 26 Nov 2015)$";
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "Elster BK-G4E DLMS (SSWG IC) Zigbee Slave";
     }
 
     /**

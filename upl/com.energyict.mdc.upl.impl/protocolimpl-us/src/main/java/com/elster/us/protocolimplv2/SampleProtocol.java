@@ -126,7 +126,7 @@ public class SampleProtocol implements DeviceProtocol {
 
     @Override
     public String getProtocolDescription() {
-        return null;
+        return "Elster Sample (V2)";
     }
 
     @Override

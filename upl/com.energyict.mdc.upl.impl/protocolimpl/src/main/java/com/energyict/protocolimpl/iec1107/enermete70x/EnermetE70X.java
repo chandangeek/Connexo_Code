@@ -52,6 +52,11 @@ public class EnermetE70X extends EnermetBase {
     }
 
     @Override
+    public String getProtocolDescription() {
+        return "Enernet E7xx IEC1107 (VDEW)";
+    }
+
+    @Override
     protected ProtocolConnection doInit(InputStream inputStream, OutputStream outputStream, int timeoutProperty, int protocolRetriesProperty, int forcedDelay, int echoCancelling, int protocolCompatible, Encryptor encryptor, HalfDuplexController halfDuplexController) throws IOException {
         iec1107Connection=new EnermetE70XIEC1107Connection(inputStream,outputStream,timeoutProperty,protocolRetriesProperty,forcedDelay,echoCancelling,protocolCompatible,encryptor,ERROR_SIGNATURE, software7E1);
         iec1107Connection.setNoBreakRetry(isTestE70xConnection());

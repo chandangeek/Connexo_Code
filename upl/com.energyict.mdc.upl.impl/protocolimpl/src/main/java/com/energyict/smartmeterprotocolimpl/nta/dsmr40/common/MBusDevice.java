@@ -7,6 +7,7 @@ import com.energyict.mdc.upl.messages.legacy.NumberLookupFinder;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages.Dsmr23MbusMessaging;
 
@@ -32,6 +33,11 @@ public class MBusDevice extends com.energyict.smartmeterprotocolimpl.nta.dsmr40.
     @Override
     public String getVersion() {
         return "$Date: Mon Jan 2 11:14:35 2017 +0100 $";
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "Dummy DLMS (NTA DSMR4.0) Mbus Slave";
     }
 
     @Override

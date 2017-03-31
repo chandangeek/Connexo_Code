@@ -636,6 +636,11 @@ public class Prometer extends AbstractProtocol implements SerialNumberSupport {
     }
 
     @Override
+    public String getProtocolDescription() {
+        return "CEWE Prometer IEC1107";
+    }
+
+    @Override
     public String getProtocolVersion() {
     	return "$Date: 2015-11-26 15:25:14 +0200 (Thu, 26 Nov 2015)$";
     }

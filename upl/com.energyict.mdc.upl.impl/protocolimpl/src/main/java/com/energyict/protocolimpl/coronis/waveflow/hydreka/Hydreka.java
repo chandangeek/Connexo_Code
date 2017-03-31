@@ -1,11 +1,13 @@
 package com.energyict.protocolimpl.coronis.waveflow.hydreka;
 
 import com.energyict.mdc.upl.messages.legacy.Message;
+import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.BubbleUpObject;
 import com.energyict.protocol.MessageProtocol;
@@ -42,6 +44,7 @@ public class Hydreka extends WaveFlow implements MessageProtocol {
         super(propertySpecService, nlsService);
     }
 
+    @Override
     public List map2MeterEvent(String event) throws IOException {
         List statusAndEvents = new ArrayList();
         AlarmFrameParser alarmFrame = new AlarmFrameParser(this);
@@ -94,6 +97,11 @@ public class Hydreka extends WaveFlow implements MessageProtocol {
     }
 
     @Override
+    public String getProtocolDescription() {
+        return "Hydreka WaveFlow";
+    }
+
+    @Override
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         return obisCodeMapperHydreka.getRegisterValue(obisCode);
     }
@@ -135,7 +143,7 @@ public class Hydreka extends WaveFlow implements MessageProtocol {
     }
 
     @Override
-    public List getMessageCategories() {
+    public List<MessageCategorySpec> getMessageCategories() {
         return getWaveFlowMessages().getMessageCategories();
     }
 

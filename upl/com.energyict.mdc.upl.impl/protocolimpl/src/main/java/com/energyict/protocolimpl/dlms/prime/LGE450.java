@@ -1,8 +1,9 @@
 package com.energyict.protocolimpl.dlms.prime;
 
-import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.protocol.support.SerialNumberSupport;
 
 import java.io.IOException;
@@ -26,6 +27,11 @@ public class LGE450 extends AbstractPrimeMeter implements SerialNumberSupport {
         } catch (IOException e) {
             throw DLMSIOExceptionHandler.handle(e, super.getSession().getProperties().getRetries() + 1);
         }
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "Landis+Gyr E450 DLMS (PRIME1.5)";
     }
 
     @Override

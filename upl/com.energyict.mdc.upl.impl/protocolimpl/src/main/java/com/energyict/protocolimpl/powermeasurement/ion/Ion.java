@@ -1,8 +1,5 @@
 package com.energyict.protocolimpl.powermeasurement.ion;
 
-import com.energyict.cbo.Quantity;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.nls.TranslationKey;
@@ -12,6 +9,10 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
+
+import com.energyict.cbo.Quantity;
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.ProfileData;
@@ -395,6 +396,11 @@ public class Ion extends PluggableMeterProtocol implements RegisterProtocol, Pro
         if ("2".equals(pExtendedLogging)) {
             logger.log(Level.INFO, obisCodeMapper.getDebugLogging() + "\n");
         }
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "Power Measurement ION";
     }
 
     @Override

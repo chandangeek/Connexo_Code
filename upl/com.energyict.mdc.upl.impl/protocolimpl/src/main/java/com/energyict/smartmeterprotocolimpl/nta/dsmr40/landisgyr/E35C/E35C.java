@@ -1,6 +1,5 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.E35C;
 
-import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
 import com.energyict.mdc.upl.messages.legacy.NumberLookupExtractor;
@@ -9,6 +8,8 @@ import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+
+import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.composedobjects.ComposedMeterInfo;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.EventProfile;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.LoadProfileBuilder;
@@ -88,6 +89,11 @@ public class E35C extends E350 {
             getLogger().log(Level.FINEST, e.getMessage());
             throw new IOException("Could not set the Clock object." + e);
         }
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "Landis+Gyr E35C DLMS";
     }
 
     @Override

@@ -1,11 +1,12 @@
 package com.energyict.protocolimpl.edmi.mk10;
 
-import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
+
+import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterInfo;
@@ -173,7 +174,12 @@ public class MK10 extends AbstractProtocol implements SerialNumberSupport {
 		ti.setTime();
 	}
 
-    @Override
+	@Override
+	public String getProtocolDescription() {
+		return "EDMI MK10 [Pull] CommandLine";
+	}
+
+	@Override
 	public String getProtocolVersion() {
 		sendDebug("getProtocolVersion()");
 		return "$Date: Wed Dec 28 16:35:58 2016 +0100 $";

@@ -116,6 +116,11 @@ public class A40 extends Modbus implements SerialNumberSupport {
     }
 
     @Override
+    public String getProtocolDescription() {
+        return "Socomec Diris A40 Modbus";
+    }
+
+    @Override
     protected void initRegisterFactory() {
         setRegisterFactory(new RegisterFactory(this));
     }

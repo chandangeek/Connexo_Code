@@ -105,7 +105,12 @@ public class Enerium200 extends Modbus implements SerialNumberSupport {
 		return this.profile;
 	}
 
-    @Override
+	@Override
+	public String getProtocolDescription() {
+		return "Enerdis Enerium 200 Modbus";
+	}
+
+	@Override
     public String getProtocolVersion() {
 		return "$Date: 2015-11-26 15:25:15 +0200 (Thu, 26 Nov 2015)$";
 	}

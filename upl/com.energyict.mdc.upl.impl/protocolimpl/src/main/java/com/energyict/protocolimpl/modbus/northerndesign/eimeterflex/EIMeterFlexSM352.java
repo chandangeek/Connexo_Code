@@ -17,4 +17,9 @@ public final class EIMeterFlexSM352 extends EIMeterFlexSlaveModule {
     public EIMeterFlexSM352(PropertySpecService propertySpecService, NlsService nlsService) {
         super(propertySpecService, nlsService);
     }
+
+    @Override
+    public String getProtocolDescription() {
+        return "Northern Design MultiCube Modbus";
+    }
 }

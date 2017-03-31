@@ -143,6 +143,11 @@ public class E44 extends Modbus {
     }
 
     @Override
+    public String getProtocolDescription() {
+        return "Socomec Countis E44 Modbus";
+    }
+
+    @Override
     public String getProtocolVersion() {
         return "$Date: 2016-05-26 09:53:22 +0300 (Thu, 26 May 2016)$";
     }

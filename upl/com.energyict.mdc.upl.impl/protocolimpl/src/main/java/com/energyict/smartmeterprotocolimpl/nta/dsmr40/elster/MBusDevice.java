@@ -27,4 +27,10 @@ public class MBusDevice extends com.energyict.smartmeterprotocolimpl.nta.dsmr40.
     public String getVersion() {
         return "$Date: Mon Jun 2 11:26:25 2014 +0000 $";
     }
+
+    @Override
+    public String getProtocolDescription() {
+        return "Elster BK-Gx DLMS (NTA DSMR4.0) Mbus Slave";
+    }
+
 }

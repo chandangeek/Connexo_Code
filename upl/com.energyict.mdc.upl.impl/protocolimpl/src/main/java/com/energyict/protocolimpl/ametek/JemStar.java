@@ -460,6 +460,11 @@ public class JemStar extends Jem implements MessageProtocol  {
     }
 
     @Override
+    public String getProtocolDescription() {
+        return "Ametek JemStar";
+    }
+
+    @Override
     public String getProtocolVersion() {
         return "$Date: 2015-02-16 14:24:57 +0100 (Mon, 16 Feb 2015) $";
     }

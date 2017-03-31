@@ -66,6 +66,11 @@ public class Ci extends Modbus {
     }
 
     @Override
+    public String getProtocolDescription() {
+        return "Socomec Countis Ci Modbus";
+    }
+
+    @Override
     public String getProtocolVersion() {
         return "$Date: 2014-06-02 13:26:25 +0200 (Mon, 02 Jun 2014) $";
     }

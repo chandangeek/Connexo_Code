@@ -58,6 +58,11 @@ public class PM800 extends Modbus  {
     }
 
     @Override
+    public String getProtocolDescription() {
+        return "Schneider Electric SquareD PM800 Modbus";
+    }
+
+    @Override
     protected void initRegisterFactory() {
         setRegisterFactory(new RegisterFactory(this));
     }

@@ -6,9 +6,10 @@
 
 package com.energyict.protocolimpl.metcom;
 
-import com.energyict.cbo.Quantity;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+
+import com.energyict.cbo.Quantity;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocolimpl.siemens7ED62.SCTMTimeData;
 import com.energyict.protocolimpl.siemens7ED62.SiemensSCTM;
@@ -160,6 +161,11 @@ public class Metcom2 extends Metcom {
     @Override
     public String getProtocolVersion() {
         return "$Date: Fri Nov 4 11:12:01 2016 +0100 $";
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "Siemens Metcom3";
     }
 
     @Override

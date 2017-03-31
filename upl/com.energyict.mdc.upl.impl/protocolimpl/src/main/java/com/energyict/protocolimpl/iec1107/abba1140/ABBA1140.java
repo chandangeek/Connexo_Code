@@ -1,10 +1,5 @@
 package com.energyict.protocolimpl.iec1107.abba1140;
 
-import com.energyict.cbo.Quantity;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.dialer.connections.IEC1107HHUConnection;
-import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.io.NestedIOException;
 import com.energyict.mdc.upl.messages.legacy.Message;
@@ -23,6 +18,12 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
+
+import com.energyict.cbo.Quantity;
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.dialer.connections.IEC1107HHUConnection;
+import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.MessageProtocol;
@@ -457,6 +458,11 @@ public class ABBA1140 extends PluggableMeterProtocol implements ProtocolLink, HH
     @Override
     public String getProtocolVersion() {
         return "$Date: 2016-05-18 13:34:03 +0200 (Wed, 18 May 2016)$";
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "Elster/ABB A1140 IEC1107";
     }
 
     @Override

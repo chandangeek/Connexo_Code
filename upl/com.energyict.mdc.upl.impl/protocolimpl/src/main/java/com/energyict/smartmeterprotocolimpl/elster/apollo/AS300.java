@@ -1,7 +1,5 @@
 package com.energyict.smartmeterprotocolimpl.elster.apollo;
 
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
 import com.energyict.mdc.upl.messages.legacy.Message;
@@ -11,6 +9,9 @@ import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.protocol.LoadProfileConfiguration;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.MessageProtocol;
@@ -184,6 +185,11 @@ public class AS300 extends AbstractSmartDlmsProtocol implements SimpleMeter, Mes
 
     public String getVersion() {
         return "$Date: 2015-11-26 15:26:47 +0200 (Thu, 26 Nov 2015)$";
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "Elster AS300-P DLMS (SSWG IC)";
     }
 
     public String getSerialNumber() {

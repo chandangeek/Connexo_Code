@@ -142,18 +142,16 @@ public class PM5561 extends PM5560 implements SerialNumberSupport {
         this.modbusConnection = modbusConnection;
     }
 
-    /**
-     * Setter for the {@link Logger}
-     *
-     * @param logger - the desired logger
-     */
     public void setLogger(Logger logger){
         setAbstractLogger(logger);
     }
 
-    /**
-     * The protocol version date
-     */
+    @Override
+    public String getProtocolDescription() {
+        return "Schneider PowerLogic PM5561";
+    }
+
+    @Override
     public String getProtocolVersion() {
         return "$Date: 2016-07-19 10:58:46 +0300 (Tu, 19 Jul 2016)$";
     }

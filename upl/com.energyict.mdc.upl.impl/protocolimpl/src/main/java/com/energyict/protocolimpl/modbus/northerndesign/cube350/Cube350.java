@@ -20,6 +20,11 @@ public class Cube350 extends EIMeter {
     }
 
     @Override
+    public String getProtocolDescription() {
+        return "Northern Design Cube350 Modbus";
+    }
+
+    @Override
     protected String getDeviceName() {
         return "Cube 350";
     }

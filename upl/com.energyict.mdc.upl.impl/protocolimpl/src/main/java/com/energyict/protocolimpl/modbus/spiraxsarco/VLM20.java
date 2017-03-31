@@ -70,6 +70,11 @@ public class VLM20 extends Modbus{
     }
 
     @Override
+    public String getProtocolDescription() {
+        return "Spirax Sarco VLM Modbus";
+    }
+
+    @Override
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         try {
             AbstractRegister register = getRegisterFactory().findRegister(obisCode);

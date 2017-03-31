@@ -76,6 +76,11 @@ public class FP93B extends Modbus {
     }
 
     @Override
+    public String getProtocolDescription() {
+        return "EMCO FP93B Flow Processor Modbus";
+    }
+
+    @Override
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         try {
             Object value = getRegisterFactory().findRegister(obisCode).value();

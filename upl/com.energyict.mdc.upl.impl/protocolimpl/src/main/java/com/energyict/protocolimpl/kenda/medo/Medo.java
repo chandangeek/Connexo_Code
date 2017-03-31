@@ -1,6 +1,5 @@
 package com.energyict.protocolimpl.kenda.medo;
 
-import com.energyict.cbo.Quantity;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.nls.TranslationKey;
@@ -9,6 +8,8 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
+
+import com.energyict.cbo.Quantity;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.ProfileData;
@@ -128,6 +129,11 @@ public class Medo extends PluggableMeterProtocol implements RegisterProtocol {
     @Override
     public String getProtocolVersion() {
         return "$Date: 2015-11-26 15:26:01 +0200 (Thu, 26 Nov 2015)$";
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "Kenda Medeo";
     }
 
     @Override

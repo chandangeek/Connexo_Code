@@ -1,6 +1,5 @@
 package com.elster.protocolimpl.lis100;
 
-import com.elster.protocolimpl.nls.PropertyTranslationKeys;
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
@@ -15,6 +14,7 @@ import com.elster.protocolimpl.lis100.profile.Lis100Profile;
 import com.elster.protocolimpl.lis100.registers.Lis100Register;
 import com.elster.protocolimpl.lis100.registers.RegisterMap;
 import com.elster.protocolimpl.lis100.registers.SimpleObisCodeMapper;
+import com.elster.protocolimpl.nls.PropertyTranslationKeys;
 import com.energyict.cbo.Quantity;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProfileData;
@@ -98,6 +98,11 @@ public class LIS100 extends PluggableMeterProtocol implements ProtocolLink, Regi
     @Override
     public String getProtocolVersion() {
         return "$Date: 2012-01-09 15:06:09 +0100 (ma, 09 jan 2012) $";
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "Elster LIS100";
     }
 
     @Override

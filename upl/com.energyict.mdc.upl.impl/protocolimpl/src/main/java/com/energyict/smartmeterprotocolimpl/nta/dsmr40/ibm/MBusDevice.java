@@ -21,7 +21,13 @@ public class MBusDevice extends com.energyict.smartmeterprotocolimpl.nta.dsmr40.
     }
 
     @Override
+    public String getProtocolDescription() {
+        return "IBM Kaifa DLMS (NTA DSMR4.0) Mbus Slave";
+    }
+
+    @Override
     public String getVersion() {
         return "$Date: Mon Jun 2 11:26:25 2014 +0000 $";
     }
+
 }

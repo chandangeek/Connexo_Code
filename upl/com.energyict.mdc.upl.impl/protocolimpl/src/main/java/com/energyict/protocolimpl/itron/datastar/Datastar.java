@@ -115,6 +115,11 @@ public class Datastar extends SchlumbergerProtocol {
     }
 
     @Override
+    public String getProtocolDescription() {
+        return "Itron/Schlumberger Datastar";
+    }
+
+    @Override
     public String getProtocolVersion() {
         return "$Date: 2015-11-26 15:24:28 +0200 (Thu, 26 Nov 2015)$";
     }

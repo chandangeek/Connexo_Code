@@ -8,6 +8,7 @@ import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
+
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractNtaMbusDevice;
 import com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.messaging.IskraMx372MbusMessaging;
@@ -38,6 +39,11 @@ public class MbusDevice extends AbstractNtaMbusDevice {
     @Override
     public MessageProtocol getMessageProtocol() {
         return new IskraMx372MbusMessaging(hasBreaker);
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "Iskraemeco Mx372 DLMS (PRE-NTA) Mbus Slave";
     }
 
     @Override
