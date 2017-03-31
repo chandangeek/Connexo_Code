@@ -11,6 +11,7 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.UsagePointMeterActivationException;
 import com.elster.jupiter.metering.UsagePointMeterActivator;
 import com.elster.jupiter.metering.ami.EndDeviceCapabilities;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
@@ -26,13 +27,17 @@ import com.elster.jupiter.metering.config.ReadingTypeRequirementsCollector;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.ConcurrentModificationException;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
+import com.elster.jupiter.users.PreferenceType;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.Pair;
 
@@ -40,6 +45,10 @@ import javax.inject.Inject;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import java.time.Clock;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -57,13 +66,16 @@ public class ResourceHelper {
     private final UsagePointLifeCycleService usagePointLifeCycleService;
     private final Clock clock;
     private final UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService;
+    private final Thesaurus thesaurus;
+    private final UserService userService;
+    private final ThreadPrincipalService threadPrincipalService;
 
     @Inject
     public ResourceHelper(MeteringService meteringService, MeteringGroupsService meteringGroupsService,
                           ExceptionFactory exceptionFactory,
                           ConcurrentModificationExceptionFactory conflictFactory,
                           MetrologyConfigurationService metrologyConfigurationService, UsagePointLifeCycleService usagePointLifeCycleService, Clock clock,
-                          UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
+                          UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService, Thesaurus thesaurus, UserService userService, ThreadPrincipalService threadPrincipalService) {
         super();
         this.meteringService = meteringService;
         this.meteringGroupsService = meteringGroupsService;
@@ -73,6 +85,9 @@ public class ResourceHelper {
         this.usagePointLifeCycleService = usagePointLifeCycleService;
         this.clock = clock;
         this.usagePointLifeCycleConfigurationService = usagePointLifeCycleConfigurationService;
+        this.thesaurus = thesaurus;
+        this.userService = userService;
+        this.threadPrincipalService = threadPrincipalService;
     }
 
     public MeterRole findMeterRoleOrThrowException(String key) {
@@ -246,21 +261,50 @@ public class ResourceHelper {
                     .stream()
                     .filter(meterActivation -> meterActivation.meterRole != null && !Checks.is(meterActivation.meterRole.id).emptyOrOnlyWhiteSpace())
                     .forEach(meterActivation -> {
+                        Instant activationTime = meterActivation.meterRole.activationTime;
                         MeterRole meterRole = findMeterRoleOrThrowException(meterActivation.meterRole.id);
-                        linker.clear(meterRole);
-                        if (meterActivation.meter != null && !Checks.is(meterActivation.meter.name).emptyOrOnlyWhiteSpace()) {
+                        if (!usagePoint.getMeterActivations(activationTime).isEmpty()) {
+                            validateUnlinkMeters(usagePoint, meterRole, activationTime);
+                            linker.clear(activationTime, meterRole);
+                        } else if (meterActivation.meter != null && !Checks.is(meterActivation.meter.name).emptyOrOnlyWhiteSpace()) {
                             Meter meter = findMeterByNameOrThrowException(meterActivation.meter.name);
-                            linker.activate(meter, meterRole);
+                            linker.activate(activationTime, meter, meterRole);
                         }
                     });
             linker.complete();
         }
     }
+
+    private void validateUnlinkMeters(UsagePoint usagePoint, MeterRole meterRole, Instant activationTime) {
+        usagePoint.getCurrentEffectiveMetrologyConfiguration().ifPresent(metrologyConfiguration -> {
+            List<ReadingTypeRequirement> requirementsForMeterRole = metrologyConfiguration.getMetrologyConfiguration().getRequirements(meterRole)
+                    .stream()
+                    .collect(Collectors.toList());
+            List<ReadingTypeRequirement> allRequirements = metrologyConfiguration.getMetrologyConfiguration().getContracts()
+                    .stream()
+                    .filter(metrologyContract -> metrologyConfiguration.getChannelsContainer(metrologyContract, activationTime).isPresent())
+                    .flatMap(metrologyContract -> metrologyContract.getRequirements().stream())
+                    .filter(requirementsForMeterRole::contains)
+                    .collect(Collectors.toList());
+            usagePoint.getMeterActivations(activationTime)
+                    .stream()
+                    .filter(meterActivation -> allRequirements
+                        .stream()
+                        .filter(readingTypeRequirement -> readingTypeRequirement.getMatchesFor(meterActivation.getChannelsContainer()).isEmpty())
+                        .findAny()
+                        .isPresent())
+                    .findAny()
+                    .ifPresent(meterActivation -> {
+                        DateTimeFormatter dateTimeFormatter = userService.getUserPreferencesService().getDateTimeFormatter(threadPrincipalService.getPrincipal(), PreferenceType.LONG_DATE, PreferenceType.LONG_TIME);
+                        throw new UsagePointMeterActivationException.MeterCannotBeUnlinked(thesaurus, meterActivation.getMeter().get().getName(), usagePoint.getName(), dateTimeFormatter.format(LocalDateTime
+                                .ofInstant(activationTime, ZoneId.systemDefault())));
+                    });
+        });
+    }
+
     public List<UsagePointTransition> getAvailableTransitions(UsagePoint usagePoint) {
         return usagePointLifeCycleService.getAvailableTransitions(usagePoint.getState(), "INS");
     }
-
-
 
     public List<ReadingTypeRequirement> getReadingTypeRequirements(MetrologyContract metrologyContract) {
         ReadingTypeRequirementsCollector requirementsCollector = new ReadingTypeRequirementsCollector();
