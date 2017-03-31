@@ -41,6 +41,7 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -70,7 +71,7 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
     @Mock
     private DeviceValidation deviceValidation;
     @Mock
-    private DataValidationStatus dataValidationStatus;
+    private DataValidationStatus dataValidationStatus, dataValidationStatus2, dataValidationStatus3;
     @Mock
     private NumericalRegister register;
     @Mock
@@ -133,11 +134,12 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
         doReturn(Arrays.asList(mockReadingQuality("2.7.1"))).when(actualReading1).getReadingQualities();
         when(numericalReading1.getValidationStatus()).thenReturn(Optional.of(dataValidationStatus));
 
+
         NumericalReading numericalReading2 = mockNumericalReading(actualReading2);
-        when(numericalReading2.getValidationStatus()).thenReturn(Optional.of(dataValidationStatus));
+        when(numericalReading2.getValidationStatus()).thenReturn(Optional.of(dataValidationStatus2));
         when(actualReading2.edited()).thenReturn(true);
         NumericalReading numericalReadingConfirmed = mockNumericalReading(actualReading3);
-        when(numericalReadingConfirmed.getValidationStatus()).thenReturn(Optional.of(dataValidationStatus));
+        when(numericalReadingConfirmed.getValidationStatus()).thenReturn(Optional.of(dataValidationStatus3));
         when(actualReading3.confirmed()).thenReturn(true);
         ReadingQualityRecord readingQualityEdited = mockReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.EDITGENERIC).getCode());
         doReturn(Arrays.asList(readingQualityEdited)).when(actualReading2).getReadingQualities();
@@ -165,7 +167,9 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
         when(estimationRule.getRuleSet()).thenReturn(estimationRuleSet);
         when(readingQualityEstimated.hasEstimatedCategory()).thenReturn(true);
         doReturn(Optional.of(estimationRule)).when(estimationService).findEstimationRuleByQualityType(readingQualityType);
-        doReturn(Arrays.asList(readingQualityEstimated, readingQualityConfirmed)).when(dataValidationStatus).getReadingQualities();
+        doReturn(Arrays.asList(mockReadingQuality("2.7.1"), readingQualityEstimated, readingQualityConfirmed)).when(dataValidationStatus).getReadingQualities();
+        doReturn(Arrays.asList(readingQualityEdited, readingQualityEstimated, readingQualityConfirmed)).when(dataValidationStatus2).getReadingQualities();
+        doReturn(Arrays.asList(readingQualityConfirmed, readingQualityEstimated, readingQualityConfirmed)).when(dataValidationStatus3).getReadingQualities();
         when(topologyService.getSlaveChannel(any(com.energyict.mdc.device.data.Channel.class), any(Instant.class))).thenReturn(Optional.empty());
         when(topologyService.getSlaveRegister(any(Register.class), any(Instant.class))).thenReturn(Optional.empty());
     }
@@ -206,6 +210,19 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
     }
 
     @Test
+    public void testGetRegisterHistoryData() throws Exception {
+        Response response = getHistoryData(false);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        assertThat(response.getEntity()).isNotNull();
+    }
+
+    @Test
+    public void testGetEmptyRegisterHistoryData() throws Exception {
+        Response response = getHistoryData(true);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+    }
+
+    @Test
     public void testGetRegisterData() throws Exception {
         when(deviceService.findDeviceByName("1")).thenReturn(Optional.of(device));
         when(numericalRegisterSpec.getId()).thenReturn(1L);
@@ -237,7 +254,6 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
         assertThat(jsonModel.<List<?>>get("$.data[0].estimatedByRule.properties")).isEmpty();
         assertThat(jsonModel.<String>get("$.data[0].estimatedByRule.application.id")).isEqualTo(QualityCodeSystem.MDC.name());
         assertThat(jsonModel.<String>get("$.data[0].estimatedByRule.application.name")).isEqualTo("MultiSense");
-        assertThat(jsonModel.<List<?>>get("$.data[0].readingQualities")).hasSize(1);
         assertThat(jsonModel.<String>get("$.data[0].readingQualities[0].cimCode")).isEqualTo("2.7.1");
         assertThat(jsonModel.<String>get("$.data[0].readingQualities[0].indexName")).isEqualTo("Manually added");
         assertThat(jsonModel.<String>get("$.data[0].readingQualities[0].systemName")).isEqualTo("MDC");
@@ -250,7 +266,6 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
         assertThat(jsonModel.<Number>get("$.data[1].estimatedByRule.id")).isEqualTo(13);
         assertThat(jsonModel.<Number>get("$.data[1].estimatedByRule.ruleSetId")).isEqualTo(15);
         assertThat(jsonModel.<String>get("$.data[1].estimatedByRule.name")).isEqualTo("EstimationRule");
-        assertThat(jsonModel.<List<?>>get("$.data[1].readingQualities")).hasSize(1);
         assertThat(jsonModel.<String>get("$.data[1].readingQualities[0].cimCode")).isEqualTo("2.7.0");
         assertThat(jsonModel.<String>get("$.data[1].readingQualities[0].indexName")).isEqualTo("Manually edited - generic");
         assertThat(jsonModel.<String>get("$.data[1].readingQualities[0].systemName")).isEqualTo("MDC");
@@ -262,7 +277,6 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
         assertThat(jsonModel.<Boolean>get("$.data[2].isConfirmed")).isEqualTo(true);
         assertThat(jsonModel.<String>get("$.data[2].confirmedInApps[0].id")).isEqualTo(QualityCodeSystem.MDC.name());
         assertThat(jsonModel.<String>get("$.data[2].confirmedInApps[0].name")).isEqualTo("MultiSense");
-        assertThat(jsonModel.<List<?>>get("$.data[2].readingQualities")).hasSize(1);
         assertThat(jsonModel.<String>get("$.data[2].readingQualities[0].cimCode")).isEqualTo("2.10.1");
         assertThat(jsonModel.<String>get("$.data[2].readingQualities[0].indexName")).isEqualTo("Manually accepted");
         assertThat(jsonModel.<String>get("$.data[0].readingQualities[0].systemName")).isEqualTo("MDC");
@@ -350,5 +364,43 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
         verify(registerDataUpdater).confirmReading(any(), any(Instant.class));
         verify(registerDataUpdater).complete();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+    }
+
+    private Response getHistoryData(boolean empty) throws UnsupportedEncodingException {
+        when(deviceService.findDeviceByName("1")).thenReturn(Optional.of(device));
+        when(numericalRegisterSpec.getId()).thenReturn(1L);
+        when(numericalRegisterSpec.getCalculatedReadingType()).thenReturn(Optional.empty());
+        when(device.getId()).thenReturn(1L);
+        when(device.getMultiplier()).thenReturn(BigDecimal.ONE);
+
+        long intervalStart = ZonedDateTime.ofInstant(NOW, ZoneId.systemDefault())
+                .minusYears(1)
+                .truncatedTo(ChronoUnit.DAYS)
+                .plusDays(1)
+                .toInstant()
+                .toEpochMilli();
+        long intervalEnd = ZonedDateTime.ofInstant(NOW, ZoneId.systemDefault())
+                .truncatedTo(ChronoUnit.DAYS)
+                .plusDays(1)
+                .toInstant()
+                .toEpochMilli();
+        Range<Instant> range = Ranges.openClosed(Instant.ofEpochMilli(intervalStart), Instant
+                .ofEpochMilli(intervalEnd));
+        when(topologyService.getDataLoggerRegisterTimeLine(any(Register.class), any(Range.class))).thenReturn(Collections
+                .singletonList(Pair.of(register, range)));
+        if(!empty) {
+            NumericalReading numericalReading1 = mockNumericalReading(actualReading1);
+            doReturn(Collections.singletonList(numericalReading1)).when(register)
+                    .getHistoryReadings(Interval.of(range), false);
+            when(numericalReading1.getValidationStatus()).thenReturn(Optional.of(dataValidationStatus));
+        }
+
+        String filter = ExtjsFilter.filter()
+                .property("intervalStart", intervalStart)
+                .property("intervalEnd", intervalEnd)
+                .create();
+        return target("devices/1/registers/1/historydata")
+                .queryParam("filter", filter)
+                .request().get();
     }
 }
