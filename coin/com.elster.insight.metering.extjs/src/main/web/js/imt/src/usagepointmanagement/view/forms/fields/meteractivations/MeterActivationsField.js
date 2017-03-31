@@ -10,13 +10,14 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.meteractivations.MeterAct
         field: 'Ext.form.field.Field',
         bindable: 'Ext.util.Bindable'
     },
-
+    meterRoles: null,
     initComponent: function () {
         var me = this;
 
         me.grid = {
             xtype: 'meter-activations-grid',
             itemId: 'meter-activations-grid',
+            meterRoles: me.meterRoles,
             maxHeight: 500,
             listeners: {
                 edit: Ext.bind(me.onMeterActivationEdit, me)
