@@ -22,7 +22,7 @@ import java.util.logging.Logger;
  * The basic idea is to do more bulk request and adjust our framework to the current smarter meter market.
  */
 @ConsumerType
-public interface SmartMeterProtocol extends HasDynamicProperties, MultipleLoadProfileSupport, CachingProtocol {
+public interface SmartMeterProtocol extends HasDynamicProperties, MultipleLoadProfileSupport, CachingProtocol, DeviceDescriptionSupport {
 
     enum Property {
 

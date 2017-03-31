@@ -1,8 +1,9 @@
 package com.energyict.mdc.upl;
 
+import com.energyict.mdc.upl.properties.HasDynamicProperties;
+
 import aQute.bnd.annotation.ConsumerType;
 import com.energyict.cbo.Quantity;
-import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.protocol.ProfileData;
 
 import java.io.IOException;
@@ -40,7 +41,7 @@ import java.util.logging.Logger;
  *         KV 15122003 serialnumber of the device
  */
 @ConsumerType
-public interface MeterProtocol extends HasDynamicProperties {
+public interface MeterProtocol extends HasDynamicProperties, DeviceDescriptionSupport {
 
     /**
      * Models common properties that can be marked required or optional

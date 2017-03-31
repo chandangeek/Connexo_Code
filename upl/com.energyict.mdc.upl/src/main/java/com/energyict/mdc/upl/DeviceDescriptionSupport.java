@@ -1,8 +1,8 @@
 package com.energyict.mdc.upl;
 
 /**
- * Provides functionality to identify the protocol based on an unique protocol description
- * *
+ * Provides functionality to identify the protocol based on an unique description.
+ *
  * @author sva
  * @since 30/10/13 - 15:11
  */
