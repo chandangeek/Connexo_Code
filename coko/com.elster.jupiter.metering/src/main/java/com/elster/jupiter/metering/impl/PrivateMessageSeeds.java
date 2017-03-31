@@ -58,8 +58,8 @@ public enum PrivateMessageSeeds implements MessageSeed {
     SEARCHABLE_PROPERTY_NOT_FOUND(4021, Constants.SEARCHABLE_PROPERTY_NOT_FOUND, "The ''{0}'' searchable property can not be used as usage point requirement."),
     BAD_USAGE_POINT_REQUIREMENT_VALUE(4022, Constants.BAD_USAGE_POINT_REQUIREMENT_VALUE, "Bad usage point requirement value: {0}."),
     FAILED_TO_DEACTIVATE_METROLOGY_CONFIGURATION(4023, Constants.FAILED_TO_DEACTIVATE_METROLOGY_CONFIGURATION, "The metrology configuration is still used by at least one usage point. Use search to find the usage points with such metrology configuration."),
-
-    DELIVERABLE_TOU_NOT_BACKED_BY_EVENTSET(14024, Constants.DELIVERABLE_TOU_NOT_BACKED_BY_EVENTSET, "The time of use bucket {0} of the deliverable {1} is not backed by one of the event sets of the metrology configuration."),
+    DELIVERABLE_TOU_NOT_BACKED_BY_EVENTSET(4024, Constants.DELIVERABLE_TOU_NOT_BACKED_BY_EVENTSET, "The time of use bucket {0} of the deliverable {1} is not backed by one of the event sets of the metrology configuration."),
+    REQUIREMENT_NOT_BACKED_BY_METER(4025, "requirement.not.backed.by.meter", "Unable to determine preferred channel for requirement {0}, most likely because not meter is providing a matching channel."),
 
     INVALID_DIMENSION(5000, Constants.INVALID_DIMENSION, "Invalid dimension"),
     INVALID_ARGUMENTS_FOR_MULTIPLICATION(5001, Constants.INVALID_ARGUMENTS_FOR_MULTIPLICATION, "Dimensions from multiplication arguments do not result in a valid dimension."),
@@ -88,11 +88,10 @@ public enum PrivateMessageSeeds implements MessageSeed {
     CUSTOM_PROPERTY_SET_NOT_CONFIGURED_ON_METROLOGY_CONFIGURATION(5024, Constants.CUSTOM_PROPERTY_SET_NOT_CONFIGURED_ON_METROLOGY_CONFIGURATION, "The property ''{0}'' cannot be used because the custom property set ''{1}'' is not configured on this metrology configuration."),
     CUSTOM_PROPERTY_SET_NO_LONGER_ACTIVE(5025, Constants.CUSTOM_PROPERTY_SET_NO_LONGER_ACTIVE, "The custom property set ''{0}'' is no longer active."),
     CUSTOM_PROPERTY_SET_NOT_VERSIONED(5026, Constants.CUSTOM_PROPERTY_SET_NOT_VERSIONED, "The custom property set ''{0}'' is not versioned, only versioned sets are supported."),
+    CUSTOM_PROPERTY_MUST_BE_NUMERICAL(5027, Constants.CUSTOM_PROPERTY_MUST_BE_NUMERICAL, "The property ''{0}'' of custom property set ''{1}'' must be numerical."),
+    CUSTOM_PROPERTY_MUST_BE_SLP(5028, Constants.CUSTOM_PROPERTY_MUST_BE_SLP, "The property ''{0}'' of custom property set ''{1}'' must be numerical."),
 
-    CUSTOM_PROPERTY_MUST_BE_NUMERICAL(15027, Constants.CUSTOM_PROPERTY_MUST_BE_NUMERICAL, "The property ''{0}'' of custom property set ''{1}'' must be numerical."),
-    CUSTOM_PROPERTY_MUST_BE_SLP(15028, Constants.CUSTOM_PROPERTY_MUST_BE_SLP, "The property ''{0}'' of custom property set ''{1}'' must be numerical."),
-
-    TIME_OF_USE_BUCKET_INCONSISTENCY(16002, Constants.TIME_OF_USE_BUCKET_INCONSISTENCY, "Inconsistency between requested (={0}) and provided (={1}) time of use bucket for the calculation of deliverable (name={2}) for usagepoint (mRID={3}) in period {4}"),
+    TIME_OF_USE_BUCKET_INCONSISTENCY(6002, Constants.TIME_OF_USE_BUCKET_INCONSISTENCY, "Inconsistency between requested (={0}) and provided (={1}) time of use bucket for the calculation of deliverable (name={2}) for usagepoint (mRID={3}) in period {4}"),
 
     THE_SAME_METER_ACTIVATED_TWICE_ON_USAGE_POINT(7002, Constants.THE_SAME_METER_ACTIVATED_TWICE_ON_USAGE_POINT, "The same meter can''t be specified for different meter roles."),
     UNSATISFIED_METROLOGY_REQUIREMENT(7003, Constants.UNSATISFIED_METROLOGY_REQUIREMENT, "This meter does not provide reading types matching a {0}."),
@@ -104,13 +103,12 @@ public enum PrivateMessageSeeds implements MessageSeed {
     USAGE_POINT_ALREADY_ACTIVE_WITH_GIVEN_ROLE(7017, Constants.USAGE_POINT_ALREADY_ACTIVE_WITH_GIVEN_ROLE, "Usage point already has linked meter {0} for role {1}"),
     USAGE_POINT_INCORRECT_STAGE(7018, Constants.USAGE_POINT_INCORRECT_STAGE, "Incorrect usage point stage, should be preoperational"),
     UNSATISFIED_READING_TYPE_REQUIREMENT_FOR_METER(7019, Constants.UNSATISFIED_READING_TYPE_REQUIREMENT_FOR_METER, "Meter {0} does not provide reading types required by purpose {1}"),
-    METER_NOT_IN_OPERATIONAL_STAGE(7020, Constants.METER_NOT_IN_OPERATIONAL_STAGE, "Meter {0} is not operational"),
+    CANNOT_START_PRIOR_TO_LATEST_CALENDAR_OF_SAME_CATEGORY(7020, "usagepoint.calendar.cannot.start.prior.of.same.category", "Cannot start calendar on usage point, prior to latest calendar of same category."),
+    METER_NOT_IN_OPERATIONAL_STAGE(7021, Constants.METER_NOT_IN_OPERATIONAL_STAGE, "Meter {0} is not operational"),
+    CANNOT_START_BEFORE_NOW(7022, "usagepoint.calendar.cannot.start.before.now", "Activation date can''t be in the past."),
 
     DENOMINATOR_CANNOT_BE_ZERO(8001, Constants.DENOMINATOR_CANNOT_BE_ZERO, "Denominator cannot be 0"),
     REQUIRED_CPS_MISSING(8002, Constants.REQUIRED_CPS_MISSING, "Required custom property sets are missing"),
-
-    CANNOT_START_PRIOR_TO_LATEST_CALENDAR_OF_SAME_CATEGORY(17020, "usagepoint.calendar.cannot.start.prior.of.same.category", "Cannot start calendar on usage point, prior to latest calendar of same category."),
-    CANNOT_START_BEFORE_NOW(17022, "usagepoint.calendar.cannot.start.before.now", "Activation date can''t be in the past."),
 
     CAN_NOT_DELETE_ACTIVE_LIFE_CYCLE(9001, Constants.CAN_NOT_DELETE_ACTIVE_LIFE_CYCLE, "Can''t remove usage point life cycle because it''s in use by at least one of the usage point."),
     CAN_NOT_DELETE_ACTIVE_STATE(9002, Constants.CAN_NOT_DELETE_ACTIVE_STATE, "This state can''t be removed from this usage point life cycle because one or more usage points use this state."),

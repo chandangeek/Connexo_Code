@@ -318,7 +318,7 @@ class VirtualReadingTypeRequirement {
         if ((this.preferredChannel == null) || (!this.preferredChannel.isPresent())) {
             this.preferredChannel = this.findPreferredChannel();
         }
-        return this.preferredChannel.orElseThrow(() -> new IllegalStateException("Calculation of preferred channel for requirement " + this.readingTypeForSqlComment() + " failed before"));
+        return this.preferredChannel.orElseThrow(() -> new RequirementNotBackedByMeter(this.thesaurus));
     }
 
     private Optional<ChannelContract> findPreferredChannel() {

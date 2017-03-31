@@ -197,16 +197,20 @@ public class DataAggregationServiceImpl implements ServerDataAggregationService 
 
     private Stream<DetailedCalendarUsage> introspect(ServerUsagePoint usagePoint, Range<Instant> period, MetrologyContract contract) {
         VirtualFactory virtualFactory = this.virtualFactoryProvider.get();
-        Map<MeterActivationSet, List<ReadingTypeDeliverableForMeterActivationSet>> deliverablesPerMeterActivation =
-                this.prepareCalculation(
-                        usagePoint, contract, period,
-                        () -> new DataAggregationAnalysisLogger().calendarIntrospectionStarted(usagePoint, contract, period),
-                        virtualFactory);
-        return deliverablesPerMeterActivation
-                    .values()
-                    .stream()
-                    .flatMap(Collection::stream)
-                    .flatMap(ReadingTypeDeliverableForMeterActivationSet::getDetailedCalendarUsages);
+        try {
+            Map<MeterActivationSet, List<ReadingTypeDeliverableForMeterActivationSet>> deliverablesPerMeterActivation =
+                    this.prepareCalculation(
+                            usagePoint, contract, period,
+                            () -> new DataAggregationAnalysisLogger().calendarIntrospectionStarted(usagePoint, contract, period),
+                            virtualFactory);
+            return deliverablesPerMeterActivation
+                        .values()
+                        .stream()
+                        .flatMap(Collection::stream)
+                        .flatMap(ReadingTypeDeliverableForMeterActivationSet::getDetailedCalendarUsages);
+        } catch (RequirementNotBackedByMeter e) {
+            return Stream.empty();
+        }
     }
 
     @Override
