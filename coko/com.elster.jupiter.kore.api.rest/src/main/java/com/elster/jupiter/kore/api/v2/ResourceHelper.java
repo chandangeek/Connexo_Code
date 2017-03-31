@@ -7,8 +7,11 @@ package com.elster.jupiter.kore.api.v2;
 import com.elster.jupiter.kore.api.impl.MessageSeeds;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
+import com.elster.jupiter.metering.config.MetrologyContract;
+import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.rest.util.ExceptionFactory;
@@ -24,8 +27,11 @@ import javax.inject.Provider;
 import javax.ws.rs.core.Response;
 import java.time.Instant;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class ResourceHelper {
 
@@ -88,6 +94,10 @@ public class ResourceHelper {
         UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = (UsagePointMetrologyConfiguration) this.findMetrologyConfiguration(info.metrologyConfiguration.id)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_METROLOGY_CONFIGURATION));
 
+        if(!usagePointMetrologyConfiguration.isGapAllowed()){
+           validateIfRequiredMetersInstalled(usagePoint, usagePointMetrologyConfiguration, info);
+        }
+
         if (info.purposes != null) {
             usagePoint.apply(usagePointMetrologyConfiguration, Instant.ofEpochMilli(info.id), usagePointMetrologyConfiguration.getContracts()
                     .stream()
@@ -101,6 +111,24 @@ public class ResourceHelper {
             usagePoint.apply(usagePointMetrologyConfiguration, Instant.ofEpochMilli(info.id));
         }
         usagePoint.update();
+    }
+
+    // TODO: 29.03.2017 remove after CXO-5600 done
+    public void validateIfRequiredMetersInstalled(UsagePoint usagePoint, UsagePointMetrologyConfiguration usagePointMetrologyConfiguration, EffectiveMetrologyConfigurationInfo info){
+        List<String> emptyMeterRoles = usagePointMetrologyConfiguration.getContracts().stream()
+                .filter(metrologyContract -> metrologyContract.isMandatory()
+                        || (info.purposes!=null && info.purposes.stream().anyMatch(p -> p.id.equals(metrologyContract.getId()))))
+                .flatMap(metrologyContract -> metrologyContract.getRequirements().stream())
+                .map(usagePointMetrologyConfiguration::getMeterRoleFor)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .distinct()
+                .filter(meterRole -> usagePoint.getMeterActivations(Instant.ofEpochMilli(info.id)).stream().noneMatch(meterActivation -> meterActivation.getMeterRole().filter(meterRole::equals).isPresent()))
+                .map(MeterRole::getDisplayName)
+                .collect(Collectors.toList());
+        if(!emptyMeterRoles.isEmpty()){
+            throw  exceptionFactory.newException(MessageSeeds.METERS_ARE_NOT_SPECIFIED_FOR_METER_ROLES, String.join(", ", emptyMeterRoles));
+        }
     }
 
     public void performUsagePointTransition(UsagePoint usagePoint, UsagePointTransitionInfo info) {

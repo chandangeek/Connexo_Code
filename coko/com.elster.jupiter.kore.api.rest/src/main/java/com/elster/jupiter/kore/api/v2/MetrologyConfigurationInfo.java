@@ -16,6 +16,7 @@ public class MetrologyConfigurationInfo extends LinkInfo<Long> {
     public String name;
     public Boolean active;
     public String userName;
+    public Boolean allowGaps;
 
     public Instant createTime;
     public Instant modTime;
