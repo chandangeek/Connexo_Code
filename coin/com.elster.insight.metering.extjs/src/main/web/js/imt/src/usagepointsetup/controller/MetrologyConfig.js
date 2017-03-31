@@ -17,12 +17,13 @@ Ext.define('Imt.usagepointsetup.controller.MetrologyConfig', {
         'Imt.usagepointsetup.model.EffectiveMetrologyConfig'
     ],
     views: [
-        'Imt.usagepointsetup.view.ActivateMeters'
+        'Imt.usagepointsetup.view.ActivateMeters',
+        'Imt.usagepointmanagement.view.forms.fields.meteractivations.MeterActivationsGrid'
     ],
     refs: [
         {
             ref: 'metersForm',
-            selector: '#usage-point-edit-meters #edit-form'
+            selector: '#usage-point-edit-meters #meter-activations-field'
         },
         {
             ref: 'page',
@@ -60,18 +61,7 @@ Ext.define('Imt.usagepointsetup.controller.MetrologyConfig', {
                                 meterActivationsStore.load({
                                     callback: function (records, operation, success) {
                                         if (success) {
-                                            var meterRoles = mconfig.get('meterRoles');
-                                            Ext.Array.each(meterRoles, function (meterRole) {
-                                                meterActivationsStore.each(function (mact) {
-                                                    if ((mact.get('meterRole') && mact.get('meterRole').id) == meterRole.id) {
-                                                        meterRole.value = mact.get('meter').name;
-                                                    }
-                                                });
-                                                meterRole.fieldLabel = meterRole.name;
-                                                meterRole.name = meterRole.id;
-                                                meterRole.itemId = 'meterRoleCombobox-' + meterRole.id;
-                                            });
-
+                                            var meterRoles = usagePoint.get('metrologyConfiguration_meterRoles');
                                             widget = Ext.widget('usagePointActivateMeters', {
                                                 itemId: 'usage-point-activate-meters',
                                                 router: router,
@@ -103,10 +93,13 @@ Ext.define('Imt.usagepointsetup.controller.MetrologyConfig', {
     saveButtonClick: function (btn) {
         var me = this,
             usagePoint = btn.usagePoint,
-            usagePointId = usagePoint.get('name'),
-            form = me.getMetersForm(),
-            meterActivations = form.getMeterActivations();
-        form.getForm().clearInvalid();
+            meterActivations = me.getMetersForm().getValue();
+
+        _.each(meterActivations, function (meterActivation) {
+            meterActivation.activationTime = undefined;
+            meterActivation.meterRole.meter = meterActivation.meter;
+        });
+
         var callback = function () {
             var page = me.getPage();
 

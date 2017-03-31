@@ -10,6 +10,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.meteractivations.MeterAct
         fields: ['meterRole', 'meter', 'activationTime']
     }),
     disableSelection: true,
+    meterRoles: null,
     plugins: [
         {
             ptype: 'editableCells'
@@ -35,10 +36,12 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.meteractivations.MeterAct
             {
                 header: Uni.I18n.translate('general.meter', 'IMT', 'Meter'),
                 dataIndex: 'meter',
+                itemId: 'meter-meter',
                 disableTooltip: true,
                 flex: 1,
                 editor: {
                     xtype: 'combo',
+                    width: 300,
                     fieldType: 'meterCombo',
                     multiSelect: false,
                     emptyText: Uni.I18n.translate('usagepoint.setMeters.strtTyping', 'IMT', 'Start typing to select a meter'),
@@ -60,13 +63,13 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.meteractivations.MeterAct
                 header: Uni.I18n.translate('general.activationDate', 'IMT', 'Activation date'),
                 dataIndex: 'activationTime',
                 disableTooltip: true,
-                width: 310,
+                flex: 1,
                 editor: {
                     xtype: 'date-time',
                     itemId: 'installation-time-date',
                     valueInMilliseconds: true,
                     layout: 'hbox',
-                    width: '100%',
+                    width: 400,
                     dateConfig: {
                         width: 110
                     },
@@ -81,12 +84,47 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.meteractivations.MeterAct
                         width: 60
                     }
                 }
-            }
+            },
         ];
+        if (me.meterRoles) {
+            me.columns.push(
+                {
+                    xtype: 'uni-actioncolumn',
+                    width: 120,
+                    itemId: 'clear-meters',
+                    handler: function () {
+                        // debugger;
+                        console.log(this);
+                        // console.log(me.down('#meter-meter').editor.value);
+                        // console.log(me.down('#meter-meter').getEditor());
+                        // console.log(me.down('#meter-meter').getEditor().getValue());
+                        me.setMeterRoles(null);
+                        // console.log(me.down('#meter-meter').editor.clearValue());
+                        // console.log(me.down('#meter-meter #meter-combo').getValue());
+                        // me.down('#meter-meter').clearValue();
+                    }
+                }
+            );
+        }
 
         me.callParent(arguments);
     },
 
+    setMeterRoles: function (meterRoles, usagePointCreationDate) {
+        var me = this,
+            store = me.getStore(),
+            data = _.map(meterRoles,
+                function (meterRole) {
+                    return {
+                        meterRole: meterRole,
+                        // activationTime: usagePointCreationDate ? usagePointCreationDate : new Date().getTime()
+                    }
+                }
+            );
+
+        store.loadData(data);
+        store.fireEvent('load', data);
+    },
     meterComboLiseners: {
         expand: function (combo) {
             var picker = combo.getPicker(),
