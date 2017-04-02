@@ -43,6 +43,9 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.meteractivations.MeterAct
                     xtype: 'combo',
                     width: 300,
                     fieldType: 'meterCombo',
+                    itemId: 'meter-combo',
+                    // id: 'meter-combo',
+                    class: 'meter-combo',
                     multiSelect: false,
                     emptyText: Uni.I18n.translate('usagepoint.setMeters.strtTyping', 'IMT', 'Start typing to select a meter'),
                     store: 'Imt.usagepointsetup.store.Devices',
@@ -56,7 +59,11 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.meteractivations.MeterAct
                     loadStore: false,
                     forceSelection: true,
                     cls: 'stretchy-combo',
-                    listeners: me.meterComboLiseners
+                    listeners: Ext.merge({
+                        afterrender: function (combo) {
+                            me.down('#clear-meters').combo = this;
+                        }
+                    },me.meterComboLiseners)
                 }
             },
             {
@@ -92,20 +99,32 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.meteractivations.MeterAct
                     xtype: 'uni-actioncolumn',
                     width: 120,
                     itemId: 'clear-meters',
-                    handler: function () {
-                        // debugger;
-                        console.log(this);
-                        // console.log(me.down('#meter-meter').editor.value);
-                        // console.log(me.down('#meter-meter').getEditor());
-                        // console.log(me.down('#meter-meter').getEditor().getValue());
-                        me.setMeterRoles(null);
-                        // console.log(me.down('#meter-meter').editor.clearValue());
-                        // console.log(me.down('#meter-meter #meter-combo').getValue());
-                        // me.down('#meter-meter').clearValue();
+                    combo: null,
+                    handler: function (grid, rowIndex, colIndex, item, e, record) {
+                        // console.log(grid.getSelectionModel());
+                        console.log(me.query('#meter-meter'));
+                        console.log(me.query('#combobox'));
+                        // console.log(Ext.query());
+
+                        // var element = Ext.getCmp(elementId);
+                        // console.log(element);
+                        // console.log(grid.getGridColumns());
+                        // console.log(grid.getStore().getAt(rowIndex).set('meter', ''));
+                        // console.log(grid.getStore().load());
+                        // console.log(grid.getVisibleColumnManager());
+                        // console.log(grid.renderRow(record));
+                        // console.log(me.down('#meter-combo-0'));
+                        // me.meterComboLiseners.change(this.combo, null);
+                        // this.combo.reset();
                     }
                 }
             );
         }
+        // me.plugins= [
+        //     Ext.create('Ext.grid.plugin.RowEditing', {
+        //         autoCancel: false
+        //     })
+        // ];
 
         me.callParent(arguments);
     },
@@ -126,7 +145,11 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.meteractivations.MeterAct
         store.fireEvent('load', data);
     },
     meterComboLiseners: {
+        staterestore: function () {
+            console.log('ssss');
+        },
         expand: function (combo) {
+            console.log(combo);
             var picker = combo.getPicker(),
                 fn = function (view) {
                     var store = view.getStore(),
@@ -148,6 +171,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.meteractivations.MeterAct
         },
 
         change: function (field, newValue) {
+            console.log(field);
             if (Ext.isEmpty(newValue)) {
                 field.reset();
             }

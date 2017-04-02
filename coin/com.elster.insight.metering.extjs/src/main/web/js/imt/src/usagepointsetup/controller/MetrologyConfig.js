@@ -51,35 +51,16 @@ Ext.define('Imt.usagepointsetup.controller.MetrologyConfig', {
             meterActivationsStore = me.getStore('Imt.usagepointmanagement.store.MeterActivations'),
             callback = {
                 success: function (usagePointTypes, usagePoint, purposes) {
-                    metrologyConfig.getProxy().setExtraParam('usagePointId', usagePointId);
-                    metrologyConfig.load(undefined, {
-                        success: function (mconfig) {
-                            if (Ext.isEmpty(mconfig.get('meterRoles'))) {
-                                window.location.replace(router.getRoute('error/notfound').buildUrl());
-                            } else {
-                                meterActivationsStore.getProxy().setExtraParam('usagePointId', usagePointId);
-                                meterActivationsStore.load({
-                                    callback: function (records, operation, success) {
-                                        if (success) {
-                                            var meterRoles = usagePoint.get('metrologyConfiguration_meterRoles');
-                                            widget = Ext.widget('usagePointActivateMeters', {
-                                                itemId: 'usage-point-activate-meters',
-                                                router: router,
-                                                returnLink: returnLink,
-                                                usagePoint: usagePoint,
-                                                meterRoles: meterRoles
-                                            });
-                                            app.fireEvent('changeContentEvent', widget);
-                                        }
-                                        mainView.setLoading(false);
-                                    }
-                                })
-                            }
-                        },
-                        callback: function () {
-                            mainView.setLoading(false);
-                        }
+                    var meterRoles = usagePoint.get('metrologyConfiguration_meterRoles');
+                    widget = Ext.widget('usagePointActivateMeters', {
+                        itemId: 'usage-point-activate-meters',
+                        router: router,
+                        returnLink: returnLink,
+                        usagePoint: usagePoint,
+                        meterRoles: meterRoles
                     });
+                    app.fireEvent('changeContentEvent', widget);
+                    mainView.setLoading(false);
                 },
                 failure: function () {
                     mainView.setLoading(false);
@@ -128,9 +109,12 @@ Ext.define('Imt.usagepointsetup.controller.MetrologyConfig', {
                     return {id: id, msg: errorObject.msg}
                 });
                 form.getForm().markInvalid(errMsgs);
-                stageError =_.find(errMsgs, function(obj) { return obj.id == 'stage' });
-                if(!Ext.isEmpty(stageError)) {
+                stageError = _.find(errMsgs, function (obj) {
+                    return obj.id == 'stage'
+                });
+                if (!Ext.isEmpty(stageError)) {
                     form.down('#stageErrorLabel').show();
+                    // form.down('#stageErrorLabel').setTitle('Meter linking error');
                     form.down('#stageErrorLabel').setText(stageError.msg);
                 } else {
                     form.down('#stageErrorLabel').hide();
