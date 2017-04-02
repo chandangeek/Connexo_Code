@@ -4,6 +4,10 @@
 
 package com.elster.jupiter.kore.api.v2;
 
+import com.elster.jupiter.fsm.Stage;
+import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.fsm.StateTimeSlice;
+import com.elster.jupiter.fsm.StateTimeline;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ServiceKind;
@@ -177,18 +181,30 @@ public class MeterActivationResourceTest extends PlatformPublicApiJerseyTest {
         Meter mock = mock(Meter.class);
         when(mock.getId()).thenReturn(123L);
         when(mock.getMRID()).thenReturn(METER_MRID);
+        State state = mock(State.class);
+        Stage stage = mock(Stage.class);
+        StateTimeSlice stateTimeSlice = mock(StateTimeSlice.class);
+        StateTimeline stateTimeline = mock(StateTimeline.class);
+        when(mock.getStateTimeline()).thenReturn(Optional.of(stateTimeline));
+        when(stateTimeline.getSlices()).thenReturn(Collections.singletonList(stateTimeSlice));
+        when(stateTimeSlice.getState()).thenReturn(state);
+        when(state.getStage()).thenReturn(Optional.of(stage));
+        when(stage.getName()).thenReturn("mtr.enddevicestage.operational");
+        when(stateTimeSlice.getPeriod()).thenReturn(Range.atLeast(clock.instant().plus(10, ChronoUnit.MINUTES)));
         when(meteringService.findMeterByMRID(METER_MRID)).thenReturn(Optional.of(mock));
+        when(mock.getState(any(Instant.class))).thenReturn(Optional.empty());
         MeterActivation meterActivation = mockMeterActivation(1001L, 1L, usagePoint);
         when(meterActivation.getMeter()).thenReturn(Optional.of(mock));
         when(usagePoint.activate(any(), any())).thenReturn(meterActivation);
+        when(usagePoint.getMeterActivations(meterRole)).thenReturn(Collections.singletonList(meterActivation));
+        when(meterActivation.isEffectiveAt(any(Instant.class))).thenReturn(true);
 
 
         // Business method
         target("/usagepoints/" + MRID + "/meteractivations").request().post(Entity.json(meterActivationInfo));
 
         // Asserts
-        verify(linker).clear(Instant.ofEpochMilli(meterActivationInfo.interval.start), meterRole);
-        verify(linker).activate(Instant.ofEpochMilli(meterActivationInfo.interval.start), mock, meterRole);
+        verify(linker).activate(stateTimeSlice.getPeriod().lowerEndpoint(), mock, meterRole);
         verify(linker).complete();
     }
 
@@ -236,7 +252,16 @@ public class MeterActivationResourceTest extends PlatformPublicApiJerseyTest {
         meterActivationInfo.interval.start = now.toEpochMilli();
         Meter mock = mock(Meter.class);
         when(mock.getId()).thenReturn(123456789L);
+        State state = mock(State.class);
+        Stage stage = mock(Stage.class);
+        StateTimeSlice stateTimeSlice = mock(StateTimeSlice.class);
+        StateTimeline stateTimeline = mock(StateTimeline.class);
+        when(mock.getStateTimeline()).thenReturn(Optional.of(stateTimeline));
+        when(stateTimeline.getSlices()).thenReturn(Collections.singletonList(stateTimeSlice));
+        when(state.getStage()).thenReturn(Optional.of(stage));
+        when(stateTimeSlice.getPeriod()).thenReturn(Range.atLeast(Instant.EPOCH));
         when(meteringService.findMeterByMRID(METER_MRID)).thenReturn(Optional.of(mock));
+        when(mock.getState(any(Instant.class))).thenReturn(Optional.empty());
         meterActivationInfo.meter = METER_MRID;
         meterActivationInfo.meterRole = "meterRole";
         Instant before = now.minus(5, ChronoUnit.MINUTES);
@@ -253,7 +278,7 @@ public class MeterActivationResourceTest extends PlatformPublicApiJerseyTest {
         // Asserts
         assertThat(post.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
         JsonModel model = JsonModel.model((ByteArrayInputStream) post.getEntity());
-        assertThat(model.<String>get("$.errors[0].id")).isEqualTo("interval.start");
+        assertThat(model.<String>get("$.error")).isEqualTo("InvalidEndDeviceStage");
     }
 
     @Test // CXO-1824
@@ -267,17 +292,29 @@ public class MeterActivationResourceTest extends PlatformPublicApiJerseyTest {
         Meter mock = mock(Meter.class);
         when(mock.getId()).thenReturn(123456789L);
         when(meteringService.findMeterByMRID(METER_MRID)).thenReturn(Optional.of(mock));
+        State state = mock(State.class);
+        Stage stage = mock(Stage.class);
+        StateTimeSlice stateTimeSlice = mock(StateTimeSlice.class);
+        StateTimeline stateTimeline = mock(StateTimeline.class);
+        when(mock.getStateTimeline()).thenReturn(Optional.of(stateTimeline));
+        when(stateTimeline.getSlices()).thenReturn(Collections.singletonList(stateTimeSlice));
+        when(stateTimeSlice.getState()).thenReturn(state);
+        when(state.getStage()).thenReturn(Optional.of(stage));
+        when(stage.getName()).thenReturn("mtr.enddevicestage.operational");
+        when(stateTimeSlice.getPeriod()).thenReturn(Range.atLeast(clock.instant().plus(10, ChronoUnit.MINUTES)));
+        when(mock.getState(any(Instant.class))).thenReturn(Optional.empty());
 
         MeterActivation meterActivation = mockMeterActivation(1001L, 1L, usagePoint);
         when(usagePoint.activate(any(), any())).thenReturn(meterActivation);
+        when(meterActivation.getMeter()).thenReturn(Optional.of(mock));
+        when(usagePoint.getMeterActivations(meterRole)).thenReturn(Collections.singletonList(meterActivation));
+        when(meterActivation.isEffectiveAt(any(Instant.class))).thenReturn(true);
 
         // Business method
         Response post = target("/usagepoints/" + MRID + "/meteractivations").request().post(Entity.json(meterActivationInfo));
 
         // Asserts
-        // Asserts
-        verify(linker).clear(Instant.ofEpochMilli(meterActivationInfo.interval.start), meterRole);
-        verify(linker).activate(Instant.ofEpochMilli(meterActivationInfo.interval.start), mock, meterRole);
+        verify(linker).activate(stateTimeSlice.getPeriod().lowerEndpoint(), mock, meterRole);
         verify(linker).complete();
     }
 

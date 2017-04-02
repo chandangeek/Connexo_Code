@@ -5,6 +5,7 @@
 package com.elster.jupiter.kore.api.v2;
 
 import com.elster.jupiter.kore.api.impl.MessageSeeds;
+import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.MeterRole;
@@ -71,6 +72,10 @@ public class ResourceHelper {
 
     public Optional<MetrologyConfiguration> findMetrologyConfiguration(long id) {
         return metrologyConfigurationService.findMetrologyConfiguration(id);
+    }
+
+    public Optional<MeterActivation> findMeterActivation(UsagePoint usagePoint, MeterRole meterRole, Instant effectiveAt){
+        return usagePoint.getMeterActivations(meterRole).stream().filter(ma -> ma.isEffectiveAt(effectiveAt)).findFirst();
     }
 
     public Optional<UsagePoint> findUsagePointByMrid(String mrid) {

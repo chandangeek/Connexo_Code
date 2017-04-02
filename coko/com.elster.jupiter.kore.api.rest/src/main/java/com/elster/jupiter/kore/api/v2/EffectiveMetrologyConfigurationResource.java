@@ -8,19 +8,17 @@ import com.elster.jupiter.kore.api.impl.MessageSeeds;
 import com.elster.jupiter.kore.api.security.Privileges;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.UsagePointPropertySet;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
-import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.FieldSelection;
+import com.elster.jupiter.rest.api.util.v1.hypermedia.JsonQueryParameters;
+import com.elster.jupiter.rest.api.util.v1.hypermedia.PagedInfoList;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.PROPFIND;
-import com.elster.jupiter.rest.util.RestValidationBuilder;
 import com.elster.jupiter.rest.util.Transactional;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
-import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -30,6 +28,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import java.net.URI;
 import java.time.Instant;
@@ -69,12 +68,18 @@ public class EffectiveMetrologyConfigurationResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
-    public EffectiveMetrologyConfigurationInfo getEffectiveMetrologyConfiguration(@PathParam("mRID") String mRID, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
-        return meteringService.findUsagePointByMRID(mRID)
+    public PagedInfoList<EffectiveMetrologyConfigurationInfo> getEffectiveMetrologyConfigurations(@PathParam("mRID") String mRID, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo, @BeanParam JsonQueryParameters queryParameters) {
+        List<EffectiveMetrologyConfigurationInfo> infos = meteringService.findUsagePointByMRID(mRID)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_USAGE_POINT))
-                .getCurrentEffectiveMetrologyConfiguration()
+                .getEffectiveMetrologyConfigurations().stream()
                 .map(ct -> effectiveMetrologyConfigurationInfoFactory.from(ct, uriInfo, fieldSelection.getFields()))
-                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_METROLOGY_CONFIGURATION));
+                .collect(Collectors.toList());
+
+        UriBuilder uriBuilder = uriInfo.getBaseUriBuilder()
+                .path(EffectiveMetrologyConfigurationResource.class)
+                .resolveTemplate("mRID", mRID);
+
+        return PagedInfoList.from(infos, queryParameters, uriBuilder, uriInfo);
     }
 
     /**

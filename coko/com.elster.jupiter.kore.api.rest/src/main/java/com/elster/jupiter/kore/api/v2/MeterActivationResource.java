@@ -4,8 +4,10 @@
 
 package com.elster.jupiter.kore.api.v2;
 
+import com.elster.jupiter.fsm.StateTimeSlice;
 import com.elster.jupiter.kore.api.impl.MessageSeeds;
 import com.elster.jupiter.kore.api.security.Privileges;
+import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
@@ -32,6 +34,7 @@ import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -58,14 +61,16 @@ public class MeterActivationResource {
     private final ExceptionFactory exceptionFactory;
     private final MetrologyConfigurationService metrologyConfigurationService;
     private final Thesaurus thesaurus;
+    private final ResourceHelper resourceHelper;
 
     @Inject
-    public MeterActivationResource(MeterActivationInfoFactory meterActivationInfoFactory, MeteringService meteringService, MetrologyConfigurationService metrologyConfigurationService, ExceptionFactory exceptionFactory, Thesaurus thesaurus) {
+    public MeterActivationResource(MeterActivationInfoFactory meterActivationInfoFactory, MeteringService meteringService, MetrologyConfigurationService metrologyConfigurationService, ExceptionFactory exceptionFactory, Thesaurus thesaurus, ResourceHelper resourceHelper) {
         this.meterActivationInfoFactory = meterActivationInfoFactory;
         this.meteringService = meteringService;
         this.metrologyConfigurationService = metrologyConfigurationService;
         this.exceptionFactory = exceptionFactory;
         this.thesaurus = thesaurus;
+        this.resourceHelper = resourceHelper;
     }
 
     /**
@@ -164,6 +169,19 @@ public class MeterActivationResource {
             throw new LocalizedFieldValidationException(MessageSeeds.FIELD_MISSING, "interval.start");
         }
         Instant start = Instant.ofEpochMilli(meterActivationInfo.interval.start).truncatedTo(ChronoUnit.MINUTES);
+
+        if (!meter.getState(start).filter(state -> state.getStage().filter(stage -> stage.getName().equals(EndDeviceStage.OPERATIONAL.getKey())).isPresent()).isPresent()) {
+            StateTimeSlice state = meter.getStateTimeline().flatMap(stateTimeline -> stateTimeline.getSlices().stream()
+                    .filter(stateTimeSlice -> stateTimeSlice.getPeriod()
+                            .lowerEndpoint()
+                            .isAfter(Instant.ofEpochMilli(meterActivationInfo.interval.start).truncatedTo(ChronoUnit.MINUTES))
+                            && stateTimeSlice.getState().getStage().filter(stage -> stage.getName().equals(EndDeviceStage.OPERATIONAL.getKey())).isPresent())
+                    .sorted((a, b) -> a.getPeriod().lowerEndpoint().compareTo(b.getPeriod().lowerEndpoint()))
+                    .findFirst())
+                    .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.INVALID_END_DEVICE_STAGE, start));
+            start = state.getPeriod().lowerEndpoint();
+        }
+
         if (!usagePoint.getMeterActivations().isEmpty() && start.isBefore(usagePoint.getMeterActivations()
                 .get(usagePoint.getMeterActivations().size() - 1)
                 .getStart())) {
@@ -171,12 +189,54 @@ public class MeterActivationResource {
         }
 
         UsagePointMeterActivator linker = usagePoint.linkMeters();
-        if(!usagePoint.getMeterActivations().isEmpty()){
+        if (usagePoint.getMeterActivations(start).stream().filter(meterActivation -> meterActivation.getMeterRole().filter(meterRole::equals).isPresent()).findAny().isPresent()) {
             linker.clear(start, meterRole);
-            linker.activate(start, meter, meterRole);
-        } else {
-            linker.clear(meterRole);
-            linker.activate(meter, meterRole);
+        }
+        linker.activate(start, meter, meterRole);
+        linker.complete();
+
+        MeterActivation activation = resourceHelper.findMeterActivation(usagePoint, meterRole, start)
+                .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_METER_ACTIVATION_FOR_METER_ROLE, meterActivationInfo.meterRole));
+
+        return meterActivationInfoFactory.from(activation, uriInfo, Collections.emptyList());
+    }
+
+    /**
+     * The meter activation records which meter was associated with a usage point during which time frame.
+     * When creating a meter activation, the start time must be provided. Meter is optional.
+     *
+     * @param mRID Unique identifier of the usage point
+     * @param meterActivationInfo Description of the to be created meter activation
+     * @param uriInfo uriInfo
+     * @return The updated meter activation
+     * @summary Update an activation for a meter
+     */
+    @PUT
+    @Path("/{meterActivationId}")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
+    @Transactional
+    public MeterActivationInfo updateMeterActivation(@PathParam("mRID") String mRID, @Context UriInfo uriInfo, MeterActivationInfo meterActivationInfo) {
+        if (meterActivationInfo == null) {
+            throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.EMPTY_REQUEST);
+        }
+        UsagePoint usagePoint = meteringService.findUsagePointByMRID(mRID)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_USAGE_POINT));
+        if (meterActivationInfo.meterRole == null) {
+            throw new LocalizedFieldValidationException(MessageSeeds.FIELD_MISSING, "meterRole");
+        }
+        MeterRole meterRole = metrologyConfigurationService.findMeterRole(meterActivationInfo.meterRole)
+                .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_METER_ROLE, "meterRole", meterActivationInfo.meterRole));
+        if (meterActivationInfo.interval == null || meterActivationInfo.interval.start == null) {
+            throw new LocalizedFieldValidationException(MessageSeeds.FIELD_MISSING, "interval.start");
+        }
+        Instant start = Instant.ofEpochMilli(meterActivationInfo.interval.start).truncatedTo(ChronoUnit.MINUTES);
+        Instant end = Instant.ofEpochMilli(meterActivationInfo.interval.end).truncatedTo(ChronoUnit.MINUTES);
+
+        UsagePointMeterActivator linker = usagePoint.linkMeters();
+        if (usagePoint.getMeterActivations(start).stream().filter(meterActivation -> meterActivation.getMeterRole().filter(meterRole::equals).isPresent()).findAny().isPresent()) {
+            linker.clear(end, meterRole);
         }
         linker.complete();
 

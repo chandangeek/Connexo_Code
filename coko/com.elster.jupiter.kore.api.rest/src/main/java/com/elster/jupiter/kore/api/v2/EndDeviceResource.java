@@ -11,6 +11,8 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.FieldSelection;
+import com.elster.jupiter.rest.api.util.v1.hypermedia.JsonQueryParameters;
+import com.elster.jupiter.rest.api.util.v1.hypermedia.PagedInfoList;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.PROPFIND;
 
@@ -27,6 +29,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import java.time.Clock;
 import java.time.Instant;
@@ -130,17 +133,23 @@ public class EndDeviceResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Path("/{meterMrid}/lifecyclestates")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
-    public List<EndDeviceLifeCycleStateInfo> getEndDeviceLifeCycleStates(@PathParam("meterMrid") String meterMrid, @QueryParam("from") Long from, @QueryParam("to") Long to, @Context UriInfo uriInfo) {
+    public PagedInfoList<EndDeviceLifeCycleStateInfo> getEndDeviceLifeCycleStates(@PathParam("meterMrid") String meterMrid, @QueryParam("from") Long from, @QueryParam("to") Long to, @Context UriInfo uriInfo, @BeanParam JsonQueryParameters queryParameters) {
         Range<Instant> range = Range.openClosed(from != null ? Instant.ofEpochMilli(from) : Instant.EPOCH, to != null ? Instant.ofEpochMilli(to) : Instant.MAX);
 
         EndDevice meter = meteringService.findMeterByMRID(meterMrid)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_END_DEVICE));
 
-        return meter.getStateTimeline().map(stateTimeline -> stateTimeline.getSlices().stream()
+        List<EndDeviceLifeCycleStateInfo> infos = meter.getStateTimeline().map(stateTimeline -> stateTimeline.getSlices().stream()
                 .filter(stateTimeSlice -> stateTimeSlice.getPeriod().isConnected(range))
                 .map(endDeviceLifeCycleStateInfoFactory::asInfo)
                 .collect(Collectors.toList()))
                 .orElse(Collections.emptyList());
+
+        UriBuilder uriBuilder = uriInfo.getBaseUriBuilder()
+                .path(EndDeviceResource.class)
+                .resolveTemplate("meterMrid", meterMrid);
+
+        return PagedInfoList.from(infos, queryParameters, uriBuilder, uriInfo);
     }
 
     /**
