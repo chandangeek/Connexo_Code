@@ -15,6 +15,11 @@ public class NonOrBigDecimalValueProperty {
         isNone = true;
     }
 
+    public NonOrBigDecimalValueProperty(BigDecimal value){
+        isNone = false;
+        this.value = value;
+    }
+
     public boolean isNone;
     public BigDecimal value;
 }

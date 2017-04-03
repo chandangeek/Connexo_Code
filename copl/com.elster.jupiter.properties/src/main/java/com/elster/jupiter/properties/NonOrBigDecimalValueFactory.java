@@ -21,13 +21,10 @@ public class NonOrBigDecimalValueFactory extends AbstractValueFactory<NonOrBigDe
 
     @Override
     public NonOrBigDecimalValueProperty fromStringValue(String stringValue) {
-        // FIXME
         if (stringValue.equals(NONE_VALUE)) {
             return new NonOrBigDecimalValueProperty();
         } else {
-            return new NonOrBigDecimalValueProperty() {{
-                value = new BigDecimal(stringValue.replaceAll(NOT_NONE_VALUE, ""));
-            }};
+            return new NonOrBigDecimalValueProperty(new BigDecimal(stringValue.replaceAll(NOT_NONE_VALUE, "")));
         }
     }
 

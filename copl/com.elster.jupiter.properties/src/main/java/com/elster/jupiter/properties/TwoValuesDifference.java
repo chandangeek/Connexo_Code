@@ -15,7 +15,7 @@ public abstract class TwoValuesDifference {
 
     public Type type;
 
-    protected enum Type {
+    public enum Type {
         absolute, percent
     }
 }
