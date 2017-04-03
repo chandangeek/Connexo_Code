@@ -6,12 +6,14 @@ package com.elster.jupiter.validation.rest;
 
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSetVersion;
+import com.elster.jupiter.validation.properties.ValidationPropertyDefinitionLevel;
 
 import javax.inject.Inject;
 import java.util.HashMap;
@@ -44,7 +46,9 @@ public class ValidationRuleInfoFactory {
         validationRuleInfo.deleted = validationRule.isObsolete();
         ValidationRuleSetVersion ruleSetVersion = validationRule.getRuleSetVersion();
         validationRuleInfo.ruleSetVersion = new ValidationRuleSetVersionInfo(ruleSetVersion);
-        validationRuleInfo.properties = propertyValueInfoService.getPropertyInfos(validationRule.getPropertySpecs(), validationRule.getProps());
+        List<PropertySpec> propertySpecs = validationRule.getPropertySpecs(ValidationPropertyDefinitionLevel.VALIDATION_RULE);
+        Map<String, Object> propertyValues = validationRule.getProps();
+        validationRuleInfo.properties = propertyValueInfoService.getPropertyInfos(propertySpecs, propertyValues);
         validationRuleInfo.readingTypes.addAll(validationRule.getReadingTypes().stream().map(readingTypeInfoFactory::from).collect(Collectors.toList()));
         validationRuleInfo.version = validationRule.getVersion();
         validationRuleInfo.parent = new VersionInfo<>(ruleSetVersion.getId(), ruleSetVersion.getVersion());

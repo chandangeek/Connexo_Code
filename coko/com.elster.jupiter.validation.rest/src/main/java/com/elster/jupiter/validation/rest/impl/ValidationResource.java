@@ -27,6 +27,7 @@ import com.elster.jupiter.validation.ValidationRuleSetVersion;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.Validator;
 import com.elster.jupiter.validation.ValidatorNotFoundException;
+import com.elster.jupiter.validation.properties.ValidationPropertyDefinitionLevel;
 import com.elster.jupiter.validation.rest.ValidationActionInfos;
 import com.elster.jupiter.validation.rest.ValidationRuleInfo;
 import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
@@ -340,7 +341,7 @@ public class ValidationResource {
                                     .toArray(String[]::new));
                     try {
                         validationService.getValidator(info.implementation)
-                                .getPropertySpecs()
+                                .getPropertySpecs(ValidationPropertyDefinitionLevel.VALIDATION_RULE)
                                 .stream()
                                 .map(spec -> Pair.of(spec.getName(), propertyValueInfoService.findPropertyValue(spec, info.properties)))
                                 .filter(pair -> pair.getLast() != null)
@@ -370,7 +371,7 @@ public class ValidationResource {
 
             List<String> mRIDs = info.readingTypes.stream().map(readingTypeInfo -> readingTypeInfo.mRID).collect(Collectors.toList());
             Map<String, Object> propertyMap = new HashMap<>();
-            for (PropertySpec propertySpec : rule.getPropertySpecs()) {
+            for (PropertySpec propertySpec : rule.getPropertySpecs(ValidationPropertyDefinitionLevel.VALIDATION_RULE)) {
                 Object value = propertyValueInfoService.findPropertyValue(propertySpec, info.properties);
                 if (value != null) {
                     propertyMap.put(propertySpec.getName(), value);
@@ -474,7 +475,7 @@ public class ValidationResource {
                 .map(validator -> new ValidatorInfo(
                         validator.getClass().getName(),
                         validator.getDisplayName(),
-                        propertyValueInfoService.getPropertyInfos(validator.getPropertySpecs())))
+                        propertyValueInfoService.getPropertyInfos(validator.getPropertySpecs(ValidationPropertyDefinitionLevel.VALIDATION_RULE))))
                 .collect(Collectors.toList());
         return PagedInfoList.fromCompleteList("validators", data, parameters);
     }
