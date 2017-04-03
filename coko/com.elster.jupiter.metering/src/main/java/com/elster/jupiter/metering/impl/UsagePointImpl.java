@@ -564,7 +564,7 @@ public class UsagePointImpl implements ServerUsagePoint {
         validateUsagePointStage(start);
         validateEndDeviceStage(this.getMeterActivations(), start);
         validateMetrologyConfigOverlapping(metrologyConfiguration, start);
-        validateMeters(this.getMeterActivations(), metrologyConfiguration.getContracts());
+        validateMeters(this.getMeterActivations(start), metrologyConfiguration.getContracts());
         validateEffectiveMetrologyConfigurationInterval(start, end);
         validateAndClosePreviousMetrologyConfigurationIfExists(start);
         Range<Instant> effectiveInterval = end != null ? Range.closedOpen(start, end) : Range.atLeast(start);
