@@ -16,7 +16,8 @@ Ext.define('Imt.usagepointsetup.view.ActivateMeters', {
 
     listeners: {
         afterrender: function () {
-            this.down('#meter-activations-field').setMeterRoles(this.meterRoles);
+            var me = this;
+            me.down('#meter-activations-field').setMeterRoles(me.meterRoles, me.meterRoles[0].activationTime);
         }
     },
 

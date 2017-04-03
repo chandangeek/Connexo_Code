@@ -36,14 +36,13 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.meteractivations.MeterAct
             {
                 header: Uni.I18n.translate('general.meter', 'IMT', 'Meter'),
                 dataIndex: 'meter',
-                itemId: 'meter-meter',
                 disableTooltip: true,
                 flex: 1,
                 editor: {
                     xtype: 'combo',
                     width: 270,
                     fieldType: 'meterCombo',
-                    multiSelect: false,
+                    // multiSelect: false,
                     emptyText: Uni.I18n.translate('usagepoint.setMeters.strtTyping', 'IMT', 'Start typing to select a meter'),
                     store: 'Imt.usagepointsetup.store.Devices',
                     displayField: 'name',
@@ -54,7 +53,6 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.meteractivations.MeterAct
                     queryCaching: false,
                     minChars: 1,
                     loadStore: false,
-                    forceSelection: true,
                     cls: 'stretchy-combo',
                     listeners: me.meterComboLiseners
                 }
@@ -93,13 +91,13 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.meteractivations.MeterAct
                     // width: 120,
                     iconCls: 'icon-cancel-circle2 remove-button-grid',
                     tooltip: Uni.I18n.translate('general.UnlinkMeter', 'UNI', 'Unlink meter'),
-                    handler: function (grid, rowIndex) {
+                    handler: function (grid, rowIndex, ssdd, sddd, ressc, rec) {
                         var colNum = 1,
                             cellSelector = grid.getCellSelector(grid.up('grid').columns[colNum]),
                             domEl = grid.getEl().query(cellSelector)[colNum],
                             comboDom = Ext.get(domEl.getAttribute('id')).query('.stretchy-combo')[rowIndex],
                             combo = Ext.getCmp(comboDom.getAttribute('id'));
-                        combo.clearValue()
+                        combo.clearValue();
                     }
                 }
             );
@@ -127,12 +125,6 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.meteractivations.MeterAct
             picker.on('beforehide', function () {
                 picker.un('refresh', fn);
             }, combo, {single: true});
-        },
-
-        change: function (field, newValue) {
-            if (Ext.isEmpty(newValue)) {
-                field.reset();
-            }
         }
     }
 });

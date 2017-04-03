@@ -101,7 +101,7 @@ Ext.define('Imt.usagepointmanagement.model.UsagePoint', {
 
     activateMeters: function (callback, failure) {
         var me = this;
-console.log(me.getProxy().getWriter().getRecordData(me));
+
         Ext.Ajax.request({
             url: '../../api/udr/usagepoints/' + encodeURIComponent(me.get('name')) + '/activatemeters',
             method: 'PUT',
