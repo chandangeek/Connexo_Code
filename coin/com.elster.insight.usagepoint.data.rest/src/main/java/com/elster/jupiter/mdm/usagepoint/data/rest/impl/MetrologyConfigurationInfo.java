@@ -156,8 +156,8 @@ public class MetrologyConfigurationInfo {
                                 .flatMap(he -> he.getURLForEndDevice(meter))
                                 .map(URL::toString)
                                 .orElse(null);
+                        info.activationTime = meterActivation.getStart();
                     });
-                    info.activationTime = this.activationTime;
                 });
         return info;
     }
