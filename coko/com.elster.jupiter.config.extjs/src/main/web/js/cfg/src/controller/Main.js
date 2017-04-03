@@ -36,6 +36,13 @@ Ext.define('Cfg.controller.Main', {
     init: function () {
         this.initHistorians();
         this.initMenu();
+
+        this.control({
+            'ruleSetSubMenu': {
+                beforerender: this.onRuleSetMenuBeforeRender
+            }
+        });
+
         this.callParent();
     },
 
@@ -102,5 +109,9 @@ Ext.define('Cfg.controller.Main', {
      */
     showContent: function (widget) {
         this.getApplication().fireEvent('changecontentevent', widget);
+    },
+
+    onRuleSetMenuBeforeRender: function (menu) {
+        this.getApplication().fireEvent('validationrulesetmenurender', menu);
     }
 });
