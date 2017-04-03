@@ -4,8 +4,6 @@
 
 package com.elster.jupiter.system.app.impl;
 
-import com.elster.jupiter.pki.security.Privileges;
-
 import java.util.Arrays;
 import java.util.List;
 
@@ -31,6 +29,7 @@ class SysAppPrivileges {
                 com.elster.jupiter.fileimport.security.Privileges.Constants.ADMINISTRATE_IMPORT_SERVICES,
                 com.elster.jupiter.fileimport.security.Privileges.Constants.VIEW_IMPORT_SERVICES,
                 com.elster.jupiter.fileimport.security.Privileges.Constants.VIEW_HISTORY,
+                com.elster.jupiter.fileimport.security.Privileges.Constants.IMPORT_FILE,
                 //data lifecycle
                 com.elster.jupiter.data.lifecycle.security.Privileges.Constants.VIEW_DATA_PURGE,
                 com.elster.jupiter.data.lifecycle.security.Privileges.Constants.ADMINISTRATE_DATA_PURGE,
@@ -58,9 +57,9 @@ class SysAppPrivileges {
                 //public api
                 com.elster.jupiter.kore.api.security.Privileges.Constants.PUBLIC_REST_API,
                 // PKI
-                Privileges.Constants.VIEW_CERTIFICATES,
-                Privileges.Constants.ADMINISTRATE_CERTIFICATES,
-                Privileges.Constants.ADMINISTRATE_TRUST_STORES
+                com.elster.jupiter.pki.security.Privileges.Constants.VIEW_CERTIFICATES,
+                com.elster.jupiter.pki.security.Privileges.Constants.ADMINISTRATE_CERTIFICATES,
+                com.elster.jupiter.pki.security.Privileges.Constants.ADMINISTRATE_TRUST_STORES
         );
     }
 }
