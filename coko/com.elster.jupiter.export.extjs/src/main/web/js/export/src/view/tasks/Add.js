@@ -332,7 +332,7 @@ Ext.define('Dxp.view.tasks.Add', {
                                 queryMode: 'local',
                                 displayField: 'name',
                                 valueField: 'id',
-                                name: 'metrologyPurpose',
+                                name: 'purpose',
                                 store: 'Dxp.store.MetrologyPurposes',
                                 emptyText: Uni.I18n.translate('estimationtasks.addValidationTask.purposePrompt', 'DES', 'Select a purpose...'),
                                 disabled: false,

@@ -61,11 +61,11 @@ Ext.define('Dxp.model.DataExportTask', {
             }
         },
         {
-            name: 'metrologyPurpose',
+            name: 'purpose',
             persist: false,
             mapping: function (data) {
-                if (data.standardDataSelector && data.standardDataSelector.metrologyPurpose) {
-                    return data.standardDataSelector.metrologyPurpose.name;
+                if (data.standardDataSelector && data.standardDataSelector.purpose) {
+                    return data.standardDataSelector.purpose.name;
                 } else {
                     return null;
                 }

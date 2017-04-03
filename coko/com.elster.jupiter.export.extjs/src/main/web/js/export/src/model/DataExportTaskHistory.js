@@ -97,6 +97,17 @@ Ext.define('Dxp.model.DataExportTaskHistory', {
             }
         },
         {
+            name: 'purpose',
+            persist: false,
+            mapping: function (data) {
+                if (data.task.standardDataSelector && data.task.standardDataSelector.purpose) {
+                    return data.task.standardDataSelector.purpose.name;
+                } else {
+                    return null;
+                }
+            }
+        },
+        {
             name: 'logLevel',
             persist:false,
             mapping:  function (data) {

@@ -26,6 +26,6 @@ Ext.define('Dxp.model.AddDataExportTaskForm', {
         'updateTimeFrame',
         'exportContinuousData',
         'updatedDataAndOrAdjacentData',
-        'metrologyPurpose'
+        'purpose'
     ]
 });
