@@ -10,6 +10,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.meteractivations.MeterAct
         fields: ['meterRole', 'meter', 'activationTime']
     }),
     disableSelection: true,
+    meterRoles: null,
     plugins: [
         {
             ptype: 'editableCells'
@@ -26,7 +27,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.meteractivations.MeterAct
             {
                 header: Uni.I18n.translate('general.meterRole', 'IMT', 'Meter role'),
                 dataIndex: 'meterRole',
-                flex: 1,
+                flex: 0.5,
                 renderer: function (value, metaData) {
                     metaData.tdCls = Ext.baseCSSPrefix + 'td-content-middle';
                     return value ? value.name : '-';
@@ -35,10 +36,12 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.meteractivations.MeterAct
             {
                 header: Uni.I18n.translate('general.meter', 'IMT', 'Meter'),
                 dataIndex: 'meter',
+                itemId: 'meter-meter',
                 disableTooltip: true,
                 flex: 1,
                 editor: {
                     xtype: 'combo',
+                    width: 270,
                     fieldType: 'meterCombo',
                     multiSelect: false,
                     emptyText: Uni.I18n.translate('usagepoint.setMeters.strtTyping', 'IMT', 'Start typing to select a meter'),
@@ -60,13 +63,13 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.meteractivations.MeterAct
                 header: Uni.I18n.translate('general.activationDate', 'IMT', 'Activation date'),
                 dataIndex: 'activationTime',
                 disableTooltip: true,
-                width: 310,
+                flex: 1,
                 editor: {
                     xtype: 'date-time',
                     itemId: 'installation-time-date',
                     valueInMilliseconds: true,
                     layout: 'hbox',
-                    width: '100%',
+                    width: 400,
                     dateConfig: {
                         width: 110
                     },
@@ -83,7 +86,24 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.meteractivations.MeterAct
                 }
             }
         ];
-
+        if (me.meterRoles) {
+            me.columns.push(
+                {
+                    xtype: 'uni-actioncolumn-remove',
+                    // width: 120,
+                    iconCls: 'icon-cancel-circle2 remove-button-grid',
+                    tooltip: Uni.I18n.translate('general.UnlinkMeter', 'UNI', 'Unlink meter'),
+                    handler: function (grid, rowIndex) {
+                        var colNum = 1,
+                            cellSelector = grid.getCellSelector(grid.up('grid').columns[colNum]),
+                            domEl = grid.getEl().query(cellSelector)[colNum],
+                            comboDom = Ext.get(domEl.getAttribute('id')).query('.stretchy-combo')[rowIndex],
+                            combo = Ext.getCmp(comboDom.getAttribute('id'));
+                        combo.clearValue()
+                    }
+                }
+            );
+        }
         me.callParent(arguments);
     },
 

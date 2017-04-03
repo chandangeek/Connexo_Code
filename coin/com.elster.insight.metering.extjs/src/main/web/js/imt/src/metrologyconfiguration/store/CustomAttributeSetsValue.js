@@ -11,6 +11,9 @@ Ext.define('Imt.metrologyconfiguration.store.CustomAttributeSetsValue', {
         timeout: 240000,
         reader: {
             type: 'json'
-        }
+        },
+        pageParam: false,
+        startParam: false,
+        limitParam: false
     }
 });
