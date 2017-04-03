@@ -4,6 +4,9 @@
 
 package com.elster.jupiter.pki;
 
+import com.elster.jupiter.util.HasId;
+import com.elster.jupiter.util.HasName;
+
 import java.security.KeyStore;
 import java.security.cert.X509Certificate;
 import java.util.List;
@@ -12,7 +15,7 @@ import java.util.Optional;
 /**
  * A trust store is a name collection of trusted certificates. The certificates are stored as TrustedCertificate.
  */
-public interface TrustStore {
+public interface TrustStore extends HasId, HasName {
 
     long getId();
 
