@@ -192,7 +192,7 @@ public class StateTransitionTriggerEventTopicHandler implements TopicHandler {
                         .getId());
                 if(bpmProcess.isPresent() && isProcessAvailableForDeviceTransition(bpmProcess.get())){
                     Map<String, Object> expectedParams = new HashMap<>();
-                    expectedParams.put("deviceId", Long.valueOf(sourceId));
+                    expectedParams.put("deviceId", usagePointProvider.getDeviceMRID(Long.valueOf(sourceId)));
                     bpmService.startProcess(bpmProcess.get(), expectedParams);
                 }
             }else if(sourceType.equals(USAGEPOINT)){
@@ -200,7 +200,7 @@ public class StateTransitionTriggerEventTopicHandler implements TopicHandler {
                         .getId());
                 if(bpmProcess.isPresent() && isProcessAvailableForUsagePointTransition(bpmProcess.get())){
                     Map<String, Object> expectedParams = new HashMap<>();
-                    expectedParams.put("usagePointId", Long.valueOf(sourceId));
+                    expectedParams.put("usagePointId", usagePointProvider.getUsagePointMRID(Long.valueOf(sourceId)));
                     bpmService.startProcess(bpmProcess.get(), expectedParams);
                 }
             }

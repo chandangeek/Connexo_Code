@@ -10,4 +10,8 @@ public interface FsmUsagePointProvider {
 
     boolean areProcessPropertiesAvailableForUP(Map<String, Object> processProperties, long id);
 
+    String getDeviceMRID(long id);
+
+    String getUsagePointMRID(long id);
+
 }
