@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.protocol.api.legacy;
 
-import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
+import com.energyict.protocol.LoadProfileConfiguration;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.ProfileData;
 

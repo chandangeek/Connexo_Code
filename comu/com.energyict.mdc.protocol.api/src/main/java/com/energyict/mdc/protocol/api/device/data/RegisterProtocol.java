@@ -29,17 +29,6 @@ import java.io.IOException;
 public interface RegisterProtocol {
 
     /**
-     * This method is used to request a RegisterInfo object that gives info
-     * about the meter's supporting the specific ObisCode. If the ObisCode is
-     * not supported, NoSuchRegister is thrown.
-     *
-     * @param obisCode the ObisCode to request RegisterInfo for
-     * @return RegisterInfo about the ObisCode
-     * @throws IOException Thrown in case of an exception
-     */
-    RegisterInfo translateRegister(ObisCode obisCode) throws IOException;
-
-    /**
      * Request a RegisterValue object for an ObisCode. If the ObisCode is not
      * supported, NoSuchRegister is thrown.
      *
@@ -47,6 +36,6 @@ public interface RegisterProtocol {
      * @return RegisterValue object for an ObisCode
      * @throws IOException Thrown in case of an exception
      */
-    RegisterValue readRegister(ObisCode obisCode) throws IOException;
+    com.energyict.protocol.RegisterValue readRegister(ObisCode obisCode) throws IOException;
 
 }

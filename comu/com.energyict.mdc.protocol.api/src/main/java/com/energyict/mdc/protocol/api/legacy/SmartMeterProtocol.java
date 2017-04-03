@@ -7,9 +7,9 @@ package com.energyict.mdc.protocol.api.legacy;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.mdc.protocol.api.UnsupportedException;
-import com.energyict.mdc.upl.meterdata.BreakerStatus;
 import com.energyict.mdc.protocol.api.legacy.dynamic.Pluggable;
 import com.energyict.mdc.upl.DeviceDescriptionSupport;
+import com.energyict.mdc.upl.meterdata.BreakerStatus;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,50 +28,50 @@ public interface SmartMeterProtocol extends Pluggable, MultipleLoadProfileSuppor
     /**
      * The string typically used for the device address property
      */
-    final String ADDRESS = "DeviceId";
+    String ADDRESS = "DeviceId";
 
     /**
      * The string used for the protocol password property
      */
-    final String PASSWORD = "Password";
+    String PASSWORD = "Password";
 
     /**
      * The string used for the protocol ProfileInterval property
      */
-    final String PROFILEINTERVAL = "ProfileInterval";
+    String PROFILEINTERVAL = "ProfileInterval";
 
     /**
      * The string used for the serialNumber property
      */
-    final String SERIALNUMBER = "SerialNumber";
+    String SERIALNUMBER = "SerialNumber";
 
     /**
      * The string used for the nodeId property
      */
-    final String NODEID = "NodeAddress";
+    String NODEID = "NodeAddress";
 
     /**
      * The string used for the roundtripCorrection property.
      * This property is used by the getTime() and setTime() method
      * to correct the communication roundtrip.
      */
-    final String ROUNDTRIPCORR = "RoundtripCorrection";
+    String ROUNDTRIPCORR = "RoundtripCorrection";
 
     /**
      * The string used for the correctTime property.
      * The property is used only by the protocoltester software.
      */
-    final String CORRECTTIME = "CorrectTime";
+    String CORRECTTIME = "CorrectTime";
 
     /**
      * The string used for the protocol classname property
      */
-    final String PROTOCOL = "ProtocolReader";
+    String PROTOCOL = "ProtocolReader";
 
     /**
      * Defines the number of retries a certain communicationRequest may be retried
      */
-    final String RETRIES = "Retries";
+    String RETRIES = "Retries";
 
     /**
      * <p>
@@ -214,7 +214,7 @@ public interface SmartMeterProtocol extends Pluggable, MultipleLoadProfileSuppor
      * @throws IOException          <br>
      * @throws UnsupportedException if the device does not support this operation
      */
-    void initializeDevice() throws IOException, UnsupportedException;
+    void initializeDevice() throws IOException;
 
     /**
      * This method is called by the collection software before the disconnect()
