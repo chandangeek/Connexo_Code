@@ -64,6 +64,7 @@ public enum MessageSeeds implements MessageSeed {
     SEARCHABLE_PROPERTY_NOT_FOUND(4021, Constants.SEARCHABLE_PROPERTY_NOT_FOUND, "The ''{0}'' searchable property can not be used as usage point requirement."),
     BAD_USAGE_POINT_REQUIREMENT_VALUE(4022, Constants.BAD_USAGE_POINT_REQUIREMENT_VALUE, "Bad usage point requirement value: {0}."),
     FAILED_TO_DEACTIVATE_METROLOGY_CONFIGURATION(4023, Constants.FAILED_TO_DEACTIVATE_METROLOGY_CONFIGURATION, "The metrology configuration is still used by at least one usage point. Use search to find the usage points with such metrology configuration."),
+    READING_TYPE_FOR_DELIVERABLE_ALREADY_USED_ON_CONTRACT(4024, Constants.READING_TYPE_FOR_DELIVERABLE_ALREADY_USED_ON_CONTRACT, "The readingtype is already used for another deliverable on this metrology contract."),
 
     INVALID_DIMENSION(5000, Constants.INVALID_DIMENSION, "Invalid dimension"),
     INVALID_ARGUMENTS_FOR_MULTIPLICATION(5001, Constants.INVALID_ARGUMENTS_FOR_MULTIPLICATION, "Dimensions from multiplication arguments do not result in a valid dimension."),
@@ -94,6 +95,7 @@ public enum MessageSeeds implements MessageSeed {
     CUSTOM_PROPERTY_SET_NOT_VERSIONED(5026, Constants.CUSTOM_PROPERTY_SET_NOT_VERSIONED, "The custom property set ''{0}'' is not versioned, only versioned sets are supported."),
     CUSTOM_PROPERTY_MUST_BE_NUMERICAL(5027, Constants.CUSTOM_PROPERTY_MUST_BE_NUMERICAL, "The property ''{0}'' of custom property set ''{1}'' must be numerical."),
     CUSTOM_PROPERTY_MUST_BE_SLP(5028, Constants.CUSTOM_PROPERTY_MUST_BE_SLP, "The property ''{0}'' of custom property set ''{1}'' must be numerical."),
+    INVALID_METROLOGYCONTRACT_FOR_DELIVERABLE(5029, Constants.INVALID_METROLOGYCONTRACT_FOR_DELIVERABLE, "The deliverable with id ''{0}'' cannot be used because it has a different metrology contract."),
 
     CONTRACT_NOT_ACTIVE(6000, Constants.CONTRACT_NOT_ACTIVE, "The metrology contract with purpose {0} is not active on usage point ''{1}'' during the requested data aggregation period ({2})"),
     VIRTUAL_USAGE_POINT_ONLY_SUPPORT_CONSTANT_LIKE_EXPRESSIONS(6001, Constants.VIRTUAL_USAGE_POINT_ONLY_SUPPORT_CONSTANT_LIKE_EXPRESSIONS, "Unmeasured usage points only support constants and custom attributes or operations and functions that operate on those"),
@@ -239,6 +241,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String ROLE_IS_NOT_ALLOWED_ON_CONFIGURATION = "usagepoint.metrologyconfiguration.role.not.allowed";
         public static final String INVALID_METROLOGYCONFIGURATION_FOR_REQUIREMENT = "invalid.metrologyconfiguration.for.requirement";
         public static final String INVALID_METROLOGYCONFIGURATION_FOR_DELIVERABLE = "invalid.metrologyconfiguration.for.deliverable";
+        public static final String INVALID_METROLOGYCONTRACT_FOR_DELIVERABLE = "invalid.metrologycontract.for.deliverable";
         public static final String READINGTYPE_OF_DELIVERABLE_IS_NOT_COMPATIBLE_WITH_FORMULA = "readingtype.of.deliverable.incompatible.with.formula";
         public static final String DELIVERABLE_MUST_HAVE_THE_SAME_CONFIGURATION = "deliverable.must.have.the.same.configuration";
         public static final String REQUIREMENT_MUST_HAVE_UNIQUE_RT = "requirement.must.have.unique.rt";
@@ -252,6 +255,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String INVALID_READINGTYPE_UNIT_IN_REQUIREMENT = "invalid.readingtype.in.requirement";
         public static final String INCOMPATIBLE_INTERVAL_LENGTHS = "incompatible.intervallengths";
         public static final String READING_TYPE_FOR_DELIVERABLE_ALREADY_USED = "reading.type.already.used.for.deliverable.on.same.metrologyconfig";
+        public static final String READING_TYPE_FOR_DELIVERABLE_ALREADY_USED_ON_CONTRACT = "reading.type.already.used.for.deliverable.on.same.metrologycontract";
         public static final String CAN_NOT_DELETE_READING_TYPE_DELIVERABLE_IN_USE = "can.not.delete.reading.type.deliverable.in.use";
         public static final String SEARCHABLE_PROPERTY_NOT_FOUND = "searchable.property.not.found";
         public static final String BAD_USAGE_POINT_REQUIREMENT_VALUE = "bad.usage.point.requirement.value";

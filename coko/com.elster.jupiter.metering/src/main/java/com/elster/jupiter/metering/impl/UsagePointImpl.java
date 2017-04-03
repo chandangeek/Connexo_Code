@@ -926,8 +926,10 @@ public class UsagePointImpl implements ServerUsagePoint {
 
         ReadingTypeRequirementsCollector requirementsCollector = new ReadingTypeRequirementsCollector();
 
-        metrologyConfiguration.getDeliverables()
+        metrologyConfiguration.getContracts()
                 .stream()
+                .map(MetrologyContract::getDeliverables)
+                .flatMap(Collection::stream)
                 .filter(deliverable -> readingTypes.contains(deliverable.getReadingType()))
                 .map(ReadingTypeDeliverable::getFormula)
                 .map(Formula::getExpressionNode)

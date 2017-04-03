@@ -36,7 +36,19 @@ public interface MetrologyContract extends HasId {
      */
     MetrologyConfiguration getMetrologyConfiguration();
 
+    /**
+     * @deprecated because new deliverable is added to the contract as a result of building with the help of {@link ReadingTypeDeliverableBuilder},
+     * which is returned by method {@link #newReadingTypeDeliverable(String, DeliverableType, ReadingType, Formula.Mode)}
+     * or {@link #newReadingTypeDeliverable(String, ReadingType, Formula.Mode)}
+     *
+     * Just returns the current contract without adding new {@link ReadingTypeDeliverable}
+     */
+    @Deprecated
     MetrologyContract addDeliverable(ReadingTypeDeliverable deliverable);
+
+    ReadingTypeDeliverableBuilder newReadingTypeDeliverable(String name, ReadingType readingType, Formula.Mode mode);
+
+    ReadingTypeDeliverableBuilder newReadingTypeDeliverable(String name, DeliverableType type, ReadingType readingType, Formula.Mode mode);
 
     void removeDeliverable(ReadingTypeDeliverable deliverable);
 

@@ -373,7 +373,8 @@ public class DataAggregationServiceImplCalculateGasIT {
         System.out.println("simple15Mins::CONSUMPTION_REQUIREMENT_ID = " + consumptionRequirementId);
 
         // Setup configuration deliverables
-        ReadingTypeDeliverableBuilder builder = this.configuration.newReadingTypeDeliverable("consumption", fifteenMinutesGas_kWh, Formula.Mode.EXPERT);
+        this.contract = this.configuration.addMetrologyContract(METROLOGY_PURPOSE);
+        ReadingTypeDeliverableBuilder builder = this.contract.newReadingTypeDeliverable("consumption", fifteenMinutesGas_kWh, Formula.Mode.EXPERT);
         ReadingTypeDeliverable netConsumption =
                 builder.build(
                         builder.multiply(
@@ -388,9 +389,6 @@ public class DataAggregationServiceImplCalculateGasIT {
 
         // Apply MetrologyConfiguration to UsagePoint
         this.usagePoint.apply(this.configuration, feb1st2016);
-
-        this.contract = this.configuration.addMetrologyContract(METROLOGY_PURPOSE);
-        this.contract.addDeliverable(netConsumption);
 
         // Business method
         try {
@@ -459,7 +457,8 @@ public class DataAggregationServiceImplCalculateGasIT {
         System.out.println("monthlyValuesFrom15minValues::CONSUMPTION_REQUIREMENT_ID = " + consumptionRequirementId);
 
         // Setup configuration deliverables
-        ReadingTypeDeliverableBuilder builder = this.configuration.newReadingTypeDeliverable("consumption", monthlyGas_kWh, Formula.Mode.AUTO);
+        this.contract = this.configuration.addMetrologyContract(METROLOGY_PURPOSE);
+        ReadingTypeDeliverableBuilder builder = this.contract.newReadingTypeDeliverable("consumption", monthlyGas_kWh, Formula.Mode.AUTO);
         ReadingTypeDeliverable netConsumption = builder.build(builder.requirement(consumption));
 
         this.consumptionDeliverableId = netConsumption.getId();
@@ -470,9 +469,6 @@ public class DataAggregationServiceImplCalculateGasIT {
 
         // Apply MetrologyConfiguration to UsagePoint
         this.usagePoint.apply(this.configuration, feb1st2016);
-
-        this.contract = this.configuration.addMetrologyContract(METROLOGY_PURPOSE);
-        this.contract.addDeliverable(netConsumption);
 
         // Business method
         try {
