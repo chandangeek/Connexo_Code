@@ -572,6 +572,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
 
     @Test
     public void testCanActivateAndClearMetersOnUsagePoint() {
+        Instant activationDate = Instant.now();
         when(usagePointStage.getKey()).thenReturn(UsagePointStage.Key.PRE_OPERATIONAL);
 
         Meter meter1 = mock(Meter.class);
@@ -602,16 +603,19 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         meterActivation1.meter.name = meter1.getName();
         meterActivation1.meterRole = new MeterRoleInfo();
         meterActivation1.meterRole.id = meterRole1.getKey();
+        meterActivation1.meterRole.activationTime = activationDate;
 
         MeterActivationInfo meterActivation2 = new MeterActivationInfo();
         meterActivation2.meter = new MeterInfo();
         meterActivation2.meter.name = meter2.getName();
         meterActivation2.meterRole = new MeterRoleInfo();
         meterActivation2.meterRole.id = meterRole2.getKey();
+        meterActivation2.meterRole.activationTime = activationDate;
 
         MeterActivationInfo meterActivation3 = new MeterActivationInfo();
         meterActivation3.meterRole = new MeterRoleInfo();
         meterActivation3.meterRole.id = meterRole3.getKey();
+        meterActivation3.meterRole.activationTime = activationDate;
 
         UsagePointInfo info = new UsagePointInfo();
         info.version = usagePoint.getVersion();
@@ -621,8 +625,8 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
                 .put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(200);
 
-        verify(linker).activate(eq(meter1), eq(meterRole1));
-        verify(linker).activate(eq(meter2), eq(meterRole2));
+        verify(linker).activate(eq(activationDate), eq(meter1), eq(meterRole1));
+        verify(linker).activate(eq(activationDate), eq(meter2), eq(meterRole2));
         verify(linker).clear(eq(meterRole3));
         verify(linker).complete();
     }
