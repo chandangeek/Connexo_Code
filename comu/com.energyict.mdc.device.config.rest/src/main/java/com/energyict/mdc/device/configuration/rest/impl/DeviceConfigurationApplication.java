@@ -120,7 +120,8 @@ public class DeviceConfigurationApplication extends Application implements Messa
                 DeviceMessagePrivilegesResource.class,
                 ProtocolPropertiesResource.class,
                 DeviceConfigurationEstimationRuleSetResource.class,
-                MultiPartFeature.class
+                MultiPartFeature.class,
+                TrustStoreResource.class
         );
     }
 
