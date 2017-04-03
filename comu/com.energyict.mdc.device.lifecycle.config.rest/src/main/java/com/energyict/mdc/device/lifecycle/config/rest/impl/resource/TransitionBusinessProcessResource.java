@@ -31,6 +31,7 @@ public class TransitionBusinessProcessResource {
     private final TransitionBusinessProcessInfoFactory transitionBusinessProcessInfoFactory;
     private final BpmService bpmService;
     private static final String DEVICE_ASSOCIATION = "device";
+    private static final String APP_KEY = "mdc";
     private static final String PROCESS_KEY_DEVICE_STATES = "deviceStates";
 
     @Inject
@@ -48,7 +49,7 @@ public class TransitionBusinessProcessResource {
     public Response getAvailableStateChangeProcesses(@Context UriInfo uriInfo, @BeanParam JsonQueryParameters queryParams){
         //noinspection unchecked
         List<TransitionBusinessProcessInfo> activeProcesses = bpmService
-                .getActiveBpmProcessDefinitions(DEVICE_ASSOCIATION)
+                .getActiveBpmProcessDefinitions(APP_KEY)
                 .stream()
                 .filter(bpmProcessDefinition -> bpmProcessDefinition.getAssociation().equals(DEVICE_ASSOCIATION))
                 .filter(f -> List.class.isInstance(f.getProperties().get(PROCESS_KEY_DEVICE_STATES)))
@@ -59,6 +60,7 @@ public class TransitionBusinessProcessResource {
                                 .toString()
                                 .equals(uriInfo.getQueryParameters().getFirst("stateId"))))
                 .map(transitionBusinessProcessInfoFactory::from)
+                .sorted((p1, p2) -> p1.name.compareToIgnoreCase(p2.name))
                 .collect(Collectors.toList());
 
         return Response.ok(PagedInfoList.fromCompleteList("stateChangeBusinessProcesses", activeProcesses, queryParams)).build();
