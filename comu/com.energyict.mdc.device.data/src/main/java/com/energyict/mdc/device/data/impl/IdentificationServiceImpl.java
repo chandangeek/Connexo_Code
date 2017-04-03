@@ -31,6 +31,7 @@ import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
+
 import com.energyict.obis.ObisCode;
 import org.osgi.service.component.annotations.Component;
 
@@ -121,19 +122,8 @@ public class IdentificationServiceImpl implements IdentificationService {
     }
 
     @Override
-    public MessageIdentifier createMessageIdentifierByDatabaseId(long id) {
-        //TODO
-        return null;
-    }
-
-    @Override
     public MessageIdentifier createMessageIdentifierForAlreadyKnownMessage(DeviceMessage deviceMessage) {
         return new DeviceMessageIdentifierForAlreadyKnownMessage(deviceMessage);
     }
 
-    @Override
-    public MessageIdentifier createMessageIdentifierByDeviceAndProtocolInfoParts(DeviceIdentifier deviceIdentifier, String... messageProtocolInfoParts) {
-        //TODO
-        return null;
-    }
 }

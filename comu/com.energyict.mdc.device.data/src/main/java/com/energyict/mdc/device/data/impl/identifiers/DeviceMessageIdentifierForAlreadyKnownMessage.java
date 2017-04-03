@@ -14,8 +14,7 @@ import java.util.Set;
 
 /**
  * Implementation of a {@link MessageIdentifier} that uniquely identifies a {@link DeviceMessage}
- * based on the ID of the DeviceMessage
- * <p>
+ * based on the ID of the DeviceMessage.
  *
  * Date: 22/03/13
  * Time: 9:05
