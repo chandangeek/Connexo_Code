@@ -39,6 +39,15 @@ public interface Register<R extends Reading, RS extends RegisterSpec> extends Ba
     List<R> getReadings(Interval interval);
 
     /**
+     * Gets the list of {@link Reading}s whose timestamp is within the given interval.
+     *
+     * @param interval the Interval
+     * @return The List of History Reading
+     * @see Reading#getTimeStamp()
+     */
+    List<R> getHistoryReadings(Interval interval, boolean changedDataOnly);
+
+    /**
      * Gets the {@link Reading} with the specified timestamp.
      *
      * @param timestamp The timestamp of the Reading
