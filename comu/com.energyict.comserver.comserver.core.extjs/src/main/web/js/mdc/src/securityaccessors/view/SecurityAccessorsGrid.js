@@ -22,7 +22,7 @@ Ext.define('Mdc.securityaccessors.view.SecurityAccessorsGrid', {
                 flex: 3
             },
             {
-                header: Uni.I18n.translate('general.accessorType', 'PKJ', 'Accessor type'),
+                header: Uni.I18n.translate('general.accessorType', 'MDC', 'Accessor type'),
                 dataIndex: 'isKey',
                 flex: 1,
                 renderer: function(value) {
