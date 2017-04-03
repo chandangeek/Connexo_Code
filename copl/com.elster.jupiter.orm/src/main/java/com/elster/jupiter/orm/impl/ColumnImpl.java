@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.orm.impl;
 
+import com.elster.jupiter.orm.Blob;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.IllegalTableMappingException;
@@ -11,6 +12,7 @@ import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.fields.impl.ColumnConversionImpl;
+import com.elster.jupiter.orm.fields.impl.LazyLoadingBlob;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.streams.Functions;
 
@@ -207,7 +209,8 @@ public class ColumnImpl implements Column {
 
     private ColumnImpl init(TableImpl<?> table, String name) {
         if (name.length() > ColumnConversion.CATALOGNAMELIMIT) {
-            this.logAndThrowIllegalTableMappingException("Table " + getName() + " : column name '" + name + "' is too long, max length is " + ColumnConversion.CATALOGNAMELIMIT + " actual length is " + name.length() + ".");
+            this.logAndThrowIllegalTableMappingException("Table " + getName() + " : column name '" + name + "' is too long, max length is " + ColumnConversion.CATALOGNAMELIMIT + " actual length is " + name
+                    .length() + ".");
         }
         if (ReservedWord.isReserved(name)) {
             this.logAndThrowIllegalTableMappingException("Table " + getName() + " : column name '" + name + "' is a reserved word and cannot be used as the name of a column.");
@@ -232,6 +235,12 @@ public class ColumnImpl implements Column {
                 this.logAndThrowIllegalTableMappingException("Table " + getTable().getName() + " : column " + getName() + " was not assigned a DB type.");
             }
             Objects.requireNonNull(conversion);
+            if (ColumnConversionImpl.BLOB2SQLBLOB.equals(conversion)) {
+                Class<?> type = getTable().getMapperType().getType(getFieldName());
+                if (!LazyLoadingBlob.class.isAssignableFrom(type) && !Blob.class.isAssignableFrom(type)){
+                    this.logAndThrowIllegalTableMappingException("Table " + getTable().getName() + " : column " + getName() + " : blob() column must map a Blob field");
+                }
+            }
         }
         if (skipOnUpdate && updateValue != null) {
             this.logAndThrowIllegalTableMappingException("Table " + getTable().getName() + " : field " + getName() + " : updateValue must be null if skipOnUpdate");
@@ -379,13 +388,13 @@ public class ColumnImpl implements Column {
 
     boolean isStandard() {
         return
-            !isPrimaryKeyColumn() &&
-                    !isVersion() &&
-                    !hasInsertValue() &&
-                    !skipOnUpdate() &&
-                    !hasAutoValue(true) &&
-                    !isDiscriminator() &&
-                    !isVirtual();
+                !isPrimaryKeyColumn() &&
+                        !isVersion() &&
+                        !hasInsertValue() &&
+                        !skipOnUpdate() &&
+                        !hasAutoValue(true) &&
+                        !isDiscriminator() &&
+                        !isVirtual();
     }
 
     boolean hasAutoValue(boolean update) {

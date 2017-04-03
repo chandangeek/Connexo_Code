@@ -236,7 +236,7 @@ class TableDdlGenerator implements PartitionMethod.Visitor {
             sb.append("partition by range(");
             sb.append(TableImpl.JOURNALTIMECOLUMNNAME);
             sb.append(") interval (");
-            sb.append(86400L * 1000L * 30L);
+            sb.append(PARTITIONSIZE);
             sb.append(") (partition P0 values less than(0))");
         }
         return sb.toString();
@@ -365,21 +365,15 @@ class TableDdlGenerator implements PartitionMethod.Visitor {
         }
 
         // Constraints
-        Set<TableConstraintImpl> unmatched = table.getConstraints()
-                .stream()
-                .collect(Collectors.toCollection(HashSet::new));
+        Set<TableConstraintImpl> unmatched = new HashSet<>(table.getConstraints(version));
 
         List<Difference> addOrChangeConstraintDiffs = new ArrayList<>();
-
-        toTable.getConstraints()
+        toTable.getConstraints(version)
                 .stream()
                 .map(use(this::upgradeConstraintDdl).on(addOrChangeConstraintDiffs))
                 .flatMap(Functions.asStream())
                 .forEach(unmatched::remove);
-
-        for (TableConstraintImpl each : unmatched) {
-            result.add(getDropConstraintDifference(each));
-        }
+        unmatched.stream().map(this::getDropConstraintDifference).forEach(result::add);
         result.addAll(addOrChangeConstraintDiffs);
 
         // Constraints delayed by this table

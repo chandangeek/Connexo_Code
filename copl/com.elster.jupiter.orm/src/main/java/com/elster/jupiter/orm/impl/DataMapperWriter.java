@@ -8,6 +8,7 @@ import com.elster.jupiter.orm.OptimisticLockException;
 import com.elster.jupiter.orm.SqlDialect;
 import com.elster.jupiter.orm.UnderlyingIOException;
 import com.elster.jupiter.orm.UnexpectedNumberOfUpdatesException;
+import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.util.Pair;
 
 import java.io.IOException;
@@ -135,15 +136,15 @@ public class DataMapperWriter<T> {
                     ColumnImpl macColumn = null;
                     int macColumnIndex = 0;
                     for (ColumnImpl column : getColumns()) {
-                        if(column.isAutoIncrement()) {
+                        if (column.isAutoIncrement()) {
                             String sequenceName = column.getQualifiedSequenceName();
-                            if(nextVals.get(sequenceName) == null) {
+                            if (nextVals.get(sequenceName) == null) {
                                 try (Statement stmt = connection.createStatement()) {
                                     nextVals.put(sequenceName, sqlDialect.getMultipleNextVals(stmt, column.getQualifiedSequenceName(), objects.size()).iterator());
                                 }
                             }
                             Long nextVal = nextVals.get(sequenceName).next();
-                            column.setDomainValue(tuple,nextVal);
+                            column.setDomainValue(tuple, nextVal);
                             statement.setObject(index++, column.hasIntValue() ? nextVal.intValue() : nextVal);
                         } else if (column.isMAC()) {
                             macColumn = column;
@@ -313,6 +314,23 @@ public class DataMapperWriter<T> {
         if (getTable().hasJournal()) {
             journal(object, getTable().getDataModel().getClock().instant());
         }
+        for (ForeignKeyConstraintImpl constraint : getTable().getReverseMappedConstraints()) {
+            if (constraint.isComposition()) {
+                List allParts = new ArrayList<>();
+                DataMapperWriter<?> writer = null;
+                Field field = constraint.reverseField(object.getClass());
+                if (field != null) {
+                    if (writer == null) {
+                        writer = constraint.reverseMapper(field).getWriter();
+                    }
+                    List parts = constraint.added(object, writer.needsRefreshAfterBatchInsert());
+                    allParts.addAll(parts);
+                }
+                if (writer != null) {
+                    writer.remove(allParts);
+                }
+            }
+        }
         try (Connection connection = getConnection(true)) {
             try (PreparedStatement statement = connection.prepareStatement(getSqlGenerator().deleteSql())) {
                 int index = 1;
@@ -323,12 +341,34 @@ public class DataMapperWriter<T> {
                 }
             }
         }
+        if (object instanceof PersistenceAware) {
+            ((PersistenceAware)object).postDelete();
+        }
     }
 
     public void remove(List<? extends T> objects) throws SQLException {
         Instant now = getTable().getDataModel().getClock().instant();
         if (getTable().hasJournal()) {
             journal(objects, now);
+        }
+        for (ForeignKeyConstraintImpl constraint : getTable().getReverseMappedConstraints()) {
+            if (constraint.isComposition()) {
+                List allParts = new ArrayList<>();
+                DataMapperWriter<?> writer = null;
+                for (T object : objects) {
+                    Field field = constraint.reverseField(object.getClass());
+                    if (field != null) {
+                        if (writer == null) {
+                            writer = constraint.reverseMapper(field).getWriter();
+                        }
+                        List parts = constraint.added(object, writer.needsRefreshAfterBatchInsert());
+                        allParts.addAll(parts);
+                    }
+                }
+                if (writer != null) {
+                    writer.remove(allParts);
+                }
+            }
         }
         try (Connection connection = getConnection(true)) {
             try (PreparedStatement statement = connection.prepareStatement(getSqlGenerator().deleteSql())) {
@@ -340,6 +380,7 @@ public class DataMapperWriter<T> {
                 statement.executeBatch();
             }
         }
+        objects.stream().filter(o -> o instanceof PersistenceAware).map(PersistenceAware.class::cast).forEach(PersistenceAware::postDelete);
     }
 
     private void refresh(T object, boolean afterInsert) throws SQLException {

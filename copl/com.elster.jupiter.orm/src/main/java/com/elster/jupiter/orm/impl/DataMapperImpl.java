@@ -11,6 +11,7 @@ import com.elster.jupiter.orm.JournalEntry;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.fields.impl.FieldMapping;
 import com.elster.jupiter.orm.query.impl.QueryExecutorImpl;
+import com.elster.jupiter.util.conditions.Comparison;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.sql.Fetcher;
@@ -21,6 +22,7 @@ import java.sql.SQLException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -286,15 +288,15 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 		return reader.construct(rs,startIndex, DataMapperReader.MACEnforcementMode.Secure);
 	}
 
-	private void preventIfChild() {
-		if (getTable().isChild()) {
+	private void preventIfChild(List<? extends T> objects) {
+		if (getTable().isChildFor(objects)) {
 			throw new UnsupportedOperationException();
 		}
 	}
 
 	@Override
 	public void persist(T object)  {
-		preventIfChild();
+		preventIfChild(Collections.singletonList(object));
 		// do not cache object at this time, as tx may rollback
 		try {
 			writer.persist(object);
@@ -313,7 +315,7 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 			persist(objects.get(0));
 			return;
 		}
-		preventIfChild();
+		preventIfChild(objects);
 		// do not cache object at this time, as tx may rollback
 		try {
 			writer.persist(objects);
@@ -403,7 +405,7 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 
 	@Override
 	public void remove(T object )  {
-		preventIfChild();
+		preventIfChild(Collections.singletonList(object));
 		try {
 			writer.remove(object);
 		} catch (SQLException ex) {
@@ -415,7 +417,7 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 
 	@Override
 	public void remove(List<? extends T> objects )  {
-		preventIfChild();
+		preventIfChild(objects);
 		if (objects.isEmpty()) {
 			return;
 		}
@@ -610,6 +612,18 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 	            throw new UnderlyingSQLFailedException(e);
 	        }
 		}
+
+		@Override
+		public List<JournalEntry<T>> find(List<Comparison> comparisons) {
+			try {
+				Stream<JournalEntry<T>> old = reader.findJournals(comparisons).stream();
+				return old.collect(Collectors.toList());
+			} catch (SQLException e) {
+				throw new UnderlyingSQLFailedException(e);
+			}
+		}
+
+
 
 	}
 
