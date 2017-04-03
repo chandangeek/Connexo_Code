@@ -13,7 +13,6 @@ import com.elster.jupiter.mdm.usagepoint.data.ChannelDataModificationSummaryFlag
 import com.elster.jupiter.mdm.usagepoint.data.IChannelDataCompletionSummary;
 import com.elster.jupiter.mdm.usagepoint.data.IChannelDataCompletionSummaryFlag;
 import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataCompletionService;
-import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataModelService;
 import com.elster.jupiter.mdm.usagepoint.data.ValidChannelDataSummaryFlags;
 import com.elster.jupiter.mdm.usagepoint.data.exceptions.MessageSeeds;
 import com.elster.jupiter.metering.Channel;
@@ -32,7 +31,6 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
 import com.google.common.collect.Sets;
 
-import javax.inject.Inject;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
@@ -50,10 +48,8 @@ class UsagePointDataCompletionServiceImpl implements UsagePointDataCompletionSer
     private final Thesaurus thesaurus;
     private final ValidationService validationService;
 
-    @Inject
-    UsagePointDataCompletionServiceImpl(UsagePointDataModelService usagePointDataModelService,
-                                        ValidationService validationService) {
-        this.thesaurus = usagePointDataModelService.thesaurus();
+    UsagePointDataCompletionServiceImpl(Thesaurus thesaurus, ValidationService validationService) {
+        this.thesaurus = thesaurus;
         this.validationService = validationService;
     }
 

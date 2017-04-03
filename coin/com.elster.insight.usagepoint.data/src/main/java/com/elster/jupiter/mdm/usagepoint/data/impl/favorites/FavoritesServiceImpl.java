@@ -4,7 +4,6 @@
 
 package com.elster.jupiter.mdm.usagepoint.data.impl.favorites;
 
-import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataModelService;
 import com.elster.jupiter.mdm.usagepoint.data.favorites.FavoriteUsagePoint;
 import com.elster.jupiter.mdm.usagepoint.data.favorites.FavoriteUsagePointGroup;
 import com.elster.jupiter.mdm.usagepoint.data.favorites.FavoritesService;
@@ -14,7 +13,6 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.User;
 
-import javax.inject.Inject;
 import java.security.Principal;
 import java.util.Collections;
 import java.util.List;
@@ -26,10 +24,8 @@ public class FavoritesServiceImpl implements FavoritesService {
     private final DataModel dataModel;
     private final ThreadPrincipalService threadPrincipalService;
 
-    @Inject
-    public FavoritesServiceImpl(UsagePointDataModelService usagePointDataModelService,
-                                ThreadPrincipalService threadPrincipalService) {
-        this.dataModel = usagePointDataModelService.dataModel();
+    public FavoritesServiceImpl(DataModel dataModel, ThreadPrincipalService threadPrincipalService) {
+        this.dataModel = dataModel;
         this.threadPrincipalService = threadPrincipalService;
     }
 
@@ -39,7 +35,6 @@ public class FavoritesServiceImpl implements FavoritesService {
         return user == null ? Collections.emptyList() : dataModel.query(FavoriteUsagePoint.class, UsagePoint.class)
                 .select(where("user").isEqualTo(user).and(where("usagePoint.obsoleteTime").isNull()));
     }
-
 
     @Override
     public List<FavoriteUsagePointGroup> getFavoriteUsagePointGroups() {

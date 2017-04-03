@@ -11,6 +11,7 @@ import com.elster.jupiter.mdm.usagepoint.data.ChannelDataCompletionSummaryType;
 import com.elster.jupiter.mdm.usagepoint.data.ChannelDataModificationSummaryFlags;
 import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataCompletionService;
 import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataModelService;
+import com.elster.jupiter.mdm.usagepoint.data.UsagePointValidation;
 import com.elster.jupiter.mdm.usagepoint.data.ValidChannelDataSummaryFlags;
 import com.elster.jupiter.mdm.usagepoint.data.exceptions.MessageSeeds;
 import com.elster.jupiter.mdm.usagepoint.data.favorites.FavoritesService;
@@ -18,6 +19,7 @@ import com.elster.jupiter.mdm.usagepoint.data.impl.favorites.FavoritesServiceImp
 import com.elster.jupiter.mdm.usagepoint.data.security.Privileges;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
@@ -61,6 +63,7 @@ import java.util.stream.Stream;
         property = {"name=" + UsagePointDataModelService.COMPONENT_NAME},
         immediate = true)
 public class UsagePointDataModelServiceImpl implements UsagePointDataModelService, MessageSeedProvider, TranslationKeyProvider {
+
     private volatile DataModel dataModel;
     private volatile Clock clock;
     private volatile Thesaurus thesaurus;
@@ -151,8 +154,8 @@ public class UsagePointDataModelServiceImpl implements UsagePointDataModelServic
     }
 
     private void createServices() {
-        usagePointDataCompletionService = new UsagePointDataCompletionServiceImpl(this, validationService);
-        favoritesService = new FavoritesServiceImpl(this, threadPrincipalService);
+        usagePointDataCompletionService = new UsagePointDataCompletionServiceImpl(thesaurus, validationService);
+        favoritesService = new FavoritesServiceImpl(dataModel, threadPrincipalService);
     }
 
     private void registerServices(BundleContext bundleContext) {
@@ -250,17 +253,15 @@ public class UsagePointDataModelServiceImpl implements UsagePointDataModelServic
     }
 
     @Override
-    public Clock clock() {
-        return clock;
+    public UsagePointValidation forValidation(UsagePoint usagePoint) {
+        return dataModel.getInstance(UsagePointValidationImpl.class).init(usagePoint);
     }
 
-    @Override
-    public DataModel dataModel() {
-        return dataModel;
+    FavoritesService getFavoritesService() {
+        return favoritesService;
     }
 
-    @Override
-    public Thesaurus thesaurus() {
-        return thesaurus;
+    UsagePointDataCompletionService getUsagePointDataCompletionService() {
+        return usagePointDataCompletionService;
     }
 }

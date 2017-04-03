@@ -47,6 +47,7 @@ import com.elster.jupiter.usagepoint.lifecycle.config.impl.UsagePointLifeCycleCo
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
+import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationModule;
 
 import com.google.inject.AbstractModule;
@@ -61,6 +62,10 @@ import java.time.Clock;
 import static org.mockito.Mockito.mock;
 
 public class UsagePointDataInMemoryBootstrapModule {
+
+    public static final String BULK_A_PLUS_WH = "0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0";
+    public static final String BULK_A_PLUS_KWH = "0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0";
+
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
     private Injector injector;
 
@@ -89,7 +94,7 @@ public class UsagePointDataInMemoryBootstrapModule {
                 new FiniteStateMachineModule(),
                 new UsagePointLifeCycleConfigurationModule(),
                 new CalendarModule(),
-                new MeteringModule(),
+                new MeteringModule(BULK_A_PLUS_WH, BULK_A_PLUS_KWH),
                 new CustomPropertySetsModule(),
                 new UsagePointConfigModule(),
                 new KpiModule(),
@@ -141,11 +146,11 @@ public class UsagePointDataInMemoryBootstrapModule {
     }
 
     public UsagePointDataCompletionService getUsagePointDataCompletionService() {
-        return injector.getInstance(UsagePointDataCompletionService.class);
+        return injector.getInstance(UsagePointDataModelServiceImpl.class).getUsagePointDataCompletionService();
     }
 
     public FavoritesService getFavoritesService() {
-        return injector.getInstance(FavoritesService.class);
+        return injector.getInstance(UsagePointDataModelServiceImpl.class).getFavoritesService();
     }
 
     public PropertySpecService getPropertySpecService() {
@@ -158,6 +163,10 @@ public class UsagePointDataInMemoryBootstrapModule {
 
     public UserService getUserService() {
         return injector.getInstance(UserService.class);
+    }
+
+    public ValidationService getValidationService() {
+        return injector.getInstance(ValidationService.class);
     }
 
     private static class MockModule extends AbstractModule {
