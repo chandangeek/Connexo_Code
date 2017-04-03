@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.cbo.IdentifiedObject;
 import com.elster.jupiter.fsm.FsmUsagePointProvider;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
@@ -59,16 +60,29 @@ public class FsmUsagePointProviderImpl implements FsmUsagePointProvider {
                         .anyMatch(v -> ((HasIdAndName) v).getId()
                                 .toString()
                                 .equals(currentConnectionState.get().getConnectionState().getId()));
-                boolean metrologyConfigurationCheck = List.class.isInstance(processProperties.get(METROLOGY_CONFIG)) && ((List<Object>) processProperties
-                        .get(METROLOGY_CONFIG))
-                        .stream()
-                        .filter(HasIdAndName.class::isInstance)
-                        .anyMatch(v -> ((HasIdAndName) v).getId()
-                                .toString()
-                                .equals(String.valueOf(metrologyConfiguration.get().getMetrologyConfiguration().getId())));
+                boolean metrologyConfigurationCheck = true;
+                if(processProperties.get(METROLOGY_CONFIG) != null) {
+                    metrologyConfigurationCheck = List.class.isInstance(processProperties.get(METROLOGY_CONFIG)) && ((List<Object>) processProperties
+                            .get(METROLOGY_CONFIG))
+                            .stream()
+                            .filter(HasIdAndName.class::isInstance)
+                            .anyMatch(v -> ((HasIdAndName) v).getId()
+                                    .toString()
+                                    .equals(String.valueOf(metrologyConfiguration.get()
+                                            .getMetrologyConfiguration()
+                                            .getId())));
+                }
                 result = connectionCheck && metrologyConfigurationCheck;
             }
         }
         return result;
+    }
+
+    public String getDeviceMRID(long id){
+        return meteringService.findEndDeviceById(id).map(IdentifiedObject::getMRID).orElse(null);
+    }
+
+    public String getUsagePointMRID(long id){
+        return meteringService.findUsagePointById(id).map(IdentifiedObject::getMRID).orElse(null);
     }
 }
