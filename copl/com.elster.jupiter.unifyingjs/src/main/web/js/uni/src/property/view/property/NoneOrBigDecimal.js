@@ -99,6 +99,14 @@ Ext.define('Uni.property.view.property.NoneOrBigDecimal', {
             this.callParent([value]);
         }
     },
+
+    getValueAsDisplayString: function (value) {
+        if (value.isNone) {
+            return Uni.I18n.translate('value.none', me.translationKey, 'none');
+        } else{
+            return value.value;
+        }
+    },
     
     getValue: function () {
         var me = this;
