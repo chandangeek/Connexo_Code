@@ -60,6 +60,7 @@ public class UsagePointLifeCycleResource {
     private final UsagePointLifeCycleStageInfoFactory stageInfoFactory;
     private final BpmService bpmService;
     private static final String USAGEPOINT_ASSOCIATION = "usagepoint";
+    private static final String APP_KEY = "ins";
     private static final String PROCESS_KEY_DEVICE_STATES = "deviceStates";
 
 
@@ -173,9 +174,10 @@ public class UsagePointLifeCycleResource {
     @RolesAllowed({Privileges.Constants.USAGE_POINT_LIFE_CYCLE_VIEW, Privileges.Constants.USAGE_POINT_LIFE_CYCLE_ADMINISTER})
     public PagedInfoList getAllProcesses(@Context UriInfo uriInfo, @BeanParam JsonQueryParameters queryParams){
         //noinspection unchecked
-        List<BusinessProcessInfo> activeProcesses = bpmService.getActiveBpmProcessDefinitions(USAGEPOINT_ASSOCIATION)
+        List<BusinessProcessInfo> activeProcesses = bpmService.getActiveBpmProcessDefinitions(APP_KEY)
                 .stream()
                 .map(this.bpmFactory::from)
+                .sorted((p1, p2) -> p1.name.compareToIgnoreCase(p2.name))
                 .collect(Collectors.toList());
         return PagedInfoList.fromCompleteList("processes", activeProcesses, queryParams);
     }
