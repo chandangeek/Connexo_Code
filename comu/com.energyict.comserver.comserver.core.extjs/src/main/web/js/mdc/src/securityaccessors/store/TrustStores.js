@@ -7,7 +7,7 @@ Ext.define('Mdc.securityaccessors.store.TrustStores', {
     autoLoad: true,
     proxy: {
         type: 'rest',
-        url: '/api/pir/truststores',
+        url: '/api/dtc/truststores',
         timeout: 120000,
         reader: {
             type: 'json',

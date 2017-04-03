@@ -48,7 +48,9 @@ Ext.define('Mdc.securityaccessors.view.PreviewForm', {
                         }
                     },
                     {
-                        fieldLabel: Uni.I18n.translate('general.keyType', 'MDC', 'Key type'),
+                        fieldLabel: record.get('isKey')
+                            ? Uni.I18n.translate('general.keyType', 'MDC', 'Key type')
+                            : Uni.I18n.translate('general.certificateType', 'MDC', 'Certificate type'),
                         name: 'keyType',
                         renderer: function (value) {
                             return Ext.isEmpty(value) || Ext.isEmpty(value.name) ? '-' : value.name;
