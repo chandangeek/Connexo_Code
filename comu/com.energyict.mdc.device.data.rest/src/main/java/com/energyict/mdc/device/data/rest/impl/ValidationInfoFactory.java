@@ -22,6 +22,7 @@ import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationRuleSetVersion;
+import com.elster.jupiter.validation.properties.ValidationPropertyDefinitionLevel;
 import com.elster.jupiter.validation.rest.ValidationRuleInfo;
 import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
 import com.elster.jupiter.validation.rest.ValidationRuleSetInfo;
@@ -83,7 +84,7 @@ public class ValidationInfoFactory {
         validationRuleInfo.name = validationRule.getName();
         validationRuleInfo.deleted = validationRule.isObsolete();
         validationRuleInfo.ruleSetVersion = new ValidationRuleSetVersionInfo(validationRule.getRuleSetVersion());
-        validationRuleInfo.properties = propertyValueInfoService.getPropertyInfos(validationRule.getPropertySpecs(), validationRule.getProps());
+        validationRuleInfo.properties = propertyValueInfoService.getPropertyInfos(validationRule.getPropertySpecs(ValidationPropertyDefinitionLevel.VALIDATION_RULE), validationRule.getProps());
         validationRuleInfo.readingTypes.addAll(validationRule.getReadingTypes().stream().map(readingTypeInfoFactory::from).collect(Collectors.toList()));
         validationRuleInfo.total = total;
         return validationRuleInfo;
