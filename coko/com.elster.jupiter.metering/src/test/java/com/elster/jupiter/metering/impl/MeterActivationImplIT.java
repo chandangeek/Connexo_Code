@@ -26,6 +26,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.UsagePointMeterActivationException;
 import com.elster.jupiter.metering.ami.EndDeviceCapabilities;
 import com.elster.jupiter.metering.ami.HeadEndInterface;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
@@ -58,6 +59,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -77,6 +79,8 @@ public class MeterActivationImplIT {
     public ExpectedConstraintViolationRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
     @Rule
     public TransactionalRule transactionalRule = new TransactionalRule(inMemoryBootstrapModule.getTransactionService());
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
 
     @Mock
     private static State deviceState;
@@ -84,6 +88,8 @@ public class MeterActivationImplIT {
     private static Stage deviceStage;
 
     private static final String OPERATIONAL_DEVICE_STAGE_KEY = "mtr.enddevicestage.operational";
+    private static final String PRE_OPERATIONAL = "mtr.enddevicestage.preoperational";
+    private static final String POST_OPERATIONAL = "mtr.enddevicestage.postoperational";
 
     @BeforeClass
     public static void setUp() {
@@ -650,5 +656,91 @@ public class MeterActivationImplIT {
         assertThat(meterActivations).hasSize(1);
         assertThat(meterActivations.get(0).getMeterRole().get())
                 .isEqualTo(inMemoryBootstrapModule.getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.MAIN));
+    }
+
+    @Test
+    @Transactional
+    public void testOperationalStageOfMeter() {
+        expectedException.expect(UsagePointMeterActivationException.IncorrectMeterActivationDateWhenGapsAreAllowed.class);
+        expectedException.expectMessage("Meter linking error. Meter testMeter cannot be linked to usage point usagePointForActivation, as the linking would occur after the metrology configuration's activation and before the meter's activation.");
+        ServerMeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
+        AmrSystem system = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
+        Meter meter = spy(system.newMeter("meterForActivation", "testMeter").create());
+
+        when(meter.getState(any(Instant.class))).thenReturn(Optional.of(deviceState));
+        when(deviceState.getStage()).thenReturn(Optional.of(deviceStage));
+        when(deviceStage.getName()).thenReturn(PRE_OPERATIONAL);
+
+        ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
+        Instant now = inMemoryBootstrapModule.getClock().instant();
+        UsagePoint usagePoint = serviceCategory.newUsagePoint("usagePointForActivation", now).create();
+        usagePoint.apply(getUsagePointMetrologyConfigurationWithDefaultRole("testMeterCanBeRemovedFromMeterRoleOnUsagePoint"), now);
+        usagePoint.linkMeters()
+                .activate(meter, inMemoryBootstrapModule.getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT))
+                .complete();
+    }
+
+    @Test
+    @Transactional
+    public void testIncorrectDeviceStageWithoutMetrologyConfig() {
+        expectedException.expect(UsagePointMeterActivationException.IncorrectDeviceStageWithoutMetrologyConfig.class);
+        expectedException.expectMessage("Metrology configuration linking error. Not all meters are in an operational life cycle stage as of the metrology configurations linking date ");
+        ServerMeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
+        AmrSystem system = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
+        Meter meter = spy(system.newMeter("meterForActivation", "testMeter").create());
+
+        when(meter.getState(any(Instant.class))).thenReturn(Optional.of(deviceState));
+        when(deviceState.getStage()).thenReturn(Optional.of(deviceStage));
+        when(deviceStage.getName()).thenReturn(POST_OPERATIONAL);
+
+        ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
+        Instant now = inMemoryBootstrapModule.getClock().instant();
+        UsagePoint usagePoint = serviceCategory.newUsagePoint("usagePointForActivation", now).create();
+        usagePoint.linkMeters()
+                .activate(meter, inMemoryBootstrapModule.getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT))
+                .complete();
+    }
+
+    @Test
+    @Transactional
+    public void testIncorrectStartTimeOfMeterAndMetrologyConfig() {
+        expectedException.expect(UsagePointMeterActivationException.IncorrectStartTimeOfMeterAndMetrologyConfig.class);
+        ServerMeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
+        AmrSystem system = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
+        Meter meter = spy(system.newMeter("meterForActivation", "testMeter").create());
+
+        when(meter.getState(any(Instant.class))).thenReturn(Optional.of(deviceState));
+        when(deviceState.getStage()).thenReturn(Optional.of(deviceStage));
+        when(deviceStage.getName()).thenReturn(OPERATIONAL_DEVICE_STAGE_KEY);
+
+        ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
+        Instant now = inMemoryBootstrapModule.getClock().instant();
+        UsagePoint usagePoint = serviceCategory.newUsagePoint("usagePointForActivation", now.minusSeconds(60)).create();
+        UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = spy(getUsagePointMetrologyConfigurationWithDefaultRole("testConfiguration"));
+        when(usagePointMetrologyConfiguration.isGapAllowed()).thenReturn(false);
+        usagePoint.apply(usagePointMetrologyConfiguration, now.minusSeconds(60));
+        usagePoint.linkMeters()
+                .activate(now, meter, inMemoryBootstrapModule.getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT))
+                .complete();
+    }
+
+    @Test
+    @Transactional
+    public void testActivationTimeBeforeUsagePointInstallationDate() {
+        expectedException.expect(UsagePointMeterActivationException.ActivationTimeBeforeUsagePointInstallationDate.class);
+        ServerMeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
+        AmrSystem system = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
+        Meter meter = spy(system.newMeter("meterForActivation", "testMeter").create());
+
+        when(meter.getState(any(Instant.class))).thenReturn(Optional.of(deviceState));
+        when(deviceState.getStage()).thenReturn(Optional.of(deviceStage));
+        when(deviceStage.getName()).thenReturn(OPERATIONAL_DEVICE_STAGE_KEY);
+
+        ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
+        Instant now = inMemoryBootstrapModule.getClock().instant();
+        UsagePoint usagePoint = serviceCategory.newUsagePoint("usagePointForActivation", now).create();
+        usagePoint.linkMeters()
+                .activate(now.minusSeconds(60), meter, inMemoryBootstrapModule.getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT))
+                .complete();
     }
 }
