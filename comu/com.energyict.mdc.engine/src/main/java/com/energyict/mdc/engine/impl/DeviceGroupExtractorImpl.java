@@ -6,10 +6,12 @@ import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.ListOperator;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.protocol.pluggable.UPLEndDeviceGroupHolder;
 import com.energyict.mdc.upl.DeviceGroupExtractor;
 import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.properties.DeviceGroup;
+
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -76,7 +78,12 @@ public class DeviceGroupExtractorImpl implements DeviceGroupExtractor {
 
     @Override
     public List<Device> members(DeviceGroup group) {
-        return this.members((EndDeviceGroup) group);
+        if (group instanceof UPLEndDeviceGroupHolder) {
+            UPLEndDeviceGroupHolder holder = (UPLEndDeviceGroupHolder) group;
+            return this.members(holder.getEndDeviceGroup());
+        } else {
+            throw new IllegalArgumentException("Was expecting " + UPLEndDeviceGroupHolder.class + " but got " + group.getClass().getName());
+        }
     }
 
     private List<Device> members(EndDeviceGroup group) {
