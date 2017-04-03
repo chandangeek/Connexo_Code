@@ -10,6 +10,7 @@ import com.elster.jupiter.export.DefaultSelectorOccurrence;
 import com.elster.jupiter.export.EventDataExportStrategy;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.export.ValidatedDataOption;
+import com.elster.jupiter.orm.associations.Effectivity;
 import com.elster.jupiter.time.RelativePeriod;
 import com.google.common.collect.Range;
 
@@ -75,9 +76,11 @@ class DataExportStrategyImpl implements DataExportStrategy, EventDataExportStrat
         CONTINUOUS {
             @Override
             Range<Instant> adjustedExportPeriod(DataExportOccurrence occurrence, ReadingTypeDataExportItem item) {
+                Range<Instant> readingsContainerInterval = item.getReadingContainer() instanceof Effectivity ? ((Effectivity)item.getReadingContainer()).getRange() : Range.all();
                 Range<Instant> exportedDataInterval = ((DefaultSelectorOccurrence) occurrence).getExportedDataInterval();
                 return item.getLastExportedDate()
                         .map(lastExport -> getRangeSinceLastExport(exportedDataInterval, lastExport))
+                        .map(interval -> interval.intersection(readingsContainerInterval))
                         .orElse(exportedDataInterval);
             }
 
@@ -89,8 +92,10 @@ class DataExportStrategyImpl implements DataExportStrategy, EventDataExportStrat
         }, REQUESTED {
             @Override
             Range<Instant> adjustedExportPeriod(DataExportOccurrence occurrence, ReadingTypeDataExportItem item) {
+                Range<Instant> readingsContainerInterval = item.getReadingContainer() instanceof Effectivity ? ((Effectivity)item.getReadingContainer()).getRange() : Range.all();
                 return occurrence.getDefaultSelectorOccurrence()
                         .map(DefaultSelectorOccurrence::getExportedDataInterval)
+                        .map(interval -> interval.intersection(readingsContainerInterval))
                         .orElse(Range.all());
             }
         };
