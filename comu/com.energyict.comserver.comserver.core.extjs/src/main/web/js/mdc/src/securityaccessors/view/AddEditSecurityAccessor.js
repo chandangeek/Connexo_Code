@@ -96,7 +96,6 @@ Ext.define('Mdc.securityaccessors.view.AddEditSecurityAccessor', {
                     fieldLabel: Uni.I18n.translate('general.storageMethod', 'MDC', 'Storage method'),
                     itemId: 'mdc-security-accessor-storage-method-combobox',
                     name: 'storageMethod',
-                    hidden: true,
                     required: true,
                     allowBlank: false,
                     displayField: 'name',
@@ -207,10 +206,8 @@ Ext.define('Mdc.securityaccessors.view.AddEditSecurityAccessor', {
 
         if (newValue) {
             errorMsgPnl.hide();
-            storageMethodCombo.setVisible(key);
             trustStoreCombo.setVisible(!key);
             me.up('form').getForm().clearInvalid();
-            storageMethodCombo.allowBlank = !key;
             trustStoreCombo.allowBlank = key;
             combo.setFieldLabel(key
                 ? Uni.I18n.translate('general.keyType', 'MDC', 'Key type')
