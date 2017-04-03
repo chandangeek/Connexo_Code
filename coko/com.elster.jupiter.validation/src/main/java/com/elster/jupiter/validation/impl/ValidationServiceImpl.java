@@ -41,6 +41,7 @@ import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Pair;
+import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Order;
@@ -501,7 +502,7 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
     }
 
     private static Range<Instant> makeEndless(Range<Instant> range) {
-        return range.hasLowerBound() ? Range.downTo(range.lowerEndpoint(), range.lowerBoundType()) : Range.all();
+        return Ranges.copy(range).withoutUpperBound();
     }
 
     private Set<QualityCodeSystem> getQualityCodeSystemsWithAllowedValidation(ValidationContext validationContext) {
