@@ -7,6 +7,11 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
     requires: ['Mdc.util.LinkPurpose',
                'Mdc.widget.DeviceConfigurationField'
     ],
+
+    LINK_NEW_DATALOGGER_SLAVE : 0,
+    LINK_EXISTING_DATALOGGER_SLAVE : 1,
+    LINK_MULTI_ELEMENT_SLAVE: 2,
+
     models: [
         'Mdc.model.Device',
         'Mdc.model.DataLoggerSlaveDevice',
@@ -72,7 +77,7 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
             '#mdc-slave-link-wizard button[navigationBtn=true]': {
                 click: this.moveTo
             },
-            'dataloggerslave-link-container #mdc-link-slave-navigation-menu': {
+            'slave-link-container #mdc-link-slave-navigation-menu': {
                 movetostep: this.moveTo
             },
             '#mdc-dataloggerslaves-action-menu': {
@@ -367,7 +372,7 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
                 } else {
                     slaveCombo.allowBlank = true;
                     me.clearPreviousWizardInfoWhenNeeded(slaveDevice.get('deviceTypeId'), slaveDevice.get('deviceConfigurationId'));
-                    me.wizardInformation.useExisting = true;
+                    me.wizardInformation.useExisting = me.LINK_EXISTING_DATALOGGER_SLAVE;
                     me.wizardInformation.minimalLinkingDates = [];
                     me.wizardInformation.minimalLinkingDates.push(me.wizardInformation.dataLogger.get('shipmentDate'));
                     me.wizardInformation.minimalLinkingDates.push(slaveDevice.get('shipmentDate'));
@@ -399,7 +404,7 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
                             wizard.setLoading(false);
                             if (!records.length) {
                                 me.clearPreviousWizardInfoWhenNeeded(formRecord.get('deviceTypeId'), formRecord.get('deviceConfigurationId'));
-                                me.wizardInformation.useExisting = false;
+                                me.wizardInformation.useExisting = me.LINK_NEW_DATALOGGER_SLAVE;
 
                                 var slaveShipmentDateWithoutSeconds = wizard.down('#mdc-datalogger-slave-device-add #dataLoggerSlaveShipmentDate').getValue().getTime();
                                 slaveShipmentDateWithoutSeconds = slaveShipmentDateWithoutSeconds - (slaveShipmentDateWithoutSeconds % 60000);
@@ -456,7 +461,7 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
                             var formRecord  = newMultiElementForm.getRecord();
 
                             me.clearPreviousWizardInfoWhenNeeded(formRecord.get('deviceTypeId'), formRecord.get('deviceConfigurationId'));
-                            me.wizardInformation.useExisting = false;
+                            me.wizardInformation.useExisting = me.LINK_MULTI_ELEMENT_SLAVE;
 
                             var slaveDeviceModel = me.addSlaveToMasterDeviceModel(formRecord);
                             slaveDeviceModel.id = 0;
@@ -750,7 +755,7 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
         if (me.wizardInformation) {
             if (me.wizardInformation.linkingDate) { // There's one chosen previously
                 linkingDateToSuggest = me.wizardInformation.linkingDate;
-            } else if (me.wizardInformation.useExisting) { // Link an existing slave
+            } else if (me.wizardInformation.useExisting === me.LINK_EXISTING_DATALOGGER_SLAVE || me.wizardInformation.useExisting === me.LINK_MULTI_ELEMENT_SLAVE) {
                 linkingDateToSuggest = earliestLinkingDate;
             } else if (me.wizardInformation.noData) { // No availability dates for the mapped channels/registers
                 linkingDateToSuggest = new Date();
@@ -763,6 +768,11 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
         momentOfDate.startOf('day');
         var earliestLinkingDateMidnight = momentOfDate.unix() * 1000;
         me.getWizard().down('dataloggerslave-link-wizard-step4').initialize(earliestLinkingDateMidnight, linkingDateToSuggest);
+        if (me.wizardInformation.useExisting === me.LINK_MULTI_ELEMENT_SLAVE){
+            me.wizardInformation.linkingDate = linkingDateToSuggest;
+
+        }
+
     },
 
     validateStep4: function(callback) {
