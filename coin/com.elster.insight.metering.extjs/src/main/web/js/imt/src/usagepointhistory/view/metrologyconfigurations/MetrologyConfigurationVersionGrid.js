@@ -61,7 +61,7 @@ Ext.define('Imt.usagepointhistory.view.metrologyconfigurations.MetrologyConfigur
                 exportButton: false,
                 isFullTotalCount: true,
                 dock: 'top',
-                displayMsg: Uni.I18n.translate('usagePoint.metrologyConfigurations.history.pagingtoolbartop.displayMsg', 'IMT', '{0} metrology configurations'),
+                displayMsg: Uni.I18n.translate('usagePoint.metrologyConfigurations.history.pagingtoolbartop.displayMsgs', 'IMT', '{2} metrology configuration(s)'),
               }
         ];
         me.callParent(arguments);

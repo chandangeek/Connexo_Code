@@ -6,9 +6,6 @@ Ext.define('Imt.usagepointhistory.view.metrologyconfigurations.MetrologyConfigur
     extend: 'Ext.form.Panel',
     alias: 'widget.metrology-configuration-version-preview-form',
     layout: 'column',
-    defaults: {
-        xtype: 'container',
-    },
 
     initComponent: function () {
         var me = this;
@@ -19,38 +16,9 @@ Ext.define('Imt.usagepointhistory.view.metrologyconfigurations.MetrologyConfigur
                     xtype: 'displayfield',
                     labelWidth: 200
                 },
+                xtype: 'container',
                 itemId: 'fld-container-general-info',
-                columnWidth: 0.4,
-                items: [
-                    {
-                        name: 'current',
-                        itemId: 'fld-current',
-                        fieldLabel: Uni.I18n.translate('general.current', 'IMT', 'Current'),
-                        renderer: function(value){
-                            return value ? Uni.I18n.translate('general.yes', 'IMT', 'Yes') : Uni.I18n.translate('general.no', 'IMT', 'No');
-                        }
-                    },
-                    {
-                        name: 'period',
-                        itemId: 'fld-period',
-                        fieldLabel: Uni.I18n.translate('general.period', 'IMT', 'Period')
-                    },
-                    {
-                        name: 'metrologyConfiguration',
-                        itemId: 'fld-metrology-configuration-name',
-                        fieldLabel: Uni.I18n.translate('general.metrologyConfiguration', 'IMT', 'Metrology configuration'),
-                        renderer: function(value){
-                            if(value.id && value.name) {
-                                if(Imt.privileges.MetrologyConfig.canView()){
-                                    var url = me.router.getRoute('administration/metrologyconfiguration/view').buildUrl({mcid: value.id});
-                                    return '<a href="' + url + '">' + Ext.String.htmlEncode(value.name) + '</a>'
-                                } else {
-                                    return Ext.String.htmlEncode(value.name);
-                                }
-                            }
-                        }
-                    }
-                ]
+                columnWidth: 0.4
             },
             {
                 xtype: 'fieldcontainer',
@@ -71,6 +39,7 @@ Ext.define('Imt.usagepointhistory.view.metrologyconfigurations.MetrologyConfigur
 
     loadPurposes: function (purposes) {
         var me = this;
+        me.down('#fld-container-active-purposes').removeAll();
         _.each(purposes, function(purpose, key){
             _.each(purpose, function(readingType, index){
                 me.down('#fld-container-active-purposes').add({
@@ -83,15 +52,19 @@ Ext.define('Imt.usagepointhistory.view.metrologyconfigurations.MetrologyConfigur
         })
     },
 
-    loadOngoingProcesses: function (processes, count) {
+    loadGeneralInfo: function (processes, count) {
         var me = this,
             url = me.router.getRoute('usagepoints/view/running').buildUrl();
 
-        if(count){
-            _.each(processes, function(process, index){
+        me.down('#fld-container-general-info').removeAll();
+
+        me.down('#fld-container-general-info').add(me.baseInfoFields());
+
+        if (count) {
+            _.each(processes, function (process, index) {
                 me.down('#fld-container-general-info').add({
                     value: '[<a href="' + url + '">' + process.id + '</a>] -' + process.name,
-                    itemId: 'fld-ongoing-process-' +  process.id,
+                    itemId: 'fld-ongoing-process-' + process.id,
                     fieldLabel: !index ? Uni.I18n.translate('general.ongoingProcesses', 'IMT', 'Ongoing processes') : ' '
                 })
             })
@@ -102,6 +75,48 @@ Ext.define('Imt.usagepointhistory.view.metrologyconfigurations.MetrologyConfigur
                 fieldLabel: Uni.I18n.translate('general.ongoingProcesses', 'IMT', 'Ongoing processes')
             })
         }
+    },
+
+    baseInfoFields: function(){
+        var me = this;
+        return [
+            {
+                name: 'current',
+                itemId: 'fld-current',
+                fieldLabel: Uni.I18n.translate('general.current', 'IMT', 'Current'),
+                renderer: function(value){
+                    return value ? Uni.I18n.translate('general.yes', 'IMT', 'Yes') : Uni.I18n.translate('general.no', 'IMT', 'No');
+                }
+            },
+            {
+                name: 'period',
+                itemId: 'fld-period',
+                fieldLabel: Uni.I18n.translate('general.period', 'IMT', 'Period')
+            },
+            {
+                name: 'metrologyConfiguration',
+                itemId: 'fld-metrology-configuration-name',
+                fieldLabel: Uni.I18n.translate('general.metrologyConfiguration', 'IMT', 'Metrology configuration'),
+                renderer: function(value){
+                    if(value.id && value.name) {
+                        if(Imt.privileges.MetrologyConfig.canView()){
+                            var url = me.router.getRoute('administration/metrologyconfiguration/view').buildUrl({mcid: value.id});
+                            return '<a href="' + url + '">' + Ext.String.htmlEncode(value.name) + '</a>'
+                        } else {
+                            return Ext.String.htmlEncode(value.name);
+                        }
+                    }
+                }
+            }
+        ]
+
+    },
+
+    loadInfo: function(record){
+        var me = this;
+        me.loadPurposes(record.get('purposesWithReadingTypes'));
+        me.loadGeneralInfo(record.get('ongoingProcesses'), record.get('ongoingProcessesNumber'));
+        me.loadRecord(record);
     }
 });
 

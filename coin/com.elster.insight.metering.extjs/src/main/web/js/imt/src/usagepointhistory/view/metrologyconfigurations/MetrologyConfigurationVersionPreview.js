@@ -29,9 +29,7 @@ Ext.define('Imt.usagepointhistory.view.metrologyconfigurations.MetrologyConfigur
 
         Ext.suspendLayouts();
         me.setTitle(record.get('period'));
-        form.loadPurposes(record.get('purposesWithReadingTypes'));
-        form.loadOngoingProcesses(record.get('ongoingProcesses'), record.get('ongoingProcessesNumber'));
-        form.loadRecord(record);
+        form.loadInfo(record);
         Ext.resumeLayouts(true);
     }
 });
