@@ -501,6 +501,10 @@ public class UsagePointResource {
                     updateCustomPropertySetValues(usagePoint,customPropertySetInfo);
                 }
             }
+
+            else {
+                updateCustomPropertySetValues(usagePoint,customPropertySetInfo);
+            }
         }
         usagePoint.update();
 
