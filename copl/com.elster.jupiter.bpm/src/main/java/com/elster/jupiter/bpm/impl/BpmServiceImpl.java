@@ -297,7 +297,7 @@ public final class BpmServiceImpl implements BpmService, TranslationKeyProvider,
     @Override
     public List<BpmProcessDefinition> getActiveBpmProcessDefinitions(String appKey) {
         Condition statusCondition = Operator.EQUALIGNORECASE.compare("status", "ACTIVE");
-        Condition appKeyCondition = Operator.EQUALIGNORECASE.compare("association", appKey);
+        Condition appKeyCondition = Operator.EQUALIGNORECASE.compare("appKey", appKey);
         return dataModel.query(BpmProcessDefinition.class).select(statusCondition.and(appKeyCondition));
     }
 
