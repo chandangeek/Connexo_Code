@@ -5,18 +5,23 @@
 package com.elster.jupiter.properties.impl;
 
 import com.elster.jupiter.properties.HasDynamicPropertiesWithValues;
+import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.HasValidProperties;
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 public class HasValidPropertiesValidator implements ConstraintValidator<HasValidProperties, HasDynamicPropertiesWithValues> {
 
     private static final String PROPERTIES_NODE = "properties";
+    private static final String TRIGGERING_EVENTS = "BasicDeviceAlarmRuleTemplate.triggeringEvents";
+    private static final String LIFECYCLE_IN_DEVICE_TYPES = "BasicDeviceAlarmRuleTemplate.deviceLifecyleInDeviceTypes";
 
     private HasValidProperties annotation;
     private boolean valid;
@@ -77,7 +82,22 @@ public class HasValidPropertiesValidator implements ConstraintValidator<HasValid
              * This will have been reported by validateRequiredPropertiesArePresent
              * but we still get there to gather as many validation errors as possible. */
             if (propertySpec != null) {
-                propertySpec.validateValue(propertyValue);
+                if(propertySpec.getName().equals(TRIGGERING_EVENTS)){
+                    if(propertySpec.isRequired()){
+                        //noinspection unchecked
+                        if( !((ArrayList<HasIdAndName>) propertyValue).isEmpty() && ((ArrayList<HasIdAndName>) propertyValue).get(0).getId().equals("-1:-1")){
+                            throwThisFieldIsRequired(propertySpec, context);
+                        }
+                    }
+                } else if(propertySpec.getName().equals(LIFECYCLE_IN_DEVICE_TYPES)){
+                    if(propertySpec.isRequired()){
+                        if(propertyValue == Collections.emptyList()){
+                            throwThisFieldIsRequired(propertySpec, context);
+                        }
+                    }
+                }else {
+                    propertySpec.validateValue(propertyValue);
+                }
             }
         } catch (InvalidValueException e) {
             context.buildConstraintViolationWithTemplate("{" + e.getMessageId() + "}")
@@ -93,5 +113,14 @@ public class HasValidPropertiesValidator implements ConstraintValidator<HasValid
         return propertySpecs.stream()
                 .filter(propertySpec -> propertySpec.getName().equals(name))
                 .findFirst().orElse(null);
+    }
+
+    private void throwThisFieldIsRequired(PropertySpec propertySpec, ConstraintValidatorContext context){
+        context.buildConstraintViolationWithTemplate(annotation.requiredPropertyMissingMessage())
+                .addPropertyNode(PROPERTIES_NODE)
+                .addPropertyNode(propertySpec.getName())
+                .addConstraintViolation()
+                .disableDefaultConstraintViolation();
+        this.valid = false;
     }
 }
