@@ -134,8 +134,6 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
     private QueryStream queryStream;
     @Mock
     private History<ExportTask> exportTaskHistory;
-    @Mock
-    private MetrologyConfigurationService metrologyConfigurationService;
 
     private DataExportTaskBuilder builder;
 
@@ -162,7 +160,7 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
         when(exportTask.getNextExecution()).thenReturn(NEXT_EXECUTION.toInstant());
         when(meteringGroupsService.findEndDeviceGroup(5)).thenReturn(Optional.of(endDeviceGroup));
         when(meteringGroupsService.findUsagePointGroup(5)).thenReturn(Optional.of(usagePointGroup));
-        when(metrologyConfigurationService.findMetrologyPurpose(anyLong())).thenReturn(Optional.ofNullable(metrologyPurpose));
+        when(metrologyConfigurationService.findMetrologyPurpose(anyLong())).thenReturn(Optional.of(metrologyPurpose));
         when(exportTask.getScheduleExpression()).thenReturn(Never.NEVER);
         when(dataExportService.newBuilder()).thenReturn(builder);
         when(exportTask.getOccurrencesFinder()).thenReturn(dataExportOccurrenceFinder);
@@ -580,6 +578,7 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
         info.standardDataSelector.usagePointGroup = new IdWithNameInfo();
         info.standardDataSelector.usagePointGroup.id = 5;
         info.standardDataSelector.purpose = new LongIdWithNameInfo();
+        info.standardDataSelector.purpose.id = 1L;
         info.standardDataSelector.exportComplete = true;
         info.standardDataSelector.exportContinuousData = true;
         info.standardDataSelector.exportPeriod = new RelativePeriodInfo();
@@ -607,6 +606,7 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
         verify(selectorBuilder).fromExportPeriod(exportPeriod);
         verify(selectorBuilder).withValidatedDataOption(ValidatedDataOption.EXCLUDE_INTERVAL);
         verify(selectorBuilder).fromUsagePointGroup(usagePointGroup);
+        verify(selectorBuilder).fromMetrologyPurpose(metrologyPurpose);
         verify(selectorBuilder).continuousData(true);
         verify(selectorBuilder).exportComplete(true);
     }

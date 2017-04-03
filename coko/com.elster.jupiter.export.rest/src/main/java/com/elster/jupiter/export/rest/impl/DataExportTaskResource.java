@@ -22,6 +22,7 @@ import com.elster.jupiter.export.security.Privileges;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
+import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
@@ -370,6 +371,11 @@ public class DataExportTaskResource {
                     .setExportContinuousData(info.standardDataSelector.exportContinuousData)
                     .setExportOnlyIfComplete(info.standardDataSelector.exportComplete)
                     .setValidatedDataOption(info.standardDataSelector.validatedDataOption);
+            if(info.standardDataSelector.purpose.id != null) {
+                updater = updater.setMetrologyPurpose(metrologyPurpose(info.standardDataSelector.purpose.id));
+            } else {
+                updater = updater.setMetrologyPurpose(null);
+            }
             updateReadingTypes(config, updater, info);
         }
 
@@ -660,6 +666,10 @@ public class DataExportTaskResource {
 
     private UsagePointGroup usagePointGroup(Object usagePointGroupId) {
         return meteringGroupsService.findUsagePointGroup(((Number) usagePointGroupId).longValue()).orElse(null);
+    }
+
+    private MetrologyPurpose metrologyPurpose(Object purposeId){
+        return metrologyConfigurationService.findMetrologyPurpose(((Number)purposeId).longValue()).orElse(null);
     }
 
     private RelativePeriod getRelativePeriod(RelativePeriodInfo relativePeriodInfo) {
