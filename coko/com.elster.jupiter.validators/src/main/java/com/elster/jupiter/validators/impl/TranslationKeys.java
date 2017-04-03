@@ -21,6 +21,7 @@ public enum TranslationKeys implements TranslationKey {
     MAIN_CHECK_VALIDATOR_CHECK_PURPOSE(MainCheckValidator.class.getName()+ "." + MainCheckValidator.CHECK_PURPOSE, "Check purpose"),
     MAIN_CHECK_VALIDATOR_MAX_ABSOLUTE_DIFF(MainCheckValidator.class.getName()+ "." + MainCheckValidator.MAX_ABSOLUTE_DIFF, "Maximum absolute difference"),
     MAIN_CHECK_VALIDATOR_PASS_IF_NO_REF_DATA(MainCheckValidator.class.getName()+ "." + MainCheckValidator.PASS_IF_NO_REF_DATA, "Pass if no reference data"),
+    MAIN_CHECK_VALIDATOR_USE_VALIDATED_DATA(MainCheckValidator.class.getName()+ "." + MainCheckValidator.USE_VALIDATED_DATA, "Use validated data"),
     MAIN_CHECK_VALIDATOR_MIN_THRESHOLD(MainCheckValidator.class.getName()+ "." + MainCheckValidator.MIN_THRESHOLD, "Minimum threshold"),
 
     ALL_INDEXES("ReadingQualityAllIndexes", "All indexes"),
