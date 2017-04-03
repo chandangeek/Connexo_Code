@@ -241,7 +241,7 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
                         returnLink: me.returnLink,
                         isPossibleAdd: isPossibleAdd,
                         upVersion: record.get('version'),
-                        createTime: record.data.createTime
+                        createTime: record.get('createTime')
                     }));
                     me.getWizard().loadRecord(Ext.create('Imt.metrologyconfiguration.model.LinkableMetrologyConfiguration'));
                     mainView.setLoading(false);
@@ -281,6 +281,7 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
         if (button.action === 'step-next') {
             direction = 1;
             nextStep = currentStep + direction;
+            Ext.suspendLayouts();
             if (currentStep === 1) {
                 // remove all steps except first
                 for (var i = 1; i < currentSteps.length; i++) {
@@ -308,6 +309,7 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
                 wizard.add(stepsToAdd);
                 wizard.updateRecord(clearRecords);
             });
+            Ext.resumeLayouts(true);
         } else {
             direction = -1;
             if (button.action === 'step-back') {
