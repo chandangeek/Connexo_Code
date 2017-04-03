@@ -142,6 +142,8 @@ Ext.define('Uni.property.view.property.DateTime', {
             dateValue = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0, 0);
             hours = date.getHours();
             minutes = date.getMinutes();
+        } else if (value === '') {
+            dateValue = value;
         }
 
         if (!this.isEdit) {
