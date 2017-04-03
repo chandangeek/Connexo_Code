@@ -124,7 +124,7 @@ Ext.define('Uni.property.view.property.MaximumAbsoluteDifference', {
         if (value.type === 'absolute') {
             return value.value;
         } else if (value.type === 'percent') {
-            return value.percent + '%';
+            return value.value + '%';
         } else {
             return arguments;
         }
