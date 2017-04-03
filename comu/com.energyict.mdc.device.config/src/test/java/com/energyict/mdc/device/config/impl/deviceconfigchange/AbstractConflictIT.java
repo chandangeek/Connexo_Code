@@ -84,6 +84,7 @@ import com.energyict.mdc.pluggable.impl.PluggableModule;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
+import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
@@ -156,6 +157,8 @@ public abstract class AbstractConflictIT {
 
     @Mock
     DeviceProtocolPluggableClass deviceProtocolPluggableClass;
+    @Mock
+    DeviceProtocolDialect deviceProtocolDialect1, deviceProtocolDialect2, deviceProtocolDialect3;
 
     public DeviceType getReloadedDeviceType(ServerDeviceType deviceType) {
         return deviceConfigurationService.findDeviceType(deviceType.getId()).get();
@@ -315,8 +318,12 @@ public abstract class AbstractConflictIT {
 
     @Before
     public void initializeMocks() throws SQLException {
+        when(deviceProtocolDialect1.getDeviceProtocolDialectName()).thenReturn("Protocol Dialect 1");
+        when(deviceProtocolDialect2.getDeviceProtocolDialectName()).thenReturn("Protocol Dialect 2");
+        when(deviceProtocolDialect3.getDeviceProtocolDialectName()).thenReturn("Protocol Dialect 3");
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         when(deviceProtocol.getDeviceProtocolCapabilities()).thenReturn(Arrays.asList(DeviceProtocolCapabilities.values()));
+        when(deviceProtocol.getDeviceProtocolDialects()).thenReturn(Arrays.asList(deviceProtocolDialect1, deviceProtocolDialect2, deviceProtocolDialect3));
     }
 
     private static void enhanceEventServiceForConflictCalculation() {

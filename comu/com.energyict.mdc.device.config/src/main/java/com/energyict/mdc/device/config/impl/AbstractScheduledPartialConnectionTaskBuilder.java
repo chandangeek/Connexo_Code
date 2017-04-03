@@ -61,6 +61,7 @@ abstract class AbstractScheduledPartialConnectionTaskBuilder<S, U extends Partia
 
     @Override
     void populate(U instance) {
+        super.populate(instance);
         instance.setComportPool(comPortPool);
         if (nextExecutionSpecs != null) {
             instance.setNextExecutionSpecs(nextExecutionSpecs);

@@ -13,12 +13,7 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.callback.PersistenceAware;
-import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.config.ComTaskEnablementBuilder;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
-import com.energyict.mdc.device.config.SecurityPropertySet;
+import com.energyict.mdc.device.config.*;
 import com.energyict.mdc.device.config.events.EventType;
 import com.energyict.mdc.tasks.ComTask;
 
@@ -37,7 +32,6 @@ import static com.elster.jupiter.util.Checks.is;
  */
 @ComTaskIsEnabledOnlyOncePerConfiguration(groups = {Save.Create.class})
 @NoPartialConnectionTaskWhenDefaultIsUsed(groups = {Save.Create.class, Save.Update.class})
-@ProtocolDialectConfigurationPropertiesMustBeFromSameConfiguration(groups = {Save.Create.class, Save.Update.class})
 @SecurityPropertySetMustBeFromSameConfiguration(groups = {Save.Create.class, Save.Update.class})
 public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement> implements ServerComTaskEnablement, PersistenceAware {
 
@@ -49,7 +43,6 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
         IGNORE_NEXT_EXECUTION_SPECS_FOR_INBOUND("ignoreNextExecutionSpecsForInbound"),
         USE_DEFAULT_CONNECTION_TASK("usesDefaultConnectionTask"),
         PARTIAL_CONNECTION_TASK("partialConnectionTask"),
-        PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES("protocolDialectConfigurationProperties"),
         SUSPENDED("suspended"),
         PRIORITY("priority");
         private final String javaFieldName;
@@ -77,8 +70,6 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
     @Valid
     private Reference<PartialConnectionTask> partialConnectionTask = ValueReference.absent();
     private boolean suspended;
-    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
-    private Reference<ProtocolDialectConfigurationProperties> protocolDialectConfigurationProperties = ValueReference.absent();
     @SuppressWarnings("unused")
     private String userName;
     @SuppressWarnings("unused")
@@ -93,11 +84,10 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
         super(ComTaskEnablement.class, dataModel, eventService, thesaurus);
     }
 
-    ComTaskEnablementImpl initialize(DeviceConfiguration deviceConfiguration, ComTask comTask, SecurityPropertySet securityPropertySet, ProtocolDialectConfigurationProperties configurationProperties) {
+    ComTaskEnablementImpl initialize(DeviceConfiguration deviceConfiguration, ComTask comTask, SecurityPropertySet securityPropertySet) {
         this.deviceConfiguration.set(deviceConfiguration);
         this.comTask.set(comTask);
         this.securityPropertySet.set(securityPropertySet);
-        this.protocolDialectConfigurationProperties.set(configurationProperties);
         return this;
     }
 
@@ -159,21 +149,6 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
     @Override
     protected void doDelete() {
         this.getDataModel().remove(this);
-    }
-
-    @Override
-    public ProtocolDialectConfigurationProperties getProtocolDialectConfigurationProperties() {
-        /* Since this is a required property,
-         * we could actually use get() but we
-         * want the javax.validation components
-         * to validate that this property is not null
-         * so we are using orElse(null) instead. */
-        return this.protocolDialectConfigurationProperties.orElse(null);
-    }
-
-    @Override
-    public void setProtocolDialectConfigurationProperties(ProtocolDialectConfigurationProperties properties) {
-        this.protocolDialectConfigurationProperties.set(properties);
     }
 
     @Override
@@ -540,7 +515,7 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
 
     @Override
     public ComTaskEnablement cloneForDeviceConfig(DeviceConfiguration deviceConfiguration) {
-        ComTaskEnablementBuilder builder = deviceConfiguration.enableComTask(getComTask(), getCorrespondingSecuritySetFromOtherDeviceConfig(deviceConfiguration), getCorrespondingProtocolDialectConfigPropertiesFromOtherDeviceConfig(deviceConfiguration));
+        ComTaskEnablementBuilder builder = deviceConfiguration.enableComTask(getComTask(), getCorrespondingSecuritySetFromOtherDeviceConfig(deviceConfiguration));
         builder.setIgnoreNextExecutionSpecsForInbound(isIgnoreNextExecutionSpecsForInbound());
         builder.setPriority(getPriority());
         if(usesDefaultConnectionTask()){
@@ -558,15 +533,6 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
             pct.getName().equals(getPartialConnectionTask().get().getName())).findFirst().orElse(null);
         }
         return correspondingPartialConnectionTask;
-    }
-
-    private ProtocolDialectConfigurationProperties getCorrespondingProtocolDialectConfigPropertiesFromOtherDeviceConfig(DeviceConfiguration deviceConfiguration) {
-        ProtocolDialectConfigurationProperties correspondingDialectConfigProperties = null;
-        if (getProtocolDialectConfigurationProperties() != null) {
-            correspondingDialectConfigProperties = deviceConfiguration.getProtocolDialectConfigurationPropertiesList().stream().filter(pdcp ->
-            pdcp.getDeviceProtocolDialectName().equals(getProtocolDialectConfigurationProperties().getDeviceProtocolDialectName())).findFirst().orElse(null);
-        }
-        return correspondingDialectConfigProperties;
     }
 
     private SecurityPropertySet getCorrespondingSecuritySetFromOtherDeviceConfig(DeviceConfiguration deviceConfiguration) {

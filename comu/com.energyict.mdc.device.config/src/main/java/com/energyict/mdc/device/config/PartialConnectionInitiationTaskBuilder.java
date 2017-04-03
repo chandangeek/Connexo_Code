@@ -10,5 +10,5 @@ import aQute.bnd.annotation.ProviderType;
 
 @ProviderType
 public interface PartialConnectionInitiationTaskBuilder extends PartialOutboundConnectionTaskBuilder<PartialConnectionInitiationTaskBuilder, PartialConnectionInitiationTaskImpl> {
-
+    PartialConnectionInitiationTaskBuilder setProtocolDialectConfigurationProperties(ProtocolDialectConfigurationProperties properties);
 }
