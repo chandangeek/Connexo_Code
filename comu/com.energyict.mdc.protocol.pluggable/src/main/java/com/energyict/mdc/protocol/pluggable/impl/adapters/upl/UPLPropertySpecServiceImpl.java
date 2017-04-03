@@ -17,17 +17,16 @@ import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.meterdata.LoadProfile;
 import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.HexString;
-import com.energyict.mdc.upl.properties.NumberLookup;
 import com.energyict.mdc.upl.properties.Password;
 import com.energyict.mdc.upl.properties.PropertySelectionMode;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-import com.energyict.mdc.upl.properties.StringLookup;
 import com.energyict.mdc.upl.security.CertificateAlias;
 import com.energyict.mdc.upl.security.CertificateWrapper;
 import com.energyict.mdc.upl.security.PrivateKeyAlias;
+
 import com.energyict.obis.ObisCode;
 import com.google.inject.Inject;
 import org.osgi.service.component.annotations.Activate;
@@ -214,11 +213,8 @@ public class UPLPropertySpecServiceImpl implements PropertySpecService {
         DEVICE_MESSAGE_FILE("com.energyict.mdc.upl.properties.DeviceMessageFile", DeviceMessageFile.class),
         TARIFF_CALENDAR("com.energyict.mdc.upl.properties.TariffCalendar", Calendar.class),
 
-        LOAD_PROFILE("com.energyict.mdc.upl.meterdata.LoadProfile", LoadProfile.class),             //TODO should be com.energyict.mdc.device.data.LoadProfile but cannot be referenced here?
-        DEVICE_GROUP("com.energyict.mdc.upl.properties.DeviceGroup", EndDeviceGroup.class),         //TODO also add adaption of the value in TypedPropertiesValueAdapter
-
-        NUMBER_LOOKUP("com.energyict.mdc.upl.properties.NumberLookup", NumberLookup.class),         //TODO what is the CXO alternative for UPL NumberLookup?
-        STRING_LOOKUP("com.energyict.mdc.upl.properties.StringLookup", StringLookup.class),         //TODO what is the CXO alternative for UPL StringLookup?
+        LOAD_PROFILE("com.energyict.mdc.upl.meterdata.LoadProfile", LoadProfile.class),
+        DEVICE_GROUP("com.energyict.mdc.upl.properties.DeviceGroup", EndDeviceGroup.class),
 
         CERTIFICATE_WRAPPER("com.energyict.mdc.upl.security.CertificateWrapper", CertificateWrapper.class),     //TODO wait for certificate security feature
         CERTIFICATE_ALIAS("com.energyict.mdc.upl.security.CertificateAlias", CertificateAlias.class),           //TODO wait for certificate security feature
