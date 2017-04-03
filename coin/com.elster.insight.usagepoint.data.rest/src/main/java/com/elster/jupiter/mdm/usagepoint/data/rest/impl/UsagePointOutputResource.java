@@ -55,7 +55,7 @@ import com.google.common.collect.TreeRangeSet;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.swing.text.html.Option;
+import javax.inject.Provider;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -105,6 +105,8 @@ public class UsagePointOutputResource {
     private final EstimationRuleInfoFactory estimationRuleInfoFactory;
     private final UsagePointConfigurationService usagePointConfigurationService;
 
+    private final Provider<UsagePointOutputValidationResource> usagePointOutputValidationResourceProvider;
+
     private static final String INTERVAL_START = "intervalStart";
     private static final String INTERVAL_END = "intervalEnd";
 
@@ -123,7 +125,9 @@ public class UsagePointOutputResource {
                              MeteringService meteringService,
                              DataValidationTaskInfoFactory dataValidationTaskInfoFactory,
                              EstimationTaskInfoFactory estimationTaskInfoFactory,
-                             EstimationRuleInfoFactory estimationRuleInfoFactory, UsagePointConfigurationService usagePointConfigurationService) {
+                             EstimationRuleInfoFactory estimationRuleInfoFactory,
+                             UsagePointConfigurationService usagePointConfigurationService,
+                             Provider<UsagePointOutputValidationResource> usagePointOutputValidationResourceProvider) {
         this.resourceHelper = resourceHelper;
         this.exceptionFactory = exceptionFactory;
         this.estimationHelper = estimationHelper;
@@ -141,6 +145,7 @@ public class UsagePointOutputResource {
         this.estimationTaskInfoFactory = estimationTaskInfoFactory;
         this.estimationRuleInfoFactory = estimationRuleInfoFactory;
         this.usagePointConfigurationService = usagePointConfigurationService;
+        this.usagePointOutputValidationResourceProvider = usagePointOutputValidationResourceProvider;
     }
 
     @GET
@@ -210,6 +215,11 @@ public class UsagePointOutputResource {
         MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(effectiveMetrologyConfigurationOnUsagePoint, contractId);
         ReadingTypeDeliverable readingTypeDeliverable = resourceHelper.findReadingTypeDeliverableOrThrowException(metrologyContract, outputId, name);
         return outputInfoFactory.asFullInfo(readingTypeDeliverable, effectiveMetrologyConfigurationOnUsagePoint, metrologyContract);
+    }
+
+    @Path("/{purposeId}/outputs/{outputId}/validation")
+    public UsagePointOutputValidationResource getUsagePointOutputResource() {
+        return usagePointOutputValidationResourceProvider.get();
     }
 
     @GET

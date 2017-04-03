@@ -60,7 +60,9 @@ public enum MessageSeeds implements MessageSeed {
     INVALID_ACTIVATION_TIME_OF_METER_ROLE(55, "usagepoint.meterrole.activation.must.be.greater.than.up.creation.date", "Meter role activation time must be greater or equal to Created date of usage point"),
     MISSING_TRANSITION_REQUIREMENT(56, "missing.transition.requirements", "Pre-transition check failed: {0}"),
     NO_USAGEPOINT_TRANSITION_WITH_ID(57, Keys.NO_TRANSITION_WITH_ID, "No usage point transition with id {0}"),
-    NO_METROLOGYCONFIG_FOR_USAGEPOINT_IN_THIS_TIME(58, Keys.NO_METROLOGYCONFIG_FOR_USAGEPOINT_IN_THIS_TIME, "Metrology configuration is not linked to the usage point at this moment in time.");
+    NO_METROLOGYCONFIG_FOR_USAGEPOINT_IN_THIS_TIME(58, Keys.NO_METROLOGYCONFIG_FOR_USAGEPOINT_IN_THIS_TIME, "Metrology configuration is not linked to the usage point at this moment in time."),
+    NO_SUCH_VALIDATION_RULE(59, "noSuchValidationRule", "No validation rule with id {0}"),
+    NO_OVERRIDDEN_PROPERTIES(60, "noOverriddenProperties", "No validation properties overridden for usage point {0} and output {1}");
 
     private final int number;
     private final String key;

@@ -35,6 +35,8 @@ import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigu
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.Pair;
+import com.elster.jupiter.validation.ValidationRule;
+import com.elster.jupiter.validation.ValidationService;
 
 import javax.inject.Inject;
 import javax.ws.rs.WebApplicationException;
@@ -57,13 +59,14 @@ public class ResourceHelper {
     private final UsagePointLifeCycleService usagePointLifeCycleService;
     private final Clock clock;
     private final UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService;
+    private final ValidationService validationService;
 
     @Inject
     public ResourceHelper(MeteringService meteringService, MeteringGroupsService meteringGroupsService,
                           ExceptionFactory exceptionFactory,
                           ConcurrentModificationExceptionFactory conflictFactory,
                           MetrologyConfigurationService metrologyConfigurationService, UsagePointLifeCycleService usagePointLifeCycleService, Clock clock,
-                          UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
+                          UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService, ValidationService validationService) {
         super();
         this.meteringService = meteringService;
         this.meteringGroupsService = meteringGroupsService;
@@ -73,6 +76,7 @@ public class ResourceHelper {
         this.usagePointLifeCycleService = usagePointLifeCycleService;
         this.clock = clock;
         this.usagePointLifeCycleConfigurationService = usagePointLifeCycleConfigurationService;
+        this.validationService = validationService;
     }
 
     public MeterRole findMeterRoleOrThrowException(String key) {
@@ -169,7 +173,7 @@ public class ResourceHelper {
                 .findFirst()
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.CANNOT_ACTIVATE_METROLOGY_PURPOSE, contractId));
 
-        if(effectiveMC.getChannelsContainer(metrologyContract, clock.instant()).isPresent()){
+        if (effectiveMC.getChannelsContainer(metrologyContract, clock.instant()).isPresent()) {
             throw conflictFactory.contextDependentConflictOn(metrologyContract.getMetrologyPurpose().getName()).build();
         }
 
@@ -197,6 +201,11 @@ public class ResourceHelper {
         return meteringGroupsService.findUsagePointGroup(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
 
+    public ValidationRule findValidationRuleOrThrowException(long id) {
+        return validationService.findValidationRule(id)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_VALIDATION_RULE, id));
+    }
+
     public UsagePointGroup lockUsagePointGroupOrThrowException(UsagePointGroupInfo info) {
         return meteringGroupsService.findAndLockUsagePointGroupByIdAndVersion(info.id, info.version)
                 .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
@@ -221,7 +230,7 @@ public class ResourceHelper {
     }
 
     public void activateMeters(UsagePointInfo info, UsagePoint usagePoint) {
-        if (info.metrologyConfiguration != null && info.metrologyConfiguration.meterRoles != null &&  !info.metrologyConfiguration.meterRoles.isEmpty()) {
+        if (info.metrologyConfiguration != null && info.metrologyConfiguration.meterRoles != null && !info.metrologyConfiguration.meterRoles.isEmpty()) {
             UsagePointMeterActivator linker = usagePoint.linkMeters();
 
             info.metrologyConfiguration.meterRoles
@@ -230,7 +239,7 @@ public class ResourceHelper {
                     .forEach(meterRoleInfo -> {
                         MeterRole meterRole = findMeterRoleOrThrowException(meterRoleInfo.id);
                         linker.clear(meterRole);
-                        if(meterRoleInfo.meter != null && !Checks.is(meterRoleInfo.name).emptyOrOnlyWhiteSpace()) {
+                        if (meterRoleInfo.meter != null && !Checks.is(meterRoleInfo.name).emptyOrOnlyWhiteSpace()) {
                             Meter meter = findMeterByNameOrThrowException(meterRoleInfo.meter);
                             linker.activate(meterRoleInfo.activationTime, meter, meterRole);
                         }
@@ -256,11 +265,10 @@ public class ResourceHelper {
             linker.complete();
         }
     }
+
     public List<UsagePointTransition> getAvailableTransitions(UsagePoint usagePoint) {
         return usagePointLifeCycleService.getAvailableTransitions(usagePoint.getState(), "INS");
     }
-
-
 
     public List<ReadingTypeRequirement> getReadingTypeRequirements(MetrologyContract metrologyContract) {
         ReadingTypeRequirementsCollector requirementsCollector = new ReadingTypeRequirementsCollector();
