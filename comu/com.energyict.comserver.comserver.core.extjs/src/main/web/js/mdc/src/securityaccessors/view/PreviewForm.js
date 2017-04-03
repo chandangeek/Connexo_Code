@@ -61,7 +61,6 @@ Ext.define('Mdc.securityaccessors.view.PreviewForm', {
             rightItems,
             form = me.down('form');
 
-        form.removeAll();
         if (record.get('isKey')) {
             rightItems = {
                 defaults: {
@@ -115,8 +114,12 @@ Ext.define('Mdc.securityaccessors.view.PreviewForm', {
                 ]
             }
         }
+
+        Ext.suspendLayouts();
+        form.removeAll();
         form.add([leftItems, rightItems]);
         form.loadRecord(record);
+        Ext.resumeLayouts(true);
     }
 
 });

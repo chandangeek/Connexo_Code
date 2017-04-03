@@ -4,12 +4,15 @@
 Ext.define('Mdc.securityaccessors.view.SecurityAccessorsActionMenu', {
     extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.security-accessors-action-menu',
+
     initComponent: function () {
         this.items = [
             {
                 text: Uni.I18n.translate('general.changePrivileges', 'MDC', 'Change privileges'),
                 privileges: Mdc.privileges.DeviceType.canAdministrate(),
-                //hidden: Ext.isEmpty(this.record) || !this.record.get('isKey'),
+                visible: function () {
+                    return !Ext.isEmpty(this.record) && this.record.get('isKey');
+                },
                 action: 'changePrivileges',
                 section: this.SECTION_EDIT
             },
@@ -27,5 +30,19 @@ Ext.define('Mdc.securityaccessors.view.SecurityAccessorsActionMenu', {
             }
         ];
         this.callParent(arguments);
-    }
+    },
+
+    listeners: {
+        beforeshow: function() {
+            var me = this;
+            me.items.each(function(item){
+                if (item.visible === undefined) {
+                    item.show();
+                } else {
+                    item.visible.call(me) && Mdc.privileges.DeviceType.canAdministrate() ?  item.show() : item.hide();
+                }
+            })
+        }
+    },
+
 });

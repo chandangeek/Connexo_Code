@@ -49,6 +49,7 @@ Ext.define('Mdc.securityaccessors.view.SecurityAccessorsGrid', {
             },
             {
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 menu: {
                     xtype: 'security-accessors-action-menu',
                     itemId: 'mdc-security-accessors-action-menu'
