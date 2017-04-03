@@ -18,7 +18,7 @@ Ext.define('Imt.purpose.view.MultipleReadingsActionMenu', {
             {
                 itemId: 'estimate-value',
                 privileges: Imt.privileges.UsagePoint.admin,
-                hidden: true,
+                //hidden: true,
                 text: Uni.I18n.translate('general.editWithEstimator', 'IMT', 'Edit with estimator'),
                 action: 'estimateValue',
                 section: this.SECTION_ACTION
@@ -26,7 +26,7 @@ Ext.define('Imt.purpose.view.MultipleReadingsActionMenu', {
             {
                 itemId: 'estimate-value-with-rule',
                 privileges: Imt.privileges.UsagePoint.admin,
-                hidden: true,
+                //hidden: true,
                 text: Uni.I18n.translate('general.estimateValueWithRule', 'IMT', 'Estimate with rule'),
                 action: 'estimateWithRule',
                 section: this.SECTION_ACTION
