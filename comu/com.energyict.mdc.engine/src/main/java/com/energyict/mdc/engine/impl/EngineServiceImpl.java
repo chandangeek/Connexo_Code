@@ -63,6 +63,7 @@ import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
+
 import com.energyict.obis.ObisCode;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -668,14 +669,6 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
         }
 
         @Override
-        public MessageIdentifier createMessageIdentifierByDatabaseId(long id) {
-            return this.identificationService
-                    .get()
-                    .map(s -> s.createMessageIdentifierByDatabaseId(id))
-                    .orElseThrow(IdentificationServiceMissingException::new);
-        }
-
-        @Override
         public MessageIdentifier createMessageIdentifierForAlreadyKnownMessage(DeviceMessage deviceMessage) {
             return this.identificationService
                     .get()
@@ -683,13 +676,6 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
                     .orElseThrow(IdentificationServiceMissingException::new);
         }
 
-        @Override
-        public MessageIdentifier createMessageIdentifierByDeviceAndProtocolInfoParts(DeviceIdentifier deviceIdentifier, String... messageProtocolInfoParts) {
-            return this.identificationService
-                    .get()
-                    .map(s -> s.createMessageIdentifierByDeviceAndProtocolInfoParts(deviceIdentifier, messageProtocolInfoParts))
-                    .orElseThrow(IdentificationServiceMissingException::new);
-        }
     }
 
     private static class IdentificationServiceMissingException extends RuntimeException {
