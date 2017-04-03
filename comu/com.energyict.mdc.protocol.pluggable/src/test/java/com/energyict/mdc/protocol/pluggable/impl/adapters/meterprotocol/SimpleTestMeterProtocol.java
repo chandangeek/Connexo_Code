@@ -5,6 +5,7 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol;
 
 import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.cbo.Quantity;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MessageProtocol;
@@ -23,8 +24,6 @@ import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
-
-import com.energyict.cbo.Quantity;
 import com.energyict.protocol.ProfileData;
 
 import java.io.IOException;

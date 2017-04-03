@@ -9,6 +9,9 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
+import com.energyict.protocol.LoadProfileReader;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.ProfileData;
 
 import com.energyict.protocol.LoadProfileConfiguration;
 import com.energyict.protocol.LoadProfileReader;
