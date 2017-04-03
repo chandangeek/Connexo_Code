@@ -11,6 +11,8 @@ import com.elster.jupiter.properties.rest.PropertyType;
 import com.elster.jupiter.properties.rest.PropertyValueConverter;
 import com.elster.jupiter.properties.rest.SimplePropertyType;
 
+import java.math.BigDecimal;
+import java.util.Map;
 import java.util.SimpleTimeZone;
 
 /**
@@ -29,17 +31,29 @@ public class NonOrBigDecimalValueConverter implements PropertyValueConverter {
 
     @Override
     public Object convertInfoToValue(PropertySpec propertySpec, Object infoValue) {
-        // FIXME
-        if (infoValue instanceof NonOrBigDecimalValueProperty){
-            return infoValue;
+        if (infoValue instanceof Map<?, ?>) {
+            Boolean isNone = (Boolean) ((Map) infoValue).get("isNone");
+            if (isNone) {
+                return new NonOrBigDecimalValueProperty();
+            } else {
+                Double value = null;
+                Object valueObj = ((Map) infoValue).get("value");
+                if (valueObj instanceof Integer) {
+                    value = ((Integer) valueObj).doubleValue();
+                } else if (valueObj instanceof Double) {
+                    value = (Double) valueObj;
+                }
+                return new NonOrBigDecimalValueProperty(BigDecimal.valueOf(value));
+            }
+        } else {
+            return null;
         }
-        return null;
     }
 
     @Override
     public Object convertValueToInfo(PropertySpec propertySpec, Object domainValue) {
-        if(domainValue!=null){
-            if (domainValue instanceof NonOrBigDecimalValueProperty){
+        if (domainValue != null) {
+            if (domainValue instanceof NonOrBigDecimalValueProperty) {
                 return domainValue;
             }
         }
