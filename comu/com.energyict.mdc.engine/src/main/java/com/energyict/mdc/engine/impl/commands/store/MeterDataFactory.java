@@ -73,7 +73,7 @@ public final class MeterDataFactory {
             endDeviceEvent.setLogBookPosition(meterProtocolEvent.getDeviceEventId());
             endDeviceEvent.setType(String.valueOf(meterProtocolEvent.getProtocolCode()));
             endDeviceEvent.setDescription(meterProtocolEvent.getMessage());
-            endDeviceEvent.setEventData(meterProtocolEvent.getAdditionalInformation());
+            //endDeviceEvent.setEventData(meterProtocolEvent.getAdditionalInformation());       //TODO make compatible with UPL
             endDeviceEvents.add(endDeviceEvent);
         }
         return endDeviceEvents;
