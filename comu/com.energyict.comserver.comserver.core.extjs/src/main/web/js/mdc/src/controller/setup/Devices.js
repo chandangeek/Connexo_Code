@@ -428,7 +428,7 @@ Ext.define('Mdc.controller.setup.Devices', {
         me.getAddDevicePage().setLoading();
         form.getRecord().save({
             success: function (record) {
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceAdd.added', 'MDC', "Device '{0}' added.", record.get('name'), false));
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceAdd.added', 'MDC', 'Device added'));
                 location.href = "#/devices/" + encodeURIComponent(record.get('name'));
             },
             failure: function (record, operation) {

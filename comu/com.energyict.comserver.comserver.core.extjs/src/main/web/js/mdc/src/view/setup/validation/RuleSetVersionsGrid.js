@@ -56,6 +56,7 @@ Ext.define('Mdc.view.setup.validation.RuleSetVersionsGrid', {
             },
             {
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 menu: {xtype: 'validation-version-actionmenu'}
             }
         ]; 

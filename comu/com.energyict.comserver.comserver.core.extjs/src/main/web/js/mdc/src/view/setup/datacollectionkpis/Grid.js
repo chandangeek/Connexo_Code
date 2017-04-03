@@ -72,6 +72,7 @@ Ext.define('Mdc.view.setup.datacollectionkpis.Grid', {
             },
             {
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 privileges: Mdc.privileges.DataCollectionKpi.admin,
                 menu: {
                     xtype: 'dataCollectionKpisActionMenu',

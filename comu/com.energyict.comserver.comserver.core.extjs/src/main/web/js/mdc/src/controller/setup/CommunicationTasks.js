@@ -23,7 +23,6 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
         'ComTasks',
         'SecuritySettingsOfDeviceConfiguration',
         'ConnectionMethodsOfDeviceConfiguration',
-        'ProtocolDialectsOfDeviceConfiguration',
         'ConnectionMethodsOfDeviceConfigurationCombo'
     ],
 
@@ -174,7 +173,6 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
             comTasksStore = me.getComTasksStore(),
             securityPropertySetsStore = me.getSecuritySettingsOfDeviceConfigurationStore(),
             connectionMethodsStore = me.getConnectionMethodsOfDeviceConfigurationComboStore(),
-            protocolDialectsStore = me.getProtocolDialectsOfDeviceConfigurationStore(),
             defaultConnectionMethod;
 
         defaultConnectionMethod = Ext.create('Mdc.model.ConnectionMethod', {
@@ -189,8 +187,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
             returnLink: '#/administration/devicetypes/' + encodeURIComponent(me.deviceTypeId) + '/deviceconfigurations/' + encodeURIComponent(me.deviceConfigurationId) + '/comtaskenablements',
             comTasksStore: comTasksStore,
             securityPropertySetsStore: securityPropertySetsStore,
-            connectionMethodsStore: connectionMethodsStore,
-            protocolDialectsStore: protocolDialectsStore
+            connectionMethodsStore: connectionMethodsStore
         });
         me.getApplication().fireEvent('changecontentevent', widget);
         widget.setLoading(true);
@@ -222,18 +219,10 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                                         connectionMethodsStore.add(defaultConnectionMethod);
                                         securityPropertySetsStore.load({
                                             callback: function () {
-                                                protocolDialectsStore.getProxy().extraParams = ({
-                                                    deviceType: deviceTypeId,
-                                                    deviceConfig: deviceConfigurationId
-                                                });
-                                                protocolDialectsStore.load({
-                                                    callback: function () {
-                                                        var title = Uni.I18n.translate('communicationtasks.add', 'MDC', 'Add communication task configuration');
-                                                        widget.down('#communicationTaskEditForm').setTitle(title);
-                                                        widget.down('#partialConnectionTaskComboBox').setValue(-1);
-                                                        widget.setLoading(false);
-                                                    }
-                                                });
+                                                var title = Uni.I18n.translate('communicationtasks.add', 'MDC', 'Add communication task configuration');
+                                                widget.down('#communicationTaskEditForm').setTitle(title);
+                                                widget.down('#partialConnectionTaskComboBox').setValue(-1);
+                                                widget.setLoading(false);
                                             }
                                         });
                                     }
@@ -258,7 +247,6 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
             comTasksStore = me.getComTasksStore(),
             securityPropertySetsStore = me.getSecuritySettingsOfDeviceConfigurationStore(),
             connectionMethodsStore = me.getConnectionMethodsOfDeviceConfigurationComboStore(),
-            protocolDialectsStore = me.getProtocolDialectsOfDeviceConfigurationStore(),
             model = Ext.ModelManager.getModel('Mdc.model.CommunicationTaskConfig');
         me.deviceTypeId = deviceTypeId;
         me.deviceConfigurationId = deviceConfigurationId;
@@ -272,8 +260,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                     returnLink: '#/administration/devicetypes/' + encodeURIComponent(me.deviceTypeId) + '/deviceconfigurations/' + encodeURIComponent(me.deviceConfigurationId) + '/comtaskenablements',
                     comTasksStore: comTasksStore,
                     securityPropertySetsStore: securityPropertySetsStore,
-                    connectionMethodsStore: connectionMethodsStore,
-                    protocolDialectsStore: protocolDialectsStore
+                    connectionMethodsStore: connectionMethodsStore
                 });
                 me.getApplication().fireEvent('changecontentevent', widget);
                 widget.setLoading(true);
@@ -405,7 +392,6 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
             me.hideErrorPanel();
             me.getCommunicationTaskEditForm().down('#comTaskComboBox').clearInvalid();
             me.getCommunicationTaskEditForm().down('#securityPropertySetComboBox').clearInvalid();
-            me.getCommunicationTaskEditForm().down('#protocolDialectConfigurationPropertiesComboBox').clearInvalid();
         }
         me[operation + 'CommunicationTaskRecord'](form.getValues(), {operation: operation});
     },
@@ -470,8 +456,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                                 Ext.Array.each(json.errors, function (item) {
                                     item.id.indexOf('comTask') !== -1 && me.getCommunicationTaskEditForm().down('#comTaskComboBox').markInvalid(item.msg);
                                     item.id.indexOf('securityPropertySet') !== -1 && me.getCommunicationTaskEditForm().down('#securityPropertySetComboBox').markInvalid(item.msg);
-                                    item.id.indexOf('protocolDialectConfigurationProperties') !== -1 && me.getCommunicationTaskEditForm().down('#protocolDialectConfigurationPropertiesComboBox').markInvalid(item.msg);
-                                });
+                                 });
                                 return;
                             }
                             if (json && json.error) {
@@ -499,9 +484,6 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
         record.set("securityPropertySet", {id: values.securityPropertySetId});
         if (!Ext.isEmpty(values.partialConnectionTaskId)) {
             record.set("partialConnectionTask", {id: values.partialConnectionTaskId});
-        }
-        if (!Ext.isEmpty(values.protocolDialectConfigurationPropertiesId)) {
-            record.set("protocolDialectConfigurationProperties", {id: values.protocolDialectConfigurationPropertiesId});
         }
         record.set("priority", values.priority);
         record.set("ignoreNextExecutionSpecsForInbound", values.ignoreNextExecutionSpecsForInbound);

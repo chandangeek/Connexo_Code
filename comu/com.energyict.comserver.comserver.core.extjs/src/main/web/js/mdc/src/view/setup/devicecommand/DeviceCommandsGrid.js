@@ -71,6 +71,7 @@ Ext.define('Mdc.view.setup.devicecommand.DeviceCommandsGrid', {
 
             {
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 privileges: Mdc.privileges.DeviceCommands.executeCommands,
                 itemId: 'commands-action-column',
                 menu: {

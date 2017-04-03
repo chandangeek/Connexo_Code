@@ -95,6 +95,7 @@ Ext.define('Mdc.deviceconfigurationestimationrules.view.RuleSetsGrid', {
             me.columns.push(
                 {
                     xtype: 'uni-actioncolumn',
+                    width: 120,
                     menu: {
                         xtype: 'device-configuration-estimation-rule-set-action-menu',
                         itemId: 'statesActionMenu'

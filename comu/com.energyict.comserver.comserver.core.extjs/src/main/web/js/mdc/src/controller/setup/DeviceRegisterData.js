@@ -63,12 +63,15 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
             'deviceregisterdataactionmenu': {
                 beforeshow: this.checkSuspect,
                 click: this.chooseAction
-            }
+            },
+            'register-data-bulk-action-menu': {
+                click: this.chooseBulkAction
+            },
         });
     },
 
     loadGridItemDetail: function (rowmodel, record) {
-        this.getDeviceregisterreportpreview().updateContent(record);
+        this.getDeviceregisterreportpreview().updateContent(record,registerBeingViewed);
     },
 
     showDeviceRegisterDataView: function (deviceId, registerId, tabController) {
@@ -158,12 +161,17 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
             collectedUnit = collectedReadingType.names.unitOfMeasure,
             calculatedUnit = 'NY',
             isCumulative = registerBeingViewed.get('isCumulative'),
+            isBilling = registerBeingViewed.get('isBilling'),
+            hasEvent = registerBeingViewed.get('hasEvent'),
             multiplier = registerBeingViewed.get('multiplier'),
             hasCalculatedValue = false,
             contentPanel = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
             calculatedValueColumn = contentPanel.down('grid').down('[dataIndex=calculatedValue]'),
             deltaValueColumn = contentPanel.down('grid').down('[dataIndex=deltaValue]'),
-            valueColumn = contentPanel.down('grid').down('[dataIndex=value]');
+            valueColumn = contentPanel.down('grid').down('[dataIndex=value]'),
+            measurementTimeColumn = contentPanel.down('grid').down('[dataIndex=timeStamp]'),
+            intervalTimeColumn = contentPanel.down('grid').down('[dataIndex=interval]'),
+            eventTimeColumn = contentPanel.down('grid').down('#eventTime');
 
         Ext.Array.each(records, function(record) {
             hasCalculatedValue = hasCalculatedValue || !Ext.isEmpty(record.get('calculatedValue'));
@@ -172,6 +180,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
                 return false; // Stop the iteration
             }
         }, me);
+
 
         if (valueColumn) {
             valueColumn.setText(Uni.I18n.translate('general.collected', 'MDC', 'Collected') + ' (' + collectedUnit + ')');
@@ -183,19 +192,36 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
             calculatedValueColumn.setVisible(hasCalculatedValue);
         }
 
-        if (type === 'billing' || type === 'numerical') {
+        if (type === 'numerical') {
+            intervalTimeColumn.setVisible(false);
+            if(isBilling){
+                measurementTimeColumn.setVisible(false);
+                intervalTimeColumn.setVisible(true);
+            }
             if (isCumulative) {
                 deltaValueColumn.setText(Uni.I18n.translate('device.registerData.deltaValue', 'MDC', 'Delta value')
                     + ' (' + (calculatedUnit != 'NY' ? calculatedUnit : collectedUnit) + ')'
                 );
                 deltaValueColumn.setVisible(true);
+                measurementTimeColumn.setVisible(false);
+                intervalTimeColumn.setVisible(true);
             }
+            if(!hasEvent){
+                eventTimeColumn.setVisible(false);
+            }
+            if(hasEvent && !isCumulative && !isBilling){
+                measurementTimeColumn.setVisible(false);
+                intervalTimeColumn.setVisible(false);
+                eventTimeColumn.setVisible(true);
+            }
+
         }
     },
 
     chooseAction: function (menu, item) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
+            routeParams = router.arguments,
             grid = me.getPage().down('grid'),
             record = grid.getView().getSelectionModel().getLastSelected();
 
@@ -215,6 +241,14 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
                     }
                 });
                 break;
+            case 'viewHistory':
+                route = 'devices/device/registers/registerdata/history';
+                filterParams = {
+                    endInterval: Number(menu.record.get('timeStamp') - 1) + '-' + Number(menu.record.get('timeStamp'))
+                };
+                route && (route = router.getRoute(route));
+                route && route.forward(routeParams, filterParams);
+                break;
         }
     },
 
@@ -225,7 +259,32 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
             bulkStatus = record.get('validationResult').split('.')[1] == 'suspect';
 
         menu.down('#confirm-value').setVisible(mainStatus || bulkStatus);
-    }
+    },
+
+    chooseBulkAction: function (menu, item) {
+        var me = this,
+            router = this.getController('Uni.controller.history.Router'),
+            routeParams = router.arguments,
+            route,
+            filterParams = {};
+
+        switch (item.action) {
+            case 'viewHistory':
+                route = 'devices/device/registers/registerdata/history';
+                var param = {};
+                me.getFilterPanel().down('#deviceregister-topfilter-interval').applyParamValue(param);
+                filterParams = {
+                    endInterval: param.intervalStart.toString() + '-' + param.intervalEnd.toString(),
+                    changedDataOnly: 'yes'
+                };
+                break;
+        }
+
+        route && (route = router.getRoute(route));
+        route && route.forward(routeParams, filterParams);
+    },
+
+
 })
 ;
 

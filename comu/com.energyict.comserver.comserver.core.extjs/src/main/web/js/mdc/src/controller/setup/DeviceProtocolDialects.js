@@ -62,20 +62,25 @@ Ext.define('Mdc.controller.setup.DeviceProtocolDialects', {
 
     showProtocolDialectsView: function (deviceId) {
         var me = this,
-        viewport = Ext.ComponentQuery.query('viewport')[0];
+        viewport = Ext.ComponentQuery.query('viewport')[0],
+        protocolDialectsOfDeviceStore = me.getProtocolDialectsOfDeviceStore();
+
         this.deviceId = deviceId;
-
+        protocolDialectsOfDeviceStore.getProxy().setUrl(deviceId);
         viewport.setLoading();
-
         Ext.ModelManager.getModel('Mdc.model.Device').load(deviceId, {
             success: function (device) {
-                var widget = Ext.widget('deviceProtocolDialectSetup', {device: device});
-                me.getApplication().fireEvent('changecontentevent', widget);
-                me.getApplication().fireEvent('loadDevice', device);
-                viewport.setLoading(false);
-                me.getDeviceProtocolDialectsGrid().getSelectionModel().doSelect(0);
-            }
+                protocolDialectsOfDeviceStore.load({
+                    callback: function (records) {
+                        var widget = Ext.widget('deviceProtocolDialectSetup', {device: device});
+                        me.getApplication().fireEvent('changecontentevent', widget);
+                        me.getApplication().fireEvent('loadDevice', device);
+                        viewport.setLoading(false);
+                        me.getDeviceProtocolDialectsGrid().getSelectionModel().doSelect(0);
+                    }
+                })
 
+            }
         });
     },
 
