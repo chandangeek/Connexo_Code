@@ -2,16 +2,13 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.elster.jupiter.metering.impl.aggregation;
+package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.Operator;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverableNode;
-import com.elster.jupiter.metering.impl.config.ConstantNodeImpl;
-import com.elster.jupiter.metering.impl.config.OperationNodeImpl;
-import com.elster.jupiter.metering.impl.config.ReadingTypeDeliverableNodeImpl;
 import com.elster.jupiter.nls.Thesaurus;
 
 import java.math.BigDecimal;

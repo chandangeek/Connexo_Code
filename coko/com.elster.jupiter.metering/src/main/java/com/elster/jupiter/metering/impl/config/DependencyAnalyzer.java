@@ -2,7 +2,7 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.elster.jupiter.metering.impl.aggregation;
+package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.metering.config.ConstantNode;
 import com.elster.jupiter.metering.config.CustomPropertyNode;
@@ -20,7 +20,6 @@ import com.google.common.collect.ImmutableList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.TreeSet;
 
 /**
  * Analyzes the dependencies between the {@link ReadingTypeDeliverable}s
@@ -30,11 +29,11 @@ import java.util.TreeSet;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2017-02-28 (14:57)
  */
-class DependencyAnalyzer implements ExpressionNode.Visitor<Void> {
+public class DependencyAnalyzer implements ExpressionNode.Visitor<Void> {
     private final MetrologyContract contract;
     private Set<ReadingTypeDeliverable> deliverables;
 
-    static DependencyAnalyzer forAnalysisOf(MetrologyContract contract) {
+    public static DependencyAnalyzer forAnalysisOf(MetrologyContract contract) {
         return new DependencyAnalyzer(contract);
     }
 
@@ -49,7 +48,7 @@ class DependencyAnalyzer implements ExpressionNode.Visitor<Void> {
      *
      * @return The List of ReadingTypeDeliverable
      */
-    List<ReadingTypeDeliverable> getDeliverables() {
+    public List<ReadingTypeDeliverable> getDeliverables() {
         if (this.deliverables == null) {
             /* Use LinkedHashSet as that respects the order in which they were added
              * but avoids adding the same deliverable a second time. */
