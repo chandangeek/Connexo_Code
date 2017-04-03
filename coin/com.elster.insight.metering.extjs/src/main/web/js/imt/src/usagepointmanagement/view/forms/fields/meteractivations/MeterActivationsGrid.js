@@ -27,7 +27,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.meteractivations.MeterAct
             {
                 header: Uni.I18n.translate('general.meterRole', 'IMT', 'Meter role'),
                 dataIndex: 'meterRole',
-                flex: 1,
+                flex: 0.5,
                 renderer: function (value, metaData) {
                     metaData.tdCls = Ext.baseCSSPrefix + 'td-content-middle';
                     return value ? value.name : '-';
@@ -41,11 +41,8 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.meteractivations.MeterAct
                 flex: 1,
                 editor: {
                     xtype: 'combo',
-                    width: 300,
+                    width: 270,
                     fieldType: 'meterCombo',
-                    itemId: 'meter-combo',
-                    // id: 'meter-combo',
-                    class: 'meter-combo',
                     multiSelect: false,
                     emptyText: Uni.I18n.translate('usagepoint.setMeters.strtTyping', 'IMT', 'Start typing to select a meter'),
                     store: 'Imt.usagepointsetup.store.Devices',
@@ -59,11 +56,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.meteractivations.MeterAct
                     loadStore: false,
                     forceSelection: true,
                     cls: 'stretchy-combo',
-                    listeners: Ext.merge({
-                        afterrender: function (combo) {
-                            me.down('#clear-meters').combo = this;
-                        }
-                    },me.meterComboLiseners)
+                    listeners: me.meterComboLiseners
                 }
             },
             {
@@ -96,58 +89,25 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.meteractivations.MeterAct
         if (me.meterRoles) {
             me.columns.push(
                 {
-                    xtype: 'uni-actioncolumn',
-                    width: 120,
-                    itemId: 'clear-meters',
-                    combo: null,
-                    handler: function (grid, rowIndex, colIndex, item, e, record) {
-                        // console.log(grid.getSelectionModel());
-                        console.log(me.query('#meter-meter'));
-                        console.log(me.query('#combobox'));
-                        // console.log(Ext.query());
-
-                        // var element = Ext.getCmp(elementId);
-                        // console.log(element);
-                        // console.log(grid.getGridColumns());
-                        // console.log(grid.getStore().getAt(rowIndex).set('meter', ''));
-                        // console.log(grid.getStore().load());
-                        // console.log(grid.getVisibleColumnManager());
-                        // console.log(grid.renderRow(record));
-                        // console.log(me.down('#meter-combo-0'));
-                        // me.meterComboLiseners.change(this.combo, null);
-                        // this.combo.reset();
+                    xtype: 'uni-actioncolumn-remove',
+                    // width: 120,
+                    // iconCls: 'icon-cancel-circle2 remove-button-class7',
+                    tooltip: Uni.I18n.translate('general.UnlinkMeter', 'UNI', 'Unlink meter'),
+                    handler: function (grid, rowIndex) {
+                        var colNum = 1,
+                            cellSelector = grid.getCellSelector(grid.up('grid').columns[colNum]),
+                            domEl = grid.getEl().query(cellSelector)[colNum],
+                            comboDom = Ext.get(domEl.getAttribute('id')).query('.stretchy-combo')[rowIndex],
+                            combo = Ext.getCmp(comboDom.getAttribute('id'));
+                        combo.clearValue()
                     }
                 }
             );
         }
-        // me.plugins= [
-        //     Ext.create('Ext.grid.plugin.RowEditing', {
-        //         autoCancel: false
-        //     })
-        // ];
-
         me.callParent(arguments);
     },
 
-    setMeterRoles: function (meterRoles, usagePointCreationDate) {
-        var me = this,
-            store = me.getStore(),
-            data = _.map(meterRoles,
-                function (meterRole) {
-                    return {
-                        meterRole: meterRole,
-                        // activationTime: usagePointCreationDate ? usagePointCreationDate : new Date().getTime()
-                    }
-                }
-            );
-
-        store.loadData(data);
-        store.fireEvent('load', data);
-    },
     meterComboLiseners: {
-        staterestore: function () {
-            console.log('ssss');
-        },
         expand: function (combo) {
             console.log(combo);
             var picker = combo.getPicker(),
