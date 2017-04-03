@@ -7,7 +7,6 @@ package com.energyict.mdc.protocol.pluggable.mocks;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.cbo.Quantity;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.DeviceSecuritySupport;
@@ -23,12 +22,13 @@ import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
+
+import com.energyict.cbo.Quantity;
 import com.energyict.protocol.ProfileData;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -176,15 +176,6 @@ public class MockMeterProtocol implements MeterProtocol, DeviceSecuritySupport, 
     @Override
     public void setCache(Object cacheObject) {
 
-    }
-
-    @Override
-    public Object fetchCache(int deviceId) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public void updateCache(int deviceId, Object cacheObject) throws SQLException {
     }
 
     @Override

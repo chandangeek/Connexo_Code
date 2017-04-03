@@ -6,8 +6,6 @@ package com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol;
 
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.MessageSeeds;
-import com.energyict.mdc.protocol.api.device.data.Register;
-import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.exceptions.LegacyProtocolException;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.mocks.MockCollectedRegister;
@@ -20,6 +18,8 @@ import com.energyict.mdc.upl.offline.OfflineRegister;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocol.Register;
+import com.energyict.protocol.RegisterValue;
 
 import java.io.IOException;
 import java.util.ArrayList;
