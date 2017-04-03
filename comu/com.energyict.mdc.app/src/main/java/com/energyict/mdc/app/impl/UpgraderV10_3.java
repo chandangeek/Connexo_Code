@@ -13,7 +13,7 @@ import javax.inject.Inject;
 
 public class UpgraderV10_3 implements Upgrader {
 
-    private UserService userService;
+    private final UserService userService;
 
     @Inject
     public UpgraderV10_3(UserService userService) {
@@ -29,6 +29,9 @@ public class UpgraderV10_3 implements Upgrader {
 
     private String[] getNewMeterExpertPrivileges() {
         return new String[]{
+                // file import
+                com.elster.jupiter.fileimport.security.Privileges.Constants.IMPORT_FILE,
+
                 // manual estimation
                 com.energyict.mdc.device.data.security.Privileges.Constants.ESTIMATE_WITH_RULE,
                 com.energyict.mdc.device.data.security.Privileges.Constants.EDIT_WITH_ESTIMATOR,
@@ -42,6 +45,9 @@ public class UpgraderV10_3 implements Upgrader {
 
     private String[] getNewMeterOperatorPrivileges() {
         return new String[]{
+                // file import
+                com.elster.jupiter.fileimport.security.Privileges.Constants.IMPORT_FILE,
+
                 // manual estimation
                 com.energyict.mdc.device.data.security.Privileges.Constants.ESTIMATE_WITH_RULE,
                 com.energyict.mdc.device.data.security.Privileges.Constants.EDIT_WITH_ESTIMATOR,
