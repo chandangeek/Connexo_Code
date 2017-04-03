@@ -38,6 +38,8 @@ public abstract class ReadingInfo {
     @JsonProperty("modificationFlag")
     @XmlJavaTypeAdapter(ReadingModificationFlagAdapter.class)
     public ReadingModificationFlag modificationFlag;
+    @JsonProperty("userName")
+    public String userName;
     @JsonProperty("editedInApp")
     public IdWithNameInfo editedInApp;
     public SlaveRegisterInfo slaveRegister;
