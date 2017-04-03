@@ -10,7 +10,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.RefAny;
 import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.pki.SymmetricKeyWrapper;
-import com.energyict.mdc.device.data.KeyAccessor;
+import com.energyict.mdc.device.data.SymmetricKeyAccessor;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
 
 import com.google.inject.Inject;
@@ -20,7 +20,7 @@ import java.util.Optional;
 /**
  * Created by bvn on 2/28/17.
  */
-public class SymmetricKeyAccessorImpl extends AbstractKeyAccessorImpl<SymmetricKeyWrapper> implements KeyAccessor<SymmetricKeyWrapper> {
+public class SymmetricKeyAccessorImpl extends AbstractKeyAccessorImpl<SymmetricKeyWrapper> implements SymmetricKeyAccessor {
     private final DataModel dataModel;
     private final PkiService pkiService;
     private final Thesaurus thesaurus;
