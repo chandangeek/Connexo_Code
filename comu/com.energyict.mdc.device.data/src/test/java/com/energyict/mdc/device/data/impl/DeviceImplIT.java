@@ -2343,14 +2343,12 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
 
         deviceConfiguration.enableComTask(
                 comTask_1,
-                deviceConfiguration.getSecurityPropertySets().stream().findFirst().get(),
-                deviceConfiguration.getProtocolDialectConfigurationPropertiesList().stream().findFirst().get())
+                deviceConfiguration.getSecurityPropertySets().stream().findFirst().get())
                 .setIgnoreNextExecutionSpecsForInbound(false)
                 .add();
         deviceConfiguration.enableComTask(
                 comTask_2,
-                deviceConfiguration.getSecurityPropertySets().stream().findFirst().get(),
-                deviceConfiguration.getProtocolDialectConfigurationPropertiesList().stream().findFirst().get())
+                deviceConfiguration.getSecurityPropertySets().stream().findFirst().get())
                 .setIgnoreNextExecutionSpecsForInbound(false)
                 .add();
 
@@ -2373,14 +2371,12 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
 
         deviceConfiguration.enableComTask(
                 comTask_1,
-                deviceConfiguration.getSecurityPropertySets().stream().findFirst().get(),
-                deviceConfiguration.getProtocolDialectConfigurationPropertiesList().stream().findFirst().get())
+                deviceConfiguration.getSecurityPropertySets().stream().findFirst().get())
                 .setIgnoreNextExecutionSpecsForInbound(false)
                 .add();
         deviceConfiguration.enableComTask(
                 comTask_2,
-                deviceConfiguration.getSecurityPropertySets().stream().findFirst().get(),
-                deviceConfiguration.getProtocolDialectConfigurationPropertiesList().stream().findFirst().get())
+                deviceConfiguration.getSecurityPropertySets().stream().findFirst().get())
                 .setIgnoreNextExecutionSpecsForInbound(true)
                 .add();
 
@@ -2402,7 +2398,9 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         Device device = this.createSimpleDeviceWithName("activateDeviceOnUsagePoint");
         UsagePoint usagePoint = this.createSimpleUsagePoint("UP001");
         Instant expectedStart = Instant.ofEpochMilli(907L);
-
+        UsagePointMetrologyConfiguration mc = createMetrologyConfiguration("mc", Collections.emptyList());
+        mc.addMeterRole(defaultMeterRole);
+        usagePoint.apply(mc, expectedStart);
         // Business method
         device.activate(expectedStart, usagePoint, defaultMeterRole);
 
@@ -2422,7 +2420,9 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         UsagePoint usagePoint = this.createSimpleUsagePoint("UP001");
         Instant expectedStart = Instant.ofEpochMilli(97000L);
         Instant expectedStartWithUsagePoint = Instant.ofEpochMilli(980000L);
-
+        UsagePointMetrologyConfiguration mc = createMetrologyConfiguration("mc", Collections.emptyList());
+        mc.addMeterRole(defaultMeterRole);
+        usagePoint.apply(mc, expectedStartWithUsagePoint);
         // Business method
         device.activate(expectedStart);
         device.activate(expectedStartWithUsagePoint, usagePoint, defaultMeterRole);
@@ -2445,10 +2445,12 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         Device device = this.createSimpleDeviceWithName("activateDeviceOnUsagePointAlreadyLinkedToAnotherDevice");
         Device anotherDevice = this.createSimpleDeviceWithName("another device");
         UsagePoint usagePoint = this.createSimpleUsagePoint("UP001");
+        usagePoint = inMemoryPersistence.getMeteringService().findUsagePointById(usagePoint.getId()).get();
+        UsagePointMetrologyConfiguration mc = createMetrologyConfiguration("mc", Collections.emptyList());
+        mc.addMeterRole(defaultMeterRole);
+        usagePoint.apply(mc, Instant.ofEpochMilli(96L));
         Instant expectedStart = Instant.ofEpochMilli(97L);
         anotherDevice.activate(Instant.ofEpochMilli(96L), usagePoint, defaultMeterRole);
-        usagePoint = inMemoryPersistence.getMeteringService().findUsagePointById(usagePoint.getId()).get();
-
         // Business method
         device.activate(expectedStart, usagePoint, defaultMeterRole);
 
@@ -2509,6 +2511,9 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         UsagePoint usagePoint = this.createSimpleUsagePoint("UP001");
         Instant expectedStart = Instant.ofEpochMilli(97L);
 
+        UsagePointMetrologyConfiguration mc = createMetrologyConfiguration("mc", Collections.emptyList());
+        mc.addMeterRole(defaultMeterRole);
+        usagePoint.apply(mc, expectedStart);
         // Business method
         device.activate(expectedStart, usagePoint, defaultMeterRole);
         when(inMemoryPersistence.getClock().instant()).thenReturn(expectedStart.plus(1, ChronoUnit.MINUTES));
@@ -2537,9 +2542,8 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         for (ReadingType readingType : readingTypes) {
             FullySpecifiedReadingTypeRequirement fullySpecifiedReadingTypeRequirement = mc.newReadingTypeRequirement(readingType.getFullAliasName(), meterRoleDefault)
                     .withReadingType(readingType);
-            ReadingTypeDeliverableBuilder builder = mc.newReadingTypeDeliverable(readingType.getFullAliasName(), readingType, Formula.Mode.AUTO);
-            ReadingTypeDeliverable deliverable = builder.build(builder.requirement(fullySpecifiedReadingTypeRequirement));
-            metrologyContract.addDeliverable(deliverable);
+            ReadingTypeDeliverableBuilder builder = metrologyContract.newReadingTypeDeliverable(readingType.getFullAliasName(), readingType, Formula.Mode.AUTO);
+            builder.build(builder.requirement(fullySpecifiedReadingTypeRequirement));
         }
         mc.activate();
         return mc;
@@ -2681,12 +2685,12 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         comTask2.save();
         ProtocolDialectConfigurationProperties configDialect = deviceConfiguration.findOrCreateProtocolDialectConfigurationProperties(new ComTaskExecutionDialect());
         deviceConfiguration.save();
-        enableComTask(comTask1, configDialect);
-        enableComTask(comTask2, configDialect);
+        enableComTask(comTask1);
+        enableComTask(comTask2);
     }
 
-    private void enableComTask(ComTask comTask1, ProtocolDialectConfigurationProperties configDialect) {
-        deviceConfiguration.enableComTask(comTask1, this.securityPropertySet, configDialect)
+    private void enableComTask(ComTask comTask1) {
+        deviceConfiguration.enableComTask(comTask1, this.securityPropertySet)
                 .useDefaultConnectionTask(true)
                 .setPriority(213)
                 .add();
