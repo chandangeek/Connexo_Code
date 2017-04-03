@@ -21,6 +21,7 @@ import com.elster.jupiter.util.HasName;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,9 +29,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-/**
- * Created by mbarinov on 17.08.2016.
- */
 @Component(name = "com.elster.jupiter.properties.rest.propertyvalueinfoservice", immediate = true, service = PropertyValueInfoService.class)
 public class PropertyValueInfoServiceImpl implements PropertyValueInfoService {
 
@@ -74,9 +72,14 @@ public class PropertyValueInfoServiceImpl implements PropertyValueInfoService {
 
     @Override
     public PropertyInfo getPropertyInfo(PropertySpec propertySpec, Function<String, Object> propertyValueProvider) {
+        return getPropertyInfo(propertySpec, propertyValueProvider, null);
+    }
+
+    @Override
+    public PropertyInfo getPropertyInfo(PropertySpec propertySpec, Function<String, Object> propertyValueProvider, Function<String, Object> inheritedPropertyValueProvider) {
         PropertyType propertyType = getConverter(propertySpec).getPropertyType(propertySpec);
         PropertyTypeInfo propertyTypeInfo = new PropertyTypeInfo(propertyType, null, getPredefinedPropertyValueInfo(propertySpec, propertyType), null);
-        PropertyValueInfo propertyValueInfo = getPropertyValueInfo(propertySpec, propertyValueProvider);
+        PropertyValueInfo propertyValueInfo = getPropertyValueInfo(propertySpec, propertyValueProvider, inheritedPropertyValueProvider);
         return new PropertyInfo(propertySpec.getDisplayName(), propertySpec.getName(), propertyValueInfo, propertyTypeInfo, propertySpec.isRequired());
     }
 
@@ -90,9 +93,13 @@ public class PropertyValueInfoServiceImpl implements PropertyValueInfoService {
 
     @Override
     public List<PropertyInfo> getPropertyInfos(List<PropertySpec> propertySpecs, Map<String, Object> propertyValues) {
-        return propertySpecs
-                .stream()
-                .map(propertySpec -> getPropertyInfo(propertySpec, propertyValues::get))
+        return getPropertyInfos(propertySpecs, propertyValues, Collections.emptyMap());
+    }
+
+    @Override
+    public List<PropertyInfo> getPropertyInfos(List<PropertySpec> propertySpecs, Map<String, Object> propertyValues, Map<String, Object> inheritedPropertyValues) {
+        return propertySpecs.stream()
+                .map(propertySpec -> getPropertyInfo(propertySpec, propertyValues::get, inheritedPropertyValues::get))
                 .collect(Collectors.toList());
     }
 
@@ -111,10 +118,11 @@ public class PropertyValueInfoServiceImpl implements PropertyValueInfoService {
         return new PropertyValueInfoServiceImpl();
     }
 
-    private PropertyValueInfo getPropertyValueInfo(PropertySpec propertySpec, Function<String, Object> propertyValueProvider) {
+    private PropertyValueInfo getPropertyValueInfo(PropertySpec propertySpec, Function<String, Object> propertyValueProvider, Function<String, Object> inheritedPropertyProvider) {
         Object propertyValue = getPropertyValue(propertySpec, propertyValueProvider);
+        Object inheritedValue = getPropertyValue(propertySpec, inheritedPropertyProvider);
         Object defaultValue = getDefaultValue(propertySpec);
-        return new PropertyValueInfo<>(propertyValue, defaultValue);
+        return new PropertyValueInfo<>(propertyValue, inheritedValue, defaultValue, null);
     }
 
     private Object getPropertyValue(PropertySpec propertySpec, Function<String, Object> propertyValueProvider) {
@@ -161,18 +169,19 @@ public class PropertyValueInfoServiceImpl implements PropertyValueInfoService {
                 if (propertyType == SimplePropertyType.SELECTIONGRID || propertyType == SimplePropertyType.LISTREADINGQUALITY || propertyType == SimplePropertyType.DEVICECONFIGURATIONLIST ||
                         propertyType == SimplePropertyType.ENDDEVICEEVENTTYPE || propertyType == SimplePropertyType.LIFECYCLESTATUSINDEVICETYPE) {
                     possibleObjects[i] = possibleValues.getAllValues().get(i);
-                } else if (propertyType == SimplePropertyType.IDWITHNAME  || propertyType == SimplePropertyType.BPM_PROCESS) {
+                } else if (propertyType == SimplePropertyType.IDWITHNAME || propertyType == SimplePropertyType.BPM_PROCESS) {
                     Object idWithName = possibleValues.getAllValues().get(i);
                     possibleObjects[i] = idWithName instanceof HasIdAndName
-                            ? asInfo(((HasIdAndName)idWithName).getId(), ((HasIdAndName)idWithName).getName())
-                            : asInfo(((HasId)idWithName).getId(), ((HasName)idWithName).getName()) ;
+                            ? asInfo(((HasIdAndName) idWithName).getId(), ((HasIdAndName) idWithName).getName())
+                            : asInfo(((HasId) idWithName).getId(), ((HasName) idWithName).getName());
                 } else {
                     possibleObjects[i] = converter.convertValueToInfo(propertySpec, possibleValues.getAllValues().get(i));
                 }
             }
         }
 
-        return new PredefinedPropertyValuesInfo<>(possibleObjects, possibleValues.getSelectionMode(), propertySpec.getPossibleValues().isExhaustive(), propertySpec.getPossibleValues().isEditable());
+        return new PredefinedPropertyValuesInfo<>(possibleObjects, possibleValues.getSelectionMode(), propertySpec.getPossibleValues()
+                .isExhaustive(), propertySpec.getPossibleValues().isEditable());
     }
 
     private boolean hasValue(PropertyInfo propertyInfo) {
