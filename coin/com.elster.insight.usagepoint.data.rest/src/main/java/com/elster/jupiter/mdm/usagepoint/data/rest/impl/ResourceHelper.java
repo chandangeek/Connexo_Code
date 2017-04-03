@@ -263,9 +263,9 @@ public class ResourceHelper {
                     .forEach(meterActivation -> {
                         Instant activationTime = meterActivation.meterRole.activationTime;
                         MeterRole meterRole = findMeterRoleOrThrowException(meterActivation.meterRole.id);
-                        if (!usagePoint.getMeterActivations(activationTime).isEmpty()) {
-                            validateUnlinkMeters(usagePoint, meterRole, activationTime);
-                            linker.clear(activationTime, meterRole);
+                        if (meterActivation.meter == null && !usagePoint.getMeterActivations(clock.instant()).isEmpty()) {
+                            validateUnlinkMeters(usagePoint, meterRole);
+                            linker.clear(clock.instant(), meterRole);
                         } else if (meterActivation.meter != null && !Checks.is(meterActivation.meter.name).emptyOrOnlyWhiteSpace()) {
                             Meter meter = findMeterByNameOrThrowException(meterActivation.meter.name);
                             linker.activate(activationTime, meter, meterRole);
@@ -275,29 +275,30 @@ public class ResourceHelper {
         }
     }
 
-    private void validateUnlinkMeters(UsagePoint usagePoint, MeterRole meterRole, Instant activationTime) {
+    private void validateUnlinkMeters(UsagePoint usagePoint, MeterRole meterRole) {
         usagePoint.getCurrentEffectiveMetrologyConfiguration().ifPresent(metrologyConfiguration -> {
             List<ReadingTypeRequirement> requirementsForMeterRole = metrologyConfiguration.getMetrologyConfiguration().getRequirements(meterRole)
                     .stream()
                     .collect(Collectors.toList());
             List<ReadingTypeRequirement> allRequirements = metrologyConfiguration.getMetrologyConfiguration().getContracts()
                     .stream()
-                    .filter(metrologyContract -> metrologyConfiguration.getChannelsContainer(metrologyContract, activationTime).isPresent())
+                    .filter(metrologyContract -> metrologyConfiguration.getChannelsContainer(metrologyContract).isPresent())
                     .flatMap(metrologyContract -> metrologyContract.getRequirements().stream())
                     .filter(requirementsForMeterRole::contains)
+                    .distinct()
                     .collect(Collectors.toList());
-            usagePoint.getMeterActivations(activationTime)
+            usagePoint.getMeterActivations(clock.instant())
                     .stream()
                     .filter(meterActivation -> allRequirements
                         .stream()
-                        .filter(readingTypeRequirement -> readingTypeRequirement.getMatchesFor(meterActivation.getChannelsContainer()).isEmpty())
+                        .filter(readingTypeRequirement -> !readingTypeRequirement.getMatchesFor(meterActivation.getChannelsContainer()).isEmpty())
                         .findAny()
                         .isPresent())
                     .findAny()
                     .ifPresent(meterActivation -> {
                         DateTimeFormatter dateTimeFormatter = userService.getUserPreferencesService().getDateTimeFormatter(threadPrincipalService.getPrincipal(), PreferenceType.LONG_DATE, PreferenceType.LONG_TIME);
                         throw new UsagePointMeterActivationException.MeterCannotBeUnlinked(thesaurus, meterActivation.getMeter().get().getName(), usagePoint.getName(), dateTimeFormatter.format(LocalDateTime
-                                .ofInstant(activationTime, ZoneId.systemDefault())));
+                                .ofInstant(clock.instant(), ZoneId.systemDefault())));
                     });
         });
     }
