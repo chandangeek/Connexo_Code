@@ -102,7 +102,12 @@ public enum MicroCheck {
     /**
      * Check if no active service calls exist for the device.
      */
-    NO_ACTIVE_SERVICE_CALLS(MicroCategory.MONITORING);
+    NO_ACTIVE_SERVICE_CALLS(MicroCategory.MONITORING),
+
+    /**
+     * Check if no slaves are linked to the multi-element device.
+     */
+    NO_LINKED_MULTI_ELEMENT_SLAVES(MicroCategory.DECOMMISSION);
 
     private MicroCategory category;
 
