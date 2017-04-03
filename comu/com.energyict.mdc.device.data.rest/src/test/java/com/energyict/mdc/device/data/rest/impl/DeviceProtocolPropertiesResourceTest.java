@@ -9,6 +9,7 @@ import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.properties.rest.PropertyTypeInfo;
 import com.elster.jupiter.properties.rest.PropertyValueInfo;
+import com.elster.jupiter.properties.rest.impl.IdWithNamePropertyValueConverter;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -25,6 +26,7 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -93,6 +95,8 @@ public class DeviceProtocolPropertiesResourceTest extends DeviceDataRestApplicat
     public void testGetDeviceProtocolProperties() {
         PropertyInfo propertyInfo = new PropertyInfo(DeviceProtocolProperty.CALL_HOME_ID.javaFieldName(), DeviceProtocolProperty.CALL_HOME_ID.javaFieldName(), new PropertyValueInfo<>("0x7", null), new PropertyTypeInfo(), false);
         when(propertyValueInfoService.getPropertyInfo(any(), any())).thenReturn(propertyInfo);
+        when(propertyValueInfoService.getConverter(any(PropertySpec.class))).thenReturn(new IdWithNamePropertyValueConverter());
+        when(deviceType.getKeyAccessorTypes()).thenReturn(Collections.emptyList());
         String response = target("/devices/ZABF010000080004/protocols/1").request().get(String.class);
         JsonModel jsonModel = JsonModel.create(response);
         assertThat(jsonModel.<Integer>get("$.id")).isEqualTo(17);
