@@ -61,6 +61,8 @@ public class ValidationRuleSetVersionTest extends EqualsContractTest {
     @Mock
     private MeteringService meteringService;
     @Mock
+    private ServerValidationService validationService;
+    @Mock
     private ValidatorCreator validatorCreator;
     @Mock
     private DataMapper<ValidationRuleProperties> rulePropertiesSet;
@@ -78,7 +80,8 @@ public class ValidationRuleSetVersionTest extends EqualsContractTest {
     private Clock clock;
 
     private Provider<ReadingTypeInValidationRuleImpl> readingTypeInRuleProvider = () -> new ReadingTypeInValidationRuleImpl(meteringService);
-    private Provider<ValidationRuleImpl> ruleProvider = () -> new ValidationRuleImpl(dataModel, validatorCreator, thesaurus, meteringService, eventService, readingTypeInRuleProvider,clock);
+    private Provider<ValidationRuleImpl> ruleProvider =
+            () -> new ValidationRuleImpl(dataModel, validatorCreator, thesaurus, meteringService, eventService, validationService, readingTypeInRuleProvider, clock);
     private Provider<ValidationRuleSetVersionImpl> versionProvider = () -> new ValidationRuleSetVersionImpl(dataModel, eventService, ruleProvider, clock);
 
     @Before
@@ -95,6 +98,7 @@ public class ValidationRuleSetVersionTest extends EqualsContractTest {
         validationRuleSet = new ValidationRuleSetImpl(dataModel, eventService, versionProvider, clock).init(NAME, DEFAULT_QUALITY_SYSTEM, null);
         validationRuleSetVersion = new ValidationRuleSetVersionImpl(dataModel, eventService, ruleProvider, clock).init(validationRuleSet, null, null);
     }
+
     @After
     public void tearDown() {
     }
@@ -202,7 +206,5 @@ public class ValidationRuleSetVersionTest extends EqualsContractTest {
         assertThat(validationRuleSetVersion.getRules()).hasSize(1).contains(rule1);
         assertThat(rule1.getName()).isEqualTo("rulename2");
         assertThat(rule1.getAction()).isEqualTo(ValidationAction.WARN_ONLY);
-
     }
-
 }

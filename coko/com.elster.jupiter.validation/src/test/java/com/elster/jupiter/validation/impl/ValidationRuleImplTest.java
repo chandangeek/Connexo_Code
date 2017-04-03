@@ -118,6 +118,8 @@ public class ValidationRuleImplTest extends EqualsContractTest {
     @Mock
     private EventService eventService;
     @Mock
+    private ServerValidationService validationService;
+    @Mock
     private PropertySpec propertySpec;
     @Mock
     private ValueFactory valueFactory;
@@ -142,9 +144,9 @@ public class ValidationRuleImplTest extends EqualsContractTest {
     }
 
     private ValidationRuleImpl newRule() {
-        return new ValidationRuleImpl(dataModel, validatorCreator, thesaurus, meteringService, eventService, provider, Clock.systemDefaultZone());
+        return new ValidationRuleImpl(dataModel, validatorCreator, thesaurus, meteringService, eventService, validationService, provider, Clock.systemDefaultZone());
     }
-    
+
     @Override
     protected Object getInstanceA() {
         if (validationRule == null) {
@@ -159,13 +161,13 @@ public class ValidationRuleImplTest extends EqualsContractTest {
     }
 
     @Override
-    protected Object getInstanceEqualToA() {        
-        return setId(newRule().init(ruleSetVersion, ValidationAction.FAIL, IMPLEMENTATION, "rulename"),ID);
+    protected Object getInstanceEqualToA() {
+        return setId(newRule().init(ruleSetVersion, ValidationAction.FAIL, IMPLEMENTATION, "rulename"), ID);
     }
 
     @Override
     protected Iterable<?> getInstancesNotEqualToA() {
-        return ImmutableList.of(setId(newRule().init(ruleSetVersion, ValidationAction.FAIL, IMPLEMENTATION, "rulename"),OTHER_ID));
+        return ImmutableList.of(setId(newRule().init(ruleSetVersion, ValidationAction.FAIL, IMPLEMENTATION, "rulename"), OTHER_ID));
     }
 
     @Override

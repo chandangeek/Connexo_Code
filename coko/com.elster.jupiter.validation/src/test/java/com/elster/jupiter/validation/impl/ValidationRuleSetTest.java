@@ -57,6 +57,8 @@ public class ValidationRuleSetTest extends EqualsContractTest {
     @Mock
     private MeteringService meteringService;
     @Mock
+    private ServerValidationService validationService;
+    @Mock
     private ValidatorCreator validatorCreator;
     @Mock
     private DataMapper<ValidationRuleProperties> rulePropertiesSet;
@@ -74,7 +76,8 @@ public class ValidationRuleSetTest extends EqualsContractTest {
     private Clock clock;
 
     private Provider<ReadingTypeInValidationRuleImpl> readingTypeInRuleProvider = () -> new ReadingTypeInValidationRuleImpl(meteringService);
-    private Provider<ValidationRuleImpl> ruleProvider = () -> new ValidationRuleImpl(dataModel, validatorCreator, thesaurus, meteringService, eventService, readingTypeInRuleProvider,clock);
+    private Provider<ValidationRuleImpl> ruleProvider =
+            () -> new ValidationRuleImpl(dataModel, validatorCreator, thesaurus, meteringService, eventService, validationService, readingTypeInRuleProvider, clock);
     private Provider<ValidationRuleSetVersionImpl> versionProvider = () -> new ValidationRuleSetVersionImpl(dataModel, eventService, ruleProvider, clock);
 
     @Before
@@ -90,6 +93,7 @@ public class ValidationRuleSetTest extends EqualsContractTest {
         when(clock.instant()).thenReturn(Instant.now());
         validationRuleSet = new ValidationRuleSetImpl(dataModel, eventService, versionProvider, clock).init(NAME, QualityCodeSystem.MDC, null);
     }
+
     @After
     public void tearDown() {
     }
@@ -168,7 +172,7 @@ public class ValidationRuleSetTest extends EqualsContractTest {
 
         validationRuleSet.save();
 
-        verify(dataModel).persist(validationRuleSet);        
+        verify(dataModel).persist(validationRuleSet);
     }
 
     @Test

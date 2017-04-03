@@ -69,7 +69,7 @@ public class ChannelValidatorTest {
     public void setUp() {
         doReturn(ImmutableSet.of(readingType)).when(rule).getReadingTypes();
         doReturn(Collections.singletonList(readingType)).when(channel).getReadingTypes();
-        doReturn(validator).when(rule).createNewValidator();
+        doReturn(validator).when(rule).createNewValidator(any(), any());
         doReturn(ValidationAction.FAIL).when(rule).getAction();
         doReturn(ruleSet).when(rule).getRuleSet();
         doReturn(QualityCodeSystem.MDC).when(ruleSet).getQualityCodeSystem();

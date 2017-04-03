@@ -65,6 +65,7 @@ import com.elster.jupiter.validation.ValidatorFactory;
 import com.elster.jupiter.validation.ValidatorNotFoundException;
 import com.elster.jupiter.validation.impl.kpi.DataValidationKpiServiceImpl;
 import com.elster.jupiter.validation.kpi.DataValidationKpiService;
+import com.elster.jupiter.validation.properties.ValidationPropertyResolver;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
@@ -126,6 +127,7 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
 
     private final List<ValidatorFactory> validatorFactories = new CopyOnWriteArrayList<>();
     private final List<ValidationRuleSetResolver> ruleSetResolvers = new CopyOnWriteArrayList<>();
+    private final List<ValidationPropertyResolver> validationPropertyResolvers = new CopyOnWriteArrayList<>();
     private DestinationSpec destinationSpec;
     private DataValidationKpiService dataValidationKpiService;
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
@@ -737,6 +739,20 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
 
     public void removeValidationRuleSetResolver(ValidationRuleSetResolver resolver) {
         ruleSetResolvers.remove(resolver);
+    }
+
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    public void addValidationPropertyResolver(ValidationPropertyResolver resolver) {
+        validationPropertyResolvers.add(resolver);
+    }
+
+    public void removeValidationPropertyResolver(ValidationPropertyResolver resolver) {
+        validationPropertyResolvers.remove(resolver);
+    }
+
+    @Override
+    public List<ValidationPropertyResolver> getValidationPropertyResolvers() {
+        return Collections.unmodifiableList(validationPropertyResolvers);
     }
 
     DataModel getDataModel() {

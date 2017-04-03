@@ -72,7 +72,7 @@ class ChannelValidator {
             lastChecked.accept(validationTarget);
         };
 
-        Validator validator = rule.createNewValidator();
+        Validator validator = rule.createNewValidator(channel.getChannelsContainer(), readingType);
         validator.init(channel, readingType, range);
 
         validatedResults(validator, readingType)

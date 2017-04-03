@@ -7,4 +7,6 @@ Private-Package: com.elster.jupiter.validation.impl.*
 Export-Package:  \
 	com.elster.jupiter.validation,\
 	com.elster.jupiter.validation.security,\
-	com.elster.jupiter.validation.kpi
+	com.elster.jupiter.validation.kpi,\
+	com.elster.jupiter.validation.properties
+

@@ -105,8 +105,8 @@ public class ChannelsContainerValidationImplTest {
         when(ruleSetVersion2.getRules()).thenReturn(Arrays.asList(rule1, rule2));
         when(rule1.isActive()).thenReturn(true);
         when(rule2.isActive()).thenReturn(true);
-        when(rule1.createNewValidator()).thenReturn(validator);
-        when(rule2.createNewValidator()).thenReturn(validator);
+        when(rule1.createNewValidator(any(), any())).thenReturn(validator);
+        when(rule2.createNewValidator(any(), any())).thenReturn(validator);
 
         when(channel1.getMainReadingType()).thenReturn(readingType1);
         when(channel2.getMainReadingType()).thenReturn(readingType2);

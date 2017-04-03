@@ -6,6 +6,7 @@ package com.elster.jupiter.validation;
 
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.validation.properties.ValidationPropertyDefinitionLevel;
 
 import aQute.bnd.annotation.ProviderType;
 
@@ -61,6 +62,8 @@ public interface ValidationRule {
     long getVersion();
 
     List<PropertySpec> getPropertySpecs();
+
+    List<PropertySpec> getPropertySpecs(ValidationPropertyDefinitionLevel level);
 
     boolean isObsolete();
 }
