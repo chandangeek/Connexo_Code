@@ -15,10 +15,11 @@ import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
+
 import com.energyict.obis.ObisCode;
 
 /**
- * Provides functionality to create finders for MDC objects
+ * Provides functionality to create finders for MDC objects.
  */
 public interface IdentificationService {
 
@@ -29,7 +30,7 @@ public interface IdentificationService {
     /**
      * Creates a DeviceIdentifier based on the serialNumber of the device.
      * <b>Note:</b> Be careful when using this identifier. Not all devices <i>have</i> a unique serialnumber.
-     * Some don't have a serialnumber at all.
+     * Some don't even have a serialnumber at all.
      *
      * @param serialNumber the serialNumber of the device
      * @return the Identifier based on the given serialnumber
@@ -60,10 +61,6 @@ public interface IdentificationService {
 
     LogBookIdentifier createLogbookIdentifierForAlreadyKnownLogbook(LogBook logBook, DeviceIdentifier deviceIdentifier);
 
-    MessageIdentifier createMessageIdentifierByDatabaseId(long id);
-
     MessageIdentifier createMessageIdentifierForAlreadyKnownMessage(DeviceMessage deviceMessage);
-
-    MessageIdentifier createMessageIdentifierByDeviceAndProtocolInfoParts(DeviceIdentifier deviceIdentifier, String... messageProtocolInfoParts);
 
 }
