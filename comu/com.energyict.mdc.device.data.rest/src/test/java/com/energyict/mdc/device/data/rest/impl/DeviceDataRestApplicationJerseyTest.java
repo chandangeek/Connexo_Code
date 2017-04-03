@@ -320,7 +320,7 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         application.setPropertyValueInfoService(propertyValueInfoService);
         application.setDeviceAlarmService(deviceAlarmService);
         application.setUserService(userService);
-//        application.setPkiService(pkiService);
+        application.setPkiService(pkiService);
         return application;
     }
 

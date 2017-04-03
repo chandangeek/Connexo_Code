@@ -370,7 +370,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         application.setPropertyValueInfoService(inMemoryPersistence.getPropertyValueInfoService());
         application.setMeteringTranslationService(inMemoryPersistence.getMeteringTranslationService());
         application.setDeviceLifeCycleConfigurationService(inMemoryPersistence.getDeviceLifeCycleConfigurationService());
-//        application.setPkiService(pkiService);
+        application.setPkiService(pkiService);
         return application;
     }
 
