@@ -14,7 +14,7 @@ Ext.define('Imt.usagepointsetup.controller.MetrologyConfig', {
         'Imt.usagepointmanagement.store.MeterActivations'
     ],
     models: [
-        'Imt.usagepointsetup.model.EffectiveMetrologyConfig'
+        'Imt.usagepointmanagement.model.UsagePoint'
     ],
     views: [
         'Imt.usagepointsetup.view.ActivateMeters',
@@ -45,12 +45,10 @@ Ext.define('Imt.usagepointsetup.controller.MetrologyConfig', {
             app = me.getApplication(),
             router = me.getController('Uni.controller.history.Router'),
             mainView = Ext.ComponentQuery.query('#contentPanel')[0],
-            usagePointsController = me.getController('Imt.usagepointmanagement.controller.View'),
-            metrologyConfig = me.getModel('Imt.usagepointsetup.model.EffectiveMetrologyConfig'),
+            usagePointsController = me.getModel('Imt.usagepointmanagement.model.UsagePoint'),
             returnLink = router.queryParams.fromLandingPage ? router.getRoute('usagepoints/view').buildUrl() : router.getRoute('usagepoints/view/metrologyconfiguration').buildUrl(),
-            meterActivationsStore = me.getStore('Imt.usagepointmanagement.store.MeterActivations'),
             callback = {
-                success: function (usagePointTypes, usagePoint, purposes) {
+                success: function (usagePoint) {
                     var meterRoles = usagePoint.get('metrologyConfiguration_meterRoles');
                     widget = Ext.widget('usagePointActivateMeters', {
                         itemId: 'usage-point-activate-meters',
@@ -67,34 +65,34 @@ Ext.define('Imt.usagepointsetup.controller.MetrologyConfig', {
                 }
             };
         mainView.setLoading(true);
-        usagePointsController.loadUsagePoint(usagePointId, callback);
+        usagePointsController.load(usagePointId, callback);
     },
 
 
     saveButtonClick: function (btn) {
         var me = this,
+            page = me.getPage(),
             usagePoint = btn.usagePoint,
             meterActivations = me.getMetersForm().getValue();
-
-        _.each(meterActivations, function (meterActivation) {
-            meterActivation.meterRole.meter = meterActivation.meter;
-            meterActivation.meterRole.activationTime = meterActivation.activationTime;
-            meterActivation.activationTime = undefined;
-            meterActivation.meter = {
-                name: meterActivation.meterRole.meter
-            }
-        });
+            _.each(meterActivations, function (meterActivation) {
+                meterActivation.meterRole.meter = meterActivation.meter;
+                meterActivation.meterRole.activationTime = meterActivation.activationTime;
+                meterActivation.activationTime = undefined;
+                meterActivation.meter = {
+                    name: meterActivation.meterRole.meter
+                }
+            });
 
         var callback = function () {
-            var page = me.getPage();
-
             me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('metrologyconfiguration.setMeters.acknowledge', 'IMT', 'The list of meters saved'));
             if (page) {
                 window.location.href = page.returnLink;
             }
         };
         var failure = function (response) {
-            var errors = Ext.decode(response.responseText, true);
+            var errors = Ext.decode(response.responseText, true),
+                form = me.getMetersForm();
+            form.clearInvalid();
             if (errors && Ext.isArray(errors.errors)) {
                 var errorsMap = {},
                     stageError;
@@ -105,25 +103,25 @@ Ext.define('Imt.usagepointsetup.controller.MetrologyConfig', {
                         errorsMap[err.id] = {msg: err.msg}
                     }
                 });
-                var errMsgs = _.map(errorsMap, function (errorObject, id) {
+                var errMsgs = [],
+                    err = _.map(errorsMap, function (errorObject, id) {
+                            errMsgs.push(errorObject.msg);
                     return {id: id, msg: errorObject.msg}
                 });
-                form.getForm().markInvalid(errMsgs);
-                stageError = _.find(errMsgs, function (obj) {
+                form.markInvalid(errMsgs);
+                stageError = _.find(err, function (obj) {
                     return obj.id == 'stage'
                 });
                 if (!Ext.isEmpty(stageError)) {
-                    form.down('#stageErrorLabel').show();
-                    // form.down('#stageErrorLabel').setTitle('Meter linking error');
-                    form.down('#stageErrorLabel').setText(stageError.msg);
+                    page.down('#usage-point-edit-meters #stageErrorLabel').show();
+                    page.down('#usage-point-edit-meters #stageErrorLabel').setText(stageError.msg);
                 } else {
-                    form.down('#stageErrorLabel').hide();
+                    page.down('#usage-point-edit-meters #stageErrorLabel').hide();
                 }
             }
         };
         usagePoint.set('meterActivations', meterActivations);
         usagePoint.activateMeters(callback, failure);
-
     }
 
 });

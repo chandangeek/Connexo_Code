@@ -62,9 +62,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.meteractivations.MeterAct
         store.each(function (record) {
             var result = record.getData();
 
-            if (!Ext.isEmpty(result.meter)) {
-                value.push(result);
-            }
+            value.push(result);
         });
 
         return !Ext.isEmpty(value) ? value : null;

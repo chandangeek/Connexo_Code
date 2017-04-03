@@ -91,7 +91,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.meteractivations.MeterAct
                 {
                     xtype: 'uni-actioncolumn-remove',
                     // width: 120,
-                    // iconCls: 'icon-cancel-circle2 remove-button-class7',
+                    iconCls: 'icon-cancel-circle2 remove-button-grid',
                     tooltip: Uni.I18n.translate('general.UnlinkMeter', 'UNI', 'Unlink meter'),
                     handler: function (grid, rowIndex) {
                         var colNum = 1,
@@ -109,7 +109,6 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.meteractivations.MeterAct
 
     meterComboLiseners: {
         expand: function (combo) {
-            console.log(combo);
             var picker = combo.getPicker(),
                 fn = function (view) {
                     var store = view.getStore(),
@@ -131,7 +130,6 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.meteractivations.MeterAct
         },
 
         change: function (field, newValue) {
-            console.log(field);
             if (Ext.isEmpty(newValue)) {
                 field.reset();
             }

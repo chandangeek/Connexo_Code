@@ -59,7 +59,6 @@ Ext.define('Imt.usagepointsetup.view.ActivateMeters', {
                     listeners: {
                         meterActivationsChange: function (allMetersSpecified) {
                             me.fireEvent('meterActivationsChange', allMetersSpecified);
-                            // console.info(me.down('#meter-activations-field').getValue());
                         }
                     }
                 }
@@ -70,7 +69,8 @@ Ext.define('Imt.usagepointsetup.view.ActivateMeters', {
                     itemId: 'save-btn',
                     ui: 'action',
                     text: Uni.I18n.translate('general.save', 'IMT', 'Save'),
-                    usagePoint: me.usagePoint
+                    usagePoint: me.usagePoint,
+                    meterRoles: me.meterRoles
                 }, {
                     xtype: 'button',
                     ui: 'link',
@@ -94,6 +94,14 @@ Ext.define('Imt.usagepointsetup.view.ActivateMeters', {
             }
         ];
 
+        me.content[0].items.push({
+            xtype: 'label',
+            title: 'nusddd',
+            hidden: true,
+            cls: 'x-form-invalid-under',
+            itemId: 'stageErrorLabel',
+            margin: '0 0 0 135' // labelWidth (120) + 15
+        });
         me.callParent(arguments);
 
     }
