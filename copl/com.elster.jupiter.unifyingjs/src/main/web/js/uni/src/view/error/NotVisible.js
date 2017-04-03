@@ -16,7 +16,7 @@ Ext.define('Uni.view.error.NotVisible', {
             xtype: 'panel',
             ui: 'large',
             title: Uni.I18n.translate(
-                'error.pageNotVisible',
+                'error.pageNotVisibleTitle',
                 'UNI',
                 "Sorry! We couldn't show you this."
             ),
