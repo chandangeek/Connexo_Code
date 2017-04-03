@@ -28,7 +28,6 @@ import com.energyict.protocol.ProfileData;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -176,15 +175,6 @@ public class MockMeterProtocol implements MeterProtocol, DeviceSecuritySupport, 
     @Override
     public void setCache(Object cacheObject) {
 
-    }
-
-    @Override
-    public Object fetchCache(int deviceId) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public void updateCache(int deviceId, Object cacheObject) throws SQLException {
     }
 
     @Override

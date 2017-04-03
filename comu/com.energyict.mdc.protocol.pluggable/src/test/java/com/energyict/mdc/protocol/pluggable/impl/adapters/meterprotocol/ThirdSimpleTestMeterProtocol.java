@@ -18,7 +18,6 @@ import com.energyict.protocol.ProfileData;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.sql.SQLException;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -155,15 +154,6 @@ public class ThirdSimpleTestMeterProtocol implements MeterProtocol, LegacySecuri
         // nothing to set
     }
 
-    @Override
-    public Object fetchCache(int rtuId) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public void updateCache(int rtuId, Object cacheObject) throws SQLException {
-        // nothing to set
-    }
 
     @Override
     public String getVersion() {

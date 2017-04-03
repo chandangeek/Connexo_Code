@@ -5,6 +5,7 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol;
 
 import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.cbo.Quantity;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MessageProtocol;
@@ -23,14 +24,11 @@ import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
-
-import com.energyict.cbo.Quantity;
 import com.energyict.protocol.ProfileData;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.sql.SQLException;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -167,16 +165,6 @@ public class SimpleTestMeterProtocol implements MeterProtocol, MessageProtocol, 
 
     @Override
     public void setCache(Object cacheObject) {
-        // nothing to set
-    }
-
-    @Override
-    public Object fetchCache(int rtuId) throws SQLException {
-        return null;          // nothing to set
-    }
-
-    @Override
-    public void updateCache(int rtuId, Object cacheObject) throws SQLException {
         // nothing to set
     }
 

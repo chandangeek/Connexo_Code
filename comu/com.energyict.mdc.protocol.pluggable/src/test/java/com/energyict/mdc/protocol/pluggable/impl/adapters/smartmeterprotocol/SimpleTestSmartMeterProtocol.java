@@ -27,7 +27,6 @@ import com.energyict.protocol.ProfileData;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -118,16 +117,6 @@ public class SimpleTestSmartMeterProtocol implements SmartMeterProtocol, Message
     @Override
     public Object getCache() {
         return null;  // nothing to do
-    }
-
-    @Override
-    public Object fetchCache(int rtuId) throws SQLException {
-        return null;  // nothing to do
-    }
-
-    @Override
-    public void updateCache(int rtuId, Object cacheObject) throws SQLException {
-        // nothing to do
     }
 
     @Override

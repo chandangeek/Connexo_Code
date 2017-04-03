@@ -30,7 +30,6 @@ import com.energyict.protocol.ProfileData;
 
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.sql.SQLException;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -173,15 +172,6 @@ public class MockSmartMeterProtocol implements SmartMeterProtocol, DeviceSecurit
     @Override
     public void setCache(Object cacheObject) {
 
-    }
-
-    @Override
-    public Object fetchCache(int rtuId) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public void updateCache(int rtuId, Object cacheObject) throws SQLException {
     }
 
     @Override
