@@ -4,11 +4,11 @@
 
 package com.elster.jupiter.export.rest.impl;
 
-import com.elster.jupiter.cbo.IdentifiedObject;
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.MetrologyContractChannelsContainer;
+import com.elster.jupiter.metering.ReadingContainer;
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
 
 import javax.inject.Inject;
@@ -26,16 +26,16 @@ public class DataSourceInfoFactory {
         DataSourceInfo info = new DataSourceInfo();
         info.occurrenceId = item.getLastOccurrence().map(DataExportOccurrence::getId).orElse(null);
         info.readingType = readingTypeInfoFactory.from(item.getReadingType());
-        info.details = getDataSourceDetails(item.getDomainObject());
+        info.details = getDataSourceDetails(item.getReadingContainer());
         item.getLastExportedDate().ifPresent(instant -> info.lastExportedDate = instant);
         return info;
     }
 
-    private DataSourceInfo.DataSource getDataSourceDetails(IdentifiedObject domainObject) {
-        if (domainObject instanceof Meter) {
-            return asDataSource((Meter) domainObject);
-        } else if (domainObject instanceof UsagePoint) {
-            return asDataSource((UsagePoint) domainObject);
+    private DataSourceInfo.DataSource getDataSourceDetails(ReadingContainer readingContainer) {
+        if (readingContainer instanceof Meter) {
+            return asDataSource((Meter) readingContainer);
+        } else if (readingContainer instanceof MetrologyContractChannelsContainer) {
+            return asDataSource((MetrologyContractChannelsContainer) readingContainer);
         } else {
             return null;
         }
@@ -48,12 +48,10 @@ public class DataSourceInfoFactory {
         return meterDataSource;
     }
 
-    private DataSourceInfo.UsagePointDataSource asDataSource(UsagePoint usagePoint) {
+    private DataSourceInfo.UsagePointDataSource asDataSource(MetrologyContractChannelsContainer channelsContainer) {
         DataSourceInfo.UsagePointDataSource usagePointDataSource = new DataSourceInfo.UsagePointDataSource();
-        usagePointDataSource.name = usagePoint.getName();
-        usagePoint.getCurrentConnectionState().ifPresent(connectionState ->
-                usagePointDataSource.connectionState = connectionState.getConnectionStateDisplayName()
-        );
+        usagePointDataSource.name = channelsContainer.getUsagePoint().get().getName();
+        usagePointDataSource.purpose = channelsContainer.getMetrologyContract().getMetrologyPurpose().getName();
         return usagePointDataSource;
     }
 }

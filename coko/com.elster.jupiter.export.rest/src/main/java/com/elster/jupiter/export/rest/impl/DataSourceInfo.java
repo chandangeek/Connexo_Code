@@ -31,7 +31,7 @@ public class DataSourceInfo {
 
     public static class UsagePointDataSource extends DataSource {
 
-        public String connectionState;
+        public String purpose;
 
     }
 }
