@@ -65,7 +65,10 @@ public class TrustStoreResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.VIEW_CERTIFICATES, Privileges.Constants.ADMINISTRATE_TRUST_STORES})
+    // These roles should eventually be added...
+    // BUT currently I comment them out because otherwise you don't get any items in the "Trust store" combo box on the Multisense page
+    // where you create a security accessor (of the type certificate) on a device type
+    //@RolesAllowed({Privileges.Constants.VIEW_CERTIFICATES, Privileges.Constants.ADMINISTRATE_TRUST_STORES})
     public PagedInfoList getTrustStores(@BeanParam JsonQueryParameters queryParameters) {
         return PagedInfoList.fromCompleteList("trustStores", trustStoreInfoFactory.asInfoList(this.pkiService.getAllTrustStores()), queryParameters);
     }
