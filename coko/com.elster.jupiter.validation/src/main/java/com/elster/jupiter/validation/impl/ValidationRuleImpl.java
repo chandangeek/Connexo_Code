@@ -347,8 +347,10 @@ public final class ValidationRuleImpl implements IValidationRule {
     @Override
     public void save() {
         if (getId() == 0) {
+            getValidator().validateProperties(getProps());
             doPersist();
         } else {
+            getValidator().validateProperties(getProps());
             doUpdate();
         }
     }

@@ -55,6 +55,7 @@ import com.elster.jupiter.validation.ValidationRuleSetVersion;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.Validator;
 import com.elster.jupiter.validation.ValidatorFactory;
+import com.elster.jupiter.validation.properties.ValidationPropertyDefinitionLevel;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -176,12 +177,14 @@ public class ValidationIT {
         when(validatorFactory.create(eq(MIN_MAX), any(Map.class))).thenReturn(minMax);
         when(minMax.getReadingQualityCodeIndex()).thenReturn(Optional.empty());
         when(minMax.getPropertySpecs()).thenReturn(Arrays.asList(min, max));
+        when(minMax.getPropertySpecs(ValidationPropertyDefinitionLevel.VALIDATION_RULE)).thenReturn(Arrays.asList(min, max));
         when(min.getName()).thenReturn(MIN);
         when(min.getValueFactory()).thenReturn(valueFactory);
         when(max.getName()).thenReturn(MAX);
         when(max.getValueFactory()).thenReturn(valueFactory);
         when(conseqZero.getReadingQualityCodeIndex()).thenReturn(Optional.empty());
         when(conseqZero.getPropertySpecs()).thenReturn(Arrays.asList(conZero));
+        when(conseqZero.getPropertySpecs(ValidationPropertyDefinitionLevel.VALIDATION_RULE)).thenReturn(Arrays.asList(conZero));
         when(conZero.getName()).thenReturn(MAX_NUMBER_IN_SEQUENCE);
         when(conZero.getValueFactory()).thenReturn(valueFactory);
 
@@ -259,10 +262,7 @@ public class ValidationIT {
                 assertThat(channelsContainerValidations.get(0).getRuleSet().getName()).isEqualTo(MY_RULE_SET);
                 assertThat(channelsContainerValidations.get(0).isObsolete()).isFalse();
                 assertThat(channelsContainerValidations.get(0).getChannelValidations()).hasSize(2);
-
             }
         });
     }
-
-
 }

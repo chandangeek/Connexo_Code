@@ -65,4 +65,14 @@ public interface Validator extends HasDynamicProperties {
     default List<PropertySpec> getPropertySpecs(ValidationPropertyDefinitionLevel level) {
         return ValidationPropertyDefinitionLevel.VALIDATION_RULE == level ? getPropertySpecs() : Collections.emptyList();
     }
+
+    /**
+     * Validates values of validator's properties according to business constraints.
+     * Note: the method should not try to validate presence of required properties, because this will be done by validation engine.
+     *
+     * @param properties the values to validate
+     */
+    default void validateProperties(Map<String, Object> properties) {
+        // nothing to do by default
+    }
 }

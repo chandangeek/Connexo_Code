@@ -49,6 +49,7 @@ import com.elster.jupiter.validation.ValidationRuleSetVersion;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.Validator;
 import com.elster.jupiter.validation.ValidatorFactory;
+import com.elster.jupiter.validation.properties.ValidationPropertyDefinitionLevel;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -155,11 +156,13 @@ public class ValidationRuleSetImplIT {
         when(validatorFactory.createTemplate(eq(MIN_MAX))).thenReturn(minMax);
         when(validatorFactory.createTemplate(eq(CONSEC_ZEROS_VALIDATOR_CLASS))).thenReturn(consecZero);
         when(minMax.getPropertySpecs()).thenReturn(Arrays.asList(min, max));
+        when(minMax.getPropertySpecs(ValidationPropertyDefinitionLevel.VALIDATION_RULE)).thenReturn(Arrays.asList(min, max));
         when(min.getName()).thenReturn(MIN);
         when(min.getValueFactory()).thenReturn(valueFactory);
         when(max.getName()).thenReturn(MAX);
         when(max.getValueFactory()).thenReturn(valueFactory);
         when(consecZero.getPropertySpecs()).thenReturn(Arrays.asList(consZero));
+        when(consecZero.getPropertySpecs(ValidationPropertyDefinitionLevel.VALIDATION_RULE)).thenReturn(Arrays.asList(consZero));
         when(consZero.getName()).thenReturn(MAX_NUMBER_IN_SEQUENCE);
         when(consZero.getValueFactory()).thenReturn(valueFactory);
         injector.getInstance(TransactionService.class).execute(new Transaction<Void>() {
@@ -270,6 +273,4 @@ public class ValidationRuleSetImplIT {
         ValidationRule validationRule = validationRuleSet.getRuleSetVersions().get(0).getRules().get(0);
         assertThat(validationRule.getProperties()).hasSize(1);
     }
-
-
 }
