@@ -1,5 +1,7 @@
 package com.energyict.protocol;
 
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+
 import com.energyict.obis.ObisCode;
 
 import java.util.List;
@@ -17,9 +19,9 @@ public class LoadProfileConfiguration {
     private final ObisCode obisCode;
 
     /**
-     * The serialNumber of the <CODE>Device</CODE>
+     * The identifier of the owning Device
      */
-    private final String meterSerialNumber;
+    private final DeviceIdentifier deviceIdentifier;
 
     /**
      * The interval (in seconds) of this LoadProfile
@@ -36,111 +38,52 @@ public class LoadProfileConfiguration {
      */
     private boolean supportedByMeter;
 
-    /**
-     * Default constructor. {@link #supportedByMeter} will default be set to true
-     *
-     * @param obisCode          the LoadProfileObisCode for this configuration
-     * @param meterSerialNumber the serialNumber of the master of this <code>LoadProfile</code>
-     */
-    public LoadProfileConfiguration(ObisCode obisCode, String meterSerialNumber) {
+    public LoadProfileConfiguration(ObisCode obisCode, DeviceIdentifier deviceIdentifier) {
         this.obisCode = obisCode;
-        this.meterSerialNumber = meterSerialNumber;
+        this.deviceIdentifier = deviceIdentifier;
         this.supportedByMeter = true;
     }
 
-    /**
-     * Default constructor. {@link #supportedByMeter} will default be set to true
-     *
-     * @param obisCode          the LoadProfileObisCode for this configuration
-     * @param meterSerialNumber the serialNumber of the master of this <code>LoadProfile</code>
-     * @param supported         indicates whether the <code>LoadProfile</code> is supported by the Device
-     */
-    public LoadProfileConfiguration(ObisCode obisCode, String meterSerialNumber, boolean supported) {
+    public LoadProfileConfiguration(ObisCode obisCode, DeviceIdentifier deviceIdentifier, boolean supported) {
         this.obisCode = obisCode;
-        this.meterSerialNumber = meterSerialNumber;
+        this.deviceIdentifier = deviceIdentifier;
         this.supportedByMeter = supported;
     }
 
-    /**
-     * Getter for the {@link #obisCode}
-     *
-     * @return {@link #obisCode}
-     */
     public ObisCode getObisCode() {
         return this.obisCode;
     }
 
-    /**
-     * Getter for the {@link #meterSerialNumber}
-     *
-     * @return {@link #meterSerialNumber}
-     */
-    public String getMeterSerialNumber() {
-        return meterSerialNumber;
+    public DeviceIdentifier getDeviceIdentifier() {
+        return deviceIdentifier;
     }
 
-    /**
-     * Getter for the {@link #profileInterval}
-     *
-     * @return {@link #profileInterval}
-     */
     public int getProfileInterval() {
         return profileInterval;
     }
 
-    /**
-     * Setter for the {@link #profileInterval}
-     *
-     * @param profileInterval the new {@link #profileInterval} to set
-     */
     public void setProfileInterval(int profileInterval) {
         this.profileInterval = profileInterval;
     }
 
-    /**
-     * Getter for the number of channels
-     *
-     * @return number of channels
-     */
     public int getNumberOfChannels() {
         return (channelInfos != null) ? channelInfos.size() : 0;
     }
 
-    /**
-     * Getter for the {@link #channelInfos}
-     *
-     * @return {@link #channelInfos}
-     */
     public List<ChannelInfo> getChannelInfos() {
         return channelInfos;
     }
 
-    /**
-     * Setter for the {@link #channelInfos}
-     *
-     * @param channelInfos the new {@link #channelInfos} to set
-     */
     public void setChannelInfos(List<ChannelInfo> channelInfos) {
         this.channelInfos = channelInfos;
     }
 
-    /**
-     * Getter for the {@link #supportedByMeter}
-     *
-     * @return {@link #supportedByMeter}
-     */
     public boolean isSupportedByMeter() {
         return supportedByMeter;
     }
 
-    /**
-     * Setter for the {@link #supportedByMeter}
-     *
-     * @param supportedByMeter the new {@link #supportedByMeter} to set
-     */
     public void setSupportedByMeter(boolean supportedByMeter) {
         this.supportedByMeter = supportedByMeter;
     }
-
 
 }
