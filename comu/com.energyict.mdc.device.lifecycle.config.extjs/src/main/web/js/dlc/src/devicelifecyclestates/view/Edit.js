@@ -83,7 +83,7 @@ Ext.define('Dlc.devicelifecyclestates.view.Edit', {
                             hideHeaders: true,
                             disableSelection: true,
                             trackMouseOver: false,
-                            width: 600,
+                            width: 285,
                             maxHeight: 300,
                             hidden: true,
                             style: {
@@ -161,7 +161,7 @@ Ext.define('Dlc.devicelifecyclestates.view.Edit', {
                             hideHeaders: true,
                             disableSelection: true,
                             trackMouseOver: false,
-                            width: 600,
+                            width: 285,
                             maxHeight: 300,
                             hidden: true,
                             style: {

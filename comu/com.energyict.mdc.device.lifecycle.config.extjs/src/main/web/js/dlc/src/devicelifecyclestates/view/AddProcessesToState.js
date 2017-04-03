@@ -27,8 +27,7 @@ Ext.define('Dlc.devicelifecyclestates.view.AddProcessesToState', {
                     grid: {
                         xtype: 'add-process-to-state-selection-grid',
                         itemId: 'add-process-grid',
-                        store: 'Dlc.devicelifecyclestates.store.AvailableTransitionBusinessProcesses',
-                        height: 600
+                        store: 'Dlc.devicelifecyclestates.store.AvailableTransitionBusinessProcesses'
                     },
                     emptyComponent: {
                         xtype: 'no-items-found-panel',
