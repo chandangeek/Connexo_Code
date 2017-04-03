@@ -676,7 +676,7 @@ public class MeterActivationImplIT {
         UsagePoint usagePoint = serviceCategory.newUsagePoint("usagePointForActivation", now).create();
         usagePoint.apply(getUsagePointMetrologyConfigurationWithDefaultRole("testMeterCanBeRemovedFromMeterRoleOnUsagePoint"), now);
         usagePoint.linkMeters()
-                .activate(meter, inMemoryBootstrapModule.getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT))
+                .activate(now.plusSeconds(60), meter, inMemoryBootstrapModule.getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT))
                 .complete();
     }
 

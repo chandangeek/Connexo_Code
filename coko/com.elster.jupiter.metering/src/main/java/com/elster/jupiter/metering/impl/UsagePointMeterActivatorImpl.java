@@ -125,7 +125,7 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
     }
 
     private void startPreActivationValidation(Instant start, Meter meter) {
-        if (this.usagePoint.getCurrentEffectiveMetrologyConfiguration().isPresent()) {
+        if (this.usagePoint.getEffectiveMetrologyConfiguration(start).isPresent()) {
             validateLinkWithMetrologyConfiguration(start, meter);
         } else {
             validateStageWithoutMetrologyConfig(meter, start);
@@ -133,7 +133,7 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
     }
 
     private void validateLinkWithMetrologyConfiguration(Instant start, Meter meter) {
-        EffectiveMetrologyConfigurationOnUsagePoint metrologyConfiguration = this.usagePoint.getCurrentEffectiveMetrologyConfiguration().get();
+        EffectiveMetrologyConfigurationOnUsagePoint metrologyConfiguration = this.usagePoint.getEffectiveMetrologyConfiguration(start).get();
         if (metrologyConfiguration.getMetrologyConfiguration().isGapAllowed()) {
             validateOperationalStageWithGaps(meter, start);
         } else {
