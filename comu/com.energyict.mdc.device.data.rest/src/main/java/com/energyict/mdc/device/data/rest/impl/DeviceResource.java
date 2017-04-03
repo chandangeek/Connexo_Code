@@ -102,6 +102,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.Checks.is;
+import static com.elster.jupiter.util.conditions.Where.where;
 import static com.energyict.mdc.protocol.api.messaging.DeviceMessageId.ACTIVITY_CALENDAR_SPECIAL_DAY_CALENDAR_SEND;
 import static com.energyict.mdc.protocol.api.messaging.DeviceMessageId.ACTIVITY_CALENDAR_SPECIAL_DAY_CALENDAR_SEND_WITH_TYPE;
 import static com.energyict.mdc.protocol.api.messaging.DeviceMessageId.ACTIVITY_CALENDER_SEND;
@@ -251,15 +252,28 @@ public class DeviceResource {
     public PagedInfoList getAllDevices(@BeanParam JsonQueryParameters queryParameters, @BeanParam StandardParametersBean params, @Context UriInfo uriInfo) {
         Condition condition;
         MultivaluedMap<String, String> uriParams = uriInfo.getQueryParameters();
-        if (uriParams.containsKey("filter")) {
+        if (uriParams.containsKey("nameOnly")) {
+            condition = Condition.TRUE;
+            if (!params.getQueryParameters().isEmpty()) {
+                String name = params.getFirst("name");
+                if (name != null) {
+                    condition = condition.and(where("name").likeIgnoreCase( name.length()==0 ? "*" : "*" + name + "*" ));
+                }
+            }
+        } else if (uriParams.containsKey("filter")) {
             condition = resourceHelper.getQueryConditionForDevice(uriInfo.getQueryParameters());
         } else {
             condition = resourceHelper.getQueryConditionForDevice(params);
         }
         Finder<Device> allDevicesFinder = deviceService.findAllDevices(condition);
         List<Device> allDevices = allDevicesFinder.from(queryParameters).find();
-        List<DeviceInfo> deviceInfos = deviceInfoFactory.fromDevices(allDevices); //DeviceInfo.from(allDevices);
-        return PagedInfoList.fromPagedList("devices", deviceInfos, queryParameters);
+        if (uriParams.containsKey("nameOnly")) {
+            List<DeviceVersionInfo> deviceVersionInfos = DeviceVersionInfo.fromDevices(allDevices);
+            return PagedInfoList.fromPagedList("devices", deviceVersionInfos, queryParameters);
+        } else {
+            List<DeviceInfo> deviceInfos = deviceInfoFactory.fromDevices(allDevices);
+            return PagedInfoList.fromPagedList("devices", deviceInfos, queryParameters);
+        }
     }
 
     @POST @Transactional
