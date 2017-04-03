@@ -27,6 +27,16 @@ Ext.define('Dal.view.creationrules.List', {
                 dataIndex: 'template_name',
                 flex: 1
             },
+            {
+                itemId: 'statusColumn',
+                header: Uni.I18n.translate('general.title.status', 'DAL', 'Status'),
+                dataIndex: 'active',
+                renderer: function (value) {
+                    return value ? Uni.I18n.translate('administration.alarmCreationRules.active', 'DAL', 'Active')
+                        : Uni.I18n.translate('administration.alarmCreationRules.inactive', 'DAL', 'Inactive');
+                },
+                flex: 1
+            },
             {   itemId: 'action',
                 xtype: 'uni-actioncolumn',
                 privileges: Dal.privileges.Alarm.createAlarmRule,

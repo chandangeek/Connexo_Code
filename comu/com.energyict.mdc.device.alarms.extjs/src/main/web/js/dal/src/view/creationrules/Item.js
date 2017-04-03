@@ -42,6 +42,14 @@ Ext.define('Dal.view.creationrules.Item', {
                     {
                         fieldLabel: Uni.I18n.translate('general.title.alarmReason', 'DAL', 'Alarm reason'),
                         name: 'reason_name'
+                    },
+                    {
+                        fieldLabel: Uni.I18n.translate('general.title.status', 'DAL', 'Status'),
+                        name: 'active',
+                        renderer: function (value) {
+                            return value ? Uni.I18n.translate('administration.alarmCreationRules.active', 'DAL', 'Active')
+                                : Uni.I18n.translate('administration.alarmCreationRules.inactive', 'DAL', 'Inactive');
+                        }
                     }
                 ]
             },

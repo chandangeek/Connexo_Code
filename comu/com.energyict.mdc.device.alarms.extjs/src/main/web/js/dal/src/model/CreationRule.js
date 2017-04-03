@@ -59,6 +59,9 @@ Ext.define('Dal.model.CreationRule', {
             name: 'template_name',
             persist: false,
             mapping: 'template.displayName'
+        },
+        {
+            name: 'active'
         }
     ],
 
