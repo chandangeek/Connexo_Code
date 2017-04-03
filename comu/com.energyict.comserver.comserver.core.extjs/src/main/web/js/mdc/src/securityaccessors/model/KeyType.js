@@ -17,6 +17,10 @@ Ext.define('Mdc.securityaccessors.model.KeyType', {
             type: 'boolean'
         },
         {
+            name: 'requiresKeyEncryptionMethod',
+            type: 'boolean'
+        },
+        {
             name: 'isKey',
             type: 'boolean'
         }

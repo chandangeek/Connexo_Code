@@ -341,10 +341,14 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
     keyTypeChanged: function(combobox, newValue) {
         var me = this,
             keyEncryptionMethodStore = me.getStore('Mdc.securityaccessors.store.KeyEncryptionMethods'),
-            storageMethodCombo = combobox.up('form').down('#mdc-security-accessor-storage-method-combobox');
+            storageMethodCombo = combobox.up('form').down('#mdc-security-accessor-storage-method-combobox'),
+            validityPeriod = combobox.up('form').down('#mdc-security-accessor-validity-period'),
+            requiresDuration = newValue && newValue.requiresDuration,
+            requiresKeyEncryptionMethod = newValue && newValue.requiresKeyEncryptionMethod;
 
-        combobox.up('form').down('#mdc-security-accessor-validity-period').setVisible(!Ext.isEmpty(newValue) && newValue.requiresDuration);
-        storageMethodCombo.setDisabled(Ext.isEmpty(newValue));
+        validityPeriod.setVisible(requiresDuration);
+        storageMethodCombo.setVisible(requiresKeyEncryptionMethod);
+        storageMethodCombo.setDisabled(!requiresKeyEncryptionMethod);
         if (!Ext.isEmpty(newValue)) {
             keyEncryptionMethodStore.getProxy().setUrl(me.deviceTypeId, newValue.id);
             keyEncryptionMethodStore.on('load', function(store, records, successful) {

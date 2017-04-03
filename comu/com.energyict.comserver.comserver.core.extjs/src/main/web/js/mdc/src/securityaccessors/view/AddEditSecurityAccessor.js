@@ -92,19 +92,6 @@ Ext.define('Mdc.securityaccessors.view.AddEditSecurityAccessor', {
                     emptyText: Uni.I18n.translate('securityaccessors.selectKeyType','MDC', 'Select a key type...')
                 },
                 {
-                    xtype: 'combo',
-                    fieldLabel: Uni.I18n.translate('general.storageMethod', 'MDC', 'Storage method'),
-                    itemId: 'mdc-security-accessor-storage-method-combobox',
-                    name: 'storageMethod',
-                    required: true,
-                    allowBlank: false,
-                    displayField: 'name',
-                    valueField: 'name',
-                    forceSelection: true,
-                    disabled: me.isEdit,
-                    emptyText: Uni.I18n.translate('securityaccessors.selectStorageMethod','MDC', 'Select a storage method...')
-                },
-                {
                     xtype: 'fieldcontainer',
                     fieldLabel: Uni.I18n.translate('general.trustStore', 'MDC', 'Trust store'),
                     hidden: true,
@@ -130,7 +117,7 @@ Ext.define('Mdc.securityaccessors.view.AddEditSecurityAccessor', {
                         },
                         {
                             xtype: 'component',
-                            html: Uni.I18n.translate('general.noTrustStore', 'MDC', 'No trust store defined yet'),
+                            html: Uni.I18n.translate('general.noTrustStores', 'MDC', 'No trust stores defined yet'),
                             itemId: 'mdc-security-accessor-no-trust-store-msg',
                             hidden: true,
                             width: 285,
@@ -140,6 +127,19 @@ Ext.define('Mdc.securityaccessors.view.AddEditSecurityAccessor', {
                             }
                         }
                     ]
+                },
+                {
+                    xtype: 'combo',
+                    fieldLabel: Uni.I18n.translate('general.storageMethod', 'MDC', 'Storage method'),
+                    itemId: 'mdc-security-accessor-storage-method-combobox',
+                    name: 'storageMethod',
+                    required: true,
+                    allowBlank: false,
+                    displayField: 'name',
+                    valueField: 'name',
+                    forceSelection: true,
+                    disabled: me.isEdit,
+                    emptyText: Uni.I18n.translate('securityaccessors.selectStorageMethod','MDC', 'Select a storage method...')
                 },
                 {
                     xtype: 'fieldcontainer',
@@ -226,10 +226,18 @@ Ext.define('Mdc.securityaccessors.view.AddEditSecurityAccessor', {
             storageMethodCombo = me.up('form').down('#mdc-security-accessor-storage-method-combobox'),
             trustStoreCombo = me.up('form').down('#mdc-security-accessor-trust-store-combobox'),
             trustStoreContainer = me.up('form').down('#mdc-security-accessor-trust-store-container'),
-            noTrustStoreMsg = me.up('form').down('#mdc-security-accessor-no-trust-store-msg');
+            noTrustStoreMsg = me.up('form').down('#mdc-security-accessor-no-trust-store-msg'),
+            accessorTypeIsKey = ( (radioBtn.itemId === 'mdc-security-accessor-key' && newValue) ||
+                                  (radioBtn.itemId === 'mdc-security-accessor-certificate' && !newValue) );
 
         storageMethodCombo.setValue(null);
-        storageMethodCombo.setDisabled(true);
+        if (accessorTypeIsKey) {
+            storageMethodCombo.show();
+            storageMethodCombo.setDisabled(true);
+        } else {
+            storageMethodCombo.hide();
+        }
+
         if (newValue) {
             errorMsgPnl.hide();
             trustStoreContainer.setVisible(!key);
