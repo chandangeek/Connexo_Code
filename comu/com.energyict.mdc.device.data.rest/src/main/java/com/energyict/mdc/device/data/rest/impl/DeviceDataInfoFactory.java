@@ -23,7 +23,21 @@ import com.energyict.mdc.common.rest.IntervalInfo;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.config.RegisterSpec;
-import com.energyict.mdc.device.data.*;
+import com.energyict.mdc.device.data.BillingReading;
+import com.energyict.mdc.device.data.BillingRegister;
+import com.energyict.mdc.device.data.Channel;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceValidation;
+import com.energyict.mdc.device.data.FlagsReading;
+import com.energyict.mdc.device.data.FlagsRegister;
+import com.energyict.mdc.device.data.LoadProfileJournalReading;
+import com.energyict.mdc.device.data.LoadProfileReading;
+import com.energyict.mdc.device.data.NumericalReading;
+import com.energyict.mdc.device.data.NumericalRegister;
+import com.energyict.mdc.device.data.Reading;
+import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.device.data.TextReading;
+import com.energyict.mdc.device.data.TextRegister;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.google.common.collect.Range;
 
@@ -122,6 +136,17 @@ public class DeviceDataInfoFactory {
         }
         return channelIntervalInfo;
     }
+
+
+    ChannelHistoryDataInfo createChannelHistoryDataInfo(Channel channel, LoadProfileJournalReading loadProfileJournalReading, boolean isValidationActive, DeviceValidation deviceValidation, Device dataLoggerSlave) {
+        ChannelHistoryDataInfo channelHistoryDataInfo = new ChannelHistoryDataInfo(createChannelDataInfo(channel, (LoadProfileReading) loadProfileJournalReading, isValidationActive, deviceValidation, dataLoggerSlave));
+        channelHistoryDataInfo.journalTime = loadProfileJournalReading.getJournalTime();
+        channelHistoryDataInfo.userName = loadProfileJournalReading.getUserName();
+        channelHistoryDataInfo.isActive = loadProfileJournalReading.getActive();
+        channelHistoryDataInfo.version = loadProfileJournalReading.getVersion();
+        return channelHistoryDataInfo;
+    }
+
 
     /**
      * Find translation of the index of the given reading quality CIM code.
@@ -233,9 +258,10 @@ public class DeviceDataInfoFactory {
     private void setCommonReadingInfo(Reading reading, ReadingInfo readingInfo, Register<?, ?> register) {
         readingInfo.id = "" + reading.getTimeStamp().toEpochMilli() + register.getRegisterSpecId();
         readingInfo.timeStamp = reading.getTimeStamp();
+        readingInfo.userName = reading.getUserName();
         readingInfo.reportedDateTime = reading.getReportedDateTime();
         readingInfo.readingQualities = createReadingQualitiesInfo(reading);
-        Pair<ReadingModificationFlag, QualityCodeSystem> modificationFlag = ReadingModificationFlag.getModificationFlag(reading.getActualReading());
+        Pair<ReadingModificationFlag, QualityCodeSystem> modificationFlag = ReadingModificationFlag.getModificationFlag(reading);
         if (modificationFlag != null) {
             readingInfo.modificationFlag = modificationFlag.getFirst();
             readingInfo.editedInApp = resourceHelper.getApplicationInfo(modificationFlag.getLast());
@@ -246,8 +272,7 @@ public class DeviceDataInfoFactory {
      * Returns the CIM code and full translation of all reading qualities on the given interval reading
      */
     private List<ReadingQualityInfo> createReadingQualitiesInfo(Reading reading) {
-        return reading.getActualReading().getReadingQualities().stream()
-                .filter(ReadingQualityRecord::isActual)
+        return reading.getValidationStatus().get().getReadingQualities().stream()
                 .map(ReadingQuality::getType)
                 .distinct()
                 .filter(type -> type.system().isPresent())
