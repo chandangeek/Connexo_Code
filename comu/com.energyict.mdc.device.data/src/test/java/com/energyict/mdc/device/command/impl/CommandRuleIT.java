@@ -22,6 +22,7 @@ import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.impl.OrmModule;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
@@ -41,9 +42,12 @@ import com.energyict.mdc.device.command.CommandRule;
 import com.energyict.mdc.device.command.CommandRuleService;
 import com.energyict.mdc.device.command.impl.exceptions.InvalidCommandRuleStatsException;
 import com.energyict.mdc.device.data.DeviceMessageService;
+import com.energyict.mdc.device.data.impl.DeviceMessageTestCategories;
 import com.energyict.mdc.device.data.impl.InMemoryIntegrationPersistence;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
@@ -75,6 +79,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import static com.elster.jupiter.util.conditions.Where.where;
 import static com.energyict.mdc.device.command.CommandRuleService.CommandRuleBuilder;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -118,7 +123,35 @@ public class CommandRuleIT {
 
             bind(IdentificationService.class).toInstance(mock(IdentificationService.class));
             bind(CustomPropertySetInstantiatorService.class).toInstance(mock(CustomPropertySetInstantiatorService.class));
-            bind(DeviceMessageSpecificationService.class).toInstance(mock(DeviceMessageSpecificationService.class));
+            DeviceMessageSpecificationService deviceMessageSpecificationService = mock(DeviceMessageSpecificationService.class);
+            bind(DeviceMessageSpecificationService.class).toInstance(deviceMessageSpecificationService);
+
+            when(deviceMessageSpecificationService.findMessageSpecById(anyLong())).thenAnswer(invocation -> {
+                Object[] args = invocation.getArguments();
+                long id = (long) args[0];
+
+                return Optional.of(new DeviceMessageSpec() {
+                    @Override
+                    public DeviceMessageCategory getCategory() {
+                        return DeviceMessageTestCategories.FIRST_TEST_CATEGORY;
+                    }
+
+                    @Override
+                    public String getName() {
+                        return DeviceMessageId.havingId(id).name();
+                    }
+
+                    @Override
+                    public DeviceMessageId getId() {
+                        return DeviceMessageId.havingId(id);
+                    }
+
+                    @Override
+                    public List<PropertySpec> getPropertySpecs() {
+                        return Collections.emptyList();
+                    }
+                });
+            });
         }
     }
 
@@ -389,7 +422,7 @@ public class CommandRuleIT {
         assertThat(reloadedRule).isPresent();
         List<String> commandNames = Collections.singletonList(DeviceMessageId.values()[5].name());
 
-        testRule.update("test2",5 , 8, 10, commandNames);
+        testRule.update("test2", 5, 8, 10, commandNames);
         reloadedRule = commandRuleService.findCommandRule(testRule.getId());
         assertThat(reloadedRule).isPresent();
         testRule = reloadedRule.get();
@@ -582,7 +615,7 @@ public class CommandRuleIT {
         when(deviceMessage.getReleaseDate()).thenReturn(Instant.now(programmableClock));
         getCommandRuleStats().decreaseNumberOfCommandRules();
 
-       commandRuleService.limitsExceededForNewCommand(deviceMessage);
+        commandRuleService.limitsExceededForNewCommand(deviceMessage);
     }
 
     private CommandRuleStats getCommandRuleStats() {
