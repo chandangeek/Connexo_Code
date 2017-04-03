@@ -59,8 +59,12 @@ Ext.define('Uni.property.view.property.NoneOrBigDecimal', {
                             xtype: 'numberfield',
                             disabled: true,
                             width: 100,
+                            minValue: 0,
                             value: 0,
                             itemId: 'value_number_field_' + me.key,
+                            listeners: {
+                                blur: me.recurrenceNumberFieldValidation
+                            }
                         }
                     ]
                 }
@@ -96,11 +100,12 @@ Ext.define('Uni.property.view.property.NoneOrBigDecimal', {
                 me.getValueNumberField().setValue(value.value);
             }
         } else {
-            this.callParent([value]);
+            this.callParent([me.getValueAsDisplayString(value)]);
         }
     },
 
     getValueAsDisplayString: function (value) {
+        var me = this;
         if (value.isNone) {
             return Uni.I18n.translate('value.none', me.translationKey, 'none');
         } else{
@@ -114,6 +119,14 @@ Ext.define('Uni.property.view.property.NoneOrBigDecimal', {
             isNone: me.getNoneRadioField().getValue(),
             value: me.getNoneRadioField().getValue() ? null : me.getValueNumberField().getValue()
         };
+    },
+
+    recurrenceNumberFieldValidation: function (field) {
+        var value = field.getValue();
+
+        if (Ext.isEmpty(value) || value < field.minValue) {
+            field.setValue(field.minValue);
+        }
     }
 
 });

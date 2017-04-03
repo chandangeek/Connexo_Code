@@ -43,9 +43,12 @@ Ext.define('Uni.property.view.property.MaximumAbsoluteDifference', {
                         },
                         {
                             xtype: 'numberfield',
-                            value: 1,
+                            value: 0,
                             width: 100,
-                            itemId: 'value_number_field_' + me.key
+                            itemId: 'value_number_field_' + me.key,
+                            listeners: {
+                                blur: me.recurrenceNumberFieldValidation
+                            }
                         }
                     ]
                 },
@@ -69,7 +72,10 @@ Ext.define('Uni.property.view.property.MaximumAbsoluteDifference', {
                             value: 0,
                             width: 100,
                             itemId: 'percent_number_field_' + me.key,
-                            maxValue: 100
+                            maxValue: 100,
+                            listeners: {
+                                blur: me.recurrenceNumberFieldValidation
+                            }
                         }
                     ]
                 }
@@ -137,6 +143,15 @@ Ext.define('Uni.property.view.property.MaximumAbsoluteDifference', {
                 value: me.getPercentNumberField().getValue()
             }
         }
-    }
+    },
 
+    recurrenceNumberFieldValidation: function (field) {
+        var value = field.getValue();
+
+        if (Ext.isEmpty(value) || (!Ext.isEmpty(field.minValue) && value < field.minValue)) {
+            field.setValue(field.minValue);
+        } else if(!Ext.isEmpty(field.maxValue) && value > field.maxValue){
+            field.setValue(field.maxValue);
+        }
+    }
 });
