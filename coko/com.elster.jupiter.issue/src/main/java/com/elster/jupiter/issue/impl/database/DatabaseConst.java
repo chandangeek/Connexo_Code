@@ -113,6 +113,7 @@ public final class DatabaseConst {
 
     // Issue Creation Rules
     public static final String CREATION_RULE_NAME = "NAME";
+    public static final String CREATION_RULE_STATUS = "ACTIVE";
     public static final String CREATION_RULE_COMMENT = "RULE_COMMENT";
     public static final String CREATION_RULE_CONTENT = "CONTENT";
     public static final String CREATION_RULE_REASON_ID = "REASON";
