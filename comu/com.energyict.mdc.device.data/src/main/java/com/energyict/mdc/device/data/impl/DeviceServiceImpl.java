@@ -68,9 +68,11 @@ import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.model.ComSchedule;
+import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.meterdata.BreakerStatus;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.Introspector;
+
 import org.osgi.service.event.EventConstants;
 
 import javax.inject.Inject;
@@ -121,6 +123,7 @@ class DeviceServiceImpl implements ServerDeviceService {
         this.queryService = queryService;
         this.thesaurus = thesaurus;
         this.clock = clock;
+        Services.deviceFinder(this);
     }
 
     @Override
@@ -301,6 +304,11 @@ class DeviceServiceImpl implements ServerDeviceService {
 
     private List<Device> findDevicesBySerialNumberPattern(String serialNumberPattern) {
         return this.deviceDataModelService.dataModel().query(Device.class).select(where("serialNumberPattern").like(serialNumberPattern));
+    }
+
+    @Override
+    public Optional<com.energyict.mdc.upl.meterdata.Device> find(DeviceIdentifier identifier) {
+        return this.findDeviceByIdentifier(identifier).map(com.energyict.mdc.upl.meterdata.Device.class::cast);
     }
 
     @Override
