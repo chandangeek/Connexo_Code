@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolation;
@@ -34,7 +35,7 @@ public class AllIssuesAreClosed extends TranslatableServerMicroCheck {
     }
 
     @Override
-    public Optional<DeviceLifeCycleActionViolation> evaluate(Device device, Instant effectiveTimestamp) {
+    public Optional<DeviceLifeCycleActionViolation> evaluate(Device device, Instant effectiveTimestamp, State state) {
         if (device.hasOpenIssues()) {
             return Optional.of(
                     new DeviceLifeCycleActionViolationImpl(

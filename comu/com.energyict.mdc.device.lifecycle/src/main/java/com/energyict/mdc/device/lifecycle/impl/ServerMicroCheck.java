@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.lifecycle.impl;
 
+import com.elster.jupiter.fsm.State;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolation;
 import com.energyict.mdc.device.lifecycle.config.MicroCheck;
@@ -27,9 +28,10 @@ public interface ServerMicroCheck {
      *
      * @param device The Device
      * @param effectiveTimestamp The effective timestamp of the transition
+     * @param state
      * @return The violation if the check fails
      */
-    public Optional<DeviceLifeCycleActionViolation> evaluate(Device device, Instant effectiveTimestamp);
+    public Optional<DeviceLifeCycleActionViolation> evaluate(Device device, Instant effectiveTimestamp, State state);
 
     String getName();
 
