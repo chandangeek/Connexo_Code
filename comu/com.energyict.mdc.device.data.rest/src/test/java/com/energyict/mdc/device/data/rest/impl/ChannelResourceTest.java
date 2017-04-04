@@ -27,7 +27,6 @@ import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.energyict.protocol.ProtocolReadingQualities;
 import com.elster.jupiter.properties.rest.PropertyInfo;
-import com.elster.jupiter.properties.rest.PropertyTypeInfo;
 import com.elster.jupiter.properties.rest.PropertyValueInfo;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.time.TimeDuration;
@@ -1038,8 +1037,6 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         estimateChannelDataInfo.intervals = new ArrayList<>();
         estimateChannelDataInfo.intervals.add(intervalInfo);
         estimateChannelDataInfo.properties = new ArrayList<>();
-        estimateChannelDataInfo.properties.add(new PropertyInfo("valuefill.maxNumberOfConsecutiveSuspects", "Max number of consecutive suspects", new PropertyValueInfo<>(123L, null, 10L, true), new PropertyTypeInfo(com.elster.jupiter.properties.rest.SimplePropertyType.NUMBER, null, null, null), true));
-        estimateChannelDataInfo.properties.add(new PropertyInfo("valuefill.fillValue", "Fill value", new PropertyValueInfo<>(123L, null, 10L, true), new PropertyTypeInfo(com.elster.jupiter.properties.rest.SimplePropertyType.NUMBER, null, null, null), true));
 
         Estimator estimator = mock(Estimator.class);
         EstimationResult estimationResult = mock(EstimationResult.class);
