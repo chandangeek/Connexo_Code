@@ -97,7 +97,6 @@ Ext.define('Imt.usagepointsetup.view.ActivateMeters', {
 
         me.content[0].items.push({
             xtype: 'label',
-            title: 'nusddd',
             hidden: true,
             cls: 'x-form-invalid-under',
             itemId: 'stageErrorLabel',
