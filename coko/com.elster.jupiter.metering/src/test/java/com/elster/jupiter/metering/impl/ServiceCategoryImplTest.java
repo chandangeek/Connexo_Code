@@ -10,6 +10,7 @@ import com.elster.jupiter.cps.EditPrivilege;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
@@ -22,7 +23,6 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
-import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 
 import com.google.common.collect.Sets;
 
@@ -120,10 +120,10 @@ public class ServiceCategoryImplTest {
     public void testNewUsagePoint() {
         when(dataModel.getInstance(UsagePointImpl.class)).thenReturn(new UsagePointImpl(clock, dataModel, eventService, thesaurus, () -> null, () -> null, customPropertySetService, metrologyConfigurationService, dataAggregationService, usagePointLifeCycleConfigurationService));
         when(dataModel.getInstance(UsagePointConnectionStateImpl.class)).thenAnswer(invocation -> new UsagePointConnectionStateImpl(dataModel, thesaurus));
-        UsagePointState usagePointState = mock(UsagePointState.class);
-        when(usagePointState.isInitial()).thenReturn(true);
+        State state = mock(State.class);
+        when(state.isInitial()).thenReturn(true);
         UsagePointLifeCycle usagePointLifeCycle = mock(UsagePointLifeCycle.class);
-        when(usagePointLifeCycle.getStates()).thenReturn(Collections.singletonList(usagePointState));
+        when(usagePointLifeCycle.getStates()).thenReturn(Collections.singletonList(state));
         UsagePointLifeCycleConfigurationService lifeCycleConfigurationService = mock(UsagePointLifeCycleConfigurationService.class);
         when(lifeCycleConfigurationService.getDefaultLifeCycle()).thenReturn(usagePointLifeCycle);
         when(dataModel.getInstance(UsagePointLifeCycleConfigurationService.class)).thenReturn(lifeCycleConfigurationService);

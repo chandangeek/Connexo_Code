@@ -6,6 +6,7 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.fsm.Stage;
 import com.elster.jupiter.metering.CustomUsagePointMeterActivationValidationException;
 import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.Location;
@@ -223,6 +224,12 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
     }
 
     private void validate(ValidationReport validationReport) {
+        // check that we can manage meter activations
+        Stage usagePointStage = this.usagePoint.getState().getStage().get();
+        if (!usagePointStage.getName().equals(UsagePointStage.PRE_OPERATIONAL.getKey())) {
+            validationReport.usagePointIncorrectStage();
+            return;
+        }
         // prepare time lines and virtualize all meter activations, so our changes will not have permanent effect
         Map<Meter, TimeLine<Activation, Instant>> validationTimeLines = new HashMap<>();
         this.meterTimeLines.entrySet().forEach(entry -> {

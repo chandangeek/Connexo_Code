@@ -6,10 +6,10 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 import com.elster.jupiter.util.conditions.Order;
 
 import org.osgi.service.component.annotations.Component;
@@ -43,7 +43,7 @@ public class UsagePointStateDeletionEventHandler implements TopicHandler {
 
     @Override
     public void handle(LocalEvent localEvent) {
-        UsagePointState source = (UsagePointState) localEvent.getSource();
+        State source = (State) localEvent.getSource();
         if (!this.meteringService.getDataModel().query(UsagePointStateTemporalImpl.class)
                 .select(where("state").isEqualTo(source).and(where("interval").isEffective(this.clock.instant())), Order.NOORDER, false, new String[0], 1, 2)
                 .isEmpty()) {
