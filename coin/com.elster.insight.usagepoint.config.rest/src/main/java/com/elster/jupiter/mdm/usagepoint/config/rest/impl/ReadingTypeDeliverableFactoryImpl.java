@@ -82,7 +82,7 @@ public class ReadingTypeDeliverableFactoryImpl implements ReadingTypeDeliverable
         info.id = readingTypeDeliverable.getId();
         info.name = readingTypeDeliverable.getName();
         info.readingType = readingTypeDeliverable.getReadingType() != null ? readingTypeInfoFactory.from(readingTypeDeliverable.getReadingType()) : null;
-        info.formula = readingTypeDeliverable.getFormula() != null ? asInfo(readingTypeDeliverable.getFormula(), metrologyConfiguration) : null;
+        info.formula = readingTypeDeliverable.getFormula() != null ? formulaInfo(readingTypeDeliverable, metrologyConfiguration) : null;
         info.eventNames = new ArrayList<>();
         metrologyConfiguration.getEventSets().stream()
                 .flatMap(eventSet -> eventSet.getEvents().stream())
@@ -91,9 +91,10 @@ public class ReadingTypeDeliverableFactoryImpl implements ReadingTypeDeliverable
         return info;
     }
 
-    private FormulaInfo asInfo(Formula formula, MetrologyConfiguration metrologyConfiguration) {
+    private FormulaInfo formulaInfo(ReadingTypeDeliverable deliverable, MetrologyConfiguration metrologyConfiguration) {
+        Formula formula = deliverable.getFormula();
         FormulaInfo info = new FormulaInfo();
-        info.description = formula.getExpressionNode().accept(new FormulaDescriptionBuilder(this.thesaurus));
+        info.description = formula.getExpressionNode().accept(new FormulaDescriptionBuilder(deliverable, this.thesaurus));
         info.readingTypeRequirements = asInfoList(formula.getExpressionNode(), metrologyConfiguration);
         CustomPropertyInfoFactory visitor = new CustomPropertyInfoFactory();
         formula.getExpressionNode().accept(visitor);
