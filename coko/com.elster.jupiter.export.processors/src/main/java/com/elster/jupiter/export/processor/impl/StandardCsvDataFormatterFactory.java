@@ -28,8 +28,8 @@ abstract class StandardCsvDataFormatterFactory implements DataFormatterFactory {
     private static final String NON_PATH_INVALID = "\":*?<>|";
 
     private volatile PropertySpecService propertySpecService;
-    private volatile DataExportService dataExportService;
     private volatile Thesaurus thesaurus;
+    volatile DataExportService dataExportService;
 
     //OSGI
     public StandardCsvDataFormatterFactory() {

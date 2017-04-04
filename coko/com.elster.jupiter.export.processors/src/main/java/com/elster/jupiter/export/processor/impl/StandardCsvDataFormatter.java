@@ -53,9 +53,9 @@ class StandardCsvDataFormatter implements ReadingDataFormatter, StandardFormatte
 
     private final DataExportService dataExportService;
 
-    private String fieldSeparator;
-    private ReadingType readingType;
-    private IdentifiedObject domainObject;
+    String fieldSeparator;
+    ReadingType readingType;
+    IdentifiedObject domainObject;
     private String tag;
     private String updateTag;
 
@@ -151,7 +151,7 @@ class StandardCsvDataFormatter implements ReadingDataFormatter, StandardFormatte
                 .orElse(null);
     }
 
-    private Optional<String> writeReading(BaseReading reading, ValidationResult validationResult) {
+    Optional<String> writeReading(BaseReading reading, ValidationResult validationResult) {
         if (reading.getValue() != null) {
             ZonedDateTime date = ZonedDateTime.ofInstant(reading.getTimeStamp(), ZoneId.systemDefault());
             StringJoiner joiner = new StringJoiner(fieldSeparator, "", "\n")
@@ -166,7 +166,7 @@ class StandardCsvDataFormatter implements ReadingDataFormatter, StandardFormatte
         return Optional.empty();
     }
 
-    private String asString(ValidationResult validationResult) {
+    String asString(ValidationResult validationResult) {
         switch (validationResult) {
             case VALID:
                 return VALID_STRING;

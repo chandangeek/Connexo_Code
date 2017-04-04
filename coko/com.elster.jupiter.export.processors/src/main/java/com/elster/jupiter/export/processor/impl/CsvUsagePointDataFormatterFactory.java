@@ -5,6 +5,7 @@
 package com.elster.jupiter.export.processor.impl;
 
 import com.elster.jupiter.export.DataExportService;
+import com.elster.jupiter.export.DataFormatter;
 import com.elster.jupiter.export.DataFormatterFactory;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.properties.PropertySpec;
@@ -16,6 +17,7 @@ import org.osgi.service.component.annotations.Reference;
 import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 @Component(name = "com.elster.jupiter.export.processor.CsvUsagePointDataFormatterFactory",
         property = {DataExportService.DATA_TYPE_PROPERTY + "=" + DataExportService.STANDARD_USAGE_POINT_DATA_TYPE},
@@ -66,5 +68,10 @@ public class CsvUsagePointDataFormatterFactory extends StandardCsvDataFormatterF
                 getTagProperty(),
                 getSeparatorProperty()
         );
+    }
+
+    @Override
+    public DataFormatter createDataFormatter(Map<String, Object> properties) {
+        return new CsvUsagePointDataFormatter(properties, dataExportService);
     }
 }
