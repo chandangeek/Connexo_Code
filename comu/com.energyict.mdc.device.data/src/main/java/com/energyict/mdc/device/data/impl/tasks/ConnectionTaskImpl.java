@@ -20,6 +20,7 @@ import com.energyict.mdc.device.config.AbstractConnectionTypeDelegate;
 import com.energyict.mdc.device.config.AbstractConnectionTypePluggableClassDelegate;
 import com.energyict.mdc.device.config.KeyAccessorPropertySpecWithPossibleValues;
 import com.energyict.mdc.device.config.PartialConnectionTask;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.exceptions.CannotDeleteUsedDefaultConnectionTaskException;
 import com.energyict.mdc.device.data.exceptions.ConnectionTaskIsExecutingAndCannotBecomeObsoleteException;
@@ -115,6 +116,8 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     private Reference<CPPT> comPortPool = ValueReference.absent();
     private Reference<ComServer> comServer = ValueReference.absent();
     private Reference<ComSession> lastSession = ValueReference.absent();
+    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES_ARE_REQUIRED + "}")
+    protected Reference<ProtocolDialectConfigurationProperties> protocolDialectConfigurationProperties = ValueReference.absent();
     @SuppressWarnings("unused")
     private boolean lastSessionStatus; // Redundant copy from lastSession to improve query performance
     @SuppressWarnings("unused")
@@ -164,6 +167,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         if (partialConnectionTask.isDefault() && !this.device.get().getConnectionTasks().stream().filter(ConnectionTask::isDefault).findAny().isPresent()) {
             this.isDefault = partialConnectionTask.isDefault();
         }
+        this.protocolDialectConfigurationProperties.set(partialConnectionTask.getProtocolDialectConfigurationProperties());
     }
 
     @Override
@@ -267,6 +271,15 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
 
     public void removeAllProperties() {
         this.getPluggableClass().removePropertiesFor(this);
+    }
+
+    @Override
+    public ProtocolDialectConfigurationProperties getProtocolDialectConfigurationProperties() {
+        return this.protocolDialectConfigurationProperties.orNull();
+    }
+    @Override
+    public void setProtocolDialectConfigurationProperties(ProtocolDialectConfigurationProperties dialectConfigurationProperties) {
+        this.protocolDialectConfigurationProperties.set(dialectConfigurationProperties);
     }
 
     private void saveAllProperties(List<ConnectionTaskProperty> properties) {
