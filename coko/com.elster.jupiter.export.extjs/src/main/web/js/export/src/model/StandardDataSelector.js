@@ -15,6 +15,7 @@ Ext.define('Dxp.model.StandardDataSelector', {
         {name: 'deviceGroup', defaultValue: null},
         {name: 'usagePointGroup', defaultValue: null},
         {name: 'exportPeriod', defaultValue: null},
+        {name: 'purpose', defaultValue: null},
         {name: 'validatedDataOption', defaultValue: null},
         {name: 'readingTypes', defaultValue: null},
         {name: 'eventTypeCodes', defaultValue: null},
