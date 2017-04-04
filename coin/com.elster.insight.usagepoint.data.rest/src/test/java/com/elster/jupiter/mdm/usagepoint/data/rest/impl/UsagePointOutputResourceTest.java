@@ -12,6 +12,7 @@ import com.elster.jupiter.mdm.usagepoint.config.rest.ReadingTypeDeliverablesInfo
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.aggregation.MetrologyContractCalculationIntrospector;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
@@ -73,6 +74,9 @@ public class UsagePointOutputResourceTest extends UsagePointDataRestApplicationJ
     private UsagePointGroup usagePointGroup;
     @Mock
     private Query<UsagePoint> usagePointQuery;
+    @Mock
+    private MetrologyContractCalculationIntrospector metrologyContractCalculationIntrospector;
+
 
     @Before
     public void before() {
@@ -120,6 +124,9 @@ public class UsagePointOutputResourceTest extends UsagePointDataRestApplicationJ
         when(validationTask.getLastRun()).thenReturn(Optional.empty());
         when(validationTask.getLastOccurrence()).thenReturn(Optional.empty());
         when(validationTask.getId()).thenReturn(31L);
+        when(dataAggregationService.introspect(any(),any(),any())).thenReturn(metrologyContractCalculationIntrospector);
+        List<MetrologyContractCalculationIntrospector.CalendarUsage> calendarUsages = Collections.emptyList();
+        when(metrologyContractCalculationIntrospector.getCalendarUsagesFor(any())).thenReturn(calendarUsages);
     }
 
     @Test
