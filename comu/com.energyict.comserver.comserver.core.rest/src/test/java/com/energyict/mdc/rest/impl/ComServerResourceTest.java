@@ -7,7 +7,7 @@ package com.energyict.mdc.rest.impl;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.common.rest.TimeDurationInfo;
+import com.elster.jupiter.time.rest.TimeDurationInfo;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.OfflineComServer;
 import com.energyict.mdc.engine.config.OnlineComServer;

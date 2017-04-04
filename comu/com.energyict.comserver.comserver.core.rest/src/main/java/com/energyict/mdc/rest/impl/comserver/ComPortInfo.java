@@ -5,6 +5,7 @@
 package com.energyict.mdc.rest.impl.comserver;
 
 import com.elster.jupiter.rest.util.VersionInfo;
+import com.elster.jupiter.time.rest.TimeDurationInfo;
 import com.energyict.mdc.channel.serial.BaudrateValue;
 import com.energyict.mdc.channel.serial.NrOfDataBits;
 import com.energyict.mdc.channel.serial.NrOfStopBits;

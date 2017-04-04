@@ -5,7 +5,7 @@
 package com.energyict.mdc.rest.impl.comserver;
 
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.common.rest.TimeDurationInfo;
+import com.elster.jupiter.time.rest.TimeDurationInfo;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;

@@ -437,7 +437,7 @@ public class ComPortResourceTest extends ComserverCoreApplicationJerseyTest {
         when(engineConfigurationService.findAllInboundComPorts()).thenReturn(Arrays.asList(tcpBasedInboundComPort, udpBasedInboundComPort, modemBasedInboundComPort));
         when(engineConfigurationService.findAllOutboundComPorts()).thenReturn(Arrays.asList(outboundComPort));
         when(engineConfigurationService.findComPortsByComServer(comServerA)).thenReturn(Arrays.asList(tcpBasedInboundComPort, outboundComPort));
-        when(engineConfigurationService.findComPortsByComServer(comServerB)).thenReturn(Arrays.<ComPort>asList(modemBasedInboundComPort, udpBasedInboundComPort));
+        when(engineConfigurationService.findComPortsByComServer(comServerB)).thenReturn(Arrays.asList(modemBasedInboundComPort, udpBasedInboundComPort));
         when(comServerA.getComPorts()).thenReturn(comPorts);
         when(comServerB.getComPorts()).thenReturn(comPorts);
     }

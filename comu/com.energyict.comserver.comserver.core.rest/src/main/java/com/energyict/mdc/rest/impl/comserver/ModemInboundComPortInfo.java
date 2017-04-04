@@ -4,11 +4,7 @@
 
 package com.energyict.mdc.rest.impl.comserver;
 
-import com.energyict.mdc.channel.serial.BaudrateValue;
-import com.energyict.mdc.channel.serial.NrOfDataBits;
-import com.energyict.mdc.channel.serial.NrOfStopBits;
-import com.energyict.mdc.channel.serial.SerialPortConfiguration;
-import com.energyict.mdc.common.rest.TimeDurationInfo;
+import com.elster.jupiter.time.rest.TimeDurationInfo;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.ModemBasedInboundComPort;

@@ -13,6 +13,7 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
+import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -30,7 +31,6 @@ import com.energyict.mdc.rest.impl.comserver.ComServerInfoFactory;
 import com.energyict.mdc.rest.impl.comserver.ComServerResource;
 import com.energyict.mdc.rest.impl.comserver.MessageSeeds;
 import com.energyict.mdc.rest.impl.comserver.ResourceHelper;
-import com.energyict.mdc.rest.impl.comserver.TimeDurationUnitTranslationKeys;
 import com.energyict.mdc.rest.impl.comserver.TranslationKeys;
 
 import com.google.common.collect.ImmutableSet;
@@ -97,7 +97,8 @@ public class MdcApplication extends Application implements TranslationKeyProvide
     @Reference
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
-        this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST);
+        this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST)
+                .join(nlsService.getThesaurus(TimeService.COMPONENT_NAME, Layer.DOMAIN));
     }
 
     @Override
@@ -118,7 +119,6 @@ public class MdcApplication extends Application implements TranslationKeyProvide
     @Override
     public List<TranslationKey> getKeys() {
         List<TranslationKey> keys =  new ArrayList<>();
-        keys.addAll(Arrays.asList(TimeDurationUnitTranslationKeys.values()));
         keys.addAll(Arrays.asList(ComServerFieldTranslationKeys.values()));
         keys.addAll(Arrays.asList(TranslationKeys.values()));
         return keys;
