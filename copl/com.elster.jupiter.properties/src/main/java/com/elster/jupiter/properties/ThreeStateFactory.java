@@ -13,7 +13,8 @@ import java.sql.Types;
 import static com.elster.jupiter.util.Checks.is;
 
 /**
- * Insert your comments here.
+ * Provides an implementation for the {@link ValueFactory} interface
+ * for {@link Boolean} values.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-11-29 (17:23)
