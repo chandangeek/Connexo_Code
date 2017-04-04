@@ -622,7 +622,7 @@ public class UsagePointImpl implements ServerUsagePoint {
 
     private void validateApplyTimeAndCreateDate(Instant mcStart) {
         if (this.getInstallationTime().isAfter(mcStart)) {
-            throw UsagePointManagementException.incorrectApplyTime(thesaurus);
+            throw UsagePointManagementException.incorrectApplyTime(thesaurus, formatDate(this.getInstallationTime()));
         }
     }
 
@@ -635,8 +635,7 @@ public class UsagePointImpl implements ServerUsagePoint {
 
     private void validateMetrologyConfigOverlapping(UsagePointMetrologyConfiguration metrologyConfiguration, Instant mcStart) {
         if (this.getEffectiveMetrologyConfigurations(Range.greaterThan(mcStart)).stream().findAny().isPresent()) {
-            DateTimeFormatter dateTimeFormatter = userService.getUserPreferencesService().getDateTimeFormatter(threadPrincipalService.getPrincipal(), PreferenceType.LONG_DATE, PreferenceType.LONG_TIME);
-            throw UsagePointManagementException.incorrectMetrologyConfigStartDate(thesaurus, metrologyConfiguration.getName(), this.getName(), dateTimeFormatter.format(LocalDateTime.ofInstant(mcStart, ZoneId.systemDefault())));
+            throw UsagePointManagementException.incorrectMetrologyConfigStartDate(thesaurus, metrologyConfiguration.getName(), this.getName(), formatDate(mcStart));
         }
     }
 
@@ -653,10 +652,7 @@ public class UsagePointImpl implements ServerUsagePoint {
     private void checkOperationalStage(Optional<Stage> deviceStage, Instant mcStart) {
         if(deviceStage.isPresent()) {
             if (!EndDeviceStage.fromKey(deviceStage.get().getName()).equals(EndDeviceStage.OPERATIONAL)) {
-                DateTimeFormatter dateTimeFormatter = userService.getUserPreferencesService()
-                        .getDateTimeFormatter(threadPrincipalService.getPrincipal(), PreferenceType.LONG_DATE, PreferenceType.LONG_TIME);
-                throw UsagePointManagementException.incorrectEndDeviceStage(thesaurus, dateTimeFormatter.format(LocalDateTime
-                        .ofInstant(mcStart, ZoneId.systemDefault())));
+                throw UsagePointManagementException.incorrectEndDeviceStage(thesaurus, formatDate(mcStart));
             }
         }
     }
@@ -690,6 +686,12 @@ public class UsagePointImpl implements ServerUsagePoint {
                 .initAndSaveWithInterval(this, metrologyConfiguration, Interval.of(effectiveInterval));
         effectiveMetrologyConfigurationOnUsagePoint.createEffectiveMetrologyContracts(optionalContractsToActivate);
         return effectiveMetrologyConfigurationOnUsagePoint;
+    }
+
+    private String formatDate(Instant date) {
+        DateTimeFormatter dateTimeFormatter = userService.getUserPreferencesService()
+                .getDateTimeFormatter(threadPrincipalService.getPrincipal(), PreferenceType.LONG_DATE, PreferenceType.LONG_TIME);
+        return dateTimeFormatter.format(LocalDateTime.ofInstant(date, ZoneId.systemDefault()));
     }
 
     @Override

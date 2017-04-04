@@ -143,8 +143,8 @@ public enum MessageSeeds implements MessageSeed {
     INVALID_END_DEVICE_STAGE_WITH_GAPS_ALLOWED(12206, Constants.INVALID_END_DEVICE_STAGE_WITH_GAPS_ALLOWED, "Meter linking error. Meter {0} cannot be linked to usage point {1}, as the linking would occur after the metrology configuration''s activation and before the meter''s activation."),
     INVALID_END_DEVICE_STAGE_WITHOUT_MC(12207, Constants.INVALID_END_DEVICE_STAGE_WITHOUT_MC, "Meter {0} cannot be linked to usage point {1} because this meter is in incorrect life cycle stage after the linking date {2}."),
     METER_ACTIVATION_BEFORE_UP_INSTALLATION_TIME(12208, Constants.METER_ACTIVATION_BEFORE_UP_INSTALLATION_TIME, "The meter activation date must be greater than, or equal to, the usage point creation date. This usage point''s creation date is {0}."),
-    METER_CANNOT_BE_UNLINKED(12209, Constants.METER_CANNOT_BE_UNLINKED, "Meter unlinking error. Because the metrology configration does not allow gaps, meter {0} cannot be unlinked from usage point {1} at {2}. This meter is required for the calculation of the active purposes of the metrology configuration.")
-    ;
+    METER_CANNOT_BE_UNLINKED(12209, Constants.METER_CANNOT_BE_UNLINKED, "Meter unlinking error. Because the metrology configration does not allow gaps, meter {0} cannot be unlinked from usage point {1} at {2}. This meter is required for the calculation of the active purposes of the metrology configuration."),
+    METROLOGY_CONFIG_INVALID_START_DATE(12210, Constants.METROLOGY_CONFIG_INVALID_START_DATE, "The metrology configuration''s start date must be greater than, or equal to, the creation date of the usage point {0}");
 
 
     private final int number;
@@ -302,6 +302,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String INVALID_END_DEVICE_STAGE_WITHOUT_MC = "invalid.end.device.stage.without.mc";
         public static final String METER_ACTIVATION_BEFORE_UP_INSTALLATION_TIME = "meter.activation.before.up.installation.time";
         public static final String METER_CANNOT_BE_UNLINKED = "meter.cannot.be.unlinked";
+        public static final String METROLOGY_CONFIG_INVALID_START_DATE = "metrology.config.invalid.start.date";
     }
 
 }
