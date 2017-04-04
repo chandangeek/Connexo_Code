@@ -8,7 +8,6 @@ import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.IntervalReadingRecord;
-import com.elster.jupiter.metering.MetrologyContractChannelsContainer;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
@@ -17,21 +16,18 @@ import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.properties.BooleanFactory;
-import com.elster.jupiter.properties.ListValueFactory;
 import com.elster.jupiter.properties.NonOrBigDecimalValueFactory;
 import com.elster.jupiter.properties.NonOrBigDecimalValueProperty;
 import com.elster.jupiter.properties.PropertySelectionMode;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
-import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.TwoValuesAbsoluteDifference;
+import com.elster.jupiter.properties.TwoValuesDifference;
 import com.elster.jupiter.properties.TwoValuesDifferenceValueFactory;
-import com.elster.jupiter.properties.TwoValuesPercentDifference;
 import com.elster.jupiter.validation.ValidationResult;
+import com.elster.jupiter.validators.BadMainCheckConfiguration;
+import com.elster.jupiter.validators.MissingRequiredProperty;
 
-import com.google.common.base.Functions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
@@ -60,6 +56,14 @@ public class MainCheckValidator extends AbstractValidator {
     private MetrologyConfigurationService metrologyConfigurationService;
 
     private Map<Instant, IntervalReadingRecord> checkReadingRecords;
+
+    // validator parameters
+    private String checkChannelPurpose;
+    private TwoValuesDifference maxAbsoluteDifference;
+    private Boolean passIfNoRefData;
+    private Boolean useValidatedData;
+    private NonOrBigDecimalValueProperty minThreshold;
+
 
     public MainCheckValidator(Thesaurus thesaurus, PropertySpecService propertySpecService, MetrologyConfigurationService metrologyConfigurationService) {
         super(thesaurus, propertySpecService);
@@ -136,44 +140,50 @@ public class MainCheckValidator extends AbstractValidator {
     @Override
     public void init(Channel channel, ReadingType readingType, Range<Instant> interval) {
 
+        // 1. parse validator parameters
+        checkChannelPurpose = (String) properties.get(CHECK_PURPOSE);
+
+        if (checkChannelPurpose == null) {
+            throw new MissingRequiredProperty(getThesaurus(), CHECK_PURPOSE);
+        }
+
+        // FIXME - types? and save data
+        Object maxDiff = properties.get(MAX_ABSOLUTE_DIFF);
+        Object minThreshold = properties.get(MIN_THRESHOLD);
+        passIfNoRefData = (boolean) properties.get(PASS_IF_NO_REF_DATA);
+        useValidatedData = (boolean) properties.get(USE_VALIDATED_DATA);
+
         // find 'check' channel and save readings + prepare mapping with readings from 'main' channel
 
-        // 1. get purpose for 'check' channel
-        String checkChannelPurpose = (String) properties.get(CHECK_PURPOSE);
-
         // 2. find 'check' channel
-        UsagePoint usagePoint = channel.getChannelsContainer().getUsagePoint().get();
+        UsagePoint usagePoint = channel.getChannelsContainer()
+                .getUsagePoint()
+                .orElseThrow(() -> new BadMainCheckConfiguration(getThesaurus(), MessageSeeds.BAD_MAIN_CHECK_CONFIGURATION_NO_UP_ON_CHANNEL));
         List<EffectiveMetrologyConfigurationOnUsagePoint> effectiveMetrologyConfigurationOnUsagePointList = usagePoint.getEffectiveMetrologyConfigurations(interval);
 
-
-        //  effectiveMetrologyConfigurationOnUsagePointList.size() == 1 // только один
+        if (effectiveMetrologyConfigurationOnUsagePointList.size() != 1) {
+            throw new BadMainCheckConfiguration(getThesaurus(), MessageSeeds.BAD_MAIN_CHECK_CONFIGURATION_METRLOGY_CONFIG_COUNT);
+        }
 
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint = effectiveMetrologyConfigurationOnUsagePointList
                 .get(0);
 
-
         MetrologyContract metrologyContract = effectiveMetrologyConfigurationOnUsagePoint.getMetrologyConfiguration()
                 .getContracts()
                 .stream()
-                .filter(contract -> contract.getMetrologyPurpose().getDescription() == checkChannelPurpose)
+                .filter(contract -> contract.getMetrologyPurpose().getName().equals(checkChannelPurpose))
                 .findAny()
-                .get();
-
-        // если не активный ченел конейтен- не валидировать .
-
-        //  из нее чанел контейнер по purpose
-
-        // MetrologyContractChannelsContainer c; //channel.getChannelsContainer() instance of. must match
-
+                .orElseThrow(() -> new BadMainCheckConfiguration(getThesaurus(), MessageSeeds.BAD_MAIN_CHECK_CONFIGURATION_METRLOGY_CONTRACT));
 
         ChannelsContainer channelsContainerWithCheckChannel = effectiveMetrologyConfigurationOnUsagePoint.getChannelsContainer(metrologyContract)
-                .get();
+                .orElseThrow(() -> new BadMainCheckConfiguration(getThesaurus(), MessageSeeds.BAD_MAIN_CHECK_CONFIGURATION_CHANNELS_CONTAINER));
 
+        Channel checkChannel = channelsContainerWithCheckChannel.getChannel(readingType)
+                .orElseThrow(() -> new BadMainCheckConfiguration(getThesaurus(), MessageSeeds.BAD_MAIN_CHECK_CONFIGURATION_CHECK_CHANNEL));
 
-        Channel checkChannel = channelsContainerWithCheckChannel.getChannel(readingType).get();
-
-        List<IntervalReadingRecord> chechChannelIntervalReadings = checkChannel.getIntervalReadings(interval);
-        checkReadingRecords = chechChannelIntervalReadings.stream()
+        // 3. prepare map of interval readings from check channel
+        List<IntervalReadingRecord> checkChannelIntervalReadings = checkChannel.getIntervalReadings(interval);
+        checkReadingRecords = checkChannelIntervalReadings.stream()
                 .collect(Collectors.toMap(IntervalReadingRecord::getTimeStamp, Function.identity()));
     }
 
@@ -185,7 +195,7 @@ public class MainCheckValidator extends AbstractValidator {
         return validate(intervalReadingRecord, checkIntervalReadingRecord);
     }
 
-    private ValidationResult validate(IntervalReadingRecord mainReading, IntervalReadingRecord checkReading){
+    private ValidationResult validate(IntervalReadingRecord mainReading, IntervalReadingRecord checkReading) {
         return ValidationResult.VALID;
     }
 
