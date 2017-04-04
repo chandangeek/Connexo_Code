@@ -17,6 +17,7 @@ import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.FiniteStateMachine;
+import com.elster.jupiter.fsm.Stage;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTimeSlice;
 import com.elster.jupiter.fsm.StateTimeline;
@@ -108,6 +109,7 @@ import com.energyict.mdc.device.data.DeviceLifeCycleChangeEvent;
 import com.energyict.mdc.device.data.DeviceProtocolProperty;
 import com.energyict.mdc.device.data.DeviceValidation;
 import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.device.data.LoadProfileJournalReading;
 import com.energyict.mdc.device.data.LoadProfileReading;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.PassiveCalendar;
@@ -1394,8 +1396,20 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         return this.getListMeterAspect(meter -> this.getReadingsFor(register, interval, meter));
     }
 
+    List<ReadingRecord> getHistoryReadingsFor(Register<?, ?> register, Range<Instant> interval) {
+        return this.getListMeterAspect(meter -> this.getHistoryReadingsFor(register, interval, meter));
+    }
+
     private List<ReadingRecord> getReadingsFor(Register<?, ?> register, Range<Instant> interval, Meter meter) {
         List<? extends BaseReadingRecord> readings = meter.getReadings(interval, register.getRegisterSpec().getRegisterType().getReadingType());
+        return readings
+                .stream()
+                .map(ReadingRecord.class::cast)
+                .collect(Collectors.toList());
+    }
+
+    private List<ReadingRecord> getHistoryReadingsFor(Register<?, ?> register, Range<Instant> interval, Meter meter) {
+        List<? extends BaseReadingRecord> readings = meter.getJournalReadings(interval, register.getRegisterSpec().getRegisterType().getReadingType());
         return readings
                 .stream()
                 .map(ReadingRecord.class::cast)
@@ -1438,7 +1452,63 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                 loadProfileReadings = new ArrayList<>(sortedLoadProfileReadingMap.values());
             }
         }
+
         return Lists.reverse(loadProfileReadings);
+    }
+
+    List<LoadProfileJournalReading> getChannelWithHistoryData(Channel channel, Range<Instant> interval, boolean changedDataOnly) {
+        List<LoadProfileJournalReading> loadProfileReadings = new ArrayList<>();
+        boolean meterHasData;
+        if (this.meter.isPresent()) {
+            Map<Instant, LoadProfileReadingImpl> sortedLoadProfileReadingMap = getPreFilledLoadProfileReadingMap(
+                    channel.getLoadProfile(),
+                    interval,
+                    meter.get());
+
+            Range<Instant> clipped = Ranges.openClosed(interval.lowerEndpoint(), lastReadingClipped(channel.getLoadProfile(), interval));
+
+            Map<Instant, List<LoadProfileJournalReadingImpl>> sortedHistoryLoadProfileReadingMap = sortedLoadProfileReadingMap.entrySet().stream().collect(Collectors.toMap(
+                    instantLoadProfileReadingEntry -> instantLoadProfileReadingEntry.getKey(),
+                    instantLoadProfileReadingEntry -> {
+                        List<LoadProfileJournalReadingImpl> listOfReadings = new ArrayList<LoadProfileJournalReadingImpl>();
+                        LoadProfileJournalReadingImpl loadProfileJournalReadingImpl = new LoadProfileJournalReadingImpl();
+                        loadProfileJournalReadingImpl.setRange(instantLoadProfileReadingEntry.getValue().getRange());
+                        loadProfileJournalReadingImpl.setReadingTime(instantLoadProfileReadingEntry.getValue().getReadingTime());
+                        instantLoadProfileReadingEntry.getValue().getChannelValues().entrySet().stream()
+                                .forEach(channelIntervalReadingRecordEntry ->
+                                        loadProfileJournalReadingImpl.setChannelData(channelIntervalReadingRecordEntry.getKey(), channelIntervalReadingRecordEntry.getValue()));
+                        instantLoadProfileReadingEntry.getValue().getChannelValidationStates().entrySet().stream()
+                                .forEach(channelDataValidationStatusEntry ->
+                                        loadProfileJournalReadingImpl.setDataValidationStatus(channelDataValidationStatusEntry.getKey(), channelDataValidationStatusEntry.getValue()));
+                        loadProfileJournalReadingImpl.setActive(false);
+                        listOfReadings.add(loadProfileJournalReadingImpl);
+                        return listOfReadings;
+                    }
+            ));
+
+            meterHasData = this.addChannelWithHistoryDataToMap(clipped, meter.get(), channel, sortedHistoryLoadProfileReadingMap);
+            if (meterHasData) {
+                if (changedDataOnly) {
+                    sortedHistoryLoadProfileReadingMap = sortedHistoryLoadProfileReadingMap.entrySet()
+                            .stream()
+                            .filter(r -> r.getValue().size() > 1)
+                            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+                }
+                sortedHistoryLoadProfileReadingMap = sortedHistoryLoadProfileReadingMap.entrySet()
+                        .stream()
+                        .filter(r -> r.getValue().get(0).getReadingTime() != null)
+                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+                sortedHistoryLoadProfileReadingMap.forEach(
+                        (instant, loadProfileReadings1) -> {
+                            loadProfileReadings.addAll(loadProfileReadings1);
+                        }
+                );
+            }
+        }
+        //return loadProfileReadings;
+        return loadProfileReadings.stream().sorted(Comparator.comparing(LoadProfileJournalReading::getRange, (o11, o21) -> o21.lowerEndpoint().compareTo(o11.lowerEndpoint()))
+                .thenComparing(LoadProfileJournalReading::getReadingTime, (o1, o2) -> o2.compareTo(o1)))
+                .collect(Collectors.toList());
     }
 
     public List<EndDeviceEventRecord> getDeviceEventsByFilter(EndDeviceEventRecordFilterSpecification filter) {
@@ -1493,6 +1563,116 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                                         .ifPresent(readingQuality -> loadProfileReading.setReadingTime(readingQuality.getTimestamp()));
                             }
                         });
+            }
+        }
+        return meterHasData;
+    }
+
+    private <R> boolean addChannelWithHistoryDataToMap(Range<Instant> interval, Meter meter, Channel mdcChannel, Map<Instant, List<LoadProfileJournalReadingImpl>> sortedHistoryLoadProfileReadingMap) {
+        boolean meterHasData = false;
+        List<MeterActivation> meterActivations = this.getSortedMeterActivations(meter, Ranges.closed(interval.lowerEndpoint(), interval.upperEndpoint()));
+        for (MeterActivation meterActivation : meterActivations) {
+            Range<Instant> meterActivationInterval = meterActivation.getInterval().toOpenClosedRange().intersection(interval);
+            meterHasData |= meterActivationInterval.lowerEndpoint() != meterActivationInterval.upperEndpoint();
+            ReadingType readingType = mdcChannel.getReadingType();
+            List<IntervalReadingRecord> meterReadings = (List<IntervalReadingRecord>) meter.getJournalReadings(meterActivationInterval, readingType);
+            // To avoid to have to collect the readingqualities meter reading by meter reading (meterreading.getReadingQualities()
+            // does a lazy load (database access) we collect all readingqualities here;
+            List<? extends ReadingQualityRecord> readingQualities = meter.getReadingQualities(meterActivationInterval);
+            List<JournalEntry<? extends ReadingQualityRecord>> readingQualitiesJournal = new ArrayList<>();
+            if (readingQualities.size() > 0) {
+                readingQualitiesJournal = meter.getReadingQualitiesJournal(meterActivationInterval, Collections.EMPTY_LIST,
+                        meterReadings.stream().map(r -> r.getChannel().getId()).distinct().collect(Collectors.toList()));
+            }
+
+            for (IntervalReadingRecord meterReading : meterReadings) {
+                List<ReadingType> channelReadingTypes = getChannelReadingTypes(mdcChannel, meterReading.getTimeStamp());
+                List<LoadProfileJournalReadingImpl> loadProfileReadingList = sortedHistoryLoadProfileReadingMap.get(meterReading.getTimeStamp());
+                LoadProfileJournalReadingImpl loadProfileHistoryReading = null;
+                if (loadProfileReadingList.size() == 1 && loadProfileReadingList.get(0).getReadingTime() == null) {
+                    loadProfileHistoryReading = loadProfileReadingList.get(0);
+                } else {
+                    loadProfileHistoryReading = new LoadProfileJournalReadingImpl();
+                    loadProfileReadingList.add(loadProfileHistoryReading);
+                }
+
+                loadProfileHistoryReading.setRange(loadProfileReadingList.get(0).getRange());
+                loadProfileHistoryReading.setUserName(meterReading.getUserName());
+                loadProfileHistoryReading.setJournalTime(meterReading.getJournalTime());
+                loadProfileHistoryReading.setChannelData(mdcChannel, meterReading);
+                loadProfileHistoryReading.setReadingTime(meterReading.getReportedDateTime());
+                loadProfileHistoryReading.setReadingQualities(mdcChannel, new ArrayList<>());
+            }
+
+            sortedHistoryLoadProfileReadingMap = sortedHistoryLoadProfileReadingMap.entrySet()
+                    .stream()
+                    .filter(r -> r.getValue().get(0).getReadingTime() != null)
+                    .collect(Collectors.toMap(p -> p.getKey(), p -> p.getValue()));
+            final List<JournalEntry<? extends ReadingQualityRecord>> finalReadingQualitiesJournal = readingQualitiesJournal;
+            sortedHistoryLoadProfileReadingMap.entrySet().stream()
+                    .forEach(instantListEntry -> {
+                        List<ReadingType> channelReadingTypes = getChannelReadingTypes(mdcChannel, instantListEntry.getKey());
+
+                        List<? extends ReadingQualityRecord> readingQualityList = readingQualities.stream()
+                                .filter(o -> instantListEntry.getKey().equals(o.getReadingTimestamp()))
+                                .filter(o -> channelReadingTypes.contains(o.getReadingType()))
+                                .collect(Collectors.toList());
+                        List<? extends ReadingQualityRecord> readingQualityJournalList = finalReadingQualitiesJournal.stream()
+                                .filter(o -> instantListEntry.getKey().equals(o.get().getReadingTimestamp()))
+                                .filter(o -> channelReadingTypes.contains(o.get().getReadingType()))
+                                .map(o -> o.get()).collect(Collectors.toList());
+
+                        List<ReadingQualityRecord> allReadingQuality = readingQualityList.stream().collect(Collectors.toList());
+                        allReadingQuality.addAll(readingQualityJournalList.stream().collect(Collectors.toList()));
+                        allReadingQuality.stream().forEach(rqj -> {
+
+                            Optional<LoadProfileJournalReadingImpl> journalReadingOptional = Optional.empty();
+                            if ((rqj.getTypeCode().compareTo("2.5.258") == 0) || (rqj.getTypeCode().compareTo("2.5.259") == 0)) {
+                                journalReadingOptional = instantListEntry.getValue()
+                                        .stream()
+                                        .sorted((a, b) -> b.getReadingTime().compareTo(a.getReadingTime()))
+                                        .filter(x -> x.getReadingTime().compareTo(rqj.getTimestamp()) <= 0)
+                                        .findFirst();
+                            } else {
+                                journalReadingOptional = instantListEntry.getValue()
+                                        .stream()
+                                        .sorted((a, b) -> a.getReadingTime().compareTo(b.getReadingTime()))
+                                        .filter(x -> x.getReadingTime().compareTo(rqj.getTimestamp()) >= 0)
+                                        .findFirst();
+                            }
+                            journalReadingOptional.ifPresent(journalReading -> {
+                                Map<Channel, List<? extends ReadingQualityRecord>> readingQualitiesList = journalReading.getReadingQualities();
+                                List<ReadingQualityRecord> original = readingQualitiesList.get(mdcChannel).stream().collect(Collectors.toList());
+                                original.add(rqj);
+                                journalReading.setReadingQualities(mdcChannel, original);
+                            });
+
+                        });
+                    });
+
+            //
+            Optional<com.elster.jupiter.metering.Channel> koreChannel = this.getChannel(meterActivation.getChannelsContainer(), readingType);
+            if (koreChannel.isPresent()) {
+
+                sortedHistoryLoadProfileReadingMap.forEach((instant, journalReadingList) -> {
+                    journalReadingList.forEach(journalReading -> {
+                        List<ReadingQualityRecord> readingQualitiesList = journalReading.getReadingQualities()
+                                .entrySet().stream()
+                                .map(channelListEntry -> channelListEntry.getValue())
+                                .flatMap(List::stream)
+                                .collect(Collectors.toList());
+                        DataValidationStatus validationStatus = forValidation().getValidationStatus(mdcChannel, instant, readingQualitiesList, meterActivationInterval);
+
+                        journalReading.setDataValidationStatus(mdcChannel, validationStatus);
+                        //code below is the processing of removed readings
+                        validationStatus.getReadingQualities()
+                                .stream()
+                                .filter(rq -> rq.getType().qualityIndex().orElse(null) == QualityCodeIndex.REJECTED)
+                                .findAny()
+                                .map(ReadingQualityRecord.class::cast)
+                                .ifPresent(readingQuality -> journalReading.setReadingTime(readingQuality.getTimestamp()));
+                    });
+                });
             }
         }
         return meterHasData;
@@ -1871,7 +2051,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         }
     }
 
-    private Optional<MeterActivation> getMeterActivation(Instant when) {
+    @Override
+    public Optional<MeterActivation> getMeterActivation(Instant when) {
         return this.getOptionalMeterAspect(meter -> meter.getMeterActivation(when).map(MeterActivation.class::cast));
     }
 
@@ -2209,6 +2390,11 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     @Override
+    public Stage getStage() {
+        return this.getState(this.clock.instant()).get().getStage().orElseThrow(() -> new IllegalStateException("Device state does not have a stage"));
+    }
+
+    @Override
     public CalendarSupport calendars() {
         return new DeviceCalendarSupport(this, this.dataModel, this.clock);
     }
@@ -2522,19 +2708,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             @Override
             RegisterImpl newRegister(DeviceImpl device, RegisterSpec registerSpec) {
                 return new TextRegisterImpl(device, (TextualRegisterSpec) registerSpec);
-            }
-        },
-
-        Billing {
-            @Override
-            boolean appliesTo(RegisterSpec registerSpec) {
-                Set<Aggregate> eventAggregates = EnumSet.of(Aggregate.AVERAGE, Aggregate.SUM, Aggregate.MAXIMUM, Aggregate.SECONDMAXIMUM, Aggregate.THIRDMAXIMUM, Aggregate.FOURTHMAXIMUM, Aggregate.FIFTHMAXIMIMUM, Aggregate.MINIMUM, Aggregate.SECONDMINIMUM);
-                return eventAggregates.contains(this.getReadingType(registerSpec).getAggregate());
-            }
-
-            @Override
-            RegisterImpl newRegister(DeviceImpl device, RegisterSpec registerSpec) {
-                return new BillingRegisterImpl(device, (NumericalRegisterSpec) registerSpec);
             }
         },
 

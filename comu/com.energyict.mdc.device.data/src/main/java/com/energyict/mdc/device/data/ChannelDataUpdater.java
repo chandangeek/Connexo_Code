@@ -30,6 +30,10 @@ public interface ChannelDataUpdater {
 
     ChannelDataUpdater confirmChannelData(List<BaseReading> modifiedChannelData);
 
+    ChannelDataUpdater estimateChannelData(List<BaseReading> modifiedChannelData);
+
+    ChannelDataUpdater estimateBulkChannelData(List<BaseReading> modifiedChannelData);
+
     /**
      * Completes the transaction, effectively applying all the changes
      * from previous method calls.
