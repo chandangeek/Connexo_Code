@@ -6,6 +6,7 @@ package com.energyict.mdc.device.data.impl.identifiers;
 
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
+
 import com.energyict.obis.ObisCode;
 
 import javax.xml.bind.annotation.XmlAttribute;
@@ -13,6 +14,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -64,6 +66,24 @@ public class LoadProfileIdentifierByObisCodeAndDevice implements LoadProfileIden
     @Override
     public com.energyict.mdc.upl.meterdata.identifiers.Introspector forIntrospection() {
         return new Introspector();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        LoadProfileIdentifierByObisCodeAndDevice that = (LoadProfileIdentifierByObisCodeAndDevice) o;
+        return Objects.equals(loadProfileObisCode, that.loadProfileObisCode)
+            && Objects.equals(deviceIdentifier, that.deviceIdentifier);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.loadProfileObisCode, this.deviceIdentifier);
     }
 
     @Override

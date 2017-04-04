@@ -7,16 +7,19 @@ package com.energyict.mdc.device.data.impl.identifiers;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
+
 import com.energyict.obis.ObisCode;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 /**
- * Represents a LogBookIdentifier for a LogBook that is already know (should not be fetched anymore)
+ * Represents a LogBookIdentifier for a LogBook that is already known
+ * at construction time and should there not be fetched from database anymore.
  */
 @XmlRootElement
 public class LogBookIdentifierForAlreadyKnowLogBook implements LogBookIdentifier {
@@ -50,6 +53,23 @@ public class LogBookIdentifierForAlreadyKnowLogBook implements LogBookIdentifier
                 "logbook with name ''{0}'' on device with name ''{1}''",
                 logBook.getLogBookType().getName(),
                 logBook.getDevice().getName());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        LogBookIdentifierForAlreadyKnowLogBook that = (LogBookIdentifierForAlreadyKnowLogBook) o;
+        return Objects.equals(logBook, that.logBook);
+    }
+
+    @Override
+    public int hashCode() {
+        return this.logBook.hashCode();
     }
 
     private class Introspector implements com.energyict.mdc.upl.meterdata.identifiers.Introspector {

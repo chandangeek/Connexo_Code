@@ -6,12 +6,14 @@ package com.energyict.mdc.device.data.impl.identifiers;
 
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
+
 import com.energyict.obis.ObisCode;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -60,6 +62,23 @@ public final class LoadProfileIdentifierById implements LoadProfileIdentifier {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        LoadProfileIdentifierById that = (LoadProfileIdentifierById) o;
+        return Objects.equals(id, that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
+
+    @Override
     public com.energyict.mdc.upl.meterdata.identifiers.Introspector forIntrospection() {
         return new Introspector();
     }
@@ -77,15 +96,20 @@ public final class LoadProfileIdentifierById implements LoadProfileIdentifier {
 
         @Override
         public Set<String> getRoles() {
-            return new HashSet<>(Collections.singletonList("databaseValue"));
+            return new HashSet<>(Arrays.asList("databaseValue", "device", "obisCode"));
         }
 
         @Override
         public Object getValue(String role) {
-            if ("databaseValue".equals(role)) {
-                return getId();
-            } else {
-                throw new IllegalArgumentException("Role '" + role + "' is not supported by identifier of type " + getTypeName());
+            switch (role) {
+                case "databaseValue":
+                    return getId();
+                case "device":
+                    return getDeviceIdentifier();
+                case "obisCode":
+                    return getProfileObisCode();
+                default:
+                    throw new IllegalArgumentException("Role '" + role + "' is not supported by identifier of type " + getTypeName());
             }
         }
     }

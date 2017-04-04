@@ -6,6 +6,7 @@ package com.energyict.mdc.device.data.impl.identifiers;
 
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
+
 import com.energyict.obis.ObisCode;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -58,11 +59,7 @@ public final class LogBookIdentifierById implements LogBookIdentifier {
         return logBookId;
     }
 
-    /**
-     * Check if the given {@link Object} is equal to this {@link LogBookIdentifierById}. <BR>
-     * WARNING: if comparing with an {@link LogBookIdentifier} of another type (not of type {@link LogBookIdentifierById}),
-     * this check will always return false, regardless of the fact they can both point to the same {@link com.energyict.mdc.upl.meterdata.LogBook}!
-     */
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -70,13 +67,13 @@ public final class LogBookIdentifierById implements LogBookIdentifier {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        LogBookIdentifierById otherIdentifier = (LogBookIdentifierById) o;
-        return (this.logBookId == otherIdentifier.logBookId);
+        LogBookIdentifierById that = (LogBookIdentifierById) o;
+        return logBookId == that.logBookId;
     }
 
     @Override
     public int hashCode() {
-        return Long.valueOf(this.logBookId).hashCode();
+        return Long.hashCode(this.logBookId);
     }
 
     @Override

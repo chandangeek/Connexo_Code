@@ -6,12 +6,14 @@ package com.energyict.mdc.device.data.impl.identifiers;
 
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
+
 import com.energyict.obis.ObisCode;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -49,6 +51,7 @@ public class LogBookIdentifierByDeviceAndObisCode implements LogBookIdentifier {
         return deviceIdentifier;
     }
 
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -56,16 +59,14 @@ public class LogBookIdentifierByDeviceAndObisCode implements LogBookIdentifier {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        LogBookIdentifierByDeviceAndObisCode otherIdentifier = (LogBookIdentifierByDeviceAndObisCode) o;
-        return (this.deviceIdentifier.toString().equals(otherIdentifier.deviceIdentifier.toString())
-                && this.logBookObisCode.equals(otherIdentifier.logBookObisCode));
+        LogBookIdentifierByDeviceAndObisCode that = (LogBookIdentifierByDeviceAndObisCode) o;
+        return Objects.equals(deviceIdentifier, that.deviceIdentifier) &&
+                Objects.equals(logBookObisCode, that.logBookObisCode);
     }
 
     @Override
     public int hashCode() {
-        int result = this.deviceIdentifier.hashCode();
-        result = 31 * result + this.logBookObisCode.hashCode();
-        return result;
+        return Objects.hash(this.deviceIdentifier, this.logBookObisCode);
     }
 
     @Override

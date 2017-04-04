@@ -13,7 +13,6 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.Pair;
-import com.energyict.cbo.Unit;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.data.Channel;
@@ -24,6 +23,10 @@ import com.energyict.mdc.device.data.LoadProfileJournalReading;
 import com.energyict.mdc.device.data.LoadProfileReading;
 import com.energyict.mdc.device.data.ReadingTypeObisCodeUsage;
 import com.energyict.mdc.device.data.impl.configchange.ServerLoadProfileForConfigChange;
+import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierForAlreadyKnownDeviceByMrID;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+
+import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
 import com.google.common.collect.Range;
 
@@ -113,8 +116,18 @@ public class LoadProfileImpl implements ServerLoadProfileForConfigChange {
     }
 
     @Override
+    public ObisCode getObisCode() {
+        return this.getDeviceObisCode();
+    }
+
+    @Override
     public ObisCode getDeviceObisCode() {
         return getLoadProfileSpec().getDeviceObisCode();
+    }
+
+    @Override
+    public DeviceIdentifier getDeviceIdentifier() {
+        return new DeviceIdentifierForAlreadyKnownDeviceByMrID(this.getDevice());
     }
 
     @Override

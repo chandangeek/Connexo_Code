@@ -67,7 +67,7 @@ public class DeviceMessageIdentifierForAlreadyKnownMessage implements MessageIde
 
         @Override
         public Set<String> getRoles() {
-            return new HashSet<>(Arrays.asList("actual", "databaseValue"));
+            return new HashSet<>(Arrays.asList("actual", "device", "databaseValue"));
         }
 
         @Override
@@ -75,6 +75,9 @@ public class DeviceMessageIdentifierForAlreadyKnownMessage implements MessageIde
             switch (role) {
                 case "actual": {
                     return deviceMessage;
+                }
+                case "device": {
+                    return getDeviceIdentifier();
                 }
                 case "databaseValue": {
                     return deviceMessage.getId();
