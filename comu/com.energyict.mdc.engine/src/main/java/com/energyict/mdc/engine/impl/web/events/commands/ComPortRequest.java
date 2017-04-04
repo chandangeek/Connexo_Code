@@ -51,7 +51,7 @@ class ComPortRequest extends IdBusinessObjectRequest {
     @Override
     public Set<Long> getBusinessObjectIds () {
         Set<Long> ids = super.getBusinessObjectIds();
-        if (super.getBusinessObjectIds()== null){
+        if (ids == null) {
             ids = this.comPorts.stream().map(ComPort::getId).distinct().collect(Collectors.toSet());
         }
         return ids;
