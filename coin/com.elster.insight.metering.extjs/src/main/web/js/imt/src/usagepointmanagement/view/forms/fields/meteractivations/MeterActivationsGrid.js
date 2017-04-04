@@ -42,7 +42,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.meteractivations.MeterAct
                     xtype: 'combo',
                     width: 270,
                     fieldType: 'meterCombo',
-                    // multiSelect: false,
+                    multiSelect: false,
                     emptyText: Uni.I18n.translate('usagepoint.setMeters.strtTyping', 'IMT', 'Start typing to select a meter'),
                     store: 'Imt.usagepointsetup.store.Devices',
                     displayField: 'name',
@@ -88,10 +88,9 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.meteractivations.MeterAct
             me.columns.push(
                 {
                     xtype: 'uni-actioncolumn-remove',
-                    // width: 120,
-                    iconCls: 'icon-cancel-circle2 remove-button-grid',
-                    tooltip: Uni.I18n.translate('general.UnlinkMeter', 'UNI', 'Unlink meter'),
-                    handler: function (grid, rowIndex, ssdd, sddd, ressc, rec) {
+                    iconCls: 'icon-cancel-circle2 unlink-miter-grid',
+                    tooltip: Uni.I18n.translate('general.UnlinkMeter', 'IMT', 'Unlink meter'),
+                    handler: function (grid, rowIndex) {
                         var colNum = 1,
                             cellSelector = grid.getCellSelector(grid.up('grid').columns[colNum]),
                             domEl = grid.getEl().query(cellSelector)[colNum],
