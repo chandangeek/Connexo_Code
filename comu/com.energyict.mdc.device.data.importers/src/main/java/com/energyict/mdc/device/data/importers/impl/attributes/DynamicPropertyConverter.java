@@ -22,8 +22,7 @@ import com.energyict.mdc.dynamic.HexStringFactory;
 import com.energyict.mdc.dynamic.LargeStringFactory;
 import com.energyict.mdc.dynamic.LocalTimeFactory;
 import com.energyict.mdc.dynamic.ObisCodeValueFactory;
-import com.elster.jupiter.properties.TimeDurationValueFactory;
-import com.energyict.mdc.dynamic.TimeOfDayFactory;
+import com.energyict.mdc.dynamic.TemporalAmountValueFactory;
 
 import org.joda.time.DateTimeConstants;
 
