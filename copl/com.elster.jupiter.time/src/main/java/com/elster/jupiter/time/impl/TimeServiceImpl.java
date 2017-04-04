@@ -333,6 +333,7 @@ public final class TimeServiceImpl implements TimeService, TranslationKeyProvide
     public List<TranslationKey> getKeys() {
         return Stream.of(
                 Arrays.stream(Labels.values()),
+                Arrays.stream(TimeDurationUnitTranslationKeys.values()),
                 Arrays.stream(DefaultRelativePeriodDefinition.RelativePeriodTranslationKey.values()),
                 Arrays.stream(TranslationKeys.values()),
                 Arrays.stream(Privileges.values()))

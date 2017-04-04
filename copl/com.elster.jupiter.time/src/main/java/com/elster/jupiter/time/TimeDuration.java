@@ -5,7 +5,9 @@
 package com.elster.jupiter.time;
 
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.time.impl.MessageSeeds;
+import com.elster.jupiter.time.impl.TimeDurationUnitTranslationKeys;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.io.Serializable;
@@ -370,6 +372,12 @@ public class TimeDuration implements Comparable<TimeDuration>, Serializable {
      */
     public static String getTimeUnitDescription(int timeUnitCode) {
         return TimeUnit.forCode(timeUnitCode).description;
+    }
+
+    public static String getLocalizedTimeUnitDescription(String description, Thesaurus thesaurus) {
+        return thesaurus.getString(
+                TimeDurationUnitTranslationKeys.Constants.DESCRIPTION_TRANSLATION_KEY_PREFIX + description,
+                description);
     }
 
     public static boolean isValidTimeUnitDescription(String timeUnit) {
