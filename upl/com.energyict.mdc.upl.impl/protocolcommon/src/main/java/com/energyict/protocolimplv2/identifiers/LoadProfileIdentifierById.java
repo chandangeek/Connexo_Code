@@ -2,17 +2,20 @@ package com.energyict.protocolimplv2.identifiers;
 
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
+
 import com.energyict.obis.ObisCode;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 /**
- * Implementation of a {@link LoadProfileIdentifier} that uniquely identifies a {@link com.energyict.mdw.core.LoadProfile}
- * based on the id of the LoadProfile
+ * Implementation of a {@link LoadProfileIdentifier} that uniquely identifies
+ * a {@link com.energyict.mdc.upl.meterdata.LoadProfile}
+ * based on the id of the LoadProfile.
  *
  * @author sva
  * @since 09/07/2014 - 13:54
@@ -24,10 +27,9 @@ public class LoadProfileIdentifierById implements LoadProfileIdentifier {
     private final ObisCode profileObisCode;
     private final DeviceIdentifier deviceIdentifier;
 
-    /**
-     * Constructor only to be used by JSON (de)marshalling
-     */
-    private LoadProfileIdentifierById() {
+    // For JSON serialization only
+    @SuppressWarnings("unused")
+    public LoadProfileIdentifierById() {
         this.loadProfileId = 0;
         this.profileObisCode = null;
         this.deviceIdentifier = null;
@@ -57,6 +59,23 @@ public class LoadProfileIdentifierById implements LoadProfileIdentifier {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        LoadProfileIdentifierById that = (LoadProfileIdentifierById) o;
+        return loadProfileId == that.loadProfileId;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(this.loadProfileId);
+    }
+
+    @Override
     public com.energyict.mdc.upl.meterdata.identifiers.Introspector forIntrospection() {
         return new Introspector();
     }
@@ -74,15 +93,20 @@ public class LoadProfileIdentifierById implements LoadProfileIdentifier {
 
         @Override
         public Set<String> getRoles() {
-            return new HashSet<>(Collections.singletonList("databaseValue"));
+            return new HashSet<>(Arrays.asList("databaseValue", "device", "obisCode"));
         }
 
         @Override
         public Object getValue(String role) {
-            if ("databaseValue".equals(role)) {
-                return loadProfileId;
-            } else {
-                throw new IllegalArgumentException("Role '" + role + "' is not supported by identifier of type " + getTypeName());
+            switch (role) {
+                case "databaseValue":
+                    return loadProfileId;
+                case "device":
+                    return getDeviceIdentifier();
+                case "obisCode":
+                    return getProfileObisCode();
+                default:
+                    throw new IllegalArgumentException("Role '" + role + "' is not supported by identifier of type " + getTypeName());
             }
         }
     }

@@ -27,9 +27,8 @@ public class PrimeRegisterForChannelIdentifier implements RegisterIdentifier {
     private final int channelIndex;
     private final DeviceIdentifier deviceIdentifier;
 
-    /**
-     * Constructor only to be used by JSON (de)marshalling
-     */
+    // For JSON serialization only
+    @SuppressWarnings("unused")
     private PrimeRegisterForChannelIdentifier() {
         this.registerObisCode = null;
         this.channelIndex = 0;

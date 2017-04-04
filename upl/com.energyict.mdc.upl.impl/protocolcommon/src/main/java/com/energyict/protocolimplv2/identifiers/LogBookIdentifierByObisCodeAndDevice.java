@@ -9,6 +9,7 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -25,14 +26,13 @@ public class LogBookIdentifierByObisCodeAndDevice implements LogBookIdentifier {
     private DeviceIdentifier deviceIdentifier;
     private ObisCode logBookObisCode;
 
-    /**
-     * Constructor only to be used by JSON (de)marshalling
-     */
+    // For JSON serialization only
     private LogBookIdentifierByObisCodeAndDevice() {
+        super();
     }
 
     public LogBookIdentifierByObisCodeAndDevice(DeviceIdentifier deviceIdentifier, ObisCode logBookObisCode) {
-        super();
+        this();
         this.deviceIdentifier = deviceIdentifier;
         this.logBookObisCode = logBookObisCode;
     }
@@ -52,11 +52,7 @@ public class LogBookIdentifierByObisCodeAndDevice implements LogBookIdentifier {
         return new Introspector();
     }
 
-    /**
-     * Check if the given {@link Object} is equal to this {@link LogBookIdentifierByObisCodeAndDevice}. <BR>
-     * WARNING: if comparing with a {@link LogBookIdentifier} of another type (not of type {@link LogBookIdentifierByObisCodeAndDevice}),
-     * this check will always return false, regardless of the fact they can both point to the same {@link com.energyict.mdw.core.LogBook}!
-     */
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -65,14 +61,13 @@ public class LogBookIdentifierByObisCodeAndDevice implements LogBookIdentifier {
             return false;
         }
         LogBookIdentifierByObisCodeAndDevice otherIdentifier = (LogBookIdentifierByObisCodeAndDevice) o;
-        return (this.deviceIdentifier.toString().equals(otherIdentifier.getDeviceIdentifier().toString()) && logBookObisCode.equals(otherIdentifier.getLogBookObisCode()));
+        return this.deviceIdentifier.equals(otherIdentifier.getDeviceIdentifier())
+            && logBookObisCode.equals(otherIdentifier.getLogBookObisCode());
     }
 
     @Override
     public int hashCode() {
-        int result = deviceIdentifier.hashCode();
-        result = 31 * result + logBookObisCode.hashCode();
-        return result;
+        return Objects.hash(deviceIdentifier, logBookObisCode);
     }
 
     @Override
