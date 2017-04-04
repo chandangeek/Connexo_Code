@@ -21,7 +21,7 @@ public class MaxSys extends com.energyict.protocolimpl.landisgyr.maxsys2510.MaxS
 
     @Override
     public String getProtocolDescription() {
-        return "Landis&Gyr MaxSys 2510 SMD";
+        return "Landis&Gyr MaxSys 2510 SMD US";
     }
 
     @Override
