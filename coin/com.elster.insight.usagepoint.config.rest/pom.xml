@@ -24,6 +24,10 @@
     <dependencies>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
+            <artifactId>calendar</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
             <artifactId>orm</artifactId>
         </dependency>
         <dependency>
@@ -155,11 +159,6 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>kpi</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>calendar</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
