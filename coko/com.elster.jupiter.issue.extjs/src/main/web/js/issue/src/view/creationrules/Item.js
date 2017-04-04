@@ -62,18 +62,26 @@ Ext.define('Isu.view.creationrules.Item', {
                             if (value && value.number) {
                                 switch (value.type) {
                                     case 'days':
-                                        result =   Uni.I18n.translatePlural('general.timeUnit.days', value.number, 'ISU', '{0} days', '{0} day', '{0} days');
+                                        result = Uni.I18n.translatePlural('general.timeUnit.days', value.number, 'ISU', '{0} days', '{0} day', '{0} days');
                                         break;
                                     case 'weeks':
-                                        result =   Uni.I18n.translatePlural('general.timeUnit.weeks', value.number, 'ISU', '{0} weeks', '{0} week', '{0} weeks');
+                                        result = Uni.I18n.translatePlural('general.timeUnit.weeks', value.number, 'ISU', '{0} weeks', '{0} week', '{0} weeks');
                                         break;
                                     case 'months':
-                                        result =   Uni.I18n.translatePlural('general.timeUnit.months', value.number, 'ISU', '{0} months', '{0} month', '{0} months');
+                                        result = Uni.I18n.translatePlural('general.timeUnit.months', value.number, 'ISU', '{0} months', '{0} month', '{0} months');
                                         break;
                                 }
                             }
 
                             return result;
+                        }
+                    },
+                    {
+                        fieldLabel: Uni.I18n.translate('general.title.status', 'ISU', 'Status'),
+                        name: 'active',
+                        renderer: function (value) {
+                            return value ? Uni.I18n.translate('administration.issueCreationRules.active', 'ISU', 'Active')
+                                : Uni.I18n.translate('administration.issueCreationRules.inactive', 'ISU', 'Inactive');
                         }
                     }
                 ]

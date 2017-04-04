@@ -85,6 +85,7 @@ Ext.define('Isu.view.issues.Grid', {
             {
                 itemId: 'action',
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 privileges: !!Isu.privileges.Issue.adminDevice,
                 menu: {
                     xtype: 'issues-action-menu',
