@@ -99,9 +99,11 @@ public class CalculatedReadingRecordTest {
         Instant expectedIntervalStart = JAN_1_2016_UTC.minus(Duration.ofMinutes(15));
         when(this.resultSet.getTimestamp(3)).thenReturn(jan1st2016);
         when(this.resultSet.getLong(4)).thenReturn(JAN_1_2016_UTC.toEpochMilli());
-        when(this.resultSet.getLong(5)).thenReturn(0L);
-        when(this.resultSet.getLong(6)).thenReturn(1L);
-        when(this.resultSet.getString(7)).thenReturn("1001");
+        Instant expectedReportedTime = JAN_1_2016_UTC.minusSeconds(60);
+        when(this.resultSet.getLong(5)).thenReturn(expectedReportedTime.toEpochMilli());
+        when(this.resultSet.getLong(6)).thenReturn(0L);
+        when(this.resultSet.getLong(7)).thenReturn(1L);
+        when(this.resultSet.getString(8)).thenReturn("1001");
         ProcessStatus expectedProcessStatus = new ProcessStatus(0);
         MeterActivation meterActivation = mock(MeterActivation.class);
         ChannelsContainer channelsContainer = mock(ChannelsContainer.class);
@@ -117,6 +119,7 @@ public class CalculatedReadingRecordTest {
 
         // Asserts
         assertThat(testInstance.getTimeStamp()).isEqualTo(JAN_1_2016_UTC);
+        assertThat(testInstance.getReportedDateTime()).isEqualTo(expectedReportedTime);
         assertThat(testInstance.getReadingType()).isEqualTo(fifteenMinutesNetConsumption);
         assertThat(testInstance.getReadingTypes()).hasSize(1);
         assertThat(testInstance.getValue()).isEqualTo(expectedValue);
@@ -224,6 +227,7 @@ public class CalculatedReadingRecordTest {
         assertThat(merged.getReadingType()).isEqualTo(readingType);
         assertThat(merged.getValue()).isEqualTo(BigDecimal.valueOf(100L));
         assertThat(merged.getTimeStamp()).isEqualTo(moreRecent);
+        assertThat(merged.getReportedDateTime()).isEqualTo(moreRecent);
         assertThat(merged.getProcessStatus()).isEqualTo(ProcessStatus.of(ProcessStatus.Flag.SUSPECT));
         assertThat(merged.getCount()).isEqualTo(200L);
         assertThat(merged.getSourceChannelSet().getSourceChannelIds()).containsOnly(1001L, 1002L);
@@ -254,6 +258,7 @@ public class CalculatedReadingRecordTest {
         assertThat(merged.getReadingType()).isEqualTo(readingType);
         assertThat(merged.getValue()).isEqualTo(BigDecimal.valueOf(100L));
         assertThat(merged.getTimeStamp()).isEqualTo(recent);
+        assertThat(merged.getReportedDateTime()).isEqualTo(recent);
         assertThat(merged.getProcessStatus()).isEqualTo(ProcessStatus.of(ProcessStatus.Flag.SUSPECT));  // 4 (suspect) = max(4, 3)
         assertThat(merged.getCount()).isEqualTo(200L);
         assertThat(merged.getSourceChannelSet().getSourceChannelIds()).containsOnly(1001L);
@@ -296,16 +301,21 @@ public class CalculatedReadingRecordTest {
         return this.newTestInstance(readingTypeMRID, 0, 0, 0, Instant.now(), "1");
     }
 
-    private CalculatedReadingRecordImpl newTestInstance(String readingTypeMRID, long value, long readingQuality, long count, Instant now, String sourceChannels) throws SQLException {
+    private CalculatedReadingRecordImpl newTestInstance(String readingTypeMRID, long value, long readingQuality, long count, Instant timeStamp, String sourceChannels) throws SQLException {
+        return newTestInstance(readingTypeMRID, value, readingQuality, count, timeStamp, timeStamp, sourceChannels);
+    }
+
+    private CalculatedReadingRecordImpl newTestInstance(String readingTypeMRID, long value, long readingQuality, long count, Instant timeStamp, Instant recordTimeStamp, String sourceChannels) throws SQLException {
         ResultSet resultSet = mock(ResultSet.class);
         when(resultSet.next()).thenReturn(true, false);
         when(resultSet.getString(1)).thenReturn(readingTypeMRID);
         when(resultSet.getBigDecimal(2)).thenReturn(BigDecimal.valueOf(value));
-        when(resultSet.getTimestamp(3)).thenReturn(Timestamp.from(now));
-        when(resultSet.getLong(4)).thenReturn(now.toEpochMilli());
-        when(resultSet.getLong(5)).thenReturn(readingQuality);
-        when(resultSet.getLong(6)).thenReturn(count);
-        when(resultSet.getString(7)).thenReturn(sourceChannels);
+        when(resultSet.getTimestamp(3)).thenReturn(Timestamp.from(timeStamp));
+        when(resultSet.getLong(4)).thenReturn(timeStamp.toEpochMilli());
+        when(resultSet.getLong(5)).thenReturn(recordTimeStamp.toEpochMilli());
+        when(resultSet.getLong(6)).thenReturn(readingQuality);
+        when(resultSet.getLong(7)).thenReturn(count);
+        when(resultSet.getString(8)).thenReturn(sourceChannels);
         return newTestInstance().init(resultSet, deliverablesPerMeterActivation);
     }
 }

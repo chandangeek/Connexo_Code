@@ -125,12 +125,13 @@ public class CalculatedReadingRecordFactoryImplTest {
         Timestamp ts1 = Timestamp.from(JAN_1_2016_UTC);
         when(this.resultSet.getTimestamp(3)).thenReturn(ts1);
         when(this.resultSet.getLong(4)).thenReturn(ts1.getTime());
-        when(this.resultSet.getLong(5)).thenReturn(1L);
+        when(this.resultSet.getLong(5)).thenReturn(ts1.getTime());
+        when(this.resultSet.getLong(6)).thenReturn(1L);
         when(this.resultSet.getString(7)).thenReturn("1001");
 
         long expectedCountFor15minRecord = 1L;
         long expectedCountForMonthlyRecord = 1L;
-        when(this.resultSet.getLong(6)).thenReturn(expectedCountFor15minRecord, expectedCountForMonthlyRecord);
+        when(this.resultSet.getLong(7)).thenReturn(expectedCountFor15minRecord, expectedCountForMonthlyRecord);
 
         // Business method
         Map<ReadingType, List<CalculatedReadingRecordImpl>> recordsByReadingType = this.testInstance().consume(this.resultSet, deliverablesPerMeterActivation);
@@ -181,9 +182,10 @@ public class CalculatedReadingRecordFactoryImplTest {
         Timestamp ts2 = Timestamp.from(JAN_1_2016_UTC.plus(Duration.ofMinutes(15)));
         when(this.resultSet.getTimestamp(3)).thenReturn(ts1, ts2);
         when(this.resultSet.getLong(4)).thenReturn(ts1.getTime(), ts2.getTime());
-        when(this.resultSet.getLong(5)).thenReturn(4L, 3L);
-        when(this.resultSet.getLong(6)).thenReturn(1L, 1L);
-        when(this.resultSet.getString(7)).thenReturn("1001");
+        when(this.resultSet.getLong(5)).thenReturn(ts1.getTime(), ts2.getTime());
+        when(this.resultSet.getLong(6)).thenReturn(4L, 3L);
+        when(this.resultSet.getLong(7)).thenReturn(1L, 1L);
+        when(this.resultSet.getString(8)).thenReturn("1001");
 
         // Business method
         Map<ReadingType, List<CalculatedReadingRecordImpl>> recordsByReadingType = this.testInstance().consume(this.resultSet, deliverablesPerMeterActivation);
