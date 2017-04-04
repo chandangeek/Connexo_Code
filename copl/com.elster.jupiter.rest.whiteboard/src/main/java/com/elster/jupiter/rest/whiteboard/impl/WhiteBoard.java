@@ -16,7 +16,6 @@ import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.FormValidationExceptionMapper;
 import com.elster.jupiter.rest.util.GenericExceptionInfo;
 import com.elster.jupiter.rest.util.GenericExceptionMapper;
-import com.elster.jupiter.rest.util.JsonMappingExceptionMapper;
 import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
 import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
 import com.elster.jupiter.rest.util.OptimisticLockExceptionMapper;
@@ -173,7 +172,6 @@ public class WhiteBoard {
         secureConfig.register(LocalizedExceptionMapper.class);
         secureConfig.register(ConstraintViolationExceptionMapper.class);
         secureConfig.register(FormValidationExceptionMapper.class);
-        secureConfig.register(JsonMappingExceptionMapper.class);
         secureConfig.register(OptimisticLockExceptionMapper.class);
         secureConfig.register(TransactionWrapper.class);
         secureConfig.register(ConcurrentModificationExceptionMapper.class);
