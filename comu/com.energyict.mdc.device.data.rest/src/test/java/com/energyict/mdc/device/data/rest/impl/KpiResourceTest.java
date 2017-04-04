@@ -8,7 +8,7 @@ import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.common.rest.TimeDurationInfo;
+import com.elster.jupiter.time.rest.TimeDurationInfo;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.device.data.kpi.rest.DataCollectionKpiInfo;

@@ -34,7 +34,7 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.yellowfin.groups.YellowfinGroupsService;
-import com.energyict.mdc.common.rest.TimeDurationInfo;
+import com.elster.jupiter.time.rest.TimeDurationInfo;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
