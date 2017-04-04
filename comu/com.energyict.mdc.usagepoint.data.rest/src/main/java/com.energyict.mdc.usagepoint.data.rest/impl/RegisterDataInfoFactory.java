@@ -140,6 +140,7 @@ public class RegisterDataInfoFactory {
             registerDataInfo.isCumulative = isCumulative;
             registerDataInfo.hasEvent = hasEvent;
             registerDataInfo.isBilling = isBilling;
+            registerDataInfo.registerType = this;
             this.registerDataInfo = registerDataInfo;
             return this;
         }

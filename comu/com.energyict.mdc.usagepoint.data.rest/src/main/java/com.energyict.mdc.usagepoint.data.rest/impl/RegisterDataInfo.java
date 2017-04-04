@@ -23,6 +23,8 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class RegisterDataInfo {
 
+    public RegisterDataInfoFactory.RegisterType registerType;
+
     public boolean isCumulative;
 
     public boolean hasEvent;
