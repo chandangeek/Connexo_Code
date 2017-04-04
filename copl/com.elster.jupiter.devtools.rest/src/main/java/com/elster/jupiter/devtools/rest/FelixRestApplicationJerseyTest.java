@@ -14,7 +14,6 @@ import com.elster.jupiter.rest.util.ConcurrentModificationExceptionMapper;
 import com.elster.jupiter.rest.util.ConcurrentModificationInfo;
 import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
-import com.elster.jupiter.rest.util.JsonMappingExceptionMapper;
 import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
 import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
 import com.elster.jupiter.rest.util.PROPFIND;
@@ -60,47 +59,47 @@ import static org.mockito.Mockito.when;
 /**
  * This can serve as base test class for all our REST applications.
  * It makes setup of the test framework very easy
- * <p>
+ * <p/>
  * ONLY FOR TESTING PURPOSES -- NO PRODUCTION USAGE ALLOWED
- *
+ * <p/>
  * <pre>
-
-                              @@@@@@@@@;
-                            @@@@@@@@@@@@@:
-                           @@@@@@@@@@@@@@@#
-                          @@@@@@@@@@@@@@@@@
-                          @@@@@@@@@@@@@@@@@#
-                         .@@@@@@@@@@@@@@@@@@
-                         :@@@@@@@@@@@@@@@@@@
-                         `@@@@@@@@@@@@@@@@@@
-                          @@@   '@@@@   @@@,
-                          @@'    @@@     @@
-                          @@+    @@@     @@
-                           @@   @@@@@   @@
-                           @@@@@@@ @@@@@@@
-                           :@@@@@   @@@@@@
-                            @@@@@`, @@@@@
-                               @@@@@@@`
-                             .@ @@@@@#'+
-                              @+      @
-                              @@@#''@@@
-                                @@@@@;
-                                 @@@`        #
-                       @@#                  @@@
-                      ,@@@@                @@@@
-                      @@@@@@@#          @@@@@@@`
-                      @@@;@@@@@@,    #@@@@@:@@@@
-                             @@@@@@@@@@@
-                               ,@@@@@;
-                               @@@@@@@;
-                             @@@@.  @@@@`
-                           @@@@'      @@@@
-                      ,@@@@@@@         +@@@@@@
-                      @@@@@@+            @@@@@@@
-                      @@@@@@             @@@@@@`
-                        +@@;              @@@
-                          ;                @`
- </pre>
+ *
+ * @@@@@@@@@;
+ * @@@@@@@@@@@@@:
+ * @@@@@@@@@@@@@@@#
+ * @@@@@@@@@@@@@@@@@
+ * @@@@@@@@@@@@@@@@@#
+ * .@@@@@@@@@@@@@@@@@@
+ * :@@@@@@@@@@@@@@@@@@
+ * `@@@@@@@@@@@@@@@@@@
+ * @@@   '@@@@   @@@,
+ * @@'    @@@     @@
+ * @@+    @@@     @@
+ * @@   @@@@@   @@
+ * @@@@@@@ @@@@@@@
+ * :@@@@@   @@@@@@
+ * @@@@@`, @@@@@
+ * @@@@@@@`
+ * .@ @@@@@#'+
+ * @+      @
+ * @@@#''@@@
+ * @@@@@;
+ * @@@` #
+ * @@#                  @@@
+ * ,@@@@                @@@@
+ * @@@@@@@#          @@@@@@@`
+ * @@@;@@@@@@, #@@@@@:@@@@
+ * @@@@@@@@@@@
+ * ,@@@@@;
+ * @@@@@@@;
+ * @@@@.  @@@@`
+ * @@@@'      @@@@
+ * ,@@@@@@@         +@@@@@@
+ * @@@@@@+            @@@@@@@
+ * @@@@@@             @@@@@@`
+ * +@@;              @@@
+ * ;                @`
+ * </pre>
  */
 public abstract class FelixRestApplicationJerseyTest extends JerseyTest {
 
@@ -115,14 +114,15 @@ public abstract class FelixRestApplicationJerseyTest extends JerseyTest {
 
     public void setupMocks() {
         when(nlsService.getThesaurus(anyString(), anyObject())).thenReturn(thesaurus);
-        when(thesaurus.getString(anyString(), anyString())).thenAnswer(invocation->this.getTranslationByKey((String)invocation.getArguments()[0], (String)invocation.getArguments()[1]));
+        when(thesaurus.getString(anyString(), anyString())).thenAnswer(invocation -> this.getTranslationByKey((String) invocation.getArguments()[0], (String) invocation.getArguments()[1]));
         when(thesaurus.getFormat(any(TranslationKey.class)))
                 .thenAnswer(invocation -> new SimpleNlsMessageFormat((TranslationKey) invocation.getArguments()[0]));
         when(thesaurus.getFormat(any(MessageSeed.class)))
                 .thenAnswer(invocation -> new SimpleNlsMessageFormat((MessageSeed) invocation.getArguments()[0]));
         when(thesaurus.getSimpleFormat(any(MessageSeed.class)))
                 .thenAnswer(invocation -> new SimpleNlsMessageFormat((MessageSeed) invocation.getArguments()[0]));
-        when(thesaurus.interpolate(any(String.class), any(MessageInterpolator.Context.class))).thenAnswer(invocation -> getTranslationByKey(((String) invocation.getArguments()[0]).substring(1, ((String) invocation.getArguments()[0]).length()-1), "xxx"));
+        when(thesaurus.interpolate(any(String.class), any(MessageInterpolator.Context.class))).thenAnswer(invocation -> getTranslationByKey(((String) invocation.getArguments()[0]).substring(1, ((String) invocation
+                .getArguments()[0]).length() - 1), "xxx"));
         when(thesaurus.join(any())).thenReturn(thesaurus);
         when(transactionService.getContext()).thenReturn(transactionContext);
 
@@ -166,7 +166,6 @@ public abstract class FelixRestApplicationJerseyTest extends JerseyTest {
         resourceConfig.register(RestExceptionMapper.class);
         resourceConfig.register(LocalizedExceptionMapper.class);
         resourceConfig.register(ConstraintViolationExceptionMapper.class);
-        resourceConfig.register(JsonMappingExceptionMapper.class);
         resourceConfig.register(RestValidationExceptionMapper.class);
         resourceConfig.register(ConcurrentModificationExceptionMapper.class);
         resourceConfig.register(TransactionWrapper.class);
