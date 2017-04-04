@@ -1,6 +1,7 @@
 package com.energyict.mdc.upl.meterdata.identifiers;
 
 import com.energyict.mdc.upl.meterdata.LogBook;
+
 import com.energyict.obis.ObisCode;
 
 import javax.xml.bind.annotation.XmlAttribute;
@@ -32,5 +33,35 @@ public interface LogBookIdentifier extends Identifier {
     ObisCode getLogBookObisCode();
 
     DeviceIdentifier getDeviceIdentifier();
+
+    /**
+     * Start of fluent API to check if the specified LogBookIdentifier
+     * represents the same LogBook as another LogBookIdentifier.
+     * We avoid implementing this on the LogBookIdentifier implementation
+     * classes because returning <code>true</code> in equals method
+     * requires that both objects return the same hash code
+     * but different implementations may use completely different
+     * LogBook properties to calculate the hash.
+     *
+     * @param subject The subject of the equals check
+     * @return <code>true</code> iff the subject represents the same LogBook
+     */
+    static LogBookIdentityChecker is(LogBookIdentifier subject) {
+        return new LogBookIdentityChecker(subject);
+    }
+
+    class LogBookIdentityChecker {
+        private final LogBookIdentifier subject;
+
+        private LogBookIdentityChecker(LogBookIdentifier subject) {
+            this.subject = subject;
+        }
+
+        public boolean equalTo(LogBookIdentifier other) {
+            return DeviceIdentifier.is(this.subject.getDeviceIdentifier()).equalTo(other.getDeviceIdentifier())
+                && this.subject.getLogBookObisCode().equals(other.getLogBookObisCode());
+        }
+
+    }
 
 }

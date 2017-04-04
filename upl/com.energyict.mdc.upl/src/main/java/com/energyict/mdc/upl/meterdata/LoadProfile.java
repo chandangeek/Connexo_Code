@@ -1,5 +1,9 @@
 package com.energyict.mdc.upl.meterdata;
 
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+
+import com.energyict.obis.ObisCode;
+
 import java.util.Date;
 
 /**
@@ -17,5 +21,9 @@ public interface LoadProfile {
      * @return end time of the last interval.
      */
     Date getLastReading();
+
+    DeviceIdentifier getDeviceIdentifier();
+
+    ObisCode getObisCode();
 
 }

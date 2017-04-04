@@ -32,7 +32,7 @@ public interface CollectedMessageList extends CollectedData {
     default List<CollectedMessage> getCollectedMessages(MessageIdentifier messageIdentifier) {
         return getCollectedMessages()
                 .stream()
-                .filter(each -> messageIdentifier.equals(each.getMessageIdentifier()))
+                .filter(each -> MessageIdentifier.is(messageIdentifier).equalTo(each.getMessageIdentifier()))
                 .collect(Collectors.toList());
     }
 

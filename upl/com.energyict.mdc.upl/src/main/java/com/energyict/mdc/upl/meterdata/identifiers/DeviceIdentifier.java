@@ -21,4 +21,56 @@ package com.energyict.mdc.upl.meterdata.identifiers;
  * @since 2012-10-12 (10:56)
  */
 public interface DeviceIdentifier extends Identifier {
+
+    boolean equals(Object other);
+
+    /**
+     * Start of fluent API to check if the specified DeviceIdentifier
+     * represents the same Device as another DeviceIdentifier.
+     * We avoid implementing this on the DeviceIdentifier implementation
+     * classes because returning <code>true</code> in equals method
+     * requires that both objects return the same hash code
+     * but different implementations may use completely different
+     * device properties to calculate the hash.
+     *
+     * @param subject The subject of the equals check
+     * @return <code>true</code> iff the subject represents the same Device
+     */
+    static DeviceIdentityChecker is(DeviceIdentifier subject) {
+        return new DeviceIdentityChecker(subject);
+    }
+
+    class DeviceIdentityChecker {
+        private final DeviceIdentifier subject;
+
+        private DeviceIdentityChecker(DeviceIdentifier subject) {
+            this.subject = subject;
+        }
+
+        public boolean equalTo(DeviceIdentifier other) {
+            Introspector subjectIntrospector = this.subject.forIntrospection();
+            Introspector otherIntrospector = other.forIntrospection();
+            switch (otherIntrospector.getTypeName()) {
+                case "mRID": {
+                }
+                case "Actual": {
+                }
+                case "DatabaseId": {
+                }
+                case "CallHomeId": {
+                }
+                case "PhoneNumber": {
+                }
+                case "SerialNumber": {
+                }
+                case "LikeSerialNumber": {
+                }
+                default: {
+                    return this.subject.equals(other);
+                }
+            }
+        }
+
+    }
+
 }

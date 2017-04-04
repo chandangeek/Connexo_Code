@@ -1,6 +1,7 @@
 package com.energyict.mdc.upl.meterdata.identifiers;
 
 import java.util.Set;
+import java.util.stream.Stream;
 
 /**
  * Introspects identifier type information.
@@ -39,5 +40,20 @@ public interface Introspector {
      * @throws IllegalArgumentException Thrown when the role is not supported by the identifier that is being introspected
      */
     Object getValue(String role);
+
+    /**
+     * Tests if the values of the roles of this and the other Introspector are equals.
+     *
+     * @param other The other Introspector
+     * @param roles The roles
+     * @return <code>true</code> iff the values of all the roles of this and the other Introspector are equals
+     */
+    default boolean roleEqualsTo(Introspector other, String... roles) {
+        try {
+            return Stream.of(roles).allMatch(role -> this.getValue(role).equals(other.getValue(role)));
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
+    }
 
 }
