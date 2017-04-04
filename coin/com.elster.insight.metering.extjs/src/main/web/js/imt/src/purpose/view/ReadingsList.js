@@ -101,7 +101,6 @@ Ext.define('Imt.purpose.view.ReadingsList', {
                     itemId: 'purpose-readings-data-action-menu'
                 },
                 isDisabled: function(grid, rowIndex, colIndex, clickedItem, record) {
-                    console.log(record.get('partOfTimeOfUseGap'));
                     return record.get('partOfTimeOfUseGap');
                 }
             }

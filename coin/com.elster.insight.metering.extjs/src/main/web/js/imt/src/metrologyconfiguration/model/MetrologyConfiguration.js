@@ -61,7 +61,6 @@ Ext.define('Imt.metrologyconfiguration.model.MetrologyConfiguration', {
 
         store.loadRawData(data);
         store.totalCount = data.length;
-
         return store;
     }
 });
