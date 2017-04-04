@@ -47,9 +47,6 @@ Ext.define('Uni.property.view.property.Assign', {
                             render: function () {
                                 this.store.load();
                             },
-                            change1: function (combo, newValue) {
-                                this.ownerCt.down('#cbo-user-assignee').fireEvent('workgroupChanged', newValue);
-                            },
                             select: function (combo, newValue) {
                                 this.ownerCt.down('#cbo-user-assignee').fireEvent('workgroupChanged', newValue[0].get('id'));
                             }
