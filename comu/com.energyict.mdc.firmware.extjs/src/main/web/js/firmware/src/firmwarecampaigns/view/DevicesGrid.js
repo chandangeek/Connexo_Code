@@ -80,6 +80,7 @@ Ext.define('Fwc.firmwarecampaigns.view.DevicesGrid', {
             },
             {
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 privileges: Fwc.privileges.FirmwareCampaign.administrate,
                 isDisabled: function(view, rowIndex, colIndex, item, record) {
                     if (!me.campaignIsOngoing) {
