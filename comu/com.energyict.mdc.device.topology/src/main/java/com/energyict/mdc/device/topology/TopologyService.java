@@ -298,6 +298,13 @@ public interface TopologyService {
 
     /**
      * @param dataLoggerChannel the channel of the datalogger
+     * @return an Optional channel of the slave device to which the data logger channel is linked now. Optional<empty> if the $
+     * dataLogger channel is not linked
+     */
+    Optional<Channel> getSlaveChannel(Channel dataLoggerChannel);
+
+    /**
+     * @param dataLoggerChannel the channel of the datalogger
      * @param when Time at which the link should be effective
      * @return an Optional channel of the slave device to which the data logger channel is linked. Optional<empty> if the $
      * dataLogger channel is not linked

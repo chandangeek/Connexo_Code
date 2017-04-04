@@ -479,6 +479,11 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
     }
 
     @Override
+    public Optional<Channel> getSlaveChannel(Channel dataLoggerChannel) {
+        return this.getSlaveChannel(dataLoggerChannel, clock.instant());
+    }
+
+    @Override
     public Optional<Channel> getSlaveChannel(Channel dataLoggerChannel, Instant when) {
         return meteringChannelProvider.getMeteringChannel(dataLoggerChannel)
                 .flatMap(meteringChannel -> findDataLoggerChannelUsage(meteringChannel, when))
