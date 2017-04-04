@@ -141,8 +141,7 @@ public class MetrologyConfigurationResource {
         Just a stub, not to break a possibility to create metrology configuration from UI
          */
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
-        UsagePointMetrologyConfiguration metrologyConfiguration = metrologyConfigurationService.newUsagePointMetrologyConfiguration(metrologyConfigurationInfo.name, serviceCategory)
-                .create();
+        UsagePointMetrologyConfiguration metrologyConfiguration = metrologyConfigurationService.newUsagePointMetrologyConfiguration(metrologyConfigurationInfo.name, serviceCategory).create();
         return Response.status(Response.Status.CREATED).entity(metrologyConfigurationInfoFactory.asDetailedInfo(metrologyConfiguration)).build();
     }
 

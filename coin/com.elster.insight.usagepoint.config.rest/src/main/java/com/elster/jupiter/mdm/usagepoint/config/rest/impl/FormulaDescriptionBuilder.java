@@ -10,6 +10,7 @@ import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.FunctionCallNode;
 import com.elster.jupiter.metering.config.NullNode;
 import com.elster.jupiter.metering.config.OperationNode;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverableNode;
 import com.elster.jupiter.metering.config.ReadingTypeRequirementNode;
 import com.elster.jupiter.nls.Thesaurus;
@@ -21,10 +22,23 @@ import com.elster.jupiter.nls.Thesaurus;
  * @since 2016-09-12 (15:18)
  */
 class FormulaDescriptionBuilder implements ExpressionNode.Visitor<String> {
+    private ReadingTypeDeliverable deliverable;
+    private final TimeOfUseFormatter timeOfUseFormatter;
     private final Thesaurus thesaurus;
 
     FormulaDescriptionBuilder(Thesaurus thesaurus) {
         this.thesaurus = thesaurus;
+        this.timeOfUseFormatter = new NoTimeOfUse();
+    }
+
+    FormulaDescriptionBuilder(ReadingTypeDeliverable deliverable, Thesaurus thesaurus) {
+        this.thesaurus = thesaurus;
+        this.deliverable = deliverable;
+        if (deliverable.getReadingType().getTou() == 0) {
+            this.timeOfUseFormatter = new NoTimeOfUse();
+        } else {
+            this.timeOfUseFormatter = new WithTimeOfUse();
+        }
     }
 
     @Override
@@ -34,7 +48,7 @@ class FormulaDescriptionBuilder implements ExpressionNode.Visitor<String> {
 
     @Override
     public String visitRequirement(ReadingTypeRequirementNode requirement) {
-        return "input(" + requirement.getReadingTypeRequirement().getName() + ")";
+        return this.timeOfUseFormatter.format("input(" + requirement.getReadingTypeRequirement().getName() + ")");
     }
 
     @Override
@@ -62,4 +76,25 @@ class FormulaDescriptionBuilder implements ExpressionNode.Visitor<String> {
         return "null";
     }
 
+    private interface TimeOfUseFormatter {
+        String format(String description);
+    }
+
+    private static class NoTimeOfUse implements TimeOfUseFormatter {
+        @Override
+        public String format(String description) {
+            return description;
+        }
+    }
+
+    private class WithTimeOfUse implements TimeOfUseFormatter {
+        @Override
+        public String format(String description) {
+            return thesaurus
+                        .getFormat(VirtualFunctionTranslationKey.TOU)
+                        .format(
+                            deliverable.getReadingType().getTou(),
+                            description);
+        }
+    }
 }
