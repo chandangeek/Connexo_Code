@@ -12,6 +12,7 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
+import com.energyict.mdc.protocol.api.exceptions.DeviceConfigurationException;
 
 import java.util.HashSet;
 import java.util.List;
@@ -108,8 +109,16 @@ public class DeviceConfigurationChangeException extends LocalizedException imple
         return new DeviceConfigurationChangeException(thesaurus, MessageSeeds.CANNOT_CHANGE_CONFIG_MULTI_ELEMENT_SUBMETER);
     }
 
-    public static DeviceConfigurationChangeException cannotChangeConfigOfMultiElementEnabledDevice(Thesaurus thesaurus) {
-        return new DeviceConfigurationChangeException(thesaurus, MessageSeeds.CANNOT_CHANGE_CONFIG_FROM_MULTI_ELEMENT_ENABLED);
+    public static DeviceConfigurationChangeException toLessChannelsProvided(Thesaurus thesaurus, Device device, DeviceConfiguration newConfiguration) {
+        return new DeviceConfigurationChangeException(thesaurus, MessageSeeds.CANNOT_CHANGE_CONFIG_TO_LESS_CHANNELS_PROVIDED);
+    }
+
+    public static DeviceConfigurationChangeException deviceConfigMustBeDataLoggerEnabled(Thesaurus thesaurus, Device device, DeviceConfiguration newConfiguration ) {
+        return new DeviceConfigurationChangeException(thesaurus, MessageSeeds.NEW_DEVICE_CONFIG_NOT_DATA_LOGGER_ENABLED, device.getName(), newConfiguration.getName());
+    }
+
+    public static DeviceConfigurationChangeException deviceConfigMustBeMultiElementEnabled(Thesaurus thesaurus, Device device, DeviceConfiguration newConfiguration ) {
+        return new DeviceConfigurationChangeException(thesaurus, MessageSeeds.NEW_DEVICE_CONFIG_NOT_MULTI_ELEMENT_ENABLED, device.getName(), newConfiguration.getName());
     }
 
     @Override

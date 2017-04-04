@@ -7,6 +7,8 @@ package com.energyict.mdc.device.data.impl;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.data.DeviceDataServices;
 
+import org.omg.CORBA.DATA_CONVERSION;
+
 import java.util.logging.Level;
 
 import static java.util.logging.Level.SEVERE;
@@ -168,8 +170,12 @@ public enum MessageSeeds implements MessageSeed {
     MULTIPLE_COMSCHEDULES_WITH_SAME_COMTASK(2142, Keys.MULTIPLE_COMSCHEDULES_WITH_SAME_COMTASK, "You can not set a ComSchedule on the device because it already contains a ComTask which is linked to another ComSchedule"),
     GROUP_IS_USED_BY_ANOTHER_GROUP(2143, Keys.GROUP_IS_USED_BY_ANOTHER_GROUP, "The group is used by another group"),
     CANNOT_CHANGE_CONFIG_MULTI_ELEMENT_SUBMETER(2144, Keys.CANNOT_CHANGE_CONFIG_MULTI_ELEMENT_SUBMETER, "You cannot change the configuration of a multi-element submeter"),
-    CANNOT_CHANGE_CONFIG_FROM_MULTI_ELEMENT_ENABLED(2145, Keys.CANNOT_CHANGE_CONFIG_FROM_MULTI_ELEMENT_ENABLED,  "You cannot change the configuration of a multi-element enabled device" )
+    CANNOT_CHANGE_CONFIG_FROM_MULTI_ELEMENT_ENABLED(2145, Keys.CANNOT_CHANGE_CONFIG_FROM_MULTI_ELEMENT_ENABLED,  "You cannot change the configuration of a multi-element enabled device" ),
+    CANNOT_CHANGE_CONFIG_TO_LESS_CHANNELS_PROVIDED(2146, Keys.CANNOT_CHANGE_CONFIG_TO_LESS_CHANNELS_PROVIDED, "The device ‘{0}’ can’t be changed to device configuration ‘{1}’ because this device configuration doesn’t provide the necessary amount of channels needed for the linked channels on this device."),
+    NEW_DEVICE_CONFIG_NOT_DATA_LOGGER_ENABLED(2147, Keys.NEW_DEVICE_CONFIG_NOT_DATA_LOGGER_ENABLED, "The device configuration ‘{1}’ must be data logger enabled: The device ‘{0}’ has channels linked to data logger slaves."),
+    NEW_DEVICE_CONFIG_NOT_MULTI_ELEMENT_ENABLED(2148, Keys.NEW_DEVICE_CONFIG_NOT_MULTI_ELEMENT_ENABLED, "The device configuration ‘{1}’ must be multi-element enabled: The device ‘{0}’ has channels linked to multi-element slave devices.")
     ;
+
     private final int number;
     private final String key;
     private final String defaultFormat;
@@ -356,5 +362,8 @@ public enum MessageSeeds implements MessageSeed {
         public static final String GROUP_IS_USED_BY_ANOTHER_GROUP = "group.is.used.by.another.group";
         public static final String CANNOT_CHANGE_CONFIG_MULTI_ELEMENT_SUBMETER = "device.config.change.not.on.multi.element.submeter";
         public static final String CANNOT_CHANGE_CONFIG_FROM_MULTI_ELEMENT_ENABLED = "device.config.change.not.from.multi.element.enabled.device";
+        public static final String CANNOT_CHANGE_CONFIG_TO_LESS_CHANNELS_PROVIDED = "device.config.change.to.less.channels.provided";
+        public static final String NEW_DEVICE_CONFIG_NOT_DATA_LOGGER_ENABLED = "device.config.not.data.logger.enabled";
+        public static final String NEW_DEVICE_CONFIG_NOT_MULTI_ELEMENT_ENABLED = "device.config.not.multi.element.enabled";
     }
 }
