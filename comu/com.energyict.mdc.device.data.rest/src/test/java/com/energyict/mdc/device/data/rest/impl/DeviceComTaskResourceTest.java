@@ -13,7 +13,6 @@ import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -27,7 +26,6 @@ import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
@@ -170,10 +168,6 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
         when(comTaskEnablement2.getSecurityPropertySet()).thenReturn(mock(SecurityPropertySet.class));
 
         when(comTaskEnablement2.getPartialConnectionTask()).thenReturn(Optional.of(mock(PartialConnectionTask.class)));
-        ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = mock(ProtocolDialectConfigurationProperties.class);
-        when(protocolDialectConfigurationProperties.getDeviceProtocolDialect()).thenReturn(mock(DeviceProtocolDialect.class));
-        when(comTaskEnablement2.getProtocolDialectConfigurationProperties()).thenReturn(protocolDialectConfigurationProperties);
-
 
         Map<String, Object> response = target("/devices/1/comtasks").request().get(Map.class);
         assertThat(response).hasSize(2).containsKey("total").containsKey("comTasks");
@@ -188,8 +182,6 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
 
         mockComTask(comTaskEnablement, 111L);
 
-        ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = mock(ProtocolDialectConfigurationProperties.class);
-        when(comTaskEnablement.getProtocolDialectConfigurationProperties()).thenReturn(protocolDialectConfigurationProperties);
         ComTaskExecutionBuilder comTaskExecutionBuilder = mock(ComTaskExecutionBuilder.class);
         when(device.newAdHocComTaskExecution(comTaskEnablement)).thenReturn(comTaskExecutionBuilder);
         when(comTaskExecutionBuilder.scheduleNow()).thenReturn(comTaskExecutionBuilder);
@@ -211,8 +203,6 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
 
         mockComTask(comTaskEnablement, 111L);
 
-        ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = mock(ProtocolDialectConfigurationProperties.class);
-        when(comTaskEnablement.getProtocolDialectConfigurationProperties()).thenReturn(protocolDialectConfigurationProperties);
         ComTaskExecutionBuilder comTaskExecutionBuilder = mock(ComTaskExecutionBuilder.class);
         when(device.newAdHocComTaskExecution(comTaskEnablement)).thenReturn(comTaskExecutionBuilder);
         when(comTaskExecutionBuilder.scheduleNow()).thenReturn(comTaskExecutionBuilder);
@@ -231,8 +221,6 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
 
         mockComTask(comTaskEnablement, 111L);
 
-        ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = mock(ProtocolDialectConfigurationProperties.class);
-        when(comTaskEnablement.getProtocolDialectConfigurationProperties()).thenReturn(protocolDialectConfigurationProperties);
         ComTaskExecutionBuilder comTaskExecutionBuilder = mock(ComTaskExecutionBuilder.class);
         when(device.newAdHocComTaskExecution(comTaskEnablement)).thenReturn(comTaskExecutionBuilder);
         when(comTaskExecutionBuilder.runNow()).thenReturn(comTaskExecutionBuilder);
@@ -254,8 +242,6 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
 
         mockComTask(comTaskEnablement, 111L);
 
-        ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = mock(ProtocolDialectConfigurationProperties.class);
-        when(comTaskEnablement.getProtocolDialectConfigurationProperties()).thenReturn(protocolDialectConfigurationProperties);
         ComTaskExecutionBuilder comTaskExecutionBuilder = mock(ComTaskExecutionBuilder.class);
         when(device.newAdHocComTaskExecution(comTaskEnablement)).thenReturn(comTaskExecutionBuilder);
         when(comTaskExecutionBuilder.runNow()).thenReturn(comTaskExecutionBuilder);
@@ -279,9 +265,6 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
 
         device.getComTaskExecutions().add(comTaskExecution);
 
-        ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = mock(ProtocolDialectConfigurationProperties.class);
-        when(comTaskEnablement.getProtocolDialectConfigurationProperties()).thenReturn(protocolDialectConfigurationProperties);
-
         ComTaskConnectionMethodInfo info = new ComTaskConnectionMethodInfo();
         info.device = getDeviceInfo();
         Response response = target("/devices/" + DEVICE_NAME + "/comtasks/111/run").request().put(Entity.json(info));
@@ -301,9 +284,6 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
 
         device.getComTaskExecutions().add(comTaskExecution);
 
-        ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = mock(ProtocolDialectConfigurationProperties.class);
-        when(comTaskEnablement.getProtocolDialectConfigurationProperties()).thenReturn(protocolDialectConfigurationProperties);
-
         ComTaskConnectionMethodInfo info = new ComTaskConnectionMethodInfo();
         Response response = target("/devices/" + DEVICE_NAME + "/comtasks/111/run").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
@@ -320,9 +300,6 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
         when(comTaskExecution.getComTask()).thenReturn(comTask);
 
         when(device.getComTaskExecutions()).thenReturn(Collections.singletonList(comTaskExecution));
-
-        ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = mock(ProtocolDialectConfigurationProperties.class);
-        when(comTaskEnablement.getProtocolDialectConfigurationProperties()).thenReturn(protocolDialectConfigurationProperties);
 
         ComTaskConnectionMethodInfo info = new ComTaskConnectionMethodInfo();
         info.device = getDeviceInfo();
@@ -369,10 +346,6 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
         when(device.getComTaskExecutionUpdater(comTaskExecution)).thenReturn(manuallyScheduledComTaskExecutionUpdater);
         when(manuallyScheduledComTaskExecutionUpdater.priority(comTaskUrgencyInfo.urgency)).thenReturn(manuallyScheduledComTaskExecutionUpdater);
 
-        ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = mock(ProtocolDialectConfigurationProperties.class);
-        when(comTaskEnablement.getProtocolDialectConfigurationProperties()).thenReturn(protocolDialectConfigurationProperties);
-
-
         Response response = target("/devices/" + DEVICE_NAME + "/comtasks/111/urgency").request().put(Entity.json(comTaskUrgencyInfo));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(manuallyScheduledComTaskExecutionUpdater, times(1)).priority(comTaskUrgencyInfo.urgency);
@@ -410,10 +383,6 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
         ComTaskExecutionUpdater scheduledComTaskExecutionUpdater = mock(ComTaskExecutionUpdater.class);
         when(device.getComTaskExecutionUpdater(scheduledComTaskExecution)).thenReturn(scheduledComTaskExecutionUpdater);
         when(scheduledComTaskExecutionUpdater.priority(comTaskUrgencyInfo.urgency)).thenReturn(scheduledComTaskExecutionUpdater);
-
-        ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = mock(ProtocolDialectConfigurationProperties.class);
-        when(comTaskEnablement.getProtocolDialectConfigurationProperties()).thenReturn(protocolDialectConfigurationProperties);
-
 
         Response response = target("/devices/" + DEVICE_NAME + "/comtasks/111/urgency").request().put(Entity.json(comTaskUrgencyInfo));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -454,10 +423,6 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
         when(device.getComTaskExecutionUpdater(comTaskExecution)).thenReturn(manuallyScheduledComTaskExecutionUpdater);
         when(manuallyScheduledComTaskExecutionUpdater.connectionTask(connectionTask)).thenReturn(manuallyScheduledComTaskExecutionUpdater);
 
-        ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = mock(ProtocolDialectConfigurationProperties.class);
-        when(comTaskEnablement.getProtocolDialectConfigurationProperties()).thenReturn(protocolDialectConfigurationProperties);
-
-
         Response response = target("/devices/" + DEVICE_NAME + "/comtasks/111/connectionmethod").request().put(Entity.json(comTaskConnectionMethodInfo));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(manuallyScheduledComTaskExecutionUpdater, times(1)).connectionTask(connectionTask);
@@ -491,10 +456,6 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
         when(device.getComTaskExecutionUpdater(scheduledComTaskExecution)).thenReturn(scheduledComTaskExecutionUpdater);
         when(scheduledComTaskExecutionUpdater.connectionTask(connectionTask)).thenReturn(scheduledComTaskExecutionUpdater);
 
-        ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = mock(ProtocolDialectConfigurationProperties.class);
-        when(comTaskEnablement.getProtocolDialectConfigurationProperties()).thenReturn(protocolDialectConfigurationProperties);
-
-
         Response response = target("/devices/" + DEVICE_NAME + "/comtasks/111/connectionmethod").request().put(Entity.json(comTaskConnectionMethodInfo));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(scheduledComTaskExecutionUpdater, times(1)).connectionTask(connectionTask);
@@ -523,10 +484,6 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
         when(device.getComTaskExecutionUpdater(comTaskExecution)).thenReturn(manuallyScheduledComTaskExecutionUpdater);
         when(manuallyScheduledComTaskExecutionUpdater.useDefaultConnectionTask(true)).thenReturn(manuallyScheduledComTaskExecutionUpdater);
 
-        ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = mock(ProtocolDialectConfigurationProperties.class);
-        when(comTaskEnablement.getProtocolDialectConfigurationProperties()).thenReturn(protocolDialectConfigurationProperties);
-
-
         Response response = target("/devices/" + DEVICE_NAME + "/comtasks/111/connectionmethod").request().put(Entity.json(comTaskConnectionMethodInfo));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(manuallyScheduledComTaskExecutionUpdater, times(1)).useDefaultConnectionTask(true);
@@ -551,54 +508,13 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
 
         when(device.getComTaskExecutions()).thenReturn(Arrays.asList(scheduledComTaskExecution));
 
-
         ComTaskExecutionUpdater scheduledComTaskExecutionUpdater = mock(ComTaskExecutionUpdater.class);
         when(device.getComTaskExecutionUpdater(scheduledComTaskExecution)).thenReturn(scheduledComTaskExecutionUpdater);
         when(scheduledComTaskExecutionUpdater.useDefaultConnectionTask(true)).thenReturn(scheduledComTaskExecutionUpdater);
 
-        ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = mock(ProtocolDialectConfigurationProperties.class);
-        when(comTaskEnablement.getProtocolDialectConfigurationProperties()).thenReturn(protocolDialectConfigurationProperties);
-
-
         Response response = target("/devices/" + DEVICE_NAME + "/comtasks/111/connectionmethod").request().put(Entity.json(comTaskConnectionMethodInfo));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(scheduledComTaskExecutionUpdater, times(1)).useDefaultConnectionTask(true);
-        verify(scheduledComTaskExecutionUpdater, times(1)).update();
-    }
-
-    @Test
-    public void testChangeProtocolDialectForMananualExecution() throws Exception {
-        ComTaskProtocolDialectInfo comTaskProtocolDialectInfo = new ComTaskProtocolDialectInfo();
-        comTaskProtocolDialectInfo.protocolDialect = "protocolDialect";
-        comTaskProtocolDialectInfo.device = getDeviceInfo();
-
-        ComTaskEnablement comTaskEnablement = mock(ComTaskEnablement.class);
-        when(deviceConfiguration.getComTaskEnablements()).thenReturn(Arrays.asList(comTaskEnablement));
-
-        ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
-        when(comTaskExecution.isScheduledManually()).thenReturn(true);
-
-        ProtocolDialectConfigurationProperties dialectConfigurationProperties = mock(ProtocolDialectConfigurationProperties.class);
-        when(deviceConfiguration.getProtocolDialectConfigurationPropertiesList()).thenReturn(Arrays.asList(dialectConfigurationProperties));
-        DeviceProtocolDialect deviceProtocolDialect = mock(DeviceProtocolDialect.class);
-        when(deviceProtocolDialect.getDisplayName()).thenReturn("protocolDialect");
-        when(dialectConfigurationProperties.getDeviceProtocolDialect()).thenReturn(deviceProtocolDialect);
-
-        ComTask comTask = mockComTask(comTaskEnablement, 111L);
-        when(comTaskExecution.getComTask()).thenReturn(comTask);
-
-        when(device.getComTaskExecutions()).thenReturn(Arrays.asList(comTaskExecution));
-
-        ComTaskExecutionUpdater scheduledComTaskExecutionUpdater = mock(ComTaskExecutionUpdater.class);
-        when(device.getComTaskExecutionUpdater(comTaskExecution)).thenReturn(scheduledComTaskExecutionUpdater);
-        ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = mock(ProtocolDialectConfigurationProperties.class);
-        when(comTaskEnablement.getProtocolDialectConfigurationProperties()).thenReturn(protocolDialectConfigurationProperties);
-        when(scheduledComTaskExecutionUpdater.protocolDialectConfigurationProperties(dialectConfigurationProperties)).thenReturn(scheduledComTaskExecutionUpdater);
-
-
-        Response response = target("/devices/" + DEVICE_NAME + "/comtasks/111/protocoldialect").request().put(Entity.json(comTaskProtocolDialectInfo));
-        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        verify(scheduledComTaskExecutionUpdater, times(1)).protocolDialectConfigurationProperties(dialectConfigurationProperties);
         verify(scheduledComTaskExecutionUpdater, times(1)).update();
     }
 

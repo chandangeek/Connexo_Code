@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.data.rest;
 
+import com.elster.jupiter.metering.EndDeviceStage;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 
 import javax.ws.rs.HttpMethod;
@@ -22,11 +23,12 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  */
 @Retention(RUNTIME)
 @Target({TYPE, METHOD})
-public @interface DeviceStatesRestricted {
+//DEZE
+public @interface DeviceStagesRestricted {
     /**
      * List of restricted device states (if device in one of these states, the 404 code will be returned as a response for request)
      */
-    DefaultState[] value();
+    EndDeviceStage[] value();
 
     /**
      * Ignored when annotation is applied to a method
