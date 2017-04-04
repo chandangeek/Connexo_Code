@@ -20,13 +20,14 @@ public class SyntheticLoadProfileBuilderImpl implements SyntheticLoadProfileBuil
 
     private final SyntheticLoadProfileServiceImpl syntheticLoadProfileService;
 
-    private final TimeZone timeZone = TimeZone.getTimeZone("UTC");
+
 
     private String name;
     private String description;
     private ReadingType readingType;
     private Instant startTime;
     private Period duration;
+    private TimeZone timeZone = TimeZone.getTimeZone("UTC");
 
     public SyntheticLoadProfileBuilderImpl(SyntheticLoadProfileServiceImpl syntheticLoadProfileService, String name) {
         this.syntheticLoadProfileService = syntheticLoadProfileService;
@@ -57,6 +58,11 @@ public class SyntheticLoadProfileBuilderImpl implements SyntheticLoadProfileBuil
         return this;
     }
 
+    public SyntheticLoadProfileBuilder withTimeZone(TimeZone timeZone) {
+        this.timeZone = timeZone;
+        return this;
+    }
+
     @Override
     public SyntheticLoadProfile build() {
         SyntheticLoadProfileImpl syntheticLoadProfile = syntheticLoadProfileService.getDataModel().getInstance(SyntheticLoadProfileImpl.class).initialize(name);
@@ -67,7 +73,7 @@ public class SyntheticLoadProfileBuilderImpl implements SyntheticLoadProfileBuil
 
         Vault vault = syntheticLoadProfileService.getVault();
         RecordSpec recordSpec = syntheticLoadProfileService.getRecordSpec();
-        TimeSeries timeSeries = vault.createRegularTimeSeries(recordSpec, timeZone, Duration.from(readingType.getIntervalLength().get()), 0);
+        TimeSeries timeSeries = vault.createRegularTimeSeries(recordSpec, timeZone, readingType.getIntervalLength().get(), 0);
         syntheticLoadProfile.setTimeSeries(timeSeries);
 
         syntheticLoadProfile.save();

@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.TimeZone;
 import java.util.stream.IntStream;
 
 import org.junit.AfterClass;
@@ -70,7 +71,8 @@ public class SyntheticLoadProfileServiceImplIT {
     @Transactional
     public void testCreateSyntheticLoadProfileSpecification() {
 
-        SyntheticLoadProfileBuilder builder = inMemoryBootstrapModule.getSyntheticLoadProfileService().newSyntheticLoadProfile(SYNTHETIC_LOAD_PROFILE_NAME,DURATION1MONTH,DATE,readingType);
+        SyntheticLoadProfileBuilder builder = inMemoryBootstrapModule.getSyntheticLoadProfileService()
+                .newSyntheticLoadProfile(SYNTHETIC_LOAD_PROFILE_NAME,DURATION1MONTH,DATE,readingType, TimeZone.getTimeZone("UTC"));
         builder.withDescription(SYNTHETIC_LOAD_PROFILE_DESC);
         SyntheticLoadProfile syntheticLoadProfileFromBuilder = builder.build();
         assertThat(syntheticLoadProfileFromBuilder.getName()).isEqualTo(SYNTHETIC_LOAD_PROFILE_NAME);
@@ -92,7 +94,8 @@ public class SyntheticLoadProfileServiceImplIT {
     @Test
     @Transactional
     public void testFindSyntheticLoadProfileSpecification() {
-        SyntheticLoadProfileBuilder builder = inMemoryBootstrapModule.getSyntheticLoadProfileService().newSyntheticLoadProfile(SYNTHETIC_LOAD_PROFILE_NAME,DURATION1MONTH,DATE,readingType);
+        SyntheticLoadProfileBuilder builder = inMemoryBootstrapModule.getSyntheticLoadProfileService()
+                .newSyntheticLoadProfile(SYNTHETIC_LOAD_PROFILE_NAME,DURATION1MONTH,DATE,readingType, TimeZone.getTimeZone("UTC"));
         builder.withDescription(SYNTHETIC_LOAD_PROFILE_DESC);
         builder.build();
 
@@ -107,7 +110,8 @@ public class SyntheticLoadProfileServiceImplIT {
     @Test
     @Transactional
     public void testAddValueToSyntheticLoadProfileSpecification() {
-        SyntheticLoadProfileBuilder builder = inMemoryBootstrapModule.getSyntheticLoadProfileService().newSyntheticLoadProfile(SYNTHETIC_LOAD_PROFILE_NAME,DURATION1MONTH,DATE,readingType);
+        SyntheticLoadProfileBuilder builder = inMemoryBootstrapModule.getSyntheticLoadProfileService()
+                .newSyntheticLoadProfile(SYNTHETIC_LOAD_PROFILE_NAME,DURATION1MONTH,DATE,readingType, TimeZone.getTimeZone("UTC"));
         builder.withDescription(SYNTHETIC_LOAD_PROFILE_DESC);
         long id = builder.build().getId();
 
@@ -125,7 +129,8 @@ public class SyntheticLoadProfileServiceImplIT {
     @Test
     @Transactional
     public void testAddMultipleValuesToSyntheticLoadProfileSpecification() {
-        SyntheticLoadProfileBuilder builder = inMemoryBootstrapModule.getSyntheticLoadProfileService().newSyntheticLoadProfile(SYNTHETIC_LOAD_PROFILE_NAME,DURATION1MONTH,DATE,readingType);
+        SyntheticLoadProfileBuilder builder = inMemoryBootstrapModule.getSyntheticLoadProfileService()
+                .newSyntheticLoadProfile(SYNTHETIC_LOAD_PROFILE_NAME,DURATION1MONTH,DATE,readingType, TimeZone.getTimeZone("UTC"));
         builder.withDescription(SYNTHETIC_LOAD_PROFILE_DESC);
         long id = builder.build().getId();
 
@@ -154,7 +159,8 @@ public class SyntheticLoadProfileServiceImplIT {
     @Test
     @Transactional
     public void testRemoveSyntheticLoadProfileSpecification() {
-        SyntheticLoadProfileBuilder builder = inMemoryBootstrapModule.getSyntheticLoadProfileService().newSyntheticLoadProfile(SYNTHETIC_LOAD_PROFILE_NAME,DURATION1MONTH,DATE,readingType);
+        SyntheticLoadProfileBuilder builder = inMemoryBootstrapModule.getSyntheticLoadProfileService()
+                .newSyntheticLoadProfile(SYNTHETIC_LOAD_PROFILE_NAME,DURATION1MONTH,DATE,readingType, TimeZone.getTimeZone("UTC"));
         builder.withDescription(SYNTHETIC_LOAD_PROFILE_DESC + "ToRemove");
         long id = builder.build().getId();
 

@@ -472,11 +472,10 @@ public class UsagePointMetrologyConfigurationTestIT {
         FullySpecifiedReadingTypeRequirement requirement = metrologyConfiguration
                 .newReadingTypeRequirement("Reading type requirement", meterRole)
                 .withReadingType(readingType);
-        ReadingTypeDeliverableBuilder deliverableBuilder = metrologyConfiguration.newReadingTypeDeliverable("Reading type deliverable", readingType, Formula.Mode.EXPERT);
-        ReadingTypeDeliverable readingTypeDeliverable = deliverableBuilder.build(deliverableBuilder.divide(deliverableBuilder
-                .requirement(requirement), deliverableBuilder.constant(10L)));
         MetrologyContract metrologyContract = metrologyConfiguration.addMetrologyContract(metrologyPurpose);
-        metrologyContract.addDeliverable(readingTypeDeliverable);
+        ReadingTypeDeliverableBuilder deliverableBuilder = metrologyContract.newReadingTypeDeliverable("Reading type deliverable", readingType, Formula.Mode.EXPERT);
+        deliverableBuilder.build(deliverableBuilder.divide(deliverableBuilder
+                .requirement(requirement), deliverableBuilder.constant(10L)));
 
         // Business method
         metrologyConfiguration.delete();
