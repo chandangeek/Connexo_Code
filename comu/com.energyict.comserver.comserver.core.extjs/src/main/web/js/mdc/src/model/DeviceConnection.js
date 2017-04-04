@@ -22,10 +22,10 @@ Ext.define('Mdc.model.DeviceConnection', {
         {name: 'comServer', type: 'auto'},
         {name: 'connectionMethod', type: 'auto'},
         {name: 'window', type: 'string'},
-        {name: 'connectionStrategy', type: 'auto'},
+        {name: 'connectionStrategyInfo', type: 'auto'},
         {name: 'nextExecution', type: 'date', dateFormat: 'time'},
         {name: 'comSessionId', type: 'number'},
-
+        {name: 'protocolDialect', type: 'string'},
         // mapped fields
         {name: 'isDefault', type: 'boolean', mapping: function (data) {return data.connectionMethod.isDefault;}, persist: false}
     ],

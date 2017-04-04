@@ -100,6 +100,7 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.DeviceCommunicationPlanni
                     },
                     {
                         xtype: 'uni-actioncolumn',
+                        width: 120,
                         menu: {
                             plain: true,
                             border: false,

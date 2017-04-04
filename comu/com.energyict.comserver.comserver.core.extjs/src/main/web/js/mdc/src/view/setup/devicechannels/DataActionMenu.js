@@ -5,13 +5,13 @@
 Ext.define('Mdc.view.setup.devicechannels.DataActionMenu', {
     extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.deviceLoadProfileChannelDataActionMenu',
+    estimationRulesCount: null,
     initComponent: function () {
         this.items = [
             {
                 itemId: 'viewHistory',
                 text: Uni.I18n.translate('deviceloadprofiles.viewHistory', 'MDC', 'View history'),
                 action: 'viewHistory',
-                hidden: true,
                 section: this.SECTION_VIEW
             },
             {
@@ -31,8 +31,15 @@ Ext.define('Mdc.view.setup.devicechannels.DataActionMenu', {
             {
                 itemId: 'estimate-value',
                 hidden: true,
-                text: Uni.I18n.translate('general.estimate', 'MDC', 'Estimate'),
+                text: Uni.I18n.translate('general.editWithEstimator', 'MDC', 'Edit with estimator'),
                 action: 'estimateValue',
+                section: this.SECTION_ACTION
+            },
+            {
+                itemId: 'estimate-value-with-rule',
+                hidden: true,
+                text: Uni.I18n.translate('general.estimateValueWithRule', 'MDC', 'Estimate with rule'),
+                action: 'estimateWithRule',
                 section: this.SECTION_ACTION
             },
             {
@@ -44,29 +51,5 @@ Ext.define('Mdc.view.setup.devicechannels.DataActionMenu', {
             }
         ];
         this.callParent(arguments);
-    },
-
-    listeners: {
-        beforeshow: function (menu) {
-            var validationResult = menu.record.get('validationResult'),
-                mainStatus = false,
-                bulkStatus = false;
-
-            if (validationResult) {
-                mainStatus = validationResult.main === 'suspect';
-                bulkStatus = validationResult.bulk === 'suspect';
-            }
-
-            menu.down('#estimate-value').setVisible(mainStatus || bulkStatus);
-            if (menu.record.get('confirmed') || menu.record.isModified('value') || menu.record.isModified('collectedValue')) {
-                menu.down('#confirm-value').hide();
-            } else {
-                menu.down('#confirm-value').setVisible(mainStatus || bulkStatus);
-            }
-
-            if (menu.down('#remove-reading')) {
-                menu.down('#remove-reading').setVisible(menu.record.get('value') || menu.record.get('collectedValue'));
-            }
-        }
     }
 });

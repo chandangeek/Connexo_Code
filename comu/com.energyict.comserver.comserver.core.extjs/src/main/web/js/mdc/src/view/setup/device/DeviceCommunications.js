@@ -110,6 +110,7 @@ Ext.define('Mdc.view.setup.device.DeviceCommunications', {
                 },
                 {
                     xtype: 'uni-actioncolumn',
+                    width: 120,
                     menu: {
                         plain: true,
                         xtype: 'device-communication-action-menu',

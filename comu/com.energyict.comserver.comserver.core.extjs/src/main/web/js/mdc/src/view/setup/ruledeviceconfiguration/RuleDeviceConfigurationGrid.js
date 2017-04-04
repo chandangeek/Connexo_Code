@@ -27,6 +27,7 @@ Ext.define('Mdc.view.setup.ruledeviceconfiguration.RuleDeviceConfigurationGrid',
             },
             {
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 privileges: Cfg.privileges.Validation.deviceConfiguration,
                 menu: {
                     xtype: 'rule-device-configuration-action-menu'

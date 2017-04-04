@@ -65,6 +65,7 @@ Ext.define('Mdc.view.setup.comportpool.ComPortPoolsGrid', {
             {
                 itemId: 'actionColumn',
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 privileges: Mdc.privileges.Communication.admin,
                 menu: {
                     xtype: 'comportpool-actionmenu',

@@ -10,6 +10,6 @@ Ext.define('Mdc.model.DeviceValidation', {
         'isActive',
         'loadProfileSuspectCount',
         'registerSuspectCount',
-        {name: 'lastChecked', dateFormat: 'time', type: 'date'}
+        {name: 'lastRun', dateFormat: 'time', type: 'date'}
     ]
 });
