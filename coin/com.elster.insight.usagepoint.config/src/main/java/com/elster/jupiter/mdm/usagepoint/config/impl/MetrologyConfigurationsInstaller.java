@@ -371,7 +371,7 @@ class MetrologyConfigurationsInstaller {
         buildFormulaSingleDeliverable(contractInformation, readingTypeHourlyAMinusWh, min15, "Hourly A- kWh");
     }
 
-    private void mainCheckConsumption(){
+    private void mainCheckConsumption() {
         if (metrologyConfigurationService.findMetrologyConfiguration(MAIN_CHECK_CONSUMPTION.getName())
                 .isPresent()) {
             return;
@@ -418,17 +418,22 @@ class MetrologyConfigurationsInstaller {
         MetrologyContract contractMain = config.addMandatoryMetrologyContract(purposeBilling);
         MetrologyContract contractCheck = config.addMandatoryMetrologyContract(purposeCheck);
 
-        ReadingTypeRequirement requirementAplusMain = config.newReadingTypeRequirement(DefaultReadingTypeTemplate.A_PLUS.getNameTranslation()
-                .getDefaultFormat(), meterRoleMain)
+        // examples: 'A+ from Main channel' or 'A+ from Check channel'
+        String readingTypeRequirementNameFormat = "%s from %s channel";
+
+        ReadingTypeRequirement requirementAplusMain = config.newReadingTypeRequirement(String.format(readingTypeRequirementNameFormat, DefaultReadingTypeTemplate.A_PLUS
+                .getNameTranslation()
+                .getDefaultFormat(), DefaultMeterRole.MAIN.getDefaultFormat()), meterRoleMain)
                 .withReadingTypeTemplate(getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate.A_PLUS));
 
-        ReadingTypeRequirement requirementAplusCheck = config.newReadingTypeRequirement(DefaultReadingTypeTemplate.A_PLUS.getNameTranslation()
-                .getDefaultFormat(), meterRoleCheck)
+        ReadingTypeRequirement requirementAplusCheck = config.newReadingTypeRequirement(String.format(readingTypeRequirementNameFormat, DefaultReadingTypeTemplate.A_PLUS
+                .getNameTranslation()
+                .getDefaultFormat(), DefaultMeterRole.CHECK.getDefaultFormat()), meterRoleCheck)
                 .withReadingTypeTemplate(getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate.A_PLUS));
 
 
-        contractMain.addDeliverable(buildFormulaSingleRequirement(config,readingTypeDailyAplusWhMain, requirementAplusMain, "Daily A+ kWh"));
-        contractCheck.addDeliverable(buildFormulaSingleRequirement(config,readingTypeDailyAplusWhCheck, requirementAplusCheck, "Daily A+ kWh"));
+        buildFormulaSingleRequirement(contractMain, readingTypeDailyAplusWhMain, requirementAplusMain, "Daily A+ kWh");
+        buildFormulaSingleRequirement(contractCheck, readingTypeDailyAplusWhCheck, requirementAplusCheck, "Daily A+ kWh");
     }
 
     private void residentialNetMeteringConsumption() {
@@ -937,7 +942,8 @@ class MetrologyConfigurationsInstaller {
     }
 
     ReadingTypeTemplate getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate defaultReadingTypeTemplate) {
-        return metrologyConfigurationService.findReadingTypeTemplate(defaultReadingTypeTemplate.getNameTranslation().getDefaultFormat())
+        return metrologyConfigurationService.findReadingTypeTemplate(defaultReadingTypeTemplate.getNameTranslation()
+                .getDefaultFormat())
                 .orElseThrow(() -> new NoSuchElementException("Default reading type template not found"));
     }
 
@@ -955,6 +961,7 @@ class MetrologyConfigurationsInstaller {
 
     private MetrologyPurpose findPurposeOrThrowException(DefaultMetrologyPurpose purpose) {
         return metrologyConfigurationService.findMetrologyPurpose(purpose)
-                .orElseThrow(() -> new NoSuchElementException(purpose.getName().getDefaultMessage() + " metrology purpose not found"));
+                .orElseThrow(() -> new NoSuchElementException(purpose.getName()
+                        .getDefaultMessage() + " metrology purpose not found"));
     }
 }
