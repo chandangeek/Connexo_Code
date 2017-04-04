@@ -31,11 +31,12 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.time.rest.TimeDurationInfo;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.yellowfin.groups.YellowfinGroupsService;
-import com.elster.jupiter.time.rest.TimeDurationInfo;
+import com.energyict.mdc.common.services.ObisCodeDescriptor;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -69,6 +70,7 @@ import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.properties.PropertySpec;
+
 import com.energyict.obis.ObisCode;
 import com.jayway.jsonpath.JsonModel;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
@@ -79,12 +81,6 @@ import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import org.glassfish.jersey.test.TestProperties;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
-import org.mockito.MockitoAnnotations;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
@@ -103,6 +99,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
+
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.mockito.MockitoAnnotations;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -242,7 +245,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
             com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel authenticationAccessLevel = mock(com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel.class);
             int anySecurityLevel = 0;
             when(authenticationAccessLevel.getId()).thenReturn(anySecurityLevel);
-            when(deviceProtocol.getAuthenticationAccessLevels()).thenReturn(Arrays.asList(authenticationAccessLevel));
+            when(deviceProtocol.getAuthenticationAccessLevels()).thenReturn(Collections.singletonList(authenticationAccessLevel));
             com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel encryptionAccessLevel = mock(com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel.class);
             when(encryptionAccessLevel.getId()).thenReturn(anySecurityLevel);
             when(deviceProtocol.getEncryptionAccessLevels()).thenReturn(Collections.singletonList(encryptionAccessLevel));
@@ -703,7 +706,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         info.parent = new VersionInfo<>(device.getName(), device.getVersion());
         info.properties = new ArrayList<>();
         info.properties.add(new PropertyInfo("ipAddress", "ipAddress", new PropertyValueInfo<Object>("10.10.10.1", null, null), new PropertyTypeInfo(com.elster.jupiter.properties.rest.SimplePropertyType.TEXT, null, null, null), true));
-        info.properties.add(new PropertyInfo("port", "port", new PropertyValueInfo<Object>(null, null, null), new PropertyTypeInfo(com.elster.jupiter.properties.rest.SimplePropertyType.NUMBER, null, null, null), true));
+        info.properties.add(new PropertyInfo("port", "port", new PropertyValueInfo<>(null, null, null), new PropertyTypeInfo(com.elster.jupiter.properties.rest.SimplePropertyType.NUMBER, null, null, null), true));
 
         Response response = target("/devices/AGENT019/connectionmethods/" + scheduledConnectionTask.getId()).request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -724,10 +727,11 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         info.nextExecutionSpecs.every = new TimeDurationInfo();
         info.nextExecutionSpecs.every.count = 15;
         info.nextExecutionSpecs.every.timeUnit = "minutes";
-        if (task != null)
+        if (task != null) {
             info.version = task.getVersion();
-        else
+        } else {
             info.version = 0L;
+        }
         DeviceConnectionTaskInfo.ConnectionStrategyInfo strategyInfo = new DeviceConnectionTaskInfo.ConnectionStrategyInfo();
         strategyInfo.connectionStrategy = "AS_SOON_AS_POSSIBLE";
         strategyInfo.localizedValue = "As soon as Possible";
@@ -735,8 +739,9 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         info.comPortPool = "Whirlpool";
         info.protocolDialect = protocolDialectConfigurationProperties.getDeviceProtocolDialectName();
         info.protocolDialectDisplayName = protocolDialectConfigurationProperties.getDeviceProtocolDialect().getDeviceProtocolDialectDisplayName();
-        if (task != null)
+        if (task != null) {
             info.parent = new VersionInfo<>(task.getDevice().getName(), task.getDevice().getVersion());
+        }
         return info;
     }
 
@@ -751,9 +756,10 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
                 setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE).
                 setConnectionTaskLifecycleStatus(status).
                 setNextExecutionSpecsFrom(new TemporalExpression(TimeDuration.days(1)));
-        if (complete)
+        if (complete) {
             taskbuilder.setProperty("port", port == null ? BigDecimal.valueOf(666) : port)
                     .setProperty("ipAddress", ipAddress == null ? "6.6.6.6" : ipAddress);
+        }
         return taskbuilder.add();
     }
 
