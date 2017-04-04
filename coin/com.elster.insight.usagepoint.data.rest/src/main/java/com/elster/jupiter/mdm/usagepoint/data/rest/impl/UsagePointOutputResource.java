@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
+import com.elster.jupiter.cbo.QualityCodeCategory;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.estimation.EstimationResult;
 import com.elster.jupiter.estimation.EstimationService;
@@ -17,6 +18,7 @@ import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
@@ -258,12 +260,12 @@ public class UsagePointOutputResource {
                 // add validation statuses to pre filled channel data map
                 List<DataValidationStatus> dataValidationStatuses =
                         evaluator.getValidationStatus(
-                            EnumSet.of(QualityCodeSystem.MDM),
-                            channel,
-                            Stream
-                                .concat(persistedReadings.values().stream(), calculatedReadings.stream())
-                                .collect(Collectors.toList()),
-                            requestedInterval);
+                                EnumSet.of(QualityCodeSystem.MDM),
+                                channel,
+                                Stream
+                                        .concat(persistedReadings.values().stream(), calculatedReadings.stream())
+                                        .collect(Collectors.toList()),
+                                requestedInterval);
                 for (DataValidationStatus dataValidationStatus : dataValidationStatuses) {
                     ChannelReadingWithValidationStatus readingWithValidationStatus = preFilledChannelDataMap.get(dataValidationStatus.getReadingTimestamp());
                     if (readingWithValidationStatus != null) {
@@ -324,11 +326,14 @@ public class UsagePointOutputResource {
         channelDataInfos.forEach((channelDataInfo) -> {
             if (!isToBeConfirmed(channelDataInfo) && channelDataInfo.value == null) {
                 removeCandidates.add(Instant.ofEpochMilli(channelDataInfo.interval.end));
-            }  else {
+            } else {
                 if (channelDataInfo.value != null) {
                     BaseReading baseReading = channelDataInfo.createNew();
+                    if (channelDataInfo.isProjected) {
+                        ((BaseReadingImpl) baseReading).addQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.PROJECTED, 0));
+                    }
                     if (channelDataInfo.ruleId != 0) {
-                        ((BaseReadingImpl)baseReading).addQuality("3.8." + channelDataInfo.ruleId);
+                        ((BaseReadingImpl) baseReading).addQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.ESTIMATED, (int) channelDataInfo.ruleId));
                         estimatedReadings.add(baseReading);
                     } else {
                         editedReadings.add(baseReading);
@@ -453,7 +458,7 @@ public class UsagePointOutputResource {
         List<EstimationResult> results = blocks.stream()
                 .map(block -> estimationHelper.previewEstimate(system, channelsContainer, readingType, block, estimator))
                 .collect(Collectors.toList());
-        return estimationHelper.getChannelDataInfoFromEstimationReports(channel, ranges, results);
+        return estimationHelper.getChannelDataInfoFromEstimationReports(channel, ranges, results, estimateChannelDataInfo.markAsProjected);
     }
 
 
@@ -631,7 +636,7 @@ public class UsagePointOutputResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT, Privileges.Constants.VIEW_METROLOGY_CONFIGURATION})
     public Response removeRegisterDataOfOutput(@PathParam("name") String name, @PathParam("purposeId") long contractId, @PathParam("outputId") long outputId,
-                                                             @PathParam("timeStamp") long timeStamp, @BeanParam JsonQueryFilter filter, OutputRegisterDataInfo registerDataInfo) {
+                                               @PathParam("timeStamp") long timeStamp, @BeanParam JsonQueryFilter filter, OutputRegisterDataInfo registerDataInfo) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
         MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(effectiveMetrologyConfigurationOnUsagePoint, contractId);
@@ -721,7 +726,9 @@ public class UsagePointOutputResource {
         MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(usagePoint, contractId);
         List<DataValidationTask> validationTasks = validationService.findValidationTasks()
                 .stream()
-                .filter(task -> !task.getMetrologyPurpose().isPresent() || task.getQualityCodeSystem().equals(QualityCodeSystem.MDM) && task.getMetrologyPurpose().get().equals(metrologyContract.getMetrologyPurpose()))
+                .filter(task -> !task.getMetrologyPurpose().isPresent() || task.getQualityCodeSystem().equals(QualityCodeSystem.MDM) && task.getMetrologyPurpose()
+                        .get()
+                        .equals(metrologyContract.getMetrologyPurpose()))
                 .collect(Collectors.toList());
 
         List<DataValidationTaskInfo> dataValidationTasks = validationTasks
