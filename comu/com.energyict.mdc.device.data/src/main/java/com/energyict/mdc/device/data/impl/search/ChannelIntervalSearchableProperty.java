@@ -22,6 +22,7 @@ import com.elster.jupiter.util.sql.SqlFragment;
 import com.elster.jupiter.util.streams.DecoratedStream;
 import com.energyict.mdc.common.interval.Temporals;
 import com.energyict.mdc.device.data.impl.SearchHelperValueFactory;
+import com.elster.jupiter.properties.TimeDurationValueFactory;
 import com.energyict.mdc.dynamic.TemporalAmountValueFactory;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.MasterDataService;
