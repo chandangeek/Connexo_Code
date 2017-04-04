@@ -5,15 +5,34 @@
 Ext.define('Mdc.usagepointmanagement.model.RegisterReading', {
     extend: 'Uni.model.Version',
     fields: [
-        'value', 'measurementTime', 'readingTime', 'readingQualities', 'validationResult', 'dataValidated',
-        // {
-        //     name: 'id',
-        //     mapping: 'interval.end'
-        // },
         {
-            name: 'dataValidated',
+            name: 'isCumulative',
+            type: 'boolean'
+        },
+        {
+            name: 'hasEvent',
+            type: 'boolean'
+        },
+        {
+            name: 'isBilling',
+            type: 'boolean'
+        },
+        'value', 'measurementTime', 'measurementPeriod', 'eventDate', 'collectedValue', 'delta', 'deltaValue', 'readingTime', 'readingQualities', 'dataValidated',
+        {
+            name: 'validationResult',
             mapping: function (data) {
-                return data ? 'SUSPECT': 'NOT_VALIDATED';
+                var result = 'NOT_VALIDATED';
+
+                switch (data) {
+                    case 'validationStatus.suspect':
+                        result = 'SUSPECT';
+                        break;
+                    case 'validationStatus.ok':
+                        result = 'OK';
+                        break;
+                }
+
+                return result;
             }
         }
     ],
