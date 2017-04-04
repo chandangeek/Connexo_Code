@@ -4,11 +4,13 @@
 
 package com.energyict.mdc.device.configuration.rest.impl;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTaskBuilder;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
@@ -22,8 +24,8 @@ public class InboundConnectionMethodInfo extends ConnectionMethodInfo<PartialInb
     public InboundConnectionMethodInfo() {
     }
 
-    public InboundConnectionMethodInfo(PartialInboundConnectionTask partialInboundConnectionTask, UriInfo uriInfo, MdcPropertyUtils mdcPropertyUtils) {
-        super(partialInboundConnectionTask, uriInfo, mdcPropertyUtils);
+    public InboundConnectionMethodInfo(PartialInboundConnectionTask partialInboundConnectionTask, UriInfo uriInfo, MdcPropertyUtils mdcPropertyUtils, Thesaurus thesaurus) {
+        super(partialInboundConnectionTask, uriInfo, mdcPropertyUtils, thesaurus);
     }
 
     @Override
@@ -38,13 +40,13 @@ public class InboundConnectionMethodInfo extends ConnectionMethodInfo<PartialInb
     }
 
     @Override
-    public PartialConnectionTask createPartialTask(DeviceConfiguration deviceConfiguration, EngineConfigurationService engineConfigurationService, ProtocolPluggableService protocolPluggableService, MdcPropertyUtils mdcPropertyUtils) {
+    public PartialConnectionTask createPartialTask(DeviceConfiguration deviceConfiguration, ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties, EngineConfigurationService engineConfigurationService, ProtocolPluggableService protocolPluggableService, MdcPropertyUtils mdcPropertyUtils, Thesaurus thesaurus) {
         this.mdcPropertyUtils = mdcPropertyUtils;
         ConnectionTypePluggableClass connectionTypePluggableClass = findConnectionTypeOrThrowException(this.connectionTypePluggableClass, protocolPluggableService);
         InboundComPortPool inboundComPortPool = (InboundComPortPool) engineConfigurationService.findComPortPoolByName(this.comPortPool).orElse(null);
         PartialInboundConnectionTaskBuilder connectionTaskBuilder =
                 deviceConfiguration
-                        .newPartialInboundConnectionTask(name, connectionTypePluggableClass)
+                        .newPartialInboundConnectionTask(name, connectionTypePluggableClass, protocolDialectConfigurationProperties)
                         .comPortPool(inboundComPortPool)
                         .asDefault(this.isDefault);
         addPropertiesToPartialConnectionTask(connectionTaskBuilder, connectionTypePluggableClass);
