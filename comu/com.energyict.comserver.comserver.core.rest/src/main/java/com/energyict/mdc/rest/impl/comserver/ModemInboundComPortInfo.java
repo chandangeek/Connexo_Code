@@ -5,6 +5,10 @@
 package com.energyict.mdc.rest.impl.comserver;
 
 import com.elster.jupiter.time.rest.TimeDurationInfo;
+import com.energyict.mdc.channel.serial.BaudrateValue;
+import com.energyict.mdc.channel.serial.NrOfDataBits;
+import com.energyict.mdc.channel.serial.NrOfStopBits;
+import com.energyict.mdc.channel.serial.SerialPortConfiguration;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.ModemBasedInboundComPort;
@@ -145,19 +149,22 @@ public class ModemInboundComPortInfo extends InboundComPortInfo<ModemBasedInboun
 
     @Override
     protected ModemBasedInboundComPort createNew(ComServer comServer, EngineConfigurationService engineConfigurationService) {
-        return build(comServer.newModemBasedInboundComport(
-                this.name,
-                this.ringCount,
-                this.maximumNumberOfDialErrors,
-                this.connectTimeout!=null?this.connectTimeout.asTimeDuration():null,
-                this.atCommandTimeout!=null?this.atCommandTimeout.asTimeDuration():null,
-                new SerialPortConfiguration(
-                    this.name,
-                    this.baudrate,
-                    this.nrOfDataBits,
-                    this.nrOfStopBits,
-                    this.parity != null ? this.parity.id : null,
-                        this.flowControl != null ? this.flowControl.id : null)), engineConfigurationService).add();
+        return build(
+                    comServer.newModemBasedInboundComport(
+                        this.name,
+                        this.ringCount,
+                        this.maximumNumberOfDialErrors,
+                        this.connectTimeout != null ? this.connectTimeout.asTimeDuration() : null,
+                        this.atCommandTimeout != null ? this.atCommandTimeout.asTimeDuration() : null,
+                        new SerialPortConfiguration(
+                            this.name,
+                            this.baudrate,
+                            this.nrOfDataBits,
+                            this.nrOfStopBits,
+                            this.parity != null ? this.parity.id : null,
+                            this.flowControl != null ? this.flowControl.id : null)),
+                    engineConfigurationService)
+                .add();
     }
 
     private List<Map<String, String>> asMap(String key, List<String> strings) {

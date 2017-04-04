@@ -9,11 +9,11 @@ import com.elster.jupiter.time.rest.TimeDurationInfo;
 import com.energyict.mdc.channel.serial.BaudrateValue;
 import com.energyict.mdc.channel.serial.NrOfDataBits;
 import com.energyict.mdc.channel.serial.NrOfStopBits;
-import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.ports.ComPortType;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -87,8 +87,8 @@ public abstract class ComPortInfo<T extends ComPort, B extends ComPort.Builder<B
         this.description = comPort.getDescription();
         this.active = comPort.isActive();
         this.bound = comPort.isInbound();
-        this.comServer_id = comPort.getComServer()!=null?comPort.getComServer().getId():0L;
-        this.comServerName = comPort.getComServer() != null ? comPort.getComServer().getName():null;
+        this.comServer_id = comPort.getComServer()!=null ? comPort.getComServer().getId() : 0L;
+        this.comServerName = comPort.getComServer() != null ? comPort.getComServer().getName() : null;
         this.comPortType = new ComPortTypeInfo(comPort.getComPortType());
         this.numberOfSimultaneousConnections = comPort.getNumberOfSimultaneousConnections();
         this.version = comPort.getVersion();
