@@ -5,6 +5,7 @@
 package com.elster.jupiter.yellowfin.security;
 
 import com.elster.jupiter.nls.TranslationKey;
+
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
@@ -15,7 +16,8 @@ public enum Privileges implements TranslationKey {
 
     //Privileges
     VIEW_REPORTS(Constants.VIEW_REPORTS, "View"),
-    DESIGN_REPORTS(Constants.DESIGN_REPORTS, "Design");
+    DESIGN_REPORTS(Constants.DESIGN_REPORTS, "Design"),
+    ADMINISTRATE_REPORTS(Constants.ADMINISTRATE_REPORTS, "Administrate");
 
     private final String key;
     private final String description;
@@ -48,6 +50,7 @@ public enum Privileges implements TranslationKey {
     public interface Constants {
         String VIEW_REPORTS = "privilege.view.reports";
         String DESIGN_REPORTS = "privilege.design.reports";
+        String ADMINISTRATE_REPORTS = "privilege.administrate.reports";
     }
 }
 

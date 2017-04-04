@@ -20,8 +20,11 @@ import java.util.logging.Logger;
 
 class Installer implements FullInstaller, PrivilegesProvider {
 
-    String REPORT_DESIGNER_ROLE = "Report designer";
-    String REPORT_DESIGNER_ROLE_DESCRIPTION = "Reports designer privilege";
+    private final String REPORT_DESIGNER_ROLE = "Report designer";
+    private final String REPORT_DESIGNER_ROLE_DESCRIPTION = "Reports designer privilege";
+
+    private final String REPORT_ADMINISTRATOR_ROLE = "Report administrator";
+    private final String REPORT_ADMINISTRATOR_ROLE_DESCRIPTION = "Reports administrator privilege";
 
     private final Logger logger = Logger.getLogger(Installer.class.getName());
     private final UserService userService;
@@ -48,7 +51,7 @@ class Installer implements FullInstaller, PrivilegesProvider {
         return Arrays.asList(
                 userService.createModuleResourceWithPrivileges(getModuleName(),
                         Privileges.RESOURCE_REPORTS.getKey(), Privileges.RESOURCE_REPORTS_DESCRIPTION.getKey(),
-                        Arrays.asList(Privileges.Constants.VIEW_REPORTS, Privileges.Constants.DESIGN_REPORTS)));
+                        Arrays.asList(Privileges.Constants.VIEW_REPORTS, Privileges.Constants.DESIGN_REPORTS, Privileges.Constants.ADMINISTRATE_REPORTS)));
     }
 
     @Override
@@ -56,9 +59,18 @@ class Installer implements FullInstaller, PrivilegesProvider {
         return YellowfinService.COMPONENTNAME;
     }
 
-    private void createDefaultRoles() {
-        Group group = userService.createGroup(REPORT_DESIGNER_ROLE, REPORT_DESIGNER_ROLE_DESCRIPTION);
-        userService.grantGroupWithPrivilege(group.getName(), "YFN", new String[]{"privilege.design.reports"});
+    protected void createDefaultRoles() {
+        createDesignerRole();
+        createAdministratorRole();
     }
 
+    protected void createDesignerRole(){
+        Group designer = userService.createGroup(REPORT_DESIGNER_ROLE, REPORT_DESIGNER_ROLE_DESCRIPTION);
+        userService.grantGroupWithPrivilege(designer.getName(), YellowfinService.COMPONENTNAME, new String[]{"privilege.design.reports"});
+    }
+
+    protected void createAdministratorRole(){
+        Group administrator = userService.createGroup(REPORT_ADMINISTRATOR_ROLE, REPORT_ADMINISTRATOR_ROLE_DESCRIPTION);
+        userService.grantGroupWithPrivilege(administrator.getName(), YellowfinService.COMPONENTNAME, new String[]{"privilege.design.reports", "privilege.administrate.reports"});
+    }
 }
