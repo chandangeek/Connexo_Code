@@ -7,24 +7,23 @@ package com.energyict.mdc.device.configuration.rest.impl;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
+import com.elster.jupiter.properties.TimeDurationValueFactory;
 import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.properties.rest.PropertyTypeInfo;
 import com.elster.jupiter.properties.rest.PropertyValueInfo;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.time.impl.MessageSeeds;
+import com.elster.jupiter.time.rest.TimeDurationInfo;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.RegisterSpec;
-import com.energyict.mdc.dynamic.TimeDurationValueFactory;
 import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.masterdata.RegisterType;
-import com.energyict.mdc.pluggable.rest.impl.properties.SimplePropertyType;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
@@ -132,7 +131,7 @@ public class ConnectionMethodResourceTest extends DeviceConfigurationApplication
         timeDurationInfo.timeUnit="1"; // INVALID
         propertyInfo.propertyValueInfo = new PropertyValueInfo<>(timeDurationInfo,null,null,true);
         propertyInfo.propertyTypeInfo = new PropertyTypeInfo();
-        propertyInfo.propertyTypeInfo.simplePropertyType = SimplePropertyType.TIMEDURATION;
+        propertyInfo.propertyTypeInfo.simplePropertyType = com.elster.jupiter.properties.rest.SimplePropertyType.TIMEDURATION;
         info.properties.add(propertyInfo);
         info.version = OK_VERSION;
         info.parent = new VersionInfo<>(12L, OK_VERSION);
@@ -177,7 +176,6 @@ public class ConnectionMethodResourceTest extends DeviceConfigurationApplication
         partialScheduledConnectionTask = mockPartialScheduledConnectionTask(14L, "partial scheduled");
         when(partialScheduledConnectionTask.getConfiguration()).thenReturn(deviceConfiguration);
         when(deviceConfiguration.getPartialConnectionTasks()).thenReturn(Arrays.asList(partialInboundConnectionTask, partialScheduledConnectionTask));
-
     }
 
     protected DeviceConfiguration mockDeviceConfiguration(String name, long id){
