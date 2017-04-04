@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.metering.bpm.impl;
 
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -42,6 +43,8 @@ public class UsagePointAssociationProviderTest {
     private UsagePointProcessAssociationProvider usagePointProcessAssociationProvider;
 
     @Mock
+    MeteringService meteringService;
+    @Mock
     TimeService timeService;
     @Mock
     OrmService ormService;
@@ -55,6 +58,7 @@ public class UsagePointAssociationProviderTest {
         Injector injector = Guice.createInjector(new Module() {
             @Override
             public void configure(Binder binder) {
+                binder.bind(MeteringService.class).toInstance(meteringService);
                 binder.bind(TimeService.class).toInstance(timeService);
                 binder.bind(OrmService.class).toInstance(ormService);
                 binder.bind(BeanService.class).toInstance(beanService);

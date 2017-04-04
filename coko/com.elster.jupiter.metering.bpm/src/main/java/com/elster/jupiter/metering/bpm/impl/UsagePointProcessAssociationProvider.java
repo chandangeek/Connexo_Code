@@ -7,6 +7,7 @@ package com.elster.jupiter.metering.bpm.impl;
 import com.elster.jupiter.bpm.ProcessAssociationProvider;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.metering.ConnectionState;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.nls.Layer;
@@ -39,6 +40,7 @@ public class UsagePointProcessAssociationProvider implements ProcessAssociationP
     public static final String COMPONENT_NAME = "MBP";
     public static final String ASSOCIATION_TYPE = "usagepoint";
 
+    private volatile MeteringService meteringService;
     private volatile PropertySpecService propertySpecService;
     private volatile MetrologyConfigurationService metrologyConfigurationService;
     private volatile Thesaurus thesaurus;
@@ -49,9 +51,10 @@ public class UsagePointProcessAssociationProvider implements ProcessAssociationP
     }
 
     @Inject
-    public UsagePointProcessAssociationProvider(PropertySpecService propertySpecService, MetrologyConfigurationService metrologyConfigurationService, Thesaurus thesaurus) {
+    public UsagePointProcessAssociationProvider(PropertySpecService propertySpecService, MetrologyConfigurationService metrologyConfigurationService, Thesaurus thesaurus, MeteringService meteringService) {
         this.propertySpecService = propertySpecService;
         this.metrologyConfigurationService = metrologyConfigurationService;
+        this.meteringService = meteringService;
         this.thesaurus = thesaurus;
     }
 
@@ -66,8 +69,14 @@ public class UsagePointProcessAssociationProvider implements ProcessAssociationP
     }
 
     @Reference
+    public void setMeteringService(MeteringService meteringService) {
+        this.meteringService = meteringService;
+    }
+
+    @Reference
     public void setNlsService(NlsService nlsService) {
-        this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.DOMAIN);
+        this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.DOMAIN)
+                .join(nlsService.getThesaurus(MeteringService.COMPONENTNAME, Layer.DOMAIN));
     }
 
     @Reference(target = "(com.elster.jupiter.license.rest.key=" + APP_KEY + ")")
