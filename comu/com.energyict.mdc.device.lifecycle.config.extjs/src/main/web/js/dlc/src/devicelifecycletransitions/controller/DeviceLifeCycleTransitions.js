@@ -35,6 +35,10 @@ Ext.define('Dlc.devicelifecycletransitions.controller.DeviceLifeCycleTransitions
         {
             ref: 'addPage',
             selector: 'device-life-cycle-transitions-add'
+        },
+        {
+            ref: 'grid',
+            selector: 'device-life-cycle-transitions-grid'
         }
     ],
 
@@ -72,17 +76,17 @@ Ext.define('Dlc.devicelifecycletransitions.controller.DeviceLifeCycleTransitions
             router: router
         });
 
+        me.getApplication().fireEvent('changecontentevent', view);
 
         deviceLifeCycleModel.load(deviceLifeCycleId, {
             success: function (deviceLifeCycleRecord) {
                 me.getApplication().fireEvent('devicelifecycleload', deviceLifeCycleRecord);
                 view.down('#device-life-cycles-transitions-side-menu').setHeader(deviceLifeCycleRecord.get('name'));
-                me.getApplication().fireEvent('changecontentevent', view);
             }
         });
     },
 
-    showDeviceLifeCycleTransitionPreview: function (selectionModel, record, index) {
+    showDeviceLifeCycleTransitionPreview: function (selectionModel, record) {
         var me = this,
             page = me.getPage(),
             preview = page.down('device-life-cycle-transitions-preview'),
@@ -119,7 +123,9 @@ Ext.define('Dlc.devicelifecycletransitions.controller.DeviceLifeCycleTransitions
     removeTransition: function (record) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
-            page = me.getPage();
+            page = me.getPage(),
+            store = me.getStore('Dlc.devicelifecycletransitions.store.DeviceLifeCycleTransitions'),
+            grid = me.getGrid();
 
         Ext.create('Uni.view.window.Confirmation').show({
             msg: Uni.I18n.translate('deviceLifeCycleTransitions.remove.msg', 'DLC', 'This transition will no longer be available.'),
@@ -131,7 +137,9 @@ Ext.define('Dlc.devicelifecycletransitions.controller.DeviceLifeCycleTransitions
                     record.destroy({
                         success: function () {
                             me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceLifeCycleTransitions.remove.success.msg', 'DLC', 'Transition removed'));
-                            router.getRoute().forward();
+                            grid.down('pagingtoolbartop').resetPaging();
+                            grid.down('pagingtoolbarbottom').resetPaging();
+                            store.load();
                         },
                         callback: function () {
                             page.setLoading(false);
