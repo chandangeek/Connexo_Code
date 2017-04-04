@@ -263,9 +263,9 @@ public class ResourceHelper {
                     .forEach(meterActivation -> {
                         Instant activationTime = meterActivation.meterRole.activationTime;
                         MeterRole meterRole = findMeterRoleOrThrowException(meterActivation.meterRole.id);
-                        if (meterActivation.meter == null && !usagePoint.getMeterActivations(clock.instant()).isEmpty()) {
+                        if (meterActivation.meter == null && !usagePoint.getMeterActivations().isEmpty()) {
                             validateUnlinkMeters(usagePoint, meterRole);
-                            linker.clear(clock.instant(), meterRole);
+                            linker.clear(meterRole);
                         } else if (meterActivation.meter != null && !Checks.is(meterActivation.meter.name).emptyOrOnlyWhiteSpace()) {
                             Meter meter = findMeterByNameOrThrowException(meterActivation.meter.name);
                             linker.activate(activationTime, meter, meterRole);
@@ -276,7 +276,9 @@ public class ResourceHelper {
     }
 
     private void validateUnlinkMeters(UsagePoint usagePoint, MeterRole meterRole) {
-        usagePoint.getCurrentEffectiveMetrologyConfiguration().ifPresent(metrologyConfiguration -> {
+        Optional<EffectiveMetrologyConfigurationOnUsagePoint> mc = usagePoint.getCurrentEffectiveMetrologyConfiguration();
+        if (mc.isPresent() && !mc.get().getMetrologyConfiguration().isGapAllowed()) {
+            EffectiveMetrologyConfigurationOnUsagePoint metrologyConfiguration = mc.get();
             List<ReadingTypeRequirement> requirementsForMeterRole = metrologyConfiguration.getMetrologyConfiguration().getRequirements(meterRole)
                     .stream()
                     .collect(Collectors.toList());
@@ -287,7 +289,7 @@ public class ResourceHelper {
                     .filter(requirementsForMeterRole::contains)
                     .distinct()
                     .collect(Collectors.toList());
-            usagePoint.getMeterActivations(clock.instant())
+            usagePoint.getMeterActivations()
                     .stream()
                     .filter(meterActivation -> allRequirements
                         .stream()
@@ -300,7 +302,7 @@ public class ResourceHelper {
                         throw new UsagePointMeterActivationException.MeterCannotBeUnlinked(thesaurus, meterActivation.getMeter().get().getName(), usagePoint.getName(), dateTimeFormatter.format(LocalDateTime
                                 .ofInstant(clock.instant(), ZoneId.systemDefault())));
                     });
-        });
+        }
     }
 
     public List<UsagePointTransition> getAvailableTransitions(UsagePoint usagePoint) {
