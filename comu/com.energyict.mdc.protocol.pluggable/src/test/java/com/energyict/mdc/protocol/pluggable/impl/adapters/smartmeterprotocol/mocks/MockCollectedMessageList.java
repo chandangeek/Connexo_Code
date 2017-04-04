@@ -75,7 +75,10 @@ public class MockCollectedMessageList implements CollectedMessageList {
 
     @Override
     public List<CollectedMessage> getCollectedMessages(MessageIdentifier messageIdentifier) {
-        return this.getCollectedMessages().stream().filter(x -> x.getMessageIdentifier().equals(messageIdentifier)).collect(Collectors.toList());
-
+        return this.getCollectedMessages()
+                .stream()
+                .filter(x -> MessageIdentifier.is(x.getMessageIdentifier()).equalTo(messageIdentifier))
+                .collect(Collectors.toList());
     }
+
 }
