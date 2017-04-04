@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 
 /**
  * Provides an implementation for the {@link ValueFactory} interface
- * for TimeZone values.
+ * for {@link RelativePeriod} values.
  *
  * relative period id == 0 => All period
  *
