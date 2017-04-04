@@ -300,7 +300,7 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
 
         assertThat(jsonModel.<Long>get("$.channelData[2].interval.start")).isEqualTo(INTERVAL_2.lowerEndpoint().toEpochMilli());
         assertThat(jsonModel.<Long>get("$.channelData[2].interval.end")).isEqualTo(INTERVAL_2.upperEndpoint().toEpochMilli());
-        assertThat(jsonModel.<Long>get("$.channelData[2].reportedDateTime")).isEqualTo(INTERVAL_2.upperEndpoint().toEpochMilli());
+        assertThat(jsonModel.<Long>get("$.channelData[2].reportedDateTime")).isNull();  // Missing intervals do not have a reported time
         assertThat(jsonModel.<Boolean>get("$.channelData[2].dataValidated")).isEqualTo(true);
         assertThat(jsonModel.<String>get("$.channelData[2].validationResult")).isEqualTo("validationStatus.suspect");
         assertThat(jsonModel.<String>get("$.channelData[2].action")).isEqualTo("FAIL");
@@ -723,6 +723,7 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         AggregatedChannel.AggregatedIntervalReadingRecord intervalReadingRecord = mock(AggregatedChannel.AggregatedIntervalReadingRecord.class);
         when(intervalReadingRecord.getTimePeriod()).thenReturn(Optional.of(interval));
         when(intervalReadingRecord.getTimeStamp()).thenReturn(interval.upperEndpoint());
+        when(intervalReadingRecord.getReportedDateTime()).thenReturn(interval.upperEndpoint());
         when(intervalReadingRecord.getValue()).thenReturn(value);
         return intervalReadingRecord;
     }

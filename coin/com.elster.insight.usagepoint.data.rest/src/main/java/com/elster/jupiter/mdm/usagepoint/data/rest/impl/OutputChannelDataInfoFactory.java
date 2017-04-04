@@ -20,7 +20,6 @@ import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.streams.DecoratedStream.decorate;
 
-
 public class OutputChannelDataInfoFactory {
 
     private final ValidationRuleInfoFactory validationRuleInfoFactory;
@@ -36,7 +35,7 @@ public class OutputChannelDataInfoFactory {
 
     public OutputChannelDataInfo createChannelDataInfo(ChannelReadingWithValidationStatus readingWithValidationStatus) {
         OutputChannelDataInfo outputChannelDataInfo = new OutputChannelDataInfo();
-        outputChannelDataInfo.reportedDateTime = readingWithValidationStatus.getTimeStamp();
+        outputChannelDataInfo.reportedDateTime = readingWithValidationStatus.getReportedDateTime();
         outputChannelDataInfo.interval = IntervalInfo.from(readingWithValidationStatus.getTimePeriod());
         outputChannelDataInfo.value = readingWithValidationStatus.getValue();
         outputChannelDataInfo.calculatedValue = readingWithValidationStatus.getCalculatedValue().orElse(null);
