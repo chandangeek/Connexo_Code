@@ -17,6 +17,7 @@ import com.energyict.mdc.upl.messages.legacy.RegisterExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpecService;
@@ -59,6 +60,7 @@ public class Services {
     private static AtomicReference<KeyStoreService> KEY_STORE_SERVICE = new AtomicReference<>();
     private static AtomicReference<CertificateWrapperExtractor> CERTIFICATE_WRAPPER_EXTRACTOR = new AtomicReference<>();
     private static AtomicReference<CertificateAliasFinder> CERTIFICATE_ALIAS_FINDER = new AtomicReference<>();
+    private static AtomicReference<DeviceIdentifier.Finder> DEVICE_FINDER = new AtomicReference<>();
 
     public static Object serviceOfType(Class serviceType) {
         if (PropertySpecService.class.equals(serviceType)) {
@@ -312,6 +314,14 @@ public class Services {
 
     public static void keyStoreService(KeyStoreService service) {
         KEY_STORE_SERVICE.set(service);
+    }
+
+    public static DeviceIdentifier.Finder deviceFinder() {
+        return DEVICE_FINDER.get();
+    }
+
+    public static void deviceFinder(DeviceIdentifier.Finder deviceFinder) {
+        DEVICE_FINDER.set(deviceFinder);
     }
 
     /**

@@ -1,5 +1,10 @@
 package com.energyict.mdc.upl.meterdata.identifiers;
 
+import com.energyict.mdc.upl.Services;
+import com.energyict.mdc.upl.meterdata.Device;
+
+import java.util.Optional;
+
 /**
  * Identifies a device that started inbound communication.
  * <br>
@@ -22,7 +27,9 @@ package com.energyict.mdc.upl.meterdata.identifiers;
  */
 public interface DeviceIdentifier extends Identifier {
 
-    boolean equals(Object other);
+    interface Finder {
+        Optional<Device> find(DeviceIdentifier identifier);
+    }
 
     /**
      * Start of fluent API to check if the specified DeviceIdentifier
@@ -47,27 +54,64 @@ public interface DeviceIdentifier extends Identifier {
             this.subject = subject;
         }
 
+        /**
+         * Checks if this DeviceIdentifier represents the same {@link Device}
+         * as the other DeviceIdentifier.
+         * <strong>Note:</strong> be very carefull when using this directly in
+         * protocol code that is likely to be run on embedded devices
+         * such as the beacon because the Services class may not
+         * have been initialized in that environment.
+         *
+         * @param other The other DeviceIdentifier
+         * @return <code>true</code> iff this DeviceIdentifier represents the same Device as the other DeviceIdentifier
+         */
         public boolean equalTo(DeviceIdentifier other) {
-            Introspector subjectIntrospector = this.subject.forIntrospection();
-            Introspector otherIntrospector = other.forIntrospection();
-            switch (otherIntrospector.getTypeName()) {
+            switch (other.forIntrospection().getTypeName()) {
+                case "DataBaseId": // Intentional fall-through
                 case "mRID": {
+                    return sameDevice(this.subject, other, "databaseValue");
                 }
                 case "Actual": {
-                }
-                case "DatabaseId": {
+                    return sameDevice(this.subject, other, "actual");
                 }
                 case "CallHomeId": {
+                    return sameDevice(this.subject, other, "callHomeId");
                 }
                 case "PhoneNumber": {
+                    return sameDevice(this.subject, other, "phoneNumber");
                 }
                 case "SerialNumber": {
+                    return sameDevice(this.subject, other, "serialNumber");
                 }
                 case "LikeSerialNumber": {
+                    return sameDevice(this.subject, other, "serialNumberGrepPattern");
                 }
                 default: {
                     return this.subject.equals(other);
                 }
+            }
+        }
+
+        private boolean sameDevice(DeviceIdentifier id1, DeviceIdentifier id2, String... roles) {
+            if (id1.forIntrospection().getTypeName().equals(id2.forIntrospection().getTypeName())) {
+                return id1.forIntrospection().roleEqualsTo(id2.forIntrospection(), roles);
+            } else {
+                return sameDevice(id1, id2);
+            }
+        }
+
+        private boolean sameDevice(DeviceIdentifier id1, DeviceIdentifier id2) {
+            if (Services.deviceFinder() != null) {
+                Optional<Device> device1 = Services.deviceFinder().find(id1);
+                Optional<Device> device2 = Services.deviceFinder().find(id2);
+                if (device1.isPresent() && device2.isPresent()) {
+                    return device1.get().equals(device2.get());
+                } else {
+                    return false;
+                }
+            } else {
+                // Avoid NullPointerException in beacon context
+                return false;
             }
         }
 
