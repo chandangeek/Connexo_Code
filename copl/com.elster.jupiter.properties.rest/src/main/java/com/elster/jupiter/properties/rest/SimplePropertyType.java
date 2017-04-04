@@ -41,8 +41,7 @@ public enum SimplePropertyType implements PropertyType {
     RAISEEVENTPROPS(HasIdAndName.class),
     RELATIVEPERIODWITHCOUNT(ListValueFactory.class),
     BPM_PROCESS(HasIdAndName.class),
-    TIMEDURATION(TimeDuration.class);
-    BPM_PROCESS(HasIdAndName.class),
+    TIMEDURATION(TimeDuration.class),
     TWO_VALUES_DIFFERENCE(TwoValuesDifferenceValueFactory.class),
     NON_OR_BIG_DECIMAL(NonOrBigDecimalValueFactory.class);
 
