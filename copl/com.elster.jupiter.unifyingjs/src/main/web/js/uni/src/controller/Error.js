@@ -114,7 +114,6 @@ Ext.define('Uni.controller.Error', {
                     message = '<ul>';
                     for (var i = 0; i < decoded.errors.length; i++) {
                         message += '<li>' + decoded.errors[i].msg + '</li><br\>';
-                        code += '<li>' + decoded.errors[i].errCode + '</li><br\><br\>';
                     }
                     message += '</ul>';
                 } else {
