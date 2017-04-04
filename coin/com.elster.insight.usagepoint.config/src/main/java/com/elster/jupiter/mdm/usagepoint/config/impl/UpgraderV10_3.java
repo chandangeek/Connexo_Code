@@ -65,6 +65,8 @@ class UpgraderV10_3 implements Upgrader, PrivilegesProvider {
         upgradeResidentialNetMeteringConsumption();
         upgradeResidentialNetMeteringProduction();
         upgradeResidentialProsumerWith1Meter();
+        upgradeResidentialProsumerWith2Meter();
+        metrologyConfigurationsInstaller.residentialWater();
         upgradeGapAllowedFlagForMetrologyConfigurations();
         userService.addModulePrivileges(this);
     }
@@ -87,36 +89,36 @@ class UpgraderV10_3 implements Upgrader, PrivilegesProvider {
     }
 
     private void upgradeResidentialNetMeteringConsumption() {
-        Optional<MetrologyConfiguration> metrologyConfiguration = metrologyConfigurationService.findMetrologyConfiguration("Residential net metering (consumption)");
-        if (metrologyConfiguration.isPresent() && metrologyConfiguration.get()
-                .getDeliverables()
-                .stream()
-                .noneMatch(d -> d.getName().equals("A+ kWh"))) {
-            Optional<MeterRole> meterRole = metrologyConfigurationService.findMeterRole(DefaultMeterRole.DEFAULT.getKey());
-            Optional<ReadingTypeTemplate> readingTypeTemplate = metrologyConfigurationService.findReadingTypeTemplate(DefaultReadingTypeTemplate.BULK_A_PLUS
+        metrologyConfigurationService.findMetrologyConfiguration("Residential net metering (consumption)")
+                .filter(metrologyConfiguration -> metrologyConfiguration instanceof UsagePointMetrologyConfiguration)
+                .map(UsagePointMetrologyConfiguration.class::cast)
+                .ifPresent(metrologyConfiguration -> {
+                    Optional<MeterRole> meterRole = metrologyConfigurationService.findMeterRole(DefaultMeterRole.DEFAULT.getKey());
+                    Optional<ReadingTypeTemplate> readingTypeTemplate = metrologyConfigurationService.findReadingTypeTemplate(DefaultReadingTypeTemplate.BULK_A_PLUS
                     .getNameTranslation()
                     .getDefaultFormat());
-            Optional<MetrologyPurpose> purposeInformation = metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION);
-            Optional<MetrologyContract> contract = metrologyConfiguration.flatMap(mc -> mc.getContracts()
+                    Optional<MetrologyPurpose> purposeInformation = metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION);
+                    Optional<MetrologyContract> contract = metrologyConfiguration.getContracts()
                     .stream()
                     .filter(mct -> purposeInformation.isPresent() && purposeInformation.get()
                             .equals(mct.getMetrologyPurpose()))
-                    .findFirst());
+                    .findFirst();
 
             if (contract.isPresent() && meterRole.isPresent() && readingTypeTemplate.isPresent()) {
                 ReadingType readingTypeAplusWh = meteringService.findReadingTypes(Collections.singletonList(MetrologyConfigurationsInstaller.BULK_A_PLUS_WH))
                         .stream()
                         .findFirst()
                         .orElseGet(() -> meteringService.createReadingType(MetrologyConfigurationsInstaller.BULK_A_PLUS_WH, "A+"));
-                ReadingTypeRequirement requirementAplusRegister = ((UsagePointMetrologyConfiguration) metrologyConfiguration
-                        .get()).newReadingTypeRequirement(DefaultReadingTypeTemplate.BULK_A_PLUS.getNameTranslation()
+                ReadingTypeRequirement requirementAplusRegister = (metrologyConfiguration)
+                        .newReadingTypeRequirement(DefaultReadingTypeTemplate.BULK_A_PLUS.getNameTranslation()
                         .getDefaultFormat(), meterRole.get())
                         .withReadingTypeTemplate(readingTypeTemplate.get());
-                contract.get()
-                        .addDeliverable(metrologyConfigurationsInstaller.buildFormulaSingleRequirement(((UsagePointMetrologyConfiguration) metrologyConfiguration
-                                .get()), readingTypeAplusWh, requirementAplusRegister, "A+ kWh"));
+                if (contract.get().getDeliverables().stream()
+                        .noneMatch(deliverable -> readingTypeAplusWh.equals(deliverable.getReadingType()))) {
+                    metrologyConfigurationsInstaller.buildFormulaSingleRequirement((contract.get()), readingTypeAplusWh, requirementAplusRegister, "A+ kWh");
+                }
             }
-        }
+        });
     }
 
     private void upgradeResidentialNetMeteringProduction() {
@@ -155,8 +157,7 @@ class UpgraderV10_3 implements Upgrader, PrivilegesProvider {
                                             .orElseGet(() -> mc.newReadingTypeRequirement(DefaultReadingTypeTemplate.A_MINUS.getNameTranslation().getDefaultFormat(), meterRole)
                                                     .withReadingTypeTemplate(readingTypeTemplate));
                                     ReadingTypeDeliverable min15 = metrologyConfigurationsInstaller.buildFormulaSingleRequirement(
-                                            mc, readingType15minAMinusWh, requirementAMinus, "15-min A- kWh");
-                                    contractInformation.addDeliverable(min15);
+                                            contractInformation, readingType15minAMinusWh, requirementAMinus, "15-min A- kWh");
                                     return min15;
                                 });
                         // add second reading type if not found
@@ -167,60 +168,140 @@ class UpgraderV10_3 implements Upgrader, PrivilegesProvider {
                         // add second deliverable if not found
                         if (contractInformation.getDeliverables().stream()
                                 .noneMatch(deliverable -> readingTypeHourlyAMinusWh.equals(deliverable.getReadingType()))) {
-                            contractInformation.addDeliverable(metrologyConfigurationsInstaller.buildFormulaSingleDeliverable(
-                                    mc, readingTypeHourlyAMinusWh, min15Deliverable, "Hourly A- kWh"));
+                            metrologyConfigurationsInstaller.buildFormulaSingleDeliverable(
+                                    contractInformation, readingTypeHourlyAMinusWh, min15Deliverable, "Hourly A- kWh");
                         }
                     }
                 });
     }
 
     private void upgradeResidentialProsumerWith1Meter() {
-        Optional<MetrologyConfiguration> usagePointMetrologyConfiguration = metrologyConfigurationService.findMetrologyConfiguration("Residential prosumer with 1 meter");
-        if (usagePointMetrologyConfiguration.isPresent() && usagePointMetrologyConfiguration.get()
-                .getDeliverables()
-                .stream()
-                .noneMatch(d -> d.getName().equals("Hourly average voltage V phase 1 vs N"))) {
+        metrologyConfigurationService.findMetrologyConfiguration("Residential net metering (consumption)")
+                .filter(metrologyConfiguration -> metrologyConfiguration instanceof UsagePointMetrologyConfiguration)
+                .map(UsagePointMetrologyConfiguration.class::cast)
+                .ifPresent(config -> {
+                    ReadingType readingTypeAverageVoltagePhaseA = meteringService.findReadingTypes(Collections.singletonList("0.2.7.6.0.1.158.0.0.0.0.0.0.0.128.0.29.0"))
+                            .stream()
+                            .findFirst()
+                            .orElseGet(() -> meteringService.createReadingType("0.2.7.6.0.1.158.0.0.0.0.0.0.0.128.0.29.0", "Average voltage"));
+                    ReadingType readingTypeAverageVoltagePhaseB = meteringService.findReadingTypes(Collections.singletonList("0.2.7.6.0.1.158.0.0.0.0.0.0.0.64.0.29.0"))
+                            .stream()
+                            .findFirst()
+                            .orElseGet(() -> meteringService.createReadingType("0.2.7.6.0.1.158.0.0.0.0.0.0.0.64.0.29.0", "Average voltage"));
+                    ReadingType readingTypeAverageVoltagePhaseC = meteringService.findReadingTypes(Collections.singletonList("0.2.7.6.0.1.158.0.0.0.0.0.0.0.32.0.29.0"))
+                            .stream()
+                            .findFirst()
+                            .orElseGet(() -> meteringService.createReadingType("0.2.7.6.0.1.158.0.0.0.0.0.0.0.32.0.29.0", "Average voltage"));
+
+                    MetrologyPurpose purposeVoltageMonitoring = metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.VOLTAGE_MONITORING)
+                            .orElseThrow(() -> new NoSuchElementException("Voltage monitoring metrology purpose not found"));
+
+                    MetrologyContract contractVoltageMonitoring = config.addMetrologyContract(purposeVoltageMonitoring);
+
+                    metrologyConfigurationService.findMeterRole(DefaultMeterRole.DEFAULT.getKey()).ifPresent(
+                            meterRole -> {
+                                ReadingTypeRequirement requirementAverageVoltagePhaseA = config.newReadingTypeRequirement(DefaultReadingTypeTemplate.AVERAGE_VOLTAGE
+                                        .getNameTranslation().getDefaultFormat() + " phase A", meterRole)
+                                        .withReadingTypeTemplate(metrologyConfigurationsInstaller.getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate.AVERAGE_VOLTAGE))
+                                        .overrideAttribute(ReadingTypeTemplateAttributeName.PHASE, 128);
+                                ReadingTypeRequirement requirementAverageVoltagePhaseB = config.newReadingTypeRequirement(DefaultReadingTypeTemplate.AVERAGE_VOLTAGE
+                                        .getNameTranslation().getDefaultFormat() + " phase B", meterRole)
+                                        .withReadingTypeTemplate(metrologyConfigurationsInstaller.getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate.AVERAGE_VOLTAGE))
+                                        .overrideAttribute(ReadingTypeTemplateAttributeName.PHASE, 64);
+                                ReadingTypeRequirement requirementAverageVoltagePhaseC = config.newReadingTypeRequirement(DefaultReadingTypeTemplate.AVERAGE_VOLTAGE
+                                        .getNameTranslation().getDefaultFormat() + " phase C", meterRole)
+                                        .withReadingTypeTemplate(metrologyConfigurationsInstaller.getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate.AVERAGE_VOLTAGE))
+                                        .overrideAttribute(ReadingTypeTemplateAttributeName.PHASE, 32);
+
+                                if (contractVoltageMonitoring.getDeliverables().stream()
+                                        .noneMatch(deliverable -> readingTypeAverageVoltagePhaseA.equals(deliverable.getReadingType()))) {
+                                    metrologyConfigurationsInstaller
+                                            .buildFormulaSingleRequirement(contractVoltageMonitoring, readingTypeAverageVoltagePhaseA, requirementAverageVoltagePhaseA, "Hourly average voltage V phase 1 vs N");
+                                }
+                                if (contractVoltageMonitoring.getDeliverables().stream()
+                                        .noneMatch(deliverable -> readingTypeAverageVoltagePhaseB.equals(deliverable.getReadingType()))) {
+                                    metrologyConfigurationsInstaller
+                                            .buildFormulaSingleRequirement(contractVoltageMonitoring, readingTypeAverageVoltagePhaseB, requirementAverageVoltagePhaseB, "Hourly average voltage V phase 2 vs N");
+                                }
+                                if (contractVoltageMonitoring.getDeliverables().stream()
+                                        .noneMatch(deliverable -> readingTypeAverageVoltagePhaseC.equals(deliverable.getReadingType()))) {
+                                    metrologyConfigurationsInstaller
+                                            .buildFormulaSingleRequirement(contractVoltageMonitoring, readingTypeAverageVoltagePhaseC, requirementAverageVoltagePhaseC, "Hourly average voltage V phase 3 vs N");
+
+                                }
+                            }
+            );
+        });
+    }
+
+    private void upgradeResidentialProsumerWith2Meter() {
+        Optional<MetrologyConfiguration> usagePointMetrologyConfiguration = metrologyConfigurationService.findMetrologyConfiguration("Residential prosumer with 2 meter");
+        if (usagePointMetrologyConfiguration.isPresent() && usagePointMetrologyConfiguration.get() instanceof UsagePointMetrologyConfiguration) {
             UsagePointMetrologyConfiguration config = (UsagePointMetrologyConfiguration) usagePointMetrologyConfiguration
                     .get();
-            ReadingType readingTypeAverageVoltagePhaseA = meteringService.findReadingTypes(Collections.singletonList("0.2.7.6.0.1.158.0.0.0.0.0.0.0.128.0.29.0"))
+            ReadingType readingTypeMonthlyAplusWh = meteringService.findReadingTypes(Collections.singletonList(MetrologyConfigurationsInstaller.MONTHLY_A_PLUS_WH))
                     .stream()
                     .findFirst()
-                    .orElseGet(() -> meteringService.createReadingType("0.2.7.6.0.1.158.0.0.0.0.0.0.0.128.0.29.0", "Average voltage"));
-            ReadingType readingTypeAverageVoltagePhaseB = meteringService.findReadingTypes(Collections.singletonList("0.2.7.6.0.1.158.0.0.0.0.0.0.0.64.0.29.0"))
+                    .orElseGet(() -> meteringService.createReadingType(MetrologyConfigurationsInstaller.MONTHLY_A_PLUS_WH, "A+"));
+            ReadingType readingTypeMonthlyNetWh = meteringService.findReadingTypes(Collections.singletonList(MetrologyConfigurationsInstaller.MONTHLY_NET_WH))
                     .stream()
                     .findFirst()
-                    .orElseGet(() -> meteringService.createReadingType("0.2.7.6.0.1.158.0.0.0.0.0.0.0.64.0.29.0", "Average voltage"));
-            ReadingType readingTypeAverageVoltagePhaseC = meteringService.findReadingTypes(Collections.singletonList("0.2.7.6.0.1.158.0.0.0.0.0.0.0.32.0.29.0"))
+                    .orElseGet(() -> meteringService.createReadingType(MetrologyConfigurationsInstaller.MONTHLY_NET_WH, "Monthly Net kWh"));
+            ReadingType readingTypeYearlyNetWh = meteringService.findReadingTypes(Collections.singletonList(MetrologyConfigurationsInstaller.YEARLY_NET_WH))
                     .stream()
                     .findFirst()
-                    .orElseGet(() -> meteringService.createReadingType("0.2.7.6.0.1.158.0.0.0.0.0.0.0.32.0.29.0", "Average voltage"));
+                    .orElseGet(() -> meteringService.createReadingType(MetrologyConfigurationsInstaller.YEARLY_NET_WH, "Yearly Net kWh"));
+            ReadingType readingTypeYearlyAminusWh = meteringService.findReadingTypes(Collections.singletonList(MetrologyConfigurationsInstaller.YEARLY_A_MINUS_WH))
+                    .stream()
+                    .findFirst()
+                    .orElseGet(() -> meteringService.createReadingType(MetrologyConfigurationsInstaller.YEARLY_A_MINUS_WH, "A-"));
 
-            MetrologyPurpose purposeVoltageMonitoring = metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.VOLTAGE_MONITORING)
-                    .orElseThrow(() -> new NoSuchElementException("Voltage monitoring metrology purpose not found"));
-
-            MetrologyContract contractVoltageMonitoring = config.addMetrologyContract(purposeVoltageMonitoring);
+            MetrologyPurpose purposeBilling = metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.BILLING)
+                    .orElseThrow(() -> new NoSuchElementException("Billing metrology purpose not found"));
+            MetrologyContract contractBilling = config.addMandatoryMetrologyContract(purposeBilling);
 
             metrologyConfigurationService.findMeterRole(DefaultMeterRole.DEFAULT.getKey()).ifPresent(
                     meterRole -> {
-                        ReadingTypeRequirement requirementAverageVoltagePhaseA = config.newReadingTypeRequirement(DefaultReadingTypeTemplate.AVERAGE_VOLTAGE
-                                .getNameTranslation().getDefaultFormat() + " phase A", meterRole)
-                                .withReadingTypeTemplate(metrologyConfigurationsInstaller.getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate.AVERAGE_VOLTAGE))
-                                .overrideAttribute(ReadingTypeTemplateAttributeName.PHASE, 128);
-                        ReadingTypeRequirement requirementAverageVoltagePhaseB = config.newReadingTypeRequirement(DefaultReadingTypeTemplate.AVERAGE_VOLTAGE
-                                .getNameTranslation().getDefaultFormat() + " phase B", meterRole)
-                                .withReadingTypeTemplate(metrologyConfigurationsInstaller.getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate.AVERAGE_VOLTAGE))
-                                .overrideAttribute(ReadingTypeTemplateAttributeName.PHASE, 64);
-                        ReadingTypeRequirement requirementAverageVoltagePhaseC = config.newReadingTypeRequirement(DefaultReadingTypeTemplate.AVERAGE_VOLTAGE
-                                .getNameTranslation().getDefaultFormat() + " phase C", meterRole)
-                                .withReadingTypeTemplate(metrologyConfigurationsInstaller.getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate.AVERAGE_VOLTAGE))
-                                .overrideAttribute(ReadingTypeTemplateAttributeName.PHASE, 32);
+                        ReadingTypeTemplate readingTypeAminusTemplate = metrologyConfigurationService.findReadingTypeTemplate(
+                                DefaultReadingTypeTemplate.A_MINUS.getNameTranslation().getDefaultFormat()).get();
+                        ReadingTypeTemplate readingTypeAplusTemplate = metrologyConfigurationService.findReadingTypeTemplate(
+                                DefaultReadingTypeTemplate.A_PLUS.getNameTranslation().getDefaultFormat()).get();
 
-                        contractVoltageMonitoring.addDeliverable(metrologyConfigurationsInstaller
-                                .buildFormulaSingleRequirement(config, readingTypeAverageVoltagePhaseA, requirementAverageVoltagePhaseA, "Hourly average voltage V phase 1 vs N"));
-                        contractVoltageMonitoring.addDeliverable(metrologyConfigurationsInstaller
-                                .buildFormulaSingleRequirement(config, readingTypeAverageVoltagePhaseB, requirementAverageVoltagePhaseB, "Hourly average voltage V phase 2 vs N"));
-                        contractVoltageMonitoring.addDeliverable(metrologyConfigurationsInstaller
-                                .buildFormulaSingleRequirement(config, readingTypeAverageVoltagePhaseC, requirementAverageVoltagePhaseC, "Hourly average voltage V phase 3 vs N"));
+                        ReadingTypeRequirement requirementAminus = config.getRequirements(meterRole).stream()
+                                .filter(requirement -> requirement instanceof PartiallySpecifiedReadingTypeRequirement)
+                                .map(PartiallySpecifiedReadingTypeRequirement.class::cast)
+                                .filter(requirement -> readingTypeAminusTemplate.equals(requirement.getReadingTypeTemplate()))
+                                .findAny()
+                                .orElseGet(() -> config.newReadingTypeRequirement(DefaultReadingTypeTemplate.A_MINUS.getNameTranslation().getDefaultFormat(), meterRole)
+                                        .withReadingTypeTemplate(readingTypeAminusTemplate));
+                        ReadingTypeRequirement requirementAplus = config.getRequirements(meterRole).stream()
+                                .filter(requirement -> requirement instanceof PartiallySpecifiedReadingTypeRequirement)
+                                .map(PartiallySpecifiedReadingTypeRequirement.class::cast)
+                                .filter(requirement -> readingTypeAplusTemplate.equals(requirement.getReadingTypeTemplate()))
+                                .findAny()
+                                .orElseGet(() -> config.newReadingTypeRequirement(DefaultReadingTypeTemplate.A_PLUS.getNameTranslation().getDefaultFormat(), meterRole)
+                                        .withReadingTypeTemplate(readingTypeAplusTemplate));
+
+                        if (contractBilling.getDeliverables().stream()
+                                .noneMatch(deliverable -> readingTypeMonthlyNetWh.equals(deliverable.getReadingType()))) {
+                            Optional<ReadingTypeDeliverable> oldDeliverable = contractBilling.getDeliverables().stream()
+                                    .filter(deliverable -> readingTypeMonthlyAplusWh.equals(deliverable.getReadingType()))
+                                    .findFirst();
+                            if(oldDeliverable.isPresent()){
+                                oldDeliverable.get().startUpdate().setName("Monthly Net kWh").setReadingType(readingTypeMonthlyNetWh).complete();
+                            } else {
+                                metrologyConfigurationsInstaller.
+                                        buildNonNegativeNetFormula(contractBilling, readingTypeMonthlyNetWh, requirementAplus, requirementAminus, "Monthly Net kWh");
+                            }
+                        }
+                        if (contractBilling.getDeliverables().stream().noneMatch(deliverable -> readingTypeYearlyNetWh.equals(deliverable.getReadingType()))) {
+                            metrologyConfigurationsInstaller.
+                                    buildNonNegativeNetFormula(contractBilling, readingTypeYearlyNetWh, requirementAplus, requirementAminus, "Yearly Net kWh");
+                        }
+                        if (contractBilling.getDeliverables().stream().noneMatch(deliverable -> readingTypeYearlyAminusWh.equals(deliverable.getReadingType()))) {
+                            metrologyConfigurationsInstaller.
+                                    buildFormulaSingleRequirement(contractBilling, readingTypeYearlyAminusWh, requirementAminus, "Yearly A- kWh");
+                        }
                     }
             );
         }
