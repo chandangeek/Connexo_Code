@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.dynamic;
 
 import com.elster.jupiter.properties.TimeDurationValueFactory;
@@ -8,5 +12,5 @@ import com.elster.jupiter.properties.TimeDurationValueFactory;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-11-29 (17:39)
  */
-public class DurationValueFactory extends TimeDurationValueFactory {
+public class TemporalAmountValueFactory extends TimeDurationValueFactory {
 }

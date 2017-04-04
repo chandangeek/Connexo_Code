@@ -25,7 +25,6 @@ import com.energyict.mdc.dynamic.ObisCodeValueFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.TemporalAmountValueFactory;
 import com.energyict.mdc.upl.properties.HexString;
-import com.elster.jupiter.properties.TimeDurationValueFactory;
 
 import com.energyict.obis.ObisCode;
 import com.google.inject.AbstractModule;
@@ -119,6 +118,11 @@ public class PropertySpecServiceImpl implements PropertySpecService, MessageSeed
     @Override
     public PropertySpecBuilderWizard.NlsOptions<HexString> encryptedHexStringSpec() {
         return this.specForValuesOf(new EncryptedHexStringFactory(this.dataVaultService).addValidator(new HexStringLengthValidator().withLength(32) ));
+    }
+
+    @Override
+    public PropertySpecBuilderWizard.NlsOptions<TimeDuration> timeDurationSpec() {
+        return this.basicPropertySpecService.timeDurationSpec();
     }
 
     @Override
