@@ -57,7 +57,11 @@ import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationModule;
-import com.energyict.mdc.device.config.*;
+import com.energyict.mdc.device.config.ConflictingSecuritySetSolution;
+import com.energyict.mdc.device.config.DeviceConfigConflictMapping;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.config.impl.deviceconfigchange.DeviceConfigConflictMappingHandler;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
@@ -84,33 +88,39 @@ import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.fest.assertions.api.Assertions;
 import org.fest.assertions.core.Condition;
-import org.junit.*;
-import org.junit.rules.TestRule;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
 import java.time.Clock;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.Optional;
 
-import static com.energyict.mdc.device.config.DeviceSecurityUserAction.*;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SecurityPropertySetImplCrudIT {
@@ -357,8 +367,6 @@ public class SecurityPropertySetImplCrudIT {
         propertySet = deviceConfiguration.createSecurityPropertySet("Name")
                 .authenticationLevel(1)
                 .encryptionLevel(2)
-                .addUserAction(EDITDEVICESECURITYPROPERTIES1)
-                .addUserAction(EDITDEVICESECURITYPROPERTIES2)
                 .build();
         deviceConfiguration.enableComTask(testComTask, propertySet).add();
         // prepareDelete should delete everything
