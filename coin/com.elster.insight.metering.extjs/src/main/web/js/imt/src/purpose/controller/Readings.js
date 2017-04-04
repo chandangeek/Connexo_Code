@@ -627,7 +627,7 @@ Ext.define('Imt.purpose.controller.Readings', {
                     } else {
                         Ext.Array.each(responseText, function (estimatedReading) {
                             Ext.Array.findBy(readings, function (reading) {
-                                if (estimatedReading.interval.start == reading.get('interval').start) {
+                                if (reading.get('reportedDateTime').getTime() === estimatedReading.reportedDateTime) {
                                     me.updateEstimatedValues(record, reading, estimatedReading, ruleId);
                                     return true;
                                 }
