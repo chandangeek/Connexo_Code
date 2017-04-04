@@ -25,6 +25,7 @@ import com.energyict.mdc.dynamic.ObisCodeValueFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.TemporalAmountValueFactory;
 import com.energyict.mdc.upl.properties.HexString;
+import com.elster.jupiter.properties.TimeDurationValueFactory;
 
 import com.energyict.obis.ObisCode;
 import com.google.inject.AbstractModule;
