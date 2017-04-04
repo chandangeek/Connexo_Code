@@ -31,8 +31,6 @@ import java.util.Date;
 public enum SimplePropertyType implements PropertyType {
     PASSWORD(Password.class),
     HEXSTRING(HexString.class),
-    TEMPORALAMOUNT(TemporalAmount.class),
-    DURATION(Duration.class),
     TIMEOFDAY(TimeOfDay.class),
     CLOCK(DateAndTimeFactory.class),
     CODETABLE(Calendar.class, true),

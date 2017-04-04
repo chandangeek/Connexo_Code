@@ -37,6 +37,7 @@ import com.energyict.mdc.pluggable.rest.impl.properties.PasswordPropertyValueCon
 import com.energyict.mdc.pluggable.rest.impl.properties.ReadingTypePropertyValueConverter;
 import com.energyict.mdc.pluggable.rest.impl.properties.RegisterPropertyValueConverter;
 import com.energyict.mdc.pluggable.rest.impl.properties.TemporalAmountPropertyValueConverter;
+import com.energyict.mdc.pluggable.rest.impl.properties.TimeOfDayPropertyValueConverter;
 import com.energyict.mdc.pluggable.rest.impl.properties.TimeZoneInUsePropertyValueConverter;
 import com.energyict.mdc.pluggable.rest.impl.properties.UsagePointPropertyValueConverter;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
@@ -106,6 +107,7 @@ public class MdcPluggableRestApplication extends Application implements MessageS
         propertyValueInfoService.addPropertyValueInfoConverter(new PasswordPropertyValueConverter());
         propertyValueInfoService.addPropertyValueInfoConverter(new ReadingTypePropertyValueConverter());
         propertyValueInfoService.addPropertyValueInfoConverter(new RegisterPropertyValueConverter());
+        propertyValueInfoService.addPropertyValueInfoConverter(new TimeOfDayPropertyValueConverter());
         propertyValueInfoService.addPropertyValueInfoConverter(new DurationPropertyValueConverter(thesaurus));
         propertyValueInfoService.addPropertyValueInfoConverter(new TemporalAmountPropertyValueConverter(thesaurus));
         propertyValueInfoService.addPropertyValueInfoConverter(new LocalTimePropertyValueConverter());
