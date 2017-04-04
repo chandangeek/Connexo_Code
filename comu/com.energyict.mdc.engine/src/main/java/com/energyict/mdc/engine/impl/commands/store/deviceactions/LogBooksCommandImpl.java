@@ -17,6 +17,7 @@ import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.tasks.LogBooksTask;
+
 import com.energyict.protocol.LogBookReader;
 
 import java.util.ArrayList;
@@ -39,9 +40,6 @@ public class LogBooksCommandImpl extends CompositeComCommandImpl implements LogB
 
     public LogBooksCommandImpl(final GroupedDeviceCommand groupedDeviceCommand, final LogBooksTask logBooksTask, ComTaskExecution comTaskExecution) {
         super(groupedDeviceCommand);
-        if (groupedDeviceCommand == null) {
-            throw CodingException.methodArgumentCanNotBeNull(getClass(), "constructor", "commandRoot", MessageSeeds.METHOD_ARGUMENT_CAN_NOT_BE_NULL);
-        }
         if (groupedDeviceCommand.getOfflineDevice() == null) {
             throw CodingException.methodArgumentCanNotBeNull(getClass(), "constructor", "offlineDevice", MessageSeeds.METHOD_ARGUMENT_CAN_NOT_BE_NULL);
         }

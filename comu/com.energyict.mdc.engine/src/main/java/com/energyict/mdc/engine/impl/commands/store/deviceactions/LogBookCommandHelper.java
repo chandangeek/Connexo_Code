@@ -11,6 +11,7 @@ import com.energyict.mdc.engine.impl.commands.collect.LogBooksCommand;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.tasks.LogBooksTask;
+import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
 import com.energyict.mdc.upl.offline.OfflineLogBook;
 
 import com.energyict.protocol.LogBookReader;
@@ -87,6 +88,7 @@ public class LogBookCommandHelper {
     }
 
     private static boolean sameLogBook(LogBookReader newReader, LogBookReader existingReader) {
-        return existingReader.getLogBookIdentifier().equals(newReader.getLogBookIdentifier());
+        return LogBookIdentifier.is(existingReader.getLogBookIdentifier()).equalTo(newReader.getLogBookIdentifier());
     }
+
 }
