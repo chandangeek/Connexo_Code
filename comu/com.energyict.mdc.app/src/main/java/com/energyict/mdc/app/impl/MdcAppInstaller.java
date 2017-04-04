@@ -71,7 +71,7 @@ public class MdcAppInstaller {
                 bind(UserService.class).toInstance(userService);
             }
         });
-        upgradeService.register(InstallIdentifier.identifier("MultiSense", "MDA"), dataModel, Installer.class, ImmutableMap.of(version(10, 2), UpgraderV10_2.class));
+        upgradeService.register(InstallIdentifier.identifier("MultiSense", "MDA"), dataModel, Installer.class, ImmutableMap.of(version(10, 2), UpgraderV10_2.class, version(10, 3), UpgraderV10_3.class));
     }
 
     public static class Installer implements FullInstaller {
@@ -170,6 +170,9 @@ public class MdcAppInstaller {
                     com.energyict.mdc.device.data.security.Privileges.Constants.VIEW_DEVICE,
                     com.energyict.mdc.device.data.security.Privileges.Constants.ADMINISTRATE_DEVICE_ATTRIBUTE,
                     com.energyict.mdc.device.data.security.Privileges.Constants.ADMINISTER_DEVICE_TIME_SLICED_CPS,
+                    com.energyict.mdc.device.data.security.Privileges.Constants.ESTIMATE_WITH_RULE,
+                    com.energyict.mdc.device.data.security.Privileges.Constants.EDIT_WITH_ESTIMATOR,
+
 
                     //Estimation
                     com.elster.jupiter.estimation.security.Privileges.Constants.RUN_ESTIMATION_TASK,
@@ -188,6 +191,7 @@ public class MdcAppInstaller {
                     //Import
                     com.elster.jupiter.fileimport.security.Privileges.Constants.VIEW_IMPORT_SERVICES,
                     com.elster.jupiter.fileimport.security.Privileges.Constants.VIEW_HISTORY,
+                    com.elster.jupiter.fileimport.security.Privileges.Constants.IMPORT_FILE,
 
                     //Issues
                     com.elster.jupiter.issue.security.Privileges.Constants.ACTION_ISSUE,

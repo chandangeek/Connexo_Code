@@ -68,7 +68,8 @@ class MdcAppPrivileges {
                 com.energyict.mdc.device.data.security.Privileges.Constants.REMOVE_DEVICE,
                 com.energyict.mdc.device.data.security.Privileges.Constants.VIEW_DEVICE,
                 com.energyict.mdc.device.data.security.Privileges.Constants.ADMINISTER_DEVICE_TIME_SLICED_CPS,
-
+                com.energyict.mdc.device.data.security.Privileges.Constants.ESTIMATE_WITH_RULE,
+                com.energyict.mdc.device.data.security.Privileges.Constants.EDIT_WITH_ESTIMATOR,
                 //mdc.device.data - Device communication
                 com.energyict.mdc.device.data.security.Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION,
                 com.energyict.mdc.device.data.security.Privileges.Constants.OPERATE_DEVICE_COMMUNICATION,
@@ -136,6 +137,7 @@ class MdcAppPrivileges {
                 //import
                 com.elster.jupiter.fileimport.security.Privileges.Constants.VIEW_IMPORT_SERVICES,
                 com.elster.jupiter.fileimport.security.Privileges.Constants.VIEW_HISTORY,
+                com.elster.jupiter.fileimport.security.Privileges.Constants.IMPORT_FILE,
                 //mdc.firmware
                 com.energyict.mdc.firmware.security.Privileges.Constants.ADMINISTRATE_FIRMWARE_CAMPAIGN,
                 com.energyict.mdc.firmware.security.Privileges.Constants.VIEW_FIRMWARE_CAMPAIGN,
