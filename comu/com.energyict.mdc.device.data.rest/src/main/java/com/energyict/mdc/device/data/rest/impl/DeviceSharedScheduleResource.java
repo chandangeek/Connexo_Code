@@ -4,10 +4,11 @@
 
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.rest.DeviceStatesRestricted;
+import com.energyict.mdc.device.data.rest.DeviceStagesRestricted;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
@@ -31,7 +32,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-@DeviceStatesRestricted({DefaultState.DECOMMISSIONED})
+@DeviceStagesRestricted({EndDeviceStage.POST_OPERATIONAL})
 @Path("/devices/{name}/sharedschedules")
 public class DeviceSharedScheduleResource {
 

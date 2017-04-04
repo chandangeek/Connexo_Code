@@ -6,11 +6,12 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.estimation.security.Privileges;
+import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.rest.DeviceStatesRestricted;
+import com.energyict.mdc.device.data.rest.DeviceStagesRestricted;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 
 import javax.annotation.security.RolesAllowed;
@@ -53,7 +54,7 @@ public class DeviceEstimationResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE)
-    @DeviceStatesRestricted({DefaultState.DECOMMISSIONED})
+    @DeviceStagesRestricted({EndDeviceStage.POST_OPERATIONAL})
     public Response toggleEstimationRuleSetActivation(@PathParam("name") String name, @PathParam("ruleSetId") long ruleSetId, DeviceEstimationRuleSetRefInfo info) {
         info.id = ruleSetId;
         EstimationRuleSet estimationRuleSet = resourceHelper.lockEstimationRuleSetOrThrowException(info);
@@ -71,7 +72,7 @@ public class DeviceEstimationResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(com.energyict.mdc.device.data.security.Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION)
-    @DeviceStatesRestricted({DefaultState.IN_STOCK, DefaultState.DECOMMISSIONED})
+    @DeviceStagesRestricted({EndDeviceStage.PRE_OPERATIONAL, EndDeviceStage.POST_OPERATIONAL})
     public Response toggleEstimationActivationForDevice(@PathParam("name") String name, DeviceInfo info) {
         Device device = resourceHelper.lockDeviceOrThrowException(info);
         if (info.estimationStatus != null) {

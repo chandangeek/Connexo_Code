@@ -111,7 +111,9 @@ public class ChannelResourceHelper {
     }
 
     public ValidationStatusInfo determineStatus(Channel channel) {
-        return new ValidationStatusInfo(isValidationActive(channel), channel.getDevice().forValidation().getLastChecked(channel), hasData(channel));
+        return new ValidationStatusInfo(isValidationActive(channel),
+                channel.getDevice().forValidation().getLastChecked(channel).orElse(null),
+                hasData(channel));
     }
 
 }

@@ -28,6 +28,7 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
@@ -1129,6 +1130,10 @@ public class ResourceHelper {
     private Optional<Instant> getLinkingDate(Device slave) {
         return topologyService.findDataloggerReference(slave, clock.instant())
                 .map(dataLoggerReference -> dataLoggerReference.getRange().lowerEndpoint());
+    }
+
+    public ConnectionTask updateConnectionTask(ConnectionTask connectionTask, ProtocolDialectConfigurationProperties properties){
+        return connectionTaskService.updateProtocolDialectConfigurationProperties(connectionTask, properties);
     }
 
     /**
