@@ -14,6 +14,7 @@ import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -84,8 +85,12 @@ public class OutputChannelDataInfoFactory {
         readingWithValidationStatus.getReadingModificationFlag().ifPresent(modificationFlag -> {
             outputChannelDataInfo.modificationFlag = modificationFlag.getFirst();
             outputChannelDataInfo.editedInApp = modificationFlag.getLast().getType().system().map(ReadingModificationFlag::getApplicationInfo).orElse(null);
-            if(modificationFlag.getLast() instanceof ReadingQualityRecord){
-                outputChannelDataInfo.modificationDate = ((ReadingQualityRecord)modificationFlag.getLast()).getTimestamp();
+            if (modificationFlag.getLast() instanceof ReadingQualityRecord) {
+                Instant timestamp = ((ReadingQualityRecord) modificationFlag.getLast()).getTimestamp();
+                outputChannelDataInfo.modificationDate = timestamp;
+                if(timestamp != null) {
+                    outputChannelDataInfo.reportedDateTime = timestamp;
+                }
             }
         });
     }
