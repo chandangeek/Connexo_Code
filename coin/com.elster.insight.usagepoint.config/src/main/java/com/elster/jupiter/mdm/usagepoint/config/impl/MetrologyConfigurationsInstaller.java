@@ -98,29 +98,31 @@ class MetrologyConfigurationsInstaller {
             return;
         }
         ServiceCategory serviceCategory = this.findElectricityServiceCategoryOrThrowException();
-        UsagePointMetrologyConfiguration config = metrologyConfigurationService.newUsagePointMetrologyConfiguration("Residential prosumer with 1 meter", serviceCategory)
-                .withDescription("Typical installation for residential prosumers with smart meter")
-                .withUsagePointRequirement(
-                        getUsagePointRequirement(
-                                SERVICEKIND,
-                                SearchablePropertyOperator.EQUAL,
-                                ServiceKind.ELECTRICITY.name()))
-                .withUsagePointRequirement(
-                        getUsagePointRequirement(
-                                DETAIL_PHASE_CODE,
-                                SearchablePropertyOperator.EQUAL,
-                                PhaseCode.S1N.name(),
-                                PhaseCode.S2N.name(),
-                                PhaseCode.S12N.name(),
-                                PhaseCode.S1.name(),
-                                PhaseCode.S2.name(),
-                                PhaseCode.S12.name()))
-                .withUsagePointRequirement(
-                        getUsagePointRequirement(
-                                "type",
-                                SearchablePropertyOperator.EQUAL,
-                                UsagePointTypeInfo.UsagePointType.MEASURED_SDP.name()))
-                .create();
+        UsagePointMetrologyConfiguration config =
+                metrologyConfigurationService
+                        .newUsagePointMetrologyConfiguration("Residential prosumer with 1 meter", serviceCategory)
+                        .withDescription("Typical installation for residential prosumers with smart meter")
+                        .withUsagePointRequirement(
+                                getUsagePointRequirement(
+                                        SERVICEKIND,
+                                        SearchablePropertyOperator.EQUAL,
+                                        ServiceKind.ELECTRICITY.name()))
+                        .withUsagePointRequirement(
+                                getUsagePointRequirement(
+                                        DETAIL_PHASE_CODE,
+                                        SearchablePropertyOperator.EQUAL,
+                                        PhaseCode.S1N.name(),
+                                        PhaseCode.S2N.name(),
+                                        PhaseCode.S12N.name(),
+                                        PhaseCode.S1.name(),
+                                        PhaseCode.S2.name(),
+                                        PhaseCode.S12.name()))
+                        .withUsagePointRequirement(
+                                getUsagePointRequirement(
+                                        "type",
+                                        SearchablePropertyOperator.EQUAL,
+                                        UsagePointTypeInfo.UsagePointType.MEASURED_SDP.name()))
+                        .create();
 
         MeterRole meterRole = findMeterRoleOrThrowException(DefaultMeterRole.DEFAULT);
         config.addMeterRole(meterRole);
