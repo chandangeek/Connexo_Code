@@ -23,6 +23,7 @@ import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingQualityWithTypeFetcher;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.aggregation.MetrologyContractCalculationIntrospector;
 import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.Formula;
@@ -54,6 +55,7 @@ import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.Before;
@@ -123,6 +125,8 @@ public class UsagePointOutputResourceValidationTest extends UsagePointDataRestAp
     private DataValidationStatus estimatedDataValidationStatus, suspectDataValidationStatus, informativeDataValidationStatus;
     @Mock
     private IChannelDataCompletionSummary summary;
+    @Mock
+    private MetrologyContractCalculationIntrospector metrologyContractCalculationIntrospector;
 
     @Before
     public void setStubs() {
@@ -181,6 +185,9 @@ public class UsagePointOutputResourceValidationTest extends UsagePointDataRestAp
         doReturn(Collections.singletonList(readingQualitySuspect)).when(suspectDataValidationStatus).getReadingQualities();
         doReturn(Collections.singletonList(readingQualityInformative)).when(informativeDataValidationStatus).getReadingQualities();
         doReturn(Collections.singletonList(readingQualityEstimated)).when(estimatedDataValidationStatus).getReadingQualities();
+        when(dataAggregationService.introspect(any(),any(),any())).thenReturn(metrologyContractCalculationIntrospector);
+        List<MetrologyContractCalculationIntrospector.CalendarUsage> calendarUsages = Collections.emptyList();
+        when(metrologyContractCalculationIntrospector.getCalendarUsagesFor(any())).thenReturn(calendarUsages);
     }
 
     private ReadingQualityRecord mockReadingQuality(ReadingQualityType readingQualityType) {
