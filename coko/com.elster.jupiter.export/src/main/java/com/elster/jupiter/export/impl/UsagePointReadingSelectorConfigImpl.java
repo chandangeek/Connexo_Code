@@ -94,6 +94,7 @@ class UsagePointReadingSelectorConfigImpl extends ReadingDataSelectorConfigImpl 
                 .flatMap(usagePoint -> usagePoint.getEffectiveMetrologyConfigurations(exportInterval).stream())
                 .flatMap(effectiveMetrologyConfiguration ->
                         effectiveMetrologyConfiguration.getMetrologyConfiguration().getContracts().stream()
+                                .filter(contract -> getMetrologyPurpose().map(purpose -> purpose.equals(contract.getMetrologyPurpose())).orElse(true))
                                 .map(effectiveMetrologyConfiguration::getChannelsContainer)
                                 .flatMap(Functions.asStream())
                 )
@@ -106,7 +107,7 @@ class UsagePointReadingSelectorConfigImpl extends ReadingDataSelectorConfigImpl 
                 .map(r -> getExportItems().stream()
                         .map(IReadingTypeDataExportItem.class::cast)
                         .filter(item -> r.equals(item.getReadingType()))
-                        .filter(i -> i.getDomainObject().equals(channelsContainer.getUsagePoint().get()))
+                        .filter(i -> i.getReadingContainer().equals(channelsContainer))
                         .findAny()
                         .orElseGet(() -> addExportItem(channelsContainer, r))
                 );
