@@ -134,7 +134,19 @@ final class SqlConstants {
         RECORDTIME("recordtime", "RECORDTIME") {
             @Override
             void appendAsDeliverableSelectValue(Formula.Mode mode, ServerExpressionNode expressionNode, Optional<IntervalLength> expertIntervalLength, VirtualReadingType targetReadingType, SqlBuilder sqlBuilder) {
-                sqlBuilder.append(VIRTUAL_RECORD_TIME);
+                RecordTimeFromExpressionNode visitor = new RecordTimeFromExpressionNode();
+                expressionNode.accept(visitor);
+                String value = visitor.getSqlName();
+                if (value == null) {
+                    sqlBuilder.append("0");
+                } else if (expertIntervalLength.isPresent()) {
+                    sqlBuilder.append(AggregationFunction.MAX.sqlName());
+                    sqlBuilder.append("(");
+                    sqlBuilder.append(value);
+                    sqlBuilder.append(")");
+                } else {
+                    sqlBuilder.append(value);
+                }
             }
 
             @Override

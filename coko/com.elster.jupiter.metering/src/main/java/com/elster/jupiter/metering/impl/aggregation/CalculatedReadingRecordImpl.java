@@ -59,6 +59,7 @@ class CalculatedReadingRecordImpl implements CalculatedReadingRecord {
     private Quantity value;         // Maybe null if record was missing
     private Timestamp localDate;    // Maybe null if record was missing
     private Instant timestamp;      // Never null, even if record was missing, in that case the timestamp is taken from the reading quality entity
+    private Instant recordTime;     // Maybe null if record was missing
     private Optional<Range<Instant>> timePeriod;
     private UsagePoint usagePoint;
     private long readingQuality;
@@ -96,6 +97,7 @@ class CalculatedReadingRecordImpl implements CalculatedReadingRecord {
             merged.value = merged.readingType.toQuantity(merged.rawValue);
             merged.localDate = r1.localDate;
             merged.timestamp = mergedTimestamp;
+            merged.recordTime = max(r1.recordTime, r2.recordTime);
             merged.usagePoint = r1.usagePoint;
             merged.readingQuality = Math.max(r1.readingQuality, r2.readingQuality);
             merged.count = r1.count + r2.count;
@@ -104,6 +106,14 @@ class CalculatedReadingRecordImpl implements CalculatedReadingRecord {
             return merged;
         } else {
             return merge(r2, r1, mergedTimestamp, truncaterFactory, sourceChannelSetFactory);
+        }
+    }
+
+    private static Instant max(Instant timestamp1, Instant timestamp2) {
+        if (timestamp1.compareTo(timestamp2) < 0) {
+            return timestamp2;
+        } else {
+            return timestamp1;
         }
     }
 
@@ -141,6 +151,7 @@ class CalculatedReadingRecordImpl implements CalculatedReadingRecord {
             this.rawValue = resultSet.getBigDecimal(columnIndex++);
             this.localDate = resultSet.getTimestamp(columnIndex++);
             this.timestamp = Instant.ofEpochMilli(resultSet.getLong(columnIndex++));
+            this.recordTime = Instant.ofEpochMilli(resultSet.getLong(columnIndex++));
             this.readingQuality = resultSet.getLong(columnIndex++);
             this.count = resultSet.getLong(columnIndex++);
             this.sourceChannelSet = sourceChannelSetFactory.parseFromString(resultSet.getString(columnIndex++));
@@ -198,6 +209,7 @@ class CalculatedReadingRecordImpl implements CalculatedReadingRecord {
         this.rawValue = null;
         this.localDate = new java.sql.Timestamp(timestamp.toEpochMilli());
         this.timestamp = timestamp;
+        this.recordTime = null; // Records that are part of a gap don't actually exist so should not have a record time
         this.readingQuality = 0;
         this.count = 0; // Not expecting any interval when record is part of a time of use gap
         this.sourceChannelSet = sourceChannelSetFactory.empty();
@@ -222,6 +234,7 @@ class CalculatedReadingRecordImpl implements CalculatedReadingRecord {
         record.setReadingType(this.readingType);
         record.localDate = new java.sql.Timestamp(timeStamp.toEpochMilli());
         record.timestamp = timeStamp;
+        record.recordTime = this.recordTime;
         record.readingQuality = this.readingQuality;
         record.count = 1;
         record.sourceChannelSet = this.sourceChannelSet;
@@ -347,7 +360,7 @@ class CalculatedReadingRecordImpl implements CalculatedReadingRecord {
 
     @Override
     public Instant getReportedDateTime() {
-        return null;
+        return this.recordTime;
     }
 
     @Override

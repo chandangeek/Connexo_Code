@@ -311,8 +311,7 @@ class ReadingTypeDeliverableForMeterActivationSet {
 
     private void appendTimelineToSelectClause(SqlBuilder sqlBuilder) {
         if (this.resultValueNeedsTimeBasedAggregation()) {
-            Loggers.SQL.debug(() -> "Truncating timeline for deliverable " + this.deliverable.getName() + " in meter activation set " + this.meterActivationSet
-                    .getRange());
+            Loggers.SQL.debug(() -> "Truncating timeline for deliverable " + this.deliverable.getName() + " in meter activation set " + this.meterActivationSet.getRange());
             this.appendTruncatedTimeline(sqlBuilder, this.sqlName() + "." + SqlConstants.TimeSeriesColumnNames.LOCALDATE.sqlName());
             sqlBuilder.append(", ");
             sqlBuilder.append(AggregationFunction.MAX.sqlName());
@@ -321,10 +320,19 @@ class ReadingTypeDeliverableForMeterActivationSet {
             sqlBuilder.append(".");
             sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.TIMESTAMP.sqlName());
             sqlBuilder.append(")");
+            sqlBuilder.append(", ");
+            sqlBuilder.append(AggregationFunction.MAX.sqlName());
+            sqlBuilder.append("(");
+            sqlBuilder.append(this.sqlName());
+            sqlBuilder.append(".");
+            sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.RECORDTIME.sqlName());
+            sqlBuilder.append(")");
         } else {
             this.appendTimeSeriesColumnName(SqlConstants.TimeSeriesColumnNames.LOCALDATE, sqlBuilder, this.sqlName());
             sqlBuilder.append(", ");
             this.appendTimeSeriesColumnName(SqlConstants.TimeSeriesColumnNames.TIMESTAMP, sqlBuilder, this.sqlName());
+            sqlBuilder.append(", ");
+            this.appendTimeSeriesColumnName(SqlConstants.TimeSeriesColumnNames.RECORDTIME, sqlBuilder, this.sqlName());
         }
     }
 
