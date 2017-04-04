@@ -1,7 +1,7 @@
 package com.energyict.mdc.upl.properties;
 
 /**
- * Modesl the different modes of selecting a value for a {@link PropertySpec} in a user interface.
+ * Models the different modes of selecting a value for a {@link PropertySpec} in a user interface.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-11-21 (09:22)
