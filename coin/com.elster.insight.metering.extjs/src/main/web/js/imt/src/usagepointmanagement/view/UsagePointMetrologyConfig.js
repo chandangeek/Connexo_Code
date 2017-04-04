@@ -59,7 +59,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointMetrologyConfig', {
                 fieldLabel: ' ',
                 htmlEncode: false,
                 privileges: Imt.privileges.UsagePoint.canAdministrate()
-                && me.usagePoint.get('state').stage === 'PRE_OPERATIONAL'
+                && me.usagePoint.get('state').stageName === 'mtr.usagepointstage.preoperational'
                 && Ext.isEmpty(metrologyConfiguration),
                 renderer: function () {
                     var url = me.router.getRoute('usagepoints/view/definemetrology').buildUrl({}, {fromLandingPage: true});
@@ -77,7 +77,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointMetrologyConfig', {
             {
                 itemId: 'up-metrology-config-meters-empty',
                 fieldLabel: ' ',
-                privileges: me.usagePoint.get('state').stage === 'PRE_OPERATIONAL'
+                privileges: me.usagePoint.get('state').stageName === 'mtr.usagepointstage.preoperational'
                 && !Ext.isEmpty(metrologyConfiguration)
                 && !Ext.isEmpty(metrologyConfiguration.meterRoles)
                 && Imt.privileges.UsagePoint.canAdministrate(),
