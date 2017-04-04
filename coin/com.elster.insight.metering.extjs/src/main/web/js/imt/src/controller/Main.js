@@ -10,6 +10,7 @@ Ext.define('Imt.controller.Main', {
 
     requires: [
         'Uni.controller.Navigation',
+        'Uni.property.controller.Registry',
         'Imt.usagepointmanagement.controller.View',
         'Imt.usagepointmanagement.controller.Edit',
         'Imt.devicemanagement.controller.Device',
@@ -20,7 +21,14 @@ Ext.define('Imt.controller.Main', {
         'Imt.processes.controller.MonitorProcesses',
         'Imt.servicecalls.controller.ServiceCalls',
         'Imt.metrologyconfiguration.controller.View',
-        'Imt.usagepointsetup.controller.MetrologyConfig'
+        'Imt.usagepointsetup.controller.MetrologyConfig',
+
+        'Imt.processes.view.MetrologyConfigurationOutputs',
+        'Imt.processes.view.LinkedMeterActivations',
+        'Imt.processes.view.AvailableMeters',
+        'Imt.processes.view.AvailableMetrologyConfigurations',
+        'Imt.processes.view.PurposesOnMetrologyConfigarations',
+        'Imt.processes.view.AvailableTransitions'
     ],
 
     privileges: [],
@@ -84,6 +92,7 @@ Ext.define('Imt.controller.Main', {
         this.initHistorians();
         this.initMenu();
         this.initDynamicMenusListeners();
+        this.loadCustomProperties();
         this.callParent();
     },
 
@@ -94,6 +103,15 @@ Ext.define('Imt.controller.Main', {
         me.getController('Imt.controller.Dashboard');
         me.getController('Cfg.controller.Validation');
         me.getController('Est.estimationrulesets.controller.EstimationRuleSets');
+    },
+
+    loadCustomProperties: function(){
+        Uni.property.controller.Registry.addProperty('METROLOGYCONFIGOUTPUT', 'Imt.processes.view.MetrologyConfigurationOutputs');
+        Uni.property.controller.Registry.addProperty('UP_METERACTIVATION', 'Imt.processes.view.LinkedMeterActivations');
+        Uni.property.controller.Registry.addProperty('METER_MRID', 'Imt.processes.view.AvailableMeters');
+        Uni.property.controller.Registry.addProperty('METROLOGYCONFIGURATION', 'Imt.processes.view.AvailableMetrologyConfigurations');
+        Uni.property.controller.Registry.addProperty('METROLOGYPURPOSES', 'Imt.processes.view.PurposesOnMetrologyConfigarations');
+        Uni.property.controller.Registry.addProperty('UP_TRANSITION', 'Imt.processes.view.AvailableTransitions');
     },
 
     initDynamicMenusListeners: function () {
