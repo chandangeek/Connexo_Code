@@ -8,14 +8,16 @@ Ext.define('Apr.view.appservers.Menu', {
 
     router: null,
 
-    title: Uni.I18n.translate('general.applicationServer', 'APR', 'Application server'),
+    appServerName: Uni.I18n.translate('general.applicationServer', 'APR', 'Application server'),
+    objectType: Uni.I18n.translate('general.applicationServer', 'APR', 'Application server'),
 
     initComponent: function () {
         var me = this;
+        me.title = me.appServerName;
 
         me.menuItems = [
             {
-                text: me.appServerName,
+                text: Uni.I18n.translate('general.details', 'APR', 'Details'),
                 itemId: 'apr-overview-link',
                 href: me.router.getRoute('administration/appservers/overview').buildUrl({appServerName: me.appServerName})
             },

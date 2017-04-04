@@ -31,6 +31,7 @@ Ext.define('Apr.view.appservers.Grid', {
             },
             {
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 privileges: Apr.privileges.AppServer.admin,
                 menu: {
                     xtype: 'appservers-action-menu',

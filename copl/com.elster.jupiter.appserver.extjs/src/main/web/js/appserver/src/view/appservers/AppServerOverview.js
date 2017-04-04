@@ -38,7 +38,7 @@ Ext.define('Apr.view.appservers.AppServerOverview', {
                 items: [
                 {
                     ui: 'large',
-                    title: Uni.I18n.translate('general.overview', 'APR', 'Overview'),
+                    title: Uni.I18n.translate('general.details', 'APR', 'Details'),
                     flex: 1,
                     items: {
                         xtype: 'appservers-preview-form',

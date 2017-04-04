@@ -32,6 +32,7 @@ Ext.define('Apr.view.messagequeues.MonitorGrid', {
             },
             {
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 privileges: Apr.privileges.AppServer.admin,
                 menu: {
                     xtype: 'monitor-action-menu',

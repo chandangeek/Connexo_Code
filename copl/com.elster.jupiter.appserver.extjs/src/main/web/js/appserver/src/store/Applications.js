@@ -6,25 +6,6 @@ Ext.define('Apr.store.Applications', {
     extend: 'Ext.data.Store',
     model: 'Apr.model.Application',
     autoLoad: false,
-    /*data: {
-        applications: [
-            {
-                application: 'app111'
-            },
-            {
-                application: 'app222'
-            }
-        ]
-    },*/
-
-
-    /*proxy: {
-        type: 'memory',
-        reader: {
-            type: 'json',
-            root: 'applications'
-        }
-    }*/
 
     proxy: {
         type: 'rest',
@@ -33,6 +14,13 @@ Ext.define('Apr.store.Applications', {
             type: 'json',
             root: 'applications'
         }
-    }
+    },
+
+    sorters: [
+        {
+            property: 'name',
+            direction: 'ASC'
+        }
+    ]
 
 });

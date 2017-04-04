@@ -6,25 +6,6 @@ Ext.define('Apr.store.Queues', {
     extend: 'Ext.data.Store',
     model: 'Apr.model.Queue',
     autoLoad: false,
-    /*data: {
-        queues: [
-            {
-                queue: 'queue1'
-            },
-            {
-                queue: 'queue2'
-            }
-        ]
-    },
-
-
-    proxy: {
-        type: 'memory',
-        reader: {
-            type: 'json',
-            root: 'queues'
-        }
-    }*/
 
     proxy: {
         type: 'rest',
@@ -33,5 +14,12 @@ Ext.define('Apr.store.Queues', {
             type: 'json',
             root: 'queues'
         }
-    }
+    },
+
+    sorters: [
+        {
+            property: 'queue',
+            direction: 'ASC'
+        }
+    ]
 });
