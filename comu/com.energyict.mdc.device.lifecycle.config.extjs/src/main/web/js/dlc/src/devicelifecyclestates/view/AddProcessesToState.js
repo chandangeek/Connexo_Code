@@ -32,7 +32,7 @@ Ext.define('Dlc.devicelifecyclestates.view.AddProcessesToState', {
                     emptyComponent: {
                         xtype: 'no-items-found-panel',
                         margin: '15 0 20 0',
-                        title: Uni.I18n.translate('transitionBusinessProcess.empty.title', 'DLC', 'No processes found.'),
+                        title: Uni.I18n.translate('transitionBusinessProcess.empty.title', 'DLC', 'No processes found'),
                         reasons: [
                             Uni.I18n.translate('transitionBusinessProcess.empty.list.item1', 'DLC', 'No processes are defined yet'),
                             Uni.I18n.translate('transitionBusinessProcess.empty.list.item2', 'DLC', 'All processes are already added to the state.')
