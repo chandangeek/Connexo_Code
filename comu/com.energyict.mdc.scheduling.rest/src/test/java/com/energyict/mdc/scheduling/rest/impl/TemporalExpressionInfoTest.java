@@ -6,7 +6,7 @@ package com.energyict.mdc.scheduling.rest.impl;
 
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.common.rest.TimeDurationInfo;
+import com.elster.jupiter.time.rest.TimeDurationInfo;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
 
 import java.time.Duration;
@@ -18,9 +18,6 @@ import org.junit.Test;
 import static com.elster.jupiter.devtools.tests.assertions.JupiterAssertions.assertThat;
 import static org.junit.Assert.fail;
 
-/**
- * Created by bvn on 12/29/14.
- */
 public class TemporalExpressionInfoTest {
 
     @Test
