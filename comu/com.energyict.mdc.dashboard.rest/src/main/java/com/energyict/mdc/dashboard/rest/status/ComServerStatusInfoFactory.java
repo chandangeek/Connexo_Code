@@ -5,16 +5,13 @@
 package com.energyict.mdc.dashboard.rest.status;
 
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.common.rest.TimeDurationInfo;
+import com.elster.jupiter.time.rest.TimeDurationInfo;
 import com.energyict.mdc.dashboard.rest.status.impl.ComServerTypeAdapter;
 import com.energyict.mdc.engine.status.ComServerStatus;
 import com.energyict.mdc.engine.status.ComServerType;
 
 import javax.inject.Inject;
 
-/**
- * Created by bvn on 10/2/14.
- */
 public class ComServerStatusInfoFactory {
 
     private static final ComServerTypeAdapter COM_SERVER_TYPE_ADAPTER = new ComServerTypeAdapter();

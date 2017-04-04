@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.dashboard.rest.status;
 
-import com.energyict.mdc.common.rest.TimeDurationInfo;
+import com.elster.jupiter.time.rest.TimeDurationInfo;
 
 import java.time.Instant;
 

@@ -6,8 +6,8 @@ package com.energyict.mdc.dashboard.rest.status.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
+import com.elster.jupiter.time.rest.TimeDurationInfo;
 import com.energyict.mdc.common.ComWindow;
-import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.configuration.rest.DeviceConfigurationIdInfo;
 import com.energyict.mdc.device.data.Device;
@@ -53,7 +53,7 @@ public class ConnectionTaskInfoFactory {
             info.taskCount.numberOfIncompleteTasks = comSession.getNumberOfPlannedButNotExecutedTasks();
             info.startDateTime = comSession.getStartDate().with(ChronoField.MILLI_OF_SECOND, 0);
             info.endDateTime = comSession.getStopDate().with(ChronoField.MILLI_OF_SECOND, 0);
-            info.duration=new TimeDurationInfo(Duration.ofMillis(info.endDateTime.toEpochMilli() - info.startDateTime.toEpochMilli()).getSeconds());   // JP-6022
+            info.duration = new TimeDurationInfo(Duration.ofMillis(info.endDateTime.toEpochMilli() - info.startDateTime.toEpochMilli()).getSeconds());   // JP-6022
             info.comPort = new IdWithNameInfo(comSession.getComPort());
             info.comServer = new IdWithNameInfo(comSession.getComPort().getComServer());
             info.comSessionId = comSession.getId();
