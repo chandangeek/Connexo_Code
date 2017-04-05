@@ -6,12 +6,15 @@ package com.elster.jupiter.metering.impl.aggregation;
 
 import com.elster.jupiter.cbo.Accumulation;
 import com.elster.jupiter.cbo.Commodity;
+import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.MetricMultiplier;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
+import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.slp.SyntheticLoadProfile;
 import com.elster.jupiter.properties.PropertySpec;
@@ -74,6 +77,8 @@ public class SyntheticLoadProfilePropertyNodeTest {
     private MeterActivationSet meterActivationSet;
     @Mock
     private SyntheticLoadProfile syntheticLoadProfile;
+    @Mock
+    private ReadingType syntheticLoadProfileReadingType;
 
     private Range<Instant> meterActivationRange = Range.atLeast(Instant.EPOCH);
 
@@ -81,8 +86,11 @@ public class SyntheticLoadProfilePropertyNodeTest {
     public void initializeMocks() {
         when(this.meterActivationSet.sequenceNumber()).thenReturn(METER_ACTIVATION_SET_SEQUENCE_NUMBER);
         when(this.meterActivationSet.getRange()).thenReturn(this.meterActivationRange);
+        when(syntheticLoadProfileReadingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);
+        when(syntheticLoadProfileReadingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
         when(this.syntheticLoadProfile.getUnitOfMeasure()).thenReturn(Unit.WATT_HOUR);
         when(this.syntheticLoadProfile.getInterval()).thenReturn(Duration.ofMinutes(15));
+        when(this.syntheticLoadProfile.getReadingType()).thenReturn(syntheticLoadProfileReadingType);
         this.initializeCustomPropertySet();
     }
 
@@ -187,7 +195,7 @@ public class SyntheticLoadProfilePropertyNodeTest {
         testInstance.getIntervalLength();
 
         // Asserts
-        verify(this.syntheticLoadProfile).getInterval();
+        verify(this.syntheticLoadProfile).getReadingType();
     }
 
     @Test
@@ -199,7 +207,7 @@ public class SyntheticLoadProfilePropertyNodeTest {
         testInstance.getIntervalLength();
 
         // Asserts
-        verify(this.syntheticLoadProfile).getInterval();
+        verify(this.syntheticLoadProfile).getReadingType();
     }
 
     @Test
@@ -211,7 +219,7 @@ public class SyntheticLoadProfilePropertyNodeTest {
         VirtualReadingType readingType = testInstance.getSourceReadingType();
 
         // Asserts
-        verify(this.syntheticLoadProfile).getInterval();
+        verify(this.syntheticLoadProfile).getReadingType();
         verify(this.syntheticLoadProfile, atLeastOnce()).getUnitOfMeasure();
         assertThat(readingType.getCommodity()).isEqualTo(Commodity.ELECTRICITY_SECONDARY_METERED);
         assertThat(readingType.getAccumulation()).isEqualTo(Accumulation.NOTAPPLICABLE);
@@ -230,7 +238,7 @@ public class SyntheticLoadProfilePropertyNodeTest {
         VirtualReadingType readingType = testInstance.getSourceReadingType();
 
         // Asserts
-        verify(this.syntheticLoadProfile).getInterval();
+        verify(this.syntheticLoadProfile).getReadingType();
         verify(this.syntheticLoadProfile, atLeastOnce()).getUnitOfMeasure();
         assertThat(readingType.getCommodity()).isEqualTo(Commodity.ELECTRICITY_SECONDARY_METERED);
         assertThat(readingType.getAccumulation()).isEqualTo(Accumulation.NOTAPPLICABLE);

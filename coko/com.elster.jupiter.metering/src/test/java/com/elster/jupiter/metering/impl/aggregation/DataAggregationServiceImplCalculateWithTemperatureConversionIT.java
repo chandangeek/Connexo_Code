@@ -359,8 +359,9 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
         this.temperature1RequirementId = temperature.getId();
 
         // Setup configuration deliverables
+        this.contract = this.configuration.addMetrologyContract(METROLOGY_PURPOSE);
         ReadingTypeDeliverableBuilder builder =
-                newDeliveryBuilder("averageT", configuration, C_daily);
+                newDeliveryBuilder("averageT", contract, C_daily);
         ReadingTypeDeliverable avgTemperature =
                 builder.build(builder.plus(
                         builder.requirement(temperature),
@@ -373,9 +374,6 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
 
         // Apply MetrologyConfiguration to UsagePoint
         this.usagePoint.apply(this.configuration, jan1st2016);
-
-        this.contract = this.configuration.addMetrologyContract(METROLOGY_PURPOSE);
-        this.contract.addDeliverable(avgTemperature);
 
         // Business method
         try {
@@ -446,8 +444,9 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
         this.temperature1RequirementId = temperature.getId();
 
         // Setup configuration deliverables
+        this.contract = this.configuration.addMetrologyContract(METROLOGY_PURPOSE);
         ReadingTypeDeliverableBuilder builder =
-                newDeliveryBuilder("averageT", configuration, F_daily);
+                newDeliveryBuilder("averageT", contract, F_daily);
         ReadingTypeDeliverable avgTemperature =
                 builder.build(builder.plus(
                         builder.requirement(temperature),
@@ -461,9 +460,6 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
 
         // Apply MetrologyConfiguration to UsagePoint
         this.usagePoint.apply(this.configuration, jan1st2016);
-
-        this.contract = this.configuration.addMetrologyContract(METROLOGY_PURPOSE);
-        this.contract.addDeliverable(avgTemperature);
 
         // Business method
         try {
@@ -541,7 +537,8 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
         this.temperature2RequirementId = maxTemperature.getId();
 
         // Setup configuration deliverables
-        ReadingTypeDeliverableBuilder builder = newDeliveryBuilder("averageT", configuration, K_daily);
+        this.contract = this.configuration.addMetrologyContract(METROLOGY_PURPOSE);
+        ReadingTypeDeliverableBuilder builder = newDeliveryBuilder("averageT", contract, K_daily);
         ReadingTypeDeliverable avgTemperature =
                 builder.build(builder.divide(
                         builder.plus(
@@ -561,9 +558,6 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
 
         // Apply MetrologyConfiguration to UsagePoint
         this.usagePoint.apply(this.configuration, jan1st2016);
-
-        this.contract = this.configuration.addMetrologyContract(METROLOGY_PURPOSE);
-        this.contract.addDeliverable(avgTemperature);
 
         // Business method
         try {
@@ -633,7 +627,10 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
 
     private void setupUsagePoint(String name) {
         ServiceCategory electricity = getMeteringService().getServiceCategory(ServiceKind.GAS).get();
-        this.usagePoint = electricity.newUsagePoint(name, jan1st2016).create();
+        this.usagePoint = electricity.newUsagePoint(name, jan1st2016.minusSeconds(20)).create();
+        UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("UP1", electricity).create();
+        usagePointMetrologyConfiguration.addMeterRole(getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT));
+        usagePoint.apply(usagePointMetrologyConfiguration, jan1st2016.minusSeconds(20));
     }
 
     private void activateMeterWithKelvin() {
@@ -649,8 +646,8 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
         return mRID.replace(".", "\\.");
     }
 
-    private ReadingTypeDeliverableBuilder newDeliveryBuilder(String name, MetrologyConfiguration configuration, ReadingType readingType) {
-        return configuration.newReadingTypeDeliverable(name, readingType, Formula.Mode.AUTO);
+    private ReadingTypeDeliverableBuilder newDeliveryBuilder(String name, MetrologyContract contract, ReadingType readingType) {
+        return contract.newReadingTypeDeliverable(name, readingType, Formula.Mode.AUTO);
 
     }
 

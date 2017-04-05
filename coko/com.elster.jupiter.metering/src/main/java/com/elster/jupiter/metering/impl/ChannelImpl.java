@@ -364,6 +364,9 @@ public final class ChannelImpl implements ChannelContract {
             return mainDerivationRule.isMultiplied() ? RecordSpecs.VALUE_MULTIPLIED_INTERVAL : RecordSpecs.SINGLEINTERVAL;
         } else {
             if (hasMacroPeriod()) {
+                if(hasMultiplier()) {
+                    return RecordSpecs.BILLINGREGISTER_WITH_MULTIPLIED_REGISTER;
+                }
                 return RecordSpecs.BILLINGPERIOD;
             }
             return hasMultiplier() ? RecordSpecs.BASEREGISTER_WITH_MULTIPLIED_REGISTER : RecordSpecs.BASEREGISTER;
@@ -478,11 +481,33 @@ public final class ChannelImpl implements ChannelContract {
     }
 
     @Override
+    public List<IntervalReadingRecord> getIntervalJournalReadings(ReadingType readingType, Range<Instant> interval) {
+        if (!isRegular()) {
+            return Collections.emptyList();
+        }
+        return getTimeSeries().getJournalEntries(interval).stream()
+                .map(entry -> new IntervalReadingRecordImpl(this, entry))
+                .map(reading -> reading.filter(readingType))
+                .collect(ExtraCollectors.toImmutableList());
+    }
+
+    @Override
     public List<ReadingRecord> getRegisterReadings(ReadingType readingType, Range<Instant> interval) {
         if (isRegular()) {
             return Collections.emptyList();
         }
         return getTimeSeries().getEntries(interval).stream()
+                .map(entry -> new ReadingRecordImpl(this, entry))
+                .map(reading -> reading.filter(readingType))
+                .collect(ExtraCollectors.toImmutableList());
+    }
+
+    @Override
+    public List<ReadingRecord> getRegisterJournalReadings(ReadingType readingType, Range<Instant> interval) {
+        if (isRegular()) {
+            return Collections.emptyList();
+        }
+        return getTimeSeries().getJournalEntries(interval).stream()
                 .map(entry -> new ReadingRecordImpl(this, entry))
                 .map(reading -> reading.filter(readingType))
                 .collect(ExtraCollectors.toImmutableList());
@@ -643,6 +668,11 @@ public final class ChannelImpl implements ChannelContract {
     public void editReadings(QualityCodeSystem system, List<? extends BaseReading> readings) {
         getCimChannel(getMainReadingType()).ifPresent(cimChannel ->
                 cimChannel.editReadings(system, readings));
+    }
+
+    @Override
+    public void estimateReadings(QualityCodeSystem system, List<? extends BaseReading> readings) {
+        getCimChannel(getMainReadingType()).ifPresent(cimChannel -> cimChannel.estimateReadings(system, readings));
     }
 
     @Override

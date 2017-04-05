@@ -263,6 +263,7 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
                 bind(TimeService.class).toInstance(timeService);
                 bind(Publisher.class).toInstance(publisher);
                 bind(CalendarService.class).toInstance(calendarService);
+                bind(FiniteStateMachineService.class).toInstance(finiteStateMachineService);
             }
         });
     }

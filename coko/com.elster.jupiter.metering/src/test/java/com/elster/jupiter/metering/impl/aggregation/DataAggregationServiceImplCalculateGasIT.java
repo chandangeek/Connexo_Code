@@ -34,6 +34,7 @@ import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.FullySpecifiedReadingTypeRequirement;
 import com.elster.jupiter.metering.config.MeterRole;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
@@ -85,6 +86,7 @@ import java.time.Instant;
 import java.time.LocalTime;
 import java.time.Month;
 import java.time.MonthDay;
+import java.time.temporal.TemporalUnit;
 import java.util.Optional;
 
 import org.junit.After;
@@ -373,7 +375,8 @@ public class DataAggregationServiceImplCalculateGasIT {
         System.out.println("simple15Mins::CONSUMPTION_REQUIREMENT_ID = " + consumptionRequirementId);
 
         // Setup configuration deliverables
-        ReadingTypeDeliverableBuilder builder = this.configuration.newReadingTypeDeliverable("consumption", fifteenMinutesGas_kWh, Formula.Mode.EXPERT);
+        this.contract = this.configuration.addMetrologyContract(METROLOGY_PURPOSE);
+        ReadingTypeDeliverableBuilder builder = this.contract.newReadingTypeDeliverable("consumption", fifteenMinutesGas_kWh, Formula.Mode.EXPERT);
         ReadingTypeDeliverable netConsumption =
                 builder.build(
                         builder.multiply(
@@ -387,10 +390,7 @@ public class DataAggregationServiceImplCalculateGasIT {
         this.initializeSqlBuilders();
 
         // Apply MetrologyConfiguration to UsagePoint
-        this.usagePoint.apply(this.configuration, jan1st2016);
-
-        this.contract = this.configuration.addMetrologyContract(METROLOGY_PURPOSE);
-        this.contract.addDeliverable(netConsumption);
+        this.usagePoint.apply(this.configuration, jan1st2016.plusSeconds(60));
 
         // Business method
         try {
@@ -459,7 +459,8 @@ public class DataAggregationServiceImplCalculateGasIT {
         System.out.println("monthlyValuesFrom15minValues::CONSUMPTION_REQUIREMENT_ID = " + consumptionRequirementId);
 
         // Setup configuration deliverables
-        ReadingTypeDeliverableBuilder builder = this.configuration.newReadingTypeDeliverable("consumption", monthlyGas_kWh, Formula.Mode.AUTO);
+        this.contract = this.configuration.addMetrologyContract(METROLOGY_PURPOSE);
+        ReadingTypeDeliverableBuilder builder = this.contract.newReadingTypeDeliverable("consumption", monthlyGas_kWh, Formula.Mode.AUTO);
         ReadingTypeDeliverable netConsumption = builder.build(builder.requirement(consumption));
 
         this.consumptionDeliverableId = netConsumption.getId();
@@ -469,10 +470,7 @@ public class DataAggregationServiceImplCalculateGasIT {
         this.initializeSqlBuilders();
 
         // Apply MetrologyConfiguration to UsagePoint
-        this.usagePoint.apply(this.configuration, jan1st2016);
-
-        this.contract = this.configuration.addMetrologyContract(METROLOGY_PURPOSE);
-        this.contract.addDeliverable(netConsumption);
+        this.usagePoint.apply(this.configuration, jan1st2016.plusSeconds(60));
 
         // Business method
         try {
@@ -523,6 +521,9 @@ public class DataAggregationServiceImplCalculateGasIT {
         ServiceCategory electricity = getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
         this.usagePoint = electricity.newUsagePoint(name, jan1st2016)
                 .create();
+        UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("UP", electricity).create();
+        usagePointMetrologyConfiguration.addMeterRole(getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT));
+        usagePoint.apply(usagePointMetrologyConfiguration, jan1st2016);
     }
 
     private void activateMeterWith15min_m3_Channel(MeterRole meterRole) {

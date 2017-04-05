@@ -390,7 +390,8 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
 
         // Setup MetrologyConfiguration
         this.configuration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("monthlyNetConsumption", ELECTRICITY).create();
-
+        this.configuration.addMeterRole(getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT));
+        this.contract = configuration.addMetrologyContract(METROLOGY_PURPOSE);
         // Add the CustomPropertySet
         RegisteredCustomPropertySet registeredCustomPropertySet = getCustomPropertySetService().findActiveCustomPropertySet(AntennaDetailsCustomPropertySet.ID).get();
         this.customPropertySetId = registeredCustomPropertySet.getId();
@@ -400,7 +401,7 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
         PropertySpec antennaPowerPropertySpec = this.getAntennaPowerPropertySpec(registeredCustomPropertySet);
 
         // Setup configuration deliverables
-        ReadingTypeDeliverableBuilder builder = this.configuration.newReadingTypeDeliverable("consumption", monthlyNetConsumption, Formula.Mode.AUTO);
+        ReadingTypeDeliverableBuilder builder = this.contract.newReadingTypeDeliverable("consumption", monthlyNetConsumption, Formula.Mode.AUTO);
         ReadingTypeDeliverable netConsumption =
                 builder.build(
                         builder.multiply(
@@ -419,7 +420,6 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
         this.usagePoint.apply(this.configuration, jan1st2016);
 
         this.contract = this.configuration.addMetrologyContract(METROLOGY_PURPOSE);
-        this.contract.addDeliverable(netConsumption);
 
         // Business method
         try {
@@ -494,6 +494,7 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
         MeterRole meterRole = getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT);
         this.configuration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("15minNetConsumption", ELECTRICITY).create();
         this.configuration.addMeterRole(meterRole);
+        this.contract = configuration.addMetrologyContract(METROLOGY_PURPOSE);
 
         // Add the CustomPropertySet
         RegisteredCustomPropertySet registeredCustomPropertySet = getCustomPropertySetService().findActiveCustomPropertySet(AntennaDetailsCustomPropertySet.ID).get();
@@ -508,7 +509,7 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
         System.out.println("15minNetConsumption::LOCALPOWER_REQUIREMENT_ID = " + this.localPowerRequirementId);
 
         // Setup configuration deliverables
-        ReadingTypeDeliverableBuilder builder = this.configuration.newReadingTypeDeliverable("consumption", fifteenMinutesNetConsumption, Formula.Mode.AUTO);
+        ReadingTypeDeliverableBuilder builder = this.contract.newReadingTypeDeliverable("consumption", fifteenMinutesNetConsumption, Formula.Mode.AUTO);
         ReadingTypeDeliverable netConsumption =
                 builder.build(
                         builder.plus(
@@ -525,7 +526,6 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
         this.usagePoint.apply(this.configuration, jan1st2016);
 
         this.contract = this.configuration.addMetrologyContract(METROLOGY_PURPOSE);
-        this.contract.addDeliverable(netConsumption);
 
         // Business method
         try {
@@ -591,7 +591,10 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
 
     private void setupUsagePoint(String name) {
         ServiceCategory electricity = getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
-        this.usagePoint = electricity.newUsagePoint(name, jan1st2016).create();
+        this.usagePoint = electricity.newUsagePoint(name, jan1st2016.minusSeconds(20)).create();
+        UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("UP1", electricity).create();
+        usagePointMetrologyConfiguration.addMeterRole(getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT));
+        usagePoint.apply(usagePointMetrologyConfiguration, jan1st2016.minusSeconds(20));
     }
 
     private void activateMeter() {
