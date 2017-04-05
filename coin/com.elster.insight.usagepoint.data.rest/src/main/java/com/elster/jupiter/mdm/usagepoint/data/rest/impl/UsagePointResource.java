@@ -63,12 +63,12 @@ import com.elster.jupiter.servicecall.rest.ServiceCallInfoFactory;
 import com.elster.jupiter.time.DefaultRelativePeriodDefinition;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeService;
-import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointStage;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.usagepoint.lifecycle.ExecutableMicroCheck;
 import com.elster.jupiter.usagepoint.lifecycle.ExecutableMicroCheckViolation;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointStage;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointTransitionInfo;
 import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointTransitionInfoFactory;
@@ -918,16 +918,16 @@ public class UsagePointResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public PagedInfoList getMetrologyConfigurationDeliverables(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
-
-        List<ReadingTypeDeliverablesInfo> deliverables = resourceHelper
-                .findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint)
+        EffectiveMetrologyConfigurationOnUsagePoint effectiveMC = resourceHelper
+                .findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
+        List<ReadingTypeDeliverablesInfo> deliverables = effectiveMC
                 .getMetrologyConfiguration()
                 .getContracts()
                 .stream()
-                .filter(mc -> usagePoint.getCurrentEffectiveMetrologyConfiguration().flatMap(emc -> emc.getChannelsContainer(mc, clock.instant())).isPresent())
+                .filter(mc -> effectiveMC.getChannelsContainer(mc, clock.instant()).isPresent())
                 .map(MetrologyContract::getDeliverables)
                 .flatMap(List::stream)
-                .sorted((a, b) -> a.getName().compareTo(b.getName()))
+                .sorted(Comparator.comparing(ReadingTypeDeliverable::getName))
                 .map(readingTypeDeliverableFactory::asInfo)
                 .collect(Collectors.toList());
         return PagedInfoList.fromCompleteList("deliverables", deliverables, queryParameters);
