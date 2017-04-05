@@ -7,6 +7,8 @@ package com.elster.jupiter.metering.impl;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
+import com.elster.jupiter.fsm.Stage;
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.Meter;
@@ -40,6 +42,10 @@ import org.junit.rules.ExpectedException;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 /**
  * Integration test for the {@link UsagePointImpl} component.
@@ -266,11 +272,17 @@ public class UsagePointImplIT {
     @Test
     @Transactional
     public void testCannotActivateMetrologyConfigWithIncompatibleMeterRequirements() {
+        State deviceState = mock(State.class);
+        Stage deviceStage = mock(Stage.class);
+        String operationalDeviceStageKey = "mtr.enddevicestage.operational";
         expectedException.expect(UsagePointManagementException.class);
         expectedException.expectMessage("The meters of the usage point do not provide the necessary reading types for purposes [metrology.purpose.voltage.monitoring.name]  of the new metrology configuration");
         ServerMeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
         AmrSystem system = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
-        Meter meter = system.newMeter("Meter", "meterName").create();
+        Meter meter = spy(system.newMeter("Meter", "meterName").create());
+        when(meter.getState(any(Instant.class))).thenReturn(Optional.of(deviceState));
+        when(deviceState.getStage()).thenReturn(Optional.of(deviceStage));
+        when(deviceStage.getName()).thenReturn(operationalDeviceStageKey);
         ReadingType bulkReadingType = inMemoryBootstrapModule.getMeteringService().getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
         meter.activate(AUG_15TH_2016).getChannelsContainer().createChannel(bulkReadingType);
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();

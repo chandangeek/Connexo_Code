@@ -21,7 +21,6 @@ import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsage
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.RangeComparatorFactory;
-
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
@@ -63,19 +62,16 @@ class UsagePointCustomPropertySetExtensionImpl implements UsagePointCustomProper
         return getUsagePoint().getCurrentEffectiveMetrologyConfiguration()
                 .map(EffectiveMetrologyConfigurationOnUsagePoint::getMetrologyConfiguration);
     }
-
     @Override
     public List<UsagePointPropertySet> getPropertySetsOnMetrologyConfiguration() {
-        Optional<MetrologyConfiguration> metrologyConfiguration = getMetrologyConfiguration();
-        if (metrologyConfiguration.isPresent()) {
-            return metrologyConfiguration.get().getCustomPropertySets()
-                    .stream()
-                    .filter(RegisteredCustomPropertySet::isViewableByCurrentUser)
-                    .map(rcps -> rcps.getCustomPropertySet()
-                            .isVersioned() ? new UsagePointVersionedPropertySetImpl(rcps) : new UsagePointPropertySetImpl(rcps))
-                    .collect(Collectors.toList());
-        }
-        return Collections.emptyList();
+        return this.usagePoint.getAllEffectiveMetrologyConfigurations()
+                .stream()
+                .flatMap(mc->mc.getMetrologyConfiguration().getCustomPropertySets().stream())
+                .distinct()
+                .filter(RegisteredCustomPropertySet::isViewableByCurrentUser)
+                .map(rcps -> rcps.getCustomPropertySet()
+                        .isVersioned() ? new UsagePointVersionedPropertySetImpl(rcps) : new UsagePointPropertySetImpl(rcps))
+                .collect(Collectors.toList());
     }
 
     @Override

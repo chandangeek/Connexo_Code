@@ -7,6 +7,7 @@ package com.elster.jupiter.metering.impl;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.CustomUsagePointMeterActivationValidationException;
+import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.MessageSeeds;
@@ -14,7 +15,6 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.UsagePointManagementException;
 import com.elster.jupiter.metering.UsagePointMeterActivationException;
 import com.elster.jupiter.metering.UsagePointMeterActivator;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
@@ -31,7 +31,9 @@ import com.elster.jupiter.metering.impl.config.SelfValid;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointStage;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.users.PreferenceType;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.RangeComparatorFactory;
 import com.elster.jupiter.util.geo.SpatialCoordinates;
 import com.elster.jupiter.util.streams.DecoratedStream;
@@ -41,6 +43,9 @@ import com.google.common.collect.Range;
 import javax.inject.Inject;
 import javax.validation.ConstraintValidatorContext;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -63,6 +68,8 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
 
     private final ServerMetrologyConfigurationService metrologyConfigurationService;
     private final EventService eventService;
+    private final UserService userService;
+    private final ThreadPrincipalService threadPrincipalService;
 
     private List<Activation> activationChanges;
     private List<Activation> deactivationChanges;
@@ -72,7 +79,9 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
     private FormValidation formValidation = FormValidation.SET_METERS;
 
     @Inject
-    public UsagePointMeterActivatorImpl(ServerMetrologyConfigurationService metrologyConfigurationService, EventService eventService) {
+    public UsagePointMeterActivatorImpl(ServerMetrologyConfigurationService metrologyConfigurationService, EventService eventService, UserService userService, ThreadPrincipalService threadPrincipalService) {
+        this.userService = userService;
+        this.threadPrincipalService = threadPrincipalService;
         this.activationChanges = new ArrayList<>();
         this.deactivationChanges = new ArrayList<>();
         this.metrologyConfigurationService = metrologyConfigurationService;
@@ -93,7 +102,7 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
 
     private Instant checkTimeBounds(Instant time) {
         if (time == null || this.usagePoint.getInstallationTime().isAfter(time)) {
-            throw new IllegalArgumentException("Activation time can't be less than usage point installation time");
+            throw new UsagePointMeterActivationException.ActivationTimeBeforeUsagePointInstallationDate(metrologyConfigurationService.getThesaurus(), formatDate(this.usagePoint.getInstallationTime()));
         }
         return time;
     }
@@ -109,9 +118,57 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
             throw new IllegalArgumentException("Meter and meter role can't be null");
         }
         start = checkTimeBounds(generalizeDatesToMinutes(start));
+        startPreActivationValidation(start, meter);
         this.activationChanges.add(new VirtualActivation(start, this.usagePoint, meter, meterRole));
         updateMeterDefaultLocation(meter);
         return this;
+    }
+
+    private void startPreActivationValidation(Instant start, Meter meter) {
+        if (this.usagePoint.getEffectiveMetrologyConfiguration(start).isPresent()) {
+            validateLinkWithMetrologyConfiguration(start, meter);
+        } else {
+            validateStageWithoutMetrologyConfig(meter, start);
+        }
+    }
+
+    private void validateLinkWithMetrologyConfiguration(Instant start, Meter meter) {
+        EffectiveMetrologyConfigurationOnUsagePoint metrologyConfiguration = this.usagePoint.getEffectiveMetrologyConfiguration(start).get();
+        if (metrologyConfiguration.getMetrologyConfiguration().isGapAllowed()) {
+            validateOperationalStageWithGaps(meter, start);
+        } else {
+            validateMetrologyConfigStartAndMeterActivationDate(meter, start);
+        }
+    }
+
+    private void validateStageWithoutMetrologyConfig(Meter meter, Instant meterStartDate) {
+        meter.getState(meterStartDate).get().getStage().ifPresent(stage -> {
+            EndDeviceStage deviceStage = EndDeviceStage.fromKey(stage.getName());
+            if (!deviceStage.equals(EndDeviceStage.OPERATIONAL) && !deviceStage.equals(EndDeviceStage.PRE_OPERATIONAL)) {
+                throw new UsagePointMeterActivationException.IncorrectDeviceStageWithoutMetrologyConfig(metrologyConfigurationService.getThesaurus(), meter.getName(), this.usagePoint.getName(), formatDate(meterStartDate));
+            }
+        });
+    }
+
+    private void validateMetrologyConfigStartAndMeterActivationDate(Meter meter, Instant meterStartDate) {
+        EffectiveMetrologyConfigurationOnUsagePoint metrologyConfiguration = this.usagePoint.getCurrentEffectiveMetrologyConfiguration().get();
+        Instant metrologyConfigStartDate = metrologyConfiguration.getStart();
+        if (meterStartDate.isAfter(metrologyConfigStartDate) || !meterStartDate.equals(metrologyConfigStartDate)) {
+            throw new UsagePointMeterActivationException.IncorrectStartTimeOfMeterAndMetrologyConfig(metrologyConfigurationService.getThesaurus(), meter.getName(), formatDate(metrologyConfigStartDate));
+        }
+    }
+
+    private void validateOperationalStageWithGaps(Meter meter, Instant meterStartDate) {
+        meter.getState(meterStartDate).get().getStage().ifPresent(deviceStage -> {
+            if(!EndDeviceStage.fromKey(deviceStage.getName()).equals(EndDeviceStage.OPERATIONAL)) {
+                throw new UsagePointMeterActivationException.IncorrectMeterActivationDateWhenGapsAreAllowed(metrologyConfigurationService.getThesaurus(), meter.getName(), this.usagePoint.getName());
+            }
+        });
+    }
+
+    private String formatDate(Instant date) {
+        DateTimeFormatter dateTimeFormatter = userService.getUserPreferencesService().getDateTimeFormatter(threadPrincipalService.getPrincipal(), PreferenceType.LONG_DATE, PreferenceType.LONG_TIME);
+        return dateTimeFormatter.format(LocalDateTime.ofInstant(date, ZoneId.systemDefault()));
     }
 
     @Override
