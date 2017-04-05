@@ -397,37 +397,37 @@ class MetrologyConfigurationsInstaller {
         MeterRole meterRole = findMeterRoleOrThrowException(DefaultMeterRole.DEFAULT);
         configuration.addMeterRole(meterRole);
 
-        ReadingType aPlusDaily_kWh_TOU_1 = this.findOrCreateReadingType("11.0.0.4.1.1.12.0.0.0.0." + OFFPEAK_CODE + ".0.0.0.3.72.0", "A+ (offpeak)");   // Offpeak in Belgian electricity market
-        ReadingType aPlusDaily_kWh_TOU_2 = this.findOrCreateReadingType("11.0.0.4.1.1.12.0.0.0.0." + PEAK_CODE + ".0.0.0.3.72.0", "A+ (peak)");         // Peak in Belgian electricity market
+        ReadingType aPlusDaily_kWh_TOU_10 = this.findOrCreateReadingType("11.0.0.4.1.1.12.0.0.0.0." + OFFPEAK_CODE + ".0.0.0.3.72.0", "A+ (offpeak)");   // Offpeak in Belgian electricity market
+        ReadingType aPlusDaily_kWh_TOU_11 = this.findOrCreateReadingType("11.0.0.4.1.1.12.0.0.0.0." + PEAK_CODE + ".0.0.0.3.72.0", "A+ (peak)");         // Peak in Belgian electricity market
 
         MetrologyContract billingContract = configuration.addMandatoryMetrologyContract(findPurposeOrThrowException(DefaultMetrologyPurpose.BILLING));
 
-        ReadingTypeRequirement requirementAplusToU1 =
+        ReadingTypeRequirement requirementAplusToU10 =
                 configuration
-                    .newReadingTypeRequirement(DefaultReadingTypeTemplate.A_PLUS.getNameTranslation().getDefaultFormat() + " ToU1", meterRole)
+                    .newReadingTypeRequirement(DefaultReadingTypeTemplate.A_PLUS.getNameTranslation().getDefaultFormat() + " ToU10", meterRole)
                     .withReadingTypeTemplate(getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate.A_PLUS))
                     .overrideAttribute(ReadingTypeTemplateAttributeName.TIME_OF_USE, OFFPEAK_CODE);
-        ReadingTypeRequirement requirementAplusToU2 =
+        ReadingTypeRequirement requirementAplusToU11 =
                 configuration
-                    .newReadingTypeRequirement(DefaultReadingTypeTemplate.A_PLUS.getNameTranslation().getDefaultFormat() + " ToU2", meterRole)
+                    .newReadingTypeRequirement(DefaultReadingTypeTemplate.A_PLUS.getNameTranslation().getDefaultFormat() + " ToU11", meterRole)
                     .withReadingTypeTemplate(getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate.A_PLUS))
                     .overrideAttribute(ReadingTypeTemplateAttributeName.TIME_OF_USE, PEAK_CODE);
 
-        billingContract.addDeliverable(this.buildFormulaSingleRequirement(configuration, aPlusDaily_kWh_TOU_1, requirementAplusToU1, "Daily A+ kWh ToU1"));
-        billingContract.addDeliverable(this.buildFormulaSingleRequirement(configuration, aPlusDaily_kWh_TOU_2, requirementAplusToU2, "Daily A+ kWh ToU2"));
+        billingContract.addDeliverable(this.buildFormulaSingleRequirement(configuration, aPlusDaily_kWh_TOU_10, requirementAplusToU10, "Daily A+ kWh ToU10"));
+        billingContract.addDeliverable(this.buildFormulaSingleRequirement(configuration, aPlusDaily_kWh_TOU_11, requirementAplusToU11, "Daily A+ kWh ToU11"));
 
-        ReadingType aPlus15Min_kWh_TOU_1 = this.findOrCreateReadingType("0.0.2.4.1.1.12.0.0.0.0." + OFFPEAK_CODE + ".0.0.0.3.72.0", "A+ (offpeak)");   // Offpeak in Belgian electricity market
-        ReadingType aPlus15Min_kWh_TOU_2 = this.findOrCreateReadingType("0.0.2.4.1.1.12.0.0.0.0." + PEAK_CODE + ".0.0.0.3.72.0", "A+ (peak)");         // Peak in Belgian electricity market
-        ReadingType aPlusYearly_kWh_TOU_1 = this.findOrCreateReadingType(MacroPeriod.YEARLY.getId() + ".0.2.4.1.1.12.0.0.0.0." + OFFPEAK_CODE + ".0.0.0.3.72.0", "A+ (offpeak)");   // Offpeak in Belgian electricity market
-        ReadingType aPlusYearly_kWh_TOU_2 = this.findOrCreateReadingType(MacroPeriod.YEARLY.getId() + ".0.2.4.1.1.12.0.0.0.0." + PEAK_CODE + ".0.0.0.3.72.0", "A+ (peak)");         // Peak in Belgian electricity market
+        ReadingType aPlus15Min_kWh_TOU_10 = this.findOrCreateReadingType("0.0.2.4.1.1.12.0.0.0.0." + OFFPEAK_CODE + ".0.0.0.3.72.0", "A+ (offpeak)");   // Offpeak in Belgian electricity market
+        ReadingType aPlus15Min_kWh_TOU_11 = this.findOrCreateReadingType("0.0.2.4.1.1.12.0.0.0.0." + PEAK_CODE + ".0.0.0.3.72.0", "A+ (peak)");         // Peak in Belgian electricity market
+        ReadingType aPlusYearly_kWh_TOU_10 = this.findOrCreateReadingType(MacroPeriod.YEARLY.getId() + ".0.2.4.1.1.12.0.0.0.0." + OFFPEAK_CODE + ".0.0.0.3.72.0", "A+ (offpeak)");   // Offpeak in Belgian electricity market
+        ReadingType aPlusYearly_kWh_TOU_11 = this.findOrCreateReadingType(MacroPeriod.YEARLY.getId() + ".0.2.4.1.1.12.0.0.0.0." + PEAK_CODE + ".0.0.0.3.72.0", "A+ (peak)");         // Peak in Belgian electricity market
         ReadingType aPlusYearly_kWh = this.findOrCreateReadingType(MacroPeriod.YEARLY.getId() + ".0.2.4.9.1.12.0.0.0.0.0.0.0.0.3.72.0", "A+");
 
         MetrologyContract informationContract = configuration.addMandatoryMetrologyContract(findPurposeOrThrowException(DefaultMetrologyPurpose.INFORMATION));
-        informationContract.addDeliverable(this.buildFormulaSingleRequirement(configuration, aPlus15Min_kWh_TOU_1, requirementAplusToU1, "15-min A+ kWh ToU1"));
-        informationContract.addDeliverable(this.buildFormulaSingleRequirement(configuration, aPlus15Min_kWh_TOU_2, requirementAplusToU2, "15-min A+ kWh ToU2"));
-        informationContract.addDeliverable(this.buildFormulaSingleRequirement(configuration, aPlusYearly_kWh_TOU_1, requirementAplusToU1, "Yearly A+ kWh ToU1"));
-        informationContract.addDeliverable(this.buildFormulaSingleRequirement(configuration, aPlusYearly_kWh_TOU_2, requirementAplusToU2, "Yearly A+ kWh ToU2"));
-        informationContract.addDeliverable(this.buildFormulaRequirementSum(configuration, aPlusYearly_kWh, requirementAplusToU1, requirementAplusToU2, "Yearly A+ kWh"));
+        informationContract.addDeliverable(this.buildFormulaSingleRequirement(configuration, aPlus15Min_kWh_TOU_10, requirementAplusToU10, "15-min A+ kWh ToU10"));
+        informationContract.addDeliverable(this.buildFormulaSingleRequirement(configuration, aPlus15Min_kWh_TOU_11, requirementAplusToU11, "15-min A+ kWh ToU11"));
+        informationContract.addDeliverable(this.buildFormulaSingleRequirement(configuration, aPlusYearly_kWh_TOU_10, requirementAplusToU10, "Yearly A+ kWh ToU10"));
+        informationContract.addDeliverable(this.buildFormulaSingleRequirement(configuration, aPlusYearly_kWh_TOU_11, requirementAplusToU11, "Yearly A+ kWh ToU11"));
+        informationContract.addDeliverable(this.buildFormulaRequirementSum(configuration, aPlusYearly_kWh, requirementAplusToU10, requirementAplusToU11, "Yearly A+ kWh"));
     }
 
     void residentialNetMeteringConsumptionThinTimeOfUse(EventSet eventSet) {
@@ -466,8 +466,8 @@ class MetrologyConfigurationsInstaller {
         MeterRole meterRole = findMeterRoleOrThrowException(DefaultMeterRole.DEFAULT);
         configuration.addMeterRole(meterRole);
 
-        ReadingType aPlusDaily_kWh_TOU_1 = this.findOrCreateReadingType("11.0.0.4.1.1.12.0.0.0.0." + OFFPEAK_CODE + ".0.0.0.3.72.0", "A+ (offpeak)");   // Offpeak in Belgian electricity market
-        ReadingType aPlusDaily_kWh_TOU_2 = this.findOrCreateReadingType("11.0.0.4.1.1.12.0.0.0.0." + PEAK_CODE + ".0.0.0.3.72.0", "A+ (peak)");         // Peak in Belgian electricity market
+        ReadingType aPlusDaily_kWh_TOU_10 = this.findOrCreateReadingType("11.0.0.4.1.1.12.0.0.0.0." + OFFPEAK_CODE + ".0.0.0.3.72.0", "A+ (offpeak)");   // Offpeak in Belgian electricity market
+        ReadingType aPlusDaily_kWh_TOU_11 = this.findOrCreateReadingType("11.0.0.4.1.1.12.0.0.0.0." + PEAK_CODE + ".0.0.0.3.72.0", "A+ (peak)");         // Peak in Belgian electricity market
 
         MetrologyContract billingContract = configuration.addMandatoryMetrologyContract(findPurposeOrThrowException(DefaultMetrologyPurpose.BILLING));
 
@@ -476,15 +476,15 @@ class MetrologyConfigurationsInstaller {
                     .newReadingTypeRequirement(DefaultReadingTypeTemplate.A_PLUS.getNameTranslation().getDefaultFormat(), meterRole)
                     .withReadingTypeTemplate(getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate.A_PLUS));
 
-        billingContract.addDeliverable(this.buildFormulaSingleRequirement(configuration, aPlusDaily_kWh_TOU_1, requirementAplus, "Daily A+ kWh ToU1"));
-        billingContract.addDeliverable(this.buildFormulaSingleRequirement(configuration, aPlusDaily_kWh_TOU_2, requirementAplus, "Daily A+ kWh ToU2"));
+        billingContract.addDeliverable(this.buildFormulaSingleRequirement(configuration, aPlusDaily_kWh_TOU_10, requirementAplus, "Daily A+ kWh ToU10"));
+        billingContract.addDeliverable(this.buildFormulaSingleRequirement(configuration, aPlusDaily_kWh_TOU_11, requirementAplus, "Daily A+ kWh ToU11"));
 
-        ReadingType aPlus15Min_kWh_TOU_1 = this.findOrCreateReadingType("0.0.2.4.1.1.12.0.0.0.0." + OFFPEAK_CODE + ".0.0.0.3.72.0", "A+ (offpeak)");   // Offpeak in Belgian electricity market
-        ReadingType aPlus15Min_kWh_TOU_2 = this.findOrCreateReadingType("0.0.2.4.1.1.12.0.0.0.0." + PEAK_CODE + ".0.0.0.3.72.0", "A+ (peak)");         // Peak in Belgian electricity market
+        ReadingType aPlus15Min_kWh_TOU_10 = this.findOrCreateReadingType("0.0.2.4.1.1.12.0.0.0.0." + OFFPEAK_CODE + ".0.0.0.3.72.0", "A+ (offpeak)");   // Offpeak in Belgian electricity market
+        ReadingType aPlus15Min_kWh_TOU_11 = this.findOrCreateReadingType("0.0.2.4.1.1.12.0.0.0.0." + PEAK_CODE + ".0.0.0.3.72.0", "A+ (peak)");         // Peak in Belgian electricity market
 
         MetrologyContract informationContract = configuration.addMandatoryMetrologyContract(findPurposeOrThrowException(DefaultMetrologyPurpose.INFORMATION));
-        informationContract.addDeliverable(this.buildFormulaSingleRequirement(configuration, aPlus15Min_kWh_TOU_1, requirementAplus, "15-min A+ kWh ToU1"));
-        informationContract.addDeliverable(this.buildFormulaSingleRequirement(configuration, aPlus15Min_kWh_TOU_2, requirementAplus, "15-min A+ kWh ToU2"));
+        informationContract.addDeliverable(this.buildFormulaSingleRequirement(configuration, aPlus15Min_kWh_TOU_10, requirementAplus, "15-min A+ kWh ToU10"));
+        informationContract.addDeliverable(this.buildFormulaSingleRequirement(configuration, aPlus15Min_kWh_TOU_11, requirementAplus, "15-min A+ kWh ToU11"));
     }
 
     private void residentialNonSmartInstallation() {
