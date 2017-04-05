@@ -10,8 +10,8 @@ public interface MdmAppService {
     String APPLICATION_NAME = "Insight";
 
     enum Roles {
-        DATA_EXPERT("Insight data expert", "Full data management privileges"),
-        DATA_OPERATOR("Insight data operator", "Data operation privileges");
+        DATA_EXPERT("Data expert", "Full data management privileges"),
+        DATA_OPERATOR("Data operator", "Data operation privileges");
 
         private String role;
         private String description;
