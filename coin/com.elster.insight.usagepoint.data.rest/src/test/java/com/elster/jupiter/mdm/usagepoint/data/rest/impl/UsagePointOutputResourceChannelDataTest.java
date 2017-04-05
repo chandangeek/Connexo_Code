@@ -29,9 +29,6 @@ import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
-import com.elster.jupiter.properties.rest.PropertyInfo;
-import com.elster.jupiter.properties.rest.PropertyTypeInfo;
-import com.elster.jupiter.properties.rest.PropertyValueInfo;
 import com.elster.jupiter.rest.util.IntervalInfo;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
@@ -414,8 +411,6 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         info.intervals = Collections.singletonList(IntervalInfo.from(INTERVAL_3));
         info.estimatorImpl = "com.elster.jupiter.estimators.impl.ValueFillEstimator";
         info.properties = new ArrayList<>();
-        info.properties.add(new PropertyInfo("valuefill.maxNumberOfConsecutiveSuspects", "Max number of consecutive suspects", new PropertyValueInfo<>(123L, null, 10L, true), new PropertyTypeInfo(com.elster.jupiter.properties.rest.SimplePropertyType.NUMBER, null, null, null), true));
-        info.properties.add(new PropertyInfo("valuefill.fillValue", "Fill value", new PropertyValueInfo<>(123L, null, 10L, true), new PropertyTypeInfo(com.elster.jupiter.properties.rest.SimplePropertyType.NUMBER, null, null, null), true));
 
         // Business method
         Response response = target("usagepoints/" + USAGE_POINT_NAME + "/purposes/100/outputs/1/channelData/estimate")

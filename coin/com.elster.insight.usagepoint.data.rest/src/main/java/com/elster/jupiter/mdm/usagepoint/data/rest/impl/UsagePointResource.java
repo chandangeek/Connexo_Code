@@ -27,6 +27,7 @@ import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
 import com.elster.jupiter.metering.UsagePointManagementException;
 import com.elster.jupiter.metering.UsagePointMeterActivationException;
 import com.elster.jupiter.metering.UsagePointPropertySet;
+import com.elster.jupiter.metering.UsagePointVersionedPropertySet;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyContract;
@@ -82,7 +83,6 @@ import com.elster.jupiter.validation.DataValidationTask;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.rest.DataValidationTaskInfo;
 import com.elster.jupiter.validation.rest.DataValidationTaskInfoFactory;
-
 import com.google.common.collect.Range;
 
 import javax.annotation.security.RolesAllowed;
@@ -415,7 +415,7 @@ public class UsagePointResource {
     public Response activateMeters(@PathParam("name") String name, UsagePointInfo info) {
         UsagePoint usagePoint = resourceHelper.findAndLockUsagePointByNameOrThrowException(name, info.version);
         UsagePointStage.Key usagePointStage = usagePoint.getState().getStage().getKey();
-        if(usagePointStage != UsagePointStage.Key.PRE_OPERATIONAL){
+        if(!UsagePointStage.Key.PRE_OPERATIONAL.equals(usagePointStage) && !UsagePointStage.Key.SUSPENDED.equals(usagePointStage)){
             throw UsagePointMeterActivationException.usagePointIncorrectStage(thesaurus);
         }
         resourceHelper.performMeterActivations(info, usagePoint);
@@ -432,6 +432,7 @@ public class UsagePointResource {
                                                 @QueryParam("validate") boolean validate,
                                                 @QueryParam("customPropertySetId") long customPropertySetId,
                                                 @QueryParam("upVersion") long upVersion,
+                                                @QueryParam("createNew") boolean createNew,
                                                 MetrologyConfigurationInfo info) {
         UsagePoint usagePoint = resourceHelper.findAndLockUsagePointByNameOrThrowException(name, upVersion);
 
@@ -457,7 +458,7 @@ public class UsagePointResource {
             return Response.accepted().build();
         }
 
-        UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = resourceHelper.findAndLockActiveUsagePointMetrologyConfigurationOrThrowException(info.id, info.version);
+        UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = resourceHelper.findActiveUsagePointMetrologyConfigurationOrThrowException(info.id);
         if (info.purposes != null) {
             usagePoint.apply(usagePointMetrologyConfiguration, info.activationTime, usagePointMetrologyConfiguration.getContracts()
                     .stream()
@@ -471,10 +472,38 @@ public class UsagePointResource {
             usagePoint.apply(usagePointMetrologyConfiguration, info.activationTime);
         }
         for (CustomPropertySetInfo customPropertySetInfo : info.customPropertySets) {
-            UsagePointPropertySet propertySet = usagePoint.forCustomProperties()
-                    .getPropertySet(customPropertySetInfo.id);
-            propertySet.setValues(customPropertySetInfoFactory.getCustomPropertySetValues(customPropertySetInfo,
-                    propertySet.getCustomPropertySet().getPropertySpecs()));
+            if(!createNew){
+                updateCustomPropertySetValues(usagePoint,customPropertySetInfo);
+            }
+            else if (customPropertySetInfo.isVersioned && createNew){
+                UsagePointVersionedPropertySet propertySet = usagePoint.forCustomProperties().getVersionedPropertySet(customPropertySetInfo.id);
+                CustomPropertySetValues existingVersion= propertySet.getValues();
+
+                if (existingVersion!=null){
+                    Range<Instant> existingRange = existingVersion.getEffectiveRange();
+                    if(!existingRange.hasUpperBound() && info.activationTime.isAfter(existingRange.lowerEndpoint())){
+                        Range<Instant> range = Range.closedOpen(existingVersion.getEffectiveRange().lowerEndpoint(),info.activationTime);
+                        CustomPropertySetValues existingValues = CustomPropertySetValues.emptyDuring(range);
+                        copyPropertyValues(propertySet,existingValues,customPropertySetInfo);
+                        propertySet.setVersionValues(info.activationTime,existingValues);
+                        CustomPropertySetValues values = CustomPropertySetValues.emptyFrom(info.activationTime);
+                        copyPropertyValues(propertySet,values,customPropertySetInfo);
+                        propertySet.setVersionValues(info.activationTime,values);
+                    }
+                    else {
+                        CustomPropertySetValues values = CustomPropertySetValues.emptyFrom(info.activationTime);
+                        copyPropertyValues(propertySet,values,customPropertySetInfo);
+                        propertySet.setVersionValues(info.activationTime,values);
+                    }
+                }
+                else {
+                    updateCustomPropertySetValues(usagePoint,customPropertySetInfo);
+                }
+            }
+
+            else {
+                updateCustomPropertySetValues(usagePoint,customPropertySetInfo);
+            }
         }
         usagePoint.update();
 
@@ -606,6 +635,7 @@ public class UsagePointResource {
         List<MetrologyConfigurationHistoryInfo> infos = usagePoint.getEffectiveMetrologyConfigurations()
                 .stream()
                 .map(metrologyConfiguration -> metrologyConfigurationHistoryInfoFactory.from(metrologyConfiguration, usagePoint, auth))
+                .sorted(Comparator.comparing((MetrologyConfigurationHistoryInfo info) -> !info.current).thenComparing(info -> info.start))
                 .collect(Collectors.toList());
 
         return PagedInfoList.fromCompleteList("data", infos, queryParameters);
@@ -977,6 +1007,20 @@ public class UsagePointResource {
         return PagedInfoList.fromCompleteList("dataValidationTasks", dataValidationTasks, queryParameters);
     }
 
+    @GET
+    @Path("/{name}/metrologyconfiguration/privileges")
+    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT,
+            Privileges.Constants.ADMINISTER_OWN_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public PagedInfoList getUsagePointPrivileges(@PathParam("name") String name ,@BeanParam JsonQueryParameters queryParameters) {
+        List<IdWithNameInfo> privileges = UsagePointPrivileges
+                .getUsagePointPrivilegesBasedOnStage(resourceHelper.findUsagePointByNameOrThrowException(name))
+                .stream()
+                .map(privilege -> new IdWithNameInfo(null,privilege))
+                .collect(Collectors.toList());
+        return PagedInfoList.fromCompleteList("privileges", privileges, queryParameters);
+    }
+
     private boolean isMember(UsagePoint usagePoint, UsagePointGroup usagePointGroup) {
         return !meteringService.getUsagePointQuery()
                 .select(Where.where("id").isEqualTo(usagePoint.getId())
@@ -1097,5 +1141,26 @@ public class UsagePointResource {
     private void failStartDateCheck(RestValidationBuilder validationBuilder) {
         validationBuilder.addValidationError(new LocalizedFieldValidationException(MessageSeeds.START_DATE_MUST_BE_GRATER_THAN_UP_CREATED_DATE, "activationTime"));
         validationBuilder.validate();
+    }
+
+    private void copyPropertyValues(UsagePointVersionedPropertySet from,CustomPropertySetValues to, CustomPropertySetInfo info){
+        List<String> propertyNames = from.getCustomPropertySet().getPropertySpecs()
+                .stream()
+                .map(PropertySpec::getName)
+                .collect(Collectors.toList());
+
+        for (String propertyName: propertyNames){
+            CustomPropertySetValues fromValues= customPropertySetInfoFactory.getCustomPropertySetValues(info,
+                    from.getCustomPropertySet().getPropertySpecs());
+            Object property =fromValues.getProperty(propertyName);
+            to.setProperty(propertyName,property);
+        }
+    }
+
+    private void updateCustomPropertySetValues(UsagePoint usagePoint,CustomPropertySetInfo customPropertySetInfo){
+        UsagePointPropertySet propertySet = usagePoint.forCustomProperties()
+                .getPropertySet(customPropertySetInfo.id);
+        propertySet.setValues(customPropertySetInfoFactory.getCustomPropertySetValues(customPropertySetInfo,
+                propertySet.getCustomPropertySet().getPropertySpecs()));
     }
 }
