@@ -39,8 +39,6 @@ public enum MessageSeeds implements MessageSeed {
     ALL_DATA_VALID(10013, MicroCheck.ALL_DATA_VALID, "All the collected data on the device must be valid"),
     ALL_DATA_VALIDATED(10014, MicroCheck.ALL_DATA_VALIDATED, "All the collected data on the device is validated"),
     AT_LEAST_ONE_ACTIVE_CONNECTION_AVAILABLE(10015, MicroCheck.AT_LEAST_ONE_ACTIVE_CONNECTION_AVAILABLE, "There should at least one active connection on the device"),
-    NO_ACTIVE_SERVICE_CALLS(10016, MicroCheck.NO_ACTIVE_SERVICE_CALLS, "There can't be any active service calls on the device"),
-    NO_LINKED_MULTI_ELEMENT_SLAVES(10017, MicroCheck.NO_LINKED_MULTI_ELEMENT_SLAVES, "There can't be any multi-element slaves linked with this device"),
     NO_ACTIVE_SERVICE_CALLS(10016, MicroCheck.NO_ACTIVE_SERVICE_CALLS, "There should not be any active service calls on the device"),
     NO_LINKED_MULTI_ELEMENT_SLAVES(10017, MicroCheck.NO_LINKED_MULTI_ELEMENT_SLAVES, "There can't be any multi-element slaves linked with this device"),
     METROLOGY_CONFIGURATION_IN_CORRECT_STATE_IF_ANY(10018, MicroCheck.METROLOGY_CONFIGURATION_IN_CORRECT_STATE_IF_ANY, "The device is still linked to an operational usage point"),

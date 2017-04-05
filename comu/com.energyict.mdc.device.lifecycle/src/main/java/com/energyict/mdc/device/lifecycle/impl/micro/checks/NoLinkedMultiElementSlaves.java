@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
@@ -30,11 +31,6 @@ public class NoLinkedMultiElementSlaves extends TranslatableServerMicroCheck {
     }
 
     @Override
-    protected MicroCheck getMicroCheck() {
-        return MicroCheck.NO_LINKED_MULTI_ELEMENT_SLAVES;
-    }
-
-    @Override
     public Optional<DeviceLifeCycleActionViolation> evaluate(Device device, Instant effectiveTimestamp) {
         if (hasLinkedDevices(device)) {
             return Optional.of(
@@ -47,8 +43,14 @@ public class NoLinkedMultiElementSlaves extends TranslatableServerMicroCheck {
         }
     }
 
+    @Override
+    protected MicroCheck getMicroCheck() {
+        return MicroCheck.NO_LINKED_MULTI_ELEMENT_SLAVES;
+    }
+
     private boolean hasLinkedDevices(Device device) {
         return !this.multiElementDeviceService.findMultiElementSlaves(device).isEmpty();
     }
+
 
 }

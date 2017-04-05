@@ -10,7 +10,6 @@ import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolation;
 import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 import com.energyict.mdc.device.lifecycle.impl.MessageSeeds;
@@ -30,6 +29,11 @@ public class MetrologyConfigurationInCorrectStateIfAny extends TranslatableServe
     @Override
     protected MicroCheck getMicroCheck() {
         return MicroCheck.METROLOGY_CONFIGURATION_IN_CORRECT_STATE_IF_ANY;
+    }
+
+    @Override
+    public Optional<DeviceLifeCycleActionViolation> evaluate(Device device, Instant effectiveTimestamp) {
+        throw new IllegalArgumentException("State cannot be null");
     }
 
     @Override
