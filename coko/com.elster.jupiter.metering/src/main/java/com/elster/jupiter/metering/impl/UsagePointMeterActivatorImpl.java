@@ -136,8 +136,6 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
         EffectiveMetrologyConfigurationOnUsagePoint metrologyConfiguration = this.usagePoint.getEffectiveMetrologyConfiguration(start).get();
         if (metrologyConfiguration.getMetrologyConfiguration().isGapAllowed()) {
             validateOperationalStageWithGaps(meter, start);
-        } else {
-            validateMetrologyConfigStartAndMeterActivationDate(meter, start);
         }
     }
 
@@ -148,14 +146,6 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
                 throw new UsagePointMeterActivationException.IncorrectDeviceStageWithoutMetrologyConfig(metrologyConfigurationService.getThesaurus(), meter.getName(), this.usagePoint.getName(), formatDate(meterStartDate));
             }
         });
-    }
-
-    private void validateMetrologyConfigStartAndMeterActivationDate(Meter meter, Instant meterStartDate) {
-        EffectiveMetrologyConfigurationOnUsagePoint metrologyConfiguration = this.usagePoint.getCurrentEffectiveMetrologyConfiguration().get();
-        Instant metrologyConfigStartDate = metrologyConfiguration.getStart();
-        if (meterStartDate.isAfter(metrologyConfigStartDate) || !meterStartDate.equals(metrologyConfigStartDate)) {
-            throw new UsagePointMeterActivationException.IncorrectStartTimeOfMeterAndMetrologyConfig(metrologyConfigurationService.getThesaurus(), meter.getName(), formatDate(metrologyConfigStartDate));
-        }
     }
 
     private void validateOperationalStageWithGaps(Meter meter, Instant meterStartDate) {
