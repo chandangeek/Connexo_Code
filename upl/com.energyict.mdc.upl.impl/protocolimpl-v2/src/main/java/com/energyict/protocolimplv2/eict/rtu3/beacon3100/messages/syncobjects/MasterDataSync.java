@@ -116,9 +116,11 @@ public class MasterDataSync {
     private MasterDataAnalyser analyseWhatToSync(AllMasterData allMasterData) throws IOException {
         MasterDataAnalyser masterDataAnalyser = new MasterDataAnalyser();
 
-        masterDataAnalyser.analyseClientTypes( getClientTypeManager().readClients(),
-                allMasterData.getClientTypes(),
-                getIsFirmwareVersion140OrAbove());
+        final Array deviceTypes = this.getDeviceTypeManager().readDeviceTypes();
+        final List<ConcentratorSetup.MeterInfo> meterInfo = this.getConcentratorSetup().getMeterInfo();
+        final Array clientTypes = this.getClientTypeManager().readClients();
+        
+        masterDataAnalyser.analyseClientTypes(deviceTypes, clientTypes, meterInfo, allMasterData.getClientTypes(), this.getIsFirmwareVersion140OrAbove());
 
         masterDataAnalyser.analyseDeviceTypes(getDeviceTypeManager().readDeviceTypes(),
         		this.getConcentratorSetup().getMeterInfo(),

@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -10,6 +11,7 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.energyict.cpo.TypedProperties;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
@@ -24,6 +26,28 @@ import com.energyict.protocolimplv2.dlms.idis.am540.properties.AM540Configuratio
  */
 @XmlRootElement
 public class Beacon3100ProtocolConfiguration {
+	
+	/**
+	 * Parses the given {@link Beacon3100ProtocolConfiguration} from the {@link Structure} received from the device.
+	 * 
+	 * @param 		structure		The {@link Structure} received from the device.
+	 * 
+	 * @return		The parsed {@link Beacon3100ProtocolConfiguration}.
+	 */
+	public static final Beacon3100ProtocolConfiguration fromStructure(final Structure structure) throws IOException {
+		final String className = structure.getDataType(0, OctetString.class).stringValue();
+		final Array propertiesArray = structure.getDataType(1, Array.class);
+		
+		final TypedProperties protocolProperties = TypedProperties.empty();
+		
+		for (final AbstractDataType propEntry : propertiesArray) {
+			final Beacon3100ProtocolTypedProperty property = Beacon3100ProtocolTypedProperty.fromStructure(propEntry.getStructure());
+			
+			protocolProperties.setProperty(property.getName(), property.getValue());
+		}
+		
+		return new Beacon3100ProtocolConfiguration(className, protocolProperties);
+	}
 	
 	/** The {@link Set} of {@link Properties} we don't sync. */
 	private static final Set<String> IGNORED_PROPERTY_NAMES = new HashSet<>();

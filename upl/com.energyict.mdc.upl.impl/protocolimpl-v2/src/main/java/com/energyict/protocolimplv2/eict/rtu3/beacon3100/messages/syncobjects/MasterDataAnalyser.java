@@ -10,6 +10,7 @@ import java.util.Set;
 
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.cosem.ConcentratorSetup;
 
 /**
@@ -115,9 +116,31 @@ public class MasterDataAnalyser {
         }
     }
 
+    /***
+     * Parses the given {@link Array} of {@link Structure}s into a {@link Map} of {@link Beacon3100DeviceType}s indexed by ID.
+     * 
+     * @param 		deviceTypeArray		The {@link Array} of device type {@link Structure}s.
+     * 
+     * @return		The {@link Map} of {@link Beacon3100DeviceType}s by ID.
+     * 
+     * @throws 		IOException		If an IO error occurs.
+     */
+    private static final Map<Long, Beacon3100DeviceType> parseDeviceTypes(final Array deviceTypeArray) throws IOException {
+    	final Map<Long, Beacon3100DeviceType> deviceTypes = new HashMap<>();
+    	
+    	for (final AbstractDataType dataType : deviceTypeArray) {
+    		final Beacon3100DeviceType deviceType = Beacon3100DeviceType.fromStructure(dataType.getStructure());
+    		
+    		deviceTypes.put(deviceType.getId(), deviceType);
+    	}
+    	
+    	return deviceTypes;
+    }
 
-    public void analyseClientTypes(Array clientTypesArray, List<Beacon3100ClientType> masterDataClientTypes,  boolean isFirmwareVersion140OrAbove) throws IOException {
-
+    public void analyseClientTypes(final Array deviceTypeArray, Array clientTypesArray, final List<ConcentratorSetup.MeterInfo> existingMirrors, List<Beacon3100ClientType> masterDataClientTypes, boolean isFirmwareVersion140OrAbove) throws IOException {
+    	final Map<Long, Beacon3100DeviceType> devicesTypesOnBeacon = parseDeviceTypes(deviceTypeArray);
+    	final Set<Integer> clientTypesUsedOnTheBeacon = getClientTypesUsedByMirrors(existingMirrors, devicesTypesOnBeacon);
+    	
         Map<Long, AbstractDataType> existingClientTypes = new HashMap<>();
         Map<Long, Boolean> active = new HashMap<>();
 
@@ -147,7 +170,7 @@ public class MasterDataAnalyser {
 
         // delete the remaining inactive items
         for (Long clientTypeId : active.keySet()){
-            if (!active.get(clientTypeId)){
+            if (!active.get(clientTypeId) && !clientTypesUsedOnTheBeacon.contains(clientTypeId)) {
                 // we'll have to delete this
                 clientTypesToDelete.add(clientTypeId);
             }
@@ -236,5 +259,29 @@ public class MasterDataAnalyser {
     	}
     	
     	return deviceTypes;
+    }
+    
+    /**
+     * Returns all the client types that are still in use by the Beacon. They cannot be deleted.
+     * 
+     * @param 	mirrors			The mirror devices on the beacon.
+     * @param 	deviceTypes		The device types on the beacon.
+     * 
+     * @return	The {@link Set} of client types in use.
+     */
+    private static final Set<Integer> getClientTypesUsedByMirrors(final List<ConcentratorSetup.MeterInfo> mirrors, final Map<Long, Beacon3100DeviceType> deviceTypes) {
+    	final Set<Integer> clientTypes = new HashSet<>();
+    	
+    	for (final ConcentratorSetup.MeterInfo mirror : mirrors) {
+    		for (final ConcentratorSetup.DeviceTypeAssignment deviceTypeAssignment : mirror.getDeviceTypeAssignments()) {
+    			final Beacon3100DeviceType deviceType = deviceTypes.get(deviceTypeAssignment.getDeviceTypeId());
+    			
+    			for (final Beacon3100Schedulable schedulable : deviceType.getSchedulables()) {
+    				clientTypes.add(schedulable.getClientTypeId());
+    			}
+    		}
+    	}
+    	
+    	return clientTypes;
     }
 }
