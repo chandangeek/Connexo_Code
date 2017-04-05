@@ -53,13 +53,16 @@ public class FsmUsagePointProviderImpl implements FsmUsagePointProvider {
             Optional<EffectiveMetrologyConfigurationOnUsagePoint> metrologyConfiguration = usagePoint
                     .getCurrentEffectiveMetrologyConfiguration();
             if(currentConnectionState.isPresent() && metrologyConfiguration.isPresent()){
-                boolean connectionCheck = List.class.isInstance(processProperties.get(CONNECTION_STATES)) && ((List<Object>) processProperties
-                        .get(CONNECTION_STATES))
-                        .stream()
-                        .filter(HasIdAndName.class::isInstance)
-                        .anyMatch(v -> ((HasIdAndName) v).getId()
-                                .toString()
-                                .equals(currentConnectionState.get().getConnectionState().getId()));
+                boolean connectionCheck = true;
+                if(processProperties.get(CONNECTION_STATES) != null) {
+                    connectionCheck = List.class.isInstance(processProperties.get(CONNECTION_STATES)) && ((List<Object>) processProperties
+                            .get(CONNECTION_STATES))
+                            .stream()
+                            .filter(HasIdAndName.class::isInstance)
+                            .anyMatch(v -> ((HasIdAndName) v).getId()
+                                    .toString()
+                                    .equals(currentConnectionState.get().getConnectionState().getId()));
+                }
                 boolean metrologyConfigurationCheck = true;
                 if(processProperties.get(METROLOGY_CONFIG) != null) {
                     metrologyConfigurationCheck = List.class.isInstance(processProperties.get(METROLOGY_CONFIG)) && ((List<Object>) processProperties
