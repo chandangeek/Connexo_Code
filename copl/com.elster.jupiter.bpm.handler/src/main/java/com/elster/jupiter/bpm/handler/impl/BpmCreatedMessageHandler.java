@@ -6,6 +6,7 @@ package com.elster.jupiter.bpm.handler.impl;
 
 import com.elster.jupiter.bpm.BpmProcess;
 import com.elster.jupiter.bpm.BpmServer;
+import com.elster.jupiter.http.whiteboard.impl.BasicAuthentication;
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.util.json.JsonService;
@@ -17,10 +18,12 @@ import java.util.Map;
 public class BpmCreatedMessageHandler implements MessageHandler {
     private final JsonService jsonService;
     private final BpmServer bpmRestClient;
+    private final BasicAuthentication basicAuthentication;
 
-    public BpmCreatedMessageHandler(JsonService jsonService, BpmServer server) {
+    public BpmCreatedMessageHandler(JsonService jsonService, BpmServer server, BasicAuthentication basicAuthentication) {
         this.jsonService = jsonService;
         this.bpmRestClient = server;
+        this.basicAuthentication = basicAuthentication;
     }
 
 
@@ -28,7 +31,7 @@ public class BpmCreatedMessageHandler implements MessageHandler {
     public void process(Message message) {
         BpmProcess bpmProcess =  jsonService.deserialize(message.getPayload(), BpmProcess.class);
         String targetURL = "/rest/runtime/"+bpmProcess.getDeploymentId()+"/process/"+bpmProcess.getId()+"/start"+getProcessParameters(bpmProcess.getParameters());
-        bpmRestClient.doPost(targetURL, null, bpmProcess.getAuth());
+        bpmRestClient.doPost(targetURL, null, bpmProcess.getAuth() != null ? bpmProcess.getAuth() : basicAuthentication.generateTokenForProcessExecution());
     }
 
     private String getProcessParameters(Map<String, Object> params) {

@@ -5,9 +5,11 @@
 package com.elster.jupiter.bpm.handler.impl;
 
 import com.elster.jupiter.bpm.BpmService;
+import com.elster.jupiter.http.whiteboard.impl.BasicAuthentication;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
 import com.elster.jupiter.util.json.JsonService;
+
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -22,13 +24,14 @@ public class BpmCreatedMessageHandlerFactory implements MessageHandlerFactory {
     private volatile JsonService jsonService;
     private volatile BpmService bpmService;
     private volatile Clock clock;
+    private volatile BasicAuthentication basicAuthentication;
 
     public BpmCreatedMessageHandlerFactory(){
     }
 
     @Override
     public MessageHandler newMessageHandler() {
-        return new BpmCreatedMessageHandler(jsonService, bpmService.getBpmServer());
+        return new BpmCreatedMessageHandler(jsonService, bpmService.getBpmServer(), basicAuthentication);
     }
 
     @Activate
@@ -44,6 +47,12 @@ public class BpmCreatedMessageHandlerFactory implements MessageHandlerFactory {
     public void setJsonService(JsonService jsonService) {
         this.jsonService = jsonService;
     }
+
+    @Reference
+    public void setBasicAuthentication(BasicAuthentication basicAuthentication) {
+        this.basicAuthentication = basicAuthentication;
+    }
+
 
     @Reference
     public void setClock(Clock clock) {
