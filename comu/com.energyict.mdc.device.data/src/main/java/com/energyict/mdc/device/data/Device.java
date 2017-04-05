@@ -521,7 +521,7 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
      * @param keyAccessorType The type of key accessor to be created
      * @return An empty key accessor.
      */
-    public KeyAccessor newKeyAccessor(KeyAccessorType keyAccessorType); // TODO REMOVE, no longer needed
+    public KeyAccessor newKeyAccessor(KeyAccessorType keyAccessorType);
 
     /**
      * Builder that support basic value setters for a ScheduledConnectionTask.

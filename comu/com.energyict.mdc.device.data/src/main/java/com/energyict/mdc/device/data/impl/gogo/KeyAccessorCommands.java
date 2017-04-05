@@ -222,7 +222,7 @@ public class KeyAccessorCommands {
     }
 
     public void importSymmetricKey() {
-        System.out.println("Usage: importSymmetricKey <device mrid> <key accessor type name> <keystore file>  <key store password> <alias>");
+        System.out.println("Usage: importSymmetricKey <device name> <key accessor type name> <keystore file>  <key store password> <alias>");
         System.out.println("e.g. : importSymmetricKey A1BC MK aes128.jks foo123 mk");
     }
 
@@ -249,13 +249,18 @@ public class KeyAccessorCommands {
                 throw new RuntimeException("The keystore does not contain a key with alias "+alias);
             }
 
-            KeyAccessor keyAccessor = device.getKeyAccessor(keyAccessorType)
-                    .orElseGet(()->device.newKeyAccessor(keyAccessorType));
-            if (keyAccessor.getActualValue()!=null) {
-                ((SymmetricKeyWrapper)keyAccessor.getActualValue()).delete();
-            }
             SymmetricKeyWrapper symmetricKeyWrapper = pkiService.newSymmetricKeyWrapper(keyAccessorType);
             ((PlaintextSymmetricKey)symmetricKeyWrapper).setKey(new SecretKeySpec(key.getEncoded(), key.getAlgorithm()));
+            Optional<KeyAccessor> keyAccessorOptional = device.getKeyAccessor(keyAccessorType);
+            KeyAccessor<SymmetricKeyWrapper> keyAccessor;
+            if (keyAccessorOptional.isPresent()) {
+                if (keyAccessorOptional.get().getActualValue()!=null) {
+                    ((SymmetricKeyWrapper)keyAccessorOptional.get().getActualValue()).delete();
+                }
+                keyAccessor = keyAccessorOptional.get();
+            } else {
+                keyAccessor = device.newKeyAccessor(keyAccessorType);
+            }
             keyAccessor.setActualValue(symmetricKeyWrapper);
             keyAccessor.save();
             context.commit();
