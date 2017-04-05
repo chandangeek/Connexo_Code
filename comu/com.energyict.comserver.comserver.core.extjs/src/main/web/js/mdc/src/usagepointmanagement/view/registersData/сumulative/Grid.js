@@ -16,27 +16,27 @@ Ext.define('Mdc.usagepointmanagement.view.registersData.cumulative.Grid', {
     register: null,
 
     initComponent: function () {
-        var me = this,
-            readingType = me.register.get('readingType'),
-            unit = readingType && readingType.names ? readingType.names.unitOfMeasure : undefined;
+        var me = this;
 
         me.columns = [
             {
                 header: Uni.I18n.translate('general.measurementPeriod', 'MDC', 'Measurement period'),
                 dataIndex: 'measurementPeriod',
                 flex: 1,
-                renderer: function (value) {
-                    return Uni.DateTime.formatDateShort(new Date(value));
+                renderer: function (interval) {
+                    return Uni.I18n.translate(
+                        'general.dateAtTime', 'MDC', '{0} at {1}',
+                        [Uni.DateTime.formatDateLong(new Date(interval.start)), Uni.DateTime.formatTimeLong(new Date(interval.end))], false);
                 }
             },
             {
-                header: Uni.I18n.translate('general.collectedValue', 'MDC', 'Collected value'),
-                dataIndex: 'collectedValue',
+                header: Uni.I18n.translate('general.deltaValue', 'MDC', 'Delta value'),
+                dataIndex: 'deltaValue',
                 flex: 1
             },
             {
                 header: Uni.I18n.translate('general.collectedValue', 'MDC', 'Collected value'),
-                dataIndex: 'deltaValue',
+                dataIndex: 'collectedValue',
                 flex: 1,
                 align: 'right'
             },

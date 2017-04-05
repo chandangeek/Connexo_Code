@@ -6,22 +6,30 @@ Ext.define('Mdc.usagepointmanagement.view.registersData.RegisterTypesMap', {
     singleton: true,
 
     addPreview: {
-        event: 'register-data-event-preview',
-        сumulative: 'register-data-сumulative-preview',
-        noCumulative: 'register-data-noCumulative-preview'
+        CUMULATIVE_VALUE: 'register-data-сumulative-preview',
+        CUMULATIVE_BILLING_VALUE: 'register-data-сumulative-preview',
+        CUMULATIVE_EVENT_BILLING_VALUE: 'register-data-сumulative-preview',
+        NOT_CUMULATIVE_VALUE: 'register-data-noCumulative-preview',
+        NOT_CUMULATIVE_BILLING_VALUE: 'register-data-noCumulative-preview',
+        EVENT_VALUE: 'register-data-event-preview',
+        EVENT_BILLING_VALUE: 'register-data-event-preview'
     },
     addGrid: {
-        event: 'register-data-event-grid',
-        сumulative: 'register-data-сumulative-grid',
-        noCumulative: 'register-data-noCumulative-grid'
+        CUMULATIVE_VALUE: 'register-data-сumulative-grid',
+        CUMULATIVE_BILLING_VALUE: 'register-data-сumulative-grid',
+        CUMULATIVE_EVENT_BILLING_VALUE: 'register-data-сumulative-grid',
+        NOT_CUMULATIVE_VALUE: 'register-data-noCumulative-grid',
+        NOT_CUMULATIVE_BILLING_VALUE: 'register-data-noCumulative-grid',
+        EVENT_VALUE: 'register-data-event-grid',
+        EVENT_BILLING_VALUE: 'register-data-event-grid'
     },
 
     getAddPreview: function (key) {
-        return this.addPreview[key] ? this.addPreview[key] : this.addPreview['сumulative'];
+        return this.addPreview[key] ? this.addPreview[key] : this.addPreview['CUMULATIVE_VALUE'];
     },
 
     getAddGrid: function (key) {
-        return this.addGrid[key] ? this.addGrid[key] : this.addGrid['сumulative'];
+        return this.addGrid[key] ? this.addGrid[key] : this.addGrid['CUMULATIVE_VALUE'];
     }
 
 });

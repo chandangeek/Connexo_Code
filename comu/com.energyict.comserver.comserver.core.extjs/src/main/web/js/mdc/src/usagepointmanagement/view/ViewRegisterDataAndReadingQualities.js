@@ -9,6 +9,13 @@ Ext.define('Mdc.usagepointmanagement.view.ViewRegisterDataAndReadingQualities', 
         'Uni.grid.FilterPanelTop',
         'Uni.view.notifications.NoItemsFoundPanel',
         'Uni.view.container.PreviewContainer',
+        'Mdc.usagepointmanagement.view.registersData.cumulative.Grid',
+        'Mdc.usagepointmanagement.view.registersData.noCumulative.Grid',
+        'Mdc.usagepointmanagement.view.registersData.event.Grid',
+        'Mdc.usagepointmanagement.view.registersData.cumulative.Preview',
+        'Mdc.usagepointmanagement.view.registersData.noCumulative.Preview',
+        'Mdc.usagepointmanagement.view.registersData.event.Preview',
+        'Mdc.usagepointmanagement.view.registersData.RegisterTypesMap',
         'Mdc.usagepointmanagement.view.UsagePointSideMenu',
         'Mdc.usagepointmanagement.view.RegisterDataGrid',
         'Mdc.usagepointmanagement.view.RegisterDataPreview'
@@ -25,7 +32,8 @@ Ext.define('Mdc.usagepointmanagement.view.ViewRegisterDataAndReadingQualities', 
     idProperty: 'interval_end',
 
     initComponent: function () {
-        var me = this;
+        var me = this,
+            store = me.getStore();
 
         me.content = [
             {
@@ -69,7 +77,7 @@ Ext.define('Mdc.usagepointmanagement.view.ViewRegisterDataAndReadingQualities', 
                         xtype: 'preview-container',
                         itemId: 'readings-preview-container',
                         grid: {
-                            xtype: 'register-data-grid',
+                            xtype: Mdc.usagepointmanagement.view.registersData.RegisterTypesMap.getAddGrid(store.get('registerType')),
                             itemId: 'register-data-grid',
                             store: me.store,
                             register: me.register,
@@ -97,7 +105,7 @@ Ext.define('Mdc.usagepointmanagement.view.ViewRegisterDataAndReadingQualities', 
                             ]
                         },
                         previewComponent: {
-                            xtype: 'register-data-preview',
+                            xtype: Mdc.usagepointmanagement.view.registersData.RegisterTypesMap.getAddPreview(store.get('registerType')),
                             itemId: 'register-data-preview',
                             router: me.router,
                             register: me.register

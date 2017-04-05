@@ -30,18 +30,16 @@ Ext.define('Mdc.usagepointmanagement.view.registersData.cumulative.Preview', {
                             fieldLabel: Uni.I18n.translate('general.measurementPeriod', 'MDC', 'Measurement period'),
                             name: 'measurementPeriod',
                             htmlEncode: false,
-                            renderer: function (value) {
-                                return Uni.DateTime.formatDateLong(value.end);
+                            renderer: function (interval) {
+                                return Uni.I18n.translate(
+                                    'general.dateAtTime', 'MDC', '{0} at {1}',
+                                    [Uni.DateTime.formatDateLong(new Date(interval.start)), Uni.DateTime.formatTimeLong(new Date(interval.end))], false);
                             }
                         },
                         {
                             itemId: 'collected-value-field',
                             fieldLabel: Uni.I18n.translate('deviceloadprofiles.readingTime', 'MDC', 'Reading time'),
-                            name: 'collectedValue',
-                            htmlEncode: false,
-                            renderer: function (value) {
-                                return Uni.DateTime.formatDateLong(value);
-                            }
+                            name: 'collectedValue'
                         },
                         {
                             itemId: 'delta-value-field',
@@ -58,10 +56,10 @@ Ext.define('Mdc.usagepointmanagement.view.registersData.cumulative.Preview', {
 
     loadRecord: function (record) {
         var me = this,
-            interval = record.get('interval'),
+            interval = record.get('measurementPeriod'),
             title = Uni.I18n.translate(
                 'general.dateAtTime', 'MDC', '{0} at {1}',
-                [Uni.DateTime.formatDateLong(new Date(interval.end)), Uni.DateTime.formatTimeLong(new Date(interval.end))], false);
+                [Uni.DateTime.formatDateLong(new Date(interval.start)), Uni.DateTime.formatTimeLong(new Date(interval.end))], false);
 
         me.record = record;
         Ext.suspendLayouts();

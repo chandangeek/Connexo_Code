@@ -74,7 +74,7 @@ Ext.define('Mdc.usagepointmanagement.controller.ViewRegisterDataAndReadingQualit
 
         pageMainContent.setLoading();
 
-        registersStore.getProxy().setExtraParam('usagePointId', usagePointId);
+        registersStore.getProcreatePowerUserxy().setExtraParam('usagePointId', usagePointId);
         registersStore.suspendEvent('beforeload');
         registersStore.load(function () {
             registersStore.resumeEvent('beforeload');

@@ -5,19 +5,15 @@
 Ext.define('Mdc.usagepointmanagement.model.RegisterReading', {
     extend: 'Uni.model.Version',
     fields: [
-        {
-            name: 'isCumulative',
-            type: 'boolean'
-        },
-        {
-            name: 'hasEvent',
-            type: 'boolean'
-        },
-        {
-            name: 'isBilling',
-            type: 'boolean'
-        },
-        'value', 'measurementTime', 'measurementPeriod', 'eventDate', 'collectedValue', 'delta', 'deltaValue', 'readingTime', 'readingQualities', 'dataValidated',
+        'registerType',
+        'measurementTime',
+        'measurementPeriod',
+        'eventDate',
+        'collectedValue',
+        'delta',
+        'deltaValue',
+        'readingTime',
+        'dataValidated',
         {
             name: 'validationResult',
             mapping: function (data) {
@@ -40,7 +36,8 @@ Ext.define('Mdc.usagepointmanagement.model.RegisterReading', {
         type: 'rest',
         url: '/api/upr/usagepoints/{usagePointId}/registers/{registerId}/data',
         reader: {
-            type: 'json'
+            type: 'json',
+            root: 'data'
         }
     }
 });

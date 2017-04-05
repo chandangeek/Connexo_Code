@@ -34,18 +34,15 @@ Ext.define('Mdc.usagepointmanagement.view.registersData.event.Preview', {
                             itemId: 'eventDate-field',
                             fieldLabel: Uni.I18n.translate('deviceloadprofiles.eventDate', 'MDC', 'Event date'),
                             name: 'eventDate',
-                            htmlEncode: false,
-                            renderer: function (value) {
-                                return Uni.DateTime.formatDateLong(value);
-                            }
+                            // htmlEncode: false,
+                            // renderer: function (value) {
+                            //     return Uni.DateTime.formatDateLong(value);
+                            // }
                         },
                         {
                             itemId: 'collectedValue-field',
                             fieldLabel: Uni.I18n.translate('device.dataValidation.collectedValue', 'MDC', 'Collected value'),
-                            name: 'collectedValue',
-                            renderer: function (value) {
-                                return me.displayValidationResult(false);
-                            }
+                            name: 'collectedValue'
                         }
                     ]
                 }
@@ -60,8 +57,10 @@ Ext.define('Mdc.usagepointmanagement.view.registersData.event.Preview', {
                         fieldLabel: Uni.I18n.translate('general.measurementTime', 'MDC', 'Measurement period'),
                         name: 'measurementPeriod',
                         htmlEncode: false,
-                        renderer: function (value) {
-                            return Uni.DateTime.formatDateLong(value.end);
+                        renderer: function (interval) {
+                            return Uni.I18n.translate(
+                                'general.dateAtTime', 'MDC', '{0} at {1}',
+                                [Uni.DateTime.formatDateLong(new Date(interval.start)), Uni.DateTime.formatTimeLong(new Date(interval.end))], false);
                         }
                     }
                 } else {
