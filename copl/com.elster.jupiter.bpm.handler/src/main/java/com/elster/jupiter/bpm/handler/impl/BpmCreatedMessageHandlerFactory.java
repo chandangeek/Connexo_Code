@@ -5,7 +5,7 @@
 package com.elster.jupiter.bpm.handler.impl;
 
 import com.elster.jupiter.bpm.BpmService;
-import com.elster.jupiter.http.whiteboard.impl.BasicAuthentication;
+import com.elster.jupiter.http.whiteboard.HttpAuthenticationService;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
 import com.elster.jupiter.util.json.JsonService;
@@ -24,14 +24,14 @@ public class BpmCreatedMessageHandlerFactory implements MessageHandlerFactory {
     private volatile JsonService jsonService;
     private volatile BpmService bpmService;
     private volatile Clock clock;
-    private volatile BasicAuthentication basicAuthentication;
+    private volatile HttpAuthenticationService httpAuthenticationService;
 
     public BpmCreatedMessageHandlerFactory(){
     }
 
     @Override
     public MessageHandler newMessageHandler() {
-        return new BpmCreatedMessageHandler(jsonService, bpmService.getBpmServer(), basicAuthentication);
+        return new BpmCreatedMessageHandler(jsonService, bpmService.getBpmServer(), httpAuthenticationService);
     }
 
     @Activate
@@ -49,8 +49,8 @@ public class BpmCreatedMessageHandlerFactory implements MessageHandlerFactory {
     }
 
     @Reference
-    public void setBasicAuthentication(BasicAuthentication basicAuthentication) {
-        this.basicAuthentication = basicAuthentication;
+    public void setHttpAuthenticationService(HttpAuthenticationService httpAuthenticationService) {
+        this.httpAuthenticationService = httpAuthenticationService;
     }
 
 
