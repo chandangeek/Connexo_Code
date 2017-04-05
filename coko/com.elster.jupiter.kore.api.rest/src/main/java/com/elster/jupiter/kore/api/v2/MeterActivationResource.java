@@ -179,7 +179,7 @@ public class MeterActivationResource {
                     .sorted((a, b) -> a.getPeriod().lowerEndpoint().compareTo(b.getPeriod().lowerEndpoint()))
                     .findFirst())
                     .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.INVALID_END_DEVICE_STAGE, start));
-            start = state.getPeriod().lowerEndpoint();
+            start = state.getPeriod().lowerEndpoint().plus(1, ChronoUnit.MINUTES).truncatedTo(ChronoUnit.MINUTES);
         }
 
         if (!usagePoint.getMeterActivations().isEmpty() && start.isBefore(usagePoint.getMeterActivations()
