@@ -839,15 +839,18 @@ public class MeteringConsoleCommands {
         System.out.println("Usage: unlinkMetrologyConfiguration <usage point name>  <timestamp string>");
     }
 
-    public void unlinkMetrologyConfiguration(String usagePointName ,String timestamp){
+    public void unlinkMetrologyConfiguration(String usagePointName, String timestamp) {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
             UsagePoint usagePoint = this.meteringService.findUsagePointByName(usagePointName)
                     .orElseThrow(() -> new IllegalArgumentException("Usage point " + usagePointName + " does not exist"));
             Instant endDate = LocalDateTime.from(dateTimeFormat.parse(timestamp)).atZone(ZoneId.systemDefault()).toInstant();
             EffectiveMetrologyConfigurationOnUsagePoint configurationOnUsagePoint = usagePoint.getCurrentEffectiveMetrologyConfiguration()
-                    .orElseThrow(() -> new IllegalArgumentException("Usage point "+usagePointName + " does not have open metrology configuration"));
-            usagePoint.getCurrentEffectiveMetrologyConfiguration().get().close(endDate);
+                    .orElseThrow(() -> new IllegalArgumentException("Usage point " + usagePointName + " does not have open metrology configuration"));
+            if (endDate.isBefore(configurationOnUsagePoint.getStart())) {
+                throw new IllegalArgumentException("Specified end date is before the start of current effective metrology configuration");
+            }
+            configurationOnUsagePoint.close(endDate);
             context.commit();
         }
     }

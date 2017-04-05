@@ -538,7 +538,6 @@ public class UsagePointImpl implements ServerUsagePoint {
                 .collect(Collectors.toList());
     }
 
-
     @Override
     public void apply(UsagePointMetrologyConfiguration metrologyConfiguration) {
         this.apply(metrologyConfiguration, this.clock.instant());
@@ -662,12 +661,9 @@ public class UsagePointImpl implements ServerUsagePoint {
 
         if (!meterActivationReadingTypes.isEmpty()) {
             List<String> metrologyPurposes = metrologyContracts.stream()
-                    .filter(contract -> !contract.getRequirements()
-                            .stream()
-                            .filter(requirement -> meterActivationReadingTypes.stream()
-                                    .filter(requirement::matches).findAny().isPresent())
-                            .findAny()
-                            .isPresent())
+                    .filter(contract -> contract.getRequirements().stream()
+                            .noneMatch(requirement -> meterActivationReadingTypes.stream()
+                                    .anyMatch(requirement::matches)))
                     .map(MetrologyContract::getMetrologyPurpose)
                     .map(MetrologyPurpose::getName)
                     .collect(Collectors.toList());

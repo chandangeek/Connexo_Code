@@ -18,6 +18,7 @@ import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.time.Interval;
 
 import com.google.common.collect.Range;
@@ -77,7 +78,6 @@ public class EffectiveMetrologyConfigurationOnUsagePointImpl implements Effectiv
         return this;
     }
 
-
     @Override
     public UsagePointMetrologyConfiguration getMetrologyConfiguration() {
         return metrologyConfiguration.get();
@@ -99,8 +99,14 @@ public class EffectiveMetrologyConfigurationOnUsagePointImpl implements Effectiv
             throw new IllegalArgumentException();
         }
         this.interval = this.interval.withEnd(closingDate);
-        if(interval.toClosedRange().isEmpty()){
+        if (getRange().isEmpty()) {
             effectiveContracts.clear();
+        } else {
+            effectiveContracts.removeIf(contract ->
+                    Ranges.does(contract.getRange()).startAfter(closingDate.minusMillis(1)));
+            effectiveContracts.stream()
+                    .filter(contract -> contract.isEffectiveAt(closingDate))
+                    .forEach(contract -> contract.close(closingDate));
         }
         this.dataModel.update(this);
     }
