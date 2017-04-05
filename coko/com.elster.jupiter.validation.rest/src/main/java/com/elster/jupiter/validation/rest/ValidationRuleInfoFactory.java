@@ -11,9 +11,9 @@ import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.validation.DataValidationStatus;
+import com.elster.jupiter.validation.ValidationPropertyDefinitionLevel;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSetVersion;
-import com.elster.jupiter.validation.properties.ValidationPropertyDefinitionLevel;
 
 import javax.inject.Inject;
 import java.util.HashMap;
