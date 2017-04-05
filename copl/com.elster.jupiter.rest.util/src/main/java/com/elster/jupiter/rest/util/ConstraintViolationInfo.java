@@ -72,6 +72,12 @@ public class ConstraintViolationInfo {
         errors.add(new FieldError(fieldIdentifier, fieldLevelMessage));
     }
 
+    public ConstraintViolationInfo from(JsonMappingException exception) {
+        String property = getPathAsSingleProperty(exception);
+        addFieldError(property, thesaurus.getString(MessageSeeds.INVALID_VALUE.getKey(), "Invalid value"));
+        return this;
+    }
+
     public ConstraintViolationInfo from(RestValidationBuilder.RestValidationException exception){
         exception.getErrors().stream().forEach(this::from);
         return this;
@@ -82,6 +88,17 @@ public class ConstraintViolationInfo {
                 .forEach(stringListEntry -> stringListEntry.getValue().stream()
                         .forEach(message -> addFieldError(stringListEntry.getKey(), message)));
         return this;
+    }
+
+    private String getPathAsSingleProperty(JsonMappingException exception) {
+        String property="";
+        for (JsonMappingException.Reference reference : exception.getPath()) {
+            if (property.length()>0) {
+                property+=".";
+            }
+            property+=reference.getFieldName();
+        }
+        return property;
     }
 
     public ConstraintViolationInfo from(LocalizedFieldValidationException fieldException) {
