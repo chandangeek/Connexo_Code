@@ -52,6 +52,7 @@
 -keepnames class * implements com.energyict.protocol.MessageProtocol
 -keepnames class * implements com.energyict.mdc.upl.io.ConnectionType
 -keepnames class * implements com.energyict.mdc.upl.DeviceProtocolDialect
+-keepnames class * implements com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities
 -keepnames class * implements com.energyict.mdc.upl.messages.legacy.LegacyMessageConverter
 -keepnames class * implements com.energyict.mdc.upl.security.LegacySecurityPropertyConverter
 -keepnames class * implements com.elster.jupiter.cps.PersistenceSupport{*;}
