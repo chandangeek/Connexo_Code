@@ -100,6 +100,11 @@ public class UsagePointMeterActivationException extends LocalizedException {
         // no usages -> no getters add if necessary
     }
 
+    public static MeterDeactivationFailedGapsNotAllowed meterDeactivationFailedGapsNotAllowed(Thesaurus thesaurus, Meter meter, UsagePoint usagePoint, String date) {
+        MeterDeactivationFailedGapsNotAllowed ex = new MeterDeactivationFailedGapsNotAllowed(thesaurus, meter.getName(), usagePoint.getName(), date);
+        return ex;
+    }
+
     public static UsagePointHasMeterOnThisRole usagePointHasMeterOnThisRole(Thesaurus thesaurus, Meter meterActiveOnRole, MeterRole meterRole, Range<Instant> conflictActivationRange) {
         UsagePointHasMeterOnThisRole ex = new UsagePointHasMeterOnThisRole(thesaurus, MessageSeeds.USAGE_POINT_ALREADY_ACTIVE_WITH_GIVEN_ROLE, meterActiveOnRole.getName(), meterRole.getDisplayName());
         ex.meterActiveOnRole = meterActiveOnRole;
@@ -154,6 +159,12 @@ public class UsagePointMeterActivationException extends LocalizedException {
         ex.usagePoint = usagePoint;
         ex.cause = cause;
         return ex;
+    }
+
+    public static class MeterDeactivationFailedGapsNotAllowed extends UsagePointMeterActivationException {
+        public MeterDeactivationFailedGapsNotAllowed(Thesaurus thesaurus, String meter, String usagePoint, String date) {
+            super(thesaurus, MessageSeeds.METER_ACTIVATION_BEFORE_UP_INSTALLATION_TIME, meter, usagePoint, date);
+        }
     }
 
     public static class ActivationTimeBeforeUsagePointInstallationDate extends UsagePointMeterActivationException {

@@ -287,6 +287,7 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
             timeLine.addAll(entry.getValue().getElements(VirtualActivation::new));
             validationTimeLines.put(entry.getKey(), timeLine);
         });
+        validateActivationGaps(validationReport);
         // check resulting meter activations for affected meters
         ValidateActivationsForSingleMeterVisitor meterActivationVisitor = new ValidateActivationsForSingleMeterVisitor(validationReport);
         this.activationChanges.forEach(activation ->
@@ -299,6 +300,22 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
                         .forEach(activation -> entry.getValue().adjust(activation, usagePointActivationVisitor)));
         validateMetersCapabilities(validationReport);
         validateByCustomValidators(validationReport);
+    }
+
+    private void validateActivationGaps(ValidationReport validationReport) {
+        for (Activation deactivation : deactivationChanges) {
+            if (deactivation.getUsagePoint().getEffectiveMetrologyConfiguration(deactivation.getStart())
+                    .map(EffectiveMetrologyConfigurationOnUsagePoint::getMetrologyConfiguration)
+                    .filter(mc -> !mc.isGapAllowed())
+                    .isPresent()
+                    && !activationChanges.stream()
+                    .filter(activation -> deactivation.getMeterRole().equals(activation.getMeterRole())
+                            && activation.getStart().equals(deactivation.getStart()))
+                    .findAny()
+                    .isPresent()){
+                validationReport.meterDeactivationFailedGapsNotAllowed(deactivation.getMeter(), deactivation.getUsagePoint(), formatDate(deactivation.getStart()));
+            }
+        }
     }
 
     private void validateMetersCapabilities(ValidationReport validationReport) {
@@ -840,6 +857,8 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
 
         void usagePointHasMeterOnThisRole(Meter meterActiveOnRole, MeterRole meterRole, Range<Instant> conflictActivationRange);
 
+        void meterDeactivationFailedGapsNotAllowed(Meter meter, UsagePoint usagePoint, String date);
+
         void meterHasUnsatisfiedRequirements(Meter meter, UsagePoint usagePoint, MeterRole meterRole, Map<UsagePointMetrologyConfiguration, List<ReadingTypeRequirement>> unsatisfiedRequirements);
 
         void activationWasFailedByCustomValidator(Meter meter, MeterRole meterRole, UsagePoint usagePoint, CustomUsagePointMeterActivationValidationException ex);
@@ -859,6 +878,11 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
         @Override
         public boolean isValid() {
             return this.valid;
+        }
+
+        @Override
+        public void meterDeactivationFailedGapsNotAllowed(Meter meter, UsagePoint usagePoint, String date) {
+            throw UsagePointMeterActivationException.meterDeactivationFailedGapsNotAllowed(this.thesaurus, meter, usagePoint, date);
         }
 
         @Override
@@ -972,6 +996,11 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
         @Override
         public void meterActiveWithDifferentMeterRole(Meter meter, MeterRole currentRole, MeterRole desiredRole, Range<Instant> conflictActivationRange) {
             throw UsagePointMeterActivationException.meterActiveWithDifferentMeterRole(this.thesaurus, meter, currentRole, desiredRole, conflictActivationRange);
+        }
+
+        @Override
+        public void meterDeactivationFailedGapsNotAllowed(Meter meter, UsagePoint usagePoint, String date) {
+            throw UsagePointMeterActivationException.meterDeactivationFailedGapsNotAllowed(this.thesaurus, meter, usagePoint, date);
         }
 
         @Override
