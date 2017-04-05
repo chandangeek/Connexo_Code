@@ -2,7 +2,6 @@ package com.energyict.mdc.device.topology.impl;
 
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
-import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -12,14 +11,12 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.exceptions.DeviceConfigurationChangeException;
-import com.energyict.mdc.device.data.impl.EventType;
 import com.energyict.mdc.device.topology.TopologyService;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
-import java.time.Clock;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -34,7 +31,7 @@ import java.util.stream.Collectors;
 @Component(name = "com.energyict.mdc.device.data.deactivate.deviceconfiguration.eventhandler", service = TopicHandler.class, immediate = true)
 public class DeviceConfigurationChangeVetoEventHandler implements TopicHandler {
 
-    private static final String TOPIC = EventType.DEVICE_CONFIGURATION_CHANGE_VALIDATE.topic();
+    private static final String TOPIC = "com/energyict/mdc/device/data/deviceconfiguration/VALIDATE_CHANGE";
 
     private volatile ServerTopologyService topologyService;
     private Thesaurus thesaurus;
