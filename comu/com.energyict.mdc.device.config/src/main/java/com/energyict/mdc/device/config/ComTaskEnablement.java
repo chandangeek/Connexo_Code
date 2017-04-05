@@ -25,17 +25,17 @@ import java.util.Optional;
 @ProviderType
 public interface ComTaskEnablement extends HasId {
 
-    public static final int HIGHEST_PRIORITY = TaskPriorityConstants.HIGHEST_PRIORITY;
-    public static final int LOWEST_PRIORITY = TaskPriorityConstants.LOWEST_PRIORITY;
-    public static final int DEFAULT_PRIORITY = TaskPriorityConstants.DEFAULT_PRIORITY;
+    int HIGHEST_PRIORITY = TaskPriorityConstants.HIGHEST_PRIORITY;
+    int LOWEST_PRIORITY = TaskPriorityConstants.LOWEST_PRIORITY;
+    int DEFAULT_PRIORITY = TaskPriorityConstants.DEFAULT_PRIORITY;
 
-    public DeviceConfiguration getDeviceConfiguration ();
+    DeviceConfiguration getDeviceConfiguration ();
 
-    public ComTask getComTask ();
+    ComTask getComTask ();
 
-    public SecurityPropertySet getSecurityPropertySet ();
+    SecurityPropertySet getSecurityPropertySet ();
 
-    public void  setSecurityPropertySet (SecurityPropertySet securityPropertySet);
+    void  setSecurityPropertySet (SecurityPropertySet securityPropertySet);
 
     /**
      * Gets the flag that indicates if the ComTaskExecution
@@ -44,9 +44,9 @@ public interface ComTaskEnablement extends HasId {
      *
      * @return The flag that indicates if the NextExecutionSpecs should be ignored in an inbound context
      */
-    public boolean isIgnoreNextExecutionSpecsForInbound ();
+    boolean isIgnoreNextExecutionSpecsForInbound ();
 
-    public void setIgnoreNextExecutionSpecsForInbound (boolean flag);
+    void setIgnoreNextExecutionSpecsForInbound (boolean flag);
 
     /**
      * Gets the preferred execution priority for the execution
@@ -58,9 +58,9 @@ public interface ComTaskEnablement extends HasId {
      *
      * @return The preferred priority
      */
-    public int getPriority ();
+    int getPriority ();
 
-    public void setPriority(int priority);
+    void setPriority(int priority);
 
     /**
      * Tests if this ComTaskEnablement is suspended.
@@ -69,7 +69,7 @@ public interface ComTaskEnablement extends HasId {
      *
      * @return A flag that indicates if this ComTaskEnablement is suspended
      */
-    public boolean isSuspended ();
+    boolean isSuspended ();
 
     /**
      * Suspends this ComTaskEnablement , i.e. temporarily
@@ -78,12 +78,12 @@ public interface ComTaskEnablement extends HasId {
      * {@link com.energyict.mdc.device.config.DeviceConfiguration}.
      * Note that this only works on existing ComTaskEnablements, i.e.
      */
-    public void suspend ();
+    void suspend ();
 
     /**
      * Resumes this ComTaskEnablement , i.e. reverts any previous suspension.
      */
-    public void resume ();
+    void resume ();
 
     /**
      * Tests if the execution of the related {@link ComTask}
@@ -94,7 +94,7 @@ public interface ComTaskEnablement extends HasId {
      * @return <code>true</code> if the related ComTask should use the default ConnectionTask
      *         when executed against a Device, <code>false</code> otherwise.
      */
-    public boolean usesDefaultConnectionTask();
+    boolean usesDefaultConnectionTask();
 
     /**
      * Sets the flag that indicates if the execution of the related {@link ComTask}
@@ -103,9 +103,9 @@ public interface ComTaskEnablement extends HasId {
      *
      * @param flagValue The flag, <code>true</code> indicates that the default connection task should be used
      */
-    public void useDefaultConnectionTask(boolean flagValue);
+    void useDefaultConnectionTask(boolean flagValue);
 
-    public boolean hasPartialConnectionTask();
+    boolean hasPartialConnectionTask();
 
     /**
      * Gets the {@link com.energyict.mdc.device.config.PartialConnectionTask} that specifies
@@ -115,19 +115,9 @@ public interface ComTaskEnablement extends HasId {
      *
      * @return The PartialConnectionTask
      */
-    public Optional<PartialConnectionTask> getPartialConnectionTask();
+    Optional<PartialConnectionTask> getPartialConnectionTask();
 
-    public void setPartialConnectionTask(PartialConnectionTask partialConnectionTask);
-
-
-    /**
-     * Gets the ProtocolDialectConfigurationProperties.
-     *
-     * @return the ProtocolDialectConfigurationProperties
-     */
-    public ProtocolDialectConfigurationProperties getProtocolDialectConfigurationProperties();
-
-    public void setProtocolDialectConfigurationProperties(ProtocolDialectConfigurationProperties properties);
+    void setPartialConnectionTask(PartialConnectionTask partialConnectionTask);
 
     /**
      * Saves the changes applied to this ComTaskEnablement.
@@ -138,7 +128,7 @@ public interface ComTaskEnablement extends HasId {
      *
      * @see ComTaskEnablementBuilder#add()
      */
-    public void save();
+    void save();
 
     long getVersion();
 }
