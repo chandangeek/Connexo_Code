@@ -5,7 +5,6 @@
 package com.elster.jupiter.mdm.app.impl;
 
 import com.elster.jupiter.cps.CustomPropertySetService;
-import com.elster.jupiter.estimation.security.Privileges;
 import com.elster.jupiter.mdm.app.MdmAppService;
 import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataModelService;
 import com.elster.jupiter.orm.DataModel;
@@ -135,7 +134,11 @@ public class MdmAppInstaller {
                     com.elster.jupiter.estimation.security.Privileges.Constants.VIEW_ESTIMATION_TASK,
                     com.elster.jupiter.estimation.security.Privileges.Constants.ESTIMATE_MANUAL,
                     com.elster.jupiter.estimation.security.Privileges.Constants.ESTIMATE_WITH_RULE,
-                    com.elster.jupiter.estimation.security.Privileges.Constants.EDIT_WITH_ESTIMATOR
+                    com.elster.jupiter.estimation.security.Privileges.Constants.EDIT_WITH_ESTIMATOR,
+
+                    //data quality kpi
+                    com.elster.jupiter.dataquality.security.Privileges.Constants.VIEW_DATA_QUALITY_KPI_CONFIGURATION,
+                    com.elster.jupiter.dataquality.security.Privileges.Constants.VIEW_DATA_QUALITY_RESULTS
             };
         }
     }
