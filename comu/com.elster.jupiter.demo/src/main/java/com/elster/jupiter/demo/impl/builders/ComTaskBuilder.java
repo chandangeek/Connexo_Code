@@ -32,6 +32,7 @@ public class ComTaskBuilder extends NamedBuilder<ComTask, ComTaskBuilder> {
     private List<Clock> clocks;
     private Function<DeviceMessageSpecificationService, List<DeviceMessageCategory>> commandCategoryProvider;
     private boolean statusInformationTask = false;
+    private boolean basicCheckTask = false;
 
     @Inject
     public ComTaskBuilder(TaskService taskService, DeviceMessageSpecificationService deviceMessageSpecificationService) {
@@ -70,6 +71,11 @@ public class ComTaskBuilder extends NamedBuilder<ComTask, ComTaskBuilder> {
         return this;
     }
 
+    public ComTaskBuilder forBasicCheckTask(boolean basicCheckTaskFlag) {
+        this.basicCheckTask = basicCheckTaskFlag;
+        return this;
+    }
+
     public ComTaskBuilder withCommandCategoryProvider(Function<DeviceMessageSpecificationService, List<DeviceMessageCategory>> commandCategoryProvider) {
         this.commandCategoryProvider = commandCategoryProvider;
         return this;
@@ -105,6 +111,9 @@ public class ComTaskBuilder extends NamedBuilder<ComTask, ComTaskBuilder> {
         }
         if (statusInformationTask) {
             comTask.createStatusInformationTask();
+        }
+        if(basicCheckTask) {
+            comTask.createBasicCheckTask().verifySerialNumber(true).maximumClockDifference(TimeDuration.seconds(60)).add();
         }
         if (commandCategoryProvider != null) {
             comTask.createMessagesTask().deviceMessageCategories(commandCategoryProvider.apply(deviceMessageSpecificationService)).add();

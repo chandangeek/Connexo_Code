@@ -24,6 +24,17 @@ import java.util.stream.Collectors;
  * {@link Template} holding a set of predefined attributes for creating Communication Tasks
  */
 public enum ComTaskTpl implements Template<ComTask, ComTaskBuilder> {
+    BASIC_CHECK("Basic check",
+            null,
+            null,
+            null,
+            null,
+            null) {
+        @Override
+        protected boolean isBasicCheckTask() {
+            return true;
+        }
+    },
     READ_ALL("Read all",
             Arrays.asList(LoadProfileTypeTpl._15_MIN_ELECTRICITY, LoadProfileTypeTpl.DAILY_ELECTRICITY, LoadProfileTypeTpl.MONTHLY_ELECTRICITY),
             Arrays.asList(LogBookTypeTpl.STANDARD_EVENT_LOG, LogBookTypeTpl.FRAUD_DETECTION_LOG, LogBookTypeTpl.DISCONNECTOR_CONTROL_LOG),
@@ -141,6 +152,7 @@ public enum ComTaskTpl implements Template<ComTask, ComTaskBuilder> {
         builder.withTopologyActions(topologyActions);
         builder.withClocks(clocks);
         builder.forStatusInformationTask(isVerifyStatusInformationTask());
+        builder.forBasicCheckTask(isBasicCheckTask());
         return builder;
     }
 
@@ -151,6 +163,8 @@ public enum ComTaskTpl implements Template<ComTask, ComTaskBuilder> {
     protected boolean isVerifyStatusInformationTask() {
         return false;
     }
+
+    protected boolean isBasicCheckTask() {return false;}
 
     protected Function<DeviceMessageSpecificationService, List<DeviceMessageCategory>> getCommandCategoryProvider() {
         return null;
