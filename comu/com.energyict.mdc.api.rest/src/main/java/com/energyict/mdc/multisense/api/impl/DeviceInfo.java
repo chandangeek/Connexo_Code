@@ -39,8 +39,6 @@ public class DeviceInfo extends LinkInfo<Long> {
     public List<LinkInfo> communicationsTaskExecutions;
     public List<LinkInfo> deviceMessages;
 
-    public Instant installationDate;
-
     public String usagePoint;
     public String meterRole;
 }
