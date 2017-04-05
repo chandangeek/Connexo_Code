@@ -6,6 +6,7 @@ package com.energyict.mdc.device.data.impl.pki;
 
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.SecurityValueWrapper;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.KeyAccessor;
 
@@ -13,7 +14,7 @@ import com.google.common.collect.ImmutableMap;
 
 import java.util.Map;
 
-public abstract class AbstractKeyAccessorImpl<T> implements KeyAccessor<T> {
+public abstract class AbstractKeyAccessorImpl<T extends SecurityValueWrapper> implements KeyAccessor<T> {
 
     private Reference<KeyAccessorType> keyAccessorTypeReference = Reference.empty();
     private Reference<Device> deviceReference = Reference.empty();

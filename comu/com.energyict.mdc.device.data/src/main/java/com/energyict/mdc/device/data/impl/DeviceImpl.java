@@ -4,7 +4,6 @@
 
 package com.energyict.mdc.device.data.impl;
 
-import com.elster.jupiter.cbo.Aggregate;
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
@@ -66,7 +65,6 @@ import com.elster.jupiter.orm.associations.Temporals;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.pki.PkiService;
-import com.elster.jupiter.pki.SymmetricKeyWrapper;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.TemporalExpression;
@@ -219,14 +217,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Deque;
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeMap;
 import java.util.UUID;
@@ -3343,9 +3339,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                 CertificateAccessorImpl certificateAccessor = dataModel.getInstance(CertificateAccessorImpl.class);
                 certificateAccessor.init(keyAccessorType, this);
                 this.keyAccessors.add(certificateAccessor);
-//                ClientCertificateWrapper clientCertificateWrapper = pkiService.newClientCertificateWrapper(keyAccessorType.getKeyType(), keyAccessorType.getKeyEncryptionMethod()).add();
-//                certificateAccessor.setActualValue(clientCertificateWrapper);
-//                certificateAccessor.save();
                 return certificateAccessor;
             case TrustedCertificate:
                 break;
@@ -3353,9 +3346,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                 SymmetricKeyAccessorImpl symmetricKeyAccessor = dataModel.getInstance(SymmetricKeyAccessorImpl.class);
                 symmetricKeyAccessor.init(keyAccessorType, this);
                 this.keyAccessors.add(symmetricKeyAccessor);
-                SymmetricKeyWrapper symmetricKeyWrapper = pkiService.newSymmetricKeyWrapper(keyAccessorType);
-                symmetricKeyAccessor.setActualValue(symmetricKeyWrapper);
-                symmetricKeyAccessor.save();
                 return symmetricKeyAccessor;
             case Passphrase:
                 break;
