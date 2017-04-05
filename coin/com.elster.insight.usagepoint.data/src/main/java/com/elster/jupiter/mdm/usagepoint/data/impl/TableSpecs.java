@@ -74,6 +74,7 @@ public enum TableSpecs {
         @Override
         void addTo(DataModel dataModel) {
             Table<ValidationEstimationRuleOverriddenPropertiesImpl> table = dataModel.addTable(name(), ValidationEstimationRuleOverriddenPropertiesImpl.class);
+            table.setJournalTableName(name() + "JRNL");
             table.since(Version.version(10, 3));
 
             table.map(ValidationEstimationRuleOverriddenPropertiesImpl.IMPLEMENTERS);
@@ -114,6 +115,7 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<ValidationEstimationOverriddenPropertyImpl> table = dataModel.addTable(name(), ValidationEstimationOverriddenPropertyImpl.class);
             table.map(ValidationEstimationOverriddenPropertyImpl.class);
+            table.setJournalTableName(name() + "JRNL");
             table.since(Version.version(10, 3));
 
             Column channelValEstRuleColumn = table.column("CHANNELVALESTRULE").number().notNull().conversion(ColumnConversion.NUMBER2LONG).add();
@@ -122,7 +124,7 @@ public enum TableSpecs {
             table.column("PROPERTYVALUE").varChar(SHORT_DESCRIPTION_LENGTH)
                     .map(ValidationEstimationOverriddenPropertyImpl.Fields.PROPERTY_VALUE.fieldName()).add();
 
-            table.primaryKey("UDC_PK_CHANNELVALESTRULEPROP").on(channelValEstRuleColumn, propertyNameColumn).add();
+            table.primaryKey("UDC_PK_CHANVALESTRULEPROP").on(channelValEstRuleColumn, propertyNameColumn).add();
 
             table.foreignKey("UDC_FK_PROP2CHANNELVALESTRULE")
                     .on(channelValEstRuleColumn)

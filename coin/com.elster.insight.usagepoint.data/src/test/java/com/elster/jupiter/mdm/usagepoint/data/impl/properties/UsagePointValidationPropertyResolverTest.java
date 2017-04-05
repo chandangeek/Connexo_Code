@@ -12,9 +12,9 @@ import com.elster.jupiter.metering.MetrologyContractChannelsContainer;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.validation.ValidationAction;
+import com.elster.jupiter.validation.ValidationPropertyDefinitionLevel;
+import com.elster.jupiter.validation.ValidationPropertyProvider;
 import com.elster.jupiter.validation.ValidationRule;
-import com.elster.jupiter.validation.properties.ValidationPropertyDefinitionLevel;
-import com.elster.jupiter.validation.properties.ValidationPropertyProvider;
 
 import com.google.common.collect.ImmutableMap;
 

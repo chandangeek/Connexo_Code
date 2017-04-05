@@ -5,8 +5,8 @@
 package com.elster.jupiter.mdm.usagepoint.data;
 
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.validation.ValidationPropertyDefinitionLevel;
 import com.elster.jupiter.validation.ValidationRule;
-import com.elster.jupiter.validation.properties.ValidationPropertyDefinitionLevel;
 
 import aQute.bnd.annotation.ProviderType;
 

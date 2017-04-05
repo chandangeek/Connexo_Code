@@ -24,7 +24,8 @@ public enum MessageSeeds implements MessageSeed {
     METROLOGYCONTRACT_IS_NOT_LINKED_TO_USAGEPOINT(4, "MetrologyPurposeNotLinkedToUsagePoint", "Metrology contract with id {0} is not found on usage point {1}."),
     FIELD_IS_REQUIRED(5, Keys.FIELD_IS_REQUIRED, "This field is required", Level.SEVERE),
     FIELD_TOO_LONG(6, Keys.FIELD_TOO_LONG, "Field length must not exceed {max} characters"),
-    VALIDATION_RULE_PROPERTY_CANNOT_BE_OVERRIDDEN(7, "ValidationPropertyCannotBeOverriden", "Validation rule property with key ''{0}'' can''t be overridden");
+    VALIDATION_RULE_PROPERTY_CANNOT_BE_OVERRIDDEN(7, "ValidationPropertyCannotBeOverridden", "Validation rule property with key ''{0}'' can''t be overridden"),
+    ESTIMATION_RULE_PROPERTY_CANNOT_BE_OVERRIDDEN(8, "EstimationPropertyCannotBeOverridden", "Estimation rule property with key ''{0}'' can''t be overridden");
 
     private final int number;
     private final String key;

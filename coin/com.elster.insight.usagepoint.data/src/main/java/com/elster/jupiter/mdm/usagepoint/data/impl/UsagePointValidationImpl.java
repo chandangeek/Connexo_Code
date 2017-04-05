@@ -37,7 +37,7 @@ class UsagePointValidationImpl implements UsagePointValidation {
     }
 
     @Override
-    public List<? extends ChannelValidationRuleOverriddenProperties> findAllOverriddenProperties() {
+    public List<ChannelValidationRuleOverriddenPropertiesImpl> findAllOverriddenProperties() {
         return mapper().find(ValidationEstimationRuleOverriddenPropertiesImpl.Fields.USAGEPOINT.fieldName(), this.usagePoint);
     }
 

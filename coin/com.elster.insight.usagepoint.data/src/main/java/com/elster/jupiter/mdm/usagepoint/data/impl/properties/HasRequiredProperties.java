@@ -13,7 +13,7 @@ import java.lang.annotation.Target;
 
 @Target({ElementType.TYPE, ElementType.ANNOTATION_TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-@Constraint(validatedBy = {HasRequiredPropertiesValidator.class})
+@Constraint(validatedBy = {HasValidationRuleRequiredPropertiesValidator.class, HasEstimationRuleRequiredPropertiesValidator.class})
 public @interface HasRequiredProperties {
 
     String message() default "";

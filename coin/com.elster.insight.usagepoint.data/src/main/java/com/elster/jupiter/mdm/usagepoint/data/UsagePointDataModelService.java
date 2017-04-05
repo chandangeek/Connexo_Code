@@ -20,4 +20,6 @@ public interface UsagePointDataModelService {
 
     UsagePointValidation forValidation(UsagePoint usagePoint);
 
+    UsagePointEstimation forEstimation(UsagePoint usagePoint);
+
 }

@@ -11,6 +11,7 @@ import com.elster.jupiter.mdm.usagepoint.data.ChannelDataCompletionSummaryType;
 import com.elster.jupiter.mdm.usagepoint.data.ChannelDataModificationSummaryFlags;
 import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataCompletionService;
 import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataModelService;
+import com.elster.jupiter.mdm.usagepoint.data.UsagePointEstimation;
 import com.elster.jupiter.mdm.usagepoint.data.UsagePointValidation;
 import com.elster.jupiter.mdm.usagepoint.data.ValidChannelDataSummaryFlags;
 import com.elster.jupiter.mdm.usagepoint.data.exceptions.MessageSeeds;
@@ -255,6 +256,11 @@ public class UsagePointDataModelServiceImpl implements UsagePointDataModelServic
     @Override
     public UsagePointValidation forValidation(UsagePoint usagePoint) {
         return dataModel.getInstance(UsagePointValidationImpl.class).init(usagePoint);
+    }
+
+    @Override
+    public UsagePointEstimation forEstimation(UsagePoint usagePoint) {
+        return dataModel.getInstance(UsagePointEstimationImpl.class).init(usagePoint);
     }
 
     FavoritesService getFavoritesService() {

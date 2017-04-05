@@ -30,7 +30,8 @@ import java.util.stream.Collectors;
 public abstract class ValidationEstimationRuleOverriddenPropertiesImpl {
 
     public static Map<String, Class<? extends ValidationEstimationRuleOverriddenPropertiesImpl>> IMPLEMENTERS = ImmutableMap.of(
-            ChannelValidationRuleOverriddenPropertiesImpl.TYPE_IDENTIFIER, ChannelValidationRuleOverriddenPropertiesImpl.class
+            ChannelValidationRuleOverriddenPropertiesImpl.TYPE_IDENTIFIER, ChannelValidationRuleOverriddenPropertiesImpl.class,
+            ChannelEstimationRuleOverriddenPropertiesImpl.TYPE_IDENTIFIER, ChannelEstimationRuleOverriddenPropertiesImpl.class
     );
 
     public enum Fields {
@@ -116,6 +117,8 @@ public abstract class ValidationEstimationRuleOverriddenPropertiesImpl {
                 ValidationEstimationOverriddenPropertyImpl::getName,
                 ValidationEstimationOverriddenPropertyImpl::getValue));
     }
+
+    abstract List<PropertySpec> getPropertySpecs();
 
     abstract PropertySpec getPropertySpec(String propertyName);
 

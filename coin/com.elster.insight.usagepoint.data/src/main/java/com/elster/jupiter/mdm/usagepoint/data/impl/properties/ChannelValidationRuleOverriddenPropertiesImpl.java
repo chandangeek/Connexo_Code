@@ -12,8 +12,8 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.validation.ValidationAction;
+import com.elster.jupiter.validation.ValidationPropertyDefinitionLevel;
 import com.elster.jupiter.validation.ValidationService;
-import com.elster.jupiter.validation.properties.ValidationPropertyDefinitionLevel;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
