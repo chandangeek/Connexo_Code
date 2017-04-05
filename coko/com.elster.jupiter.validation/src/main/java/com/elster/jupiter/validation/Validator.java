@@ -12,7 +12,6 @@ import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.properties.HasDynamicProperties;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.validation.properties.ValidationPropertyDefinitionLevel;
 
 import aQute.bnd.annotation.ConsumerType;
 import com.google.common.collect.Range;
@@ -68,7 +67,7 @@ public interface Validator extends HasDynamicProperties {
 
     /**
      * Validates values of validator's properties according to business constraints.
-     * Note: the method should not try to validate presence of required properties, because this will be done by validation engine.
+     * Note: the method should not try to validate presence of required properties, because this will be done automatically.
      *
      * @param properties the values to validate
      */

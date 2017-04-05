@@ -6,7 +6,6 @@ package com.elster.jupiter.validation;
 
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.validation.properties.ValidationPropertyDefinitionLevel;
 
 import aQute.bnd.annotation.ProviderType;
 

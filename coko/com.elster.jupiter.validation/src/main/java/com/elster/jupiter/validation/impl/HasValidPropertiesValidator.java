@@ -6,8 +6,8 @@ package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.validation.ValidationPropertyDefinitionLevel;
 import com.elster.jupiter.validation.ValidatorNotFoundException;
-import com.elster.jupiter.validation.properties.ValidationPropertyDefinitionLevel;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;

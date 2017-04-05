@@ -25,12 +25,12 @@ import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.validation.EventType;
 import com.elster.jupiter.validation.ReadingTypeInValidationRule;
 import com.elster.jupiter.validation.ValidationAction;
+import com.elster.jupiter.validation.ValidationPropertyDefinitionLevel;
 import com.elster.jupiter.validation.ValidationRuleProperties;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationRuleSetVersion;
 import com.elster.jupiter.validation.Validator;
 import com.elster.jupiter.validation.ValidatorNotFoundException;
-import com.elster.jupiter.validation.properties.ValidationPropertyDefinitionLevel;
 
 import com.google.common.collect.ImmutableMap;
 

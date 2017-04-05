@@ -2,12 +2,10 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.elster.jupiter.validation.properties;
+package com.elster.jupiter.validation;
 
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.validation.ValidationAction;
-import com.elster.jupiter.validation.ValidationRule;
 
 import com.google.common.collect.ImmutableMap;
 

@@ -7,8 +7,8 @@ package com.elster.jupiter.validation.impl;
 import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.validation.ValidationPropertyResolver;
 import com.elster.jupiter.validation.ValidationService;
-import com.elster.jupiter.validation.properties.ValidationPropertyResolver;
 
 import java.util.List;
 

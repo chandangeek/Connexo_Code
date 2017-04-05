@@ -55,6 +55,7 @@ import com.elster.jupiter.validation.EventType;
 import com.elster.jupiter.validation.ValidationContext;
 import com.elster.jupiter.validation.ValidationContextImpl;
 import com.elster.jupiter.validation.ValidationEvaluator;
+import com.elster.jupiter.validation.ValidationPropertyResolver;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationRuleSetResolver;
@@ -65,7 +66,6 @@ import com.elster.jupiter.validation.ValidatorFactory;
 import com.elster.jupiter.validation.ValidatorNotFoundException;
 import com.elster.jupiter.validation.impl.kpi.DataValidationKpiServiceImpl;
 import com.elster.jupiter.validation.kpi.DataValidationKpiService;
-import com.elster.jupiter.validation.properties.ValidationPropertyResolver;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
