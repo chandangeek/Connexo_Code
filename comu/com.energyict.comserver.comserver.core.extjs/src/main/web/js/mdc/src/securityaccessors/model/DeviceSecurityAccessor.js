@@ -6,7 +6,9 @@ Ext.define('Mdc.securityaccessors.model.DeviceSecurityAccessor', {
 
     fields: [
         {name: 'id', type: 'int', useNull: true},
-        {name: 'name', type: 'string'}
+        {name: 'name', type: 'string'},
+        {name: 'description', type: 'string'},
+        'expirationTime'
     ],
 
     proxy: {

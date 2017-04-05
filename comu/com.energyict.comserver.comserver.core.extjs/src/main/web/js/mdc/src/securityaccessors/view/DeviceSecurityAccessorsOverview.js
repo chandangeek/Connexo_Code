@@ -62,11 +62,12 @@ Ext.define('Mdc.securityaccessors.view.DeviceSecurityAccessorsOverview', {
                                         itemId: 'mdc-device-security-accessors-keys-previewContainer',
                                         grid: {
                                             xtype: 'device-security-accessors-grid',
+                                            keyMode: true,
                                             itemId: 'mdc-device-accessors-keys-grid',
                                             deviceId: encodeURIComponent(me.device.get('name')),
                                             store: securityKeysStore
                                         },
-                                        emptyComponent: me.getEmptyComponent(),
+                                        emptyComponent: me.getEmptyComponent(true),
                                         previewComponent: {
                                             xtype: 'device-security-accessor-preview',
                                             itemId: 'mdc-device-accessors-key-preview'
@@ -84,11 +85,12 @@ Ext.define('Mdc.securityaccessors.view.DeviceSecurityAccessorsOverview', {
                                         itemId: 'mdc-device-security-accessors-certificates-previewContainer',
                                         grid: {
                                             xtype: 'device-security-accessors-grid',
+                                            keyMode: false,
                                             itemId: 'mdc-device-accessors-certificates-grid',
                                             deviceId: encodeURIComponent(me.device.get('name')),
                                             store: securityCertificatesStore
                                         },
-                                        emptyComponent: me.getEmptyComponent(),
+                                        emptyComponent: me.getEmptyComponent(false),
                                         previewComponent: {
                                             xtype: 'device-security-accessor-preview',
                                             itemId: 'mdc-device-accessors-certificate-preview'
@@ -105,10 +107,13 @@ Ext.define('Mdc.securityaccessors.view.DeviceSecurityAccessorsOverview', {
         me.callParent(arguments);
     },
 
-    getEmptyComponent: function () {
+    getEmptyComponent: function(keyMode) {
+        var me = this;
         return  {
             xtype: 'uni-form-empty-message',
-            text: Uni.I18n.translate('general.noSecurityAccessors', 'MDC', 'No security accessors have been defined yet.')
+            text: keyMode
+                ? Uni.I18n.translate('general.noKeys', 'MDC', 'No keys have been defined yet.')
+                : Uni.I18n.translate('general.noCertificates', 'MDC', 'No certificates have been defined yet.')
         };
     }
 

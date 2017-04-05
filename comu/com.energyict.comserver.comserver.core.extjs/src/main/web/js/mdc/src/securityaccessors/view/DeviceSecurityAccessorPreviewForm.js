@@ -24,6 +24,31 @@ Ext.define('Mdc.securityaccessors.view.DeviceSecurityAccessorPreviewForm', {
                     {
                         fieldLabel: Uni.I18n.translate('general.name', 'MDC', 'Name'),
                         name: 'name'
+                    },
+                    {
+                        fieldLabel: Uni.I18n.translate('general.description', 'MDC', 'Description'),
+                        name: 'description'
+                    }
+                ]
+            },
+            {
+                defaults: {
+                    xtype: 'displayfield'
+                },
+                items: [
+                    {
+                        fieldLabel: Uni.I18n.translate('general.lastReadDate', 'MDC', 'Last read date'),
+                        name: 'lastReadDate'
+                    },
+                    {
+                        fieldLabel: Uni.I18n.translate('general.validUntil', 'MDC', 'Valid until'),
+                        name: 'expirationTime',
+                        renderer: function(value){
+                            if (Ext.isEmpty(value)) {
+                                return '-';
+                            }
+                            return Uni.DateTime.formatDateShort(new Date(value));
+                        }
                     }
                 ]
             }

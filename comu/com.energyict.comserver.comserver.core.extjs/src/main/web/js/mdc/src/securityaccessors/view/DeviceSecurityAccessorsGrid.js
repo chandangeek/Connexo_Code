@@ -13,6 +13,8 @@ Ext.define('Mdc.securityaccessors.view.DeviceSecurityAccessorsGrid', {
     ],
     forceFit: true,
 
+    keyMode: undefined,
+
     initComponent: function () {
         var me = this;
         me.columns = [
@@ -20,7 +22,28 @@ Ext.define('Mdc.securityaccessors.view.DeviceSecurityAccessorsGrid', {
                 header: Uni.I18n.translate('general.name', 'MDC', 'Name'),
                 dataIndex: 'name',
                 flex: 3
-            }
+            },
+            {
+                header: Uni.I18n.translate('general.lastReadDate', 'MDC', 'Last read date'),
+                dataIndex: 'lastReadDate',
+                flex: 1
+            },
+            {
+                header: Uni.I18n.translate('general.validUntil', 'MDC', 'Valid until'),
+                flex: 1,
+                dataIndex: 'expirationTime',
+                renderer: function(value){
+                    if (Ext.isEmpty(value)) {
+                        return '-';
+                    }
+                    return Uni.DateTime.formatDateShort(new Date(value));
+                }
+            },
+            {
+                header: Uni.I18n.translate('general.status', 'MDC', 'Status'),
+                dataIndex: 'status',
+                flex: 1
+            },
             //,
             //{
             //    xtype: 'uni-actioncolumn',
@@ -37,14 +60,22 @@ Ext.define('Mdc.securityaccessors.view.DeviceSecurityAccessorsGrid', {
                 isFullTotalCount: true,
                 store: me.store,
                 dock: 'top',
-                emptyMsg: Uni.I18n.translate('securityaccessors.pagingtoolbartop.emptyMsg', 'MDC', 'No security accessors'),
-                displayMsg: Uni.I18n.translate('securityaccessors.pagingtoolbartop.displayMsg', 'MDC', '{0} - {1} of {2} security accessors'),
-                displayMoreMsg: Uni.I18n.translate('securityaccessors.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} security accessors')
+                emptyMsg: me.keyMode
+                    ? Uni.I18n.translate('keys.pagingtoolbartop.emptyMsg', 'MDC', 'No keys')
+                    : Uni.I18n.translate('certificates.pagingtoolbartop.emptyMsg', 'MDC', 'No certificates'),
+                displayMsg: me.keyMode
+                    ? Uni.I18n.translate('keys.pagingtoolbartop.displayMsg', 'MDC', '{0} - {1} of {2} keys')
+                    : Uni.I18n.translate('certificates.pagingtoolbartop.displayMsg', 'MDC', '{0} - {1} of {2} certificates'),
+                displayMoreMsg: me.keyMode
+                    ? Uni.I18n.translate('keys.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} keys')
+                    : Uni.I18n.translate('certificates.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} certificates')
             },
             {
                 xtype: 'pagingtoolbarbottom',
                 store: me.store,
-                itemsPerPageMsg: Uni.I18n.translate('securityaccessors.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Security accessors per page'),
+                itemsPerPageMsg: me.keyMode
+                    ? Uni.I18n.translate('keys.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Keys per page')
+                    : Uni.I18n.translate('certificates.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Certificates per page'),
                 dock: 'bottom'
             }
         ];
