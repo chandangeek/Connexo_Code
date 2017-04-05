@@ -479,16 +479,11 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             syncsWithKore.add(new SynchNewDeviceWithKore(this, koreHelper.getInitialMeterActivationStartDate(), deviceService, readingTypeUtilService, clock, eventService));
 
             this.saveNewDialectProperties();
-            this.createNewKeyAccessors();
             this.createComTaskExecutionsForEnablementsMarkedAsAlwaysExecuteForInbound();
 
             this.notifyCreated();
         }
         executeSyncs();
-    }
-
-    private void createNewKeyAccessors() {
-        getDeviceType().getKeyAccessorTypes().forEach(this::newKeyAccessor);
     }
 
     void validateForUpdate() {
