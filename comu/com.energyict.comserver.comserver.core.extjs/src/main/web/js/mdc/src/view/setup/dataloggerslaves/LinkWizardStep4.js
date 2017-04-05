@@ -6,13 +6,11 @@ Ext.define('Mdc.view.setup.dataloggerslaves.LinkWizardStep4', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.dataloggerslave-link-wizard-step4',
     ui: 'large',
-
     requires: [
         'Uni.util.FormErrorMessage',
         'Mdc.model.Register',
         'Uni.form.field.DateTime'
     ],
-
     initComponent: function () {
         var me = this;
 
@@ -44,11 +42,10 @@ Ext.define('Mdc.view.setup.dataloggerslaves.LinkWizardStep4', {
                 ]
             }
         ];
-
         me.callParent(arguments);
     },
 
-    initialize: function(minimalLinkingDateInMillis, linkingDateToSuggest) {
+    initialize: function(minimalLinkingDateInMillis, linkingDateToSuggest, enabled) {
         var me = this;
         if (me.rendered) {
             me.doConfigureLinkingDate(minimalLinkingDateInMillis, linkingDateToSuggest);
@@ -56,6 +53,9 @@ Ext.define('Mdc.view.setup.dataloggerslaves.LinkWizardStep4', {
             me.on('afterrender', function() {
                 me.doConfigureLinkingDate(minimalLinkingDateInMillis, linkingDateToSuggest);
             }, me, {single:true});
+        }
+        if (!enabled){
+            me.disable();
         }
     },
 

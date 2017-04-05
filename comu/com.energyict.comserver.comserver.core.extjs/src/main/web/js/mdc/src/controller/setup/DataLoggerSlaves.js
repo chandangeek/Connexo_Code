@@ -767,12 +767,10 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
         var momentOfDate = moment(earliestLinkingDate);
         momentOfDate.startOf('day');
         var earliestLinkingDateMidnight = momentOfDate.unix() * 1000;
-        me.getWizard().down('dataloggerslave-link-wizard-step4').initialize(earliestLinkingDateMidnight, linkingDateToSuggest);
+        me.getWizard().down('dataloggerslave-link-wizard-step4').initialize(earliestLinkingDateMidnight, linkingDateToSuggest, me.wizardInformation.useExisting !== me.LINK_MULTI_ELEMENT_SLAVE);
         if (me.wizardInformation.useExisting === me.LINK_MULTI_ELEMENT_SLAVE){
             me.wizardInformation.linkingDate = linkingDateToSuggest;
-
         }
-
     },
 
     validateStep4: function(callback) {
