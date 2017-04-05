@@ -35,7 +35,7 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.yellowfin.groups.YellowfinGroupsService;
-import com.energyict.mdc.common.rest.TimeDurationInfo;
+import com.elster.jupiter.time.rest.TimeDurationInfo;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -360,7 +360,6 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         application.setDeviceMessageSpecificationService(inMemoryPersistence.getDeviceMessageSpecificationService());
         application.setFavoritesService(favoritesService);
         application.setDataCollectionKpiService(inMemoryPersistence.getDataCollectionKpiService());
-        application.setDataValidationKpiService(inMemoryPersistence.getDataValidationKpiService());
         application.setYellowfinGroupsService(yellowfinGroupsService);
         application.setFirmwareService(firmwareService);
         application.setDeviceLifeCycleService(deviceLifecycleService);
