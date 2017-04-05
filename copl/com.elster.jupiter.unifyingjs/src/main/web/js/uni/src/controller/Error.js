@@ -26,7 +26,8 @@ Ext.define('Uni.controller.Error', {
     },
 
     unhandledErrorMessages: [
-        Uni.I18n.translate('error.communication.failure', 'UNI', 'Your action took longer than expected')
+        Uni.I18n.translate('error.communication.failure', 'UNI', 'Connexo has encountered a problem, try refreshing the page. If the problem persists, please contact your system administrator.')
+        //
     ],
 
     routeConfig: {
@@ -142,12 +143,15 @@ Ext.define('Uni.controller.Error', {
             message = Uni.I18n.translate(
                 'error.connectionProblemsMessage',
                 'UNI',
-                'Unexpected connection problems. Please check that server is available.'
+                'Please check that server is available.'
             );
+            code = 'CFT-1001'; // known code - to be extracted to a reference file
         }
         else {
-            title = Uni.I18n.translate('error.requestFailedConnexoKnownError', 'UNI', 'Couldn\'t perform your action');
+
+            title = Uni.I18n.translate('error.communication.failureTitle', 'UNI', 'Your action took longer than expected');
             message = Uni.I18n.translate('error.' + message.replace(' ', '.'), 'UNI', message);
+            code = code ? code : 'CFT-1000'; // known code - to be extracted to a reference file
         }
 
         switch (response.status) {
@@ -338,11 +342,12 @@ Ext.define('Uni.controller.Error', {
         Ext.apply(config, {
             title: title,
             errCode: errorCode,
-            msg: ((typeof errorCode) != 'undefined') && errorCode ? message + '<br/><b>Error code: </b>' + errorCode : message,
+            msg: message,
             modal: false,
             ui: 'message-error',
             icon: 'icon-warning2',
-            style: 'font-size: 34px;'
+            style: 'font-size: 34px;',
+            minWidth: 300
         });
 
         var box = Ext.create('Ext.window.MessageBox', {
@@ -358,22 +363,48 @@ Ext.define('Uni.controller.Error', {
                         box.close();
                     }
                 }
-            ]
-        });
+            ],
+            initComponent: function () {
+                var me = this,
+                    msgClass = Ext.getClass(me),
+                    sLabel = Uni.I18n.translate('general.errorCode', 'UNI', 'Error Code'),
+                    tm = new Ext.util.TextMetrics(),
+                    separator = ':',
+                    labelWidth = tm.getSize(sLabel).width + tm.getSize(separator).width;
+                msgClass.prototype.initComponent.apply(me, arguments);
+                me.down('displayfield').margin = '0px';
+                me.down('displayfield').fieldStyle = 'min-height: 0px';
 
+                var fieldErrorCode = new Ext.form.field.Display({
+                    fieldLabel: sLabel,
+                    value: errorCode,
+                    labelStyle: 'margin: 1px',
+                    fieldStyle: 'margin: 0px',
+                    labelWidth: labelWidth,
+                    labelAlign: 'left',
+                    labelSeparator: separator,
+                    labelPad: 0
+                });
+                me.promptContainer.insert(2, fieldErrorCode);
+
+            }
+        });
         box.show(config);
     },
     showPageNotFound: function () {
         var widget = Ext.widget('errorNotFound');
         this.getApplication().fireEvent('changecontentevent', widget);
-    },
+    }
+    ,
     showPageNotVisible: function () {
         var widget = Ext.widget('errorNotVisible');
         this.getApplication().fireEvent('changecontentevent', widget);
-    },
+    }
+    ,
     showErrorLaunch: function () {
         var widget = Ext.widget('errorLaunch');
         this.getApplication().fireEvent('changecontentevent', widget);
     }
 
-});
+})
+;
