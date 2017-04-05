@@ -1,8 +1,5 @@
 package com.elster.us.protocolimpl.landisgyr.quad4;
 
-import com.elster.us.nls.PropertyTranslationKeys;
-import com.energyict.cbo.Quantity;
-import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.nls.TranslationKey;
@@ -12,6 +9,10 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
+
+import com.elster.us.nls.PropertyTranslationKeys;
+import com.energyict.cbo.Quantity;
+import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterInfo;
@@ -412,6 +413,11 @@ public class Quad4 extends PluggableMeterProtocol implements RegisterProtocol,Se
             builder.append(String.valueOf((char) ProtocolUtils.convertHexMSB(bKar)));
         }
         return builder.toString();
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "Landis&Gyr Quad4";
     }
 
     @Override

@@ -114,7 +114,7 @@ public class TestArchiveStructure2
         // zerlegen...
         IntervalData ivd = profile60.processProfileLine(data, TimeZone.getTimeZone("GMT+2"));
         String s2 = ivd.toString();
-        String s5 = "Mon Apr 01 14:00:00 GMT 2013 0 2048 Values: 3.01 0 20480.0 0 2048";
+        String s5 = "Mon Apr 01 14:00:00 GMT 2013 0 ReadingQualities: 1.4.1001 2048 Values: 3.01 0 2048 ReadingQualities: 1.4.1001 0.0 0 2048 ReadingQualities: 1.4.1001";
         System.out.println(s2);
         assertEquals(s5, s2);
     }

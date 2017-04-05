@@ -14,6 +14,7 @@ import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
+
 import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocolimpl.mbus.core.MBus;
 
@@ -81,6 +82,11 @@ public class Generic extends MBus {
     @Override
     public String getProtocolVersion() {
         return "$Date: 2015-11-13 15:14:02 +0100 (Fri, 13 Nov 2015) $";
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "Generic Mbus";
     }
 
     @Override

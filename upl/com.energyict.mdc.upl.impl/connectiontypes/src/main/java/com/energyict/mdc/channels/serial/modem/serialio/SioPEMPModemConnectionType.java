@@ -27,7 +27,7 @@ import java.util.List;
 @XmlRootElement
 public class SioPEMPModemConnectionType extends SioSerialConnectionType {
 
-    protected PEMPModemComponent pempModemComponent;
+    private PEMPModemComponent pempModemComponent;
 
     public SioPEMPModemConnectionType(PropertySpecService propertySpecService) {
         super(propertySpecService);
@@ -35,11 +35,10 @@ public class SioPEMPModemConnectionType extends SioSerialConnectionType {
 
     @Override
     public SerialPortComChannel connect() throws ConnectionException {
-        pempModemComponent = new PEMPModemComponent(new TypedPEMPModemProperties(getAllProperties(), this.getPropertySpecService()));
         // create the serial ComChannel and set all property values
         SerialPortComChannel comChannel = super.connect();
         try {
-            pempModemComponent.connect(getComPortName(getAllProperties()), comChannel);
+            getModemComponent().connect(getComPortName(getAllProperties()), comChannel);
         } catch (ModemException e) {
             throw new ConnectionException(Thesaurus.ID.toString(), MessageSeeds.NestedModemException, e);
         } finally {
@@ -48,12 +47,17 @@ public class SioPEMPModemConnectionType extends SioSerialConnectionType {
         return comChannel;
     }
 
+    protected PEMPModemComponent getModemComponent() {
+        if (pempModemComponent == null) {
+            pempModemComponent = new PEMPModemComponent(new TypedPEMPModemProperties(getAllProperties(), this.getPropertySpecService()));
+        }
+        return pempModemComponent;
+    }
+
     @Override
     public void disconnect(ComChannel comChannel) throws ConnectionException {
         super.disconnect(comChannel);
-        if (pempModemComponent != null) {
-            pempModemComponent.disconnect((SerialPortComChannel) comChannel);
-        }
+        getModemComponent().disconnect((SerialPortComChannel) comChannel);
     }
 
     @Override

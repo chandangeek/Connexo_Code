@@ -8,6 +8,7 @@ import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
+
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractNtaMbusDevice;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages.Dsmr23MbusMessaging;
@@ -36,6 +37,12 @@ public class MBusDevice extends AbstractNtaMbusDevice {
     }
 
     @Override
+    public String getProtocolDescription() {
+        return "Landis+Gyr E350 XEMEX DLMS (NTA DSMR4.0) Mbus Slave";
+    }
+
+    @Override
     public void setUPLProperties(TypedProperties properties) {
     }
+
 }

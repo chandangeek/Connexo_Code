@@ -95,8 +95,15 @@ public abstract class StreamConnectionImpl implements StreamConnection {
     OutputStreamObserver outputStreamObserver = null;
     private final RuntimeEnvironment runtimeEnvironment;
 
+    private final int SET_PARITY_AND_FLUSH;
+    private final int SET_PARAMS_AND_FLUSH;
+    private final int SET_BAUDRATE_AND_FLUSH;
+
     public StreamConnectionImpl(RuntimeEnvironment runtimeEnvironment) {
         this.runtimeEnvironment = runtimeEnvironment;
+        SET_PARITY_AND_FLUSH = getIntProperty("setParityAndFlush", 500);
+        SET_PARAMS_AND_FLUSH = getIntProperty("setParamsAndFlush", 500);
+        SET_BAUDRATE_AND_FLUSH = getIntProperty("setBaudrateAndFlush", 500);
         if ((System.getProperty("os.name").toLowerCase().contains("linux")) && (System.getProperty("os.arch").toLowerCase().contains("86"))) {
             setOsType(OS_LINUX_X86);
         } else if ((System.getProperty("os.name").toLowerCase().contains("linux")) && (System.getProperty("os.arch").toLowerCase().contains("arm"))) {
@@ -179,10 +186,6 @@ public abstract class StreamConnectionImpl implements StreamConnection {
         init();
         doRequest2ReceiveRS485(nrOfBytes);
     }
-
-    final int SET_PARITY_AND_FLUSH = getIntProperty("setParityAndFlush", 500);
-    final int SET_PARAMS_AND_FLUSH = getIntProperty("setParamsAndFlush", 500);
-    final int SET_BAUDRATE_AND_FLUSH = getIntProperty("setBaudrateAndFlush", 500);
 
     public void setParityAndFlush(int databits, int parity, int stopbits) throws IOException {
         setParity(databits, parity, stopbits);

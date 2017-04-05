@@ -8,6 +8,7 @@ import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
+
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractNtaMbusDevice;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.xemex.messages.XemexMbusMessaging;
@@ -28,6 +29,11 @@ public class MbusDevice extends AbstractNtaMbusDevice {
     }
 
     @Override
+    public String getProtocolDescription() {
+        return "XEMEX ReMI Datalogger DLMS Mbus Slave";
+    }
+
+    @Override
     public String getVersion() {
         return "$Date: Mon Jan 2 11:14:35 2017 +0100 $";
     }
@@ -35,4 +41,5 @@ public class MbusDevice extends AbstractNtaMbusDevice {
     @Override
     public void setUPLProperties(TypedProperties properties) {
     }
+
 }

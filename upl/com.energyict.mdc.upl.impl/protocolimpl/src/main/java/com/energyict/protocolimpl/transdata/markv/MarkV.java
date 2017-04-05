@@ -10,15 +10,16 @@
 
 package com.energyict.protocolimpl.transdata.markv;
 
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.core.HalfDuplexController;
-import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
+
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterInfo;
@@ -135,6 +136,11 @@ public class MarkV extends AbstractProtocol implements SerialNumberSupport {
         } catch (IOException e) {
             throw ProtocolIOExceptionHandler.handle(e, getInfoTypeRetries() + 1);
         }
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "Transdata MarkV";
     }
 
     @Override

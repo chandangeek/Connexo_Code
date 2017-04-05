@@ -80,7 +80,7 @@ public abstract class ConnectionTypeImpl implements ConnectionType {
      * @return The ComChannel
      * @throws ConnectionException Indicates a failure in the actual connection mechanism
      */
-    protected ComChannel newTcpIpConnection(String host, int port, int timeOut) throws ConnectionException {
+    public ComChannel newTcpIpConnection(String host, int port, int timeOut) throws ConnectionException {
         try {
             Socket socket = new Socket();
             socket.connect(new InetSocketAddress(host, port), timeOut);
@@ -98,7 +98,7 @@ public abstract class ConnectionTypeImpl implements ConnectionType {
      * @return the ComChannel
      * @throws ConnectionException if an exception occurred during the creation or initialization of the ComPort
      */
-    protected SerialPortComChannel newRxTxSerialConnection(final SerialPortConfiguration serialPortConfiguration) throws ConnectionException {
+    public SerialPortComChannel newRxTxSerialConnection(final SerialPortConfiguration serialPortConfiguration) throws ConnectionException {
         ServerSerialPort serialPort = new RxTxSerialPort(serialPortConfiguration);
         serialPort.openAndInit();
         ComChannelType comChannelType = this instanceof OpticalDriver ? ComChannelType.OpticalComChannel : ComChannelType.SerialComChannel;
@@ -113,7 +113,7 @@ public abstract class ConnectionTypeImpl implements ConnectionType {
      * @return the ComChannel
      * @throws ConnectionException if an exception occurred during the creation or initialization of the ComPort
      */
-    protected SerialComChannelImpl newSioSerialConnection(final SerialPortConfiguration serialPortConfiguration) throws ConnectionException {
+    public SerialPortComChannel newSioSerialConnection(final SerialPortConfiguration serialPortConfiguration) throws ConnectionException {
         ServerSerialPort serialPort = new SioSerialPort(serialPortConfiguration);
         serialPort.openAndInit();
         ComChannelType comChannelType = this instanceof OpticalDriver ? ComChannelType.OpticalComChannel : ComChannelType.SerialComChannel;
@@ -130,7 +130,7 @@ public abstract class ConnectionTypeImpl implements ConnectionType {
      * @return the newly created DatagramComChannel
      * @throws ConnectionException if the connection setup did not work
      */
-    protected ComChannel newUDPConnection(int bufferSize, String host, int port) throws ConnectionException {
+    public ComChannel newUDPConnection(int bufferSize, String host, int port) throws ConnectionException {
         try {
             OutboundUdpSession udpSession = new OutboundUdpSession(bufferSize, host, port);
             return new DatagramComChannel(udpSession);

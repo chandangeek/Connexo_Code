@@ -55,6 +55,11 @@ public class DummyProtocol implements MeterProtocol {
         return "$Date: 2016-03-30 11:49:58 +0200 (wo, 30 mrt 2016) $";
     }
 
+    @Override
+    public String getProtocolDescription() {
+        return "Migration Dummy Protocol";
+    }
+
     public String getFirmwareVersion() throws IOException {
         throw new UnsupportedOperationException();
     }

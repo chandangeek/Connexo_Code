@@ -151,4 +151,9 @@ public class Generic extends Modbus {
         return "$Date: 2015-04-21 13:49:04 +0200 (Tue, 21 Apr 2015) $";
     }
 
+    @Override
+    public String getProtocolDescription() {
+        return "Generic Modbus";
+    }
+
 }

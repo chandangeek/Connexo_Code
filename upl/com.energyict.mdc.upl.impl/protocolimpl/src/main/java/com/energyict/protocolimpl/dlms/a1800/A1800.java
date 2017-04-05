@@ -1,11 +1,12 @@
 package com.energyict.protocolimpl.dlms.a1800;
 
-import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.upl.cache.CachingProtocol;
 import com.energyict.mdc.upl.io.NestedIOException;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+
+import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterValue;
@@ -42,6 +43,11 @@ public class A1800 extends AbstractDlmsSessionProtocol implements SerialNumberSu
 
     public A1800(PropertySpecService propertySpecService, NlsService nlsService) {
         this.properties = new A1800Properties(propertySpecService, nlsService);
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "Elster Alpha A1800 DLMS";
     }
 
     @Override

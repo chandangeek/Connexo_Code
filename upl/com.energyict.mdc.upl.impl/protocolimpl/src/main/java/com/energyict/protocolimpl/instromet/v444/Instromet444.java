@@ -181,6 +181,11 @@ public class Instromet444 extends InstrometProtocol implements SerialNumberSuppo
 	}
 
 	@Override
+	public String getProtocolDescription() {
+		return "Instromet EVHI 444";
+	}
+
+	@Override
 	public Date getTime() throws IOException {
 		Calendar cal = Calendar.getInstance(getTimeZone());
 		cal.setTime(getTableFactory().getCorrectorInformationTable().getTime());

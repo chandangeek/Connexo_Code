@@ -1,13 +1,5 @@
 package com.energyict.smartmeterprotocolimpl.eict.AM110R;
 
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.core.SerialCommunicationChannel;
-import com.energyict.dlms.ConnectionMode;
-import com.energyict.dlms.DLMSMeterConfig;
-import com.energyict.dlms.IF2HHUSignon;
-import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.SmartMeterProtocol;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
@@ -19,6 +11,15 @@ import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.core.SerialCommunicationChannel;
+import com.energyict.dlms.ConnectionMode;
+import com.energyict.dlms.DLMSMeterConfig;
+import com.energyict.dlms.IF2HHUSignon;
+import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.DLMSClassId;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.protocol.BulkRegisterProtocol;
 import com.energyict.protocol.LoadProfileConfiguration;
 import com.energyict.protocol.LoadProfileReader;
@@ -85,6 +86,11 @@ public class AM110R extends AbstractSmartDlmsProtocol implements MessageProtocol
         this.propertySpecService = propertySpecService;
         this.deviceMessageFileFinder = deviceMessageFileFinder;
         this.deviceMessageFileExtractor = deviceMessageFileExtractor;
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "Elster AM110R DLMS (SSWG EC)";
     }
 
     protected PropertySpecService getPropertySpecService() {

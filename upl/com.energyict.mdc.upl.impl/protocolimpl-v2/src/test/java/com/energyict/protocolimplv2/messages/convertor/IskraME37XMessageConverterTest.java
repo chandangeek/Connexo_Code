@@ -24,7 +24,7 @@ import static org.junit.Assert.assertEquals;
  * @since 24/10/13 - 10:50
  */
 @RunWith(MockitoJUnitRunner.class)
-public class IskraME37XMessageConverterTest extends AbstractMessageConverterTest {
+public class IskraME37XMessageConverterTest extends AbstractV2MessageConverterTest {
 
     @Test
     public void testMessageConversion() throws IOException {

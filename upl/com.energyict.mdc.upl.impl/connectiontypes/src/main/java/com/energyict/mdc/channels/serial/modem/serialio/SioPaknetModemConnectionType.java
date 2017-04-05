@@ -27,7 +27,7 @@ import java.util.List;
 @XmlRootElement
 public class SioPaknetModemConnectionType extends SioSerialConnectionType {
 
-    protected PaknetModemComponent paknetModemComponent;
+    private PaknetModemComponent paknetModemComponent;
 
     public SioPaknetModemConnectionType(PropertySpecService propertySpecService) {
         super(propertySpecService);
@@ -35,11 +35,10 @@ public class SioPaknetModemConnectionType extends SioSerialConnectionType {
 
     @Override
     public SerialPortComChannel connect() throws ConnectionException {
-        paknetModemComponent = new PaknetModemComponent(new TypedPaknetModemProperties(getAllProperties(), this.getPropertySpecService()));
         // create the serial ComChannel and set all property values
         SerialPortComChannel comChannel = super.connect();
         try {
-            paknetModemComponent.connect(getComPortName(getAllProperties()), comChannel);
+            getModemComponent().connect(getComPortName(getAllProperties()), comChannel);
         } catch (ModemException e) {
             throw new ConnectionException(Thesaurus.ID.toString(), MessageSeeds.NestedModemException, e);
         } finally {
@@ -48,12 +47,17 @@ public class SioPaknetModemConnectionType extends SioSerialConnectionType {
         return comChannel;
     }
 
+    protected PaknetModemComponent getModemComponent() {
+        if (paknetModemComponent == null) {
+            paknetModemComponent = new PaknetModemComponent(new TypedPaknetModemProperties(getAllProperties(), this.getPropertySpecService()));
+        }
+        return paknetModemComponent;
+    }
+
     @Override
     public void disconnect(ComChannel comChannel) throws ConnectionException {
         super.disconnect(comChannel);
-        if (paknetModemComponent != null) {
-            paknetModemComponent.disconnect((SerialPortComChannel) comChannel);
-        }
+        getModemComponent().disconnect((SerialPortComChannel) comChannel);
     }
 
     @Override
@@ -62,5 +66,4 @@ public class SioPaknetModemConnectionType extends SioSerialConnectionType {
         propertySpecs.addAll(new TypedPaknetModemProperties(this.getPropertySpecService()).getUPLPropertySpecs());
         return propertySpecs;
     }
-
 }

@@ -25,6 +25,7 @@ import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
+import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -47,11 +48,8 @@ public class LoadProfileBuilder {
     // status bitString
     private static final int EV_WATCHDOG_RESET = 0x04;
     private static final int EV_DST = 0x08;
-    //private static final int EV_EXTERNAL_CLOCK_SYNC=0x10;
-    //private static final int EV_CLOCK_SETTINGS=0x20;
     private static final int EV_ALL_CLOCK_SETTINGS = 0x30;
     private static final int EV_POWER_FAILURE = 0x40;
-    private static final int EV_START_OF_MEASUREMENT = 0x80;
 
     private static SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 
@@ -64,7 +62,6 @@ public class LoadProfileBuilder {
      * Load profiling parameters objects, holding tuime parameters for the load profiling management
      */
     private static ObisCode LOADPROFILING_PARAMETERS_OBIS = ObisCode.fromString("0.0.136.0.1.255");
-
 
     /**
      * The device protocol
@@ -84,7 +81,7 @@ public class LoadProfileBuilder {
     /**
      * Keeps track of the list of <CODE>ChannelInfo</CODE> objects for all the LoadProfiles
      */
-    private Map<LoadProfileReader, List<ChannelInfo>> channelInfoMap = new HashMap<LoadProfileReader, List<ChannelInfo>>();
+    private Map<LoadProfileReader, List<ChannelInfo>> channelInfoMap = new HashMap<>();
 
     public LoadProfileBuilder(ActarisSl7000 meterProtocol) {
         this.meterProtocol = meterProtocol;
@@ -99,11 +96,11 @@ public class LoadProfileBuilder {
      */
     public List<LoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfileReaders) throws IOException {
         expectedLoadProfileReaders = loadProfileReaders;
-        loadProfileConfigurationList = new ArrayList<LoadProfileConfiguration>();
+        loadProfileConfigurationList = new ArrayList<>();
 
         for (LoadProfileReader lpr : expectedLoadProfileReaders) {
             this.meterProtocol.getLogger().log(Level.INFO, "Reading configuration from LoadProfile " + lpr);
-            LoadProfileConfiguration lpc = new LoadProfileConfiguration(lpr.getProfileObisCode(), meterProtocol.getMeterSerialNumber());
+            LoadProfileConfiguration lpc = new LoadProfileConfiguration(lpr.getProfileObisCode(), new DeviceIdentifierBySerialNumber(meterProtocol.getMeterSerialNumber()));
 
             try {
                 UniversalObject uo;
@@ -130,9 +127,7 @@ public class LoadProfileBuilder {
                     throw e;    // In case of a connection exception (of which we cannot recover), do throw the error.
                 }
                 lpc.setSupportedByMeter(false);
-            } catch (IOException e) {
-                lpc.setSupportedByMeter(false);
-            } catch (NullPointerException e) {
+            } catch (IOException | NullPointerException e) {
                 lpc.setSupportedByMeter(false);
             }
             loadProfileConfigurationList.add(lpc);
@@ -253,9 +248,10 @@ public class LoadProfileBuilder {
     }
 
     protected void buildProfileData(DataContainer dataContainer, ProfileData profileData, LoadProfileReader lpr, LoadProfileConfiguration lpc) throws IOException {
-        Calendar calendar = null;
+        Calendar calendar;
         int i;
-        boolean currentAdd = true, previousAdd = true;
+        boolean currentAdd = true;
+        boolean previousAdd = true;
         IntervalData previousIntervalData = null, currentIntervalData;
 
         if (dataContainer.getRoot().element.length == 0) {
@@ -513,7 +509,7 @@ public class LoadProfileBuilder {
      */
     private LoadProfileConfiguration getLoadProfileConfiguration(LoadProfileReader loadProfileReader) {
         for (LoadProfileConfiguration lpc : this.loadProfileConfigurationList) {
-            if (loadProfileReader.getProfileObisCode().equals(lpc.getObisCode()) && loadProfileReader.getMeterSerialNumber().equalsIgnoreCase(lpc.getMeterSerialNumber())) {
+            if (loadProfileReader.getProfileObisCode().equals(lpc.getObisCode()) && new DeviceIdentifierBySerialNumber(loadProfileReader.getMeterSerialNumber()).equalsIgnoreCase(lpc.getDeviceIdentifier())) {
                 return lpc;
             }
         }

@@ -19,6 +19,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.nio.charset.Charset;
 
 import static junit.framework.Assert.assertEquals;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -30,7 +32,7 @@ import static org.mockito.Mockito.when;
  * @since 24/10/13 - 15:38
  */
 @RunWith(MockitoJUnitRunner.class)
-public class ABBA230MessageConverterTest extends AbstractMessageConverterTest {
+public class ABBA230MessageConverterTest extends AbstractV2MessageConverterTest {
 
     @Test
     public void testMessageConversion() {
@@ -55,11 +57,11 @@ public class ABBA230MessageConverterTest extends AbstractMessageConverterTest {
 
         offlineDeviceMessage = createMessage(ConfigurationChangeDeviceMessage.UploadMeterScheme);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
-        assertEquals("<UpgradeMeterScheme><XML>content_MeterScheme</XML></UpgradeMeterScheme>", messageEntry.getContent());
+        assertEquals("<UploadMeterScheme><XML>content_MeterScheme</XML></UploadMeterScheme>", messageEntry.getContent());
 
         offlineDeviceMessage = createMessage(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
-        assertEquals("<UpgradeMeterFirmware><XML>content_FirmwareUpdate</XML></UpgradeMeterFirmware>", messageEntry.getContent());
+        assertEquals("<UpgradeMeterFirmware>path</UpgradeMeterFirmware>", messageEntry.getContent());
     }
 
     @Override
@@ -77,12 +79,10 @@ public class ABBA230MessageConverterTest extends AbstractMessageConverterTest {
         switch (propertySpec.getName()) {
             case DeviceMessageConstants.MeterScheme:
                 DeviceMessageFile deviceMessageFile1 = mock(DeviceMessageFile.class);
-                when(deviceMessageFileExtractor.binaryContents(deviceMessageFile1)).thenReturn("<XML>content_MeterScheme</XML>".getBytes(Charset.forName("UTF-8")));
+                when(deviceMessageFileExtractor.contents(eq(deviceMessageFile1), any(Charset.class))).thenReturn("<XML>content_MeterScheme</XML>");
                 return deviceMessageFile1;
             case DeviceMessageConstants.firmwareUpdateFileAttributeName:
-                DeviceMessageFile deviceMessageFile2 = mock(DeviceMessageFile.class);
-                when(deviceMessageFileExtractor.binaryContents(deviceMessageFile2)).thenReturn("<XML>content_FirmwareUpdate</XML>".getBytes(Charset.forName("UTF-8")));
-                return deviceMessageFile2;
+                return "path";
             default:
                 return "0";
         }

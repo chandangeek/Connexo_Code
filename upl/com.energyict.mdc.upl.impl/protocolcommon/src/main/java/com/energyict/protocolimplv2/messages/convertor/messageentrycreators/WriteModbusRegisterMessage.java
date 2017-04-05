@@ -7,7 +7,6 @@ import com.energyict.mdc.upl.messages.legacy.MessageEntryCreator;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
-
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 
@@ -40,7 +39,6 @@ public class WriteModbusRegisterMessage implements MessageEntryCreator {
      * Creates the message parent tag based on the name of the given deviceMessage spec enum.
      */
     protected String getMessageName(OfflineDeviceMessage offlineDeviceMessage) {
-        String messageName = ((Enum) offlineDeviceMessage.getSpecification()).name();
-        return messageName;
+        return offlineDeviceMessage.getSpecification().getNameTranslationKey().getKey().split("\\.")[1];
     }
 }

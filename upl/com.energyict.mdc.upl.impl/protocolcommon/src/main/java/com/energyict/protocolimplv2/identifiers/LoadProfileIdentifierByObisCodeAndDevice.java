@@ -9,6 +9,7 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -27,24 +28,41 @@ public class LoadProfileIdentifierByObisCodeAndDevice implements LoadProfileIden
     private final ObisCode profileObisCode;
     private final DeviceIdentifier deviceIdentifier;
 
-    /**
-     * Constructor only to be used by JSON (de)marshalling
-     */
-    private LoadProfileIdentifierByObisCodeAndDevice() {
+    // For JSON serialization only
+    @SuppressWarnings("unused")
+    public LoadProfileIdentifierByObisCodeAndDevice() {
         this.profileObisCode = null;
         this.deviceIdentifier = null;
-    }
-
-    @Override
-    @XmlAttribute
-    public ObisCode getProfileObisCode() {
-        return profileObisCode;
     }
 
     public LoadProfileIdentifierByObisCodeAndDevice(ObisCode profileObisCode, DeviceIdentifier deviceIdentifier) {
         super();
         this.profileObisCode = profileObisCode;
         this.deviceIdentifier = deviceIdentifier;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        LoadProfileIdentifierByObisCodeAndDevice that = (LoadProfileIdentifierByObisCodeAndDevice) o;
+        return Objects.equals(profileObisCode, that.profileObisCode)
+            && Objects.equals(deviceIdentifier, that.deviceIdentifier);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(profileObisCode, deviceIdentifier);
+    }
+
+    @Override
+    @XmlAttribute
+    public ObisCode getProfileObisCode() {
+        return profileObisCode;
     }
 
     @XmlAttribute

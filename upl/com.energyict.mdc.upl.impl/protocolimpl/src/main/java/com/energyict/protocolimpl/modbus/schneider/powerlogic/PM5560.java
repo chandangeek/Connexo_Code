@@ -18,6 +18,11 @@ public class PM5560 extends Generic {
     }
 
     @Override
+    public String getProtocolDescription() {
+        return "Schneider PowerLogic PM5560";
+    }
+
+    @Override
     public String getProtocolVersion() {
         return "$Date: 2015-03-20 16:59:41 +0100 (Fri, 20 Mar 2015) $";
     }

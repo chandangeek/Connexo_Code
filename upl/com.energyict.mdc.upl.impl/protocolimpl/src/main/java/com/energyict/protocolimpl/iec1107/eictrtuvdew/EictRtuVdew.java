@@ -6,12 +6,6 @@
 
 package com.energyict.protocolimpl.iec1107.eictrtuvdew;
 
-import com.energyict.cbo.Quantity;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.dialer.connections.IEC1107HHUConnection;
-import com.energyict.dialer.core.HalfDuplexController;
-import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.nls.NlsService;
@@ -22,6 +16,13 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
+
+import com.energyict.cbo.Quantity;
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.dialer.connections.IEC1107HHUConnection;
+import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.HalfDuplexEnabler;
 import com.energyict.protocol.MeterExceptionInfo;
@@ -235,6 +236,11 @@ public class EictRtuVdew extends PluggableMeterProtocol implements HHUEnabler, P
     @Override
     public void initializeDevice() throws IOException {
         throw new UnsupportedException();
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "EnergyICT RTU IEC1107 (VDEW)";
     }
 
     @Override

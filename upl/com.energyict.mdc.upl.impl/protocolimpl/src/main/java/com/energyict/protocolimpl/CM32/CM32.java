@@ -121,6 +121,11 @@ public class CM32 extends AbstractProtocol {
 	}
 
 	@Override
+	public String getProtocolDescription() {
+		return "Siemens Energy Services Ltd CM32";
+	}
+
+	@Override
 	public Date getTime() throws IOException {
 		getLogger().info("getTime");
 		CommandFactory commandFactory = getCommandFactory();

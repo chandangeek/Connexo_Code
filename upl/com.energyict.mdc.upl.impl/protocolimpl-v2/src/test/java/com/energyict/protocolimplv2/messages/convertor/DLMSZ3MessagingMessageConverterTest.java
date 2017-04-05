@@ -30,7 +30,7 @@ import static org.junit.Assert.assertEquals;
  * @since 24/10/13 - 10:50
  */
 @RunWith(MockitoJUnitRunner.class)
-public class DLMSZ3MessagingMessageConverterTest extends AbstractMessageConverterTest {
+public class DLMSZ3MessagingMessageConverterTest extends AbstractV2MessageConverterTest {
 
     @Test
     public void testMessageConversion() throws IOException {

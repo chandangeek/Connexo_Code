@@ -25,9 +25,8 @@ public class DeviceMessageIdentifierByDeviceAndProtocolInfoParts implements Mess
     private final DeviceIdentifier deviceIdentifier;
     private final String[] messageProtocolInfoParts;
 
-    /**
-     * Constructor only to be used by JSON (de)marshalling
-     */
+    // For JSON serialization only
+    @SuppressWarnings("unused")
     private DeviceMessageIdentifierByDeviceAndProtocolInfoParts() {
         deviceIdentifier = new NullDeviceIdentifier();
         messageProtocolInfoParts = new String[0];
@@ -57,8 +56,8 @@ public class DeviceMessageIdentifierByDeviceAndProtocolInfoParts implements Mess
             return false;
         }
         DeviceMessageIdentifierByDeviceAndProtocolInfoParts that = (DeviceMessageIdentifierByDeviceAndProtocolInfoParts) obj;
-        return (this.deviceIdentifier.equals(that.deviceIdentifier))
-                && Arrays.equals(this.messageProtocolInfoParts, that.messageProtocolInfoParts);
+        return this.deviceIdentifier.equals(that.deviceIdentifier)
+            && Arrays.equals(this.messageProtocolInfoParts, that.messageProtocolInfoParts);
     }
 
     @Override

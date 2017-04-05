@@ -1,12 +1,13 @@
 package com.energyict.protocolimpl.eig.nexus1272;
 
-import com.energyict.cbo.Unit;
-import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
+
+import com.energyict.cbo.Unit;
+import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.MeterEvent;
@@ -173,6 +174,11 @@ public class Nexus1272 extends AbstractProtocol implements SerialNumberSupport {
     @Override
     public String getProtocolVersion() {
         return "$Date: Wed Dec 28 16:35:58 2016 +0100 $";
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "Electro Industries Nexus 1272 Modbus";
     }
 
     @Override

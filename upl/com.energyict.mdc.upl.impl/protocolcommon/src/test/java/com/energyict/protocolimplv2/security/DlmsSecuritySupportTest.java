@@ -1,7 +1,6 @@
 package com.energyict.protocolimplv2.security;
 
 import com.energyict.mdc.upl.properties.Password;
-import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
@@ -32,60 +31,16 @@ public class DlmsSecuritySupportTest extends AbstractSecuritySupportTest {
         assertThat(dlmsSecuritySupport.getSecurityProperties()).hasSize(4);
 
         // check for the password propertySpec
-        assertThat(dlmsSecuritySupport.getSecurityProperties()).has(new Condition<List<PropertySpec>>() {
-            @Override
-            public boolean matches(List<PropertySpec> propertySpecs) {
-                boolean match = false;
-                for (PropertySpec propertySpec : propertySpecs) {
-                    if (propertySpec.equals(DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService))) {
-                        match |= true;
-                    }
-                }
-                return match;
-            }
-        });
+        assertPropertySpecsEqual(DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService), dlmsSecuritySupport.getSecurityPropertySpec(SecurityPropertySpecName.PASSWORD.getKey()));
 
         // check for the encryptionKey propertySpec
-        assertThat(dlmsSecuritySupport.getSecurityProperties()).has(new Condition<List<PropertySpec>>() {
-            @Override
-            public boolean matches(List<PropertySpec> propertySpecs) {
-                boolean match = false;
-                for (PropertySpec propertySpec : propertySpecs) {
-                    if (propertySpec.equals(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(propertySpecService))) {
-                        match |= true;
-                    }
-                }
-                return match;
-            }
-        });
+        assertPropertySpecsEqual(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(propertySpecService), dlmsSecuritySupport.getSecurityPropertySpec(SecurityPropertySpecName.ENCRYPTION_KEY.getKey()));
 
         // check for the authenticationKey propertySpec
-        assertThat(dlmsSecuritySupport.getSecurityProperties()).has(new Condition<List<PropertySpec>>() {
-            @Override
-            public boolean matches(List<PropertySpec> propertySpecs) {
-                boolean match = false;
-                for (PropertySpec propertySpec : propertySpecs) {
-                    if (propertySpec.equals(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec(propertySpecService))) {
-                        match |= true;
-                    }
-                }
-                return match;
-            }
-        });
+        assertPropertySpecsEqual(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec(propertySpecService), dlmsSecuritySupport.getSecurityPropertySpec(SecurityPropertySpecName.AUTHENTICATION_KEY.getKey()));
 
         // check for the client identification propertySpec
-        assertThat(dlmsSecuritySupport.getSecurityProperties()).has(new Condition<List<PropertySpec>>() {
-            @Override
-            public boolean matches(List<PropertySpec> propertySpecs) {
-                boolean match = false;
-                for (PropertySpec propertySpec : propertySpecs) {
-                    if (propertySpec.equals(DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService))) {
-                        match |= true;
-                    }
-                }
-                return match;
-            }
-        });
+        assertPropertySpecsEqual(DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService), dlmsSecuritySupport.getSecurityPropertySpec(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.getKey()));
     }
 
     @Test

@@ -152,6 +152,11 @@ public class Trimaran extends AbstractProtocol {
     }
 
     @Override
+    public String getProtocolDescription() {
+        return "EDF Trimaran CJE";
+    }
+
+    @Override
     public String getProtocolVersion() {
         return "$Date: 2015-11-26 15:23:39 +0200 (Thu, 26 Nov 2015)$";
     }

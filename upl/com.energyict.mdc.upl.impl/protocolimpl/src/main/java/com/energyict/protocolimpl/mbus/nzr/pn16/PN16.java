@@ -36,6 +36,12 @@ public class PN16 extends MBus {
     protected void doTheDisConnect() throws IOException {
 
     }
+
+    @Override
+    public String getProtocolDescription() {
+        return "NZR PN16 Mbus";
+    }
+
     @Override
     public String getFirmwareVersion() {
         return "NOT YET IMPLEMENTED";

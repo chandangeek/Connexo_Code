@@ -73,6 +73,11 @@ public class WaveFlowV1 extends WaveFlow implements MessageProtocol {
     }
 
     @Override
+    public String getProtocolDescription() {
+        return "Coronis WaveFlow V1";
+    }
+
+    @Override
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         return obisCodeMapper.getRegisterValue(obisCode);
     }

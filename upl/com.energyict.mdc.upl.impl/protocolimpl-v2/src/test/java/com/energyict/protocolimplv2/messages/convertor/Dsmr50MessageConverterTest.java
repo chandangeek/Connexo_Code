@@ -19,7 +19,7 @@ import static junit.framework.Assert.assertEquals;
  * @author sva
  * @since 30/10/13 - 14:22
  */
-public class Dsmr50MessageConverterTest extends AbstractMessageConverterTest {
+public class Dsmr50MessageConverterTest extends AbstractV2MessageConverterTest {
 
     @Test
     public void testMessageConversion() {

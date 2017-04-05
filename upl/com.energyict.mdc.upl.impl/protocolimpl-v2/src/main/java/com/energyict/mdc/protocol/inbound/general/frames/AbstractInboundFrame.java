@@ -1,8 +1,9 @@
 package com.energyict.mdc.protocol.inbound.general.frames;
 
 import com.energyict.mdc.protocol.inbound.general.frames.parsing.InboundParameters;
+import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.meterdata.CollectedData;
-
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.protocolimplv2.identifiers.CallHomeIdPlaceHolder;
 import com.energyict.protocolimplv2.identifiers.DialHomeIdPlaceHolderDeviceIdentifier;
 
@@ -19,6 +20,9 @@ import java.util.List;
  * Author: khe
  */
 public abstract class AbstractInboundFrame {
+
+    protected final CollectedDataFactory collectedDataFactory;
+    protected final IssueFactory issueFactory;
 
     protected final CallHomeIdPlaceHolder callHomeIdPlaceHolder;
 
@@ -38,9 +42,11 @@ public abstract class AbstractInboundFrame {
 
     protected abstract FrameType getType();
 
-    public AbstractInboundFrame(String frame, CallHomeIdPlaceHolder callHomeIdPlaceHolder) {
+    public AbstractInboundFrame(String frame, CallHomeIdPlaceHolder callHomeIdPlaceHolder, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         this.callHomeIdPlaceHolder = callHomeIdPlaceHolder;
         this.frame = frame;
+        this.collectedDataFactory = collectedDataFactory;
+        this.issueFactory = issueFactory;
         parse();
     }
 

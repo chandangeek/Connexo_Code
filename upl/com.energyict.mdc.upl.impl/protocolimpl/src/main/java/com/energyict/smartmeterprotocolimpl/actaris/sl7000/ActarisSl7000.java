@@ -1,5 +1,15 @@
 package com.energyict.smartmeterprotocolimpl.actaris.sl7000;
 
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
+import com.energyict.mdc.upl.messages.legacy.Message;
+import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.MessageTag;
+import com.energyict.mdc.upl.messages.legacy.MessageValue;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.DLMSConnection;
@@ -15,15 +25,6 @@ import com.energyict.dlms.cosem.Data;
 import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
-import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
-import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
-import com.energyict.mdc.upl.messages.legacy.Message;
-import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
-import com.energyict.mdc.upl.messages.legacy.MessageEntry;
-import com.energyict.mdc.upl.messages.legacy.MessageTag;
-import com.energyict.mdc.upl.messages.legacy.MessageValue;
-import com.energyict.mdc.upl.properties.PropertySpec;
-import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileConfiguration;
 import com.energyict.protocol.LoadProfileReader;
@@ -162,10 +163,12 @@ public class ActarisSl7000 extends AbstractSmartDlmsProtocol implements Protocol
         this.dlmsSession.getCosemObjectFactory().getClock().setAXDRDateTimeAttr(axdrDateTime);
     }
 
+    @Override
     public String getFirmwareVersion() throws IOException {
         return getMeterInfo().getFirmwareVersion();
     }
 
+    @Override
     public String getMeterSerialNumber() {
         Data data;
         try {
@@ -181,18 +184,22 @@ public class ActarisSl7000 extends AbstractSmartDlmsProtocol implements Protocol
         return ObisCodeMapper.getRegisterInfo(register.getObisCode());
     }
 
+    @Override
     public List<RegisterValue> readRegisters(List<Register> registers) throws IOException {
         return getRegisterReader().readRegisters(registers);
     }
 
+    @Override
     public List<LoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfilesToRead) throws IOException {
         return getLoadProfileBuilder().fetchLoadProfileConfiguration(loadProfilesToRead);
     }
 
+    @Override
     public List<ProfileData> getLoadProfileData(List<LoadProfileReader> loadProfiles) throws IOException {
         return getLoadProfileBuilder().getLoadProfileData(loadProfiles);
     }
 
+    @Override
     public List<MeterEvent> getMeterEvents(Date lastLogbookDate) throws IOException {
         Logbook logbook = new Logbook(getTimeZone(), getFirmwareVersion());
         ProfileGeneric profileGeneric = getDlmsSession().getCosemObjectFactory().getProfileGeneric(ObisCode.fromByteArray(DLMSCOSEMGlobals.LOGBOOK_PROFILE_LN));
@@ -200,18 +207,16 @@ public class ActarisSl7000 extends AbstractSmartDlmsProtocol implements Protocol
         return logbook.getMeterEvents(dc);
     }
 
-    /**
-     * Returns the protocol version
-     */
+    @Override
+    public String getProtocolDescription() {
+        return "Itron SL7000 DLMS";
+    }
+
+    @Override
     public String getVersion() {
         return "$Date: 2016-05-12 16:20:57 +0300 (Thu, 12 May 2016)$";
     }
 
-    /**
-     * 'Lazy' getter for the {@link #meterInfo}
-     *
-     * @return the {@link #meterInfo}
-     */
     public ComposedMeterInfo getMeterInfo() {
         if (meterInfo == null) {
             meterInfo = new ComposedMeterInfo(getDlmsSession(), supportsBulkRequests());
@@ -237,26 +242,32 @@ public class ActarisSl7000 extends AbstractSmartDlmsProtocol implements Protocol
         return registerReader;
     }
 
+    @Override
     public DLMSConnection getDLMSConnection() {
         return getDlmsSession().getDLMSConnection();
     }
 
+    @Override
     public DLMSMeterConfig getMeterConfig() {
         return getDlmsSession().getMeterConfig();
     }
 
+    @Override
     public boolean isRequestTimeZone() {
         return (getProperties().getRequestTimeZone() != 0);
     }
 
+    @Override
     public int getRoundTripCorrection() {
         return getProperties().getRoundTripCorrection();
     }
 
+    @Override
     public int getReference() {
         return DLMSReference.LN.getReference();
     }
 
+    @Override
     public StoredValues getStoredValues() {
         if (storedValues == null) {
             storedValues = new StoredValuesImpl(this);
@@ -264,26 +275,32 @@ public class ActarisSl7000 extends AbstractSmartDlmsProtocol implements Protocol
         return storedValues;
     }
 
+    @Override
     public void applyMessages(List messageEntries) throws IOException {
         getMessageProtocol().applyMessages(messageEntries);
     }
 
+    @Override
     public MessageResult queryMessage(MessageEntry messageEntry) throws IOException {
         return getMessageProtocol().queryMessage(messageEntry);
     }
 
+    @Override
     public List<MessageCategorySpec> getMessageCategories() {
         return getMessageProtocol().getMessageCategories();
     }
 
+    @Override
     public String writeMessage(Message msg) {
         return getMessageProtocol().writeMessage(msg);
     }
 
+    @Override
     public String writeTag(MessageTag tag) {
         return getMessageProtocol().writeTag(tag);
     }
 
+    @Override
     public String writeValue(MessageValue value) {
         return getMessageProtocol().writeValue(value);
     }
@@ -304,4 +321,5 @@ public class ActarisSl7000 extends AbstractSmartDlmsProtocol implements Protocol
     public List<PropertySpec> getUPLPropertySpecs() {
         return getProperties().getUPLPropertySpecs();
     }
+
 }

@@ -12,6 +12,7 @@ import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
+
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterInfo;
@@ -71,6 +72,11 @@ public class IndigoPlus extends AbstractIEC1107Protocol implements SerialNumberS
 
     public IndigoPlus(PropertySpecService propertySpecService, NlsService nlsService) {
         super(false,new Encryption(), propertySpecService, nlsService);
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "Actaris Indigo+ IEC1107";
     }
 
     @Override

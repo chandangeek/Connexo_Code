@@ -11,9 +11,12 @@ import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.fest.assertions.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Tests for the {@link WavenisSecuritySupport} component
@@ -32,34 +35,14 @@ public class WavenisSecuritySupportTest extends AbstractSecuritySupportTest {
         // assert that you only have two property to set
         assertThat(wavenisSecuritySupport.getSecurityProperties()).hasSize(2);
 
-
         // check for the password propertySpec
-        assertThat(wavenisSecuritySupport.getSecurityProperties()).has(new Condition<List<PropertySpec>>() {
-            @Override
-            public boolean matches(List<PropertySpec> propertySpecs) {
-                boolean match = false;
-                for (PropertySpec propertySpec : propertySpecs) {
-                    if (propertySpec.equals(DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService))) {
-                        match |= true;
-                    }
-                }
-                return match;
-            }
-        });
+        Optional<PropertySpec> passwordPropertySpec = wavenisSecuritySupport.getSecurityPropertySpec(SecurityPropertySpecName.PASSWORD.getKey());
+        assertPropertySpecsEqual(DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService), passwordPropertySpec);
 
         // check for the encryptionKey propertySpec
-        assertThat(wavenisSecuritySupport.getSecurityProperties()).has(new Condition<List<PropertySpec>>() {
-            @Override
-            public boolean matches(List<PropertySpec> propertySpecs) {
-                boolean match = false;
-                for (PropertySpec propertySpec : propertySpecs) {
-                    if (propertySpec.equals(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(propertySpecService))) {
-                        match |= true;
-                    }
-                }
-                return match;
-            }
-        });
+        Optional<PropertySpec> encryptionKeyPropertySpec = wavenisSecuritySupport.getSecurityPropertySpec(SecurityPropertySpecName.ENCRYPTION_KEY.getKey());
+        assertTrue(encryptionKeyPropertySpec.isPresent());
+        assertEquals(encryptionKeyPropertySpec.get().getName(), SecurityPropertySpecName.ENCRYPTION_KEY.getKey());
     }
 
     @Test

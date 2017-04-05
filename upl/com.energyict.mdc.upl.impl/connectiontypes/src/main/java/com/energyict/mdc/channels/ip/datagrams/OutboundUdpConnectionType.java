@@ -7,12 +7,12 @@ import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.upl.io.ConnectionType;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
 import com.energyict.protocol.exceptions.ConnectionException;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
@@ -60,7 +60,7 @@ public class OutboundUdpConnectionType extends OutboundIpConnectionType {
 
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
-        List<PropertySpec> propertySpecs = super.getUPLPropertySpecs();
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
         propertySpecs.add(bufferSizePropertySpec());
         return propertySpecs;
     }

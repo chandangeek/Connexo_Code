@@ -44,6 +44,11 @@ public class EK88 extends LIS100 {
     }
 
     @Override
+    public String getProtocolDescription() {
+        return "Elster EK88 LIS100";
+    }
+
+    @Override
     protected RegisterMap getRegisterMap() {
         return new RegisterMap(registers);
     }

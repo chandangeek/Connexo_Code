@@ -70,6 +70,11 @@ public class A20 extends Modbus {
     }
 
     @Override
+    public String getProtocolDescription() {
+        return "Socomec Diris A20 Modbus";
+    }
+
+    @Override
     protected void initRegisterFactory() {
         setRegisterFactory(new RegisterFactory(this));
     }

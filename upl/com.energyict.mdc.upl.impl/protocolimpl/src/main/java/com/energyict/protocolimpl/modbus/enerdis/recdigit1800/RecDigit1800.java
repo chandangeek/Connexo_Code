@@ -119,6 +119,11 @@ public class RecDigit1800 extends Modbus {
     }
 
     @Override
+    public String getProtocolDescription() {
+        return "Enerdis Recdigit 1800 Modbus";
+    }
+
+    @Override
     protected void initRegisterFactory() {
         setRegisterFactory(new RegisterFactory(this));
     }

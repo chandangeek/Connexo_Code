@@ -9,6 +9,7 @@ import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.MultipleLoadProfileSupport;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocolimpl.base.ParseUtils;
+import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -88,6 +89,21 @@ public class SDKSmartMeterProfile implements MultipleLoadProfileSupport {
     private static final List<ChannelInfo> HourlyChannelInfosSlave1 = new ArrayList<>();
     private static final List<ChannelInfo> HourlyChannelInfosSlave2 = new ArrayList<>();
 
+    private static final ObisCode QuarterlyObisCode = ObisCode.fromString("1.0.99.1.0.255");
+    private static final ObisCode DailyObisCode = ObisCode.fromString("1.0.99.2.0.255");
+    private static final ObisCode MonthlyObisCode = ObisCode.fromString("0.0.98.1.0.255");
+    private static final ObisCode HourlyObisCode = ObisCode.fromString("0.x.24.3.0.255");
+
+    private static final Map<String, Map<ObisCode, List<ChannelInfo>>> LoadProfileSerialNumberChannelInfoMap = new HashMap<>();
+    private static final Map<ObisCode, List<ChannelInfo>> ChannelInfoMapMaster = new HashMap<>();
+    private static final Map<ObisCode, List<ChannelInfo>> ChannelInfoMapSlave1 = new HashMap<>();
+    private static final Map<ObisCode, List<ChannelInfo>> ChannelInfoMapSlave2 = new HashMap<>();
+
+    private static final Map<ObisCode, Integer> LoadProfileIntervalMap = new HashMap<>();
+    private static final int MILLIS_IN_SECOND = 1000;
+    private static final int SECONDS_IN_DAY = 86400;
+    private static final int MILLIS_IN_DAY = SECONDS_IN_DAY * MILLIS_IN_SECOND;
+
     static {
         QuarterlyHourChannelInfos.add(new ChannelInfo(0, "1.0.1.8.0.255", Unit.get("kWh"), MasterSerialNumber, true));
         QuarterlyHourChannelInfos.add(new ChannelInfo(1, "1.0.2.8.0.255", Unit.get("kWh"), MasterSerialNumber, true));
@@ -108,19 +124,12 @@ public class SDKSmartMeterProfile implements MultipleLoadProfileSupport {
 
         HourlyChannelInfosSlave1.add(new ChannelInfo(0, "0.x.24.2.0.255", Unit.get("m3"), Slave1SerialNumber, true));
         HourlyChannelInfosSlave2.add(new ChannelInfo(0, "0.x.24.2.0.255", Unit.get("m3"), Slave2SerialNumber, true));
-    }
 
-    private static final ObisCode QuarterlyObisCode = ObisCode.fromString("1.0.99.1.0.255");
-    private static final ObisCode DailyObisCode = ObisCode.fromString("1.0.99.2.0.255");
-    private static final ObisCode MonthlyObisCode = ObisCode.fromString("0.0.98.1.0.255");
-    private static final ObisCode HourlyObisCode = ObisCode.fromString("0.x.24.3.0.255");
+        LoadProfileIntervalMap.put(QuarterlyObisCode, 900);
+        LoadProfileIntervalMap.put(DailyObisCode, SECONDS_IN_DAY);
+        LoadProfileIntervalMap.put(MonthlyObisCode, 0);
+        LoadProfileIntervalMap.put(HourlyObisCode, 3600);
 
-    private static final Map<String, Map<ObisCode, List<ChannelInfo>>> LoadProfileSerialNumberChannelInfoMap = new HashMap<>();
-    private static final Map<ObisCode, List<ChannelInfo>> ChannelInfoMapMaster = new HashMap<>();
-    private static final Map<ObisCode, List<ChannelInfo>> ChannelInfoMapSlave1 = new HashMap<>();
-    private static final Map<ObisCode, List<ChannelInfo>> ChannelInfoMapSlave2 = new HashMap<>();
-
-    static {
         ChannelInfoMapMaster.put(QuarterlyObisCode, QuarterlyHourChannelInfos);
         ChannelInfoMapMaster.put(DailyObisCode, DailyChannelInfos);
         ChannelInfoMapMaster.put(MonthlyObisCode, MonthlyHourChannelInfos);
@@ -136,15 +145,6 @@ public class SDKSmartMeterProfile implements MultipleLoadProfileSupport {
         LoadProfileSerialNumberChannelInfoMap.put(MasterSerialNumber, ChannelInfoMapMaster);
         LoadProfileSerialNumberChannelInfoMap.put(Slave1SerialNumber, ChannelInfoMapSlave1);
         LoadProfileSerialNumberChannelInfoMap.put(Slave2SerialNumber, ChannelInfoMapSlave2);
-    }
-
-    private static final Map<ObisCode, Integer> LoadProfileIntervalMap = new HashMap<>();
-
-    static {
-        LoadProfileIntervalMap.put(QuarterlyObisCode, 900);
-        LoadProfileIntervalMap.put(DailyObisCode, 86400);
-        LoadProfileIntervalMap.put(MonthlyObisCode, 0);
-        LoadProfileIntervalMap.put(HourlyObisCode, 3600);
     }
 
     private final SDKSmartMeterProtocol protocol;
@@ -167,11 +167,9 @@ public class SDKSmartMeterProfile implements MultipleLoadProfileSupport {
      * @return a list of {@link com.energyict.protocol.LoadProfileConfiguration} objects corresponding with the meter
      */
     public List<LoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfilesToRead) {
-
-        loadProfileConfigurationList = new ArrayList<LoadProfileConfiguration>();
-
+        loadProfileConfigurationList = new ArrayList<>();
         for (LoadProfileReader lpr : loadProfilesToRead) {
-            LoadProfileConfiguration lpc = new LoadProfileConfiguration(lpr.getProfileObisCode(), lpr.getMeterSerialNumber());
+            LoadProfileConfiguration lpc = new LoadProfileConfiguration(lpr.getProfileObisCode(), new DeviceIdentifierBySerialNumber(lpr.getMeterSerialNumber()));
             Map<ObisCode, List<ChannelInfo>> tempMap = LoadProfileSerialNumberChannelInfoMap.get(lpr.getMeterSerialNumber());
             if (tempMap.containsKey(lpr.getProfileObisCode())) {
                 lpc.setChannelInfos(tempMap.get(lpr.getProfileObisCode()));
@@ -200,7 +198,7 @@ public class SDKSmartMeterProfile implements MultipleLoadProfileSupport {
      * @throws java.io.IOException if a communication or parsing error occurred
      */
     public List<ProfileData> getLoadProfileData(List<LoadProfileReader> loadProfiles) throws IOException {
-        List<ProfileData> profileDataList = new ArrayList<ProfileData>();
+        List<ProfileData> profileDataList = new ArrayList<>();
         for (LoadProfileReader loadProfile : loadProfiles) {
             ProfileData pd = getRawProfileData(loadProfile);
             if(pd != null){
@@ -214,16 +212,16 @@ public class SDKSmartMeterProfile implements MultipleLoadProfileSupport {
      * Search for the {@link com.energyict.protocol.LoadProfileConfiguration} object which is linked to the given {@link com.energyict.protocol.LoadProfileReader}.
      * The link is made using the {@link com.energyict.obis.ObisCode} from both objects.
      *
-     * @param lpro the {@link com.energyict.protocol.LoadProfileReader}
+     * @param loadProfileReader the {@link com.energyict.protocol.LoadProfileReader}
      * @return the requested {@link com.energyict.protocol.LoadProfileConfiguration}
      */
-    private LoadProfileConfiguration getLoadProfileConfigurationForGivenReadObject(LoadProfileReader lpro)  {
-        for (LoadProfileConfiguration lpc : this.loadProfileConfigurationList) {
-            if (lpc.getObisCode().equals(lpro.getProfileObisCode()) && lpc.getMeterSerialNumber().equalsIgnoreCase(lpro.getMeterSerialNumber())) {
-                return lpc;
+    private LoadProfileConfiguration getLoadProfileConfigurationForGivenReadObject(LoadProfileReader loadProfileReader)  {
+        for (LoadProfileConfiguration configuration : this.loadProfileConfigurationList) {
+            if (configuration.getObisCode().equals(loadProfileReader.getProfileObisCode()) && new DeviceIdentifierBySerialNumber(loadProfileReader.getMeterSerialNumber()).equalsIgnoreCase(configuration.getDeviceIdentifier())) {
+                return configuration;
             }
         }
-        this.protocol.getLogger().info("Could not find the configurationObject to read for " + lpro.getProfileObisCode());
+        this.protocol.getLogger().info("Could not find the configurationObject to read for " + loadProfileReader.getProfileObisCode());
         return null;
     }
 
@@ -232,10 +230,8 @@ public class SDKSmartMeterProfile implements MultipleLoadProfileSupport {
      *
      * @param lpro the identification of which LoadProfile to read
      * @return a {@link com.energyict.protocol.ProfileData} object with the necessary intervals filled in.
-     * @throws IOException when a error happens during parsing
      */
-    private ProfileData getRawProfileData(LoadProfileReader lpro) throws IOException {
-
+    private ProfileData getRawProfileData(LoadProfileReader lpro) {
         LoadProfileConfiguration lpc = getLoadProfileConfigurationForGivenReadObject(lpro);
         if (lpc != null) {
             int timeInterval = Calendar.SECOND;
@@ -258,7 +254,7 @@ public class SDKSmartMeterProfile implements MultipleLoadProfileSupport {
                 timeInterval = Calendar.MONTH;
                 timeDuration = 1;
                 interval = Period.ofMonths(1);
-            } else if (timeDuration == 86400) {
+            } else if (timeDuration == SECONDS_IN_DAY) {
                 interval = Period.ofDays(1);
                 cal.set(Calendar.HOUR_OF_DAY, 0);
                 cal.set(Calendar.MINUTE, 0);
@@ -271,20 +267,20 @@ public class SDKSmartMeterProfile implements MultipleLoadProfileSupport {
 
             Calendar endCal = Calendar.getInstance(getProtocol().getTimeZone());
             endCal.setTime(lpro.getEndReadingTime());
-            long count = 1;
+            long count;
             int steps;
             if (interval instanceof Duration) {
                 int intervalSeconds = (int) ((Duration) interval).getSeconds();
-                steps = 86400 / intervalSeconds;
-                count = (cal.getTimeInMillis() / intervalSeconds / 1000) - (cal.getTimeInMillis() / 86400000) * steps;
+                steps = SECONDS_IN_DAY / intervalSeconds;
+                count = (cal.getTimeInMillis() / intervalSeconds / MILLIS_IN_SECOND) - (cal.getTimeInMillis() / MILLIS_IN_DAY) * steps;
             } else {
                 Period largeInterval = (Period) interval;
                 if (largeInterval.getMonths() == 0) {
                     steps = 31;
-                    count = (cal.getTimeInMillis() / 86400000) - (cal.getTimeInMillis() / ((long) 31 * 86400000)) * steps;
+                    count = (cal.getTimeInMillis() / MILLIS_IN_DAY) - (cal.getTimeInMillis() / ((long) 31 * MILLIS_IN_DAY)) * steps;
                 } else {
                     steps = 12;
-                    count = (cal.getTimeInMillis() / ((long) 3600 * 24 * 31 * 1000)) - (cal.getTimeInMillis() / ((long) 12 * 3600 * 24 * 31 * 1000)) * steps;
+                    count = (cal.getTimeInMillis() / ((long) 3600 * 24 * 31 * MILLIS_IN_SECOND)) - (cal.getTimeInMillis() / ((long) 12 * 3600 * 24 * 31 * MILLIS_IN_SECOND)) * steps;
                 }
             }
             count++;

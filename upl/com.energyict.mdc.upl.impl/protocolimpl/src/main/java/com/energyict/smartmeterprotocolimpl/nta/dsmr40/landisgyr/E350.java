@@ -1,12 +1,5 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr;
 
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.dialer.connections.IEC1107HHUConnection;
-import com.energyict.dialer.core.SerialCommunicationChannel;
-import com.energyict.dlms.DLMSCache;
-import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
-import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
 import com.energyict.mdc.upl.messages.legacy.NumberLookupExtractor;
@@ -15,6 +8,14 @@ import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.dialer.connections.IEC1107HHUConnection;
+import com.energyict.dialer.core.SerialCommunicationChannel;
+import com.energyict.dlms.DLMSCache;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
+import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.LoadProfileBuilder;
@@ -54,9 +55,12 @@ public class E350 extends AbstractSmartDSMR40NtaProtocol implements HHUEnabler {
         return "$Date: 2014-11-25 16:08:19 +0100 (Tue, 25 Nov 2014) $";
     }
 
-    /**
-     * Get the equipment identifier (serves as a unique serial number) of the device
-     */
+    @Override
+    public String getProtocolDescription() {
+        return "Landis+Gyr E350 XEMEX DLMS (NTA DSMR4.0)";
+    }
+
+    @Override
     public String getMeterSerialNumber() throws IOException {
         try {
             return getMeterInfo().getEquipmentIdentifier();
@@ -71,6 +75,7 @@ public class E350 extends AbstractSmartDSMR40NtaProtocol implements HHUEnabler {
         }
     }
 
+    @Override
     public void enableHHUSignOn(SerialCommunicationChannel commChannel, boolean datareadout) throws ConnectionException {
         try {
             getDlmsSession().init();
@@ -84,18 +89,6 @@ public class E350 extends AbstractSmartDSMR40NtaProtocol implements HHUEnabler {
         getDlmsSession().getDLMSConnection().setHHUSignOn(hhuSignOn, "P07210", 0);      //IEC1107:      300 baud, 7E1
     }
 
-    /**
-     * Method to check whether the cache needs to be read out or not, if so the read will be forced.<br>
-     * <br>
-     * <p>
-     * The E350 module does not have the checkConfigParameter in his objectlist, thus to prevent reading the
-     * objectlist each time we read the device, we will go for the following approach:<br>
-     * 1/ check if the cache exists, if it does exist, go to step 2, if not go to step 3    <br>
-     * 2/ is the custom property forcedToReadCache enabled? If yes then go to step 3, else exit    <br>
-     * 3/ readout the objectlist    <br>
-     *
-     * @throws java.io.IOException
-     */
     @Override
     protected void checkCacheObjects() throws IOException {
         if (getCache() == null) {
@@ -120,11 +113,6 @@ public class E350 extends AbstractSmartDSMR40NtaProtocol implements HHUEnabler {
         return loadProfileBuilder;
     }
 
-    /**
-     * Get the AXDRDateTimeDeviationType for this DeviceType
-     *
-     * @return the requested type
-     */
     @Override
     public AXDRDateTimeDeviationType getDateTimeDeviationType() {
         return AXDRDateTimeDeviationType.Negative;

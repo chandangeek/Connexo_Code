@@ -759,7 +759,7 @@ public final class ProtocolTools {
      * @return
      */
     public static List<IntervalData> mergeDuplicateIntervals(List<IntervalData> intervals) {
-        List<IntervalData> mergedIntervals = new ArrayList<IntervalData>();
+        List<IntervalData> mergedIntervals = new ArrayList<>();
         for (IntervalData id2compare : intervals) {
             boolean allreadyProcessed = false;
             for (IntervalData merged : mergedIntervals) {
@@ -776,18 +776,18 @@ public final class ProtocolTools {
                         toAdd.add(id);
                     }
                 }
-                List<Number> values = new ArrayList<>(id2compare.getValueCount());
+                Number[] value = new Number[id2compare.getValueCount()];
                 IntervalData md = new IntervalData(id2compare.getEndTime());
                 for (IntervalData intervalData : toAdd) {
-                    for (int i = 0; i < id2compare.getValueCount(); i++) {
-                        if (values.get(i) == null) {
-                            values.set(i, intervalData.get(i));
+                    for (int i = 0; i < value.length; i++) {
+                        if (value[i] == null) {
+                            value[i] = intervalData.get(i);
                         } else {
-                            values.set(i, NumberTools.add(values.get(i), intervalData.get(i)));
+                            value[i] = NumberTools.add(value[i], intervalData.get(i));
                         }
                     }
                 }
-                md.addValues(values);
+                md.addValues(Arrays.asList(value));
                 mergedIntervals.add(md);
             }
 

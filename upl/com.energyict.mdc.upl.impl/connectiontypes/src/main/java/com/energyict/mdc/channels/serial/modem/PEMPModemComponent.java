@@ -1,6 +1,5 @@
 package com.energyict.mdc.channels.serial.modem;
 
-import com.energyict.mdc.channel.serial.SerialComChannelImpl;
 import com.energyict.mdc.channel.serial.modemproperties.AbstractPEMPModemProperties;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.SerialPortComChannel;
@@ -23,7 +22,7 @@ public class PEMPModemComponent extends PaknetModemComponent {
         this.modemProperties = properties;
     }
 
-    public void connect(String name, SerialComChannelImpl comChannel) {
+    public void connect(String name, SerialPortComChannel comChannel) {
         this.initializeModem(name, comChannel);
 
         if (!dialModem(comChannel)) {
@@ -47,7 +46,7 @@ public class PEMPModemComponent extends PaknetModemComponent {
      * @param name       The port name
      * @param comChannel The ComChannel
      */
-    public void initializeModem(String name, SerialComChannelImpl comChannel) {
+    public void initializeModem(String name, SerialPortComChannel comChannel) {
         setComPortName(name);
 
         disconnectModemBeforeNewSession(comChannel);
@@ -72,7 +71,7 @@ public class PEMPModemComponent extends PaknetModemComponent {
      * @param comChannel the comChannel to send the commands to
      * @return true if all commands succeeded, false otherwise
      */
-    public boolean initializePEMPCommandState(ComChannel comChannel) {
+    private boolean initializePEMPCommandState(ComChannel comChannel) {
         String[] addresses = modemProperties.getPEMPModemConfiguration().getAddresses();
         String promptResponse = modemProperties.getPEMPModemConfiguration().getPromptResponse();
         for (String address : addresses) {

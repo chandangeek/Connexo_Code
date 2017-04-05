@@ -100,7 +100,7 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
 
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
-        List<PropertySpec> propertySpecs = super.getUPLPropertySpecs();
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
         propertySpecs.add(tlsVersionPropertySpec());
         propertySpecs.add(preferredCipheringSuitesPropertySpec());
         propertySpecs.add(tlsAliasPropertySpec());
@@ -127,7 +127,7 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
     }
 
     @Override
-    protected ComChannel newTcpIpConnection(String host, int port, int timeOut) throws ConnectionException {
+    public ComChannel newTcpIpConnection(String host, int port, int timeOut) throws ConnectionException {
         System.setProperty("jdk.tls.client.protocols", getTLSVersionPropertyValue());
 
         try {

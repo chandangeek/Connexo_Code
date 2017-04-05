@@ -58,6 +58,11 @@ public class EictVeris extends Modbus {
     }
 
     @Override
+    public String getProtocolDescription() {
+        return "Veris EICT PowerScout 18 Modbus";
+    }
+
+    @Override
     protected void initRegisterFactory() {
         setRegisterFactory(new RegisterFactory(this));
     }

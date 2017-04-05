@@ -214,6 +214,11 @@ public class S4 extends AbstractProtocol implements C12ProtocolLink, SerialNumbe
     }
 
     @Override
+    public String getProtocolDescription() {
+        return "Landis&Gyr S4 ANSI";
+    }
+
+    @Override
     public String getProtocolVersion() {
         return "$Date: 2015-11-26 15:23:42 +0200 (Thu, 26 Nov 2015)$";
     }

@@ -1,9 +1,10 @@
 package com.energyict.protocolimpl.coronis.waveflow100mwencoder.actarismbusechodis;
 
-import com.energyict.cbo.Quantity;
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+
+import com.energyict.cbo.Quantity;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterInfo;
@@ -115,7 +116,12 @@ public class Echodis extends WaveFlow100mW {
 		return obisCodeMapper.getRegisterExtendedLogging();
     }
 
-    @Override
+	@Override
+	public String getProtocolDescription() {
+		return "Echodis WaveFlow";
+	}
+
+	@Override
     public String getProtocolVersion() {
         return "$Date: Thu Nov 3 10:34:30 2016 +0100 $";
     }

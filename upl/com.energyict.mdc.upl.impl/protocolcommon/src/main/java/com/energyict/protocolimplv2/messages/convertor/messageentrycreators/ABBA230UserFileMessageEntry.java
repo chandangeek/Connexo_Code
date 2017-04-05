@@ -45,7 +45,6 @@ public class ABBA230UserFileMessageEntry implements MessageEntryCreator {
      * Creates the message parent tag based on the name of the given deviceMessage spec enum.
      */
     protected String getMessageName(OfflineDeviceMessage offlineDeviceMessage) {
-        String messageName = ((Enum) offlineDeviceMessage.getSpecification()).name();
-        return messageName;
+        return offlineDeviceMessage.getSpecification().getNameTranslationKey().getKey().split("\\.")[1];
     }
 }

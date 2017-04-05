@@ -6,8 +6,6 @@
 
 package com.energyict.protocolimpl.pact.pripact;
 
-import com.energyict.cbo.Quantity;
-import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
@@ -16,6 +14,9 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
+
+import com.energyict.cbo.Quantity;
+import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterInfo;
@@ -168,6 +169,11 @@ public class PRIPact extends PluggableMeterProtocol implements ProtocolLink, Reg
     @Override
     public String getProtocolVersion() {
         return "$Date: 2015-11-13 15:14:02 +0100 (Fri, 13 Nov 2015) $";
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "PRI PACT";
     }
 
     private void validateMeterIdentification() throws IOException {

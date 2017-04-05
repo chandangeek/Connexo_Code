@@ -137,7 +137,12 @@ public class RecDigitCct extends Modbus {
         return "$Date: 2016-06-03 12:47:33 +0300 (Fri, 03 Jun 2016)$";
     }
 
-    @Override
+	@Override
+	public String getProtocolDescription() {
+		return "Enerdis Recdigit CCT Modbus";
+	}
+
+	@Override
     protected void initRegisterFactory() {
         setRegisterFactory(new RegisterFactory(this));
     }

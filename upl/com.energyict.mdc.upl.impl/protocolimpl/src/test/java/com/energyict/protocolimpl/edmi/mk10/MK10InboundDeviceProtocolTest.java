@@ -14,6 +14,7 @@ import org.mockito.Mock;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.math.BigDecimal;
+import java.time.Duration;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
@@ -80,7 +81,7 @@ public class MK10InboundDeviceProtocolTest {
 
     private MK10InboundDeviceProtocol getProtocolInstance() {
         TypedProperties properties = TypedProperties.empty();
-        properties.setProperty(TIMEOUT_KEY, new BigDecimal(5000));
+        properties.setProperty(TIMEOUT_KEY, Duration.ofSeconds(5));
         properties.setProperty(RETRIES_KEY, BigDecimal.ZERO);
         MK10InboundDeviceProtocol inboundDeviceProtocol = new MK10InboundDeviceProtocol(propertySpecService);
         inboundDeviceProtocol.setUPLProperties(properties);

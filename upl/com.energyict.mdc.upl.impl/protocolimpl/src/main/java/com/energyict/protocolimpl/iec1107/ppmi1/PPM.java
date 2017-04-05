@@ -6,11 +6,6 @@
 
 package com.energyict.protocolimpl.iec1107.ppmi1;
 
-import com.energyict.cbo.Quantity;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.dialer.connections.IEC1107HHUConnection;
-import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.upl.io.NestedIOException;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.nls.TranslationKey;
@@ -20,6 +15,12 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
+
+import com.energyict.cbo.Quantity;
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.dialer.connections.IEC1107HHUConnection;
+import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.ProfileData;
@@ -425,6 +426,11 @@ public class PPM extends AbstractPPM implements SerialNumberSupport {
     @Override
     public String getProtocolVersion() {
         return "$Date: 2015-11-26 15:23:41 +0200 (Thu, 26 Nov 2015)$";
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "ABB/GE PPM Issue1 OPUS";
     }
 
     @Override

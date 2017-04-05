@@ -6,8 +6,6 @@
 
 package com.energyict.protocolimpl.iec1107.kamstrup;
 
-import com.energyict.cbo.Quantity;
-import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
@@ -16,6 +14,9 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
+
+import com.energyict.cbo.Quantity;
+import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterInfo;
@@ -253,6 +254,11 @@ public class Kamstrup extends PluggableMeterProtocol implements ProtocolLink, Re
     @Override
     public void initializeDevice() throws IOException {
         throw new UnsupportedException();
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "Kamstrup EVHI IEC1107 (VDEW)";
     }
 
     @Override

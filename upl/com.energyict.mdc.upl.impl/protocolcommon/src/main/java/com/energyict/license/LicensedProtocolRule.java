@@ -41,7 +41,6 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     SIEMENS_7ED62(13, "com.energyict.protocolimpl.siemens7ED62.Siemens7ED62"),
     SDC(14, "com.energyict.protocolimpl.iec1107.sdc.Sdc"),
     QUANTUM_SCHLUMBERGER(15, "com.energyict.protocolimpl.itron.quantum.Quantum"),
-    FULCRUM(16, "com.energyict.protocolimpl.itron.fulcrum.Fulcrum"),
     DATASTAR(17, "com.energyict.protocolimpl.itron.datastar.Datastar"),
     VECTRON(18, "com.energyict.protocolimpl.itron.vectron.Vectron"),
     EZ7(19, "com.energyict.protocolimpl.emon.ez7.EZ7"),
@@ -260,6 +259,7 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     AM130_MBUS_DEVICE(228, "com.energyict.protocolimplv2.dlms.idis.am130.MBusDevice", FamilyRule.ELSTER_IDIS_P2),
     AM540_MBUS_DEVICE(229, "com.energyict.protocolimplv2.nta.dsmr50.elster.am540.MBusDevice", FamilyRule.ELSTER_IDIS, FamilyRule.ELSTER_IDIS_P2),
 /*
+    //TODO add these crypto protocol entries to seperate LicensedProtocolRules that will be handled in different protocol bundles
     //Crypto protocols
     CryptoAM540(230, "com.enexis.smartmeterprotocolimpl.nta.dsmr50.elster.am540.CryptoAM540"),
     CryptoCX20009(231, "com.enexis.smartmeterprotocolimpl.nta.dsmr50.sagemcom.CryptoCX20009"),

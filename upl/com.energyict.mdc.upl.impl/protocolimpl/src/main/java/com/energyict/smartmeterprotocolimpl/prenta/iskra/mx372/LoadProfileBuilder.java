@@ -4,12 +4,24 @@ import com.energyict.cbo.Unit;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.LoadProfileConfiguration;
+import com.energyict.protocol.LoadProfileReader;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.Register;
+import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.dlms.DLMSProfileIntervals;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 
 /**
@@ -20,8 +32,8 @@ import java.util.logging.Level;
  */
 public class LoadProfileBuilder {
 
-    protected final static ObisCode CLOCK_OBISCODE = ObisCode.fromString("0.0.1.0.0.255");
-    protected final static ObisCode STATUS_OBISCODE = ObisCode.fromString("1.0.96.240.0.255");
+    protected static final ObisCode CLOCK_OBISCODE = ObisCode.fromString("0.0.1.0.0.255");
+    protected static final ObisCode STATUS_OBISCODE = ObisCode.fromString("1.0.96.240.0.255");
 
     private IskraMx372 meterProtocol;
 
@@ -38,7 +50,7 @@ public class LoadProfileBuilder {
     /**
      * Keeps track of the list of <CODE>ChannelInfo</CODE> objects for all the LoadProfiles
      */
-    private Map<LoadProfileReader, List<ChannelInfo>> channelInfoMap = new HashMap<LoadProfileReader, List<ChannelInfo>>();
+    private Map<LoadProfileReader, List<ChannelInfo>> channelInfoMap = new HashMap<>();
 
     public LoadProfileBuilder(IskraMx372 meterProtocol) {
         this.meterProtocol = meterProtocol;
@@ -53,11 +65,11 @@ public class LoadProfileBuilder {
      */
     public List<LoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfileReaders) throws IOException {
         expectedLoadProfileReaders = loadProfileReaders;
-        loadProfileConfigurationList = new ArrayList<LoadProfileConfiguration>();
+        loadProfileConfigurationList = new ArrayList<>();
 
         for (LoadProfileReader lpr : expectedLoadProfileReaders) {
             this.meterProtocol.getLogger().log(Level.INFO, "Reading configuration from LoadProfile " + lpr);
-            LoadProfileConfiguration lpc = new LoadProfileConfiguration(lpr.getProfileObisCode(), lpr.getMeterSerialNumber());  // meterSerialNumber = serialNumber of the master
+            LoadProfileConfiguration lpc = new LoadProfileConfiguration(lpr.getProfileObisCode(), new DeviceIdentifierBySerialNumber(lpr.getMeterSerialNumber()));  // meterSerialNumber = serialNumber of the master
 
             try {
                 ObisCode profileObisCode = lpr.getProfileObisCode();
@@ -79,9 +91,7 @@ public class LoadProfileBuilder {
                 if (!channelInfoMap.containsKey(lpr)) {
                     channelInfoMap.put(lpr, channelInfos);
                 }
-            } catch (IOException e) {
-                lpc.setSupportedByMeter(false);
-            } catch (NullPointerException e) {
+            } catch (IOException | NullPointerException e) {
                 lpc.setSupportedByMeter(false);
             }
             loadProfileConfigurationList.add(lpc);
@@ -90,8 +100,8 @@ public class LoadProfileBuilder {
     }
 
     private List<ChannelInfo> constructChannelInfos(final ProfileGeneric profile, LoadProfileReader lpr) throws IOException {
-        final List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
-        List<Register> registerList = new ArrayList<Register>();
+        final List<ChannelInfo> channelInfos = new ArrayList<>();
+        List<Register> registerList = new ArrayList<>();
 
         try {
             for (CapturedObject capturedObject : profile.getCaptureObjects()) {
@@ -124,7 +134,7 @@ public class LoadProfileBuilder {
         }
     }
 
-    private Register constructRegister(ObisCode registerObisCode,  List<ChannelInfo> channelInfos) throws IOException {
+    private Register constructRegister(ObisCode registerObisCode,  List<ChannelInfo> channelInfos) {
         // 1. Exact obiscode match (for obiscodes of E-meter)
         for (ChannelInfo each : channelInfos) {
             if (each.getChannelObisCode().equals(registerObisCode)) {
@@ -170,7 +180,7 @@ public class LoadProfileBuilder {
      * @throws java.io.IOException if a communication or parsing error occurred
      */
     public List<ProfileData> getLoadProfileData(List<LoadProfileReader> loadProfiles) throws IOException {
-        List<ProfileData> profileDataList = new ArrayList<ProfileData>();
+        List<ProfileData> profileDataList = new ArrayList<>();
         ProfileGeneric profile;
         ProfileData profileData;
         for (LoadProfileReader lpr : loadProfiles) {
@@ -225,7 +235,7 @@ public class LoadProfileBuilder {
         ProfileData pd = new ProfileData();
         pd.setChannelInfos(profileData.getChannelInfos());
         pd.setLoadProfileId(profileData.getLoadProfileId());
-        List<IntervalData> list = new ArrayList<IntervalData>();
+        List<IntervalData> list = new ArrayList<>();
         pd.setIntervalDatas(list);
 
         for (IntervalData intervalData : profileData.getIntervalDatas()) {
@@ -244,11 +254,8 @@ public class LoadProfileBuilder {
 	private boolean checkDailyBillingTime(Date date){
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(date);
-		if(cal.get(Calendar.HOUR)==0 && cal.get(Calendar.MINUTE)==0 && cal.get(Calendar.SECOND)==0 && cal.get(Calendar.MILLISECOND)==0) {
-			return true;
-		}
-		return false;
-	}
+        return cal.get(Calendar.HOUR) == 0 && cal.get(Calendar.MINUTE) == 0 && cal.get(Calendar.SECOND) == 0 && cal.get(Calendar.MILLISECOND) == 0;
+    }
 
     private int constructClockMask(List<CapturedObject> captureObjects) throws IOException {
         for (int i= 0; i < captureObjects.size() ; i++) {
@@ -270,7 +277,7 @@ public class LoadProfileBuilder {
 
     private int constructChannelMask(List<CapturedObject> captureObjects, LoadProfileConfiguration lpc) throws IOException {
         int channelMask = 0;
-        Map<ObisCode,Integer> mp=new HashMap<ObisCode, Integer>();
+        Map<ObisCode,Integer> mp= new HashMap<>();
         for ( CapturedObject capturedObject : captureObjects) {
                 mp.put(capturedObject.getLogicalName().getObisCode(), new Integer(mp.size()));
         }
@@ -296,7 +303,7 @@ public class LoadProfileBuilder {
      */
     private LoadProfileConfiguration getLoadProfileConfiguration(LoadProfileReader loadProfileReader) {
         for (LoadProfileConfiguration lpc : this.loadProfileConfigurationList) {
-            if (loadProfileReader.getProfileObisCode().equals(lpc.getObisCode()) && loadProfileReader.getMeterSerialNumber().equalsIgnoreCase(lpc.getMeterSerialNumber())) {
+            if (loadProfileReader.getProfileObisCode().equals(lpc.getObisCode()) && new DeviceIdentifierBySerialNumber(loadProfileReader.getMeterSerialNumber()).equalsIgnoreCase(lpc.getDeviceIdentifier())) {
                 return lpc;
             }
         }

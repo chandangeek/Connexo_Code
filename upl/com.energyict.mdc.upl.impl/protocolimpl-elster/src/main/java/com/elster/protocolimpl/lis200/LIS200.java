@@ -1,6 +1,5 @@
 package com.elster.protocolimpl.lis200;
 
-import com.elster.protocolimpl.nls.PropertyTranslationKeys;
 import com.energyict.mdc.upl.io.NestedIOException;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.nls.TranslationKey;
@@ -33,15 +32,9 @@ import com.elster.protocolimpl.lis200.registers.SimpleRegisterDefinition;
 import com.elster.protocolimpl.lis200.registers.StateRegisterDefinition;
 import com.elster.protocolimpl.lis200.registers.ValueRegisterDefinition;
 import com.elster.protocolimpl.lis200.utils.RawArchiveLineInfo;
+import com.elster.protocolimpl.nls.PropertyTranslationKeys;
 import com.elster.utils.lis200.events.EventInterpreter;
 import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.mdc.upl.io.NestedIOException;
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
-import com.energyict.mdc.upl.properties.PropertySpec;
-import com.energyict.mdc.upl.properties.PropertySpecBuilder;
-import com.energyict.mdc.upl.properties.PropertySpecService;
-import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.ProfileData;
@@ -313,8 +306,7 @@ public class LIS200 extends AbstractIEC1107Protocol implements SerialNumberSuppo
         }
 
         final String euVersion = vma + "." + vmi;
-        if ((vma * 100 + (vmi % 100)) < 104)
-        {
+        if ((vma * 100 + (vmi % 100)) < 104) {
             throw new IOException("Wrong version of ElsterUtils. Needed: V1.4  Found: " + euVersion);
         }
 
@@ -334,9 +326,13 @@ public class LIS200 extends AbstractIEC1107Protocol implements SerialNumberSuppo
     }
 
     @Override
-    public String getProtocolVersion()
-    {
+    public String getProtocolVersion() {
         return "$Date: 2015-11-26 15:24:25 +0200 (Thu, 26 Nov 2015)$";
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "Elster LIS200";
     }
 
     @Override

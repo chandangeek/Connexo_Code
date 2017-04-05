@@ -16,6 +16,7 @@ package com.energyict.protocolimpl.iec1107.siemens7ED62;
 
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
@@ -52,6 +53,11 @@ public class Siemens7ED62 extends AbstractIEC1107Protocol implements SerialNumbe
         } catch (IOException e) {
             throw ProtocolIOExceptionHandler.handle(e, getNrOfRetries() + 1);
         }
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "Siemens 7ED62 IEC1107 (VDEW)";
     }
 
     @Override

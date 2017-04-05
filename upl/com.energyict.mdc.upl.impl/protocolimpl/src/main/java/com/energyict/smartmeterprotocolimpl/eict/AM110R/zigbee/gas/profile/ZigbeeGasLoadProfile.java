@@ -1,5 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.eict.AM110R.zigbee.gas.profile;
 
+import com.energyict.mdc.upl.LoadProfileConfigurationException;
+
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.DLMSCOSEMGlobals;
@@ -15,13 +17,13 @@ import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.cosem.attributes.DemandRegisterAttributes;
 import com.energyict.dlms.cosem.attributes.ExtendedRegisterAttributes;
 import com.energyict.dlms.cosem.attributes.RegisterAttributes;
-import com.energyict.mdc.upl.LoadProfileConfigurationException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.LoadProfileConfiguration;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.Register;
+import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.smartmeterprotocolimpl.common.composedobjects.ComposedProfileConfig;
 import com.energyict.smartmeterprotocolimpl.eict.AM110R.zigbee.gas.ObisCodeProvider;
 import com.energyict.smartmeterprotocolimpl.eict.AM110R.zigbee.gas.ZigbeeGas;
@@ -35,13 +37,11 @@ import java.util.Map;
 import java.util.logging.Level;
 
 /**
- * Provides functionality to fetch and create {@link com.energyict.protocol.ProfileData} objects for a {@link com.energyict.protocol.SmartMeterProtocol}
- * <p/>
- * <pre>
+ * Provides functionality to fetch and create {@link com.energyict.protocol.ProfileData} objects
+ * for a {@link com.energyict.mdc.upl.SmartMeterProtocol}.
  * Copyrights EnergyICT
  * Date: 3-mrt-2011
  * Time: 17:02:07
- * </pre>
  */
 public class ZigbeeGasLoadProfile {
 
@@ -53,25 +53,25 @@ public class ZigbeeGasLoadProfile {
     /**
      * Keeps track of the link between a {@link com.energyict.protocol.LoadProfileReader} and a {@link com.energyict.smartmeterprotocolimpl.common.composedobjects.ComposedProfileConfig}
      */
-    private Map<LoadProfileReader, ComposedProfileConfig> lpConfigMap = new HashMap<LoadProfileReader, ComposedProfileConfig>();
+    private Map<LoadProfileReader, ComposedProfileConfig> lpConfigMap = new HashMap<>();
 
     /**
      * Keeps track of the link between a {@link com.energyict.protocol.LoadProfileReader} and a list of {@link com.energyict.protocol.Register} which
      * will represent the 'data' channels of the Profile
      */
-    private Map<LoadProfileReader, List<Register>> capturedObjectRegisterListMap = new HashMap<LoadProfileReader, List<Register>>();
+    private Map<LoadProfileReader, List<Register>> capturedObjectRegisterListMap = new HashMap<>();
 
-    private Map<LoadProfileReader, List<Integer>> maskMask = new HashMap<LoadProfileReader, List<Integer>>();
+    private Map<LoadProfileReader, List<Integer>> maskMask = new HashMap<>();
 
     /**
      * Keeps track of the list of <CODE>ChannelInfo</CODE> objects for all the LoadProfiles
      */
-    private Map<LoadProfileReader, List<ChannelInfo>> channelInfoMap = new HashMap<LoadProfileReader, List<ChannelInfo>>();
+    private Map<LoadProfileReader, List<ChannelInfo>> channelInfoMap = new HashMap<>();
 
     /**
      * Keeps track of the link between a {@link com.energyict.protocol.Register} and his {@link com.energyict.dlms.DLMSAttribute} for ComposedCosemObject reads ...
      */
-    private Map<Register, DLMSAttribute> registerUnitMap = new HashMap<Register, DLMSAttribute>();
+    private Map<Register, DLMSAttribute> registerUnitMap = new HashMap<>();
 
     /**
      * The list of LoadProfileReaders which are expected to be fetched
@@ -101,7 +101,7 @@ public class ZigbeeGasLoadProfile {
      */
     public List<LoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfileReaders) throws IOException {
         this.expectedLoadProfileReaders = loadProfileReaders;
-        this.loadProfileConfigurationList = new ArrayList<LoadProfileConfiguration>();
+        this.loadProfileConfigurationList = new ArrayList<>();
 
         ComposedCosemObject ccoLpConfigs = constructLoadProfileConfigComposedCosemObject(loadProfileReaders, this.zigbeeGas.supportsBulkRequests());
         List<Register> capturedObjectRegisterList = createCapturedObjectRegisterList(ccoLpConfigs);
@@ -109,7 +109,7 @@ public class ZigbeeGasLoadProfile {
 
         for (LoadProfileReader lpr : this.expectedLoadProfileReaders) {
             this.zigbeeGas.getLogger().log(Level.INFO, "Reading configuration from LoadProfile " + lpr);
-            LoadProfileConfiguration lpc = new LoadProfileConfiguration(lpr.getProfileObisCode(), lpr.getMeterSerialNumber());
+            LoadProfileConfiguration lpc = new LoadProfileConfiguration(lpr.getProfileObisCode(), new DeviceIdentifierBySerialNumber(lpr.getMeterSerialNumber()));
 
             ComposedProfileConfig cpc = lpConfigMap.get(lpr);
             if (cpc != null) {
@@ -138,7 +138,7 @@ public class ZigbeeGasLoadProfile {
      */
     protected ComposedCosemObject constructLoadProfileConfigComposedCosemObject(List<LoadProfileReader> loadProfileReaders, boolean supportsBulkRequest) {
         if (loadProfileReaders != null) {
-            List<DLMSAttribute> dlmsAttributes = new ArrayList<DLMSAttribute>();
+            List<DLMSAttribute> dlmsAttributes = new ArrayList<>();
             for (LoadProfileReader lpReader : loadProfileReaders) {
                 ObisCode obisCode = lpReader.getProfileObisCode();
                 UniversalObject uo = DLMSUtils.findCosemObjectInObjectList(this.zigbeeGas.getDlmsSession().getMeterConfig().getInstantiatedObjectList(), obisCode);
@@ -166,7 +166,7 @@ public class ZigbeeGasLoadProfile {
      * @throws java.io.IOException if an error occurred during dataFetching or -Parsing
      */
     private List<Register> createCapturedObjectRegisterList(ComposedCosemObject ccoLpConfigs) throws IOException {
-        List<Register> channelRegisters = new ArrayList<Register>();
+        List<Register> channelRegisters = new ArrayList<>();
         if (this.expectedLoadProfileReaders != null) {
             for (LoadProfileReader lpr : this.expectedLoadProfileReaders) {
                 ComposedProfileConfig cpc = this.lpConfigMap.get(lpr);
@@ -175,7 +175,7 @@ public class ZigbeeGasLoadProfile {
                     dc.parseObjectList(ccoLpConfigs.getAttribute(cpc.getLoadProfileCapturedObjects()).getBEREncodedByteArray(), this.zigbeeGas.getLogger());
                     ProfileGeneric pg = new ProfileGeneric(this.zigbeeGas.getDlmsSession(), null);
                     List<CapturedObject> capturedObjects = pg.getCapturedObjectsFromDataContainter(dc);
-                    List<Register> coRegisters = new ArrayList<Register>();
+                    List<Register> coRegisters = new ArrayList<>();
                     int index = -1;
                     int clockMask = 0;
                     int statusMask = 0;
@@ -198,7 +198,7 @@ public class ZigbeeGasLoadProfile {
                     }
                     this.capturedObjectRegisterListMap.put(lpr, coRegisters);
 
-                    List<Integer> maskList = new ArrayList<Integer>(3);
+                    List<Integer> maskList = new ArrayList<>(3);
                     maskList.add(clockMask);
                     maskList.add(statusMask);
                     maskList.add(channelMask);
@@ -211,7 +211,7 @@ public class ZigbeeGasLoadProfile {
         return channelRegisters;
     }
 
-    private boolean loadProfileContains(LoadProfileReader lpr, ObisCode obisCode) throws IOException {
+    private boolean loadProfileContains(LoadProfileReader lpr, ObisCode obisCode) {
         for (ChannelInfo channelInfo : lpr.getChannelInfos()) {
             if (channelInfo.getChannelObisCode().equals(obisCode)) {
                 return true;
@@ -229,7 +229,7 @@ public class ZigbeeGasLoadProfile {
      */
     private ComposedCosemObject constructCapturedObjectRegisterUnitComposedCosemObject(List<Register> registers, boolean supportsBulkRequest) {
         if (registers != null) {
-            List<DLMSAttribute> dlmsAttributes = new ArrayList<DLMSAttribute>();
+            List<DLMSAttribute> dlmsAttributes = new ArrayList<>();
             for (Register register : registers) {
                 ObisCode rObisCode = register.getObisCode();
 
@@ -267,7 +267,7 @@ public class ZigbeeGasLoadProfile {
      * @throws java.io.IOException when an error occurred during dataFetching or -Parsing
      */
     private List<ChannelInfo> constructChannelInfos(List<Register> registers, ComposedCosemObject ccoRegisterUnits) throws IOException {
-        List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
+        List<ChannelInfo> channelInfos = new ArrayList<>();
         for (Register registerUnit : registers) {
             if (isDataObisCode(registerUnit.getObisCode())) {
                 if (this.registerUnitMap.containsKey(registerUnit)) {
@@ -322,7 +322,7 @@ public class ZigbeeGasLoadProfile {
      * @throws java.io.IOException if a communication or parsing error occurred
      */
     public List<ProfileData> getLoadProfileData(List<LoadProfileReader> loadProfiles) throws IOException {
-        List<ProfileData> profileDataList = new ArrayList<ProfileData>();
+        List<ProfileData> profileDataList = new ArrayList<>();
         ProfileGeneric profile;
         ProfileData profileData;
         for (LoadProfileReader lpr : loadProfiles) {
@@ -357,10 +357,11 @@ public class ZigbeeGasLoadProfile {
      */
     private LoadProfileConfiguration getLoadProfileConfiguration(LoadProfileReader loadProfileReader) {
         for (LoadProfileConfiguration lpc : this.loadProfileConfigurationList) {
-            if (loadProfileReader.getProfileObisCode().equals(lpc.getObisCode()) && loadProfileReader.getMeterSerialNumber().equalsIgnoreCase(lpc.getMeterSerialNumber())) {
+            if (loadProfileReader.getProfileObisCode().equals(lpc.getObisCode()) && new DeviceIdentifierBySerialNumber(loadProfileReader.getMeterSerialNumber()).equalsIgnoreCase(lpc.getDeviceIdentifier())) {
                 return lpc;
             }
         }
         return null;
     }
+
 }

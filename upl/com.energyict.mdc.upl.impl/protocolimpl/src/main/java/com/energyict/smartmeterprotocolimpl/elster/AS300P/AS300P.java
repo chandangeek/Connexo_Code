@@ -199,6 +199,11 @@ public class AS300P extends AbstractSmartDlmsProtocol implements MessageProtocol
         return "$Date: 2015-11-26 15:25:15 +0200 (Thu, 26 Nov 2015)$";
     }
 
+    @Override
+    public String getProtocolDescription() {
+        return "Elster AS300-P DLMS (SSWG EC)";
+    }
+
     public AS300PObjectFactory getObjectFactory() {
         if (objectFactory == null) {
             objectFactory = new AS300PObjectFactory(getDlmsSession());

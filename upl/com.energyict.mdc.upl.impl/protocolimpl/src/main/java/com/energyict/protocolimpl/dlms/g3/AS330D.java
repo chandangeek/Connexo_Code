@@ -1,9 +1,5 @@
 package com.energyict.protocolimpl.dlms.g3;
 
-import com.energyict.dlms.DLMSConnectionException;
-import com.energyict.dlms.aso.ApplicationServiceObject;
-import com.energyict.dlms.cosem.DataAccessResultException;
-import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.cache.CachingProtocol;
 import com.energyict.mdc.upl.io.NestedIOException;
@@ -15,6 +11,11 @@ import com.energyict.mdc.upl.messages.legacy.MessageValue;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+
+import com.energyict.dlms.DLMSConnectionException;
+import com.energyict.dlms.aso.ApplicationServiceObject;
+import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocol.ProfileData;
@@ -82,6 +83,11 @@ public class AS330D extends AbstractDlmsSessionProtocol implements SerialNumberS
     @Override
     public String getProtocolVersion() {
         return "$Date: 2015-11-26 15:25:12 +0200 (Thu, 26 Nov 2015)$";
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "Elster AS330D DLMS (G3 Linky)";
     }
 
     @Override

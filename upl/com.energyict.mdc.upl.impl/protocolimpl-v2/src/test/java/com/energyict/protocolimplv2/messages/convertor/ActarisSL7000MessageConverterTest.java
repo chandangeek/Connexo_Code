@@ -34,7 +34,7 @@ import static org.mockito.Mockito.when;
  * @since 25/10/13 - 12:14
  */
 @RunWith(MockitoJUnitRunner.class)
-public class ActarisSL7000MessageConverterTest extends AbstractMessageConverterTest {
+public class ActarisSL7000MessageConverterTest extends AbstractV2MessageConverterTest {
 
     private static final String XMLEncodedActivityCalendar = "<TimeOfUse><CalendarName>MyActivityCal</CalendarName><CodeTableTimeZone>Central European Time</CodeTableTimeZone><CodeTableDestinationTimeZone>Greenwich Mean Time</CodeTableDestinationTimeZone><CodeTableInterval>3600</CodeTableInterval><CodeTableFromYear>2013</CodeTableFromYear><CodeTableToYear>2020</CodeTableToYear><CodeTableSeasonSetId>21</CodeTableSeasonSetId><ActivationDate>1382704200000</ActivationDate><CodeTableActCalendar><SeasonProfiles><SeasonProfile><SeasonProfileName>0</SeasonProfileName><SeasonStart><Year>-1</Year><Month>1</Month><Day>1</Day></SeasonStart><SeasonWeekName>0</SeasonWeekName></SeasonProfile></SeasonProfiles><WeekProfiles><WeekProfile><WeekProfileName>0</WeekProfileName><wkMonday>1</wkMonday><wkTuesday>1</wkTuesday><wkWednesday>1</wkWednesday><wkThursday>1</wkThursday><wkFriday>1</wkFriday><wkSaturday>0</wkSaturday><wkSunday>0</wkSunday></WeekProfile></WeekProfiles><DayProfiles><DayProfile><DayProfileId>1</DayProfileId><DayProfileTariffs><DayProfileTariff><DayProfileTariffId>1</DayProfileTariffId><DayTariffStartTime><Hour>0</Hour><Minutes>0</Minutes><Seconds>0</Seconds></DayTariffStartTime></DayProfileTariff><DayProfileTariff><DayProfileTariffId>2</DayProfileTariffId><DayTariffStartTime><Hour>7</Hour><Minutes>0</Minutes><Seconds>0</Seconds></DayTariffStartTime></DayProfileTariff><DayProfileTariff><DayProfileTariffId>1</DayProfileTariffId><DayTariffStartTime><Hour>21</Hour><Minutes>0</Minutes><Seconds>0</Seconds></DayTariffStartTime></DayProfileTariff></DayProfileTariffs></DayProfile><DayProfile><DayProfileId>0</DayProfileId><DayProfileTariffs><DayProfileTariff><DayProfileTariffId>1</DayProfileTariffId><DayTariffStartTime><Hour>0</Hour><Minutes>0</Minutes><Seconds>0</Seconds></DayTariffStartTime></DayProfileTariff></DayProfileTariffs></DayProfile></DayProfiles></CodeTableActCalendar><CodeTableSpecialDay><SpecialDays><SpecialDay><SpecialDayEntryDate><Year>-1</Year><Month>1</Month><Day>1</Day></SpecialDayEntryDate><SpecialDayEntryDayId>0</SpecialDayEntryDayId></SpecialDay></SpecialDays></CodeTableSpecialDay></TimeOfUse>";
     private String ExpectedActivityCalendarMessageContent;
@@ -51,27 +51,27 @@ public class ActarisSL7000MessageConverterTest extends AbstractMessageConverterT
         MessageEntry messageEntry;
         OfflineDeviceMessage offlineDeviceMessage;
 
-        offlineDeviceMessage = createMessage(ConfigurationChangeDeviceMessage.ProgramBatteryExpiryDate.get(this.propertySpecService, this.nlsService, this.converter));
+        offlineDeviceMessage = createMessage(ConfigurationChangeDeviceMessage.ProgramBatteryExpiryDate.get(propertySpecService, this.nlsService, this.converter));
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<BatteryExpiry Date (dd/MM/yyyy)=\"01/01/2050\"> </BatteryExpiry>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(ClockDeviceMessage.EnableOrDisableDST.get(this.propertySpecService, this.nlsService, this.converter));
+        offlineDeviceMessage = createMessage(ClockDeviceMessage.EnableOrDisableDST.get(propertySpecService, this.nlsService, this.converter));
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<EnableDST>1</EnableDST>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(ClockDeviceMessage.SetEndOfDST.get(this.propertySpecService, this.nlsService, this.converter));
+        offlineDeviceMessage = createMessage(ClockDeviceMessage.SetEndOfDST.get(propertySpecService, this.nlsService, this.converter));
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<EndOfDST Month=\"1\" Day of month=\"2\" Day of week=\"3\" Hour=\"4\"> </EndOfDST>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(ClockDeviceMessage.SetStartOfDST.get(this.propertySpecService, this.nlsService, this.converter));
+        offlineDeviceMessage = createMessage(ClockDeviceMessage.SetStartOfDST.get(propertySpecService, this.nlsService, this.converter));
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<StartOfDST Month=\"1\" Day of month=\"2\" Day of week=\"3\" Hour=\"4\"> </StartOfDST>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(DeviceActionMessage.BILLING_RESET.get(this.propertySpecService, this.nlsService, this.converter));
+        offlineDeviceMessage = createMessage(DeviceActionMessage.BILLING_RESET.get(propertySpecService, this.nlsService, this.converter));
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<DemandReset/>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME.get(this.propertySpecService, this.nlsService, this.converter));
+        offlineDeviceMessage = createMessage(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME.get(propertySpecService, this.nlsService, this.converter));
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals(ExpectedActivityCalendarMessageContent, messageEntry.getContent());
     }
@@ -82,7 +82,7 @@ public class ActarisSL7000MessageConverterTest extends AbstractMessageConverterT
     }
 
     protected LegacyMessageConverter doGetMessageConverter() {
-        ActarisSL7000MessageConverter messageConverter = spy(new ActarisSL7000MessageConverter(getMessagingProtocol(), this.propertySpecService, this.nlsService, this.converter, this.calendarExtractor));
+        ActarisSL7000MessageConverter messageConverter = spy(new ActarisSL7000MessageConverter(getMessagingProtocol(), propertySpecService, this.nlsService, this.converter, this.calendarExtractor));
         // We stub the encode method, cause CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable() is not subject of this test
         doReturn(XMLEncodedActivityCalendar).when(messageConverter).encode(any(TariffCalendar.class));
         return messageConverter;

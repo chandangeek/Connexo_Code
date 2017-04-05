@@ -45,7 +45,7 @@ import static org.mockito.Mockito.when;
  * @since 24/10/13 - 10:50
  */
 @RunWith(MockitoJUnitRunner.class)
-public class PrimeMeterMessageConverterTest extends AbstractMessageConverterTest {
+public class PrimeMeterMessageConverterTest extends AbstractV2MessageConverterTest {
 
     @Test
     public void testMessageConversion() throws IOException {
@@ -58,7 +58,7 @@ public class PrimeMeterMessageConverterTest extends AbstractMessageConverterTest
 
         offlineDeviceMessage = createMessage(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
-        assertEquals("<FirmwareUpdate><IncludedFile>Firmware bytes</IncludedFile></FirmwareUpdate>", messageEntry.getContent());
+        assertEquals("<FirmwareUpdate><IncludedFile>path</IncludedFile></FirmwareUpdate>", messageEntry.getContent());
 
         offlineDeviceMessage = createMessage(ActivityCalendarDeviceMessage.WRITE_CONTRACTS_FROM_XML_USERFILE);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
@@ -94,12 +94,10 @@ public class PrimeMeterMessageConverterTest extends AbstractMessageConverterTest
             return BigDecimal.valueOf(2);
         } else if (propertySpec.getName().equals(contractsXmlUserFileAttributeName)) {
             DeviceMessageFile deviceMessageFile = mock(DeviceMessageFile.class);
-            when(deviceMessageFileExtractor.binaryContents(deviceMessageFile)).thenReturn("XML content".getBytes());
+            when(deviceMessageFileExtractor.contents(deviceMessageFile)).thenReturn("XML content");
             return deviceMessageFile;
         } else if (propertySpec.getName().equals(firmwareUpdateFileAttributeName)) {
-            DeviceMessageFile deviceMessageFile = mock(DeviceMessageFile.class);
-            when(deviceMessageFileExtractor.binaryContents(deviceMessageFile)).thenReturn("Firmware bytes".getBytes());
-            return deviceMessageFile;
+            return "path";
         } else if (propertySpec.getName().equals(newManagementClientPasswordAttributeName)
                 || propertySpec.getName().equals(newFirmwareClientPasswordAttributeName)
                 || propertySpec.getName().equals(newReadingClientPasswordAttributeName)) {

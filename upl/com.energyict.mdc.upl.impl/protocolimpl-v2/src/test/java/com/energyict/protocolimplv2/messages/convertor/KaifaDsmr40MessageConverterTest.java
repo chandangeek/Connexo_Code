@@ -20,14 +20,14 @@ import static junit.framework.Assert.assertEquals;
  * @author khe
  */
 @RunWith(MockitoJUnitRunner.class)
-public class KaifaDsmr40MessageConverterTest extends AbstractMessageConverterTest {
+public class KaifaDsmr40MessageConverterTest extends AbstractV2MessageConverterTest {
 
     @Test
     public void testMessageConversion() {
         MessageEntry messageEntry;
         OfflineDeviceMessage offlineDeviceMessage;
 
-        offlineDeviceMessage = createMessage(MBusSetupDeviceMessage.Reset_MBus_Client.get(this.propertySpecService, this.nlsService, this.converter));
+        offlineDeviceMessage = createMessage(MBusSetupDeviceMessage.Reset_MBus_Client.get(propertySpecService, this.nlsService, this.converter));
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<Reset_MBus_client Mbus_Serial_Number=\"SIM5555555506301\"> </Reset_MBus_client>", messageEntry.getContent());
     }
@@ -39,7 +39,7 @@ public class KaifaDsmr40MessageConverterTest extends AbstractMessageConverterTes
 
     @Override
     LegacyMessageConverter doGetMessageConverter() {
-        return new KaifaDsmr40MessageConverter(getMessagingProtocol(), this.propertySpecService, this.nlsService, this.converter, this.loadProfileExtractor, numberLookupExtractor, calendarExtractor);
+        return new KaifaDsmr40MessageConverter(getMessagingProtocol(), propertySpecService, this.nlsService, this.converter, this.loadProfileExtractor, numberLookupExtractor, calendarExtractor);
     }
 
     @Override

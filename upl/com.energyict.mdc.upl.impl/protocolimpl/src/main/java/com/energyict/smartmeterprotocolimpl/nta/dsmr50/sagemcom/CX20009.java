@@ -7,6 +7,7 @@ import com.energyict.mdc.upl.messages.legacy.NumberLookupFinder;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.AM540;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr50.sagemcom.messages.SagemComMessaging;
@@ -21,6 +22,11 @@ public class CX20009 extends AM540 {
 
     public CX20009(PropertySpecService propertySpecService, TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor, NumberLookupFinder numberLookupFinder, NumberLookupExtractor numberLookupExtractor) {
         super(propertySpecService, calendarFinder, calendarExtractor, messageFileFinder, messageFileExtractor, numberLookupFinder, numberLookupExtractor);
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "Sagemcom CX20009 DLMS (NTA DSMR5.0)";
     }
 
     @Override

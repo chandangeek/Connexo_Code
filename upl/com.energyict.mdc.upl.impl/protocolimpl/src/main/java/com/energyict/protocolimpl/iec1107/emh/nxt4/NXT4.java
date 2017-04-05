@@ -1,10 +1,5 @@
 package com.energyict.protocolimpl.iec1107.emh.nxt4;
 
-import com.energyict.cbo.Quantity;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.dialer.connections.IEC1107HHUConnection;
-import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.upl.MeterProtocol;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.io.NestedIOException;
@@ -19,6 +14,12 @@ import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
+
+import com.energyict.cbo.Quantity;
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.dialer.connections.IEC1107HHUConnection;
+import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.MessageProtocol;
@@ -358,6 +359,11 @@ public class NXT4 extends PluggableMeterProtocol implements MeterProtocol, Meter
     @Override
     public String getProtocolVersion() {
         return "$Date: Thu Dec 29 12:02:33 2016 +0100 $";
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "EMH NXT4 IEC1107 (VDEW)";
     }
 
     @Override

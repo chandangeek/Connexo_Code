@@ -81,6 +81,11 @@ public class WaveFlowV2 extends WaveFlow implements MessageProtocol {
     }
 
     @Override
+    public String getProtocolDescription() {
+        return "Coronis WaveFlow V2";
+    }
+
+    @Override
     public void applyMessages(List messageEntries) throws IOException {
         getWaveFlowMessages().applyMessages(messageEntries);
     }

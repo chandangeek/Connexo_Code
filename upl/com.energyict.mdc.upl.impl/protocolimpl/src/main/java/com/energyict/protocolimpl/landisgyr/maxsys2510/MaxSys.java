@@ -1,7 +1,5 @@
 package com.energyict.protocolimpl.landisgyr.maxsys2510;
 
-import com.energyict.cbo.Quantity;
-import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.nls.TranslationKey;
@@ -11,6 +9,9 @@ import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
+
+import com.energyict.cbo.Quantity;
+import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterInfo;
@@ -431,6 +432,11 @@ public class MaxSys extends PluggableMeterProtocol implements RegisterProtocol,S
             builder.append(String.valueOf((char) ProtocolUtils.convertHexMSB(bKar)));
         }
         return builder.toString();
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "Landis&Gyr MaxSys 2510 SMD";
     }
 
     @Override

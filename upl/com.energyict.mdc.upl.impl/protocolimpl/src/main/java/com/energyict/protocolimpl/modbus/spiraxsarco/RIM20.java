@@ -12,6 +12,11 @@ public class RIM20 extends VLM20 {
     }
 
     @Override
+    public String getProtocolDescription() {
+        return "Spirax Sarco RIM Modbus";
+    }
+
+    @Override
     public String getProtocolVersion() {
         return "$Date: 2015-11-26 15:02:16 +0200 (Thu, 26 Nov 2015)$";
     }

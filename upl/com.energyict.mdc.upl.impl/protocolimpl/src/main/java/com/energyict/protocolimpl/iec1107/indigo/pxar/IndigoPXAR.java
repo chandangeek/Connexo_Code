@@ -51,6 +51,11 @@ public class IndigoPXAR extends AbstractIEC1107Protocol {
     }
 
 	@Override
+	public String getProtocolDescription() {
+		return "Actaris PXAR";
+	}
+
+	@Override
 	protected void doConnect() {
 	}
 

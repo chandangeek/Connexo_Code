@@ -147,19 +147,19 @@ public class InboundConnection {
      */
     private AbstractInboundFrame parseInboundFrame(String frame) {
         if (frame.contains(REQUEST_TAG)) {
-            return new RequestFrame(frame, callHomeIdPlaceHolder);
+            return new RequestFrame(frame, callHomeIdPlaceHolder, this.collectedDataFactory, this.issueFactory);
         }
         if (frame.contains(EVENT_TAG)) {
-            return new EventFrame(frame, callHomeIdPlaceHolder, this.collectedDataFactory);
+            return new EventFrame(frame, callHomeIdPlaceHolder, this.collectedDataFactory, this.issueFactory);
         }
         if (frame.contains(EVENTPO_TAG)) {
-            return new EventPOFrame(frame, callHomeIdPlaceHolder, collectedDataFactory);
+            return new EventPOFrame(frame, callHomeIdPlaceHolder, collectedDataFactory, this.issueFactory);
         }
         if (frame.contains(DEPLOY_TAG)) {
             return new DeployFrame(frame, callHomeIdPlaceHolder, collectedDataFactory, this.issueFactory);
         }
         if (frame.contains(REGISTER_TAG)) {
-            return new RegisterFrame(frame, callHomeIdPlaceHolder, collectedDataFactory);
+            return new RegisterFrame(frame, callHomeIdPlaceHolder, collectedDataFactory, this.issueFactory);
         }
         throw InboundFrameException.unexpectedFrame(frame, "Unexpected frame type: '" + getFrameTag(frame) + "'. Expected REQUEST, DEPLOY, EVENT, EVENTPO or REGISTER");
     }

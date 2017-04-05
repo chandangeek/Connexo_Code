@@ -4,6 +4,7 @@ import com.energyict.mdc.upl.SmartMeterProtocol;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
+
 import com.energyict.protocol.LoadProfileConfiguration;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.MeterEvent;
@@ -85,6 +86,11 @@ public class SampleProtocol implements SmartMeterProtocol {
     @Override
     public void setCache(Serializable cacheObject) {
 
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "Elster Sample (SMART)";
     }
 
     public String getVersion() {

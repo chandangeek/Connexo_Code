@@ -181,6 +181,11 @@ public class A1800 extends AbstractDLMS {
     }
 
     @Override
+    public String getProtocolDescription() {
+        return "Elster A1800 WaveFlow AC";
+    }
+
+    @Override
     public Logger getLogger() {
         return super.getLogger();
     }

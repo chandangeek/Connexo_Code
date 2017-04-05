@@ -144,6 +144,11 @@ public class SiemensS4s extends AbstractIEC1107Protocol implements SerialNumberS
 	}
 
     @Override
+    public String getProtocolDescription() {
+        return "Landis&Gyr S4S IEC1107";
+    }
+
+    @Override
     public String getProtocolVersion() {
         return "$Date: 2015-11-26 15:26:00 +0200 (Thu, 26 Nov 2015)$";
     }

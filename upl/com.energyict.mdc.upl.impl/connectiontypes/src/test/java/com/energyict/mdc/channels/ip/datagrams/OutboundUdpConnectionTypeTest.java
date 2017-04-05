@@ -36,12 +36,6 @@ public class OutboundUdpConnectionTypeTest {
     public void initializeMocksAndFactories() {
         propertySpecService = mock(PropertySpecService.class);
         serialComponentService = mock(SerialComponentService.class);
-/*
-        //TODO
-        PropertySpecBuilderWizard.NlsOptions propertySpecBuilder = new PropertySpecBuilderImpl();
-        when(propertySpecService.encryptedStringSpec()).thenReturn(propertySpecBuilder);
-*/
-
     }
 
     public static final int PORT_NUMBER = 8080;

@@ -14,10 +14,6 @@ KV|23032005|Changed header to be compatible with protocol version tool
  */
 package com.energyict.protocolimpl.dukepower;
 
-import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
-import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.nls.TranslationKey;
@@ -27,6 +23,11 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
+
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
+import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.MeterEvent;
@@ -754,6 +755,11 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
     @Override
     public String getProtocolVersion() {
         return "$Date: 2015-11-13 15:14:02 +0100 (Fri, 13 Nov 2015) $";
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "EnergyICT RTU DukePower";
     }
 
     @Override

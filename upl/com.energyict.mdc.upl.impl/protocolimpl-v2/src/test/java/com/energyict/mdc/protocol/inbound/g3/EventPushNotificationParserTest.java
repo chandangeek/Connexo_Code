@@ -1,5 +1,6 @@
 package com.energyict.mdc.protocol.inbound.g3;
 
+import com.energyict.mdc.MockDeviceLogBook;
 import com.energyict.mdc.channel.SynchroneousComChannel;
 import com.energyict.mdc.protocol.ComChannelType;
 import com.energyict.mdc.upl.InboundDAO;
@@ -31,8 +32,9 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Logger;
 
-import static org.mockito.Mockito.any;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -90,24 +92,23 @@ public class EventPushNotificationParserTest extends TestCase {
     @Before
     public void doBefore() throws IOException {
         context = mock(InboundDiscoveryContext.class);
+        when(context.getLogger()).thenReturn(Logger.getAnonymousLogger());
         inboundDAO = mock(InboundDAO.class);
 
-        Optional<List<SecurityProperty>> securityProperties = Optional.of(createSecurityProperties(3, AK, EK));
+        Optional<List<SecurityProperty>> securityProperties = createSecurityProperties(3, AK, EK);
         doReturn(securityProperties).when(context).getProtocolSecurityProperties(Matchers.<DeviceIdentifier>any());
         when(context.getInboundDAO()).thenReturn(inboundDAO);
-
-        LogBookIdentifier any = any(LogBookIdentifier.class);
-        //TODO mock creation of collected logbook?
-        //when(collectedDataFactory.createCollectedLogBook(any)).thenReturn(new DeviceLogBook(any));
+        when(collectedDataFactory.createCollectedLogBook(any(LogBookIdentifier.class))).thenReturn(new MockDeviceLogBook());
+        when(context.getCollectedDataFactory()).thenReturn(collectedDataFactory);
     }
 
     public void setSecurityContext_1_6() throws IOException {
-        List<SecurityProperty> securityProperties = createSecurityProperties(3, AK_1, EK_1);
+        Optional<List<SecurityProperty>> securityProperties = createSecurityProperties(3, AK_1, EK_1);
         doReturn(securityProperties).when(context).getProtocolSecurityProperties(Matchers.<DeviceIdentifier>any());
         when(context.getInboundDAO()).thenReturn(inboundDAO);
     }
 
-    private List<SecurityProperty> createSecurityProperties(int dataTransportLevel, String aKey, String eKey) {
+    private Optional<List<SecurityProperty>> createSecurityProperties(int dataTransportLevel, String aKey, String eKey) {
         SecurityPropertySet securityPropertySet = mock(SecurityPropertySet.class);
         when(securityPropertySet.getAuthenticationDeviceAccessLevelId()).thenReturn(5);
         when(securityPropertySet.getEncryptionDeviceAccessLevelId()).thenReturn(dataTransportLevel);
@@ -125,7 +126,7 @@ public class EventPushNotificationParserTest extends TestCase {
         List<SecurityProperty> securityProperties = new ArrayList<>();
         securityProperties.add(akProperty);
         securityProperties.add(ekProperty);
-        return securityProperties;
+        return Optional.of(securityProperties);
     }
 
     @Test
@@ -258,8 +259,8 @@ public class EventPushNotificationParserTest extends TestCase {
 
         MeterProtocolEvent meterProtocolEvent = parser.getCollectedLogBook().getCollectedMeterEvents().get(0);
         assertEquals(meterProtocolEvent.getTime().getTime(), 1468917580000L);
-        assertEquals(meterProtocolEvent.getEiCode(), 0);
-        assertEquals(meterProtocolEvent.getProtocolCode(), 2);
+        assertEquals(meterProtocolEvent.getEiCode(), 2);
+        assertEquals(meterProtocolEvent.getProtocolCode(), 0);
         assertEquals(meterProtocolEvent.getMessage(), "Power up");
     }
 
@@ -317,7 +318,7 @@ public class EventPushNotificationParserTest extends TestCase {
 
     @Test
     public void testEncryptedFrame() throws IOException, SQLException {
-        List<SecurityProperty> securityProperties = createSecurityProperties(2, AK, EK);
+        Optional<List<SecurityProperty>> securityProperties = createSecurityProperties(2, AK, EK);
         doReturn(securityProperties).when(context).getProtocolSecurityProperties(Matchers.<DeviceIdentifier>any());
         EventPushNotificationParser parser = spyParser(ENCRYPTED_FRAME);
         parser.readAndParseInboundFrame();
@@ -373,8 +374,8 @@ public class EventPushNotificationParserTest extends TestCase {
 
         MeterProtocolEvent meterProtocolEvent = parser.getCollectedLogBook().getCollectedMeterEvents().get(0);
         assertEquals(meterProtocolEvent.getTime().getTime(), 1468917580000L);
-        assertEquals(meterProtocolEvent.getEiCode(), 0);
-        assertEquals(meterProtocolEvent.getProtocolCode(), 2);
+        assertEquals(meterProtocolEvent.getEiCode(), 2);
+        assertEquals(meterProtocolEvent.getProtocolCode(), 0);
         assertEquals(meterProtocolEvent.getMessage(), "Power up");
     }
 
@@ -404,7 +405,7 @@ public class EventPushNotificationParserTest extends TestCase {
 
     @Test
     public void testAuthenticatedFrameNotEncrypted() throws IOException, SQLException {
-        List<SecurityProperty> securityProperties = createSecurityProperties(1, AK, EK);
+        Optional<List<SecurityProperty>> securityProperties = createSecurityProperties(1, AK, EK);
         doReturn(securityProperties).when(context).getProtocolSecurityProperties(Matchers.<DeviceIdentifier>any());
 
         EventPushNotificationParser parser = spyParser(AUTHENTICATED_NOT_ENCRYPTED);

@@ -104,7 +104,7 @@ public class SiemensS4sProfileRecord {
 	private List<Number> getIntervalValues() {
 		int offset = (numberOfChannels-1)*4;
 		return IntStream
-                .range(0, numberOfChannels - 1)
+                .range(0, numberOfChannels)
                 .mapToObj(i -> Integer.valueOf(new String(ProtocolUtils.getSubArray2(rawData, offset, 4))))
                 .collect(Collectors.toList());
 	}

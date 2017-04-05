@@ -23,7 +23,7 @@ import static junit.framework.Assert.assertEquals;
  * @since 30/10/13 - 14:22
  */
 @RunWith(MockitoJUnitRunner.class)
-public class CryptoDsmr23MessageConverterTest extends AbstractMessageConverterTest {
+public class CryptoDsmr23MessageConverterTest extends AbstractV2MessageConverterTest {
 
     @Test
     public void testMessageConversion() {

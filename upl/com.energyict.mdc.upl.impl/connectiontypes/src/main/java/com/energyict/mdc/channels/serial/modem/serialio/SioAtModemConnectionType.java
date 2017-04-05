@@ -28,7 +28,7 @@ import java.util.List;
 @XmlRootElement
 public class SioAtModemConnectionType extends SioSerialConnectionType {
 
-    protected AtModemComponent atModemComponent;
+    private AtModemComponent atModemComponent;
 
     public SioAtModemConnectionType(PropertySpecService propertySpecService) {
         super(propertySpecService);
@@ -36,11 +36,10 @@ public class SioAtModemConnectionType extends SioSerialConnectionType {
 
     @Override
     public SerialPortComChannel connect() throws ConnectionException {
-        this.atModemComponent = new AtModemComponent(new TypedAtModemProperties(getAllProperties(), getPropertySpecService()));
         // create the serial ComChannel and set all property values
         SerialPortComChannel comChannel = super.connect();
         try {
-            atModemComponent.connect(getComPortName(getAllProperties()), comChannel);
+            getModemComponent().connect(getComPortName(getAllProperties()), comChannel);
         } catch (ModemException e) {
             throw new ConnectionException(Thesaurus.ID.toString(), MessageSeeds.NestedModemException, e);
         } finally {
@@ -49,12 +48,17 @@ public class SioAtModemConnectionType extends SioSerialConnectionType {
         return comChannel;
     }
 
+    protected AtModemComponent getModemComponent() {
+        if (atModemComponent == null) {
+            this.atModemComponent = new AtModemComponent(new TypedAtModemProperties(getAllProperties(), getPropertySpecService()));
+        }
+        return atModemComponent;
+    }
+
     @Override
     public void disconnect(ComChannel comChannel) throws ConnectionException {
         super.disconnect(comChannel);
-        if (this.atModemComponent != null) {
-            this.atModemComponent.disconnect((SerialPortComChannel) comChannel);
-        }
+        this.getModemComponent().disconnect((SerialPortComChannel) comChannel);
     }
 
     @Override

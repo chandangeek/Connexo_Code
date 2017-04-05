@@ -105,6 +105,11 @@ public class Vectron extends SchlumbergerProtocol {
     }
 
     @Override
+    public String getProtocolDescription() {
+        return "Itron/Schlumberger Vectron";
+    }
+
+    @Override
     public String getProtocolVersion() {
         return "$Date: 2015-11-26 15:23:41 +0200 (Thu, 26 Nov 2015)$";
     }

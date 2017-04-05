@@ -80,6 +80,11 @@ public class Poreg2 extends Poreg {
     }
 
     @Override
+    public String getProtocolDescription() {
+        return "Iskraemeco Poreg 2 DIN19244";
+    }
+
+    @Override
     public String getProtocolVersion() {
         return "$Date: 2014-06-02 13:26:25 +0200 (Mon, 02 Jun 2014) $";
     }

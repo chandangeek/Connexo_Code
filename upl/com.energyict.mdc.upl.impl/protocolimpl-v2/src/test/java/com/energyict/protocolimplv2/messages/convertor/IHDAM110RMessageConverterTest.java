@@ -4,7 +4,6 @@ import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.legacy.LegacyMessageConverter;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
-import com.energyict.mdc.upl.properties.DeviceMessageFile;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
@@ -14,13 +13,11 @@ import org.junit.Test;
 import java.text.ParseException;
 
 import static junit.framework.Assert.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * Created by cisac on 8/17/2015.
  */
-public class IHDAM110RMessageConverterTest extends AbstractMessageConverterTest {
+public class IHDAM110RMessageConverterTest extends AbstractV2MessageConverterTest {
 
     @Test
     public void testMessageConversion() {
@@ -29,11 +26,11 @@ public class IHDAM110RMessageConverterTest extends AbstractMessageConverterTest 
 
         offlineDeviceMessage = createMessage(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
-        assertEquals("<FirmwareUpgrade><IncludedFile>Content</IncludedFile></FirmwareUpgrade>", messageEntry.getContent());
+        assertEquals("<FirmwareUpgrade><IncludedFile>path</IncludedFile></FirmwareUpgrade>", messageEntry.getContent());
 
         offlineDeviceMessage = createMessage(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
-        assertEquals("<FirmwareUpgrade><IncludedFile>Content</IncludedFile><ActivationDate>28/10/2013 10:00:00</ActivationDate></FirmwareUpgrade>", messageEntry.getContent());
+        assertEquals("<FirmwareUpgrade><IncludedFile>path</IncludedFile><ActivationDate>28/10/2013 10:00:00</ActivationDate></FirmwareUpgrade>", messageEntry.getContent());
     }
 
     @Override
@@ -51,9 +48,7 @@ public class IHDAM110RMessageConverterTest extends AbstractMessageConverterTest 
         try {
             switch (propertySpec.getName()) {
                 case DeviceMessageConstants.firmwareUpdateFileAttributeName:
-                    DeviceMessageFile deviceMessageFile = mock(DeviceMessageFile.class);
-                    when(deviceMessageFileExtractor.binaryContents(deviceMessageFile)).thenReturn("Content".getBytes());
-                    return deviceMessageFile;
+                    return "path";
                 case DeviceMessageConstants.firmwareUpdateActivationDateAttributeName:
                     return europeanDateTimeFormat.parse("28/10/2013 10:00:00");
                 default:

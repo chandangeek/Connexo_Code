@@ -1,9 +1,5 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.xemex;
 
-import com.energyict.dlms.DLMSCache;
-import com.energyict.dlms.UniversalObject;
-import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
 import com.energyict.mdc.upl.messages.legacy.NumberLookupExtractor;
@@ -12,6 +8,11 @@ import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+
+import com.energyict.dlms.DLMSCache;
+import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
@@ -152,6 +153,11 @@ public class WatchTalk extends AbstractSmartNtaProtocol {
     @Override
     public AXDRDateTimeDeviationType getDateTimeDeviationType() {
         return AXDRDateTimeDeviationType.Positive;
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "XEMEX WatchTalk DLMS (NTA DSMR 2.1)";
     }
 
     @Override

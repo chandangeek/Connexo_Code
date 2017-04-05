@@ -2,12 +2,14 @@ package com.energyict.protocolimplv2.identifiers;
 
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
+
 import com.energyict.obis.ObisCode;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -23,9 +25,8 @@ public class RegisterIdentifierById implements RegisterIdentifier {
     private final ObisCode registerObisCode;
     private final DeviceIdentifier deviceIdentifier;
 
-    /**
-     * Constructor only to be used by JSON (de)marshalling
-     */
+    // For JSON serialization only
+    @SuppressWarnings("unused")
     private RegisterIdentifierById() {
         this.id = 0;
         this.registerObisCode = null;
@@ -70,6 +71,11 @@ public class RegisterIdentifierById implements RegisterIdentifier {
     }
 
     @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
+
+    @Override
     public String toString() {
         return String.valueOf(this.id);
     }
@@ -87,15 +93,24 @@ public class RegisterIdentifierById implements RegisterIdentifier {
 
         @Override
         public Set<String> getRoles() {
-            return new HashSet<>(Collections.singletonList("databaseValue"));
+            return new HashSet<>(Arrays.asList("databaseValue", "device", "obisCode"));
         }
 
         @Override
         public Object getValue(String role) {
-            if ("databaseValue".equals(role)) {
-                return getId();
-            } else {
-                throw new IllegalArgumentException("Role '" + role + "' is not supported by identifier of type " + getTypeName());
+            switch (role) {
+                case "databaseValue": {
+                    return getId();
+                }
+                case "device": {
+                    return getDeviceIdentifier();
+                }
+                case "obisCode": {
+                    return getRegisterObisCode();
+                }
+                default: {
+                    throw new IllegalArgumentException("Role '" + role + "' is not supported by identifier of type " + getTypeName());
+                }
             }
         }
 

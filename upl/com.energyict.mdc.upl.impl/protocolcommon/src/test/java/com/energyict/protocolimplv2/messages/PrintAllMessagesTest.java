@@ -1,15 +1,25 @@
 package com.energyict.protocolimplv2.messages;
 
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+import com.energyict.mdc.upl.nls.NlsMessageFormat;
 import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.nls.Thesaurus;
+import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
+import com.energyict.propertyspec.MockPropertySpecService;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Copyrights EnergyICT
@@ -19,12 +29,26 @@ import org.mockito.runners.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class PrintAllMessagesTest {
 
-    @Mock
-    private PropertySpecService propertySpecService;
+    private PropertySpecService propertySpecService = new MockPropertySpecService();
     @Mock
     private NlsService nlsService;
     @Mock
     private Converter converter;
+
+    @Before
+    public void before() {
+        Thesaurus thesaurus = mock(Thesaurus.class);
+
+        when(thesaurus.getFormat(any(TranslationKey.class))).thenAnswer(invocation -> {
+            Object[] args = invocation.getArguments();
+            NlsMessageFormat format = mock(NlsMessageFormat.class);
+            when(format.format()).thenReturn(((TranslationKey) args[0]).getDefaultFormat());
+            when(format.format(anyObject())).thenReturn(((TranslationKey) args[0]).getDefaultFormat());
+            return format;
+        });
+
+        when(nlsService.getThesaurus(anyString())).thenReturn(thesaurus);
+    }
 
     @Test
     public void printAllMessagesTest() {
@@ -38,5 +62,4 @@ public class PrintAllMessagesTest {
             }
         }
     }
-
 }

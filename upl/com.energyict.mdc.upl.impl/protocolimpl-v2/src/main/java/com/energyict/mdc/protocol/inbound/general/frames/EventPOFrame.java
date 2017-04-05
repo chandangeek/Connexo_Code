@@ -1,6 +1,7 @@
 package com.energyict.mdc.protocol.inbound.general.frames;
 
 import com.energyict.cim.EndDeviceEventTypeMapping;
+import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.LogBook;
@@ -27,11 +28,9 @@ public class EventPOFrame extends AbstractInboundFrame {
 
     private static final int UNKNOWN = 0;
     private static final String EVENT_TAG = "event";
-    private final CollectedDataFactory collectedDataFactory;
 
-    public EventPOFrame(String frame, CallHomeIdPlaceHolder callHomeIdPlaceHolder, CollectedDataFactory collectedDataFactory) {
-        super(frame, callHomeIdPlaceHolder);
-        this.collectedDataFactory = collectedDataFactory;
+    public EventPOFrame(String frame, CallHomeIdPlaceHolder callHomeIdPlaceHolder, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+        super(frame, callHomeIdPlaceHolder, collectedDataFactory, issueFactory);
     }
 
     @Override

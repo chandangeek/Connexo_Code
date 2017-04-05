@@ -126,6 +126,11 @@ public class DL230 extends LIS200 implements IRegisterReadable {
 	}
 
     @Override
+    public String getProtocolDescription() {
+        return "Elster DL230 LIS200";
+    }
+
+    @Override
     public RegisterDefinition[] getRegisterDefinition() {
         switch (getMeterIndex()) {
             case 1:

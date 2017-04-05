@@ -1,6 +1,5 @@
 package com.energyict.protocolimpl.dlms.as220;
 
-import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.mdc.upl.messages.legacy.Message;
 import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
@@ -9,6 +8,8 @@ import com.energyict.mdc.upl.messages.legacy.MessageValue;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+
+import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.MessageResult;
@@ -90,6 +91,11 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
     @Override
     public Date getTime() throws IOException {
         return geteMeter().getClockController().getTime();
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "Elster AS220/AS1440 AM500 DLMS";
     }
 
     @Override

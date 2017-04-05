@@ -47,6 +47,11 @@ public class IDISMBus extends IDIS {
     }
 
     @Override
+    public String getProtocolDescription() {
+        return "Elster AM500 DLMS (IDIS P1) MBus slave";
+    }
+
+    @Override
     public void connect() throws IOException {
         super.connect();
 

@@ -7,7 +7,6 @@
 
 package com.energyict.protocolimpl.modbus.flonidan.uniflo1200;
 
-import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
@@ -15,6 +14,8 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
+
+import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterValue;
@@ -81,6 +82,11 @@ public class UNIFLO1200 extends Modbus implements SerialNumberSupport {
     public String getProtocolVersion() {
         return "$Date: 2015-11-26 15:24:28 +0200 (Thu, 26 Nov 2015)$";
     }
+
+	@Override
+	public String getProtocolDescription() {
+		return "Flonidan UNIFLO Modbus";
+	}
 
 	public int getLoadProfileNumber() {
 		return loadProfileNumber;

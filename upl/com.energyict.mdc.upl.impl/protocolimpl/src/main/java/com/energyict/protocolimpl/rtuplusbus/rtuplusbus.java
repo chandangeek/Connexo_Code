@@ -1,9 +1,5 @@
 package com.energyict.protocolimpl.rtuplusbus;
 
-import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
-import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.io.NestedIOException;
 import com.energyict.mdc.upl.nls.TranslationKey;
@@ -14,6 +10,11 @@ import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
+
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
+import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.HalfDuplexEnabler;
 import com.energyict.protocol.IntervalData;
@@ -603,11 +604,15 @@ public class rtuplusbus extends PluggableMeterProtocol implements HalfDuplexEnab
             throw new NestedIOException(e, "RtuPlusBus, Reading the Logbook: " + e.getMessage());
         }
 
-
         // Apply the events to the channel statusvalues
         // profileData.applyEvents(bInterval);
 
         return profileData;
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "EnergyICT RTU RtuPlusBus";
     }
 
     @Override

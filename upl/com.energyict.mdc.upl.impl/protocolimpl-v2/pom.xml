@@ -118,6 +118,7 @@
         <plugins>
 
             <!-- This proguard plugin is used to obfuscate the protocolimpl-v2 jar-->
+<!--
             <plugin>
                 <groupId>com.github.wvengen</groupId>
                 <artifactId>proguard-maven-plugin</artifactId>
@@ -145,6 +146,7 @@
                     </libs>
                 </configuration>
             </plugin>
+-->
 
             <!-- This plugin is used to add the 'generated-sources' folder to the source folder.-->
             <plugin>

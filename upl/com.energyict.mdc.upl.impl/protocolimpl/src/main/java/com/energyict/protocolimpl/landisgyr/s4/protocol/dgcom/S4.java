@@ -146,6 +146,11 @@ public class S4 extends AbstractProtocol implements SerialNumberSupport {
     }
 
     @Override
+    public String getProtocolDescription() {
+        return "Landis&Gyr S4 DGCOM";
+    }
+
+    @Override
     public String getProtocolVersion() {
         return "$Date: 2015-11-26 15:26:01 +0200 (Thu, 26 Nov 2015)$";
     }

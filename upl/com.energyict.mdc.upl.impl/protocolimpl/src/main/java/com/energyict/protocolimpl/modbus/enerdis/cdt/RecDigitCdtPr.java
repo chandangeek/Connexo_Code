@@ -419,6 +419,11 @@ public class RecDigitCdtPr extends RecDigitCdt {
         return "$Date: 2016-06-06 09:40:43 +0300 (Mon, 06 Jun 2016)$";
     }
 
+    @Override
+    public String getProtocolDescription() {
+        return "Enerdis Recdigit CDT PR Modbus";
+    }
+
     public int getLimitMaxNrOfDays() {
         return limitMaxNrOfDays;
     }

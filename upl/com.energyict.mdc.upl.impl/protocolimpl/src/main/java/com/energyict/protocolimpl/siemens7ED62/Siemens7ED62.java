@@ -9,8 +9,6 @@
 
 package com.energyict.protocolimpl.siemens7ED62;
 
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
 import com.energyict.mdc.upl.MeterProtocol;
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.UnsupportedException;
@@ -20,6 +18,9 @@ import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.ProfileData;
@@ -426,6 +427,11 @@ public class Siemens7ED62 implements MeterProtocol, RegisterProtocol {
 
     public String getProtocolVersion() {
         return "$Date: 2015-11-13 15:14:02 +0100 (Fri, 13 Nov 2015) $";
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "Siemens 7ED62 SCTM";
     }
 
     public String getFirmwareVersion() throws IOException {

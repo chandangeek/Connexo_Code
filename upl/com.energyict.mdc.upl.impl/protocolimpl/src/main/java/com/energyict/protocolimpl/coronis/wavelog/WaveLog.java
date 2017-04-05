@@ -1,6 +1,5 @@
 package com.energyict.protocolimpl.coronis.wavelog;
 
-import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.mdc.upl.messages.legacy.Message;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
@@ -10,6 +9,8 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
+
+import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.EventMapper;
 import com.energyict.protocol.MessageProtocol;
@@ -153,6 +154,11 @@ public class WaveLog extends AbstractProtocol implements MessageProtocol, Protoc
     @Override
     public String getProtocolVersion() {
         return "$Date: Wed Dec 28 16:35:58 2016 +0100 $";
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "Coronis WaveLog";
     }
 
     @Override

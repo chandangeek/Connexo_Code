@@ -1,10 +1,5 @@
 package com.energyict.protocolimpl.iec1107.abba1700;
 
-import com.energyict.cbo.Quantity;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.dialer.connections.IEC1107HHUConnection;
-import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.io.NestedIOException;
@@ -19,6 +14,12 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
+
+import com.energyict.cbo.Quantity;
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.dialer.connections.IEC1107HHUConnection;
+import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.MessageProtocol;
@@ -285,6 +286,11 @@ public class ABBA1700 extends PluggableMeterProtocol implements ProtocolLink, HH
         } catch (NumberFormatException e) {
             throw new InvalidPropertyException(e, "ABBA1700: validation of properties failed before");
         }
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "Elster/ABB A1700 IEC1107";
     }
 
     @Override

@@ -98,6 +98,11 @@ public class EK230 extends LIS200 implements IRegisterReadable {
     }
 
     @Override
+    public String getProtocolDescription() {
+        return "Elster EK230 LIS200";
+    }
+
+    @Override
     public RegisterDefinition[] getRegisterDefinition() {
         RegisterDefinition[] result;
         int i = 0;

@@ -1,5 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.kaifa;
 
+import com.energyict.mdc.upl.LoadProfileConfigurationException;
+
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.DLMSAttribute;
@@ -17,7 +19,6 @@ import com.energyict.dlms.cosem.attributes.DemandRegisterAttributes;
 import com.energyict.dlms.cosem.attributes.ExtendedRegisterAttributes;
 import com.energyict.dlms.cosem.attributes.InstrumentationProfileEntryAttributes;
 import com.energyict.dlms.cosem.attributes.RegisterAttributes;
-import com.energyict.mdc.upl.LoadProfileConfigurationException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.LoadProfileConfiguration;
@@ -25,6 +26,7 @@ import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.Register;
 import com.energyict.protocolimpl.dlms.DLMSProfileIntervals;
+import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.smartmeterprotocolimpl.common.composedobjects.ComposedProfileConfig;
 import com.energyict.smartmeterprotocolimpl.elster.AS300P.AS300PProfileIntervalStatusBits;
 import com.energyict.smartmeterprotocolimpl.elster.AS300P.CapturedRegisterObject;
@@ -42,13 +44,13 @@ public class KaifaLoadProfileBuilder {
 
     private List<LoadProfileReader> expectedLoadProfileReaders;
     private List<LoadProfileConfiguration> loadProfileConfigurationList;
-    private Map<Register, DLMSAttribute> registerUnitMap = new HashMap<Register, DLMSAttribute>();
-    private Map<LoadProfileReader, ComposedProfileConfig> lpConfigMap = new HashMap<LoadProfileReader, ComposedProfileConfig>();
-    private Map<LoadProfileReader, List<CapturedRegisterObject>> capturedObjectRegisterListMap = new HashMap<LoadProfileReader, List<CapturedRegisterObject>>();
-    protected Map<LoadProfileReader, List<ChannelInfo>> channelInfoMap = new HashMap<LoadProfileReader, List<ChannelInfo>>();
-    protected Map<ObisCode, List<CapturedObject>> capturedObjectsToRequest = new HashMap<ObisCode, List<CapturedObject>>();
-    protected Map<LoadProfileReader, ProfileMasks> masks = new HashMap<LoadProfileReader, ProfileMasks>();
-    protected Map<ObisCode, List<CapturedObject>> capturedObjectsMap = new HashMap<ObisCode, List<CapturedObject>>();
+    private Map<Register, DLMSAttribute> registerUnitMap = new HashMap<>();
+    private Map<LoadProfileReader, ComposedProfileConfig> lpConfigMap = new HashMap<>();
+    private Map<LoadProfileReader, List<CapturedRegisterObject>> capturedObjectRegisterListMap = new HashMap<>();
+    protected Map<LoadProfileReader, List<ChannelInfo>> channelInfoMap = new HashMap<>();
+    protected Map<ObisCode, List<CapturedObject>> capturedObjectsToRequest = new HashMap<>();
+    protected Map<LoadProfileReader, ProfileMasks> masks = new HashMap<>();
+    protected Map<ObisCode, List<CapturedObject>> capturedObjectsMap = new HashMap<>();
     protected Kaifa meterProtocol;
 
     public KaifaLoadProfileBuilder(Kaifa meterProtocol) {
@@ -64,7 +66,7 @@ public class KaifaLoadProfileBuilder {
      */
     public List<LoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfileReaders) throws IOException {
         this.expectedLoadProfileReaders = loadProfileReaders;
-        this.loadProfileConfigurationList = new ArrayList<LoadProfileConfiguration>();
+        this.loadProfileConfigurationList = new ArrayList<>();
 
         ComposedCosemObject ccoLpConfigs = constructLoadProfileConfigComposedCosemObject(loadProfileReaders, this.meterProtocol.getProperties().isBulkRequest());
         List<CapturedRegisterObject> capturedObjectRegisterList = createCapturedObjectRegisterList(ccoLpConfigs);
@@ -72,7 +74,7 @@ public class KaifaLoadProfileBuilder {
 
         for (LoadProfileReader lpr : this.expectedLoadProfileReaders) {
             this.meterProtocol.getLogger().log(Level.INFO, "Reading configuration from LoadProfile " + lpr);
-            LoadProfileConfiguration lpc = new LoadProfileConfiguration(lpr.getProfileObisCode(), meterProtocol.getProperties().getSerialNumber());
+            LoadProfileConfiguration lpc = new LoadProfileConfiguration(lpr.getProfileObisCode(), new DeviceIdentifierBySerialNumber(meterProtocol.getProperties().getSerialNumber()));
 
             ComposedProfileConfig cpc = lpConfigMap.get(lpr);
             if (cpc != null) {
@@ -94,7 +96,7 @@ public class KaifaLoadProfileBuilder {
 
     private ComposedCosemObject constructCapturedObjectRegisterUnitComposedCosemObject(List<CapturedRegisterObject> registers, boolean supportsBulkRequest) {
         if (registers != null) {
-            List<DLMSAttribute> dlmsAttributes = new ArrayList<DLMSAttribute>();
+            List<DLMSAttribute> dlmsAttributes = new ArrayList<>();
             for (CapturedRegisterObject register : registers) {
                 ObisCode rObisCode = register.getObisCode();
                 UniversalObject uo = DLMSUtils.findCosemObjectInObjectList(this.meterProtocol.getDlmsSession().getMeterConfig().getInstantiatedObjectList(), rObisCode);
@@ -126,7 +128,7 @@ public class KaifaLoadProfileBuilder {
     }
 
     private List<ChannelInfo> constructChannelInfos(List<CapturedRegisterObject> registers, ComposedCosemObject ccoRegisterUnits) throws IOException {
-        List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
+        List<ChannelInfo> channelInfos = new ArrayList<>();
         for (CapturedRegisterObject registerObject : registers) {
             if (isDataObisCode(registerObject.getObisCode())) {
                 if (this.registerUnitMap.containsKey(registerObject)) {
@@ -192,7 +194,7 @@ public class KaifaLoadProfileBuilder {
      * @throws IOException if a communication or parsing error occurred
      */
     public List<ProfileData> getLoadProfileData(List<LoadProfileReader> loadProfiles) throws IOException {
-        List<ProfileData> profileDataList = new ArrayList<ProfileData>();
+        List<ProfileData> profileDataList = new ArrayList<>();
         ProfileGeneric profile;
         ProfileData profileData;
         for (LoadProfileReader lpr : loadProfiles) {
@@ -230,7 +232,7 @@ public class KaifaLoadProfileBuilder {
 
     protected LoadProfileConfiguration getLoadProfileConfiguration(LoadProfileReader loadProfileReader) {
         for (LoadProfileConfiguration lpc : this.loadProfileConfigurationList) {
-            if (loadProfileReader.getProfileObisCode().equals(lpc.getObisCode()) && loadProfileReader.getMeterSerialNumber().equalsIgnoreCase(lpc.getMeterSerialNumber())) {
+            if (loadProfileReader.getProfileObisCode().equals(lpc.getObisCode()) && new DeviceIdentifierBySerialNumber(loadProfileReader.getMeterSerialNumber()).equalsIgnoreCase(lpc.getDeviceIdentifier())) {
                 return lpc;
             }
         }
@@ -243,7 +245,7 @@ public class KaifaLoadProfileBuilder {
     }
 
     private List<CapturedRegisterObject> createCapturedObjectRegisterList(ComposedCosemObject ccoLpConfigs) throws IOException {
-        List<CapturedRegisterObject> channelRegisters = new ArrayList<CapturedRegisterObject>();
+        List<CapturedRegisterObject> channelRegisters = new ArrayList<>();
         if (this.expectedLoadProfileReaders != null) {
             for (LoadProfileReader lpr : this.expectedLoadProfileReaders) {
                 int statusMask = 0;
@@ -255,8 +257,8 @@ public class KaifaLoadProfileBuilder {
                     ProfileGeneric pg = new ProfileGeneric(this.meterProtocol.getDlmsSession(), null);
                     List<CapturedObject> capturedObjects = pg.getCapturedObjectsFromDataContainter(dc);
                     capturedObjectsMap.put(lpr.getProfileObisCode(), capturedObjects);  //Remember the captured_objects of this LP
-                    List<CapturedRegisterObject> coRegisters = new ArrayList<CapturedRegisterObject>();
-                    List<CapturedObject> relevantObjects = new ArrayList<CapturedObject>();
+                    List<CapturedRegisterObject> coRegisters = new ArrayList<>();
+                    List<CapturedObject> relevantObjects = new ArrayList<>();
                     for (CapturedObject co : capturedObjects) {
                         if (loadProfileContains(lpr, co.getLogicalName().getObisCode())) {
                             DLMSAttribute dlmsAttribute = new DLMSAttribute(co.getLogicalName().getObisCode(), co.getAttributeIndex(), co.getClassId());
@@ -294,7 +296,7 @@ public class KaifaLoadProfileBuilder {
         return KaifaObisCodeProvider.LoadProfileStatusP1.equals(obisCode) || KaifaObisCodeProvider.LoadProfileStatusP2.equals(obisCode);
     }
 
-    private boolean loadProfileContains(LoadProfileReader lpr, ObisCode obisCode) throws IOException {
+    private boolean loadProfileContains(LoadProfileReader lpr, ObisCode obisCode) {
         for (ChannelInfo channelInfo : lpr.getChannelInfos()) {
             if (channelInfo.getChannelObisCode().equals(obisCode)) {
                 return true;
@@ -305,7 +307,7 @@ public class KaifaLoadProfileBuilder {
 
     private ComposedCosemObject constructLoadProfileConfigComposedCosemObject(List<LoadProfileReader> loadProfileReaders, boolean supportsBulkRequest) {
         if (loadProfileReaders != null) {
-            List<DLMSAttribute> dlmsAttributes = new ArrayList<DLMSAttribute>();
+            List<DLMSAttribute> dlmsAttributes = new ArrayList<>();
             for (LoadProfileReader lpReader : loadProfileReaders) {
                 ObisCode obisCode = lpReader.getProfileObisCode();
                 UniversalObject uo = DLMSUtils.findCosemObjectInObjectList(this.meterProtocol.getDlmsSession().getMeterConfig().getInstantiatedObjectList(), obisCode);

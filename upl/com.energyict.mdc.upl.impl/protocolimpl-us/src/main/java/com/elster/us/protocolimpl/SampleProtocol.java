@@ -40,6 +40,11 @@ public class SampleProtocol implements MeterProtocol {
 
     }
 
+    @Override
+    public String getProtocolDescription() {
+        return "Elster Sample";
+    }
+
     public String getProtocolVersion() {
         return null;
     }

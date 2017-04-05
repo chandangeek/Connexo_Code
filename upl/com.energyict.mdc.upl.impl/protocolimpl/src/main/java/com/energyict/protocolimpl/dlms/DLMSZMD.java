@@ -1,17 +1,5 @@
 package com.energyict.protocolimpl.dlms;
 
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dlms.DLMSConnectionException;
-import com.energyict.dlms.DLMSObis;
-import com.energyict.dlms.DLMSUtils;
-import com.energyict.dlms.ScalerUnit;
-import com.energyict.dlms.UniversalObject;
-import com.energyict.dlms.aso.ConformanceBlock;
-import com.energyict.dlms.aso.SecurityProvider;
-import com.energyict.dlms.axrdencoding.Integer8;
-import com.energyict.dlms.cosem.GenericInvoke;
-import com.energyict.dlms.cosem.ObjectReference;
-import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.io.NestedIOException;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
@@ -26,6 +14,19 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
+
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dlms.DLMSConnectionException;
+import com.energyict.dlms.DLMSObis;
+import com.energyict.dlms.DLMSUtils;
+import com.energyict.dlms.ScalerUnit;
+import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.aso.ConformanceBlock;
+import com.energyict.dlms.aso.SecurityProvider;
+import com.energyict.dlms.axrdencoding.Integer8;
+import com.energyict.dlms.cosem.GenericInvoke;
+import com.energyict.dlms.cosem.ObjectReference;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.MessageProtocol;
@@ -117,6 +118,11 @@ public class DLMSZMD extends DLMSSN implements RegisterProtocol, MessageProtocol
             calendar = Calendar.getInstance(ProtocolUtils.getWinterTimeZone(timeZone));
         }
         return calendar;
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "L&G/Siemens ZxD/ZMQ/ZMF/ZMG DLMS_V1";
     }
 
     @Override

@@ -10,6 +10,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -26,9 +27,8 @@ public class RegisterDataIdentifierByObisCodeAndDevice implements RegisterIdenti
     private final ObisCode registerObisCode;
     private final DeviceIdentifier deviceIdentifier;
 
-    /**
-     * Constructor only to be used by JSON (de)marshalling
-     */
+    // For JSON serialization only
+    @SuppressWarnings("unused")
     private RegisterDataIdentifierByObisCodeAndDevice() {
         this.registerObisCode = null;
         this.deviceIdentifier = new NullDeviceIdentifier();
@@ -55,16 +55,21 @@ public class RegisterDataIdentifierByObisCodeAndDevice implements RegisterIdenti
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (!(obj instanceof RegisterDataIdentifierByObisCodeAndDevice)) {
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        RegisterDataIdentifierByObisCodeAndDevice identifier = (RegisterDataIdentifierByObisCodeAndDevice) obj;
-        if (identifier.getRegisterObisCode() != this.getRegisterObisCode() ||
-                !identifier.getDeviceIdentifier().equals(this.getDeviceIdentifier())) {
-            return false;
-        }
-        return true;
+        RegisterDataIdentifierByObisCodeAndDevice that = (RegisterDataIdentifierByObisCodeAndDevice) o;
+        return Objects.equals(registerObisCode, that.registerObisCode) &&
+                Objects.equals(deviceIdentifier, that.deviceIdentifier);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(registerObisCode, deviceIdentifier);
     }
 
     @Override

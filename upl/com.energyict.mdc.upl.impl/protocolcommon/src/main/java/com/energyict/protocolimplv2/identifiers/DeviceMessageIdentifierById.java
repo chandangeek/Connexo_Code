@@ -5,7 +5,7 @@ import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -21,9 +21,8 @@ public class DeviceMessageIdentifierById implements MessageIdentifier {
     private final int messageId;
     private final DeviceIdentifier deviceIdentifier;
 
-    /**
-     * Constructor only to be used by JSON (de)marshalling
-     */
+    // For JSON serialization only
+    @SuppressWarnings("unused")
     private DeviceMessageIdentifierById() {
         messageId = -1;
         deviceIdentifier = null;
@@ -83,15 +82,18 @@ public class DeviceMessageIdentifierById implements MessageIdentifier {
 
         @Override
         public Set<String> getRoles() {
-            return new HashSet<>(Collections.singletonList("databaseValue"));
+            return new HashSet<>(Arrays.asList("databaseValue", "device"));
         }
 
         @Override
         public Object getValue(String role) {
-            if ("databaseValue".equals(role)) {
-                return getMessageId();
-            } else {
-                throw new IllegalArgumentException("Role '" + role + "' is not supported by identifier of type " + getTypeName());
+            switch (role) {
+                case "databaseValue":
+                    return getMessageId();
+                case "device":
+                    return getDeviceIdentifier();
+                default:
+                    throw new IllegalArgumentException("Role '" + role + "' is not supported by identifier of type " + getTypeName());
             }
         }
     }

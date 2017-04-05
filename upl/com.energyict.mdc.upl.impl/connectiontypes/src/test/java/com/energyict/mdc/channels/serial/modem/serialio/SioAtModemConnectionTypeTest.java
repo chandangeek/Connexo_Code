@@ -6,14 +6,14 @@ package com.energyict.mdc.channels.serial.modem.serialio;
 
 import com.energyict.mdc.channel.serial.SerialPortConfiguration;
 import com.energyict.mdc.channel.serial.ServerSerialPort;
-import com.energyict.mdc.channel.serial.direct.serialio.SioSerialPort;
+import com.energyict.mdc.channel.serial.modemproperties.AtModemComponent;
 import com.energyict.mdc.channel.serial.modemproperties.TypedAtModemProperties;
 import com.energyict.mdc.channels.serial.modem.AbstractModemTests;
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.ComChannelType;
+import com.energyict.mdc.upl.io.ConnectionType;
+import com.energyict.mdc.upl.io.ModemException;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
-import com.energyict.protocol.exception.ModemException;
-import com.energyict.protocol.exception.ProtocolExceptionReference;
 import com.energyict.protocol.exceptions.ConnectionException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,6 +28,7 @@ import java.util.Arrays;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
@@ -68,28 +69,20 @@ public class SioAtModemConnectionTypeTest extends AbstractModemTests {
         result.setProperty(TypedAtModemProperties.MODEM_ADDRESS_SELECTOR, "");
         result.setProperty(TypedAtModemProperties.MODEM_POST_DIAL_COMMANDS, "");
         result.setProperty(TypedAtModemProperties.PHONE_NUMBER_PROPERTY_NAME, PHONE_NUMBER);
+        result.setProperty(ConnectionType.Property.COMP_PORT_NAME.getName(), comPortName);
         return result;
-    }
-
-    private void getProperlyMockedComPort(TestableSerialComChannel serialComChannel, SioSerialPort sioSerialPort) throws Exception {
-        when(serialComponentService.newSerialPort(any(SerialPortConfiguration.class))).thenReturn(sioSerialPort);
-        when(serialComponentService.newSerialComChannel(any(ServerSerialPort.class), any(ComChannelType.class))).thenReturn(serialComChannel);
     }
 
     @Test(timeout = TEST_TIMEOUT_MILLIS, expected = ConnectionException.class)
     public void readTimeOutExceptionTest() throws Exception {
         TestableSerialComChannel serialComChannel = getTestableComChannel();
-        SioSerialPort sioSerialPort = mock(SioSerialPort.class);
-        getProperlyMockedComPort(serialComChannel, sioSerialPort);
 
-        SioAtModemConnectionType atModemConnectionType = new SioAtModemConnectionType(propertySpecService);
-        atModemConnectionType.setUPLProperties(getProperProperties());
-
+        SioAtModemConnectionType atModemConnectionType = createConnectionType(serialComChannel);
         try {
             atModemConnectionType.setUPLProperties(getProperProperties());
             atModemConnectionType.connect();
         } catch (ConnectionException e) {
-            if (!((ModemException) e.getCause()).getExceptionReference().equals(ProtocolExceptionReference.MODEM_COULD_NOT_HANG_UP)) {
+            if (!((ModemException) e.getCause()).getType().equals(ModemException.Type.MODEM_COULD_NOT_HANG_UP)) {
                 fail("Should have gotten exception indicating the hang up of the modem failed, but was " + e.getMessage());
             }
             throw e;
@@ -100,16 +93,13 @@ public class SioAtModemConnectionTypeTest extends AbstractModemTests {
     public void testHangUpModemFails() throws Exception {
         TestableSerialComChannel serialComChannel = getTestableComChannel();
         serialComChannel.setResponses(Arrays.asList("   ", "NotValidResponse"));
-        SioSerialPort sioSerialPort = mock(SioSerialPort.class);
-        getProperlyMockedComPort(serialComChannel, sioSerialPort);
 
-        SioAtModemConnectionType atModemConnectionType = new SioAtModemConnectionType(propertySpecService);
+        SioAtModemConnectionType atModemConnectionType = createConnectionType(serialComChannel);
 
         try {
-            atModemConnectionType.setUPLProperties(getProperProperties());
             atModemConnectionType.connect();
         } catch (ConnectionException e) {
-            if (!((ModemException) e.getCause()).getExceptionReference().equals(ProtocolExceptionReference.MODEM_COULD_NOT_HANG_UP)) {
+            if (!((ModemException) e.getCause()).getType().equals(ModemException.Type.MODEM_COULD_NOT_HANG_UP)) {
                 fail("Should have gotten exception indicating that the modem hangup failed, but was " + e.getMessage());
             }
             assertThat(((ModemException) e.getCause()).getMessageArguments()).contains(comPortName);
@@ -121,46 +111,35 @@ public class SioAtModemConnectionTypeTest extends AbstractModemTests {
     public void testHangUpModemSucceeds() throws Exception {
         TestableSerialComChannel comChannel = getTestableComChannel();
         comChannel.setResponses(OK_LIST);
-        SioSerialPort sioSerialPort = mock(SioSerialPort.class);
-        getProperlyMockedComPort(comChannel, sioSerialPort);
 
-        SioAtModemConnectionType atModemConnectionType = spy(new SioAtModemConnectionType(propertySpecService));
-
-        atModemConnectionType.setUPLProperties(getProperProperties());
+        SioAtModemConnectionType atModemConnectionType = createConnectionType(comChannel);
         atModemConnectionType.connect();
 
-        verify(atModemConnectionType.atModemComponent, times(1)).hangUpComChannel(comChannel);
+        verify(atModemConnectionType.getModemComponent(), times(1)).hangUpComChannel(comChannel);
     }
 
     @Test(timeout = TEST_TIMEOUT_MILLIS)
     public void testRestoreDefaultProfileSucceeds() throws Exception {
         TestableSerialComChannel comChannel = getTestableComChannel();
         comChannel.setResponses(OK_LIST);
-        SioSerialPort sioSerialPort = mock(SioSerialPort.class);
-        getProperlyMockedComPort(comChannel, sioSerialPort);
 
-        SioAtModemConnectionType atModemConnectionType = spy(new SioAtModemConnectionType(propertySpecService));
-        atModemConnectionType.setUPLProperties(getProperProperties());
-
+        SioAtModemConnectionType atModemConnectionType = createConnectionType(comChannel);
         atModemConnectionType.connect();
 
-        verify(atModemConnectionType.atModemComponent, times(1)).reStoreProfile(comChannel);
+        verify(atModemConnectionType.getModemComponent(), times(1)).reStoreProfile(comChannel);
     }
 
     @Test(timeout = TEST_TIMEOUT_MILLIS, expected = ConnectionException.class)
     public void testRestoreDefaultProfileFails() throws Exception {
         TestableSerialComChannel comChannel = getTestableComChannel();
         comChannel.setResponses(Arrays.asList(RUBBISH_FOR_FLUSH, "OK", "NokToDefaultProfileRestore"));
-        SioSerialPort sioSerialPort = mock(SioSerialPort.class);
-        getProperlyMockedComPort(comChannel, sioSerialPort);
 
-        SioAtModemConnectionType atModemConnectionType = spy(new SioAtModemConnectionType(propertySpecService));
-        atModemConnectionType.setUPLProperties(getProperProperties());
+        SioAtModemConnectionType atModemConnectionType = createConnectionType(comChannel);
 
         try {
             atModemConnectionType.connect();
         } catch (ConnectionException e) {
-            if (!((ModemException) e.getCause()).getExceptionReference().equals(ProtocolExceptionReference.MODEM_COULD_NOT_RESTORE_DEFAULT_PROFILE)) {
+            if (!((ModemException) e.getCause()).getType().equals(ModemException.Type.MODEM_COULD_NOT_RESTORE_DEFAULT_PROFILE)) {
                 fail("Should have gotten exception indicating that the modem could not restore his default profile, but was " + e.getMessage());
             }
             assertThat(((ModemException) e.getCause()).getMessageArguments()).contains(comPortName, "ATZ", "NokToDefaultProfileRestore");
@@ -172,26 +151,23 @@ public class SioAtModemConnectionTypeTest extends AbstractModemTests {
     public void testRetriesExceededForHangUp() throws Exception {
         TimeoutSerialComChannel comChannel = getTimeoutSerialComChannel(COMMAND_TIMEOUT_VALUE + 10);
         comChannel.setResponses(Arrays.asList(RUBBISH_FOR_FLUSH, "First_Not_CorrectAnswer", "Second_Not_CorrectAnswer", "Third_Not_CorrectAnswer"));
-        SioSerialPort sioSerialPort = mock(SioSerialPort.class);
-        getProperlyMockedComPort(comChannel, sioSerialPort);
 
         com.energyict.protocolimpl.properties.TypedProperties typedProperties = com.energyict.protocolimpl.properties.TypedProperties.empty();
         typedProperties.setProperty(TypedAtModemProperties.DELAY_BEFORE_SEND, Duration.ofMillis(10));
         typedProperties.setProperty(TypedAtModemProperties.COMMAND_TIMEOUT, Duration.ofMillis(COMMAND_TIMEOUT_VALUE));
         typedProperties.setProperty(TypedAtModemProperties.COMMAND_TRIES, new BigDecimal(3));
 
-        SioAtModemConnectionType atModemConnectionType = spy(new SioAtModemConnectionType(propertySpecService));
-        atModemConnectionType.setUPLProperties(typedProperties);
+        SioAtModemConnectionType atModemConnectionType = createConnectionType(comChannel, typedProperties);
 
         final int numberOfTries = 3;
         try {
             atModemConnectionType.connect();
         } catch (ConnectionException e) {
-            if (!((ModemException) e.getCause()).getExceptionReference().equals(ProtocolExceptionReference.MODEM_COULD_NOT_HANG_UP)) {
+            if (!((ModemException) e.getCause()).getType().equals(ModemException.Type.MODEM_COULD_NOT_HANG_UP)) {
                 fail("Should have gotten exception indicating that the modem hangup failed, but was " + e.getMessage());
             }
             assertThat(((ModemException) e.getCause()).getMessageArguments()).contains(comPortName);
-            verify(atModemConnectionType.atModemComponent, times(numberOfTries)).readAndVerify(any(ComChannel.class), any(String.class), any(Long.class));
+            verify(atModemConnectionType.getModemComponent(), times(numberOfTries)).readAndVerify(any(ComChannel.class), any(String.class), any(Long.class));
             throw e;
         }
     }
@@ -200,31 +176,25 @@ public class SioAtModemConnectionTypeTest extends AbstractModemTests {
     public void writeSuccessfulInitStringsTest() throws Exception {
         TestableSerialComChannel comChannel = getTestableComChannel();
         comChannel.setResponses(OK_LIST);
-        SioSerialPort sioSerialPort = mock(SioSerialPort.class);
-        getProperlyMockedComPort(comChannel, sioSerialPort);
 
-        SioAtModemConnectionType atModemConnectionType = spy(new SioAtModemConnectionType(propertySpecService));
-        atModemConnectionType.setUPLProperties(getProperProperties());
+        SioAtModemConnectionType atModemConnectionType = createConnectionType(comChannel);
 
         atModemConnectionType.connect();
 
-        verify(atModemConnectionType.atModemComponent, times(1)).sendInitStrings(comChannel);
+        verify(atModemConnectionType.getModemComponent(), times(1)).sendInitStrings(comChannel);
     }
 
     @Test(timeout = TEST_TIMEOUT_MILLIS, expected = ConnectionException.class)
     public void writeFailingInitStringTest() throws Exception {
         TestableSerialComChannel comChannel = getTestableComChannel();
         comChannel.setResponses(Arrays.asList(RUBBISH_FOR_FLUSH, "OK", "OK", "Not_CorrectAnswer"));
-        SioSerialPort sioSerialPort = mock(SioSerialPort.class);
-        getProperlyMockedComPort(comChannel, sioSerialPort);
 
-        SioAtModemConnectionType atModemConnectionType = spy(new SioAtModemConnectionType(propertySpecService));
-        atModemConnectionType.setUPLProperties(getProperProperties());
+        SioAtModemConnectionType atModemConnectionType = createConnectionType(comChannel);
 
         try {
             atModemConnectionType.connect();
         } catch (ConnectionException e) {
-            if (!((ModemException) e.getCause()).getExceptionReference().equals(ProtocolExceptionReference.MODEM_COULD_NOT_SEND_INIT_STRING)) {
+            if (!((ModemException) e.getCause()).getType().equals(ModemException.Type.MODEM_COULD_NOT_SEND_INIT_STRING)) {
                 fail("Should have gotten exception indicating that the modem init string could not be sent, but was " + e.getMessage());
             }
             assertThat(((ModemException) e.getCause()).getMessageArguments()).contains(comPortName, "Not_CorrectAnswer", "ATS0=0E0V1");
@@ -236,8 +206,6 @@ public class SioAtModemConnectionTypeTest extends AbstractModemTests {
     public void writeMultipleInitStringsTest() throws Exception {
         TestableSerialComChannel comChannel = getTestableComChannel();
         comChannel.setResponses(Arrays.asList(RUBBISH_FOR_FLUSH, "OK", "OK", "OK", "OK", "OK", "OK", "CONNECT 9600", "OK", "OK"));
-        SioSerialPort sioSerialPort = mock(SioSerialPort.class);
-        getProperlyMockedComPort(comChannel, sioSerialPort);
 
         com.energyict.protocolimpl.properties.TypedProperties typedProperties = com.energyict.protocolimpl.properties.TypedProperties.empty();
         typedProperties.setProperty(TypedAtModemProperties.DELAY_BEFORE_SEND, Duration.ofMillis(10));
@@ -251,34 +219,30 @@ public class SioAtModemConnectionTypeTest extends AbstractModemTests {
         typedProperties.setProperty(TypedAtModemProperties.MODEM_POST_DIAL_COMMANDS, "");
         typedProperties.setProperty(TypedAtModemProperties.PHONE_NUMBER_PROPERTY_NAME, PHONE_NUMBER);
 
-        SioAtModemConnectionType atModemConnectionType = spy(new SioAtModemConnectionType(propertySpecService));
-        atModemConnectionType.setUPLProperties(typedProperties);
+        SioAtModemConnectionType atModemConnectionType = createConnectionType(comChannel, typedProperties);
         atModemConnectionType.connect();
 
-        verify(atModemConnectionType.atModemComponent, times(1)).sendInitStrings(comChannel);
-        verify(atModemConnectionType.atModemComponent, times(4)).writeSingleInitString(any(ComChannel.class), any(String.class)); // 1 global and 3 user defined init strings have been send out
+        verify(atModemConnectionType.getModemComponent(), times(1)).sendInitStrings(comChannel);
+        verify(atModemConnectionType.getModemComponent(), times(4)).writeSingleInitString(any(ComChannel.class), any(String.class)); // 1 global and 3 user defined init strings have been send out
     }
 
     @Test(timeout = TEST_TIMEOUT_MILLIS, expected = ConnectionException.class)
     public void busyErrorTest() throws Exception {
         TestableSerialComChannel comChannel = getTestableComChannel();
         comChannel.setResponses(Arrays.asList(RUBBISH_FOR_FLUSH, "OK", "BUSY"));
-        SioSerialPort sioSerialPort = mock(SioSerialPort.class);
-        getProperlyMockedComPort(comChannel, sioSerialPort);
 
-        SioAtModemConnectionType atModemConnectionType = spy(new SioAtModemConnectionType(propertySpecService));
-        atModemConnectionType.setUPLProperties(getProperProperties());
+        SioAtModemConnectionType atModemConnectionType = createConnectionType(comChannel);
 
         try {
             atModemConnectionType.connect();
         } catch (ConnectionException e) {
-            if (!((ModemException) e.getCause()).getExceptionReference().equals(ProtocolExceptionReference.AT_MODEM_BUSY)) {
+            if (!((ModemException) e.getCause()).getType().equals(ModemException.Type.AT_MODEM_BUSY)) {
                 fail("Should have gotten exception indicating that the modem received a BUSY signal, but was " + e.getMessage());
             }
             assertThat(((ModemException) e.getCause()).getMessageArguments()).contains(comPortName);
-            verify(atModemConnectionType.atModemComponent, times(1)).hangUpComChannel(comChannel);
-            verify(atModemConnectionType.atModemComponent, times(1)).reStoreProfile(comChannel);
-            verify(atModemConnectionType.atModemComponent, never()).sendInitStrings(comChannel);
+            verify(atModemConnectionType.getModemComponent(), times(1)).hangUpComChannel(comChannel);
+            verify(atModemConnectionType.getModemComponent(), times(1)).reStoreProfile(comChannel);
+            verify(atModemConnectionType.getModemComponent(), never()).sendInitStrings(comChannel);
             throw e;
         }
     }
@@ -287,22 +251,19 @@ public class SioAtModemConnectionTypeTest extends AbstractModemTests {
     public void errorAnswerTest() throws Exception {
         TestableSerialComChannel comChannel = getTestableComChannel();
         comChannel.setResponses(Arrays.asList(RUBBISH_FOR_FLUSH, "OK", "ERROR"));
-        SioSerialPort sioSerialPort = mock(SioSerialPort.class);
-        getProperlyMockedComPort(comChannel, sioSerialPort);
 
-        SioAtModemConnectionType atModemConnectionType = spy(new SioAtModemConnectionType(propertySpecService));
-        atModemConnectionType.setUPLProperties(getProperProperties());
+        SioAtModemConnectionType atModemConnectionType = createConnectionType(comChannel);
 
         try {
             atModemConnectionType.connect();
         } catch (ConnectionException e) {
-            if (!((ModemException) e.getCause()).getExceptionReference().equals(ProtocolExceptionReference.AT_MODEM_ERROR)) {
+            if (!((ModemException) e.getCause()).getType().equals(ModemException.Type.AT_MODEM_ERROR)) {
                 fail("Should have gotten exception indicating that the modem received a ERROR signal, but was " + e.getMessage());
             }
             assertThat(((ModemException) e.getCause()).getMessageArguments()).contains(comPortName);
-            verify(atModemConnectionType.atModemComponent, times(1)).hangUpComChannel(comChannel);
-            verify(atModemConnectionType.atModemComponent, times(1)).reStoreProfile(comChannel);
-            verify(atModemConnectionType.atModemComponent, never()).sendInitStrings(comChannel);
+            verify(atModemConnectionType.getModemComponent(), times(1)).hangUpComChannel(comChannel);
+            verify(atModemConnectionType.getModemComponent(), times(1)).reStoreProfile(comChannel);
+            verify(atModemConnectionType.getModemComponent(), never()).sendInitStrings(comChannel);
             throw e;
         }
     }
@@ -311,22 +272,19 @@ public class SioAtModemConnectionTypeTest extends AbstractModemTests {
     public void noAnswerErrorTest() throws Exception {
         TestableSerialComChannel comChannel = getTestableComChannel();
         comChannel.setResponses(Arrays.asList(RUBBISH_FOR_FLUSH, "OK", "NO ANSWER"));
-        SioSerialPort sioSerialPort = mock(SioSerialPort.class);
-        getProperlyMockedComPort(comChannel, sioSerialPort);
 
-        SioAtModemConnectionType atModemConnectionType = spy(new SioAtModemConnectionType(propertySpecService));
-        atModemConnectionType.setUPLProperties(getProperProperties());
+        SioAtModemConnectionType atModemConnectionType = createConnectionType(comChannel);
 
         try {
             atModemConnectionType.connect();
         } catch (ConnectionException e) {
-            if (!((ModemException) e.getCause()).getExceptionReference().equals(ProtocolExceptionReference.AT_MODEM_NO_ANSWER)) {
+            if (!((ModemException) e.getCause()).getType().equals(ModemException.Type.AT_MODEM_NO_ANSWER)) {
                 fail("Should have gotten exception indicating that the modem received a NO ANSWER signal, but was " + e.getMessage());
             }
             assertThat(((ModemException) e.getCause()).getMessageArguments()).contains(comPortName);
-            verify(atModemConnectionType.atModemComponent, times(1)).hangUpComChannel(comChannel);
-            verify(atModemConnectionType.atModemComponent, times(1)).reStoreProfile(comChannel);
-            verify(atModemConnectionType.atModemComponent, never()).sendInitStrings(comChannel);
+            verify(atModemConnectionType.getModemComponent(), times(1)).hangUpComChannel(comChannel);
+            verify(atModemConnectionType.getModemComponent(), times(1)).reStoreProfile(comChannel);
+            verify(atModemConnectionType.getModemComponent(), never()).sendInitStrings(comChannel);
             throw e;
         }
     }
@@ -336,22 +294,19 @@ public class SioAtModemConnectionTypeTest extends AbstractModemTests {
     public void noCarrierErrorTest() throws Exception {
         TestableSerialComChannel comChannel = getTestableComChannel();
         comChannel.setResponses(Arrays.asList(RUBBISH_FOR_FLUSH, "OK", "NO CARRIER"));
-        SioSerialPort sioSerialPort = mock(SioSerialPort.class);
-        getProperlyMockedComPort(comChannel, sioSerialPort);
 
-        SioAtModemConnectionType atModemConnectionType = spy(new SioAtModemConnectionType(propertySpecService));
-        atModemConnectionType.setUPLProperties(getProperProperties());
+        SioAtModemConnectionType atModemConnectionType = createConnectionType(comChannel);
 
         try {
             atModemConnectionType.connect();
         } catch (ConnectionException e) {
-            if (!((ModemException) e.getCause()).getExceptionReference().equals(ProtocolExceptionReference.AT_MODEM_NO_CARRIER)) {
+            if (!((ModemException) e.getCause()).getType().equals(ModemException.Type.AT_MODEM_NO_CARRIER)) {
                 fail("Should have gotten exception indicating that the modem received a NO CARRIER signal, but was " + e.getMessage());
             }
             assertThat(((ModemException) e.getCause()).getMessageArguments()).contains(comPortName);
-            verify(atModemConnectionType.atModemComponent, times(1)).hangUpComChannel(comChannel);
-            verify(atModemConnectionType.atModemComponent, times(1)).reStoreProfile(comChannel);
-            verify(atModemConnectionType.atModemComponent, never()).sendInitStrings(comChannel);
+            verify(atModemConnectionType.getModemComponent(), times(1)).hangUpComChannel(comChannel);
+            verify(atModemConnectionType.getModemComponent(), times(1)).reStoreProfile(comChannel);
+            verify(atModemConnectionType.getModemComponent(), never()).sendInitStrings(comChannel);
             throw e;
         }
     }
@@ -360,22 +315,19 @@ public class SioAtModemConnectionTypeTest extends AbstractModemTests {
     public void noDialtoneErrorTest() throws Exception {
         TestableSerialComChannel comChannel = getTestableComChannel();
         comChannel.setResponses(Arrays.asList(RUBBISH_FOR_FLUSH, "OK", "NO DIALTONE"));
-        SioSerialPort sioSerialPort = mock(SioSerialPort.class);
-        getProperlyMockedComPort(comChannel, sioSerialPort);
 
-        SioAtModemConnectionType atModemConnectionType = spy(new SioAtModemConnectionType(propertySpecService));
-        atModemConnectionType.setUPLProperties(getProperProperties());
+        SioAtModemConnectionType atModemConnectionType = createConnectionType(comChannel);
 
         try {
             atModemConnectionType.connect();
         } catch (ConnectionException e) {
-            if (!((ModemException) e.getCause()).getExceptionReference().equals(ProtocolExceptionReference.AT_MODEM_NO_DIALTONE)) {
+            if (!((ModemException) e.getCause()).getType().equals(ModemException.Type.AT_MODEM_NO_DIALTONE)) {
                 fail("Should have gotten exception indicating that the modem received a NO DIALTONE signal, but was " + e.getMessage());
             }
             assertThat(((ModemException) e.getCause()).getMessageArguments()).contains(comPortName);
-            verify(atModemConnectionType.atModemComponent, times(1)).hangUpComChannel(comChannel);
-            verify(atModemConnectionType.atModemComponent, times(1)).reStoreProfile(comChannel);
-            verify(atModemConnectionType.atModemComponent, never()).sendInitStrings(comChannel);
+            verify(atModemConnectionType.getModemComponent(), times(1)).hangUpComChannel(comChannel);
+            verify(atModemConnectionType.getModemComponent(), times(1)).reStoreProfile(comChannel);
+            verify(atModemConnectionType.getModemComponent(), never()).sendInitStrings(comChannel);
             throw e;
         }
     }
@@ -384,35 +336,29 @@ public class SioAtModemConnectionTypeTest extends AbstractModemTests {
     public void verifyConnectSuccess() throws Exception {
         TestableSerialComChannel comChannel = getTestableComChannel();
         comChannel.setResponses(OK_LIST);
-        SioSerialPort sioSerialPort = mock(SioSerialPort.class);
-        getProperlyMockedComPort(comChannel, sioSerialPort);
 
-        SioAtModemConnectionType atModemConnectionType = spy(new SioAtModemConnectionType(propertySpecService));
-        atModemConnectionType.setUPLProperties(getProperProperties());
+        SioAtModemConnectionType atModemConnectionType = createConnectionType(comChannel);
 
         atModemConnectionType.connect();
 
-        verify(atModemConnectionType.atModemComponent, times(1)).dialModem(comChannel);
+        verify(atModemConnectionType.getModemComponent(), times(1)).dialModem(comChannel);
     }
 
     @Test(timeout = TEST_TIMEOUT_MILLIS, expected = ConnectionException.class)
     public void verifyConnectBusy() throws Exception {
         TestableSerialComChannel comChannel = getTestableComChannel();
         comChannel.setResponses(Arrays.asList(RUBBISH_FOR_FLUSH, "OK", "OK", "OK", "BUSY", "OK", "OK"));
-        SioSerialPort sioSerialPort = mock(SioSerialPort.class);
-        getProperlyMockedComPort(comChannel, sioSerialPort);
 
-        SioAtModemConnectionType atModemConnectionType = spy(new SioAtModemConnectionType(propertySpecService));
-        atModemConnectionType.setUPLProperties(getProperProperties());
+        SioAtModemConnectionType atModemConnectionType = createConnectionType(comChannel);
 
         try {
             atModemConnectionType.connect();
         } catch (ConnectionException e) {
-            if (!((ModemException) e.getCause()).getExceptionReference().equals(ProtocolExceptionReference.AT_MODEM_BUSY)) {
+            if (!((ModemException) e.getCause()).getType().equals(ModemException.Type.AT_MODEM_BUSY)) {
                 fail("Should have gotten exception indicating that the connect failed with a busy command, but was " + e.getMessage());
             }
             assertThat(((ModemException) e.getCause()).getMessageArguments()).contains(comPortName);
-            verify(atModemConnectionType.atModemComponent, times(1)).dialModem(comChannel);
+            verify(atModemConnectionType.getModemComponent(), times(1)).dialModem(comChannel);
             throw e;
         }
     }
@@ -421,34 +367,43 @@ public class SioAtModemConnectionTypeTest extends AbstractModemTests {
     public void testWithNoSelector() throws Exception {
         TestableSerialComChannel comChannel = getTestableComChannel();
         comChannel.setResponses(OK_LIST);
-        SioSerialPort sioSerialPort = mock(SioSerialPort.class);
-        getProperlyMockedComPort(comChannel, sioSerialPort);
 
-        SioAtModemConnectionType atModemConnectionType = spy(new SioAtModemConnectionType(propertySpecService));
-        atModemConnectionType.setUPLProperties(getProperProperties());
+        SioAtModemConnectionType atModemConnectionType = createConnectionType(comChannel);
 
         atModemConnectionType.connect();
 
-        verify(atModemConnectionType.atModemComponent, times(1)).dialModem(comChannel);
-        verify(atModemConnectionType.atModemComponent, never()).sendAddressSelector(comChannel);
+        verify(atModemConnectionType.getModemComponent(), times(1)).dialModem(comChannel);
+        verify(atModemConnectionType.getModemComponent(), never()).sendAddressSelector(comChannel);
     }
 
     @Test(timeout = TEST_TIMEOUT_MILLIS)
     public void testWithAddressSelector() throws Exception {
         TestableSerialComChannel comChannel = getTestableComChannel();
         comChannel.setResponses(OK_LIST);
-        SioSerialPort sioSerialPort = mock(SioSerialPort.class);
-        getProperlyMockedComPort(comChannel, sioSerialPort);
 
-        TypedProperties typedProperties = getProperProperties();
+        TypedProperties typedProperties = com.energyict.protocolimpl.properties.TypedProperties.empty();
         typedProperties.setProperty(TypedAtModemProperties.MODEM_ADDRESS_SELECTOR, "AddressSelect_01");
-        SioAtModemConnectionType atModemConnectionType = spy(new SioAtModemConnectionType(propertySpecService));
-        atModemConnectionType.setUPLProperties(getProperProperties());
+        SioAtModemConnectionType atModemConnectionType = createConnectionType(comChannel, typedProperties);
 
         atModemConnectionType.connect();
 
-        verify(atModemConnectionType.atModemComponent, times(1)).dialModem(comChannel);
-        verify(atModemConnectionType.atModemComponent, times(1)).sendAddressSelector(comChannel);
+        verify(atModemConnectionType.getModemComponent(), times(1)).dialModem(comChannel);
+        verify(atModemConnectionType.getModemComponent(), times(1)).sendAddressSelector(comChannel);
 
+    }
+
+    private SioAtModemConnectionType createConnectionType(TestableSerialComChannel comChannel) throws ConnectionException, PropertyValidationException {
+        return createConnectionType(comChannel, com.energyict.protocolimpl.properties.TypedProperties.empty());
+    }
+
+    private SioAtModemConnectionType createConnectionType(TestableSerialComChannel comChannel, TypedProperties overrides) throws ConnectionException, PropertyValidationException {
+        SioAtModemConnectionType atModemConnectionType = spy(new SioAtModemConnectionType(propertySpecService));
+        TypedProperties properProperties = getProperProperties();
+        properProperties.setAllProperties(overrides);
+        atModemConnectionType.setUPLProperties(properProperties);
+        AtModemComponent atModemComponent = spy(atModemConnectionType.getModemComponent());
+        doReturn(atModemComponent).when(atModemConnectionType).getModemComponent();
+        doReturn(comChannel).when(atModemConnectionType).newSioSerialConnection(any(SerialPortConfiguration.class));
+        return atModemConnectionType;
     }
 }

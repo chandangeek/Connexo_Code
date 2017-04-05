@@ -54,11 +54,16 @@
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
+        </dependency>
 
     </dependencies>
 
     <build>
         <plugins>
+<!--
             <plugin>
                 <groupId>com.github.wvengen</groupId>
                 <artifactId>proguard-maven-plugin</artifactId>
@@ -359,6 +364,7 @@
                     </exclusions>
                 </configuration>
             </plugin>
+-->
 
         </plugins>
     </build>

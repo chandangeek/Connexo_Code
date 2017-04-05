@@ -2,10 +2,11 @@ package com.energyict.mdc.protocol.inbound.general;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
+import com.energyict.mdc.MockDeviceLogBook;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.upl.DeviceMasterDataExtractor;
 import com.energyict.mdc.upl.InboundDeviceProtocol;
-import com.energyict.mdc.upl.Services;
+import com.energyict.mdc.upl.InboundDiscoveryContext;
 import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.meterdata.CollectedData;
@@ -63,6 +64,8 @@ public class RequestDiscoverTest {
     private CollectedRegisterList collectedRegisterList;
     @Mock
     private PropertySpecService propertySpecService;
+    @Mock
+    private InboundDiscoveryContext context;
 
     protected int count;
 
@@ -70,9 +73,10 @@ public class RequestDiscoverTest {
 
     @Before
     public void initialize() {
-        when(Services.collectedDataFactory()).thenReturn(collectedDataFactory);
-
-        when(Services.issueFactory()).thenReturn(issueFactory);
+        context = mock(InboundDiscoveryContext.class);
+        when(context.getCollectedDataFactory()).thenReturn(collectedDataFactory);
+        when(context.getIssueFactory()).thenReturn(issueFactory);
+        when(collectedDataFactory.createCollectedLogBook(any(LogBookIdentifier.class))).thenReturn(new MockDeviceLogBook());
         when(collectedDataFactory.createCollectedRegisterList(any(DeviceIdentifier.class))).thenReturn(this.collectedRegisterList);
     }
 
@@ -231,6 +235,7 @@ public class RequestDiscoverTest {
         properties.setProperty(AbstractDiscover.TIMEOUT_KEY, Duration.ofSeconds(1));
         properties.setProperty(AbstractDiscover.RETRIES_KEY, BigDecimal.ZERO);
         RequestDiscover requestDiscover = new RequestDiscover(propertySpecService, collectedDataFactory, issueFactory);
+        requestDiscover.initializeDiscoveryContext(context);
         requestDiscover.setUPLProperties(properties);
         return requestDiscover;
     }

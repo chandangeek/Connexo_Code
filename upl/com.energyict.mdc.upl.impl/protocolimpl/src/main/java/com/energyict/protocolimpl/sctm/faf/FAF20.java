@@ -7,6 +7,7 @@
 package com.energyict.protocolimpl.sctm.faf;
 
 import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterProtocol;
@@ -33,6 +34,11 @@ public class FAF20 extends Metcom3FAF implements RegisterProtocol {
     public FAF20(PropertySpecService propertySpecService) {
         super(propertySpecService);
         fafRegisters = new FAF20Registers(this);
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "L&G FAF20 SCTM";
     }
 
     @Override

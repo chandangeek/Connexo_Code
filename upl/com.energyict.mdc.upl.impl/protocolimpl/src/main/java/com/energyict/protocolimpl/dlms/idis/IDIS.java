@@ -1,18 +1,5 @@
 package com.energyict.protocolimpl.dlms.idis;
 
-import com.energyict.dlms.DLMSCache;
-import com.energyict.dlms.DLMSConnectionException;
-import com.energyict.dlms.IncrementalInvokeIdAndPriorityHandler;
-import com.energyict.dlms.InvokeIdAndPriority;
-import com.energyict.dlms.InvokeIdAndPriorityHandler;
-import com.energyict.dlms.NonIncrementalInvokeIdAndPriorityHandler;
-import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.aso.ApplicationServiceObject;
-import com.energyict.dlms.axrdencoding.util.DateTime;
-import com.energyict.dlms.cosem.Data;
-import com.energyict.dlms.cosem.ProfileGeneric;
-import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
-import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.upl.cache.CacheMechanism;
 import com.energyict.mdc.upl.io.NestedIOException;
 import com.energyict.mdc.upl.messages.legacy.Message;
@@ -26,6 +13,20 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
+
+import com.energyict.dlms.DLMSCache;
+import com.energyict.dlms.DLMSConnectionException;
+import com.energyict.dlms.IncrementalInvokeIdAndPriorityHandler;
+import com.energyict.dlms.InvokeIdAndPriority;
+import com.energyict.dlms.InvokeIdAndPriorityHandler;
+import com.energyict.dlms.NonIncrementalInvokeIdAndPriorityHandler;
+import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.aso.ApplicationServiceObject;
+import com.energyict.dlms.axrdencoding.util.DateTime;
+import com.energyict.dlms.cosem.Data;
+import com.energyict.dlms.cosem.ProfileGeneric;
+import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.MessageResult;
@@ -294,6 +295,11 @@ public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, Cache
     @Override
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
         return new RegisterInfo("");
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "Elster AM500 DLMS (IDIS P1)";
     }
 
     @Override

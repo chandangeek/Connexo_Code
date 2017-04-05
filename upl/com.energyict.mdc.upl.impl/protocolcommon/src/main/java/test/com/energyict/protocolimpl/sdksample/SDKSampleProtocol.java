@@ -10,9 +10,6 @@
 
 package test.com.energyict.protocolimpl.sdksample;
 
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
-import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.cache.CachingProtocol;
@@ -31,6 +28,10 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
+
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
+import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
@@ -378,6 +379,11 @@ public class SDKSampleProtocol extends AbstractProtocol implements MessageProtoc
         getLogger().info("call setTime() (this method is called automatically when needed)");
         getLogger().info("--> sync the metertime with the systemtime here");
         doGenerateCommunication();
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "EnergyICT SDK MeterProtocol";
     }
 
     @Override

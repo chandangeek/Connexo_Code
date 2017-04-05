@@ -237,6 +237,11 @@ public class GEKV2 extends AbstractProtocol implements C12ProtocolLink, SerialNu
     }
 
     @Override
+    public String getProtocolDescription() {
+        return "General Electric KV2 ANSI";
+    }
+
+    @Override
     public String getProtocolVersion() {
         return "$Date: 2015-11-26 15:25:13 +0200 (Thu, 26 Nov 2015)$";
     }

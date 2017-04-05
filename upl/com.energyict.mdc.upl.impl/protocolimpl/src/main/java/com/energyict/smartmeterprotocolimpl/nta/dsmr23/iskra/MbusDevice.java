@@ -8,6 +8,7 @@ import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
+
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractNtaMbusDevice;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages.Dsmr23MbusMessaging;
@@ -26,6 +27,11 @@ public class MbusDevice extends AbstractNtaMbusDevice {
     @Override
     public MessageProtocol getMessageProtocol() {
         return new Dsmr23MbusMessaging();
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "Iskraemeco Mx382 DLMS (NTA DSMR2.3) Mbus Slave";
     }
 
     @Override

@@ -1,6 +1,5 @@
 package com.energyict.protocolimpl.elster.a1800;
 
-import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.mdc.upl.messages.legacy.Message;
 import com.energyict.mdc.upl.messages.legacy.MessageAttribute;
 import com.energyict.mdc.upl.messages.legacy.MessageAttributeSpec;
@@ -17,6 +16,8 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
+
+import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.protocol.HalfDuplexEnabler;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.MessageResult;
@@ -125,7 +126,12 @@ public class A1800 extends AlphaA3 implements MessageProtocol, HalfDuplexEnabler
         return "$Date: Wed Dec 28 16:35:58 2016 +0100 $";
     }
 
-    @Override
+	@Override
+	public String getProtocolDescription() {
+		return "Elster Alpha A1800 ANSI";
+	}
+
+	@Override
 	public void applyMessages(List messageEntries) throws IOException {
 	}
 

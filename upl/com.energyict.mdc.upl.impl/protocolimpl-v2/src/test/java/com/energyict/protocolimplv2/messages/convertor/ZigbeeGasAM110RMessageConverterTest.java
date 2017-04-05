@@ -18,13 +18,15 @@ import java.nio.charset.Charset;
 import java.text.ParseException;
 
 import static junit.framework.Assert.assertEquals;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
  * Created by cisac on 8/17/2015.
  */
-public class ZigbeeGasAM110RMessageConverterTest extends AbstractMessageConverterTest {
+public class ZigbeeGasAM110RMessageConverterTest extends AbstractV2MessageConverterTest {
 
     @Test
     public void testMessageConversion() {
@@ -89,11 +91,11 @@ public class ZigbeeGasAM110RMessageConverterTest extends AbstractMessageConverte
 
         offlineDeviceMessage = createMessage(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
-        assertEquals("<FirmwareUpgrade><IncludedFile>Content</IncludedFile></FirmwareUpgrade>", messageEntry.getContent());
+        assertEquals("<FirmwareUpgrade><IncludedFile>path</IncludedFile></FirmwareUpgrade>", messageEntry.getContent());
 
         offlineDeviceMessage = createMessage(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
-        assertEquals("<FirmwareUpgrade><IncludedFile>Content</IncludedFile><ActivationDate>28/10/2013 10:00:00</ActivationDate></FirmwareUpgrade>", messageEntry.getContent());
+        assertEquals("<FirmwareUpgrade><IncludedFile>path</IncludedFile><ActivationDate>28/10/2013 10:00:00</ActivationDate></FirmwareUpgrade>", messageEntry.getContent());
 
     }
 
@@ -118,9 +120,10 @@ public class ZigbeeGasAM110RMessageConverterTest extends AbstractMessageConverte
                 case DeviceMessageConstants.StandingChargeAttributeName:
                     return new BigDecimal(1);
                 case DeviceMessageConstants.firmwareUpdateFileAttributeName:
+                    return "path";
                 case DeviceMessageConstants.contractsXmlUserFileAttributeName:
                     DeviceMessageFile mockedUserFile = mock(DeviceMessageFile.class);
-                    when(deviceMessageFileExtractor.binaryContents(mockedUserFile)).thenReturn(("Content".getBytes(Charset.forName("UTF-8"))));
+                    when(deviceMessageFileExtractor.contents(eq(mockedUserFile), any(Charset.class))).thenReturn(("Content"));
                     return mockedUserFile;
                 case DeviceMessageConstants.firmwareUpdateActivationDateAttributeName:
                 case DeviceMessageConstants.PricingInformationActivationDateAttributeName:

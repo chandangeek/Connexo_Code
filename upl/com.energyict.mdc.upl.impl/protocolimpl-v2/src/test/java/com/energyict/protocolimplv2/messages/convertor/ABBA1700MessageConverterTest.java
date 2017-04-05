@@ -21,7 +21,7 @@ import static junit.framework.Assert.assertEquals;
  * @since 25/10/13 - 10:12
  */
 @RunWith(MockitoJUnitRunner.class)
-public class ABBA1700MessageConverterTest extends AbstractMessageConverterTest {
+public class ABBA1700MessageConverterTest extends AbstractV2MessageConverterTest {
 
     @Test
     public void testMessageConversion() {

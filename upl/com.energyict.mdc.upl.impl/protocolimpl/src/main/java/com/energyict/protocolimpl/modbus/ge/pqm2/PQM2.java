@@ -53,6 +53,11 @@ public class PQM2 extends Modbus implements SerialNumberSupport {
     }
 
     @Override
+    public String getProtocolDescription() {
+        return "GE PQM2 Modbus";
+    }
+
+    @Override
     public String getProtocolVersion() {
         return "$Date: 2015-11-26 15:23:42 +0200 (Thu, 26 Nov 2015)$";
     }

@@ -43,6 +43,11 @@ public class Sharky770 extends MBus {
     }
 
     @Override
+    public String getProtocolDescription() {
+        return "Hydrometer Sharky 770 Mbus";
+    }
+
+    @Override
     public String getFirmwareVersion() {
         return "NOT YET IMPLEMENTED";
     }

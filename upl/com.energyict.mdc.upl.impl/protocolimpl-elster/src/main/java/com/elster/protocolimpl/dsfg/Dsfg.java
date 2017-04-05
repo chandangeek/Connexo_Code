@@ -1,15 +1,19 @@
 package com.elster.protocolimpl.dsfg;
 
-import com.elster.protocolimpl.nls.PropertyTranslationKeys;
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.nls.NlsService;
-import com.energyict.mdc.upl.properties.*;
+import com.energyict.mdc.upl.properties.InvalidPropertyException;
+import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.elster.protocolimpl.dsfg.connection.DsfgConnection;
 import com.elster.protocolimpl.dsfg.objects.AbstractObject;
 import com.elster.protocolimpl.dsfg.profile.ArchiveRecordConfig;
 import com.elster.protocolimpl.dsfg.profile.DsfgProfile;
 import com.elster.protocolimpl.dsfg.register.DsfgRegisterReader;
+import com.elster.protocolimpl.nls.PropertyTranslationKeys;
 import com.energyict.cbo.Quantity;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProfileData;
@@ -125,6 +129,11 @@ public class Dsfg extends PluggableMeterProtocol implements RegisterProtocol, Pr
     @Override
     public String getProtocolVersion() {
         return "$Date: 2014-10-30 12:00:00 +0100$";
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "Elster DsfG";
     }
 
     @Override

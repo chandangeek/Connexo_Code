@@ -6,8 +6,6 @@
 
 package com.energyict.protocolimpl.iec870.datawatt;
 
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.nls.TranslationKey;
@@ -17,6 +15,9 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
+
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.iec870.IEC870Connection;
@@ -152,6 +153,11 @@ public class DataWatt extends PluggableMeterProtocol implements IEC870ProtocolLi
     @Override
     public String getProtocolVersion() {
         return "$Date: 2014-06-02 13:26:25 +0200 (Mon, 02 Jun 2014) $";
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "DataWatt D15 IEC870-5-101";
     }
 
     @Override

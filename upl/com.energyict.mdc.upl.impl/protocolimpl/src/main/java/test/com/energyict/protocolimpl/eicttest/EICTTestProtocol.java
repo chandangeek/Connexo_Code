@@ -10,9 +10,6 @@
 
 package test.com.energyict.protocolimpl.eicttest;
 
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
-import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.cache.CachingProtocol;
 import com.energyict.mdc.upl.messages.legacy.Message;
@@ -30,6 +27,10 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
+
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
+import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
@@ -578,10 +579,13 @@ public class EICTTestProtocol extends AbstractProtocol implements MessageProtoco
     }
 
     @Override
+    public String getProtocolDescription() {
+        return "EnergyICT Test Protocol";
+    }
+
+    @Override
     public String getProtocolVersion() {
-        //getLogger().info("call getProtocolVersion()");
         return "$Date: Wed Dec 28 16:35:58 2016 +0100 $";
-        //return "EICT Test protocol version";
     }
 
     @Override

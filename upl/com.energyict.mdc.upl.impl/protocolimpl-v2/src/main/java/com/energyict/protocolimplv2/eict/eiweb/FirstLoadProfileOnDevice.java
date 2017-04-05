@@ -24,10 +24,9 @@ public class FirstLoadProfileOnDevice implements LoadProfileIdentifier {
     private final ObisCode profileObisCode;
     private final DeviceIdentifier deviceIdentifier;
 
-    /**
-     * Constructor only to be used by JSON (de)marshalling
-     */
-    private FirstLoadProfileOnDevice() {
+    // For JSON serialization only
+    @SuppressWarnings("unused")
+    public FirstLoadProfileOnDevice() {
         this.profileObisCode = null;
         this.deviceIdentifier = null;
     }

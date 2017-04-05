@@ -206,6 +206,11 @@ public class Quantum1000 extends AbstractProtocol implements ProtocolLink, Seria
     }
 
     @Override
+    public String getProtocolDescription() {
+        return "Itron/Schlumberger Quantum1000";
+    }
+
+    @Override
     public String getProtocolVersion() {
         return "$Date: 2016-07-11 09:48:56 +0300 (Mon, 11 Jul 2016)$";
     }

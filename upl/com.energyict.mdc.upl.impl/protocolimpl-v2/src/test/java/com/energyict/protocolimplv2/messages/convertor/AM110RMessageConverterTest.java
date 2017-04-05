@@ -19,7 +19,6 @@ import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
-import java.nio.charset.Charset;
 import java.text.ParseException;
 
 import static junit.framework.Assert.assertEquals;
@@ -30,7 +29,7 @@ import static org.mockito.Mockito.when;
  * Created by cisac on 8/17/2015.
  */
 @RunWith(MockitoJUnitRunner.class)
-public class AM110RMessageConverterTest extends AbstractMessageConverterTest {
+public class AM110RMessageConverterTest extends AbstractV2MessageConverterTest {
 
     @Test
     public void testMessageConversion() {
@@ -113,19 +112,19 @@ public class AM110RMessageConverterTest extends AbstractMessageConverterTest {
 
         offlineDeviceMessage = createMessage(ZigBeeConfigurationDeviceMessage.ZigBeeNCPFirmwareUpdateWithUserFile);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
-        assertEquals("<ZigBeeNCPFirmwareUpgrade><IncludedFile>Content</IncludedFile></ZigBeeNCPFirmwareUpgrade>", messageEntry.getContent());
+        assertEquals("<ZigBeeNCPFirmwareUpgrade><IncludedFile>path</IncludedFile></ZigBeeNCPFirmwareUpgrade>", messageEntry.getContent());
 
         offlineDeviceMessage = createMessage(ZigBeeConfigurationDeviceMessage.ZigBeeNCPFirmwareUpdateWithUserFileAndActivate);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
-        assertEquals("<ZigBeeNCPFirmwareUpgrade><IncludedFile>Content</IncludedFile><ActivationDate>28/10/2013 10:30:00</ActivationDate></ZigBeeNCPFirmwareUpgrade>", messageEntry.getContent());
+        assertEquals("<ZigBeeNCPFirmwareUpgrade><IncludedFile>path</IncludedFile><ActivationDate>28/10/2013 10:30:00</ActivationDate></ZigBeeNCPFirmwareUpgrade>", messageEntry.getContent());
 
         offlineDeviceMessage = createMessage(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
-        assertEquals("<FirmwareUpgrade><IncludedFile>Content</IncludedFile></FirmwareUpgrade>", messageEntry.getContent());
+        assertEquals("<FirmwareUpgrade><IncludedFile>path</IncludedFile></FirmwareUpgrade>", messageEntry.getContent());
 
         offlineDeviceMessage = createMessage(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
-        assertEquals("<FirmwareUpgrade><IncludedFile>Content</IncludedFile><ActivationDate>28/10/2013 10:30:00</ActivationDate></FirmwareUpgrade>", messageEntry.getContent());
+        assertEquals("<FirmwareUpgrade><IncludedFile>path</IncludedFile><ActivationDate>28/10/2013 10:30:00</ActivationDate></FirmwareUpgrade>", messageEntry.getContent());
 
     }
 
@@ -176,9 +175,7 @@ public class AM110RMessageConverterTest extends AbstractMessageConverterTest {
                     return false;
                 case DeviceMessageConstants.ZigBeeConfigurationFirmwareUpdateFileAttributeName:
                 case DeviceMessageConstants.firmwareUpdateFileAttributeName:
-                    DeviceMessageFile deviceMessageFile1 = mock(DeviceMessageFile.class);
-                    when(deviceMessageFileExtractor.binaryContents(deviceMessageFile1)).thenReturn("Content".getBytes(Charset.forName("UTF-8")));
-                    return deviceMessageFile1;
+                    return "path";
                 case DeviceMessageConstants.ZigBeeConfigurationHANRestoreUserFileAttributeName:
                     DeviceMessageFile deviceMessageFile2 = mock(DeviceMessageFile.class);
                     when(deviceMessageFileExtractor.id(deviceMessageFile2)).thenReturn("10");

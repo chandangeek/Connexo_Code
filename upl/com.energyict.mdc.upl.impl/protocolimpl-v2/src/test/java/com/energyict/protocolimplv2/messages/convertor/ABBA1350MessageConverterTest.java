@@ -16,6 +16,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.nio.charset.Charset;
 
 import static junit.framework.Assert.assertEquals;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -27,7 +29,7 @@ import static org.mockito.Mockito.when;
  * @since 25/10/13 - 9:40
  */
 @RunWith(MockitoJUnitRunner.class)
-public class ABBA1350MessageConverterTest extends AbstractMessageConverterTest {
+public class ABBA1350MessageConverterTest extends AbstractV2MessageConverterTest {
 
     @Test
     public void testMessageConversion() {
@@ -58,11 +60,11 @@ public class ABBA1350MessageConverterTest extends AbstractMessageConverterTest {
         switch (propertySpec.getName()) {
             case DeviceMessageConstants.SwitchPointClockSettings:
                 DeviceMessageFile deviceMessageFile1 = mock(DeviceMessageFile.class);
-                when(deviceMessageFileExtractor.binaryContents(deviceMessageFile1)).thenReturn("content_SPC".getBytes(Charset.forName("UTF-8")));
+                when(deviceMessageFileExtractor.contents(eq(deviceMessageFile1), any(Charset.class))).thenReturn("content_SPC");
                 return deviceMessageFile1;
             case DeviceMessageConstants.SwitchPointClockUpdateSettings:
                 DeviceMessageFile deviceMessageFile2 = mock(DeviceMessageFile.class);
-                when(deviceMessageFileExtractor.binaryContents(deviceMessageFile2)).thenReturn("content_SPCU".getBytes(Charset.forName("UTF-8")));
+                when(deviceMessageFileExtractor.contents(eq(deviceMessageFile2), any(Charset.class))).thenReturn("content_SPCU");
                 return deviceMessageFile2;
             default:
                 return "0";

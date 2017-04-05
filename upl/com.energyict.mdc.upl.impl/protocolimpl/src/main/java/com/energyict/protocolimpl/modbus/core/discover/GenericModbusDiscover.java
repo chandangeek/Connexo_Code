@@ -27,8 +27,6 @@ import java.util.Date;
 @Deprecated //Never released, technical class
 public class GenericModbusDiscover extends Modbus {
 
-    final int DEBUG=0;
-
     public GenericModbusDiscover(PropertySpecService propertySpecService, NlsService nlsService) {
         super(propertySpecService, nlsService);
     }
@@ -55,6 +53,11 @@ public class GenericModbusDiscover extends Modbus {
     @Override
     public String getProtocolVersion() {
         return "$Revision: 1.4 $";
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "Generic Modbus";
     }
 
     @Override

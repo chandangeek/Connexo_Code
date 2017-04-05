@@ -23,7 +23,7 @@ import static junit.framework.Assert.assertEquals;
  * @since 29/10/13 - 10:19
  */
 @RunWith(MockitoJUnitRunner.class)
-public class IskraMx372MBusDeviceMessageConverterTest extends AbstractMessageConverterTest {
+public class IskraMx372MBusDeviceMessageConverterTest extends AbstractV2MessageConverterTest {
 
     @Test
     public void testMessageConversion() {

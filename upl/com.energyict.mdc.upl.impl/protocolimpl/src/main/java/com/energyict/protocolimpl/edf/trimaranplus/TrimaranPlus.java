@@ -10,7 +10,6 @@
 
 package com.energyict.protocolimpl.edf.trimaranplus;
 
-import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
@@ -18,6 +17,8 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
+
+import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterInfo;
@@ -172,6 +173,11 @@ public class TrimaranPlus extends AbstractProtocol implements ProtocolLink, Seri
     @Override
     public String getProtocolVersion() {
         return "$Date: Wed Dec 28 16:35:58 2016 +0100 $";
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "EDF Trimaran+ ICE";
     }
 
     @Override
