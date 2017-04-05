@@ -1,6 +1,7 @@
 package com.elster.jupiter.pki;
 
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.properties.PropertySpec;
 
 import aQute.bnd.annotation.ProviderType;
 
@@ -95,6 +96,13 @@ public interface PkiService {
      * @return a certificate type builder, allowing you to set the description.
      */
     CertificateTypeBuilder newTrustedCertificateType(String name);
+
+    /**
+     * List the PropertySpecs that can be expected for the described Wrapper type
+     * @param keyAccessorType The key accessor describing the KeyEncryptionMethod and {@link CryptographicType}
+     * @return List of to-be-expected property specs
+     */
+    List<PropertySpec> getPropertySpecs(KeyAccessorType keyAccessorType);
 
     /**
      * Get an existing KeyType by name.

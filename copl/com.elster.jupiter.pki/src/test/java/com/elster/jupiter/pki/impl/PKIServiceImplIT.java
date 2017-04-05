@@ -21,6 +21,7 @@ import com.elster.jupiter.pki.TrustedCertificate;
 import com.elster.jupiter.pki.impl.wrappers.PkiLocalizedException;
 import com.elster.jupiter.pki.impl.wrappers.asymmetric.DataVaultPrivateKeyFactory;
 import com.elster.jupiter.pki.impl.wrappers.symmetric.DataVaultSymmetricKeyFactory;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TimeDuration;
 
 import certpathvalidator.CertPathValidatorTest;
@@ -316,7 +317,7 @@ public class PKIServiceImplIT {
         assertThat(symmetricKeyWrapper.getProperties()).hasSize(1);
         assertThat(symmetricKeyWrapper.getProperties()).containsKey("key");
         assertThat(symmetricKeyWrapper.getPropertySpecs()).hasSize(1);
-        assertThat(symmetricKeyWrapper.getPropertySpecs().get(0).getDisplayName()).isEqualTo("key");
+        assertThat(symmetricKeyWrapper.getPropertySpecs().get(0).getDisplayName()).isEqualTo("Key");
         assertThat(symmetricKeyWrapper.getPropertySpecs().get(0).getDescription()).isEqualTo("Plaintext view of key");
         assertThat(symmetricKeyWrapper.getPropertySpecs().get(0).getValueFactory().getValueType()).isEqualTo(String.class);
         assertThat(symmetricKeyWrapper.getExpirationTime()).isPresent();
@@ -795,6 +796,38 @@ public class PKIServiceImplIT {
         X509Certificate certificate = loadCertificate("myRootCA.cert");
         ts1.addCertificate("myCert3", certificate);
         ClientCertificateWrapper clientCertificateWrapper = inMemoryPersistence.getPkiService().newClientCertificateWrapper(certificateType, "DataVault").alias("myCert3").add();
+    }
+
+    @Test
+    @Transactional
+    public void testGetPropertySpecsCertificate() throws Exception {
+        KeyType certificateType = inMemoryPersistence.getPkiService()
+                .newClientCertificateType("TLS-props", "SHA256withDSA")
+                .DSA()
+                .keySize(512)
+                .add();
+        KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
+        when(keyAccessorType.getKeyType()).thenReturn(certificateType);
+        when(keyAccessorType.getKeyEncryptionMethod()).thenReturn("DataVault");
+        List<PropertySpec> propertySpecs = inMemoryPersistence.getPkiService().getPropertySpecs(keyAccessorType);
+
+        assertThat(propertySpecs).hasSize(1);
+        assertThat(propertySpecs.get(0).getName()).isEqualTo("alias");
+        assertThat(propertySpecs.get(0).getDisplayName()).isEqualTo("Alias");
+    }
+
+    @Test
+    @Transactional
+    public void testGetPropertySpecsSymmetricKey() throws Exception {
+        KeyType created = inMemoryPersistence.getPkiService().newSymmetricKeyType("AES128-props", "AES", 128).add();
+        KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
+        when(keyAccessorType.getKeyType()).thenReturn(created);
+        when(keyAccessorType.getKeyEncryptionMethod()).thenReturn("DataVault");
+        List<PropertySpec> propertySpecs = inMemoryPersistence.getPkiService().getPropertySpecs(keyAccessorType);
+
+        assertThat(propertySpecs).hasSize(1);
+        assertThat(propertySpecs.get(0).getName()).isEqualTo("key");
+        assertThat(propertySpecs.get(0).getDisplayName()).isEqualTo("Key");
     }
 
     private X509Certificate createSelfSignedCertificate(String myself) throws Exception {

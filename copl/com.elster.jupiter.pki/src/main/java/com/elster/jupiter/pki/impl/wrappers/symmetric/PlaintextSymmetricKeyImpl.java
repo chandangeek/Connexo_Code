@@ -167,7 +167,7 @@ public final class PlaintextSymmetricKeyImpl implements PlaintextSymmetricKey {
         ENCRYPTED_KEY("key") {
             public PropertySpec asPropertySpec(PropertySpecService propertySpecService) {
                 return propertySpecService.stringSpec()
-                        .named(getPropertyName(), "key")
+                        .named(getPropertyName(), "Key")
                         .describedAs("Plaintext view of key")
                         .finish();
             }

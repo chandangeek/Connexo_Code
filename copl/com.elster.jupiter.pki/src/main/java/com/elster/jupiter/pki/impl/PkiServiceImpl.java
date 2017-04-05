@@ -28,7 +28,9 @@ import com.elster.jupiter.pki.impl.wrappers.asymmetric.AbstractPlaintextPrivateK
 import com.elster.jupiter.pki.impl.wrappers.certificate.AbstractCertificateWrapperImpl;
 import com.elster.jupiter.pki.impl.wrappers.certificate.ClientCertificateWrapperImpl;
 import com.elster.jupiter.pki.impl.wrappers.certificate.RequestableCertificateWrapperImpl;
+import com.elster.jupiter.pki.impl.wrappers.certificate.TrustedCertificateImpl;
 import com.elster.jupiter.pki.security.Privileges;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
@@ -261,6 +263,26 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider {
     }
 
     @Override
+    public List<PropertySpec> getPropertySpecs(KeyAccessorType keyAccessorType) {
+        switch (keyAccessorType.getKeyType().getCryptographicType()) {
+            case Certificate:
+                return getDataModel().getInstance(RequestableCertificateWrapperImpl.class).getPropertySpecs();
+            case ClientCertificate:
+                return getDataModel().getInstance(ClientCertificateWrapperImpl.class).getPropertySpecs();
+            case TrustedCertificate:
+                return getDataModel().getInstance(TrustedCertificateImpl.class).getPropertySpecs();
+            case SymmetricKey:
+                return getSymmetricKeyFactoryOrThrowException(keyAccessorType.getKeyEncryptionMethod()).getPropertySpecs();
+            case Passphrase:
+                throw new RuntimeException("This is not implemented yet"); // todo implement
+            case AsymmetricKey:
+                return Collections.emptyList(); // There is currently no need for visibility on asymmetric keys
+            default:
+                throw new RuntimeException("A new case was added: implement it");
+        }
+    }
+
+    @Override
     public Optional<KeyType> getKeyType(String name) {
         return this.getDataModel().mapper(KeyType.class).getUnique(KeyTypeImpl.Fields.NAME.fieldName(), name);
     }
@@ -290,10 +312,14 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider {
 
     @Override
     public SymmetricKeyWrapper newSymmetricKeyWrapper(KeyAccessorType keyAccessorType) {
-        if (!symmetricKeyFactories.containsKey(keyAccessorType.getKeyEncryptionMethod())) {
+        return getSymmetricKeyFactoryOrThrowException(keyAccessorType.getKeyEncryptionMethod()).newSymmetricKey(keyAccessorType);
+    }
+
+    private SymmetricKeyFactory getSymmetricKeyFactoryOrThrowException(String keyEncryptionMethod) {
+        if (!symmetricKeyFactories.containsKey(keyEncryptionMethod)) {
             throw new NoSuchKeyEncryptionMethod(thesaurus);
         }
-        return symmetricKeyFactories.get(keyAccessorType.getKeyEncryptionMethod()).newSymmetricKey(keyAccessorType);
+        return symmetricKeyFactories.get(keyEncryptionMethod);
     }
 
     @Override
