@@ -4,13 +4,10 @@
 
 package com.energyict.mdc.device.data.kpi.rest;
 
-import com.energyict.mdc.common.rest.TimeDurationInfo;
+import com.elster.jupiter.time.rest.TimeDurationInfo;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
 
-/**
- * Created by bvn on 12/12/14.
- */
 public class DataCollectionKpiInfoFactory {
 
     public DataCollectionKpiInfo from(DataCollectionKpi kpi) {
