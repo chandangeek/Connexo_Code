@@ -19,6 +19,7 @@ import com.elster.jupiter.rest.util.ConcurrentModificationExceptionMapper;
 import com.elster.jupiter.rest.util.ConcurrentModificationInfo;
 import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
+import com.elster.jupiter.rest.util.JsonMappingExceptionMapper;
 import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
 import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
 import com.elster.jupiter.rest.util.RestQueryService;
@@ -297,6 +298,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         resourceConfig.register(LocalizedFieldValidationExceptionMapper.class);
         resourceConfig.register(LocalizedExceptionMapper.class);
         resourceConfig.register(ConstraintViolationExceptionMapper.class);
+        resourceConfig.register(JsonMappingExceptionMapper.class);
         resourceConfig.register(RestValidationExceptionMapper.class);
         resourceConfig.register(ConcurrentModificationExceptionMapper.class);
         resourceConfig.register(TransactionWrapper.class);
