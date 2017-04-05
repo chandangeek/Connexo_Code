@@ -36,7 +36,7 @@ Ext.define('Imt.metrologyconfiguration.view.DefineMetrologyConfiguration', {
                     items: [
                         {
                             itemId: 'define-metrology-configuration-navigation-step-1',
-                            text: Uni.I18n.translate('defineMetrologyConfiguration.navigation.step1', 'IMT', 'Select metrlogy configuration')
+                            text: Uni.I18n.translate('selectMetrologyConfiguration.navigation.step1', 'IMT', 'Select metrology configuration')
                         }
                     ]
                 }
