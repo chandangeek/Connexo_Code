@@ -405,6 +405,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         return cookie;
     }
 
+    @Override
     public String generateTokenForProcessExecution() {
         User user = userService.findUser("process executor").orElseThrow(() -> new RuntimeException("Process executor account not found"));
         try {

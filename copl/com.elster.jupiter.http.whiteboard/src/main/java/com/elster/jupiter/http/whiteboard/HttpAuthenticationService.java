@@ -21,4 +21,6 @@ public interface HttpAuthenticationService {
     boolean handleSecurity(HttpServletRequest request, HttpServletResponse response) throws IOException;
 
     void logout(HttpServletRequest request, HttpServletResponse response);
+
+    String generateTokenForProcessExecution();
 }
