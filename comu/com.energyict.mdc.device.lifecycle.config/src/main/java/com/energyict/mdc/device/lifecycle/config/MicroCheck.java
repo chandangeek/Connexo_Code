@@ -107,9 +107,7 @@ public enum MicroCheck {
     /**
      * Check if no slaves are linked to the multi-element device.
      */
-    NO_LINKED_MULTI_ELEMENT_SLAVES(MicroCategory.DECOMMISSION);
-    NO_ACTIVE_SERVICE_CALLS(MicroCategory.MONITORING),
-
+    NO_LINKED_MULTI_ELEMENT_SLAVES(MicroCategory.DECOMMISSION),
     /**
      * Checks if the metrology configuration of the usage point is in a correct state (if any)
      */
