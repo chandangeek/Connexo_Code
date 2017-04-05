@@ -113,20 +113,43 @@ public class MasterDataSync {
         return collectedMessage;
     }
 
+    /***
+     * Parses the given {@link Array} of {@link Structure}s into a {@link Map} of {@link Beacon3100DeviceType}s indexed by ID.
+     * 
+     * @param 		deviceTypeArray		The {@link Array} of device type {@link Structure}s.
+     * 
+     * @return		The {@link Map} of {@link Beacon3100DeviceType}s by ID.
+     * 
+     * @throws 		IOException		If an IO error occurs.
+     */
+    private static final Map<Long, Beacon3100DeviceType> parseDeviceTypes(final Array deviceTypeArray) throws IOException {
+    	final Map<Long, Beacon3100DeviceType> deviceTypes = new HashMap<>();
+    	
+    	for (final AbstractDataType dataType : deviceTypeArray) {
+    		final Beacon3100DeviceType deviceType = Beacon3100DeviceType.fromStructure(dataType.getStructure());
+    		
+    		deviceTypes.put(deviceType.getId(), deviceType);
+    	}
+    	
+    	return deviceTypes;
+    }
+    
     private MasterDataAnalyser analyseWhatToSync(AllMasterData allMasterData) throws IOException {
         MasterDataAnalyser masterDataAnalyser = new MasterDataAnalyser();
 
-        final Array deviceTypes = this.getDeviceTypeManager().readDeviceTypes();
+        final Array rawDeviceTypes = this.getDeviceTypeManager().readDeviceTypes();
+        final Map<Long, Beacon3100DeviceType> deviceTypes = parseDeviceTypes(rawDeviceTypes);
         final List<ConcentratorSetup.MeterInfo> meterInfo = this.getConcentratorSetup().getMeterInfo();
-        final Array clientTypes = this.getClientTypeManager().readClients();
+        final Array rawClientTypes = this.getClientTypeManager().readClients();
+        final Array rawSchedules = this.getScheduleManager().readSchedules();
         
-        masterDataAnalyser.analyseClientTypes(deviceTypes, clientTypes, meterInfo, allMasterData.getClientTypes(), this.getIsFirmwareVersion140OrAbove());
+        masterDataAnalyser.analyseClientTypes(deviceTypes, rawClientTypes, meterInfo, allMasterData.getClientTypes(), this.getIsFirmwareVersion140OrAbove());
 
-        masterDataAnalyser.analyseDeviceTypes(getDeviceTypeManager().readDeviceTypes(),
-        		this.getConcentratorSetup().getMeterInfo(),
+        masterDataAnalyser.analyseDeviceTypes(rawDeviceTypes,
+        		meterInfo,
                 allMasterData.getDeviceTypes());
 
-        masterDataAnalyser.analyseSchedules(getScheduleManager().readSchedules(),
+        masterDataAnalyser.analyseSchedules(meterInfo, deviceTypes, rawSchedules,
                 allMasterData.getSchedules());
 
         return masterDataAnalyser;

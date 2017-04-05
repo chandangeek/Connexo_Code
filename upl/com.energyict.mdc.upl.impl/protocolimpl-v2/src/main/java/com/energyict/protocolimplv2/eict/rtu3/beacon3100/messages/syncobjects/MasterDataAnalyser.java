@@ -81,7 +81,9 @@ public class MasterDataAnalyser {
         return deviceTypesToDelete;
     }
 
-    public void analyseSchedules(Array beaconSchedulesArray, List<Beacon3100Schedule> masterDataSchedules) throws IOException {
+    public void analyseSchedules(final List<ConcentratorSetup.MeterInfo> meterInfo, final Map<Long, Beacon3100DeviceType> deviceTypes, Array beaconSchedulesArray, List<Beacon3100Schedule> masterDataSchedules) throws IOException {
+    	final Set<Long> schedulesUsedByMirrors = getSchedulesUsedByMirrors(meterInfo, deviceTypes);
+    	
         HashMap<Long, AbstractDataType> existingSchedules = new HashMap<>();
         Map<Long, Boolean> active = new HashMap<>();
         for (AbstractDataType schedule : beaconSchedulesArray) {
@@ -109,37 +111,17 @@ public class MasterDataAnalyser {
 
         // delete the remaining inactive items
         for (Long scheduleId : active.keySet()){
-            if (!active.get(scheduleId)){
+            if (!active.get(scheduleId) && !schedulesUsedByMirrors.contains(scheduleId)) {
                 // we have to delete this schedule
                 schedulesToDelete.add(scheduleId);
             }
         }
     }
 
-    /***
-     * Parses the given {@link Array} of {@link Structure}s into a {@link Map} of {@link Beacon3100DeviceType}s indexed by ID.
-     * 
-     * @param 		deviceTypeArray		The {@link Array} of device type {@link Structure}s.
-     * 
-     * @return		The {@link Map} of {@link Beacon3100DeviceType}s by ID.
-     * 
-     * @throws 		IOException		If an IO error occurs.
-     */
-    private static final Map<Long, Beacon3100DeviceType> parseDeviceTypes(final Array deviceTypeArray) throws IOException {
-    	final Map<Long, Beacon3100DeviceType> deviceTypes = new HashMap<>();
-    	
-    	for (final AbstractDataType dataType : deviceTypeArray) {
-    		final Beacon3100DeviceType deviceType = Beacon3100DeviceType.fromStructure(dataType.getStructure());
-    		
-    		deviceTypes.put(deviceType.getId(), deviceType);
-    	}
-    	
-    	return deviceTypes;
-    }
 
-    public void analyseClientTypes(final Array deviceTypeArray, Array clientTypesArray, final List<ConcentratorSetup.MeterInfo> existingMirrors, List<Beacon3100ClientType> masterDataClientTypes, boolean isFirmwareVersion140OrAbove) throws IOException {
-    	final Map<Long, Beacon3100DeviceType> devicesTypesOnBeacon = parseDeviceTypes(deviceTypeArray);
-    	final Set<Integer> clientTypesUsedOnTheBeacon = getClientTypesUsedByMirrors(existingMirrors, devicesTypesOnBeacon);
+
+    public void analyseClientTypes(final Map<Long, Beacon3100DeviceType> deviceTypes, Array clientTypesArray, final List<ConcentratorSetup.MeterInfo> existingMirrors, List<Beacon3100ClientType> masterDataClientTypes, boolean isFirmwareVersion140OrAbove) throws IOException {
+    	final Set<Integer> clientTypesUsedOnTheBeacon = getClientTypesUsedByMirrors(existingMirrors, deviceTypes);
     	
         Map<Long, AbstractDataType> existingClientTypes = new HashMap<>();
         Map<Long, Boolean> active = new HashMap<>();
@@ -283,5 +265,29 @@ public class MasterDataAnalyser {
     	}
     	
     	return clientTypes;
+    }
+    
+    /**
+     * Returns all the schedules that are still in use by the Beacon. They cannot be deleted.
+     * 
+     * @param 	mirrors			The mirror devices on the beacon.
+     * @param 	deviceTypes		The device types on the beacon.
+     * 
+     * @return	The {@link Set} of scheduled in use.
+     */
+    private static final Set<Long> getSchedulesUsedByMirrors(final List<ConcentratorSetup.MeterInfo> mirrors, final Map<Long, Beacon3100DeviceType> deviceTypes) {
+    	final Set<Long> schedules = new HashSet<>();
+    	
+    	for (final ConcentratorSetup.MeterInfo mirror : mirrors) {
+    		for (final ConcentratorSetup.DeviceTypeAssignment deviceTypeAssignment : mirror.getDeviceTypeAssignments()) {
+    			final Beacon3100DeviceType deviceType = deviceTypes.get(deviceTypeAssignment.getDeviceTypeId());
+    			
+    			for (final Beacon3100Schedulable schedulable : deviceType.getSchedulables()) {
+    				schedules.add(schedulable.getScheduleId());
+    			}
+    		}
+    	}
+    	
+    	return schedules;
     }
 }

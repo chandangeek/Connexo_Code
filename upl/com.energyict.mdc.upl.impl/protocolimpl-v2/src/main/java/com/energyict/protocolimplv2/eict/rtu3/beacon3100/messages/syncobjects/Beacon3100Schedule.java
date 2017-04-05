@@ -7,6 +7,8 @@ import com.energyict.dlms.axrdencoding.Unsigned32;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
+
+import java.io.IOException;
 import java.util.Arrays;
 
 /**
@@ -17,6 +19,23 @@ import java.util.Arrays;
  */
 @XmlRootElement
 public class Beacon3100Schedule {
+	
+	/**
+	 * Converts a {@link Structure} received from the device to a {@link Beacon3100Schedule}.
+	 * 
+	 * @param 		structure		The {@link Structure} received.
+	 * 
+	 * @return		The {@link Beacon3100Schedule}.
+	 * 
+	 * @throws 		IOException		If an IO error occurs.
+	 */
+	public static final Beacon3100Schedule fromStructure(final Structure structure) throws IOException {
+		final long id = structure.getDataType(0, Unsigned32.class).longValue();
+		final String name = structure.getDataType(1, OctetString.class).stringValue();
+		final String cronSpec = structure.getDataType(2, OctetString.class).stringValue();
+		
+		return new Beacon3100Schedule(id, name, cronSpec);
+	}
 
     public long id;
     public String name;
