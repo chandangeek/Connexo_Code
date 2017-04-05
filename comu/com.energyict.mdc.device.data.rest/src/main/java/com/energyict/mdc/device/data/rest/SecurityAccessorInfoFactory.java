@@ -6,6 +6,7 @@ package com.energyict.mdc.device.data.rest;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.device.data.CertificateAccessor;
 import com.energyict.mdc.device.data.KeyAccessor;
 import com.energyict.mdc.device.data.rest.impl.SecurityAccessorInfo;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
@@ -38,6 +39,10 @@ public class SecurityAccessorInfoFactory {
         TypedProperties tempTypedProperties = TypedProperties.empty();
         keyAccessor.getTempValue().ifPresent(ka->ka.getProperties().entrySet().forEach(e->tempTypedProperties.setProperty(e.getKey(),e.getValue())));
         info.tempProperties = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(propertySpecs, tempTypedProperties);
+
+        if (keyAccessor instanceof CertificateAccessor) {
+            ((CertificateAccessor)keyAccessor).getActualValue().getLastReadDate().ifPresent(date -> info.lastReadDate = date);
+        }
 
         return info;
     }
