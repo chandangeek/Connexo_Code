@@ -53,7 +53,7 @@ public class WorkGroupBuilder extends NamedBuilder<WorkGroup, WorkGroupBuilder> 
     public WorkGroup create() {
         Log.write(this);
         WorkGroup workGroup = userService.getWorkGroup(getName()).orElse(null);
-        List<String> eligibleUsers = users.stream().map(UserTpl::name).collect(Collectors.toList());
+        List<String> eligibleUsers = users.stream().map(UserTpl::getName).collect(Collectors.toList());
         if(workGroup == null){
             workGroup = userService.createWorkGroup(getName(), this.description);
             userService.getUsers().stream()
