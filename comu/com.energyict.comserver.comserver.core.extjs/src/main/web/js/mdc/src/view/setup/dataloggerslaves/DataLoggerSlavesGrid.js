@@ -52,6 +52,7 @@ Ext.define('Mdc.view.setup.dataloggerslaves.DataLoggerSlavesGrid', {
             },
             {
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 menu: {
                     xtype: 'dataloggerslaves-action-menu',
                     itemId: 'mdc-dataloggerslaves-action-menu'

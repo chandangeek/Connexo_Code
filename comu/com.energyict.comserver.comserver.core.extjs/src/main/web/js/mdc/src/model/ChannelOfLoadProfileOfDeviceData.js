@@ -13,6 +13,7 @@ Ext.define('Mdc.model.ChannelOfLoadProfileOfDeviceData', {
         {name: 'collectedValue', type: 'float', useNull: true},
         {name: 'intervalFlags', type: 'auto'},
         {name: 'validationStatus', type: 'auto'},
+        {name: 'estimatedNotSaved', type: 'auto'},
         {name: 'validationActive', type: 'auto'},
         {name: 'mainValidationInfo', type: 'auto'},
         {name: 'bulkValidationInfo', type: 'auto'},
@@ -55,6 +56,17 @@ Ext.define('Mdc.model.ChannelOfLoadProfileOfDeviceData', {
                     main: data.mainValidationInfo ? data.mainValidationInfo.validationResult.split('.')[1] : '',
                     bulk: data.bulkValidationInfo ? data.bulkValidationInfo.validationResult.split('.')[1] : ''
                 }
+            }
+        },
+        {
+            name: 'estimatedNotSaved',
+            persist: false,
+            mapping: function (data) {
+                return data.mainValidationInfo && data.mainValidationInfo.estimatedNotSaved
+                        ? true
+                        : data.bulkValidationInfo && data.bulkValidationInfo.estimatedNotSaved
+                            ? true
+                            : false
             }
         },
         {

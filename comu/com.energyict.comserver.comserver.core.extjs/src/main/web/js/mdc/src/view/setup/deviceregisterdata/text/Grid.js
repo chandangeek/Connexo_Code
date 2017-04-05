@@ -40,7 +40,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.text.Grid', {
                 emptyText: ' '
             },
             {
-                header: Uni.I18n.translate('device.registerData.lastUpdate', 'MDC', 'Last update'),
+                header: Uni.I18n.translate('device.registerData.lastUpdate', 'MDC', 'Last updated'),
                 dataIndex: 'reportedDateTime',
                 flex: 1,
                 renderer: function(value){
@@ -50,6 +50,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.text.Grid', {
             },
             {
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 privileges: Mdc.privileges.Device.administrateDeviceData,
                 dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.deviceDataEditActions,
                 menu: {

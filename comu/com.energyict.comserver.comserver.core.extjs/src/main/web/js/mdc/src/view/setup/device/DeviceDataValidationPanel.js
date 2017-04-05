@@ -84,7 +84,7 @@ Ext.define('Mdc.view.setup.device.DeviceDataValidationPanel', {
                             {
                                 fieldLabel: Uni.I18n.translate('device.lastValidationRun', 'MDC', 'Last validation run'),
                                 itemId: 'lastValidationCont',
-                                name: 'lastChecked',
+                                name: 'lastRun',
                                 renderer: function (value) {
                                     return Ext.String.format(
                                         '<span style="display: inline-block; float: left; margin: 0px 10px 0px 0px">{0}</span>' +

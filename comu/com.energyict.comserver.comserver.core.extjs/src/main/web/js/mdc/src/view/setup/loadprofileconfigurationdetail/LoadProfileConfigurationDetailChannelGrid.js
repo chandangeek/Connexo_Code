@@ -35,6 +35,7 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
             },
             {
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 items: [
 
                     {

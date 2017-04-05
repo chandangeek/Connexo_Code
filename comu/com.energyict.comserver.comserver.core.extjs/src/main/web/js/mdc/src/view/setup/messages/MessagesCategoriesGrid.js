@@ -21,6 +21,7 @@ Ext.define('Mdc.view.setup.messages.MessagesCategoriesGrid', {
             },
             {
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 privileges: Mdc.privileges.DeviceType.admin,
                 menu: {
                     xtype: 'menu',

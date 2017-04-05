@@ -88,7 +88,8 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.text.Detail', {
                                     },
                                     {
                                         fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.latestValue', 'MDC', 'Latest value'),
-                                        name: 'value'
+                                        name: 'value',
+                                        width: 450
                                     }
                                 ]
                             },

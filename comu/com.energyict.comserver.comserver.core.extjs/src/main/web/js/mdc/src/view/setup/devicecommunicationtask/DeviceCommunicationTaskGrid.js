@@ -120,6 +120,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.DeviceCommunicationTaskGrid',
             },
             {
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 menu: {
                     xtype: 'device-communication-task-action-menu'
                 }

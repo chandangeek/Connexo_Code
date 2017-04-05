@@ -42,6 +42,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeGrid', {
             me.columns.push(
                 {
                     xtype: 'uni-actioncolumn',
+                    width: 120,
                     privileges: Mdc.privileges.MasterData.admin,
                     menu: {xtype: 'register-type-action-menu'}
                 }

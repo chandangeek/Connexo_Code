@@ -35,7 +35,7 @@ Ext.define('Mdc.timeofuse.view.CalendarsGrid', {
                 menu: {
                     xtype: 'tou-devicetype-action-menu'
                 },
-                flex: 0.7
+                width: 120
             }
         ];
 

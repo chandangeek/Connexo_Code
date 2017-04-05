@@ -48,6 +48,7 @@ Ext.define('Mdc.view.setup.devicedataestimation.RulesSetGrid', {
             },
             {
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 menu: {
                     xtype: 'deviceDataEstimationRulesSetActionMenu'
                 },

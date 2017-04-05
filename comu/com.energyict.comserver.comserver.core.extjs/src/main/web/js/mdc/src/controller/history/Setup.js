@@ -506,9 +506,17 @@ Ext.define('Mdc.controller.history.Setup', {
                                             action: 'showDeviceRegisterConfigurationDataEditView',
                                             dynamicPrivilegeStores: Mdc.dynamicprivileges.Stores.deviceStateStore,
                                             dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.deviceDataEditActions
+                                        },
+                                        history: {
+                                            title: Uni.I18n.translate('general.history', 'MDC', 'History'),
+                                            route: 'history',
+                                            controller: 'Mdc.controller.setup.DeviceRegisterHistoryData',
+                                            privileges: Mdc.privileges.Device.administrateDevice,
+                                            action: 'viewHistory'
                                         }
                                     }
                                 },
+
                                 tab: {
                                     title: Uni.I18n.translate('general.registers', 'MDC', 'Registers'),
                                     route: 'tab/:tab:',
@@ -922,6 +930,15 @@ Ext.define('Mdc.controller.history.Setup', {
                                             return true;
                                         }, {single: true});
                                         return this;
+                                    },
+                                    items: {
+                                        history: {
+                                            title: Uni.I18n.translate('general.history', 'MDC', 'History'),
+                                            route: 'history',
+                                            controller: 'Mdc.controller.setup.DeviceChannelData',
+                                            privileges: Mdc.privileges.Device.administrateDevice,
+                                            action: 'viewHistory'
+                                        }
                                     }
                                 },
                                 channelvalidationblocks: {

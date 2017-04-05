@@ -70,6 +70,7 @@ Ext.define('Mdc.view.setup.devicechannels.Grid', {
         me.columns.push(
             {
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 menu: {
                     xtype: 'deviceLoadProfileChannelsActionMenu',
                     itemId: 'channelActionMenu'

@@ -93,23 +93,23 @@ Ext.define('Mdc.view.setup.device.DeviceAdd', {
                             maxLength: 80,
                             enforceMaxLength: true
                         },
-                        {
-                            xtype: 'textfield',
-                            name: 'modelNbr',
-                            itemId: 'deviceAddModelNumber',
-                            fieldLabel: Uni.I18n.translate('deviceAdd.modelNumber', 'MDC', 'Model number'),
-                            maxLength: 80,
-                            enforceMaxLength: true
-                        },
-                        {
-                            xtype: 'textfield',
-                            name: 'modelVersion',
-                            itemId: 'deviceAddModelVersion',
-                            fieldLabel: Uni.I18n.translate('deviceAdd.modelVersion', 'MDC', 'Model version'),
-                            maxLength: 80,
-                            enforceMaxLength: true
-                        },
-                        {
+                            {
+                                xtype: 'textfield',
+                                name: 'modelNbr',
+                                itemId: 'deviceAddModelNumber',
+                                fieldLabel: Uni.I18n.translate('deviceAdd.modelNumber', 'MDC', 'Model number'),
+                                maxLength: 80,
+                                enforceMaxLength: true
+                            },
+                            {
+                                xtype: 'textfield',
+                                name: 'modelVersion',
+                                itemId: 'deviceAddModelVersion',
+                                fieldLabel: Uni.I18n.translate('deviceAdd.modelVersion', 'MDC', 'Model version'),
+                                maxLength: 80,
+                                enforceMaxLength: true
+                            },
+                            {
                             xtype: 'datefield',
                             itemId: 'deviceAddShipmentDate',
                             allowBlank: false,

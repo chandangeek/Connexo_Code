@@ -63,7 +63,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
             me[operation + 'RegisterDataRecord'](form.getValues(), {operation: operation});
         } else {
             me.clearPreLoader();
-            me.showErrorPanel();
+            form.down('#registerDataEditFormErrors').show();
         }
     },
 
@@ -165,11 +165,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
                 failure: function (record, resp) {
                     var response = resp.response;
                     if (response.status == 400) {
-                        var responseText = Ext.decode(response.responseText, true);
-                        if (responseText && !Ext.isEmpty(responseText.errors)) {
-                            me.getRegisterDataEditForm().getForm().markInvalid(responseText.errors);
-                            me.showErrorPanel();
-                        }
+                        me.showErrorPanel();
                     }
                 },
                 callback: function () {
@@ -201,7 +197,10 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
             lastSelected = grid.getView().getSelectionModel().getLastSelected(),
             router = me.getController('Uni.controller.history.Router');
 
-        router.getRoute('devices/device/registers/registerdata/edit').forward({registerId: grid.registerId, timestamp: lastSelected.getData().timeStamp});
+        router.getRoute('devices/device/registers/registerdata/edit').forward({
+            registerId: grid.registerId,
+            timestamp: lastSelected.getData().timeStamp
+        });
     },
 
     showDeviceRegisterConfigurationDataEditView: function (deviceId, registerId, timestamp) {
@@ -242,7 +241,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
                                 me.getApplication().fireEvent('changecontentevent', widget);
                                 widget.down('#stepsMenu').setTitle(
                                     Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}',
-                                        [ Uni.DateTime.formatDateShort(new Date(reading.get('timeStamp'))), Uni.DateTime.formatTimeShort(new Date(reading.get('timeStamp')))]
+                                        [Uni.DateTime.formatDateShort(new Date(reading.get('timeStamp'))), Uni.DateTime.formatTimeShort(new Date(reading.get('timeStamp')))]
                                     )
                                 );
                                 widget.down('#stepsMenu #editReading').setText(Uni.I18n.translate('device.registerData.editReading', 'MDC', 'Edit reading'));
@@ -274,7 +273,10 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
                         var type = register.get('type');
                         var widget = Ext.widget('deviceregisterreportedit-' + type, {
                             edit: false,
-                            returnLink: router.getRoute('devices/device/registers/registerdata').buildUrl({deviceId: encodeURIComponent(deviceId), registerId: registerId}),
+                            returnLink: router.getRoute('devices/device/registers/registerdata').buildUrl({
+                                deviceId: encodeURIComponent(deviceId),
+                                registerId: registerId
+                            }),
                             registerType: type,
                             deviceId: deviceId,
                             registerId: registerId,
@@ -315,22 +317,20 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
         var me = this,
             formErrorsPlaceHolder = me.getDeviceregisterreportedit().down('#registerDataEditForm #registerDataEditFormErrors');
 
-        formErrorsPlaceHolder.hide();
         Ext.suspendLayouts();
-        formErrorsPlaceHolder.removeAll();
-        formErrorsPlaceHolder.add({
-            html: Uni.I18n.translate('general.formErrors', 'MDC', 'There are errors on this page that require your attention.')
-        });
-        Ext.resumeLayouts();
+        me.getRegisterDataEditForm().getForm().markInvalid();
         formErrorsPlaceHolder.show();
+        Ext.resumeLayouts(true);
     },
 
     hideErrorPanel: function () {
         var me = this,
             formErrorsPlaceHolder = me.getDeviceregisterreportedit().down('#registerDataEditForm #registerDataEditFormErrors');
 
+        Ext.suspendLayouts();
+        me.getRegisterDataEditForm().getForm().clearInvalid();
         formErrorsPlaceHolder.hide();
-        formErrorsPlaceHolder.removeAll();
+        Ext.resumeLayouts(true);
     }
 });
 

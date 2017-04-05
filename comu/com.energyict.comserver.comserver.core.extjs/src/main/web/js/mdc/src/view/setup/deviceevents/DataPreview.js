@@ -32,7 +32,7 @@ Ext.define('Mdc.view.setup.deviceevents.DataPreview', {
                 {
                     fieldLabel: Uni.I18n.translate('general.description', 'MDC', 'Description'),
                     name: 'message',
-                    renderer: function(value) {
+                    renderer: function (value) {
                         return Ext.isEmpty(value) ? '-' : value;
                     }
                 }
@@ -121,7 +121,7 @@ Ext.define('Mdc.view.setup.deviceevents.DataPreview', {
         me.callParent(arguments)
     },
 
-    loadData: function(record) {
+    loadData: function (record) {
         var me = this,
             eventAttributes = record.get('eventData'),
             eventAttributesLabel = me.down('#mdc-event-attributes-label'),
@@ -132,7 +132,7 @@ Ext.define('Mdc.view.setup.deviceevents.DataPreview', {
         me.down('#deviceLogbookDataPreviewForm').loadRecord(record);
 
         // 1. Remove the previously added components:
-        Ext.Array.forEach(me.dynamicallyAddedComponents, function(component2Remove) {
+        Ext.Array.forEach(me.dynamicallyAddedComponents, function (component2Remove) {
             leftContainer.remove(component2Remove);
         });
         me.dynamicallyAddedComponents = [];
