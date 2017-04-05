@@ -5,6 +5,7 @@
 package com.elster.jupiter.demo.impl.builders;
 
 import com.elster.jupiter.estimation.EstimationRuleSet;
+import com.elster.jupiter.time.TimeDuration;
 
 import java.math.BigDecimal;
 import java.util.function.Consumer;
@@ -17,7 +18,7 @@ public class EstimationRuleValueFillPostBuilder implements Consumer<EstimationRu
                 .withReadingType("0.0.2.1.19.1.12.0.0.0.0.0.0.0.0.0.72.0")
                 .withReadingType("0.0.2.4.19.1.12.0.0.0.0.0.0.0.0.0.72.0")
                 .withReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0")
-                .havingProperty("valuefill.maxNumberOfConsecutiveSuspects").withValue(5L)
+                .havingProperty("valuefill.maxPeriodOfConsecutiveSuspects").withValue(TimeDuration.minutes(75))
                 .havingProperty("valuefill.fillValue").withValue(new BigDecimal(900))
                 .create();
     }
