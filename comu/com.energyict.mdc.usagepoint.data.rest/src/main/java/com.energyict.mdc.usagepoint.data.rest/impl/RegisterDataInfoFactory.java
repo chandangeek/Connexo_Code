@@ -116,8 +116,6 @@ public class RegisterDataInfoFactory {
             }
         };
 
-
-
         // internal RegisterDataInfo that will be created by enum instance
         private RegisterDataInfo registerDataInfo;
 
@@ -245,19 +243,18 @@ public class RegisterDataInfoFactory {
          * @return {@link RegisterType} instance
          */
         public static RegisterType determineRegisterType(RegisterReadingWithValidationStatus reading) {
-
             ReadingType readingType = reading.getReadingRecord().getReadingType();
+            RegisterType registerType = determine(readingType);
+            return registerType.withReading(reading);
+        }
 
+        public static RegisterType determine(ReadingType readingType){
             boolean isCumulative = readingType.isCumulative();
             boolean hasEvent = aggregatesWithEventDate.contains(readingType.getAggregate());
             boolean isBilling = readingType.getMacroPeriod().equals(MacroPeriod.BILLINGPERIOD);
-
-            RegisterType registerType = determine(isCumulative,hasEvent,isBilling);
-
-            return registerType.withReading(reading)
-                    .withRegisterDataInfo(isCumulative, hasEvent, isBilling);
+            return determine(isCumulative,hasEvent,isBilling).withRegisterDataInfo(isCumulative, hasEvent, isBilling);
         }
-        
+
         private static RegisterType determine(boolean isCumulative, boolean hasEvent, boolean isBilling) {
             if (isCumulative && hasEvent && isBilling) {
                 return CUMULATIVE_EVENT_BILLING_VALUE;

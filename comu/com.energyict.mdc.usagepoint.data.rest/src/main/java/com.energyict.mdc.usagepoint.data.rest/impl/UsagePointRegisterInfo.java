@@ -17,4 +17,5 @@ public class UsagePointRegisterInfo extends AbstractUsagePointChannelInfo {
      */
     public Instant measurementTime;
     public List<UsagePointDeviceChannelInfo> deviceRegisters;
+    public RegisterDataInfoFactory.RegisterType registerType;
 }

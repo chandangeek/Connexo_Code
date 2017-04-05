@@ -47,6 +47,7 @@ public class UsagePointRegisterInfoFactory extends AbstractUsagePointChannelInfo
         info.measurementTime = lastDateTime != null ? lastDateTime : null;
         info.readingType = readingTypeInfoFactory.from(readingType);
         info.deviceRegisters = new ArrayList<>();
+        info.registerType = RegisterDataInfoFactory.RegisterType.determine(readingType);
         fillDevicePartList(info.deviceRegisters, readingType, metrologyConfiguration, usagePoint);
         return info;
     }
