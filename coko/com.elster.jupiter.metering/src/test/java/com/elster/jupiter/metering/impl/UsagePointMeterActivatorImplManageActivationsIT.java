@@ -9,33 +9,19 @@ import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
-import com.elster.jupiter.domain.util.VerboseConstraintViolationException;
-import com.elster.jupiter.fsm.FiniteStateMachineUpdater;
-import com.elster.jupiter.fsm.Stage;
-import com.elster.jupiter.metering.AmrSystem;
-import com.elster.jupiter.metering.BaseReadingRecord;
-import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.KnownAmrSystem;
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.ReadingQualityType;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.ServiceCategory;
-import com.elster.jupiter.metering.ServiceKind;
-import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.UsagePointMeterActivationException;
+import com.elster.jupiter.metering.*;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
-import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
 import com.elster.jupiter.metering.impl.config.TestHeadEndInterface;
 import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.transaction.TransactionContext;
-import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointStage;
-
 import com.google.common.collect.Range;
+import org.junit.*;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -45,15 +31,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -410,21 +387,4 @@ public class UsagePointMeterActivatorImplManageActivationsIT {
                 .throwingValidation()
                 .complete();
     }
-
-    @Test(expected = VerboseConstraintViolationException.class)
-    @Transactional
-    public void linkMetrologyConfigurationToUsagePointWithIncorrectStage() {
-        Instant now = inMemoryBootstrapModule.getClock().instant();
-        ServiceCategory serviceCategory = inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
-        UsagePoint usagePoint = serviceCategory
-                .newUsagePoint("testUP", now)
-                .create();
-        Stage stage = inMemoryBootstrapModule.getUsagePointLifeCycleConfService().getDefaultStageSet().getStageByName(UsagePointStage.OPERATIONAL.getKey()).get();
-        FiniteStateMachineUpdater updater = usagePoint.getLifeCycle().getUpdater();
-        updater.state(usagePoint.getState().getName()).stage(stage).complete();
-        updater.complete();
-        usagePoint = inMemoryBootstrapModule.getMeteringService().findUsagePointById(usagePoint.getId()).get();
-        usagePoint.linkMeters().activate(meter, meterRole).complete();
-    }
-
 }
