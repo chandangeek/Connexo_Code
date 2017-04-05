@@ -4,11 +4,16 @@
 
 package com.energyict.mdc.device.data.rest.impl;
 
-public class SecurityAccessorInfo {
+import com.elster.jupiter.properties.rest.PropertyInfo;
 
+import java.time.Instant;
+import java.util.List;
+
+public class SecurityAccessorInfo {
     public long id;
     public String name;
-
-    public SecurityAccessorInfo() {
-    }
+    public String description;
+    public Instant expirationTime;
+    public List<PropertyInfo> currentProperties;
+    public List<PropertyInfo> tempProperties;
 }

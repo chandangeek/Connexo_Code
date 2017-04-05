@@ -4,37 +4,42 @@
 
 package com.energyict.mdc.device.data.rest;
 
-import com.elster.jupiter.pki.CryptographicType;
-import com.energyict.mdc.device.data.Device;
+import com.elster.jupiter.pki.SecurityValueWrapper;
+import com.elster.jupiter.properties.rest.PropertyInfo;
+import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.data.KeyAccessor;
 import com.energyict.mdc.device.data.rest.impl.SecurityAccessorInfo;
+import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 
-import javax.ws.rs.core.UriInfo;
+import javax.inject.Inject;
 import java.util.List;
-
-import static java.util.stream.Collectors.toList;
 
 public class SecurityAccessorInfoFactory {
 
-    public List<SecurityAccessorInfo> asInfo(Device device, UriInfo uriInfo) {
-        return device.getKeyAccessors().stream()
-            .map(keyAccessor -> asInfo(device, uriInfo, keyAccessor))
-            .sorted((p1, p2) -> p1.name.compareToIgnoreCase(p2.name))
-            .collect(toList());
+    private final MdcPropertyUtils mdcPropertyUtils;
+
+    @Inject
+    public SecurityAccessorInfoFactory(MdcPropertyUtils mdcPropertyUtils) {
+        this.mdcPropertyUtils = mdcPropertyUtils;
     }
 
-    public List<SecurityAccessorInfo> asInfo(Device device, UriInfo uriInfo, CryptographicType.MetaType metaType) {
-        return device.getKeyAccessors().stream()
-            .filter(keyAccessor -> keyAccessor.getKeyAccessorType().getKeyType().getCryptographicType().getMetaType().equals(metaType))
-            .map(keyAccessor -> asInfo(device, uriInfo, keyAccessor))
-            .sorted((p1, p2) -> p1.name.compareToIgnoreCase(p2.name))
-            .collect(toList());
-    }
-
-    public SecurityAccessorInfo asInfo(Device device, UriInfo uriInfo, KeyAccessor keyAccessor) {
+    public SecurityAccessorInfo from(KeyAccessor<?> keyAccessor) {
         SecurityAccessorInfo info = new SecurityAccessorInfo();
         info.id = keyAccessor.getKeyAccessorType().getId();
         info.name = keyAccessor.getKeyAccessorType().getName();
+        info.description = keyAccessor.getKeyAccessorType().getDescription();
+        keyAccessor.getActualValue().getExpirationTime().ifPresent(experation -> info.expirationTime = experation);
+
+        info.currentProperties = getProperties(keyAccessor.getActualValue());
+        keyAccessor.getTempValue().ifPresent(value -> info.tempProperties = getProperties(value));
+
         return info;
+    }
+
+    private List<PropertyInfo> getProperties(SecurityValueWrapper keyAccessor) {
+        TypedProperties empty = TypedProperties.empty();
+        keyAccessor.getProperties().entrySet().forEach(e->empty.setProperty(e.getKey(),e.getValue()));
+
+        return mdcPropertyUtils.convertPropertySpecsToPropertyInfos(keyAccessor.getPropertySpecs(), empty);
     }
 }

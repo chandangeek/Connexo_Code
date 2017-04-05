@@ -20,6 +20,7 @@ import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.properties.rest.PropertyTypeInfo;
 import com.elster.jupiter.properties.rest.PropertyValueConverter;
 import com.elster.jupiter.properties.rest.PropertyValueInfo;
+import com.elster.jupiter.properties.rest.impl.PropertyValueInfoServiceImpl;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.time.TimeService;
@@ -337,7 +338,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         when(device.getDeviceType()).thenReturn(deviceType);
         PropertyInfo propertyInfo = new PropertyInfo("ID", "ID", new PropertyValueInfo<>(123, 123),
                 new PropertyTypeInfo(com.elster.jupiter.properties.rest.SimplePropertyType.NUMBER, null, null, null), true);
-        when(propertyValueInfoService.getPropertyInfo(any(), any())).thenReturn(propertyInfo);
+        when(new PropertyValueInfoServiceImpl().getPropertyInfo(any(), any())).thenReturn(propertyInfo);
         String response = target("/devices/ZABF010000080004/devicemessages").queryParam("start", 0).queryParam("limit", 10).request().get(String.class);
         JsonModel model = JsonModel.model(response);
 
@@ -478,10 +479,10 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         when(deviceConfiguration.getDeviceType()).thenReturn(deviceType);
         when(device.getDeviceType()).thenReturn(deviceType);
         PropertyValueConverter propertyValueConverter = mock(PropertyValueConverter.class);
-        when(propertyValueInfoService.getConverter(any())).thenReturn(propertyValueConverter);
+        when(new PropertyValueInfoServiceImpl().getConverter(any())).thenReturn(propertyValueConverter);
         PropertyInfo propertyInfo = new PropertyInfo("ContactorDeviceMessage.digitalOutput", "ContactorDeviceMessage.digitalOutput", new PropertyValueInfo<>(123, 123),
                 new PropertyTypeInfo(com.elster.jupiter.properties.rest.SimplePropertyType.NUMBER, null, null, null), true);
-        when(propertyValueInfoService.getPropertyInfo(any(), any())).thenReturn(propertyInfo);
+        when(new PropertyValueInfoServiceImpl().getPropertyInfo(any(), any())).thenReturn(propertyInfo);
         // given the above: we expect 2 device messages in the same category
         String response = target("/devices/ZABF010000080004/messagecategories").request().get(String.class);
         JsonModel jsonModel = JsonModel.model(response);
