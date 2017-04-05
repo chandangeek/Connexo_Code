@@ -4,7 +4,6 @@
 
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MeteringTranslationService;
@@ -16,6 +15,7 @@ import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.util.units.Quantity;
+import com.elster.jupiter.util.units.Unit;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
@@ -23,12 +23,9 @@ import com.energyict.mdc.common.rest.IntervalInfo;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.config.RegisterSpec;
-import com.energyict.mdc.device.data.BillingReading;
-import com.energyict.mdc.device.data.BillingRegister;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceValidation;
-import com.energyict.mdc.device.data.FlagsReading;
 import com.energyict.mdc.device.data.FlagsRegister;
 import com.energyict.mdc.device.data.LoadProfileJournalReading;
 import com.energyict.mdc.device.data.LoadProfileReading;
@@ -39,13 +36,19 @@ import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.TextReading;
 import com.energyict.mdc.device.data.TextRegister;
 import com.energyict.mdc.device.topology.TopologyService;
+
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -425,6 +428,7 @@ public class DeviceDataInfoFactory {
         Instant timeStamp = register.getLastReadingDate().orElse(clock.instant());
         register.getCalculatedReadingType(timeStamp).ifPresent(calculatedReadingType -> registerInfo.calculatedReadingType = readingTypeInfoFactory.from(calculatedReadingType));
         registerInfo.multiplier = register.getMultiplier(timeStamp).orElseGet(() -> null);
+        registerInfo.readingType.names.unitOfMeasure = (registerInfo.readingType.names.unitOfMeasure.isEmpty() && registerInfo.readingType.metricMultiplier == -2) ? Unit.PERCENT.getSymbol() : registerInfo.readingType.names.unitOfMeasure; // -2 is also percentage
         return registerInfo;
     }
 
