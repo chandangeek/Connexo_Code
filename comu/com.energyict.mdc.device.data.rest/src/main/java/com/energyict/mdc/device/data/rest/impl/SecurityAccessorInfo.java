@@ -14,6 +14,7 @@ public class SecurityAccessorInfo {
     public String name;
     public String description;
     public Instant expirationTime;
+    public Instant lastReadDate;
     public List<PropertyInfo> currentProperties;
     public List<PropertyInfo> tempProperties;
 }
