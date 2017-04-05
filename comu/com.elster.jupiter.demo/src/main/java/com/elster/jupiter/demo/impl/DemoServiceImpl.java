@@ -27,7 +27,6 @@ import com.elster.jupiter.demo.impl.commands.CreateNtaConfigCommand;
 import com.elster.jupiter.demo.impl.commands.CreatePowerUserCommand;
 import com.elster.jupiter.demo.impl.commands.CreateUserManagementCommand;
 import com.elster.jupiter.demo.impl.commands.CreateValidationSetupCommand;
-import com.elster.jupiter.demo.impl.commands.DemoDataUpgrade10_1_Command;
 import com.elster.jupiter.demo.impl.commands.FileImportCommand;
 import com.elster.jupiter.demo.impl.commands.SetupFirmwareManagementCommand;
 import com.elster.jupiter.demo.impl.commands.devices.CreateDeviceCommand;
@@ -127,7 +126,6 @@ import java.time.Clock;
         "osgi.command.function=setDeviceLocations",
         "osgi.command.function=createSPEDevice",
         "osgi.command.function=createAlarmCreationRule",
-        "osgi.command.function=upgradeDemoData",
         "osgi.command.function=createPowerUser"
 }, immediate = true)
 public class DemoServiceImpl {
@@ -989,9 +987,5 @@ public class DemoServiceImpl {
             CreateAlarmCreationRuleCommand command = injector.getInstance(CreateAlarmCreationRuleCommand.class);
             command.run();
         });
-    }
-
-    public void upgradeDemoData() {
-        executeTransaction(() -> this.injector.getInstance(DemoDataUpgrade10_1_Command.class).run());
     }
 }
