@@ -14,6 +14,7 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.Validator;
 import com.elster.jupiter.validation.ValidatorFactory;
 
@@ -43,18 +44,25 @@ public class DefaultValidatorFactory implements ValidatorFactory, MessageSeedPro
     private volatile Thesaurus thesaurus;
     private volatile PropertySpecService propertySpecService;
     private volatile MetrologyConfigurationService metrologyConfigurationService;
+    private volatile ValidationService validationService;
 
     public DefaultValidatorFactory() {
-	}
+    }
 
     @Inject
     public DefaultValidatorFactory(NlsService nlsService, PropertySpecService propertySpecService,
-                                   MetrologyConfigurationService metrologyConfigurationService) {
+                                   MetrologyConfigurationService metrologyConfigurationService,
+                                   ValidationService validationService) {
         this();
-    	setNlsService(nlsService);
-    	setPropertySpecService(propertySpecService);
+        setNlsService(nlsService);
+        setPropertySpecService(propertySpecService);
         setMetrologyConfigurationService(metrologyConfigurationService);
+        setValidationService(validationService);
+    }
 
+    @Reference
+    public void setValidationService(ValidationService validationService) {
+        this.validationService = validationService;
     }
 
     @Reference
@@ -71,7 +79,7 @@ public class DefaultValidatorFactory implements ValidatorFactory, MessageSeedPro
     public void setPropertySpecService(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
     }
-    
+
     @Override
     public String getComponentName() {
         return MessageSeeds.COMPONENT_NAME;
@@ -89,9 +97,9 @@ public class DefaultValidatorFactory implements ValidatorFactory, MessageSeedPro
 
     @Override
     public List<TranslationKey> getKeys() {
-        List<TranslationKey> translationKeys = new ArrayList<>(ValidatorDefinition.values().length + TranslationKeys.values().length) ;
+        List<TranslationKey> translationKeys = new ArrayList<>(ValidatorDefinition.values().length + TranslationKeys.values().length);
         for (ValidatorDefinition validatorDefinition : ValidatorDefinition.values()) {
-            IValidator validator = validatorDefinition.createTemplate(thesaurus, propertySpecService, metrologyConfigurationService);
+            IValidator validator = validatorDefinition.createTemplate(new ValidatorParameters(thesaurus, propertySpecService, metrologyConfigurationService, validationService));
             translationKeys.add(new SimpleTranslationKey(validator.getNlsKey().getKey(), validator.getDefaultFormat()));
             validator.getPropertySpecs()
                     .stream()
@@ -99,7 +107,8 @@ public class DefaultValidatorFactory implements ValidatorFactory, MessageSeedPro
                     .forEach(translationKeys::add);
             validator.getExtraTranslations()
                     .stream()
-                    .map(extraTranslation -> new SimpleTranslationKey(extraTranslation.getFirst().getKey(), extraTranslation.getLast()))
+                    .map(extraTranslation -> new SimpleTranslationKey(extraTranslation.getFirst()
+                            .getKey(), extraTranslation.getLast()))
                     .forEach(translationKeys::add);
         }
         Stream.of(TranslationKeys.values()).forEach(translationKeys::add);
@@ -109,57 +118,57 @@ public class DefaultValidatorFactory implements ValidatorFactory, MessageSeedPro
     private enum ValidatorDefinition {
         THRESHOLD(THRESHOLD_VALIDATOR) {
             @Override
-            Validator create(Thesaurus thesaurus, PropertySpecService propertySpecService, MetrologyConfigurationService metrologyConfigurationService, Map<String, Object> props) {
-                return new ThresholdValidator(thesaurus, propertySpecService, props);
+            Validator create(ValidatorParameters parameters) {
+                return new ThresholdValidator(parameters.thesaurus, parameters.propertySpecService, parameters.props);
             }
 
             @Override
-            IValidator createTemplate(Thesaurus thesaurus, PropertySpecService propertySpecService, MetrologyConfigurationService metrologyConfigurationService) {
-                return new ThresholdValidator(thesaurus, propertySpecService);
+            IValidator createTemplate(ValidatorParameters parameters) {
+                return new ThresholdValidator(parameters.thesaurus, parameters.propertySpecService);
             }
         },
         MISSING_VALUES(MISSING_VALUES_VALIDATOR) {
             @Override
-            Validator create(Thesaurus thesaurus, PropertySpecService propertySpecService, MetrologyConfigurationService metrologyConfigurationService, Map<String, Object> props) {
-                return new MissingValuesValidator(thesaurus, propertySpecService);
+            Validator create(ValidatorParameters parameters) {
+                return new MissingValuesValidator(parameters.thesaurus, parameters.propertySpecService);
             }
 
             @Override
-            IValidator createTemplate(Thesaurus thesaurus, PropertySpecService propertySpecService, MetrologyConfigurationService metrologyConfigurationService) {
-                return new MissingValuesValidator(thesaurus, propertySpecService);
+            IValidator createTemplate(ValidatorParameters parameters) {
+                return new MissingValuesValidator(parameters.thesaurus, parameters.propertySpecService);
             }
         },
         REGISTER_INCREASE(REGISTER_INCREASE_VALIDATOR) {
             @Override
-            Validator create(Thesaurus thesaurus, PropertySpecService propertySpecService, MetrologyConfigurationService metrologyConfigurationService, Map<String, Object> props) {
-                return new RegisterIncreaseValidator(thesaurus, propertySpecService, props);
+            Validator create(ValidatorParameters parameters) {
+                return new RegisterIncreaseValidator(parameters.thesaurus, parameters.propertySpecService, parameters.props);
             }
 
             @Override
-            IValidator createTemplate(Thesaurus thesaurus, PropertySpecService propertySpecService, MetrologyConfigurationService metrologyConfigurationService) {
-                return new RegisterIncreaseValidator(thesaurus, propertySpecService);
+            IValidator createTemplate(ValidatorParameters parameters) {
+                return new RegisterIncreaseValidator(parameters.thesaurus, parameters.propertySpecService);
             }
         },
         READING_QUALITIES(READING_QUALITIES_VALIDATOR) {
             @Override
-            Validator create(Thesaurus thesaurus, PropertySpecService propertySpecService, MetrologyConfigurationService metrologyConfigurationService, Map<String, Object> props) {
-                return new ReadingQualitiesValidator(thesaurus, propertySpecService, props);
+            Validator create(ValidatorParameters parameters) {
+                return new ReadingQualitiesValidator(parameters.thesaurus, parameters.propertySpecService, parameters.props);
             }
 
             @Override
-            IValidator createTemplate(Thesaurus thesaurus, PropertySpecService propertySpecService, MetrologyConfigurationService metrologyConfigurationService) {
-                return new ReadingQualitiesValidator(thesaurus, propertySpecService);
+            IValidator createTemplate(ValidatorParameters parameters) {
+                return new ReadingQualitiesValidator(parameters.thesaurus, parameters.propertySpecService);
             }
         },
         MAIN_CHECK(MAIN_CHECK_VALIDATOR) {
             @Override
-            Validator create(Thesaurus thesaurus, PropertySpecService propertySpecService, MetrologyConfigurationService metrologyConfigurationService, Map<String, Object> props) {
-                return new MainCheckValidator(thesaurus, propertySpecService, props, metrologyConfigurationService);
+            Validator create(ValidatorParameters parameters) {
+                return new MainCheckValidator(parameters.thesaurus, parameters.propertySpecService, parameters.props, parameters.metrologyConfigurationService, parameters.validationService);
             }
 
             @Override
-            IValidator createTemplate(Thesaurus thesaurus, PropertySpecService propertySpecService, MetrologyConfigurationService metrologyConfigurationService) {
-                return new MainCheckValidator(thesaurus, propertySpecService, metrologyConfigurationService);
+            IValidator createTemplate(ValidatorParameters parameters) {
+                return new MainCheckValidator(parameters.thesaurus, parameters.propertySpecService, parameters.metrologyConfigurationService, parameters.validationService);
             }
         };
 
@@ -173,9 +182,9 @@ public class DefaultValidatorFactory implements ValidatorFactory, MessageSeedPro
             this.implementation = implementation;
         }
 
-        abstract Validator create(Thesaurus thesaurus, PropertySpecService propertySpecService, MetrologyConfigurationService metrologyConfigurationService, Map<String, Object> props);
+        abstract Validator create(ValidatorParameters parameters);
 
-        abstract IValidator createTemplate(Thesaurus thesaurus, PropertySpecService propertySpecService, MetrologyConfigurationService metrologyConfigurationService);
+        abstract IValidator createTemplate(ValidatorParameters parameters);
     }
 
     @Override
@@ -191,7 +200,7 @@ public class DefaultValidatorFactory implements ValidatorFactory, MessageSeedPro
     public Validator create(String implementation, Map<String, Object> props) {
         for (ValidatorDefinition definition : ValidatorDefinition.values()) {
             if (definition.getImplementation().equals(implementation)) {
-                return definition.create(thesaurus, propertySpecService, metrologyConfigurationService, props);
+                return definition.create(new ValidatorParameters(thesaurus, propertySpecService, metrologyConfigurationService, validationService, props));
             }
         }
         throw new IllegalArgumentException("Unsupported implementation " + implementation);
@@ -201,9 +210,30 @@ public class DefaultValidatorFactory implements ValidatorFactory, MessageSeedPro
     public Validator createTemplate(String implementation) {
         for (ValidatorDefinition definition : ValidatorDefinition.values()) {
             if (definition.getImplementation().equals(implementation)) {
-                return definition.createTemplate(thesaurus, propertySpecService, metrologyConfigurationService);
+                return definition.createTemplate(new ValidatorParameters(thesaurus, propertySpecService, metrologyConfigurationService, validationService));
             }
         }
         throw new IllegalArgumentException("Unsupported implementation " + implementation);
+    }
+
+
+    private class ValidatorParameters {
+        private Thesaurus thesaurus;
+        private PropertySpecService propertySpecService;
+        private MetrologyConfigurationService metrologyConfigurationService;
+        private ValidationService validationService;
+        private Map<String, Object> props;
+
+        public ValidatorParameters(Thesaurus thesaurus, PropertySpecService propertySpecService, MetrologyConfigurationService metrologyConfigurationService, ValidationService validationService, Map<String, Object> props) {
+            this.thesaurus = thesaurus;
+            this.propertySpecService = propertySpecService;
+            this.metrologyConfigurationService = metrologyConfigurationService;
+            this.validationService = validationService;
+            this.props = props;
+        }
+
+        public ValidatorParameters(Thesaurus thesaurus, PropertySpecService propertySpecService, MetrologyConfigurationService metrologyConfigurationService, ValidationService validationService) {
+            this(thesaurus, propertySpecService, metrologyConfigurationService, validationService, null);
+        }
     }
 }

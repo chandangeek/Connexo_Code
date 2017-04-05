@@ -24,8 +24,12 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.TwoValuesAbsoluteDifference;
 import com.elster.jupiter.properties.TwoValuesDifference;
 import com.elster.jupiter.properties.TwoValuesDifferenceValueFactory;
+import com.elster.jupiter.properties.TwoValuesPercentDifference;
+import com.elster.jupiter.util.logging.LoggingContext;
+import com.elster.jupiter.validation.DataValidationStatus;
+import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.ValidationResult;
-import com.elster.jupiter.validators.BadMainCheckConfiguration;
+import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validators.MissingRequiredProperty;
 
 import com.google.common.collect.ImmutableList;
@@ -37,12 +41,18 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+
 /**
- * Created by dantonov on 28.03.2017.
+ * The 'Main/Check comparison' validator allows to compare output values from one channel to another "check" channel on the same usage point.<br>
+ * The validator compares delta values on the validated output channel on a usage point to another output channel with the same reading type
+ * but on a different purpose. If compared values with identical time and date are not equal or the difference exceeds the configured parameter a suspect is created.
+ * If the minimum threshold is configured the check for the interval is skipped and the validation moves to the next interval.
  */
 public class MainCheckValidator extends AbstractValidator {
 
@@ -53,9 +63,15 @@ public class MainCheckValidator extends AbstractValidator {
     static final String MIN_THRESHOLD = "minThreshold";
 
     private static final Set<QualityCodeSystem> QUALITY_CODE_SYSTEMS = ImmutableSet.of(QualityCodeSystem.MDM);
+    // {0} - period, {1} - name of the validator, {2} - reading type, {3} - failure reason
+    private static final String VALIDATOR_FAILED_MESSAGE_PATTERN = "Failed to validate period {0} using method \"{1}\" on {2} since {3}";
+
+
     private MetrologyConfigurationService metrologyConfigurationService;
+    private ValidationService validationService;
 
     private Map<Instant, IntervalReadingRecord> checkReadingRecords;
+    private Map<Instant, ValidationResult> checkReadingRecordValidations;
 
     // validator parameters
     private String checkChannelPurpose;
@@ -63,17 +79,41 @@ public class MainCheckValidator extends AbstractValidator {
     private Boolean passIfNoRefData;
     private Boolean useValidatedData;
     private NonOrBigDecimalValueProperty minThreshold;
+    private ReadingType readingType;
+    private Range<Instant> interval;
 
+    private Logger logger;
 
-    public MainCheckValidator(Thesaurus thesaurus, PropertySpecService propertySpecService, MetrologyConfigurationService metrologyConfigurationService) {
+    private ValidationResult preparedValidationResult;
+
+    public MainCheckValidator(Thesaurus thesaurus, PropertySpecService propertySpecService, MetrologyConfigurationService metrologyConfigurationService, ValidationService validationService) {
         super(thesaurus, propertySpecService);
         this.metrologyConfigurationService = metrologyConfigurationService;
+        this.validationService = validationService;
     }
 
-    public MainCheckValidator(Thesaurus thesaurus, PropertySpecService propertySpecService, Map<String, Object> properties, MetrologyConfigurationService metrologyConfigurationService) {
+    public MainCheckValidator(Thesaurus thesaurus, PropertySpecService propertySpecService, Map<String, Object> properties, MetrologyConfigurationService metrologyConfigurationService, ValidationService validationService) {
         super(thesaurus, propertySpecService, properties);
         this.metrologyConfigurationService = metrologyConfigurationService;
+        this.validationService = validationService;
     }
+
+    private String generateFailMessage(String message, Object... args) {
+        // FIXME period to string
+        // FIXME reading type to string
+        return String.format(VALIDATOR_FAILED_MESSAGE_PATTERN, interval.toString(), TranslationKeys.MAIN_CHECK_VALIDATOR
+                .getDefaultFormat(), readingType
+                .toString(), String.format(message, args));
+    }
+
+    private String generateFailMessage(UsagePoint usagePoint, String message, Object... args) {
+        // FIXME period to string
+        // FIXME reading type to string
+        return String.format(VALIDATOR_FAILED_MESSAGE_PATTERN, interval.toString(), TranslationKeys.MAIN_CHECK_VALIDATOR
+                .getDefaultFormat(), usagePoint.getName() + "/" + readingType
+                .toString(), String.format(message, args));
+    }
+
 
     @Override
     public List<String> getRequiredProperties() {
@@ -140,55 +180,119 @@ public class MainCheckValidator extends AbstractValidator {
     @Override
     public void init(Channel channel, ReadingType readingType, Range<Instant> interval) {
 
+        this.readingType = readingType;
+        this.interval = interval;
+
+        //LoggingContext.get().info(getLogger(), "init main check");
+
         // 1. parse validator parameters
         checkChannelPurpose = (String) properties.get(CHECK_PURPOSE);
-
         if (checkChannelPurpose == null) {
             throw new MissingRequiredProperty(getThesaurus(), CHECK_PURPOSE);
         }
-
-        // FIXME - types? and save data
-        Object maxDiff = properties.get(MAX_ABSOLUTE_DIFF);
-        Object minThreshold = properties.get(MIN_THRESHOLD);
+        maxAbsoluteDifference = (TwoValuesDifference) properties.get(MAX_ABSOLUTE_DIFF);
+        if (maxAbsoluteDifference == null) {
+            throw new MissingRequiredProperty(getThesaurus(), MAX_ABSOLUTE_DIFF);
+        }
+        minThreshold = (NonOrBigDecimalValueProperty) properties.get(MIN_THRESHOLD);
+        if (minThreshold == null) {
+            throw new MissingRequiredProperty(getThesaurus(), MIN_THRESHOLD);
+        }
         passIfNoRefData = (boolean) properties.get(PASS_IF_NO_REF_DATA);
+        if (passIfNoRefData == null) {
+            throw new MissingRequiredProperty(getThesaurus(), PASS_IF_NO_REF_DATA);
+        }
         useValidatedData = (boolean) properties.get(USE_VALIDATED_DATA);
+        if (useValidatedData == null) {
+            throw new MissingRequiredProperty(getThesaurus(), USE_VALIDATED_DATA);
+        }
 
         // find 'check' channel and save readings + prepare mapping with readings from 'main' channel
 
         // 2. find 'check' channel
-        UsagePoint usagePoint = channel.getChannelsContainer()
-                .getUsagePoint()
-                .orElseThrow(() -> new BadMainCheckConfiguration(getThesaurus(), MessageSeeds.BAD_MAIN_CHECK_CONFIGURATION_NO_UP_ON_CHANNEL));
-        List<EffectiveMetrologyConfigurationOnUsagePoint> effectiveMetrologyConfigurationOnUsagePointList = usagePoint.getEffectiveMetrologyConfigurations(interval);
+        Optional<UsagePoint> usagePoint = channel.getChannelsContainer()
+                .getUsagePoint();
+
+        if (!usagePoint.isPresent()) {
+            LoggingContext.get()
+                    .severe(getLogger(), generateFailMessage("main channel has no usage point"));
+            preparedValidationResult = ValidationResult.NOT_VALIDATED;
+            return;
+        }
+
+        List<EffectiveMetrologyConfigurationOnUsagePoint> effectiveMetrologyConfigurationOnUsagePointList = usagePoint.get()
+                .getEffectiveMetrologyConfigurations(interval);
 
         if (effectiveMetrologyConfigurationOnUsagePointList.size() != 1) {
-            throw new BadMainCheckConfiguration(getThesaurus(), MessageSeeds.BAD_MAIN_CHECK_CONFIGURATION_METRLOGY_CONFIG_COUNT);
+            LoggingContext.get()
+                    .severe(getLogger(), generateFailMessage("usage point must have one effective metrology configuration, but has {0}", effectiveMetrologyConfigurationOnUsagePointList
+                            .size()));
+            preparedValidationResult = ValidationResult.NOT_VALIDATED;
+            return;
         }
 
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint = effectiveMetrologyConfigurationOnUsagePointList
                 .get(0);
 
-        MetrologyContract metrologyContract = effectiveMetrologyConfigurationOnUsagePoint.getMetrologyConfiguration()
+        Optional<MetrologyContract> metrologyContract = effectiveMetrologyConfigurationOnUsagePoint.getMetrologyConfiguration()
                 .getContracts()
                 .stream()
                 .filter(contract -> contract.getMetrologyPurpose().getName().equals(checkChannelPurpose))
-                .findAny()
-                .orElseThrow(() -> new BadMainCheckConfiguration(getThesaurus(), MessageSeeds.BAD_MAIN_CHECK_CONFIGURATION_METRLOGY_CONTRACT));
+                .findAny();
 
-        ChannelsContainer channelsContainerWithCheckChannel = effectiveMetrologyConfigurationOnUsagePoint.getChannelsContainer(metrologyContract)
-                .orElseThrow(() -> new BadMainCheckConfiguration(getThesaurus(), MessageSeeds.BAD_MAIN_CHECK_CONFIGURATION_CHANNELS_CONTAINER));
+        // {RULE FLOW CHECK] specified purpose is not found on the usage point
+        if (!metrologyContract.isPresent()) {
+            // [RULE FLOW ACTION] Stop validation for the channel independently from Pass if no reference data field value (last check remains as before the validation), an error message appears in the log
+            LoggingContext.get()
+                    .severe(getLogger(), generateFailMessage("the specified purpose doesn't exist on the {0}", usagePoint
+                            .get()
+                            .getName()));
+            preparedValidationResult = ValidationResult.NOT_VALIDATED;
+            return;
+        }
 
-        Channel checkChannel = channelsContainerWithCheckChannel.getChannel(readingType)
-                .orElseThrow(() -> new BadMainCheckConfiguration(getThesaurus(), MessageSeeds.BAD_MAIN_CHECK_CONFIGURATION_CHECK_CHANNEL));
+        boolean checkOutputExistOnPurpose = false;
 
-        // 3. prepare map of interval readings from check channel
-        List<IntervalReadingRecord> checkChannelIntervalReadings = checkChannel.getIntervalReadings(interval);
-        checkReadingRecords = checkChannelIntervalReadings.stream()
-                .collect(Collectors.toMap(IntervalReadingRecord::getTimeStamp, Function.identity()));
+        Optional<ChannelsContainer> channelsContainerWithCheckChannel = effectiveMetrologyConfigurationOnUsagePoint.getChannelsContainer(metrologyContract
+                .get());
+        if (channelsContainerWithCheckChannel.isPresent()) {
+            Optional<Channel> checkChannel = channelsContainerWithCheckChannel.get().getChannel(readingType);
+            if (checkChannel.isPresent()) {
+                checkOutputExistOnPurpose = true;
+                // 3. prepare map of interval readings from check channel
+                List<IntervalReadingRecord> checkChannelIntervalReadings = checkChannel.get()
+                        .getIntervalReadings(interval);
+                checkReadingRecords = checkChannelIntervalReadings.stream()
+                        .collect(Collectors.toMap(IntervalReadingRecord::getTimeStamp, Function.identity()));
+
+                // 4. get validation statuses for check channel
+
+                ValidationEvaluator evaluator = validationService.getEvaluator();
+                checkReadingRecordValidations = evaluator.getValidationStatus(QUALITY_CODE_SYSTEMS, checkChannel.get(), checkChannelIntervalReadings)
+                        .stream()
+                        .collect(Collectors.toMap(DataValidationStatus::getReadingTimestamp, DataValidationStatus::getValidationResult));
+            }
+        }
+
+        // {RULE FLOW CHECK] no 'check' output with matching reading type exists on the chosen purpose
+        if (!checkOutputExistOnPurpose) {
+            // [RULE FLOW ACTION] Stop validation for the channel independently from Pass if no reference data field value (last check remains as before the validation), an error message appears in the log
+            LoggingContext.get()
+                    .severe(getLogger(), generateFailMessage("'check' output with matching reading type on the specified purpose doesn't exist on {0}", usagePoint
+                            .get()
+                            .getName()));
+            preparedValidationResult = ValidationResult.NOT_VALIDATED;
+            return;
+        }
     }
 
     @Override
     public ValidationResult validate(IntervalReadingRecord intervalReadingRecord) {
+
+        // verify predefined behaviour
+        if (preparedValidationResult != null) {
+            return preparedValidationResult;
+        }
 
         IntervalReadingRecord checkIntervalReadingRecord = checkReadingRecords.get(intervalReadingRecord.getTimeStamp());
 
@@ -196,7 +300,59 @@ public class MainCheckValidator extends AbstractValidator {
     }
 
     private ValidationResult validate(IntervalReadingRecord mainReading, IntervalReadingRecord checkReading) {
-        return ValidationResult.VALID;
+
+        // [RULE CHECK] If no data is available on the check channel:
+        if (checkReading == null) {
+            if (passIfNoRefData) {
+                // [RULE ACTION] No further checks are done to the interval (marked as valid) and the rule moves to the next interval if Pass if no reference data is checked
+                return ValidationResult.VALID;
+            } else {
+                // [RULE ACTION]  Stop the validation at the timestamp where the timestamp with the last reference data was found for the channel if Pass if no reference data is not checked
+                preparedValidationResult = ValidationResult.NOT_VALIDATED;
+                return ValidationResult.NOT_VALIDATED;
+            }
+        }
+
+        // [RULE FLOW CHECK] Data is available on check output but not validated:
+        ValidationResult checkReadingValidationResult = Optional.ofNullable(checkReadingRecordValidations.get(checkReading
+                .getTimeStamp())).orElse(ValidationResult.NOT_VALIDATED);
+        if (checkReadingValidationResult == ValidationResult.NOT_VALIDATED) {
+            if (useValidatedData) {
+                // [RULE ACTION] Stop the validation at the timestamp where the timestamp with the last validated reference data was found for the channel if Use validated data is checked
+                preparedValidationResult = ValidationResult.NOT_VALIDATED;
+                return ValidationResult.NOT_VALIDATED;
+            } else {
+                // [RULE ACTION] Continue validation if Use validated data is unchecked
+                // So, next checks will be applied
+            }
+        }
+
+        BigDecimal mainValue = mainReading.getValue();
+        BigDecimal checkValue = checkReading.getValue();
+
+        if (!minThreshold.isNone) {
+            if (mainValue.compareTo(minThreshold.value) <= 0 && checkValue.compareTo(minThreshold.value) <= 0) {
+                // [RULE FLOW ACTION] the check for the interval is skipped and the validation moves to the next interval.
+                preparedValidationResult = ValidationResult.NOT_VALIDATED;
+                return ValidationResult.NOT_VALIDATED;
+            }
+        }
+
+        BigDecimal differenceValue;
+
+        if (maxAbsoluteDifference instanceof TwoValuesAbsoluteDifference) {
+            differenceValue = ((TwoValuesAbsoluteDifference) maxAbsoluteDifference).value;
+        } else if (maxAbsoluteDifference instanceof TwoValuesPercentDifference) {
+            differenceValue = mainValue.multiply(BigDecimal.valueOf(((TwoValuesPercentDifference) maxAbsoluteDifference).percent));
+        } else {
+            return ValidationResult.NOT_VALIDATED;
+        }
+
+        if (mainValue.subtract(checkValue).abs().compareTo(differenceValue) > 0) {
+            return ValidationResult.SUSPECT;
+        } else {
+            return ValidationResult.VALID;
+        }
     }
 
     @Override
@@ -214,5 +370,12 @@ public class MainCheckValidator extends AbstractValidator {
     @Override
     public Set<QualityCodeSystem> getSupportedQualityCodeSystems() {
         return QUALITY_CODE_SYSTEMS;
+    }
+
+    private Logger getLogger() {
+        if (logger == null) {
+            logger = Logger.getLogger(this.getClass().getName());
+        }
+        return logger;
     }
 }
