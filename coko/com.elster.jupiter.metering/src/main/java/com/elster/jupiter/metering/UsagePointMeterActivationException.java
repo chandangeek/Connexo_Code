@@ -100,8 +100,9 @@ public class UsagePointMeterActivationException extends LocalizedException {
         // no usages -> no getters add if necessary
     }
 
-    public static MeterDeactivationFailedGapsNotAllowed meterDeactivationFailedGapsNotAllowed(Thesaurus thesaurus, Meter meter, UsagePoint usagePoint, String date) {
-        MeterDeactivationFailedGapsNotAllowed ex = new MeterDeactivationFailedGapsNotAllowed(thesaurus, meter.getName(), usagePoint.getName(), date);
+    public static MeterCannotBeUnlinked meterCannotBeUnlinked(Thesaurus thesaurus, Meter meter, MeterRole meterRole, UsagePoint usagePoint, String date) {
+        MeterCannotBeUnlinked ex = new MeterCannotBeUnlinked(thesaurus, meter.getName(), usagePoint.getName(), date);
+        ex.meterRole = meterRole;
         return ex;
     }
 
@@ -161,12 +162,6 @@ public class UsagePointMeterActivationException extends LocalizedException {
         return ex;
     }
 
-    public static class MeterDeactivationFailedGapsNotAllowed extends UsagePointMeterActivationException {
-        public MeterDeactivationFailedGapsNotAllowed(Thesaurus thesaurus, String meter, String usagePoint, String date) {
-            super(thesaurus, MessageSeeds.METER_ACTIVATION_BEFORE_UP_INSTALLATION_TIME, meter, usagePoint, date);
-        }
-    }
-
     public static class ActivationTimeBeforeUsagePointInstallationDate extends UsagePointMeterActivationException {
         public ActivationTimeBeforeUsagePointInstallationDate(Thesaurus thesaurus, String usagePointInstallationTime) {
             super(thesaurus, MessageSeeds.METER_ACTIVATION_BEFORE_UP_INSTALLATION_TIME, usagePointInstallationTime);
@@ -191,8 +186,14 @@ public class UsagePointMeterActivationException extends LocalizedException {
     }
 
     public static class MeterCannotBeUnlinked extends UsagePointMeterActivationException {
+        private MeterRole meterRole;
+
         public MeterCannotBeUnlinked(Thesaurus thesaurus, String meter, String usagePoint, String date) {
             super(thesaurus, MessageSeeds.METER_CANNOT_BE_UNLINKED, meter, usagePoint, date);
+        }
+
+        public MeterRole getMeterRole() {
+            return this.meterRole;
         }
     }
 
