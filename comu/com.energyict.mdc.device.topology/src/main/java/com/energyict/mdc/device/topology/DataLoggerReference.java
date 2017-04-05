@@ -4,18 +4,8 @@
 
 package com.energyict.mdc.device.topology;
 
-import com.elster.jupiter.metering.Channel;
-
-import com.energyict.mdc.device.topology.DataLoggerChannelUsage;
-import com.energyict.mdc.device.topology.PhysicalGatewayReference;
-
-import java.util.List;
-
-public interface DataLoggerReference extends PhysicalGatewayReference {
-
-    boolean addDataLoggerChannelUsage(Channel slaveChannel, Channel dataLoggerChannel);
-
-    List<DataLoggerChannelUsage> getDataLoggerChannelUsages();
-
-    boolean isTerminated();
+/**
+ * Marker interface for ChannelProviders related to data logger devices
+ */
+public interface DataLoggerReference extends ChannelProvider {
 }

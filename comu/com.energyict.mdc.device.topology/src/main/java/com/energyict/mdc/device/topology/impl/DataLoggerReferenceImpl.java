@@ -40,11 +40,6 @@ public class DataLoggerReferenceImpl extends AbstractPhysicalGatewayReferenceImp
         return Collections.unmodifiableList(dataLoggerChannelUsages);
     }
 
-    @Override
-    public boolean isTerminated() {
-        return getRange().hasUpperBound();
-    }
-
     /**
      * Closes the current interval.
      */

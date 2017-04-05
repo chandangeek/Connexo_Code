@@ -28,7 +28,7 @@ public class AllDataLoggerChannelsAvailableValidator implements ConstraintValida
 
     @Override
     public boolean isValid(MultiElementDeviceReferenceImpl multiElementDeviceReference, ConstraintValidatorContext constraintValidatorContext) {
-        List<DataLoggerChannelUsage> currentUsages = multiElementDeviceReference.getChannelUsages();
+        List<DataLoggerChannelUsage> currentUsages = multiElementDeviceReference.getDataLoggerChannelUsages();
         Set<Channel> dataLoggerChannels = currentUsages.stream().map(DataLoggerChannelUsage::getDataLoggerChannel).collect(Collectors.toSet());
         boolean isValid = currentUsages.isEmpty() || (dataLoggerChannels.size() == currentUsages.size() && dataLoggerChannels.stream().filter(this::isAvailable).findAny().isPresent());
         if (!isValid) {

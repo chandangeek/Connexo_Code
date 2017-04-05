@@ -89,6 +89,11 @@ public abstract class AbstractPhysicalGatewayReferenceImpl implements PhysicalGa
     }
 
     @Override
+    public boolean isTerminated() {
+        return getRange().hasUpperBound();
+    }
+
+    @Override
     public Device getOrigin(){
         return this.origin.orNull();
     }

@@ -348,7 +348,7 @@ public class MultiElementReferenceImplTest extends PersistenceIntegrationTest {
 
         assertThat(multiElementDeviceReference.getOrigin().getId()).isEqualTo(slave.getId());
         assertThat(multiElementDeviceReference.getGateway().getId()).isEqualTo(multiElementDevice.getId());
-        assertThat(multiElementDeviceReference.getChannelUsages()).hasSize(3);
+        assertThat(multiElementDeviceReference.getDataLoggerChannelUsages()).hasSize(3);
 
         List<Device> slaves = inMemoryPersistence.getMultiElementDeviceService().findMultiElementSlaves(multiElementDevice);
         assertThat(slaves).hasSize(1);
@@ -398,7 +398,7 @@ public class MultiElementReferenceImplTest extends PersistenceIntegrationTest {
 
         assertThat(multiElementDeviceReferences.get(0).getOrigin().getId()).isEqualTo(slave.getId());
         assertThat(multiElementDeviceReferences.get(0).getGateway().getId()).isEqualTo(multiElementDevice.getId());
-        assertThat(multiElementDeviceReferences.get(0).getChannelUsages()).hasSize(3);
+        assertThat(multiElementDeviceReferences.get(0).getDataLoggerChannelUsages()).hasSize(3);
 
         List<Device> slaves = inMemoryPersistence.getMultiElementDeviceService().findMultiElementSlaves(multiElementDevice);
         assertThat(slaves).hasSize(1);

@@ -153,7 +153,7 @@ public class MultiElementDeviceServiceImplTest extends PersistenceIntegrationTes
         assertThat(multiElementDeviceReference.getOrigin().getId()).isEqualTo(slave.getId());
         assertThat(multiElementDeviceReference.getGateway().getId()).isEqualTo(multiElementDevice.getId());
         assertThat(multiElementDeviceReference.getRange().lowerEndpoint()).isEqualTo(now);
-        assertThat(multiElementDeviceReference.getChannelUsages()).hasSize(1);
+        assertThat(multiElementDeviceReference.getDataLoggerChannelUsages()).hasSize(1);
     }
 
     @Test

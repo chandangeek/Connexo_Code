@@ -36,18 +36,13 @@ public class MultiElementDeviceReferenceImpl extends AbstractPhysicalGatewayRefe
     }
 
     @Override
-    public boolean addChannelUsage(Channel slaveChannel, Channel dataLoggerChannel) {
+    public boolean addDataLoggerChannelUsage(Channel slaveChannel, Channel dataLoggerChannel) {
         return dataLoggerChannelUsages.add(new DataLoggerChannelUsageImpl().createFor(this, slaveChannel, dataLoggerChannel));
     }
 
     @Override
-    public List<DataLoggerChannelUsage> getChannelUsages() {
+    public List<DataLoggerChannelUsage> getDataLoggerChannelUsages() {
         return Collections.unmodifiableList(dataLoggerChannelUsages);
-    }
-
-    @Override
-    public boolean isTerminated() {
-        return getRange().hasUpperBound();
     }
 
     /**

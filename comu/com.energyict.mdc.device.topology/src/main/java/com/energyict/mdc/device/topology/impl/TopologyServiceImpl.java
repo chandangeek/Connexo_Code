@@ -57,7 +57,6 @@ import com.energyict.mdc.device.topology.TopologyTimeslice;
 import com.energyict.mdc.device.topology.impl.utils.ChannelDataTransferor;
 import com.energyict.mdc.device.topology.impl.utils.MeteringChannelProvider;
 import com.energyict.mdc.device.topology.impl.utils.Utils;
-import com.energyict.mdc.device.topology.multielement.MultiElementDeviceReference;
 
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;

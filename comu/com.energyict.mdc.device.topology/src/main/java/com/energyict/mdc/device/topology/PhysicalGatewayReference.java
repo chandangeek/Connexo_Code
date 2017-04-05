@@ -57,4 +57,10 @@ public interface PhysicalGatewayReference extends Effectivity {
      */
     void terminate(Instant closingDate);
 
+    /**
+     * Synonym for 'is not effective at this moment'
+     * @return true if the 'effectivity' is ended, false if not
+     */
+    boolean isTerminated();
+
 }

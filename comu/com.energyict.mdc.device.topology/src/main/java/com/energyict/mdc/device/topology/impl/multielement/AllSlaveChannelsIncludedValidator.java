@@ -20,7 +20,7 @@ class AllSlaveChannelsIncludedValidator implements ConstraintValidator<AllSlaveC
     @Override
     public boolean isValid(MultiElementDeviceReferenceImpl multiElementDeviceReference, ConstraintValidatorContext constraintValidatorContext) {
         Device slave = multiElementDeviceReference.getOrigin();
-        long numberOfChannelUsages = multiElementDeviceReference.getChannelUsages().stream().map(DataLoggerChannelUsage::getSlaveChannel).count();
+        long numberOfChannelUsages = multiElementDeviceReference.getDataLoggerChannelUsages().stream().map(DataLoggerChannelUsage::getSlaveChannel).count();
         int numberOfSlaveChannels = slave.getChannels().size();
         int numberOfSlaveRegisters = slave.getRegisters().size();
         return numberOfChannelUsages == numberOfSlaveChannels + numberOfSlaveRegisters;

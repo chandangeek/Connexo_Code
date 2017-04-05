@@ -78,12 +78,12 @@ public class MultiElementDeviceServiceImpl implements MultiElementDeviceService,
         setTopologyService(topologyService);
         setUpgradeService(upgradeService);
         setNlsService(nlsService);
-        activate();
+//        activate();
     }
 
     @Activate
     public void activate() {
-        upgradeService.register(InstallIdentifier.identifier("MultiSense", MultiElementDeviceService.COMPONENT_NAME), getDataModel(), Installer.class, V10_3SimpleUpgrader.V10_3_UPGRADER);
+        // Nothing to do: uses topologyservice where all upgrades are done
     }
 
     private DataModel getDataModel() {
@@ -103,7 +103,7 @@ public class MultiElementDeviceServiceImpl implements MultiElementDeviceService,
 
     @Reference
     public void setNlsService(NlsService nlsService) {
-        this.thesaurus =  nlsService.getThesaurus(MultiElementDeviceService.COMPONENT_NAME, Layer.DOMAIN);
+        this.thesaurus = nlsService.getThesaurus(MultiElementDeviceService.COMPONENT_NAME, Layer.DOMAIN);
         this.meteringChannelProvider = new MeteringChannelProvider(thesaurus);
     }
 
@@ -167,7 +167,7 @@ public class MultiElementDeviceServiceImpl implements MultiElementDeviceService,
             slaveDataLoggerRegisterMap.forEach((slaveRegister, dataLoggerRegister) -> this.addRegisterDataLoggerUsage(multiElementDeviceReference, slaveRegister, dataLoggerRegister, dataLoggerMeterActivation, slaveMeterActivation));
             Save.CREATE.validate(getDataModel(), multiElementDeviceReference);
             ChannelDataTransferor dataTransferor = new ChannelDataTransferor();
-            multiElementDeviceReference.getChannelUsages().stream().forEach(dataTransferor::transferChannelDataToSlave);
+            multiElementDeviceReference.getDataLoggerChannelUsages().stream().forEach(dataTransferor::transferChannelDataToSlave);
             getDataModel().persist(multiElementDeviceReference);
             return multiElementDeviceReference;
         } else {
@@ -178,13 +178,13 @@ public class MultiElementDeviceServiceImpl implements MultiElementDeviceService,
     private void addChannelDataLoggerUsage(MultiElementDeviceReferenceImpl multiElementDeviceReference, Channel slave, Channel dataLogger, MeterActivation dataLoggerMeterActivation, MeterActivation slaveMeterActivation) {
         com.elster.jupiter.metering.Channel channelForSlave = meteringChannelProvider.getMeteringChannel(slave, slaveMeterActivation);
         com.elster.jupiter.metering.Channel channelForDataLogger = meteringChannelProvider.getMeteringChannel(dataLogger, dataLoggerMeterActivation);
-        multiElementDeviceReference.addChannelUsage(channelForSlave, channelForDataLogger);
+        multiElementDeviceReference.addDataLoggerChannelUsage(channelForSlave, channelForDataLogger);
     }
 
     private void addRegisterDataLoggerUsage(MultiElementDeviceReferenceImpl multiElementDeviceReference, Register slave, Register dataLogger, MeterActivation dataLoggerMeterActivation, MeterActivation slaveMeterActivation) {
         com.elster.jupiter.metering.Channel channelForSlave = meteringChannelProvider.getMeteringChannel(slave, slaveMeterActivation);
         com.elster.jupiter.metering.Channel channelForDataLogger = meteringChannelProvider.getMeteringChannel(dataLogger, dataLoggerMeterActivation);
-        multiElementDeviceReference.addChannelUsage(channelForSlave, channelForDataLogger);
+        multiElementDeviceReference.addDataLoggerChannelUsage(channelForSlave, channelForDataLogger);
     }
 
     @Override
@@ -210,11 +210,17 @@ public class MultiElementDeviceServiceImpl implements MultiElementDeviceService,
         return findMultiElementDeviceReference(slave, when).map(MultiElementDeviceReference::getGateway);
     }
 
-     @Override
+    @Override
     public List<Device> findMultiElementSlaves(Device multiElementDevice) {
         Condition condition = this.getDevicesInTopologyCondition(multiElementDevice);
         List<MultiElementDeviceReferenceImpl> multiElementDeviceReferences = getDataModel().mapper(MultiElementDeviceReferenceImpl.class).select(condition);
         return this.findUniqueReferencingDevices(new ArrayList<>(multiElementDeviceReferences));
+    }
+
+    @Override
+    public Optional<MultiElementDeviceReference> findLastReference(Device slaveDevice) {
+        Condition condition = where(PhysicalGatewayReferenceImpl.Field.ORIGIN.fieldName()).isEqualTo(slaveDevice);
+        return getDataModel().stream(MultiElementDeviceReference.class).filter(condition).sorted(Order.descending("interval.start")).limit(1).findFirst();
     }
 
     private Condition getDevicesInTopologyCondition(Device device) {
@@ -235,13 +241,13 @@ public class MultiElementDeviceServiceImpl implements MultiElementDeviceService,
     }
 
     @Override
-    public List<Pair<Channel, Range<Instant>>> getMultiElementSlaveChannelTimeLine(Channel channel, Range<Instant> range){
-       return topologyService.getDataLoggerChannelTimeLine(channel, range);
+    public List<Pair<Channel, Range<Instant>>> getMultiElementSlaveChannelTimeLine(Channel channel, Range<Instant> range) {
+        return topologyService.getDataLoggerChannelTimeLine(channel, range);
     }
 
     @Override
-    public List<Pair<Register, Range<Instant>>> getMultiElementSlaveRegisterTimeLine(Register register, Range<Instant> intervalReg){
-       return topologyService.getDataLoggerRegisterTimeLine(register, intervalReg);
+    public List<Pair<Register, Range<Instant>>> getMultiElementSlaveRegisterTimeLine(Register register, Range<Instant> intervalReg) {
+        return topologyService.getDataLoggerRegisterTimeLine(register, intervalReg);
     }
 
     private void validateUniqueKeyConstraintForMultiElementDeviceReference(Device multiElementDevice, Instant linkingDate, Device slave) {
@@ -261,6 +267,9 @@ public class MultiElementDeviceServiceImpl implements MultiElementDeviceService,
     @Override
     public Optional<MultiElementDeviceReference> findMultiElementDeviceReference(Device slaveDevice, Instant effective) {
         Condition condition = where(PhysicalGatewayReferenceImpl.Field.ORIGIN.fieldName()).isEqualTo(slaveDevice).and(where("interval").isEffective(effective));
-        return getDataModel().mapper(MultiElementDeviceReference.class).select(condition).stream().findAny(); // the business logic of the effectivity requires that there is only one object effective at a
+        return getDataModel().mapper(MultiElementDeviceReference.class)
+                .select(condition)
+                .stream()
+                .findAny(); // the business logic of the effectivity requires that there is only one object effective at a
     }
 }

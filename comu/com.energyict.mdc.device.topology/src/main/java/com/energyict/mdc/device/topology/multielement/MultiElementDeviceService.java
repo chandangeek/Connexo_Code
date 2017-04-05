@@ -5,6 +5,7 @@ import com.elster.jupiter.util.Pair;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.device.topology.DataLoggerReference;
 
 import aQute.bnd.annotation.ProviderType;
 import com.google.common.collect.Range;
@@ -73,6 +74,14 @@ public interface MultiElementDeviceService {
      * @return the MultiElementDeviceReference which was active at the given timestamp
      */
     Optional<MultiElementDeviceReference> findMultiElementDeviceReference(Device slaveDevice, Instant effective);
+
+    /**
+     * Finds the last MultiElementDeviceReference for the given multi-element slave device
+     *
+     * @param slaveDevice the multi-element slave device which was potentially linked to a multi-element device
+     * @return the last reference to a multi-element device for the given slave, if any
+     */
+    Optional<MultiElementDeviceReference> findLastReference(Device slaveDevice);
 
     /**
      * Provides an ordered list which contains pairs of channels (of different devices) vs ranges in which they should contain data

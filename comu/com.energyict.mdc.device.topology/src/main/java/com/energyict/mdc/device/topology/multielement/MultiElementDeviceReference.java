@@ -4,17 +4,10 @@
 
 package com.energyict.mdc.device.topology.multielement;
 
-import com.elster.jupiter.metering.Channel;
-import com.energyict.mdc.device.topology.DataLoggerChannelUsage;
-import com.energyict.mdc.device.topology.PhysicalGatewayReference;
+import com.energyict.mdc.device.topology.ChannelProvider;
 
-import java.util.List;
-
-public interface MultiElementDeviceReference extends PhysicalGatewayReference {
-
-    boolean addChannelUsage(Channel slaveChannel, Channel dataLoggerChannel);
-
-    List<DataLoggerChannelUsage> getChannelUsages();
-
-    boolean isTerminated();
+/**
+ * Marker interface for ChannelProviders related to multi-element devices
+ */
+public interface MultiElementDeviceReference extends ChannelProvider {
 }
