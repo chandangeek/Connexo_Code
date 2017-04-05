@@ -639,7 +639,13 @@ Ext.define('Imt.controller.History', {
                     action: 'showFavoriteUsagePointGroups'
                 }
             }
+        },
+        "workspace/dataquality": {
+            title: Uni.I18n.translate('general.dataQuality', 'IMT', 'Data quality'),
+            route: 'workspace/dataquality',
+            controller: 'Imt.dataquality.controller.DataQuality',
+            action: 'showDataQuality',
+            privileges: Cfg.privileges.Validation.viewResultsOrAdministerDataQuality
         }
-
     }
 });
