@@ -13,7 +13,6 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.PlaintextPrivateKeyWrapper;
 import com.elster.jupiter.pki.PrivateKeyWrapper;
-import com.elster.jupiter.pki.Renewable;
 import com.elster.jupiter.pki.impl.MessageSeeds;
 import com.elster.jupiter.pki.impl.wrappers.PkiLocalizedException;
 import com.elster.jupiter.properties.PropertySpec;
@@ -47,13 +46,14 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static java.util.stream.Collectors.toList;
 
 /**
  * Implements storage of a PrivateKey in the DataVault.
  */
-abstract public class AbstractPlaintextPrivateKeyWrapperImpl implements PlaintextPrivateKeyWrapper, Renewable {
+abstract public class AbstractPlaintextPrivateKeyWrapperImpl implements PlaintextPrivateKeyWrapper {
 
     protected final DataVaultService dataVaultService;
     protected final PropertySpecService propertySpecService;
@@ -110,12 +110,8 @@ abstract public class AbstractPlaintextPrivateKeyWrapperImpl implements Plaintex
     }
 
     @Override
-    public Instant getExpirationTime() {
-        return expirationTime;
-    }
-
-    public void setExpirationTime(Instant expirationTime) {
-        this.expirationTime = expirationTime;
+    public Optional<Instant> getExpirationTime() {
+        return Optional.ofNullable(expirationTime); // TODO provide link to certificate to determine expiration
     }
 
     @Override

@@ -10,12 +10,14 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.PlaintextSymmetricKey;
 import com.elster.jupiter.pki.impl.MessageSeeds;
 import com.elster.jupiter.pki.impl.wrappers.PkiLocalizedException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.Checks;
 
 import javax.crypto.KeyGenerator;
@@ -24,7 +26,9 @@ import javax.crypto.spec.SecretKeySpec;
 import javax.inject.Inject;
 import javax.validation.constraints.Size;
 import java.security.NoSuchAlgorithmException;
+import java.time.Clock;
 import java.time.Instant;
+import java.time.ZonedDateTime;
 import java.util.Base64;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -35,16 +39,17 @@ import java.util.Optional;
 import static java.util.stream.Collectors.toList;
 
 /**
- * A Plaintext symmetric key is stored encrypted in the DB (using DataVaultService), however, the secret value is shown
+ * A Plaintext symmetric key is stored encrypted in the DB (using DataVaultService), however, the secret value can be shown
  * in plaintext to the user (base64 encoded).
  * This type is NOT secure and is to be used for development or debugging purposes only.
  */
-public class PlaintextSymmetricKeyImpl implements PlaintextSymmetricKey {
+public final class PlaintextSymmetricKeyImpl implements PlaintextSymmetricKey {
 
     protected final DataVaultService dataVaultService;
     protected final PropertySpecService propertySpecService;
     private final DataModel dataModel;
     private final Thesaurus thesaurus;
+    private final Clock clock;
 
     public enum Fields {
         ENCRYPTED_KEY("encryptedKey"),
@@ -70,11 +75,12 @@ public class PlaintextSymmetricKeyImpl implements PlaintextSymmetricKey {
     private Instant expirationTime;
 
     @Inject
-    PlaintextSymmetricKeyImpl(DataVaultService dataVaultService, PropertySpecService propertySpecService, DataModel dataModel, Thesaurus thesaurus) {
+    PlaintextSymmetricKeyImpl(DataVaultService dataVaultService, PropertySpecService propertySpecService, DataModel dataModel, Thesaurus thesaurus, Clock clock) {
         this.dataVaultService = dataVaultService;
         this.propertySpecService = propertySpecService;
         this.dataModel = dataModel;
         this.thesaurus = thesaurus;
+        this.clock = clock;
     }
 
     PlaintextSymmetricKeyImpl init(KeyType keyType) {
@@ -105,27 +111,28 @@ public class PlaintextSymmetricKeyImpl implements PlaintextSymmetricKey {
     }
 
     @Override
-    public Instant getExpirationTime() {
-        return expirationTime;
+    public Optional<Instant> getExpirationTime() {
+        return Optional.ofNullable(expirationTime);
     }
 
-    public void setExpirationTime(Instant expirationTime) {
+    private void setExpirationTime(Instant expirationTime) {
         this.expirationTime = expirationTime;
     }
 
     @Override
-    public void generateValue() {
+    public void generateValue(KeyAccessorType keyAccessorType) {
         try {
-            doRenewValue();
+            doRenewValue(keyAccessorType.getDuration());
         } catch (NoSuchAlgorithmException e) {
             throw new PkiLocalizedException(thesaurus, MessageSeeds.ALGORITHM_NOT_SUPPORTED, e);
         }
     }
 
-    private void doRenewValue() throws NoSuchAlgorithmException {
+    private void doRenewValue(Optional<TimeDuration> duration) throws NoSuchAlgorithmException {
         KeyGenerator keyGenerator = KeyGenerator.getInstance(getKeyType().getKeyAlgorithm());
         keyGenerator.init(getKeyType().getKeySize());
         setKey(keyGenerator.generateKey());
+        duration.ifPresent(td -> setExpirationTime(ZonedDateTime.now(clock).plus(td.asTemporalAmount()).toInstant()));
         this.save();
     }
 

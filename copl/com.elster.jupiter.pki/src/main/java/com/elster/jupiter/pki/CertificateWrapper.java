@@ -19,7 +19,7 @@ import java.util.Set;
  *
  */
 @ProviderType
-public interface CertificateWrapper extends HasDynamicPropertiesWithUpdatableValues, HasId {
+public interface CertificateWrapper extends HasDynamicPropertiesWithUpdatableValues, HasId, SecurityValueWrapper {
     /**
      * A certificate alias is the name given to a certificate located in the certificate store.
      * Each entry in the certificate store has an alias to help identify it.

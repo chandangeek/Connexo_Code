@@ -12,19 +12,20 @@ import java.security.InvalidKeyException;
 import java.security.PrivateKey;
 import java.time.Instant;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * This class wraps an actual PrivateKey with the information required to read it from db or renew it.
  * Through offering PropertySpecs & properties, a generic interface is offered for the UI
  */
 @ConsumerType
-public interface PrivateKeyWrapper extends HasDynamicPropertiesWithUpdatableValues, Renewable {
+public interface PrivateKeyWrapper extends HasDynamicPropertiesWithUpdatableValues, SecurityValueWrapper {
 
     /**
      * The exact date when the value of this element will expire. The value should be renewed by this date.
      * @return date until which this element is valid
      */
-    Instant getExpirationTime();
+    Optional<Instant> getExpirationTime();
 
     /**
      * Defines the method used to store keys by this implementation.
@@ -60,5 +61,13 @@ public interface PrivateKeyWrapper extends HasDynamicPropertiesWithUpdatableValu
      * Deletes the private key wrapper and all information contained within the wrapper
      */
     void delete();
+
+    /**
+     * Allows the generation of a random value for an empty wrapper, in this case, a private key
+     * It's up to the implementing class to make sure all renewal information is available (through linking
+     * KeyTypes/KeyAccessorTypes)
+     * Note that not all key encryption methods will permit automatic renewal.
+     */
+    public void generateValue();
 
 }

@@ -35,6 +35,9 @@ import org.osgi.service.event.EventAdmin;
 
 import javax.validation.MessageInterpolator;
 import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 
 import static org.mockito.Mockito.mock;
 
@@ -42,7 +45,8 @@ public class PkiInMemoryPersistence {
 
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
     private Injector injector;
-    private static Clock clock = Clock.systemDefaultZone();
+    public static final Instant EPOCH = ZonedDateTime.of(2017, 4, 4, 13, 0, 0, 0, ZoneId.of("UTC")).toInstant();
+    private static Clock clock = Clock.fixed(EPOCH, ZoneId.of("UTC"));
     private PkiService pkiService;
 
     public void activate() {
@@ -54,7 +58,7 @@ public class PkiInMemoryPersistence {
                 new DomainUtilModule(),
                 new NlsModule(),
                 new UserModule(),
-                new UtilModule(),
+                new UtilModule(clock),
                 new ThreadSecurityModule(),
                 new PubSubModule(),
                 new EventsModule(),
@@ -113,6 +117,6 @@ public class PkiInMemoryPersistence {
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
             bind(Thesaurus.class).toInstance(mock(Thesaurus.class));
             bind(MessageInterpolator.class).toInstance(mock(Thesaurus.class));
-            bind(Clock.class).toInstance(clock);
+//            bind(Clock.class).toInstance(clock);
         }
     }}

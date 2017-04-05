@@ -25,7 +25,7 @@ import java.security.spec.RSAPublicKeySpec;
 /**
  * Created by bvn on 2/14/17.
  */
-public class PlaintextRsaPrivateKey extends AbstractPlaintextPrivateKeyWrapperImpl {
+public final class PlaintextRsaPrivateKey extends AbstractPlaintextPrivateKeyWrapperImpl {
 
 
     @Inject

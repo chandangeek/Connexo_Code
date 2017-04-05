@@ -36,7 +36,7 @@ import java.security.spec.PKCS8EncodedKeySpec;
 /**
  * Created by bvn on 2/14/17.
  */
-public class PlaintextEcdsaPrivateKey extends AbstractPlaintextPrivateKeyWrapperImpl {
+public final class PlaintextEcdsaPrivateKey extends AbstractPlaintextPrivateKeyWrapperImpl {
 
     @Inject
     PlaintextEcdsaPrivateKey(DataVaultService dataVaultService, PropertySpecService propertySpecService, DataModel dataModel, Thesaurus thesaurus) {

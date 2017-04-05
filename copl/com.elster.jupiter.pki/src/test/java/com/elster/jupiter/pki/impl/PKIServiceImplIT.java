@@ -21,6 +21,7 @@ import com.elster.jupiter.pki.TrustedCertificate;
 import com.elster.jupiter.pki.impl.wrappers.PkiLocalizedException;
 import com.elster.jupiter.pki.impl.wrappers.asymmetric.DataVaultPrivateKeyFactory;
 import com.elster.jupiter.pki.impl.wrappers.symmetric.DataVaultSymmetricKeyFactory;
+import com.elster.jupiter.time.TimeDuration;
 
 import certpathvalidator.CertPathValidatorTest;
 import org.bouncycastle.asn1.x500.X500Name;
@@ -55,12 +56,13 @@ import java.security.Security;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 
-import org.assertj.core.api.Assertions;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -301,23 +303,24 @@ public class PKIServiceImplIT {
         KeyType created = inMemoryPersistence.getPkiService().newSymmetricKeyType("AES128B", "AES", 128).add();
         KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
         when(keyAccessorType.getKeyType()).thenReturn(created);
+        when(keyAccessorType.getDuration()).thenReturn(Optional.of(TimeDuration.years(2)));
         when(keyAccessorType.getKeyEncryptionMethod()).thenReturn(DataVaultSymmetricKeyFactory.KEY_ENCRYPTION_METHOD);
         PlaintextSymmetricKey symmetricKeyWrapper = (PlaintextSymmetricKey) inMemoryPersistence.getPkiService()
                 .newSymmetricKeyWrapper(keyAccessorType);
-        symmetricKeyWrapper.generateValue();
+        symmetricKeyWrapper.generateValue(keyAccessorType);
 
-        Assertions.assertThat(symmetricKeyWrapper.getKey()).isPresent();
-        Assertions.assertThat(symmetricKeyWrapper.getKey().get().getEncoded()).isNotEmpty();
-        Assertions.assertThat(symmetricKeyWrapper.getKey().get().getAlgorithm()).isEqualTo("AES");
-        Assertions.assertThat(symmetricKeyWrapper.getKey().get().getFormat()).isEqualTo("RAW");
-        Assertions.assertThat(symmetricKeyWrapper.getProperties()).hasSize(1);
-        Assertions.assertThat(symmetricKeyWrapper.getProperties()).containsKey("key");
-        Assertions.assertThat(symmetricKeyWrapper.getPropertySpecs()).hasSize(1);
-        Assertions.assertThat(symmetricKeyWrapper.getPropertySpecs().get(0).getDisplayName()).isEqualTo("key");
-        Assertions.assertThat(symmetricKeyWrapper.getPropertySpecs().get(0).getDescription())
-                .isEqualTo("Plaintext view of key");
-        Assertions.assertThat(symmetricKeyWrapper.getPropertySpecs().get(0).getValueFactory().getValueType())
-                .isEqualTo(String.class);
+        assertThat(symmetricKeyWrapper.getKey()).isPresent();
+        assertThat(symmetricKeyWrapper.getKey().get().getEncoded()).isNotEmpty();
+        assertThat(symmetricKeyWrapper.getKey().get().getAlgorithm()).isEqualTo("AES");
+        assertThat(symmetricKeyWrapper.getKey().get().getFormat()).isEqualTo("RAW");
+        assertThat(symmetricKeyWrapper.getProperties()).hasSize(1);
+        assertThat(symmetricKeyWrapper.getProperties()).containsKey("key");
+        assertThat(symmetricKeyWrapper.getPropertySpecs()).hasSize(1);
+        assertThat(symmetricKeyWrapper.getPropertySpecs().get(0).getDisplayName()).isEqualTo("key");
+        assertThat(symmetricKeyWrapper.getPropertySpecs().get(0).getDescription()).isEqualTo("Plaintext view of key");
+        assertThat(symmetricKeyWrapper.getPropertySpecs().get(0).getValueFactory().getValueType()).isEqualTo(String.class);
+        assertThat(symmetricKeyWrapper.getExpirationTime()).isPresent();
+        assertThat(symmetricKeyWrapper.getExpirationTime().get()).isEqualTo(ZonedDateTime.of(2019, 4, 4, 13, 0,0,0, ZoneId.of("UTC")).toInstant());
     }
 
     @Test
