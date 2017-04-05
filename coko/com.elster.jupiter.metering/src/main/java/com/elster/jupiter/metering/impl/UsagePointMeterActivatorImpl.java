@@ -311,6 +311,19 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
                 validationReport.meterCannotBeUnlinked(meter, deactivation.getMeterRole(), deactivation.getUsagePoint(), formatDate(deactivation.getStart()));
             }
         }
+        for (Activation activation : activationChanges) {
+            Optional<EffectiveMetrologyConfigurationOnUsagePoint> configurationOnUsagePoint = activation.getUsagePoint().getEffectiveMetrologyConfiguration(activation.getStart());
+            if (configurationOnUsagePoint.isPresent()
+                    && !configurationOnUsagePoint.get().getMetrologyConfiguration().isGapAllowed()
+                    && configurationOnUsagePoint.get().getStart().isBefore(activation.getStart())
+                    && !deactivationChanges.stream()
+                    .filter(deactivation -> activation.getMeterRole().equals(deactivation.getMeterRole())
+                            && deactivation.getStart().equals(activation.getStart()))
+                    .findAny()
+                    .isPresent()){
+                validationReport.incorrectStartTimeOfMeterAndMetrologyConfig(activation.getMeter(), activation.getMeterRole(), formatDate(activation.getStart()));
+            }
+        }
     }
 
     private void validateMetersCapabilities(ValidationReport validationReport) {
@@ -854,6 +867,8 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
 
         void meterCannotBeUnlinked(Meter meter, MeterRole meterRole, UsagePoint usagePoint, String date);
 
+        void incorrectStartTimeOfMeterAndMetrologyConfig(Meter meter, MeterRole meterRole, String date);
+
         void meterHasUnsatisfiedRequirements(Meter meter, UsagePoint usagePoint, MeterRole meterRole, Map<UsagePointMetrologyConfiguration, List<ReadingTypeRequirement>> unsatisfiedRequirements);
 
         void activationWasFailedByCustomValidator(Meter meter, MeterRole meterRole, UsagePoint usagePoint, CustomUsagePointMeterActivationValidationException ex);
@@ -880,6 +895,14 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
             this.valid = false;
             String errorMessage = this.thesaurus.getFormat(MessageSeeds.METER_CANNOT_BE_UNLINKED)
                     .format(meter.getName(), usagePoint.getName(), date);
+            this.context.buildConstraintViolationWithTemplate(errorMessage).addPropertyNode(meterRole.getKey()).addConstraintViolation();
+        }
+
+        @Override
+        public void incorrectStartTimeOfMeterAndMetrologyConfig(Meter meter, MeterRole meterRole, String date) {
+            this.valid = false;
+            String errorMessage = this.thesaurus.getFormat(MessageSeeds.METER_ACTIVATION_INVALID_DATE)
+                    .format(meter.getName(), date);
             this.context.buildConstraintViolationWithTemplate(errorMessage).addPropertyNode(meterRole.getKey()).addConstraintViolation();
         }
 
@@ -999,6 +1022,11 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
         @Override
         public void meterCannotBeUnlinked(Meter meter, MeterRole meterRole, UsagePoint usagePoint, String date) {
             throw UsagePointMeterActivationException.meterCannotBeUnlinked(this.thesaurus, meter, meterRole, usagePoint, date);
+        }
+
+        @Override
+        public void incorrectStartTimeOfMeterAndMetrologyConfig(Meter meter, MeterRole meterRole, String date) {
+            throw UsagePointMeterActivationException.incorrectStartTimeOfMeterAndMetrologyConfig(this.thesaurus, meter, meterRole, date);
         }
 
         @Override
