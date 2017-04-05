@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.calendar.impl.CalendarModule;
@@ -11,6 +12,8 @@ import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.EditPrivilege;
 import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
+import com.elster.jupiter.dataquality.DataQualityKpiService;
+import com.elster.jupiter.dataquality.impl.DataQualityKpiModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.estimation.EstimationService;
@@ -78,7 +81,6 @@ import com.elster.jupiter.util.time.ExecutionTimerService;
 import com.elster.jupiter.util.time.impl.ExecutionTimerServiceImpl;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationModule;
-import com.elster.jupiter.validation.kpi.DataValidationKpiService;
 import com.energyict.mdc.common.SqlBuilder;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
@@ -199,7 +201,7 @@ public class InMemoryIntegrationPersistence {
     private BatchService batchService;
     private DeviceSearchDomain deviceSearchDomain;
     private DataCollectionKpiService dataCollectionKpiService;
-    private DataValidationKpiService dataValidationKpiService;
+    private DataQualityKpiService dataQualityKpiService;
     private FiniteStateMachineService finiteStateMachineService;
     private CalendarService calendarService;
     private ServiceCallService serviceCallService;
@@ -293,7 +295,8 @@ public class InMemoryIntegrationPersistence {
                 new DeviceDataModule(),
                 new SchedulingModule(),
                 new CalendarModule(),
-                new UsagePointLifeCycleConfigurationModule());
+                new UsagePointLifeCycleConfigurationModule(),
+                new DataQualityKpiModule());
         this.transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = this.transactionService.getContext()) {
             this.jsonService = injector.getInstance(JsonService.class);
@@ -336,7 +339,7 @@ public class InMemoryIntegrationPersistence {
             injector.getInstance(SearchService.class).register(deviceSearchDomain);
             this.meteringGroupsService.addQueryProvider(injector.getInstance(DeviceEndDeviceQueryProvider.class));
             this.dataCollectionKpiService = injector.getInstance(DataCollectionKpiService.class);
-            this.dataValidationKpiService = injector.getInstance(DataValidationKpiService.class);
+            this.dataQualityKpiService = injector.getInstance(DataQualityKpiService.class);
             this.finiteStateMachineService = injector.getInstance(FiniteStateMachineService.class);
             this.calendarService = injector.getInstance(CalendarService.class);
             this.deviceMessageService = injector.getInstance(DeviceMessageService.class);
@@ -606,6 +609,7 @@ public class InMemoryIntegrationPersistence {
             bind(Thesaurus.class).toInstance(thesaurus);
             bind(DataModel.class).toProvider(() -> dataModel);
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
+            bind(AppService.class).toInstance(mock(AppService.class));
         }
     }
 
@@ -645,8 +649,7 @@ public class InMemoryIntegrationPersistence {
         return dataCollectionKpiService;
     }
 
-    public DataValidationKpiService getDataValidationKpiService() {
-        return dataValidationKpiService;
+    public DataQualityKpiService getDataQualityKpiService() {
+        return dataQualityKpiService;
     }
-
 }
