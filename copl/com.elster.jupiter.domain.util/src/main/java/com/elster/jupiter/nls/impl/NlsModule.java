@@ -59,7 +59,6 @@ public class NlsModule extends AbstractModule {
             return false;
         }
 
-
         @Override
         public Thesaurus join(Thesaurus thesaurus) {
             return this;
