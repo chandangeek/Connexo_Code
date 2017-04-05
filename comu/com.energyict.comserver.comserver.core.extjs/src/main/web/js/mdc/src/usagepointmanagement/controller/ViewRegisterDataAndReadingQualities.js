@@ -37,6 +37,7 @@ Ext.define('Mdc.usagepointmanagement.controller.ViewRegisterDataAndReadingQualit
                 select: me.showPreview
             }
         });
+        me.callParent(arguments);
     },
 
     showOverview: function (usagePointId, registerId) {
@@ -74,7 +75,7 @@ Ext.define('Mdc.usagepointmanagement.controller.ViewRegisterDataAndReadingQualit
 
         pageMainContent.setLoading();
 
-        registersStore.getProcreatePowerUserxy().setExtraParam('usagePointId', usagePointId);
+        registersStore.getProxy().setExtraParam('usagePointId', usagePointId);
         registersStore.suspendEvent('beforeload');
         registersStore.load(function () {
             registersStore.resumeEvent('beforeload');

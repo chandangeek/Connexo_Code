@@ -6,18 +6,18 @@ Ext.define('Mdc.usagepointmanagement.view.registersData.RegisterTypesMap', {
     singleton: true,
 
     addPreview: {
-        CUMULATIVE_VALUE: 'register-data-сumulative-preview',
-        CUMULATIVE_BILLING_VALUE: 'register-data-сumulative-preview',
-        CUMULATIVE_EVENT_BILLING_VALUE: 'register-data-сumulative-preview',
+        CUMULATIVE_VALUE: 'register-data-cumulative-preview',
+        CUMULATIVE_BILLING_VALUE: 'register-data-cumulative-preview',
+        CUMULATIVE_EVENT_BILLING_VALUE: 'register-data-cumulative-preview',
         NOT_CUMULATIVE_VALUE: 'register-data-noCumulative-preview',
         NOT_CUMULATIVE_BILLING_VALUE: 'register-data-noCumulative-preview',
         EVENT_VALUE: 'register-data-event-preview',
         EVENT_BILLING_VALUE: 'register-data-event-preview'
     },
     addGrid: {
-        CUMULATIVE_VALUE: 'register-data-сumulative-grid',
-        CUMULATIVE_BILLING_VALUE: 'register-data-сumulative-grid',
-        CUMULATIVE_EVENT_BILLING_VALUE: 'register-data-сumulative-grid',
+        CUMULATIVE_VALUE: 'register-data-cumulative-grid',
+        CUMULATIVE_BILLING_VALUE: 'register-data-cumulative-grid',
+        CUMULATIVE_EVENT_BILLING_VALUE: 'register-data-cumulative-grid',
         NOT_CUMULATIVE_VALUE: 'register-data-noCumulative-grid',
         NOT_CUMULATIVE_BILLING_VALUE: 'register-data-noCumulative-grid',
         EVENT_VALUE: 'register-data-event-grid',

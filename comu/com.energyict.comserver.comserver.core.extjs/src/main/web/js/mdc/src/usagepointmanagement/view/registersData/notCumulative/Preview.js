@@ -2,7 +2,7 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-Ext.define('Mdc.usagepointmanagement.view.registersData.noCumulative.Preview', {
+Ext.define('Mdc.usagepointmanagement.view.registersData.notCumulative.Preview', {
     extend: 'Ext.tab.Panel',
     alias: 'widget.register-data-noCumulative-preview',
 
@@ -51,10 +51,17 @@ Ext.define('Mdc.usagepointmanagement.view.registersData.noCumulative.Preview', {
                         fieldLabel: Uni.I18n.translate('general.measurementPeriod', 'MDC', 'Measurement period'),
                         name: 'measurementPeriod',
                         htmlEncode: false,
-                        renderer: function (interval) {
-                            return Uni.I18n.translate(
-                                'general.dateAtTime', 'MDC', '{0} at {1}',
-                                [Uni.DateTime.formatDateLong(new Date(interval.start)), Uni.DateTime.formatTimeLong(new Date(interval.end))], false);
+                        renderer: function (value) {
+                            if(!Ext.isEmpty(value)) {
+                                var endDate = new Date(value.end);
+                                if (!!value.start && !!value.end) {
+                                    var startDate = new Date(value.start);
+                                    return Uni.DateTime.formatDateTimeShort(startDate) + ' - ' + Uni.DateTime.formatDateTimeShort(endDate);
+                                } else {
+                                    return Uni.DateTime.formatDateTimeShort(endDate);
+                                }
+                            }
+                            return '-';
                         }
                     }
                 } else {

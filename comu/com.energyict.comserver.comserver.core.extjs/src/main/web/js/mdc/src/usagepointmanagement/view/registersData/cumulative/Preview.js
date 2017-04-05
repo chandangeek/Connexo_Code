@@ -30,10 +30,17 @@ Ext.define('Mdc.usagepointmanagement.view.registersData.cumulative.Preview', {
                             fieldLabel: Uni.I18n.translate('general.measurementPeriod', 'MDC', 'Measurement period'),
                             name: 'measurementPeriod',
                             htmlEncode: false,
-                            renderer: function (interval) {
-                                return Uni.I18n.translate(
-                                    'general.dateAtTime', 'MDC', '{0} at {1}',
-                                    [Uni.DateTime.formatDateLong(new Date(interval.start)), Uni.DateTime.formatTimeLong(new Date(interval.end))], false);
+                            renderer: function (value) {
+                                if(!Ext.isEmpty(value)) {
+                                    var endDate = new Date(value.end);
+                                    if (!!value.start && !!value.end) {
+                                        var startDate = new Date(value.start);
+                                        return Uni.DateTime.formatDateTimeShort(startDate) + ' - ' + Uni.DateTime.formatDateTimeShort(endDate);
+                                    } else {
+                                        return Uni.DateTime.formatDateTimeShort(endDate);
+                                    }
+                                }
+                                return '-';
                             }
                         },
                         {
@@ -57,9 +64,10 @@ Ext.define('Mdc.usagepointmanagement.view.registersData.cumulative.Preview', {
     loadRecord: function (record) {
         var me = this,
             interval = record.get('measurementPeriod'),
-            title = Uni.I18n.translate(
+            title = interval ? interval.start ? Uni.I18n.translate(
                 'general.dateAtTime', 'MDC', '{0} at {1}',
-                [Uni.DateTime.formatDateLong(new Date(interval.start)), Uni.DateTime.formatTimeLong(new Date(interval.end))], false);
+                [Uni.DateTime.formatDateLong(new Date(interval.start)), Uni.DateTime.formatTimeLong(new Date(interval.end))], false) :
+                Uni.I18n.translate('general.dateAtTimeEnd', 'MDC', ' - at {1}', Uni.DateTime.formatTimeLong(new Date(interval.end)), false):'-';
 
         me.record = record;
         Ext.suspendLayouts();

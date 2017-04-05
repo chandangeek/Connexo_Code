@@ -10,10 +10,10 @@ Ext.define('Mdc.usagepointmanagement.view.ViewRegisterDataAndReadingQualities', 
         'Uni.view.notifications.NoItemsFoundPanel',
         'Uni.view.container.PreviewContainer',
         'Mdc.usagepointmanagement.view.registersData.cumulative.Grid',
-        'Mdc.usagepointmanagement.view.registersData.noCumulative.Grid',
+        'Mdc.usagepointmanagement.view.registersData.notCumulative.Grid',
         'Mdc.usagepointmanagement.view.registersData.event.Grid',
         'Mdc.usagepointmanagement.view.registersData.cumulative.Preview',
-        'Mdc.usagepointmanagement.view.registersData.noCumulative.Preview',
+        'Mdc.usagepointmanagement.view.registersData.notCumulative.Preview',
         'Mdc.usagepointmanagement.view.registersData.event.Preview',
         'Mdc.usagepointmanagement.view.registersData.RegisterTypesMap',
         'Mdc.usagepointmanagement.view.UsagePointSideMenu',
@@ -32,8 +32,7 @@ Ext.define('Mdc.usagepointmanagement.view.ViewRegisterDataAndReadingQualities', 
     idProperty: 'interval_end',
 
     initComponent: function () {
-        var me = this,
-            store = me.getStore();
+        var me = this;
 
         me.content = [
             {
@@ -77,7 +76,8 @@ Ext.define('Mdc.usagepointmanagement.view.ViewRegisterDataAndReadingQualities', 
                         xtype: 'preview-container',
                         itemId: 'readings-preview-container',
                         grid: {
-                            xtype: Mdc.usagepointmanagement.view.registersData.RegisterTypesMap.getAddGrid(store.get('registerType')),
+                            // xtype: Mdc.usagepointmanagement.view.registersData.RegisterTypesMap.getAddGrid(),
+                            xtype: Mdc.usagepointmanagement.view.registersData.RegisterTypesMap.getAddGrid(me.register.get('registerType')),
                             itemId: 'register-data-grid',
                             store: me.store,
                             register: me.register,
@@ -93,7 +93,7 @@ Ext.define('Mdc.usagepointmanagement.view.ViewRegisterDataAndReadingQualities', 
                                     if (me.down('register-data-grid').getSelectionModel().isSelected(record)) {
                                         me.down('#readings-preview-container').fireEvent('rowselect', record);
                                     }
-                                }                                
+                                }
                             }
                         },
                         emptyComponent: {
@@ -105,7 +105,8 @@ Ext.define('Mdc.usagepointmanagement.view.ViewRegisterDataAndReadingQualities', 
                             ]
                         },
                         previewComponent: {
-                            xtype: Mdc.usagepointmanagement.view.registersData.RegisterTypesMap.getAddPreview(store.get('registerType')),
+                            // xtype: Mdc.usagepointmanagement.view.registersData.RegisterTypesMap.getAddPreview(),
+                            xtype: Mdc.usagepointmanagement.view.registersData.RegisterTypesMap.getAddPreview(me.register.get('registerType')),
                             itemId: 'register-data-preview',
                             router: me.router,
                             register: me.register
