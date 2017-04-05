@@ -5,6 +5,7 @@
 package com.elster.jupiter.kore.api.v2;
 
 import com.elster.jupiter.rest.api.util.v1.hypermedia.LinkInfo;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
 
 import java.time.Instant;
 import java.util.List;
@@ -21,5 +22,5 @@ public class MetrologyConfigurationInfo extends LinkInfo<Long> {
     public Instant createTime;
     public Instant modTime;
 
-    public List<String> meterRoles;
+    public List<IdWithNameInfo> meterRoles;
 }

@@ -11,6 +11,7 @@ import com.elster.jupiter.rest.api.util.v1.hypermedia.LinkInfo;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.PropertyCopier;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.Relation;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.SelectableFieldFactory;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
 
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.UriBuilder;
@@ -72,8 +73,15 @@ public class MetrologyConfigurationInfoFactory extends SelectableFieldFactory<Me
         map.put("meterRoles", (metrologyInfo, metrology, uriInfo) -> metrologyInfo.meterRoles
                 = ((UsagePointMetrologyConfiguration) metrology).getMeterRoles()
                 .stream()
-                .map(MeterRole::getKey)
+                .map(meterRole -> asIdWithNameInfo(meterRole.getKey(), meterRole.getDisplayName()))
                 .collect(Collectors.toList()));
         return map;
+    }
+
+    private IdWithNameInfo asIdWithNameInfo(Object id, String name){
+        IdWithNameInfo info = new IdWithNameInfo();
+        info.id = id;
+        info.name = name;
+        return info;
     }
 }
