@@ -100,10 +100,11 @@ public class UserBuilder extends NamedBuilder<User, UserBuilder> {
             Map<String, Group> allGroups = userService.getGroups().stream().collect(Collectors.toMap(Group::getName, g -> g));
             for (String role : roles) {
                 Group group = allGroups.get(role);
-                if (group == null){
-                    throw new UnableToCreate("Role '" + role + "' doesn't exist! Full list: " + allGroups.keySet());
+                if (group != null){
+                    user.join(group);
+                } else {
+                    System.out.println("Role '" + role + "' doesn't exist! Full list: " + allGroups.keySet());
                 }
-                user.join(group);
             }
         }
         user.update();
