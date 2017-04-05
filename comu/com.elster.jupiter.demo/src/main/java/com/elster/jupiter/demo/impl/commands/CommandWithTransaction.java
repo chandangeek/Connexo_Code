@@ -120,7 +120,7 @@ public abstract class CommandWithTransaction {
                                         .flatMap(List::stream)
                                         .noneMatch(privilege -> privilege.getCategory()
                                                 .getName()
-                                                .equals(DualControlService.DUAL_CONTROL_GRANT_CATEGORY))
+                                                .equals(DualControlService.DUAL_CONTROL_APPROVE_CATEGORY))
 
                         )
                         .forEach(user::join);

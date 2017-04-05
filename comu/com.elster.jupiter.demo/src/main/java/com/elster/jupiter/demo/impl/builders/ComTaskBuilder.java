@@ -113,7 +113,7 @@ public class ComTaskBuilder extends NamedBuilder<ComTask, ComTaskBuilder> {
             comTask.createStatusInformationTask();
         }
         if(basicCheckTask) {
-            comTask.createBasicCheckTask().verifySerialNumber(true).maximumClockDifference(TimeDuration.seconds(60)).add();
+            comTask.createBasicCheckTask().verifySerialNumber(true).verifyClockDifference(true).maximumClockDifference(TimeDuration.seconds(60)).add();
         }
         if (commandCategoryProvider != null) {
             comTask.createMessagesTask().deviceMessageCategories(commandCategoryProvider.apply(deviceMessageSpecificationService)).add();
