@@ -16,6 +16,8 @@ import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
 import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.fsm.Stage;
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.issue.share.IssueFilter;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.metering.ChannelsContainer;
@@ -48,7 +50,6 @@ import com.elster.jupiter.time.PeriodicalScheduleExpression;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointStateChangeRequest;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointStage;
-import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointTransitionInfo;
 import com.elster.jupiter.users.User;
@@ -128,11 +129,11 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
     @Mock
     private Query<UsagePoint> usagePointQuery;
     @Mock
-    private UsagePointState usagePointState;
+    private State usagePointState;
     @Mock
     private UsagePointLifeCycle usagePointLifeCycle;
     @Mock
-    private UsagePointStage usagePointStage;
+    private Stage usagePointStage;
     @Mock
     private EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint;
     @Mock
@@ -175,9 +176,8 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         when(clock.instant()).thenReturn(NOW);
         when(clock.getZone()).thenReturn(ZoneId.systemDefault());
 
-        when(usagePointStage.getKey()).thenReturn(UsagePointStage.Key.OPERATIONAL);
-        when(usagePointStage.getDisplayName()).thenReturn(UsagePointStage.Key.OPERATIONAL.name());
-        when(usagePointState.getStage()).thenReturn(usagePointStage);
+        when(usagePointStage.getName()).thenReturn(UsagePointStage.OPERATIONAL.getKey());
+        when(usagePointState.getStage()).thenReturn(Optional.of(usagePointStage));
         when(usagePoint.getServiceCategory()).thenReturn(serviceCategory);
         when(usagePoint.getCreateDate()).thenReturn(Instant.now().minusSeconds(60 * 60 * 24));
         when(usagePoint.getModificationDate()).thenReturn(Instant.now().minusSeconds(60 * 60 * 5));
@@ -228,7 +228,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         when(usagePointLifeCycle.getId()).thenReturn(1L);
         when(usagePointLifeCycle.getVersion()).thenReturn(1L);
 
-        when(usagePointState.getLifeCycle()).thenReturn(usagePointLifeCycle);
+        when(usagePoint.getLifeCycle()).thenReturn(usagePointLifeCycle);
         when(usagePointState.getId()).thenReturn(1L);
         when(usagePointState.getName()).thenReturn("State");
         when(usagePointState.getVersion()).thenReturn(1L);
