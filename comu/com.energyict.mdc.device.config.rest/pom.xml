@@ -148,6 +148,10 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
+            <artifactId>time.rest</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
             <artifactId>fsm</artifactId>
         </dependency>
 
@@ -284,6 +288,11 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>kpi</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>public.rest.util</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
