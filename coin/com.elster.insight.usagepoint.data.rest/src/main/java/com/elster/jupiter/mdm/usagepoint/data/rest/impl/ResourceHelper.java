@@ -6,6 +6,8 @@ package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
+import com.elster.jupiter.estimation.EstimationRule;
+import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
@@ -60,13 +62,13 @@ public class ResourceHelper {
     private final Clock clock;
     private final UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService;
     private final ValidationService validationService;
+    private final EstimationService estimationService;
 
     @Inject
-    public ResourceHelper(MeteringService meteringService, MeteringGroupsService meteringGroupsService,
-                          ExceptionFactory exceptionFactory,
-                          ConcurrentModificationExceptionFactory conflictFactory,
-                          MetrologyConfigurationService metrologyConfigurationService, UsagePointLifeCycleService usagePointLifeCycleService, Clock clock,
-                          UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService, ValidationService validationService) {
+    public ResourceHelper(MeteringService meteringService, MeteringGroupsService meteringGroupsService, ExceptionFactory exceptionFactory,
+                          ConcurrentModificationExceptionFactory conflictFactory, MetrologyConfigurationService metrologyConfigurationService,
+                          UsagePointLifeCycleService usagePointLifeCycleService, Clock clock, UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService,
+                          ValidationService validationService, EstimationService estimationService) {
         super();
         this.meteringService = meteringService;
         this.meteringGroupsService = meteringGroupsService;
@@ -77,6 +79,7 @@ public class ResourceHelper {
         this.clock = clock;
         this.usagePointLifeCycleConfigurationService = usagePointLifeCycleConfigurationService;
         this.validationService = validationService;
+        this.estimationService = estimationService;
     }
 
     public MeterRole findMeterRoleOrThrowException(String key) {
@@ -204,6 +207,11 @@ public class ResourceHelper {
     public ValidationRule findValidationRuleOrThrowException(long id) {
         return validationService.findValidationRule(id)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_VALIDATION_RULE, id));
+    }
+
+    public EstimationRule findEstimationRuleOrThrowException(long id) {
+        return estimationService.getEstimationRule(id)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_ESTIMATION_RULE, id));
     }
 
     public UsagePointGroup lockUsagePointGroupOrThrowException(UsagePointGroupInfo info) {

@@ -106,6 +106,7 @@ public class UsagePointOutputResource {
     private final UsagePointConfigurationService usagePointConfigurationService;
 
     private final Provider<UsagePointOutputValidationResource> usagePointOutputValidationResourceProvider;
+    private final Provider<UsagePointOutputEstimationResource> usagePointOutputEstimationResourceProvider;
 
     private static final String INTERVAL_START = "intervalStart";
     private static final String INTERVAL_END = "intervalEnd";
@@ -127,7 +128,8 @@ public class UsagePointOutputResource {
                              EstimationTaskInfoFactory estimationTaskInfoFactory,
                              EstimationRuleInfoFactory estimationRuleInfoFactory,
                              UsagePointConfigurationService usagePointConfigurationService,
-                             Provider<UsagePointOutputValidationResource> usagePointOutputValidationResourceProvider) {
+                             Provider<UsagePointOutputValidationResource> usagePointOutputValidationResourceProvider,
+                             Provider<UsagePointOutputEstimationResource> usagePointOutputEstimationResourceProvider) {
         this.resourceHelper = resourceHelper;
         this.exceptionFactory = exceptionFactory;
         this.estimationHelper = estimationHelper;
@@ -146,6 +148,7 @@ public class UsagePointOutputResource {
         this.estimationRuleInfoFactory = estimationRuleInfoFactory;
         this.usagePointConfigurationService = usagePointConfigurationService;
         this.usagePointOutputValidationResourceProvider = usagePointOutputValidationResourceProvider;
+        this.usagePointOutputEstimationResourceProvider = usagePointOutputEstimationResourceProvider;
     }
 
     @GET
@@ -218,8 +221,13 @@ public class UsagePointOutputResource {
     }
 
     @Path("/{purposeId}/outputs/{outputId}/validation")
-    public UsagePointOutputValidationResource getUsagePointOutputResource() {
+    public UsagePointOutputValidationResource getUsagePointOutputValidationResource() {
         return usagePointOutputValidationResourceProvider.get();
+    }
+
+    @Path("/{purposeId}/outputs/{outputId}/estimation")
+    public UsagePointOutputEstimationResource getUsagePointOutputEstimationResource() {
+        return usagePointOutputEstimationResourceProvider.get();
     }
 
     @GET
@@ -268,12 +276,12 @@ public class UsagePointOutputResource {
                 // add validation statuses to pre filled channel data map
                 List<DataValidationStatus> dataValidationStatuses =
                         evaluator.getValidationStatus(
-                            EnumSet.of(QualityCodeSystem.MDM),
-                            channel,
-                            Stream
-                                .concat(persistedReadings.values().stream(), calculatedReadings.stream())
-                                .collect(Collectors.toList()),
-                            requestedInterval);
+                                EnumSet.of(QualityCodeSystem.MDM),
+                                channel,
+                                Stream
+                                        .concat(persistedReadings.values().stream(), calculatedReadings.stream())
+                                        .collect(Collectors.toList()),
+                                requestedInterval);
                 for (DataValidationStatus dataValidationStatus : dataValidationStatuses) {
                     ChannelReadingWithValidationStatus readingWithValidationStatus = preFilledChannelDataMap.get(dataValidationStatus.getReadingTimestamp());
                     if (readingWithValidationStatus != null) {
@@ -334,11 +342,11 @@ public class UsagePointOutputResource {
         channelDataInfos.forEach((channelDataInfo) -> {
             if (!isToBeConfirmed(channelDataInfo) && channelDataInfo.value == null) {
                 removeCandidates.add(Instant.ofEpochMilli(channelDataInfo.interval.end));
-            }  else {
+            } else {
                 if (channelDataInfo.value != null) {
                     BaseReading baseReading = channelDataInfo.createNew();
                     if (channelDataInfo.ruleId != 0) {
-                        ((BaseReadingImpl)baseReading).addQuality("3.8." + channelDataInfo.ruleId);
+                        ((BaseReadingImpl) baseReading).addQuality("3.8." + channelDataInfo.ruleId);
                         estimatedReadings.add(baseReading);
                     } else {
                         editedReadings.add(baseReading);
@@ -513,7 +521,7 @@ public class UsagePointOutputResource {
                     readingWithValidationStatus.setPreviousReadingRecord(previousReadingRecord);
                     if (persistedReading != null && (persistedReading.getValue() != null || persistedReading.getText() != null)) {
                         readingWithValidationStatus.setPersistedReadingRecord(persistedReading);
-                       // readingWithValidationStatus.setPreviousReadingRecord(previousReadingRecord);
+                        // readingWithValidationStatus.setPreviousReadingRecord(previousReadingRecord);
                         previousReadingRecord = persistedReading;
                     } else {
                         ReadingRecord calculatedReading = calculatedReadings.get(readingTimestamp);
@@ -614,7 +622,7 @@ public class UsagePointOutputResource {
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
         registerDataInfo.timeStamp = Instant.ofEpochMilli(timeStamp);
         Optional<EffectiveMetrologyConfigurationOnUsagePoint> effectiveMetrologyConfigurationOnUsagePoint = usagePoint.getEffectiveMetrologyConfiguration(registerDataInfo.timeStamp);
-        if(!effectiveMetrologyConfigurationOnUsagePoint.isPresent()){
+        if (!effectiveMetrologyConfigurationOnUsagePoint.isPresent()) {
             throw new LocalizedFieldValidationException(MessageSeeds.NO_METROLOGYCONFIG_FOR_USAGEPOINT_IN_THIS_TIME, "timeStamp");
         }
         MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(effectiveMetrologyConfigurationOnUsagePoint.get(), contractId);
@@ -623,10 +631,10 @@ public class UsagePointOutputResource {
                 .get()
                 .getChannelsContainer(metrologyContract).get();
         Channel channel = channelsContainer.getChannel(readingTypeDeliverable.getReadingType()).get();
-        if (registerDataInfo instanceof BillingOutputRegisterDataInfo && ((BillingOutputRegisterDataInfo) registerDataInfo).interval!=null && ((BillingOutputRegisterDataInfo) registerDataInfo).interval.start > ((BillingOutputRegisterDataInfo) registerDataInfo).interval.end) {
+        if (registerDataInfo instanceof BillingOutputRegisterDataInfo && ((BillingOutputRegisterDataInfo) registerDataInfo).interval != null && ((BillingOutputRegisterDataInfo) registerDataInfo).interval.start > ((BillingOutputRegisterDataInfo) registerDataInfo).interval.end) {
             throw new LocalizedFieldValidationException(MessageSeeds.INTERVAL_END_BEFORE_START, "interval.end");
         }
-        if (registerDataInfo instanceof NumericalOutputRegisterDataInfo && ((NumericalOutputRegisterDataInfo) registerDataInfo).interval!= null &&((NumericalOutputRegisterDataInfo) registerDataInfo).interval.start > ((NumericalOutputRegisterDataInfo) registerDataInfo).interval.end) {
+        if (registerDataInfo instanceof NumericalOutputRegisterDataInfo && ((NumericalOutputRegisterDataInfo) registerDataInfo).interval != null && ((NumericalOutputRegisterDataInfo) registerDataInfo).interval.start > ((NumericalOutputRegisterDataInfo) registerDataInfo).interval.end) {
             throw new LocalizedFieldValidationException(MessageSeeds.INTERVAL_END_BEFORE_START, "interval.end");
         }
         BaseReading reading = registerDataInfo.createNew(readingTypeDeliverable.getReadingType());
@@ -646,7 +654,7 @@ public class UsagePointOutputResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT, Privileges.Constants.VIEW_METROLOGY_CONFIGURATION})
     public Response removeRegisterDataOfOutput(@PathParam("name") String name, @PathParam("purposeId") long contractId, @PathParam("outputId") long outputId,
-                                                             @PathParam("timeStamp") long timeStamp, @BeanParam JsonQueryFilter filter, OutputRegisterDataInfo registerDataInfo) {
+                                               @PathParam("timeStamp") long timeStamp, @BeanParam JsonQueryFilter filter, OutputRegisterDataInfo registerDataInfo) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
         MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(effectiveMetrologyConfigurationOnUsagePoint, contractId);
@@ -736,7 +744,9 @@ public class UsagePointOutputResource {
         MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(usagePoint, contractId);
         List<DataValidationTask> validationTasks = validationService.findValidationTasks()
                 .stream()
-                .filter(task -> !task.getMetrologyPurpose().isPresent() || task.getQualityCodeSystem().equals(QualityCodeSystem.MDM) && task.getMetrologyPurpose().get().equals(metrologyContract.getMetrologyPurpose()))
+                .filter(task -> !task.getMetrologyPurpose().isPresent() || task.getQualityCodeSystem().equals(QualityCodeSystem.MDM) && task.getMetrologyPurpose()
+                        .get()
+                        .equals(metrologyContract.getMetrologyPurpose()))
                 .collect(Collectors.toList());
 
         List<DataValidationTaskInfo> dataValidationTasks = validationTasks

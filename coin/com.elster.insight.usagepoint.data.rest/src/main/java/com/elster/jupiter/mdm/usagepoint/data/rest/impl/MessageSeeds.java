@@ -62,7 +62,7 @@ public enum MessageSeeds implements MessageSeed {
     NO_USAGEPOINT_TRANSITION_WITH_ID(57, Keys.NO_TRANSITION_WITH_ID, "No usage point transition with id {0}"),
     NO_METROLOGYCONFIG_FOR_USAGEPOINT_IN_THIS_TIME(58, Keys.NO_METROLOGYCONFIG_FOR_USAGEPOINT_IN_THIS_TIME, "Metrology configuration is not linked to the usage point at this moment in time."),
     NO_SUCH_VALIDATION_RULE(59, "noSuchValidationRule", "No validation rule with id {0}"),
-    NO_OVERRIDDEN_PROPERTIES(60, "noOverriddenProperties", "No validation properties overridden for usage point {0} and output {1}");
+    NO_SUCH_ESTIMATION_RULE(60, "noSuchEstimationRule", "No estimation rule with id {0}");
 
     private final int number;
     private final String key;

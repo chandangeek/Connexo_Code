@@ -19,11 +19,8 @@ public class OverriddenPropertyInfo {
     public OverriddenPropertyInfo() {
     }
 
-    public OverriddenPropertyInfo(PropertyInfo propertyInfo) {
-        this.propertyInfo = propertyInfo;
-    }
-
     public OverriddenPropertyInfo(PropertyInfo propertyInfo, boolean canBeOverridden, boolean overridden) {
+        this();
         this.propertyInfo = propertyInfo;
         this.canBeOverridden = canBeOverridden;
         this.overridden = overridden;

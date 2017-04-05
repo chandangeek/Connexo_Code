@@ -141,7 +141,8 @@ public class UsagePointApplication extends Application implements TranslationKey
                 UsagePointGroupResource.class,
                 FieldResource.class,
                 FavoritesResource.class,
-                UsagePointOutputValidationResource.class);
+                UsagePointOutputValidationResource.class,
+                UsagePointOutputEstimationResource.class);
     }
 
     @Override
@@ -439,6 +440,7 @@ public class UsagePointApplication extends Application implements TranslationKey
             bind(propertySpecService).to(PropertySpecService.class);
             bind(usagePointDataModelService).to(UsagePointDataModelService.class);
             bind(ChannelValidationRuleInfoFactory.class).to(ChannelValidationRuleInfoFactory.class);
+            bind(ChannelEstimationRuleInfoFactory.class).to(ChannelEstimationRuleInfoFactory.class);
         }
     }
 }

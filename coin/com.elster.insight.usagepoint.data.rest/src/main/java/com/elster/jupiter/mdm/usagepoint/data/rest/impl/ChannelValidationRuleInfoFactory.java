@@ -9,14 +9,13 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
+import com.elster.jupiter.validation.ValidationPropertyDefinitionLevel;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.ValidationVersionStatus;
-import com.elster.jupiter.validation.properties.ValidationPropertyDefinitionLevel;
 
 import javax.inject.Inject;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -63,11 +62,7 @@ public class ChannelValidationRuleInfoFactory {
     private void setProperties(ChannelValidationRuleInfo info, ValidationRule validationRule, Map<String, Object> overriddenProperties) {
         Map<String, PropertySpec> canBeOverriddenPropertySpecs = validationRule.getPropertySpecs(ValidationPropertyDefinitionLevel.TARGET_OBJECT)
                 .stream().collect(Collectors.toMap(PropertySpec::getName, Function.identity()));
-        Map<String, Object> inheritedProperties = validationRule.getProps();
-        Map<String, Object> actualProperties = new HashMap<>();
-        actualProperties.putAll(inheritedProperties);
-        actualProperties.putAll(overriddenProperties);
-        info.properties = propertyValueInfoService.getPropertyInfos(validationRule.getPropertySpecs(), actualProperties, inheritedProperties)
+        info.properties = propertyValueInfoService.getPropertyInfos(validationRule.getPropertySpecs(), overriddenProperties, validationRule.getProps())
                 .stream()
                 .map(propertyInfo -> new OverriddenPropertyInfo(
                         propertyInfo,

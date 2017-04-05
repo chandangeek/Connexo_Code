@@ -4,10 +4,12 @@
 
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
+import com.elster.jupiter.estimation.EstimationPropertyDefinitionLevel;
+import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
-import com.elster.jupiter.mdm.usagepoint.data.ChannelValidationRuleOverriddenProperties;
+import com.elster.jupiter.mdm.usagepoint.data.ChannelEstimationRuleOverriddenProperties;
 import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataModelService;
-import com.elster.jupiter.mdm.usagepoint.data.UsagePointValidation;
+import com.elster.jupiter.mdm.usagepoint.data.UsagePointEstimation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
@@ -21,8 +23,6 @@ import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.util.Pair;
-import com.elster.jupiter.validation.ValidationPropertyDefinitionLevel;
-import com.elster.jupiter.validation.ValidationRule;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -45,24 +45,24 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-public class UsagePointOutputValidationResource {
+public class UsagePointOutputEstimationResource {
 
     private final UsagePointDataModelService usagePointDataModelService;
     private final UsagePointConfigurationService usagePointConfigurationService;
     private final PropertyValueInfoService propertyValueInfoService;
 
-    private final ChannelValidationRuleInfoFactory channelValidationRuleInfoFactory;
+    private final ChannelEstimationRuleInfoFactory channelEstimationRuleInfoFactory;
     private final ConcurrentModificationExceptionFactory concurrentModificationExceptionFactory;
     private final ResourceHelper resourceHelper;
 
     @Inject
-    UsagePointOutputValidationResource(UsagePointDataModelService usagePointDataModelService, UsagePointConfigurationService usagePointConfigurationService,
-                                       PropertyValueInfoService propertyValueInfoService, ChannelValidationRuleInfoFactory channelValidationRuleInfoFactory,
+    UsagePointOutputEstimationResource(UsagePointDataModelService usagePointDataModelService, UsagePointConfigurationService usagePointConfigurationService,
+                                       PropertyValueInfoService propertyValueInfoService, ChannelEstimationRuleInfoFactory channelEstimationRuleInfoFactory,
                                        ConcurrentModificationExceptionFactory concurrentModificationExceptionFactory, ResourceHelper resourceHelper) {
         this.usagePointDataModelService = usagePointDataModelService;
         this.usagePointConfigurationService = usagePointConfigurationService;
         this.propertyValueInfoService = propertyValueInfoService;
-        this.channelValidationRuleInfoFactory = channelValidationRuleInfoFactory;
+        this.channelEstimationRuleInfoFactory = channelEstimationRuleInfoFactory;
         this.concurrentModificationExceptionFactory = concurrentModificationExceptionFactory;
         this.resourceHelper = resourceHelper;
     }
@@ -70,42 +70,41 @@ public class UsagePointOutputValidationResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT})
-    public PagedInfoList getUsagePointChannelValidationConfiguration(@PathParam("name") String name, @PathParam("purposeId") long contractId,
+    public PagedInfoList getUsagePointChannelEstimationConfiguration(@PathParam("name") String name, @PathParam("purposeId") long contractId,
                                                                      @PathParam("outputId") long outputId, @BeanParam JsonQueryParameters queryParameters) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
         ReadingTypeDeliverable deliverable = findReadingTypeDeliverableOrThrowException(usagePoint, contractId, outputId);
         ReadingType readingType = deliverable.getReadingType();
-        UsagePointValidation usagePointValidation = usagePointDataModelService.forValidation(usagePoint);
-        List<ChannelValidationRuleInfo> infos = usagePointConfigurationService.getValidationRuleSets(deliverable.getMetrologyContract())
+        UsagePointEstimation usagePointEstimation = usagePointDataModelService.forEstimation(usagePoint);
+        List<ChannelEstimationRuleInfo> infos = usagePointConfigurationService.getEstimationRuleSets(deliverable.getMetrologyContract())
                 .stream()
-                .flatMap(validationRuleSet -> validationRuleSet.getRuleSetVersions().stream())
-                .flatMap(validationRuleSetVersion -> validationRuleSetVersion.getRules(Collections.singleton(readingType)).stream())
-                .map(validationRule -> asInfo(validationRule, readingType, usagePointValidation))
-                .collect(Collectors.toMap(Function.identity(), Function.identity(), ChannelValidationRuleInfo::chooseEffectiveOne)).values().stream()
-                .sorted(ChannelValidationRuleInfo.defaultComparator())
+                .flatMap(estimationRuleSet -> estimationRuleSet.getRules(Collections.singleton(readingType)).stream())
+                .map(estimationRule -> asInfo(estimationRule, readingType, usagePointEstimation))
+                .collect(Collectors.toMap(Function.identity(), Function.identity(), ChannelEstimationRuleInfo::chooseEffectiveOne)).values().stream()
+                .sorted(ChannelEstimationRuleInfo.defaultComparator())
                 .collect(Collectors.toList());
-        return PagedInfoList.fromCompleteList("validation", infos, queryParameters);
+        return PagedInfoList.fromCompleteList("estimation", infos, queryParameters);
     }
 
-    private ChannelValidationRuleInfo asInfo(ValidationRule validationRule, ReadingType readingType, UsagePointValidation usagePointValidation) {
-        return usagePointValidation.findOverriddenProperties(validationRule, readingType)
-                .map(overriddenProperties -> channelValidationRuleInfoFactory.createInfoForRule(validationRule, readingType, overriddenProperties))
-                .orElseGet(() -> channelValidationRuleInfoFactory.createInfoForRule(validationRule, readingType));
+    private ChannelEstimationRuleInfo asInfo(EstimationRule estimationRule, ReadingType readingType, UsagePointEstimation usagePointEstimation) {
+        return usagePointEstimation.findOverriddenProperties(estimationRule, readingType)
+                .map(overriddenProperties -> channelEstimationRuleInfoFactory.createInfoForRule(estimationRule, readingType, overriddenProperties))
+                .orElseGet(() -> channelEstimationRuleInfoFactory.createInfoForRule(estimationRule, readingType));
     }
 
     @GET
     @Path("/{ruleId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT})
-    public ChannelValidationRuleInfo getUsagePointChannelValidationRuleById(@PathParam("name") String name, @PathParam("purposeId") long contractId,
+    public ChannelEstimationRuleInfo getUsagePointChannelEstimationRuleById(@PathParam("name") String name, @PathParam("purposeId") long contractId,
                                                                             @PathParam("outputId") long outputId, @PathParam("ruleId") long ruleId,
                                                                             @BeanParam JsonQueryParameters queryParameters) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
         ReadingTypeDeliverable deliverable = findReadingTypeDeliverableOrThrowException(usagePoint, contractId, outputId);
-        ValidationRule validationRule = resourceHelper.findValidationRuleOrThrowException(ruleId);
+        EstimationRule estimationRule = resourceHelper.findEstimationRuleOrThrowException(ruleId);
         ReadingType readingType = deliverable.getReadingType();
-        UsagePointValidation usagePointValidation = usagePointDataModelService.forValidation(usagePoint);
-        return asInfo(validationRule, readingType, usagePointValidation);
+        UsagePointEstimation usagePointEstimation = usagePointDataModelService.forEstimation(usagePoint);
+        return asInfo(estimationRule, readingType, usagePointEstimation);
     }
 
     @POST
@@ -113,18 +112,18 @@ public class UsagePointOutputValidationResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT})
-    public Response overrideChannelValidationRuleProperties(@PathParam("name") String name, @PathParam("purposeId") long contractId,
-                                                            @PathParam("outputId") long outputId, ChannelValidationRuleInfo channelValidationRuleInfo) {
+    public Response overrideChannelEstimationRuleProperties(@PathParam("name") String name, @PathParam("purposeId") long contractId,
+                                                            @PathParam("outputId") long outputId, ChannelEstimationRuleInfo channelEstimationRuleInfo) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
         ReadingType readingType = findReadingTypeDeliverableOrThrowException(usagePoint, contractId, outputId).getReadingType();
-        ValidationRule validationRule = resourceHelper.findValidationRuleOrThrowException(channelValidationRuleInfo.ruleId);
-        UsagePointValidation usagePointValidation = usagePointDataModelService.forValidation(usagePoint);
-        UsagePointValidation.PropertyOverrider propertyOverrider = usagePointValidation.overridePropertiesFor(validationRule, readingType);
+        EstimationRule estimationRule = resourceHelper.findEstimationRuleOrThrowException(channelEstimationRuleInfo.ruleId);
+        UsagePointEstimation usagePointEstimation = usagePointDataModelService.forEstimation(usagePoint);
+        UsagePointEstimation.PropertyOverrider propertyOverrider = usagePointEstimation.overridePropertiesFor(estimationRule, readingType);
 
-        validationRule.getPropertySpecs(ValidationPropertyDefinitionLevel.TARGET_OBJECT).stream()
+        estimationRule.getPropertySpecs(EstimationPropertyDefinitionLevel.TARGET_OBJECT).stream()
                 .map(propertySpec -> {
                     String propertyName = propertySpec.getName();
-                    Object propertyValue = propertyValueInfoService.findPropertyValue(propertySpec, toPropertyInfoList(channelValidationRuleInfo.properties));
+                    Object propertyValue = propertyValueInfoService.findPropertyValue(propertySpec, toPropertyInfoList(channelEstimationRuleInfo.properties));
                     return Pair.of(propertyName, propertyValue);
                 })
                 .filter(property -> property.getLast() != null && !"".equals(property.getLast()))
@@ -139,30 +138,30 @@ public class UsagePointOutputValidationResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT})
-    public Response editChannelValidationRuleOverriddenProperties(@PathParam("name") String name, @PathParam("purposeId") long contractId,
+    public Response editChannelEstimationRuleOverriddenProperties(@PathParam("name") String name, @PathParam("purposeId") long contractId,
                                                                   @PathParam("outputId") long outputId, @PathParam("ruleId") long ruleId,
-                                                                  ChannelValidationRuleInfo channelValidationRuleInfo) {
-        channelValidationRuleInfo.ruleId = ruleId;
+                                                                  ChannelEstimationRuleInfo channelEstimationRuleInfo) {
+        channelEstimationRuleInfo.ruleId = ruleId;
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
         ReadingType readingType = findReadingTypeDeliverableOrThrowException(usagePoint, contractId, outputId).getReadingType();
-        ValidationRule validationRule = resourceHelper.findValidationRuleOrThrowException(channelValidationRuleInfo.ruleId);
-        UsagePointValidation usagePointValidation = usagePointDataModelService.forValidation(usagePoint);
-        ChannelValidationRuleOverriddenProperties channelValidationRule = usagePointValidation
-                .findAndLockChannelValidationRuleOverriddenProperties(channelValidationRuleInfo.id, channelValidationRuleInfo.version)
-                .orElseThrow(concurrentModificationExceptionFactory.contextDependentConflictOn(channelValidationRuleInfo.name)
-                        .withActualVersion(getActualVersionOfChannelValidationRule(usagePointValidation, validationRule, readingType)).supplier());
+        EstimationRule estimationRule = resourceHelper.findEstimationRuleOrThrowException(channelEstimationRuleInfo.ruleId);
+        UsagePointEstimation usagePointEstimation = usagePointDataModelService.forEstimation(usagePoint);
+        ChannelEstimationRuleOverriddenProperties channelEstimationRule = usagePointEstimation
+                .findAndLockChannelEstimationRuleOverriddenProperties(channelEstimationRuleInfo.id, channelEstimationRuleInfo.version)
+                .orElseThrow(concurrentModificationExceptionFactory.contextDependentConflictOn(channelEstimationRuleInfo.name)
+                        .withActualVersion(getActualVersionOfChannelEstimationRule(usagePointEstimation, estimationRule, readingType)).supplier());
 
-        Map<String, Object> overriddenProperties = validationRule.getPropertySpecs(ValidationPropertyDefinitionLevel.TARGET_OBJECT)
+        Map<String, Object> overriddenProperties = estimationRule.getPropertySpecs(EstimationPropertyDefinitionLevel.TARGET_OBJECT)
                 .stream()
                 .map(propertySpec -> {
                     String propertyName = propertySpec.getName();
-                    Object propertyValue = propertyValueInfoService.findPropertyValue(propertySpec, toPropertyInfoList(channelValidationRuleInfo.properties));
+                    Object propertyValue = propertyValueInfoService.findPropertyValue(propertySpec, toPropertyInfoList(channelEstimationRuleInfo.properties));
                     return Pair.of(propertyName, propertyValue);
                 })
                 .filter(property -> property.getLast() != null && !"".equals(property.getLast()))
                 .collect(Collectors.toMap(Pair::getFirst, Pair::getLast));
-        channelValidationRule.setProperties(overriddenProperties);
-        channelValidationRule.update();
+        channelEstimationRule.setProperties(overriddenProperties);
+        channelEstimationRule.update();
         return Response.ok().build();
     }
 
@@ -174,17 +173,17 @@ public class UsagePointOutputValidationResource {
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT})
     public Response restoreChannelValidationRuleProperties(@PathParam("name") String name, @PathParam("purposeId") long contractId,
                                                            @PathParam("outputId") long outputId, @PathParam("ruleId") long ruleId,
-                                                           ChannelValidationRuleInfo channelValidationRuleInfo) {
-        channelValidationRuleInfo.ruleId = ruleId;
+                                                           ChannelEstimationRuleInfo channelEstimationRuleInfo) {
+        channelEstimationRuleInfo.ruleId = ruleId;
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
         ReadingType readingType = findReadingTypeDeliverableOrThrowException(usagePoint, contractId, outputId).getReadingType();
-        ValidationRule validationRule = resourceHelper.findValidationRuleOrThrowException(channelValidationRuleInfo.ruleId);
-        UsagePointValidation usagePointValidation = usagePointDataModelService.forValidation(usagePoint);
-        ChannelValidationRuleOverriddenProperties channelValidationRule = usagePointValidation
-                .findAndLockChannelValidationRuleOverriddenProperties(channelValidationRuleInfo.id, channelValidationRuleInfo.version)
-                .orElseThrow(concurrentModificationExceptionFactory.contextDependentConflictOn(channelValidationRuleInfo.name)
-                        .withActualVersion(getActualVersionOfChannelValidationRule(usagePointValidation, validationRule, readingType)).supplier());
-        channelValidationRule.delete();
+        EstimationRule estimationRule = resourceHelper.findEstimationRuleOrThrowException(channelEstimationRuleInfo.ruleId);
+        UsagePointEstimation usagePointEstimation = usagePointDataModelService.forEstimation(usagePoint);
+        ChannelEstimationRuleOverriddenProperties channelEstimationRule = usagePointEstimation
+                .findAndLockChannelEstimationRuleOverriddenProperties(channelEstimationRuleInfo.id, channelEstimationRuleInfo.version)
+                .orElseThrow(concurrentModificationExceptionFactory.contextDependentConflictOn(channelEstimationRuleInfo.name)
+                        .withActualVersion(getActualVersionOfChannelEstimationRule(usagePointEstimation, estimationRule, readingType)).supplier());
+        channelEstimationRule.delete();
         return Response.noContent().build();
     }
 
@@ -198,9 +197,9 @@ public class UsagePointOutputValidationResource {
         return resourceHelper.findReadingTypeDeliverableOrThrowException(metrologyContract, outputId, usagePoint.getName());
     }
 
-    private Supplier<Long> getActualVersionOfChannelValidationRule(UsagePointValidation usagePointValidation, ValidationRule validationRule, ReadingType readingType) {
-        return () -> usagePointValidation.findOverriddenProperties(validationRule, readingType)
-                .map(ChannelValidationRuleOverriddenProperties::getVersion)
+    private Supplier<Long> getActualVersionOfChannelEstimationRule(UsagePointEstimation usagePointEstimation, EstimationRule estimationRule, ReadingType readingType) {
+        return () -> usagePointEstimation.findOverriddenProperties(estimationRule, readingType)
+                .map(ChannelEstimationRuleOverriddenProperties::getVersion)
                 .orElse(null);
     }
 }

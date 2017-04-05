@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
 
-public class ChannelValidationRuleInfo implements Comparable<ChannelValidationRuleInfo> {
+public class ChannelValidationRuleInfo {
 
     public Long id;
     public Long version;
@@ -29,15 +29,22 @@ public class ChannelValidationRuleInfo implements Comparable<ChannelValidationRu
     public List<OverriddenPropertyInfo> properties;
 
     @Override
-    public int compareTo(ChannelValidationRuleInfo another) {
-        return Comparator.<ChannelValidationRuleInfo, Boolean>comparing(info -> !info.isActive)
-                .thenComparing(info -> info.name.toLowerCase())
-                .thenComparing(info -> info.dataQualityLevel)
-                .compare(this, another);
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ChannelValidationRuleInfo info = (ChannelValidationRuleInfo) o;
+        return Objects.equals(name, info.name) &&
+                Objects.equals(validator, info.validator) &&
+                dataQualityLevel == info.dataQualityLevel;
     }
 
-    Key getKey() {
-        return new Key(name, validator, dataQualityLevel);
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, validator, dataQualityLevel);
     }
 
     static ChannelValidationRuleInfo chooseEffectiveOne(ChannelValidationRuleInfo info1, ChannelValidationRuleInfo info2) {
@@ -45,39 +52,14 @@ public class ChannelValidationRuleInfo implements Comparable<ChannelValidationRu
     }
 
     static Comparator<ChannelValidationRuleInfo> effectivityComparator() {
-        return Comparator.<ChannelValidationRuleInfo, Boolean>comparing(info -> info.isEffective).thenComparing(info -> info.isActive);
+        return Comparator.<ChannelValidationRuleInfo, Boolean>comparing(info -> info.isEffective)
+                .thenComparing(info -> info.isActive);
     }
 
-    static class Key {
-
-        private final String name;
-        private final String validator;
-        private final DataQualityLevel level;
-
-        Key(String name, String validator, DataQualityLevel level) {
-            this.name = name;
-            this.validator = validator;
-            this.level = level;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) {
-                return true;
-            }
-            if (o == null || getClass() != o.getClass()) {
-                return false;
-            }
-            Key key = (Key) o;
-            return Objects.equals(name, key.name) &&
-                    Objects.equals(validator, key.validator) &&
-                    level == key.level;
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(name, validator, level);
-        }
+    static Comparator<ChannelValidationRuleInfo> defaultComparator() {
+        return Comparator.<ChannelValidationRuleInfo, Boolean>comparing(info -> !info.isActive)
+                .thenComparing(info -> info.name.toLowerCase())
+                .thenComparing(info -> info.dataQualityLevel);
     }
 
     enum DataQualityLevel {
