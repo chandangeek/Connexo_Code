@@ -5,6 +5,7 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.metering.BaseReadingRecord;
+import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ProcessStatus;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingType;
@@ -110,5 +111,20 @@ public class FilteredBaseReadingRecord implements BaseReadingRecord {
     @Override
     public BaseReadingRecord filter(ReadingType readingType) {
         return filtered.filter(readingType);
+    }
+
+    @Override
+    public Instant getJournalTime() {
+        return filtered.getJournalTime();
+    }
+
+    @Override
+    public String getUserName() {
+        return filtered.getUserName();
+    }
+
+    @Override
+    public Channel getChannel() {
+        return filtered.getChannel();
     }
 }
