@@ -83,6 +83,10 @@
             <artifactId>time</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>time.rest</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.pluggable</artifactId>
         </dependency>
