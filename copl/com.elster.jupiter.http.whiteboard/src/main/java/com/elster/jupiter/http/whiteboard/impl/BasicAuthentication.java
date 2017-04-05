@@ -29,6 +29,8 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -403,4 +405,12 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         return cookie;
     }
 
+    public String generateTokenForProcessExecution() {
+        User user = userService.findUser("process executor").orElseThrow(() -> new RuntimeException("Process executor account not found"));
+        try {
+            return securityToken.createToken(user, 0, InetAddress.getLocalHost().getHostAddress());
+        } catch (UnknownHostException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
