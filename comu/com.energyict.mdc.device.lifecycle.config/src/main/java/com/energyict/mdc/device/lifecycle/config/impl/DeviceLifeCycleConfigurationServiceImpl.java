@@ -17,6 +17,8 @@ import com.elster.jupiter.fsm.StateTransitionEventType;
 import com.elster.jupiter.issue.share.IssueCreationValidator;
 import com.elster.jupiter.issue.share.IssueEvent;
 import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.EndDeviceStage;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
@@ -94,6 +96,7 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
     private volatile FiniteStateMachineService stateMachineService;
     private volatile EventService eventService;
     private volatile UpgradeService upgradeService;
+    private volatile MeteringService meteringService;
     private Thesaurus thesaurus;
     private final Set<Privilege> privileges = new HashSet<>();
 
@@ -104,7 +107,7 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
 
     // For testing purposes
     @Inject
-    public DeviceLifeCycleConfigurationServiceImpl(OrmService ormService, NlsService nlsService, UserService userService, FiniteStateMachineService stateMachineService, EventService eventService, UpgradeService upgradeService) {
+    public DeviceLifeCycleConfigurationServiceImpl(OrmService ormService, NlsService nlsService, UserService userService, FiniteStateMachineService stateMachineService, EventService eventService, UpgradeService upgradeService, MeteringService meteringService) {
         this();
         setOrmService(ormService);
         setUserService(userService);
@@ -112,6 +115,7 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
         setStateMachineService(stateMachineService);
         setEventService(eventService);
         setUpgradeService(upgradeService);
+        setMeteringService(meteringService);
         activate();
         initializeTestPrivileges();
     }
@@ -129,6 +133,7 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
         List<TranslationKey> keys = new ArrayList<>();
         Stream.of(DefaultLifeCycleTranslationKey.values()).forEach(keys::add);
         Stream.of(DefaultState.values()).forEach(keys::add);
+        Stream.of(EndDeviceStageTranslationKey.values()).forEach(keys::add);
         return keys;
     }
 
@@ -150,7 +155,7 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
     @Activate
     public void activate() {
         dataModel.register(this.getModule());
-        upgradeService.register(InstallIdentifier.identifier("MultiSense", DeviceLifeCycleConfigurationService.COMPONENT_NAME), dataModel, Installer.class, ImmutableMap.of(Version.version(10, 2), UpgraderV10_2.class));
+        upgradeService.register(InstallIdentifier.identifier("MultiSense", DeviceLifeCycleConfigurationService.COMPONENT_NAME), dataModel, Installer.class, ImmutableMap.of(Version.version(10, 2), UpgraderV10_2.class, Version.version(10, 3), UpgraderV10_3.class));
     }
 
     // For integration testing components only
@@ -218,6 +223,11 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
     @Reference
     public void setEventService(EventService eventService) {
         this.eventService = eventService;
+    }
+
+    @Reference
+    public void setMeteringService(MeteringService meteringService) {
+        this.meteringService = meteringService;
     }
 
     @Override
@@ -411,13 +421,13 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
     }
 
     public boolean isValidCreationEvent(IssueEvent issueEvent){
-        EnumSet<DefaultState> restrictedStates = EnumSet.of(DefaultState.IN_STOCK, DefaultState.DECOMMISSIONED);
+        EnumSet<EndDeviceStage> restrictedStages = EnumSet.of(EndDeviceStage.PRE_OPERATIONAL, EndDeviceStage.POST_OPERATIONAL);
         Optional<EndDevice> endDevice = issueEvent.getEndDevice();
         if (endDevice.isPresent()) {
-            return !endDevice.get().getState()
-                    .map(DefaultState::from)
-                    .filter(defaultState -> defaultState.isPresent() && restrictedStates.contains(defaultState.get()))
-                    .isPresent();
+            String stateName = endDevice.get().getState().orElseThrow(() -> new IllegalStateException("Device does not have a state"))
+                    .getStage().orElseThrow(() -> new IllegalStateException("Device does not have a stage"))
+                    .getName();
+            return !restrictedStages.contains(EndDeviceStage.fromKey(stateName));
         }
         return true;
     }
@@ -427,4 +437,8 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
         return this.thesaurus.getFormat(state).format();
     }
 
+    @Override
+    public String getStageDisplayName(EndDeviceStage stage) {
+        return this.thesaurus.getString(EndDeviceStageTranslationKey.prefix + stage.getKey(), stage.getKey());
+    }
 }
