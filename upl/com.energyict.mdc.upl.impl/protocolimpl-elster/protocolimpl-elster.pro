@@ -1,7 +1,11 @@
+#####################################################################
+# You don't need to specify each and every protocol.
+# Only add items which don't match any of the defined interfaces!
+#####################################################################
+
 -dontshrink
 -dontoptimize
 -verbose
--ignorewarnings
 
 # Keep - Applications. Keep all application classes that have a main method.
 -keepclasseswithmembers public class * {
@@ -28,45 +32,54 @@
     public **[] values();
 }
 
+#Keeping every:
+#- DeviceProtocol
+#- SmartMeterProtocol
+#- MeterProtocol
+#- InboundProtocol
+#- MessageProtocol
+#- ConnectionType
+#- DeviceProtocolDialect
+#- Legacy Message/SecuritySet convertors
+#- CustomProperty related (PersistentDomainExtension)
 -keep interface *
--keep class * implements com.energyict.protocol.SmartMeterProtocol
--keep class * implements com.energyict.protocol.MeterProtocol
+-keepnames class * implements com.energyict.mdc.upl.SmartMeterProtocol
+-keepnames class * implements com.energyict.mdc.upl.MeterProtocol
+-keepnames class * implements com.energyict.mdc.upl.DeviceProtocol
+-keepnames class * implements com.energyict.mdc.upl.InboundDeviceProtocol
+-keepnames class * implements com.energyict.mdc.upl.BinaryInboundDeviceProtocol
+-keepnames class * implements com.energyict.mdc.upl.ServletBasedInboundDeviceProtocol
+-keepnames class * implements com.energyict.protocol.MessageProtocol
+-keepnames class * implements com.energyict.mdc.upl.io.ConnectionType
+-keepnames class * implements com.energyict.mdc.upl.DeviceProtocolDialect
+-keepnames class * implements com.energyict.mdc.upl.messages.legacy.LegacyMessageConverter
+-keepnames class * implements com.energyict.mdc.upl.security.LegacySecurityPropertyConverter
+-keepnames class * implements com.elster.jupiter.cps.PersistenceSupport{*;}
+-keepclassmembers class * implements com.elster.jupiter.cps.PersistenceSupport{*;}
+-keepnames class * implements com.elster.jupiter.cps.PersistentDomainExtension{*;}
+-keepclassmembers class * implements com.elster.jupiter.cps.PersistentDomainExtension{*;}
+-keepnames class * implements com.elster.jupiter.cps.CustomPropertySet{*;}
+-keepclassmembers class * implements com.elster.jupiter.cps.CustomPropertySet{*;}
+
+# Keep annotations,
+-keepattributes *Annotation*
+-keepattributes Exceptions
+-keepattributes Signature
+-keepattributes InnerClasses
 
 # Keep names - Native method names. Keep all native class/method names.
 -keepclasseswithmembernames class * {
     native <methods>;
 }
 
-# The Dsfg driver
--keepnames class com.elster.protocolimpl.dsfg.Dsfg
-
-# A summation of the Lis200 drivers
--keepnames class com.elster.protocolimpl.lis200.DL210
-
--keepnames class com.elster.protocolimpl.lis200.DL220
-
--keepnames class com.elster.protocolimpl.lis200.DL230
-
--keepnames class com.elster.protocolimpl.lis200.DL240
-
--keepnames class com.elster.protocolimpl.lis200.EK220
-
--keepnames class com.elster.protocolimpl.lis200.EK230
-
--keepnames class com.elster.protocolimpl.lis200.EK260
-
-# DLMS EK280
--keepnames class com.elster.genericprotocolimpl.dlms.ek280.EK280
--keepnames class com.elster.protocolimpl.dlms.EK280
-
--keepnames class com.elster.protocolimpl.dlms.Dlms
-
-# DLMS A1
--keepnames class com.elster.genericprotocolimpl.dlms.a1.A1
--keepnames class com.elster.protocolimpl.dlms.A1
-
-# LIS100 drivers
--keepnames class com.elster.protocolimpl.lis100.EK88
+# Keeps all Components so the Reference binding properly works
+-keepnames @org.osgi.service.component.annotations.Component public class *
+-keepclassmembers class * {
+    @org.osgi.service.component.annotations.Reference *;
+}
+-keepclassmembers class * {
+    @org.osgi.service.component.annotations.Activate *;
+}
 
 -keepnames class com.energyict.protocolimplv2.messages.convertor.A1MessageConverter
 -keepnames class com.energyict.protocolimplv2.messages.convertor.EK280MessageConverter
