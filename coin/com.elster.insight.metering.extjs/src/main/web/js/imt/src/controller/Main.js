@@ -20,7 +20,8 @@ Ext.define('Imt.controller.Main', {
         'Imt.processes.controller.MonitorProcesses',
         'Imt.servicecalls.controller.ServiceCalls',
         'Imt.metrologyconfiguration.controller.View',
-        'Imt.usagepointsetup.controller.MetrologyConfig'
+        'Imt.usagepointsetup.controller.MetrologyConfig',
+        'Cfg.privileges.Validation'
     ],
 
     privileges: [],
@@ -62,6 +63,7 @@ Ext.define('Imt.controller.Main', {
         'Imt.usagepointlifecyclestates.controller.UsagePointLifeCycleStates',
         'Imt.usagepointlifecycletransitions.controller.UsagePointLifeCycleTransitions',
         'Imt.usagepointmanagement.controller.UsagePointTransitionExecute',
+        'Imt.dataquality.controller.DataQuality',
         'Imt.rulesets.controller.ValidationRuleSetPurposes',
         'Imt.rulesets.controller.AddPurposesToValidationRuleSet',
         'Imt.rulesets.controller.EstimationRuleSetPurposes',
@@ -213,6 +215,26 @@ Ext.define('Imt.controller.Main', {
                         href: '#/administration/usagepointlifecycles',
                         itemId: 'usagepointlifecycles-portal-item',
                         route: 'usagepointlifecycles'
+                    }
+                ]
+            }));
+        }
+
+        if (Cfg.privileges.Validation.canViewResultsOrAdministerDataQuality()) {
+            Uni.store.MenuItems.add(Ext.create('Uni.model.MenuItem', {
+                text: Uni.I18n.translate('general.workspace', 'IMT', 'Workspace'),
+                glyph: 'workspace',
+                portal: 'workspace',
+                index: 30
+            }));
+
+            Uni.store.PortalItems.add(Ext.create('Uni.model.PortalItem', {
+                title: Uni.I18n.translate('general.dataValidation', 'IMT', 'Data validation'),
+                portal: 'workspace',
+                items: [
+                    {
+                        text: Uni.I18n.translate('general.dataQuality', 'IMT', 'Data quality'),
+                        href: '#/workspace/dataquality'
                     }
                 ]
             }));
