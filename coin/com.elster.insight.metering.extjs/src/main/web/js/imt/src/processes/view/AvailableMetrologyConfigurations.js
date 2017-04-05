@@ -9,7 +9,10 @@ Ext.define('Imt.processes.view.AvailableMetrologyConfigurations', {
         afterrender: {
             fn: function () {
                 var me = this,
+                    purposesStore = Ext.getStore('Imt.processes.store.PurposesWithValidationRuleSets'),
                     store = Ext.getStore('Imt.metrologyconfiguration.store.LinkableMetrologyConfigurations');
+                purposesStore.events['loadpurposestore'] && purposesStore.events['loadpurposestore'].clearListeners();
+                purposesStore.events['clearpurposestore'] && purposesStore.events['clearpurposestore'].clearListeners();
 
                 store.getProxy().setExtraParam('usagePointId', me.up('property-form').context.id);
             }
@@ -20,9 +23,9 @@ Ext.define('Imt.processes.view.AvailableMetrologyConfigurations', {
                     store = Ext.getStore('Imt.processes.store.PurposesWithValidationRuleSets');
                 if(metrologyConfigurationId){
                     store.getProxy().setExtraParam('metrologyConfigurationId', metrologyConfigurationId);
-                    store.load();
+                    store.fireEvent('loadpurposestore');
                 } else {
-                    store.fireEvent('clearPurposeStore');
+                    store.fireEvent('clearpurposestore');
                 }
             }
         }

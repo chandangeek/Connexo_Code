@@ -89,7 +89,7 @@ Ext.define('Imt.metrologyconfiguration.view.Wizard', {
                     },
                     {
                         xtype: 'fieldcontainer',
-                        itemId: 'start-date',
+                        itemId: 'metrology-configuration-start-date',
                         hidden: true,
                         required: true,
                         fieldLabel: Uni.I18n.translate('metrologyConfiguration.wizard.startDate', 'IMT', 'Start date'),
@@ -99,10 +99,32 @@ Ext.define('Imt.metrologyconfiguration.view.Wizard', {
                         items: [
                             {
                                 xtype: 'date-time',
-                                itemId: 'start-date-field',
+                                itemId: 'metrology-configuration-start-date-field',
                                 value: me.createTime || new Date(),
                                 layout: 'hbox',
                                 valueInMilliseconds: true
+                            }
+                        ]
+                    },
+                    {
+                        xtype: 'radiogroup',
+                        itemId: 'custom-attributes-radiogroup',
+                        fieldLabel: Uni.I18n.translate('metrologyConfiguration.wizard.customAttributes', 'IMT', 'Custom attributes'),
+                        required: true,
+                        hidden: true,
+                        width: 700,
+                        layout: 'vbox',
+                        items: [
+                            {
+                                boxLabel: Uni.I18n.translate('metrologyConfiguration.wizard.custtomAttributes.create', 'IMT', 'Create new versions for versioned custom attribute sets'),
+                                name: 'customAttributes',
+                                inputValue: true,
+                                checked: true
+                            },
+                            {
+                                boxLabel: Uni.I18n.translate('metrologyConfiguration.wizard.custtomAttributes.override', 'IMT', 'Override values of existing versions of versioned custom attribute sets'),
+                                name: 'customAttributes',
+                                inputValue: false
                             }
                         ]
                     },
@@ -162,7 +184,7 @@ Ext.define('Imt.metrologyconfiguration.view.Wizard', {
                 me.getRecord().set('id',combo.getValue());
                 me.getRecord().set('name',combo.getRawValue());
                 me.getRecord().set('purposes', step.down('#purposes-field').getValue());
-                me.getRecord().set('activationTime', step.down('#start-date-field').getValue());
+                me.getRecord().set('activationTime', step.down('#metrology-configuration-start-date-field').getValue());
                 record && me.getRecord().set('version', record.get('version'));
                 me.callParent(arguments);
                 break;

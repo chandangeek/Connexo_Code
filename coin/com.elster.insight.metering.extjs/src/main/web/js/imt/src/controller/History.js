@@ -261,6 +261,8 @@ Ext.define('Imt.controller.History', {
                             controller: 'Imt.metrologyconfiguration.controller.Edit',
                             action: 'showWizard',
                             privileges: Imt.privileges.UsagePoint.admin,
+                            dynamicPrivilegeStores: Imt.dynamicprivileges.Stores.usagePointMetrologyConfigurationStore,
+                            dynamicPrivilege: Imt.dynamicprivileges.UsagePoint.metrologyConfigurationDefine,
                             route: 'metrologyconfiguration/define'
                         },
                         purpose: {
@@ -637,7 +639,13 @@ Ext.define('Imt.controller.History', {
                     action: 'showFavoriteUsagePointGroups'
                 }
             }
+        },
+        "workspace/dataquality": {
+            title: Uni.I18n.translate('general.dataQuality', 'IMT', 'Data quality'),
+            route: 'workspace/dataquality',
+            controller: 'Imt.dataquality.controller.DataQuality',
+            action: 'showDataQuality',
+            privileges: Cfg.privileges.Validation.viewResultsOrAdministerDataQuality
         }
-
     }
 });

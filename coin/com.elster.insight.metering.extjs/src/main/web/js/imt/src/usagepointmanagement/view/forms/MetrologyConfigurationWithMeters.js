@@ -41,7 +41,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.MetrologyConfigurationWithMeters
             },
             {
                 xtype: 'fieldcontainer',
-                itemId: 'start-date',
+                itemId: 'metrology-configuration-start-date',
                 hidden: true,
                 required: true,
                 labelWidth: 260,
@@ -52,7 +52,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.MetrologyConfigurationWithMeters
                 items: [
                     {
                         xtype: 'date-time',
-                        itemId: 'start-date-field',
+                        itemId: 'metrology-configuration-start-date-field',
                         name: 'activationTime',
                         layout: 'hbox',
                         valueInMilliseconds: true
@@ -143,7 +143,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.MetrologyConfigurationWithMeters
     getRecord: function () {
         var me = this,
             metrologyConfigurationCombo = me.down('#metrology-configuration-combo'),
-            metrologyConfigurationActivation = me.down('#start-date-field'),
+            metrologyConfigurationActivation = me.down('#metrology-configuration-start-date-field'),
             meterActivationsField = me.down('#meter-activations-field'),
             purposesField = me.down('#purposes-field'),
             metrologyConfiguration = metrologyConfigurationCombo ? metrologyConfigurationCombo.getValue() : null,
