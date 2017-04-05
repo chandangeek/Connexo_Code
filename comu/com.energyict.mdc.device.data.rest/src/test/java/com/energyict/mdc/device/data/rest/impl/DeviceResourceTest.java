@@ -29,12 +29,14 @@ import com.elster.jupiter.cps.ValuesRangeConflictType;
 import com.elster.jupiter.devtools.ExtjsFilter;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.estimation.EstimationRuleSet;
+import com.elster.jupiter.fsm.Stage;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageBuilder;
 import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
+import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.LocationTemplate;
 import com.elster.jupiter.metering.MeterActivation;
@@ -56,6 +58,7 @@ import com.elster.jupiter.search.SearchablePropertyOperator;
 import com.elster.jupiter.search.SearchablePropertyValue;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.time.rest.TimeDurationInfo;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.conditions.And;
@@ -67,7 +70,6 @@ import com.elster.jupiter.validation.ValidationRuleSet;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -77,6 +79,7 @@ import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.CIMLifecycleDates;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
@@ -224,6 +227,15 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(deviceService.findAndLockDeviceByNameAndVersion(name, device.getVersion())).thenReturn(Optional.of(device));
         when(deviceService.findDeviceByName(name)).thenReturn(Optional.of(device));
 
+        ProtocolDialectConfigurationProperties dialectProperties = mock(ProtocolDialectConfigurationProperties.class);
+        when(dialectProperties.getDeviceProtocolDialectName()).thenReturn("My Test Protocol Dialect Properties");
+
+        NextExecutionSpecs nextExecSpecs = mock(NextExecutionSpecs.class);
+        when(nextExecSpecs.getTemporalExpression()).thenReturn(new TemporalExpression(TimeDuration.minutes(60)));
+
+        OutboundComPortPool comPortPool = mock(OutboundComPortPool.class);
+        when(comPortPool.getName()).thenReturn("occp");
+
         ScheduledConnectionTask connectionTask = mock(ScheduledConnectionTask.class);
         PartialScheduledConnectionTask partialConnectionTask = mock(PartialScheduledConnectionTask.class);
         ConnectionTypePluggableClass pluggableClass = mock(ConnectionTypePluggableClass.class);
@@ -233,23 +245,20 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(connectionTask.getConnectionStrategy()).thenReturn(ConnectionStrategy.AS_SOON_AS_POSSIBLE);
         when(connectionTask.getRescheduleDelay()).thenReturn(TimeDuration.minutes(15));
         when(connectionTask.getProperties()).thenReturn(Collections.emptyList());
-        OutboundComPortPool comPortPool = mock(OutboundComPortPool.class);
-        when(comPortPool.getName()).thenReturn("occp");
+        when(connectionTask.getDevice()).thenReturn(device);
+        when(connectionTask.getProtocolDialectConfigurationProperties()).thenReturn(dialectProperties);
         when(connectionTask.getComPortPool()).thenReturn(comPortPool);
-        NextExecutionSpecs nextExecSpecs = mock(NextExecutionSpecs.class);
-        when(nextExecSpecs.getTemporalExpression()).thenReturn(new TemporalExpression(TimeDuration.minutes(60)));
         when(connectionTask.getNextExecutionSpecs()).thenReturn(nextExecSpecs);
         when(connectionTask.getPartialConnectionTask()).thenReturn(partialConnectionTask);
         when(connectionTask.getName()).thenReturn("sct");
         when(connectionTask.getStatus()).thenReturn(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE);
         when(connectionTask.getConnectionType()).thenReturn(connectionType);
-        when(connectionTask.getDevice()).thenReturn(device);
         when(connectionTaskService.findAndLockConnectionTaskByIdAndVersion(connectionTask.getId(), connectionTask.getVersion())).thenReturn(Optional.of(connectionTask));
         when(connectionTaskService.findConnectionTask(connectionTask.getId())).thenReturn(Optional.of(connectionTask));
         when(connectionType.getPropertySpecs()).thenReturn(Collections.<PropertySpec>emptyList());
         when(pluggableClass.getName()).thenReturn("ctpc");
         when(partialConnectionTask.getPluggableClass()).thenReturn(pluggableClass);
-        when(device.getConnectionTasks()).thenReturn(Arrays.asList(connectionTask));
+        when(device.getConnectionTasks()).thenReturn(Collections.singletonList(connectionTask));
 
         Map<String, Object> response = target("/devices/" + name + "/connectionmethods").request().get(Map.class);
         assertThat(response).hasSize(2).containsKey("total").containsKey("connectionMethods");
@@ -266,15 +275,19 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
                 .containsKey("comWindowEnd")
                 .containsKey("comPortPool")
                 .containsKey("isDefault")
-                .containsKey("connectionStrategy")
+                .containsKey("connectionStrategyInfo")
                 .containsKey("properties")
                 .containsKey("numberOfSimultaneousConnections")
                 .containsKey("rescheduleRetryDelay")
+                .containsKey("protocolDialect")
                 .containsKey("nextExecutionSpecs");
     }
 
     @Test
     public void testCreatePausedInboundConnectionMethod() throws Exception {
+        ProtocolDialectConfigurationProperties dialectProperties = mock(ProtocolDialectConfigurationProperties.class);
+        when(dialectProperties.getDeviceProtocolDialectName()).thenReturn("My Test Protocol Dialect Properties");
+
         InboundConnectionMethodInfo info = new InboundConnectionMethodInfo();
         info.name = "inbConnMethod";
         info.status = ConnectionTask.ConnectionTaskLifecycleStatus.INACTIVE;
@@ -305,6 +318,8 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(connectionTask.getPartialConnectionTask()).thenReturn(partialConnectionTask);
         when(connectionTask.getConnectionType()).thenReturn(connectionType);
         when(connectionTask.getDevice()).thenReturn(device);
+        when(connectionTask.getProtocolDialectConfigurationProperties()).thenReturn(dialectProperties);
+
         when(connectionTaskService.findAndLockConnectionTaskByIdAndVersion(connectionTask.getId(), connectionTask.getVersion())).thenReturn(Optional.of(connectionTask));
         when(connectionTaskService.findConnectionTask(connectionTask.getId())).thenReturn(Optional.of(connectionTask));
         when(connectionType.getPropertySpecs()).thenReturn(Collections.<PropertySpec>emptyList());
@@ -321,7 +336,6 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
     @Test
     public void testCreateActiveInboundConnectionMethod() throws Exception {
-
         Device.InboundConnectionTaskBuilder inboundConnectionTaskBuilder = mock(Device.InboundConnectionTaskBuilder.class);
 
         ConnectionTypePluggableClass pluggableClass = mock(ConnectionTypePluggableClass.class);
@@ -349,11 +363,15 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         ConnectionType connectionType = mock(ConnectionType.class);
         when(connectionType.getPropertySpecs()).thenReturn(Collections.<PropertySpec>emptyList());
 
+        ProtocolDialectConfigurationProperties dialectProperties = mock(ProtocolDialectConfigurationProperties.class);
+        when(dialectProperties.getDeviceProtocolDialectName()).thenReturn("My Test Protocol Dialect Properties");
+
         InboundConnectionTask connectionTask = mock(InboundConnectionTask.class);
         when(connectionTask.getPartialConnectionTask()).thenReturn(partialConnectionTask);
         when(connectionTask.getConnectionType()).thenReturn(connectionType);
-        when(inboundConnectionTaskBuilder.add()).thenReturn(connectionTask);
         when(connectionTask.getDevice()).thenReturn(device);
+        when(connectionTask.getProtocolDialectConfigurationProperties()).thenReturn(dialectProperties);
+        when(inboundConnectionTaskBuilder.add()).thenReturn(connectionTask);
         when(connectionTaskService.findAndLockConnectionTaskByIdAndVersion(connectionTask.getId(), connectionTask.getVersion())).thenReturn(Optional.of(connectionTask));
         when(connectionTaskService.findConnectionTask(connectionTask.getId())).thenReturn(Optional.of(connectionTask));
 
@@ -376,6 +394,9 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
     @Test
     public void testCreateDefaultInboundConnectionMethod() throws Exception {
+        ProtocolDialectConfigurationProperties dialectProperties = mock(ProtocolDialectConfigurationProperties.class);
+        when(dialectProperties.getDeviceProtocolDialectName()).thenReturn("My Test Protocol Dialect Properties");
+
         InboundConnectionMethodInfo info = new InboundConnectionMethodInfo();
         info.name = "inbConnMethod";
         info.status = ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE;
@@ -405,6 +426,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(connectionTask.getPartialConnectionTask()).thenReturn(partialConnectionTask);
         when(connectionTask.getConnectionType()).thenReturn(connectionType);
         when(connectionTask.getDevice()).thenReturn(device);
+        when(connectionTask.getProtocolDialectConfigurationProperties()).thenReturn(dialectProperties);
         when(connectionTaskService.findAndLockConnectionTaskByIdAndVersion(connectionTask.getId(), connectionTask.getVersion())).thenReturn(Optional.of(connectionTask));
         when(connectionTaskService.findConnectionTask(connectionTask.getId())).thenReturn(Optional.of(connectionTask));
         when(connectionType.getPropertySpecs()).thenReturn(Collections.<PropertySpec>emptyList());
@@ -418,6 +440,9 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
     @Test
     public void testUpdateAndUndefaultInboundConnectionMethod() throws Exception {
+        ProtocolDialectConfigurationProperties dialectProperties = mock(ProtocolDialectConfigurationProperties.class);
+        when(dialectProperties.getDeviceProtocolDialectName()).thenReturn("My Test Protocol Dialect Properties");
+
         Device device = mock(Device.class);
         when(device.getVersion()).thenReturn(1L);
         String deviceName = "ZABF0000000";
@@ -444,6 +469,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(connectionTask.getConnectionType()).thenReturn(connectionType);
         when(connectionTask.isDefault()).thenReturn(true);
         when(connectionTask.getDevice()).thenReturn(device);
+        when(connectionTask.getProtocolDialectConfigurationProperties()).thenReturn(dialectProperties);
         when(connectionTaskService.findAndLockConnectionTaskByIdAndVersion(connectionTask.getId(), connectionTask.getVersion())).thenReturn(Optional.of(connectionTask));
         when(connectionTaskService.findConnectionTask(connectionTask.getId())).thenReturn(Optional.of(connectionTask));
         when(connectionType.getPropertySpecs()).thenReturn(Collections.<PropertySpec>emptyList());
@@ -465,6 +491,9 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
     @Test
     public void testUpdateOnlyClearsDefaultIfConnectionMethodWasDefaultBeforeUpdate() throws Exception {
+        ProtocolDialectConfigurationProperties dialectProperties = mock(ProtocolDialectConfigurationProperties.class);
+        when(dialectProperties.getDeviceProtocolDialectName()).thenReturn("My Test Protocol Dialect Properties");
+
         Device device = mock(Device.class);
         when(device.getVersion()).thenReturn(1L);
         String deviceName = "ZABF0000000";
@@ -491,6 +520,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(connectionTask.getConnectionType()).thenReturn(connectionType);
         when(connectionTask.isDefault()).thenReturn(false);
         when(connectionTask.getDevice()).thenReturn(device);
+        when(connectionTask.getProtocolDialectConfigurationProperties()).thenReturn(dialectProperties);
         when(connectionTaskService.findAndLockConnectionTaskByIdAndVersion(connectionTask.getId(), connectionTask.getVersion())).thenReturn(Optional.of(connectionTask));
         when(connectionTaskService.findConnectionTask(connectionTask.getId())).thenReturn(Optional.of(connectionTask));
         when(connectionType.getPropertySpecs()).thenReturn(Collections.<PropertySpec>emptyList());
@@ -1746,7 +1776,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         ChannelInfo mock = new ChannelInfo();
         mock.id = id;
         mock.interval = new TimeDurationInfo(900);
-        mock.parent = new VersionInfo<String>(deviceMRID, version);
+        mock.parent = new VersionInfo<>(deviceMRID, version);
         return mock;
     }
 
@@ -1887,7 +1917,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         TopologyTimeline topologyTimeLine = mock(TopologyTimeline.class);
         when(topologyTimeLine.getAllDevices()).thenReturn(Collections.emptySet());
         when(topologyService.getPysicalTopologyTimeline(dataLogger)).thenReturn(topologyTimeLine);
-        Response response = target("/devices/1").request().put(Entity.json(info));
+         Response response = target("/devices/1").request().put(Entity.json(info));
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         // Already linked, shouldn't be linked a second time
@@ -2289,7 +2319,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     }
 
     private RegisterInfo newRegisterInfo(long id, String deviceName, long version) {
-        RegisterInfo mock = new NumericalRegisterInfo();
+        RegisterInfo mock = new RegisterInfo();
         mock.id = id;
         mock.deviceName = deviceName;
         mock.parent = new VersionInfo<>(id, version);
@@ -2363,6 +2393,9 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(device.forEstimation()).thenReturn(deviceEstimation);
         mockGetOpenDataValidationIssue();
         State state = mockDeviceState("dlc.default.inStock");
+        Stage stage = mock(Stage.class);
+        when(stage.getName()).thenReturn(EndDeviceStage.OPERATIONAL.getKey());
+        when(state.getStage()).thenReturn(Optional.of(stage));
         when(device.getState()).thenReturn(state);
         Instant now = Instant.now();
         CIMLifecycleDates dates = mock(CIMLifecycleDates.class);
@@ -2486,11 +2519,11 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     }
 
     @Test
-    public void testPrivilegesForInStockState() {
-        State state = mock(State.class);
-        when(state.getName()).thenReturn(DefaultState.IN_STOCK.getKey());
+    public void testPrivilegesForPreOperationalStage() {
+        Stage stage = mock(Stage.class);
+        when(stage.getName()).thenReturn(EndDeviceStage.PRE_OPERATIONAL.getKey());
         Device device = mock(Device.class);
-        when(device.getState()).thenReturn(state);
+        when(device.getStage()).thenReturn(stage);
         when(deviceService.findDeviceByName(anyString())).thenReturn(Optional.of(device));
 
         DeviceConfiguration configuration = mock(DeviceConfiguration.class);
@@ -2525,11 +2558,11 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     }
 
     @Test
-    public void testPrivilegesForInDecommissionedState() {
-        State state = mock(State.class);
-        when(state.getName()).thenReturn(DefaultState.DECOMMISSIONED.getKey());
+    public void testPrivilegesForInPostOperationalStage() {
+        Stage stage = mock(Stage.class);
+        when(stage.getName()).thenReturn(EndDeviceStage.POST_OPERATIONAL.getKey());
         Device device = mock(Device.class);
-        when(device.getState()).thenReturn(state);
+        when(device.getStage()).thenReturn(stage);
         when(deviceService.findDeviceByName(anyString())).thenReturn(Optional.of(device));
 
         DeviceConfiguration configuration = mock(DeviceConfiguration.class);
@@ -2546,11 +2579,11 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     }
 
     @Test
-    public void testPrivilegesForCustomState() {
-        State state = mock(State.class);
-        when(state.getName()).thenReturn("Custom state");
+    public void testPrivilegesForOperationalStage() {
+        Stage stage = mock(Stage.class);
+        when(stage.getName()).thenReturn(EndDeviceStage.OPERATIONAL.getKey());
         Device device = mock(Device.class);
-        when(device.getState()).thenReturn(state);
+        when(device.getStage()).thenReturn(stage);
         when(deviceService.findDeviceByName(anyString())).thenReturn(Optional.of(device));
         DeviceConfiguration configuration = mock(DeviceConfiguration.class);
         when(deviceConfigurationService.getSupportedTimeOfUseOptionsFor(any(), eq(true))).thenReturn(Collections.emptySet());
@@ -2560,10 +2593,9 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
         String response = target("/devices/1/privileges").request().get(String.class);
         JsonModel model = JsonModel.create(response);
-        assertThat(model.<Number>get("$.total")).isEqualTo(21);
+        assertThat(model.<Number>get("$.total")).isEqualTo(20);
         List<String> privileges = model.<List<String>>get("$.privileges[*].name");
         assertThat(privileges).contains(
-                DevicePrivileges.DEVICES_WIDGET_ISSUES,
                 DevicePrivileges.DEVICES_WIDGET_VALIDATION,
                 DevicePrivileges.DEVICES_WIDGET_COMMUNICATION_TOPOLOGY,
                 DevicePrivileges.DEVICES_WIDGET_CONNECTION,
@@ -2847,6 +2879,11 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(device.getSpatialCoordinates()).thenReturn(Optional.empty());
         when(device.getCreateTime()).thenReturn(Instant.EPOCH);
         String deviceName = "name";
+        State state = mock(State.class);
+        when(device.getState()).thenReturn(state);
+        Stage stage = mock(Stage.class);
+        when(stage.getName()).thenReturn(EndDeviceStage.OPERATIONAL.getKey());
+        when(state.getStage()).thenReturn(Optional.of(stage));
         when(deviceService.newDevice(deviceConfiguration, deviceName, shipmentDate)).thenReturn(device);
         DeviceInfo deviceInfo = new DeviceInfo();
         deviceInfo.name = deviceName;
@@ -2873,6 +2910,11 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(deviceConfiguration.getValidationRuleSets()).thenReturn(Collections.emptyList());
         when(deviceConfigurationService.findDeviceConfiguration(deviceConfigId)).thenReturn(Optional.of(deviceConfiguration));
         Device device = mock(Device.class, RETURNS_DEEP_STUBS);
+        State state = mock(State.class);
+        when(device.getState()).thenReturn(state);
+        Stage stage = mock(Stage.class);
+        when(stage.getName()).thenReturn(EndDeviceStage.OPERATIONAL.getKey());
+        when(state.getStage()).thenReturn(Optional.of(stage));
         when(deviceService.findDeviceByName("theDevice")).thenReturn(Optional.of(device));
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         DeviceType deviceType = mock(DeviceType.class);
@@ -2927,6 +2969,11 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(device.getLocation()).thenReturn(Optional.empty());
         when(device.getSpatialCoordinates()).thenReturn(Optional.empty());
         String name = "Great name";
+        State state = mock(State.class);
+        when(device.getState()).thenReturn(state);
+        Stage stage = mock(Stage.class);
+        when(stage.getName()).thenReturn(EndDeviceStage.OPERATIONAL.getKey());
+        when(state.getStage()).thenReturn(Optional.of(stage));
         when(deviceService.newDevice(deviceConfiguration, name, "batch", shipmentDate)).thenReturn(device);
         DeviceInfo deviceInfo = new DeviceInfo();
         deviceInfo.name = name;

@@ -6,32 +6,35 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.TimeDurationValueFactory;
 import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.properties.rest.PropertyTypeInfo;
 import com.elster.jupiter.properties.rest.PropertyValueInfo;
+import com.elster.jupiter.properties.rest.SimplePropertyType;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.time.rest.TimeDurationInfo;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.interval.PartialTime;
-import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.rest.DeviceConnectionTaskInfo;
 import com.energyict.mdc.device.data.tasks.ConnectionTask.ConnectionTaskLifecycleStatus;
 import com.energyict.mdc.device.data.tasks.ConnectionTask.SuccessIndicator;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
-import com.energyict.mdc.dynamic.TimeDurationValueFactory;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
-import com.energyict.mdc.pluggable.rest.impl.properties.SimplePropertyType;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.ConnectionType.Direction;
+import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
 
@@ -68,6 +71,7 @@ public class ConnectionMethodResourceTest extends DeviceDataRestApplicationJerse
     Instant nextExecution = Instant.now();
     private ScheduledConnectionTask connectionTask;
     private Device device;
+    private DeviceConfiguration deviceConfiguration;
     private PartialScheduledConnectionTask partialConnectionTask;
 
     @Override
@@ -79,9 +83,11 @@ public class ConnectionMethodResourceTest extends DeviceDataRestApplicationJerse
         when(device.getVersion()).thenReturn(1L);
         when(deviceService.findDeviceByName(device.getName())).thenReturn(Optional.of(device));
         when(deviceService.findAndLockDeviceByNameAndVersion(device.getName(), device.getVersion())).thenReturn(Optional.of(device));
+        deviceConfiguration = mock(DeviceConfiguration.class);
+        when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         connectionTask = mockConnectionTask(9);
         when(device.getConnectionTasks()).thenReturn(Collections.singletonList(connectionTask));
-        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
+        when(connectionTask.getDevice()).thenReturn(device);
         partialConnectionTask = mockPartialConnectionTask(31L, "AS1440");
         when(deviceConfiguration.getPartialConnectionTasks()).thenReturn(Collections.singletonList(partialConnectionTask));
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
@@ -105,9 +111,11 @@ public class ConnectionMethodResourceTest extends DeviceDataRestApplicationJerse
         assertThat(jsonModel.<String>get("$.connectionMethods[0].name")).isEqualTo("it's me");
         assertThat(jsonModel.<String>get("$.connectionMethods[0].status")).isEqualTo("connectionTaskStatusActive");
         assertThat(jsonModel.<String>get("$.connectionMethods[0].connectionType")).isEqualTo("Pluggable class");
-        assertThat(jsonModel.<String>get("$.connectionMethods[0].connectionStrategy")).isEqualTo(ConnectionStrategy.AS_SOON_AS_POSSIBLE.name());
+        assertThat(jsonModel.<String>get("$.connectionMethods[0].connectionStrategyInfo.connectionStrategy")).isEqualTo(ConnectionStrategy.AS_SOON_AS_POSSIBLE.name());
         assertThat(jsonModel.<String>get("$.connectionMethods[0].comPortPool")).isEqualTo("com port pool");
         assertThat(jsonModel.<List>get("$.connectionMethods[0].properties")).isEmpty();
+        assertThat(jsonModel.<String>get("$.connectionMethods[0].protocolDialect")).isEqualTo("Protocol Dialect Name");
+        assertThat(jsonModel.<String>get("$.connectionMethods[0].protocolDialectDisplayName")).isEqualTo("Protocol Dialect DisplayName");
     }
 
     @Test
@@ -141,6 +149,9 @@ public class ConnectionMethodResourceTest extends DeviceDataRestApplicationJerse
         info.nextExecutionSpecs.every.timeUnit= ""; // ILLEGAL
         info.version = connectionTask.getVersion();
         info.parent = new VersionInfo<>(device.getName(), device.getVersion());
+        info.connectionStrategyInfo = new DeviceConnectionTaskInfo.ConnectionStrategyInfo();
+        info.connectionStrategyInfo.connectionStrategy = ConnectionStrategy.AS_SOON_AS_POSSIBLE.name();
+        info.connectionStrategyInfo.localizedValue = "Localized "+ConnectionStrategy.AS_SOON_AS_POSSIBLE.name();
 
         Response response = target("/devices/ZABF0000000/connectionmethods/9").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
@@ -153,6 +164,9 @@ public class ConnectionMethodResourceTest extends DeviceDataRestApplicationJerse
         ScheduledConnectionMethodInfo info = new ScheduledConnectionMethodInfo();
         info.name = "AS1440";
         info.status = ConnectionTaskLifecycleStatus.INCOMPLETE;
+        info.connectionStrategyInfo = new DeviceConnectionTaskInfo.ConnectionStrategyInfo();
+        info.connectionStrategyInfo.connectionStrategy = ConnectionStrategy.AS_SOON_AS_POSSIBLE.name();
+        info.connectionStrategyInfo.localizedValue = "Localized "+ConnectionStrategy.AS_SOON_AS_POSSIBLE.name();
         info.nextExecutionSpecs = new TemporalExpressionInfo();
         info.nextExecutionSpecs.every= new TimeDurationInfo();
         info.nextExecutionSpecs.every.count= 15;
@@ -162,6 +176,8 @@ public class ConnectionMethodResourceTest extends DeviceDataRestApplicationJerse
         info.nextExecutionSpecs.offset.timeUnit= "illegal"; // ILLEGAL
         info.version = connectionTask.getVersion();
         info.parent = new VersionInfo<>(device.getName(), device.getVersion());
+        info.protocolDialect = "Protocol Dialect Name";
+        info.protocolDialectDisplayName = "Protocol Dialect DisplayName";
 
         Response response = target("/devices/ZABF0000000/connectionmethods/9").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
@@ -174,6 +190,8 @@ public class ConnectionMethodResourceTest extends DeviceDataRestApplicationJerse
         ScheduledConnectionMethodInfo info = new ScheduledConnectionMethodInfo();
         info.name = "AS1440";
         info.status = ConnectionTaskLifecycleStatus.INCOMPLETE;
+        info.protocolDialect = "Protocol Dialect Name";
+        info.protocolDialectDisplayName = "Protocol Dialect DisplayName";
         info.properties = Collections.singletonList(
                 new PropertyInfo("connectionTimeout", "connectionTimeout",
                         new PropertyValueInfo<>(new TimeDuration("15 seconds"), null, null, null),
@@ -181,6 +199,7 @@ public class ConnectionMethodResourceTest extends DeviceDataRestApplicationJerse
                         false));
         info.version = connectionTask.getVersion();
         info.parent = new VersionInfo<>(device.getName(), device.getVersion());
+
         doThrow(new LocalizedFieldValidationException(MessageSeeds.BAD_REQUEST, "properties.connectionTimeout", null)).when(propertyValueInfoService).findPropertyValue(any(), any());
         Response response = target("/devices/ZABF0000000/connectionmethods/9").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
@@ -193,6 +212,11 @@ public class ConnectionMethodResourceTest extends DeviceDataRestApplicationJerse
         ScheduledConnectionMethodInfo info = new ScheduledConnectionMethodInfo();
         info.name = "AS1440";
         info.status = ConnectionTaskLifecycleStatus.INCOMPLETE;
+        info.connectionStrategyInfo = new DeviceConnectionTaskInfo.ConnectionStrategyInfo();
+        info.connectionStrategyInfo.connectionStrategy = ConnectionStrategy.AS_SOON_AS_POSSIBLE.name();
+        info.connectionStrategyInfo.localizedValue = "Translation for " + ConnectionStrategy.AS_SOON_AS_POSSIBLE.name();
+        info.protocolDialect = "Protocol Dialect Name";
+        info.protocolDialectDisplayName = "Protocol Dialect DisplayName";
         PropertyInfo propertyInfo = new PropertyInfo("connectionTimeout", "connectionTimeout",
                 new PropertyValueInfo("", "", null, null),
                 new PropertyTypeInfo(SimplePropertyType.TIMEDURATION, null, null, null),
@@ -216,6 +240,11 @@ public class ConnectionMethodResourceTest extends DeviceDataRestApplicationJerse
         ScheduledConnectionMethodInfo info = new ScheduledConnectionMethodInfo();
         info.name = "AS1440";
         info.status = ConnectionTaskLifecycleStatus.INCOMPLETE;
+        info.connectionStrategyInfo = new DeviceConnectionTaskInfo.ConnectionStrategyInfo();
+        info.connectionStrategyInfo.connectionStrategy = ConnectionStrategy.AS_SOON_AS_POSSIBLE.name();
+        info.connectionStrategyInfo.localizedValue = "Translation for " + ConnectionStrategy.AS_SOON_AS_POSSIBLE.name();
+        info.protocolDialect = "Protocol Dialect Name";
+        info.protocolDialectDisplayName = "Protocol Dialect DisplayName";
         PropertyInfo propertyInfo = new PropertyInfo("connectionTimeout", "connectionTimeout",
                 new PropertyValueInfo(null, new TimeDurationInfo(new TimeDuration("15 minutes")), null, null),
                 new PropertyTypeInfo(SimplePropertyType.TIMEDURATION, null, null, null),
@@ -235,6 +264,8 @@ public class ConnectionMethodResourceTest extends DeviceDataRestApplicationJerse
         ScheduledConnectionMethodInfo info = new ScheduledConnectionMethodInfo();
         info.name = "AS1440";
         info.status = ConnectionTaskLifecycleStatus.INCOMPLETE;
+        info.protocolDialect = "Protocol Dialect Name";
+        info.protocolDialectDisplayName = "Protocol Dialect DisplayName";
         PropertyInfo propertyInfo = new PropertyInfo("connectionTimeout", "connectionTimeout",
                 new PropertyValueInfo<>(null, null, null, null),
                 new PropertyTypeInfo(SimplePropertyType.TIMEDURATION, null, null, null),
@@ -256,6 +287,8 @@ public class ConnectionMethodResourceTest extends DeviceDataRestApplicationJerse
         ScheduledConnectionMethodInfo info = new ScheduledConnectionMethodInfo();
         info.name = "AS1440";
         info.status = ConnectionTaskLifecycleStatus.INCOMPLETE;
+        info.protocolDialect = "Protocol Dialect Name";
+        info.protocolDialectDisplayName = "Protocol Dialect DisplayName";
         PropertyInfo propertyInfo = new PropertyInfo("connectionTimeout", "connectionTimeout",
                 new PropertyValueInfo<>(null, new TimeDurationInfo(new TimeDuration("15 minutes")), null, null),
                 new PropertyTypeInfo(SimplePropertyType.TIMEDURATION, null, null, null),
@@ -270,7 +303,9 @@ public class ConnectionMethodResourceTest extends DeviceDataRestApplicationJerse
     }
 
     private ScheduledConnectionTask mockConnectionTask(long id) {
+        ProtocolDialectConfigurationProperties properties =  mockProtocolDialectConfigurationProperties();
         ScheduledConnectionTask connectionTask = mock(ScheduledConnectionTask.class);
+        when(connectionTask.getProtocolDialectConfigurationProperties()).thenReturn(properties);
         ComSession comSession = mockComSession(comSessionStart, comSessionEnd);
         when(connectionTask.getLastComSession()).thenReturn(Optional.of(comSession));
         when(connectionTask.getId()).thenReturn(id);
@@ -294,13 +329,17 @@ public class ConnectionMethodResourceTest extends DeviceDataRestApplicationJerse
         when(connectionTask.getDevice()).thenReturn(device);
         when(connectionTask.getVersion()).thenReturn(1L);
         when(connectionTask.getNumberOfSimultaneousConnections()).thenReturn(1);
+        when(connectionTask.getProtocolDialectConfigurationProperties()).thenReturn(properties);
+        when(deviceConfiguration.getProtocolDialectConfigurationPropertiesList()).thenReturn(Collections.singletonList(properties));
         return connectionTask;
     }
 
     private PartialScheduledConnectionTask mockPartialConnectionTask(long id, String name) {
+        ProtocolDialectConfigurationProperties properties =  mockProtocolDialectConfigurationProperties();
         PartialScheduledConnectionTask connectionTask = mock(PartialScheduledConnectionTask.class);
         when(connectionTask.getId()).thenReturn(id);
         when(connectionTask.getName()).thenReturn(name);
+        when(connectionTask.getProtocolDialectConfigurationProperties()).thenReturn(properties);
         ConnectionType connectionType = mock(ConnectionType.class);
         when(connectionTask.getConnectionType()).thenReturn(connectionType);
         when(connectionType.getDirection()).thenReturn(Direction.OUTBOUND);
@@ -369,5 +408,14 @@ public class ConnectionMethodResourceTest extends DeviceDataRestApplicationJerse
         ConnectionTypePluggableClass pluggableClass = mock(ConnectionTypePluggableClass.class);
         when(pluggableClass.getName()).thenReturn("Pluggable class");
         return pluggableClass;
+    }
+
+    private ProtocolDialectConfigurationProperties mockProtocolDialectConfigurationProperties(){
+        DeviceProtocolDialect protocolDialect = mock(DeviceProtocolDialect.class);
+        when(protocolDialect.getDisplayName()).thenReturn("Protocol Dialect DisplayName");
+        ProtocolDialectConfigurationProperties properties = mock(ProtocolDialectConfigurationProperties.class);
+        when(properties.getDeviceProtocolDialectName()).thenReturn("Protocol Dialect Name");
+        when(properties.getDeviceProtocolDialect()).thenReturn(protocolDialect);
+        return properties;
     }
 }

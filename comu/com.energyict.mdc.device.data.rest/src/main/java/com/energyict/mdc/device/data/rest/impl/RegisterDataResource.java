@@ -4,14 +4,11 @@
 
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
-import com.elster.jupiter.rest.util.ExceptionFactory;
-import com.elster.jupiter.rest.util.JsonQueryFilter;
-import com.elster.jupiter.rest.util.JsonQueryParameters;
-import com.elster.jupiter.rest.util.PagedInfoList;
-import com.elster.jupiter.rest.util.Transactional;
+import com.elster.jupiter.rest.util.*;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.services.ListPager;
@@ -20,25 +17,15 @@ import com.energyict.mdc.device.data.NumericalRegister;
 import com.energyict.mdc.device.data.Reading;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.exceptions.NoMeterActivationAt;
-import com.energyict.mdc.device.data.rest.DeviceStatesRestricted;
+import com.energyict.mdc.device.data.rest.DeviceStagesRestricted;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.topology.TopologyService;
-
 import com.google.common.collect.Range;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.BeanParam;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.HttpMethod;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.math.BigDecimal;
@@ -50,8 +37,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-@DeviceStatesRestricted(
-        value = {DefaultState.DECOMMISSIONED},
+@DeviceStagesRestricted(
+        value = {EndDeviceStage.POST_OPERATIONAL},
         methods = {HttpMethod.PUT, HttpMethod.POST, HttpMethod.DELETE},
         ignoredUserRoles = {Privileges.Constants.ADMINISTER_DECOMMISSIONED_DEVICE_DATA})
 public class RegisterDataResource {
@@ -95,7 +82,6 @@ public class RegisterDataResource {
                             .isValidationActive(register1, this.clock.instant()), register.equals(register1) ? null : register1.getDevice());
                     // sort the list of readings
                     Collections.sort(infoList, (ri1, ri2) -> ri2.timeStamp.compareTo(ri1.timeStamp));
-                    addDeltaCalculationIfApplicable(register1, infoList);
                     return infoList.stream()
                             // filter the list of readings based on user parameters
                             .filter(resourceHelper.getSuspectsFilter(filter, this::hasSuspects));
@@ -104,34 +90,6 @@ public class RegisterDataResource {
 
         List<ReadingInfo> paginatedReadingInfo = ListPager.of(readingInfos).from(queryParameters).find();
         return PagedInfoList.fromPagedList("data", paginatedReadingInfo, queryParameters);
-    }
-
-    private void addDeltaCalculationIfApplicable(Register<?, ?> register, List<ReadingInfo> readingInfos) {
-    /* And fill a delta value for cumulative reading type. The delta is the difference with the previous record.
-       The Delta value won't be stored in the database yet, as it has a performance impact */
-        if (!register.getRegisterSpec().isTextual()) {
-            ReadingType readingTypeForCalculation = register.getCalculatedReadingType(register.getLastReadingDate().orElse(clock.instant()))
-                    .isPresent() ? register.getCalculatedReadingType(register.getLastReadingDate().orElse(clock.instant())).get() : register.getReadingType();
-            boolean cumulative = readingTypeForCalculation.isCumulative();
-            if (cumulative) {
-                List<NumericalReadingInfo> numericalReadingInfos = readingInfos.stream().map(readingInfo -> ((NumericalReadingInfo) readingInfo)).collect(Collectors.toList());
-                for (int i = 0; i < numericalReadingInfos.size() - 1; i++) {
-                    NumericalReadingInfo previous = numericalReadingInfos.get(i + 1);
-                    NumericalReadingInfo current = numericalReadingInfos.get(i);
-                    if (register.getCalculatedReadingType(current.timeStamp).isPresent() && previous.calculatedValue != null && current.calculatedValue != null) {
-                        calculateDelta(current, previous.calculatedValue, current.calculatedValue);
-                    } else if (previous.value != null && current.value != null) {
-                        calculateDelta(current, previous.value, current.value);
-
-                    }
-                }
-            }
-        }
-    }
-
-    private void calculateDelta(NumericalReadingInfo current, BigDecimal previousVale, BigDecimal currentValue) {
-        current.deltaValue = currentValue.subtract(previousVale);
-        current.deltaValue = current.deltaValue.setScale(currentValue.scale(), BigDecimal.ROUND_UP);
     }
 
     @GET
@@ -162,11 +120,10 @@ public class RegisterDataResource {
         BaseReading reading = readingInfo.createNew(register);
         validateLinkedToSlave(register, reading.getTimeStamp());
         validateManualAddedEditValueForOverflow(register, reading);
-        if ((readingInfo instanceof NumericalReadingInfo && NumericalReadingInfo.class.cast(readingInfo).isConfirmed != null && NumericalReadingInfo.class.cast(readingInfo).isConfirmed) ||
-                (readingInfo instanceof BillingReadingInfo && BillingReadingInfo.class.cast(readingInfo).isConfirmed != null && BillingReadingInfo.class.cast(readingInfo).isConfirmed)) {
-            register.startEditingData().confirmReading(reading).complete();
+        if (readingInfo instanceof NumericalReadingInfo && NumericalReadingInfo.class.cast(readingInfo).isConfirmed != null && NumericalReadingInfo.class.cast(readingInfo).isConfirmed) {
+            register.startEditingData().confirmReading(reading, readingInfo.timeStamp).complete();
         } else {
-            register.startEditingData().editReading(reading).complete();
+            register.startEditingData().editReading(reading, readingInfo.timeStamp).complete();
         }
         return Response.status(Response.Status.OK).build();
     }
@@ -179,14 +136,15 @@ public class RegisterDataResource {
     public Response addRegisterData(@PathParam("name") String name, @PathParam("registerId") long registerId, ReadingInfo readingInfo) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         Register<?, ?> register = resourceHelper.findRegisterOrThrowException(device, registerId);
-        if(readingInfo instanceof BillingReadingInfo && ((BillingReadingInfo) readingInfo).interval.start > ((BillingReadingInfo) readingInfo).interval.end){
+        if(readingInfo instanceof NumericalReadingInfo && ((NumericalReadingInfo) readingInfo).interval != null &&
+                ((NumericalReadingInfo) readingInfo).interval.start > ((NumericalReadingInfo) readingInfo).interval.end){
             throw new LocalizedFieldValidationException(MessageSeeds.INTERVAL_END_BEFORE_START, "interval.end");
         }
         try {
             BaseReading reading = readingInfo.createNew(register);
             validateLinkedToSlave(register, reading.getTimeStamp());
             validateManualAddedEditValueForOverflow(register, reading);
-            register.startEditingData().editReading(reading).complete();
+            register.startEditingData().editReading(reading, readingInfo.timeStamp).complete();
         } catch (NoMeterActivationAt e) {
             Instant time = (Instant) e.get("time");
             throw this.exceptionFactory.newExceptionSupplier(MessageSeeds.CANT_ADD_READINGS_FOR_STATE, Date.from(time)).get();
@@ -232,10 +190,7 @@ public class RegisterDataResource {
 
     private boolean hasSuspects(ReadingInfo info) {
         boolean result = true;
-        if (info instanceof BillingReadingInfo) {
-            BillingReadingInfo billingReadingInfo = (BillingReadingInfo) info;
-            result = ValidationStatus.SUSPECT.equals(billingReadingInfo.validationResult);
-        } else if (info instanceof NumericalReadingInfo) {
+        if (info instanceof NumericalReadingInfo) {
             NumericalReadingInfo numericalReadingInfo = (NumericalReadingInfo) info;
             result = ValidationStatus.SUSPECT.equals(numericalReadingInfo.validationResult);
         }

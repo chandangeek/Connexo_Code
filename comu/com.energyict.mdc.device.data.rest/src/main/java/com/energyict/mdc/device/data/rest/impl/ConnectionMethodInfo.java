@@ -8,15 +8,18 @@ import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.rest.util.VersionInfo;
+import com.elster.jupiter.time.rest.TimeDurationInfo;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.PartialConnectionTask;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.rest.DeviceConnectionTaskInfo;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
+import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -26,7 +29,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import javax.ws.rs.core.UriInfo;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -46,11 +48,12 @@ public abstract class ConnectionMethodInfo<T extends ConnectionTask<? extends Co
     public boolean isDefault;
     public Integer comWindowStart;
     public Integer comWindowEnd;
-    public String connectionStrategy;
     public List<PropertyInfo> properties;
     public Integer numberOfSimultaneousConnections = 1;
     public TimeDurationInfo rescheduleRetryDelay;
     public TemporalExpressionInfo nextExecutionSpecs;
+    public String protocolDialect;
+    public String protocolDialectDisplayName;
 
     public ConnectionMethodInfo() {
     }
@@ -66,6 +69,11 @@ public abstract class ConnectionMethodInfo<T extends ConnectionTask<? extends Co
         List<PropertySpec> propertySpecs = connectionTask.getConnectionType().getPropertySpecs();
         TypedProperties typedProperties = connectionTask.getTypedProperties();
         this.properties = new ArrayList<>();
+        ProtocolDialectConfigurationProperties dialectConfigurationProperties = connectionTask.getProtocolDialectConfigurationProperties();
+        this.protocolDialect = dialectConfigurationProperties.getDeviceProtocolDialectName();
+        DeviceProtocolDialect protocolDialect =  dialectConfigurationProperties.getDeviceProtocolDialect();
+        if (protocolDialect != null)
+            this.protocolDialectDisplayName = protocolDialect.getDisplayName();
         mdcPropertyUtils.convertPropertySpecsToPropertyInfos(uriInfo, propertySpecs, typedProperties, this.properties);
         this.version = connectionTask.getVersion();
         Device device = connectionTask.getDevice();
@@ -98,10 +106,11 @@ public abstract class ConnectionMethodInfo<T extends ConnectionTask<? extends Co
     public abstract ConnectionTask<?, ?> createTask(EngineConfigurationService engineConfigurationService, Device device, MdcPropertyUtils mdcPropertyUtils, PartialConnectionTask partialConnectionTask);
 
     @JsonIgnore
-    protected ConnectionStrategy getConnectionStrategy(){
-        return Arrays.stream(ConnectionStrategy.values())
-                .filter(candidate -> candidate.name().equals(this.connectionStrategy))
-                .findFirst()
-                .orElse(null);
+    protected ConnectionStrategy getConnectionStrategy(DeviceConnectionTaskInfo.ConnectionStrategyInfo info){
+        try {
+            return ConnectionStrategy.valueOf(info.connectionStrategy);
+        }catch(IllegalArgumentException e){
+            return null;
+        }
     }
 }

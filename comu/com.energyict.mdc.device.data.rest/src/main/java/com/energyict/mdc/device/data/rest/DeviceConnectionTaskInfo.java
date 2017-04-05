@@ -5,7 +5,7 @@
 package com.energyict.mdc.device.data.rest;
 
 import com.elster.jupiter.rest.util.IdWithNameInfo;
-import com.energyict.mdc.common.rest.TimeDurationInfo;
+import com.elster.jupiter.time.rest.TimeDurationInfo;
 import com.energyict.mdc.device.data.rest.impl.ConnectionTaskVersionInfo;
 import com.energyict.mdc.device.data.tasks.ConnectionTask.ConnectionTaskLifecycleStatus;
 
@@ -27,9 +27,11 @@ public class DeviceConnectionTaskInfo extends ConnectionTaskVersionInfo {
     public IdWithNameInfo comServer;
     public ConnectionMethodInfo connectionMethod;
     public String window;
-    public ConnectionStrategyInfo connectionStrategy;
+    public ConnectionStrategyInfo connectionStrategyInfo;
     public Instant nextExecution;
     public long comSessionId;
+    public String protocolDialect;
+    public String protocolDialectDisplayName;
 
     public static class LatestStatusInfo {
         public String id;
@@ -37,8 +39,8 @@ public class DeviceConnectionTaskInfo extends ConnectionTaskVersionInfo {
     }
 
     public static class ConnectionStrategyInfo {
-        public String id;
-        public String displayValue;
+        public String connectionStrategy;
+        public String localizedValue;
     }
 
     public static class ComTaskCountInfo {
