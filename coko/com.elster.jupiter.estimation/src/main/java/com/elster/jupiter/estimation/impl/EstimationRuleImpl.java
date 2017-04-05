@@ -5,6 +5,7 @@
 package com.elster.jupiter.estimation.impl;
 
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.estimation.EstimationPropertyDefinitionLevel;
 import com.elster.jupiter.estimation.EstimationRuleProperties;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.estimation.Estimator;
@@ -261,6 +262,11 @@ class EstimationRuleImpl implements IEstimationRule {
     @Override
     public List<PropertySpec> getPropertySpecs() {
         return getEstimator().getPropertySpecs();
+    }
+
+    @Override
+    public List<PropertySpec> getPropertySpecs(EstimationPropertyDefinitionLevel level) {
+        return getEstimator().getPropertySpecs(level);
     }
 
     public PropertySpec getPropertySpec(final String name) {

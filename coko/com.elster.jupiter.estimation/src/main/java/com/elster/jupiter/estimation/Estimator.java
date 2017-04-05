@@ -12,6 +12,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import aQute.bnd.annotation.ConsumerType;
 import com.google.common.collect.ImmutableSet;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -50,8 +51,14 @@ public interface Estimator extends HasDynamicProperties {
 
     String getDefaultFormat();
 
+    /**
+     * Validates values of estimator's properties according to business constraints.
+     * Note: the method should not try to validate presence of required properties, because this will be done automatically.
+     *
+     * @param properties the values to validate
+     */
     default void validateProperties(Map<String, Object> properties) {
-        // empty by default
+        // nothing to do by default
     }
 
     NlsKey getNlsKey();
@@ -69,7 +76,7 @@ public interface Estimator extends HasDynamicProperties {
      */
     Set<QualityCodeSystem> getSupportedQualityCodeSystems();
 
-     /**
+    /**
      * Returns {@link QualityCodeSystem}s whose reading qualities to take into account during estimation
      *
      * @param currentSystem {@link QualityCodeSystem} that performs estimation
@@ -77,5 +84,16 @@ public interface Estimator extends HasDynamicProperties {
      */
     static Set<QualityCodeSystem> qualityCodeSystemsToTakeIntoAccount(QualityCodeSystem currentSystem) {
         return ImmutableSet.of(QualityCodeSystem.ENDDEVICE, currentSystem);
+    }
+
+    /**
+     * Returns the list of {@link PropertySpec}s for which the values can be set on the specified {@link EstimationPropertyDefinitionLevel}.
+     * <p>Default implementation assumes that the values for all the {@link PropertySpec}s returned by {@link Estimator#getPropertySpecs()}
+     * can be set only on {@link EstimationPropertyDefinitionLevel#ESTIMATION_RULE}
+     *
+     * @return The List of PropertySpec
+     */
+    default List<PropertySpec> getPropertySpecs(EstimationPropertyDefinitionLevel level) {
+        return EstimationPropertyDefinitionLevel.ESTIMATION_RULE == level ? getPropertySpecs() : Collections.emptyList();
     }
 }

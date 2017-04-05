@@ -55,6 +55,8 @@ public interface EstimationRule {
 
     List<PropertySpec> getPropertySpecs();
 
+    List<PropertySpec> getPropertySpecs(EstimationPropertyDefinitionLevel level);
+
     boolean isObsolete();
 
     Estimator createNewEstimator();
