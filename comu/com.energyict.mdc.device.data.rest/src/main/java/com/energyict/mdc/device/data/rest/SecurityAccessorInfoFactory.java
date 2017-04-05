@@ -28,7 +28,7 @@ public class SecurityAccessorInfoFactory {
         info.id = keyAccessor.getKeyAccessorType().getId();
         info.name = keyAccessor.getKeyAccessorType().getName();
         info.description = keyAccessor.getKeyAccessorType().getDescription();
-        keyAccessor.getActualValue().getExpirationTime().ifPresent(experation -> info.expirationTime = experation);
+        keyAccessor.getActualValue().getExpirationTime().ifPresent(expiration -> info.expirationTime = expiration);
 
         info.currentProperties = getProperties(keyAccessor.getActualValue());
         keyAccessor.getTempValue().ifPresent(value -> info.tempProperties = getProperties(value));
