@@ -16,6 +16,7 @@ import com.elster.jupiter.util.sql.SqlBuilder;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialConnectionTask;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 import com.energyict.mdc.device.data.impl.EventType;
@@ -262,6 +263,17 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
             }
             return connectionTasks;
         }
+    }
+
+    @Override
+    public ConnectionTask updateProtocolDialectConfigurationProperties(ConnectionTask connectionTask, ProtocolDialectConfigurationProperties properties) {
+        if (connectionTask instanceof ServerConnectionTask) {
+            ((ServerConnectionTask) connectionTask).setProtocolDialectConfigurationProperties(properties);
+            connectionTask.save();
+        } else {
+            throw new UnsupportedOperationException("ConnectionTask is not of type 'ServerConnectionTask'");
+        }
+        return connectionTask;
     }
 
     @Override

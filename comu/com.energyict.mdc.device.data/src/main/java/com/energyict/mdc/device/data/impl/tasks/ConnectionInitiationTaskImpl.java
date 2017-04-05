@@ -8,6 +8,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
@@ -105,6 +106,12 @@ public class ConnectionInitiationTaskImpl extends OutboundConnectionTaskImpl<Par
         @Override
         public Device.ConnectionInitiationTaskBuilder setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus status) {
             this.connectionInitiationTask.setStatus(status);
+            return this;
+        }
+
+        @Override
+        public Device.ConnectionInitiationTaskBuilder setProtocolDialectConfigurationProperties(ProtocolDialectConfigurationProperties properties) {
+            this.connectionInitiationTask.setProtocolDialectConfigurationProperties(properties);
             return this;
         }
     }
