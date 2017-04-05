@@ -11,9 +11,6 @@ import com.energyict.mdc.app.MdcAppService;
 
 import javax.inject.Inject;
 
-/**
- * Created by bbl on 10/06/2016.
- */
 public class UpgraderV10_2 implements Upgrader {
 
     private UserService userService;

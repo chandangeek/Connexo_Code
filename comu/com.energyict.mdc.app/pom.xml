@@ -229,6 +229,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>loaderjs</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>dataquality</artifactId>
+        </dependency>
     </dependencies>
 
     <profiles>

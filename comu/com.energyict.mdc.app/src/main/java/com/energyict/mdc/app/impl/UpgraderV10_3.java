@@ -12,6 +12,7 @@ import com.energyict.mdc.app.MdcAppService;
 import javax.inject.Inject;
 
 public class UpgraderV10_3 implements Upgrader {
+
     private final UserService userService;
 
     @Inject
@@ -21,23 +22,39 @@ public class UpgraderV10_3 implements Upgrader {
 
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
+        userService.grantGroupWithPrivilege(UserService.BATCH_EXECUTOR_ROLE, MdcAppService.APPLICATION_KEY, getNewMeterExpertPrivileges());
         userService.grantGroupWithPrivilege(MdcAppService.Roles.METER_EXPERT.value(), MdcAppService.APPLICATION_KEY, getNewMeterExpertPrivileges());
         userService.grantGroupWithPrivilege(MdcAppService.Roles.METER_OPERATOR.value(), MdcAppService.APPLICATION_KEY, getNewMeterOperatorPrivileges());
     }
 
     private String[] getNewMeterExpertPrivileges() {
         return new String[]{
+                // file import
                 com.elster.jupiter.fileimport.security.Privileges.Constants.IMPORT_FILE,
+
+                // manual estimation
                 com.elster.jupiter.estimation.security.Privileges.Constants.ESTIMATE_WITH_RULE,
                 com.elster.jupiter.estimation.security.Privileges.Constants.EDIT_WITH_ESTIMATOR,
+
+                //data quality kpi
+                com.elster.jupiter.dataquality.security.Privileges.Constants.ADMINISTER_DATA_QUALITY_KPI_CONFIGURATION,
+                com.elster.jupiter.dataquality.security.Privileges.Constants.VIEW_DATA_QUALITY_KPI_CONFIGURATION,
+                com.elster.jupiter.dataquality.security.Privileges.Constants.VIEW_DATA_QUALITY_RESULTS
         };
     }
 
     private String[] getNewMeterOperatorPrivileges() {
-        return new String[] {
+        return new String[]{
+                // file import
                 com.elster.jupiter.fileimport.security.Privileges.Constants.IMPORT_FILE,
+
+                // manual estimation
                 com.elster.jupiter.estimation.security.Privileges.Constants.ESTIMATE_WITH_RULE,
                 com.elster.jupiter.estimation.security.Privileges.Constants.EDIT_WITH_ESTIMATOR,
+
+                //data quality kpi
+                com.elster.jupiter.dataquality.security.Privileges.Constants.VIEW_DATA_QUALITY_KPI_CONFIGURATION,
+                com.elster.jupiter.dataquality.security.Privileges.Constants.VIEW_DATA_QUALITY_RESULTS
         };
     }
 }
