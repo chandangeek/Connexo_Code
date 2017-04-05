@@ -5,6 +5,7 @@
 package com.energyict.mdc.device.data;
 
 import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.SecurityValueWrapper;
 
 import java.util.Optional;
 
@@ -13,7 +14,7 @@ import java.util.Optional;
  * The Security accessor stores the actual value for a KeyAccessorType
  * An accessor stores two values: one for current use, and one value that is stored during the renew process.
  */
-public interface KeyAccessor<T> {
+public interface KeyAccessor<T extends SecurityValueWrapper> {
 
     /**
      * Get the device this KeyAccessor holds a value for

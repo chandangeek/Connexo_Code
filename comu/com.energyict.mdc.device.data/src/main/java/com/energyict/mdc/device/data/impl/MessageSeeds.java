@@ -171,6 +171,7 @@ public enum MessageSeeds implements MessageSeed {
     NO_ACTUAL_CERTIFICATE(2145, "NoActualCertificate", "Certificate renewal requires an actual value in order to create a distinguished name"),
     CERTIFICATE_ENCODING_EXCEPTION(2146, "CertificateEncodingError", "The certificate is an unrecognized format"),
     ACTUAL_VALUE_NOT_SET(2147, "NoActualValue", "The security accessor does not contain an actual value"),
+    VETO_CERTIFICATE_DELETION(2148, "VetoCertificateDeletion", "This certificate is still in use."),
     NO_BASIC_CHECK_COMTASK(2148, Keys.NO_BASIC_CHECK_COMTASK, "A basic check comtask could not be located")
     ;
     private final int number;
