@@ -30,7 +30,23 @@ Ext.define('Uni.view.search.field.internal.NumberRange', {
     },
 
     isValid: function() {
-        return this.down('#from').isValid() && this.down('#to').isValid();
+        var me = this,
+            fromField = me.down('#from'),
+            toField = me.down('#to'),
+            isFromValid,
+            isToValid;
+
+        if (me.isFilterField && fromField.getValue()) {
+            if (fromField.getValue() > toField.getValue() || fromField.getValue() == toField.getValue()) {
+                toField.validate();
+                return false;
+            }
+        }
+
+        isFromValid = fromField.isValid();
+        isToValid = toField.isValid();
+
+        return isFromValid && isToValid;
     },
 
     onChange: function () {
@@ -71,7 +87,8 @@ Ext.define('Uni.view.search.field.internal.NumberRange', {
                 itemsDefaultConfig: me.itemsDefaultConfig,
                 listeners: {
                     change: function (field, newValue) {
-                        me.down('#to').getField().setMinValue(!Ext.isEmpty(newValue) ? newValue : 0);
+                        var toFieldMinValue = me.isFilterField ? newValue + 1 : newValue;
+                        me.down('#to').getField().setMinValue(!Ext.isEmpty(newValue) ? toFieldMinValue : 0);
                         me.onChange();
                     }
                 }
@@ -83,7 +100,8 @@ Ext.define('Uni.view.search.field.internal.NumberRange', {
                 itemsDefaultConfig: me.itemsDefaultConfig,
                 listeners: {
                     change: function (field, newValue) {
-                        me.down('#from').getField().setMaxValue(!Ext.isEmpty(newValue) ? newValue : Number.MAX_SAFE_INTEGER);
+                        var fromFieldMaxValue = me.isFilterField ? newValue - 1 : newValue;
+                        me.down('#from').getField().setMaxValue(!Ext.isEmpty(newValue) ? fromFieldMaxValue : Number.MAX_SAFE_INTEGER);
                         me.onChange();
                     }
                 }
