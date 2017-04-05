@@ -19,8 +19,11 @@ import java.util.List;
 public class IEC1107SecuritySupport implements LegacyDeviceProtocolSecurityCapabilities, LegacySecurityPropertyConverter {
 
     public static final String SECURITY_LEVEL_PROPERTY_NAME = "SecurityLevel";
-    private static final String DEFAULT_SECURITY_LEVEL_VALUE = "1";
     private final String translationKeyConstant = "IEC1107SecuritySupport.authenticationlevel.";
+
+    protected String getLegacySecurityLevelDefault() {
+        return "1";
+    }
 
     @Override
     public List<String> getLegacySecurityProperties() {
@@ -101,7 +104,7 @@ public class IEC1107SecuritySupport implements LegacyDeviceProtocolSecurityCapab
 
     @Override
     public DeviceProtocolSecurityPropertySet convertFromTypedProperties(TypedProperties typedProperties) {
-        String securityLevelProperty = typedProperties.getTypedProperty(SECURITY_LEVEL_PROPERTY_NAME, DEFAULT_SECURITY_LEVEL_VALUE);
+        String securityLevelProperty = typedProperties.getTypedProperty(SECURITY_LEVEL_PROPERTY_NAME, getLegacySecurityLevelDefault());
         final int authenticationLevel = Integer.valueOf(securityLevelProperty);
         final TypedProperties securityRelatedTypedProperties = TypedProperties.empty();
         securityRelatedTypedProperties.setAllProperties(LegacyPropertiesExtractor.getSecurityRelatedProperties(typedProperties, authenticationLevel, getAuthenticationAccessLevels()));

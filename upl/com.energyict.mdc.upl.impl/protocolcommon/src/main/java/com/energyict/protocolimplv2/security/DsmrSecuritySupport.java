@@ -13,7 +13,7 @@ import java.util.List;
  * Time: 9:27
  * Author: khe
  */
-public class DsmrSecuritySupport extends DlmsSecuritySupport {
+public class DsmrSecuritySupport extends DlmsSecuritySupportLevelOne {
 
     @Override
     public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
