@@ -115,10 +115,9 @@ class EstimationTaskExecutor implements TaskExecutor {
                 transactionContext.commit();
             }
         } catch (Exception ex) {
-            transactionService.run(() -> taskLogger.log(Level.WARNING, "Failed to estimate "
-                    + meterActivation.getMeter().map(IdentifiedObject::getMRID)
-                    .orElseGet(() -> meterActivation.getUsagePoint(triggerTime).map(IdentifiedObject::getMRID).orElse("Unknown"))
-                    + " . Error: " + ex.getLocalizedMessage(), ex));
+            transactionService.run(() -> taskLogger.log(Level.WARNING, "Failed to estimate " + meterActivation.getMeter().map(IdentifiedObject::getName)
+                    .orElseGet(() -> meterActivation.getUsagePoint(triggerTime).map(IdentifiedObject::getName).orElse("Unknown"))
+                    + " . Error: " + ex.getLocalizedMessage(), ex ));
         }
     }
 
@@ -130,8 +129,8 @@ class EstimationTaskExecutor implements TaskExecutor {
             }
         } catch (Exception ex) {
             transactionService.run(() -> taskLogger.log(Level.WARNING, "Failed to estimate "
-                    + channelsContainer.getUsagePoint().map(IdentifiedObject::getMRID).orElse("Unknown")
-                    + " . Error: " + ex.getLocalizedMessage(), ex));
+                    + channelsContainer.getUsagePoint().map(IdentifiedObject::getName).orElse("Unknown")
+                    + " . Error: " + ex.getLocalizedMessage(), ex ));
         }
     }
 
