@@ -41,6 +41,9 @@ public enum MessageSeeds implements MessageSeed {
     AT_LEAST_ONE_ACTIVE_CONNECTION_AVAILABLE(10015, MicroCheck.AT_LEAST_ONE_ACTIVE_CONNECTION_AVAILABLE, "There should at least one active connection on the device"),
     NO_ACTIVE_SERVICE_CALLS(10016, MicroCheck.NO_ACTIVE_SERVICE_CALLS, "There can't be any active service calls on the device"),
     NO_LINKED_MULTI_ELEMENT_SLAVES(10017, MicroCheck.NO_LINKED_MULTI_ELEMENT_SLAVES, "There can't be any multi-element slaves linked with this device"),
+    NO_ACTIVE_SERVICE_CALLS(10016, MicroCheck.NO_ACTIVE_SERVICE_CALLS, "There should not be any active service calls on the device"),
+    NO_LINKED_MULTI_ELEMENT_SLAVES(10017, MicroCheck.NO_LINKED_MULTI_ELEMENT_SLAVES, "There can't be any multi-element slaves linked with this device"),
+    METROLOGY_CONFIGURATION_IN_CORRECT_STATE_IF_ANY(10018, MicroCheck.METROLOGY_CONFIGURATION_IN_CORRECT_STATE_IF_ANY, "The device is still linked to an operational usage point"),
     // MicroActions
     MISSING_REQUIRED_PROPERTY_VALUES(20001, Keys.MISSING_REQUIRED_PROPERTY_VALUES, "No value was specified for the following property spec of the configured actions: {0}"),
     EFFECTIVE_TIMESTAMP_NOT_IN_RANGE(20002, Keys.EFFECTIVE_TIMESTAMP_NOT_IN_RANGE, "The transition date should be between {0} and {1}"),
