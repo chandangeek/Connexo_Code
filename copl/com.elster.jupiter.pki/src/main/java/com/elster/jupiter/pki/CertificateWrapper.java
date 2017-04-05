@@ -107,4 +107,10 @@ public interface CertificateWrapper extends HasDynamicPropertiesWithUpdatableVal
      * returns true is this wrapper contains a private key, false otherwise
      */
     boolean hasPrivateKey();
+
+    /**
+     * LastReadDate is the date when the certificate was last obtained from the device (using a device command)
+     * @return lastReadDate is the certificate was ever read, empty() otherwise
+     */
+    Optional<Instant> getLastReadDate();
 }

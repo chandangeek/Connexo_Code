@@ -14,6 +14,7 @@ import com.elster.jupiter.pki.impl.wrappers.certificate.AbstractCertificateWrapp
 
 import static com.elster.jupiter.orm.ColumnConversion.BLOB2BYTE;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUM;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INSTANT;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 
@@ -87,6 +88,11 @@ public enum TableSpecs {
                     .number()
                     .conversion(ColumnConversion.NUMBER2INSTANT)
                     .map(AbstractCertificateWrapperImpl.Fields.EXPIRATION.fieldName())
+                    .add();
+            table.column("LASTREADDATE")
+                    .number()
+                    .conversion(NUMBER2INSTANT)
+                    .map(AbstractCertificateWrapperImpl.Fields.LAST_READ_DATE.fieldName())
                     .add();
             Column trustStoreColumn = table.column("TRUSTSTORE")
                     .number()

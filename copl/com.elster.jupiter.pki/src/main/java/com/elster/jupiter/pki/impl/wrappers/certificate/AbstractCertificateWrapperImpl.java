@@ -70,6 +70,7 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
         KEY_TYPE("keyTypeReference"),
         EXPIRATION("expirationTime"),
         TRUST_STORE("trustStoreReference"),
+        LAST_READ_DATE("lastReadDate"),
         ALIAS("alias"),
         ID("id")
         ;
@@ -90,6 +91,7 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
     private String alias;
     private byte[] certificate;
     private Instant expirationTime;
+    private Instant lastReadDate;
     @SuppressWarnings("unused")
     private String userName;
     @SuppressWarnings("unused")
@@ -318,5 +320,9 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
     @Override
     public boolean hasPrivateKey() {
         return false;
+    }
+
+    public Optional<Instant> getLastReadDate() {
+        return Optional.ofNullable(this.lastReadDate);
     }
 }
