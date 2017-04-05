@@ -40,9 +40,6 @@ import java.util.Map;
 
 import static java.util.stream.Collectors.toList;
 
-/**
- * Created by bvn on 7/13/15.
- */
 public class ConnectionTaskInfoFactory extends SelectableFieldFactory<ConnectionTaskInfo, ConnectionTask<?,?>> {
 
     private final MdcPropertyUtils mdcPropertyUtils;
@@ -104,14 +101,14 @@ public class ConnectionTaskInfoFactory extends SelectableFieldFactory<Connection
         map.put("id", (connectionTaskInfo, connectionTask, uriInfo)-> {
             connectionTaskInfo.id = connectionTask.getId();
             if (connectionTaskInfo.device == null) {
-                connectionTaskInfo.device = new LinkInfo();
+                connectionTaskInfo.device = new LinkInfo<>();
                 connectionTaskInfo.device.id = connectionTask.getDevice().getId();
             }
         });
         map.put("version", (connectionTaskInfo, connectionTask, uriInfo)-> {
             connectionTaskInfo.version = connectionTask.getVersion();
             if (connectionTaskInfo.device == null) {
-                connectionTaskInfo.device = new LinkInfo();
+                connectionTaskInfo.device = new LinkInfo<>();
                 connectionTaskInfo.device.version = connectionTask.getDevice().getVersion();
             }
         });
