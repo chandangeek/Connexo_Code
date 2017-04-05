@@ -3329,25 +3329,25 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     public KeyAccessor newKeyAccessor(KeyAccessorType keyAccessorType) {
         switch (keyAccessorType.getKeyType().getCryptographicType()) {
             case Certificate:
-                break;
+                break; // TODO implement
             case ClientCertificate:
                 CertificateAccessorImpl certificateAccessor = dataModel.getInstance(CertificateAccessorImpl.class);
                 certificateAccessor.init(keyAccessorType, this);
                 this.keyAccessors.add(certificateAccessor);
                 return certificateAccessor;
             case TrustedCertificate:
-                break;
+                break; // TODO implement
             case SymmetricKey:
                 SymmetricKeyAccessorImpl symmetricKeyAccessor = dataModel.getInstance(SymmetricKeyAccessorImpl.class);
                 symmetricKeyAccessor.init(keyAccessorType, this);
                 this.keyAccessors.add(symmetricKeyAccessor);
                 return symmetricKeyAccessor;
             case Passphrase:
-                break;
+                break; // TODO implement
             case AsymmetricKey:
-                break;
+                break; // TODO implement? will this occur?
         }
-        return null;
+        return null; // TODO throw exception
     }
 
     static class DeviceEstimationImpl implements DeviceEstimation {

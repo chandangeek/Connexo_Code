@@ -6,7 +6,11 @@ package com.energyict.mdc.device.data;
 
 import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.pki.SecurityValueWrapper;
+import com.elster.jupiter.properties.PropertySpec;
 
+import aQute.bnd.annotation.ProviderType;
+
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -14,6 +18,7 @@ import java.util.Optional;
  * The Security accessor stores the actual value for a KeyAccessorType
  * An accessor stores two values: one for current use, and one value that is stored during the renew process.
  */
+@ProviderType
 public interface KeyAccessor<T extends SecurityValueWrapper> {
 
     /**
@@ -65,4 +70,10 @@ public interface KeyAccessor<T extends SecurityValueWrapper> {
      * Allows for the key accessor to be updated only
      */
     void save();
+
+    /**
+     * Even without an actual value, the KeyAccessor can provide the expected PropertySpecs
+     * @return PropertySpecs as reported by the wrapper.
+     */
+    List<PropertySpec> getPropertySpecs();
 }

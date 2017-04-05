@@ -32,6 +32,7 @@ public class CertificateAccessorImpl extends AbstractKeyAccessorImpl<Certificate
 
     @Inject
     public CertificateAccessorImpl(DataModel dataModel, PkiService pkiService, Thesaurus thesaurus) {
+        super(pkiService);
         this.dataModel = dataModel;
         this.pkiService = pkiService;
         this.thesaurus = thesaurus;
@@ -90,7 +91,7 @@ public class CertificateAccessorImpl extends AbstractKeyAccessorImpl<Certificate
         }
     }
 
-    private void doRenewCertificate() throws CertificateEncodingException {
+    private void doRenewCertificate() throws CertificateEncodingException { // TODO can NOT renew non-ClientCertificate types
         ClientCertificateWrapper clientCertificateWrapper = pkiService.newClientCertificateWrapper(getKeyAccessorType().getKeyType(), getKeyAccessorType().getKeyEncryptionMethod())
                 .alias(actualCertificate.get().getAlias()+"-new)")
                 .add();
