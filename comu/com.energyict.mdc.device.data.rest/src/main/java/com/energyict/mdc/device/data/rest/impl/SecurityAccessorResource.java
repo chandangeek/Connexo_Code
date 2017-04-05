@@ -5,6 +5,10 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.pki.CryptographicType;
+import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.PkiService;
+import com.elster.jupiter.pki.SecurityValueWrapper;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
@@ -21,9 +25,13 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
+import java.time.Instant;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 
@@ -35,11 +43,13 @@ public class SecurityAccessorResource {
 
     private final SecurityAccessorInfoFactory securityAccessorInfoFactory;
     private final ResourceHelper resourceHelper;
+    private final PkiService pkiService;
 
     @Inject
-    public SecurityAccessorResource(ResourceHelper resourceHelper, SecurityAccessorInfoFactory securityAccessorInfoFactory) {
+    public SecurityAccessorResource(ResourceHelper resourceHelper, SecurityAccessorInfoFactory securityAccessorInfoFactory, PkiService pkiService) {
         this.securityAccessorInfoFactory = securityAccessorInfoFactory;
         this.resourceHelper = resourceHelper;
+        this.pkiService = pkiService;
     }
 
     @GET
@@ -51,7 +61,7 @@ public class SecurityAccessorResource {
 //            com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_1, com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_2,com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_3,com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_4,})
     public PagedInfoList getKeys(@PathParam("name") String name, @Context UriInfo uriInfo, @BeanParam JsonQueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
-        List<SecurityAccessorInfo> collect = getSecurityAccessorInfos(device, ka -> KEYS.contains(ka.getKeyAccessorType().getKeyType().getCryptographicType()));
+        List<SecurityAccessorInfo> collect = getSecurityAccessorInfos(device, kat -> KEYS.contains(kat.getKeyType().getCryptographicType()));
         return PagedInfoList.fromCompleteList("keys", collect, queryParameters);
     }
 
@@ -64,17 +74,91 @@ public class SecurityAccessorResource {
 //            com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_1, com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_2,com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_3,com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_4,})
     public PagedInfoList getCertificates(@PathParam("name") String name, @Context UriInfo uriInfo, @BeanParam JsonQueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
-        List<SecurityAccessorInfo> collect = getSecurityAccessorInfos(device, ka -> CERTIFICATES.contains(ka.getKeyAccessorType().getKeyType().getCryptographicType()));
+        List<SecurityAccessorInfo> collect = getSecurityAccessorInfos(device, kat -> CERTIFICATES.contains(kat.getKeyType().getCryptographicType()));
         return PagedInfoList.fromCompleteList("certificates", collect, queryParameters);
     }
 
-    private List<SecurityAccessorInfo> getSecurityAccessorInfos(Device device, Predicate<KeyAccessor> keyAccessorPredicate) {
-        return device.getKeyAccessors()
-                .stream()
+    private List<SecurityAccessorInfo> getSecurityAccessorInfos(Device device, Predicate<KeyAccessorType> keyAccessorPredicate) {
+        return device.getDeviceType().getKeyAccessorTypes().stream()
                 .filter(keyAccessorPredicate)
+                .map(kat -> device.getKeyAccessor(kat).orElseGet(()->createEmptyKeyAccessorTypeHolder(kat, device)))
                 .map(securityAccessorInfoFactory::from)
                 .sorted(Comparator.comparing(ka -> ka.name.toLowerCase()))
                 .collect(toList());
+    }
+
+    private KeyAccessor createEmptyKeyAccessorTypeHolder(KeyAccessorType kat, Device device) {
+        return new KeyAccessor() {
+            @Override
+            public Device getDevice() {
+                return device;
+            }
+
+            @Override
+            public KeyAccessorType getKeyAccessorType() {
+                return kat;
+            }
+
+            @Override
+            public SecurityValueWrapper getActualValue() {
+                return new SecurityValueWrapper() {
+                    @Override
+                    public Optional<Instant> getExpirationTime() {
+                        return Optional.empty();
+                    }
+
+                    @Override
+                    public void setProperties(Map<String, Object> properties) {
+
+                    }
+
+                    @Override
+                    public Map<String, Object> getProperties() {
+                        return Collections.emptyMap();
+                    }
+
+                    @Override
+                    public List<PropertySpec> getPropertySpecs() {
+                        return Collections.emptyList();
+                    }
+                };
+            }
+
+            @Override
+            public void setActualValue(SecurityValueWrapper newWrapperValue) {
+
+            }
+
+            @Override
+            public Optional getTempValue() {
+                return Optional.empty();
+            }
+
+            @Override
+            public void renew() {
+
+            }
+
+            @Override
+            public void swapValues() {
+
+            }
+
+            @Override
+            public void clearTempValue() {
+
+            }
+
+            @Override
+            public void save() {
+
+            }
+
+            @Override
+            public List<PropertySpec> getPropertySpecs() {
+                return pkiService.getPropertySpecs(kat);
+            }
+        };
     }
 
 

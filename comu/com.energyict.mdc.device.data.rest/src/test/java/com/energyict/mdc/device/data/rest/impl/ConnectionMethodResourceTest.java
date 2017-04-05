@@ -9,8 +9,6 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.properties.rest.PropertyTypeInfo;
 import com.elster.jupiter.properties.rest.PropertyValueInfo;
-import com.elster.jupiter.properties.rest.PropertyValueInfoService;
-import com.elster.jupiter.properties.rest.impl.PropertyValueInfoServiceImpl;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
@@ -202,7 +200,7 @@ public class ConnectionMethodResourceTest extends DeviceDataRestApplicationJerse
         info.version = connectionTask.getVersion();
         info.parent = new VersionInfo<>(device.getName(), device.getVersion());
 
-        doThrow(new LocalizedFieldValidationException(MessageSeeds.BAD_REQUEST, "properties.connectionTimeout", null)).when((PropertyValueInfoService) new PropertyValueInfoServiceImpl()).findPropertyValue(any(), any());
+        doThrow(new LocalizedFieldValidationException(MessageSeeds.BAD_REQUEST, "properties.connectionTimeout", null)).when(propertyValueInfoService).findPropertyValue(any(), any());
         Response response = target("/devices/ZABF0000000/connectionmethods/9").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
         JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());

@@ -4,8 +4,7 @@
 
 package com.energyict.mdc.device.data.rest;
 
-import com.elster.jupiter.pki.SecurityValueWrapper;
-import com.elster.jupiter.properties.rest.PropertyInfo;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.data.KeyAccessor;
 import com.energyict.mdc.device.data.rest.impl.SecurityAccessorInfo;
@@ -28,18 +27,19 @@ public class SecurityAccessorInfoFactory {
         info.id = keyAccessor.getKeyAccessorType().getId();
         info.name = keyAccessor.getKeyAccessorType().getName();
         info.description = keyAccessor.getKeyAccessorType().getDescription();
+        List<PropertySpec> propertySpecs = keyAccessor.getPropertySpecs();
         keyAccessor.getActualValue().getExpirationTime().ifPresent(expiration -> info.expirationTime = expiration);
 
-        info.currentProperties = getProperties(keyAccessor.getActualValue());
-        keyAccessor.getTempValue().ifPresent(value -> info.tempProperties = getProperties(value));
+        TypedProperties actualTypedProperties = TypedProperties.empty();
+        keyAccessor.getActualValue()
+                .getProperties().entrySet().forEach(e1 -> actualTypedProperties.setProperty(e1.getKey(), e1.getValue()));
+        info.currentProperties = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(propertySpecs, actualTypedProperties);
+
+        TypedProperties tempTypedProperties = TypedProperties.empty();
+        keyAccessor.getTempValue().ifPresent(ka->ka.getProperties().entrySet().forEach(e->tempTypedProperties.setProperty(e.getKey(),e.getValue())));
+        info.tempProperties = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(propertySpecs, tempTypedProperties);
 
         return info;
     }
 
-    private List<PropertyInfo> getProperties(SecurityValueWrapper keyAccessor) {
-        TypedProperties empty = TypedProperties.empty();
-        keyAccessor.getProperties().entrySet().forEach(e->empty.setProperty(e.getKey(),e.getValue()));
-
-        return mdcPropertyUtils.convertPropertySpecsToPropertyInfos(keyAccessor.getPropertySpecs(), empty);
-    }
 }
