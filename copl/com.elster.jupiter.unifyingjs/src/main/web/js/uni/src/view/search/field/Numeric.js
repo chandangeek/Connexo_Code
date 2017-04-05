@@ -17,6 +17,11 @@ Ext.define('Uni.view.search.field.Numeric', {
         margin: 0,
         padding: 5
     },
+    defaultOperatorMap: {
+        '==': 'uni-search-internal-numberfield',
+        'BETWEEN': 'uni-search-internal-numberrange'
+    },
+    customOperatorMap: undefined,
 
     onValueChange: function () {
         var value = this.getValue(),
@@ -57,15 +62,7 @@ Ext.define('Uni.view.search.field.Numeric', {
             width: '455',
             operator: '==',
             removable: false,
-            operatorMap: {
-                '==': 'uni-search-internal-numberfield',
-                //'!=': 'uni-search-internal-numberfield',
-                //'>': 'uni-search-internal-numberfield',
-                //'>=': 'uni-search-internal-numberfield',
-                //'<': 'uni-search-internal-numberfield',
-                //'<=': 'uni-search-internal-numberfield',
-                'BETWEEN': 'uni-search-internal-numberrange'
-            },
+            operatorMap: me.customOperatorMap || me.defaultOperatorMap,
             listeners: {
                 change: {
                     fn: me.onValueChange,
@@ -99,15 +96,6 @@ Ext.define('Uni.view.search.field.Numeric', {
                         handler: me.reset,
                         scope : me
                     }
-                    //{
-                    //    xtype: 'button',
-                    //    ui: 'action',
-                    //    text: Uni.I18n.translate('general.addCriterion', 'UNI', 'Add criterion'),
-                    //    action: 'addcriteria',
-                    //    handler: me.addCriteria,
-                    //    disabled: true,
-                    //    scope : me
-                    //}
                 ]
             }
         ];

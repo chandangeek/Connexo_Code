@@ -59,7 +59,7 @@ Ext.define('Uni.view.search.field.internal.NumberField', {
                 maxValue: Number.MAX_SAFE_INTEGER,
                 minValue: 0,
                 maxLength: 15,
-                allowBlank: true,
+                allowBlank: !me.isFilterField,
                 allowExponential: false,
                 enforceMaxLength: true,
                 validateOnBlur: false,
