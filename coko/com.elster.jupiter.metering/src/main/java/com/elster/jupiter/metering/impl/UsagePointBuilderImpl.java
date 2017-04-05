@@ -7,6 +7,7 @@ package com.elster.jupiter.metering.impl;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.LocationBuilder;
 import com.elster.jupiter.metering.ServiceCategory;
@@ -15,7 +16,6 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointBuilder;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
-import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 import com.elster.jupiter.util.geo.SpatialCoordinates;
 
 import java.time.Instant;
@@ -171,9 +171,10 @@ public class UsagePointBuilderImpl implements UsagePointBuilder {
         usagePoint.setServiceLocationString(serviceLocationString);
         usagePoint.setSpatialCoordinates(spatialCoordinates);
         usagePoint.setLocation(locationId);
-        UsagePointState initialState = dataModel.getInstance(UsagePointLifeCycleConfigurationService.class).getDefaultLifeCycle().getStates()
+        usagePoint.setLifeCycle(dataModel.getInstance(UsagePointLifeCycleConfigurationService.class).getDefaultLifeCycle());
+        State initialState = dataModel.getInstance(UsagePointLifeCycleConfigurationService.class).getDefaultLifeCycle().getStates()
                 .stream()
-                .filter(UsagePointState::isInitial)
+                .filter(State::isInitial)
                 .findFirst()
                 .get();
         usagePoint.setState(initialState, usagePoint.getInstallationTime());
