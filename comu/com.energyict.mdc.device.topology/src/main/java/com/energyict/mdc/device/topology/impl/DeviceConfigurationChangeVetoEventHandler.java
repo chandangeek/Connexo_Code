@@ -28,10 +28,10 @@ import java.util.stream.Collectors;
  * Date: 4/04/2017
  * Time: 9:25
  */
-@Component(name = "com.energyict.mdc.device.data.deactivate.deviceconfiguration.eventhandler", service = TopicHandler.class, immediate = true)
+@Component(name = "com.energyict.mdc.device.topology.change.deviceconfiguration.eventhandler", service = TopicHandler.class, immediate = true)
 public class DeviceConfigurationChangeVetoEventHandler implements TopicHandler {
 
-    private static final String TOPIC = "com/energyict/mdc/device/data/deviceconfiguration/VALIDATE_CHANGE";
+    private static final String TOPIC = "com/energyict/mdc/device/topology/deviceconfiguration/VALIDATE_CHANGE";
 
     private volatile ServerTopologyService topologyService;
     private Thesaurus thesaurus;

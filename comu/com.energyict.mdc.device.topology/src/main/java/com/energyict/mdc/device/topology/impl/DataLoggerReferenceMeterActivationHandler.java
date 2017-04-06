@@ -105,13 +105,25 @@ public class DataLoggerReferenceMeterActivationHandler implements TopicHandler {
                                         dataLoggerChannelUsage,
                                         newChannel,
                                         deviceType)));
-            topologyService.clearDataLogger(gatewayReference.getOrigin(), currentMeterActivation.getStart());
-            topologyService.setDataLogger(
-                    gatewayReference.getOrigin(),
-                    gatewayReference.getGateway(),
-                    currentMeterActivation.getStart(),
-                    channelMap,
-                    registerMap);
+
+            if (gatewayReference.getOrigin().getDeviceType().isDataloggerSlave()) {
+                topologyService.clearDataLogger(gatewayReference.getOrigin(), currentMeterActivation.getStart());
+                topologyService.setDataLogger(
+                        gatewayReference.getOrigin(),
+                        gatewayReference.getGateway(),
+                        currentMeterActivation.getStart(),
+                        channelMap,
+                        registerMap);
+            }
+            if (gatewayReference.getOrigin().getDeviceType().isMultiElementSlave()) {
+                multiElementDeviceService.removeSlave(gatewayReference.getOrigin(), currentMeterActivation.getStart());
+                multiElementDeviceService.addSlave(
+                        gatewayReference.getOrigin(),
+                        gatewayReference.getGateway(),
+                        currentMeterActivation.getStart(),
+                        channelMap,
+                        registerMap);
+            }
         }
     }
 
