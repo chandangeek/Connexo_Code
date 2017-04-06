@@ -83,6 +83,7 @@ import com.elster.jupiter.validation.DataValidationTask;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.rest.DataValidationTaskInfo;
 import com.elster.jupiter.validation.rest.DataValidationTaskInfoFactory;
+
 import com.google.common.collect.Range;
 
 import javax.annotation.security.RolesAllowed;
@@ -418,7 +419,11 @@ public class UsagePointResource {
         if(!UsagePointStage.Key.PRE_OPERATIONAL.equals(usagePointStage) && !UsagePointStage.Key.SUSPENDED.equals(usagePointStage)){
             throw UsagePointMeterActivationException.usagePointIncorrectStage(thesaurus);
         }
-        resourceHelper.performMeterActivations(info, usagePoint);
+        try {
+            resourceHelper.performMeterActivations(info, usagePoint);
+        } catch (UsagePointMeterActivationException ex) {
+            new RestValidationBuilder().addValidationError(new LocalizedFieldValidationException(ex.getMessageSeed(), "meterRole", ex.getLocalizedMessage())).validate();
+        }
         return Response.ok().entity(usagePointInfoFactory.fullInfoFrom(usagePoint)).build();
     }
 
@@ -1095,15 +1100,16 @@ public class UsagePointResource {
             if (info.metrologyConfiguration != null) {
                 UsagePoint usagePoint = usagePointInfoFactory.newUsagePointBuilder(info).create();
                 info.techInfo.getUsagePointDetailBuilder(usagePoint, clock).create();
+                resourceHelper.activateMeters(info, usagePoint);
                 checkMeterRolesActivationTime(info.metrologyConfiguration.meterRoles, usagePoint.getInstallationTime(), validationBuilder);
                 usagePointMetrologyConfiguration = (UsagePointMetrologyConfiguration) resourceHelper.findMetrologyConfigurationOrThrowException(info.metrologyConfiguration.id);
-                try {
-                    usagePoint.apply(usagePointMetrologyConfiguration, info.metrologyConfiguration.activationTime);
-                } catch (UsagePointManagementException ex) {
-                    failStartDateCheck(validationBuilder);
-                }
-                resourceHelper.activateMeters(info, usagePoint);
+                usagePoint.apply(usagePointMetrologyConfiguration, info.metrologyConfiguration.activationTime);
             }
+        } catch (UsagePointMeterActivationException ex) {
+            if (ex instanceof UsagePointManagementException) {
+                validationBuilder.addValidationError(new LocalizedFieldValidationException(ex.getMessageSeed(), "metrologyConfiguration", ex.getLocalizedMessage())).validate();
+            }
+            validationBuilder.addValidationError(new LocalizedFieldValidationException(ex.getMessageSeed(), "meterRole", ex.getLocalizedMessage())).validate();
         }
     }
 
@@ -1116,11 +1122,7 @@ public class UsagePointResource {
             if (info.metrologyConfiguration != null) {
                 UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = (UsagePointMetrologyConfiguration) resourceHelper
                         .findMetrologyConfigurationOrThrowException(info.metrologyConfiguration.id);
-                try {
-                    usagePoint.apply(usagePointMetrologyConfiguration, info.metrologyConfiguration.activationTime);
-                } catch (UsagePointManagementException ex) {
-                    failStartDateCheck(validationBuilder);
-                }
+                usagePoint.apply(usagePointMetrologyConfiguration, info.metrologyConfiguration.activationTime);
             }
             for (CustomPropertySetInfo customPropertySetInfo : info.customPropertySets) {
                 UsagePointPropertySet propertySet = usagePoint.forCustomProperties()
@@ -1136,11 +1138,6 @@ public class UsagePointResource {
         }
 
         return usagePoint;
-    }
-
-    private void failStartDateCheck(RestValidationBuilder validationBuilder) {
-        validationBuilder.addValidationError(new LocalizedFieldValidationException(MessageSeeds.START_DATE_MUST_BE_GRATER_THAN_UP_CREATED_DATE, "activationTime"));
-        validationBuilder.validate();
     }
 
     private void copyPropertyValues(UsagePointVersionedPropertySet from,CustomPropertySetValues to, CustomPropertySetInfo info){

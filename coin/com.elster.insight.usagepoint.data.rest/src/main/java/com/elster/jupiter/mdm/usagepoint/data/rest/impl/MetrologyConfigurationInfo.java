@@ -147,7 +147,7 @@ public class MetrologyConfigurationInfo {
         info.name = meterRole.getDisplayName();
         usagePoint.getMeterActivations(meterRole)
                 .stream()
-                .filter(meterActivationToCheck -> meterActivationToCheck.getEnd() == null)
+                .filter(meterActivationToCheck -> meterActivationToCheck.isEffectiveAt(clock.instant()))
                 .findFirst()
                 .ifPresent(meterActivation -> {
                     meterActivation.getMeter().ifPresent(meter -> {
