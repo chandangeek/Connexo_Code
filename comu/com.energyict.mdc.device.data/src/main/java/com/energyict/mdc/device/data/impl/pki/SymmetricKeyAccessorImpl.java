@@ -48,6 +48,9 @@ public class SymmetricKeyAccessorImpl extends AbstractKeyAccessorImpl<SymmetricK
 
     @Override
     public Optional<SymmetricKeyWrapper> getTempValue() {
+        if (tempSymmetricKeyWrapperReference==null) {
+            return Optional.empty();
+        }
         return (Optional<SymmetricKeyWrapper>) tempSymmetricKeyWrapperReference.getOptional();
     }
 
