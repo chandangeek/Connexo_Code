@@ -142,7 +142,11 @@ public class PropertyValueInfoServiceImpl implements PropertyValueInfoService {
         if (propertyValueProvider == null) {
             return null;
         }
-        return getConverter(propertySpec).convertValueToInfo(propertySpec, propertyValueProvider.apply(propertySpec.getName()));
+        Object domainValue = propertyValueProvider.apply(propertySpec.getName());
+        if (domainValue == null) {
+            return null;
+        }
+        return getConverter(propertySpec).convertValueToInfo(propertySpec, domainValue);
     }
 
     private Object getDefaultValue(PropertySpec propertySpec) {
