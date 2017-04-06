@@ -25,8 +25,6 @@ import com.elster.jupiter.util.collections.ArrayDiffList;
 import com.elster.jupiter.util.collections.DiffList;
 import com.elster.jupiter.util.streams.Functions;
 
-import com.google.common.collect.ImmutableMap;
-
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.validation.Valid;
@@ -411,9 +409,8 @@ class EstimationRuleImpl implements IEstimationRule {
     }
 
     private Map<String, Object> getPropertiesAsMap(List<EstimationRuleProperties> properties) {
-        ImmutableMap.Builder<String, Object> builder = ImmutableMap.builder();
-        properties.stream().forEach(property -> builder.put(property.getName(), property.getValue()));
-        return builder.build();
+        return properties.stream()
+                .filter(property -> property.getValue() != null)
+                .collect(Collectors.toMap(EstimationRuleProperties::getName, EstimationRuleProperties::getValue));
     }
-
 }
