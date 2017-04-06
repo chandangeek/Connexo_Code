@@ -124,7 +124,7 @@ public class CalendarTimeSeriesExtenderHandlerTest {
         testInstance.postExecute(this.taskOccurrence);
 
         // Asserts
-        assertThat(this.transactionService.getContexts()).hasSize(2);   // Two calendars so two transactions
+        assertThat(this.transactionService.getContexts()).hasSize(3);   // Two calendars so two transactions + one for the final log entries
         verify(this.calendar1).extendAllTimeSeries();
         verify(this.calendar2).extendAllTimeSeries();
         verify(this.taskOccurrence).createTaskLogHandler();
