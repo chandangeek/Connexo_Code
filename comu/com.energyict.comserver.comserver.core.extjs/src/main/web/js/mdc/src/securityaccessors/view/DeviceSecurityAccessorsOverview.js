@@ -70,6 +70,7 @@ Ext.define('Mdc.securityaccessors.view.DeviceSecurityAccessorsOverview', {
                                         emptyComponent: me.getEmptyComponent(true),
                                         previewComponent: {
                                             xtype: 'device-security-accessor-preview',
+                                            keyMode: true,
                                             itemId: 'mdc-device-accessors-key-preview'
                                         }
                                     }
@@ -93,6 +94,7 @@ Ext.define('Mdc.securityaccessors.view.DeviceSecurityAccessorsOverview', {
                                         emptyComponent: me.getEmptyComponent(false),
                                         previewComponent: {
                                             xtype: 'device-security-accessor-preview',
+                                            keyMode: false,
                                             itemId: 'mdc-device-accessors-certificate-preview'
                                         }
                                     }

@@ -37,6 +37,18 @@ Ext.define('Mdc.securityaccessors.controller.DeviceSecurityAccessors', {
         {
             ref: 'tabPanel',
             selector: '#mdc-device-security-accessors-tab-panel'
+        },
+        {
+            ref: 'keyCurrentAttributesContainer',
+            selector: '#mdc-device-accessors-key-preview #mdc-device-security-accessor-preview-current-attributes-container'
+        },
+        {
+            ref: 'keyTempAttributesContainer',
+            selector: '#mdc-device-accessors-key-preview #mdc-device-security-accessor-preview-temp-attributes-container'
+        },
+        {
+            ref: 'certificateCurrentAttributesContainer',
+            selector: '#mdc-device-accessors-certificate-preview #mdc-device-security-accessor-preview-current-attributes-container'
         }
     ],
 
@@ -75,16 +87,27 @@ Ext.define('Mdc.securityaccessors.controller.DeviceSecurityAccessors', {
     },
 
     onKeyRecordSelected: function (grid, record) {
-        var me = this;
+        var me = this,
+            actionsMenu = me.getKeyPreview().down('device-security-accessors-action-menu');
+
         me.getKeyPreviewForm().loadRecord(record);
         me.getKeyPreview().setTitle(Ext.htmlEncode(record.get('name')));
-        //if (me.getPreview().down('security-accessors-action-menu')) {
-        //    me.getPreview().down('security-accessors-action-menu').record = record;
-        //}
+        if (actionsMenu) {
+            actionsMenu.record = record;
+        }
+
+        me.getKeyCurrentAttributesContainer().setVisible(record.propertiesStore.data.items.length > 0);
+        me.getKeyCurrentAttributesContainer().down('property-form').loadRecord(record);
+        var tempPropertiesAvailable = record.temppropertiesStore.data.items.length > 0;
+        me.getKeyTempAttributesContainer().setVisible(tempPropertiesAvailable);
+        if (tempPropertiesAvailable) {
+            me.getKeyTempAttributesContainer().down('property-form').initProperties(record.tempproperties());
+        }
     },
 
     onCertificateRecordSelected: function (grid, record) {
         var me = this;
+
         if (me.certificatesTabNeverSelectedYet) {
             me.getTabPanel().on('tabchange', function() {
                 me.certificatesTabNeverSelectedYet = false;
@@ -96,12 +119,16 @@ Ext.define('Mdc.securityaccessors.controller.DeviceSecurityAccessors', {
     },
 
     previewCertificateRecord: function(record) {
-        var me = this;
+        var me = this,
+            actionsMenu = me.getKeyPreview().down('device-security-accessors-action-menu');
+
         me.getCertificatePreviewForm().loadRecord(record);
         me.getCertificatePreview().setTitle(Ext.htmlEncode(record.get('name')));
-        //if (me.getPreview().down('security-accessors-action-menu')) {
-        //    me.getPreview().down('security-accessors-action-menu').record = record;
-        //}
+        if (actionsMenu) {
+            actionsMenu.record = record;
+        }
+        me.getCertificateCurrentAttributesContainer().setVisible(record.propertiesStore.data.items.length > 0);
+        me.getCertificateCurrentAttributesContainer().down('property-form').loadRecord(record);
     }
 
 });

@@ -4,11 +4,29 @@
 Ext.define('Mdc.securityaccessors.model.DeviceSecurityAccessor', {
     extend: 'Uni.model.ParentVersion',
 
+    requires: [
+        'Uni.property.model.Property'
+    ],
+
     fields: [
         {name: 'id', type: 'int', useNull: true},
         {name: 'name', type: 'string'},
         {name: 'description', type: 'string'},
         'expirationTime'
+    ],
+    associations: [
+        {
+            name: 'properties', type: 'hasMany', model: 'Uni.property.model.Property', associationKey: 'currentProperties', foreignKey: 'currentProperties',
+            getTypeDiscriminator: function (node) {
+                return 'Uni.property.model.Property';
+            }
+        },
+        {
+            name: 'tempproperties', type: 'hasMany', model: 'Uni.property.model.Property', associationKey: 'tempProperties', foreignKey: 'tempProperties',
+            getTypeDiscriminator: function (node) {
+                return 'Uni.property.model.Property';
+            }
+        }
     ],
 
     proxy: {

@@ -43,6 +43,6 @@ Ext.define('Mdc.securityaccessors.view.SecurityAccessorsActionMenu', {
                 }
             })
         }
-    },
+    }
 
 });

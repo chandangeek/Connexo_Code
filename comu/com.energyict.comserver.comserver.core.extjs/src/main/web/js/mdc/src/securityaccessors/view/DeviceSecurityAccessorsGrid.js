@@ -9,7 +9,8 @@ Ext.define('Mdc.securityaccessors.view.DeviceSecurityAccessorsGrid', {
     requires: [
         'Uni.grid.column.Action',
         'Uni.view.toolbar.PagingTop',
-        'Mdc.securityaccessors.view.SecurityAccessorsActionMenu'
+        'Mdc.securityaccessors.view.SecurityAccessorsActionMenu',
+        'Mdc.securityaccessors.view.DeviceSecurityAccessorsActionMenu'
     ],
     forceFit: true,
 
@@ -26,6 +27,7 @@ Ext.define('Mdc.securityaccessors.view.DeviceSecurityAccessorsGrid', {
             {
                 header: Uni.I18n.translate('general.lastReadDate', 'MDC', 'Last read date'),
                 dataIndex: 'lastReadDate',
+                hidden: me.keyMode,
                 flex: 1
             },
             {
@@ -44,14 +46,14 @@ Ext.define('Mdc.securityaccessors.view.DeviceSecurityAccessorsGrid', {
                 dataIndex: 'status',
                 flex: 1
             },
-            //,
-            //{
-            //    xtype: 'uni-actioncolumn',
-            //    menu: {
-            //        xtype: 'security-accessors-action-menu',
-            //        itemId: 'mdc-security-accessors-action-menu'
-            //    }
-            //}
+            {
+                xtype: 'uni-actioncolumn',
+                menu: {
+                    xtype: 'device-security-accessors-action-menu',
+                    keyMode: me.keyMode,
+                    itemId: 'mdc-device-security-accessors-grid-action-menu'
+                }
+            }
         ];
 
         me.dockedItems = [
