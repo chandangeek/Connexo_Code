@@ -401,6 +401,10 @@ Ext.define('Uni.property.view.property.Base', {
             cfg.items.splice(0, 0, cmp);
         }
 
+        if (!me.isEdit && (me.property.get('overridden') || me.property.get('canBeOverridden'))) {
+            cfg.items.push(me.getOverriddenComp());
+        }
+
         Ext.apply(me, cfg);
         me.callParent(arguments);
 
@@ -458,6 +462,20 @@ Ext.define('Uni.property.view.property.Base', {
 
     customHandlerLogic: function(){
         //implement in propertycomponents that need custom logic on change;
+    },
+
+    getOverriddenComp: function() {
+        var me = this,
+            overridden = '<span class="icon-pencil4" style="margin-left: 10px; position: relative; top: 7px;" data-qtip="' +
+                Uni.I18n.translate('general.overridden', 'UNI', 'Overridden') + '"></span>',
+            canBeOverridden = '<span class="icon-pencil3" style="margin-left: 10px; position: relative; top: 7px;" data-qtip="' +
+                Uni.I18n.translate('general.canBeOverridden', 'UNI', 'Can be overridden') + '"></span>';
+
+        return {
+            xtype: 'component',
+            itemId: me.property.get('key') + '-overridden',
+            html: me.property.get('overridden') ? overridden : canBeOverridden
+        }
     },
 
     /**
