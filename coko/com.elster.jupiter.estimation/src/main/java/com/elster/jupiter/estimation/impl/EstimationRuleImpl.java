@@ -12,9 +12,9 @@ import com.elster.jupiter.estimation.Estimator;
 import com.elster.jupiter.estimation.ReadingTypeInEstimationRule;
 import com.elster.jupiter.estimation.impl.MessageSeeds.Constants;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
@@ -23,6 +23,7 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.collections.ArrayDiffList;
 import com.elster.jupiter.util.collections.DiffList;
+import com.elster.jupiter.util.streams.Functions;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -34,7 +35,9 @@ import javax.validation.constraints.Size;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -76,19 +79,20 @@ class EstimationRuleImpl implements IEstimationRule {
 
     private final DataModel dataModel;
     private final EstimatorCreator estimatorCreator;
-    private final Thesaurus thesaurus;
     private final MeteringService meteringService;
     private final Provider<ReadingTypeInEstimationRuleImpl> readingTypeInRuleProvider;
     private final Clock clock;
+    private final IEstimationService estimationService;
 
     @Inject
-    EstimationRuleImpl(DataModel dataModel, EstimatorCreator estimatorCreator, Thesaurus thesaurus, MeteringService meteringService, Provider<ReadingTypeInEstimationRuleImpl> readingTypeInRuleProvider, Clock clock) {
+    EstimationRuleImpl(DataModel dataModel, EstimatorCreator estimatorCreator, MeteringService meteringService,
+                       Provider<ReadingTypeInEstimationRuleImpl> readingTypeInRuleProvider, Clock clock, IEstimationService estimationService) {
         this.dataModel = dataModel;
         this.estimatorCreator = estimatorCreator;
-        this.thesaurus = thesaurus;
         this.meteringService = meteringService;
         this.readingTypeInRuleProvider = readingTypeInRuleProvider;
         this.clock = clock;
+        this.estimationService = estimationService;
     }
 
     EstimationRuleImpl init(EstimationRuleSet ruleSet, String implementation, String name) {
@@ -354,11 +358,30 @@ class EstimationRuleImpl implements IEstimationRule {
 
     @Override
     public Estimator createNewEstimator() {
-        return new RuleTypedEstimator(createBaseEstimator(), (int)getId());
+        return new RuleTypedEstimator(createBaseEstimator(getProps()), (int)getId());
     }
 
-    private Estimator createBaseEstimator() {
-        return estimatorCreator.getEstimator(this.implementation, getProps());
+    private Estimator createBaseEstimator(Map<String, Object> properties) {
+        return estimatorCreator.getEstimator(this.implementation, properties);
+    }
+
+    @Override
+    public Estimator createNewEstimator(ChannelsContainer channelsContainer, ReadingType readingType) {
+        Map<String, Object> properties = getPropsWithOverriddenValues(channelsContainer, readingType);
+        Estimator createdEstimator = createBaseEstimator(properties);
+        return new RuleTypedEstimator(createdEstimator, (int) getId());
+    }
+
+    private Map<String, Object> getPropsWithOverriddenValues(ChannelsContainer channelsContainer, ReadingType readingType) {
+        Map<String, Object> properties = new HashMap<>(getProps());
+        Map<String, Object> overriddenProperties = estimationService.getEstimationPropertyResolvers().stream()
+                .map(resolver -> resolver.resolve(channelsContainer))
+                .flatMap(Functions.asStream())
+                .map(propertyProvider -> propertyProvider.getProperties(EstimationRuleImpl.this, readingType).entrySet())
+                .flatMap(Collection::stream)
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (v1, v2) -> v1));
+        properties.putAll(overriddenProperties);
+        return properties;
     }
 
     private void doPersist() {

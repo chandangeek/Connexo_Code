@@ -10,6 +10,7 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.estimation.EstimationBlock;
 import com.elster.jupiter.estimation.EstimationBlockFormatter;
+import com.elster.jupiter.estimation.EstimationPropertyResolver;
 import com.elster.jupiter.estimation.EstimationReport;
 import com.elster.jupiter.estimation.EstimationResolver;
 import com.elster.jupiter.estimation.EstimationResult;
@@ -103,6 +104,7 @@ public class EstimationServiceImpl implements IEstimationService, TranslationKey
     public static final Logger LOGGER = Logger.getLogger(EstimationService.class.getName());
     private final List<EstimatorFactory> estimatorFactories = new CopyOnWriteArrayList<>();
     private final List<EstimationResolver> resolvers = new CopyOnWriteArrayList<>();
+    private final List<EstimationPropertyResolver> estimationPropertyResolvers = new CopyOnWriteArrayList<>();
     private final EstimationEngine estimationEngine = new EstimationEngine();
 
     private volatile DataModel dataModel;
@@ -376,7 +378,7 @@ public class EstimationServiceImpl implements IEstimationService, TranslationKey
                     try (LoggingContext parentContext = LoggingContext.getCloseableContext();
                          LoggingContext loggingContext = parentContext.with("rule", rule.getName())) {
                         loggingContext.info(logger, "Attempting rule {rule}");
-                        Estimator estimator = rule.createNewEstimator();
+                        Estimator estimator = rule.createNewEstimator(channelsContainer, readingType);
                         estimator.init(logger);
                         EstimationResult estimationResult = result.get();
                         estimationResult.estimated().forEach(block -> report.reportEstimated(readingType, block));
@@ -534,6 +536,20 @@ public class EstimationServiceImpl implements IEstimationService, TranslationKey
     @Override
     public List<EstimationResolver> getEstimationResolvers() {
         return Collections.unmodifiableList(resolvers);
+    }
+
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    public void addEstimationPropertyResolver(EstimationPropertyResolver resolver) {
+        estimationPropertyResolvers.add(resolver);
+    }
+
+    public void removeEstimationPropertyResolver(EstimationPropertyResolver resolver) {
+        estimationPropertyResolvers.remove(resolver);
+    }
+
+    @Override
+    public List<EstimationPropertyResolver> getEstimationPropertyResolvers() {
+        return Collections.unmodifiableList(estimationPropertyResolvers);
     }
 
     private EstimationResult getInitialBlocksToEstimateAsResult(QualityCodeSystem system, ChannelsContainer channelsContainer,

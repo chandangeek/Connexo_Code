@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.estimation;
 
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.properties.PropertySpec;
 
@@ -59,5 +60,16 @@ public interface EstimationRule {
 
     boolean isObsolete();
 
+    /**
+     * Creates new {@link Estimator} instance which is configured in this rule.
+     * Created estimator is initialized only using the properties from the {@link EstimationPropertyDefinitionLevel#ESTIMATION_RULE} level,
+     * so the properties that could be overridden on other {@link EstimationPropertyDefinitionLevel}s will not be passed into estimator.
+     *
+     * Deprecated since new method is introduced {@link com.elster.jupiter.estimation.impl.IEstimationRule#createNewEstimator(ChannelsContainer, ReadingType)}.
+     *
+     * @return {@link Estimator}
+     */
+    @Deprecated
     Estimator createNewEstimator();
+
 }
