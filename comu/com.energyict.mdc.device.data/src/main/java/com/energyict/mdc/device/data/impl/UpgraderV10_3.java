@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
@@ -26,10 +27,12 @@ import static com.elster.jupiter.util.streams.Predicates.not;
 class UpgraderV10_3 implements Upgrader {
 
     private final DataModel dataModel;
+    private final EventService eventService;
 
     @Inject
-    UpgraderV10_3(DataModel dataModel) {
+    UpgraderV10_3(DataModel dataModel, EventService eventService) {
         this.dataModel = dataModel;
+        this.eventService = eventService;
     }
 
     @Override
@@ -37,6 +40,8 @@ class UpgraderV10_3 implements Upgrader {
         upgradeExistingScheduledComTaskExecutions();
         dataModelUpgrader.upgrade(dataModel, Version.version(10,3));
         moveProtocolDialectProperties();
+        // Validation for Device Configuration Change on data loggers and multi-elememt devices
+        EventType.DEVICE_CONFIG_CHANGE_VALIDATE.createIfNotExists(eventService);
     }
 
     private void upgradeExistingScheduledComTaskExecutions() {

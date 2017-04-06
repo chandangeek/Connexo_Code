@@ -68,7 +68,7 @@ public final class DeviceConfigChangeExecutor {
     private void prepareForChangeDeviceConfig(ServerDeviceForConfigChange device, DeviceConfiguration destinationDeviceConfiguration, Instant configChangeTimeStamp) {
         this.deviceService.findAndLockDeviceByIdAndVersion(device.getId(), device.getVersion());
         device.validateDeviceCanChangeConfig(destinationDeviceConfiguration);
-        this.eventService.postEvent(EventType.DEVICE_CONFIGURATION_CHANGE_VALIDATE.topic(), Pair.of(device, destinationDeviceConfiguration));
+        this.eventService.postEvent(EventType.DEVICE_CONFIG_CHANGE_VALIDATE.topic(), Pair.of(device, destinationDeviceConfiguration));
     }
 
 }

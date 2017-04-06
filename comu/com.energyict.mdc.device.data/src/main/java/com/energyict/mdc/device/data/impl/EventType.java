@@ -76,7 +76,14 @@ public enum EventType {
     ACTIVATED_BREAKER_STATUS_UPDATED("activatedbreakerstatus/UPDATED"),
     ACTIVATED_BREAKER_STATUS_DELETED("activatedbreakerstatus/DELETED"),
     RESTARTED_METERACTIVATION("meteractivation/RESTARTED"),
-    DEVICE_CONFIGURATION_CHANGE_VALIDATE("deviceconfiguration/VALIDATE_CHANGE");
+    DEVICE_CONFIG_CHANGE_VALIDATE(null) {
+        @Override
+        public String topic() {
+            // handler is defined in the topology bundle
+            return "com/energyict/mdc/device/topology/deviceconfiguration/VALIDATE_CHANGE";
+        }
+    }
+    ;
 
     private static final String NAMESPACE = "com/energyict/mdc/device/data/";
     private final String topic;
