@@ -103,10 +103,13 @@ public class SecurityAccessorResource {
     }
 
     private void createActualValue(KeyAccessor keyAccessor, SecurityAccessorInfo securityAccessorInfo) {
-        SymmetricKeyWrapper symmetricKeyWrapper = pkiService.newSymmetricKeyWrapper(keyAccessor.getKeyAccessorType());
-        symmetricKeyWrapper.setProperties(getPropertiesAsMap(securityAccessorInfo.currentProperties));
-        keyAccessor.setActualValue(symmetricKeyWrapper);
-        keyAccessor.save();
+        Map<String, Object> properties = getPropertiesAsMap(securityAccessorInfo.currentProperties);
+        if (!properties.isEmpty()) {
+            SymmetricKeyWrapper symmetricKeyWrapper = pkiService.newSymmetricKeyWrapper(keyAccessor.getKeyAccessorType());
+            symmetricKeyWrapper.setProperties(properties);
+            keyAccessor.setActualValue(symmetricKeyWrapper);
+            keyAccessor.save();
+        }
     }
 
     private KeyAccessor<SecurityValueWrapper> updateKeyAccessor(KeyAccessor keyAccessor, SecurityAccessorInfo securityAccessorInfo) {
@@ -123,17 +126,18 @@ public class SecurityAccessorResource {
     }
 
     private void createTempValue(KeyAccessor keyAccessor, SecurityAccessorInfo securityAccessorInfo) {
-        SymmetricKeyWrapper symmetricKeyWrapper = pkiService.newSymmetricKeyWrapper(keyAccessor.getKeyAccessorType());
         Map<String, Object> properties = getPropertiesAsMap(securityAccessorInfo.tempProperties);
-        symmetricKeyWrapper.setProperties(properties);
-        keyAccessor.setTempValue(symmetricKeyWrapper);
-        keyAccessor.save();
+        if (!properties.isEmpty()) {
+            SymmetricKeyWrapper symmetricKeyWrapper = pkiService.newSymmetricKeyWrapper(keyAccessor.getKeyAccessorType());
+            symmetricKeyWrapper.setProperties(properties);
+            keyAccessor.setTempValue(symmetricKeyWrapper);
+            keyAccessor.save();
+        }
     }
 
     private void updateTempValue(SecurityValueWrapper tempValueWrapper, SecurityAccessorInfo securityAccessorInfo) {
         tempValueWrapper.setProperties(getPropertiesAsMap(securityAccessorInfo.tempProperties));
     }
-
 
     private void updateActualValue(KeyAccessor keyAccessor, SecurityAccessorInfo securityAccessorInfo) {
         SecurityValueWrapper actualValue = keyAccessor.getActualValue();
@@ -142,7 +146,7 @@ public class SecurityAccessorResource {
     }
 
     private Map<String, Object> getPropertiesAsMap(List<PropertyInfo> propertyInfos) {
-        return propertyInfos.stream().collect(toMap(pi -> pi.key, pi -> pi.propertyValueInfo.value));
+        return propertyInfos.stream().filter(pi->pi.propertyValueInfo!=null && pi.propertyValueInfo.value!=null).collect(toMap(pi -> pi.key, pi -> pi.propertyValueInfo.value));
     }
 
     @GET
