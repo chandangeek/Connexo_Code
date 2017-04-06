@@ -99,11 +99,16 @@
                 <version>2.1.0${revision}</version>
                 <scope>provided</scope>
             </dependency>
-
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
-                <artifactId>properties</artifactId>
-                <version>2.2.0${revision}</version>
+                <artifactId>mdm.dataquality</artifactId>
+                <version>1.0.0${revision}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.elster.jupiter</groupId>
+                <artifactId>mdm.dataquality.rest</artifactId>
+                <version>1.0.0${revision}</version>
                 <scope>provided</scope>
             </dependency>
 
@@ -120,7 +125,6 @@
                 <scope>test</scope>
             </dependency>
         </dependencies>
-
     </dependencyManagement>
 
     <profiles>
@@ -135,6 +139,8 @@
                 <module>../com.elster.insight.usagepoint.data</module>
                 <module>../com.elster.insight.usagepoint.data.rest</module>
                 <module>../com.elster.jupiter.mdm.bpm.event</module>
+                <module>../com.elster.jupiter.mdm.dataquality</module>
+                <module>../com.elster.jupiter.mdm.dataquality.rest</module>
             </modules>
         </profile>
 
