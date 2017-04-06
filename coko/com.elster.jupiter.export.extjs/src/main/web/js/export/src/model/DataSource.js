@@ -5,7 +5,7 @@
 Ext.define('Dxp.model.DataSource', {
     extend: 'Ext.data.Model',
     fields: [
-        'name', 'active', 'serialNumber', 'readingType', 'occurrenceId', 'connectionState',
+        'name', 'active', 'serialNumber', 'readingType', 'occurrenceId', 'connectionState', 'purpose',
         {
             name: 'lastExportedDate',
             dateFormat: 'time',
