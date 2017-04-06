@@ -6,15 +6,19 @@ package com.energyict.mdc.device.data.impl.pki;
 
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.pki.SecurityValueWrapper;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.KeyAccessor;
 
 import com.google.common.collect.ImmutableMap;
 
+import java.util.List;
 import java.util.Map;
 
 public abstract class AbstractKeyAccessorImpl<T extends SecurityValueWrapper> implements KeyAccessor<T> {
+    private final PkiService pkiService;
 
     private Reference<KeyAccessorType> keyAccessorTypeReference = Reference.empty();
     private Reference<Device> deviceReference = Reference.empty();
@@ -23,6 +27,10 @@ public abstract class AbstractKeyAccessorImpl<T extends SecurityValueWrapper> im
             ImmutableMap.of(
                     "C", CertificateAccessorImpl.class,
                     "S", SymmetricKeyAccessorImpl.class);
+
+    protected AbstractKeyAccessorImpl(PkiService pkiService) {
+        this.pkiService = pkiService;
+    }
 
     public enum Fields {
         KEY_ACCESSOR_TYPE("keyAccessorTypeReference"),
@@ -55,6 +63,11 @@ public abstract class AbstractKeyAccessorImpl<T extends SecurityValueWrapper> im
 
     public Device getDevice() {
         return deviceReference.get();
+    }
+
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        return pkiService.getPropertySpecs(getKeyAccessorType());
     }
 
 }

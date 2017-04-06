@@ -30,6 +30,7 @@ public class SymmetricKeyAccessorImpl extends AbstractKeyAccessorImpl<SymmetricK
 
     @Inject
     public SymmetricKeyAccessorImpl(DataModel dataModel, PkiService pkiService, Thesaurus thesaurus) {
+        super(pkiService);
         this.dataModel = dataModel;
         this.pkiService = pkiService;
         this.thesaurus = thesaurus;
