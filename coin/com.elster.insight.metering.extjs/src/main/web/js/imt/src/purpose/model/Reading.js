@@ -66,6 +66,24 @@ Ext.define('Imt.purpose.model.Reading', {
             }
         },
         {
+            name: 'mainValidationInfo',
+            persist: false,
+            mapping: function (data) {
+                return {
+                    value: data.value,
+                    estimatedByRule: data.estimatedByRule,
+                    isConfirmed: data.isConfirmed,
+                    validationResult: data.validationResult,
+                    ruleId: data.ruleId,
+                    valueModificationFlag: data.modificationFlag,
+                    editedInApp: data.editedInApp,
+                    estimatedNotSaved: data.estimatedNotSaved,
+                    confirmedNotSaved: data.confirmedNotSaved,
+                    removedNotSaved: data.removedNotSaved
+                }
+            }
+        },
+        {
             name: 'interval_end',
             persist: false,
             mapping: 'interval.end',

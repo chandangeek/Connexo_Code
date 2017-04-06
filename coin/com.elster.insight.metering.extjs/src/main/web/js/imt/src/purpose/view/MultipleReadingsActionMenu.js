@@ -12,7 +12,14 @@ Ext.define('Imt.purpose.view.MultipleReadingsActionMenu', {
                 privileges: Imt.privileges.UsagePoint.admin,
                 hidden: true,
                 text: Uni.I18n.translate('general.confirmValue', 'IMT', 'Confirm'),
-                action: 'confirmValue',
+                action: 'correctValue',
+                section: this.SECTION_ACTION
+            },
+            {
+                itemId: 'correct-value',
+                hidden: true,
+                text: Uni.I18n.translate('general.correct', 'IMT', 'Correct'),
+                action: 'correctValue',
                 section: this.SECTION_ACTION
             },
             {
