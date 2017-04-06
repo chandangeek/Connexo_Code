@@ -314,6 +314,38 @@ Ext.define('Imt.controller.History', {
                                             controller: 'Imt.purpose.controller.RegisterData',
                                             action: 'showAddEditRegisterData',
                                             privileges: Imt.privileges.UsagePoint.admin
+                                        },
+                                        editvalidationrule: {
+                                            title: Uni.I18n.translate('general.edit', 'IMT', 'Edit'),
+                                            route: '{ruleId}/editvalidationrule',
+                                            controller: 'Imt.purpose.controller.Purpose',
+                                            action: 'showEditValidationRuleWithAttributes',
+                                            privileges: Imt.privileges.UsagePoint.admin,
+                                            callback: function (route) {
+                                                this.getApplication().on('rule-with-attributes-loaded', function (rule) {
+                                                    if (rule) {
+                                                        route.setTitle(Ext.String.format("{0} '{1}'", Uni.I18n.translate('general.editAttributesFor', 'IMT', 'Edit attributes for'), rule.get('name')));
+                                                    }
+                                                    return true;
+                                                }, {single: true});
+                                                return this;
+                                            }
+                                        },
+                                        editestimationrule: {
+                                            title: Uni.I18n.translate('general.edit', 'IMT', 'Edit'),
+                                            route: '{ruleId}/editestimationrule',
+                                            controller: 'Imt.purpose.controller.Purpose',
+                                            action: 'showEditEstimationRuleWithAttributes',
+                                            privileges: Imt.privileges.UsagePoint.admin,
+                                            callback: function (route) {
+                                                this.getApplication().on('rule-with-attributes-loaded', function (rule) {
+                                                    if (rule) {
+                                                        route.setTitle(Ext.String.format("{0} '{1}'", Uni.I18n.translate('general.editAttributesFor', 'IMT', 'Edit attributes for'), rule.get('name')));
+                                                    }
+                                                    return true;
+                                                }, {single: true});
+                                                return this;
+                                            }
                                         }
                                     }
                                 }

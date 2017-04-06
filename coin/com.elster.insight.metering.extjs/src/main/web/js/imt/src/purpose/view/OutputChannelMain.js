@@ -9,8 +9,11 @@ Ext.define('Imt.purpose.view.OutputChannelMain', {
     requires: [
         'Uni.view.toolbar.PreviousNextNavigation',
         'Imt.purpose.view.OutputSpecificationsForm',
-        'Imt.purpose.view.OutputReadings'
+        'Imt.purpose.view.OutputReadings',
+        'Cfg.configuration.view.RuleWithAttributesForm'
     ],
+    validationConfigurationStore: undefined,
+    estimationConfigurationStore: undefined,
 
     initComponent: function () {
         var me = this,
@@ -96,6 +99,44 @@ Ext.define('Imt.purpose.view.OutputChannelMain', {
                 }
             }
         ];
+
+        if (me.validationConfigurationStore.getCount()) {
+            me.content[0].items.push({
+                title: Uni.I18n.translate('general.validationConfiguration', 'IMT', 'Validation configuration'),
+                itemId: 'output-validation',
+                items: {
+                    xtype: 'rule-with-attributes-form',
+                    itemId: 'rule-with-attributes-validation-form',
+                    router: me.router,
+                    store: me.validationConfigurationStore,
+                    type: 'validation',
+                    application: me.controller.getApplication()
+                },
+                listeners: {
+                    activate: me.controller.showValidationTab,
+                    scope: me.controller
+                }
+            });
+        }
+
+        if (me.output.get('outputType') === 'channel' && me.estimationConfigurationStore.getCount()) {
+            me.content[0].items.push({
+                title: Uni.I18n.translate('general.estimationConfiguration', 'IMT', 'Estimation configuration'),
+                itemId: 'output-estimation',
+                items: {
+                    xtype: 'rule-with-attributes-form',
+                    itemId: 'rule-with-attributes-estimation-form',
+                    router: me.router,
+                    store: me.estimationConfigurationStore,
+                    type: 'estimation',
+                    application: me.controller.getApplication()
+                },
+                listeners: {
+                    activate: me.controller.showEstimationTab,
+                    scope: me.controller
+                }
+            });
+        }
 
         me.side = [
             {

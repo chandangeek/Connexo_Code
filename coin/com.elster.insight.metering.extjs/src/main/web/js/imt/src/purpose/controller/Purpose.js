@@ -22,7 +22,9 @@ Ext.define('Imt.purpose.controller.Purpose', {
         'Imt.purpose.store.ValidationTasks',
         'Imt.purpose.store.EstimationTasks',
         'Imt.usagepointmanagement.store.Periods',
-        'Imt.purpose.store.EstimationRules'
+        'Imt.purpose.store.EstimationRules',
+        'Imt.purpose.store.OutputValidationConfiguration',
+        'Imt.purpose.store.OutputEstimationConfiguration'
     ],
 
     models: [
@@ -31,7 +33,9 @@ Ext.define('Imt.purpose.controller.Purpose', {
         'Imt.usagepointmanagement.model.ValidationInfo',
         'Imt.usagepointmanagement.model.SuspectReason',
         'Imt.usagepointmanagement.model.Purpose',
-        'Imt.usagepointmanagement.model.UsagePoint'
+        'Imt.usagepointmanagement.model.UsagePoint',
+        'Imt.purpose.model.OutputValidationConfiguration',
+        'Imt.purpose.model.OutputEstimationConfiguration'
     ],
 
     views: [
@@ -40,7 +44,8 @@ Ext.define('Imt.purpose.controller.Purpose', {
         'Imt.purpose.view.ValidationStatusForm',
         'Imt.purpose.view.ValidationDate',
         'Uni.view.window.Confirmation',
-        'Ext.ProgressBar'
+        'Ext.ProgressBar',
+        'Cfg.configuration.view.RuleWithAttributesEdit'
     ],
 
     refs: [
@@ -180,13 +185,15 @@ Ext.define('Imt.purpose.controller.Purpose', {
             purposes,
             purpose,
             outputs,
-            output;
+            output,
+            validationConfigurationStore = me.getStore('Imt.purpose.store.OutputValidationConfiguration'),
+            estimationConfigurationStore = me.getStore('Imt.purpose.store.OutputEstimationConfiguration');
 
         if (!tab) {
             window.location.replace(router.getRoute('usagepoints/view/purpose/output').buildUrl({tab: 'readings'}));
         } else {
             outputModel = me.getModel('Imt.purpose.model.Output');
-            dependenciesCounter = 3;
+            dependenciesCounter = 5;
             displayPage = function () {
                 var widget;
 
@@ -206,6 +213,8 @@ Ext.define('Imt.purpose.controller.Purpose', {
                         interval: me.getInterval(output),
                         prevNextListLink: prevNextListLink,
                         controller: me,
+                        validationConfigurationStore: validationConfigurationStore,
+                        estimationConfigurationStore: estimationConfigurationStore,
                         tab: tab
                     });
                     app.fireEvent('changecontentevent', widget);
@@ -250,6 +259,16 @@ Ext.define('Imt.purpose.controller.Purpose', {
                     }
                 }
             });
+
+            validationConfigurationStore.getProxy().extraParams = {usagePointId: usagePointId, purposeId: purposeId, outputId: outputId};
+            validationConfigurationStore.load(function () {
+                displayPage();
+            });
+
+            estimationConfigurationStore.getProxy().extraParams = {usagePointId: usagePointId, purposeId: purposeId, outputId: outputId};
+            estimationConfigurationStore.load(function () {
+                displayPage();
+            });
         }
     },
 
@@ -268,6 +287,30 @@ Ext.define('Imt.purpose.controller.Purpose', {
             Uni.util.History.suspendEventsForNextCall();
             Uni.util.History.setParsePath(false);
             router.arguments.tab = 'specifications';
+            router.getRoute('usagepoints/view/purpose/output').forward();
+        }
+    },
+
+    showValidationTab: function() {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router');
+
+        if (router.arguments.tab != 'validation') {
+            Uni.util.History.suspendEventsForNextCall();
+            Uni.util.History.setParsePath(false);
+            router.arguments.tab = 'validation';
+            router.getRoute('usagepoints/view/purpose/output').forward();
+        }
+    },
+
+    showEstimationTab: function() {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router');
+
+        if (router.arguments.tab != 'estimation') {
+            Uni.util.History.suspendEventsForNextCall();
+            Uni.util.History.setParsePath(false);
+            router.arguments.tab = 'estimation';
             router.getRoute('usagepoints/view/purpose/output').forward();
         }
     },
@@ -466,5 +509,74 @@ Ext.define('Imt.purpose.controller.Purpose', {
                 }
             }
         });
+    },
+
+    showEditValidationRuleWithAttributes: function() {
+        this.showEditRuleWithAttributes('validation');
+    },
+
+    showEditEstimationRuleWithAttributes: function() {
+        this.showEditRuleWithAttributes('estimation');
+    },
+
+    showEditRuleWithAttributes: function(type) {
+        var me = this,
+            app = me.getApplication(),
+            router = me.getController('Uni.controller.history.Router'),
+            usagePointId = router.arguments.usagePointId,
+            purposeId = router.arguments.purposeId,
+            outputId = router.arguments.outputId,
+            mainView = Ext.ComponentQuery.query('#contentPanel')[0],
+            usagePointsController = me.getController('Imt.usagepointmanagement.controller.View'),
+            dependenciesCounter = 3,
+            outputModel = me.getModel('Imt.purpose.model.Output'),
+            ruleWithAttributesModel = type === 'validation' ? me.getModel('Imt.purpose.model.OutputValidationConfiguration') : me.getModel('Imt.purpose.model.OutputEstimationConfiguration'),
+            form,
+            output,
+            rule,
+            widget;
+
+        mainView.setLoading();
+        outputModel.getProxy().extraParams = {usagePointId: usagePointId, purposeId: purposeId};
+        ruleWithAttributesModel.getProxy().extraParams = {usagePointId: usagePointId, purposeId: purposeId, outputId: outputId};
+
+        usagePointsController.loadUsagePoint(usagePointId, {
+            success: function () {
+                displayPage();
+            }
+        });
+        outputModel.load(outputId, {
+            success: function (record) {
+                output = record;
+                displayPage();
+            }
+        });
+        ruleWithAttributesModel.load(router.arguments.ruleId, {
+            success: function (record) {
+                rule = record;
+                displayPage();
+            }
+        });
+
+        function displayPage() {
+            dependenciesCounter--;
+            if (!dependenciesCounter) {
+                mainView.setLoading(false);
+                app.fireEvent('output-loaded', output);
+                widget = Ext.widget('rule-with-attributes-edit', {
+                    itemId: 'rule-with-attributes-edit-' + type,
+                    type: type,
+                    router: router,
+                    returnLink: router.getRoute('usagepoints/view/purpose/output').buildUrl(),
+                    application: me.getApplication()
+                });
+                form = widget.down('#rule-with-attributes-edit-form');
+                form.loadRecord(rule);
+                form.setTitle(Ext.String.format("{0} '{1}'", Uni.I18n.translate('general.editAttributesFor', 'IMT', 'Edit attributes for'), rule.get('name')));
+                form.down('property-form').loadRecord(rule);
+                app.fireEvent('rule-with-attributes-loaded', rule);
+                app.fireEvent('changecontentevent', widget);
+            }
+        }
     }
 });
