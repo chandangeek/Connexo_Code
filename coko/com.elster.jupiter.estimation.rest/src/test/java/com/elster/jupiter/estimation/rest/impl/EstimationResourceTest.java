@@ -18,6 +18,7 @@ import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.devtools.tests.FakeBuilder;
 import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.estimation.EstimationPropertyDefinitionLevel;
 import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.EstimationRuleBuilder;
 import com.elster.jupiter.estimation.EstimationRuleSet;
@@ -288,7 +289,7 @@ public class EstimationResourceTest extends EstimationApplicationJerseyTest {
         EstimationRule rule = mockEstimationRuleInRuleSet(RULE_ID, ruleSet);
         EstimationRuleBuilder estimationRuleBuilder = FakeBuilder.initBuilderStub(rule, EstimationRuleBuilder.class, EstimationRuleBuilder.PropertyBuilder.class);
         when(ruleSet.addRule(Matchers.eq(info.implementation), Matchers.eq(info.name))).thenReturn(estimationRuleBuilder);
-        estimationService.getEstimator(info.implementation).get().getPropertySpecs()
+        estimationService.getEstimator(info.implementation).get().getPropertySpecs(EstimationPropertyDefinitionLevel.ESTIMATION_RULE)
                 .forEach(propertySpec -> {
                     switch (propertySpec.getName()) {
                         case "number":
@@ -547,8 +548,8 @@ public class EstimationResourceTest extends EstimationApplicationJerseyTest {
                 mockPropertySpec(SimplePropertyType.BOOLEAN, "boolean", true),
                 mockPropertySpec(SimplePropertyType.TEXT, "text", true),
                 mockListValueBeanPropertySpec("listvalue", true));
-        when(rule.getPropertySpecs()).thenReturn(propertySpes);
-        when(estimator.getPropertySpecs()).thenReturn(propertySpes);
+        when(rule.getPropertySpecs(EstimationPropertyDefinitionLevel.ESTIMATION_RULE)).thenReturn(propertySpes);
+        when(estimator.getPropertySpecs(EstimationPropertyDefinitionLevel.ESTIMATION_RULE)).thenReturn(propertySpes);
 
         Map<String, Object> props = new HashMap<>();
         props.put("number", 13);
@@ -658,6 +659,7 @@ public class EstimationResourceTest extends EstimationApplicationJerseyTest {
         when(estimator.getDisplayName()).thenReturn(displayName);
         List<PropertySpec> propertySpecs = Collections.singletonList(mockListValueBeanPropertySpec("listvalue", false));
         when(estimator.getPropertySpecs()).thenReturn(propertySpecs);
+        when(estimator.getPropertySpecs(EstimationPropertyDefinitionLevel.ESTIMATION_RULE)).thenReturn(propertySpecs);
         when(propertyValueInfoService.getPropertyInfos(propertySpecs)).thenReturn(getPropertyInfos());
         return estimator;
     }
