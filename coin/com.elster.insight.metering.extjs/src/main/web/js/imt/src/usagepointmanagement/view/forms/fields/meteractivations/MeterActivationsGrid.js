@@ -54,7 +54,14 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.meteractivations.MeterAct
                     minChars: 1,
                     loadStore: false,
                     cls: 'stretchy-combo',
-                    listeners: me.meterComboLiseners
+                    listeners: Ext.merge(me.meterComboLiseners, {
+                        change: function () {
+                            var cellSelector = me.getView().getCellSelector(me.columns[3]),
+                                domEl = grid.getEl().query(cellSelector)[++rowIndex],
+                                comboDom = Ext.get(domEl.getAttribute('id')).query('.stretchy-combo')[0],
+                                combo = Ext.getCmp(comboDom.getAttribute('id'));
+                        }
+                    })
                 }
             },
             {
@@ -95,10 +102,9 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.meteractivations.MeterAct
                     //     return !record.get('meter');
                     // },
                     handler: function (grid, rowIndex) {
-                        var colNum = 1,
-                            cellSelector = grid.getCellSelector(grid.up('grid').columns[colNum]),
-                            domEl = grid.getEl().query(cellSelector)[colNum],
-                            comboDom = Ext.get(domEl.getAttribute('id')).query('.stretchy-combo')[rowIndex],
+                        var cellSelector = grid.getCellSelector(grid.up('grid').columns[1]),
+                            domEl = grid.getEl().query(cellSelector)[++rowIndex],
+                            comboDom = Ext.get(domEl.getAttribute('id')).query('.stretchy-combo')[0],
                             combo = Ext.getCmp(comboDom.getAttribute('id'));
                         combo.clearValue();
                     }

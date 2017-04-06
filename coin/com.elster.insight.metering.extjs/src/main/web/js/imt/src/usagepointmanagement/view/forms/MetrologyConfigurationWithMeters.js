@@ -55,17 +55,17 @@ Ext.define('Imt.usagepointmanagement.view.forms.MetrologyConfigurationWithMeters
                         name: 'activationTime',
                         layout: 'hbox',
                         valueInMilliseconds: true
+                    },
+                    {
+                        xtype: 'component',
+                        itemId: 'metrology-configuration-field-errors',
+                        cls: 'x-form-invalid-under',
+                        style: {
+                            'white-space': 'normal'
+                        },
+                        hidden: true
                     }
                 ]
-            },
-            {
-                xtype: 'component',
-                itemId: 'metrology-configuration-field-errors',
-                cls: 'x-form-invalid-under',
-                style: {
-                    'white-space': 'normal'
-                },
-                hidden: true
             }
 
         ];
@@ -189,32 +189,39 @@ Ext.define('Imt.usagepointmanagement.view.forms.MetrologyConfigurationWithMeters
     clearInvalid: function () {
         var me = this;
 
+        me.down('#metrology-configuration-field-errors').hide();
         me.down('#metrology-configuration-with-meters-info-warning').hide();
         me.getForm().clearInvalid();
     },
 
     mapErrors: function (errors) {
-        var map = {};
+        var map = {},
+            errMsg = [],
+            errorsField = this.down('#metrology-configuration-field-errors');
 
         Ext.Array.each(errors, function (error) {
 
             if (Ext.String.startsWith(error.id, 'metrologyConfiguration')) {
-                error.id = 'metrology-configuration-field-errors';
+                error.id = 'metrologyConfiguration.metrology-configuration-field-errors';
+                errMsg.push(error.msg);
+            } else {
+
+                if (error.id.search(/meter/i) !== -1) {
+                    error.id = 'metrologyConfiguration.meterRoles';
+
+                    if (Ext.String.startsWith(error.id, 'metrologyConfiguration.purpose.')) {
+                        error.id = 'metrologyConfiguration.purposes';
+                    }
+                }
             }
 
-            if (error.id.search(/meter/i) !== -1) {
-                error.id = 'metrologyConfiguration.meterRoles';
-            }
-
-            if (Ext.String.startsWith(error.id, 'metrologyConfiguration.purpose.')) {
-                error.id = 'metrologyConfiguration.purposes';
-            }
-
+            errorsField.show();
+            errorsField.update(' '+errMsg.join('<br> '));
 
             if (!map[error.id]) {
                 map[error.id] = {
                     id: error.id,
-                    msg: ['- '+error.msg]
+                    msg: [' '+error.msg]
                 };
             } else {
                 map[error.id].msg.push(error.msg);
