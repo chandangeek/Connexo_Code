@@ -12,6 +12,7 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.Stage;
 import com.elster.jupiter.metering.BaseReadingRecord;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.ConnectionState;
 import com.elster.jupiter.metering.ElectricityDetailBuilder;
 import com.elster.jupiter.metering.EndDeviceStage;
@@ -568,6 +569,7 @@ public class UsagePointImpl implements ServerUsagePoint {
     private void apply(UsagePointMetrologyConfiguration metrologyConfiguration, Set<MetrologyContract> optionalContractsToActivate, Instant start, Instant end) {
         validateApplyTimeAndCreateDate(start);
         validateUsagePointStage(start);
+        validateMetersIfGapsAreNotAllowed(metrologyConfiguration, start);
         validateEndDeviceStage(this.getMeterActivations(), start);
         validateMetrologyConfigOverlapping(metrologyConfiguration, start);
         validateMeters(this.getMeterActivations(start), metrologyConfiguration.getContracts());
@@ -578,6 +580,36 @@ public class UsagePointImpl implements ServerUsagePoint {
                 createEffectiveMetrologyConfigurationWithContracts(metrologyConfiguration, optionalContractsToActivate, effectiveInterval);
         this.metrologyConfigurations.add(effectiveMetrologyConfiguration);
         activateMetersOnMetrologyConfiguration(this.getMeterActivations(start));
+    }
+
+    private void validateMetersIfGapsAreNotAllowed(UsagePointMetrologyConfiguration metrologyConfiguration, Instant start) {
+        if (!metrologyConfiguration.isGapAllowed()) {
+            List<ChannelsContainer> channelsContainers = getMeterActivations(start)
+                    .stream()
+                    .map(MeterActivation::getChannelsContainer)
+                    .collect(Collectors.toList());
+            List<ReadingTypeRequirement> metrologyConfigRequirements = metrologyConfiguration.getRequirements()
+                    .stream()
+                    .collect(Collectors.toList());
+            boolean meterActivationsMatched = channelsContainers.stream()
+                    .filter(channelsContainer ->  metersActivationsMatched(metrologyConfigRequirements, channelsContainer))
+                    .findAny()
+                    .isPresent();
+
+            if (!meterActivationsMatched) {
+                throw UsagePointManagementException.incorrectMetersSpecification(thesaurus, metrologyConfiguration.getMeterRoles()
+                        .stream()
+                        .map(MeterRole::getDisplayName)
+                        .collect(Collectors.toList()));
+            }
+        }
+    }
+
+    private boolean metersActivationsMatched(List<ReadingTypeRequirement> metrologyConfigRequirements, ChannelsContainer channelsContainer) {
+        return metrologyConfigRequirements.stream()
+                .filter(readingTypeRequirement -> !readingTypeRequirement.getMatchesFor(channelsContainer).isEmpty())
+                .findAny()
+                .isPresent();
     }
 
     private void activateMetersOnMetrologyConfiguration(List<MeterActivation> meterActivations) {
@@ -664,6 +696,7 @@ public class UsagePointImpl implements ServerUsagePoint {
 
         if (!meterActivationReadingTypes.isEmpty()) {
             List<String> metrologyPurposes = metrologyContracts.stream()
+                    .filter(MetrologyContract::isMandatory)
                     .filter(contract -> !contract.getRequirements()
                             .stream()
                             .filter(requirement -> meterActivationReadingTypes.stream()

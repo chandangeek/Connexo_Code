@@ -253,7 +253,6 @@ public class UsagePointImplIT {
     @Transactional
     public void canNotLinkMetrologyConfigurationBeforeUsagePointInstallationTime() {
         expectedException.expect(UsagePointManagementException.class);
-        expectedException.expectMessage("Start date must be greater than or equal to Created date of usage point");
         MeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
         UsagePoint usagePoint =
@@ -276,7 +275,7 @@ public class UsagePointImplIT {
         Stage deviceStage = mock(Stage.class);
         String operationalDeviceStageKey = "mtr.enddevicestage.operational";
         expectedException.expect(UsagePointManagementException.class);
-        expectedException.expectMessage("The meters of the usage point do not provide the necessary reading types for purposes [metrology.purpose.voltage.monitoring.name]  of the new metrology configuration");
+        expectedException.expectMessage("The meters of the usage point do not provide the necessary reading types for purposes [metrology.purpose.billing.name]  of the new metrology configuration");
         ServerMeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
         AmrSystem system = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
         Meter meter = spy(system.newMeter("Meter", "meterName").create());
@@ -295,13 +294,13 @@ public class UsagePointImplIT {
                         .getMetrologyConfigurationService()
                         .newUsagePointMetrologyConfiguration("metrologyConfiguration1", serviceCategory)
                         .create();
-        configuration.addMandatoryMetrologyContract(getMonitorVolatageMetrologyPurpose());
+        configuration.addMandatoryMetrologyContract(getBillingPurpose());
         configuration.activate();
         usagePoint.apply(configuration, AUG_1ST_2016);
     }
 
-    private MetrologyPurpose getMonitorVolatageMetrologyPurpose() {
-        return inMemoryBootstrapModule.getMetrologyConfigurationService().findMetrologyPurpose(3).get();
+    private MetrologyPurpose getBillingPurpose() {
+        return inMemoryBootstrapModule.getMetrologyConfigurationService().findMetrologyPurpose(1).get();
     }
 
     @Test
