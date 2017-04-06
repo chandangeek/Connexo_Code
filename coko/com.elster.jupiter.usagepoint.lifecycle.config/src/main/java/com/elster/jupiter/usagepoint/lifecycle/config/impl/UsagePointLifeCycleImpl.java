@@ -152,6 +152,9 @@ public class UsagePointLifeCycleImpl implements UsagePointLifeCycle {
 
     @Override
     public String getName() {
+        if (TranslationKeys.LIFE_CYCLE_NAME.getKey().equals(this.name)) {
+            return this.thesaurus.getFormat(TranslationKeys.LIFE_CYCLE_NAME).format();
+        }
         return this.name;
     }
 
