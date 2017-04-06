@@ -16,7 +16,8 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         'Mdc.view.setup.devicechannels.ReadingEstimationWindow',
         'Mdc.view.setup.devicechannels.ReadingEstimationWithRuleWindow',
         'Mdc.view.setup.devicechannels.EditCustomAttributes',
-        'Mdc.view.setup.devicechannels.History'
+        'Mdc.view.setup.devicechannels.History',
+        'Uni.view.readings.CorrectValuesWindow'
     ],
 
     models: [
@@ -95,6 +96,10 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         {
             ref: 'editCustomAttributesRestoreBtn',
             selector: '#channelCustomAttributesRestoreBtn'
+        },
+        {
+            ref: 'correctReadingWindow',
+            selector: 'correct-values-window'
         }
     ],
 
@@ -153,6 +158,9 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             },
             '#channel-reading-estimation-with-rule-window #value-to-estimate-radio-group': {
                 change: this.updateEstimateWithRuleWindow
+            },
+            'correct-values-window #correct-reading-button': {
+                click: this.correctReadings
             }
         });
     },
@@ -266,6 +274,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         channelModel.load(channelId, {
             success: function (record) {
                 me.getApplication().fireEvent('channelOfLoadProfileOfDeviceLoad', record);
+                me.currentChannel = record;
                 channel = record;
                 if (channel.get('readingType').isGasRelated) {
                     var yearStartStore = me.getStore('Uni.store.GasDayYearStart');
@@ -469,6 +478,9 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             case 'removeReading':
                 me.removeReadings(menu.record);
                 break;
+            case 'correctValue':
+                me.openCorrectWindow(menu.record);
+                break;
             case 'estimateValue':
                 me.estimateValue(menu.record);
                 break;
@@ -513,6 +525,9 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
 
         if (menu.down('#remove-reading')) {
             menu.down('#remove-reading').setVisible(menu.record.get('value') || menu.record.get('collectedValue'));
+        }
+        if(menu.down('#correct-value')){
+            menu.down('#correct-value').setVisible(!Ext.isEmpty(menu.record.get('value')))
         }
     },
 
@@ -993,6 +1008,9 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             case 'confirmValue':
                 me.confirmValue(records, true);
                 break;
+            case 'correctValue':
+                me.openCorrectWindow(records);
+                break;
             case 'removeReadings':
                 me.removeReadings(records, true);
                 break;
@@ -1110,6 +1128,10 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         menu.down('#confirm-value').setVisible(confirms.length);
         menu.down('#remove-readings').setVisible(_.find(selectedRecords, function (record) {
             return record.get('value') || record.get('collectedValue')
+        }));
+
+        menu.down('#correct-value').setVisible(_.find(selectedRecords, function (record) {
+            return record.get('value')
         }));
         button.setDisabled(!menu.query('menuitem[hidden=false]').length);
         Ext.resumeLayouts();
@@ -1265,5 +1287,86 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 viewport.setLoading(false);
             }
         });
-    }
+    },
+
+    openCorrectWindow: function(record){
+        var me = this;
+        if (!Ext.isArray(record)){
+            record = [record];
+        }
+        Ext.widget('correct-values-window', {
+            itemId: 'channel-reading-correct-values-window',
+            record: record,
+            showInfoMessage: true,
+            infoMessageText: Uni.I18n.translate('correct.window.info.message', 'MDC', 'The correction will be applied to {0}', me.currentChannel.get('readingType').fullAliasName),
+        }).show();
+    },
+
+    correctReadings: function () {
+        var me = this,
+            model = Ext.create('Uni.model.readings.ReadingCorrection'),
+            window = me.getCorrectReadingWindow(),
+            records = window.record,
+            intervalsArray =[];
+
+        window.updateRecord(model);
+
+        if (!Ext.isArray(records)){
+            records = [records];
+        }
+
+        Ext.Array.each(records, function (item) {
+            if(model.get('onlySuspectOrEstimated')){
+                if(Uni.util.ReadingEditor.checkReadingInfoStatus(item.get('mainValidationInfo')).isSuspectOrEstimated()){
+                    intervalsArray.push({
+                        start: item.get('interval').start,
+                        end: item.get('interval').end,
+                        value: item.get('value')
+                    });
+                }
+            } else {
+                intervalsArray.push({
+                    start: item.get('interval').start,
+                    end: item.get('interval').end,
+                    value: item.get('value')
+                });
+            }
+        });
+
+        model.set('intervals', intervalsArray);
+        //make calculations on BE
+        window.calculateValues(model);
+
+
+        Ext.suspendLayouts();
+
+        Ext.Array.each(model.get('intervals'), function(correctedInterval){
+            Ext.Array.findBy(records, function (reading) {
+                if (correctedInterval.start == reading.get('interval').start) {
+                    me.updateCorrectedValues(model, reading, correctedInterval);
+                    return true;
+                }
+            });
+        });
+
+        Ext.resumeLayouts(true);
+
+        window.destroy();
+    },
+
+    updateCorrectedValues: function (model, reading, correctedInterval) {
+        var me = this,
+            grid = me.getPage().down('deviceLoadProfileChannelDataGrid');
+
+        reading.beginEdit();
+        reading.set('value', correctedInterval.value);
+        Uni.util.ReadingEditor.setReadingInfoStatus(reading,'corrected');
+        reading.endEdit(true);
+
+        grid.getView().refreshNode(grid.getStore().indexOf(reading));
+
+        me.resumeEditorFieldValidation(grid.editingPlugin, {
+            record: reading
+        });
+    },
 });
