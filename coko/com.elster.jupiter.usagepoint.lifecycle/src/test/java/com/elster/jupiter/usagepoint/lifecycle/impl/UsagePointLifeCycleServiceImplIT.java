@@ -16,21 +16,8 @@ import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.impl.UsagePointImpl;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.usagepoint.lifecycle.ExecutableMicroAction;
-import com.elster.jupiter.usagepoint.lifecycle.ExecutableMicroActionException;
-import com.elster.jupiter.usagepoint.lifecycle.ExecutableMicroCheck;
-import com.elster.jupiter.usagepoint.lifecycle.ExecutableMicroCheckViolation;
-import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
-import com.elster.jupiter.usagepoint.lifecycle.UsagePointStateChangeException;
-import com.elster.jupiter.usagepoint.lifecycle.UsagePointStateChangeRequest;
-import com.elster.jupiter.usagepoint.lifecycle.config.DefaultState;
-import com.elster.jupiter.usagepoint.lifecycle.config.DefaultTransition;
-import com.elster.jupiter.usagepoint.lifecycle.config.MicroAction;
-import com.elster.jupiter.usagepoint.lifecycle.config.MicroCheck;
-import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
-import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
-import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointStage;
-import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
+import com.elster.jupiter.usagepoint.lifecycle.*;
+import com.elster.jupiter.usagepoint.lifecycle.config.*;
 import com.elster.jupiter.usagepoint.lifecycle.impl.actions.SetConnectionStateAction;
 import com.elster.jupiter.usagepoint.lifecycle.impl.actions.UsagePointMicroActionFactoryImpl;
 import com.elster.jupiter.usagepoint.lifecycle.impl.checks.MeterRolesAreSpecifiedCheck;
@@ -39,6 +26,9 @@ import com.elster.jupiter.usagepoint.lifecycle.impl.checks.UsagePointMicroCheckF
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.security.Principal;
 import java.time.Clock;
@@ -50,14 +40,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
@@ -302,7 +286,7 @@ public class UsagePointLifeCycleServiceImplIT extends BaseTestIT {
         UsagePointLifeCycle lifeCycle = get(UsagePointLifeCycleConfigurationService.class).getDefaultLifeCycle();
         assertThat(lifeCycle.isDefault()).isEqualTo(true);
 
-        assertThat(lifeCycle.getName()).isEqualTo("Standard usage point life cycle");
+        assertThat(lifeCycle.getName()).isEqualTo("usage.point.life.cycle.standard.name");
 
         Optional<State> underConstruction = lifeCycle.getStates().stream().filter(state -> state.getName().equals(DefaultState.UNDER_CONSTRUCTION.getKey())).findFirst();
         Optional<State> active = lifeCycle.getStates().stream().filter(state -> state.getName().equals(DefaultState.ACTIVE.getKey())).findFirst();
