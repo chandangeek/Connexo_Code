@@ -139,6 +139,7 @@ public final class PlaintextSymmetricKeyImpl implements PlaintextSymmetricKey {
     @Override
     public void setProperties(Map<String, Object> properties) {
         EnumSet.allOf(Properties.class).forEach(p -> p.copyFromMap(properties, this));
+        this.save();
     }
 
     @Override
@@ -168,7 +169,7 @@ public final class PlaintextSymmetricKeyImpl implements PlaintextSymmetricKey {
             public PropertySpec asPropertySpec(PropertySpecService propertySpecService) {
                 return propertySpecService.stringSpec()
                         .named(getPropertyName(), "Key")
-                        .describedAs("Plaintext view of key")
+                        .describedAs("Base64 encoded key")
                         .finish();
             }
 
