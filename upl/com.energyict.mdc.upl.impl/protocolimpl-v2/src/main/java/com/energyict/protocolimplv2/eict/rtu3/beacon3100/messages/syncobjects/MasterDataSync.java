@@ -116,13 +116,12 @@ public class MasterDataSync {
     private MasterDataAnalyser analyseWhatToSync(AllMasterData allMasterData) throws IOException {
         MasterDataAnalyser masterDataAnalyser = new MasterDataAnalyser();
 
-        masterDataAnalyser.analyseItemsUsedByMirrors(getConcentratorSetup().getMeterInfo(), getDeviceTypeManager().readDeviceTypes());
-
         masterDataAnalyser.analyseClientTypes( getClientTypeManager().readClients(),
                 allMasterData.getClientTypes(),
                 getIsFirmwareVersion140OrAbove());
 
         masterDataAnalyser.analyseDeviceTypes(getDeviceTypeManager().readDeviceTypes(),
+        		this.getConcentratorSetup().getMeterInfo(),
                 allMasterData.getDeviceTypes());
 
         masterDataAnalyser.analyseSchedules(getScheduleManager().readSchedules(),
@@ -132,6 +131,12 @@ public class MasterDataSync {
     }
 
     public List<Beacon3100DeviceType> getDeviceTypes(AllMasterData allMasterData) throws IOException {
+        MasterDataAnalyser masterDataAnalyser = new MasterDataAnalyser();
+
+
+        masterDataAnalyser.analyseDeviceTypes(getDeviceTypeManager().readDeviceTypes(),
+        		this.getConcentratorSetup().getMeterInfo(),
+                allMasterData.getDeviceTypes());
         return allMasterData.getDeviceTypes();
     }
     
