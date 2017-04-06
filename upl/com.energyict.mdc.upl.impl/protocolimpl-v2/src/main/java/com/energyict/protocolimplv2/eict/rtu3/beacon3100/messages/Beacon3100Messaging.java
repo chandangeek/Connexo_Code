@@ -124,6 +124,9 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     /** New logical name of the concentrator setup object. */
     public static final ObisCode CONCENTRATOR_SETUP_NEW_LOGICAL_NAME = ObisCode.fromString("0.187.96.128.0.255");
 
+    /** New logical name of DLMS gateway setup object. */
+    public static final ObisCode GATEWAY_SETUP_NEW_LOGICAL_NAME = ObisCode.fromString("0.176.96.128.0.255");
+
     private static final String SEPARATOR = ";";
     private static final String SEPARATOR2 = ",";
 
@@ -2154,9 +2157,17 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         boolean decypherMeterNotifications = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.DecipherMeterNotifications).getDeviceMessageAttributeValue());
         boolean dropUnencryptedNotifications = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.DropUnencryptedMeterNotifications).getDeviceMessageAttributeValue());
 
-        getCosemObjectFactory().getDLMSGatewaySetup().setNotificationDecipher(decypherMeterNotifications);
-        getCosemObjectFactory().getDLMSGatewaySetup().setNotificationRelaying(relayMeterNotification);
-        getCosemObjectFactory().getDLMSGatewaySetup().setNotificationDropUnencrypted(dropUnencryptedNotifications);
+        getDlmsGatewaySetup().setNotificationDecipher(decypherMeterNotifications);
+        getDlmsGatewaySetup().setNotificationRelaying(relayMeterNotification);
+        getDlmsGatewaySetup().setNotificationDropUnencrypted(dropUnencryptedNotifications);
+    }
+
+    private DLMSGatewaySetup getDlmsGatewaySetup() throws NotInObjectListException {
+        if(readOldObisCodes()) {
+            return getCosemObjectFactory().getDLMSGatewaySetup();
+        }else{
+            return getCosemObjectFactory().getDLMSGatewaySetup(GATEWAY_SETUP_NEW_LOGICAL_NAME);
+        }
     }
 
     private void configureAPNs(OfflineDeviceMessage pendingMessage) throws IOException {
