@@ -807,6 +807,10 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
         return new DLMSGatewaySetup(this.protocolLink, DLMSGatewaySetup.DEFAULT_OBIS_CODE);
     }
 
+    public final DLMSGatewaySetup getDLMSGatewaySetup(ObisCode obisCode) throws NotInObjectListException {
+        return new DLMSGatewaySetup(this.protocolLink, this.getObjectReference(obisCode));
+    }
+
     public final DataProtection getDataProtectionSetup() throws NotInObjectListException {
         return new DataProtection(this.protocolLink, this.getObjectReference(DataProtection.OBIS_CODE));
     }
