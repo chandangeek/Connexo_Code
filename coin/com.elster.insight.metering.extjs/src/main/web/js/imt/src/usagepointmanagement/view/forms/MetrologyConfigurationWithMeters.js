@@ -7,7 +7,6 @@ Ext.define('Imt.usagepointmanagement.view.forms.MetrologyConfigurationWithMeters
         'Uni.form.field.ComboReturnedRecordData',
         'Imt.usagepointmanagement.view.forms.MetrologyConfigurationWithMetersInfo'
     ],
-
     usagePoint: null,
 
     initComponent: function () {
@@ -58,7 +57,17 @@ Ext.define('Imt.usagepointmanagement.view.forms.MetrologyConfigurationWithMeters
                         valueInMilliseconds: true
                     }
                 ]
+            },
+            {
+                xtype: 'component',
+                itemId: 'metrology-configuration-field-errors',
+                cls: 'x-form-invalid-under',
+                style: {
+                    'white-space': 'normal'
+                },
+                hidden: true
             }
+
         ];
 
         me.callParent(arguments);
@@ -180,6 +189,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.MetrologyConfigurationWithMeters
     clearInvalid: function () {
         var me = this;
 
+        me.down('#metrology-configuration-with-meters-info-warning').hide();
         me.getForm().clearInvalid();
     },
 
@@ -187,7 +197,12 @@ Ext.define('Imt.usagepointmanagement.view.forms.MetrologyConfigurationWithMeters
         var map = {};
 
         Ext.Array.each(errors, function (error) {
-            if (Ext.String.startsWith(error.id, 'meter.role.')) {
+
+            if (Ext.String.startsWith(error.id, 'metrologyConfiguration')) {
+                error.id = 'metrology-configuration-field-errors';
+            }
+
+            if (error.id.search(/meter/i) !== -1) {
                 error.id = 'metrologyConfiguration.meterRoles';
             }
 
@@ -195,10 +210,11 @@ Ext.define('Imt.usagepointmanagement.view.forms.MetrologyConfigurationWithMeters
                 error.id = 'metrologyConfiguration.purposes';
             }
 
+
             if (!map[error.id]) {
                 map[error.id] = {
                     id: error.id,
-                    msg: [error.msg]
+                    msg: ['- '+error.msg]
                 };
             } else {
                 map[error.id].msg.push(error.msg);

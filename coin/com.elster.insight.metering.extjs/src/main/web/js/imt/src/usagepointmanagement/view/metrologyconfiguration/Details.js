@@ -96,6 +96,15 @@ Ext.define('Imt.usagepointmanagement.view.metrologyconfiguration.Details', {
                             reasons: [
                                 Uni.I18n.translate('usagePoint.meterRoles.empty.reason', 'IMT', 'Meter roles have not been linked to this usage point yet')
                             ],
+                            stepItems: [
+                                {
+                                    xtype: 'button',
+                                    text: Uni.I18n.translate('general.linkMeters', 'IMT', 'Link meters'),
+                                    itemId: 'edit-meters',
+                                    privileges: me.hasLinkMetersButton && Imt.privileges.UsagePoint.canAdministrate(),
+                                    href: me.router.getRoute('usagepoints/view/metrologyconfiguration/activatemeters').buildUrl()
+                                }
+                            ],
                             style: 'margin-top: 15px'
                         }
                     },

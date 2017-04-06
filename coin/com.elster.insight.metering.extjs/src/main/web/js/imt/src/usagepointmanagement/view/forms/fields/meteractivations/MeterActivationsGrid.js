@@ -88,8 +88,12 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.meteractivations.MeterAct
             me.columns.push(
                 {
                     xtype: 'uni-actioncolumn-remove',
+                    itemId: 'clear-meter',
                     iconCls: 'icon-cancel-circle2 unlink-miter-grid',
                     tooltip: Uni.I18n.translate('general.UnlinkMeter', 'IMT', 'Unlink meter'),
+                    // showCondition: function (record) {
+                    //     return !record.get('meter');
+                    // },
                     handler: function (grid, rowIndex) {
                         var colNum = 1,
                             cellSelector = grid.getCellSelector(grid.up('grid').columns[colNum]),
