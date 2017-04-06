@@ -28,9 +28,9 @@ public class ChannelEstimationRuleInfo {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        ChannelValidationRuleInfo info = (ChannelValidationRuleInfo) o;
+        ChannelEstimationRuleInfo info = (ChannelEstimationRuleInfo) o;
         return Objects.equals(name, info.name) &&
-                Objects.equals(estimator, info.validator);
+                Objects.equals(estimator, info.estimator);
     }
 
     @Override

@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
+import com.elster.jupiter.estimation.EstimationPropertyDefinitionLevel;
 import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.metering.ReadingQualityRecord;
@@ -41,7 +42,7 @@ public class EstimationRuleInfoFactory {
         info.ruleSetId = estimationRule.getRuleSet().getId();
         info.deleted = estimationRule.isObsolete();
         info.name = estimationRule.getName();
-        info.properties = propertyValueInfoService.getPropertyInfos(estimationRule.getPropertySpecs(), estimationRule.getProps());
+        info.properties = propertyValueInfoService.getPropertyInfos(estimationRule.getPropertySpecs(EstimationPropertyDefinitionLevel.ESTIMATION_RULE), estimationRule.getProps());
         info.application = resourceHelper.getApplicationInfo(estimationRule.getRuleSet().getQualityCodeSystem());
         info.when = readingQualityRecord.getTimestamp();
         return info;
@@ -55,7 +56,7 @@ public class EstimationRuleInfoFactory {
         info.deleted = estimationRule.isObsolete();
         info.name = estimationRule.getName();
         info.estimatorName = estimationRule.getDisplayName();
-        info.properties = propertyValueInfoService.getPropertyInfos(estimationRule.getPropertySpecs(), estimationRule.getProps());
+        info.properties = propertyValueInfoService.getPropertyInfos(estimationRule.getPropertySpecs(EstimationPropertyDefinitionLevel.ESTIMATION_RULE), estimationRule.getProps());
         info.application = resourceHelper.getApplicationInfo(estimationRule.getRuleSet().getQualityCodeSystem());
         return info;
     }

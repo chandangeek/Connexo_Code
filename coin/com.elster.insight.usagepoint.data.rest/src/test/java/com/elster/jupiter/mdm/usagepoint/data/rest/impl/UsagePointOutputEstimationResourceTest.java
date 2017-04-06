@@ -4,8 +4,12 @@
 
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
-import com.elster.jupiter.mdm.usagepoint.data.ChannelValidationRuleOverriddenProperties;
-import com.elster.jupiter.mdm.usagepoint.data.UsagePointValidation;
+import com.elster.jupiter.estimation.EstimationPropertyDefinitionLevel;
+import com.elster.jupiter.estimation.EstimationRule;
+import com.elster.jupiter.estimation.EstimationRuleSet;
+import com.elster.jupiter.estimation.Estimator;
+import com.elster.jupiter.mdm.usagepoint.data.ChannelEstimationRuleOverriddenProperties;
+import com.elster.jupiter.mdm.usagepoint.data.UsagePointEstimation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
@@ -15,12 +19,6 @@ import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.properties.rest.PropertyValueInfo;
-import com.elster.jupiter.validation.ValidationPropertyDefinitionLevel;
-import com.elster.jupiter.validation.ValidationRule;
-import com.elster.jupiter.validation.ValidationRuleSet;
-import com.elster.jupiter.validation.ValidationRuleSetVersion;
-import com.elster.jupiter.validation.ValidationVersionStatus;
-import com.elster.jupiter.validation.Validator;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -44,15 +42,15 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class UsagePointOutputValidationResourceTest extends UsagePointDataRestApplicationJerseyTest {
+public class UsagePointOutputEstimationResourceTest extends UsagePointDataRestApplicationJerseyTest {
 
     private static final String USAGEPOINT_NAME = "UP001";
     private static final Long CONTRACT_ID = 13L;
     private static final Long OUTPUT_ID = 16L;
-    private static final String URL = "/usagepoints/" + USAGEPOINT_NAME + "/purposes/" + CONTRACT_ID + "/outputs/" + OUTPUT_ID + "/validation";
+    private static final String URL = "/usagepoints/" + USAGEPOINT_NAME + "/purposes/" + CONTRACT_ID + "/outputs/" + OUTPUT_ID + "/estimation";
 
-    private static final Long VALIDATION_RULE_ID = 161L;
-    private static final String VALIDATION_RULE_NAME = "vr1";
+    private static final Long ESTIMATION_RULE_ID = 161L;
+    private static final String ESTIMATION_RULE_NAME = "er1";
     private static final String REQUIRED_PROPERTY = "required.property";
     private static final String OPTIONAL_PROPERTY = "optional.property";
     private static final String READINGTYPE_MRID = "0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0";
@@ -71,17 +69,15 @@ public class UsagePointOutputValidationResourceTest extends UsagePointDataRestAp
     private ReadingTypeDeliverable readingTypeDeliverable;
     private ReadingType readingType;
     @Mock
-    private ValidationRuleSet validationRuleSet;
+    private EstimationRuleSet estimationRuleSet;
     @Mock
-    private ValidationRuleSetVersion validationRuleSetVersion;
+    private EstimationRule estimationRule;
     @Mock
-    private ValidationRule validationRule;
+    private Estimator estimator;
     @Mock
-    private Validator validator;
+    private UsagePointEstimation usagePointEstimation;
     @Mock
-    private UsagePointValidation usagePointValidation;
-    @Mock
-    private UsagePointValidation.PropertyOverrider propertyOverrider;
+    private UsagePointEstimation.PropertyOverrider propertyOverrider;
 
     @Before
     public void before() {
@@ -97,80 +93,75 @@ public class UsagePointOutputValidationResourceTest extends UsagePointDataRestAp
         readingType = mockReadingType(READINGTYPE_MRID);
         when(readingTypeDeliverable.getReadingType()).thenReturn(readingType);
         when(readingTypeDeliverable.getMetrologyContract()).thenReturn(metrologyContract);
-        doReturn(Optional.of(validationRule)).when(validationService).findValidationRule(VALIDATION_RULE_ID);
-        when(usagePointDataModelService.forValidation(usagePoint)).thenReturn(usagePointValidation);
-        when(usagePointValidation.overridePropertiesFor(validationRule, readingType)).thenReturn(propertyOverrider);
+        doReturn(Optional.of(estimationRule)).when(estimationService).getEstimationRule(ESTIMATION_RULE_ID);
+        when(usagePointDataModelService.forEstimation(usagePoint)).thenReturn(usagePointEstimation);
+        when(usagePointEstimation.overridePropertiesFor(estimationRule, readingType)).thenReturn(propertyOverrider);
         mockPropertyValueInfoService();
-        mockValidationRule();
+        mockEstimationRule();
     }
 
-    private void mockValidationRule() {
-        when(usagePointConfigurationService.getValidationRuleSets(metrologyContract)).thenReturn(Collections.singletonList(validationRuleSet));
-        doReturn(Collections.singletonList(validationRuleSetVersion)).when(validationRuleSet).getRuleSetVersions();
-        when(validationRuleSetVersion.getStatus()).thenReturn(ValidationVersionStatus.CURRENT);
-        doReturn(Collections.singletonList(validationRule)).when(validationRuleSetVersion).getRules(eq(ImmutableSet.of(readingType)));
-        when(validationRule.getId()).thenReturn(VALIDATION_RULE_ID);
-        when(validationRule.getName()).thenReturn(VALIDATION_RULE_NAME);
-        when(validationRule.getImplementation()).thenReturn("com...validator");
-        when(validationService.getValidator("com...validator")).thenReturn(validator);
+    private void mockEstimationRule() {
+        when(usagePointConfigurationService.getEstimationRuleSets(metrologyContract)).thenReturn(Collections.singletonList(estimationRuleSet));
+        doReturn(Collections.singletonList(estimationRule)).when(estimationRuleSet).getRules(eq(ImmutableSet.of(readingType)));
+        when(estimationRule.getId()).thenReturn(ESTIMATION_RULE_ID);
+        when(estimationRule.getName()).thenReturn(ESTIMATION_RULE_NAME);
+        when(estimationRule.getImplementation()).thenReturn("com...estimator");
+        when(estimationService.getEstimator("com...estimator")).thenReturn(Optional.of(estimator));
         List<PropertySpec> rulePropertySpecs = Arrays.asList(mockPropertySpec(REQUIRED_PROPERTY), mockPropertySpec(OPTIONAL_PROPERTY));
-        when(validationRule.getPropertySpecs(ValidationPropertyDefinitionLevel.TARGET_OBJECT)).thenReturn(rulePropertySpecs);
-        when(validationRule.getPropertySpecs()).thenReturn(rulePropertySpecs);
-        when(validationRule.getRuleSetVersion()).thenReturn(validationRuleSetVersion);
-        when(validationRule.getProps()).thenReturn(ImmutableMap.of(REQUIRED_PROPERTY, RULE_REQUIRED_PROP_VALUE, OPTIONAL_PROPERTY, RULE_OPT_PROP_VALUE));
+        when(estimationRule.getPropertySpecs(EstimationPropertyDefinitionLevel.TARGET_OBJECT)).thenReturn(rulePropertySpecs);
+        when(estimationRule.getPropertySpecs()).thenReturn(rulePropertySpecs);
+        when(estimationRule.getProps()).thenReturn(ImmutableMap.of(REQUIRED_PROPERTY, RULE_REQUIRED_PROP_VALUE, OPTIONAL_PROPERTY, RULE_OPT_PROP_VALUE));
     }
 
     @Test
-    public void getValidationConfiguration() {
-        ChannelValidationRuleOverriddenProperties overriddenProperties = mock(ChannelValidationRuleOverriddenProperties.class);
+    public void getEstimationConfiguration() {
+        ChannelEstimationRuleOverriddenProperties overriddenProperties = mock(ChannelEstimationRuleOverriddenProperties.class);
         when(overriddenProperties.getId()).thenReturn(14L);
         when(overriddenProperties.getVersion()).thenReturn(15L);
         when(overriddenProperties.getProperties()).thenReturn(ImmutableMap.of(REQUIRED_PROPERTY, 11));
-        doReturn(Optional.of(overriddenProperties)).when(usagePointValidation).findOverriddenProperties(validationRule, readingType);
+        doReturn(Optional.of(overriddenProperties)).when(usagePointEstimation).findOverriddenProperties(estimationRule, readingType);
 
         // Business method
         String response = target(URL).request().get(String.class);
 
         // Asserts
         JsonModel jsonModel = JsonModel.create(response);
-        assertThat(jsonModel.<Number>get("$.validation[0].id")).isEqualTo(14);
-        assertThat(jsonModel.<Number>get("$.validation[0].version")).isEqualTo(15);
-        assertThat(jsonModel.<Number>get("$.validation[0].ruleId")).isEqualTo(VALIDATION_RULE_ID.intValue());
-        assertThat(jsonModel.<String>get("$.validation[0].name")).isEqualTo(VALIDATION_RULE_NAME);
-        assertThat(jsonModel.<String>get("$.validation[0].readingType.mRID")).isEqualTo(READINGTYPE_MRID);
-        assertThat(jsonModel.<Boolean>get("$.validation[0].isEffective")).isTrue();
-        assertThat(jsonModel.<Boolean>get("$.validation[0].isActive")).isFalse();
-        assertThat(jsonModel.<String>get("$.validation[0].properties[0].key")).isEqualTo(REQUIRED_PROPERTY);
-        assertThat(jsonModel.<Number>get("$.validation[0].properties[0].propertyValueInfo.value")).isEqualTo(11);
-        assertThat(jsonModel.<Number>get("$.validation[0].properties[0].propertyValueInfo.inheritedValue")).isEqualTo(RULE_REQUIRED_PROP_VALUE);
-        assertThat(jsonModel.<Boolean>get("$.validation[0].properties[0].overridden")).isEqualTo(true);
-        assertThat(jsonModel.<Boolean>get("$.validation[0].properties[0].canBeOverridden")).isEqualTo(true);
-        assertThat(jsonModel.<String>get("$.validation[0].properties[1].key")).isEqualTo(OPTIONAL_PROPERTY);
-        assertThat(jsonModel.<Number>get("$.validation[0].properties[1].propertyValueInfo.value")).isNull();
-        assertThat(jsonModel.<Number>get("$.validation[0].properties[1].propertyValueInfo.inheritedValue")).isEqualTo(RULE_OPT_PROP_VALUE);
-        assertThat(jsonModel.<Boolean>get("$.validation[0].properties[1].overridden")).isEqualTo(false);
-        assertThat(jsonModel.<Boolean>get("$.validation[0].properties[1].canBeOverridden")).isEqualTo(true);
+        assertThat(jsonModel.<Number>get("$.estimation[0].id")).isEqualTo(14);
+        assertThat(jsonModel.<Number>get("$.estimation[0].version")).isEqualTo(15);
+        assertThat(jsonModel.<Number>get("$.estimation[0].ruleId")).isEqualTo(ESTIMATION_RULE_ID.intValue());
+        assertThat(jsonModel.<String>get("$.estimation[0].name")).isEqualTo(ESTIMATION_RULE_NAME);
+        assertThat(jsonModel.<String>get("$.estimation[0].readingType.mRID")).isEqualTo(READINGTYPE_MRID);
+        assertThat(jsonModel.<Boolean>get("$.estimation[0].isActive")).isFalse();
+        assertThat(jsonModel.<String>get("$.estimation[0].properties[0].key")).isEqualTo(REQUIRED_PROPERTY);
+        assertThat(jsonModel.<Number>get("$.estimation[0].properties[0].propertyValueInfo.value")).isEqualTo(11);
+        assertThat(jsonModel.<Number>get("$.estimation[0].properties[0].propertyValueInfo.inheritedValue")).isEqualTo(RULE_REQUIRED_PROP_VALUE);
+        assertThat(jsonModel.<Boolean>get("$.estimation[0].properties[0].overridden")).isEqualTo(true);
+        assertThat(jsonModel.<Boolean>get("$.estimation[0].properties[0].canBeOverridden")).isEqualTo(true);
+        assertThat(jsonModel.<String>get("$.estimation[0].properties[1].key")).isEqualTo(OPTIONAL_PROPERTY);
+        assertThat(jsonModel.<Number>get("$.estimation[0].properties[1].propertyValueInfo.value")).isNull();
+        assertThat(jsonModel.<Number>get("$.estimation[0].properties[1].propertyValueInfo.inheritedValue")).isEqualTo(RULE_OPT_PROP_VALUE);
+        assertThat(jsonModel.<Boolean>get("$.estimation[0].properties[1].overridden")).isEqualTo(false);
+        assertThat(jsonModel.<Boolean>get("$.estimation[0].properties[1].canBeOverridden")).isEqualTo(true);
     }
 
     @Test
-    public void getValidationRuleOverriddenProperties() {
-        ChannelValidationRuleOverriddenProperties overriddenProperties = mock(ChannelValidationRuleOverriddenProperties.class);
+    public void getEstimationRuleOverriddenProperties() {
+        ChannelEstimationRuleOverriddenProperties overriddenProperties = mock(ChannelEstimationRuleOverriddenProperties.class);
         when(overriddenProperties.getId()).thenReturn(14L);
         when(overriddenProperties.getVersion()).thenReturn(15L);
         when(overriddenProperties.getProperties()).thenReturn(ImmutableMap.of(REQUIRED_PROPERTY, 11));
 
-        doReturn(Optional.of(overriddenProperties)).when(usagePointValidation).findOverriddenProperties(validationRule, readingType);
+        doReturn(Optional.of(overriddenProperties)).when(usagePointEstimation).findOverriddenProperties(estimationRule, readingType);
         // Business method
-        String response = target(URL + "/" + VALIDATION_RULE_ID).request().get(String.class);
+        String response = target(URL + "/" + ESTIMATION_RULE_ID).request().get(String.class);
 
         // Asserts
         JsonModel jsonModel = JsonModel.create(response);
         assertThat(jsonModel.<Number>get("$.id")).isEqualTo(14);
         assertThat(jsonModel.<Number>get("$.version")).isEqualTo(15);
-        assertThat(jsonModel.<Number>get("$.ruleId")).isEqualTo(VALIDATION_RULE_ID.intValue());
-        assertThat(jsonModel.<String>get("$.name")).isEqualTo(VALIDATION_RULE_NAME);
+        assertThat(jsonModel.<Number>get("$.ruleId")).isEqualTo(ESTIMATION_RULE_ID.intValue());
+        assertThat(jsonModel.<String>get("$.name")).isEqualTo(ESTIMATION_RULE_NAME);
         assertThat(jsonModel.<String>get("$.readingType.mRID")).isEqualTo(READINGTYPE_MRID);
-        assertThat(jsonModel.<Boolean>get("$.isEffective")).isTrue();
         assertThat(jsonModel.<Boolean>get("$.isActive")).isFalse();
         assertThat(jsonModel.<String>get("$.properties[0].key")).isEqualTo(REQUIRED_PROPERTY);
         assertThat(jsonModel.<Number>get("$.properties[0].propertyValueInfo.value")).isEqualTo(11);
@@ -186,8 +177,8 @@ public class UsagePointOutputValidationResourceTest extends UsagePointDataRestAp
 
     @Test
     public void overrideProperties() {
-        ChannelValidationRuleInfo info = new ChannelValidationRuleInfo();
-        info.ruleId = VALIDATION_RULE_ID;
+        ChannelEstimationRuleInfo info = new ChannelEstimationRuleInfo();
+        info.ruleId = ESTIMATION_RULE_ID;
         PropertyInfo requiredPropertyInfo = new PropertyInfo();
         requiredPropertyInfo.key = REQUIRED_PROPERTY;
         requiredPropertyInfo.propertyValueInfo = new PropertyValueInfo<>(10, null, false);
@@ -211,10 +202,10 @@ public class UsagePointOutputValidationResourceTest extends UsagePointDataRestAp
 
     @Test
     public void updateOverriddenProperties() {
-        ChannelValidationRuleInfo info = new ChannelValidationRuleInfo();
+        ChannelEstimationRuleInfo info = new ChannelEstimationRuleInfo();
         info.id = 17L;
         info.version = 1L;
-        info.ruleId = VALIDATION_RULE_ID;
+        info.ruleId = ESTIMATION_RULE_ID;
         PropertyInfo requiredPropertyInfo = new PropertyInfo();
         requiredPropertyInfo.key = REQUIRED_PROPERTY;
         requiredPropertyInfo.propertyValueInfo = new PropertyValueInfo<>(10, null, false);
@@ -226,11 +217,11 @@ public class UsagePointOutputValidationResourceTest extends UsagePointDataRestAp
                 new OverriddenPropertyInfo(optionalPropertyInfo, true, false)
         );
 
-        ChannelValidationRuleOverriddenProperties overriddenProperties = mock(ChannelValidationRuleOverriddenProperties.class);
-        doReturn(Optional.of(overriddenProperties)).when(usagePointValidation).findAndLockChannelValidationRuleOverriddenProperties(info.id, info.version);
+        ChannelEstimationRuleOverriddenProperties overriddenProperties = mock(ChannelEstimationRuleOverriddenProperties.class);
+        doReturn(Optional.of(overriddenProperties)).when(usagePointEstimation).findAndLockChannelEstimationRuleOverriddenProperties(info.id, info.version);
 
         // Business method
-        Response response = target(URL + "/" + VALIDATION_RULE_ID).request().put(Entity.json(info));
+        Response response = target(URL + "/" + ESTIMATION_RULE_ID).request().put(Entity.json(info));
 
         // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -240,16 +231,16 @@ public class UsagePointOutputValidationResourceTest extends UsagePointDataRestAp
 
     @Test
     public void deleteOverriddenProperties() {
-        ChannelValidationRuleInfo info = new ChannelValidationRuleInfo();
+        ChannelEstimationRuleInfo info = new ChannelEstimationRuleInfo();
         info.id = 17L;
         info.version = 1L;
-        info.ruleId = VALIDATION_RULE_ID;
+        info.ruleId = ESTIMATION_RULE_ID;
 
-        ChannelValidationRuleOverriddenProperties overriddenProperties = mock(ChannelValidationRuleOverriddenProperties.class);
-        doReturn(Optional.of(overriddenProperties)).when(usagePointValidation).findAndLockChannelValidationRuleOverriddenProperties(info.id, info.version);
+        ChannelEstimationRuleOverriddenProperties overriddenProperties = mock(ChannelEstimationRuleOverriddenProperties.class);
+        doReturn(Optional.of(overriddenProperties)).when(usagePointEstimation).findAndLockChannelEstimationRuleOverriddenProperties(info.id, info.version);
 
         // Business method
-        Response response = target(URL + "/" + VALIDATION_RULE_ID).request().method("DELETE", Entity.json(info));
+        Response response = target(URL + "/" + ESTIMATION_RULE_ID).request().method("DELETE", Entity.json(info));
 
         // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.NO_CONTENT.getStatusCode());
