@@ -54,6 +54,11 @@ public class CertificateAccessorImpl extends AbstractKeyAccessorImpl<Certificate
     }
 
     @Override
+    public void setTempValue(CertificateWrapper newValueWrapper) {
+        tempCertificate.set(newValueWrapper);
+    }
+
+    @Override
     public void swapValues() {
         if (!tempCertificate.isPresent()) {
             throw new PkiLocalizedException(thesaurus, MessageSeeds.TEMP_VALUE_NOT_SET);

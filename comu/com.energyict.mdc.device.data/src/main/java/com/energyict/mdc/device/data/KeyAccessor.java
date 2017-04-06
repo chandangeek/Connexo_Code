@@ -51,6 +51,12 @@ public interface KeyAccessor<T extends SecurityValueWrapper> {
     Optional<T> getTempValue();
 
     /**
+     * Sets the temp value on this KeyAccessor. Existing tempValue will be overwritten.
+     * @param newValueWrapper The value to set as temp value.
+     */
+    void setTempValue(T newValueWrapper);
+
+    /**
      * Create a new value for the KeyAccessor. The new value will be stored in the temp value holder.
      * If there is already a temp value, it will be overwritten!
      */

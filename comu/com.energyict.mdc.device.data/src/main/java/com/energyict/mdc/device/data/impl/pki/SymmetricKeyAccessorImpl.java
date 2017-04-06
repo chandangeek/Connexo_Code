@@ -52,6 +52,11 @@ public class SymmetricKeyAccessorImpl extends AbstractKeyAccessorImpl<SymmetricK
     }
 
     @Override
+    public void setTempValue(SymmetricKeyWrapper newValueWrapper) {
+        tempSymmetricKeyWrapperReference = dataModel.asRefAny(newValueWrapper);
+    }
+
+    @Override
     public void renew() {
         if (tempSymmetricKeyWrapperReference.isPresent()) {
             clearTempValue();
