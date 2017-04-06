@@ -31,6 +31,7 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.geo.SpatialCoordinates;
 import com.elster.jupiter.util.geo.SpatialCoordinatesFactory;
@@ -95,6 +96,7 @@ import java.util.stream.Stream;
         "osgi.command.function=activateMetrologyConfig",
         "osgi.command.function=addCustomPropertySet",
         "osgi.command.function=unlinkMetrologyConfiguration",
+        "osgi.command.function=linkMetrologyConfiguration",
 }, immediate = true)
 @SuppressWarnings("unused")
 public class MeteringConsoleCommands {
@@ -835,7 +837,7 @@ public class MeteringConsoleCommands {
         }
     }
 
-    public void unlinkMetrologyConfiguration(){
+    public void unlinkMetrologyConfiguration() {
         System.out.println("Usage: unlinkMetrologyConfiguration <usage point name>  <timestamp string>");
     }
 
@@ -851,6 +853,29 @@ public class MeteringConsoleCommands {
                 throw new IllegalArgumentException("Specified end date is before the start of current effective metrology configuration");
             }
             configurationOnUsagePoint.close(endDate);
+            context.commit();
+        }
+    }
+
+    public void linkMetrologyConfiguration() {
+        System.out.println("Usage: linkMetrologyConfiguration <usage point name> <metrology configuration id> <timestamp string>");
+    }
+
+    public void linkMetrologyConfiguration(String usagePointName, long metrologyConfigurationId, String timestamp) {
+        threadPrincipalService.set(() -> "Console");
+        try (TransactionContext context = transactionService.getContext()) {
+            UsagePoint usagePoint = this.meteringService.findUsagePointByName(usagePointName)
+                    .orElseThrow(() -> new IllegalArgumentException("Usage point " + usagePointName + " does not exist"));
+            Instant startDate = LocalDateTime.from(dateTimeFormat.parse(timestamp)).atZone(ZoneId.systemDefault()).toInstant();
+            if (usagePoint.getEffectiveMetrologyConfigurations().stream()
+                    .anyMatch(effective -> Ranges.does(effective.getRange()).endAfter(startDate))) {
+                throw new IllegalArgumentException("Usage point " + usagePointName + " has an overlapping effective metrology configuration");
+            }
+            UsagePointMetrologyConfiguration metrologyConfiguration = metrologyConfigurationService.findMetrologyConfiguration(metrologyConfigurationId)
+                    .filter(mc -> mc instanceof UsagePointMetrologyConfiguration)
+                    .map(UsagePointMetrologyConfiguration.class::cast)
+                    .orElseThrow(() -> new IllegalArgumentException("Metrology configuration with id " + metrologyConfigurationId + " does not exist"));
+            usagePoint.apply(metrologyConfiguration, startDate);
             context.commit();
         }
     }
