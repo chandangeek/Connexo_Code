@@ -637,7 +637,7 @@ public class ChannelResource {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(device, channelId);
         List<EstimationRuleInfo> estimationRuleInfos;
-        if (isBulk) {
+        if (!isBulk) {
             estimationRuleInfos = estimationHelper.getAllEstimationRules()
                     .stream()
                     .filter(estimationRule -> estimationRule.getRuleSet()
