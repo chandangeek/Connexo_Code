@@ -10,16 +10,7 @@ import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.fileimport.FileImportOccurrence;
 import com.elster.jupiter.fileimport.FileImporter;
 import com.elster.jupiter.license.LicenseService;
-import com.elster.jupiter.metering.AmrSystem;
-import com.elster.jupiter.metering.ElectricityDetail;
-import com.elster.jupiter.metering.Location;
-import com.elster.jupiter.metering.LocationMember;
-import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ServiceCategory;
-import com.elster.jupiter.metering.ServiceKind;
-import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.UsagePointDetail;
+import com.elster.jupiter.metering.*;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.imports.impl.properties.SupportedNumberFormat;
 import com.elster.jupiter.metering.imports.impl.usagepoint.UsagePointsImporterFactory;
@@ -31,6 +22,13 @@ import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.ByteArrayInputStream;
 import java.time.Instant;
@@ -40,14 +38,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TimeZone;
 import java.util.logging.Logger;
-
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -140,8 +130,8 @@ public class UsagePointImportIntegrationTest {
         UsagePointLifeCycleService usagePointLifeCycleService = inMemoryPersistence.getService(UsagePointLifeCycleService.class);
         assertThat(usagePointLifeCycleService.getHistory(usagePoint)).hasSize(1);
         UsagePointStateChangeRequest history = usagePointLifeCycleService.getHistory(usagePoint).get(0);
-        assertThat(history.getFromStateName()).isEqualTo("Under construction");
-        assertThat(history.getToStateName()).isEqualTo("Active");
+        assertThat(history.getFromStateName()).isEqualTo("usage.point.state.under.construction");
+        assertThat(history.getToStateName()).isEqualTo("usage.point.state.active");
         assertThat(history.getStatus()).isEqualTo(UsagePointStateChangeRequest.Status.SCHEDULED);
     }
 
