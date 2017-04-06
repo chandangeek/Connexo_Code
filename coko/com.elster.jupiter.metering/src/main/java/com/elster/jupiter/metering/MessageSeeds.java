@@ -145,7 +145,7 @@ public enum MessageSeeds implements MessageSeed {
     METER_ACTIVATION_BEFORE_UP_INSTALLATION_TIME(12208, Constants.METER_ACTIVATION_BEFORE_UP_INSTALLATION_TIME, "Meter linking error. The meter activation date must be greater than, or equal to, the usage point creation date. This usage point''s creation date is {0}."),
     METER_CANNOT_BE_UNLINKED(12209, Constants.METER_CANNOT_BE_UNLINKED, "Meter unlinking error. Because the metrology configration does not allow gaps, meter {0} cannot be unlinked from usage point {1} at {2}. This meter is required for the calculation of the active purposes of the metrology configuration."),
     METROLOGY_CONFIG_INVALID_START_DATE(12210, Constants.METROLOGY_CONFIG_INVALID_START_DATE, "Metrology configuration linking error. The metrology configuration''s start date must be greater than, or equal to, the creation date of the usage point {0}"),
-    METERS_ARE_NOT_SPECIFIED_FOR_CONFIGURATION(122211, Constants.METERS_ARE_NOT_SPECIFIED_FOR_CONFIGURATION, "Metrology configuration linking error. Because the metrology configuration does not allow gaps, meters must be specified for all the meter roles required for the calculation of the active purposes of the selected metrology configuration. Required meter roles: {0}")
+    METERS_ARE_NOT_SPECIFIED_FOR_CONFIGURATION(122211, Constants.METERS_ARE_NOT_SPECIFIED_FOR_CONFIGURATION, "Metrology configuration linking error.  Meters must be specified for all the meter roles required for the calculation of the active purposes of the selected metrology configuration. Required meter roles: {0}")
     ;
 
     private final int number;
