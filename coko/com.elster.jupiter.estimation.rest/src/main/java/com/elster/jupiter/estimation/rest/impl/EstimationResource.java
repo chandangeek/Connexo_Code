@@ -238,7 +238,7 @@ public class EstimationResource {
                 .map(estimator -> new EstimationInfo(
                         estimator.getClass().getName(),
                         estimator.getDisplayName(),
-                        propertyValueInfoService.getPropertyInfos(estimator.getPropertySpecs())))
+                        propertyValueInfoService.getPropertyInfos(estimator.getPropertySpecs(EstimationPropertyDefinitionLevel.ESTIMATION_RULE))))
                 .collect(Collectors.toList());
         return PagedInfoList.fromCompleteList("estimators", data, parameters);
     }
@@ -289,7 +289,7 @@ public class EstimationResource {
                     EstimationRuleBuilder estimationRuleBuilder = set.addRule(info.implementation, info.name)
                             .withReadingType(info.readingTypes.stream().map(readingTypeInfo -> readingTypeInfo.mRID).toArray(String[]::new));
                     Estimator estimator = estimationService.getEstimator(info.implementation).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
-                    estimator.getPropertySpecs()
+                    estimator.getPropertySpecs(EstimationPropertyDefinitionLevel.ESTIMATION_RULE)
                             .forEach(propertySpec -> {
                                 Object value = propertyValueInfoService.findPropertyValue(propertySpec, info.properties);
                                 estimationRuleBuilder.havingProperty(propertySpec.getName()).withValue(value);
