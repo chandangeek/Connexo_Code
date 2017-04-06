@@ -41,14 +41,12 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
-import org.junit.Before;
-import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -57,81 +55,62 @@ import static org.mockito.Mockito.when;
  * Test {@link MainCheckValidator}
  */
 @RunWith(MockitoJUnitRunner.class)
-public class MainCheckValidatorTest {
+abstract public class MainCheckValidatorTest {
 
     @Mock
     private Thesaurus thesaurus;
 
     private static DateTimeFormatter dateTimeFormat = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
 
-    private final String CHECK_PURPOSE = "Purpose";
+    static final String CHECK_PURPOSE = "Purpose";
 
     private PropertySpecService propertySpecService = new PropertySpecServiceImpl();
-    private MainCheckValidator validator;
 
-    ValidationConfiguration validationConfiguration;
-    Range<Instant> range = Range.all();
+    private Range<Instant> range = Range.closed(instant("20160101000000"),instant("20160108000000"));
 
-    @Before
-    public void setUp() {
-
-        MainCheckValidatorRule rule = new MainCheckValidatorRule()
-                .withCheckPurpose(CHECK_PURPOSE)
-                .withValuedDifference(bigDecimal(100D))
-                .passIfNoRefData(false)
-                .useValidatedData(false)
-                .withNoMinThreshold();
-
-        ChannelReadings channelReadings = new ChannelReadings(3);
-        channelReadings.setReadingValue(0, bigDecimal(10D), instant("20160101000000"));
-        channelReadings.setReadingValue(1, bigDecimal(20D), instant("20160102000000"));
-        channelReadings.setReadingValue(2, bigDecimal(30D), instant("20160103000000"));
-
-        ValidatedChannelReadings checkReadings = new ValidatedChannelReadings(3);
-        checkReadings.setReadingValue(0, bigDecimal(10D), instant("20160101000000"));
-        checkReadings.setReadingValue(1, bigDecimal(20D), instant("20160102000000"));
-        checkReadings.setReadingValue(2, bigDecimal(30D), instant("20160103000000"));
-
-        validationConfiguration = new ValidationConfiguration(rule, channelReadings, checkReadings);
-        validationConfiguration.mockAll();
-
-        validator = new MainCheckValidator(thesaurus, propertySpecService, rule.createProperties(), validationConfiguration.metrologyConfigurationService, validationConfiguration.validationService);
+    MainCheckValidator initValidator(ValidationConfiguration validationConfiguration) {
+        MainCheckValidator validator = new MainCheckValidator(thesaurus, propertySpecService, validationConfiguration.rule
+                .createProperties(), validationConfiguration.metrologyConfigurationService, validationConfiguration.validationService);
         validator.init(validationConfiguration.checkChannel, validationConfiguration.readingType, range);
+        return validator;
     }
 
-    @Test
-    public void testValidationOk() {
-
-        List<ValidationResult> validationResults = validationConfiguration.mainChannelReadings.readings.stream()
-                .map(validator::validate)
-                .collect(Collectors.toList());
-        long notValid = validationResults.stream().filter((c -> !c.equals(ValidationResult.VALID))).count();
-        assertEquals(0L, notValid);
-    }
-
-    private BigDecimal bigDecimal(Double value) {
+    BigDecimal bigDecimal(Double value) {
         return BigDecimal.valueOf(value);
     }
 
-    private Instant instant(String value) {
+    static Instant instant(String value) {
         return LocalDate.from(dateTimeFormat.parse(value)).atStartOfDay().atZone(ZoneId.systemDefault()).toInstant();
     }
 
     /**
      * Describes validation rule
      */
-    @RunWith(MockitoJUnitRunner.class)
-    private class MainCheckValidatorRule {
+    class MainCheckValidatorRule {
         String checkPurpose;
+        String notExistingCheckPurpose;
         TwoValuesDifference twoValuesDifference;
         NonOrBigDecimalValueProperty minThreshold;
         boolean passIfNoData;
         boolean useValidatedData;
+        boolean noCheckChannel;
 
         MainCheckValidatorRule withCheckPurpose(String checkPurpose) {
             this.checkPurpose = checkPurpose;
             return this;
         }
+
+        MainCheckValidatorRule withNotExistingCheckPurpose(String notExistingCheckPurpose) {
+            this.notExistingCheckPurpose = notExistingCheckPurpose;
+            return this;
+        }
+
+        MainCheckValidatorRule withNotExistingCheckChannel(){
+            noCheckChannel = true;
+            return this;
+        }
+
+
 
         MainCheckValidatorRule withValuedDifference(BigDecimal value) {
             TwoValuesAbsoluteDifference twoValuesAbsoluteDifference = new TwoValuesAbsoluteDifference();
@@ -173,30 +152,30 @@ public class MainCheckValidatorTest {
         }
 
         Map<String, Object> createProperties() {
-            return ImmutableMap.of(MainCheckValidator.CHECK_PURPOSE, this.checkPurpose,
-                    MainCheckValidator.MAX_ABSOLUTE_DIFF, this.twoValuesDifference,
-                    MainCheckValidator.MIN_THRESHOLD, this.minThreshold,
-                    MainCheckValidator.PASS_IF_NO_REF_DATA, this.passIfNoData,
-                    MainCheckValidator.USE_VALIDATED_DATA, this.useValidatedData);
+            return ImmutableMap.of(MainCheckValidator.CHECK_PURPOSE, notExistingCheckPurpose==null?checkPurpose:notExistingCheckPurpose,
+                    MainCheckValidator.MAX_ABSOLUTE_DIFF, twoValuesDifference,
+                    MainCheckValidator.MIN_THRESHOLD, minThreshold,
+                    MainCheckValidator.PASS_IF_NO_REF_DATA, passIfNoData,
+                    MainCheckValidator.USE_VALIDATED_DATA, useValidatedData);
         }
     }
 
     /**
      * Describes the sequence of channel readings
      */
-    @RunWith(MockitoJUnitRunner.class)
-    private class ChannelReadings {
+    class ChannelReadings {
 
-        List<IntervalReadingRecord> readings;
+        List<IntervalReadingRecord> readings = new ArrayList<>();
 
         ChannelReadings(int readingsCount) {
-            this.readings = new ArrayList<>(readingsCount);
+            IntStream.rangeClosed(1,readingsCount).forEach(c -> readings.add(null));
         }
 
         void setReadingValue(int index, BigDecimal value, Instant readingTime) {
             IntervalReadingRecord reading = mock(IntervalReadingRecord.class);
             when(reading.getTimeStamp()).thenReturn(readingTime);
             when(reading.getValue()).thenReturn(value);
+            readings.remove(index);
             readings.add(index, reading);
         }
 
@@ -210,14 +189,13 @@ public class MainCheckValidatorTest {
 
     }
 
-    @RunWith(MockitoJUnitRunner.class)
-    private class ValidatedChannelReadings extends ChannelReadings {
+    class ValidatedChannelReadings extends ChannelReadings {
 
-        List<DataValidationStatus> validationStatuses;
+        List<DataValidationStatus> validationStatuses = new ArrayList<>();
 
         ValidatedChannelReadings(int readingsCount) {
             super(readingsCount);
-            this.validationStatuses = new ArrayList<>(readingsCount);
+            IntStream.rangeClosed(1,readingsCount).forEach(c -> validationStatuses.add(null));
         }
 
         void setReadingValue(int index, BigDecimal value, Instant readingTime) {
@@ -229,7 +207,8 @@ public class MainCheckValidatorTest {
             DataValidationStatus dataValidationStatus = mock(DataValidationStatus.class);
             when(dataValidationStatus.getReadingTimestamp()).thenReturn(readingTime);
             when(dataValidationStatus.getValidationResult()).thenReturn(validationResult);
-            validationStatuses.add(dataValidationStatus);
+            validationStatuses.remove(index);
+            validationStatuses.add(index, dataValidationStatus);
         }
 
         ValidationEvaluator mockEvaluator() {
@@ -245,8 +224,7 @@ public class MainCheckValidatorTest {
     /**
      * Describes configuration to be validated
      */
-    @RunWith(MockitoJUnitRunner.class)
-    private class ValidationConfiguration {
+    class ValidationConfiguration {
 
         // internal properties - input
         MainCheckValidatorRule rule;
@@ -264,12 +242,16 @@ public class MainCheckValidatorTest {
             this.rule = rule;
             this.mainChannelReadings = mainChannelReadings;
             this.checkChannelReadings = checkChannelReadings;
+            mockAll();
         }
 
         void mockAll() {
             readingType = mock(ReadingType.class);
+            when(readingType.getMRID()).thenReturn("0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0");
+            when(readingType.getFullAliasName()).thenReturn("[Daily] Secondary Delta A+ (kWh)");
             mainChannel = mock(Channel.class);
             UsagePoint usagePoint = mock(UsagePoint.class);
+            when(usagePoint.getName()).thenReturn("Usage point name");
             ChannelsContainer channelsContainer = mock(ChannelsContainer.class);
             EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint = mock(EffectiveMetrologyConfigurationOnUsagePoint.class);
             UsagePointMetrologyConfiguration metrologyConfiguration = mock(UsagePointMetrologyConfiguration.class);
@@ -283,7 +265,7 @@ public class MainCheckValidatorTest {
             when(usagePoint.getEffectiveMetrologyConfigurations(range)).thenReturn(Collections.singletonList(effectiveMetrologyConfigurationOnUsagePoint));
             when(channelsContainer.getUsagePoint()).thenReturn(Optional.of(usagePoint));
             when(mainChannel.getChannelsContainer()).thenReturn(channelsContainer);
-            when(effectiveMetrologyConfigurationOnUsagePoint.getChannelsContainer(metrologyContract)).thenReturn(Optional
+            when(effectiveMetrologyConfigurationOnUsagePoint.getChannelsContainer(metrologyContract)).thenReturn(rule.noCheckChannel?Optional.empty():Optional
                     .of(channelsContainer));
 
             checkChannel = checkChannelReadings.mockChannel();

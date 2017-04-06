@@ -37,9 +37,14 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -64,7 +69,7 @@ public class MainCheckValidator extends AbstractValidator {
 
     private static final Set<QualityCodeSystem> QUALITY_CODE_SYSTEMS = ImmutableSet.of(QualityCodeSystem.MDM);
     // {0} - period, {1} - name of the validator, {2} - reading type, {3} - failure reason
-    private static final String VALIDATOR_FAILED_MESSAGE_PATTERN = "Failed to validate period {0} using method \"{1}\" on {2} since {3}";
+    private static final String VALIDATOR_FAILED_MESSAGE_PATTERN = "Failed to validate period %s using method \"%s\" on %s since %s";
 
 
     private MetrologyConfigurationService metrologyConfigurationService;
@@ -84,7 +89,13 @@ public class MainCheckValidator extends AbstractValidator {
 
     private Logger logger;
 
+    private String usagePointName;
+
     private ValidationResult preparedValidationResult;
+
+    // not_validated by threshold
+    private List<Instant> notValidatedByThreshold;
+    private Instant lastValidatedReading;
 
     public MainCheckValidator(Thesaurus thesaurus, PropertySpecService propertySpecService, MetrologyConfigurationService metrologyConfigurationService, ValidationService validationService) {
         super(thesaurus, propertySpecService);
@@ -101,17 +112,15 @@ public class MainCheckValidator extends AbstractValidator {
     private String generateFailMessage(String message, Object... args) {
         // FIXME period to string
         // FIXME reading type to string
-        return String.format(VALIDATOR_FAILED_MESSAGE_PATTERN, interval.toString(), TranslationKeys.MAIN_CHECK_VALIDATOR
-                .getDefaultFormat(), readingType
-                .toString(), String.format(message, args));
+        return String.format(VALIDATOR_FAILED_MESSAGE_PATTERN, rangeToString(interval), TranslationKeys.MAIN_CHECK_VALIDATOR
+                .getDefaultFormat(), readingType.getFullAliasName(), String.format(message, args));
     }
 
-    private String generateFailMessage(UsagePoint usagePoint, String message, Object... args) {
+    private String generateFailMessageWithUsagePoint(String message, Object... args) {
         // FIXME period to string
         // FIXME reading type to string
-        return String.format(VALIDATOR_FAILED_MESSAGE_PATTERN, interval.toString(), TranslationKeys.MAIN_CHECK_VALIDATOR
-                .getDefaultFormat(), usagePoint.getName() + "/" + readingType
-                .toString(), String.format(message, args));
+        return String.format(VALIDATOR_FAILED_MESSAGE_PATTERN, rangeToString(interval), TranslationKeys.MAIN_CHECK_VALIDATOR
+                .getDefaultFormat(), usagePointName + "/" + readingType.getFullAliasName(), String.format(message, args));
     }
 
 
@@ -207,6 +216,8 @@ public class MainCheckValidator extends AbstractValidator {
             throw new MissingRequiredProperty(getThesaurus(), USE_VALIDATED_DATA);
         }
 
+        notValidatedByThreshold = new ArrayList<>();
+
         // find 'check' channel and save readings + prepare mapping with readings from 'main' channel
 
         // 2. find 'check' channel
@@ -220,12 +231,14 @@ public class MainCheckValidator extends AbstractValidator {
             return;
         }
 
+        usagePointName = usagePoint.get().getName();
+
         List<EffectiveMetrologyConfigurationOnUsagePoint> effectiveMetrologyConfigurationOnUsagePointList = usagePoint.get()
                 .getEffectiveMetrologyConfigurations(interval);
 
         if (effectiveMetrologyConfigurationOnUsagePointList.size() != 1) {
             LoggingContext.get()
-                    .severe(getLogger(), generateFailMessage("usage point must have one effective metrology configuration, but has {0}", effectiveMetrologyConfigurationOnUsagePointList
+                    .warning(getLogger(), generateFailMessage("usage point must have one effective metrology configuration, but has %s", effectiveMetrologyConfigurationOnUsagePointList
                             .size()));
             preparedValidationResult = ValidationResult.NOT_VALIDATED;
             return;
@@ -244,7 +257,7 @@ public class MainCheckValidator extends AbstractValidator {
         if (!metrologyContract.isPresent()) {
             // [RULE FLOW ACTION] Stop validation for the channel independently from Pass if no reference data field value (last check remains as before the validation), an error message appears in the log
             LoggingContext.get()
-                    .severe(getLogger(), generateFailMessage("the specified purpose doesn't exist on the {0}", usagePoint
+                    .warning(getLogger(), generateFailMessage("the specified purpose doesn't exist on the %s", usagePoint
                             .get()
                             .getName()));
             preparedValidationResult = ValidationResult.NOT_VALIDATED;
@@ -278,11 +291,10 @@ public class MainCheckValidator extends AbstractValidator {
         if (!checkOutputExistOnPurpose) {
             // [RULE FLOW ACTION] Stop validation for the channel independently from Pass if no reference data field value (last check remains as before the validation), an error message appears in the log
             LoggingContext.get()
-                    .severe(getLogger(), generateFailMessage("'check' output with matching reading type on the specified purpose doesn't exist on {0}", usagePoint
+                    .warning(getLogger(), generateFailMessage("'check' output with matching reading type on the specified purpose doesn't exist on %s", usagePoint
                             .get()
                             .getName()));
             preparedValidationResult = ValidationResult.NOT_VALIDATED;
-            return;
         }
     }
 
@@ -296,13 +308,42 @@ public class MainCheckValidator extends AbstractValidator {
 
         IntervalReadingRecord checkIntervalReadingRecord = checkReadingRecords.get(intervalReadingRecord.getTimeStamp());
 
-        return validate(intervalReadingRecord, checkIntervalReadingRecord);
+        ValidationResult validationResult =  validate(intervalReadingRecord, checkIntervalReadingRecord);
+        if (!validationResult.equals(ValidationResult.NOT_VALIDATED)){
+            // remember last validated reading
+            lastValidatedReading = intervalReadingRecord.getTimeStamp();
+        }
+        return validationResult;
+    }
+
+    //  "Wed, 15 Feb 2017 00:00 until Thu, 16 Feb 2017 00:00"
+    private String rangeToString(Range<Instant> range){
+
+        DateFormat df = new SimpleDateFormat("E, FF MMM yyyy hh:mm", Locale.US);
+
+        Instant lowerBound = null;
+        if (range.hasLowerBound()){
+            lowerBound = range.lowerEndpoint();
+        }
+
+        Instant upperBound = null;
+        if (range.hasUpperBound()){
+            upperBound= range.upperEndpoint();
+        }
+
+        String lower = lowerBound!=null?df.format(new Date(lowerBound.toEpochMilli())):"-\"\\u221E\\t\"";
+        String upper = upperBound!=null?df.format(new Date(upperBound.toEpochMilli())):"+\"\\u221E\\t\"";
+        return "\"" + lower + " until "+upper+"\"";
     }
 
     private ValidationResult validate(IntervalReadingRecord mainReading, IntervalReadingRecord checkReading) {
 
         // [RULE CHECK] If no data is available on the check channel:
         if (checkReading == null) {
+            // show log
+            LoggingContext.get()
+                    .warning(getLogger(), generateFailMessageWithUsagePoint("data from 'check' output is missing or not validated"));
+
             if (passIfNoRefData) {
                 // [RULE ACTION] No further checks are done to the interval (marked as valid) and the rule moves to the next interval if Pass if no reference data is checked
                 return ValidationResult.VALID;
@@ -316,24 +357,32 @@ public class MainCheckValidator extends AbstractValidator {
         // [RULE FLOW CHECK] Data is available on check output but not validated:
         ValidationResult checkReadingValidationResult = Optional.ofNullable(checkReadingRecordValidations.get(checkReading
                 .getTimeStamp())).orElse(ValidationResult.NOT_VALIDATED);
-        if (checkReadingValidationResult == ValidationResult.NOT_VALIDATED) {
+        if (checkReadingValidationResult != ValidationResult.VALID) {
+            // show log
+            LoggingContext.get()
+                    .warning(getLogger(), generateFailMessageWithUsagePoint("data from 'check' output is missing or not validated"));
             if (useValidatedData) {
                 // [RULE ACTION] Stop the validation at the timestamp where the timestamp with the last validated reference data was found for the channel if Use validated data is checked
                 preparedValidationResult = ValidationResult.NOT_VALIDATED;
                 return ValidationResult.NOT_VALIDATED;
-            } else {
+            }   // else:
                 // [RULE ACTION] Continue validation if Use validated data is unchecked
                 // So, next checks will be applied
-            }
+
         }
 
         BigDecimal mainValue = mainReading.getValue();
         BigDecimal checkValue = checkReading.getValue();
 
         if (!minThreshold.isNone) {
+
+            // if both main and check values less than min threshold, mark this reading as NOT_VALIDATED*by threshold
+            // at the end, if there is a validated reading (valid or suspected) followed by any NOT_VALIDATED*by threshold - mark all NOT_VALIDATED*by threshold as valid
+
+
             if (mainValue.compareTo(minThreshold.value) <= 0 && checkValue.compareTo(minThreshold.value) <= 0) {
                 // [RULE FLOW ACTION] the check for the interval is skipped and the validation moves to the next interval.
-                preparedValidationResult = ValidationResult.NOT_VALIDATED;
+                notValidatedByThreshold.add(mainReading.getTimeStamp());
                 return ValidationResult.NOT_VALIDATED;
             }
         }
@@ -343,7 +392,7 @@ public class MainCheckValidator extends AbstractValidator {
         if (maxAbsoluteDifference instanceof TwoValuesAbsoluteDifference) {
             differenceValue = ((TwoValuesAbsoluteDifference) maxAbsoluteDifference).value;
         } else if (maxAbsoluteDifference instanceof TwoValuesPercentDifference) {
-            differenceValue = mainValue.multiply(BigDecimal.valueOf(((TwoValuesPercentDifference) maxAbsoluteDifference).percent));
+            differenceValue = mainValue.multiply(BigDecimal.valueOf(((TwoValuesPercentDifference) maxAbsoluteDifference).percent*0.01D));
         } else {
             return ValidationResult.NOT_VALIDATED;
         }
@@ -360,6 +409,16 @@ public class MainCheckValidator extends AbstractValidator {
         // this validator is not planned to be applied for registers
         // So, this method has no logic
         return ValidationResult.NOT_VALIDATED;
+    }
+
+    @Override
+    public Map<Instant, ValidationResult> finish() {
+        // check NOT_VALIDATED*by threshold readings.
+
+        // mark all NOT_VALIDATED*by threshold readings as VALID if they happened before lastValidatedReading
+
+       return notValidatedByThreshold.stream().filter((c -> c.compareTo(lastValidatedReading) < 0)).collect(Collectors.toMap(Function.identity(),c -> ValidationResult.VALID));
+
     }
 
     @Override
