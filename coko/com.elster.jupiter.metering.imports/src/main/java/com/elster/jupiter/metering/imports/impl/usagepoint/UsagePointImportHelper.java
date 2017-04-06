@@ -125,6 +125,7 @@ public class UsagePointImportHelper implements OutOfTheBoxCategoryForImport.Serv
     public UsagePoint updateUsagePointForMultiSense(UsagePoint usagePoint, UsagePointImportRecord data) {
         updateLocation(usagePoint, data);
         usagePoint.update();
+        this.addCalendars(data, usagePoint);
         return usagePoint;
     }
 
@@ -135,11 +136,19 @@ public class UsagePointImportHelper implements OutOfTheBoxCategoryForImport.Serv
         usagePoint.setServicePriority(data.getServicePriority());
         usagePoint.setServiceDeliveryRemark(data.getServiceDeliveryRemark());
         usagePoint.update();
+        this.addCalendars(data, usagePoint);
         return usagePoint;
     }
 
     private LocationBuilder.LocationMemberBuilder setLocationAttributes(LocationBuilder.LocationMemberBuilder builder, UsagePointImportRecord data, Map<String, Integer> ranking) {
         List<String> location = data.getLocation();
+        String locale;
+        if (   data.getLocation().get(ranking.get("locale")) == null
+            || "".equals(data.getLocation().get(ranking.get("locale")))) {
+            locale = "en";
+        } else {
+            locale = data.getLocation().get(ranking.get("locale"));
+        }
         builder.setCountryCode(location.get(ranking.get("countryCode")))
                 .setCountryName(location.get(ranking.get("countryName")))
                 .setAdministrativeArea(location.get(ranking.get("administrativeArea")))
@@ -154,9 +163,7 @@ public class UsagePointImportHelper implements OutOfTheBoxCategoryForImport.Serv
                 .setAddressDetail(location.get(ranking.get("addressDetail")))
                 .setZipCode(location.get(ranking.get("zipCode")))
                 .isDaultLocation(true)
-                .setLocale(data.getLocation().get(ranking.get("locale")) == null || data.getLocation()
-                        .get(ranking.get("locale"))
-                        .equals("") ? "en" : data.getLocation().get(ranking.get("locale")));
+                .setLocale(locale);
         return builder;
     }
 

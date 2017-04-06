@@ -109,8 +109,7 @@ public class UsagePointsImportProcessor extends AbstractImportProcessor<UsagePoi
             }
         } else {
             if (data.isAllowUpdate()) {
-                throw new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_NOT_FOUND, data.getLineNumber(), data.getUsagePointIdentifier()
-                        .get());
+                throw new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_NOT_FOUND, data.getLineNumber(), data.getUsagePointIdentifier().get());
             }
             UsagePoint dummyUsagePoint = serviceCategory.newUsagePoint(identifier, data.getInstallationTime()
                     .orElse(getClock().instant())).validate();
@@ -142,8 +141,11 @@ public class UsagePointsImportProcessor extends AbstractImportProcessor<UsagePoi
                     .get();
             return usagePointImportHelper.updateUsagePointForInsight(usagePoint, data);
         } else {
-            return usagePointImportHelper.createUsagePointForInsight(serviceCategory.get().newUsagePoint(identifier,
-                    data.getInstallationTime().orElse(getContext().getClock().instant())), data);
+            return usagePointImportHelper.createUsagePointForInsight(
+                    serviceCategory.get().newUsagePoint(
+                            identifier,
+                            data.getInstallationTime().orElse(getContext().getClock().instant())),
+                    data);
         }
     }
 
@@ -354,9 +356,7 @@ public class UsagePointsImportProcessor extends AbstractImportProcessor<UsagePoi
 
     private void validateUsagePointTransitionValues(UsagePoint usagePoint, UsagePointImportRecord data) {
         if (data.getTransition().isPresent()) {
-            Optional<UsagePointTransition> optionalTransition = getOptionalTransition(usagePoint.getState(), data.getTransition()
-                    .get());
-
+            Optional<UsagePointTransition> optionalTransition = getOptionalTransition(usagePoint.getState(), data.getTransition().get());
             if (!optionalTransition.isPresent()) {
                 throw new ProcessorException(MessageSeeds.NO_SUCH_TRANSITION_FOUND, data.getTransition().get());
             }
@@ -388,11 +388,13 @@ public class UsagePointsImportProcessor extends AbstractImportProcessor<UsagePoi
         for (UsagePointPropertySet propertySet : usagePoint.forCustomProperties().getAllPropertySets()) {
             if (customPropertySetValues.containsKey(propertySet.getCustomPropertySet().getId())) {
                 if (propertySet instanceof UsagePointVersionedPropertySet) {
-                    validateCreateOrUpdateVersionedSet((UsagePointVersionedPropertySet) propertySet, customPropertySetValues
-                            .get(propertySet.getCustomPropertySet().getId()));
+                    validateCreateOrUpdateVersionedSet(
+                            (UsagePointVersionedPropertySet) propertySet,
+                            customPropertySetValues.get(propertySet.getCustomPropertySet().getId()));
                 } else {
-                    validateCreateOrUpdateNonVersionedSet(propertySet, customPropertySetValues.get(propertySet.getCustomPropertySet()
-                            .getId()));
+                    validateCreateOrUpdateNonVersionedSet(
+                            propertySet,
+                            customPropertySetValues.get(propertySet.getCustomPropertySet().getId()));
                 }
             }
         }
@@ -400,8 +402,7 @@ public class UsagePointsImportProcessor extends AbstractImportProcessor<UsagePoi
 
     private void validateCreateOrUpdateVersionedSet(UsagePointVersionedPropertySet usagePointCustomPropertySet, CustomPropertySetRecord customPropertySetRecord) {
         if (customPropertySetRecord.getVersionId().isPresent()) {
-            CustomPropertySetValues values = usagePointCustomPropertySet.getVersionValues(customPropertySetRecord.getVersionId()
-                    .get());
+            CustomPropertySetValues values = usagePointCustomPropertySet.getVersionValues(customPropertySetRecord.getVersionId().get());
             if (values != null) {
                 usagePointCustomPropertySet.getCustomPropertySet()
                         .getPropertySpecs()
