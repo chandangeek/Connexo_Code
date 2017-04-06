@@ -131,5 +131,6 @@ public class UsagePointLifeCycleStateResourceTest extends PlatformPublicApiJerse
 
         // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        verify(usagePointLifeCycleService).performTransition(usagePoint, usagePointTransition, "INS", Collections.emptyMap());
     }
 }

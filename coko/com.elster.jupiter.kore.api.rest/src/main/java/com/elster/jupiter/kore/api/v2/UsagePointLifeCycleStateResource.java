@@ -52,6 +52,8 @@ public class UsagePointLifeCycleStateResource {
     }
 
     /**
+     * Usage point state is the current status in the device life cycle of an usage point.
+     * The state defines what you can see on the usage point, which actions the usage point can execute and what you can do on the usage point.
      * @param id Unique identifier of the usage point life cycle state
      * @param uriInfo uriInfo
      * @param fieldSelection field selection
@@ -70,6 +72,8 @@ public class UsagePointLifeCycleStateResource {
 
 
     /**
+     * Usage point state is the current status in the device life cycle of an usage point.
+     * The state defines what you can see on the usage point, which actions the usage point can execute and what you can do on the usage point.
      * @param uriInfo uriInfo
      * @param fieldSelection field selection
      * @param queryParameters queryParameters
@@ -93,6 +97,8 @@ public class UsagePointLifeCycleStateResource {
     }
 
     /**
+     * Usage point life cycle transition is the action where a usage point goes when one state to another in a usage point life cycle.
+     * This transition is linked with pretransition checks and auto-actions.
      * @param usagePointMrid unique identifier of usage point
      * @param info UsagePointTransitionInfo
      * @summary Perform life cycle transition on the usage point

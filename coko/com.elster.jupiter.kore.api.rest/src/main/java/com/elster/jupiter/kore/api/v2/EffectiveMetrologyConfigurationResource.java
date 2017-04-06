@@ -19,6 +19,7 @@ import com.elster.jupiter.rest.util.Transactional;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -105,7 +106,7 @@ public class EffectiveMetrologyConfigurationResource {
     }
 
     /**
-     * A metrology configuration is a definition of what is going to be measured. Through a metrology configuration the
+     * A metrology configuration is a definition of what is going to be measured. Through a metrology configuration a
      * contract is made between a requirement and a deliverable
      *
      * @param mRID Unique identifier of the usage point
@@ -114,6 +115,7 @@ public class EffectiveMetrologyConfigurationResource {
      */
     @POST
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     @Transactional
     public Response createEffectiveMetrologyConfiguration(@PathParam("mRID") String mRID, EffectiveMetrologyConfigurationInfo info, @Context UriInfo uriInfo) {
@@ -132,7 +134,7 @@ public class EffectiveMetrologyConfigurationResource {
     }
 
     /**
-     * A metrology configuration is a definition of what is going to be measured. Through a metrology configuration the
+     * A metrology configuration is a definition of what is going to be measured. Through a metrology configuration a
      * contract is made between a requirement and a deliverable
      *
      * @param mRID Unique identifier of the usage point
@@ -143,6 +145,7 @@ public class EffectiveMetrologyConfigurationResource {
     @PUT
     @Path("/{timestamp}")
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     @Transactional
     public Response editEffectiveMetrologyConfiguration(@PathParam("mRID") String mRID, @PathParam("timestamp") long timestamp, EffectiveMetrologyConfigurationInfo info, @Context UriInfo uriInfo) {

@@ -11,5 +11,5 @@ import java.time.Instant;
 public class UsagePointTransitionInfo extends LinkInfo<Long> {
     public String name;
     public Instant effectiveTimestamp;
-    public boolean transitionNow = true;
+    public Boolean transitionNow = true;
 }

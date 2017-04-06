@@ -103,7 +103,7 @@ public class EffectiveMetrologyConfigurationInfoFactory extends SelectableFieldF
                 .get()
                 .asLink(metrology.getUsagePoint(), Relation.REF_RELATION, uriInfo));
         map.put("interval", (metrologyInfo, metrology, uriInfo) -> metrologyInfo.interval = IntervalInfo
-                .from(metrology.getInterval().toOpenRange()));
+                .from(metrology.getRange()));
         map.put("purposes", (metrologyInfo, metrology, uriInfo) -> metrologyInfo.purposes = metrology.getMetrologyConfiguration()
                 .getContracts().stream().map(c -> metrologyConfigurationPurposeInfoFactory.get().asInfo(
                         c.getId(),

@@ -53,7 +53,7 @@ public class EffectiveMetrologyConfigurationResourceTest extends PlatformPublicA
         when(effectiveMetrologyConfiguration.getRange()).thenReturn(Range.atLeast(Instant.ofEpochMilli(1468933329000L)));
         when(effectiveMetrologyConfiguration.getInterval()).thenReturn(Interval.of(Range.atLeast(Instant.ofEpochMilli(1468933329000L))));
         when(usagePoint.getEffectiveMetrologyConfiguration(any(Instant.class))).thenReturn(Optional.of(effectiveMetrologyConfiguration));
-        when(meteringService.findAndLockUsagePointByIdAndVersion(41,1)).thenReturn(Optional.of(usagePoint));
+
     }
 
     @Test

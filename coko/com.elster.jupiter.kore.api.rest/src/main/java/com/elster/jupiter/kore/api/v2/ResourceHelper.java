@@ -88,7 +88,7 @@ public class ResourceHelper {
 
     public UsagePointTransition getTransitionByIdOrThrowException(long id) {
         return this.usagePointLifeCycleConfigurationService.findUsagePointTransition(id)
-                .orElseThrow(() -> this.exceptionFactory.newException(MessageSeeds.NO_SUCH_LIFE_CYCLE_TRANSITION, id));
+                .orElseThrow(this.exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_LIFE_CYCLE_TRANSITION, id));
     }
 
     public void applyMetrologyConfigurationToUsagePoint(UsagePoint usagePoint, EffectiveMetrologyConfigurationInfo info) {
