@@ -977,7 +977,9 @@ public class UsagePointResource {
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
         List<HistoricalMeterActivationInfo> meterActivationInfoList = usagePoint.getMeterActivations().stream()
                 .map(ma -> historicalMeterActivationInfoFactory.from(ma, usagePoint, auth))
-                .sorted(Comparator.comparing((HistoricalMeterActivationInfo info) -> info.start).reversed().thenComparing(info -> info.meterRole).thenComparing(info -> info.meter))
+                .sorted(Comparator.comparing((HistoricalMeterActivationInfo info) -> !info.current)
+                        .thenComparing((HistoricalMeterActivationInfo info) -> info.start).reversed()
+                        .thenComparing(info -> info.meterRole).thenComparing(info -> info.meter))
                 .collect(Collectors.toList());
         return PagedInfoList.fromCompleteList("meters", meterActivationInfoList, queryParameters);
     }
