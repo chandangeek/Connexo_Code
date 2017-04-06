@@ -87,8 +87,12 @@ Ext.define('Imt.purpose.view.ReadingsList', {
                 dataIndex: 'reportedDateTime',
                 flex: 1,
                 renderer: function(value){
-                    var date = new Date(value);
-                    return Uni.I18n.translate('general.dateAtTime', 'IMT', '{0} at {1}', [Uni.DateTime.formatDateShort(date), Uni.DateTime.formatTimeShort(date)])
+                    if(value) {
+                        var date = new Date(value);
+                        return Uni.I18n.translate('general.dateAtTime', 'IMT', '{0} at {1}', [Uni.DateTime.formatDateShort(date), Uni.DateTime.formatTimeShort(date)])
+                    } else {
+                        return '-';
+                    }
                 }
             },
             {
