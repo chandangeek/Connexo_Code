@@ -6,6 +6,7 @@ package com.elster.jupiter.estimation.rest.impl;
 
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.estimation.EstimationPropertyDefinitionLevel;
 import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.EstimationRuleBuilder;
 import com.elster.jupiter.estimation.EstimationRuleSet;
@@ -311,7 +312,7 @@ public class EstimationResource {
             List<String> mRIDs = info.readingTypes.stream().map(readingTypeInfo -> readingTypeInfo.mRID).collect(Collectors.toList());
             Map<String, Object> propertyMap = new HashMap<>();
             try {
-                for (PropertySpec propertySpec : rule.getPropertySpecs()) {
+                for (PropertySpec propertySpec : rule.getPropertySpecs(EstimationPropertyDefinitionLevel.ESTIMATION_RULE)) {
                     Object value = propertyValueInfoService.findPropertyValue(propertySpec, info.properties);
                     propertyMap.put(propertySpec.getName(), value);
                 }

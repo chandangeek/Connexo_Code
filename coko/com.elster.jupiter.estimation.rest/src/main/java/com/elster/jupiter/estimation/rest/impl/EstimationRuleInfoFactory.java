@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.estimation.rest.impl;
 
+import com.elster.jupiter.estimation.EstimationPropertyDefinitionLevel;
 import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
@@ -35,7 +36,7 @@ public class EstimationRuleInfoFactory {
         estimationRuleInfo.deleted = estimationRule.isObsolete();
         EstimationRuleSet ruleSet = estimationRule.getRuleSet();
         estimationRuleInfo.ruleSet = new EstimationRuleSetInfo(ruleSet);
-        estimationRuleInfo.properties = propertyValueInfoService.getPropertyInfos(estimationRule.getPropertySpecs(), estimationRule.getProps());
+        estimationRuleInfo.properties = propertyValueInfoService.getPropertyInfos(estimationRule.getPropertySpecs(EstimationPropertyDefinitionLevel.ESTIMATION_RULE), estimationRule.getProps());
         estimationRuleInfo.readingTypes.addAll(estimationRule.getReadingTypes().stream().map(readingTypeInfoFactory::from).collect(Collectors.toList()));
         estimationRuleInfo.version = estimationRule.getVersion();
         estimationRuleInfo.parent.id = ruleSet.getId();
