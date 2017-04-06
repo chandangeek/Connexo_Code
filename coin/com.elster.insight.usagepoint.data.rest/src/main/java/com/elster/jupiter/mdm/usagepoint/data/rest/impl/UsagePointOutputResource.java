@@ -264,7 +264,7 @@ public class UsagePointOutputResource {
                                 validationStatusFactory.getLastCheckedForChannels(evaluator, channelsContainer, Collections.singletonList(channel)));
 
                         Map<Instant, ChannelReadingWithValidationStatus> preFilledChannelDataMap = channel.toList(effectiveInterval).stream()
-                                .collect(Collectors.toMap(Function.identity(), readingWithValidationStatusFactory::createChannelReading));
+                                .collect(Collectors.toMap(Function.identity(), readingWithValidationStatusFactory::createChannelReading, (r1, r2) -> r1, TreeMap::new));
 
                         // add readings to pre filled channel data map
                         List<IntervalReadingRecord> calculatedReadings = channel.getCalculatedIntervalReadings(effectiveInterval);
@@ -285,7 +285,9 @@ public class UsagePointOutputResource {
                                 evaluator.getValidationStatus(
                                         EnumSet.of(QualityCodeSystem.MDM),
                                         channel,
-                                        Stream.concat(persistedReadings.values().stream(), calculatedReadings.stream())
+                                        preFilledChannelDataMap.values().stream()
+                                                .map(ChannelReadingWithValidationStatus::getReading)
+                                                .flatMap(Functions.asStream())
                                                 .collect(Collectors.toList()),
                                         effectiveInterval);
                         for (DataValidationStatus dataValidationStatus : dataValidationStatuses) {
