@@ -277,6 +277,7 @@ public class CalendarImpl implements ServerCalendar {
                 .filter(exceptionalOccurrence -> exceptionalOccurrence.getId() == 0)
                 .filterSubType(ExceptionalOccurrenceImpl.class)
                 .forEach(ExceptionalOccurrenceImpl::save);
+        this.regenerateCachedTimeSeries();
         eventService.postEvent(EventType.CALENDAR_UPDATE.topic(), this);
     }
 
