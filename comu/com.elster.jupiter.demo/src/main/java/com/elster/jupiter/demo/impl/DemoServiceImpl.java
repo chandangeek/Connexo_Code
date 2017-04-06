@@ -61,6 +61,8 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.kpi.DataValidationKpiService;
+import com.energyict.mdc.device.command.CommandRule;
+import com.energyict.mdc.device.command.CommandRuleService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
@@ -173,6 +175,7 @@ public class DemoServiceImpl {
     private volatile CalendarService calendarService;
     private volatile com.elster.jupiter.tasks.TaskService platformTaskService;
     private volatile DataValidationKpiService dataValidationKpiService;
+    private volatile CommandRuleService commandRuleService;
 
     private Injector injector;
     private boolean reThrowEx = false;
@@ -223,7 +226,8 @@ public class DemoServiceImpl {
             DeviceMessageSpecificationService deviceMessageSpecificationService,
             CalendarService calendarService,
             com.elster.jupiter.tasks.TaskService platformTaskService,
-            DataValidationKpiService dataValidationKpiService) {
+            DataValidationKpiService dataValidationKpiService,
+            CommandRuleService commandRuleService) {
         this();
         setEngineConfigurationService(engineConfigurationService);
         setUserService(userService);
@@ -268,6 +272,7 @@ public class DemoServiceImpl {
         setPlatformTaskService(platformTaskService);
         setDataCollectionKpiService(dataCollectionKpiService);
         setDataValidationKpiService(dataValidationKpiService);
+        setCommandRuleService(commandRuleService);
         activate();
         reThrowEx = true;
     }
@@ -323,6 +328,7 @@ public class DemoServiceImpl {
                 bind(CalendarService.class).toInstance(calendarService);
                 bind(com.elster.jupiter.tasks.TaskService.class).toInstance(platformTaskService);
                 bind(DataValidationKpiService.class).toInstance(dataValidationKpiService);
+                bind(CommandRuleService.class).toInstance(commandRuleService);
             }
         });
         Builders.initWith(this.injector);
@@ -580,6 +586,11 @@ public class DemoServiceImpl {
     @SuppressWarnings("unused")
     public void setDataValidationKpiService(DataValidationKpiService dataValidationKpiService) {
         this.dataValidationKpiService = dataValidationKpiService;
+    }
+
+    @Reference
+    public void setCommandRuleService(CommandRuleService commandRuleService) {
+        this.commandRuleService = commandRuleService;
     }
 
     private void executeTransaction(Runnable toRunInsideTransaction) {
@@ -988,4 +999,6 @@ public class DemoServiceImpl {
             command.run();
         });
     }
+
+
 }

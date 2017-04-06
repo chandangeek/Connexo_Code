@@ -18,6 +18,7 @@ public enum UserTpl implements Template<User, UserBuilder> {
     UDO("Udo", Locale.ENGLISH.toLanguageTag(), UserRoles.USER_ADMINISTRATOR),
     DON("Udo", Locale.ENGLISH.toLanguageTag(), UserRoles.DUAL_CONTROL_ADMINISTRATOR),
     CASANDRA("Casandra", Locale.ENGLISH.toLanguageTag(), UserRoles.COMMAND_LIMITATION_RULE_APPROVER),
+    GOVANNI("Govanni", Locale.ENGLISH.toLanguageTag(), UserRoles.COMMAND_LIMITATION_RULE_APPROVER),
     RONNY("Ronny", Locale.ENGLISH.toLanguageTag(), UserRoles.REPORT_DESIGNER),
     FELICE("Félice", Locale.ENGLISH.toLanguageTag(), UserRoles.BUSINESS_PROCESS_DESIGNER),
     THOMAS("Thomas", Locale.ENGLISH.toLanguageTag(), UserRoles.ADMINISTRATORS),

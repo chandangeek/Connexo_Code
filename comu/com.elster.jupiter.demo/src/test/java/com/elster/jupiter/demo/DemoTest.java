@@ -25,6 +25,7 @@ import com.elster.jupiter.demo.impl.templates.OutboundTCPComPortPoolTpl;
 import com.elster.jupiter.demo.impl.templates.RegisterTypeTpl;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
+import com.elster.jupiter.dualcontrol.impl.DualControlModule;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.estimation.impl.EstimationModule;
 import com.elster.jupiter.estimation.impl.EstimationServiceImpl;
@@ -97,6 +98,7 @@ import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.alarms.impl.DeviceAlarmModule;
 import com.energyict.mdc.device.alarms.impl.templates.AbstractDeviceAlarmTemplate;
 import com.energyict.mdc.device.alarms.impl.templates.BasicDeviceAlarmRuleTemplate;
+import com.energyict.mdc.device.command.impl.CommandRuleModule;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -394,7 +396,9 @@ public class DemoTest {
                 new DemoModule(),
                 new CalendarModule(),
                 new PropertyValueInfoServiceModule(),
-                new DeviceAlarmModule()
+                new DeviceAlarmModule(),
+                new CommandRuleModule(),
+                new DualControlModule()
         );
         doPreparations();
     }

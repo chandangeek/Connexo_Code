@@ -16,6 +16,7 @@ import com.elster.jupiter.demo.impl.templates.CalendarTpl;
 import com.elster.jupiter.demo.impl.templates.ComScheduleTpl;
 import com.elster.jupiter.demo.impl.templates.ComServerTpl;
 import com.elster.jupiter.demo.impl.templates.ComTaskTpl;
+import com.elster.jupiter.demo.impl.templates.CommandRuleTpl;
 import com.elster.jupiter.demo.impl.templates.CreationRuleTpl;
 import com.elster.jupiter.demo.impl.templates.DataCollectionKpiTpl;
 import com.elster.jupiter.demo.impl.templates.DataValidationKpiTpl;
@@ -119,6 +120,7 @@ public class CreateCollectRemoteDataSetupCommand extends CommandWithTransaction 
             createComTasks();
             createComSchedules();
             createCalendars();
+            createCommandLimitation();
         });
         executeTransaction(this::createMetrologyConfigurations);
         createDeviceStructure();
@@ -222,6 +224,10 @@ public class CreateCollectRemoteDataSetupCommand extends CommandWithTransaction 
 
     private void createCalendars() {
         Stream.of(CalendarTpl.values()).forEach(tpl -> Builders.from(tpl).get());
+    }
+
+    private void createCommandLimitation(){
+        Stream.of(CommandRuleTpl.values()).forEach(tpl -> Builders.from(tpl).get());
     }
 
     private void createMetrologyConfigurations() {
