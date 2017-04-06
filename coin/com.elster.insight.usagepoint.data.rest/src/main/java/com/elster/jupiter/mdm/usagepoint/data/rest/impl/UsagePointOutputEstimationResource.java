@@ -148,7 +148,7 @@ public class UsagePointOutputEstimationResource {
         UsagePointEstimation usagePointEstimation = usagePointDataModelService.forEstimation(usagePoint);
         ChannelEstimationRuleOverriddenProperties channelEstimationRule = usagePointEstimation
                 .findAndLockChannelEstimationRuleOverriddenProperties(channelEstimationRuleInfo.id, channelEstimationRuleInfo.version)
-                .orElseThrow(concurrentModificationExceptionFactory.contextDependentConflictOn(channelEstimationRuleInfo.name)
+                .orElseThrow(concurrentModificationExceptionFactory.contextDependentConflictOn(estimationRule.getDisplayName())
                         .withActualVersion(getActualVersionOfChannelEstimationRule(usagePointEstimation, estimationRule, readingType)).supplier());
 
         Map<String, Object> overriddenProperties = estimationRule.getPropertySpecs(EstimationPropertyDefinitionLevel.TARGET_OBJECT)
@@ -181,7 +181,7 @@ public class UsagePointOutputEstimationResource {
         UsagePointEstimation usagePointEstimation = usagePointDataModelService.forEstimation(usagePoint);
         ChannelEstimationRuleOverriddenProperties channelEstimationRule = usagePointEstimation
                 .findAndLockChannelEstimationRuleOverriddenProperties(channelEstimationRuleInfo.id, channelEstimationRuleInfo.version)
-                .orElseThrow(concurrentModificationExceptionFactory.contextDependentConflictOn(channelEstimationRuleInfo.name)
+                .orElseThrow(concurrentModificationExceptionFactory.contextDependentConflictOn(estimationRule.getDisplayName())
                         .withActualVersion(getActualVersionOfChannelEstimationRule(usagePointEstimation, estimationRule, readingType)).supplier());
         channelEstimationRule.delete();
         return Response.noContent().build();

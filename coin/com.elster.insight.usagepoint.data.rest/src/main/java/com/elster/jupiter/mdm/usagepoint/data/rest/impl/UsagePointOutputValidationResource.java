@@ -149,7 +149,7 @@ public class UsagePointOutputValidationResource {
         UsagePointValidation usagePointValidation = usagePointDataModelService.forValidation(usagePoint);
         ChannelValidationRuleOverriddenProperties channelValidationRule = usagePointValidation
                 .findAndLockChannelValidationRuleOverriddenProperties(channelValidationRuleInfo.id, channelValidationRuleInfo.version)
-                .orElseThrow(concurrentModificationExceptionFactory.contextDependentConflictOn(channelValidationRuleInfo.name)
+                .orElseThrow(concurrentModificationExceptionFactory.contextDependentConflictOn(validationRule.getDisplayName())
                         .withActualVersion(getActualVersionOfChannelValidationRule(usagePointValidation, validationRule, readingType)).supplier());
 
         Map<String, Object> overriddenProperties = validationRule.getPropertySpecs(ValidationPropertyDefinitionLevel.TARGET_OBJECT)
@@ -182,7 +182,7 @@ public class UsagePointOutputValidationResource {
         UsagePointValidation usagePointValidation = usagePointDataModelService.forValidation(usagePoint);
         ChannelValidationRuleOverriddenProperties channelValidationRule = usagePointValidation
                 .findAndLockChannelValidationRuleOverriddenProperties(channelValidationRuleInfo.id, channelValidationRuleInfo.version)
-                .orElseThrow(concurrentModificationExceptionFactory.contextDependentConflictOn(channelValidationRuleInfo.name)
+                .orElseThrow(concurrentModificationExceptionFactory.contextDependentConflictOn(validationRule.getDisplayName())
                         .withActualVersion(getActualVersionOfChannelValidationRule(usagePointValidation, validationRule, readingType)).supplier());
         channelValidationRule.delete();
         return Response.noContent().build();
