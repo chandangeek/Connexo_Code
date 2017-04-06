@@ -10,6 +10,7 @@ import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
+import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.estimation.impl.EstimationModule;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
@@ -167,6 +168,10 @@ public class UsagePointDataInMemoryBootstrapModule {
 
     public ValidationService getValidationService() {
         return injector.getInstance(ValidationService.class);
+    }
+
+    public EstimationService getEstimationService() {
+        return injector.getInstance(EstimationService.class);
     }
 
     private static class MockModule extends AbstractModule {

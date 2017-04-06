@@ -30,7 +30,7 @@ abstract class HasRequiredPropertiesValidator<T extends ValidationEstimationRule
         boolean isValid = true;
         for (PropertySpec propertySpec : canBeOverriddenProperties) {
             if (propertySpec.isRequired() && !propertiesFromLowerLevels.containsKey(propertySpec.getName()) && !properties.containsKey(propertySpec.getName())) {
-                context.buildConstraintViolationWithTemplate("{" + MessageSeeds.FIELD_IS_REQUIRED + "}")
+                context.buildConstraintViolationWithTemplate("{" + MessageSeeds.FIELD_IS_REQUIRED.getKey() + "}")
                         .addPropertyNode("properties")
                         .addPropertyNode(propertySpec.getName())
                         .addConstraintViolation()

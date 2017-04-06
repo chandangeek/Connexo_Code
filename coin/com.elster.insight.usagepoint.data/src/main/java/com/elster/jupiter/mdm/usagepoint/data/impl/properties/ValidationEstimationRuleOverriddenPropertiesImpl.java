@@ -79,7 +79,6 @@ public abstract class ValidationEstimationRuleOverriddenPropertiesImpl {
     private String ruleImpl;
 
     @Valid
-    @Size(min = 1, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     private List<ValidationEstimationOverriddenPropertyImpl> properties = new ArrayList<>();
 
     private final DataModel dataModel;
@@ -144,10 +143,10 @@ public abstract class ValidationEstimationRuleOverriddenPropertiesImpl {
     }
 
     public void update() {
+        validate();
         if (this.properties.isEmpty()) {
             delete();// no need to keep entity in database if no properties overridden
         } else {
-            validateProperties(getProperties());
             Save.UPDATE.save(dataModel, this);
         }
     }
@@ -157,8 +156,13 @@ public abstract class ValidationEstimationRuleOverriddenPropertiesImpl {
     }
 
     public void save() {
-        validateProperties(getProperties());
+        validate();
         Save.CREATE.save(dataModel, this);
+    }
+
+    public void validate() {
+        Save.CREATE.validate(dataModel, this);
+        validateProperties(getProperties());
     }
 
     @Override

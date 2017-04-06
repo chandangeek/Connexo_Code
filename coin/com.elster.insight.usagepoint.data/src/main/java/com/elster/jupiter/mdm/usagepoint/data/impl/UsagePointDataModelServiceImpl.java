@@ -5,6 +5,7 @@
 package com.elster.jupiter.mdm.usagepoint.data.impl;
 
 import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.mdm.usagepoint.data.ChannelDataCompletionSummaryFlag;
 import com.elster.jupiter.mdm.usagepoint.data.ChannelDataCompletionSummaryType;
@@ -71,6 +72,7 @@ public class UsagePointDataModelServiceImpl implements UsagePointDataModelServic
     private volatile CustomPropertySetService customPropertySetService;
     private volatile MeteringService meteringService;
     private volatile ValidationService validationService;
+    private volatile EstimationService estimationService;
     private volatile UsagePointConfigurationService usagePointConfigurationService;
     private volatile UpgradeService upgradeService;
     private volatile MessageService messageService;
@@ -92,6 +94,7 @@ public class UsagePointDataModelServiceImpl implements UsagePointDataModelServic
                                           Clock clock,
                                           MeteringService meteringService,
                                           ValidationService validationService,
+                                          EstimationService estimationService,
                                           NlsService nlsService,
                                           CustomPropertySetService customPropertySetService,
                                           UsagePointConfigurationService usagePointConfigurationService,
@@ -103,6 +106,7 @@ public class UsagePointDataModelServiceImpl implements UsagePointDataModelServic
         setClock(clock);
         setMeteringService(meteringService);
         setValidationService(validationService);
+        setEstimationService(estimationService);
         setNlsService(nlsService);
         setCustomPropertySetService(customPropertySetService);
         setUsagePointConfigurationService(usagePointConfigurationService);
@@ -128,6 +132,7 @@ public class UsagePointDataModelServiceImpl implements UsagePointDataModelServic
                 bind(FavoritesService.class).toInstance(favoritesService);
                 bind(MeteringService.class).toInstance(meteringService);
                 bind(ValidationService.class).toInstance(validationService);
+                bind(EstimationService.class).toInstance(estimationService);
                 bind(UpgradeService.class).toInstance(upgradeService);
                 bind(UserService.class).toInstance(userService);
                 bind(UsagePointConfigurationService.class).toInstance(usagePointConfigurationService);
@@ -198,6 +203,11 @@ public class UsagePointDataModelServiceImpl implements UsagePointDataModelServic
     @Reference
     public void setValidationService(ValidationService validationService) {
         this.validationService = validationService;
+    }
+
+    @Reference
+    public void setEstimationService(EstimationService estimationService) {
+        this.estimationService = estimationService;
     }
 
     @Reference

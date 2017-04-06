@@ -97,11 +97,12 @@ class UsagePointEstimationImpl implements UsagePointEstimation {
 
         @Override
         public ChannelEstimationRuleOverriddenProperties complete() {
+            ChannelEstimationRuleOverriddenPropertiesImpl overriddenProperties = createChannelEstimationRuleOverriddenProperties();
+            overriddenProperties.setProperties(this.properties);
+            overriddenProperties.validate();
             if (this.properties.isEmpty()) {
                 return null;// we don't want to persist entity without overridden properties
             }
-            ChannelEstimationRuleOverriddenPropertiesImpl overriddenProperties = createChannelEstimationRuleOverriddenProperties();
-            overriddenProperties.setProperties(this.properties);
             overriddenProperties.save();
             return overriddenProperties;
         }

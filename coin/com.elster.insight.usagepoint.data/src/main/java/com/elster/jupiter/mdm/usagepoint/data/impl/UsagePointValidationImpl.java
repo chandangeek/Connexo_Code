@@ -99,11 +99,12 @@ class UsagePointValidationImpl implements UsagePointValidation {
 
         @Override
         public ChannelValidationRuleOverriddenProperties complete() {
+            ChannelValidationRuleOverriddenPropertiesImpl overriddenProperties = createChannelValidationRuleOverriddenProperties();
+            overriddenProperties.setProperties(this.properties);
+            overriddenProperties.validate();
             if (this.properties.isEmpty()) {
                 return null;// we don't want to persist entity without overridden properties
             }
-            ChannelValidationRuleOverriddenPropertiesImpl overriddenProperties = createChannelValidationRuleOverriddenProperties();
-            overriddenProperties.setProperties(this.properties);
             overriddenProperties.save();
             return overriddenProperties;
         }
