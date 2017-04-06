@@ -88,6 +88,11 @@ public class KeyAccessorPlaceHolder implements KeyAccessor {
     }
 
     @Override
+    public void setTempValue(SecurityValueWrapper newValueWrapper) {
+
+    }
+
+    @Override
     public void renew() {
 
     }
