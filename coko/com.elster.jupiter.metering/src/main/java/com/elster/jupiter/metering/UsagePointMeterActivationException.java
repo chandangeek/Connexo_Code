@@ -100,6 +100,18 @@ public class UsagePointMeterActivationException extends LocalizedException {
         // no usages -> no getters add if necessary
     }
 
+    public static MeterCannotBeUnlinked meterCannotBeUnlinked(Thesaurus thesaurus, Meter meter, MeterRole meterRole, UsagePoint usagePoint, String date) {
+        MeterCannotBeUnlinked ex = new MeterCannotBeUnlinked(thesaurus, meter.getName(), usagePoint.getName(), date);
+        ex.meterRole = meterRole;
+        return ex;
+    }
+
+    public static IncorrectStartTimeOfMeterAndMetrologyConfig incorrectStartTimeOfMeterAndMetrologyConfig(Thesaurus thesaurus, Meter meter, MeterRole meterRole,  String date) {
+        IncorrectStartTimeOfMeterAndMetrologyConfig ex = new IncorrectStartTimeOfMeterAndMetrologyConfig(thesaurus, meter.getName(), date);
+        ex.meterRole = meterRole;
+        return ex;
+    }
+
     public static UsagePointHasMeterOnThisRole usagePointHasMeterOnThisRole(Thesaurus thesaurus, Meter meterActiveOnRole, MeterRole meterRole, Range<Instant> conflictActivationRange) {
         UsagePointHasMeterOnThisRole ex = new UsagePointHasMeterOnThisRole(thesaurus, MessageSeeds.USAGE_POINT_ALREADY_ACTIVE_WITH_GIVEN_ROLE, meterActiveOnRole.getName(), meterRole.getDisplayName());
         ex.meterActiveOnRole = meterActiveOnRole;
@@ -168,8 +180,14 @@ public class UsagePointMeterActivationException extends LocalizedException {
     }
 
     public static class IncorrectStartTimeOfMeterAndMetrologyConfig extends UsagePointMeterActivationException {
+        private MeterRole meterRole;
+
         public IncorrectStartTimeOfMeterAndMetrologyConfig(Thesaurus thesaurus, String meter, String mcStartDate) {
             super(thesaurus, MessageSeeds.METER_ACTIVATION_INVALID_DATE, meter, mcStartDate);
+        }
+
+        public MeterRole getMeterRole() {
+            return this.meterRole;
         }
     }
 
@@ -180,8 +198,14 @@ public class UsagePointMeterActivationException extends LocalizedException {
     }
 
     public static class MeterCannotBeUnlinked extends UsagePointMeterActivationException {
+        private MeterRole meterRole;
+
         public MeterCannotBeUnlinked(Thesaurus thesaurus, String meter, String usagePoint, String date) {
             super(thesaurus, MessageSeeds.METER_CANNOT_BE_UNLINKED, meter, usagePoint, date);
+        }
+
+        public MeterRole getMeterRole() {
+            return this.meterRole;
         }
     }
 
