@@ -82,7 +82,8 @@ public class PublicRestApplication extends Application {
                 RestExceptionMapper.class,
                 ConstraintViolationExceptionMapper.class,
                 IssueResource.class,
-                UsagePointLifeCycleStateResource.class
+                UsagePointLifeCycleStateResource.class,
+                CustomPropertySetResource.class
         );
     }
 
@@ -223,6 +224,7 @@ public class PublicRestApplication extends Application {
             bind(IssueShortInfoFactory.class).to(IssueShortInfoFactory.class);
             bind(UsagePointLifeCycleStateInfoFactory.class).to(UsagePointLifeCycleStateInfoFactory.class);
             bind(EndDeviceLifeCycleStateInfoFactory.class).to(EndDeviceLifeCycleStateInfoFactory.class);
+            bind(CustomPropertySetInfoFactory.class).to(CustomPropertySetInfoFactory.class);
         }
     }
 }

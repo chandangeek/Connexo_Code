@@ -4,7 +4,7 @@
 
 package com.elster.jupiter.kore.api.v2;
 
-import com.elster.jupiter.metering.config.MeterRole;
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.LinkInfo;
@@ -13,6 +13,7 @@ import com.elster.jupiter.rest.api.util.v1.hypermedia.Relation;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.SelectableFieldFactory;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 
+import javax.inject.Inject;
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
@@ -26,6 +27,14 @@ import java.util.stream.Collectors;
 import static java.util.stream.Collectors.toList;
 
 public class MetrologyConfigurationInfoFactory extends SelectableFieldFactory<MetrologyConfigurationInfo, MetrologyConfiguration> {
+
+    private final CustomPropertySetInfoFactory customPropertySetInfoFactory;
+
+    @Inject
+    public MetrologyConfigurationInfoFactory(CustomPropertySetInfoFactory customPropertySetInfoFactory) {
+        this.customPropertySetInfoFactory = customPropertySetInfoFactory;
+    }
+
 
     public LinkInfo asLink(MetrologyConfiguration metrology, Relation relation, UriInfo uriInfo) {
         MetrologyConfigurationInfo info = new MetrologyConfigurationInfo();
@@ -74,6 +83,11 @@ public class MetrologyConfigurationInfoFactory extends SelectableFieldFactory<Me
                 = ((UsagePointMetrologyConfiguration) metrology).getMeterRoles()
                 .stream()
                 .map(meterRole -> asIdWithNameInfo(meterRole.getKey(), meterRole.getDisplayName()))
+                .collect(Collectors.toList()));
+        map.put("customProperties", (metrologyInfo, metrology, uriInfo) -> metrologyInfo.customProperties
+                = metrology.getCustomPropertySets()
+                .stream()
+                .map(customPropertySet -> customPropertySetInfoFactory.asLink(customPropertySet, Relation.REF_RELATION, uriInfo))
                 .collect(Collectors.toList()));
         return map;
     }
