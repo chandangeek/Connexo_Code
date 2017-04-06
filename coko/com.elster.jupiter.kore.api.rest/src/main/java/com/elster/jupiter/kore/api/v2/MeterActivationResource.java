@@ -47,6 +47,7 @@ import javax.ws.rs.core.UriInfo;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -176,8 +177,7 @@ public class MeterActivationResource {
                             .lowerEndpoint()
                             .isAfter(Instant.ofEpochMilli(meterActivationInfo.interval.start).truncatedTo(ChronoUnit.MINUTES))
                             && stateTimeSlice.getState().getStage().filter(stage -> stage.getName().equals(EndDeviceStage.OPERATIONAL.getKey())).isPresent())
-                    .sorted((a, b) -> a.getPeriod().lowerEndpoint().compareTo(b.getPeriod().lowerEndpoint()))
-                    .findFirst())
+                    .min(Comparator.comparing(slice -> slice.getPeriod().lowerEndpoint())))
                     .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.INVALID_END_DEVICE_STAGE, start));
             start = state.getPeriod().lowerEndpoint().plus(1, ChronoUnit.MINUTES).truncatedTo(ChronoUnit.MINUTES);
         }
@@ -189,7 +189,7 @@ public class MeterActivationResource {
         }
 
         UsagePointMeterActivator linker = usagePoint.linkMeters();
-        if (usagePoint.getMeterActivations(start).stream().filter(meterActivation -> meterActivation.getMeterRole().filter(meterRole::equals).isPresent()).findAny().isPresent()) {
+        if (usagePoint.getMeterActivations(start).stream().anyMatch(meterActivation -> meterActivation.getMeterRole().filter(meterRole::equals).isPresent())) {
             linker.clear(start, meterRole);
         }
         linker.activate(start, meter, meterRole);
@@ -231,16 +231,19 @@ public class MeterActivationResource {
         if (meterActivationInfo.interval == null || meterActivationInfo.interval.start == null) {
             throw new LocalizedFieldValidationException(MessageSeeds.FIELD_MISSING, "interval.start");
         }
+        if (meterActivationInfo.interval.end == null) {
+            throw new LocalizedFieldValidationException(MessageSeeds.FIELD_MISSING, "interval.end");
+        }
         Instant start = Instant.ofEpochMilli(meterActivationInfo.interval.start).truncatedTo(ChronoUnit.MINUTES);
         Instant end = Instant.ofEpochMilli(meterActivationInfo.interval.end).truncatedTo(ChronoUnit.MINUTES);
 
         UsagePointMeterActivator linker = usagePoint.linkMeters();
-        if (usagePoint.getMeterActivations(start).stream().filter(meterActivation -> meterActivation.getMeterRole().filter(meterRole::equals).isPresent()).findAny().isPresent()) {
+        if (usagePoint.getMeterActivations(start).stream().anyMatch(meterActivation -> meterActivation.getMeterRole().filter(meterRole::equals).isPresent())) {
             linker.clear(end, meterRole);
         }
         linker.complete();
 
-        MeterActivation activation = usagePoint.getMeterActivations(meterRole).stream().filter(ma -> ma.getStart().equals(start)).findFirst()
+        MeterActivation activation = usagePoint.getMeterActivations(meterRole).stream().filter(ma -> ma.isEffectiveAt(start)).findFirst()
                 .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_METER_ACTIVATION_FOR_METER_ROLE, meterActivationInfo.meterRole));
 
         return meterActivationInfoFactory.from(activation, uriInfo, Collections.emptyList());

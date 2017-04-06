@@ -304,6 +304,13 @@ public class MeterActivationResourceTest extends PlatformPublicApiJerseyTest {
         when(stateTimeSlice.getPeriod()).thenReturn(Range.atLeast(clock.instant().plus(10, ChronoUnit.MINUTES)));
         when(mock.getState(any(Instant.class))).thenReturn(Optional.empty());
 
+        MeterActivation oldMeterActivation = mockMeterActivation(1001L, 1L, usagePoint);
+        when(usagePoint.activate(any(), any())).thenReturn(oldMeterActivation);
+        when(oldMeterActivation.getMeter()).thenReturn(Optional.of(mock));
+        when(oldMeterActivation.isEffectiveAt(any(Instant.class))).thenReturn(true);
+        when(oldMeterActivation.getMeterRole()).thenReturn(Optional.of(meterRole));
+        when(usagePoint.getMeterActivations(any(Instant.class))).thenReturn(Collections.singletonList(oldMeterActivation));
+
         MeterActivation meterActivation = mockMeterActivation(1001L, 1L, usagePoint);
         when(usagePoint.activate(any(), any())).thenReturn(meterActivation);
         when(meterActivation.getMeter()).thenReturn(Optional.of(mock));
@@ -314,6 +321,7 @@ public class MeterActivationResourceTest extends PlatformPublicApiJerseyTest {
         Response post = target("/usagepoints/" + MRID + "/meteractivations").request().post(Entity.json(meterActivationInfo));
 
         // Asserts
+        verify(linker).clear(stateTimeSlice.getPeriod().lowerEndpoint().plusSeconds(60), meterRole);
         verify(linker).activate(stateTimeSlice.getPeriod().lowerEndpoint().plusSeconds(60), mock, meterRole);
         verify(linker).complete();
     }

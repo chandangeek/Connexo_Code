@@ -153,7 +153,7 @@ public class EffectiveMetrologyConfigurationResource {
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_USAGE_POINT))
                 .getEffectiveMetrologyConfiguration(Instant.ofEpochMilli(timestamp))
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_METROLOGY_CONFIGURATION));
-        if(info.interval.end!=null) {
+        if(info.interval!=null && info.interval.end!=null) {
             effectiveMetrologyConfigurationOnUsagePoint.close(Instant.ofEpochMilli(info.interval.end));
         }
 
