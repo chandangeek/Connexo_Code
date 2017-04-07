@@ -131,7 +131,10 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
                             errorsArr.push({id: errorKeyArr.join('.'), msg: error.msg});
                         });
                         var errorsWithoutId = '',
-                            errorCode = '';
+                            code = '';
+                        if (responseText && responseText.errorCode) {
+                            code = responseText.errorCode;
+                        }
                         var foundMessagesWithoutId = false;
                         Ext.each(errorsArr, function (error) {
                             if (Ext.isEmpty(error['id']) && !Ext.isEmpty(error['msg'])) {
@@ -140,7 +143,7 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
                             }
                         });
                         if (foundMessagesWithoutId) {
-                            me.getApplication().getController('Uni.controller.Error').showError(Uni.I18n.translate('deviceFirmware.upgrade.errors', 'FWC', 'Firmware upload failed!'), errorsWithoutId, errorCode);
+                            me.getApplication().getController('Uni.controller.Error').showError(Uni.I18n.translate('deviceFirmware.upgrade.errors.title', 'FWC', 'Couldn\'t perform your action'), Uni.I18n.translate('deviceFirmware.upgrade.errors', 'FWC', 'Firmware upload failed!') + '.' + errorsWithoutId, code);
                         } else {
                             errorMsg.show();
                             propertyForm.markInvalid(errorsArr);
