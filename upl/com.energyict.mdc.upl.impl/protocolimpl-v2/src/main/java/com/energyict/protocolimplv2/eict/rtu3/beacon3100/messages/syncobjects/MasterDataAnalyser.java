@@ -515,8 +515,8 @@ public final class MasterDataAnalyser {
 		
 		// Stuff that's in the HES, and the DC.
 		final Set<T> objectsToUpdate = new HashSet<>();
-		objectsToUpdate.addAll(objectsInBeaconMasterData);
-		objectsToUpdate.retainAll(objectsInHES);
+		objectsToUpdate.addAll(objectsInHES);
+		objectsToUpdate.retainAll(objectsInBeaconMasterData);
 		
 		// Stuff that's on the DC, not the HES, except for stuff we can't delete yet.
 		final Set<T> objectsToKeep = new HashSet<>();
