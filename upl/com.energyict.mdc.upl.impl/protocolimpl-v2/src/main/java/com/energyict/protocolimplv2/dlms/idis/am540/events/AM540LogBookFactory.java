@@ -6,6 +6,7 @@ import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.MeterProtocolEvent;
 import com.energyict.protocolimplv2.dlms.idis.am130.AM130;
 import com.energyict.protocolimplv2.dlms.idis.am130.events.AM130LogBookFactory;
+import com.energyict.protocolimplv2.eict.rtu3.beacon3100.logbooks.Beacon3100LogBookFactory;
 
 import java.util.List;
 
@@ -19,6 +20,7 @@ public class AM540LogBookFactory extends AM130LogBookFactory {
     public AM540LogBookFactory(AM130 protocol) {
         super(protocol);
         supportedLogBooks.add(SECURITY_LOG);
+        supportedLogBooks.add(Beacon3100LogBookFactory.PROTOCOL_LOGBOOK); // this is an virtual logbook, populated while reading the beacon
     }
 
     protected List<MeterProtocolEvent> parseEvents(DataContainer dataContainer, ObisCode logBookObisCode) {

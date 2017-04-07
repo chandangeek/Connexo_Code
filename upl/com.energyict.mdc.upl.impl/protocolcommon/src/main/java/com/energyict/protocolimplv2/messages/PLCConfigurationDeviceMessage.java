@@ -44,7 +44,7 @@ public enum PLCConfigurationDeviceMessage implements DeviceMessageSpec {
 
     SetBroadCastLogTableEntryTTLAttributeName(7, PropertySpecFactory.timeDurationPropertySpecWithSmallUnits(DeviceMessageConstants.broadCastLogTableEntryTTLAttributeName)),
     SetMaxJoinWaitTime(8, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.maxJoinWaitTime)),
-    SetPathDiscoveryTime(9, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.pathDiscoveryTime)),
+    SetPathDiscoveryTime(9, PropertySpecFactory.timeDurationPropertySpecWithSmallUnits(DeviceMessageConstants.pathDiscoveryTime)),
     SetMaxNumberOfHopsAttributeName(10, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.maxNumberOfHopsAttributeName)),
     SetMetricType(11, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.metricType)),
     SetCoordShortAddress(12, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.coordShortAddress)),

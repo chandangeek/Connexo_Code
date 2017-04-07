@@ -108,21 +108,32 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     public static final ObisCode SNMP_SETUP_NEW_OBISCODE = ObisCode.fromString("0.128.96.194.0.255");
     public static final ObisCode RTU_DISCOVERY_SETUP_NEW_OBISCODE = ObisCode.fromString("0.128.96.195.0.255");
     public static final ObisCode TIME_SERVER_NEW_OBISCODE = ObisCode.fromString("0.128.96.196.0.255");
-    
-    /** Old (pre-1.9) OBIS of the web portal setup IC. */
+
+    /**
+     * Old (pre-1.9) OBIS of the web portal setup IC.
+     */
     private static final ObisCode WEB_PORTAL_SETUP_OLD_OBIS = ObisCode.fromString("0.0.128.0.13.255");
-    
-    /** New (1.9 and up) OBIS of the web portal setup IC. */
+
+    /**
+     * New (1.9 and up) OBIS of the web portal setup IC.
+     */
     public static final ObisCode WEB_PORTAL_CONFIG_NEW_OBISCODE = ObisCode.fromString("0.128.96.197.0.255");
-    
+
     public static final ObisCode PING_SERVICE_NEW_OBISCODE = ObisCode.fromString("0.160.96.144.0.255");
     public static final ObisCode SCHEDULE_MANAGER_NEW_OBISCODE = ObisCode.fromString("0.187.96.160.0.255");
     public static final ObisCode CLIENT_MANAGER_NEW_OBISCODE = ObisCode.fromString("0.187.96.170.0.255");
     public static final ObisCode MODEM_WATCHDOG_NEW_OBISCODE = ObisCode.fromString("0.162.96.128.0.255");
     public static final ObisCode G3_NETWORK_MANAGEMENT_NEW_OBISCODE = ObisCode.fromString("0.168.96.128.0.255");
-    
-    /** New logical name of the concentrator setup object. */
+
+    /**
+     * New logical name of the concentrator setup object.
+     */
     public static final ObisCode CONCENTRATOR_SETUP_NEW_LOGICAL_NAME = ObisCode.fromString("0.187.96.128.0.255");
+
+    /**
+     * New logical name of DLMS gateway setup object.
+     */
+    public static final ObisCode GATEWAY_SETUP_NEW_LOGICAL_NAME = ObisCode.fromString("0.176.96.128.0.255");
 
     private static final String SEPARATOR = ";";
     private static final String SEPARATOR2 = ",";
@@ -281,7 +292,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
 
     @Override
     public List<DeviceMessageSpec> getSupportedMessages() {
-        if(!readOldObisCodes()){
+        if (!readOldObisCodes()) {
             SUPPORTED_MESSAGES.add(DeviceActionMessage.SyncAllDevicesWithDC);
             SUPPORTED_MESSAGES.add(DeviceActionMessage.SyncOneDeviceWithDC);
             SUPPORTED_MESSAGES.add(DeviceActionMessage.SyncOneDeviceWithDCAdvanced);
@@ -298,22 +309,27 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     @Override
     @SuppressWarnings("rawtypes")
     public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, PropertySpec propertySpec, Object messageAttribute) {
-        if (propertySpec.getDomain().getValueType().equals(Password.class)){
+        if (propertySpec.getDomain().getValueType().equals(Password.class)) {
             return ((Password) messageAttribute).getValue();
         }
 
         if (propertySpec.getName().equals(DeviceMessageConstants.broadcastDevicesGroupAttributeName)) {
             return DeviceInfoSerializer.serializeDeviceInfo(messageAttribute);
         } else if (propertySpec.getName().equals(DeviceMessageConstants.broadcastInitialTimeBetweenBlocksAttributeName)
-                || propertySpec.getName().equals(DeviceMessageConstants.timeout)) {
+                || propertySpec.getName().equals(DeviceMessageConstants.timeout)
+                || propertySpec.getName().equals( DeviceMessageConstants.SET_LOCKOUT_DURATION)) {
             return String.valueOf(((TimeDuration) messageAttribute).getMilliSeconds()); //Return value in ms
         } else if (propertySpec.getName().equals(DeviceMessageConstants.modemWatchdogInterval)
                 || propertySpec.getName().equals(DeviceMessageConstants.modemWatchdogInitialDelay)
                 || propertySpec.getName().equals(DeviceMessageConstants.PPPDaemonResetThreshold)
                 || propertySpec.getName().equals(DeviceMessageConstants.modemResetThreshold)
-                || propertySpec.getName().equals(DeviceMessageConstants.systemRebootThreshold)
-                || propertySpec.getName().equals(DeviceMessageConstants.broadCastLogTableEntryTTLAttributeName)) {
+                || propertySpec.getName().equals(DeviceMessageConstants.pathDiscoveryTime)
+                || propertySpec.getName().equals(DeviceMessageConstants.systemRebootThreshold)){
             return String.valueOf(((TimeDuration) messageAttribute).getSeconds()); //Return value in seconds
+        } else if (propertySpec.getName().equals(DeviceMessageConstants.broadCastLogTableEntryTTLAttributeName)) {
+            int seconds = ((TimeDuration) messageAttribute).getSeconds();
+            int minutes = seconds / 60;
+            return String.valueOf(minutes); //Return value in minutes
         } else if (propertySpec.getName().equals(DeviceMessageConstants.firmwareUpdateUserFileAttributeName)) {
             final UserFile userFile = (UserFile) messageAttribute;
             final File tempFile = this.writeToTempDirectory(userFile);
@@ -2102,7 +2118,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     private void setHttpPort(OfflineDeviceMessage pendingMessage) throws IOException {
         String httpPort = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.SetHttpPortAttributeName).getDeviceMessageAttributeValue();
         
-        this.getWebportalSetupICv1().setHttpsPort(Integer.parseInt(httpPort));
+        this.getWebportalSetupICv1().setHttpPort(Integer.parseInt(httpPort));
     }
 
     private void setHttpsPort(OfflineDeviceMessage pendingMessage) throws IOException {
@@ -2132,7 +2148,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     private void enableSSL(OfflineDeviceMessage pendingMessage) throws IOException {
         boolean enableSSL = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.enableSSL).getDeviceMessageAttributeValue());
         
-        this.getWebportalSetupICv1().setGzipEnabled(enableSSL);
+        this.getWebportalSetupICv1().setSSLEnabled(enableSSL);
     }
 
     private void setAuthenticationMechanism(OfflineDeviceMessage pendingMessage) throws IOException {
@@ -2154,9 +2170,17 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         boolean decypherMeterNotifications = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.DecipherMeterNotifications).getDeviceMessageAttributeValue());
         boolean dropUnencryptedNotifications = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.DropUnencryptedMeterNotifications).getDeviceMessageAttributeValue());
 
-        getCosemObjectFactory().getDLMSGatewaySetup().setNotificationDecipher(decypherMeterNotifications);
-        getCosemObjectFactory().getDLMSGatewaySetup().setNotificationRelaying(relayMeterNotification);
-        getCosemObjectFactory().getDLMSGatewaySetup().setNotificationDropUnencrypted(dropUnencryptedNotifications);
+        getDlmsGatewaySetup().setNotificationDecipher(decypherMeterNotifications);
+        getDlmsGatewaySetup().setNotificationRelaying(relayMeterNotification);
+        getDlmsGatewaySetup().setNotificationDropUnencrypted(dropUnencryptedNotifications);
+    }
+
+    private DLMSGatewaySetup getDlmsGatewaySetup() throws NotInObjectListException {
+        if(readOldObisCodes()) {
+            return getCosemObjectFactory().getDLMSGatewaySetup();
+        }else{
+            return getCosemObjectFactory().getDLMSGatewaySetup(GATEWAY_SETUP_NEW_LOGICAL_NAME);
+        }
     }
 
     private void configureAPNs(OfflineDeviceMessage pendingMessage) throws IOException {
