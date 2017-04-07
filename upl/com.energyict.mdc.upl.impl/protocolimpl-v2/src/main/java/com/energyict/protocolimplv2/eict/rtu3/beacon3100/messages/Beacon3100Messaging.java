@@ -2135,7 +2135,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     private void enableSSL(OfflineDeviceMessage pendingMessage) throws IOException {
         boolean enableSSL = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.enableSSL).getDeviceMessageAttributeValue());
         
-        this.getWebportalSetupICv1().setGzipEnabled(enableSSL);
+        this.getWebportalSetupICv1().setSSLEnabled(enableSSL);
     }
 
     private void setAuthenticationMechanism(OfflineDeviceMessage pendingMessage) throws IOException {
