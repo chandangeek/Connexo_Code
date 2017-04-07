@@ -287,7 +287,6 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
                 for (var i = 1; i < currentSteps.length; i++) {
                     wizard.remove(currentSteps[i], true);
                 }
-            }
             wizard.getRecord().customPropertySets().removeAll();
             clearRecords = clearRecords.findRecordByValue(metrologyConfigurationId);
 
@@ -309,6 +308,7 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
                 wizard.add(stepsToAdd);
                 wizard.updateRecord(clearRecords);
             });
+            }
             Ext.resumeLayouts(true);
         } else {
             direction = -1;

@@ -296,6 +296,8 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
                     Ext.suspendLayouts();
                     me.updateMetrologyConfigurationCustomAttributeSetsSteps(record);
                     notAllMetersSpecifiedMessage.setVisible(!Ext.isEmpty(meterRoles));
+                    step.clearInvalid();
+                    meterActivationsField.clearInvalid();
                     meterActivationsField.setMeterRoles(meterRoles, wizard.getRecord().get('installationTime'));
                     purposesField.setStore(record.metrologyContracts());
                     Ext.resumeLayouts(true);
