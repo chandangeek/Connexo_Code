@@ -199,4 +199,32 @@ public class Beacon3100DeviceType {
         }
         return false;
     }
+
+    /**
+     * {@inheritDoc}
+     */
+	@Override
+	public final int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + (int) (id ^ (id >>> 32));
+		return result;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public final boolean equals(final Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Beacon3100DeviceType other = (Beacon3100DeviceType) obj;
+		if (id != other.id)
+			return false;
+		return true;
+	}
 }

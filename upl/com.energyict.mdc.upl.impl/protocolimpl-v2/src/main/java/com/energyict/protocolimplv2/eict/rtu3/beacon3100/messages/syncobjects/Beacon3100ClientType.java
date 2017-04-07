@@ -4,6 +4,8 @@ import com.energyict.dlms.axrdencoding.*;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
+
+import java.io.IOException;
 import java.util.Arrays;
 
 /**
@@ -15,6 +17,25 @@ import java.util.Arrays;
 @XmlRootElement
 public class Beacon3100ClientType {
 
+	/**
+	 * Creates a {@link Beacon3100ClientType} based on the given Structure.
+	 * 
+	 * @param 	structure		The {@link Structure}.
+	 * 
+	 * @return	The {@link Beacon3100ClientType}.
+	 * 
+	 * @throws	IOException		If an IO error occurs.
+	 */
+	public static final Beacon3100ClientType fromStructure(final Structure structure) throws IOException {
+		final long id = structure.getDataType(0, Unsigned32.class).longValue();
+		final int clientMacAddress = structure.getDataType(1, Unsigned16.class).intValue();
+		final int securitySuite = structure.getDataType(2, TypeEnum.class).getValue();
+		final int securityLevel = structure.getDataType(3, TypeEnum.class).getValue();
+		final int securityPolicy = structure.getDataType(4, TypeEnum.class).getValue();
+		
+		return new Beacon3100ClientType(id, clientMacAddress, securitySuite, securityLevel, securityPolicy);
+	}
+	
     private long id;
     private int clientMacAddress;
     private int securitySuite;
@@ -44,8 +65,36 @@ public class Beacon3100ClientType {
             return false;
         }
     }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+	public final int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + (int) (id ^ (id >>> 32));
+		return result;
+	}
 
-    public void setIsFirmware140orAbove(boolean isFirmware140OrAbove){
+    /**
+     * {@inheritDoc}
+     */
+	@Override
+	public final boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Beacon3100ClientType other = (Beacon3100ClientType) obj;
+		if (id != other.id)
+			return false;
+		return true;
+	}
+
+	public void setIsFirmware140orAbove(boolean isFirmware140OrAbove){
         this.isFirmware140OrAbove = isFirmware140OrAbove;
     }
 
