@@ -18,6 +18,7 @@ public enum AxdrType {
     OCTET_STRING(0x09),
     VISIBLE_STRING(0x0A),
     TIME(0x0B),
+    UTF8_STRING(0x0C),
     BCD(0x0D),
     INTEGER(0x0F),
     LONG(0x10),
