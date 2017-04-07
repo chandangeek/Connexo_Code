@@ -110,7 +110,7 @@ public class DeviceConfigurationChangeException extends LocalizedException imple
     }
 
     public static DeviceConfigurationChangeException toLessChannelsProvided(Thesaurus thesaurus, Device device, DeviceConfiguration newConfiguration) {
-        return new DeviceConfigurationChangeException(thesaurus, MessageSeeds.CANNOT_CHANGE_CONFIG_TO_LESS_CHANNELS_PROVIDED);
+        return new DeviceConfigurationChangeException(thesaurus, MessageSeeds.CANNOT_CHANGE_CONFIG_TO_LESS_CHANNELS_PROVIDED, device.getName(), newConfiguration.getName());
     }
 
     public static DeviceConfigurationChangeException deviceConfigMustBeDataLoggerEnabled(Thesaurus thesaurus, Device device, DeviceConfiguration newConfiguration ) {
