@@ -8,6 +8,7 @@ import com.elster.jupiter.cbo.Accumulation;
 import com.elster.jupiter.cbo.Commodity;
 import com.elster.jupiter.cbo.MetricMultiplier;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
+import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.util.sql.SqlBuilder;
@@ -93,6 +94,10 @@ class VirtualReadingType implements Comparable<VirtualReadingType> {
 
     public boolean isGas() {
         return isGas(this.commodity);
+    }
+
+    public static boolean isGas(Channel channel) {
+        return isGas(channel.getMainReadingType().getCommodity());
     }
 
     public static boolean isGas(Commodity commodity) {

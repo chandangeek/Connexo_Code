@@ -4,9 +4,11 @@
 
 package com.elster.jupiter.metering.impl.config;
 
+import com.elster.jupiter.cbo.Commodity;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.AggregatedChannel;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.GasDayOptions;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MetrologyContractChannelsContainer;
 import com.elster.jupiter.metering.MultiplierType;
@@ -24,6 +26,7 @@ import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.metering.impl.SimpleChannelContract;
 import com.elster.jupiter.orm.associations.Effectivity;
 import com.elster.jupiter.util.Pair;
+import com.elster.jupiter.util.time.DayMonthTime;
 import com.elster.jupiter.util.time.Interval;
 
 import com.google.common.collect.Range;
@@ -74,9 +77,23 @@ public class MetrologyContractChannelsContainerImpl extends ChannelsContainerImp
     public MetrologyContractChannelsContainerImpl init(EffectiveMetrologyContractOnUsagePoint effectiveMetrologyContract) {
         this.effectiveMetrologyContract.add(effectiveMetrologyContract);
         // Each channel must have just one reading type (main), which is equal to reading type from deliverable.
-        effectiveMetrologyContract.getMetrologyContract().getDeliverables()
-                .forEach(deliverable -> storeChannel(channelFactory.get().init(this, Collections.singletonList((IReadingType) deliverable.getReadingType()))));
+        effectiveMetrologyContract.getMetrologyContract().getDeliverables().forEach(this::storeChannel);
         return this;
+    }
+
+    private Channel storeChannel(ReadingTypeDeliverable deliverable) {
+        Optional<Integer> hourOffset;
+        if (this.isGas(deliverable.getReadingType())) {
+            hourOffset = getMeteringService().getGasDayOptions().map(GasDayOptions::getYearStart).map(DayMonthTime::getHour);
+        } else {
+            hourOffset = Optional.empty();
+        }
+        SimpleChannelContract channel = channelFactory.get().init(this, Collections.singletonList((IReadingType) deliverable.getReadingType()), hourOffset);
+        return this.storeChannel(channel);
+    }
+
+    private boolean isGas(ReadingType readingType) {
+        return Commodity.NATURALGAS.equals(readingType.getCommodity());
     }
 
     @Override

@@ -10,6 +10,7 @@ import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.time.DayMonthTime;
 
+import java.time.Instant;
 import java.time.Month;
 import java.time.MonthDay;
 import java.util.Collections;
@@ -213,6 +214,16 @@ final class TruncatedTimelineSqlBuilderFactory {
         @Override
         public List<RelativePeriod> getRelativePeriods() {
             return Collections.emptyList();
+        }
+
+        @Override
+        public Instant addTo(Instant timestamp) {
+            return timestamp;
+        }
+
+        @Override
+        public Instant subtractFrom(Instant timestamp) {
+            return timestamp;
         }
     }
 

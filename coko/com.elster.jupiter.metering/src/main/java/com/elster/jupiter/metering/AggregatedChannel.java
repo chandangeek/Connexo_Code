@@ -10,6 +10,7 @@ import com.elster.jupiter.metering.aggregation.DataAggregationService;
 import aQute.bnd.annotation.ProviderType;
 import com.google.common.collect.Range;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -17,16 +18,33 @@ import java.util.Optional;
 @ProviderType
 public interface AggregatedChannel extends Channel {
 
-    List<AggregatedIntervalReadingRecord> getCalculatedIntervalReadings(Range<Instant> interval);
+    List<AggregatedIntervalReadingRecord> getAggregatedIntervalReadings(Range<Instant> interval);
 
     List<ReadingRecord> getCalculatedRegisterReadings(Range<Instant> interval);
-
-    List<IntervalReadingRecord> getPersistedIntervalReadings(Range<Instant> interval);
 
     List<ReadingRecord> getPersistedRegisterReadings(Range<Instant> interval);
 
     @ProviderType
     interface AggregatedIntervalReadingRecord extends IntervalReadingRecord {
+
+        /**
+         * Tests if this AggregatedIntervalReadingRecord has been edited,
+         * overruling the value that was calculated by the DataAggregationService.
+         *
+         * @return <code>true</code> iff the user edited the value calculated by the DataAggregationService
+         */
+        boolean wasEdited();
+
+        /**
+         * Gets the original value that was calculated by the DataAggregationService
+         * if this AggregatedIntervalReadingRecord has been edited.
+         *
+         * @return The original value calculated by the DataAggregationService or <code>null</code>
+         *         if this AggregatedIntervalReadingRecord was not edited
+         * @see #wasEdited()
+         */
+        BigDecimal getOriginalValue();
+
         /**
          * Tests if this record was produced by the {@link DataAggregationService}
          * to replace data that was filtered out because time of use was applied
@@ -46,6 +64,7 @@ public interface AggregatedChannel extends Channel {
          * @see #isPartOfTimeOfUseGap()
          */
         Optional<Event> getTimeOfUseEvent();
+
     }
 
 }
