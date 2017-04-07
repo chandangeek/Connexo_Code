@@ -25,7 +25,7 @@ Ext.define('Isu.view.overview.Section', {
             }
         }
     ],
-
+    barCls: [{id: 'status.open', cls: 'bar-failed'}, {id: 'status.in.progress', cls: ''}, {id: 'status.resolved', cls: 'bar-success'}],
     fillSection: function (store, section) {
         var me = this;
 
@@ -82,13 +82,18 @@ Ext.define('Isu.view.overview.Section', {
                     refresh: function (view) {
                         Ext.each(view.getNodes(), function (node, index) {
                             var record = view.getRecord(node),
-                                pos = index + 1;
+                                pos = index + 1,
+                                cls = _.find(me.barCls, function (c) {
+                                    return c.id == record.get('id');
+                                }),
+                                cls = cls == undefined ? 'bar-ongoing' : cls.cls;
 
                             var bar = Ext.widget('bar', {
                                 limit: record.get('number'),
                                 total: view.total,
                                 count: record.get('number'),
-                                label: record.get('number')
+                                label: record.get('number'),
+                                cls: cls
                             }).render(view.getEl().down('#bar-' + pos));
                         });
                         view.collapsed = store.getCount() > me.itemsInCollapsedMode;
