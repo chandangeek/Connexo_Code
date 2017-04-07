@@ -39,6 +39,7 @@ public enum MessageSeeds implements MessageSeed {
     CERTIFICATE_SUBJECT_DN_MISMATCH(1023, "SubjectMismatchCSR", "The certificate's subject distinguished name does not match the CSR"),
     CERTIFICATE_KEY_USAGE_MISMATCH(1024, "KeyUsagesMismatchCSR", "The certificate's key usage extension does not match the CSR"),
     CERTIFICATE_EXTENDED_KEY_USAGES_MISMATCH(1025, "ExtendedKeyUsagesMismatchCSR", "The certificate's extended key usage extension does not match the CSR"),
+    INVALID_VALUE(1026, "InvalidValue", "This value is invalid"),
     ;
 
     private final int number;
@@ -91,6 +92,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String NO_SUCH_ENCRYPTION_METHOD = "no.such.encryption.method";
         public static final String DUPLICATE_KEY_ENCRYPTION_REGISTRATION = "key.encryption.duplication";
         public static final String CERTIFICATE_DOES_NOT_MATCH_CSR = "certificate.mismatch.csr";
+        public static final String INVALID_VALUE = "validation.invalid.value";
     }
 
 }

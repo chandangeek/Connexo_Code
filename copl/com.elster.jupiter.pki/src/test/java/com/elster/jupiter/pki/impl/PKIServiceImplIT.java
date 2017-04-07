@@ -16,6 +16,7 @@ import com.elster.jupiter.pki.KeyUsage;
 import com.elster.jupiter.pki.PlaintextPrivateKeyWrapper;
 import com.elster.jupiter.pki.PlaintextSymmetricKey;
 import com.elster.jupiter.pki.PrivateKeyWrapper;
+import com.elster.jupiter.pki.SymmetricKeyWrapper;
 import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.pki.TrustedCertificate;
 import com.elster.jupiter.pki.impl.wrappers.PkiLocalizedException;
@@ -59,9 +60,12 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Base64;
 import java.util.Date;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.junit.After;
@@ -318,7 +322,7 @@ public class PKIServiceImplIT {
         assertThat(symmetricKeyWrapper.getProperties()).containsKey("key");
         assertThat(symmetricKeyWrapper.getPropertySpecs()).hasSize(1);
         assertThat(symmetricKeyWrapper.getPropertySpecs().get(0).getDisplayName()).isEqualTo("Key");
-        assertThat(symmetricKeyWrapper.getPropertySpecs().get(0).getDescription()).isEqualTo("Plaintext view of key");
+        assertThat(symmetricKeyWrapper.getPropertySpecs().get(0).getDescription()).isEqualTo("Base64 encoded key");
         assertThat(symmetricKeyWrapper.getPropertySpecs().get(0).getValueFactory().getValueType()).isEqualTo(String.class);
         assertThat(symmetricKeyWrapper.getExpirationTime()).isPresent();
         assertThat(symmetricKeyWrapper.getExpirationTime().get()).isEqualTo(ZonedDateTime.of(2019, 4, 4, 13, 0,0,0, ZoneId.of("UTC")).toInstant());
@@ -828,6 +832,62 @@ public class PKIServiceImplIT {
         assertThat(propertySpecs).hasSize(1);
         assertThat(propertySpecs.get(0).getName()).isEqualTo("key");
         assertThat(propertySpecs.get(0).getDisplayName()).isEqualTo("Key");
+    }
+
+    @Test
+    @Transactional
+    public void testGetAndUpdatePropertiesSymmetricKey() throws Exception {
+        KeyType created = inMemoryPersistence.getPkiService().newSymmetricKeyType("AES128-props-update", "AES", 128).add();
+        KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
+        when(keyAccessorType.getKeyType()).thenReturn(created);
+        when(keyAccessorType.getKeyEncryptionMethod()).thenReturn("DataVault");
+        when(keyAccessorType.getDuration()).thenReturn(Optional.empty());
+
+        SymmetricKeyWrapper symmetricKeyWrapper = inMemoryPersistence.getPkiService()
+                .newSymmetricKeyWrapper(keyAccessorType);
+        symmetricKeyWrapper.generateValue(keyAccessorType);
+
+        Map<String, Object> properties = symmetricKeyWrapper.getProperties();
+        assertThat(properties).containsKeys("key");
+        assertThat((String)properties.get("key")).isNotEmpty();
+
+        symmetricKeyWrapper.setProperties(properties);
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{"+MessageSeeds.Keys.INVALID_VALUE+"}", property="key")
+    public void testUpdatePropertiesSymmetricKeyWithImproperBase64() throws Exception {
+        KeyType created = inMemoryPersistence.getPkiService().newSymmetricKeyType("AES128-props-base64", "AES", 128).add();
+        KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
+        when(keyAccessorType.getKeyType()).thenReturn(created);
+        when(keyAccessorType.getKeyEncryptionMethod()).thenReturn("DataVault");
+        when(keyAccessorType.getDuration()).thenReturn(Optional.empty());
+
+        SymmetricKeyWrapper symmetricKeyWrapper = inMemoryPersistence.getPkiService()
+                .newSymmetricKeyWrapper(keyAccessorType);
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("key", "not really base64 is it");
+        symmetricKeyWrapper.setProperties(map);
+    }
+
+    @Test
+    @Transactional
+//    @ExpectedConstraintViolation(messageId = "{"+MessageSeeds.Keys.INVALID_VALUE+"}", property="key")
+    public void testUpdatePropertiesSymmetricKeyWithImproperSecretKey() throws Exception {
+        KeyType created = inMemoryPersistence.getPkiService().newSymmetricKeyType("AES128-props-sk", "AES", 128).add();
+        KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
+        when(keyAccessorType.getKeyType()).thenReturn(created);
+        when(keyAccessorType.getKeyEncryptionMethod()).thenReturn("DataVault");
+        when(keyAccessorType.getDuration()).thenReturn(Optional.empty());
+
+        SymmetricKeyWrapper symmetricKeyWrapper = inMemoryPersistence.getPkiService()
+                .newSymmetricKeyWrapper(keyAccessorType);
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("key", new String(Base64.getEncoder().encode(new byte[]{1,2,3,4,5}))); // incorrect symmetric key
+        symmetricKeyWrapper.setProperties(map);
     }
 
     private X509Certificate createSelfSignedCertificate(String myself) throws Exception {

@@ -138,14 +138,34 @@ public final class PlaintextSymmetricKeyImpl implements PlaintextSymmetricKey {
 
     @Override
     public void setProperties(Map<String, Object> properties) {
-        EnumSet.allOf(Properties.class).forEach(p -> p.copyFromMap(properties, this));
-        this.save();
+        PropertySetter propertySetter = new PropertySetter(this);
+        EnumSet.allOf(Properties.class).forEach(p -> p.copyFromMap(properties, propertySetter));
+        Save.UPDATE.validate(dataModel, propertySetter);
+        propertySetter.applyProperties();
+    }
+
+    class PropertySetter  {
+        @Base64EncodedKey(groups = {Save.Create.class, Save.Update.class}, message = "{"+MessageSeeds.Keys.INVALID_VALUE+"}")
+        private String key; // field name must match property name
+
+        PropertySetter(PlaintextSymmetricKeyImpl source) {
+            byte[] decrypt = dataVaultService.decrypt(source.encryptedKey);
+            this.key = Base64.getEncoder().encodeToString(decrypt);
+
+        }
+
+        void applyProperties() {
+            byte[] decode = Base64.getDecoder().decode(key);
+            PlaintextSymmetricKeyImpl.this.encryptedKey = dataVaultService.encrypt(decode);
+
+            PlaintextSymmetricKeyImpl.this.save();
+        }
     }
 
     @Override
     public Map<String, Object> getProperties() {
         Map<String, Object> properties = new HashMap<>();
-        EnumSet.allOf(Properties.class).forEach(p -> p.copyToMap(properties, this));
+        EnumSet.allOf(Properties.class).forEach(p -> p.copyToMap(properties, new PropertySetter(this)));
         return properties;
     }
 
@@ -165,26 +185,24 @@ public final class PlaintextSymmetricKeyImpl implements PlaintextSymmetricKey {
     }
 
     public enum Properties {
-        ENCRYPTED_KEY("key") {
+        DECRYPTED_KEY("key") {
             public PropertySpec asPropertySpec(PropertySpecService propertySpecService) {
-                return propertySpecService.stringSpec()
+                return propertySpecService.base64StringSpec()
                         .named(getPropertyName(), "Key")
                         .describedAs("Base64 encoded key")
                         .finish();
             }
 
             @Override
-            void copyFromMap(Map<String, Object> properties, PlaintextSymmetricKeyImpl key) {
+            void copyFromMap(Map<String, Object> properties, PropertySetter propertySetter) {
                 if (properties.containsKey(getPropertyName())) {
-                    byte[] decode = Base64.getDecoder().decode((String) properties.get(getPropertyName()));
-                    key.encryptedKey = key.dataVaultService.encrypt(decode);
+                    propertySetter.key = (String) properties.get(getPropertyName());
                 }
             }
 
             @Override
-            void copyToMap(Map<String, Object> properties, PlaintextSymmetricKeyImpl key) {
-                byte[] decrypt = key.dataVaultService.decrypt(key.encryptedKey);
-                properties.put(getPropertyName(), Base64.getEncoder().encodeToString(decrypt));
+            void copyToMap(Map<String, Object> properties, PropertySetter propertySetter) {
+                properties.put(getPropertyName(), propertySetter.key);
             }
         },
         ;
@@ -196,8 +214,8 @@ public final class PlaintextSymmetricKeyImpl implements PlaintextSymmetricKey {
         }
 
         abstract PropertySpec asPropertySpec(PropertySpecService propertySpecService);
-        abstract void copyFromMap(Map<String, Object> properties, PlaintextSymmetricKeyImpl key);
-        abstract void copyToMap(Map<String, Object> properties, PlaintextSymmetricKeyImpl key);
+        abstract void copyFromMap(Map<String, Object> properties, PropertySetter key);
+        abstract void copyToMap(Map<String, Object> properties, PropertySetter key);
 
         String getPropertyName() {
             return propertyName;
