@@ -2118,7 +2118,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     private void setHttpPort(OfflineDeviceMessage pendingMessage) throws IOException {
         String httpPort = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.SetHttpPortAttributeName).getDeviceMessageAttributeValue();
         
-        this.getWebportalSetupICv1().setHttpsPort(Integer.parseInt(httpPort));
+        this.getWebportalSetupICv1().setHttpPort(Integer.parseInt(httpPort));
     }
 
     private void setHttpsPort(OfflineDeviceMessage pendingMessage) throws IOException {
