@@ -316,7 +316,8 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         if (propertySpec.getName().equals(DeviceMessageConstants.broadcastDevicesGroupAttributeName)) {
             return DeviceInfoSerializer.serializeDeviceInfo(messageAttribute);
         } else if (propertySpec.getName().equals(DeviceMessageConstants.broadcastInitialTimeBetweenBlocksAttributeName)
-                || propertySpec.getName().equals(DeviceMessageConstants.timeout)) {
+                || propertySpec.getName().equals(DeviceMessageConstants.timeout)
+                || propertySpec.getName().equals( DeviceMessageConstants.SET_LOCKOUT_DURATION)) {
             return String.valueOf(((TimeDuration) messageAttribute).getMilliSeconds()); //Return value in ms
         } else if (propertySpec.getName().equals(DeviceMessageConstants.modemWatchdogInterval)
                 || propertySpec.getName().equals(DeviceMessageConstants.modemWatchdogInitialDelay)
