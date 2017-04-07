@@ -48,8 +48,9 @@ Ext.define('Mdc.view.setup.dataloggerslaves.DataLoggerSlaveDeviceAdd', {
                 itemId: 'dataLoggerSlaveFields',
                 layout: {
                     type: 'vbox',
-                    align: 'stretch'
+                    align: 'stretch',
                 },
+                hidden: true,
                 defaults: me.defaults,
                 items: [
                     {

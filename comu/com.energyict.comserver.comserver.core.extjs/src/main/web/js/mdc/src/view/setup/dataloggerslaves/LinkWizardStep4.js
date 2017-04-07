@@ -38,6 +38,12 @@ Ext.define('Mdc.view.setup.dataloggerslaves.LinkWizardStep4', {
                         msgTarget: 'under',
                         fieldLabel: Uni.I18n.translate('general.linkingDate', 'MDC', 'Linking date'),
                         width: 1050
+                    },{
+                        xtype: 'uni-form-empty-message',
+                        itemId: 'automatic-linking-date',
+                        text: Uni.I18n.translate('general.linkingDate.set.automatically', 'MDC', 'The linking date will be set automatically.'),
+                        hidden: true,
+                        margin: '0 0 32 0'
                     }
                 ]
             }
@@ -55,10 +61,10 @@ Ext.define('Mdc.view.setup.dataloggerslaves.LinkWizardStep4', {
             }, me, {single:true});
         }
         if (!enabled){
-            me.disable();
+            me.down('#mdc-step4-linking-date').eachItem(function (item){item.disable()});
+            me.down('#automatic-linking-date').show();
         }
     },
-
     doConfigureLinkingDate: function(minimalLinkingDateInMillis, linkingDateToSuggest) {
         var me = this;
 
