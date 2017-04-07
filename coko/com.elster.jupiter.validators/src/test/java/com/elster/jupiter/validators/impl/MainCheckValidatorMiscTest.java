@@ -6,49 +6,25 @@ package com.elster.jupiter.validators.impl;
 
 import com.elster.jupiter.validation.ValidationResult;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.junit.Test;
+import org.mockito.Mock;
 
+import static org.fest.reflect.core.Reflection.field;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.doAnswer;
 
 public class MainCheckValidatorMiscTest extends MainCheckValidatorTest {
 
-    private static ByteArrayOutputStream outContent;
-    private static ByteArrayOutputStream errContent;
+    @Mock
+    private Logger logger;
 
-    private static PrintStream out;
-    private static PrintStream err;
-
-    private static String preparedOut;
-    private static String preparedErr;
-
-    @BeforeClass
-    public static void configureConsole() {
-
-        outContent = new ByteArrayOutputStream();
-        errContent = new ByteArrayOutputStream();
-
-        out = System.out;
-        err = System.err;
-
-        System.setOut(new PrintStream(outContent));
-        System.setErr(new PrintStream(errContent));
-    }
-
-    @AfterClass
-    public static void configureConsoleBack() {
-        System.setOut(out);
-        System.setErr(err);
-
-        System.out.println(preparedOut);
-        System.err.println(preparedErr);
-    }
+    private StringBuffer logs;
 
     @Test
     public void testNoPuprose() {
@@ -94,6 +70,30 @@ public class MainCheckValidatorMiscTest extends MainCheckValidatorTest {
                 .withNoMinThreshold(), "WARNING: Failed to validate period \"Fri, 01 Jan 2016 12:00 until Fri, 02 Jan 2016 12:00\" using method \"Main/check comparison\" on Usage point name/[Daily] Secondary Delta A+ (kWh) since data from check output is missing or not validated", true);
     }
 
+    private void mockLogger(MainCheckValidator validator){
+
+        logs = new StringBuffer();
+        doAnswer(invocationOnMock -> {
+            Level level = (Level)(invocationOnMock.getArguments()[0]);
+            logs.append(level).append(":").append(" ");
+            logs.append((String)(invocationOnMock.getArguments()[1]));
+            return null;
+        }).when(logger).log(any(Level.class),anyString(),any(Throwable.class));
+
+        field("logger").ofType(Logger.class).in(validator).set(logger);
+    }
+
+
+
+    @Override
+    MainCheckValidator initValidator(ValidationConfiguration validationConfiguration) {
+        MainCheckValidator validator = new MainCheckValidator(thesaurus, propertySpecService, validationConfiguration.rule
+                .createProperties(), validationConfiguration.metrologyConfigurationService, validationConfiguration.validationService);
+        mockLogger(validator);
+        validator.init(validationConfiguration.checkChannel, validationConfiguration.readingType, range);
+        return validator;
+    }
+
     private void validateWithReadings(MainCheckValidatorRule rule, String warning, boolean missingData) {
         ChannelReadings mainChannelReadings = new ChannelReadings(3);
         mainChannelReadings.setReadingValue(0, bigDecimal(10D), instant("20160101000000"));
@@ -121,10 +121,6 @@ public class MainCheckValidatorMiscTest extends MainCheckValidatorTest {
 
         assertEquals(0, validator.finish().size());
 
-        preparedOut = outContent.toString();
-        preparedErr = errContent.toString();
-
-        assertFalse(preparedOut.contains(warning));
-        assertTrue(preparedErr.contains(warning));
+        assertTrue(logs.toString().contains(warning));
     }
 }

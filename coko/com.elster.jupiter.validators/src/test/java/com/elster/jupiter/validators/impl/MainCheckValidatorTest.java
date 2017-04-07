@@ -58,15 +58,15 @@ import static org.mockito.Mockito.when;
 abstract public class MainCheckValidatorTest {
 
     @Mock
-    private Thesaurus thesaurus;
+    protected Thesaurus thesaurus;
 
     private static DateTimeFormatter dateTimeFormat = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
 
     static final String CHECK_PURPOSE = "Purpose";
 
-    private PropertySpecService propertySpecService = new PropertySpecServiceImpl();
+    protected PropertySpecService propertySpecService = new PropertySpecServiceImpl();
 
-    private Range<Instant> range = Range.closed(instant("20160101000000"),instant("20160108000000"));
+    protected Range<Instant> range = Range.closed(instant("20160101000000"),instant("20160108000000"));
 
     MainCheckValidator initValidator(ValidationConfiguration validationConfiguration) {
         MainCheckValidator validator = new MainCheckValidator(thesaurus, propertySpecService, validationConfiguration.rule
