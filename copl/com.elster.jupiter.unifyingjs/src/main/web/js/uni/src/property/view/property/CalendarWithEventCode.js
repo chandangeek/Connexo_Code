@@ -40,15 +40,9 @@ Ext.define('Uni.property.view.property.CalendarWithEventCode', {
                         listeners: {
                             change: function(fld, newValue){
                                 me.getCalendarCombo().setDisabled(!newValue);
-                                if(newValue){
-                                    if(!me.getCalendarCombo().getValue()){
-                                        me.calendarsStore.load();
-                                    }
-                                    if(me.getEventCodeCombo().getValue()){
-                                        me.getEventCodeCombo().enable();
-                                    }
-                                } else {
-                                    me.getEventCodeCombo().disable();
+                                me.getEventCodeCombo().setDisabled(!me.getCalendarCombo().getValue());
+                                if(newValue && !me.getCalendarCombo().getValue()){
+                                    me.calendarsStore.load();
                                 }
                             }
                         }
@@ -73,10 +67,16 @@ Ext.define('Uni.property.view.property.CalendarWithEventCode', {
                         listeners: {
                             change: function (combo, newValue, oldValue) {
                                 me.getEventCodeCombo().clearValue();
-                                me.getEventCodeCombo().bindStore(combo.getStore().getById(newValue).events(), true);
-                                me.fireEvent('eventcodestorebound');
-                                me.getEventCodeCombo().enable();
-                                me.un('eventcodestorebound', me.onEventCodeStoreBound, me);
+                                var model = Ext.ModelManager.getModel('Uni.model.timeofuse.Calendar');
+                                model.getProxy().setUrl('/api/cal/calendars');
+                                model.load(newValue,{
+                                    callback: function(record){
+                                        me.getEventCodeCombo().bindStore(record.events(), true);
+                                        me.fireEvent('eventcodestorebound');
+                                        me.getEventCodeCombo().enable();
+                                        me.un('eventcodestorebound', me.onEventCodeStoreBound, me);
+                                    }
+                                });
                             }
                         }
                     },
