@@ -48,7 +48,8 @@ public class KeyMessageChangeValidator {
         String configuredKeyForClient = getSecurityKey(device, securityPropertySpecName.toString(), clientId, deviceMessage, newKey);
 
         if(configuredKeyForClient == null){
-            String message = "There is no "+securityPropertySpecName+" defined for client "+configuredKeyForClient;
+            String message = "In HES there is no security set with a key ["+securityPropertySpecName+"] defined for ClientMacAddress="+clientId+
+                    ". Cannot continue, because we need to check first if it's the same with the existing key.";
             deviceMessage.fail(message);
             throw missingProperty(securityPropertySpecName.toString());
         } else if(configuredKeyForClient.equalsIgnoreCase(newKey)){
