@@ -33,7 +33,7 @@ Ext.define('Imt.usagepointmanagement.view.metrologyconfiguration.Details', {
                 totalCount: !Ext.isEmpty(purposes) ? purposes.length : 0
             }),
             remoteMeterRolesStore = Ext.getStore('Imt.usagepointmanagement.store.MeterRoles'),
-            mcIsLinked = !!me.usagePoint.get('metrologyConfiguration'),
+            hasEffectiveMCs = !!me.usagePoint.get('hasEffectiveMCs'),
             isReadyForLinkingMC = me.usagePoint.get('isReadyForLinkingMC'),
             stage = me.usagePoint.get('state').stage,
             canModify = stage === 'PRE_OPERATIONAL' || stage === 'SUSPENDED';
@@ -49,7 +49,7 @@ Ext.define('Imt.usagepointmanagement.view.metrologyconfiguration.Details', {
                         xtype: 'button',
                         itemId: 'unlink-metrology-configuration-button',
                         text: Uni.I18n.translate('usagePoint.metrologyConfiguration.unlink', 'IMT', 'Unlink metrology configuration'),
-                        privileges: mcIsLinked && canModify && Imt.privileges.UsagePoint.canAdministrate(),
+                        privileges: Imt.privileges.UsagePoint.canAdministrate() && hasEffectiveMCs && canModify,
                         usagePoint: me.usagePoint
                     }
                 ],
@@ -101,7 +101,7 @@ Ext.define('Imt.usagepointmanagement.view.metrologyconfiguration.Details', {
                                     xtype: 'button',
                                     text: Uni.I18n.translate('general.linkMeters', 'IMT', 'Link meters'),
                                     itemId: 'edit-meters',
-                                    privileges: me.hasLinkMetersButton && Imt.privileges.UsagePoint.canAdministrate(),
+                                    privileges: me.hasLinkMetersButton && Imt.privileges.UsagePoint.canAdministrate() && hasEffectiveMCs,
                                     href: me.router.getRoute('usagepoints/view/metrologyconfiguration/activatemeters').buildUrl()
                                 }
                             ],
