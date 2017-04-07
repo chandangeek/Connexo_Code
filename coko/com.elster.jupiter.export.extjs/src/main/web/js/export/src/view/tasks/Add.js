@@ -346,7 +346,7 @@ Ext.define('Dxp.view.tasks.Add', {
                                 xtype: 'uni-default-button',
                                 itemId: 'reset-purpose-btn',
                                 disabled: true,
-                                tooltip: Uni.I18n.translate('estimationtasks.addValidationTask.restore', 'DES', 'Restore'),
+                                tooltip: Uni.I18n.translate('estimationtasks.addValidationTask.clear', 'DES', 'Clear'),
                                 hidden: false,
                                 handler:  function (btn) {
                                     me.down('#purpose-combo').clearValue();
