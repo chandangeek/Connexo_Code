@@ -7,6 +7,7 @@ package com.elster.jupiter.demo.impl;
 import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.dataquality.DataQualityKpiService;
 import com.elster.jupiter.demo.impl.commands.AddLocationInfoToDevicesCommand;
 import com.elster.jupiter.demo.impl.commands.CreateA3DeviceCommand;
 import com.elster.jupiter.demo.impl.commands.CreateAlarmCreationRuleCommand;
@@ -60,7 +61,6 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.validation.ValidationService;
-import com.elster.jupiter.validation.kpi.DataValidationKpiService;
 import com.energyict.mdc.device.command.CommandRule;
 import com.energyict.mdc.device.command.CommandRuleService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -174,7 +174,7 @@ public class DemoServiceImpl {
     private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
     private volatile CalendarService calendarService;
     private volatile com.elster.jupiter.tasks.TaskService platformTaskService;
-    private volatile DataValidationKpiService dataValidationKpiService;
+    private volatile DataQualityKpiService dataQualityKpiService;
     private volatile CommandRuleService commandRuleService;
 
     private Injector injector;
@@ -226,8 +226,8 @@ public class DemoServiceImpl {
             DeviceMessageSpecificationService deviceMessageSpecificationService,
             CalendarService calendarService,
             com.elster.jupiter.tasks.TaskService platformTaskService,
-            DataValidationKpiService dataValidationKpiService,
-            CommandRuleService commandRuleService) {
+            CommandRuleService commandRuleService,
+            DataQualityKpiService dataQualityKpiService) {
         this();
         setEngineConfigurationService(engineConfigurationService);
         setUserService(userService);
@@ -271,8 +271,8 @@ public class DemoServiceImpl {
         setCalendarService(calendarService);
         setPlatformTaskService(platformTaskService);
         setDataCollectionKpiService(dataCollectionKpiService);
-        setDataValidationKpiService(dataValidationKpiService);
         setCommandRuleService(commandRuleService);
+        setDataQualityKpiService(dataQualityKpiService);
         activate();
         reThrowEx = true;
     }
@@ -327,8 +327,8 @@ public class DemoServiceImpl {
                 bind(DeviceMessageSpecificationService.class).toInstance(deviceMessageSpecificationService);
                 bind(CalendarService.class).toInstance(calendarService);
                 bind(com.elster.jupiter.tasks.TaskService.class).toInstance(platformTaskService);
-                bind(DataValidationKpiService.class).toInstance(dataValidationKpiService);
                 bind(CommandRuleService.class).toInstance(commandRuleService);
+                bind(DataQualityKpiService.class).toInstance(dataQualityKpiService);
             }
         });
         Builders.initWith(this.injector);
@@ -584,8 +584,8 @@ public class DemoServiceImpl {
 
     @Reference
     @SuppressWarnings("unused")
-    public void setDataValidationKpiService(DataValidationKpiService dataValidationKpiService) {
-        this.dataValidationKpiService = dataValidationKpiService;
+    public void setDataQualityKpiService(DataQualityKpiService dataQualityKpiService) {
+        this.dataQualityKpiService = dataQualityKpiService;
     }
 
     @Reference
