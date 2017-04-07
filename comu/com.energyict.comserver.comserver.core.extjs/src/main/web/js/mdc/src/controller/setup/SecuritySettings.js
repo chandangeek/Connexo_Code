@@ -126,8 +126,8 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                 success: function () {
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('devicesecuritysetting.saveSuccess.msg.remove', 'MDC', 'Security setting removed'));
                     me.store.load({
-                        callback: function(records) {
-                            if(records.length === 0){
+                        callback: function (records) {
+                            if (records.length === 0) {
                                 me.getExecutionLevelsForSecuritySettingPreview().setVisible(false);
                                 me.getExecutionLevelsPreviewContainer().setVisible(false);
                             }
@@ -135,9 +135,9 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                     });
                 },
                 failure: function (response, request) {
-                    var errorInfo = Uni.I18n.translate('devicesecuritysetting.removeErrorMsg', 'MDC', 'Error during removal of security setting'),
-                        errorText = Uni.I18n.translate('general.error.unknown', 'MDC', "Unknown error occurred"),
-                        errorCode;
+                    var errorInfo = Uni.I18n.translate('devicesecuritysetting.removeErrorTitle', 'MDC', 'Couldn\'t perform your action'),
+                        errorText = Uni.I18n.translate('devicesecuritysetting.removeErrorMsg', 'MDC', 'Error during removal of security setting') + '.' + Uni.I18n.translate('general.error.unknown', 'MDC', "Unknown error occurred"),
+                        errorCode = '';
 
                     if (response.status == 400) {
                         var result = Ext.JSON.decode(response.responseText, true);
@@ -147,7 +147,7 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                         if (result && result.errorCode) {
                             errorCode = result.errorCode;
                         }
-                            me.getApplication().getController('Uni.controller.Error').showError(errorInfo, errorText, errorCode);
+                        me.getApplication().getController('Uni.controller.Error').showError(errorInfo, errorText, errorCode);
                     }
                 }
             });
@@ -187,7 +187,7 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
         var detailPanel = Ext.ComponentQuery.query('securitySettingSetup securitySettingPreview')[0],
             form = detailPanel.down('form'),
             preloader = Ext.create('Ext.LoadMask', {
-                msg: Uni.I18n.translate('general.loading','MDC','Loading...'),
+                msg: Uni.I18n.translate('general.loading', 'MDC', 'Loading...'),
                 target: form
             });
 
@@ -199,9 +199,9 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
         var executionLevelscontainer = Ext.ComponentQuery.query('securitySettingSetup #execution-levels-grid-preview-container')[0];
         var executionLevelsTitle = Ext.ComponentQuery.query('securitySettingSetup #execution-level-grid-title')[0];
         this.getExecutionLevelGridAddLink() &&
-            this.getExecutionLevelGridAddLink().getEl().set({href: executionLevelscontainer.emptyComponent.stepItems[0].href + record.get('id') + '/privileges/add'});
+        this.getExecutionLevelGridAddLink().getEl().set({href: executionLevelscontainer.emptyComponent.stepItems[0].href + record.get('id') + '/privileges/add'});
         this.getExecutionLevelAddLink() &&
-            this.getExecutionLevelAddLink().getEl().set({href: '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/securitysettings/' + record.get('id') + '/privileges/add'});
+        this.getExecutionLevelAddLink().getEl().set({href: '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/securitysettings/' + record.get('id') + '/privileges/add'});
 
         var preview = Ext.ComponentQuery.query('securitySettingSetup #execution-levels-grid-preview-container')[0];
         preview.bindStore(record.executionLevels());
@@ -276,7 +276,7 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                             actionButtonName: Uni.I18n.translate('general.add', 'MDC', 'Add'),
                             securityAction: 'add'
                         });
-                        var record  =  me.createSecuritySettingModel(deviceTypeId, deviceConfigurationId).create();
+                        var record = me.createSecuritySettingModel(deviceTypeId, deviceConfigurationId).create();
                         form.down('form#myForm').loadRecord(record);
                         me.getApplication().fireEvent('changecontentevent', form);
 
@@ -317,7 +317,7 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
         });
     },
 
-    createSecuritySettingModel: function(deviceTypeId, deviceConfigurationId){
+    createSecuritySettingModel: function (deviceTypeId, deviceConfigurationId) {
         var securitySettingModel = Ext.ModelManager.getModel('Mdc.model.SecuritySetting');
         securitySettingModel.getProxy().url = '/api/dtc/devicetypes/' + deviceTypeId + '/deviceconfigurations/' + deviceConfigurationId + '/securityproperties/';
         return securitySettingModel;
@@ -331,30 +331,30 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
         if (form.isValid()) {
             me.hideErrorPanel();
             var preloader = Ext.create('Ext.LoadMask', {
-                msg: Uni.I18n.translate('general.saving','MDC','Saving...'),
+                msg: Uni.I18n.translate('general.saving', 'MDC', 'Saving...'),
                 target: formPanel
             });
             preloader.show();
             form.updateRecord();
             form.getRecord().save({
                 backUrl: me.getController('Uni.controller.history.Router').getRoute('administration/devicetypes/view/deviceconfigurations/view/securitysettings').buildUrl(),
-                 success: function (response) {
-                     me.handleSuccessRequest(response, Uni.I18n.translate('devicesecuritysetting.saveSuccess.msg.edit', 'MDC', 'Security setting saved'));
-                 },
-                 failure: function (response, operation) {
-                     if (operation) {
-                         if (operation.error.status == 400) {
-                             var result = Ext.JSON.decode(operation.response.responseText, true);
-                             if (result && result.errors) {
-                                 form.markInvalid(result.errors)
-                             }
-                             me.showErrorPanel();
-                         }
-                     }
-                 },
-                 callback: function () {
-                      preloader.destroy();
-                 }
+                success: function (response) {
+                    me.handleSuccessRequest(response, Uni.I18n.translate('devicesecuritysetting.saveSuccess.msg.edit', 'MDC', 'Security setting saved'));
+                },
+                failure: function (response, operation) {
+                    if (operation) {
+                        if (operation.error.status == 400) {
+                            var result = Ext.JSON.decode(operation.response.responseText, true);
+                            if (result && result.errors) {
+                                form.markInvalid(result.errors)
+                            }
+                            me.showErrorPanel();
+                        }
+                    }
+                },
+                callback: function () {
+                    preloader.destroy();
+                }
             });
         } else {
             me.showErrorPanel();
@@ -409,7 +409,7 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                                             var widget = Ext.widget('add-execution-levels', {deviceTypeId: deviceTypeId, deviceConfigurationId: deviceConfigId, securitySettingId: securitySettingId})
                                             me.getApplication().fireEvent('changecontentevent', widget);
                                             me.getAddExecutionLevelPanel().setTitle(Uni.I18n.translate('executionLevels.addExecutionLevels', 'MDC', 'Add privileges'));
-                                            store.load(function(){
+                                            store.load(function () {
                                                 me.getExecutionLevelAddGrid().getSelectionModel().deselectAll();
                                             });
                                             //  var numberOfExecutionLevelsLabel = Ext.ComponentQuery.query('add-execution-levels toolbar label[name=ExecutionLevelCount]')[0],
@@ -436,7 +436,7 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
             grid = this.getExecutionLevelAddGrid();
         var url = '/api/dtc/devicetypes/' + addView.deviceTypeId + '/deviceconfigurations/' + addView.deviceConfigurationId + '/securityproperties/' + addView.securitySettingId + '/executionlevels/',
             preloader = Ext.create('Ext.LoadMask', {
-                msg: Uni.I18n.translate('general.loading','MDC','Loading...'),
+                msg: Uni.I18n.translate('general.loading', 'MDC', 'Loading...'),
                 target: addView
             }),
             records = grid.getSelectionModel().getSelection(),
@@ -461,17 +461,17 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                 failure: function (response) {
                     if (response.status == 400) {
                         var result = Ext.decode(response.responseText, true),
-                            errorTitle = Uni.I18n.translate('general.failedToAdd', 'MDC', 'Failed to add'),
-                            errorText = Uni.I18n.translate('executionlevels.add.failure', 'MDC', 'Privileges could not be added. There was a problem accessing the database'),
-                            errorCode;
+                            errorTitle = Uni.I18n.translate('general.failedToAddTitle', 'MDC', 'Couldn\'t perform your action'),
+                            errorText = Uni.I18n.translate('general.failedToAdd', 'MDC', 'Failed to add') + '.' + Uni.I18n.translate('executionlevels.add.failure', 'MDC', 'Privileges could not be added. There was a problem accessing the database'),
+                            code = '';
 
                         if (result !== null) {
                             errorTitle = result.error;
                             errorText = result.message;
-                            errorCode = result.errorCode;
+                            code = result.errorCode;
                         }
 
-                        self.getApplication().getController('Uni.controller.Error').showError(errorTitle, errorText);
+                        self.getApplication().getController('Uni.controller.Error').showError(errorTitle, errorText, code);
                     }
                 },
                 callback: function () {
@@ -490,7 +490,7 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
             securitySetting = securitySettingsGrid.getView().getSelectionModel().getLastSelected().getData().id;
         Ext.create('Uni.view.window.Confirmation').show({
             msg: Uni.I18n.translate('executionlevel.removeExecutionLevel', 'MDC', 'The privilege will no longer be available.'),
-            title: Uni.I18n.translate('general.removex', 'MDC', "Remove '{0}'?",[lastSelected.getData().name]),
+            title: Uni.I18n.translate('general.removex', 'MDC', "Remove '{0}'?", [lastSelected.getData().name]),
             config: {
                 executionLevelToDelete: lastSelected,
                 securitySetting: securitySetting,
@@ -511,17 +511,17 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                 url: '/api/dtc/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/securityproperties/' + securitySetting + '/executionlevels/' + executionLevelToDelete.getData().id,
                 method: 'DELETE',
                 jsonData: executionLevelToDelete.getRecordData(),
-                waitMsg: Uni.I18n.translate('general.removing','MDC','Removing...'),
+                waitMsg: Uni.I18n.translate('general.removing', 'MDC', 'Removing...'),
                 success: function () {
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('executionlevel.acknowledgment.removed', 'MDC', 'Privilege removed'));
-                    me.store.load(function(){
+                    me.store.load(function () {
                         me.getSecurityGridPanel().getSelectionModel().select(selectedIndex);
                     });
                 },
                 failure: function (response, request) {
-                    var errorInfo = Uni.I18n.translate('executionLevel.removeErrorMsg', 'MDC', 'Error during removal of privilege'),
-                        errorText = Uni.I18n.translate('general.error.unknown', 'MDC', "Unknown error occurred"),
-                        errorCode;
+                    var errorInfo = Uni.I18n.translate('executionLevel.removeErrorTitle', 'MDC', 'Couldn\'t perform your action'),
+                        errorText = Uni.I18n.translate('executionLevel.removeErrorMsg', 'MDC', 'Error during removal of privilege') + '.' + Uni.I18n.translate('general.error.unknown', 'MDC', "Unknown error occurred"),
+                        code='';
 
                     if (response.status == 400) {
                         var result = Ext.JSON.decode(response.responseText, true);
@@ -529,9 +529,9 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                             errorText = result.message;
                         }
                         if (result && result.errorCode) {
-                            errorCode = result.errorCode;
+                            code = result.errorCode;
                         }
-                        me.getApplication().getController('Uni.controller.Error').showError(errorInfo, errorText, errorCode);
+                        me.getApplication().getController('Uni.controller.Error').showError(errorInfo, errorText, code);
                     }
                 }
             });

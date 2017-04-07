@@ -252,12 +252,11 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
                     errorsObj = Ext.decode(options.response.responseText);
                     errorsArray = errorsObj.errors;
                     message = '';
-                    errorCode = '';
+                    var code = errorsObj.errorCode;
                     Ext.Array.each(errorsArray, function (obj) {
                         message += obj.msg + '.'
-                        errorCode += obj.errorCode;
                     });
-                    me.getApplication().getController('Uni.controller.Error').showError(title, message, errorCode);
+                    me.getApplication().getController('Uni.controller.Error').showError(title, message, code);
                 }
             }
         });

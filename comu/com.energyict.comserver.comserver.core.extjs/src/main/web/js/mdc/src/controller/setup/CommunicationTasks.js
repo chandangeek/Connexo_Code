@@ -139,8 +139,8 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
         me.deviceTypeId = deviceTypeId;
         me.deviceConfigurationId = deviceConfigurationId;
 
-        proxy.setExtraParam("deviceType",deviceTypeId);
-        proxy.setExtraParam("deviceConfig",deviceConfigurationId);
+        proxy.setExtraParam("deviceType", deviceTypeId);
+        proxy.setExtraParam("deviceConfig", deviceConfigurationId);
 
         me.getCommunicationTaskConfigsOfDeviceConfigurationStore().load({
             callback: function () {
@@ -293,7 +293,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                                                 if (!Ext.isEmpty(communicationTask.get('comTask'))) {
                                                     comTaskName = communicationTask.get('comTask').name;
                                                 }
-                                                var title = Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'",[comTaskName]);
+                                                var title = Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", [comTaskName]);
                                                 widget.down('#communicationTaskEditForm').setTitle(title);
                                                 widget.setValues(communicationTask);
                                                 widget.setLoading(false);
@@ -328,7 +328,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
 
         Ext.create('Uni.view.window.Confirmation').show({
             msg: Uni.I18n.translate('communicationtasks.deleteCommunicationTask.message', 'MDC', "For this device configuration it won't be possible anymore to execute the corresponding communication task"),
-            title: Uni.I18n.translate('general.removex', 'MDC', "Remove '{0}'?",[lastSelected.get('comTask').name]),
+            title: Uni.I18n.translate('general.removex', 'MDC', "Remove '{0}'?", [lastSelected.get('comTask').name]),
             config: {
                 communicationTaskToDelete: lastSelected,
                 me: me
@@ -364,23 +364,26 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                 failure: function (response, request) {
                     if (response.status == 400) {
                         var errorText = Uni.I18n.translate('general.error.unknown', 'MDC', 'Unknown error occurred'),
-                            errorCode;
+                            errorCode = '';
                         if (!Ext.isEmpty(response.statusText)) {
                             errorText = response.statusText;
                         }
                         if (!Ext.isEmpty(response.responseText)) {
                             var json = Ext.decode(response.responseText, true);
 
-                            if (json && json.error && json.errorCode) {
+                            if (json && json.error) {
                                 errorText = json.error;
+                            }
+                            if (json && json.errorCode) {
                                 errorCode = json.errorCode;
                             }
                         }
 
-                        var titleKey = ((suspended == true) ? 'communicationtasks.activate.operation.failed' : 'communicationtasks.deactivate.operation.failed'),
-                            titleValue = ((suspended == true) ? 'Activate operation failed' : 'Deactivate operation failed');
+                        var title = Uni.I18n.translate("communicationtasks.activation.failure.title", 'MDC', 'Couldn\'t perform your action'),
+                            msgKey = ((suspended == true) ? 'communicationtasks.activate.operation.failed' : 'communicationtasks.deactivate.operation.failed'),
+                            msgValue = ((suspended == true) ? 'Activate operation failed' : 'Deactivate operation failed');
 
-                        me.getApplication().getController('Uni.controller.Error').showError(Uni.I18n.translate(titleKey, 'MDC', titleValue), errorText, errorCode);
+                        me.getApplication().getController('Uni.controller.Error').showError(title, Uni.I18n.translate(msgKey, 'MDC', msgValue) + "." + errorText, errorCode);
                     }
                 }
             });
@@ -459,18 +462,21 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                                 Ext.Array.each(json.errors, function (item) {
                                     item.id.indexOf('comTask') !== -1 && me.getCommunicationTaskEditForm().down('#comTaskComboBox').markInvalid(item.msg);
                                     item.id.indexOf('securityPropertySet') !== -1 && me.getCommunicationTaskEditForm().down('#securityPropertySetComboBox').markInvalid(item.msg);
-                                 });
+                                });
                                 return;
                             }
-                            if (json && json.error && json.errorCode) {
+                            if (json && json.error) {
                                 errorText = json.error;
+                            }
+                            if (json && json.errorCode) {
                                 errorCode = json.errorCode;
                             }
                         }
-                        var titleKey = ((cfg.operation == 'add') ? 'communicationtasks.add.operation.failed' : 'general.edit.operation.failed'),
-                            titleValue = ((cfg.operation == 'add') ? 'Add operation failed' : 'Update operation failed');
+                        var title = Uni.I18n.translate("communicationtasks.edit.failure.title", 'MDC', 'Couldn\'t perform your action'),
+                            msgKey = ((cfg.operation == 'add') ? 'communicationtasks.add.operation.failed' : 'general.edit.operation.failed'),
+                            msgValue = ((cfg.operation == 'add') ? 'Add operation failed' : 'Update operation failed');
 
-                        me.getApplication().getController('Uni.controller.Error').showError(Uni.I18n.translate(titleKey, 'MDC', titleValue), errorText, errorCode);
+                        me.getApplication().getController('Uni.controller.Error').showError(title, Uni.I18n.translate(msgKey, 'MDC', msgValue) + "." + errorText, errorCode);
                     }
                 },
                 callback: function () {

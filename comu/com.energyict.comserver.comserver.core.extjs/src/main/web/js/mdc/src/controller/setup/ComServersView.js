@@ -128,17 +128,20 @@ Ext.define('Mdc.controller.setup.ComServersView', {
                         : Uni.I18n.translate('general.comServer.msg.deactivated', 'MDC', 'Communication server deactivated')
                     );
                 },
-                failure: function(response, opts) {
+                failure: function (response, opts) {
                     var json = Ext.decode(response.responseText);
 
                     record.reject();
                     if (json && json.errors) {
-                        var msg = '', code ='';
+                        var msg = '', code = '';
                         Ext.each(json.errors, function (error) {
                             msg += error["msg"];
-                            code += error["id"];
-
                         });
+                        if (json && json.errorCode) {
+                            code = json.errorCode;
+                        }
+
+
                         var title;
                         switch (item.action) {
                             case 'edit':
@@ -166,7 +169,7 @@ Ext.define('Mdc.controller.setup.ComServersView', {
             itemPanel = this.getComServerPreview(),
             form = itemPanel.down('form'),
             model = me.getModel('Mdc.model.ComServer'),
-            menu =  form.up('panel').down('menu'),
+            menu = form.up('panel').down('menu'),
             id = record.getId();
 
         itemPanel.setLoading();
@@ -185,7 +188,7 @@ Ext.define('Mdc.controller.setup.ComServersView', {
         });
     },
 
-    fillPreviewForm: function(form, record) {
+    fillPreviewForm: function (form, record) {
         var loglevelsStore = this.getStore('Mdc.store.LogLevels'),
             timeUnitsStore = this.getStore('Mdc.store.TimeUnitsWithoutMilliseconds'),
             serverLogLevel = loglevelsStore.findRecord('logLevel', record.get('serverLogLevel')).get('localizedValue'),
@@ -193,7 +196,7 @@ Ext.define('Mdc.controller.setup.ComServersView', {
             changesInterPollDelayUnit = timeUnitsStore.findRecord('timeUnit', record.get('changesInterPollDelay').timeUnit).get('localizedValue'),
             schedulingInterPollDelayUnit = timeUnitsStore.findRecord('timeUnit', record.get('schedulingInterPollDelay').timeUnit).get('localizedValue'),
             changesInterPollDelay = {count: record.get('changesInterPollDelay').count, timeUnit: changesInterPollDelayUnit},
-            schedulingInterPollDelay = {count: record.get('schedulingInterPollDelay').count , timeUnit: schedulingInterPollDelayUnit};
+            schedulingInterPollDelay = {count: record.get('schedulingInterPollDelay').count, timeUnit: schedulingInterPollDelayUnit};
 
         record.set('serverLogLevel', serverLogLevel);
         record.set('communicationLogLevel', communicationLogLevel);
