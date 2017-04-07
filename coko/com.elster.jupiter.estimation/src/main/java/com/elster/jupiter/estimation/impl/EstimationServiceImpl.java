@@ -331,14 +331,13 @@ public class EstimationServiceImpl implements IEstimationService, TranslationKey
                 .map(ReadingType::getFullAliasName).sorted().collect(Collectors.joining(", "));
         String name = channelsContainer.getMeter().map(HasName::getName)
                 .orElse(channelsContainer.getUsagePoint().map(HasName::getName).orElse(""));
-        String purpose = " of purpose "+channelsContainer.getUsagePoint()
-                .get().getCurrentEffectiveMetrologyConfiguration().get()
-                .getMetrologyConfiguration().getContracts()
-                .stream()
-                .filter(metrologyContract -> getMatchingMetrologyPurposes(metrologyContract,report.getResults().keySet()
-                .stream().findFirst().get()))
-                .map(metrologyContract -> metrologyContract.getMetrologyPurpose().getName())
-                .collect(Collectors.joining(" ,"));
+        String purpose = channelsContainer.getUsagePoint()
+                .flatMap(usagePoint -> usagePoint.getCurrentEffectiveMetrologyConfiguration().map( emc ->
+                        emc.getMetrologyConfiguration().getContracts()
+                        .stream()
+                        .filter(metrologyContract -> report.getResults().keySet().stream().filter(rt -> getMatchingMetrologyPurposes(metrologyContract,rt)).findFirst().isPresent())
+                        .map(metrologyContract -> metrologyContract.getMetrologyPurpose().getName())
+                        .collect(Collectors.joining(" ,")))).map(p -> " of purpose " + p).orElse("");
 
         String message = "{0} blocks estimated on {5} of {6}.\nSuccessful estimations {1}, failed estimations {2}\nPeriod of estimation from {3} until {4} .";
         LoggingContext.get().info(logger, message, estimated + notEstimated, estimated, notEstimated, from, to, channelNames, name, purpose);
