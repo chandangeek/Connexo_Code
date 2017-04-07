@@ -13,7 +13,7 @@ import java.util.*;
 
 /**
  * Helper class to analyse everything which has to be added / updated / removed while synchronizing Beacon master data.
- * The analysis will use the HES master-data and existing Beacon master-data while deciding what to do whith each item.
+ * The analysis will use the HES master-data and existing Beacon master-data while deciding what to do with each item.
  * The items used by other Beacon mirrors and not present in EIServer will be preserved.
  */
 public final class MasterDataAnalyser {
