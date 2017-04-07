@@ -310,7 +310,7 @@ public class AM130RegisterFactory implements DeviceRegisterSupport {
                 timeZoneIssue = MdcManager.getIssueFactory().createWarning(offlineRegister.getObisCode(), "registerXissue", offlineRegister.getObisCode(),
                         "Time zone offset reported by the meter ["+dlmsDateTime.getDeviation()+"] "+
                                 (dlmsDateTime.isDST()?" (in DST) ":"") +
-                                "differs from the time zone configured in HES ["+configuredTimeZone.getDisplayName()+"] = ["+configuredTimeZoneOffset+"]");
+                                "differs from the time zone configured in HES ["+configuredTimeZone.getID()+"] = ["+configuredTimeZoneOffset+"]");
             }
             captureTime = dlmsDateTime.getValue().getTime();
         }
