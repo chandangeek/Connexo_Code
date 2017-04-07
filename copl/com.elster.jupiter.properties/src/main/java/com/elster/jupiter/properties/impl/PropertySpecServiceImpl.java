@@ -5,6 +5,7 @@
 package com.elster.jupiter.properties.impl;
 
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.properties.Base64StringFactory;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.BooleanFactory;
 import com.elster.jupiter.properties.LongFactory;
@@ -17,6 +18,7 @@ import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.util.beans.BeanService;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -75,6 +77,11 @@ public class PropertySpecServiceImpl implements PropertySpecService {
     @Override
     public PropertySpecBuilderWizard.NlsOptions<String> stringSpec() {
         return this.specForValuesOf(new StringFactory());
+    }
+
+    @Override
+    public PropertySpecBuilderWizard.NlsOptions<String> base64StringSpec() {
+        return this.specForValuesOf(new Base64StringFactory());
     }
 
     @Override
