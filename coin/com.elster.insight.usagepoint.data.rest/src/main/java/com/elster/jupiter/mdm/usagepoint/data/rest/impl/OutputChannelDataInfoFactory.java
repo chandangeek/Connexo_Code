@@ -38,7 +38,11 @@ public class OutputChannelDataInfoFactory {
         outputChannelDataInfo.reportedDateTime = readingWithValidationStatus.getReportedDateTime();
         outputChannelDataInfo.interval = IntervalInfo.from(readingWithValidationStatus.getTimePeriod());
         outputChannelDataInfo.value = readingWithValidationStatus.getValue();
-        outputChannelDataInfo.calculatedValue = readingWithValidationStatus.getCalculatedValue().orElse(null);
+        if (readingWithValidationStatus.wasEdited()) {
+            outputChannelDataInfo.calculatedValue = readingWithValidationStatus.getCalculatedValue();
+        } else {
+            outputChannelDataInfo.calculatedValue = null;
+        }
         if (readingWithValidationStatus.getCalendar().isPresent()) {
             outputChannelDataInfo.calendarName = readingWithValidationStatus.getCalendar().get().getName();
         }
@@ -87,7 +91,7 @@ public class OutputChannelDataInfoFactory {
         readingWithValidationStatus.getReadingModificationFlag().ifPresent(modificationFlag -> {
             outputChannelDataInfo.modificationFlag = modificationFlag.getFirst();
             outputChannelDataInfo.editedInApp = modificationFlag.getLast().getType().system().map(ReadingModificationFlag::getApplicationInfo).orElse(null);
-            if(modificationFlag.getLast() instanceof ReadingQualityRecord){
+            if (modificationFlag.getLast() instanceof ReadingQualityRecord) {
                 outputChannelDataInfo.modificationDate = ((ReadingQualityRecord)modificationFlag.getLast()).getTimestamp();
             }
         });

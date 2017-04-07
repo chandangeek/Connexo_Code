@@ -97,6 +97,7 @@ public class UsagePointOutputResourceRegisterDataTest extends UsagePointDataRest
         when(usedCalendars.getCalendar(any(Instant.class), any(Category.class))).thenReturn(Optional.empty());
         when(this.usagePoint.getUsedCalendars()).thenReturn(usedCalendars);
         when(clock.getZone()).thenReturn(ZoneId.systemDefault());
+        when(channel.getZoneId()).thenReturn(ZoneId.systemDefault());
 
         when(meteringService.findUsagePointByName(any())).thenReturn(Optional.empty());
         when(meteringService.findUsagePointByName(USAGE_POINT_NAME)).thenReturn(Optional.of(usagePoint));

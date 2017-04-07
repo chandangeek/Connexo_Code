@@ -15,7 +15,6 @@ import com.elster.jupiter.metering.AggregatedChannel;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
-import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingRecord;
@@ -243,26 +242,26 @@ public class UsagePointOutputResource {
                 AggregatedChannel channel = effectiveMetrologyConfigurationOnUsagePoint.getAggregatedChannel(metrologyContract, readingTypeDeliverable.getReadingType()).get();
                 ValidationEvaluator evaluator = validationService.getEvaluator();
                 ReadingWithValidationStatusFactory readingWithValidationStatusFactory = new ReadingWithValidationStatusFactory(
-                        clock, channel,
+                        channel,
                         validationStatusFactory.isValidationActive(metrologyContract, Collections.singletonList(channel)),
                         validationStatusFactory.getLastCheckedForChannels(evaluator, channelsContainer, Collections.singletonList(channel)),
                         usagePoint,
                         calendarService);
-                Map<Instant, ChannelReadingWithValidationStatus> preFilledChannelDataMap = channel.toList(requestedInterval).stream()
-                        .collect(Collectors.toMap(Function.identity(), readingWithValidationStatusFactory::createChannelReading));
+                Map<Instant, ChannelReadingWithValidationStatus> preFilledChannelDataMap =
+                        channel
+                            .toList(requestedInterval)
+                            .stream()
+                            .collect(Collectors.toMap(
+                                    Function.identity(),
+                                    readingWithValidationStatusFactory::createChannelReading));
 
                 // add readings to pre filled channel data map
-                List<AggregatedChannel.AggregatedIntervalReadingRecord> calculatedReadings = channel.getCalculatedIntervalReadings(requestedInterval);
-                Map<Instant, IntervalReadingRecord> persistedReadings = toMap(channel.getPersistedIntervalReadings(requestedInterval));
+                List<AggregatedChannel.AggregatedIntervalReadingRecord> calculatedReadings = channel.getAggregatedIntervalReadings(requestedInterval);
                 for (Map.Entry<Instant, ChannelReadingWithValidationStatus> entry : preFilledChannelDataMap.entrySet()) {
                     Instant readingTimestamp = entry.getKey();
                     ChannelReadingWithValidationStatus readingWithValidationStatus = entry.getValue();
-                    IntervalReadingRecord persistedReading = persistedReadings.get(readingTimestamp);
-                    if (persistedReading != null && persistedReading.getValue() != null) {
-                        readingWithValidationStatus.setPersistedReadingRecord(persistedReading);
-                    }
                     this.findRecordWithContainingRange(calculatedReadings, readingTimestamp)
-                            .ifPresent(readingWithValidationStatus::setCalculatedReadingRecord);
+                            .ifPresent(readingWithValidationStatus::setReadingRecord);
                 }
 
                 // add validation statuses to pre filled channel data map
@@ -270,9 +269,7 @@ public class UsagePointOutputResource {
                         evaluator.getValidationStatus(
                             EnumSet.of(QualityCodeSystem.MDM),
                             channel,
-                            Stream
-                                .concat(persistedReadings.values().stream(), calculatedReadings.stream())
-                                .collect(Collectors.toList()),
+                            calculatedReadings,
                             requestedInterval);
                 for (DataValidationStatus dataValidationStatus : dataValidationStatuses) {
                     ChannelReadingWithValidationStatus readingWithValidationStatus = preFilledChannelDataMap.get(dataValidationStatus.getReadingTimestamp());
@@ -481,7 +478,7 @@ public class UsagePointOutputResource {
                 ValidationEvaluator evaluator = validationService.getEvaluator();
 
                 ReadingWithValidationStatusFactory readingWithValidationStatusFactory = new ReadingWithValidationStatusFactory(
-                        clock, channel,
+                        channel,
                         validationStatusFactory.isValidationActive(metrologyContract, Collections.singletonList(channel)),
                         validationStatusFactory.getLastCheckedForChannels(evaluator, channelsContainer, Collections.singletonList(channel)),
                         usagePoint, calendarService);
@@ -566,7 +563,6 @@ public class UsagePointOutputResource {
         ValidationEvaluator evaluator = validationService.getEvaluator();
         Instant requestedTime = Instant.ofEpochMilli(requestedTimeStamp);
         ReadingWithValidationStatusFactory readingWithValidationStatusFactory = new ReadingWithValidationStatusFactory(
-                clock,
                 channel,
                 validationStatusFactory.isValidationActive(metrologyContract, Collections.singletonList(channel)),
                 validationStatusFactory.getLastCheckedForChannels(evaluator, channelsContainer, Collections.singletonList(channel)),
