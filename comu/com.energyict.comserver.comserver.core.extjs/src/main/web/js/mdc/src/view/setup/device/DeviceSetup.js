@@ -307,7 +307,7 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                     },
                     {
                         xtype: 'deviceGeneralInformationPanel',
-                        dataLoggerSlave: me.device.get('isDataLoggerSlave') ? me.device : undefined,
+                        dataLoggerSlave: me.device.get('isDataLoggerSlave') ? me.device : (me.device.get('isMultiElementSlave') ? me.device: undefined ),
                         router: me.router,
                         minWidth: 300,
                         style: {
