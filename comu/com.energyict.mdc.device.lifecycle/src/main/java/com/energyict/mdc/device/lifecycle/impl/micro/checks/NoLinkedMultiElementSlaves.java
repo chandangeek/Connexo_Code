@@ -4,10 +4,7 @@
 
 package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 
-import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.servicecall.ServiceCall;
-import com.elster.jupiter.servicecall.ServiceCallService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolation;
 import com.energyict.mdc.device.lifecycle.config.MicroCheck;
@@ -16,7 +13,6 @@ import com.energyict.mdc.device.topology.multielement.MultiElementDeviceService;
 
 import java.time.Instant;
 import java.util.Optional;
-import java.util.Set;
 
 /**
  * For multi-element devices make sure there are no slaves linked
