@@ -425,9 +425,11 @@ class MetrologyConfigurationsInstaller {
         MetrologyContract informationContract = configuration.addMandatoryMetrologyContract(findPurposeOrThrowException(DefaultMetrologyPurpose.INFORMATION));
         informationContract.addDeliverable(this.buildFormulaSingleRequirement(configuration, aPlus15Min_kWh_TOU_10, requirementAplusToU10, "15-min A+ kWh ToU10"));
         informationContract.addDeliverable(this.buildFormulaSingleRequirement(configuration, aPlus15Min_kWh_TOU_11, requirementAplusToU11, "15-min A+ kWh ToU11"));
-        informationContract.addDeliverable(this.buildFormulaSingleRequirement(configuration, aPlusYearly_kWh_TOU_10, requirementAplusToU10, "Yearly A+ kWh ToU10"));
-        informationContract.addDeliverable(this.buildFormulaSingleRequirement(configuration, aPlusYearly_kWh_TOU_11, requirementAplusToU11, "Yearly A+ kWh ToU11"));
-        informationContract.addDeliverable(this.buildFormulaRequirementSum(configuration, aPlusYearly_kWh, requirementAplusToU10, requirementAplusToU11, "Yearly A+ kWh"));
+        ReadingTypeDeliverable yearly_TOU_10 = this.buildFormulaSingleRequirement(configuration, aPlusYearly_kWh_TOU_10, requirementAplusToU10, "Yearly A+ kWh ToU10");
+        ReadingTypeDeliverable yearly_TOU_11 = this.buildFormulaSingleRequirement(configuration, aPlusYearly_kWh_TOU_11, requirementAplusToU11, "Yearly A+ kWh ToU11");
+        informationContract.addDeliverable(yearly_TOU_10);
+        informationContract.addDeliverable(yearly_TOU_11);
+        informationContract.addDeliverable(this.buildFormulaDeliverableSum(configuration, aPlusYearly_kWh, yearly_TOU_10, yearly_TOU_11, "Yearly A+ kWh"));
     }
 
     void residentialNetMeteringConsumptionThinTimeOfUse(EventSet eventSet) {
@@ -849,12 +851,12 @@ class MetrologyConfigurationsInstaller {
                         builder.constant(0)));
     }
 
-    ReadingTypeDeliverable buildFormulaRequirementSum(UsagePointMetrologyConfiguration config, ReadingType readingType, ReadingTypeRequirement r1, ReadingTypeRequirement r2, String name) {
+    ReadingTypeDeliverable buildFormulaDeliverableSum(UsagePointMetrologyConfiguration config, ReadingType readingType, ReadingTypeDeliverable d1, ReadingTypeDeliverable d2, String name) {
         ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable(name, readingType, Formula.Mode.AUTO);
         return builder.build(
                     builder.plus(
-                            builder.requirement(r1),
-                            builder.requirement(r2)));
+                            builder.deliverable(d1),
+                            builder.deliverable(d2)));
     }
 
     ReadingTypeTemplate getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate defaultReadingTypeTemplate) {
