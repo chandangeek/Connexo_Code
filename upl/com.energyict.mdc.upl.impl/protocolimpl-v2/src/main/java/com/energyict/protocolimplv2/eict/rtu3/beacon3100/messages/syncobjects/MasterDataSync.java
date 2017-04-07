@@ -1,7 +1,9 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects;
 
 import com.energyict.cpo.ObjectMapperFactory;
-import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.cosem.ClientTypeManager;
 import com.energyict.dlms.cosem.ConcentratorSetup;
 import com.energyict.dlms.cosem.DeviceTypeManager;
@@ -29,7 +31,9 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.StringTokenizer;
 
 /**
  * Copyrights EnergyICT
@@ -78,11 +82,17 @@ public class MasterDataSync {
         
         final MasterDataAnalyser analyzer = new MasterDataAnalyser(allMasterData, scheduleManager, deviceTypeManager, clientTypeManager, concentratorSetup, this.getIsFirmwareVersion140OrAbove(), !this.readOldObisCodes());
         final List<SyncAction<?>> actions = analyzer.analyze();
-        
-        this.info.append(syncPlanToString(actions));
-        
+
         for (final SyncAction<?> action : actions) {
-        	action.execute();
+            try {
+                this.info.append(action.toString());
+                action.execute();
+                this.info.append(" - OK");
+            } catch (Exception ex){
+                info.append("  > " + ex.getMessage());
+                syncStatus = DeviceMessageStatus.FAILED;
+            }
+            info.append("\n");
         }
         
         this.info.append("\nPlan executed, sync complete.");
