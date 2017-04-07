@@ -61,10 +61,10 @@ Ext.define('Mtr.readingtypes.controller.ReadingTypes', {
             'edit-alias-window #edit-save-button': {
                 click: this.changeAlias
             },
-            '#add-reading-type-button' : {
+            '#add-reading-type-button': {
                 click: this.browseAdd
             },
-            '#overview-add-reading-type-button' : {
+            '#overview-add-reading-type-button': {
                 click: this.browseAdd
             },
             '#reading-types-bulk-action-button': {
@@ -108,7 +108,7 @@ Ext.define('Mtr.readingtypes.controller.ReadingTypes', {
     showPreview: function (selectionModel, record) {
         var me = this,
             menu = me.getReadingTypesPreviewMenu();
-        if(menu) menu.record = record;
+        if (menu) menu.record = record;
         me.getPreview().setTitle(Ext.String.htmlEncode(record.get('fullAliasName')));
         me.getPreviewForm().loadRecord(record);
     },
@@ -171,9 +171,9 @@ Ext.define('Mtr.readingtypes.controller.ReadingTypes', {
             failure: function (record, operation) {
                 if (operation.response.status === 400) {
                     var result = Ext.decode(operation.response.responseText, true),
-                        title = Uni.I18n.translate('readingtypesmanagment.readingTypeNotActivateDeactivate', 'MTR', 'Reading type did not {0}', [me.msg]),
-                        message = Uni.I18n.translate('general.serverError', 'MTR', 'Server error'),
-                        errorCode='';
+                        title =Uni.I18n.translate('readingtypesmanagment.readingTypeNotActivateDeactivateTitle', 'MTR', 'Couldn\'t perform your action'),
+                        message = Uni.I18n.translate('readingtypesmanagment.readingTypeNotActivateDeactivate', 'MTR', 'Reading type did not {0}', [me.msg]) + '.' + Uni.I18n.translate('general.serverError', 'MTR', 'Server error'),
+                        code = '';
                     if (!Ext.isEmpty(operation.response.statusText)) {
                         message = operation.response.statusText;
                     }
@@ -181,21 +181,22 @@ Ext.define('Mtr.readingtypes.controller.ReadingTypes', {
                         message = result.message;
                     } else if (result && result.error) {
                         message = result.error;
-                    } if (result && result.errorCode) {
-                        errorCode = result.errorCode;
                     }
-                    me.getApplication().getController('Uni.controller.Error').showError(title, message, errorCode);
+                    if (result && result.errorCode) {
+                        code = result.errorCode;
+                    }
+                    me.getApplication().getController('Uni.controller.Error').showError(title, message, code);
                 }
             }
         };
 
-        if(action != 'edit') {
+        if (action != 'edit') {
             callback.url = '/api/mtr/readingtypes/' + record.get('mRID') + '/activate';
         }
         record.save(callback);
     },
 
-    browseAdd: function(){
+    browseAdd: function () {
         var router = this.getController('Uni.controller.history.Router'),
             addController = this.getController('Mtr.readingtypes.controller.AddReadingTypes');
         addController.qString = router.getQueryStringValues();
