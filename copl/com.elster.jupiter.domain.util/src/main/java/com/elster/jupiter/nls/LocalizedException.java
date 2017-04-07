@@ -50,4 +50,7 @@ public abstract class LocalizedException extends BaseException {
         return getFormat().format(messageArgs);
     }
 
+    public Object[] getMessageArgs() {
+        return messageArgs;
+    }
 }
