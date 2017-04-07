@@ -192,6 +192,16 @@ Ext.define('Imt.purpose.controller.Purpose', {
         if (!tab) {
             window.location.replace(router.getRoute('usagepoints/view/purpose/output').buildUrl({tab: 'readings'}));
         } else {
+            validationConfigurationStore.getProxy().extraParams = {usagePointId: usagePointId, purposeId: purposeId, outputId: outputId};
+            validationConfigurationStore.load(function () {
+                displayPage();
+            });
+
+            estimationConfigurationStore.getProxy().extraParams = {usagePointId: usagePointId, purposeId: purposeId, outputId: outputId};
+            estimationConfigurationStore.load(function () {
+                displayPage();
+            });
+
             outputModel = me.getModel('Imt.purpose.model.Output');
             dependenciesCounter = 5;
             displayPage = function () {
@@ -199,6 +209,10 @@ Ext.define('Imt.purpose.controller.Purpose', {
 
                 dependenciesCounter--;
                 if (!dependenciesCounter) {
+                    if ((tab === 'validation' && !validationConfigurationStore.getCount()) || (tab === 'estimation' && output.get('outputType') === 'channel' && !estimationConfigurationStore.getCount())) {
+                        window.location.replace(router.getRoute('usagepoints/view/purpose/output').buildUrl({tab: 'readings'}));
+                        return;
+                    }
                     mainView.setLoading(false);
                     app.fireEvent('outputs-loaded', outputs);
                     app.fireEvent('output-loaded', output);
@@ -258,16 +272,6 @@ Ext.define('Imt.purpose.controller.Purpose', {
                         displayPage();
                     }
                 }
-            });
-
-            validationConfigurationStore.getProxy().extraParams = {usagePointId: usagePointId, purposeId: purposeId, outputId: outputId};
-            validationConfigurationStore.load(function () {
-                displayPage();
-            });
-
-            estimationConfigurationStore.getProxy().extraParams = {usagePointId: usagePointId, purposeId: purposeId, outputId: outputId};
-            estimationConfigurationStore.load(function () {
-                displayPage();
             });
         }
     },
