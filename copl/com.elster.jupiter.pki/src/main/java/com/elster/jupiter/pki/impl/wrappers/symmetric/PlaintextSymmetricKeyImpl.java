@@ -144,24 +144,6 @@ public final class PlaintextSymmetricKeyImpl implements PlaintextSymmetricKey {
         propertySetter.applyProperties();
     }
 
-    class PropertySetter  {
-        @Base64EncodedKey(groups = {Save.Create.class, Save.Update.class}, message = "{"+MessageSeeds.Keys.INVALID_VALUE+"}")
-        private String key; // field name must match property name
-
-        PropertySetter(PlaintextSymmetricKeyImpl source) {
-            byte[] decrypt = dataVaultService.decrypt(source.encryptedKey);
-            this.key = Base64.getEncoder().encodeToString(decrypt);
-
-        }
-
-        void applyProperties() {
-            byte[] decode = Base64.getDecoder().decode(key);
-            PlaintextSymmetricKeyImpl.this.encryptedKey = dataVaultService.encrypt(decode);
-
-            PlaintextSymmetricKeyImpl.this.save();
-        }
-    }
-
     @Override
     public Map<String, Object> getProperties() {
         Map<String, Object> properties = new HashMap<>();
@@ -221,5 +203,26 @@ public final class PlaintextSymmetricKeyImpl implements PlaintextSymmetricKey {
             return propertyName;
         }
     }
+
+    /**
+     * Intermediate class: properties are gotten and set by this class, allowing intermediate validation
+     */
+    class PropertySetter  {
+        @Base64EncodedKey(groups = {Save.Create.class, Save.Update.class}, message = "{"+MessageSeeds.Keys.INVALID_VALUE+"}")
+        private String key; // field name must match property name
+
+        PropertySetter(PlaintextSymmetricKeyImpl source) {
+            byte[] decrypt = dataVaultService.decrypt(source.encryptedKey);
+            this.key = Base64.getEncoder().encodeToString(decrypt);
+        }
+
+        void applyProperties() {
+            byte[] decode = Base64.getDecoder().decode(key);
+            PlaintextSymmetricKeyImpl.this.encryptedKey = dataVaultService.encrypt(decode);
+
+            PlaintextSymmetricKeyImpl.this.save();
+        }
+    }
+
 
 }
