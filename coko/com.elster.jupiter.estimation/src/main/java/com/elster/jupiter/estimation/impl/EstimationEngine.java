@@ -39,7 +39,6 @@ class EstimationEngine {
     }
 
     private static Stream<EstimationBlock> findBlocksToEstimate(QualityCodeSystem system, Channel channel, Range<Instant> period, ReadingType readingType) {
-
         if(channel.getIntervalReadings(readingType, period).isEmpty()){
             List<ReadingQualityRecord> readingQualityRecords = channel.getCimChannel(readingType)
                     .map(cimChannel -> cimChannel.findReadingQualities()
@@ -48,6 +47,14 @@ class EstimationEngine {
                             .inTimeInterval(period)
                             .collect())
                     .orElse(Collections.emptyList());
+            if(readingQualityRecords.isEmpty()){
+                readingQualityRecords = channel.getCimChannel(readingType)
+                        .map(cimChannel -> cimChannel.findReadingQualities()
+                                .ofQualitySystems(Collections.singleton(system))
+                                .inTimeInterval(period)
+                                .collect())
+                        .orElse(Collections.emptyList());
+            }
             return decorate(readingQualityRecords.stream())
                     .map(EstimationEngine::toEstimatable)
                     .partitionWhen((est1, est2) -> !channel.getNextDateTime(est1.getTimestamp()).equals(est2.getTimestamp()))
@@ -60,20 +67,7 @@ class EstimationEngine {
                             .equals(est2.getTimestamp()))
                     .map(estimableList -> SimpleEstimationBlock.of(channel, readingType, estimableList));
         }
-
     }
-
-    /*private static List<ReadingQualityRecord> findSuspects(Set<QualityCodeSystem> systems, Channel channel, Range<Instant> period, ReadingType readingType) {
-
-        List<ReadingQualityRecord> xx = channel.getCimChannel(readingType)
-                .map(cimChannel -> cimChannel.findReadingQualities()
-                        .ofQualitySystems(systems)
-//                        .ofQualityIndex(QualityCodeIndex.SUSPECT)
-                        .inTimeInterval(period)
-                        .collect())
-                .orElse(Collections.emptyList());
-        return xx;
-    }*/
 
     private static Estimatable toEstimatable(ReadingQualityRecord readingQualityRecord) {
         return readingQualityRecord.getBaseReadingRecord()
