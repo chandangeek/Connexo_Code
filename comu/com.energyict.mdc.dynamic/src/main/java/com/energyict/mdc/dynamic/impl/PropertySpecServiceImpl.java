@@ -150,6 +150,11 @@ public class PropertySpecServiceImpl implements PropertySpecService, MessageSeed
     }
 
     @Override
+    public PropertySpecBuilderWizard.NlsOptions<String> base64StringSpec() {
+        return basicPropertySpecService.base64StringSpec();
+    }
+
+    @Override
     public PropertySpecBuilderWizard.NlsOptions<Boolean> booleanSpec() {
         return basicPropertySpecService.booleanSpec();
     }
