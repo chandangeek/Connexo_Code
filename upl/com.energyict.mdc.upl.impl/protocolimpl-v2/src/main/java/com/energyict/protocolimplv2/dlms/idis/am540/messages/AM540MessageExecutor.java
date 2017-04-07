@@ -82,8 +82,6 @@ public class AM540MessageExecutor extends AM130MessageExecutor {
                 collectedMessage = verifyAndActivateFirmware(pendingMessage, collectedMessage);
             } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.ENABLE_IMAGE_TRANSFER)) {
                 collectedMessage = enableImageTransfer(collectedMessage, pendingMessage);
-            } else if (pendingMessage.getSpecification().equals(LoadBalanceDeviceMessage.UPDATE_SUPERVISION_MONITOR)) {
-                collectedMessage = updateSupervisionMonitor(collectedMessage, pendingMessage);
             } else if (pendingMessage.getSpecification().equals(LoadProfileMessage.LOAD_PROFILE_OPT_IN_OUT)) {
                 loadProfileOptInOUT(pendingMessage);
             } else if (pendingMessage.getSpecification().equals(LoadProfileMessage.SET_DISPLAY_ON_OFF)) {
@@ -268,12 +266,6 @@ public class AM540MessageExecutor extends AM130MessageExecutor {
         } else {
             return false;
         }
-    }
-
-    private CollectedMessage updateSupervisionMonitor(CollectedMessage collectedMessage, OfflineDeviceMessage offlineDeviceMessage) throws IOException {
-        int monitorInstance = new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, monitorInstanceAttributeName).getDeviceMessageAttributeValue()).intValue();
-        long threshold = new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, thresholdInAmpereAttributeName).getDeviceMessageAttributeValue()).longValue();
-        return updateThresholds(collectedMessage, offlineDeviceMessage, monitorInstance, threshold);
     }
 
     private void loadProfileOptInOUT(OfflineDeviceMessage offlineDeviceMessage) throws IOException {

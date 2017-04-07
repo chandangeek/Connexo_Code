@@ -59,7 +59,6 @@ public class AM540Messaging extends AM130Messaging {
     private void addAdditionalDeviceMessages(List<DeviceMessageSpec> supportedMessages) {
         supportedMessages.add(FirmwareDeviceMessage.VerifyAndActivateFirmware);
         supportedMessages.add(FirmwareDeviceMessage.ENABLE_IMAGE_TRANSFER);
-        supportedMessages.add(LoadBalanceDeviceMessage.UPDATE_SUPERVISION_MONITOR);
         supportedMessages.add(LoadProfileMessage.LOAD_PROFILE_OPT_IN_OUT);
         supportedMessages.add(LoadProfileMessage.SET_DISPLAY_ON_OFF);
         supportedMessages.add(LoadProfileMessage.WRITE_MEASUREMENT_PERIOD_3_FOR_INSTANTANEOUS_VALUES);
