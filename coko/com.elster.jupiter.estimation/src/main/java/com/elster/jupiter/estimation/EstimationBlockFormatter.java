@@ -45,14 +45,13 @@ public class EstimationBlockFormatter {
                 DATE_TIME_FORMATTER.format(estimationBlock.estimatables().get(estimationBlock.estimatables().size() - 1).getTimestamp()) +
                 " on " +
                 estimationBlock.getReadingType().getFullAliasName() +
-                " of purpose " +
                 estimationBlock.getChannel().getChannelsContainer().getUsagePoint()
-                        .get().getCurrentEffectiveMetrologyConfiguration().get()
-                        .getMetrologyConfiguration().getContracts()
+                        .flatMap(up -> up.getCurrentEffectiveMetrologyConfiguration().map(emc ->
+                                emc.getMetrologyConfiguration().getContracts()
                         .stream()
                         .filter(metrologyContract -> getMatchingMetrologyPurposes(metrologyContract, estimationBlock.getReadingType()))
                         .map(metrologyContract -> metrologyContract.getMetrologyPurpose().getName())
-                        .collect(Collectors.joining(" ,")) +
+                        .collect(Collectors.joining(" ,")))).map(p -> " of purpose " + p).orElse("") +
                 " of " +
                 estimationBlock.getChannel().getChannelsContainer().getUsagePoint().map(usagePoint -> " usage point " + usagePoint.getName()).orElse("") +
                 estimationBlock.getChannel().getChannelsContainer().getMeter().map(meter -> " and meter " + meter.getName()).orElse("") +
