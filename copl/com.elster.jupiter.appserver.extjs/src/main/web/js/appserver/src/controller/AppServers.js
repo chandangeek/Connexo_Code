@@ -542,11 +542,11 @@ Ext.define('Apr.controller.AppServers', {
                             errorCode = json.errorCode;
                         }
                     }
-                    var titleText = suspended
+                    var msgText = suspended
                         ? Uni.I18n.translate('appServers.deactivate.operation.failed', 'APR', 'Deactivate operation failed')
                         : Uni.I18n.translate('appServers.activate.operation.failed', 'APR', 'Activate operation failed');
 
-                    me.getApplication().getController('Uni.controller.Error').showError(titleText, errorText, errorCode);
+                    me.getApplication().getController('Uni.controller.Error').showError(Uni.I18n.translate('appServers.deactivate.operation.failedTitle', 'APR', 'Couldn\'t perform your action'), msgText + '.' + errorText, errorCode);
                 }
             }
         });
@@ -1177,10 +1177,13 @@ Ext.define('Apr.controller.AppServers', {
             },
             failure: function (record, operation) {
                 ref.setLoading(false);
-                var errorText = Uni.I18n.translate('appServers.error.unknown', 'APR', 'Unknown error occurred');
-                var titleText = Uni.I18n.translate('appServers.save.operation.failed', 'APR', 'Save operation failed'),
-                    errorCode = '';
-                me.getApplication().getController('Uni.controller.Error').showError(titleText, errorText, errorCode);
+                var errorText = Uni.I18n.translate('appServers.save.operation.failed', 'APR', 'Save operation failed') + '.' + Uni.I18n.translate('appServers.error.unknown', 'APR', 'Unknown error occurred');
+                var titleText = Uni.I18n.translate('appServers.save.operation.failedTitle', 'APR', 'Couldn\'t perform your action'),
+                    code = '';
+                if (operation && operation.response && operation.response.responseText && operation.response.responseText.errorCode) {
+                    code = operation.response.responseText.errorCode;
+                }
+                me.getApplication().getController('Uni.controller.Error').showError(titleText, errorText, code);
             }
         });
     },
@@ -1230,10 +1233,13 @@ Ext.define('Apr.controller.AppServers', {
             },
             failure: function (record, operation) {
                 ref.setLoading(false);
-                var errorText = Uni.I18n.translate('appServers.error.unknown', 'APR', 'Unknown error occurred');
-                var titleText = Uni.I18n.translate('appServers.save.operation.failed', 'APR', 'Save operation failed'),
-                    errorCode = '';
-                me.getApplication().getController('Uni.controller.Error').showError(titleText, errorText, errorCode);
+                var errorText = Uni.I18n.translate('appServers.save.operation.failed', 'APR', 'Save operation failed') + '.' + Uni.I18n.translate('appServers.error.unknown', 'APR', 'Unknown error occurred');
+                var titleText = Uni.I18n.translate('appServers.save.operation.failedTitle', 'APR', 'Couldn\'t perform your action'),
+                    code = '';
+                if (operation && operation.response && operation.response.responseText && operation.response.responseText.errorCode) {
+                    code = operation.response.responseText.errorCode;
+                }
+                me.getApplication().getController('Uni.controller.Error').showError(titleText, errorText, code);
             }
         });
     },
@@ -1368,10 +1374,13 @@ Ext.define('Apr.controller.AppServers', {
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('appServers.saveSuccessMsg', 'APR', 'Application server saved'));
             },
             failure: function (response, operation) {
-                var errorText = Uni.I18n.translate('appServers.error.unknown', 'APR', 'Unknown error occurred');
-                var titleText = Uni.I18n.translate('appServers.save.operation.failed', 'APR', 'Save operation failed'),
-                    errorCode = '';
-                me.getApplication().getController('Uni.controller.Error').showError(titleText, errorText, errorCode);
+                var errorText = Uni.I18n.translate('appServers.save.operation.failed', 'APR', 'Save operation failed') + '.' + Uni.I18n.translate('appServers.error.unknown', 'APR', 'Unknown error occurred');
+                var titleText = Uni.I18n.translate('appServers.save.operation.failedTitle', 'APR', 'Couldn\'t perform your action'),
+                    code = '';
+                if (operation && operation.response && operation.response.responseText && operation.response.responseText.errorCode) {
+                    code = operation.response.responseText.errorCode;
+                }
+                me.getApplication().getController('Uni.controller.Error').showError(titleText, errorText, code);
             }
         });
     },
@@ -1486,10 +1495,13 @@ Ext.define('Apr.controller.AppServers', {
                         var disabled = unservedImportStore.getCount() === 0;
                         me.getAddImportServicesButtonFromDetails().setDisabled(disabled);
                     } else {
-                        var errorText = Uni.I18n.translate('appServers.error.unknown', 'APR', 'Unknown error occurred');
-                        var titleText = Uni.I18n.translate('appServers.undo.operation.failed', 'APR', 'Undo operation failed'),
-                            errorCode = '';
-                        me.getApplication().getController('Uni.controller.Error').showError(titleText, errorText, errorCode);
+                        var errorText = Uni.I18n.translate('appServers.undo.operation.failed', 'APR', 'Undo operation failed') + '.' + Uni.I18n.translate('appServers.error.unknown', 'APR', 'Unknown error occurred');
+                        var titleText = Uni.I18n.translate('appServers.undo.operation.failedTitle', 'APR', 'Couldn\'t perform your action'),
+                            code = '';
+                        if (operation && operation.response && operation.response.responseText && operation.response.responseText.errorCode) {
+                            code = operation.response.responseText.errorCode;
+                        }
+                        me.getApplication().getController('Uni.controller.Error').showError(titleText, errorText, code);
                     }
                 }
             });
@@ -1509,10 +1521,13 @@ Ext.define('Apr.controller.AppServers', {
                         var disabled = unservedWebservicesStore.getCount() === 0;
                         me.getAddWebServicesButtonFromDetails().setDisabled(disabled);
                     } else {
-                        var errorText = Uni.I18n.translate('appServers.error.unknown', 'APR', 'Unknown error occurred');
-                        var titleText = Uni.I18n.translate('appServers.undo.operation.failed', 'APR', 'Undo operation failed'),
-                            errorCode = '';
-                        me.getApplication().getController('Uni.controller.Error').showError(titleText, errorText, errorCode);
+                        var errorText = Uni.I18n.translate('appServers.undo.operation.failed', 'APR', 'Undo operation failed') + '.' + Uni.I18n.translate('appServers.error.unknown', 'APR', 'Unknown error occurred');
+                        var titleText = Uni.I18n.translate('appServers.undo.operation.failedTitle', 'APR', 'Couldn\'t perform your action'),
+                            code = '';
+                        if (operation && operation.response && operation.response.responseText && operation.response.responseText.errorCode) {
+                            code = operation.response.responseText.errorCode;
+                        }
+                        me.getApplication().getController('Uni.controller.Error').showError(titleText, errorText, code);
                     }
                 }
             });
