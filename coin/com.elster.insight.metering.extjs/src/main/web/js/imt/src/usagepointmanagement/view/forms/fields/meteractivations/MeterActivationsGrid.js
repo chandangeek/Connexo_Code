@@ -36,6 +36,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.meteractivations.MeterAct
             {
                 header: Uni.I18n.translate('general.meter', 'IMT', 'Meter'),
                 dataIndex: 'meter',
+                itemId:'cell-meter',
                 disableTooltip: true,
                 flex: 1,
                 editor: {
@@ -56,18 +57,22 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.meteractivations.MeterAct
                     cls: 'stretchy-combo',
                     listeners: Ext.merge(me.meterComboLiseners, {
                         afterrender: function(field){
-                            if (me.meterRoles && !field.value) {
-                                document.getElementsByClassName('unlink-miter-grid')[0].style.display = 'none';
-                            } else {
-                                document.getElementsByClassName('unlink-miter-grid')[0].style.display = 'inline-block';
+                            if (me.meterRoles) {
+                                if (!field.value) {
+                                    document.getElementsByClassName('unlink-miter-grid')[0].style.display = 'none';
+                                } else {
+                                    document.getElementsByClassName('unlink-miter-grid')[0].style.display = 'inline-block';
+                                }
                             }
                         },
                         change: function (field, newValue) {
-                            debugger;
-                            if (me.meterRoles && !newValue) {
-                                document.getElementsByClassName('unlink-miter-grid')[0].style.display = 'none';
-                            } else {
-                                document.getElementsByClassName('unlink-miter-grid')[0].style.display = 'inline-block';
+                            // debugger;
+                            if (me.meterRoles) {
+                                if (!newValue) {
+                                    document.getElementsByClassName('unlink-miter-grid')[0].style.display = 'none';
+                                } else {
+                                    document.getElementsByClassName('unlink-miter-grid')[0].style.display = 'inline-block';
+                                }
                             }
                         }
                     })
