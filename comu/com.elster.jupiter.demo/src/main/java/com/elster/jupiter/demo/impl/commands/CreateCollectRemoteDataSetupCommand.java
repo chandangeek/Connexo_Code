@@ -257,16 +257,19 @@ public class CreateCollectRemoteDataSetupCommand extends CommandWithTransaction 
     private void createDevices(DeviceTypeTpl deviceTypeTpl) {
         DeviceType deviceType = Builders.from(deviceTypeTpl).get();
         int deviceCount = (this.devicesPerType == null ? deviceTypeTpl.getDeviceCount() : this.devicesPerType);
+        if(deviceTypeTpl == DeviceTypeTpl.Elster_A1800 || deviceTypeTpl == DeviceTypeTpl.Elster_AS1440) {
+            deviceCount = (int) Math.floor(deviceCount / 2);
+        }
         if (deviceTypeTpl == DeviceTypeTpl.Elster_A1800) {
             int validationStrictDeviceCount = this.devicesPerType == null ? VALIDATION_STRICT_DEVICE_COUNT : this.devicesPerType / 3; // 3 device conf on this type
             createDevices(Builders.from(DeviceConfigurationTpl.PROSUMERS_VALIDATION_STRICT).withDeviceType(deviceType).get(), deviceTypeTpl, validationStrictDeviceCount);
             deviceCount = Math.max(0, deviceCount - validationStrictDeviceCount);
         }
         if (deviceTypeTpl == DeviceTypeTpl.Elster_A1800 || deviceTypeTpl == DeviceTypeTpl.Elster_AS1440 || deviceTypeTpl == DeviceTypeTpl.Iskra_38 || deviceTypeTpl == DeviceTypeTpl.Landis_Gyr_ZMD) {
-            createDevices(Builders.from(DeviceConfigurationTpl.PROSUMERS).withDeviceType(deviceType).get(), deviceTypeTpl, deviceCount >> 1);
+            createDevices(Builders.from(DeviceConfigurationTpl.PROSUMERS).withDeviceType(deviceType).get(), deviceTypeTpl, deviceCount);
         }
         if (deviceTypeTpl == DeviceTypeTpl.Elster_A1800 || deviceTypeTpl == DeviceTypeTpl.Elster_AS1440 || deviceTypeTpl == DeviceTypeTpl.Actaris_SL7000 || deviceTypeTpl == DeviceTypeTpl.Siemens_7ED) {
-            createDevices(Builders.from(DeviceConfigurationTpl.CONSUMERS).withDeviceType(deviceType).get(), deviceTypeTpl, deviceCount >> 1);
+            createDevices(Builders.from(DeviceConfigurationTpl.CONSUMERS).withDeviceType(deviceType).get(), deviceTypeTpl, deviceCount);
         }
     }
 
