@@ -58,20 +58,21 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.meteractivations.MeterAct
                     listeners: Ext.merge(me.meterComboLiseners, {
                         afterrender: function(field){
                             if (me.meterRoles) {
+                                var index = me.getView().getNodeByRecord(field.cell.record).getAttribute('data-recordindex');
                                 if (!field.value) {
-                                    document.getElementsByClassName('unlink-miter-grid')[0].style.display = 'none';
+                                    document.getElementsByClassName('unlink-miter-grid')[index].style.display = 'none';
                                 } else {
-                                    document.getElementsByClassName('unlink-miter-grid')[0].style.display = 'inline-block';
+                                    document.getElementsByClassName('unlink-miter-grid')[index].style.display = 'inline-block';
                                 }
                             }
                         },
                         change: function (field, newValue) {
-                            // debugger;
                             if (me.meterRoles) {
+                                var index = me.getView().getNodeByRecord(field.cell.record).getAttribute('data-recordindex');
                                 if (!newValue) {
-                                    document.getElementsByClassName('unlink-miter-grid')[0].style.display = 'none';
+                                    document.getElementsByClassName('unlink-miter-grid')[index].style.display = 'none';
                                 } else {
-                                    document.getElementsByClassName('unlink-miter-grid')[0].style.display = 'inline-block';
+                                    document.getElementsByClassName('unlink-miter-grid')[index].style.display = 'inline-block';
                                 }
                             }
                         }

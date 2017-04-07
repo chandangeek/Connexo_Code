@@ -81,6 +81,8 @@ Ext.define('Imt.usagepointsetup.controller.MetrologyConfig', {
                     meterActivation.meter = {
                         name: meterActivation.meterRole.meter
                     };
+                } else {
+                    meterActivation.meter = null;
                 }
                 meterActivation.meterRole.activationTime = meterActivation.activationTime;
                 meterActivation.activationTime = undefined;
