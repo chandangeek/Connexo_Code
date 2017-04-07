@@ -104,7 +104,7 @@ Ext.define('Sam.controller.licensing.Upload', {
                         Ext.getStore('apps').load();
                     } else {
                         uploadPanel.down('#upload').disable();
-                        self.getApplication().getController('Uni.controller.Error').showError(Uni.I18n.translate('general.failed.to.upload.licenses', 'SAM', 'Failed to upload licenses'), responseObject.errors[0].msg, responseObject.errors[0].errorCode);
+                        self.getApplication().getController('Uni.controller.Error').showError(Uni.I18n.translate('general.failed.to.upload.licenses.title', 'SAM', 'Couldn\'t perform your action'), Uni.I18n.translate('general.failed.to.upload.licenses', 'SAM', 'Failed to upload licenses') + '.' + responseObject.errors[0].msg, responseObject.errors[0].errorCode);
                     }
                 }
             });
