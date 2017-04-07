@@ -179,7 +179,8 @@ public final class ComTaskExecutionOrganizer {
     }
 
     private Key toKey(Device device, ComTaskExecution comTaskExecution, ComTask comTask) {
-        Optional<ComTaskEnablement> foundComTaskEnablement = device.getDeviceConfiguration().getComTaskEnablementFor(comTask);
+        Optional<ComTaskEnablement> foundComTaskEnablement =
+                comTaskExecution.getDevice().getDeviceConfiguration().getComTaskEnablementFor(comTask);
         SecurityPropertySet securityPropertySet =
                 foundComTaskEnablement
                         .flatMap(cte -> this.getProperSecurityPropertySet(cte, device, comTaskExecution))
