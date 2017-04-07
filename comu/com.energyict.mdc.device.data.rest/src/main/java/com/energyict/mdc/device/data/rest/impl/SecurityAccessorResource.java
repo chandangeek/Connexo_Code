@@ -13,6 +13,7 @@ import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.rest.util.PathPrependingConstraintViolationException;
 import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.KeyAccessor;
@@ -20,6 +21,7 @@ import com.energyict.mdc.device.data.rest.SecurityAccessorInfoFactory;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
+import javax.validation.ConstraintViolationException;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
@@ -97,8 +99,16 @@ public class SecurityAccessorResource {
 
     private KeyAccessor<SecurityValueWrapper> createKeyAccessor(Device device, KeyAccessorType keyAccessorType, SecurityAccessorInfo securityAccessorInfo) {
         KeyAccessor<SecurityValueWrapper> keyAccessor = device.newKeyAccessor(keyAccessorType);
-        createActualValue(keyAccessor, securityAccessorInfo);
-        createTempValue(keyAccessor, securityAccessorInfo);
+        try {
+            createActualValue(keyAccessor, securityAccessorInfo);
+        } catch (ConstraintViolationException e) {
+            throw new PathPrependingConstraintViolationException(e, "currentProperties");
+        }
+        try {
+            createTempValue(keyAccessor, securityAccessorInfo);
+        } catch (ConstraintViolationException e) {
+            throw new PathPrependingConstraintViolationException(e, "tempProperties");
+        }
         return keyAccessor;
     }
 
@@ -113,14 +123,23 @@ public class SecurityAccessorResource {
     }
 
     private KeyAccessor<SecurityValueWrapper> updateKeyAccessor(KeyAccessor keyAccessor, SecurityAccessorInfo securityAccessorInfo) {
-        updateActualValue(keyAccessor, securityAccessorInfo);
-
-        Optional<SecurityValueWrapper> tempValue = keyAccessor.getTempValue();
-        if (tempValue.isPresent()) {
-            updateTempValue(tempValue.get(), securityAccessorInfo);
-        } else {
-            createTempValue(keyAccessor, securityAccessorInfo);
+        try {
+            updateActualValue(keyAccessor, securityAccessorInfo);
+        } catch (ConstraintViolationException e) {
+            throw new PathPrependingConstraintViolationException(e, "currentProperties");
         }
+
+        try {
+            Optional<SecurityValueWrapper> tempValue = keyAccessor.getTempValue();
+            if (tempValue.isPresent()) {
+                updateTempValue(tempValue.get(), securityAccessorInfo);
+            } else {
+                createTempValue(keyAccessor, securityAccessorInfo);
+            }
+        } catch (ConstraintViolationException e) {
+            throw new PathPrependingConstraintViolationException(e, "tempProperties");
+        }
+
 
         return keyAccessor;
     }

@@ -191,6 +191,50 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
     }
 
     @Test
+    public void setActualAndNoTempOnExistingKeyAccessorWithoutTemp() throws Exception {
+        SecurityAccessorInfo securityAccessorInfo = new SecurityAccessorInfo();
+        securityAccessorInfo.currentProperties = new ArrayList<>();
+        PropertyInfo actualProperty = createPropertyInfo("key", "actualKey");
+        securityAccessorInfo.currentProperties.add(actualProperty);
+        securityAccessorInfo.tempProperties = new ArrayList<>();
+
+        SymmetricKeyWrapper symmetricKeyWrapper = mockSymmetricKeyWrapper(symmetricKeypropertySpecs, null, null);
+        when(pkiService.newSymmetricKeyWrapper(symmetricKeyAccessorType)).thenReturn(symmetricKeyWrapper);
+        Response response = target("/devices/BVN001/securityaccessors/keys/111").request().put(Entity.json(securityAccessorInfo));
+        JsonModel jsonModel = JsonModel.create((InputStream) response.getEntity());
+
+        verify(symmetrickeyAccessor, never()).setActualValue(any(SymmetricKeyWrapper.class));
+        ArgumentCaptor<Map> actualMapArgumentCaptor = ArgumentCaptor.forClass(Map.class);
+        verify(actualSymmetricKeyWrapper, times(1)).setProperties(actualMapArgumentCaptor.capture());
+        assertThat(actualMapArgumentCaptor.getValue()).contains(MapEntry.entry("key", "actualKey"));
+
+        verify(symmetrickeyAccessor, never()).setTempValue(symmetricKeyWrapper);
+        verify(symmetricKeyWrapper, never()).setProperties(any(Map.class));
+    }
+
+    @Test
+    public void setTempAndNoActualOnExistingKeyAccessorWithoutTemp() throws Exception {
+        SecurityAccessorInfo securityAccessorInfo = new SecurityAccessorInfo();
+        securityAccessorInfo.currentProperties = new ArrayList<>();
+        securityAccessorInfo.tempProperties = new ArrayList<>();
+        PropertyInfo tempProperty = createPropertyInfo("key", "actualKey");
+        securityAccessorInfo.tempProperties.add(tempProperty);
+
+        SymmetricKeyWrapper symmetricKeyWrapper = mockSymmetricKeyWrapper(symmetricKeypropertySpecs, null, null);
+        when(pkiService.newSymmetricKeyWrapper(symmetricKeyAccessorType)).thenReturn(symmetricKeyWrapper);
+        Response response = target("/devices/BVN001/securityaccessors/keys/111").request().put(Entity.json(securityAccessorInfo));
+        JsonModel jsonModel = JsonModel.create((InputStream) response.getEntity());
+
+        verify(symmetrickeyAccessor, never()).setActualValue(any(SymmetricKeyWrapper.class));
+        ArgumentCaptor<Map> actualMapArgumentCaptor = ArgumentCaptor.forClass(Map.class);
+        verify(actualSymmetricKeyWrapper, times(1)).setProperties(actualMapArgumentCaptor.capture());
+        assertThat(actualMapArgumentCaptor.getValue()).contains(MapEntry.entry("key", "actualKey"));
+
+        verify(symmetrickeyAccessor, never()).setTempValue(symmetricKeyWrapper);
+        verify(symmetricKeyWrapper, never()).setProperties(any(Map.class));
+    }
+
+    @Test
     public void setActualAndTempOnExistingKeyAccessorWithTemp() throws Exception {
         SecurityAccessorInfo securityAccessorInfo = new SecurityAccessorInfo();
         securityAccessorInfo.currentProperties = new ArrayList<>();
