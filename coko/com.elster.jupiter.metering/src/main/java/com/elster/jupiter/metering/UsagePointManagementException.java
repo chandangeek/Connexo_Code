@@ -31,6 +31,10 @@ public class UsagePointManagementException extends UsagePointMeterActivationExce
         return new UsagePointManagementException(thesaurus, MessageSeeds.METER_ACTIVATION_INVALID_REQUIREMENTS, purposes);
     }
 
+    public static UsagePointManagementException incorrectMetersSpecification(Thesaurus thesaurus, List<String> meterRoles) {
+        return new UsagePointManagementException(thesaurus, MessageSeeds.METERS_ARE_NOT_SPECIFIED_FOR_CONFIGURATION, meterRoles);
+    }
+
     public static UsagePointManagementException incorrectEndDeviceStage(Thesaurus thesaurus, String when) {
         return new UsagePointManagementException(thesaurus, MessageSeeds.INVALID_END_DEVICE_STAGE, when);
     }

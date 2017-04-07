@@ -253,7 +253,6 @@ public class UsagePointImplIT {
     @Transactional
     public void canNotLinkMetrologyConfigurationBeforeUsagePointInstallationTime() {
         expectedException.expect(UsagePointManagementException.class);
-        expectedException.expectMessage("Start date must be greater than or equal to Created date of usage point");
         MeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
         UsagePoint usagePoint =
@@ -276,7 +275,7 @@ public class UsagePointImplIT {
         Stage deviceStage = mock(Stage.class);
         String operationalDeviceStageKey = "mtr.enddevicestage.operational";
         expectedException.expect(UsagePointManagementException.class);
-        expectedException.expectMessage("The meters of the usage point do not provide the necessary reading types for purposes [metrology.purpose.voltage.monitoring.name]  of the new metrology configuration");
+        expectedException.expectMessage("Meter linking error. The meters of the usage point do not provide the necessary reading types for purposes [metrology.purpose.voltage.monitoring.name] of the new metrology configuration");
         ServerMeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
         AmrSystem system = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
         Meter meter = spy(system.newMeter("Meter", "meterName").create());
@@ -284,23 +283,23 @@ public class UsagePointImplIT {
         when(deviceState.getStage()).thenReturn(Optional.of(deviceStage));
         when(deviceStage.getName()).thenReturn(operationalDeviceStageKey);
         ReadingType bulkReadingType = inMemoryBootstrapModule.getMeteringService().getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
-        meter.activate(AUG_15TH_2016).getChannelsContainer().createChannel(bulkReadingType);
+        meter.activate(AUG_1ST_2016).getChannelsContainer().createChannel(bulkReadingType);
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
         UsagePoint usagePoint = serviceCategory.newUsagePoint("UsagePoint", JUNE_1ST_2016).create();
         MeterRole meterRole = inMemoryBootstrapModule.getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT);
-        usagePoint.linkMeters().activate(AUG_15TH_2016, meter, meterRole).complete();
+        usagePoint.linkMeters().activate(AUG_1ST_2016, meter, meterRole).complete();
 
         UsagePointMetrologyConfiguration configuration =
                 inMemoryBootstrapModule
                         .getMetrologyConfigurationService()
                         .newUsagePointMetrologyConfiguration("metrologyConfiguration1", serviceCategory)
                         .create();
-        configuration.addMandatoryMetrologyContract(getMonitorVolatageMetrologyPurpose());
+        configuration.addMandatoryMetrologyContract(getVoltageMonitoringPurpose());
         configuration.activate();
-        usagePoint.apply(configuration, AUG_1ST_2016);
+        usagePoint.apply(configuration, AUG_15TH_2016);
     }
 
-    private MetrologyPurpose getMonitorVolatageMetrologyPurpose() {
+    private MetrologyPurpose getVoltageMonitoringPurpose() {
         return inMemoryBootstrapModule.getMetrologyConfigurationService().findMetrologyPurpose(3).get();
     }
 
