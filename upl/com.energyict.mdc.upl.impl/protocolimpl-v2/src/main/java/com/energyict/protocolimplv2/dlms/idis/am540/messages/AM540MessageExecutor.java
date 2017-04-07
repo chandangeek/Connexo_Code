@@ -177,7 +177,15 @@ public class AM540MessageExecutor extends AM130MessageExecutor {
 
             adHocEndOfBilling.writeExecutionTime(executionTime);
 
-            collectedMessage.setDeviceProtocolInformation("Added a new ad-hoc end-of-billing reset to "+activationEpochString);
+            String protocolInfo = activationEpochString;
+            try {
+                Date activationDate = new Date(Long.parseLong(activationEpochString));
+                protocolInfo = activationDate.toString();
+            }catch (Exception ex){
+                // swallow
+            }
+
+            collectedMessage.setDeviceProtocolInformation("Added a new ad-hoc end-of-billing reset to "+protocolInfo);
         } catch (IOException e) {
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
             String errorMsg = "Failed to add an ad-hoc billing reset: " + e.getMessage();
