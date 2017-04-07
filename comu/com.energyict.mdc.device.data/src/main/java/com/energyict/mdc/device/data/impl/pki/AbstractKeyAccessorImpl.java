@@ -17,6 +17,8 @@ import com.google.common.collect.ImmutableMap;
 import java.util.List;
 import java.util.Map;
 
+
+// TODO validate actual value is present, fix newBlaBla() first to take actual value!
 public abstract class AbstractKeyAccessorImpl<T extends SecurityValueWrapper> implements KeyAccessor<T> {
     private final PkiService pkiService;
 
