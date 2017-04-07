@@ -63,7 +63,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.meteractivations.MeterAct
                             }
                         },
                         change: function (field, newValue) {
-                            // debugger;
+                            debugger;
                             if (me.meterRoles && !newValue) {
                                 document.getElementsByClassName('unlink-miter-grid')[0].style.display = 'none';
                             } else {
