@@ -11,6 +11,7 @@ import com.elster.jupiter.demo.impl.builders.FavoriteGroupBuilder;
 import com.elster.jupiter.demo.impl.builders.configuration.ChannelsOnDevConfPostBuilder;
 import com.elster.jupiter.demo.impl.builders.configuration.OutboundTCPConnectionMethodsDevConfPostBuilder;
 import com.elster.jupiter.demo.impl.builders.type.AttachDeviceTypeCPSPostBuilder;
+import com.elster.jupiter.demo.impl.commands.devices.CreateHANDeviceCommand;
 import com.elster.jupiter.demo.impl.commands.devices.CreateSPEDeviceCommand;
 import com.elster.jupiter.demo.impl.templates.CalendarTpl;
 import com.elster.jupiter.demo.impl.templates.ComScheduleTpl;
@@ -33,7 +34,7 @@ import com.elster.jupiter.demo.impl.templates.RegisterGroupTpl;
 import com.elster.jupiter.demo.impl.templates.RegisterTypeTpl;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.license.LicenseService;
-import com.elster.jupiter.util.streams.DecoratedStream;
+import com.elster.jupiter.metering.MeteringService;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
@@ -49,7 +50,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -59,13 +59,14 @@ public class CreateCollectRemoteDataSetupCommand extends CommandWithTransaction 
     public static final int VALIDATION_STRICT_DEVICE_COUNT = 21;
     private final LicenseService licenseService;
     private final DeviceService deviceService;
+    private final MeteringService meteringService;
     private final Provider<CreateAssignmentRulesCommand> createAssignmentRulesCommandProvider;
     private final Provider<OutboundTCPConnectionMethodsDevConfPostBuilder> connectionMethodsProvider;
     private final Provider<AttachDeviceTypeCPSPostBuilder> attachDeviceTypeCPSPostBuilderProvider;
     private final Provider<AddLocationInfoToDevicesCommand> addLocationInfoToDevicesCommandProvider;
     private final Provider<CreateUsagePointsForDevicesCommand> createUsagePointsForDevicesCommandProvider;
     private final Provider<CreateSPEDeviceCommand> createSPEDeviceCommandProvider;
-    private final Provider<ActivateDevicesCommand> activateDevicesCommandProvider;
+    private final Provider<CreateHANDeviceCommand> createHANDeviceCommandProvider;
 
     private String comServerName;
     private String host;
@@ -76,22 +77,23 @@ public class CreateCollectRemoteDataSetupCommand extends CommandWithTransaction 
     public CreateCollectRemoteDataSetupCommand(
             LicenseService licenseService,
             DeviceService deviceService,
-            Provider<CreateAssignmentRulesCommand> createAssignmentRulesCommandProvider,
+            MeteringService meteringService, Provider<CreateAssignmentRulesCommand> createAssignmentRulesCommandProvider,
             Provider<OutboundTCPConnectionMethodsDevConfPostBuilder> connectionMethodsProvider,
             Provider<AttachDeviceTypeCPSPostBuilder> attachDeviceTypeCPSPostBuilderProvider,
             Provider<AddLocationInfoToDevicesCommand> addLocationInfoToDevicesCommandProvider,
             Provider<CreateUsagePointsForDevicesCommand> createUsagePointsForDevicesCommandProvider,
             Provider<CreateSPEDeviceCommand> createSPEDeviceCommandProvider,
-            Provider<ActivateDevicesCommand> activateDevicesCommandProvider) {
+            Provider<CreateHANDeviceCommand> createHANDeviceCommandProvider) {
         this.licenseService = licenseService;
         this.deviceService = deviceService;
+        this.meteringService = meteringService;
         this.createAssignmentRulesCommandProvider = createAssignmentRulesCommandProvider;
         this.connectionMethodsProvider = connectionMethodsProvider;
         this.attachDeviceTypeCPSPostBuilderProvider = attachDeviceTypeCPSPostBuilderProvider;
         this.addLocationInfoToDevicesCommandProvider = addLocationInfoToDevicesCommandProvider;
         this.createUsagePointsForDevicesCommandProvider = createUsagePointsForDevicesCommandProvider;
         this.createSPEDeviceCommandProvider = createSPEDeviceCommandProvider;
-        this.activateDevicesCommandProvider = activateDevicesCommandProvider;
+        this.createHANDeviceCommandProvider = createHANDeviceCommandProvider;
     }
 
     public void setComServerName(String comServerName) {
@@ -109,6 +111,7 @@ public class CreateCollectRemoteDataSetupCommand extends CommandWithTransaction 
     public void run() {
         parametersCheck();
         licenseCheck();
+        createMissingReadingTypes();
         executeTransaction(() -> {
             createComBackground();
             createRegisterTypes();
@@ -133,9 +136,12 @@ public class CreateCollectRemoteDataSetupCommand extends CommandWithTransaction 
             createDataCollectionKpi();
             createDataValidationKpi();
         });
-        processDevices();
         executeTransaction(this::addLocationAndUsagePoints);
         executeTransaction(this::corruptDeviceSettingsForIssueManagement);
+    }
+
+    private void createMissingReadingTypes() {
+//        executeTransaction(() -> meteringService.createReadingType(RegisterTypeTpl.BULK_WATER_VOLUME.getMrid(), "Water volume"));
     }
 
     private void parametersCheck() {
@@ -226,7 +232,7 @@ public class CreateCollectRemoteDataSetupCommand extends CommandWithTransaction 
         Stream.of(CalendarTpl.values()).forEach(tpl -> Builders.from(tpl).get());
     }
 
-    private void createCommandLimitation(){
+    private void createCommandLimitation() {
         Stream.of(CommandRuleTpl.values()).forEach(tpl -> Builders.from(tpl).get());
     }
 
@@ -242,31 +248,49 @@ public class CreateCollectRemoteDataSetupCommand extends CommandWithTransaction 
                 DeviceTypeTpl.Iskra_38,
                 DeviceTypeTpl.Landis_Gyr_ZMD,
                 DeviceTypeTpl.Siemens_7ED)
-                .forEach(deviceTypeTpl -> {executeTransaction(() -> createDeviceStructureForDeviceType(deviceTypeTpl));
-                            executeTransaction(() -> createDevices(deviceTypeTpl));});
+                .forEach(deviceTypeTpl -> {
+                    executeTransaction(() -> createDeviceStructureForDeviceType(deviceTypeTpl));
+                    executeTransaction(() -> createDevices(deviceTypeTpl));
+                });
     }
 
-    private void createDevices(DeviceTypeTpl deviceTypeTpl){
+    private void createDevices(DeviceTypeTpl deviceTypeTpl) {
         DeviceType deviceType = Builders.from(deviceTypeTpl).get();
         int deviceCount = (this.devicesPerType == null ? deviceTypeTpl.getDeviceCount() : this.devicesPerType);
         if (deviceTypeTpl == DeviceTypeTpl.Elster_A1800) {
             int validationStrictDeviceCount = this.devicesPerType == null ? VALIDATION_STRICT_DEVICE_COUNT : this.devicesPerType / 3; // 3 device conf on this type
-            createDevices(Builders.from(DeviceConfigurationTpl.PROSUMERS_VALIDATION_STRICT).withDeviceType(deviceType).get(), deviceTypeTpl,  validationStrictDeviceCount);
+            createDevices(Builders.from(DeviceConfigurationTpl.PROSUMERS_VALIDATION_STRICT).withDeviceType(deviceType).get(), deviceTypeTpl, validationStrictDeviceCount);
             deviceCount = Math.max(0, deviceCount - validationStrictDeviceCount);
         }
-        createDevices(Builders.from(DeviceConfigurationTpl.PROSUMERS).withDeviceType(deviceType).get(), deviceTypeTpl, deviceCount >> 1);
-        createDevices(Builders.from(DeviceConfigurationTpl.CONSUMERS).withDeviceType(deviceType).get(), deviceTypeTpl, deviceCount >> 1);
+        if (deviceTypeTpl == DeviceTypeTpl.Elster_A1800 || deviceTypeTpl == DeviceTypeTpl.Elster_AS1440 || deviceTypeTpl == DeviceTypeTpl.Iskra_38 || deviceTypeTpl == DeviceTypeTpl.Landis_Gyr_ZMD) {
+            createDevices(Builders.from(DeviceConfigurationTpl.PROSUMERS).withDeviceType(deviceType).get(), deviceTypeTpl, deviceCount >> 1);
+        }
+        if (deviceTypeTpl == DeviceTypeTpl.Elster_A1800 || deviceTypeTpl == DeviceTypeTpl.Elster_AS1440 || deviceTypeTpl == DeviceTypeTpl.Actaris_SL7000 || deviceTypeTpl == DeviceTypeTpl.Siemens_7ED) {
+            createDevices(Builders.from(DeviceConfigurationTpl.CONSUMERS).withDeviceType(deviceType).get(), deviceTypeTpl, deviceCount >> 1);
+        }
     }
 
-    private void createDevices(DeviceConfiguration configuration, DeviceTypeTpl deviceTypeTpl, int deviceCount){
+    private void createDevices(DeviceConfiguration configuration, DeviceTypeTpl deviceTypeTpl, int deviceCount) {
 
         if (deviceCount < 1) {
             deviceCount = 1;
         }
         for (int i = 0; i < deviceCount; i++) {
             this.deviceCounter++;
-            String serialNumber = "01000001" + String.format("%04d", deviceCounter);
-            createDevice(configuration, serialNumber, deviceTypeTpl);
+            String serialNumber = "0100" + String.format("%04d", deviceCounter);
+            String devicename = createDevice(configuration, serialNumber, deviceTypeTpl);
+            if (deviceTypeTpl == DeviceTypeTpl.Elster_AS1440 || deviceTypeTpl == DeviceTypeTpl.Elster_A1800) {
+                DeviceType deviceType = Builders.from(DeviceTypeTpl.BK_GF).get();
+                if (deviceType.getConfigurations().isEmpty()) {
+                    Builders.from(DeviceConfigurationTpl.DEFAULT_GAS).withDeviceType(deviceType).get().activate();
+                }
+                createGasDevice(Builders.from(DeviceConfigurationTpl.DEFAULT_GAS).withDeviceType(deviceType).get(), serialNumber, DeviceTypeTpl.BK_GF, devicename);
+                deviceType = Builders.from(DeviceTypeTpl.V200PR_6).get();
+                if (deviceType.getConfigurations().isEmpty()) {
+                    Builders.from(DeviceConfigurationTpl.DEFAULT_WATER).withDeviceType(deviceType).get().activate();
+                }
+                createWaterDevice(Builders.from(DeviceConfigurationTpl.DEFAULT_GAS).withDeviceType(deviceType).get(), serialNumber, DeviceTypeTpl.V200PR_6, devicename);
+            }
         }
     }
 
@@ -287,7 +311,7 @@ public class CreateCollectRemoteDataSetupCommand extends CommandWithTransaction 
         configuration.activate();
     }
 
-    private void createDevice(DeviceConfiguration configuration, String serialNumber, DeviceTypeTpl deviceTypeTpl) {
+    private String createDevice(DeviceConfiguration configuration, String serialNumber, DeviceTypeTpl deviceTypeTpl) {
         CreateSPEDeviceCommand createDeviceCommand = this.createSPEDeviceCommandProvider.get();
         createDeviceCommand.setDeviceTypeTpl(deviceTypeTpl);
         createDeviceCommand.setDeviceConfiguration(configuration);
@@ -295,8 +319,35 @@ public class CreateCollectRemoteDataSetupCommand extends CommandWithTransaction 
         createDeviceCommand.setHost(this.host);
         createDeviceCommand.withLocation();
         //createDeviceCommand.withUsagePoint();
+        return createDeviceCommand.run();
+    }
+
+    private void createGasDevice(DeviceConfiguration configuration, String serialNumber, DeviceTypeTpl deviceType, String deviceName) {
+        CreateHANDeviceCommand createDeviceCommand = this.createHANDeviceCommandProvider.get();
+        createDeviceCommand.setDeviceTypeTpl(deviceType);
+        createDeviceCommand.setDeviceConfiguration(configuration);
+        createDeviceCommand.setSerialNumber(serialNumber);
+        createDeviceCommand.withPrefix(Constants.Device.GAS_PREFIX);
+        createDeviceCommand.withComSchedule(ComScheduleTpl.DAILY_READ_ALL_GAS);
+        createDeviceCommand.withSerialPrefix(Constants.Device.GAS_WATER_SERIAL_PREFIX);
+        createDeviceCommand.withSerialSuffix(Constants.Device.GAS_SERIAL_SUFFIX);
+        createDeviceCommand.linkTo(deviceName);
         createDeviceCommand.run();
     }
+
+    private void createWaterDevice(DeviceConfiguration configuration, String serialNumber, DeviceTypeTpl deviceType, String deviceName) {
+        CreateHANDeviceCommand createDeviceCommand = this.createHANDeviceCommandProvider.get();
+        createDeviceCommand.setDeviceTypeTpl(deviceType);
+        createDeviceCommand.setDeviceConfiguration(configuration);
+        createDeviceCommand.setSerialNumber(serialNumber);
+        createDeviceCommand.withPrefix(Constants.Device.WATER_PREFIX);
+        createDeviceCommand.withComSchedule(ComScheduleTpl.DAILY_READ_ALL_WATER);
+        createDeviceCommand.withSerialPrefix(Constants.Device.GAS_WATER_SERIAL_PREFIX);
+        createDeviceCommand.withSerialSuffix(Constants.Device.WATER_SERIAL_SUFFIX);
+        createDeviceCommand.linkTo(deviceName);
+        createDeviceCommand.run();
+    }
+
 
     private void createDeviceGroups() {
         Builders.from(FavoriteGroupBuilder.class).withGroup(Builders.from(DeviceGroupTpl.NORTH_REGION).get()).get();
@@ -311,22 +362,6 @@ public class CreateCollectRemoteDataSetupCommand extends CommandWithTransaction 
 
     private void createDataValidationKpi() {
         Builders.from(DataQualityKpiTpl.ALL_ELECTRICITY_DEVICES).get();
-    }
-
-    private void processDevices() {
-        List<Device> devices = this.deviceService.deviceQuery().select(where("name").like(Constants.Device.STANDARD_PREFIX + "*"));
-        int deviceCount = devices.size();
-        Predicate<Device> skipActivationFilter = device -> { // skip 5% of devices
-            if (deviceCount <= 20) {
-                return device.getId() % deviceCount != 0;
-            }
-            return device.getId() % (deviceCount / (1 + (int) (deviceCount * 0.05))) != 0;
-        };
-        DecoratedStream.decorate(devices.stream()).partitionPer(100).forEach(
-
-                deviceList -> executeTransaction(() -> this.activateDevicesCommandProvider.get().setDevices(deviceList).setDeviceTransitionFilter(skipActivationFilter).run())
-        );
-
     }
 
     private void addLocationAndUsagePoints() {

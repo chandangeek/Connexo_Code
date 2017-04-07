@@ -343,7 +343,9 @@ public class DemoTest {
                         "0.0.0.1.0.0.142.0.0.29.1.0.0.0.0.0.111.0",
                         "0.0.0.1.0.0.142.0.0.30.1.0.0.0.0.0.111.0",
                         "0.0.0.1.0.0.142.0.0.31.1.0.0.0.0.0.111.0",
-                        "0.0.0.1.0.0.142.0.0.32.1.0.0.0.0.0.111.0"
+                        "0.0.0.1.0.0.142.0.0.32.1.0.0.0.0.0.111.0",
+                        "0.0.0.1.1.7.58.0.0.0.0.0.0.0.0.0.42.0",
+                        "0.0.0.1.1.9.58.0.0.0.0.0.0.0.0.0.42.0"
                 ),
                 new ServiceCallModule(),
                 new CustomPropertySetsModule(),
@@ -814,6 +816,7 @@ public class DemoTest {
         protocolPluggableService.newDeviceProtocolPluggableClass("ALPHA_A3", AlphaA3.class.getName()).save();
         protocolPluggableService.newDeviceProtocolPluggableClass("RTU_PLUS_G3", com.energyict.protocolimplv2.eict.rtuplusserver.g3.RtuPlusServer.class.getName()).save();
         protocolPluggableService.newDeviceProtocolPluggableClass("AM540", com.energyict.protocolimplv2.nta.dsmr50.elster.am540.AM540.class.getName()).save();
+        protocolPluggableService.newDeviceProtocolPluggableClass("Mbus", com.energyict.protocolimplv2.nta.dsmr23.eict.MbusDevice.class.getName());
         protocolPluggableService.newConnectionTypePluggableClass("OutboundTcpIp", OutboundTcpIpConnectionType.class.getName());
     }
 

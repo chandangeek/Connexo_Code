@@ -6,7 +6,9 @@ package com.elster.jupiter.demo.impl.builders;
 
 import com.elster.jupiter.demo.impl.Log;
 import com.elster.jupiter.demo.impl.UnableToCreate;
+import com.elster.jupiter.demo.impl.templates.RegisterTypeTpl;
 import com.elster.jupiter.demo.impl.templates.SecurityPropertySetTpl;
+import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.GatewayType;
@@ -121,6 +123,7 @@ public class DeviceConfigurationBuilder extends NamedBuilder<DeviceConfiguration
         if (this.registerTypes != null) {
             for (RegisterType registerType : registerTypes) {
                 builder.newNumericalRegisterSpec(registerType)
+                        .overruledObisCode(ObisCode.fromString(RegisterTypeTpl.findByMRID(registerType.getReadingType().getMRID()).getObisCode()))
                         .overflowValue(overflowValue)
                         .numberOfFractionDigits(0);
             }

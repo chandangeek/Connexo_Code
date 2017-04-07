@@ -122,7 +122,7 @@ public class CreateSPEDeviceCommand {
         this.shouldBeActive = true;
     }
 
-    public void run() {
+    public String run() {
         if (this.serialNumber == null) {
             throw new UnableToCreate("Please specify the serial number for device");
         }
@@ -158,7 +158,8 @@ public class CreateSPEDeviceCommand {
             addLocationInfoToDevicesCommand.setDevices(Collections.singletonList(device));
             addLocationInfoToDevicesCommand.run();
         }
-        if (this.shouldBeActive) {
+        int percentage = (int) Math.floor(Math.random() * 101);
+        if (this.shouldBeActive || percentage > 5) {
             ActivateDevicesCommand activateDevicesCommand = activateDevicesCommandProvider.get();
             activateDevicesCommand.setDevices(Collections.singletonList(device));
             activateDevicesCommand.run();
@@ -168,6 +169,6 @@ public class CreateSPEDeviceCommand {
             createUsagePointsForDevicesCommand.setDevices(Collections.singletonList(device));
             createUsagePointsForDevicesCommand.run();
         }
-
+        return name;
     }
 }

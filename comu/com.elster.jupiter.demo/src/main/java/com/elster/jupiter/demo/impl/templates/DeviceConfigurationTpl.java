@@ -20,31 +20,31 @@ public enum DeviceConfigurationTpl implements Template<DeviceConfiguration, Devi
             Arrays.<RegisterTypeTpl>asList(RegisterTypeTpl.SECONDARY_BULK_A_PLUS, RegisterTypeTpl.SECONDARY_BULK_A_MINUS, RegisterTypeTpl.SECONDARY_SUM_A_PLUS_TOU_1, RegisterTypeTpl.SECONDARY_SUM_A_PLUS_TOU_2, RegisterTypeTpl.SECONDARY_SUM_A_MINUS_TOU_1, RegisterTypeTpl.SECONDARY_SUM_A_MINUS_TOU_2),
             Arrays.<LoadProfileTypeTpl>asList(LoadProfileTypeTpl._15_MIN_ELECTRICITY, LoadProfileTypeTpl.DAILY_ELECTRICITY, LoadProfileTypeTpl.MONTHLY_ELECTRICITY),
             Arrays.<LogBookTypeTpl>asList(LogBookTypeTpl.STANDARD_EVENT_LOG, LogBookTypeTpl.FRAUD_DETECTION_LOG, LogBookTypeTpl.DISCONNECTOR_CONTROL_LOG),
-            Arrays.asList(ComTaskTpl.excludeTopologyTpls())),
+            Arrays.asList(ComTaskTpl.excludeTopologyTpls()), true),
     PROSUMERS_VALIDATION_STRICT("Prosumers strict", GatewayType.HOME_AREA_NETWORK,
             Arrays.<SecurityPropertySetTpl>asList(SecurityPropertySetTpl.NO_SECURITY, SecurityPropertySetTpl.HIGH_LEVEL),
             Arrays.<RegisterTypeTpl>asList(RegisterTypeTpl.SECONDARY_BULK_A_PLUS, RegisterTypeTpl.SECONDARY_BULK_A_MINUS, RegisterTypeTpl.SECONDARY_SUM_A_PLUS_TOU_1, RegisterTypeTpl.SECONDARY_SUM_A_PLUS_TOU_2, RegisterTypeTpl.SECONDARY_SUM_A_MINUS_TOU_1, RegisterTypeTpl.SECONDARY_SUM_A_MINUS_TOU_2),
             Arrays.<LoadProfileTypeTpl>asList(LoadProfileTypeTpl._15_MIN_ELECTRICITY, LoadProfileTypeTpl.DAILY_ELECTRICITY, LoadProfileTypeTpl.MONTHLY_ELECTRICITY),
             Arrays.<LogBookTypeTpl>asList(LogBookTypeTpl.STANDARD_EVENT_LOG, LogBookTypeTpl.FRAUD_DETECTION_LOG, LogBookTypeTpl.DISCONNECTOR_CONTROL_LOG),
-            Arrays.asList(ComTaskTpl.excludeTopologyTpls())),
+            Arrays.asList(ComTaskTpl.excludeTopologyTpls()), true),
     CONSUMERS("Consumers", GatewayType.HOME_AREA_NETWORK,
             Arrays.<SecurityPropertySetTpl>asList(SecurityPropertySetTpl.NO_SECURITY, SecurityPropertySetTpl.HIGH_LEVEL),
             Arrays.<RegisterTypeTpl>asList(RegisterTypeTpl.SECONDARY_BULK_A_PLUS, RegisterTypeTpl.SECONDARY_SUM_A_PLUS_TOU_1, RegisterTypeTpl.SECONDARY_SUM_A_PLUS_TOU_2),
             Arrays.<LoadProfileTypeTpl>asList(LoadProfileTypeTpl._15_MIN_ELECTRICITY_A_PLUS, LoadProfileTypeTpl.DAILY_ELECTRICITY_A_PLUS, LoadProfileTypeTpl.MONTHLY_ELECTRICITY_A_PLUS),
             Arrays.<LogBookTypeTpl>asList(LogBookTypeTpl.STANDARD_EVENT_LOG, LogBookTypeTpl.FRAUD_DETECTION_LOG, LogBookTypeTpl.DISCONNECTOR_CONTROL_LOG),
-            Arrays.asList(ComTaskTpl.excludeTopologyTpls())),
+            Arrays.asList(ComTaskTpl.excludeTopologyTpls()), true),
     AM540("Default", GatewayType.HOME_AREA_NETWORK,
             Collections.emptyList(),
             Arrays.<RegisterTypeTpl>asList(RegisterTypeTpl.SECONDARY_BULK_A_PLUS, RegisterTypeTpl.SECONDARY_BULK_A_MINUS, RegisterTypeTpl.SECONDARY_SUM_A_PLUS_TOU_1, RegisterTypeTpl.SECONDARY_SUM_A_PLUS_TOU_2, RegisterTypeTpl.SECONDARY_SUM_A_MINUS_TOU_1, RegisterTypeTpl.SECONDARY_SUM_A_MINUS_TOU_2),
             Arrays.<LoadProfileTypeTpl>asList(LoadProfileTypeTpl._15_MIN_ELECTRICITY, LoadProfileTypeTpl.DAILY_ELECTRICITY, LoadProfileTypeTpl.MONTHLY_ELECTRICITY),
             Collections.singletonList(LogBookTypeTpl.GENERIC),
-            Arrays.<ComTaskTpl>asList(ComTaskTpl.READ_LOAD_PROFILE_DATA, ComTaskTpl.READ_LOG_BOOK_DATA, ComTaskTpl.READ_REGISTER_DATA)),
+            Arrays.<ComTaskTpl>asList(ComTaskTpl.READ_LOAD_PROFILE_DATA, ComTaskTpl.READ_LOG_BOOK_DATA, ComTaskTpl.READ_REGISTER_DATA), true),
     RTU_Plus_G3("Default", GatewayType.LOCAL_AREA_NETWORK,
             Collections.singletonList(SecurityPropertySetTpl.HIGH_LEVEL_NO_ENCRYPTION_GMAC),
             Collections.emptyList(),
             Collections.emptyList(),
             Collections.emptyList(),
-            Collections.singletonList(ComTaskTpl.TOPOLOGY_UPDATE)),
+            Collections.singletonList(ComTaskTpl.TOPOLOGY_UPDATE), true),
     DATA_LOGGER("Default", GatewayType.HOME_AREA_NETWORK,
             Arrays.asList(SecurityPropertySetTpl.NO_SECURITY, SecurityPropertySetTpl.HIGH_LEVEL_NO_ENCRYPTION_MD5),
             Arrays.<RegisterTypeTpl>asList(RegisterTypeTpl.DATA_LOGGER_1, RegisterTypeTpl.DATA_LOGGER_2, RegisterTypeTpl.DATA_LOGGER_3, RegisterTypeTpl.DATA_LOGGER_4, RegisterTypeTpl.DATA_LOGGER_5,
@@ -57,12 +57,25 @@ public enum DeviceConfigurationTpl implements Template<DeviceConfiguration, Devi
             ),
             Collections.singletonList(com.elster.jupiter.demo.impl.templates.LoadProfileTypeTpl.DATA_LOGGER_32),
             Collections.emptyList(),
-            Arrays.asList(ComTaskTpl.READ_DATA_LOGGER_REGISTER_DATA, ComTaskTpl.READ_DATA_LOGGER_LOAD_PROFILE_DATA)),
+            Arrays.asList(ComTaskTpl.READ_DATA_LOGGER_REGISTER_DATA, ComTaskTpl.READ_DATA_LOGGER_LOAD_PROFILE_DATA), true),
     DATA_LOGGER_SLAVE("15min Electricity", GatewayType.NONE,
             Collections.emptyList(),
             Collections.emptyList(),
             Collections.singletonList(LoadProfileTypeTpl._15_MIN_ELECTRICITY),
-            null, null);
+            null, null, true),
+    DEFAULT_GAS("Default", GatewayType.NONE,
+            Collections.singletonList(SecurityPropertySetTpl.NO_SECURITY),
+            Collections.singletonList(RegisterTypeTpl.BULK_GAS_VOLUME),
+            Collections.singletonList(LoadProfileTypeTpl.HOURLY_GAS),
+            Collections.emptyList(),
+            Arrays.asList(ComTaskTpl.BASIC_CHECK, ComTaskTpl.READ_LOAD_PROFILE_DATA_GAS, ComTaskTpl.READ_REGISTER_DATA_GAS), false),
+    DEFAULT_WATER("Default", GatewayType.NONE,
+            Collections.singletonList(SecurityPropertySetTpl.NO_SECURITY),
+            Collections.singletonList(RegisterTypeTpl.BULK_WATER_VOLUME),
+            Collections.singletonList(LoadProfileTypeTpl.HOURLY_WATER),
+            Collections.emptyList(),
+            Arrays.asList(ComTaskTpl.BASIC_CHECK, ComTaskTpl.READ_LOAD_PROFILE_DATA_WATER, ComTaskTpl.READ_REGISTER_DATA_WATER), false)
+    ;
 
     private String name;
     private GatewayType gatewayType;
@@ -71,9 +84,10 @@ public enum DeviceConfigurationTpl implements Template<DeviceConfiguration, Devi
     private List<LoadProfileTypeTpl> loadProfileTypes;
     private List<LogBookTypeTpl> logBookTypes;
     private List<ComTaskTpl> comTaskTpls;
+    private boolean directlyAdressable;
 
     DeviceConfigurationTpl(String name, GatewayType gatewayType, List<SecurityPropertySetTpl> securityPropertySets,
-                           List<RegisterTypeTpl> registerTypes, List<LoadProfileTypeTpl> loadProfileTypes, List<LogBookTypeTpl> logBookTypes, List<ComTaskTpl> comTasks) {
+                           List<RegisterTypeTpl> registerTypes, List<LoadProfileTypeTpl> loadProfileTypes, List<LogBookTypeTpl> logBookTypes, List<ComTaskTpl> comTasks, boolean directlyAddressable) {
         this.name = name;
         this.gatewayType = gatewayType;
         this.securityPropertySets = securityPropertySets;
@@ -81,6 +95,7 @@ public enum DeviceConfigurationTpl implements Template<DeviceConfiguration, Devi
         this.loadProfileTypes = loadProfileTypes;
         this.logBookTypes = logBookTypes;
         this.comTaskTpls = comTasks;
+        this.directlyAdressable = directlyAddressable;
     }
 
     @Override
@@ -93,7 +108,8 @@ public enum DeviceConfigurationTpl implements Template<DeviceConfiguration, Devi
         builder.withName(this.name).withGatewayType(this.gatewayType)
                 .withSecurityPropertySetBuilders(this.securityPropertySets.stream().map(Builders::from).collect(Collectors.toList()))
                 .withRegisterTypes(this.registerTypes.stream().map(tpl -> Builders.from(tpl).get()).collect(Collectors.toList()))
-                .withLoadProfileTypes(this.loadProfileTypes.stream().map(tpl -> Builders.from(tpl).get()).collect(Collectors.toList()));
+                .withLoadProfileTypes(this.loadProfileTypes.stream().map(tpl -> Builders.from(tpl).get()).collect(Collectors.toList()))
+                .withDirectlyAddressable(this.directlyAdressable);
         if (this.logBookTypes != null) {
             builder.withLogBookTypes(this.logBookTypes.stream().map(tpl -> Builders.from(tpl).get()).collect(Collectors.toList()));
         }

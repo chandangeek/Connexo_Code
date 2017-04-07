@@ -69,6 +69,7 @@ import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.favorites.FavoritesService;
 import com.energyict.mdc.firmware.FirmwareService;
@@ -177,9 +178,11 @@ public class DemoServiceImpl {
     private volatile DataQualityKpiService dataQualityKpiService;
     private volatile CommandRuleService commandRuleService;
 
-    private Injector injector;
-    private boolean reThrowEx = false;
+    private volatile TopologyService topologyService;
 
+    private Injector injector;
+
+    private boolean reThrowEx = false;
     public DemoServiceImpl() {
     }
 
@@ -271,6 +274,7 @@ public class DemoServiceImpl {
         setCalendarService(calendarService);
         setPlatformTaskService(platformTaskService);
         setDataCollectionKpiService(dataCollectionKpiService);
+        setTopologyService(topologyService);
         setCommandRuleService(commandRuleService);
         setDataQualityKpiService(dataQualityKpiService);
         activate();
@@ -327,6 +331,7 @@ public class DemoServiceImpl {
                 bind(DeviceMessageSpecificationService.class).toInstance(deviceMessageSpecificationService);
                 bind(CalendarService.class).toInstance(calendarService);
                 bind(com.elster.jupiter.tasks.TaskService.class).toInstance(platformTaskService);
+                bind(TopologyService.class).toInstance(topologyService);
                 bind(CommandRuleService.class).toInstance(commandRuleService);
                 bind(DataQualityKpiService.class).toInstance(dataQualityKpiService);
             }
@@ -508,6 +513,11 @@ public class DemoServiceImpl {
     @SuppressWarnings("unused")
     public final void setFavoritesService(FavoritesService favoritesService) {
         this.favoritesService = favoritesService;
+    }
+
+    @Reference
+    public void setTopologyService(TopologyService topologyService) {
+        this.topologyService = topologyService;
     }
 
     @Reference

@@ -140,7 +140,13 @@ public enum DeviceTypeTpl implements Template<DeviceType, DeviceTypeBuilder> {
             Collections.emptyList()),
     EIMETER_FLEX("EIMeter flex", null, 10, null,
             Arrays.<RegisterTypeTpl>asList(RegisterTypeTpl.SECONDARY_BULK_A_PLUS, RegisterTypeTpl.SECONDARY_BULK_A_MINUS),
-            Collections.singletonList(LoadProfileTypeTpl._15_MIN_ELECTRICITY)),;
+            Collections.singletonList(LoadProfileTypeTpl._15_MIN_ELECTRICITY)),
+    BK_GF("Elster BK-G4", "com.energyict.protocolimplv2.nta.dsmr23.eict.MbusDevice", 0, null,
+            Collections.singletonList(RegisterTypeTpl.BULK_GAS_VOLUME),
+            Collections.singletonList(LoadProfileTypeTpl.HOURLY_GAS)),
+    V200PR_6("Elster V200PR-6", "com.energyict.protocolimplv2.nta.dsmr23.eict.MbusDevice", 0, null,
+            Arrays.asList(RegisterTypeTpl.BULK_WATER_VOLUME),
+            Collections.singletonList(LoadProfileTypeTpl.HOURLY_WATER));
 
     private String longName;
     private String protocol;

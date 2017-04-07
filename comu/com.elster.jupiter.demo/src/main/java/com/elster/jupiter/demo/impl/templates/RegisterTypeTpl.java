@@ -11,6 +11,7 @@ import com.elster.jupiter.demo.impl.builders.RegisterTypeBuilder;
 import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.masterdata.RegisterType;
 
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.stream.Collectors;
 
@@ -22,6 +23,8 @@ public enum RegisterTypeTpl implements Template<RegisterType, RegisterTypeBuilde
     SECONDARY_SUM_A_PLUS_TOU_2("0.0.0.9.1.1.12.0.0.0.0.2.0.0.0.0.72.0", "1.0.2.8.1.255"),
     SECONDARY_SUM_A_MINUS_TOU_1("0.0.0.9.19.1.12.0.0.0.0.1.0.0.0.0.72.0", "1.0.1.8.2.255"),
     SECONDARY_SUM_A_MINUS_TOU_2("0.0.0.9.19.1.12.0.0.0.0.2.0.0.0.0.72.0", "1.0.2.8.2.255"),
+    BULK_GAS_VOLUME("0.0.0.1.1.7.58.0.0.0.0.0.0.0.0.0.42.0", "0.1.24.2.1.255"),
+    BULK_WATER_VOLUME("0.0.0.1.1.9.58.0.0.0.0.0.0.0.0.0.42.0", "0.1.24.2.1.255"),
 
     // A3 register types
     DELTA_A_PLUS_ALL_PHASES("0.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "1.0.1.6.0.255"),
@@ -104,5 +107,12 @@ public enum RegisterTypeTpl implements Template<RegisterType, RegisterTypeBuilde
                         .collect(Collectors.toSet())
         );
 
+    }
+
+    public static RegisterTypeTpl findByMRID(String mrid) {
+        return Arrays.stream(values())
+                .filter(tpl -> tpl.getMrid().equals(mrid))
+                .findFirst()
+                .get();
     }
 }

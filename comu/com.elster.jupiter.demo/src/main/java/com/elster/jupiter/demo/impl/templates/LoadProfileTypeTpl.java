@@ -37,6 +37,8 @@ public enum LoadProfileTypeTpl implements Template<LoadProfileType, LoadProfileT
             RegisterTypeTpl.DATA_LOGGER_21, RegisterTypeTpl.DATA_LOGGER_22, RegisterTypeTpl.DATA_LOGGER_23, RegisterTypeTpl.DATA_LOGGER_24,
             RegisterTypeTpl.DATA_LOGGER_25, RegisterTypeTpl.DATA_LOGGER_26, RegisterTypeTpl.DATA_LOGGER_27, RegisterTypeTpl.DATA_LOGGER_28,
             RegisterTypeTpl.DATA_LOGGER_29, RegisterTypeTpl.DATA_LOGGER_30, RegisterTypeTpl.DATA_LOGGER_31, RegisterTypeTpl.DATA_LOGGER_32),
+    HOURLY_GAS("Hourly Gas", "0.1.24.3.0.255", TimeDuration.hours(1), RegisterTypeTpl.BULK_GAS_VOLUME),
+    HOURLY_WATER("Hourly Water", "0.1.24.3.0.255", TimeDuration.hours(1), RegisterTypeTpl.BULK_WATER_VOLUME)
     ;
     private String name;
     private String obisCode;
