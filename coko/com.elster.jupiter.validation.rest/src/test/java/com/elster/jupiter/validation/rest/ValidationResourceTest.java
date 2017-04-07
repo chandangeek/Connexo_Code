@@ -41,6 +41,7 @@ import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.validation.ValidationAction;
+import com.elster.jupiter.validation.ValidationPropertyDefinitionLevel;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleBuilder;
 import com.elster.jupiter.validation.ValidationRuleSet;
@@ -691,8 +692,10 @@ public class ValidationResourceTest extends BaseValidationRestTest {
                 mockPropertySpec(SimplePropertyType.TEXT, "text", true),
                 mockListValueBeanPropertySpec("listvalue", true));
         when(rule.getPropertySpecs()).thenReturn(propertySpes);
+        when(rule.getPropertySpecs(ValidationPropertyDefinitionLevel.VALIDATION_RULE)).thenReturn(propertySpes);
         Validator validator = mock(Validator.class);
         when(validator.getPropertySpecs()).thenReturn(propertySpes);
+        when(validator.getPropertySpecs(ValidationPropertyDefinitionLevel.VALIDATION_RULE)).thenReturn(propertySpes);
         when(validationService.getValidator("com.blablabla.Validator")).thenReturn(validator);
 
         Map<String, Object> props = new HashMap<>();
@@ -802,6 +805,7 @@ public class ValidationResourceTest extends BaseValidationRestTest {
         when(validator.getDisplayName()).thenReturn(displayName);
         List<PropertySpec> propertySpecs = Collections.singletonList(mockListValueBeanPropertySpec("listvalue", false));
         when(validator.getPropertySpecs()).thenReturn(propertySpecs);
+        when(validator.getPropertySpecs(ValidationPropertyDefinitionLevel.VALIDATION_RULE)).thenReturn(propertySpecs);
         when(propertyValueInfoService.getPropertyInfos(propertySpecs)).thenReturn(getPropertyInfos());
         return validator;
     }
