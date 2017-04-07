@@ -1,12 +1,5 @@
 package com.energyict.protocolimplv2.dlms.idis.am540;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.logging.Level;
-
 import com.energyict.cbo.ConfigurationSupport;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.dialer.connection.HHUSignOn;
@@ -31,21 +24,12 @@ import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.DeviceProtocolCache;
 import com.energyict.mdc.protocol.SerialPortComChannel;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
-import com.energyict.mdc.tasks.ConnectionType;
-import com.energyict.mdc.tasks.DeviceProtocolDialect;
-import com.energyict.mdc.tasks.MirrorTcpDeviceProtocolDialect;
-import com.energyict.mdc.tasks.SerialDeviceProtocolDialect;
-import com.energyict.mdc.tasks.TcpDeviceProtocolDialect;
+import com.energyict.mdc.tasks.*;
 import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProtocolException;
-import com.energyict.protocol.exceptions.CommunicationException;
-import com.energyict.protocol.exceptions.ConnectionCommunicationException;
-import com.energyict.protocol.exceptions.DataEncryptionException;
-import com.energyict.protocol.exceptions.DeviceConfigurationException;
-import com.energyict.protocol.exceptions.ProtocolExceptionReference;
-import com.energyict.protocol.exceptions.ProtocolRuntimeException;
+import com.energyict.protocol.exceptions.*;
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.dlms.g3.G3Properties;
@@ -64,6 +48,13 @@ import com.energyict.protocolimplv2.dlms.idis.topology.IDISMeterTopology;
 import com.energyict.protocolimplv2.hhusignon.IEC1107HHUSignOn;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.security.DeviceProtocolSecurityPropertySetImpl;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.logging.Level;
 
 /**
  * The AM540 is a PLC E-meter designed according to IDIS package 2 specifications <br/>
@@ -121,9 +112,9 @@ public class AM540 extends AM130 implements SerialNumberSupport {
                 int transparentParity = getParityValue(serialPortConfiguration.getParity());
                 int transparentBaudrate = serialPortConfiguration.getBaudrate().getBaudrate().intValue();
                 int authenticationSecurityLevel = Integer.parseInt(getDlmsSessionProperties().getTransparentSecurityLevel().split(":")[0]);
-                String strPassword = getDlmsSessionProperties().getTransparentPassword();
                 FlagIEC1107Connection flagIEC1107Connection = null;
                 try {
+                    String strPassword = getDlmsSessionProperties().getTransparentPassword();
                     flagIEC1107Connection = new FlagIEC1107Connection((SerialPortComChannel) comChannel, transparentConnectTime, transparentBaudrate, transparentDatabits, transparentStopbits, transparentParity, authenticationSecurityLevel, strPassword, getLogger(), hhuSignOn);
                     flagIEC1107Connection.setMeterToTransparentMode();
                 } catch (Exception e) {
