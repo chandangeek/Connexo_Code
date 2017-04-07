@@ -211,8 +211,8 @@ Ext.define('Imt.purpose.controller.Readings', {
             estimationRulesCount = me.getOutputChannelMainPage().controller.hasEstimationRule;
 
         Ext.suspendLayouts();
-        menu.down('#estimate-value').setVisible(validationResult);
-        menu.down('#estimate-value-with-rule').setVisible(validationResult && estimationRulesCount);
+        //menu.down('#estimate-value').setVisible(validationResult);
+        //menu.down('#estimate-value-with-rule').setVisible(validationResult && estimationRulesCount);
         if (menu.record.get('confirmed') || menu.record.isModified('value')) {
             menu.down('#confirm-value').hide();
         } else {
