@@ -102,24 +102,23 @@ Ext.define('Isu.controller.IssueDetail', {
         }
     },
 
-    loadTimeline: function(commentsStore){
+    loadTimeline: function (commentsStore) {
         var me = this,
 
             timelineView = this.widget ? this.widget.down('#issue-timeline-view') : this.getPage().down('#issue-timeline-view'),
-            processView = this.widget ? this.widget.down('#issue-process-view') :this.getPage().down('#issue-process-view'),
+            processView = this.widget ? this.widget.down('#issue-process-view') : this.getPage().down('#issue-process-view'),
             timelineStore = me.getStore('Isu.store.TimelineEntries'),
             alarm = Ext.ComponentQuery.query('alarm-timeline')[0];
-            procesStore = (alarm)?me.getStore('Bpm.monitorissueprocesses.store.AlarmProcesses'):me.getStore('Bpm.monitorissueprocesses.store.IssueProcesses'),
+        procesStore = (alarm) ? me.getStore('Bpm.monitorissueprocesses.store.AlarmProcesses') : me.getStore('Bpm.monitorissueprocesses.store.IssueProcesses'),
             router = me.getController('Uni.controller.history.Router'),
-            data=[];
+            data = [];
 
         timelineStore.data.clear();
 
-        commentsStore.each(function(rec)
-            {
+        commentsStore.each(function (rec) {
                 data.push({
                     user: rec.data.author.name,
-                    actionText: Uni.I18n.translate('issue.workspace.datacollection.added.comment','ISU','added a comment'),
+                    actionText: Uni.I18n.translate('issue.workspace.datacollection.added.comment', 'ISU', 'added a comment'),
                     creationDate: rec.data.creationDate,
                     contentText: rec.data.splittedComments
                 });
@@ -249,13 +248,15 @@ Ext.define('Isu.controller.IssueDetail', {
 
         commentsView.setLoading();
         commentsStore.add(commentsPanel.down('#issue-add-comment-form').getValues());
-        commentsStore.sync({callback: function () {
-            commentsStore.load(function (records) {
-                this.add(records);
-                commentsView.setLoading(false);
-                me.loadTimeline(commentsStore);
-            })
-        }});
+        commentsStore.sync({
+            callback: function () {
+                commentsStore.load(function (records) {
+                    this.add(records);
+                    commentsView.setLoading(false);
+                    me.loadTimeline(commentsStore);
+                })
+            }
+        });
 
         me.hideCommentForm();
     },
@@ -268,12 +269,14 @@ Ext.define('Isu.controller.IssueDetail', {
 
         commentsView.setLoading();
         commentsStore.add(commentsPanel.down('#issue-add-comment-form').getValues());
-        commentsStore.sync({callback: function () {
-            commentsStore.load(function (records) {
-                this.add(records);
-                commentsView.setLoading(false);
-            })
-        }});
+        commentsStore.sync({
+            callback: function () {
+                commentsStore.load(function (records) {
+                    this.add(records);
+                    commentsView.setLoading(false);
+                })
+            }
+        });
 
         me.hideCommentForm();
     },
@@ -308,7 +311,7 @@ Ext.define('Isu.controller.IssueDetail', {
                             }
                         });
                     } else {
-                        me.getApplication().getController('Uni.controller.Error').showError(model.get('name'), responseText.data.actions[0].message, responseText.data.actions[0].errorCode);
+                        me.getApplication().getController('Uni.controller.Error').showError(Uni.I18n.translate('administration.issue.apply.action.failed.title', 'ISU', 'Couldn\'t perform your action'), model.get('name') + '.' + responseText.data.actions[0].message, responseText.data.actions[0].errorCode);
                     }
                 }
             }

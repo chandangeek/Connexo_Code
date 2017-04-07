@@ -186,7 +186,7 @@ Ext.define('Isu.controller.IssuesOverview', {
                         me.getApplication().fireEvent('acknowledge', response.data.actions[0].message);
                         me.getIssuesGrid().getStore().load();
                     } else {
-                        me.getApplication().getController('Uni.controller.Error').showError(model.get('name'), responseText.data.actions[0].message, responseText.data.actions[0].errorCode);
+                        me.getApplication().getController('Uni.controller.Error').showError(Uni.I18n.translate('administration.issue.apply.action.failed.title', 'ISU', 'Couldn\'t perform your action'), model.get('name')+ responseText.data.actions[0].message, responseText.data.actions[0].errorCode);
                     }
                 }
             }
