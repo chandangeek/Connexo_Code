@@ -43,7 +43,8 @@ Ext.define('Imt.purpose.view.ReadingsList', {
             {
                 ptype: 'cellediting',
                 clicksToEdit: 1,
-                pluginId: 'cellplugin'
+                pluginId: 'cellplugin',
+                onSpecialKey: Ext.emptyFn // workaround to fix CXO-6274
             }
         ];
 
