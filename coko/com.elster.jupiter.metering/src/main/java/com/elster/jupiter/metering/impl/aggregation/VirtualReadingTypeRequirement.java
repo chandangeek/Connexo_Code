@@ -220,7 +220,7 @@ class VirtualReadingTypeRequirement {
         SqlBuilder builder = new SqlBuilder("SELECT NVL(rawts.");
         builder.append(SqlConstants.TimeSeriesColumnNames.ID.fieldSpecName());
         builder.append(", ");
-        builder.addLong(timeSeries.getId());
+        builder.append(Long.toString(timeSeries.getId()));
         builder.append(") as ");
         builder.append(SqlConstants.TimeSeriesColumnNames.ID.fieldSpecName());
         builder.append(", NVL(rawts.");
@@ -259,7 +259,7 @@ class VirtualReadingTypeRequirement {
         sqlBuilder.append(", ");
         sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.READINGQUALITY.sqlName());
         sqlBuilder.append(", ");
-        sqlBuilder.addLong(this.getPreferredChannel().getId());
+        sqlBuilder.append(Long.toString(this.getPreferredChannel().getId()));
         sqlBuilder.append(" AS ");
         sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.SOURCECHANNELS.sqlName());
         sqlBuilder.append(", ");
