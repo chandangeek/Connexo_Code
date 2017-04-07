@@ -1,12 +1,5 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.Structure;
@@ -15,8 +8,13 @@ import com.energyict.dlms.cosem.ConcentratorSetup;
 import com.energyict.dlms.cosem.DeviceTypeManager;
 import com.energyict.dlms.cosem.ScheduleManager;
 
+import java.io.IOException;
+import java.util.*;
+
 /**
- * Created by iulian on 5/27/2016.
+ * Helper class to analyse everything which has to be added / updated / removed while synchronizing Beacon master data.
+ * The analysis will use the HES master-data and existing Beacon master-data while deciding what to do whith each item.
+ * The items used by other Beacon mirrors and not present in EIServer will be preserved.
  */
 public final class MasterDataAnalyser {
 	
