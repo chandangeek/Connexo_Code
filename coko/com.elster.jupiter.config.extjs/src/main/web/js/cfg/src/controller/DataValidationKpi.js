@@ -27,7 +27,7 @@ Ext.define('Cfg.controller.DataValidationKpi', {
 
     init: function () {
         this.control({
-            'cfg-data-validation-kpis-action-menu': {
+            '#data-validation-kpis-preview-action-menu': {
                 click: this.chooseAction
             },
             'cfg-data-validation-kpi-setup #data-validation-kpis-grid': {
@@ -73,7 +73,7 @@ Ext.define('Cfg.controller.DataValidationKpi', {
         var me = this;
         Ext.create('Uni.view.window.Confirmation').show({
             title: Uni.I18n.translate('general.removex.kpi', 'CFG', "Remove '{0}'?", [record.get('deviceGroup').name]),
-            msg: Uni.I18n.translate('datavalidationkpis.deleteConfirmation.msg', 'CFG', 'This data validation KPI will no longer be available in the system.'),
+            msg: Uni.I18n.translate('dataqualitykpis.deleteConfirmation.msg', 'CFG', 'This data quality KPI will no longer be available in the system. Already calculated data will not be removed.'),
             fn: function (state) {
                 switch (state) {
                     case 'confirm':
@@ -105,7 +105,7 @@ Ext.define('Cfg.controller.DataValidationKpi', {
                 gridToolbarTop.totalCount = -1;
                 grid.down('pagingtoolbarbottom').totalCount--;
                 grid.getStore().loadPage(1);
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('datavalidationkpis.kpiRemoved', 'CFG', 'Data validation KPI scheduled for removal'));
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('dataqualitykpis.removed', 'CFG', 'Data quality KPI removed'));
             },
             callback: function () {
                 page.setLoading(false);
@@ -116,13 +116,13 @@ Ext.define('Cfg.controller.DataValidationKpi', {
     addDataValidationKpi: function () {
         var me = this;
 
-        me.getController('Uni.controller.history.Router').getRoute('administration/datavalidationkpis/add').forward();
+        me.getController('Uni.controller.history.Router').getRoute('administration/dataqualitykpis/add').forward();
     },
 
     cancelDataValidationKpi: function () {
         var me = this;
 
-        me.getController('Uni.controller.history.Router').getRoute('administration/datavalidationkpis').forward();
+        me.getController('Uni.controller.history.Router').getRoute('administration/dataqualitykpis').forward();
     },
 
     showAddDataValidationKpi: function () {
@@ -149,7 +149,7 @@ Ext.define('Cfg.controller.DataValidationKpi', {
                     createEditBtn.disable();
                     Ext.resumeLayouts(true);
                 }
-                widget.down('#frm-data-validation-kpi-add').setTitle(Uni.I18n.translate('datavalidationkpis.add', 'CFG', 'Add data validation KPI'));
+                widget.down('#frm-data-validation-kpi-add').setTitle(Uni.I18n.translate('dataqualitykpis.add', 'CFG', 'Add data quality KPI'));
                 widget.setLoading(false);
             }
         });
@@ -161,7 +161,7 @@ Ext.define('Cfg.controller.DataValidationKpi', {
             editForm = me.getDataValidationKpiEditForm(),
             record = editForm.getRecord(),
             frequency = editForm.down('[name=frequency]').getValue(),
-            backUrl = router.getRoute('administration/datavalidationkpis').buildUrl(),
+            backUrl = router.getRoute('administration/dataqualitykpis').buildUrl(),
             deviceGroup = {
                 id: editForm.down('[name=deviceGroup]').getValue()
             };
@@ -186,7 +186,7 @@ Ext.define('Cfg.controller.DataValidationKpi', {
             success: function (record, operation) {
 
                 window.location.href = backUrl;
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('datavalidationkpis.added', 'CFG', 'Data validation KPI added'));
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('dataqualitykpis.added', 'CFG', 'Data quality KPI added'));
             },
             failure: function (record, operation) {
                 if (operation.response.status == 400) {

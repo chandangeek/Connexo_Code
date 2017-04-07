@@ -2,24 +2,36 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-Ext.define('Cfg.view.datavalidationkpis.Grid', {
+Ext.define('Cfg.insight.dataqualitykpi.view.Grid', {
     extend: 'Ext.grid.Panel',
-    alias: 'widget.cfg-data-validation-kpis-grid',
+    alias: 'widget.ins-data-quality-kpi-grid',
     requires: [
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
         'Uni.util.ScheduleToStringConverter',
         'Uni.grid.column.RemoveAction'
     ],
-    store: 'Cfg.store.DataValidationKpis',
+    store: 'Cfg.insight.dataqualitykpi.store.DataQualityKpis',
+    router: null,
+
     initComponent: function () {
-        this.columns = [
+        var me = this;
+
+        me.columns = [
             {
-                header: Uni.I18n.translate('general.deviceGroup', 'CFG', 'Device group'),
-                dataIndex: 'deviceGroup',
+                header: Uni.I18n.translate('general.uagePointGroup', 'CFG', 'Usage point group'),
+                dataIndex: 'usagePointGroup',
                 flex: 1,
                 renderer: function (value) {
-                    return value ? Ext.String.htmlEncode(value.name) : '';
+                    return value ? Ext.String.htmlEncode(value.name) : '-';
+                }
+            },
+            {
+                header: Uni.I18n.translate('general.Purpose', 'CFG', 'Purpose'),
+                dataIndex: 'metrologyPurpose',
+                flex: 1,
+                renderer: function (value) {
+                    return value ? Ext.String.htmlEncode(value.name) : '-';
                 }
             },
             {
@@ -44,19 +56,15 @@ Ext.define('Cfg.view.datavalidationkpis.Grid', {
             },
             {
                 xtype: 'uni-actioncolumn-remove',
-                width: 120,
-                privileges: Cfg.privileges.Validation.administerDataQuality,
-                handler: function (grid, rowIndex, colIndex, column, event, record) {
-                    this.fireEvent('remove', record);
-                }
+                privileges: Cfg.privileges.Validation.administerDataQuality
             }
 
         ];
 
-        this.dockedItems = [
+        me.dockedItems = [
             {
                 xtype: 'pagingtoolbartop',
-                store: this.store,
+                store: me.store,
                 dock: 'top',
                 displayMsg: Uni.I18n.translate('dataqualitykpis.pagingtoolbartop.displayMsg', 'CFG', '{0} - {1} of {2} data quality KPIs'),
                 displayMoreMsg: Uni.I18n.translate('dataqualitykpis.pagingtoolbartop.displayMoreMsg', 'CFG', '{0} - {1} of more than {2} data quality KPIs'),
@@ -64,21 +72,21 @@ Ext.define('Cfg.view.datavalidationkpis.Grid', {
                 items: [
                     {
                         xtype: 'button',
-                        itemId: 'btn-data-validation-kpi',
+                        itemId: 'add-data-quality-kpi-btn',
                         privileges: Cfg.privileges.Validation.administerDataQuality,
-                        text: Uni.I18n.translate('dataqualitykpis.add', 'CFG', 'Add data quality KPI'),
-                        action: 'addDataValidationKpi'
+                        text: Uni.I18n.translate('general.adddataqualitykpis', 'CFG', 'Add data quality KPIs'),
+                        href: me.router.getRoute('administration/dataqualitykpis/add').buildUrl()
                     }
                 ]
             },
             {
                 xtype: 'pagingtoolbarbottom',
-                store: this.store,
+                store: me.store,
                 dock: 'bottom',
                 itemsPerPageMsg: Uni.I18n.translate('dataqualitykpis.pagingtoolbarbottom.kpisPerPage', 'CFG', 'Data quality KPIs per page')
             }
         ];
 
-        this.callParent(arguments);
+        me.callParent(arguments);
     }
 });

@@ -21,7 +21,9 @@ Ext.define('Cfg.controller.Main', {
         'Cfg.controller.Validation',
         'Cfg.controller.EventType',
         'Cfg.controller.Tasks',
-        'Cfg.controller.Log'
+        'Cfg.controller.Log',
+        'Cfg.insight.dataqualitykpi.controller.DataQualityKpiOverview',
+        'Cfg.insight.dataqualitykpi.controller.DataQualityKpiAdd'
     ],
 
     refs: [
@@ -56,9 +58,9 @@ Ext.define('Cfg.controller.Main', {
     initMenu: function () {
         var me = this,
             router = this.getController('Uni.controller.history.Router'),
-            validationKpiRoute = router.getRoute('administration/datavalidationkpis');
+            validationKpiRoute = router.getRoute('administration/dataqualitykpis');
 
-        if (Cfg.privileges.Validation.canView()) {
+        if (Cfg.privileges.Validation.canView() || Cfg.privileges.Validation.canViewOrAdministerDataQuality()) {
             var menuItem = Ext.create('Uni.model.MenuItem', {
                 text: Uni.I18n.translate('general.administration', 'CFG', 'Administration'),
                 href: me.getApplication().getController('Cfg.controller.history.Validation').tokenizeShowOverview(),
@@ -76,19 +78,21 @@ Ext.define('Cfg.controller.Main', {
                     {
                         text: Uni.I18n.translate('general.validationRuleSets', 'CFG', 'Validation rule sets'),
                         href: '#/administration/validation/rulesets',
-                        itemId: 'lnk-validation-rule-sets'
+                        itemId: 'lnk-validation-rule-sets',
+                        privileges: Cfg.privileges.Validation.view
                     },
                     {
                         text: Uni.I18n.translate('validationTasks.general.validationTasks', 'CFG', 'Validation tasks'),
                         href: '#/administration/validationtasks',
                         hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.validationConfiguration', 'privilege.view.validationConfiguration'),
-                        itemId: 'lnk-validation-tasks'
+                        itemId: 'lnk-validation-tasks',
+                        privileges: Cfg.privileges.Validation.view
                     },
                     {
                         text: validationKpiRoute.getTitle(),
                         href: validationKpiRoute.buildUrl(),
-                        hidden: validationKpiRoute.disabled,
-                        itemId: 'lnk-data-validation-kpis'
+                        itemId: 'lnk-data-validation-kpis',
+                        privileges: Cfg.privileges.Validation.viewOrAdministerDataQuality
                     }
                 ]
             });
