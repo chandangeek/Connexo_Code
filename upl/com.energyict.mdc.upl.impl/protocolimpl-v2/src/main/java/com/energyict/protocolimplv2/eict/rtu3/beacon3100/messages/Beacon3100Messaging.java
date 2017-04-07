@@ -323,6 +323,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                 || propertySpec.getName().equals(DeviceMessageConstants.modemWatchdogInitialDelay)
                 || propertySpec.getName().equals(DeviceMessageConstants.PPPDaemonResetThreshold)
                 || propertySpec.getName().equals(DeviceMessageConstants.modemResetThreshold)
+                || propertySpec.getName().equals(DeviceMessageConstants.pathDiscoveryTime)
                 || propertySpec.getName().equals(DeviceMessageConstants.systemRebootThreshold)){
             return String.valueOf(((TimeDuration) messageAttribute).getSeconds()); //Return value in seconds
         } else if (propertySpec.getName().equals(DeviceMessageConstants.broadCastLogTableEntryTTLAttributeName)) {
