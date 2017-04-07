@@ -33,9 +33,9 @@ Ext.define('Imt.usagepointmanagement.view.metrologyconfiguration.Details', {
                 totalCount: !Ext.isEmpty(purposes) ? purposes.length : 0
             }),
             remoteMeterRolesStore = Ext.getStore('Imt.usagepointmanagement.store.MeterRoles'),
-            hasEffectiveMCs = !!me.usagePoint.get('hasEffectiveMCs'),
             mcIsLinked = !!me.usagePoint.get('metrologyConfiguration'),
             isReadyForLinkingMC = me.usagePoint.get('isReadyForLinkingMC'),
+            hasEffectiveMCs = me.usagePoint.get('hasEffectiveMCs'),
             stage = me.usagePoint.get('state').stage,
             canModify = stage === 'PRE_OPERATIONAL' || stage === 'SUSPENDED';
 
@@ -50,7 +50,7 @@ Ext.define('Imt.usagepointmanagement.view.metrologyconfiguration.Details', {
                         xtype: 'button',
                         itemId: 'unlink-metrology-configuration-button',
                         text: Uni.I18n.translate('usagePoint.metrologyConfiguration.unlink', 'IMT', 'Unlink metrology configuration'),
-                        privileges: Imt.privileges.UsagePoint.canAdministrate() && hasEffectiveMCs && canModify,
+                        privileges: hasEffectiveMCs && Imt.privileges.UsagePoint.canAdministrate(),
                         usagePoint: me.usagePoint
                     }
                 ],
@@ -102,7 +102,7 @@ Ext.define('Imt.usagepointmanagement.view.metrologyconfiguration.Details', {
                                     xtype: 'button',
                                     text: Uni.I18n.translate('general.linkMeters', 'IMT', 'Link meters'),
                                     itemId: 'edit-meters',
-                                    privileges: me.hasLinkMetersButton && Imt.privileges.UsagePoint.canAdministrate() && hasEffectiveMCs,
+                                    privileges: hasEffectiveMCs && Imt.privileges.UsagePoint.canAdministrate(),
                                     href: me.router.getRoute('usagepoints/view/metrologyconfiguration/activatemeters').buildUrl()
                                 }
                             ],
