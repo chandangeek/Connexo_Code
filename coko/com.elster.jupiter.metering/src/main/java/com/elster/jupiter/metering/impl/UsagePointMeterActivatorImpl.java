@@ -151,7 +151,7 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
     }
 
     private void validateMetrologyConfigStartAndMeterActivationDate(Meter meter, Instant meterStartDate) {
-        EffectiveMetrologyConfigurationOnUsagePoint metrologyConfiguration = this.usagePoint.getCurrentEffectiveMetrologyConfiguration().get();
+        EffectiveMetrologyConfigurationOnUsagePoint metrologyConfiguration = this.usagePoint.getEffectiveMetrologyConfiguration(meterStartDate).get();
         Instant metrologyConfigStartDate = metrologyConfiguration.getStart();
         if (meterStartDate.isAfter(metrologyConfigStartDate) || !meterStartDate.equals(metrologyConfigStartDate)) {
             throw new UsagePointMeterActivationException.IncorrectStartTimeOfMeterAndMetrologyConfig(metrologyConfigurationService.getThesaurus(), meter.getName(), formatDate(metrologyConfigStartDate));
