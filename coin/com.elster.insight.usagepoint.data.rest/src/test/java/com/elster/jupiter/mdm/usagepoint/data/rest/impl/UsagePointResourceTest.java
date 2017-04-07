@@ -278,6 +278,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
     public void testGetUsagePointInfo() {
         when(securityContext.getUserPrincipal()).thenReturn(principal);
         when(principal.hasPrivilege(any(String.class), any(String.class))).thenReturn(true);
+        when(usagePoint.getEffectiveMetrologyConfiguration(any(Instant.class))).thenReturn(Optional.empty());
         UsagePointInfo response = target("usagepoints/" + USAGE_POINT_NAME).request().get(UsagePointInfo.class);
 
         assertThat(response.mRID).isEqualTo("MRID");
@@ -353,6 +354,8 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
     public void testUpdateUsagePoint() {
         when(meteringService.findUsagePointById(1L)).thenReturn(Optional.of(usagePoint));
         when(meteringService.findAndLockUsagePointByIdAndVersion(1L, 1L)).thenReturn(Optional.of(usagePoint));
+        when(usagePoint.getEffectiveMetrologyConfiguration(any(Instant.class))).thenReturn(Optional.empty());
+
         UsagePointInfo info = new UsagePointInfo();
         info.id = 1L;
         info.mRID = "upd";
@@ -387,6 +390,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         when(meteringService.findAndLockUsagePointByIdAndVersion(1L, 1L)).thenReturn(Optional.of(usagePoint));
         when(customPropertySet.getPropertySpecs()).thenReturn(Collections.singletonList(propertySpec));
         when(usagePointPropertySet.getValues()).thenReturn(CustomPropertySetValues.empty());
+        when(usagePoint.getEffectiveMetrologyConfiguration(any(Instant.class))).thenReturn(Optional.empty());
 
         CustomPropertySetAttributeInfo attributeInfo = new CustomPropertySetAttributeInfo();
         attributeInfo.key = propertySpec.getName();
@@ -426,6 +430,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         CustomPropertySetValues values = CustomPropertySetValues.empty();
         values.setProperty(propertySpec.getName(), "Poor");
         when(usagePointPropertySet.getValues()).thenReturn(values);
+        when(usagePoint.getEffectiveMetrologyConfiguration(any(Instant.class))).thenReturn(Optional.empty());
 
         CustomPropertySetAttributeInfo attributeInfo = new CustomPropertySetAttributeInfo();
         attributeInfo.key = propertySpec.getName();
@@ -469,6 +474,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         when(meteringService.findAndLockUsagePointByIdAndVersion(1L, 1L)).thenReturn(Optional.of(usagePoint));
         when(customPropertySet.getPropertySpecs()).thenReturn(Collections.singletonList(propertySpec));
         when(usagePointPropertySet.getValues()).thenReturn(CustomPropertySetValues.empty());
+        when(usagePoint.getEffectiveMetrologyConfiguration(any(Instant.class))).thenReturn(Optional.empty());
 
         CustomPropertySetAttributeInfo attributeInfo = new CustomPropertySetAttributeInfo();
         attributeInfo.key = propertySpec.getName();
@@ -620,6 +626,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         UsagePointInfo info = new UsagePointInfo();
         info.version = usagePoint.getVersion();
         info.meterActivations = Arrays.asList(meterActivation1, meterActivation2, meterActivation3);
+        when(usagePoint.getEffectiveMetrologyConfiguration(any(Instant.class))).thenReturn(Optional.empty());
 
         Response response = target("usagepoints/" + USAGE_POINT_NAME + "/activatemeters").request()
                 .put(Entity.json(info));
@@ -707,6 +714,8 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         when(metrologyContract.getStatus(usagePoint)).thenReturn(status);
         when(metrologyContract.getStatus(usagePoint).getKey()).thenReturn("INCOMPLETE");
         when(metrologyContract.getStatus(usagePoint).getName()).thenReturn("Incomplete");
+        when(usagePoint.getEffectiveMetrologyConfiguration(any(Instant.class))).thenReturn(Optional.empty());
+
 
         when(effectiveMetrologyConfigurationOnUsagePoint.getMetrologyConfiguration()).thenReturn(usagePointMetrologyConfiguration);
         when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMetrologyConfigurationOnUsagePoint));

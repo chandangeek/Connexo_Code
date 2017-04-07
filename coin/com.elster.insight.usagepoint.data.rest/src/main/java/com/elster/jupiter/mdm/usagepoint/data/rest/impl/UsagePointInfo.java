@@ -50,6 +50,7 @@ public class UsagePointInfo {
     public UsagePointLifeCycleInfo lifeCycle;
     public UsagePointTransitionInfo transitionToPerform;
     public Long lastTransitionTime;
+    public boolean hasEffectiveMCs;
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.CUSTOM, include = JsonTypeInfo.As.EXTERNAL_PROPERTY, property = "serviceCategory")
     @JsonTypeIdResolver(BaseUsagePointDetailsInfo.UsagePointDetailsTypeResolver.class)

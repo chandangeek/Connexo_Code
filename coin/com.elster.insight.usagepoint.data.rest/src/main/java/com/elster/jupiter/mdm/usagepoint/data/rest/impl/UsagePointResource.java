@@ -66,8 +66,6 @@ import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.usagepoint.lifecycle.ExecutableMicroCheck;
-import com.elster.jupiter.usagepoint.lifecycle.ExecutableMicroCheckViolation;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointStage;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
@@ -422,7 +420,7 @@ public class UsagePointResource {
         try {
             resourceHelper.performMeterActivations(info, usagePoint);
         } catch (UsagePointMeterActivationException ex) {
-            new RestValidationBuilder().addValidationError(new LocalizedFieldValidationException(ex.getMessageSeed(), "meterRole", ex.getLocalizedMessage())).validate();
+            new RestValidationBuilder().addValidationError(new LocalizedFieldValidationException(ex.getMessageSeed(), "meterRole", ex.getMessageArgs())).validate();
         }
         return Response.ok().entity(usagePointInfoFactory.fullInfoFrom(usagePoint)).build();
     }
@@ -640,7 +638,7 @@ public class UsagePointResource {
         List<MetrologyConfigurationHistoryInfo> infos = usagePoint.getEffectiveMetrologyConfigurations()
                 .stream()
                 .map(metrologyConfiguration -> metrologyConfigurationHistoryInfoFactory.from(metrologyConfiguration, usagePoint, auth))
-                .sorted(Comparator.comparing((MetrologyConfigurationHistoryInfo info) -> !info.current).thenComparing(info -> info.start))
+                .sorted(Comparator.comparing((MetrologyConfigurationHistoryInfo info) -> info.current).thenComparing(info -> info.start).reversed())
                 .collect(Collectors.toList());
 
         return PagedInfoList.fromCompleteList("data", infos, queryParameters);
@@ -977,7 +975,7 @@ public class UsagePointResource {
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
         List<HistoricalMeterActivationInfo> meterActivationInfoList = usagePoint.getMeterActivations().stream()
                 .map(ma -> historicalMeterActivationInfoFactory.from(ma, usagePoint, auth))
-                .sorted(Comparator.comparing((HistoricalMeterActivationInfo info) -> !info.current)
+                .sorted(Comparator.comparing((HistoricalMeterActivationInfo info) -> info.current)
                         .thenComparing((HistoricalMeterActivationInfo info) -> info.start).reversed()
                         .thenComparing(info -> info.meterRole).thenComparing(info -> info.meter))
                 .collect(Collectors.toList());
@@ -1044,18 +1042,6 @@ public class UsagePointResource {
                     .distinct(PropertySpec::getName)
                     .collect(Collectors.toMap(PropertySpec::getName, propertySpec -> this.propertyValueInfoService.findPropertyValue(propertySpec, transitionToPerform.properties)));
 
-            Optional<ExecutableMicroCheckViolation> violation = transition.getChecks().stream()
-                    .filter(check -> check instanceof ExecutableMicroCheck)
-                    .map(ExecutableMicroCheck.class::cast)
-                    .map(check -> check.execute(usagePoint, transitionToPerform.effectiveTimestamp))
-                    .filter(Optional::isPresent)
-                    .map(Optional::get)
-                    .findFirst();
-
-            if (violation.isPresent()) {
-                throw exceptionFactory.newException(MessageSeeds.MISSING_TRANSITION_REQUIREMENT, violation.get()
-                        .getLocalizedMessage());
-            }
             usagePointLifeCycleService.scheduleTransition(usagePoint, transition, transitionToPerform.effectiveTimestamp, "INS", propertiesMap);
         }
     }
@@ -1075,6 +1061,7 @@ public class UsagePointResource {
 
     private void checkMeterRolesActivationTime(List<MeterRoleInfo> meterRoles, Instant installationTime, RestValidationBuilder restValidationBuilder) {
         meterRoles.stream()
+                .filter(role -> !Checks.is(role.meter).emptyOrOnlyWhiteSpace())
                 .filter(role -> role.activationTime.isBefore(installationTime))
                 .findFirst()
                 .ifPresent(meterRoleInfo -> {
@@ -1109,9 +1096,9 @@ public class UsagePointResource {
             }
         } catch (UsagePointMeterActivationException ex) {
             if (ex instanceof UsagePointManagementException) {
-                validationBuilder.addValidationError(new LocalizedFieldValidationException(ex.getMessageSeed(), "metrologyConfiguration", ex.getLocalizedMessage())).validate();
+                validationBuilder.addValidationError(new LocalizedFieldValidationException(ex.getMessageSeed(), "metrologyConfiguration", ex.getMessageArgs())).validate();
             }
-            validationBuilder.addValidationError(new LocalizedFieldValidationException(ex.getMessageSeed(), "meterRole", ex.getLocalizedMessage())).validate();
+            validationBuilder.addValidationError(new LocalizedFieldValidationException(ex.getMessageSeed(), "meterRole", ex.getMessageArgs())).validate();
         }
     }
 
