@@ -404,7 +404,7 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
                             wizard.setLoading(false);
                             if (!records.length) {
                                 me.clearPreviousWizardInfoWhenNeeded(formRecord.get('deviceTypeId'), formRecord.get('deviceConfigurationId'));
-                                me.wizardInformation.useExisting = me.LINK_NEW_DATALOGGER_SLAVE;
+                                me.wizardInformation.useExisting = (slaveDeviceType.isDataLoggerSlave() ? me.LINK_NEW_DATALOGGER_SLAVE : me.LINK_MULTI_ELEMENT_SLAVE);
 
                                 var slaveShipmentDateWithoutSeconds = wizard.down('#mdc-datalogger-slave-device-add #dataLoggerSlaveShipmentDate').getValue().getTime();
                                 slaveShipmentDateWithoutSeconds = slaveShipmentDateWithoutSeconds - (slaveShipmentDateWithoutSeconds % 60000);
@@ -748,6 +748,7 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
 
     prepareStep4: function() {
         var me = this,
+            wizard4Panel = me.getWizard().down('dataloggerslave-link-wizard-step4'),
             earliestLinkingDate = Ext.isEmpty(me.wizardInformation.minimalLinkingDates) ? 0 : Ext.Array.max(me.wizardInformation.minimalLinkingDates),
             linkingDateToSuggest;
 
@@ -767,7 +768,7 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
         var momentOfDate = moment(earliestLinkingDate);
         momentOfDate.startOf('day');
         var earliestLinkingDateMidnight = momentOfDate.unix() * 1000;
-        me.getWizard().down('dataloggerslave-link-wizard-step4').initialize(earliestLinkingDateMidnight, linkingDateToSuggest, me.wizardInformation.useExisting !== me.LINK_MULTI_ELEMENT_SLAVE);
+        wizard4Panel.initialize(earliestLinkingDateMidnight, linkingDateToSuggest, me.wizardInformation.useExisting !== me.LINK_MULTI_ELEMENT_SLAVE);
         if (me.wizardInformation.useExisting === me.LINK_MULTI_ELEMENT_SLAVE){
             me.wizardInformation.linkingDate = linkingDateToSuggest;
         }

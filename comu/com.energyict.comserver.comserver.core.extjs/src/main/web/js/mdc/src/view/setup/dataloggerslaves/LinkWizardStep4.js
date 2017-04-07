@@ -63,6 +63,9 @@ Ext.define('Mdc.view.setup.dataloggerslaves.LinkWizardStep4', {
         if (!enabled){
             me.down('#mdc-step4-linking-date').eachItem(function (item){item.disable()});
             me.down('#automatic-linking-date').show();
+        }else{
+            me.down('#mdc-step4-linking-date').eachItem(function (item){item.enable()});
+            me.down('#automatic-linking-date').hide()
         }
     },
     doConfigureLinkingDate: function(minimalLinkingDateInMillis, linkingDateToSuggest) {
