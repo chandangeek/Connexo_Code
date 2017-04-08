@@ -20,11 +20,6 @@ Ext.define('Mdc.usagepointmanagement.view.registersData.notCumulative.Grid', {
 
         me.columns = [
             {
-                header: Uni.I18n.translate('general.deltaValue', 'MDC', 'Delta value'),
-                dataIndex: 'deltaValue',
-                flex: 1
-            },
-            {
                 header: Uni.I18n.translate('general.collectedValue', 'MDC', 'Collected value'),
                 dataIndex: 'collectedValue',
                 flex: 1,
@@ -46,11 +41,11 @@ Ext.define('Mdc.usagepointmanagement.view.registersData.notCumulative.Grid', {
 
         me.columns.unshift(
             (function () {
-                if (true) {
+                if (me.register.get('registerType') === 'NOT_CUMULATIVE_BILLING_VALUE') {
                     return {
                         header: Uni.I18n.translate('general.measurementPeriod', 'MDC', 'Measurement period'),
                         dataIndex: 'measurementPeriod',
-                        flex: 1,
+                        flex: 2,
                         renderer: function (value) {
                             if(!Ext.isEmpty(value)) {
                                 var endDate = new Date(value.end);
@@ -68,9 +63,9 @@ Ext.define('Mdc.usagepointmanagement.view.registersData.notCumulative.Grid', {
                     return {
                         header: Uni.I18n.translate('general.measurementTime', 'MDC', 'Measurement time'),
                         dataIndex: 'measurementTime',
-                        flex: 1,
+                        flex: 2,
                         renderer: function (value) {
-                            return Uni.DateTime.formatDateShort(new Date(value));
+                            return value ? Uni.DateTime.formatDateLong(new Date(value)) : '-';
                         }
                     }
                 }

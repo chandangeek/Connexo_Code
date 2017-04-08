@@ -87,10 +87,10 @@ Ext.define('Mdc.usagepointmanagement.view.ViewRegisterDataAndReadingQualities', 
                             },
                             listeners: {
                                 select: function (grid, record) {
-                                    me.down('#readings-preview-container').fireEvent('rowselect', record);
+                                    me.down('#register-data-preview').fireEvent('rowselect', record);
                                 },
                                 itemclick: function (dataView, record) {
-                                    if (me.down('register-data-grid').getSelectionModel().isSelected(record)) {
+                                    if (me.down('#register-data-grid').getSelectionModel().isSelected(record)) {
                                         me.down('#readings-preview-container').fireEvent('rowselect', record);
                                     }
                                 }

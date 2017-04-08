@@ -20,18 +20,18 @@ Ext.define('Mdc.usagepointmanagement.view.registersData.event.Grid', {
 
         me.columns = [
             {
+                header: Uni.I18n.translate('general.measurementTime', 'MDC', 'Event date'),
+                dataIndex: 'eventDate',
+                flex: 1,
+                renderer: function (value) {
+                    return value ? Uni.DateTime.formatDateShort(new Date(value)) : '-';
+                }
+            },
+            {
                 header: Uni.I18n.translate('general.collectedValue', 'MDC', 'Collected value'),
                 dataIndex: 'collectedValue',
                 flex: 1,
                 align: 'right'
-            },
-            {
-                header: Uni.I18n.translate('general.measurementTime', 'MDC', 'Measurement time'),
-                dataIndex: 'eventDate',
-                flex: 1,
-                renderer: function (value) {
-                    return Uni.DateTime.formatDateShort(new Date(value));
-                }
             },
             {
                 dataIndex: 'validationResult',
@@ -46,16 +46,16 @@ Ext.define('Mdc.usagepointmanagement.view.registersData.event.Grid', {
             }
         ];
 
-        if (true) {
+        if (me.register.get('registerType') == 'EVENT_BILLING_VALUE') {
             me.columns.unshift(
                 {
                     header: Uni.I18n.translate('general.measurementPeriod', 'MDC', 'Measurement period'),
                     dataIndex: 'measurementPeriod',
-                    flex: 1,
+                    flex: 2,
                     renderer: function (value) {
                         if(!Ext.isEmpty(value)) {
                             var endDate = new Date(value.end);
-                            if (!!value.start && !!value.end) {
+                            if (value.start && value.end) {
                                 var startDate = new Date(value.start);
                                 return Uni.DateTime.formatDateTimeShort(startDate) + ' - ' + Uni.DateTime.formatDateTimeShort(endDate);
                             } else {

@@ -4,7 +4,7 @@
 
 Ext.define('Mdc.usagepointmanagement.model.Register', {
     extend: 'Ext.data.Model',
-    fields: ['dataUntil', 'measurementTime', 'readingType', 'deviceRegisters'],
+    fields: ['dataUntil', 'measurementTime', 'registerType','readingType', 'deviceRegisters'],
     proxy: {
         type: 'rest',
         url: '/api/upr/usagepoints/{usagePointId}/registers',

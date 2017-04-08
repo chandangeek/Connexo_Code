@@ -29,7 +29,7 @@ Ext.define('Mdc.usagepointmanagement.view.registersData.cumulative.Preview', {
                             itemId: 'measurement-period-field',
                             fieldLabel: Uni.I18n.translate('general.measurementPeriod', 'MDC', 'Measurement period'),
                             name: 'measurementPeriod',
-                            htmlEncode: false,
+
                             renderer: function (value) {
                                 if(!Ext.isEmpty(value)) {
                                     var endDate = new Date(value.end);
@@ -67,7 +67,7 @@ Ext.define('Mdc.usagepointmanagement.view.registersData.cumulative.Preview', {
             title = interval ? interval.start ? Uni.I18n.translate(
                 'general.dateAtTime', 'MDC', '{0} at {1}',
                 [Uni.DateTime.formatDateLong(new Date(interval.start)), Uni.DateTime.formatTimeLong(new Date(interval.end))], false) :
-                Uni.I18n.translate('general.dateAtTimeEnd', 'MDC', ' - at {1}', Uni.DateTime.formatTimeLong(new Date(interval.end)), false):'-';
+                Uni.DateTime.formatDateTimeLong(new Date(interval.end)) : '-';
 
         me.record = record;
         Ext.suspendLayouts();

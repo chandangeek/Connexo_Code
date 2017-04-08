@@ -58,6 +58,7 @@ Ext.define('Mdc.usagepointmanagement.controller.ViewRegisterDataAndReadingQualit
                     app.fireEvent('usagePointLoaded', usagePoint);
                     app.fireEvent('usagePointRegisterLoaded', register);
                     registerDataStore.getProxy().setParams(usagePointId, registerId);
+
                     app.fireEvent('changecontentevent', Ext.widget('view-register-data-and-reading-qualities', {
                         itemId: 'view-register-data-and-reading-qualities',
                         router: router,

@@ -19,8 +19,6 @@ Ext.define('Mdc.usagepointmanagement.view.registersData.event.Preview', {
                 labelWidth: 200
             };
 
-        me.unit = me.register.get('readingType').names.unitOfMeasure;
-
         me.items = [
             {
                 title: Uni.I18n.translate('general.general', 'MDC', 'General'),
@@ -34,10 +32,9 @@ Ext.define('Mdc.usagepointmanagement.view.registersData.event.Preview', {
                             itemId: 'eventDate-field',
                             fieldLabel: Uni.I18n.translate('deviceloadprofiles.eventDate', 'MDC', 'Event date'),
                             name: 'eventDate',
-                            // htmlEncode: false,
-                            // renderer: function (value) {
-                            //     return Uni.DateTime.formatDateLong(value);
-                            // }
+                            renderer: function (value) {
+                                return value ? Uni.DateTime.formatDateLong(new Date(value)) : '-';
+                            }
                         },
                         {
                             itemId: 'collectedValue-field',
@@ -49,9 +46,9 @@ Ext.define('Mdc.usagepointmanagement.view.registersData.event.Preview', {
             }
         ];
 
-        me.items[0].items.unshift(
+        me.items[0].items.items.unshift(
             (function () {
-                if (true) {
+                if (me.register.get('registerType') === 'EVENT_BILLING_VALUE') {
                     return {
                         itemId: 'measurement-period-field',
                         fieldLabel: Uni.I18n.translate('general.measurementTime', 'MDC', 'Measurement period'),
@@ -60,7 +57,7 @@ Ext.define('Mdc.usagepointmanagement.view.registersData.event.Preview', {
                         renderer: function (value) {
                             if(!Ext.isEmpty(value)) {
                                 var endDate = new Date(value.end);
-                                if (!!value.start && !!value.end) {
+                                if (value.start && value.end) {
                                     var startDate = new Date(value.start);
                                     return Uni.DateTime.formatDateTimeShort(startDate) + ' - ' + Uni.DateTime.formatDateTimeShort(endDate);
                                 } else {
@@ -75,9 +72,8 @@ Ext.define('Mdc.usagepointmanagement.view.registersData.event.Preview', {
                         itemId: 'measurement-time-field',
                         fieldLabel: Uni.I18n.translate('general.measurementTime', 'MDC', 'Measurement time'),
                         name: 'measurementTime',
-                        htmlEncode: false,
                         renderer: function (value) {
-                            return Uni.DateTime.formatDateLong(value);
+                            return value ? Uni.DateTime.formatDateLong(new Date(value)) : '-';
                         }
                     }
                 }
@@ -88,12 +84,16 @@ Ext.define('Mdc.usagepointmanagement.view.registersData.event.Preview', {
     },
 
     loadRecord: function (record) {
-        var me = this,
-            interval = record.get('interval'),
-            title = Uni.I18n.translate(
+        var me = this;
+        if (me.register.get('registerType') === 'EVENT_BILLING_VALUE') {
+            var interval = record.get('measurementPeriod'),
+                title = Uni.I18n.translate(
                 'general.dateAtTime', 'MDC', '{0} at {1}',
                 [Uni.DateTime.formatDateLong(new Date(interval.end)), Uni.DateTime.formatTimeLong(new Date(interval.end))], false);
-
+        } else {
+            var time = record.get('measurementTime'),
+                title = time ? Uni.DateTime.formatDateLong(new Date(time)) : '-';
+        }
         me.record = record;
         Ext.suspendLayouts();
         Ext.Array.each(me.query('form'), function (form) {

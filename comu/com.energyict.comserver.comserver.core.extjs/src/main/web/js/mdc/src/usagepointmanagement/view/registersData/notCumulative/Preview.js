@@ -11,13 +11,10 @@ Ext.define('Mdc.usagepointmanagement.view.registersData.notCumulative.Preview', 
 
     initComponent: function () {
         var me = this,
-            filds = [],
             defaults = {
                 xtype: 'displayfield',
                 labelWidth: 200
             };
-
-        me.unit = me.register.get('readingType').names.unitOfMeasure;
 
         me.items = [
             {
@@ -43,22 +40,21 @@ Ext.define('Mdc.usagepointmanagement.view.registersData.notCumulative.Preview', 
             }
         ];
 
-        filds.push(
+        me.items[0].items.items.unshift(
             (function () {
-                if (true) {
+                if (me.register.get('registerType') === 'NOT_CUMULATIVE_BILLING_VALUE') {
                     return {
                         itemId: 'measurement-period-field',
                         fieldLabel: Uni.I18n.translate('general.measurementPeriod', 'MDC', 'Measurement period'),
                         name: 'measurementPeriod',
-                        htmlEncode: false,
                         renderer: function (value) {
                             if(!Ext.isEmpty(value)) {
                                 var endDate = new Date(value.end);
-                                if (!!value.start && !!value.end) {
+                                if (value.start && value.end) {
                                     var startDate = new Date(value.start);
-                                    return Uni.DateTime.formatDateTimeShort(startDate) + ' - ' + Uni.DateTime.formatDateTimeShort(endDate);
+                                    return Uni.DateTime.formatDateTimeLong(startDate) + ' - ' + Uni.DateTime.formatDateTimeLong(endDate);
                                 } else {
-                                    return Uni.DateTime.formatDateTimeShort(endDate);
+                                    return Uni.DateTime.formatDateTimeLong(endDate);
                                 }
                             }
                             return '-';
@@ -69,26 +65,29 @@ Ext.define('Mdc.usagepointmanagement.view.registersData.notCumulative.Preview', 
                         itemId: 'measurement-time-field',
                         fieldLabel: Uni.I18n.translate('general.measurementPeriod', 'MDC', 'Measurement time'),
                         name: 'measurementTime',
-                        htmlEncode: false,
                         renderer: function (value) {
-                            return Uni.DateTime.formatDateLong(value);
+                            return value ? Uni.DateTime.formatDateTimeLong(new Date(value)) : '-';
                         }
                     }
                 }
             })()
         );
 
-        me.items[0].items.unshift(filds);
 
         me.callParent(arguments);
     },
 
     loadRecord: function (record) {
-        var me = this,
-            interval = record.get('interval'),
-            title = Uni.I18n.translate(
-                'general.dateAtTime', 'MDC', '{0} at {1}',
-                [Uni.DateTime.formatDateLong(new Date(interval.end)), Uni.DateTime.formatTimeLong(new Date(interval.end))], false);
+        var me = this;
+        if (me.register.get('registerType') === 'NOT_CUMULATIVE_BILLING_VALUE') {
+            var interval = record.get('measurementPeriod'),
+                title = Uni.I18n.translate(
+                    'general.dateAtTime', 'MDC', '{0} at {1}',
+                    [Uni.DateTime.formatDateLong(new Date(interval.end)), Uni.DateTime.formatTimeLong(new Date(interval.end))], false);
+        } else {
+            var time = record.get('measurementTime'),
+                title = time ? Uni.DateTime.formatDateTimeLong(new Date(time)) : '-'
+        }
 
         me.record = record;
         Ext.suspendLayouts();

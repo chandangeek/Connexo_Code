@@ -22,7 +22,7 @@ Ext.define('Mdc.usagepointmanagement.view.registersData.cumulative.Grid', {
             {
                 header: Uni.I18n.translate('general.measurementPeriod', 'MDC', 'Measurement period'),
                 dataIndex: 'measurementPeriod',
-                flex: 1,
+                flex: 2,
                 renderer: function (value) {
                     if(!Ext.isEmpty(value)) {
                         var endDate = new Date(value.end);
@@ -75,21 +75,21 @@ Ext.define('Mdc.usagepointmanagement.view.registersData.cumulative.Grid', {
                         text: Uni.I18n.translate('general.addReading', 'MDC', 'Add reading'),
                         privileges: Mdc.privileges.Device.administrateDeviceData,
                         href: '#/devices/' + encodeURIComponent(me.deviceId) + '/registers/' + me.registerId + '/data/add',
-                        dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.deviceDataEditActions
+                        // dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.deviceDataEditActions
                     }
                 ]
-            },
-            {
-                xtype: 'pagingtoolbarbottom',
-                store: me.store,
-                deferLoading: true,
-                params: [
-                    {deviceId: me.deviceId},
-                    {registerId: me.registerId}
-                ],
-                dock: 'bottom',
-                itemsPerPageMsg: Uni.I18n.translate('device.registerData.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Readings per page')
             }
+            // {
+            //     xtype: 'pagingtoolbarbottom',
+            //     store: me.store,
+            //     deferLoading: true,
+            //     params: [
+            //         {deviceId: me.deviceId},
+            //         {registerId: me.registerId}
+            //     ],
+            //     dock: 'bottom',
+            //     itemsPerPageMsg: Uni.I18n.translate('device.registerData.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Readings per page')
+            // }
         ];
 
         me.callParent(arguments);
