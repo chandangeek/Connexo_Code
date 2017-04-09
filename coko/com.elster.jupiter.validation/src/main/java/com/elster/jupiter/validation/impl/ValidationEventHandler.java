@@ -37,9 +37,10 @@ import java.util.stream.Stream;
 
 @Component(name = "com.elster.jupiter.validation.validationeventhandler", service = Subscriber.class, immediate = true)
 public class ValidationEventHandler extends EventHandler<LocalEvent> {
-    private static final String CREATED_TOPIC = EventType.READINGS_CREATED.topic();
-    private static final String REMOVED_TOPIC = EventType.READINGS_DELETED.topic();
-    private static final String ADVANCED_TOPIC = EventType.METER_ACTIVATION_ADVANCED.topic();
+    private static final String READINGS_CREATED_TOPIC = EventType.READINGS_CREATED.topic();
+    private static final String READINGS_REMOVED_TOPIC = EventType.READINGS_DELETED.topic();
+    private static final String METER_ACTIVATION_ADVANCED_TOPIC = EventType.METER_ACTIVATION_ADVANCED.topic();
+    private static final String CHANNELS_CONTAINERS_CLIPPED_TOPIC = EventType.CHANNELS_CONTAINERS_CLIPPED.topic();
 
     private volatile ValidationServiceImpl validationService;
 
@@ -54,7 +55,7 @@ public class ValidationEventHandler extends EventHandler<LocalEvent> {
 
     @Override
     protected void onEvent(LocalEvent event, Object... eventDetails) {
-        if (event.getType().getTopic().equals(CREATED_TOPIC)) {
+        if (event.getType().getTopic().equals(READINGS_CREATED_TOPIC)) {
             ReadingStorer storer = (ReadingStorer) event.getSource();
             StorerProcess action = storer.getStorerProcess();
             if (StorerProcess.CONFIRM != action) {
@@ -74,7 +75,7 @@ public class ValidationEventHandler extends EventHandler<LocalEvent> {
                 }
                 validationService.validate(dependentScope);
             }
-        } else if (event.getType().getTopic().equals(REMOVED_TOPIC)) {
+        } else if (event.getType().getTopic().equals(READINGS_REMOVED_TOPIC)) {
             Channel.ReadingsDeletedEvent deleteEvent = (Channel.ReadingsDeletedEvent) event.getSource();
             Channel channel = deleteEvent.getChannel();
             ChannelsContainer channelsContainer = channel.getChannelsContainer();
@@ -83,8 +84,10 @@ public class ValidationEventHandler extends EventHandler<LocalEvent> {
             resetEstimatedReadingsOnDependentScope(dependentScope);
             validationService.validate(channelsContainer, scope);
             validationService.validate(dependentScope);
-        } else if (event.getType().getTopic().equals(ADVANCED_TOPIC)) {
+        } else if (event.getType().getTopic().equals(METER_ACTIVATION_ADVANCED_TOPIC)) {
             handleAdvancedMeterActivation((EventType.MeterActivationAdvancedEvent) event.getSource());
+        } else if (event.getType().getTopic().equals(CHANNELS_CONTAINERS_CLIPPED_TOPIC)) {
+            handleClippedChannelsContainers((EventType.ChannelsContainersClippedEvent) event.getSource());
         }
     }
 
@@ -154,8 +157,21 @@ public class ValidationEventHandler extends EventHandler<LocalEvent> {
         if (advanceEvent.getShrunk() != null) {
             Instant rightAfterNewLastChecked = advanceEvent.getShrunk().getEnd().plusMillis(1);
             validationService.getPersistedChannelsContainerValidations(advanceEvent.getShrunk().getChannelsContainer())
-                    .forEach(channelsContainerValidation -> channelsContainerValidation
-                            .moveLastCheckedBefore(rightAfterNewLastChecked));
+                    .forEach(validation -> validation.moveLastCheckedBefore(rightAfterNewLastChecked));
         }
+    }
+
+    private void handleClippedChannelsContainers(EventType.ChannelsContainersClippedEvent event) {
+        event.getChannelsContainers().forEach(channelsContainer -> {
+            List<ChannelsContainerValidation> relatedValidations =
+                    validationService.getPersistedChannelsContainerValidations(channelsContainer);
+            Range<Instant> range = channelsContainer.getRange();
+            if (range.isEmpty()) {
+                relatedValidations.forEach(ChannelsContainerValidation::makeObsolete);
+            } else if (range.hasUpperBound()) {
+                Instant rightAfterNewLastChecked = range.upperEndpoint().plusMillis(1);
+                relatedValidations.forEach(validation -> validation.moveLastCheckedBefore(rightAfterNewLastChecked));
+            }
+        });
     }
 }

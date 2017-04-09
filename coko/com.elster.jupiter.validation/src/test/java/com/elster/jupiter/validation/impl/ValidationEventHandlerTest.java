@@ -12,6 +12,7 @@ import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.CimChannel;
+import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MetrologyContractChannelsContainer;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityWithTypeFetcher;
@@ -88,6 +89,10 @@ public class ValidationEventHandlerTest {
     private ValidationServiceImpl validationService;
     @Mock
     private LocalEvent localEvent;
+    @Mock
+    private MeterActivation meterActivation1, meterActivation2;
+    @Mock
+    private ChannelsContainerValidation validation1, validation2;
     @Captor
     private ArgumentCaptor<Range<Instant>> intervalCaptor;
     private Map<Channel, Range<Instant>> scope1, scope2, dependentScope1, dependentScope2, allDependentScope;
@@ -311,6 +316,55 @@ public class ValidationEventHandlerTest {
         verifyZeroInteractions(validationService);
         verify(channelMdm1, never()).removeReadings(any(QualityCodeSystem.class), any());
         verify(channelMdm2, never()).removeReadings(any(QualityCodeSystem.class), any());
+    }
+
+    @Test
+    public void testOnAdvancedMeterActivationWithShrunkOne() {
+        when(eventType.getTopic()).thenReturn(com.elster.jupiter.metering.EventType.METER_ACTIVATION_ADVANCED.topic());
+        when(localEvent.getSource()).thenReturn(new com.elster.jupiter.metering.EventType.MeterActivationAdvancedEvent(meterActivation1, meterActivation2));
+        Instant now = Instant.now();
+        when(meterActivation2.getEnd()).thenReturn(now);
+        when(meterActivation1.getStart()).thenReturn(now);
+        when(meterActivation1.getChannelsContainer()).thenReturn(channelsContainer1);
+        when(meterActivation2.getChannelsContainer()).thenReturn(channelsContainer2);
+        when(validationService.getPersistedChannelsContainerValidations(channelsContainer1)).thenReturn(Collections.singletonList(validation1));
+        when(validationService.getPersistedChannelsContainerValidations(channelsContainer2)).thenReturn(Collections.singletonList(validation2));
+
+        handler.handle(localEvent);
+
+        verify(validation1).updateLastChecked(now);
+        verify(validation2).moveLastCheckedBefore(now.plusMillis(1));
+    }
+
+    @Test
+    public void testOnAdvancedMeterActivationWithoutShrunkOne() {
+        when(eventType.getTopic()).thenReturn(com.elster.jupiter.metering.EventType.METER_ACTIVATION_ADVANCED.topic());
+        when(localEvent.getSource()).thenReturn(new com.elster.jupiter.metering.EventType.MeterActivationAdvancedEvent(meterActivation1, null));
+        Instant now = Instant.now();
+        when(meterActivation1.getStart()).thenReturn(now);
+        when(meterActivation1.getChannelsContainer()).thenReturn(channelsContainer1);
+        when(validationService.getPersistedChannelsContainerValidations(channelsContainer1)).thenReturn(Collections.singletonList(validation1));
+
+        handler.handle(localEvent);
+
+        verify(validation1).updateLastChecked(now);
+        verifyZeroInteractions(validation2);
+    }
+
+    @Test
+    public void testOnClippedChannelsContainer() {
+        when(eventType.getTopic()).thenReturn(com.elster.jupiter.metering.EventType.CHANNELS_CONTAINERS_CLIPPED.topic());
+        when(localEvent.getSource()).thenReturn(new com.elster.jupiter.metering.EventType.ChannelsContainersClippedEvent(Arrays.asList(channelsContainer1, channelsContainer2)));
+        Instant now = Instant.now();
+        when(channelsContainer1.getRange()).thenReturn(Range.closedOpen(Instant.EPOCH, now));
+        when(channelsContainer2.getRange()).thenReturn(Range.closedOpen(Instant.EPOCH, Instant.EPOCH));
+        when(validationService.getPersistedChannelsContainerValidations(channelsContainer1)).thenReturn(Collections.singletonList(validation1));
+        when(validationService.getPersistedChannelsContainerValidations(channelsContainer2)).thenReturn(Collections.singletonList(validation2));
+
+        handler.handle(localEvent);
+
+        verify(validation1).moveLastCheckedBefore(now.plusMillis(1));
+        verify(validation2).makeObsolete();
     }
 
     private static List<BaseReadingRecord> filterReadingsByTimestamps(List<BaseReadingRecord> readings, Instant... timestamps) {
