@@ -494,7 +494,7 @@ public class UsagePointOutputResource {
                 .flatMap(List::stream)
                 .filter(contract -> contract.getMetrologyPurpose().equals(metrologyPurpose))
                 .distinct()
-                .flatMap(contract -> streamMatchingEstimationRules(readingType, metrologyContract))
+                .flatMap(contract -> streamMatchingEstimationRules(readingType, contract))
                 .distinct()
                 .map(estimationRuleInfoFactory::createEstimationRuleInfo)
                 .sorted(Comparator.comparing(info -> info.name))
