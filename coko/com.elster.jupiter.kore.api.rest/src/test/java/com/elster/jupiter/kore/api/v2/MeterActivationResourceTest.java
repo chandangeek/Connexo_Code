@@ -77,7 +77,7 @@ public class MeterActivationResourceTest extends PlatformPublicApiJerseyTest {
         doReturn(Arrays.asList(meterActivation, meterActivation2)).when(usagePoint).getMeterActivations();
         when(metrologyConfigurationService.findMeterRole("meterRole")).thenReturn(Optional.of(meterRole));
         when(usagePoint.linkMeters()).thenReturn(linker);
-        when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMetrologyConfigurationOnUsagePoint));
+        when(usagePoint.getEffectiveMetrologyConfiguration(any(Instant.class))).thenReturn(Optional.of(effectiveMetrologyConfigurationOnUsagePoint));
         when(effectiveMetrologyConfigurationOnUsagePoint.getMetrologyConfiguration()).thenReturn(metrologyConfiguration);
     }
 

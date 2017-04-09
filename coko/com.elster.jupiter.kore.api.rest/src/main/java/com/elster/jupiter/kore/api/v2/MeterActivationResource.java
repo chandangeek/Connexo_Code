@@ -161,15 +161,15 @@ public class MeterActivationResource {
         MeterRole meterRole = metrologyConfigurationService.findMeterRole(meterActivationInfo.meterRole)
                 .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_METER_ROLE, "meterRole", meterActivationInfo.meterRole));
 
-        if (validateOnly) {
-            validateMeterActivationRequirements(usagePoint, meter, meterRole);
-            return meterActivationInfo;
-        }
-
         if (meterActivationInfo.interval == null || meterActivationInfo.interval.start == null) {
             throw new LocalizedFieldValidationException(MessageSeeds.FIELD_MISSING, "interval.start");
         }
         Instant start = Instant.ofEpochMilli(meterActivationInfo.interval.start).truncatedTo(ChronoUnit.MINUTES);
+
+        if (validateOnly) {
+            validateMeterActivationRequirements(usagePoint, meter, meterRole, start);
+            return meterActivationInfo;
+        }
 
         if (!meter.getState(start).filter(state -> state.getStage().filter(stage -> stage.getName().equals(EndDeviceStage.OPERATIONAL.getKey())).isPresent()).isPresent()) {
             StateTimeSlice state = meter.getStateTimeline().flatMap(stateTimeline -> stateTimeline.getSlices().stream()
@@ -249,8 +249,8 @@ public class MeterActivationResource {
         return meterActivationInfoFactory.from(activation, uriInfo, Collections.emptyList());
     }
 
-    private void validateMeterActivationRequirements(UsagePoint usagePoint, Meter meter, MeterRole meterRole) {
-        EffectiveMetrologyConfigurationOnUsagePoint metrologyConfigurationOnUsagePoint = usagePoint.getCurrentEffectiveMetrologyConfiguration()
+    private void validateMeterActivationRequirements(UsagePoint usagePoint, Meter meter, MeterRole meterRole, Instant instant) {
+        EffectiveMetrologyConfigurationOnUsagePoint metrologyConfigurationOnUsagePoint = usagePoint.getEffectiveMetrologyConfiguration(instant)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_METROLOGY_CONFIGURATION, usagePoint.getName()));
 
         Set<ReadingTypeRequirement> requirements = metrologyConfigurationOnUsagePoint.getReadingTypeRequirements().stream()
