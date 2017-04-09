@@ -107,7 +107,9 @@ public class UpgraderV10_3 implements Upgrader {
     }
 
     private void installNewEventTypes() {
-        EnumSet.of(EventType.METROLOGY_CONTRACT_DELETED)
+        EnumSet.of(
+                EventType.METROLOGY_CONTRACT_DELETED,
+                EventType.CHANNELS_CONTAINERS_CLIPPED)
                 .forEach(eventType -> eventType.install(eventService));
     }
 
