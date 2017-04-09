@@ -49,6 +49,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -179,7 +180,11 @@ public class MeterActivationResource {
                             && stateTimeSlice.getState().getStage().filter(stage -> stage.getName().equals(EndDeviceStage.OPERATIONAL.getKey())).isPresent())
                     .min(Comparator.comparing(slice -> slice.getPeriod().lowerEndpoint())))
                     .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.INVALID_END_DEVICE_STAGE, start));
-            start = state.getPeriod().lowerEndpoint().plus(1, ChronoUnit.MINUTES).truncatedTo(ChronoUnit.MINUTES);
+            if (!state.getPeriod().lowerEndpoint().truncatedTo(ChronoUnit.MINUTES).equals(state.getPeriod().lowerEndpoint())) {
+                start = state.getPeriod().lowerEndpoint().plus(1, ChronoUnit.MINUTES).truncatedTo(ChronoUnit.MINUTES);
+            } else {
+                start = state.getPeriod().lowerEndpoint();
+            }
         }
 
         if (!usagePoint.getMeterActivations().isEmpty() && start.isBefore(usagePoint.getMeterActivations()
@@ -250,34 +255,34 @@ public class MeterActivationResource {
     }
 
     private void validateMeterActivationRequirements(UsagePoint usagePoint, Meter meter, MeterRole meterRole, Instant instant) {
-        EffectiveMetrologyConfigurationOnUsagePoint metrologyConfigurationOnUsagePoint = usagePoint.getEffectiveMetrologyConfiguration(instant)
-                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_METROLOGY_CONFIGURATION, usagePoint.getName()));
+        Optional<EffectiveMetrologyConfigurationOnUsagePoint> metrologyConfigurationOnUsagePoint = usagePoint.getEffectiveMetrologyConfiguration(instant);
+        if(metrologyConfigurationOnUsagePoint.isPresent()) {
+            Set<ReadingTypeRequirement> requirements = metrologyConfigurationOnUsagePoint.get().getReadingTypeRequirements().stream()
+                    .filter(readingTypeRequirement -> meterRole.equals(metrologyConfigurationOnUsagePoint.get().getMetrologyConfiguration()
+                            .getMeterRoleFor(readingTypeRequirement)
+                            .orElse(null)))
+                    .collect(Collectors.toSet());
 
-        Set<ReadingTypeRequirement> requirements = metrologyConfigurationOnUsagePoint.getReadingTypeRequirements().stream()
-                .filter(readingTypeRequirement -> meterRole.equals(metrologyConfigurationOnUsagePoint.getMetrologyConfiguration()
-                        .getMeterRoleFor(readingTypeRequirement)
-                        .orElse(null)))
-                .collect(Collectors.toSet());
+            List<ReadingType> meterProvidedReadingTypes = meter.getHeadEndInterface()
+                    .map(headEndInterface -> headEndInterface.getCapabilities(meter))
+                    .map(EndDeviceCapabilities::getConfiguredReadingTypes)
+                    .orElse(Collections.emptyList());
+            Set<ReadingTypeRequirement> unsatisfiedRequirements = requirements.stream()
+                    .filter(requirement -> !meterProvidedReadingTypes.stream().anyMatch(requirement::matches))
+                    .collect(Collectors.toSet());
 
-        List<ReadingType> meterProvidedReadingTypes = meter.getHeadEndInterface()
-                .map(headEndInterface -> headEndInterface.getCapabilities(meter))
-                .map(EndDeviceCapabilities::getConfiguredReadingTypes)
-                .orElse(Collections.emptyList());
-        Set<ReadingTypeRequirement> unsatisfiedRequirements = requirements.stream()
-                .filter(requirement -> !meterProvidedReadingTypes.stream().anyMatch(requirement::matches))
-                .collect(Collectors.toSet());
-
-        if (!unsatisfiedRequirements.isEmpty()) {
-            throw new LocalizedFieldValidationException(MessageSeeds.UNSATISFIED_READING_TYPE_REQUIREMENTS,
-                    "meter",
-                    meter.getName(),
-                    String.join(", ", metrologyConfigurationOnUsagePoint.getMetrologyConfiguration()
-                            .getContracts()
-                            .stream()
-                            .filter(metrologyContract -> metrologyContract.getRequirements().stream().anyMatch(unsatisfiedRequirements::contains))
-                            .map(mc -> mc.getMetrologyPurpose().getName())
-                            .collect(Collectors.toList())),
-                    usagePoint.getName());
+            if (!unsatisfiedRequirements.isEmpty()) {
+                throw new LocalizedFieldValidationException(MessageSeeds.UNSATISFIED_READING_TYPE_REQUIREMENTS,
+                        "meter",
+                        meter.getName(),
+                        String.join(", ", metrologyConfigurationOnUsagePoint.get().getMetrologyConfiguration()
+                                .getContracts()
+                                .stream()
+                                .filter(metrologyContract -> metrologyContract.getRequirements().stream().anyMatch(unsatisfiedRequirements::contains))
+                                .map(mc -> mc.getMetrologyPurpose().getName())
+                                .collect(Collectors.toList())),
+                        usagePoint.getName());
+            }
         }
     }
 

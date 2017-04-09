@@ -204,7 +204,7 @@ public class MeterActivationResourceTest extends PlatformPublicApiJerseyTest {
         target("/usagepoints/" + MRID + "/meteractivations").request().post(Entity.json(meterActivationInfo));
 
         // Asserts
-        verify(linker).activate(stateTimeSlice.getPeriod().lowerEndpoint().plusSeconds(60), mock, meterRole);
+        verify(linker).activate(stateTimeSlice.getPeriod().lowerEndpoint(), mock, meterRole);
         verify(linker).complete();
     }
 
@@ -321,8 +321,8 @@ public class MeterActivationResourceTest extends PlatformPublicApiJerseyTest {
         Response post = target("/usagepoints/" + MRID + "/meteractivations").request().post(Entity.json(meterActivationInfo));
 
         // Asserts
-        verify(linker).clear(stateTimeSlice.getPeriod().lowerEndpoint().plusSeconds(60), meterRole);
-        verify(linker).activate(stateTimeSlice.getPeriod().lowerEndpoint().plusSeconds(60), mock, meterRole);
+        verify(linker).clear(stateTimeSlice.getPeriod().lowerEndpoint(), meterRole);
+        verify(linker).activate(stateTimeSlice.getPeriod().lowerEndpoint(), mock, meterRole);
         verify(linker).complete();
     }
 
