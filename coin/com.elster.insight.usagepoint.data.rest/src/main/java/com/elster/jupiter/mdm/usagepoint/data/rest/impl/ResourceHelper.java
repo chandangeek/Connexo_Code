@@ -254,19 +254,31 @@ public class ResourceHelper {
             UsagePointMeterActivator linker = usagePoint.linkMeters();
             info.meterActivations
                     .stream()
-                    .filter(meterActivation -> meterActivation.meterRole != null && !Checks.is(meterActivation.meterRole.id).emptyOrOnlyWhiteSpace())
+                    .filter(meterActivation -> meterActivation.meterRole != null && !Checks.is(meterActivation.meterRole.id)
+                            .emptyOrOnlyWhiteSpace())
                     .forEach(meterActivation -> {
                         Instant activationTime = meterActivation.meterRole.activationTime;
                         MeterRole meterRole = findMeterRoleOrThrowException(meterActivation.meterRole.id);
                         if (meterActivation.meter == null && !usagePoint.getMeterActivations().isEmpty()) {
                             validateUnlinkMeters(usagePoint, meterRole);
                             linker.clear(meterRole);
-                        } else if (meterActivation.meter != null && !Checks.is(meterActivation.meter.name).emptyOrOnlyWhiteSpace()) {
-                            Meter meter = findMeterByNameOrThrowException(meterActivation.meter.name);
-                            linker.activate(activationTime, meter, meterRole);
+                        } else if (meterActivation.meter != null && !Checks.is(meterActivation.meter.name)
+                                .emptyOrOnlyWhiteSpace()) {
+                            replaceOrActivateMeter(linker, usagePoint, activationTime, meterActivation.meter.name, meterRole);
                         }
                     });
             linker.complete();
+        }
+
+    }
+
+    private void replaceOrActivateMeter(UsagePointMeterActivator linker, UsagePoint usagePoint, Instant activationTime, String meterName, MeterRole meterRole) {
+        Meter meter = findMeterByNameOrThrowException(meterName);
+        if (!usagePoint.getMeterActivations(activationTime).isEmpty()) {
+            linker.clear(activationTime, meterRole);
+            linker.activate(activationTime, meter, meterRole);
+        } else {
+            linker.activate(activationTime, meter, meterRole);
         }
     }
 
