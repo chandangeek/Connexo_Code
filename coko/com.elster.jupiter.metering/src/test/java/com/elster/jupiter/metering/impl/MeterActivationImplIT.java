@@ -26,6 +26,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.UsagePointManagementException;
 import com.elster.jupiter.metering.UsagePointMeterActivationException;
 import com.elster.jupiter.metering.ami.EndDeviceCapabilities;
 import com.elster.jupiter.metering.ami.HeadEndInterface;
@@ -704,7 +705,8 @@ public class MeterActivationImplIT {
     @Test
     @Transactional
     public void testIncorrectStartTimeOfMeterAndMetrologyConfig() {
-        expectedException.expect(UsagePointMeterActivationException.IncorrectStartTimeOfMeterAndMetrologyConfig.class);
+        expectedException.expect(UsagePointManagementException.class);
+
         ServerMeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
         AmrSystem system = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
         Meter meter = spy(system.newMeter("meterForActivation", "testMeter").create());
@@ -715,13 +717,16 @@ public class MeterActivationImplIT {
 
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
         Instant now = inMemoryBootstrapModule.getClock().instant();
-        UsagePoint usagePoint = serviceCategory.newUsagePoint("usagePointForActivation", now.minusSeconds(60)).create();
-        UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = spy(getUsagePointMetrologyConfigurationWithDefaultRole("testConfiguration"));
+        UsagePoint usagePoint = serviceCategory.newUsagePoint("usagePointForActivation", now).create();
+        ServerMetrologyConfigurationService metrologyConfigurationService = inMemoryBootstrapModule.getMetrologyConfigurationService();
+        UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = spy(metrologyConfigurationService
+                .newUsagePointMetrologyConfiguration("testConfiguration", meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get()).create());
+        usagePointMetrologyConfiguration.addMeterRole(metrologyConfigurationService.findDefaultMeterRole(DefaultMeterRole.DEFAULT));
         when(usagePointMetrologyConfiguration.isGapAllowed()).thenReturn(false);
-        usagePoint.apply(usagePointMetrologyConfiguration, now.minusSeconds(60));
         usagePoint.linkMeters()
                 .activate(now, meter, inMemoryBootstrapModule.getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT))
                 .complete();
+        usagePoint.apply(usagePointMetrologyConfiguration, now.plusSeconds(60));
     }
 
     @Test

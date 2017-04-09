@@ -136,16 +136,17 @@ public enum MessageSeeds implements MessageSeed {
 
     DUPLICATE_SLP_NAME(11001, Constants.DUPLICATE_SLP_NAME, "Synthetic load profile name must be unique", Level.SEVERE),
 
-    METROLOGY_CONFIGURATION_INVALID_START_DATE(12002, Constants.METROLOGY_CONFIGURATION_INVALID_START_DATE, "Metrology configuration {0} could not be linked to usage point {1} at {2} because another metrology configuration is active at that point in time or later"),
-    METER_ACTIVATION_INVALID_REQUIREMENTS(12203, Constants.METER_ACTIVATION_INVALID_REQUIREMENTS, "The meters of the usage point do not provide the necessary reading types for purposes {0} of the new metrology configuration"),
+    METROLOGY_CONFIGURATION_INVALID_START_DATE(12002, Constants.METROLOGY_CONFIGURATION_INVALID_START_DATE, "Metrology configuration linking error. Metrology configuration {0} could not be linked to usage point {1} at {2} because another metrology configuration is active at that point in time or later"),
+    METER_ACTIVATION_INVALID_REQUIREMENTS(12203, Constants.METER_ACTIVATION_INVALID_REQUIREMENTS, "Meter linking error. The meters of the usage point do not provide the necessary reading types for purposes {0} of the new metrology configuration"),
     INVALID_END_DEVICE_STAGE(12204, Constants.INVALID_END_DEVICE_STAGE, "Metrology configuration linking error. Not all meters are in an operational life cycle stage as of the metrology configurations' linking date {0}"),
-    METER_ACTIVATION_INVALID_DATE(12205, Constants.METER_ACTIVATION_INVALID_DATE, "Because the metrology configuration does not allow gaps, the activation date of meter {0} must be less than or equal to the date of the metrology configuration linking {1}"),
+    METER_ACTIVATION_INVALID_DATE(12205, Constants.METER_ACTIVATION_INVALID_DATE, "Meter linking error. Because the metrology configuration does not allow gaps, the activation date of meter {0} must be less than or equal to the date of the metrology configuration linking {1}"),
     INVALID_END_DEVICE_STAGE_WITH_GAPS_ALLOWED(12206, Constants.INVALID_END_DEVICE_STAGE_WITH_GAPS_ALLOWED, "Meter linking error. Meter {0} cannot be linked to usage point {1}, as the linking would occur after the metrology configuration''s activation and before the meter''s activation."),
-    INVALID_END_DEVICE_STAGE_WITHOUT_MC(12207, Constants.INVALID_END_DEVICE_STAGE_WITHOUT_MC, "Meter {0} cannot be linked to usage point {1} because this meter is in incorrect life cycle stage after the linking date {2}."),
-    METER_ACTIVATION_BEFORE_UP_INSTALLATION_TIME(12208, Constants.METER_ACTIVATION_BEFORE_UP_INSTALLATION_TIME, "The meter activation date must be greater than, or equal to, the usage point creation date. This usage point''s creation date is {0}."),
+    INVALID_END_DEVICE_STAGE_WITHOUT_MC(12207, Constants.INVALID_END_DEVICE_STAGE_WITHOUT_MC, "Meter linking error. Meter {0} cannot be linked to usage point {1} because this meter is in incorrect life cycle stage after the linking date {2}."),
+    METER_ACTIVATION_BEFORE_UP_INSTALLATION_TIME(12208, Constants.METER_ACTIVATION_BEFORE_UP_INSTALLATION_TIME, "Meter linking error. The meter activation date must be greater than, or equal to, the usage point creation date. This usage point''s creation date is {0}."),
     METER_CANNOT_BE_UNLINKED(12209, Constants.METER_CANNOT_BE_UNLINKED, "Meter unlinking error. Because the metrology configration does not allow gaps, meter {0} cannot be unlinked from usage point {1} at {2}. This meter is required for the calculation of the active purposes of the metrology configuration."),
-    METROLOGY_CONFIG_INVALID_START_DATE(12210, Constants.METROLOGY_CONFIG_INVALID_START_DATE, "The metrology configuration''s start date must be greater than, or equal to, the creation date of the usage point {0}");
-
+    METROLOGY_CONFIG_INVALID_START_DATE(12210, Constants.METROLOGY_CONFIG_INVALID_START_DATE, "Metrology configuration linking error. The metrology configuration''s start date must be greater than, or equal to, the creation date of the usage point {0}"),
+    METERS_ARE_NOT_SPECIFIED_FOR_CONFIGURATION(122211, Constants.METERS_ARE_NOT_SPECIFIED_FOR_CONFIGURATION, "Metrology configuration linking error.  Meters must be specified for all the meter roles required for the calculation of the active purposes of the selected metrology configuration. Required meter roles: {0}")
+    ;
 
     private final int number;
     private final String key;
@@ -303,6 +304,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String METER_ACTIVATION_BEFORE_UP_INSTALLATION_TIME = "meter.activation.before.up.installation.time";
         public static final String METER_CANNOT_BE_UNLINKED = "meter.cannot.be.unlinked";
         public static final String METROLOGY_CONFIG_INVALID_START_DATE = "metrology.config.invalid.start.date";
+        public static final String METERS_ARE_NOT_SPECIFIED_FOR_CONFIGURATION = "meters.are.not.specified.for.configuration";
     }
 
 }
