@@ -804,7 +804,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         assertThat(jsonModel.<List>get("$.meters")).hasSize(1);
         assertThat(jsonModel.<Integer>get("$.meters[0].id")).isEqualTo(1);
         assertThat(jsonModel.<Long>get("$.meters[0].start")).isEqualTo(1486466700000L);
-        assertThat(jsonModel.<Boolean>get("$.meters[0].current")).isEqualTo(true);
+        assertThat(jsonModel.<Boolean>get("$.meters[0].current")).isEqualTo(false);
         assertThat(jsonModel.<String>get("$.meters[0].meter")).isEqualTo("Meter");
         assertThat(jsonModel.<String>get("$.meters[0].url")).isEqualTo("http://localhost:8989/apps/multisense/index.html#/devices/D1");
         assertThat(jsonModel.<String>get("$.meters[0].meterRole")).isEqualTo("Meter role");

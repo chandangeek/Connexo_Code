@@ -11,14 +11,17 @@ import com.elster.jupiter.rest.util.IdWithNameInfo;
 
 import javax.inject.Inject;
 import java.net.URL;
+import java.time.Clock;
 import java.util.stream.Collectors;
 
 public class HistoricalMeterActivationInfoFactory {
     private final BpmService bpmService;
+    private final Clock clock;
 
     @Inject
-    public HistoricalMeterActivationInfoFactory(BpmService bpmService) {
+    public HistoricalMeterActivationInfoFactory(BpmService bpmService, Clock clock) {
         this.bpmService = bpmService;
+        this.clock = clock;
     }
 
     public HistoricalMeterActivationInfo from(MeterActivation meterActivation, UsagePoint usagePoint, String auth) {
@@ -26,7 +29,7 @@ public class HistoricalMeterActivationInfoFactory {
         info.id = meterActivation.getId();
         info.start = meterActivation.getStart() == null ? null : meterActivation.getStart();
         info.end = meterActivation.getEnd() == null ? null : meterActivation.getEnd();
-        info.current = meterActivation.getEnd() == null;
+        info.current = meterActivation.isEffectiveAt(clock.instant());
         meterActivation.getMeter().ifPresent(meter -> {
             info.meter = meter.getName();
             info.url = meter.getHeadEndInterface()
