@@ -50,10 +50,12 @@ import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.mail.impl.MailModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringDataModelService;
 import com.elster.jupiter.metering.impl.MeteringModule;
+import com.elster.jupiter.metering.impl.config.MetrologyConfigurationModule;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
@@ -342,6 +344,7 @@ public class DemoTest {
                         "0.0.0.1.0.0.142.0.0.31.1.0.0.0.0.0.111.0",
                         "0.0.0.1.0.0.142.0.0.32.1.0.0.0.0.0.111.0"
                 ),
+                new MetrologyConfigurationModule(),
                 new ServiceCallModule(),
                 new CustomPropertySetsModule(),
                 new DataVaultModule(),
@@ -873,6 +876,7 @@ public class DemoTest {
                         propertySpecService,
                         injector.getInstance(ValidationService.class),
                         injector.getInstance(MeteringService.class),
+                        injector.getInstance(MetrologyConfigurationService.class),
                         timeService);
         estimationService.addEstimatorFactory(estimatorFactory);
 
