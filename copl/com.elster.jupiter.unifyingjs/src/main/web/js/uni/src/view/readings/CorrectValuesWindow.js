@@ -30,6 +30,7 @@ Ext.define('Uni.view.readings.CorrectValuesWindow', {
     requires: [
         'Uni.util.FormEmptyMessage',
         'Uni.model.readings.ReadingCorrection',
+        'Uni.util.FormErrorMessage',
         'Uni.util.ReadingEditor'
     ],
 
@@ -51,6 +52,17 @@ Ext.define('Uni.view.readings.CorrectValuesWindow', {
                     text: me.infoMessageText,
                     hidden: !me.showInfoMessage,
                     margin: '7 0 16 0'
+                },
+                {
+                    xtype: 'uni-form-error-message',
+                    itemId: 'form-errors',
+                    hidden: true
+                },
+                {
+                    xtype: 'label',
+                    itemId: 'error-label',
+                    hidden: true,
+                    margin: '10 0 10 20'
                 },
                 {
                     xtype: 'radiogroup',
@@ -164,14 +176,16 @@ Ext.define('Uni.view.readings.CorrectValuesWindow', {
         this.down('#correct-values-window-form').updateRecord(record);
     },
 
-    calculateValues: function(correctionModel){
-
-
-        Ext.Array.each(correctionModel.get('intervals'), function(interval){
-            interval.value = Uni.util.ReadingEditor.valueCorrector(interval.value, correctionModel.get('type'), correctionModel.get('amount'))
-        });
-        // return correctionModel.get('intervals').map(function(interval){
-        //     return Uni.util.ReadingEditor.valueCorrector(interval.value, correctionModel.get('type'), correctionModel.get('amount'));
-        // });
-    }
+    // calculateValues: function(correctionModel){
+    //
+    //     correctionModel
+    //
+    //
+    //     Ext.Array.each(correctionModel.get('intervals'), function(interval){
+    //         interval.value = Uni.util.ReadingEditor.valueCorrector(interval.value, correctionModel.get('type'), correctionModel.get('amount'))
+    //     });
+    //     // return correctionModel.get('intervals').map(function(interval){
+    //     //     return Uni.util.ReadingEditor.valueCorrector(interval.value, correctionModel.get('type'), correctionModel.get('amount'));
+    //     // });
+    // }
 });

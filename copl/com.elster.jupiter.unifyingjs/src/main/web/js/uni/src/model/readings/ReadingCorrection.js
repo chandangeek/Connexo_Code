@@ -14,5 +14,20 @@ Ext.define('Uni.model.readings.ReadingCorrection', {
         'estimationComment',
         'amount',
         'intervals'
-    ]
+    ],
+
+    proxy: {
+        type: 'rest',
+        mdmUrl: '/api/udr/usagepoints/{usagePointId}/purposes/{purposeId}/outputs/{outputId}/channelData/correctValue',
+        mdcUrl: '/api/ddr/devices/{deviceId}/channels/{channelId}/data/correctValue',
+        reader: {
+            type: 'json'
+        },
+        setMdmUrl: function(usagePointId, purposeId, outputId){
+            this.url = this.mdmUrl.replace('{usagePointId}', usagePointId).replace('{purposeId}', purposeId).replace('{outputId}', outputId)
+        },
+        setMdcUrl: function(deviceId, channelId){
+            this.url = this.mdmUrl.replace('{deviceId}', deviceId).replace('{channelId}', channelId)
+        }
+    }
 });
