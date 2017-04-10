@@ -260,8 +260,6 @@ public class ChannelValidationRuleOverriddenPropertiesIT {
         when(validationRule.getImplementation()).thenReturn(VALIDATOR);
         when(validationRule.getAction()).thenReturn(VALIDATION_ACTION);
 
-        UsagePointValidation usagePointValidation = forValidation(usagePoint);
-
         // Business method
         usagePointValidation.overridePropertiesFor(validationRule, null).override(propertySpec_1.getName(), 1L).complete();
 
@@ -277,10 +275,6 @@ public class ChannelValidationRuleOverriddenPropertiesIT {
         when(validationRule.getName()).thenReturn("");
         when(validationRule.getImplementation()).thenReturn(VALIDATOR);
         when(validationRule.getAction()).thenReturn(VALIDATION_ACTION);
-        UsagePoint usagePoint = createUsagePoint("up");
-
-        ReadingType readingType = findReadingType(UsagePointDataInMemoryBootstrapModule.BULK_A_PLUS_KWH);
-        UsagePointValidation usagePointValidation = forValidation(usagePoint);
 
         // Business method
         usagePointValidation.overridePropertiesFor(validationRule, readingType).override(propertySpec_1.getName(), 1L).complete();
@@ -296,9 +290,6 @@ public class ChannelValidationRuleOverriddenPropertiesIT {
         when(validationRule.getName()).thenReturn(VALIDATION_RULE);
         when(validationRule.getImplementation()).thenReturn(null);
         when(validationRule.getAction()).thenReturn(VALIDATION_ACTION);
-
-        ReadingType readingType = findReadingType(UsagePointDataInMemoryBootstrapModule.BULK_A_PLUS_KWH);
-        UsagePointValidation usagePointValidation = forValidation(usagePoint);
 
         expectedException.expect(ValidatorNotFoundException.class);
 
@@ -318,9 +309,6 @@ public class ChannelValidationRuleOverriddenPropertiesIT {
         when(validationRule.getImplementation()).thenReturn(VALIDATOR);
         when(validationRule.getAction()).thenReturn(null);
 
-        ReadingType readingType = findReadingType(UsagePointDataInMemoryBootstrapModule.BULK_A_PLUS_KWH);
-        UsagePointValidation usagePointValidation = forValidation(usagePoint);
-
         // Business method
         usagePointValidation.overridePropertiesFor(validationRule, readingType).override(propertySpec_1.getName(), 1L).complete();
 
@@ -338,8 +326,6 @@ public class ChannelValidationRuleOverriddenPropertiesIT {
         ValidationRule validationRule_3 = createValidationRule("rs3", "r1", validator, ValidationAction.FAIL, readingType);
         ValidationRule validationRule_4 = createValidationRule("rs4", "r4", validator, ValidationAction.FAIL, readingType);
         ValidationRule validationRule_5 = createValidationRule("rs5", "r1", validator, ValidationAction.FAIL, anotherReadingType);
-
-        UsagePointValidation usagePointValidation = forValidation(usagePoint);
 
         usagePointValidation.overridePropertiesFor(validationRule_1, readingType)
                 .override(propertySpec_1.getName(), 10L)

@@ -55,7 +55,7 @@ public interface UsagePointValidation {
      * which is a usage point's channel in this context identified by {@link ReadingType}
      *
      * @param validationRule target {@link ValidationRule} for which the properties are going to be redefined
-     * @param readingType target {@link ReadingType} of usage point
+     * @param readingType target {@link ReadingType} of usage point's channel
      * @return {@link PropertyOverrider}
      */
     PropertyOverrider overridePropertiesFor(ValidationRule validationRule, ReadingType readingType);

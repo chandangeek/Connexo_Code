@@ -252,8 +252,6 @@ public class ChannelEstimationRuleOverriddenPropertiesIT {
         when(estimationRule.getName()).thenReturn(ESTIMATION_RULE);
         when(estimationRule.getImplementation()).thenReturn(ESTIMATOR);
 
-        UsagePointEstimation usagePointEstimation = forEstimation(usagePoint);
-
         // Business method
         usagePointEstimation.overridePropertiesFor(estimationRule, null).override(propertySpec_1.getName(), 1L).complete();
 
@@ -270,9 +268,6 @@ public class ChannelEstimationRuleOverriddenPropertiesIT {
         when(estimationRule.getImplementation()).thenReturn(ESTIMATOR);
         UsagePoint usagePoint = createUsagePoint("up");
 
-        ReadingType readingType = findReadingType(UsagePointDataInMemoryBootstrapModule.BULK_A_PLUS_KWH);
-        UsagePointEstimation usagePointEstimation = forEstimation(usagePoint);
-
         // Business method
         usagePointEstimation.overridePropertiesFor(estimationRule, readingType).override(propertySpec_1.getName(), 1L).complete();
 
@@ -286,9 +281,6 @@ public class ChannelEstimationRuleOverriddenPropertiesIT {
         EstimationRule estimationRule = mock(EstimationRule.class);
         when(estimationRule.getName()).thenReturn(ESTIMATION_RULE);
         when(estimationRule.getImplementation()).thenReturn(null);
-
-        ReadingType readingType = findReadingType(UsagePointDataInMemoryBootstrapModule.BULK_A_PLUS_KWH);
-        UsagePointEstimation usagePointEstimation = forEstimation(usagePoint);
 
         expectedException.expect(PropertyCannotBeOverriddenException.class);
 
@@ -308,8 +300,6 @@ public class ChannelEstimationRuleOverriddenPropertiesIT {
         EstimationRule estimationRule_2 = createEstimationRule("rs2", "r1", estimator, readingType);
         EstimationRule estimationRule_3 = createEstimationRule("rs3", "r3", estimator, readingType);
         EstimationRule estimationRule_4 = createEstimationRule("rs4", "r1", estimator, anotherReadingType);
-
-        UsagePointEstimation usagePointEstimation = forEstimation(usagePoint);
 
         usagePointEstimation.overridePropertiesFor(estimationRule_1, readingType)
                 .override(propertySpec_1.getName(), 10L)
