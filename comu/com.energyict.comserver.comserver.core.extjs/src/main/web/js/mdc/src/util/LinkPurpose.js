@@ -27,6 +27,7 @@ Ext.define('Mdc.util.LinkPurpose', {
             slavesGridDisplayMoreMsg: Uni.I18n.translate('slaves.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} slaves'),
             slavesGridEmptyMsg: Uni.I18n.translate('slaves.pagingtoolbartop.emptyMsg', 'MDC', 'There are no slaves to display'),
             slavesGridItemsPerPageMsg: Uni.I18n.translate('slaves.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Slaves per page'),
+            channelGridSlaveColumn: Uni.I18n.translate('general.slave', 'MDC', 'Slave'),
             deviceTypeFilter: function (deviceType) {
                 return (deviceType.get('deviceTypePurpose') === 'DATALOGGER_SLAVE' || deviceType.get('deviceTypePurpose') === 'MULTI_ELEMENT_SLAVE') && deviceType.get('activeDeviceConfigurationCount') > 0;
             }
@@ -51,6 +52,7 @@ Ext.define('Mdc.util.LinkPurpose', {
             slavesGridDisplayMoreMsg: Uni.I18n.translate('dataLoggerSlaves.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} data logger slaves'),
             slavesGridEmptyMsg: Uni.I18n.translate('dataLoggerSlaves.pagingtoolbartop.emptyMsg', 'MDC', 'There are no data logger slaves to display'),
             slavesGridItemsPerPageMsg: Uni.I18n.translate('dataLoggerSlaves.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Data logger slaves per page'),
+            channelGridSlaveColumn: Uni.I18n.translate('general.dataLoggerSlave', 'MDC', 'Data logger slave'),
             deviceTypeFilter: function (deviceType) {
                 return deviceType.get('deviceTypePurpose') === 'DATALOGGER_SLAVE' && deviceType.get('activeDeviceConfigurationCount') > 0;
             }
@@ -75,7 +77,7 @@ Ext.define('Mdc.util.LinkPurpose', {
             slavesGridEmptyMsg: Uni.I18n.translate('multiElementSlaves.pagingtoolbartop.emptyMsg', 'MDC', 'There are no multi-element slaves to display'),
             slavesGridItemsPerPageMsg: Uni.I18n.translate('multiElementSlaves.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Multi-element slaves per page'),
             newSlaveOption: '',
-
+            channelGridSlaveColumn: Uni.I18n.translate('general.multiElementSlave', 'MDC', 'Multi-element slave'),
             deviceTypeFilter: function (deviceType) {
                 return deviceType.get('deviceTypePurpose') === 'MULTI_ELEMENT_SLAVE' && deviceType.get('activeDeviceConfigurationCount') > 0;
             }
