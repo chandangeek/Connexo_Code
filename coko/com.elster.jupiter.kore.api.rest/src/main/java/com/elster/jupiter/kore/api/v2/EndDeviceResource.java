@@ -5,6 +5,10 @@
 package com.elster.jupiter.kore.api.v2;
 
 import com.elster.jupiter.kore.api.impl.MessageSeeds;
+import com.elster.jupiter.kore.api.impl.servicecall.CommandHelper;
+import com.elster.jupiter.kore.api.impl.servicecall.CommandRunStatusInfo;
+import com.elster.jupiter.kore.api.impl.servicecall.EndDeviceCommandInfo;
+import com.elster.jupiter.kore.api.impl.servicecall.UsagePointCommandInfo;
 import com.elster.jupiter.kore.api.security.Privileges;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.Meter;
@@ -15,13 +19,16 @@ import com.elster.jupiter.rest.api.util.v1.hypermedia.JsonQueryParameters;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.PagedInfoList;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.PROPFIND;
+import com.elster.jupiter.rest.util.Transactional;
 
 import com.google.common.collect.Range;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -49,15 +56,17 @@ public class EndDeviceResource {
     private final MeteringService meteringService;
     private final ExceptionFactory exceptionFactory;
     private final Clock clock;
+    private final CommandHelper commandHelper;
 
     @Inject
-    public EndDeviceResource(EndDeviceInfoFactory endDeviceInfoFactory, MeterReadingsFactory meterReadingsFactory, EndDeviceLifeCycleStateInfoFactory endDeviceLifeCycleStateInfoFactory, MeteringService meteringService, ExceptionFactory exceptionFactory, Clock clock) {
+    public EndDeviceResource(EndDeviceInfoFactory endDeviceInfoFactory, MeterReadingsFactory meterReadingsFactory, EndDeviceLifeCycleStateInfoFactory endDeviceLifeCycleStateInfoFactory, MeteringService meteringService, ExceptionFactory exceptionFactory, Clock clock, CommandHelper commandHelper) {
         this.endDeviceInfoFactory = endDeviceInfoFactory;
         this.endDeviceLifeCycleStateInfoFactory = endDeviceLifeCycleStateInfoFactory;
         this.meteringService = meteringService;
         this.exceptionFactory = exceptionFactory;
         this.meterReadingsFactory = meterReadingsFactory;
         this.clock = clock;
+        this.commandHelper = commandHelper;
     }
 
     /**
@@ -150,6 +159,18 @@ public class EndDeviceResource {
                 .resolveTemplate("meterMrid", meterMrid);
 
         return PagedInfoList.from(infos, queryParameters, uriBuilder, uriInfo);
+    }
+
+    @PUT
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @Path("/{meterMrid}/commands")
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
+    @Transactional
+    public CommandRunStatusInfo runCommandOnUsagePoint(@PathParam("meterMrid") String meterMrid, EndDeviceCommandInfo endDeviceCommandInfo) {
+        EndDevice meter = meteringService.findMeterByMRID(meterMrid)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_END_DEVICE));
+        return endDeviceCommandInfo.command.process(meter, endDeviceCommandInfo, commandHelper);
     }
 
     /**

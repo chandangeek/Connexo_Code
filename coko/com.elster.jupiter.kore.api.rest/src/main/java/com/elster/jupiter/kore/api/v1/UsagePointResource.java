@@ -6,7 +6,7 @@ package com.elster.jupiter.kore.api.v1;
 
 import com.elster.jupiter.kore.api.impl.MessageSeeds;
 import com.elster.jupiter.kore.api.impl.servicecall.CommandRunStatusInfo;
-import com.elster.jupiter.kore.api.impl.servicecall.UsagePointCommandHelper;
+import com.elster.jupiter.kore.api.impl.servicecall.CommandHelper;
 import com.elster.jupiter.kore.api.impl.servicecall.UsagePointCommandInfo;
 import com.elster.jupiter.kore.api.security.Privileges;
 import com.elster.jupiter.metering.MeteringService;
@@ -51,7 +51,7 @@ public class UsagePointResource {
     private final Provider<GasDetailResource> gasDetailResourceProvider;
     private final Provider<HeatDetailsResource> heatDetailResourceProvider;
     private final Provider<WaterDetailResource> waterDetailResourceProvider;
-    private final UsagePointCommandHelper usagePointCommandHelper;
+    private final CommandHelper commandHelper;
 
     @Inject
     public UsagePointResource(MeteringService meteringService, UsagePointInfoFactory usagePointInfoFactory,
@@ -60,7 +60,7 @@ public class UsagePointResource {
                               Provider<GasDetailResource> gasDetailResourceProvider,
                               Provider<HeatDetailsResource> heatDetailResourceProvider,
                               Provider<WaterDetailResource> waterDetailResourceProvider,
-                              UsagePointCommandHelper usagePointCommandHelper) {
+                              CommandHelper commandHelper) {
         this.meteringService = meteringService;
         this.usagePointInfoFactory = usagePointInfoFactory;
         this.exceptionFactory = exceptionFactory;
@@ -68,7 +68,7 @@ public class UsagePointResource {
         this.gasDetailResourceProvider = gasDetailResourceProvider;
         this.heatDetailResourceProvider = heatDetailResourceProvider;
         this.waterDetailResourceProvider = waterDetailResourceProvider;
-        this.usagePointCommandHelper = usagePointCommandHelper;
+        this.commandHelper = commandHelper;
     }
 
     /**
@@ -260,6 +260,6 @@ public class UsagePointResource {
     public CommandRunStatusInfo runCommandOnUsagePoint(@PathParam("mRID") String mRID, UsagePointCommandInfo usagePointCommandInfo) {
         UsagePoint usagePoint = meteringService.findUsagePointByMRID(mRID)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_USAGE_POINT));
-        return usagePointCommandInfo.command.process(usagePoint, usagePointCommandInfo, usagePointCommandHelper);
+        return usagePointCommandInfo.command.process(usagePoint, usagePointCommandInfo, commandHelper);
     }
 }
