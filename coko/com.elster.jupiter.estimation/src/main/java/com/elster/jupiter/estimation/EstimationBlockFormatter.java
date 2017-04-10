@@ -4,21 +4,18 @@
 
 package com.elster.jupiter.estimation;
 
-import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MetrologyContractChannelsContainer;
+import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
-import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.util.time.DefaultDateTimeFormatters;
 
+import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.Comparator;
-import java.util.List;
 import java.util.Locale;
-import java.util.stream.Collectors;
-
-import static com.elster.jupiter.util.streams.Functions.asStream;
-import static com.elster.jupiter.util.streams.Functions.map;
+import java.util.Optional;
 
 public class EstimationBlockFormatter {
 
@@ -30,33 +27,35 @@ public class EstimationBlockFormatter {
 
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DefaultDateTimeFormatters.mediumDate().withLongTime().build().withZone(ZoneId.systemDefault()).withLocale(Locale.ENGLISH);
 
-    private boolean getMatchingMetrologyPurposes(MetrologyContract metrologyContract, ReadingType readingType) {
-       return metrologyContract.getDeliverables()
-                .stream()
-                .filter(readingTypeDeliverable -> readingTypeDeliverable.getReadingType().equals((readingType)))
-                .findAny()
-                .isPresent();
-    }
-
     public String format(EstimationBlock estimationBlock) {
-        return " from " +
-                DATE_TIME_FORMATTER.format(estimationBlock.estimatables().get(0).getTimestamp()) +
-                " until " +
-                DATE_TIME_FORMATTER.format(estimationBlock.estimatables().get(estimationBlock.estimatables().size() - 1).getTimestamp()) +
-                " on " +
-                estimationBlock.getReadingType().getFullAliasName() +
-                estimationBlock.getChannel().getChannelsContainer().getUsagePoint()
-                        .flatMap(up -> up.getCurrentEffectiveMetrologyConfiguration().map(emc ->
-                                emc.getMetrologyConfiguration().getContracts()
-                        .stream()
-                        .filter(metrologyContract -> getMatchingMetrologyPurposes(metrologyContract, estimationBlock.getReadingType()))
-                        .map(metrologyContract -> metrologyContract.getMetrologyPurpose().getName())
-                        .collect(Collectors.joining(" ,")))).map(p -> " of purpose " + p).orElse("") +
-                " of " +
-                estimationBlock.getChannel().getChannelsContainer().getUsagePoint().map(usagePoint -> " usage point " + usagePoint.getName()).orElse("") +
-                estimationBlock.getChannel().getChannelsContainer().getMeter().map(meter -> " and meter " + meter.getName()).orElse("") +
-                " with " +
-                estimationBlock.estimatables().size() +
-                " suspects";
+        Instant start = estimationBlock.estimatables().get(0).getTimestamp();
+        Instant end = estimationBlock.estimatables().get(estimationBlock.estimatables().size() - 1).getTimestamp();
+        Optional<UsagePoint> usagePointOptional = estimationBlock.getChannel().getChannelsContainer().getUsagePoint();
+        Optional<Meter> meterOptional = estimationBlock.getChannel().getChannelsContainer().getMeter();
+        return " from " + DATE_TIME_FORMATTER.format(start)
+                + " until " + DATE_TIME_FORMATTER.format(end)
+                + " on " + estimationBlock.getReadingType().getFullAliasName()
+                + Optional.of(estimationBlock.getChannel().getChannelsContainer())
+                        .filter(container -> container instanceof MetrologyContractChannelsContainer)
+                        .map(MetrologyContractChannelsContainer.class::cast)
+                        .map(MetrologyContractChannelsContainer::getMetrologyContract)
+                        .map(MetrologyContract::getMetrologyPurpose)
+                        .map(MetrologyPurpose::getName)
+                        .map(name -> " of purpose " + name)
+                        .orElse("")
+                + " of"
+                + usagePointOptional
+                        .map(UsagePoint::getName)
+                        .map(name -> " usage point " + name)
+                        .orElse("")
+                + usagePointOptional // if both usage point and meter are present, add 'and'
+                        .flatMap(usagePoint -> meterOptional)
+                        .map(meter -> " and")
+                        .orElse("")
+                + meterOptional
+                        .map(Meter::getName)
+                        .map(name -> " meter " + name)
+                        .orElse("")
+                + " with " + estimationBlock.estimatables().size() + " suspects";
     }
 }
