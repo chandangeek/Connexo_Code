@@ -110,15 +110,11 @@ public class MainCheckValidator extends AbstractValidator {
     }
 
     private String generateFailMessage(String message, Object... args) {
-        // FIXME period to string
-        // FIXME reading type to string
         return String.format(VALIDATOR_FAILED_MESSAGE_PATTERN, rangeToString(interval), TranslationKeys.MAIN_CHECK_VALIDATOR
                 .getDefaultFormat(), readingType.getFullAliasName(), String.format(message, args));
     }
 
     private String generateFailMessageWithUsagePoint(String message, Object... args) {
-        // FIXME period to string
-        // FIXME reading type to string
         return String.format(VALIDATOR_FAILED_MESSAGE_PATTERN, rangeToString(interval), TranslationKeys.MAIN_CHECK_VALIDATOR
                 .getDefaultFormat(), usagePointName + "/" + readingType.getFullAliasName(), String.format(message, args));
     }
