@@ -418,9 +418,9 @@ class MetrologyConfigurationsInstaller {
 
         ReadingType aPlus15Min_kWh_TOU_10 = this.findOrCreateReadingType("0.0.2.4.1.1.12.0.0.0.0." + OFFPEAK_CODE + ".0.0.0.3.72.0", "A+ (offpeak)");   // Offpeak in Belgian electricity market
         ReadingType aPlus15Min_kWh_TOU_11 = this.findOrCreateReadingType("0.0.2.4.1.1.12.0.0.0.0." + PEAK_CODE + ".0.0.0.3.72.0", "A+ (peak)");         // Peak in Belgian electricity market
-        ReadingType aPlusYearly_kWh_TOU_10 = this.findOrCreateReadingType(MacroPeriod.YEARLY.getId() + ".0.2.4.1.1.12.0.0.0.0." + OFFPEAK_CODE + ".0.0.0.3.72.0", "A+ (offpeak)");   // Offpeak in Belgian electricity market
-        ReadingType aPlusYearly_kWh_TOU_11 = this.findOrCreateReadingType(MacroPeriod.YEARLY.getId() + ".0.2.4.1.1.12.0.0.0.0." + PEAK_CODE + ".0.0.0.3.72.0", "A+ (peak)");         // Peak in Belgian electricity market
-        ReadingType aPlusYearly_kWh = this.findOrCreateReadingType(MacroPeriod.YEARLY.getId() + ".0.2.4.9.1.12.0.0.0.0.0.0.0.0.3.72.0", "A+");
+        ReadingType aPlusYearly_kWh_TOU_10 = this.findOrCreateReadingType(MacroPeriod.YEARLY.getId() + ".0.0.4.1.1.12.0.0.0.0." + OFFPEAK_CODE + ".0.0.0.3.72.0", "A+ (offpeak)");   // Offpeak in Belgian electricity market
+        ReadingType aPlusYearly_kWh_TOU_11 = this.findOrCreateReadingType(MacroPeriod.YEARLY.getId() + ".0.0.4.1.1.12.0.0.0.0." + PEAK_CODE + ".0.0.0.3.72.0", "A+ (peak)");         // Peak in Belgian electricity market
+        ReadingType aPlusYearly_kWh = this.findOrCreateReadingType(MacroPeriod.YEARLY.getId() + ".0.0.4.9.1.12.0.0.0.0.0.0.0.0.3.72.0", "A+");
 
         MetrologyContract informationContract = configuration.addMandatoryMetrologyContract(findPurposeOrThrowException(DefaultMetrologyPurpose.INFORMATION));
         informationContract.addDeliverable(this.buildFormulaSingleRequirement(configuration, aPlus15Min_kWh_TOU_10, requirementAplusToU10, "15-min A+ kWh ToU10"));
