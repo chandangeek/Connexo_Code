@@ -42,14 +42,12 @@ Ext.define('Uni.property.view.property.Reference', {
             name: me.getName(),
             itemId: me.key + 'displayfield',
             renderer: function (value) {
-                var result;
-
+                var result,
+                    valueIsObject = Ext.isObject(value);
                 if (value) {
-                    if(me.getProperty().getPossibleValues()) {
-                        result = Ext.Array.findBy(me.getProperty().getPossibleValues(), function (item) {
-                            return value == item.id;
-                        });
-                    }
+                    result = Ext.Array.findBy(me.getProperty().getPossibleValues(), function (item) {
+                        return valueIsObject ? value.id === item.id : value === item.id;
+                    });
                     result = Ext.isObject(result) ? result.name : Ext.String.htmlEncode(value);
                 }
 
