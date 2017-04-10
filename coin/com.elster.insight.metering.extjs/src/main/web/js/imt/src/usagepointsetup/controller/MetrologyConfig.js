@@ -50,6 +50,9 @@ Ext.define('Imt.usagepointsetup.controller.MetrologyConfig', {
             callback = {
                 success: function (usagePoint) {
                     var meterRoles = usagePoint.get('metrologyConfiguration_meterRoles');
+                    if (!meterRoles) {
+                        meterRoles = usagePoint.get('effectiveMetrologyConfiguration').meterRoles;
+                    }
                     widget = Ext.widget('usagePointActivateMeters', {
                         itemId: 'usage-point-activate-meters',
                         router: router,
@@ -58,6 +61,7 @@ Ext.define('Imt.usagepointsetup.controller.MetrologyConfig', {
                         meterRoles: meterRoles
                     });
                     app.fireEvent('changeContentEvent', widget);
+                    app.fireEvent('usagePointLoaded', usagePoint);
                     mainView.setLoading(false);
                 },
                 failure: function () {
