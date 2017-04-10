@@ -403,13 +403,7 @@ public class DeviceResource {
                 slave = newDevice(slaveDeviceInfo.deviceConfigurationId, slaveDeviceInfo.batch, slaveDeviceInfo.name,
                         slaveDeviceInfo.serialNumber, slaveDeviceInfo.manufacturer, slaveDeviceInfo.modelNbr, slaveDeviceInfo.modelVersion , slaveDeviceInfo.yearOfCertification, Instant.ofEpochMilli(slaveDeviceInfo.shipmentDate));
                 if (slave.getDeviceType().isMultiElementSlave()){
-                    // Update the multi-element slave with the multi-element's master device
-                    slave.setSerialNumber(dataLogger.getSerialNumber());
-                    slave.setManufacturer(dataLogger.getManufacturer());
-                    slave.setModelNumber(dataLogger.getModelNumber());
-                    slave.setModelVersion(dataLogger.getModelVersion());
-                    slave.setYearOfCertification(dataLogger.getYearOfCertification());
-                    slave.save();
+                    multiElementDeviceService.syncSlaves(dataLogger);
                 }
             } else {
                 if (slaveDeviceInfo.isFromExistingLink()) {
