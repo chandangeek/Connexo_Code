@@ -11,6 +11,7 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.UsagePointManagementException;
 import com.elster.jupiter.metering.UsagePointMeterActivationException;
 import com.elster.jupiter.metering.UsagePointMeterActivator;
 import com.elster.jupiter.metering.ami.EndDeviceCapabilities;
@@ -40,6 +41,8 @@ import com.elster.jupiter.users.PreferenceType;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.Pair;
+
+import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 import javax.ws.rs.WebApplicationException;
@@ -242,10 +245,40 @@ public class ResourceHelper {
                         linker.clear(meterRole);
                         if(meterRoleInfo.meter != null && !Checks.is(meterRoleInfo.name).emptyOrOnlyWhiteSpace()) {
                             Meter meter = findMeterByNameOrThrowException(meterRoleInfo.meter);
+                            validateMeterCapabilities(info.metrologyConfiguration, meter, meterRoleInfo.activationTime);
                             linker.activate(meterRoleInfo.activationTime, meter, meterRole);
                         }
                     });
             linker.complete();
+        }
+    }
+
+    private void validateMeterCapabilities(MetrologyConfigurationInfo info, Meter meter, Instant start) {
+        MetrologyConfiguration metrologyConfiguration = findMetrologyConfigurationOrThrowException(info.id);
+        List<? extends MeterActivation> meterActivations = meter.getMeterActivations(Range.atLeast(start));
+        List<MetrologyContract> metrologyContracts = metrologyConfiguration.getContracts().stream()
+                .filter(MetrologyContract::isMandatory)
+                .collect(Collectors.toList());
+        List<ReadingType> meterActivationReadingTypes = meterActivations.stream()
+                .flatMap(meterActivation -> meterActivation.getReadingTypes().stream())
+                .collect(Collectors.toList());
+
+        if (!meterActivationReadingTypes.isEmpty()) {
+            List<String> metrologyPurposes = metrologyContracts.stream()
+                    .filter(MetrologyContract::isMandatory)
+                    .filter(contract -> !contract.getRequirements()
+                            .stream()
+                            .filter(requirement -> meterActivationReadingTypes.stream()
+                                    .filter(requirement::matches).findAny().isPresent())
+                            .findAny()
+                            .isPresent())
+                    .map(MetrologyContract::getMetrologyPurpose)
+                    .map(MetrologyPurpose::getName)
+                    .collect(Collectors.toList());
+
+            if (!metrologyPurposes.isEmpty()) {
+                throw UsagePointManagementException.incorrectMeterActivationRequirements(thesaurus, metrologyPurposes);
+            }
         }
     }
 

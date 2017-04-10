@@ -1108,6 +1108,7 @@ public class UsagePointResource {
             UsagePointBuilder usagePointBuilder = usagePointInfoFactory.newUsagePointBuilder(info);
             usagePoint = usagePointBuilder.create();
             info.techInfo.getUsagePointDetailBuilder(usagePoint, clock).create();
+            resourceHelper.activateMeters(info, usagePoint);
             if (info.metrologyConfiguration != null) {
                 UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = (UsagePointMetrologyConfiguration) resourceHelper
                         .findMetrologyConfigurationOrThrowException(info.metrologyConfiguration.id);
@@ -1121,7 +1122,6 @@ public class UsagePointResource {
             }
             usagePoint.update();
 
-            resourceHelper.activateMeters(info, usagePoint);
             performLifeCycleTransition(info.transitionToPerform, usagePoint, validationBuilder);
             transaction.commit();
         }
