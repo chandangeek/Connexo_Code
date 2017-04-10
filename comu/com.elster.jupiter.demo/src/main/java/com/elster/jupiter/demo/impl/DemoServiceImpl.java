@@ -230,7 +230,8 @@ public class DemoServiceImpl {
             CalendarService calendarService,
             com.elster.jupiter.tasks.TaskService platformTaskService,
             CommandRuleService commandRuleService,
-            DataQualityKpiService dataQualityKpiService) {
+            DataQualityKpiService dataQualityKpiService,
+            TopologyService topologyService) {
         this();
         setEngineConfigurationService(engineConfigurationService);
         setUserService(userService);

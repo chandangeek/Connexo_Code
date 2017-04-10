@@ -246,8 +246,10 @@ public class DemoTest {
             bind(MessageInterpolator.class).toInstance(thesaurus);
 
             LicenseService licenseService = mock(LicenseService.class);
-            License license = mockLicense();
+            License license = mockLicense("MDC");
+            License insightLicense = mockLicense("INS");
             when(licenseService.getLicenseForApplication("MDC")).thenReturn(Optional.of(license));
+            when(licenseService.getLicenseForApplication("INS")).thenReturn(Optional.of(insightLicense));
             bind(LicenseService.class).toInstance(licenseService);
             bind(SerialComponentService.class).to(SerialIONoModemComponentServiceImpl.class).in(Scopes.SINGLETON);
             bind(LogService.class).toInstance(mock(LogService.class));
@@ -259,11 +261,11 @@ public class DemoTest {
             bind(LoadProfileFactory.class).toInstance(mock(LoadProfileFactory.class));
         }
 
-        private License mockLicense() {
+        private License mockLicense(String applicationname) {
             License license = mock(License.class);
             Properties properties = new Properties();
             properties.setProperty("protocols", "all");
-            when(license.getApplicationKey()).thenReturn("MDC");
+            when(license.getApplicationKey()).thenReturn(applicationname);
             when(license.getDescription()).thenReturn("MDC application license example");
             when(license.getStatus()).thenReturn(License.Status.ACTIVE);
             when(license.getType()).thenReturn(License.Type.EVALUATION);

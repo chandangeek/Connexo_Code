@@ -67,6 +67,7 @@ public class CreateCollectRemoteDataSetupCommand extends CommandWithTransaction 
     private final Provider<CreateUsagePointsForDevicesCommand> createUsagePointsForDevicesCommandProvider;
     private final Provider<CreateSPEDeviceCommand> createSPEDeviceCommandProvider;
     private final Provider<CreateHANDeviceCommand> createHANDeviceCommandProvider;
+    private final Provider<CreateMetrologyConfigurationsCommand> createMetrologyConfigurationsCommandProvider;
 
     private String comServerName;
     private String host;
@@ -83,7 +84,7 @@ public class CreateCollectRemoteDataSetupCommand extends CommandWithTransaction 
             Provider<AddLocationInfoToDevicesCommand> addLocationInfoToDevicesCommandProvider,
             Provider<CreateUsagePointsForDevicesCommand> createUsagePointsForDevicesCommandProvider,
             Provider<CreateSPEDeviceCommand> createSPEDeviceCommandProvider,
-            Provider<CreateHANDeviceCommand> createHANDeviceCommandProvider) {
+            Provider<CreateHANDeviceCommand> createHANDeviceCommandProvider, Provider<CreateMetrologyConfigurationsCommand> createMetrologyConfigurationsCommandProvider) {
         this.licenseService = licenseService;
         this.deviceService = deviceService;
         this.meteringService = meteringService;
@@ -94,6 +95,7 @@ public class CreateCollectRemoteDataSetupCommand extends CommandWithTransaction 
         this.createUsagePointsForDevicesCommandProvider = createUsagePointsForDevicesCommandProvider;
         this.createSPEDeviceCommandProvider = createSPEDeviceCommandProvider;
         this.createHANDeviceCommandProvider = createHANDeviceCommandProvider;
+        this.createMetrologyConfigurationsCommandProvider = createMetrologyConfigurationsCommandProvider;
     }
 
     public void setComServerName(String comServerName) {
@@ -111,7 +113,6 @@ public class CreateCollectRemoteDataSetupCommand extends CommandWithTransaction 
     public void run() {
         parametersCheck();
         licenseCheck();
-        createMissingReadingTypes();
         executeTransaction(() -> {
             createComBackground();
             createRegisterTypes();
@@ -125,7 +126,13 @@ public class CreateCollectRemoteDataSetupCommand extends CommandWithTransaction 
             createCalendars();
             createCommandLimitation();
         });
-        executeTransaction(this::createMetrologyConfigurations);
+        executeTransaction(() -> {
+            if (licenseService.getLicenseForApplication("INS").isPresent()) {
+                createMetrologyConfigurationsCommandProvider.get().createMetrologyConfigurations();
+            } else {
+                createMetrologyConfigurationsCommandProvider.get().createMultisenseMetrologyConfigurations();
+            }
+        });
         createDeviceStructure();
         executeTransaction(() -> {
             createCreationRules();
@@ -138,10 +145,6 @@ public class CreateCollectRemoteDataSetupCommand extends CommandWithTransaction 
         });
         executeTransaction(this::addLocationAndUsagePoints);
         executeTransaction(this::corruptDeviceSettingsForIssueManagement);
-    }
-
-    private void createMissingReadingTypes() {
-//        executeTransaction(() -> meteringService.createReadingType(RegisterTypeTpl.BULK_WATER_VOLUME.getMrid(), "Water volume"));
     }
 
     private void parametersCheck() {
@@ -236,7 +239,7 @@ public class CreateCollectRemoteDataSetupCommand extends CommandWithTransaction 
         Stream.of(CommandRuleTpl.values()).forEach(tpl -> Builders.from(tpl).get());
     }
 
-    private void createMetrologyConfigurations() {
+    private void createMultisenseMetrologyConfigurations() {
         Builders.from(MetrologyConfigurationTpl.CONSUMER).get();
         Builders.from(MetrologyConfigurationTpl.PROSUMER).get();
     }
@@ -257,7 +260,7 @@ public class CreateCollectRemoteDataSetupCommand extends CommandWithTransaction 
     private void createDevices(DeviceTypeTpl deviceTypeTpl) {
         DeviceType deviceType = Builders.from(deviceTypeTpl).get();
         int deviceCount = (this.devicesPerType == null ? deviceTypeTpl.getDeviceCount() : this.devicesPerType);
-        if(deviceTypeTpl == DeviceTypeTpl.Elster_A1800 || deviceTypeTpl == DeviceTypeTpl.Elster_AS1440) {
+        if (deviceTypeTpl == DeviceTypeTpl.Elster_A1800 || deviceTypeTpl == DeviceTypeTpl.Elster_AS1440) {
             deviceCount = (int) Math.floor(deviceCount / 2);
         }
         if (deviceTypeTpl == DeviceTypeTpl.Elster_A1800) {

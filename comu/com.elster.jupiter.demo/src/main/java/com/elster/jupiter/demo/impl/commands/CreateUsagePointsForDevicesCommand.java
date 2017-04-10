@@ -82,9 +82,9 @@ public class CreateUsagePointsForDevicesCommand {
                 .forEach(cps -> cps.setValues(getUsagePointTechnicalInstallationDomainExtensionValues()));
         UsagePointMetrologyConfiguration metrologyConfiguration;
         if (device.getDeviceConfiguration().getName().equals(DeviceConfigurationTpl.CONSUMERS.getName())) {
-           metrologyConfiguration = Builders.from(MetrologyConfigurationTpl.CONSUMER).get();
+            metrologyConfiguration = (UsagePointMetrologyConfiguration) metrologyConfigurationService.findMetrologyConfiguration("Residential consumer with 1 meter").get();
         } else {
-            metrologyConfiguration = Builders.from(MetrologyConfigurationTpl.PROSUMER).get();
+            metrologyConfiguration =  (UsagePointMetrologyConfiguration) metrologyConfigurationService.findMetrologyConfiguration("Residential prosumer with 1 meter").get();
         }
         metrologyConfiguration.addMeterRole(metrologyConfigurationService.findDefaultMeterRole(DefaultMeterRole.DEFAULT));
         usagePoint.apply(metrologyConfiguration, clock.instant());
