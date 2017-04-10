@@ -52,12 +52,11 @@ public class MainCheckValidatorWithThresholdTest extends MainCheckValidatorTest 
 
         assertEquals(5, validationConfiguration.mainChannelReadings.readings.size());
 
-        assertEquals(3L, validationConfiguration.mainChannelReadings.readings.stream()
+        assertEquals(5L, validationConfiguration.mainChannelReadings.readings.stream()
                 .map(validator::validate)
-                .filter((c -> !c.equals(ValidationResult.VALID))).count());
+                .filter((c -> c.equals(ValidationResult.VALID))).count());
 
-        assertEquals(1, validator.finish().size());
-        assertEquals(ValidationResult.VALID, validator.finish().get(instant("20160101000000")));
+        assertEquals(0, validator.finish().size());
 
     }
 }

@@ -93,10 +93,6 @@ public class MainCheckValidator extends AbstractValidator {
 
     private ValidationResult preparedValidationResult;
 
-    // not_validated by threshold
-    private List<Instant> notValidatedByThreshold;
-    private Instant lastValidatedReading;
-
     public MainCheckValidator(Thesaurus thesaurus, PropertySpecService propertySpecService, MetrologyConfigurationService metrologyConfigurationService, ValidationService validationService) {
         super(thesaurus, propertySpecService);
         this.metrologyConfigurationService = metrologyConfigurationService;
@@ -212,8 +208,6 @@ public class MainCheckValidator extends AbstractValidator {
             throw new MissingRequiredProperty(getThesaurus(), USE_VALIDATED_DATA);
         }
 
-        notValidatedByThreshold = new ArrayList<>();
-
         // find 'check' channel and save readings + prepare mapping with readings from 'main' channel
 
         // 2. find 'check' channel
@@ -304,12 +298,7 @@ public class MainCheckValidator extends AbstractValidator {
 
         IntervalReadingRecord checkIntervalReadingRecord = checkReadingRecords.get(intervalReadingRecord.getTimeStamp());
 
-        ValidationResult validationResult =  validate(intervalReadingRecord, checkIntervalReadingRecord);
-        if (!validationResult.equals(ValidationResult.NOT_VALIDATED)){
-            // remember last validated reading
-            lastValidatedReading = intervalReadingRecord.getTimeStamp();
-        }
-        return validationResult;
+        return validate(intervalReadingRecord, checkIntervalReadingRecord);
     }
 
     //  "Wed, 15 Feb 2017 00:00 until Thu, 16 Feb 2017 00:00"
@@ -377,9 +366,8 @@ public class MainCheckValidator extends AbstractValidator {
 
 
             if (mainValue.compareTo(minThreshold.value) <= 0 && checkValue.compareTo(minThreshold.value) <= 0) {
-                // [RULE FLOW ACTION] the check for the interval is skipped and the validation moves to the next interval.
-                notValidatedByThreshold.add(mainReading.getTimeStamp());
-                return ValidationResult.NOT_VALIDATED;
+                // [RULE FLOW ACTION] the check for the interval is marked valid and the validation moves to the next interval.
+                return ValidationResult.VALID;
             }
         }
 
@@ -405,16 +393,6 @@ public class MainCheckValidator extends AbstractValidator {
         // this validator is not planned to be applied for registers
         // So, this method has no logic
         return ValidationResult.NOT_VALIDATED;
-    }
-
-    @Override
-    public Map<Instant, ValidationResult> finish() {
-        // check NOT_VALIDATED*by threshold readings.
-
-        // mark all NOT_VALIDATED*by threshold readings as VALID if they happened before lastValidatedReading
-
-       return notValidatedByThreshold.stream().filter((c -> c.compareTo(lastValidatedReading) < 0)).collect(Collectors.toMap(Function.identity(),c -> ValidationResult.VALID));
-
     }
 
     @Override
