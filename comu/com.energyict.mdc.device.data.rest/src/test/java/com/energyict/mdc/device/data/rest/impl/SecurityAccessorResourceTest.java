@@ -318,7 +318,7 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
     }
 
     @Test
-    public void testDeleteTempOnSecurityAccessorWithTempAndActual() throws Exception {
+    public void testDeleteTempOnKeyAccessorWithTempAndActual() throws Exception {
         SecurityAccessorInfo securityAccessorInfo = new SecurityAccessorInfo();
         securityAccessorInfo.currentProperties = new ArrayList<>();
         PropertyInfo actualProperty = createPropertyInfo("key", "b21nLEkgY2FuJ3QgYmVsaWV2ZSB5b3UgZGVjb2RlZCB0aGlz");
