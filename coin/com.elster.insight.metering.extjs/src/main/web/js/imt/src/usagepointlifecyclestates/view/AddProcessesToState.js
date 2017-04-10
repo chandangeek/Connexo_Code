@@ -37,7 +37,7 @@ Ext.define('Imt.usagepointlifecyclestates.view.AddProcessesToState', {
                     emptyComponent: {
                         xtype: 'no-items-found-panel',
                         margin: '15 0 20 0',
-                        title: Uni.I18n.translate('transitionBusinessProcess.empty.title', 'IMT', 'No processes found.'),
+                        title: Uni.I18n.translate('transitionBusinessProcess.empty.title', 'IMT', 'No processes found'),
                         reasons: [
                             Uni.I18n.translate('transitionBusinessProcess.empty.list.item1', 'IMT', 'No processes are defined yet'),
                             Uni.I18n.translate('transitionBusinessProcess.empty.list.item2', 'IMT', 'All processes are already added to the state.')
