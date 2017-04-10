@@ -126,7 +126,7 @@ public class BasicPropertySpec implements PropertySpec, Serializable {
 
     @SuppressWarnings("unchecked")
     private boolean validateSimpleValue(Object value) throws InvalidValueException {
-        if (this.possibleValues != null && this.possibleValues.isExhaustive()) {
+        if (this.getPossibleValues() != null && this.getPossibleValues().isExhaustive()) {
             if (!this.isPossibleValue(value)) {
                 throw new InvalidValueException("XisNotAPossibleValue", "The value is not listed as a possible value for this property", this.getName());
             }
@@ -161,7 +161,7 @@ public class BasicPropertySpec implements PropertySpec, Serializable {
     @SuppressWarnings("unchecked")
     private boolean isPossibleValue(Object value, ValueFactory valueFactory) {
         Object dbValue = valueFactory.valueToDatabase(value);
-        return possibleValues
+        return getPossibleValues()
                 .getAllValues()
                 .stream()
                 .map(valueFactory::valueToDatabase)
