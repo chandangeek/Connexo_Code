@@ -112,7 +112,6 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
     private volatile MeteringService meteringService;
     private volatile MeteringGroupsService meteringGroupsService;
     private volatile MetrologyConfigurationService metrologyConfigurationService;
-    private volatile ValidationService validationService;
     private volatile SearchService searchService;
     private volatile Clock clock;
     private volatile MessageService messageService;
@@ -186,7 +185,6 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
                 bind(MessageService.class).toInstance(messageService);
                 bind(SearchService.class).toInstance(searchService);
                 bind(MetrologyConfigurationService.class).toInstance(metrologyConfigurationService);
-                bind(ValidationService.class).toInstance(validationService);
             }
         });
         this.registerDataValidationKpiService(context);
