@@ -931,6 +931,7 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
         public void meterHasUnsatisfiedRequirements(Meter meter, UsagePoint usagePoint, MeterRole meterRole, Map<UsagePointMetrologyConfiguration, List<ReadingTypeRequirement>> unsatisfiedRequirements) {
             super.valid = false;
 
+            super.context.disableDefaultConstraintViolation();
             for (Map.Entry<UsagePointMetrologyConfiguration, List<ReadingTypeRequirement>> unsatisfiedRequirementEntry : unsatisfiedRequirements.entrySet()) {
                 Map<MetrologyPurpose, List<ReadingTypeRequirement>> requirements = unsatisfiedRequirementEntry.getKey().getContracts()
                         .stream()
