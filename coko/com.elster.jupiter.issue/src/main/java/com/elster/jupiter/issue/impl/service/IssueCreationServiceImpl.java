@@ -31,7 +31,6 @@ import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.conditions.Condition;
 
 import org.drools.core.common.ProjectClassLoader;
 import org.kie.api.KieBaseConfiguration;
@@ -46,6 +45,7 @@ import org.kie.internal.runtime.StatefulKnowledgeSession;
 import org.kie.internal.utils.CompositeClassLoader;
 
 import javax.inject.Inject;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -73,6 +73,7 @@ public class IssueCreationServiceImpl implements IssueCreationService {
     private volatile KnowledgeBuilderFactoryService knowledgeBuilderFactoryService;
     private volatile KnowledgeBaseFactoryService knowledgeBaseFactoryService;
     private volatile KieResources resourceFactoryService;
+    private volatile Clock clock;
 
     //for test purpose only
     public IssueCreationServiceImpl() {
@@ -87,10 +88,11 @@ public class IssueCreationServiceImpl implements IssueCreationService {
             KnowledgeBuilderFactoryService knowledgeBuilderFactoryService,
             KnowledgeBaseFactoryService knowledgeBaseFactoryService,
             KieResources resourceFactoryService,
-            Thesaurus thesaurus) {
+            Thesaurus thesaurus, Clock clock) {
         this.dataModel = dataModel;
         this.issueService = issueService;
         this.queryService = queryService;
+        this.clock = clock;
         this.batchUser = userService.findUser("batch executor");
         this.knowledgeBaseFactoryService = knowledgeBaseFactoryService;
         this.knowledgeBuilderFactoryService = knowledgeBuilderFactoryService;
@@ -205,7 +207,7 @@ public class IssueCreationServiceImpl implements IssueCreationService {
         OpenIssueImpl baseIssue = dataModel.getInstance(OpenIssueImpl.class);
         baseIssue.setReason(firedRule.getReason());
         baseIssue.setStatus(issueService.findStatus(IssueStatus.OPEN).orElse(null));
-        baseIssue.setDueDate(Instant.ofEpochMilli(firedRule.getDueInType().dueValueFor(firedRule.getDueInValue())));
+        baseIssue.setDueDate(Instant.ofEpochMilli(firedRule.getDueInType().dueValueFor(firedRule.getDueInValue(), clock.instant().toEpochMilli())));
         baseIssue.setOverdue(false);
         baseIssue.setRule(firedRule);
         baseIssue.setPriority(firedRule.getPriority());
