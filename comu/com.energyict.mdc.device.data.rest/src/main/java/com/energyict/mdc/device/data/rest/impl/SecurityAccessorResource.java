@@ -117,29 +117,35 @@ public class SecurityAccessorResource {
         Optional<KeyAccessor> keyAccessor = device.getKeyAccessor(keyAccessorType);
         KeyAccessor result = keyAccessor.map(ka -> updateKeyAccessor(ka, securityAccessorInfo))
                 .orElseGet(() -> createKeyAccessor(device, keyAccessorType, securityAccessorInfo));
+        if (result==null) {
+            result = keyAccessorPlaceHolderProvider.get().init(keyAccessorType, device);
+        }
         return Response.ok().entity(securityAccessorInfoFactory.from(result)).build();
     }
 
     private KeyAccessor<SecurityValueWrapper> createKeyAccessor(Device device, KeyAccessorType keyAccessorType, SecurityAccessorInfo securityAccessorInfo) {
-        KeyAccessor<SecurityValueWrapper> keyAccessor = device.newKeyAccessor(keyAccessorType);
         List<PropertySpec> propertySpecs = pkiService.getPropertySpecs(keyAccessorType);
-        try {
-            Map<String, Object> properties = getPropertiesAsMap(propertySpecs, securityAccessorInfo.currentProperties);
-            if (propertiesContainValues(properties)) {
-                createActualValue(keyAccessor, properties);
+        Map<String, Object> tempProperties = getPropertiesAsMap(propertySpecs, securityAccessorInfo.tempProperties);
+        Map<String, Object> actualProperties = getPropertiesAsMap(propertySpecs, securityAccessorInfo.currentProperties);
+        if (propertiesContainValues(actualProperties) || propertiesContainValues(tempProperties)) {
+            KeyAccessor<SecurityValueWrapper> keyAccessor = device.newKeyAccessor(keyAccessorType);
+            try {
+                if (propertiesContainValues(actualProperties)) {
+                    createActualValue(keyAccessor, actualProperties);
+                }
+            } catch (ConstraintViolationException e) {
+                throw new PathPrependingConstraintViolationException(e, "currentProperties");
             }
-        } catch (ConstraintViolationException e) {
-            throw new PathPrependingConstraintViolationException(e, "currentProperties");
-        }
-        try {
-            Map<String, Object> properties = getPropertiesAsMap(propertySpecs, securityAccessorInfo.tempProperties);
-            if (propertiesContainValues(properties)) {
-                createTempValue(keyAccessor, properties);
+            try {
+                if (propertiesContainValues(tempProperties)) {
+                    createTempValue(keyAccessor, tempProperties);
+                }
+            } catch (ConstraintViolationException e) {
+                throw new PathPrependingConstraintViolationException(e, "tempProperties");
             }
-        } catch (ConstraintViolationException e) {
-            throw new PathPrependingConstraintViolationException(e, "tempProperties");
+            return keyAccessor;
         }
-        return keyAccessor;
+        return null;
     }
 
     private void createActualValue(KeyAccessor keyAccessor, Map<String, Object> properties) {
