@@ -7,6 +7,8 @@ package com.elster.jupiter.metering.impl;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
+import com.elster.jupiter.devtools.tests.rules.LocaleNeutral;
+import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.fsm.Stage;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.AmrSystem;
@@ -66,6 +68,8 @@ public class UsagePointImplIT {
     public TransactionalRule transactionalRule = new TransactionalRule(inMemoryBootstrapModule.getTransactionService());
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
+    @Rule
+    public LocaleNeutral localeNeutral = Using.localeOfMalta();
 
     @BeforeClass
     public static void setUp() {
