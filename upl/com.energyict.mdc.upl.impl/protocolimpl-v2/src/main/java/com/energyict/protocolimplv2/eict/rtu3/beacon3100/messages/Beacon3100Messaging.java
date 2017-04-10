@@ -176,13 +176,9 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         SUPPORTED_MESSAGES.add(SecurityMessage.AGREE_NEW_ENCRYPTION_KEY);
         SUPPORTED_MESSAGES.add(SecurityMessage.AGREE_NEW_AUTHENTICATION_KEY);
         SUPPORTED_MESSAGES.add(SecurityMessage.CHANGE_SECURITY_SUITE);
-        SUPPORTED_MESSAGES.add(SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEYS);
         SUPPORTED_MESSAGES.add(SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEYS_FOR_CLIENT);
-        SUPPORTED_MESSAGES.add(SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEYS);
         SUPPORTED_MESSAGES.add(SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEYS_FOR_CLIENT);
-        SUPPORTED_MESSAGES.add(SecurityMessage.CHANGE_MASTER_KEY_WITH_NEW_KEYS);
         SUPPORTED_MESSAGES.add(SecurityMessage.CHANGE_MASTER_KEY_WITH_NEW_KEYS_FOR_CLIENT);
-        SUPPORTED_MESSAGES.add(SecurityMessage.CHANGE_HLS_SECRET_PASSWORD);
         SUPPORTED_MESSAGES.add(SecurityMessage.CHANGE_HLS_SECRET_PASSWORD_FOR_CLIENT);
         SUPPORTED_MESSAGES.add(SecurityMessage.EXPORT_END_DEVICE_CERTIFICATE);
         SUPPORTED_MESSAGES.add(SecurityMessage.EXPORT_SUB_CA_CERTIFICATES);
@@ -731,7 +727,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                         writeAlarmFilter(pendingMessage);
                         collectedMessage.setDeviceProtocolInformation("Alarm filter written in " + Beacon3100RegisterFactory.ALARM_FILTER);
                     } else if (pendingMessage.getSpecification().equals(AlarmConfigurationMessage.CONFIGURE_PUSH_EVENT_NOTIFICATION_CIPHERING)) {
-                        collectedMessage = configurePushSetupNotificationCiphering(pendingMessage, collectedMessage);
+                        configurePushSetupNotificationCiphering(pendingMessage, collectedMessage);
                     }else if (pendingMessage.getSpecification().equals(AlarmConfigurationMessage.CONFIGURE_PUSH_EVENT_SEND_TEST_NOTIFICATION)) {
                         collectedMessage = configurePushSetupSendTestNotification(pendingMessage, collectedMessage);
                     } else if(pendingMessage.getSpecification().equals(DeviceActionMessage.SetBufferForAllLoadProfiles)){
@@ -1987,7 +1983,12 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
 
     private void enableEventNotifications(OfflineDeviceMessage pendingMessage) throws IOException {
         boolean enable = Boolean.parseBoolean(pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue());
-        getCosemObjectFactory().getBeaconEventPushNotificationConfig().enable(enable);
+
+        if (readOldObisCodes()) {
+            getCosemObjectFactory().getBeaconEventPushNotificationConfig().enable(enable);
+        } else {
+            getCosemObjectFactory().getBeacon3100PushSetup().enable(enable);
+        }
     }
 
     private void setModemWatchdogParameters(OfflineDeviceMessage pendingMessage) throws IOException {
@@ -2031,7 +2032,11 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         String messageTypeString = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.messageTypeAttributeName).getDeviceMessageAttributeValue();
         int messageType = AlarmConfigurationMessage.MessageType.valueOf(messageTypeString).getId();
 
-        getCosemObjectFactory().getBeaconEventPushNotificationConfig().writeSendDestinationAndMethod(transportType, destinationAddress, messageType);
+        if (readOldObisCodes()) {
+            getCosemObjectFactory().getBeaconEventPushNotificationConfig().writeSendDestinationAndMethod(transportType, destinationAddress, messageType);
+        } else {
+            getCosemObjectFactory().getBeacon3100PushSetup().writeSendDestinationAndMethod(transportType, destinationAddress, messageType);
+        }
     }
 
     private void writeUplinkPingTimeout(OfflineDeviceMessage pendingMessage) throws IOException {
@@ -2269,21 +2274,19 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         data.setValueAttr(new BitString(filter.longValue(), 45));
     }
 
-    private CollectedMessage configurePushSetupNotificationCiphering(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
+    private void configurePushSetupNotificationCiphering(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
         int notificationCiphering = AlarmConfigurationMessage.NotificationCipheringType.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.notificationCiphering).getDeviceMessageAttributeValue()).getId();
-        ObisCode pushSetupObisCode = EventPushNotificationConfig.getDefaultObisCode();
-        EventPushNotificationConfig eventPushNotificationConfig = getCosemObjectFactory().getEventPushNotificationConfig(pushSetupObisCode);
-        eventPushNotificationConfig.writeNotificationCiphering(notificationCiphering);
-
-        return collectedMessage;
+        Beacon3100PushSetup beacon3100PushSetup = getCosemObjectFactory().getBeacon3100PushSetup();
+        beacon3100PushSetup.writeNotificationCiphering(notificationCiphering);
     }
 
     private CollectedMessage configurePushSetupSendTestNotification(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
         String echoTestNotification = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.echoTestNotification).getDeviceMessageAttributeValue();
-        ObisCode pushSetupObisCode = EventPushNotificationConfig.getDefaultObisCode();
-        EventPushNotificationConfig eventPushNotificationConfig = getCosemObjectFactory().getEventPushNotificationConfig(pushSetupObisCode);
 
-        eventPushNotificationConfig.setSendTestNotificationMethod(echoTestNotification);
+        Beacon3100PushSetup beacon3100PushSetup = getCosemObjectFactory().getBeacon3100PushSetup();
+
+        boolean result = beacon3100PushSetup.setSendTestNotificationMethod(echoTestNotification);
+        collectedMessage.setDeviceProtocolInformation("Sent ["+echoTestNotification+"], result=["+result+"]");
         return collectedMessage;
     }
 
