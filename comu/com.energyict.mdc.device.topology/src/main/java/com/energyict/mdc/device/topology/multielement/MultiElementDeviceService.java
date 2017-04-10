@@ -95,4 +95,6 @@ public interface MultiElementDeviceService {
 
     List<Pair<Register, Range<Instant>>> getMultiElementSlaveRegisterTimeLine(Register register, Range<Instant> intervalReg);
 
+    void syncSlaves(Device multiElementDevice);
+
 }

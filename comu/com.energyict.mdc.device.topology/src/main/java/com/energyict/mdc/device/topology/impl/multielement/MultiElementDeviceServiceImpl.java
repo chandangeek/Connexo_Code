@@ -250,6 +250,23 @@ public class MultiElementDeviceServiceImpl implements MultiElementDeviceService,
         return topologyService.getDataLoggerRegisterTimeLine(register, intervalReg);
     }
 
+    @Override
+    public void syncSlaves(Device multiElementDevice) {
+        if (!multiElementDevice.getDeviceConfiguration().isMultiElementEnabled()){
+            throw new IllegalArgumentException("Not a multi-element device");
+        }
+        this.findMultiElementSlaves(multiElementDevice).stream().forEach(slave -> this.syncSlave(multiElementDevice, slave));
+    }
+
+    private void syncSlave(Device master, Device slave){
+        slave.setManufacturer(master.getManufacturer());
+        slave.setModelNumber(master.getModelNumber());
+        slave.setModelVersion(master.getModelVersion());
+        slave.setYearOfCertification(master.getYearOfCertification());
+        master.getBatch().ifPresent(slave::addInBatch);
+        slave.save();
+    }
+
     private void validateUniqueKeyConstraintForMultiElementDeviceReference(Device multiElementDevice, Instant linkingDate, Device slave) {
         Condition condition = where(PhysicalGatewayReferenceImpl.Field.GATEWAY.fieldName()).isEqualTo(multiElementDevice)
                 .and(where("interval.start").in(Range.closed(linkingDate.toEpochMilli(), linkingDate.toEpochMilli())));
