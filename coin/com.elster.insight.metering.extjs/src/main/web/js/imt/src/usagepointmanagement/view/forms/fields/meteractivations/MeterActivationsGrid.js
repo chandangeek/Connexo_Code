@@ -36,6 +36,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.meteractivations.MeterAct
             {
                 header: Uni.I18n.translate('general.meter', 'IMT', 'Meter'),
                 dataIndex: 'meter',
+                itemId:'cell-meter',
                 disableTooltip: true,
                 flex: 1,
                 editor: {
@@ -54,7 +55,28 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.meteractivations.MeterAct
                     minChars: 1,
                     loadStore: false,
                     cls: 'stretchy-combo',
-                    listeners: me.meterComboLiseners
+                    listeners: Ext.merge(me.meterComboLiseners, {
+                        afterrender: function(field){
+                            if (me.meterRoles) {
+                                var index = me.getView().getNodeByRecord(field.cell.record).getAttribute('data-recordindex');
+                                if (!field.value) {
+                                    document.getElementsByClassName('unlink-miter-grid')[index].style.display = 'none';
+                                } else {
+                                    document.getElementsByClassName('unlink-miter-grid')[index].style.display = 'inline-block';
+                                }
+                            }
+                        },
+                        change: function (field, newValue) {
+                            if (me.meterRoles) {
+                                var index = me.getView().getNodeByRecord(field.cell.record).getAttribute('data-recordindex');
+                                if (!newValue) {
+                                    document.getElementsByClassName('unlink-miter-grid')[index].style.display = 'none';
+                                } else {
+                                    document.getElementsByClassName('unlink-miter-grid')[index].style.display = 'inline-block';
+                                }
+                            }
+                        }
+                    })
                 }
             },
             {
@@ -91,10 +113,9 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.meteractivations.MeterAct
                     iconCls: 'icon-cancel-circle2 unlink-miter-grid',
                     tooltip: Uni.I18n.translate('general.UnlinkMeter', 'IMT', 'Unlink meter'),
                     handler: function (grid, rowIndex) {
-                        var colNum = 1,
-                            cellSelector = grid.getCellSelector(grid.up('grid').columns[colNum]),
-                            domEl = grid.getEl().query(cellSelector)[colNum],
-                            comboDom = Ext.get(domEl.getAttribute('id')).query('.stretchy-combo')[rowIndex],
+                        var cellSelector = grid.getCellSelector(grid.up('grid').columns[1]),
+                            domEl = grid.getEl().query(cellSelector)[++rowIndex],
+                            comboDom = Ext.get(domEl.getAttribute('id')).query('.stretchy-combo')[0],
                             combo = Ext.getCmp(comboDom.getAttribute('id'));
                         combo.clearValue();
                     }

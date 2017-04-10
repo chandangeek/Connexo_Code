@@ -81,6 +81,8 @@ Ext.define('Imt.usagepointsetup.controller.MetrologyConfig', {
                     meterActivation.meter = {
                         name: meterActivation.meterRole.meter
                     };
+                } else {
+                    meterActivation.meter = null;
                 }
                 meterActivation.meterRole.activationTime = meterActivation.activationTime;
                 meterActivation.activationTime = undefined;
@@ -108,7 +110,7 @@ Ext.define('Imt.usagepointsetup.controller.MetrologyConfig', {
                 });
                 var errMsgs = [],
                     err = _.map(errorsMap, function (errorObject, id) {
-                            errMsgs.push(errorObject.msg);
+                            errMsgs.push(' '+errorObject.msg);
                     return {id: id, msg: errorObject.msg}
                 });
                 form.markInvalid(errMsgs);

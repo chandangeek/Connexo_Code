@@ -26,6 +26,9 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.meteractivations.MeterAct
                 xtype: 'component',
                 itemId: 'meter-activations-field-errors',
                 cls: 'x-form-invalid-under',
+                style: {
+                    'white-space': 'normal'
+                },
                 hidden: true
             }
         };
