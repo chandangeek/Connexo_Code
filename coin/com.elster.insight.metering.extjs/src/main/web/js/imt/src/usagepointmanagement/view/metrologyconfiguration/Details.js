@@ -38,7 +38,7 @@ Ext.define('Imt.usagepointmanagement.view.metrologyconfiguration.Details', {
             hasEffectiveMCs = me.usagePoint.get('hasEffectiveMCs'),
             stage = me.usagePoint.get('state').stage,
             canModify = stage === 'PRE_OPERATIONAL' || stage === 'SUSPENDED';
-debugger;
+
         me.content = [
             {
                 title: Uni.I18n.translate('general.label.metrologyconfiguration', 'IMT', 'Metrology configuration'),
