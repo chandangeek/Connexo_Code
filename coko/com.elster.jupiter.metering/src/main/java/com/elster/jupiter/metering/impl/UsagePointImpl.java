@@ -595,7 +595,7 @@ public class UsagePointImpl implements ServerUsagePoint {
                     .findAny()
                     .isPresent();
 
-            if (!meterActivationsMatched) {
+            if (!metrologyConfigRequirements.isEmpty() && !meterActivationsMatched) {
                 throw UsagePointManagementException.incorrectMetersSpecification(thesaurus, metrologyConfiguration.getMeterRoles()
                         .stream()
                         .map(MeterRole::getDisplayName)
