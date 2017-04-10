@@ -211,13 +211,13 @@ public final class BpmServiceImpl implements BpmService, TranslationKeyProvider,
     }
 
     @Override
-    public boolean startProcess(BpmProcessDefinition bpmProcessDefinition, Map<String, Object> parameters) {
+    public boolean startProcess(BpmProcessDefinition bpmProcessDefinition, Map<String, Object> parameters, String auth) {
         String jsonContent;
         JSONArray arr = null;
         String errorInvalidMessage = thesaurus.getString("error.flow.invalid.response", "Invalid response received, please check your Flow version.");
         String errorNotFoundMessage = thesaurus.getString("error.flow.unavailable", "Connexo Flow is not available.");
         try {
-            jsonContent = this.getBpmServer().doGet("/rest/deployment/processes");
+            jsonContent = this.getBpmServer().doGet("/rest/deployment/processes", auth);
             if (!"".equals(jsonContent)) {
                 JSONObject jsnobject = new JSONObject(jsonContent);
                 arr = jsnobject.getJSONArray("processDefinitionList");
