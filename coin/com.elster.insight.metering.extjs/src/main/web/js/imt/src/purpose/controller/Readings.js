@@ -730,6 +730,8 @@ Ext.define('Imt.purpose.controller.Readings', {
             model = Ext.create('Uni.model.readings.ReadingCorrection'),
             window = me.getCorrectReadingWindow(),
             records = window.record,
+            router = me.getController('Uni.controller.history.Router'),
+            grid = me.getReadingsList(),
             intervalsArray =[];
 
         window.updateRecord(model);
@@ -757,23 +759,53 @@ Ext.define('Imt.purpose.controller.Readings', {
         });
 
         model.set('intervals', intervalsArray);
-        //make calculations on BE
-        window.calculateValues(model);
 
+        model.getProxy().setMdmUrl(router.arguments.usagePointId, router.arguments.purposeId, router.arguments.outputId);
+        window.setLoading();
+        Ext.Ajax.suspendEvent('requestexception');
+        model.save({
+            callback: function (rec, operation, success) {
+                Ext.Ajax.resumeEvent('requestexception');
+                var responseText = Ext.decode(operation.response.responseText, true),
+                    chart = me.getReadingsGraph().chart;
 
-        Ext.suspendLayouts();
+                Ext.suspendLayouts();
+                if (success && responseText[0]) {
+                    Ext.Array.each(model.get('intervals'), function(correctedInterval){
+                        Ext.Array.findBy(records, function (reading) {
+                            if (correctedInterval.start == reading.get('interval').start) {
+                                me.updateCorrectedValues(reading, correctedInterval);
+                                return true;
+                            }
+                        });
+                    });
+                    window.destroy();
+                    grid.down('#save-changes-button').isDisabled() && me.showButtons();
+                } else {
+                    window.setLoading(false);
+                    if (responseText) {
+                        if (responseText.message) {
+                            window.down('#error-label').show();
+                            window.down('#error-label').setText('<div style="color: #EB5642">' + responseText.message + '</div>', false);
+                        } else if (responseText.readings) {
+                            window.down('#error-label').show();
+                            var listOfFailedReadings = [];
+                            Ext.Array.each(responseText.readings, function (readingTimestamp) {
+                                listOfFailedReadings.push(Uni.I18n.translate('general.dateAtTime', 'IMT', '{0} at {1}', [Uni.DateTime.formatDateShort(new Date(readingTimestamp)), Uni.DateTime.formatTimeShort(new Date(readingTimestamp))], false));
+                            });
+                            window.down('#error-label').setText('<div style="color: #EB5642">' +
+                                Uni.I18n.translate('output.estimationErrorMessage', 'IMT', 'Could not estimate {0} with {1}',
+                                    [listOfFailedReadings.join(', '), window.down('#estimator-field').getRawValue().toLowerCase()]) + '</div>', false);
+                        } else if (responseText.errors) {
+                            window.down('#form-errors').show();
+                            window.down('#property-form').markInvalid(responseText.errors);
+                        }
+                    }
 
-        Ext.Array.each(model.get('intervals'), function(correctedInterval){
-            Ext.Array.findBy(records, function (reading) {
-                if (correctedInterval.start == reading.get('interval').start) {
-                    me.updateCorrectedValues(reading, correctedInterval);
-                    return true;
                 }
-            });
+                Ext.resumeLayouts(true);
+            }
         });
-        window.destroy();
-        Ext.resumeLayouts(true);
-
 
     }
 });
