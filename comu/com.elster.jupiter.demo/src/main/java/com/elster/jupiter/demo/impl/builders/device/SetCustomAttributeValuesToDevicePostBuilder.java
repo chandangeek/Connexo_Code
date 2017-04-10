@@ -86,8 +86,6 @@ public class SetCustomAttributeValuesToDevicePostBuilder implements Consumer<Dev
                 .findFirst();
         if (customPropertySet.isPresent()) {
             CustomPropertySetValues values = CustomPropertySetValues.empty();
-//            values.setProperty("manufacturer", device.getDeviceType().getName().split(" ")[0]);
-//            values.setProperty("modelNumber", device.getDeviceType().getName().split(" ")[1]);
             values.setProperty("configScheme", getPossibleValues(customPropertySet.get(), "configScheme")
                     .get(random.nextInt(getPossibleValues(customPropertySet.get(), "configScheme").size())));
             values.setProperty("serviceCompany", getPossibleValues(customPropertySet.get(), "serviceCompany")
