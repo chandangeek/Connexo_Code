@@ -347,10 +347,10 @@ public class MainCheckEstimator extends AbstractEstimator implements Estimator {
         abstract String getMessage(EstimationBlock block, String usagePointName, String purpose);
 
         static String blockToString(EstimationBlock block) {
-            return DATA_FORMAT.format(block.estimatables().get(0).getTimestamp()) + " until " + DATA_FORMAT.format(block
+            return DATA_FORMAT.format(block.estimatables().get(0).getTimestamp().toEpochMilli()) + " until " + DATA_FORMAT.format(block
                     .estimatables()
                     .get(block.estimatables().size() - 1)
-                    .getTimestamp());
+                    .getTimestamp().toEpochMilli());
         }
 
         static DateFormat DATA_FORMAT = new SimpleDateFormat("E, FF MMM yyyy hh:mm", Locale.US);
