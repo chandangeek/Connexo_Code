@@ -64,8 +64,8 @@ public class MainCheckEstimator extends AbstractEstimator implements Estimator {
 
     private static final Set<QualityCodeSystem> QUALITY_CODE_SYSTEMS = ImmutableSet.of(QualityCodeSystem.MDM);
 
-    private static final String CHECK_PURPOSE = TranslationKeys.CHECK_PURPOSE.getKey();
-    private static final String COMPLETE_PERIOD = TranslationKeys.COMPLETE_PERIOD.getKey();
+    static final String CHECK_PURPOSE = TranslationKeys.CHECK_PURPOSE.getKey();
+    static final String COMPLETE_PERIOD = TranslationKeys.COMPLETE_PERIOD.getKey();
 
     private ValidationService validationService;
     private MetrologyConfigurationService metrologyConfigurationService;
@@ -75,13 +75,13 @@ public class MainCheckEstimator extends AbstractEstimator implements Estimator {
 
     private UsagePoint usagePoint;
 
-     MainCheckEstimator(Thesaurus thesaurus, MetrologyConfigurationService metrologyConfigurationService, ValidationService validationService, PropertySpecService propertySpecService) {
+    MainCheckEstimator(Thesaurus thesaurus, MetrologyConfigurationService metrologyConfigurationService, ValidationService validationService, PropertySpecService propertySpecService) {
         super(thesaurus, propertySpecService);
         this.metrologyConfigurationService = metrologyConfigurationService;
         this.validationService = validationService;
     }
 
-     MainCheckEstimator(Thesaurus thesaurus, MetrologyConfigurationService metrologyConfigurationService, ValidationService validationService, PropertySpecService propertySpecService, Map<String, Object> properties) {
+    MainCheckEstimator(Thesaurus thesaurus, MetrologyConfigurationService metrologyConfigurationService, ValidationService validationService, PropertySpecService propertySpecService, Map<String, Object> properties) {
         super(thesaurus, propertySpecService, properties);
         this.metrologyConfigurationService = metrologyConfigurationService;
         this.validationService = validationService;
@@ -148,20 +148,20 @@ public class MainCheckEstimator extends AbstractEstimator implements Estimator {
         List<EstimationBlock> remain = new ArrayList<>();
         List<EstimationBlock> estimated = new ArrayList<>();
 
-        for (EstimationBlock block : estimationBlocks){
+        for (EstimationBlock block : estimationBlocks) {
             if (estimate(block)) {
                 estimated.add(block);
             } else {
                 // check complete period flag
-                if (completePeriod){
+                if (completePeriod) {
                     // so, if any block is not estimated - whole period is not estimated
                     return SimpleEstimationResult.of(estimationBlocks, Collections.emptyList());
-                }else {
+                } else {
                     remain.add(block);
                 }
             }
         }
-        return SimpleEstimationResult.of(remain,estimated);
+        return SimpleEstimationResult.of(remain, estimated);
     }
 
     private boolean estimate(EstimationBlock estimationBlock) {
@@ -216,7 +216,8 @@ public class MainCheckEstimator extends AbstractEstimator implements Estimator {
                                 .stream()
                                 .filter(contract -> contract.getMetrologyPurpose().getName().equals(checkPurpose))
                                 .findAny();
-                        return handleMetrologyContract(metrologyContract.orElse(null), effectiveMetrologyConfigurationOnUsagePoint.get(), estimationBlock
+                        return handleMetrologyContract(metrologyContract.orElse(null), effectiveMetrologyConfigurationOnUsagePoint
+                                .get(), estimationBlock
                                 .getReadingType(), readingTimeStamp);
                     } else {
                         return new ReferenceReading(NO_PURPOSE_ON_UP);
@@ -347,7 +348,10 @@ public class MainCheckEstimator extends AbstractEstimator implements Estimator {
         abstract String getMessage(EstimationBlock block, String usagePointName, String purpose);
 
         static String blockToString(EstimationBlock block) {
-            return DATA_FORMAT.format(block.estimatables().get(0).getTimestamp().toEpochMilli()) + " until " + DATA_FORMAT.format(block
+            return DATA_FORMAT.format(block.estimatables()
+                    .get(0)
+                    .getTimestamp()
+                    .toEpochMilli()) + " until " + DATA_FORMAT.format(block
                     .estimatables()
                     .get(block.estimatables().size() - 1)
                     .getTimestamp().toEpochMilli());
