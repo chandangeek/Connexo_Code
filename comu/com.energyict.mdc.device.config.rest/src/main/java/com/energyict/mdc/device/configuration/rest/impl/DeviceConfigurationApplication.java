@@ -18,6 +18,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
+import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
@@ -30,7 +31,7 @@ import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
 import com.energyict.mdc.common.rest.ExceptionLogger;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.configuration.rest.SecurityPropertySetPrivilegeTranslationKeys;
+import com.energyict.mdc.device.configuration.rest.KeyFunctionTypePrivilegeTranslationKeys;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
@@ -91,6 +92,7 @@ public class DeviceConfigurationApplication extends Application implements Messa
     private volatile CalendarInfoFactory calendarInfoFactory;
     private volatile CalendarService calendarService;
     private volatile PropertyValueInfoService propertyValueInfoService;
+    private volatile PkiService pkiService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -102,6 +104,7 @@ public class DeviceConfigurationApplication extends Application implements Messa
                 DeviceConfigurationResource.class,
                 DeviceConfigConflictMappingResource.class,
                 RegisterConfigurationResource.class,
+                KeyFunctionTypeResource.class,
                 ReadingTypeResource.class,
                 ProtocolDialectResource.class,
                 ConnectionMethodResource.class,
@@ -109,7 +112,6 @@ public class DeviceConfigurationApplication extends Application implements Messa
                 SecurityPropertySetResource.class,
                 ComTaskEnablementResource.class,
                 LoadProfileTypeResource.class,
-                ExecutionLevelResource.class,
                 LoadProfileConfigurationResource.class,
                 DeviceConfigValidationRuleSetResource.class,
                 ValidationRuleSetResource.class,
@@ -118,7 +120,8 @@ public class DeviceConfigurationApplication extends Application implements Messa
                 DeviceMessagePrivilegesResource.class,
                 ProtocolPropertiesResource.class,
                 DeviceConfigurationEstimationRuleSetResource.class,
-                MultiPartFeature.class
+                MultiPartFeature.class,
+                TrustStoreResource.class
         );
     }
 
@@ -203,6 +206,11 @@ public class DeviceConfigurationApplication extends Application implements Messa
                 .join(nlsService.getThesaurus(MeteringService.COMPONENTNAME, Layer.DOMAIN));
     }
 
+    @Reference
+    public void setPkiService(PkiService pkiService) {
+        this.pkiService = pkiService;
+    }
+
     @Override
     public Layer getLayer() {
         return Layer.REST;
@@ -218,7 +226,7 @@ public class DeviceConfigurationApplication extends Application implements Messa
         List<TranslationKey> keys = new ArrayList<>();
         keys.addAll(Arrays.asList(TranslationKeys.values()));
         keys.addAll(Arrays.asList(ConnectionStrategyTranslationKeys.values()));
-        keys.addAll(Arrays.asList(SecurityPropertySetPrivilegeTranslationKeys.values()));
+        keys.addAll(Arrays.asList(KeyFunctionTypePrivilegeTranslationKeys.values()));
         keys.addAll(Arrays.asList(DeviceMessageExecutionLevelTranslationKeys.values()));
         keys.addAll(Arrays.asList(DeviceTypePurposeTranslationKeys.values()));
         return keys;
@@ -290,6 +298,7 @@ public class DeviceConfigurationApplication extends Application implements Messa
             bind(MdcPropertyUtils.class).to(MdcPropertyUtils.class);
             bind(ConnectionMethodInfoFactory.class).to(ConnectionMethodInfoFactory.class);
             bind(SecurityPropertySetInfoFactory.class).to(SecurityPropertySetInfoFactory.class);
+            bind(KeyFunctionTypeInfoFactory.class).to(KeyFunctionTypeInfoFactory.class);
             bind(ExecutionLevelInfoFactory.class).to(ExecutionLevelInfoFactory.class);
             bind(nlsService).to(NlsService.class);
             bind(jsonService).to(JsonService.class);
@@ -302,6 +311,7 @@ public class DeviceConfigurationApplication extends Application implements Messa
             bind(estimationService).to(EstimationService.class);
             bind(deviceService).to(DeviceService.class);
             bind(userService).to(UserService.class);
+            bind(pkiService).to(PkiService.class);
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
             bind(propertyValueInfoService).to(PropertyValueInfoService.class);
             bind(deviceMessageSpecificationService).to(DeviceMessageSpecificationService.class);

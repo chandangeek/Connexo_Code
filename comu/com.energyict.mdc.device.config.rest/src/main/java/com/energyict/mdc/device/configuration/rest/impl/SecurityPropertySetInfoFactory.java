@@ -40,7 +40,7 @@ public class SecurityPropertySetInfoFactory {
         info.authenticationLevel = SecurityLevelInfo.from(authenticationDeviceAccessLevel);
         info.encryptionLevel = SecurityLevelInfo.from(encryptionDeviceAccessLevel);
 
-        info.executionLevels = executionLevelInfoFactory.from(securityPropertySet.getUserActions(), allGroups, securityPropertySet);
+//        info.executionLevels = executionLevelInfoFactory.from(securityPropertySet.getUserActions(), allGroups, securityPropertySet);
         info.version = securityPropertySet.getVersion();
         DeviceConfiguration deviceConfiguration = securityPropertySet.getDeviceConfiguration();
         info.parent = new VersionInfo<>(deviceConfiguration.getId(), deviceConfiguration.getVersion());

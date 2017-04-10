@@ -12,7 +12,6 @@ import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceSecurityUserAction;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.config.SecurityPropertySetBuilder;
@@ -22,7 +21,6 @@ import com.energyict.mdc.protocol.api.security.DeviceAccessLevel;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.inject.Provider;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -45,15 +43,13 @@ public class SecurityPropertySetResource {
     private final Thesaurus thesaurus;
     private final UserService userService;
     private final SecurityPropertySetInfoFactory securityPropertySetInfoFactory;
-    private final Provider<ExecutionLevelResource> executionLevelResourceProvider;
 
     @Inject
-    public SecurityPropertySetResource(ResourceHelper resourceHelper, Thesaurus thesaurus, UserService userService, SecurityPropertySetInfoFactory securityPropertySetInfoFactory, Provider<ExecutionLevelResource> executionLevelResourceProvider) {
+    public SecurityPropertySetResource(ResourceHelper resourceHelper, Thesaurus thesaurus, UserService userService, SecurityPropertySetInfoFactory securityPropertySetInfoFactory) {
         this.resourceHelper = resourceHelper;
         this.thesaurus = thesaurus;
         this.userService = userService;
         this.securityPropertySetInfoFactory = securityPropertySetInfoFactory;
-        this.executionLevelResourceProvider = executionLevelResourceProvider;
     }
 
     @GET
@@ -105,19 +101,10 @@ public class SecurityPropertySetResource {
                 .createSecurityPropertySet(info.name)
                 .authenticationLevel(info.authenticationLevelId)
                 .encryptionLevel(info.encryptionLevelId);
-        this.addDefaultPrivileges(builder);
         SecurityPropertySet securityPropertySet = builder.build();
 
         List<Group> groups = this.userService.getGroups();
         return Response.status(Response.Status.CREATED).entity(securityPropertySetInfoFactory.from(securityPropertySet, groups)).build();
-    }
-
-    private void addDefaultPrivileges(SecurityPropertySetBuilder builder) {
-        builder
-                .addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1)
-                .addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES2)
-                .addUserAction(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES1)
-                .addUserAction(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES2);
     }
 
     @PUT
@@ -171,11 +158,6 @@ public class SecurityPropertySetResource {
         List<SecurityLevelInfo> securityLevelInfos = deviceType.getDeviceProtocolPluggableClass().map(deviceProtocolPluggableClass ->
                 SecurityLevelInfo.from(deviceProtocolPluggableClass.getDeviceProtocol().getEncryptionAccessLevels())).orElse(Collections.emptyList());
         return PagedInfoList.fromPagedList("data", securityLevelInfos, queryParameters);
-    }
-
-    @Path("/{securityPropertySetId}/executionlevels/")
-    public ExecutionLevelResource getExecutionLevelResource() {
-        return executionLevelResourceProvider.get();
     }
 
 }

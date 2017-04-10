@@ -34,6 +34,9 @@ public enum MessageSeeds implements MessageSeed {
     UNKNOWN_PRIVILEGE_ID(33, "NoSuchExecutionLevels", "No such execution levels: {0}"),
     NO_SUCH_DEVICE_MESSAGE_SPEC(34, "NoSuchDeviceMessageSpec", "No such device message spec: {0}"),
     FILE_IO(35, Keys.FILE_IO, "Failure while doing IO on file"),
+    NO_KEY_TYPE_FOUND(36, "noKeyTypeFound", "No key type with id {0}"),
+    NO_KEY_TYPE_FOUND_NAME(37, "noKeyTypeFoundName", "No key type with name {0}"),
+    NO_TRUST_STORE_FOUND(38, "noTrustStoreFound", "No trust store with id {0}"),
     ANSIC12SECURITYSUPPORT_AUTHENTICATIONLEVEL_0(100, Keys.ANSIC12SECURITYSUPPORT_AUTHENTICATIONLEVEL_0, "Unrestricted authentication"),
     ANSIC12SECURITYSUPPORT_AUTHENTICATIONLEVEL_1(103, Keys.ANSIC12SECURITYSUPPORT_AUTHENTICATIONLEVEL_1, "Restricted authentication"),
     ANSIC12SECURITYSUPPORT_AUTHENTICATIONLEVEL_2(105, Keys.ANSIC12SECURITYSUPPORT_AUTHENTICATIONLEVEL_2, "Read only authentication"),
@@ -141,7 +144,8 @@ public enum MessageSeeds implements MessageSeed {
     DATALOGGER_SLAVES_AT_LEAST_ONE_DATASOURCE(224, Keys.DATALOGGER_SLAVES_AT_LEAST_ONE_DATASOURCE, "You must define at least one channel configuration or register configuration before you can " +
             "activate a datalogger slave device configuration"),
     DATALOGGER_ENABLEMENTS_AT_LEAST_ONE_DATASOURCE(225, Keys.DATALOGGER_ENABLEMENTS_AT_LEAST_ONE_DATASOURCE, "You must define at least one channel configuration or register configuration before " +
-            "you can activate a datalogger device configuration"),;
+            "you can activate a datalogger device configuration"),
+    NO_SUCH_KEY_ACCESSOR_TYPE(226, "NoSuchKeyAccessorType", "No such security accessor");
 
     private final int number;
     private final String key;

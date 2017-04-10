@@ -19,7 +19,6 @@ public class ExecutionLevelInfo {
     public String id;
     public String name;
     public List<IdWithNameInfo> userRoles;
-    public long version;
     public VersionInfo<Long> parent;
 
     public ExecutionLevelInfo() {

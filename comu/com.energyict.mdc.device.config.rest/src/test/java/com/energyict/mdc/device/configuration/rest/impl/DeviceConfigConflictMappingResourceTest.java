@@ -33,13 +33,6 @@ public class DeviceConfigConflictMappingResourceTest extends DeviceConfiguration
     public static final long OK_VERSION = 24L;
     public static final long BAD_VERSION = 17L;
 
-    private DeviceLifeCycle mockStandardDeviceLifeCycle() {
-        DeviceLifeCycle deviceLifeCycle = mock(DeviceLifeCycle.class);
-        when(deviceLifeCycle.getId()).thenReturn(1L);
-        when(deviceLifeCycle.getName()).thenReturn("Default");
-        return deviceLifeCycle;
-    }
-
     private DeviceType mockDeviceType(long id) {
         DeviceType deviceType = mock(DeviceType.class);
         when(deviceType.getName()).thenReturn("Device type " + id);

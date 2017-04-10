@@ -52,7 +52,7 @@ public class ProtocolPropertiesResource {
         ProtocolInfo protocolInfo = new ProtocolInfo();
         if (deviceProtocolPluggableClass.isPresent()) {
             protocolInfo.properties = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(
-                    deviceProtocolPluggableClass.get().getDeviceProtocol().getPropertySpecs(),
+                    deviceProperties.getPropertySpecs(),
                     deviceProperties.getTypedProperties());
             protocolInfo.id = deviceProtocolPluggableClass.get().getId();
             protocolInfo.name = deviceProtocolPluggableClass.get().getName();
