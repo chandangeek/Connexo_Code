@@ -13,6 +13,8 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.RangeComparatorFactory;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationEvaluator;
@@ -20,10 +22,13 @@ import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.data.Channel;
+import com.energyict.mdc.device.data.ChannelValidationRuleOverriddenProperties;
 import com.energyict.mdc.device.data.DeviceValidation;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.exceptions.InvalidLastCheckedException;
+import com.energyict.mdc.device.data.impl.properties.ChannelValidationRuleOverriddenPropertiesImpl;
+import com.energyict.mdc.device.data.impl.properties.ValidationEstimationRuleOverriddenPropertiesImpl;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Ordering;
@@ -34,7 +39,9 @@ import java.time.Instant;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -42,13 +49,12 @@ import java.util.stream.Stream;
 import static com.elster.jupiter.util.Ranges.does;
 import static com.elster.jupiter.util.streams.Functions.asStream;
 
-/**
- * Created by tgr on 9/09/2014.
- */
 class DeviceValidationImpl implements DeviceValidation {
 
     private static final Comparator<MeterActivation> MOST_RECENT_FIRST =
             Comparator.comparing(MeterActivation::getRange, RangeComparatorFactory.INSTANT_DEFAULT).reversed();
+
+    private DataModel dataModel;
     private final ValidationService validationService;
     private final Thesaurus thesaurus;
     private final DeviceImpl device;
@@ -56,7 +62,8 @@ class DeviceValidationImpl implements DeviceValidation {
     private transient Meter meter;
     private transient ValidationEvaluator evaluator;
 
-    DeviceValidationImpl(ValidationService validationService, Thesaurus thesaurus, DeviceImpl device, Clock clock) {
+    DeviceValidationImpl(DataModel dataModel, ValidationService validationService, Thesaurus thesaurus, DeviceImpl device, Clock clock) {
+        this.dataModel = dataModel;
         this.validationService = validationService;
         this.thesaurus = thesaurus;
         this.device = device;
@@ -230,7 +237,8 @@ class DeviceValidationImpl implements DeviceValidation {
     public List<DataValidationStatus> getHistoryValidationStatus(Register<?, ?> register, List<? extends BaseReading> readings, List<ReadingQualityRecord> readingQualities, Range<Instant> interval) {
         return ((DeviceImpl) register.getDevice()).findKoreChannels(register).stream()
                 .filter(k -> does(k.getChannelsContainer().getRange()).overlap(interval))
-                .flatMap(k -> getEvaluator().getHistoryValidationStatus(ImmutableSet.of(QualityCodeSystem.MDC, QualityCodeSystem.MDM), k, readings, readingQualities, interval).stream())
+                .flatMap(k -> getEvaluator().getHistoryValidationStatus(ImmutableSet.of(QualityCodeSystem.MDC, QualityCodeSystem.MDM), k, readings, readingQualities, interval)
+                        .stream())
                 .collect(Collectors.toList());
     }
 
@@ -277,18 +285,18 @@ class DeviceValidationImpl implements DeviceValidation {
                 .forEach(c -> this.validationService.updateLastChecked(c, start));
     }
 
-    private boolean hasActiveRule(Channel channel){
-        if(channel.getCalculatedReadingType(clock.instant()).isPresent()){
+    private boolean hasActiveRule(Channel channel) {
+        if (channel.getCalculatedReadingType(clock.instant()).isPresent()) {
             return hasActiveRule(channel.getReadingType()) || hasActiveRule(channel.getCalculatedReadingType(clock.instant()).get());
-        }else{
+        } else {
             return hasActiveRule(channel.getReadingType());
         }
     }
 
     private boolean hasActiveRule(Register<?, ?> register) {
-        if(register.getCalculatedReadingType(clock.instant()).isPresent()){
+        if (register.getCalculatedReadingType(clock.instant()).isPresent()) {
             return hasActiveRule(register.getReadingType()) || hasActiveRule(register.getCalculatedReadingType(clock.instant()).get());
-        }else{
+        } else {
             return hasActiveRule(register.getReadingType());
         }
     }
@@ -301,17 +309,17 @@ class DeviceValidationImpl implements DeviceValidation {
     }
 
     private boolean hasSameRule(Channel channel) {
-        if(channel.getCalculatedReadingType(clock.instant()).isPresent()){
+        if (channel.getCalculatedReadingType(clock.instant()).isPresent()) {
             return hasSameRule(channel.getReadingType()) || hasSameRule(channel.getCalculatedReadingType(clock.instant()).get());
-        }else{
+        } else {
             return hasSameRule(channel.getReadingType());
         }
     }
 
     private boolean hasSameRule(Register<?, ?> register) {
-        if(register.getCalculatedReadingType(clock.instant()).isPresent()){
+        if (register.getCalculatedReadingType(clock.instant()).isPresent()) {
             return hasSameRule(register.getReadingType()) || hasSameRule(register.getCalculatedReadingType(clock.instant()).get());
-        }else{
+        } else {
             return hasSameRule(register.getReadingType());
         }
     }
@@ -385,4 +393,82 @@ class DeviceValidationImpl implements DeviceValidation {
         return evaluator;
     }
 
+    @Override
+    public List<ChannelValidationRuleOverriddenPropertiesImpl> findAllOverriddenProperties() {
+        return mapper().find(ValidationEstimationRuleOverriddenPropertiesImpl.Fields.DEVICE.fieldName(), this.device);
+    }
+
+    @Override
+    public Optional<ChannelValidationRuleOverriddenPropertiesImpl> findAndLockChannelValidationRuleOverriddenProperties(long id, long version) {
+        return mapper().lockObjectIfVersion(version, id);
+    }
+
+    @Override
+    public Optional<ChannelValidationRuleOverriddenPropertiesImpl> findChannelValidationRuleOverriddenProperties(long id) {
+        return mapper().getOptional(id);
+    }
+
+    @Override
+    public Optional<ChannelValidationRuleOverriddenPropertiesImpl> findOverriddenProperties(ValidationRule validationRule, ReadingType readingType) {
+        String[] fieldNames = {
+                ValidationEstimationRuleOverriddenPropertiesImpl.Fields.DEVICE.fieldName(),
+                ValidationEstimationRuleOverriddenPropertiesImpl.Fields.READINGTYPE.fieldName(),
+                ValidationEstimationRuleOverriddenPropertiesImpl.Fields.RULE_NAME.fieldName(),
+                ValidationEstimationRuleOverriddenPropertiesImpl.Fields.RULE_IMPL.fieldName(),
+                ChannelValidationRuleOverriddenPropertiesImpl.Fields.VALIDATION_ACTION.fieldName()
+        };
+        Object[] values = {
+                this.device,
+                readingType,
+                validationRule.getName(),
+                validationRule.getImplementation(),
+                validationRule.getAction()
+        };
+        return mapper().getUnique(fieldNames, values);
+    }
+
+    private DataMapper<ChannelValidationRuleOverriddenPropertiesImpl> mapper() {
+        return dataModel.mapper(ChannelValidationRuleOverriddenPropertiesImpl.class);
+    }
+
+    @Override
+    public PropertyOverrider overridePropertiesFor(ValidationRule validationRule, ReadingType readingType) {
+        return new PropertyOverriderImpl(validationRule, readingType);
+    }
+
+    class PropertyOverriderImpl implements PropertyOverrider {
+
+        private final ValidationRule validationRule;
+        private final ReadingType readingType;
+
+        private final Map<String, Object> properties = new HashMap<>();
+
+        PropertyOverriderImpl(ValidationRule validationRule, ReadingType readingType) {
+            this.validationRule = validationRule;
+            this.readingType = readingType;
+        }
+
+        @Override
+        public PropertyOverrider override(String propertyName, Object propertyValue) {
+            properties.put(propertyName, propertyValue);
+            return this;
+        }
+
+        @Override
+        public ChannelValidationRuleOverriddenProperties complete() {
+            ChannelValidationRuleOverriddenPropertiesImpl overriddenProperties = createChannelValidationRuleOverriddenProperties();
+            overriddenProperties.setProperties(this.properties);
+            overriddenProperties.validate();
+            if (this.properties.isEmpty()) {
+                return null;// we don't want to persist entity without overridden properties
+            }
+            overriddenProperties.save();
+            return overriddenProperties;
+        }
+
+        private ChannelValidationRuleOverriddenPropertiesImpl createChannelValidationRuleOverriddenProperties() {
+            return dataModel.getInstance(ChannelValidationRuleOverriddenPropertiesImpl.class)
+                    .init(device, readingType, validationRule.getName(), validationRule.getImplementation(), validationRule.getAction());
+        }
+    }
 }

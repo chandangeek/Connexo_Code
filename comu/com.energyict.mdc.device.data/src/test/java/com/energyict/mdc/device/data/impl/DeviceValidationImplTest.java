@@ -11,6 +11,7 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.ValidationRule;
@@ -59,6 +60,8 @@ public class DeviceValidationImplTest {
     private DeviceImpl device;
     @Mock
     private DeviceConfiguration deviceConfiguration;
+    @Mock
+    private DataModel dataModel;
     @Mock
     private ValidationService validationService;
     @Mock
@@ -117,7 +120,7 @@ public class DeviceValidationImplTest {
         when(validationService.getEvaluator(meter)).thenReturn(validationEvaluator);
         when(validationService.getEvaluator()).thenReturn(validationEvaluator);
 
-        deviceValidation = new DeviceValidationImpl(validationService, thesaurus, device, clock);
+        deviceValidation = new DeviceValidationImpl(dataModel, validationService, thesaurus, device, clock);
     }
 
     @After

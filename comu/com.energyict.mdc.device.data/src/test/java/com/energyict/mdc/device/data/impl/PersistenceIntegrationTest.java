@@ -36,6 +36,7 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
+import org.junit.rules.ExpectedException;
 import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -61,6 +62,8 @@ public abstract class PersistenceIntegrationTest {
     public TestRule expectedErrorRule = new ExpectedExceptionRule();
     @Rule
     public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
 
     @Mock
     private DeviceCommunicationConfiguration deviceCommunicationConfiguration;
