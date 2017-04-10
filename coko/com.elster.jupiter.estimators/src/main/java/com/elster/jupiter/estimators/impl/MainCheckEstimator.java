@@ -234,7 +234,7 @@ public class MainCheckEstimator extends AbstractEstimator implements Estimator {
                         .getChannel(readingType);
                 if (checkChannel.isPresent()) {
                     List<IntervalReadingRecord> checkChannelBaseReadings = checkChannel.get()
-                            .getIntervalReadings(Range.closed(timeStamp, timeStamp.plusMillis(1)));
+                            .getIntervalReadings(Range.closed(timeStamp.minusMillis(1), timeStamp.plusMillis(1)));
                     if (checkChannelBaseReadings.size() == 1) {
                         return handleIntervalReading(checkChannelBaseReadings.get(0), checkChannel.get());
                     } else {
