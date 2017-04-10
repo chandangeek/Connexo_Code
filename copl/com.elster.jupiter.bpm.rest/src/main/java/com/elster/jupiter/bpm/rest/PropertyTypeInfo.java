@@ -123,6 +123,10 @@ public class PropertyTypeInfo {
             simplePropertyType = "METROLOGYPURPOSES";
         } else if ("usagePointTransition".equalsIgnoreCase(getComboBoxValues(field, "param1"))) {
             simplePropertyType = "UP_TRANSITION";
+        } else if ("meterInstallationDate".equalsIgnoreCase(getComboBoxValues(field, "param1"))) {
+            simplePropertyType = "METER_INSTALLATION_DATE";
+        } else if ("meterRole".equalsIgnoreCase(getComboBoxValues(field, "param1"))) {
+            simplePropertyType = "METER_RROLE";
         }
     }
 
