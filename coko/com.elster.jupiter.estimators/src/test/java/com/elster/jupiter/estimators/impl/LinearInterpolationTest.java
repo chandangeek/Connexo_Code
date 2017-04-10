@@ -89,6 +89,7 @@ public class LinearInterpolationTest {
         when(meterActivation.getChannelsContainer()).thenReturn(channelsContainer);
         doReturn(channelsContainer).when(channel).getChannelsContainer();
         doReturn(Optional.empty()).when(channelsContainer).getMeter();
+        doReturn(Optional.empty()).when(channelsContainer).getUsagePoint();
         doReturn("readingType").when(readingType).getMRID();
         doReturn(Arrays.asList(estimatable1, estimatable2)).when(estimationBlock).estimatables();
         doReturn(channel).when(estimationBlock).getChannel();
