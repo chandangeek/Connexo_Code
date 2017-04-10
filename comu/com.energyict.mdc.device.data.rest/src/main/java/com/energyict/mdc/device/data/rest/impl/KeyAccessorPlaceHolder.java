@@ -116,4 +116,9 @@ public class KeyAccessorPlaceHolder implements KeyAccessor {
     public List<PropertySpec> getPropertySpecs() {
         return pkiService.getPropertySpecs(kat);
     }
+
+    @Override
+    public void delete() {
+        
+    }
 }
