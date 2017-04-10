@@ -266,6 +266,30 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
     }
 
     @Test
+    public void setActualAndTempOnExistingKeyAccessorWithTempWithIdenticalValues() throws Exception {
+        SecurityAccessorInfo securityAccessorInfo = new SecurityAccessorInfo();
+        securityAccessorInfo.currentProperties = new ArrayList<>();
+        PropertyInfo actualProperty = createPropertyInfo("key", "b21nLEkgY2FuJ3QgYmVsaWV2ZSB5b3UgZGVjb2RlZCB0aGlz");
+        securityAccessorInfo.currentProperties.add(actualProperty);
+        PropertyInfo tempProperty = createPropertyInfo("key", "oldtempvalue");
+        securityAccessorInfo.tempProperties = new ArrayList<>();
+        securityAccessorInfo.tempProperties.add(tempProperty);
+
+        SymmetricKeyWrapper tempSymmetricKeyWrapper = mockSymmetricKeyWrapper(symmetricKeyPropertySpecs, "key", "oldtempvalue");
+        symmetrickeyAccessor = mockSymmetricKeyAccessor(actualSymmetricKeyWrapper, tempSymmetricKeyWrapper);
+        when(device.getKeyAccessor(symmetricKeyAccessorType)).thenReturn(Optional.ofNullable(symmetrickeyAccessor));
+
+        Response response = target("/devices/BVN001/securityaccessors/keys/111").request().put(Entity.json(securityAccessorInfo));
+        JsonModel jsonModel = JsonModel.create((InputStream) response.getEntity());
+
+        verify(symmetrickeyAccessor, never()).setActualValue(any(SymmetricKeyWrapper.class));
+        verify(actualSymmetricKeyWrapper, never()).setProperties(any(Map.class));
+
+        verify(symmetrickeyAccessor, never()).setTempValue(any(SymmetricKeyWrapper.class));
+        verify(tempSymmetricKeyWrapper, never()).setProperties(any(Map.class));
+    }
+
+    @Test
     public void setActualAndTempOnNonExistingKeyAccessor() throws Exception {
         SecurityAccessorInfo securityAccessorInfo = new SecurityAccessorInfo();
         securityAccessorInfo.currentProperties = new ArrayList<>();
@@ -303,7 +327,7 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
     public void testDeleteTempOnSecurityAccessorWithTempAndActual() throws Exception {
         SecurityAccessorInfo securityAccessorInfo = new SecurityAccessorInfo();
         securityAccessorInfo.currentProperties = new ArrayList<>();
-        PropertyInfo actualProperty = createPropertyInfo("key", "actualKey");
+        PropertyInfo actualProperty = createPropertyInfo("key", "b21nLEkgY2FuJ3QgYmVsaWV2ZSB5b3UgZGVjb2RlZCB0aGlz");
         securityAccessorInfo.currentProperties.add(actualProperty);
         securityAccessorInfo.tempProperties = Collections.emptyList();
 
@@ -315,9 +339,7 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
         JsonModel jsonModel = JsonModel.create((InputStream) response.getEntity());
 
         verify(symmetrickeyAccessor, never()).setActualValue(any(SymmetricKeyWrapper.class));
-        ArgumentCaptor<Map> actualMapArgumentCaptor = ArgumentCaptor.forClass(Map.class);
-        verify(actualSymmetricKeyWrapper, times(1)).setProperties(actualMapArgumentCaptor.capture());
-        assertThat(actualMapArgumentCaptor.getValue()).contains(MapEntry.entry("key", "actualKey"));
+        verify(actualSymmetricKeyWrapper, never()).setProperties(any(Map.class));
 
         verify(symmetrickeyAccessor, times(1)).clearTempValue();
     }

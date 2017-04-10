@@ -155,7 +155,7 @@ public class SecurityAccessorResource {
             Optional<SecurityValueWrapper> tempValue = keyAccessor.getTempValue();
             Map<String, Object> properties = getPropertiesAsMap(propertySpecs, securityAccessorInfo.tempProperties);
             if (tempValue.isPresent()) {
-                if (propertiesContainValues(properties)) {
+                if (propertiesContainValues(properties) && propertiesDiffer(properties, tempValue.get().getProperties())) {
                     updateTempValue(tempValue.get(), properties);
                 } else {
                     keyAccessor.clearTempValue();
@@ -169,7 +169,7 @@ public class SecurityAccessorResource {
 
         try {
             Map<String, Object> properties = getPropertiesAsMap(propertySpecs, securityAccessorInfo.currentProperties);
-            if (propertiesContainValues(properties)) {
+            if (propertiesContainValues(properties) && propertiesDiffer(properties, keyAccessor.getActualValue().getProperties())) {
                 updateActualValue(keyAccessor, properties);
             } else {
                 keyAccessor.delete();
@@ -180,6 +180,10 @@ public class SecurityAccessorResource {
 
 
         return keyAccessor;
+    }
+
+    private boolean propertiesDiffer(Map<String, Object> newProperties, Map<String, Object> existingProperties) {
+        return !newProperties.equals(existingProperties); // hmm, will equals() work well for all property-types? well, it should
     }
 
     private void createTempValue(KeyAccessor keyAccessor, Map<String, Object> properties) {
