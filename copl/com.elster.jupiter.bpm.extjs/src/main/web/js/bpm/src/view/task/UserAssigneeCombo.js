@@ -179,7 +179,7 @@ Ext.define('Bpm.view.task.UserAssigneeCombo', {
             success: function (response) {
                 var users = Ext.JSON.decode(response.responseText).data;
                 var id = me.valueField;
-                if (Ext.isObject(users.find(function (user) {
+                if (Ext.isObject(_.find(users, function (user) {
                         return user[id] == value;
                     })) == false) {
                     me.checked = true;
