@@ -6,6 +6,7 @@ package com.elster.jupiter.estimators.impl;
 
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.impl.NlsModule;
@@ -34,6 +35,8 @@ public class DefaultEstimatorFactoryTest {
     @Mock
     private MeteringService meteringService;
     @Mock
+    private MetrologyConfigurationService metrologyConfigurationService;
+    @Mock
     private TimeService timeService;
 
     @Before
@@ -44,19 +47,21 @@ public class DefaultEstimatorFactoryTest {
 
     @Test
     public void testCreatePowerGapFill() {
-        DefaultEstimatorFactory defaultEstimatorFactory = new DefaultEstimatorFactory(nlsService, propertySpecService, validationService, meteringService, timeService);
+        DefaultEstimatorFactory defaultEstimatorFactory = new DefaultEstimatorFactory(nlsService, propertySpecService, validationService, meteringService, metrologyConfigurationService, timeService);
 
         assertThat(defaultEstimatorFactory.available()).containsOnly(
                 DefaultEstimatorFactory.POWER_GAP_FILL_ESTIMATOR,
                 DefaultEstimatorFactory.AVG_WITH_SAMPLES_ESTIMATOR,
                 DefaultEstimatorFactory.EQUAL_DISTRIBUTION_ESTIMATOR,
                 DefaultEstimatorFactory.LINEAR_INTERPOLATION_ESTIMATOR,
-                DefaultEstimatorFactory.VALUE_FILL_ESTIMATOR);
+                DefaultEstimatorFactory.VALUE_FILL_ESTIMATOR,
+                DefaultEstimatorFactory.MAIN_CHECK_ESTIMATOR);
 
         assertThat(defaultEstimatorFactory.createTemplate(DefaultEstimatorFactory.POWER_GAP_FILL_ESTIMATOR)).isInstanceOf(PowerGapFill.class);
         assertThat(defaultEstimatorFactory.createTemplate(DefaultEstimatorFactory.AVG_WITH_SAMPLES_ESTIMATOR)).isInstanceOf(AverageWithSamplesEstimator.class);
         assertThat(defaultEstimatorFactory.createTemplate(DefaultEstimatorFactory.EQUAL_DISTRIBUTION_ESTIMATOR)).isInstanceOf(EqualDistribution.class);
         assertThat(defaultEstimatorFactory.createTemplate(DefaultEstimatorFactory.LINEAR_INTERPOLATION_ESTIMATOR)).isInstanceOf(LinearInterpolation.class);
         assertThat(defaultEstimatorFactory.createTemplate(DefaultEstimatorFactory.VALUE_FILL_ESTIMATOR)).isInstanceOf(ValueFillEstimator.class);
+        assertThat(defaultEstimatorFactory.createTemplate(DefaultEstimatorFactory.MAIN_CHECK_ESTIMATOR)).isInstanceOf(MainCheckEstimator.class);
     }
 }
