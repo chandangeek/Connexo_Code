@@ -51,6 +51,7 @@ public class UsagePointInfo {
     public UsagePointTransitionInfo transitionToPerform;
     public Long lastTransitionTime;
     public boolean hasEffectiveMCs;
+    public MetrologyConfigurationInfo effectiveMetrologyConfiguration;
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.CUSTOM, include = JsonTypeInfo.As.EXTERNAL_PROPERTY, property = "serviceCategory")
     @JsonTypeIdResolver(BaseUsagePointDetailsInfo.UsagePointDetailsTypeResolver.class)
