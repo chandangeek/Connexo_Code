@@ -29,7 +29,6 @@ import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Response;
 import java.io.InputStream;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -169,12 +168,8 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
     @Test
     public void setActualAndTempOnExistingKeyAccessorWithoutTemp() throws Exception {
         SecurityAccessorInfo securityAccessorInfo = new SecurityAccessorInfo();
-        securityAccessorInfo.currentProperties = new ArrayList<>();
-        PropertyInfo actualProperty = createPropertyInfo("key", "actualKey");
-        securityAccessorInfo.currentProperties.add(actualProperty);
-        PropertyInfo tempProperty = createPropertyInfo("key", "tempKey");
-        securityAccessorInfo.tempProperties = new ArrayList<>();
-        securityAccessorInfo.tempProperties.add(tempProperty);
+        securityAccessorInfo.currentProperties = Arrays.asList(createPropertyInfo("key", "actualKey"));
+        securityAccessorInfo.tempProperties = Arrays.asList(createPropertyInfo("key", "tempKey"));
 
         SymmetricKeyWrapper symmetricKeyWrapper = mockSymmetricKeyWrapper(symmetricKeyPropertySpecs, null, null);
         when(pkiService.newSymmetricKeyWrapper(symmetricKeyAccessorType)).thenReturn(symmetricKeyWrapper);
@@ -194,14 +189,13 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
     @Test
     public void setActualAndNoTempOnExistingKeyAccessorWithoutTemp() throws Exception {
         SecurityAccessorInfo securityAccessorInfo = new SecurityAccessorInfo();
-        securityAccessorInfo.currentProperties = new ArrayList<>();
-        PropertyInfo actualProperty = createPropertyInfo("key", "actualKey");
-        securityAccessorInfo.currentProperties.add(actualProperty);
-        securityAccessorInfo.tempProperties = new ArrayList<>();
+        securityAccessorInfo.currentProperties = Arrays.asList(createPropertyInfo("key", "actualKey"));
+        securityAccessorInfo.tempProperties = Arrays.asList(createPropertyInfo("key", null));
 
         SymmetricKeyWrapper symmetricKeyWrapper = mockSymmetricKeyWrapper(symmetricKeyPropertySpecs, null, null);
         when(pkiService.newSymmetricKeyWrapper(symmetricKeyAccessorType)).thenReturn(symmetricKeyWrapper);
 
+        Response response = target("/devices/BVN001/securityaccessors/keys/111").request().put(Entity.json(securityAccessorInfo));
         verify(symmetrickeyAccessor, never()).setActualValue(any(SymmetricKeyWrapper.class));
         ArgumentCaptor<Map> actualMapArgumentCaptor = ArgumentCaptor.forClass(Map.class);
         verify(actualSymmetricKeyWrapper, times(1)).setProperties(actualMapArgumentCaptor.capture());
@@ -214,11 +208,8 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
     @Test
     public void setTempAndNoActualOnExistingKeyAccessorWithoutTemp() throws Exception {
         SecurityAccessorInfo securityAccessorInfo = new SecurityAccessorInfo();
-        securityAccessorInfo.currentProperties = new ArrayList<>();
-
-        securityAccessorInfo.tempProperties = new ArrayList<>();
-        PropertyInfo tempProperty = createPropertyInfo("key", "tempKey");
-        securityAccessorInfo.tempProperties.add(tempProperty);
+        securityAccessorInfo.currentProperties = Arrays.asList(createPropertyInfo("key", null));
+        securityAccessorInfo.tempProperties = Arrays.asList(createPropertyInfo("key", "tempKey"));
 
         SymmetricKeyWrapper symmetricKeyWrapper = mockSymmetricKeyWrapper(symmetricKeyPropertySpecs, null, null);
         when(pkiService.newSymmetricKeyWrapper(symmetricKeyAccessorType)).thenReturn(symmetricKeyWrapper);
@@ -237,12 +228,8 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
     @Test
     public void setActualAndTempOnExistingKeyAccessorWithTemp() throws Exception {
         SecurityAccessorInfo securityAccessorInfo = new SecurityAccessorInfo();
-        securityAccessorInfo.currentProperties = new ArrayList<>();
-        PropertyInfo actualProperty = createPropertyInfo("key", "actualKey");
-        securityAccessorInfo.currentProperties.add(actualProperty);
-        PropertyInfo tempProperty = createPropertyInfo("key", "tempKey");
-        securityAccessorInfo.tempProperties = new ArrayList<>();
-        securityAccessorInfo.tempProperties.add(tempProperty);
+        securityAccessorInfo.currentProperties = Arrays.asList(createPropertyInfo("key", "actualKey"));
+        securityAccessorInfo.tempProperties = Arrays.asList(createPropertyInfo("key", "tempKey"));
 
         SymmetricKeyWrapper tempSymmetricKeyWrapper = mockSymmetricKeyWrapper(symmetricKeyPropertySpecs, "key", "oldtempvalue");
         symmetrickeyAccessor = mockSymmetricKeyAccessor(actualSymmetricKeyWrapper, tempSymmetricKeyWrapper);
@@ -264,12 +251,8 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
     @Test
     public void setActualAndTempOnExistingKeyAccessorWithTempWithIdenticalValues() throws Exception {
         SecurityAccessorInfo securityAccessorInfo = new SecurityAccessorInfo();
-        securityAccessorInfo.currentProperties = new ArrayList<>();
-        PropertyInfo actualProperty = createPropertyInfo("key", "b21nLEkgY2FuJ3QgYmVsaWV2ZSB5b3UgZGVjb2RlZCB0aGlz");
-        securityAccessorInfo.currentProperties.add(actualProperty);
-        PropertyInfo tempProperty = createPropertyInfo("key", "oldtempvalue");
-        securityAccessorInfo.tempProperties = new ArrayList<>();
-        securityAccessorInfo.tempProperties.add(tempProperty);
+        securityAccessorInfo.currentProperties = Arrays.asList(createPropertyInfo("key", "b21nLEkgY2FuJ3QgYmVsaWV2ZSB5b3UgZGVjb2RlZCB0aGlz"));
+        securityAccessorInfo.tempProperties = Arrays.asList(createPropertyInfo("key", "oldtempvalue"));
 
         SymmetricKeyWrapper tempSymmetricKeyWrapper = mockSymmetricKeyWrapper(symmetricKeyPropertySpecs, "key", "oldtempvalue");
         symmetrickeyAccessor = mockSymmetricKeyAccessor(actualSymmetricKeyWrapper, tempSymmetricKeyWrapper);
@@ -287,12 +270,8 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
     @Test
     public void setActualAndTempOnNonExistingKeyAccessor() throws Exception {
         SecurityAccessorInfo securityAccessorInfo = new SecurityAccessorInfo();
-        securityAccessorInfo.currentProperties = new ArrayList<>();
-        PropertyInfo actualProperty = createPropertyInfo("key", "actualKey");
-        securityAccessorInfo.currentProperties.add(actualProperty);
-        PropertyInfo tempProperty = createPropertyInfo("key", "tempKey");
-        securityAccessorInfo.tempProperties = new ArrayList<>();
-        securityAccessorInfo.tempProperties.add(tempProperty);
+        securityAccessorInfo.currentProperties = Arrays.asList(createPropertyInfo("key", "actualKey"));
+        securityAccessorInfo.tempProperties = Arrays.asList(createPropertyInfo("key", "tempKey"));
 
         SymmetricKeyWrapper actualSymmetricKeyWrapper = mockSymmetricKeyWrapper(symmetricKeyPropertySpecs, null, null);
         SymmetricKeyWrapper tempSymmetricKeyWrapper = mockSymmetricKeyWrapper(symmetricKeyPropertySpecs, null, null);
@@ -320,9 +299,7 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
     @Test
     public void testDeleteTempOnKeyAccessorWithTempAndActual() throws Exception {
         SecurityAccessorInfo securityAccessorInfo = new SecurityAccessorInfo();
-        securityAccessorInfo.currentProperties = new ArrayList<>();
-        PropertyInfo actualProperty = createPropertyInfo("key", "b21nLEkgY2FuJ3QgYmVsaWV2ZSB5b3UgZGVjb2RlZCB0aGlz");
-        securityAccessorInfo.currentProperties.add(actualProperty);
+        securityAccessorInfo.currentProperties = Arrays.asList(createPropertyInfo("key", "b21nLEkgY2FuJ3QgYmVsaWV2ZSB5b3UgZGVjb2RlZCB0aGlz"));
         securityAccessorInfo.tempProperties = Collections.emptyList();
 
         SymmetricKeyWrapper tempSymmetricKeyWrapper = mockSymmetricKeyWrapper(symmetricKeyPropertySpecs, "key", "oldtempvalue");

@@ -169,8 +169,10 @@ public class SecurityAccessorResource {
 
         try {
             Map<String, Object> properties = getPropertiesAsMap(propertySpecs, securityAccessorInfo.currentProperties);
-            if (propertiesContainValues(properties) && propertiesDiffer(properties, keyAccessor.getActualValue().getProperties())) {
-                updateActualValue(keyAccessor, properties);
+            if (propertiesContainValues(properties)) {
+                if  (propertiesDiffer(properties, keyAccessor.getActualValue().getProperties())) {
+                    updateActualValue(keyAccessor, properties);
+                }
             } else {
                 keyAccessor.delete();
             }
@@ -203,10 +205,12 @@ public class SecurityAccessorResource {
     }
 
     private Map<String, Object> getPropertiesAsMap(Collection<PropertySpec> propertySpecs, List<PropertyInfo> propertyInfos) {
+        Map<String, Object> map = Collections.emptyMap();
         if (propertyInfos.isEmpty()) {
-            return Collections.emptyMap();
+            return map;
         }
         return propertySpecs.stream()
+                .filter(ps->mdcPropertyUtils.findPropertyValue(ps, propertyInfos)!=null)
                 .collect(
                         toMap(
                                 PropertySpec::getName,
