@@ -17,7 +17,6 @@ import com.elster.jupiter.demo.impl.templates.DeviceTypeTpl;
 import com.elster.jupiter.demo.impl.templates.OutboundTCPComPortPoolTpl;
 import com.elster.jupiter.demo.impl.templates.RegisterGroupTpl;
 import com.elster.jupiter.demo.impl.templates.SecurityPropertySetTpl;
-import com.energyict.mdc.common.Password;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
@@ -54,7 +53,7 @@ public class CreateDataLoggerCommand {
 
     private final static String DATA_LOGGER_NAME = "DemoDataLogger";
     private final static String DATA_LOGGER_SERIAL = "660-05A043-1428";
-    private final static String CONNECTION_TASK_PLUGGABLE_CLASS_NAME = "OutboundTcpIp";
+    private final static String CONNECTION_TASK_PLUGGABLE_CLASS_NAME = "OutboundTcpIpConnectionType";
 
     private final DeviceService deviceService;
     private final ProtocolPluggableService protocolPluggableService;
@@ -199,7 +198,12 @@ public class CreateDataLoggerCommand {
                         .orElseThrow(() -> new UnableToCreate("No securityPropertySet with name " + SecurityPropertySetTpl.HIGH_LEVEL_NO_ENCRYPTION_MD5.getName() + "."));
         TypedProperties typedProperties = TypedProperties.empty();
         typedProperties.setProperty("ClientMacAddress", BigDecimal.ONE);
-        typedProperties.setProperty("Password", new Password("ntaSim"));
+        securityPropertySetHigh
+                .getPropertySpecs()
+                .stream()
+                .filter(ps -> "Password".equals(ps.getName()))
+                .findFirst()
+                .ifPresent(ps -> typedProperties.setProperty(ps.getName(), ps.getValueFactory().fromStringValue("ntaSim")));
         securityPropertySetHigh
                 .getPropertySpecs()
                 .stream()

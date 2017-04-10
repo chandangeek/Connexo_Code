@@ -94,7 +94,6 @@ import com.elster.jupiter.validation.impl.ValidationServiceImpl;
 import com.elster.jupiter.validators.impl.DefaultValidatorFactory;
 import com.energyict.mdc.app.impl.MdcAppInstaller;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
-import com.energyict.mdc.common.Password;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.alarms.impl.DeviceAlarmModule;
 import com.energyict.mdc.device.alarms.impl.templates.AbstractDeviceAlarmTemplate;
@@ -180,6 +179,7 @@ import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableServiceImpl;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.tasks.impl.TasksModule;
+import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.io.SerialComponentService;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.protocolimpl.elster.a3.AlphaA3;
@@ -539,7 +539,7 @@ public class DemoTest {
             }
             ctx.commit();
         }
-        assertThat(gateway.getDeviceProtocolProperties().getProperty("Short_MAC_address")).isEqualTo(BigDecimal.ZERO);
+        assertThat(gateway.getDeviceProtocolProperties().getProperty("ValidateInvokeId")).isEqualTo(Boolean.TRUE);
         assertThat(gateway.getComTaskExecutions()).hasSize(1);
     }
 
@@ -659,12 +659,12 @@ public class DemoTest {
                 if ("ClientMacAddress".equals(securityProperty.getName())) {
                     assertThat(securityProperty.getValue()).isEqualTo(BigDecimal.ONE);
                 } else if ("Password".equals(securityProperty.getName())) {
-                    assertThat(((Password) securityProperty.getValue()).getValue()).isEqualTo("1234567890123456");
+                    assertThat((String) securityProperty.getValue()).isEqualTo("1234567890123456");
                 }
             }
             ctx.commit();
         }
-        assertThat(device.getDeviceProtocolProperties().getProperty("MAC_address")).isEqualTo(MAC_ADDRESS);
+        assertThat(device.getDeviceProtocolProperties().getProperty("callHomeId")).isEqualTo(MAC_ADDRESS);
     }
 
     @Test
@@ -772,6 +772,9 @@ public class DemoTest {
 
     protected void doPreparations() {
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
+            Services.nlsService(injector.getInstance(com.energyict.mdc.upl.nls.NlsService.class));
+            Services.propertySpecService(injector.getInstance(com.energyict.mdc.upl.properties.PropertySpecService.class));
+
             injector.getInstance(ServiceCallService.class);
             injector.getInstance(CustomPropertySetService.class);
             injector.getInstance(DataVaultServiceImpl.class);
@@ -804,7 +807,7 @@ public class DemoTest {
         protocolPluggableService.newDeviceProtocolPluggableClass("ALPHA_A3", AlphaA3.class.getName()).save();
         protocolPluggableService.newDeviceProtocolPluggableClass("RTU_PLUS_G3", com.energyict.protocolimplv2.eict.rtuplusserver.g3.RtuPlusServer.class.getName()).save();
         protocolPluggableService.newDeviceProtocolPluggableClass("AM540", com.energyict.protocolimplv2.nta.dsmr50.elster.am540.AM540.class.getName()).save();
-        protocolPluggableService.newConnectionTypePluggableClass("OutboundTcpIp", OutboundTcpIpConnectionType.class.getName());
+        protocolPluggableService.newConnectionTypePluggableClass("OutboundTcpIpConnectionType", OutboundTcpIpConnectionType.class.getName());
     }
 
     private void fixMissedDynamicReference() {

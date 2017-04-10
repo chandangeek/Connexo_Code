@@ -43,7 +43,7 @@ public class CreateG3GatewayCommand {
     static final String GATEWAY_NAME = "Demo board RTU+Server G3";
     static final String GATEWAY_SERIAL = "660-05A043-1428";
     static final String SECURITY_PROPERTY_SET_NAME = "High level authentication - No encryption";
-    static final String REQUIRED_PLUGGABLE_CLASS_NAME = "OutboundTcpIp";
+    static final String REQUIRED_PLUGGABLE_CLASS_NAME = "OutboundTcpIpConnectionType";
 
     private final DeviceService deviceService;
     private final ProtocolPluggableService protocolPluggableService;
@@ -138,7 +138,7 @@ public class CreateG3GatewayCommand {
         addConnectionTasksToDevice(device);
         addSecurityPropertiesToDevice(device);
         addComTaskToDevice(device, ComTaskTpl.TOPOLOGY_UPDATE);
-        device.setProtocolProperty("Short_MAC_address", BigDecimal.ZERO);
+        device.setProtocolProperty("ValidateInvokeId", Boolean.TRUE);
         device.save();
         return device;
     }
