@@ -45,6 +45,8 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.TransactionRequired;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
+import com.elster.jupiter.pki.PkiService;
+import com.elster.jupiter.pki.impl.PkiModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.impl.SearchModule;
@@ -309,6 +311,7 @@ public class DeviceImplDoSomethingWithEventsTest {
                     new InMemoryMessagingModule(),
                     new OrmModule(),
                     new DataVaultModule(),
+                    new PkiModule(),
                     new IssuesModule(),
                     new MdcReadingTypeUtilServiceModule(),
                     new BasicPropertiesModule(),
@@ -385,7 +388,9 @@ public class DeviceImplDoSomethingWithEventsTest {
                                 injector.getInstance(ServiceCallService.class),
                                 injector.getInstance(ThreadPrincipalService.class),
                                 injector.getInstance(LockService.class),
-                                injector.getInstance(DataVaultService.class));
+                                injector.getInstance(DataVaultService.class),
+                                injector.getInstance(PkiService.class)
+                        );
                 this.dataModel = this.deviceDataModelService.dataModel();
                 ctx.commit();
             }

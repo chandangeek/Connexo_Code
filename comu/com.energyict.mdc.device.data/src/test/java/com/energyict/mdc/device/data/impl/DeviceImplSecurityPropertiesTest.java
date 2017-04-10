@@ -19,6 +19,7 @@ import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.UserPreferencesService;
 import com.elster.jupiter.validation.ValidationService;
@@ -142,6 +143,8 @@ public class DeviceImplSecurityPropertiesTest {
     private MultiplierType multiplierType;
     @Mock
     private LockService lockService;
+    @Mock
+    private PkiService pkiService;
 
     @Before
     public void setup() {
@@ -257,7 +260,7 @@ public class DeviceImplSecurityPropertiesTest {
                 this.scheduledConnectionTaskProvider, this.inboundConnectionTaskProvider, this.connectionInitiationTaskProvider,
                 this.scheduledComTaskExecutionProvider,
                 this.meteringGroupsService, this.customPropertySetService, this.readingTypeUtilService,
-                this.threadPrincipalService, this.userPreferencesService, this.deviceConfigurationService, deviceService, lockService);
+                this.threadPrincipalService, this.userPreferencesService, this.deviceConfigurationService, deviceService, lockService, pkiService);
         device.initialize(this.deviceConfiguration, "Not persistent", null);
         return device;
     }

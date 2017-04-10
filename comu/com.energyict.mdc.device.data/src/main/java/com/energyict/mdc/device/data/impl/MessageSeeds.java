@@ -166,8 +166,12 @@ public enum MessageSeeds implements MessageSeed {
     INVALID_SHIPMENT_DATE(2140, Keys.INVALID_SHIPMENT_DATE, "The shipment date ({0}) should be between {1} and {2}"),
     DUPLICATE_DEVICE_NAME(2141, Keys.DUPLICATE_DEVICE_NAME, "Name must be unique"),
     MULTIPLE_COMSCHEDULES_WITH_SAME_COMTASK(2142, Keys.MULTIPLE_COMSCHEDULES_WITH_SAME_COMTASK, "You can not set a ComSchedule on the device because it already contains a ComTask which is linked to another ComSchedule"),
-    GROUP_IS_USED_BY_ANOTHER_GROUP(2143, Keys.GROUP_IS_USED_BY_ANOTHER_GROUP, "The group is used by another group")
-    ;
+    GROUP_IS_USED_BY_ANOTHER_GROUP(2143, Keys.GROUP_IS_USED_BY_ANOTHER_GROUP, "The group is used by another group"),
+    TEMP_VALUE_NOT_SET(2144, "NoTempValue", "The security accessor does not contain a temporary value"),
+    NO_ACTUAL_CERTIFICATE(2145, "NoActualCertificate", "Certificate renewal requires an actual value in order to create a distinguished name"),
+    CERTIFICATE_ENCODING_EXCEPTION(2146, "CertificateEncodingError", "The certificate is an unrecognized format"),
+    ACTUAL_VALUE_NOT_SET(2147, "NoActualValue", "The security accessor does not contain an actual value"),
+    VETO_CERTIFICATE_DELETION(2148, "VetoCertificateDeletion", "This certificate is still in use.");
     private final int number;
     private final String key;
     private final String defaultFormat;

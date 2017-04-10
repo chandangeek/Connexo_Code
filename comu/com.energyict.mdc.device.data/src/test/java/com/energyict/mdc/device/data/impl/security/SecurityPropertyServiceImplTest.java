@@ -162,8 +162,6 @@ public class SecurityPropertyServiceImplTest {
         when(this.protocolPluggableService.isLicensedProtocolClassName(anyString())).thenReturn(true);
 
         when(this.securityPropertySet1.getId()).thenReturn(SECURITY_PROPERTY_SET1_ID);
-        when(this.securityPropertySet1.currentUserIsAllowedToViewDeviceProperties()).thenReturn(true);
-        when(this.securityPropertySet1.currentUserIsAllowedToEditDeviceProperties()).thenReturn(true);
         PropertySpec userName = mock(PropertySpec.class);
         when(userName.getName()).thenReturn(USERNAME_SECURITY_PROPERTY_NAME);
         when(userName.isRequired()).thenReturn(true);
@@ -174,8 +172,6 @@ public class SecurityPropertyServiceImplTest {
         when(password.getValueFactory()).thenReturn(new StringFactory());
         when(this.securityPropertySet1.getPropertySpecs()).thenReturn(new HashSet<>(Arrays.asList(userName, password)));
         when(this.securityPropertySet2.getId()).thenReturn(SECURITY_PROPERTY_SET2_ID);
-        when(this.securityPropertySet2.currentUserIsAllowedToViewDeviceProperties()).thenReturn(true);
-        when(this.securityPropertySet2.currentUserIsAllowedToEditDeviceProperties()).thenReturn(true);
         PropertySpec someKey = mock(PropertySpec.class);
         when(someKey.getName()).thenReturn(SOME_KEY_SECURITY_PROPERTY_NAME);
         when(someKey.getValueFactory()).thenReturn(new StringFactory());
@@ -203,7 +199,6 @@ public class SecurityPropertyServiceImplTest {
                         any(Instant.class),
                         eq(this.securityPropertySet1)))
                 .thenReturn(CustomPropertySetValues.emptyDuring(Range.closedOpen(effectiveStart, effectiveEnd)));
-        when(this.securityPropertySet1.currentUserIsAllowedToViewDeviceProperties()).thenReturn(false);
 
         // Business method
         boolean hasSecurityProperties = this.testService().hasSecurityProperties(this.device, effectiveStart.plusSeconds(1), this.securityPropertySet1);
@@ -225,7 +220,6 @@ public class SecurityPropertyServiceImplTest {
                         any(Instant.class),
                         eq(this.securityPropertySet1)))
                 .thenReturn(CustomPropertySetValues.emptyDuring(Range.closedOpen(effectiveStart, effectiveEnd)));
-        when(this.securityPropertySet1.currentUserIsAllowedToViewDeviceProperties()).thenReturn(true);
 
         // Business method
         boolean hasSecurityProperties = this.testService().hasSecurityProperties(this.device, effectiveStart.plusSeconds(1), this.securityPropertySet1);
@@ -261,7 +255,6 @@ public class SecurityPropertyServiceImplTest {
                 .getUniqueValuesFor(customPropertySet, device, this.clock.instant(), this.securityPropertySet1))
                 .thenReturn(customPropertySetValues);
         when(this.deviceProtocol.getCustomPropertySet()).thenReturn(Optional.of(customPropertySet));
-        when(this.securityPropertySet1.currentUserIsAllowedToViewDeviceProperties()).thenReturn(true);
 
         // Business method
         List<SecurityProperty> securityProperties = this.testService().getSecurityProperties(this.device, this.clock.instant(), this.securityPropertySet1);
@@ -290,7 +283,6 @@ public class SecurityPropertyServiceImplTest {
                 .getUniqueValuesFor(customPropertySet, device, this.clock.instant(), this.securityPropertySet1))
                 .thenReturn(customPropertySetValues);
         when(this.deviceProtocol.getCustomPropertySet()).thenReturn(Optional.of(customPropertySet));
-        when(this.securityPropertySet1.currentUserIsAllowedToViewDeviceProperties()).thenReturn(true);
 
         // Business method
         List<SecurityProperty> securityProperties = this.testService().getSecurityProperties(this.device, this.clock.instant(), this.securityPropertySet1);
@@ -300,22 +292,21 @@ public class SecurityPropertyServiceImplTest {
         assertThat(securityProperties).isEmpty();
     }
 
-    @Test(expected = SecurityPropertyException.class)
-    public void setSecurityPropertiesForUserThatIsNotAllowedToEdit () {
-        when(this.securityPropertySet1.currentUserIsAllowedToEditDeviceProperties()).thenReturn(false);
-
-        // Business method
-        this.testService().setSecurityProperties(this.device, this.securityPropertySet1, TypedProperties.empty());
-
-        // Asserts
-        verify(this.securityPropertySet1).currentUserIsAllowedToEditDeviceProperties();
-    }
+//    @Test(expected = SecurityPropertyException.class)
+//    public void setSecurityPropertiesForUserThatIsNotAllowedToEdit () {
+//        when(this.securityPropertySet1.currentUserIsAllowedToEditDeviceProperties()).thenReturn(false);
+//
+//        // Business method
+//        this.testService().setSecurityProperties(this.device, this.securityPropertySet1, TypedProperties.empty());
+//
+//        // Asserts
+//        verify(this.securityPropertySet1).currentUserIsAllowedToEditDeviceProperties();
+//    }
 
     @Test
     public void setSecurityProperties () throws SQLException {
         Instant now = Instant.ofEpochSecond(97L);
         when(this.clock.instant()).thenReturn(now);
-        when(this.securityPropertySet1.currentUserIsAllowedToEditDeviceProperties()).thenReturn(true);
         TypedProperties properties = TypedProperties.empty();
         BigDecimal expectedValueForPropertyOne = BigDecimal.ONE;
         properties.setProperty("One", expectedValueForPropertyOne);

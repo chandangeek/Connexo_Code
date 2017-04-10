@@ -1446,9 +1446,6 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
     private SecurityPropertySet createSecurityPropertySet(DeviceConfiguration deviceConfiguration, String securityPropertySetName) {
         return deviceConfiguration.createSecurityPropertySet(securityPropertySetName)
                 .encryptionLevel(0)
-                .authenticationLevel(0)
-                .addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1)
-                .addUserAction(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES1)
                 .build();
     }
 

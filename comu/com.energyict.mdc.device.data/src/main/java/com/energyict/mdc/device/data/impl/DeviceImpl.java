@@ -4,7 +4,6 @@
 
 package com.energyict.mdc.device.data.impl;
 
-import com.elster.jupiter.cbo.Aggregate;
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
@@ -64,6 +63,8 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.TemporalReference;
 import com.elster.jupiter.orm.associations.Temporals;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.TemporalExpression;
@@ -108,6 +109,7 @@ import com.energyict.mdc.device.data.DeviceEstimationRuleSetActivation;
 import com.energyict.mdc.device.data.DeviceLifeCycleChangeEvent;
 import com.energyict.mdc.device.data.DeviceProtocolProperty;
 import com.energyict.mdc.device.data.DeviceValidation;
+import com.energyict.mdc.device.data.KeyAccessor;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LoadProfileJournalReading;
 import com.energyict.mdc.device.data.LoadProfileReading;
@@ -136,6 +138,8 @@ import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueMrid;
 import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueName;
 import com.energyict.mdc.device.data.impl.constraintvalidators.ValidOverruledAttributes;
 import com.energyict.mdc.device.data.impl.constraintvalidators.ValidSecurityProperties;
+import com.energyict.mdc.device.data.impl.pki.CertificateAccessorImpl;
+import com.energyict.mdc.device.data.impl.pki.SymmetricKeyAccessorImpl;
 import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
 import com.energyict.mdc.device.data.impl.security.ServerDeviceForValidation;
 import com.energyict.mdc.device.data.impl.sync.SyncDeviceWithKoreForActivation;
@@ -213,14 +217,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Deque;
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeMap;
 import java.util.UUID;
@@ -259,6 +261,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     private final CustomPropertySetService customPropertySetService;
     private final ServerDeviceService deviceService;
     private final LockService lockService;
+    private final PkiService pkiService;
 
     private final MdcReadingTypeUtilService readingTypeUtilService;
     private final ThreadPrincipalService threadPrincipalService;
@@ -266,6 +269,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     private final DeviceConfigurationService deviceConfigurationService;
     private final List<LoadProfile> loadProfiles = new ArrayList<>();
     private final List<LogBook> logBooks = new ArrayList<>();
+    private final List<KeyAccessor> keyAccessors = new ArrayList<>();
 
     @SuppressWarnings("unused")
     private long id;
@@ -355,7 +359,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             UserPreferencesService userPreferencesService,
             DeviceConfigurationService deviceConfigurationService,
             ServerDeviceService deviceService,
-            LockService lockService) {
+            LockService lockService,
+            PkiService pkiService) {
         this.dataModel = dataModel;
         this.eventService = eventService;
         this.issueService = issueService;
@@ -378,6 +383,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         this.lockService = lockService;
         // Helper to get activation info... from 'Kore'
         this.koreHelper = new SyncDeviceWithKoreForInfo(this, this.deviceService, this.readingTypeUtilService, clock, this.eventService);
+        this.pkiService = pkiService;
         this.koreHelper.syncWithKore(this);
     }
 
@@ -3307,6 +3313,41 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     @Override
     public void deactivateEstimation() {
         this.estimationActive = false;
+    }
+
+    @Override
+    public List<KeyAccessor> getKeyAccessors() {
+        return Collections.unmodifiableList(this.keyAccessors);
+    }
+
+    @Override
+    public Optional<KeyAccessor> getKeyAccessor(KeyAccessorType keyAccessorType) {
+        return this.keyAccessors.stream().filter(keyAccessor -> keyAccessor.getKeyAccessorType().getId()==keyAccessorType.getId()).findAny();
+    }
+
+    @Override
+    public KeyAccessor newKeyAccessor(KeyAccessorType keyAccessorType) {
+        switch (keyAccessorType.getKeyType().getCryptographicType()) {
+            case Certificate:
+                break; // TODO implement
+            case ClientCertificate:
+                CertificateAccessorImpl certificateAccessor = dataModel.getInstance(CertificateAccessorImpl.class);
+                certificateAccessor.init(keyAccessorType, this);
+                this.keyAccessors.add(certificateAccessor);
+                return certificateAccessor;
+            case TrustedCertificate:
+                break; // TODO implement
+            case SymmetricKey:
+                SymmetricKeyAccessorImpl symmetricKeyAccessor = dataModel.getInstance(SymmetricKeyAccessorImpl.class);
+                symmetricKeyAccessor.init(keyAccessorType, this);
+                this.keyAccessors.add(symmetricKeyAccessor);
+                return symmetricKeyAccessor;
+            case Passphrase:
+                break; // TODO implement
+            case AsymmetricKey:
+                break; // TODO implement? will this occur?
+        }
+        return null; // TODO throw exception
     }
 
     static class DeviceEstimationImpl implements DeviceEstimation {
