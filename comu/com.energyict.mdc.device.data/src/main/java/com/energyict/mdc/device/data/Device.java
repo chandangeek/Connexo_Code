@@ -523,6 +523,8 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
      */
     public KeyAccessor newKeyAccessor(KeyAccessorType keyAccessorType);
 
+    public void removeKeyAccessor(KeyAccessor keyAccessor);
+
     /**
      * Builder that support basic value setters for a ScheduledConnectionTask.
      */

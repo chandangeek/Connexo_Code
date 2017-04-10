@@ -106,7 +106,7 @@ public class SymmetricKeyAccessorImpl extends AbstractKeyAccessorImpl<SymmetricK
         if (tempSymmetricKeyWrapperReference!=null && tempSymmetricKeyWrapperReference.isPresent()) {
             ((SymmetricKeyWrapper)tempSymmetricKeyWrapperReference.get()).delete();
         }
-        dataModel.remove(this);
+        getDevice().removeKeyAccessor(this);
     }
 
     @Override
