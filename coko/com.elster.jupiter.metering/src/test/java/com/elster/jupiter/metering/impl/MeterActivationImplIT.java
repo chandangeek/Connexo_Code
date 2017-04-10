@@ -10,6 +10,7 @@ import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViol
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
+import com.elster.jupiter.devtools.tests.rules.LocaleNeutral;
 import com.elster.jupiter.fsm.Stage;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.AmrSystem;
@@ -685,7 +686,6 @@ public class MeterActivationImplIT {
     @Transactional
     public void testIncorrectDeviceStageWithoutMetrologyConfig() {
         expectedException.expect(UsagePointMeterActivationException.IncorrectDeviceStageWithoutMetrologyConfig.class);
-        expectedException.expectMessage("Metrology configuration linking error. Not all meters are in an operational life cycle stage as of the metrology configurations linking date ");
         ServerMeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
         AmrSystem system = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
         Meter meter = spy(system.newMeter("meterForActivation", "testMeter").create());

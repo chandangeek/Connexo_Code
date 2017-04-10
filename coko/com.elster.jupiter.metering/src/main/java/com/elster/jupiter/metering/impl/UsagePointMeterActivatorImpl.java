@@ -142,6 +142,7 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
     }
 
     private void validateStageWithoutMetrologyConfig(Meter meter, Instant meterStartDate) {
+        checkState(meter, meterStartDate);
         meter.getState(meterStartDate).get().getStage().ifPresent(stage -> {
             EndDeviceStage deviceStage = EndDeviceStage.fromKey(stage.getName());
             if (!deviceStage.equals(EndDeviceStage.OPERATIONAL) && !deviceStage.equals(EndDeviceStage.PRE_OPERATIONAL)) {
@@ -159,11 +160,18 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
     }
 
     private void validateOperationalStageWithGaps(Meter meter, Instant meterStartDate) {
+        checkState(meter, meterStartDate);
         meter.getState(meterStartDate).get().getStage().ifPresent(deviceStage -> {
             if(!EndDeviceStage.fromKey(deviceStage.getName()).equals(EndDeviceStage.OPERATIONAL)) {
                 throw new UsagePointMeterActivationException.IncorrectMeterActivationDateWhenGapsAreAllowed(metrologyConfigurationService.getThesaurus(), meter.getName(), this.usagePoint.getName());
             }
         });
+    }
+
+    private void checkState(Meter meter, Instant start) {
+        if (!meter.getState(start).isPresent()) {
+            throw new UsagePointMeterActivationException.IncorrectLifeCycleStage(metrologyConfigurationService.getThesaurus(), meter.getName(), this.usagePoint.getName(), formatDate(start));
+        }
     }
 
     private String formatDate(Instant date) {
@@ -853,7 +861,6 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
         public FormValidationReport(ConstraintValidatorContext context, Thesaurus thesaurus) {
             this.context = context;
             this.thesaurus = thesaurus;
-            this.context.disableDefaultConstraintViolation();
         }
 
         @Override
@@ -864,6 +871,7 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
         @Override
         public void meterActiveOnDifferentUsagePoint(Meter meter, MeterRole currentRole, MeterRole desiredRole, UsagePoint meterCurrentUsagePoint, Range<Instant> conflictActivationRange) {
             this.valid = false;
+            this.context.disableDefaultConstraintViolation();
             String errorMessage = this.thesaurus.getFormat(MessageSeeds.METER_ALREADY_LINKED_TO_USAGEPOINT)
                     .format(meter.getName(), meterCurrentUsagePoint.getName(), currentRole.getDisplayName());
             this.context.buildConstraintViolationWithTemplate(errorMessage).addPropertyNode(desiredRole.getKey()).addConstraintViolation();
@@ -872,6 +880,7 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
         @Override
         public void meterActiveWithDifferentMeterRole(Meter meter, MeterRole currentRole, MeterRole desiredRole, Range<Instant> conflictActivationRange) {
             this.valid = false;
+            this.context.disableDefaultConstraintViolation();
             this.context.buildConstraintViolationWithTemplate("{" + MessageSeeds.Constants.THE_SAME_METER_ACTIVATED_TWICE_ON_USAGE_POINT + "}")
                     .addPropertyNode(desiredRole.getKey()).addConstraintViolation();
         }
@@ -879,6 +888,7 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
         @Override
         public void usagePointHasMeterOnThisRole(Meter meterActiveOnRole, MeterRole meterRole, Range<Instant> conflictActivationRange) {
             this.valid = false;
+            this.context.disableDefaultConstraintViolation();
             String message = this.thesaurus.getFormat(MessageSeeds.USAGE_POINT_ALREADY_ACTIVE_WITH_GIVEN_ROLE).format(meterActiveOnRole.getName(), meterRole.getDisplayName());
             this.context.buildConstraintViolationWithTemplate(message).addPropertyNode(meterRole.getKey()).addConstraintViolation();
         }
@@ -895,6 +905,7 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
                                     .flatMap(Collection::stream)
                                     .map(ReadingTypeRequirement::getDescription)
                                     .collect(Collectors.joining(", ")));
+            this.context.disableDefaultConstraintViolation();
             this.context.buildConstraintViolationWithTemplate(errorMessage)
                     .addPropertyNode(meterRole.getKey())
                     .addConstraintViolation();
@@ -903,6 +914,7 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
         @Override
         public void activationWasFailedByCustomValidator(Meter meter, MeterRole meterRole, UsagePoint usagePoint, CustomUsagePointMeterActivationValidationException ex) {
             this.valid = false;
+            this.context.disableDefaultConstraintViolation();
             this.context.buildConstraintViolationWithTemplate(ex.getLocalizedMessage())
                     .addPropertyNode(meterRole.getKey())
                     .addConstraintViolation();
