@@ -49,7 +49,11 @@ Ext.define('Mdc.securityaccessors.controller.DeviceSecurityAccessors', {
         {
             ref: 'certificateCurrentAttributesContainer',
             selector: '#mdc-device-accessors-certificate-preview #mdc-device-security-accessor-preview-current-attributes-container'
-        }
+        },
+        {
+            ref: 'certificateTempAttributesContainer',
+            selector: '#mdc-device-accessors-certificate-preview #mdc-device-security-accessor-preview-temp-attributes-container'
+        },
     ],
 
     deviceId: undefined,
@@ -129,6 +133,11 @@ Ext.define('Mdc.securityaccessors.controller.DeviceSecurityAccessors', {
         }
         me.getCertificateCurrentAttributesContainer().setVisible(record.propertiesStore.data.items.length > 0);
         me.getCertificateCurrentAttributesContainer().down('property-form').loadRecord(record);
+        var tempPropertiesAvailable = record.temppropertiesStore.data.items.length > 0;
+        me.getCertificateTempAttributesContainer().setVisible(tempPropertiesAvailable);
+        if (tempPropertiesAvailable) {
+            me.getCertificateTempAttributesContainer().down('property-form').initProperties(record.tempproperties());
+        }
     }
 
 });

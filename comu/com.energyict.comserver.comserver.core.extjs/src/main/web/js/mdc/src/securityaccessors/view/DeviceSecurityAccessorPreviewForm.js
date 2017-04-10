@@ -98,7 +98,7 @@ Ext.define('Mdc.securityaccessors.view.DeviceSecurityAccessorPreviewForm', {
                 }
             ];
 
-        if (me.keyMode) {
+        //if (me.keyMode) {
             items.push(
                 {
                     xtype: 'container',
@@ -133,7 +133,7 @@ Ext.define('Mdc.securityaccessors.view.DeviceSecurityAccessorPreviewForm', {
                     ]
                 }
             );
-        }
+        //}
 
         me.items = items;
         me.callParent(arguments);
