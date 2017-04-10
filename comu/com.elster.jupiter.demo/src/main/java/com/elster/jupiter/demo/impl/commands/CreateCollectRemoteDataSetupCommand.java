@@ -39,6 +39,7 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.protocols.naming.ConnectionTypePropertySpecName;
 
@@ -379,9 +380,13 @@ public class CreateCollectRemoteDataSetupCommand extends CommandWithTransaction 
     private void corruptDeviceSettingsForIssueManagement() {
         List<Device> devices = deviceService.deviceQuery()
                 .select(where("name").like(Constants.Device.STANDARD_PREFIX + "*")
-                        .and(where("deviceConfiguration.name").in(Arrays.asList(DeviceConfigurationTpl.PROSUMERS.getName(), DeviceConfigurationTpl.CONSUMERS.getName()))));
+                        .and(where("deviceConfiguration.name").in(Arrays.asList(DeviceConfigurationTpl.PROSUMERS.getName(), DeviceConfigurationTpl.CONSUMERS.getName()))))
+                .stream()
+                .filter(device -> DefaultState.ACTIVE.getKey().equals(device.getState().getName()))
+                .collect(Collectors.toList());
+        int nrOfCorruptedDevices = (int)Math.floor(devices.size() * 0.01);
         Set<String> devicesWithCorruptedConnectionSettings = new HashSet<>();
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < nrOfCorruptedDevices; i++) {
             int devicePosition = (int) ((devices.size() - 1) * Math.random());
             devices.get(devicePosition).getScheduledConnectionTasks().forEach(connectionTask -> {
                 connectionTask.setProperty(ConnectionTypePropertySpecName.OUTBOUND_IP_HOST.propertySpecName(), "UNKNOWN");
