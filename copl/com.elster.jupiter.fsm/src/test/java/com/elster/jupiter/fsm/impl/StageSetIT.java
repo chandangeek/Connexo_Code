@@ -8,34 +8,15 @@ import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViol
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
-import com.elster.jupiter.fsm.FiniteStateMachine;
-import com.elster.jupiter.fsm.FiniteStateMachineBuilder;
-import com.elster.jupiter.fsm.FiniteStateMachineUpdater;
 import com.elster.jupiter.fsm.MessageSeeds;
-import com.elster.jupiter.fsm.ProcessReference;
 import com.elster.jupiter.fsm.StageSet;
 import com.elster.jupiter.fsm.StageSetBuilder;
-import com.elster.jupiter.fsm.State;
-import com.elster.jupiter.fsm.StateChangeBusinessProcess;
-import com.elster.jupiter.fsm.StateChangeBusinessProcessInUseException;
-import com.elster.jupiter.fsm.StateTransition;
-import com.elster.jupiter.fsm.StateTransitionEventType;
-import com.elster.jupiter.fsm.UnknownProcessReferenceException;
-import com.elster.jupiter.fsm.UnknownStateChangeBusinessProcessException;
-import com.elster.jupiter.fsm.UnknownStateException;
-import com.elster.jupiter.fsm.UnsupportedStateTransitionException;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 
 import com.google.common.base.Strings;
 
 import java.sql.SQLException;
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -44,12 +25,6 @@ import org.junit.Test;
 import org.junit.rules.TestRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * Integration test for the {@link FiniteStateMachineImpl} component.
