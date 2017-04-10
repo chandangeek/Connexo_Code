@@ -5,23 +5,26 @@
 
 Ext.define('Uni.property.view.property.CalendarWithEventCode', {
     extend: 'Uni.property.view.property.Base',
+    listeners: {
+        afterrender: function () {
+            this.calendarsStore = Ext.create('Ext.data.Store', {
+                model: 'Uni.model.timeofuse.Calendar',
+                proxy: {
+                    url: '/api/cal/calendars',
+                    type: 'rest',
+                    reader: {
+                        type: 'json',
+                        root: 'calendars'
+                    }
+                }
+            });
+        }
+    },
 
 //TODO: displayCmp
     getEditCmp: function () {
         var me = this;
         me.layout = 'vbox';
-
-        me.calendarsStore = Ext.create('Ext.data.Store', {
-            model: 'Uni.model.timeofuse.Calendar',
-            proxy: {
-                url: '/api/cal/calendars',
-                type: 'rest',
-                reader: {
-                    type: 'json',
-                    root: 'calendars'
-                }
-            }
-        });
 
         return [
             {
@@ -30,7 +33,7 @@ Ext.define('Uni.property.view.property.CalendarWithEventCode', {
                         xtype: 'checkbox',
                         name: this.getName(),
                         fieldLabel: Uni.I18n.translate('general.discardDays', 'UNI', 'Discard specific days'),
-                        itemId: me.key + 'checkbox',
+                        itemId: 'discard',
                         labelWidth: 260,
                         width: 600,
                         cls: 'check',
@@ -50,7 +53,7 @@ Ext.define('Uni.property.view.property.CalendarWithEventCode', {
                     },
                     {
                         xtype: 'combobox',
-                        itemId: 'calendar',
+                        itemId: 'calendar' + me.key,
                         fieldLabel: Uni.I18n.translate('general.calendar', 'UNI', 'Calendar'),
                         queryMode: 'local',
                         name: 'calendar',
@@ -87,7 +90,7 @@ Ext.define('Uni.property.view.property.CalendarWithEventCode', {
                         fieldLabel: Uni.I18n.translate('general.eventCode', 'UNI', 'Event code'),
                         queryMode: 'local',
                         required: true,
-                        name: this.getName(),
+                        name: 'eventCode',
                         labelWidth: 260,
                         width: 600,
                         valueField: 'id',
@@ -101,11 +104,57 @@ Ext.define('Uni.property.view.property.CalendarWithEventCode', {
         ];
     },
 
+    getDisplayCmp: function () {
+        var me = this;
+        return [
+            {
+                items: [
+                    {
+                        xtype: 'displayfield',
+                        name: this.getName(),
+                        fieldLabel: Uni.I18n.translate('general.discardDays', 'UNI', 'Discard specific days'),
+                        itemId: 'displayfield-discard',
+                        labelWidth: me.labelWidth
+                    },
+                    {
+                        xtype: 'displayfield',
+                        name: 'calendar',
+                        fieldLabel: Uni.I18n.translate('general.calendar', 'UNI', 'Calendar'),
+                        itemId: 'displayfield-calendar',
+                        hidden: true,
+                        labelWidth: me.labelWidth
+                    },
+                    {
+                        xtype: 'displayfield',
+                        name: 'eventCode',
+                        fieldLabel: Uni.I18n.translate('general.eventCode', 'UNI', 'Event code'),
+                        itemId: 'displayfield-eventCode',
+                        hidden: true,
+                        labelWidth: me.labelWidth
+                    },
+
+                ]
+            }
+        ];
+    },
+
     setLocalizedName: function (name) {
     },
 
+    getDiscardDisplayfield: function(){
+        return this.down('#displayfield-discard');
+    },
+
+    getCalendarDisplayfield: function(){
+        return this.down('#displayfield-calendar');
+    },
+
+    getEventCodeDisplayfield: function(){
+        return this.down('#displayfield-eventCode');
+    },
+
     getDiscardCheckbox: function(){
-        return this.down('checkbox');
+        return this.down('#discard');
     },
 
     getCalendarCombo: function(){
@@ -117,13 +166,50 @@ Ext.define('Uni.property.view.property.CalendarWithEventCode', {
     },
 
     setValue: function (value) {
-        var me = this;
+        var me = this,
+            dependenciesCounter = 2,
+            showFunc = function(){
+                dependenciesCounter--;
+                if(!dependenciesCounter){
+                    me.getCalendarDisplayfield().show();
+                    me.getEventCodeDisplayfield().show();
+                    Ext.resumeLayouts(true);
+                    me.ownerCt.setLoading(false);
+                }
+            };
 
-        if(value) {
-            me.getDiscardCheckbox().setValue(value.discardDays);
-            if(value.discardDays){
-                me.on('eventcodestorebound', me.onEventCodeStoreBound, me, value.eventCode);
-                me.getCalendarCombo().setValue(value.calendar);
+
+        if (this.isEdit) {
+            if(value) {
+                me.getDiscardCheckbox().setValue(value.discardDays);
+                if(value.discardDays){
+                    me.on('eventcodestorebound', me.onEventCodeStoreBound, me, value.eventCode);
+                    me.getCalendarCombo().setValue(value.calendar);
+                }
+            }
+        } else {
+
+            var model = Ext.ModelManager.getModel('Uni.model.timeofuse.Calendar');
+            if(value && value.discardDays){
+                me.ownerCt.setLoading(true);
+                Ext.suspendLayouts();
+                me.getDiscardDisplayfield().setValue(Uni.I18n.translate('general.yes', 'UNI', 'Yes'));
+                me.calendarsStore.load({
+                    callback: function () {
+                        me.getCalendarDisplayfield().setValue(me.calendarsStore.getById(value.calendar).get('name'));
+                        showFunc();
+                    }
+                });
+                model.getProxy().setUrl('/api/cal/calendars');
+                model.load(value.calendar,{
+                    callback: function(record){
+                        me.getEventCodeDisplayfield().setValue(record.events().getById(value.eventCode).get('name'));
+                        showFunc();
+                    }
+                });
+
+            } else {
+                me.getDiscardDisplayfield().setValue(Uni.I18n.translate('general.no', 'UNI', 'No'));
             }
         }
     },
