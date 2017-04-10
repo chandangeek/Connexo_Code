@@ -299,6 +299,29 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
         assertThat(tempMapArgumentCaptor.getValue()).contains(MapEntry.entry("key", "tempKey"));
     }
 
+    @Test
+    public void testDeleteTempOnSecurityAccessorWithTempAndActual() throws Exception {
+        SecurityAccessorInfo securityAccessorInfo = new SecurityAccessorInfo();
+        securityAccessorInfo.currentProperties = new ArrayList<>();
+        PropertyInfo actualProperty = createPropertyInfo("key", "actualKey");
+        securityAccessorInfo.currentProperties.add(actualProperty);
+        securityAccessorInfo.tempProperties = Collections.emptyList();
+
+        SymmetricKeyWrapper tempSymmetricKeyWrapper = mockSymmetricKeyWrapper(symmetricKeyPropertySpecs, "key", "oldtempvalue");
+        symmetrickeyAccessor = mockSymmetricKeyAccessor(actualSymmetricKeyWrapper, tempSymmetricKeyWrapper);
+        when(device.getKeyAccessor(symmetricKeyAccessorType)).thenReturn(Optional.ofNullable(symmetrickeyAccessor));
+
+        Response response = target("/devices/BVN001/securityaccessors/keys/111").request().put(Entity.json(securityAccessorInfo));
+        JsonModel jsonModel = JsonModel.create((InputStream) response.getEntity());
+
+        verify(symmetrickeyAccessor, never()).setActualValue(any(SymmetricKeyWrapper.class));
+        ArgumentCaptor<Map> actualMapArgumentCaptor = ArgumentCaptor.forClass(Map.class);
+        verify(actualSymmetricKeyWrapper, times(1)).setProperties(actualMapArgumentCaptor.capture());
+        assertThat(actualMapArgumentCaptor.getValue()).contains(MapEntry.entry("key", "actualKey"));
+
+        verify(symmetrickeyAccessor, times(1)).clearTempValue();
+    }
+
     private PropertyInfo createPropertyInfo(String key, String value) {
         PropertyInfo propertyInfo = new PropertyInfo();
         propertyInfo.key = key;
