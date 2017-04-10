@@ -5,6 +5,7 @@ import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.ClientTypeManager;
 import com.energyict.dlms.cosem.ConcentratorSetup;
 import com.energyict.dlms.cosem.DeviceTypeManager;
+import com.energyict.dlms.cosem.SAPAssignment;
 import com.energyict.dlms.cosem.ScheduleManager;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.messages.DeviceMessageStatus;
@@ -75,8 +76,17 @@ public class MasterDataSync {
         final DeviceTypeManager deviceTypeManager = this.getDeviceTypeManager();
         final ClientTypeManager clientTypeManager = this.getClientTypeManager();
         final ConcentratorSetup concentratorSetup = this.getConcentratorSetup();
+        final SAPAssignment sapAssignment = this.getSAPAssignment();
         
-        final MasterDataAnalyser analyzer = new MasterDataAnalyser(allMasterData, scheduleManager, deviceTypeManager, clientTypeManager, concentratorSetup, this.getIsFirmwareVersion140OrAbove(), !this.readOldObisCodes());
+        final MasterDataAnalyser analyzer = new MasterDataAnalyser(allMasterData, 
+        														   scheduleManager, 
+        														   deviceTypeManager, 
+        														   clientTypeManager, 
+        														   concentratorSetup, 
+        														   sapAssignment,
+        														   this.getIsFirmwareVersion140OrAbove(), 
+        														   !this.readOldObisCodes());
+        
         final List<SyncAction<?>> actions = analyzer.analyze();
         
         this.info.append(syncPlanToString(actions));
@@ -137,6 +147,17 @@ public class MasterDataSync {
     		return this.getProtocol().getDlmsSession().getCosemObjectFactory().getConcentratorSetup(Beacon3100Messaging.CONCENTRATOR_SETUP_NEW_LOGICAL_NAME);
     	}
     }
+    
+    /**
+     * Returns the {@link SAPAssignment}.
+     * 
+     * @return	The {@link SAPAssignment}.
+     * 
+     * @throws	NotInObjectListException	If the {@link SAPAssignment} is not in the object-list.
+     */
+    private final SAPAssignment getSAPAssignment() throws NotInObjectListException {
+    	return this.getProtocol().getDlmsSession().getCosemObjectFactory().getSAPAssignment();
+    }
 
     private DeviceTypeManager getDeviceTypeManager() throws NotInObjectListException {
         if(readOldObisCodes()) {
@@ -196,7 +217,15 @@ public class MasterDataSync {
             // We'll just trim the fat from the Beacon here.
         	final AllMasterData masterData = new AllMasterData();
         	
-        	final MasterDataAnalyser analyzer = new MasterDataAnalyser(masterData, this.getScheduleManager(), this.getDeviceTypeManager(), this.getClientTypeManager(), this.getConcentratorSetup(), this.getIsFirmwareVersion140OrAbove(), !this.readOldObisCodes());
+        	final MasterDataAnalyser analyzer = new MasterDataAnalyser(masterData, 
+        															   this.getScheduleManager(), 
+        															   this.getDeviceTypeManager(), 
+        															   this.getClientTypeManager(), 
+        															   this.getConcentratorSetup(), 
+        															   this.getSAPAssignment(),
+        															   this.getIsFirmwareVersion140OrAbove(), 
+        															   !this.readOldObisCodes());
+        	
         	final List<SyncAction<?>> plan = analyzer.analyze();
         	
         	for (final SyncAction<?> action : plan) {
@@ -307,7 +336,7 @@ public class MasterDataSync {
         info.append("*** UPDATING DeviceType " + beacon3100DeviceType.getId() + " ***\n");
 
         try {
-            deviceTypeManager.updateDeviceType(beacon3100DeviceType.toStructure(false));
+            deviceTypeManager.updateDeviceType(beacon3100DeviceType.toStructure(this.readOldObisCodes()));
             info.append("- DeviceType UPDATED: [").append(beacon3100DeviceType.getId()).append("]: ").append(beacon3100DeviceType.getName()).append("\n");
         } catch (IOException ex) {
             info.append("- Could not update DeviceType [" + beacon3100DeviceType.getId() + "]: " + ex.getMessage() + "\n");

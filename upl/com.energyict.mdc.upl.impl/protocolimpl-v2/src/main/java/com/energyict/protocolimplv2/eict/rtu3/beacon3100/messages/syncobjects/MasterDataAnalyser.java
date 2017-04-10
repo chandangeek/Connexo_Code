@@ -2,6 +2,7 @@ package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -12,13 +13,19 @@ import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.cosem.ClientTypeManager;
 import com.energyict.dlms.cosem.ConcentratorSetup;
+import com.energyict.dlms.cosem.ConcentratorSetup.MeterInfo;
 import com.energyict.dlms.cosem.DeviceTypeManager;
+import com.energyict.dlms.cosem.SAPAssignment;
+import com.energyict.dlms.cosem.SAPAssignmentItem;
 import com.energyict.dlms.cosem.ScheduleManager;
 
 /**
  * Created by iulian on 5/27/2016.
  */
 public final class MasterDataAnalyser {
+	
+	/** Prefix of a logical device name of a mirror device. */
+	private static final String SAP_ITEM_MIRROR_PREFIX = "ELS-MIR";
 	
 	/**
 	 * Defines a sync action.
@@ -127,6 +134,34 @@ public final class MasterDataAnalyser {
 		@Override
 		public final String toString() {
 			return new StringBuilder("Create schedule [ID ").append(this.schedule.getId()).append(", name ").append(this.schedule.getName()).append("]").toString();
+		}
+	}
+	
+	/**
+	 * Delete a mirror on the concentrator.
+	 * 
+	 * @author alex
+	 */
+	private final class DeleteMirrorAction implements SyncAction<Void> {
+		
+		/** MAC of the meter to remove. */
+		private final byte[] mac;
+		
+		/**
+		 * Create a new instance.
+		 * 	
+		 * @param	mac		MAC of the mirror to delete.
+		 */
+		private DeleteMirrorAction(final byte[] mac) {
+			this.mac = mac;
+		}
+
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public final void execute() throws IOException {
+			concentratorSetup.removeLogicalDevice(this.mac);
 		}
 	}
 	
@@ -461,6 +496,9 @@ public final class MasterDataAnalyser {
 	/** The {@link ConcentratorSetup}. */
 	private final ConcentratorSetup concentratorSetup;
 	
+	/** The {@link SAPAssignment}. */
+	private final SAPAssignment sapAssignment;
+	
 	/** The HES master data. */
 	private final AllMasterData masterData;
 	
@@ -478,6 +516,7 @@ public final class MasterDataAnalyser {
 	 * @param 	deviceTypeManager			The {@link DeviceTypeManager}.
 	 * @param 	clientTypeManager			The {@link ClientTypeManager}.
 	 * @param 	concentratorSetup			The {@link ConcentratorSetup}.
+	 * @param	sapAssigment				The {@link SAPAssignment}.
 	 * @param	fwVersionHigherThan1dot4	Indicates whether or not the firmware version is higher than 1.4.
 	 * @param	fwVersionHigherThan1dot10	Indicates whether or not the firmware version is higher than 1.10.
 	 */
@@ -486,6 +525,7 @@ public final class MasterDataAnalyser {
 							  final DeviceTypeManager deviceTypeManager,
 							  final ClientTypeManager clientTypeManager,
 							  final ConcentratorSetup concentratorSetup,
+							  final SAPAssignment sapAssigment,
 							  final boolean fwVersionHigherThan1dot4,
 							  final boolean fwVersionHigherThan1dot10) {
 		this.masterData = masterData;
@@ -493,6 +533,7 @@ public final class MasterDataAnalyser {
 		this.concentratorSetup = concentratorSetup;
 		this.deviceTypeManager = deviceTypeManager;
 		this.clientTypeManager = clientTypeManager;
+		this.sapAssignment = sapAssigment;
 		this.fwVersionAbove1dot4 = fwVersionHigherThan1dot4;
 		this.fwVersionAbove1dot10 = fwVersionHigherThan1dot10;
 	}
@@ -528,6 +569,39 @@ public final class MasterDataAnalyser {
 		objectsToDelete.removeAll(objectsToKeep);
 		
 		return actionSetSupplier.createActionSet(objectsToAdd, objectsToUpdate, objectsToDelete);
+	}
+	
+	/**
+	 * Generates the {@link List} of actions needed to clean up dangling mirrors. They could be leftovers from the clear nodelist for example, and are no longer present in the meter info.
+	 * 
+	 * @return	A list of actions.
+	 */
+	private final List<SyncAction<?>> generateMirrorCleanupActions(final List<MeterInfo> meterInfo) throws IOException {
+		final List<SyncAction<?>> mirrorDeleteActions = new ArrayList<>();
+		
+		for (final SAPAssignmentItem sapAssignmentItem : this.sapAssignment.getSapAssignmentList()) {
+			if (sapAssignmentItem.getLogicalDeviceName().startsWith(SAP_ITEM_MIRROR_PREFIX) &&
+				sapAssignmentItem.getLogicalDeviceNameBytes().length == 16) {
+				final byte[] macAddress = Arrays.copyOfRange(sapAssignmentItem.getLogicalDeviceNameBytes(), 8, 16);
+				
+				boolean mirrorKnown = false;
+				
+				for (final MeterInfo mirror : meterInfo) {
+					if (Arrays.equals(mirror.getId(), macAddress)) {
+						mirrorKnown = true;
+						
+						break;
+					}
+				}
+				
+				if (!mirrorKnown) {
+					// Mirror that's not in the meter-info list, will need to delete it.
+					mirrorDeleteActions.add(new DeleteMirrorAction(macAddress));
+				}
+			}
+		}
+		
+		return mirrorDeleteActions;
 	}
 	
 	/**
@@ -845,6 +919,7 @@ public final class MasterDataAnalyser {
 		// Mind the order.
 		final List<SyncAction<?>> actions = new ArrayList<>();
 		
+		actions.addAll(this.generateMirrorCleanupActions(mirrors));
 		actions.addAll(scheduleActionSet.getAddActions());
 		actions.addAll(clientTypeActionSet.getAddActions());
 		actions.addAll(deviceTypeActionSet.getAddActions());
