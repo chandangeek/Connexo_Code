@@ -4,6 +4,7 @@ import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.Version;
 import com.energyict.mdc.protocol.api.security.CommonBaseDeviceSecurityProperties;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
 
@@ -43,6 +44,27 @@ public class AnsiC12SecurityProperties extends CommonBaseDeviceSecurityPropertie
                 return "USER_NME";
             }
         },
+        USER_ID_LEGACY {
+            @Override
+            public String javaName() {
+                return "userIdLegacy";
+            }
+
+            @Override
+            public String databaseName() {
+                return "USERID";
+            }
+
+            @Override
+            public void addTo(Table table) {
+                table
+                        .column(this.databaseName())
+                        .varChar()                  //Old column type (up to 10.3) for this property is varchar
+                        .map(this.javaName())
+                        .upTo(Version.version(10, 3))
+                        .add();
+            }
+        },
         USER_ID {
             @Override
             public String javaName() {
@@ -54,13 +76,13 @@ public class AnsiC12SecurityProperties extends CommonBaseDeviceSecurityPropertie
                 return "USERID";
             }
 
-            //TODO add version since & to!!!!!
             @Override
             public void addTo(Table table) {
                 table
                         .column(this.databaseName())
-                        .number()
+                        .number()                   //New column type (since 10.3) for this property is number
                         .map(this.javaName())
+                        .since(Version.version(10, 3))
                         .add();
             }
         },
@@ -89,11 +111,11 @@ public class AnsiC12SecurityProperties extends CommonBaseDeviceSecurityPropertie
             @Override
             public void addTo(Table table) {
                 table
-                    .column(this.databaseName())
-                    .number()
-                    .conversion(ColumnConversion.NUMBER2BOOLEAN)
-                    .map(this.javaName())
-                    .add();
+                        .column(this.databaseName())
+                        .number()
+                        .conversion(ColumnConversion.NUMBER2BOOLEAN)
+                        .map(this.javaName())
+                        .add();
             }
         },
         ENCRYPTION_KEY {
@@ -114,10 +136,10 @@ public class AnsiC12SecurityProperties extends CommonBaseDeviceSecurityPropertie
 
         public void addTo(Table table) {
             table
-                .column(this.databaseName())
-                .varChar()
-                .map(this.javaName())
-                .add();
+                    .column(this.databaseName())
+                    .varChar()
+                    .map(this.javaName())
+                    .add();
         }
 
     }
@@ -127,6 +149,8 @@ public class AnsiC12SecurityProperties extends CommonBaseDeviceSecurityPropertie
     @Size(max = Table.MAX_STRING_LENGTH)
     private String user;
     private BigDecimal userId;
+    @Size(max = Table.MAX_STRING_LENGTH)
+    private String userIdLegacy;
     @Size(max = Table.MAX_STRING_LENGTH)
     private String calledApTitle;
     private Boolean binaryPassword;
