@@ -179,7 +179,6 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
         SymmetricKeyWrapper symmetricKeyWrapper = mockSymmetricKeyWrapper(symmetricKeyPropertySpecs, null, null);
         when(pkiService.newSymmetricKeyWrapper(symmetricKeyAccessorType)).thenReturn(symmetricKeyWrapper);
         Response response = target("/devices/BVN001/securityaccessors/keys/111").request().put(Entity.json(securityAccessorInfo));
-        JsonModel jsonModel = JsonModel.create((InputStream) response.getEntity());
 
         verify(symmetrickeyAccessor, never()).setActualValue(any(SymmetricKeyWrapper.class));
         ArgumentCaptor<Map> actualMapArgumentCaptor = ArgumentCaptor.forClass(Map.class);
@@ -202,7 +201,6 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
 
         SymmetricKeyWrapper symmetricKeyWrapper = mockSymmetricKeyWrapper(symmetricKeyPropertySpecs, null, null);
         when(pkiService.newSymmetricKeyWrapper(symmetricKeyAccessorType)).thenReturn(symmetricKeyWrapper);
-        Response response = target("/devices/BVN001/securityaccessors/keys/111").request().put(Entity.json(securityAccessorInfo));
 
         verify(symmetrickeyAccessor, never()).setActualValue(any(SymmetricKeyWrapper.class));
         ArgumentCaptor<Map> actualMapArgumentCaptor = ArgumentCaptor.forClass(Map.class);
@@ -225,7 +223,6 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
         SymmetricKeyWrapper symmetricKeyWrapper = mockSymmetricKeyWrapper(symmetricKeyPropertySpecs, null, null);
         when(pkiService.newSymmetricKeyWrapper(symmetricKeyAccessorType)).thenReturn(symmetricKeyWrapper);
         Response response = target("/devices/BVN001/securityaccessors/keys/111").request().put(Entity.json(securityAccessorInfo));
-        JsonModel jsonModel = JsonModel.create((InputStream) response.getEntity());
 
         verify(symmetrickeyAccessor, never()).setActualValue(any(SymmetricKeyWrapper.class));
         verify(actualSymmetricKeyWrapper, never()).setProperties(any(Map.class));
@@ -252,7 +249,6 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
         when(device.getKeyAccessor(symmetricKeyAccessorType)).thenReturn(Optional.ofNullable(symmetrickeyAccessor));
 
         Response response = target("/devices/BVN001/securityaccessors/keys/111").request().put(Entity.json(securityAccessorInfo));
-        JsonModel jsonModel = JsonModel.create((InputStream) response.getEntity());
 
         verify(symmetrickeyAccessor, never()).setActualValue(any(SymmetricKeyWrapper.class));
         ArgumentCaptor<Map> actualMapArgumentCaptor = ArgumentCaptor.forClass(Map.class);
@@ -280,7 +276,6 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
         when(device.getKeyAccessor(symmetricKeyAccessorType)).thenReturn(Optional.ofNullable(symmetrickeyAccessor));
 
         Response response = target("/devices/BVN001/securityaccessors/keys/111").request().put(Entity.json(securityAccessorInfo));
-        JsonModel jsonModel = JsonModel.create((InputStream) response.getEntity());
 
         verify(symmetrickeyAccessor, never()).setActualValue(any(SymmetricKeyWrapper.class));
         verify(actualSymmetricKeyWrapper, never()).setProperties(any(Map.class));
@@ -310,7 +305,6 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
         when(device.newKeyAccessor(symmetricKeyAccessorType)).thenReturn(toBeCreatedKeyAccessor);
 
         Response response = target("/devices/BVN001/securityaccessors/keys/111").request().put(Entity.json(securityAccessorInfo));
-        JsonModel jsonModel = JsonModel.create((InputStream) response.getEntity());
 
         verify(toBeCreatedKeyAccessor, times(1)).setActualValue(any(SymmetricKeyWrapper.class));
         ArgumentCaptor<Map> actualMapArgumentCaptor = ArgumentCaptor.forClass(Map.class);
@@ -336,7 +330,6 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
         when(device.getKeyAccessor(symmetricKeyAccessorType)).thenReturn(Optional.ofNullable(symmetrickeyAccessor));
 
         Response response = target("/devices/BVN001/securityaccessors/keys/111").request().put(Entity.json(securityAccessorInfo));
-        JsonModel jsonModel = JsonModel.create((InputStream) response.getEntity());
 
         verify(symmetrickeyAccessor, never()).setActualValue(any(SymmetricKeyWrapper.class));
         verify(actualSymmetricKeyWrapper, never()).setProperties(any(Map.class));
