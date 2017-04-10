@@ -822,6 +822,31 @@ public class PKIServiceImplIT {
 
     @Test
     @Transactional
+    public void testGetPropertySpecsTrustedCertificate() throws Exception {
+        TrustStore main = inMemoryPersistence.getPkiService()
+                .newTrustStore("daverit")
+                .description("Main trust store")
+                .add();
+        X509Certificate x509Certificate = loadCertificate("myRootCA.cert");
+        main.addCertificate("myCert", x509Certificate);
+
+        Optional<TrustStore> reloaded = inMemoryPersistence.getPkiService().findTrustStore("daverit");
+        TrustedCertificate certificate = reloaded.get().getCertificates().get(0);
+        List<PropertySpec> propertySpecs = certificate.getPropertySpecs();
+        assertThat(propertySpecs).hasSize(2);
+        assertThat(propertySpecs.get(0).getName()).isEqualTo("alias");
+        assertThat(propertySpecs.get(0).getDisplayName()).isEqualTo("Alias");
+
+        assertThat(propertySpecs.get(1).getName()).isEqualTo("trustStore");
+        assertThat(propertySpecs.get(1).getDisplayName()).isEqualTo("Trust store");
+
+        Map<String, Object> properties = certificate.getProperties();
+        assertThat(properties).containsEntry("alias", "myCert");
+        assertThat(properties).containsEntry("trustStore", "daverit");
+    }
+
+    @Test
+    @Transactional
     public void testGetPropertySpecsSymmetricKey() throws Exception {
         KeyType created = inMemoryPersistence.getPkiService().newSymmetricKeyType("AES128-props", "AES", 128).add();
         KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
