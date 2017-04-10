@@ -117,20 +117,45 @@ public class SecurityAccessorResource {
 
         Optional<KeyAccessor> keyAccessor = device.getKeyAccessor(keyAccessorType);
 
-        BiFunction<KeyAccessor, Map<String, Object>, SecurityValueWrapper> actualValueCreator = (keyAccessor1, properties) -> {
+        BiFunction<KeyAccessor, Map<String, Object>, SecurityValueWrapper> securityValueWrapperCreator = (keyAccessor1, properties) -> {
             SymmetricKeyWrapper symmetricKeyWrapper = pkiService.newSymmetricKeyWrapper(keyAccessor1.getKeyAccessorType());
             symmetricKeyWrapper.setProperties(properties);
             return symmetricKeyWrapper;
         };
 
-        BiFunction<KeyAccessor, Map<String, Object>, SecurityValueWrapper> tempValueCreator = (keyAccessor1, properties) -> {
-            SymmetricKeyWrapper symmetricKeyWrapper = pkiService.newSymmetricKeyWrapper(keyAccessor1.getKeyAccessorType());
-            symmetricKeyWrapper.setProperties(properties);
-            return symmetricKeyWrapper;
+        KeyAccessor result = keyAccessor.map(ka -> updateKeyAccessor(ka, securityAccessorInfo, securityValueWrapperCreator))
+                .orElseGet(() -> createKeyAccessor(device, keyAccessorType, securityAccessorInfo, securityValueWrapperCreator));
+        if (result==null) {
+            result = keyAccessorPlaceHolderProvider.get().init(keyAccessorType, device);
+        }
+        return Response.ok().entity(securityAccessorInfoFactory.from(result)).build();
+    }
+
+    @PUT
+    @Transactional
+    @Path("/certificates/{id}")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+//    @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA,
+//            com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_1, com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_2, com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_3, com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_4,
+//            com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_1, com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_2,com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_3,com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_4,})
+    public Response updateOrCreateCertificateAccessor(@PathParam("name") String deviceName, @PathParam("id") long keyAccessorTypeId, SecurityAccessorInfo securityAccessorInfo) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(deviceName);
+        KeyAccessorType keyAccessorType = device.getDeviceType()
+                .getKeyAccessorTypes()
+                .stream()
+                .filter(kat -> kat.getId() == keyAccessorTypeId)
+                .findAny()
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_KEY_ACCESSOR_TYPE));
+
+        Optional<KeyAccessor> keyAccessor = device.getKeyAccessor(keyAccessorType);
+
+        BiFunction<KeyAccessor, Map<String, Object>, SecurityValueWrapper> securityValueWrapperCreator = (keyAccessor1, properties) -> {
+            // resolve certificate
+            return null;
         };
 
-        KeyAccessor result = keyAccessor.map(ka -> updateKeyAccessor(ka, securityAccessorInfo, tempValueCreator))
-                .orElseGet(() -> createKeyAccessor(device, keyAccessorType, securityAccessorInfo, actualValueCreator, tempValueCreator));
+        KeyAccessor result = keyAccessor.map(ka -> updateKeyAccessor(ka, securityAccessorInfo, securityValueWrapperCreator))
+                .orElseGet(() -> createKeyAccessor(device, keyAccessorType, securityAccessorInfo, securityValueWrapperCreator));
         if (result==null) {
             result = keyAccessorPlaceHolderProvider.get().init(keyAccessorType, device);
         }
@@ -139,9 +164,7 @@ public class SecurityAccessorResource {
 
     private KeyAccessor<SecurityValueWrapper> createKeyAccessor(Device device, KeyAccessorType keyAccessorType,
                                                                 SecurityAccessorInfo securityAccessorInfo,
-                                                                BiFunction<KeyAccessor, Map<String, Object>, SecurityValueWrapper> actualValueCreator,
-                                                                BiFunction<KeyAccessor, Map<String, Object>, SecurityValueWrapper> tempValueCreator
-                                                                ) {
+                                                                BiFunction<KeyAccessor, Map<String, Object>, SecurityValueWrapper> securityValueWrapperCreator) {
         List<PropertySpec> propertySpecs = pkiService.getPropertySpecs(keyAccessorType);
         Map<String, Object> tempProperties = getPropertiesAsMap(propertySpecs, securityAccessorInfo.tempProperties);
         Map<String, Object> actualProperties = getPropertiesAsMap(propertySpecs, securityAccessorInfo.currentProperties);
@@ -149,7 +172,7 @@ public class SecurityAccessorResource {
             KeyAccessor<SecurityValueWrapper> keyAccessor = device.newKeyAccessor(keyAccessorType);
             try {
                 if (propertiesContainValues(actualProperties)) {
-                    SecurityValueWrapper securityValueWrapper = actualValueCreator.apply(keyAccessor, actualProperties);
+                    SecurityValueWrapper securityValueWrapper = securityValueWrapperCreator.apply(keyAccessor, actualProperties);
                     keyAccessor.setActualValue(securityValueWrapper);
                     keyAccessor.save();
                 }
@@ -158,7 +181,7 @@ public class SecurityAccessorResource {
             }
             try {
                 if (propertiesContainValues(tempProperties)) {
-                    SecurityValueWrapper securityValueWrapper = tempValueCreator.apply(keyAccessor, tempProperties);
+                    SecurityValueWrapper securityValueWrapper = securityValueWrapperCreator.apply(keyAccessor, tempProperties);
                     keyAccessor.setTempValue(securityValueWrapper);
                     keyAccessor.save();
 
