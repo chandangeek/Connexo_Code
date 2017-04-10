@@ -16,11 +16,13 @@ Ext.define('Mdc.usagepointmanagement.view.registersData.event.Grid', {
     register: null,
 
     initComponent: function () {
-        var me = this;
+        var me = this,
+            readingType = me.register.get('readingType'),
+            unit = readingType && readingType.names ? readingType.names.unitOfMeasure : undefined;
 
         me.columns = [
             {
-                header: Uni.I18n.translate('general.measurementTime', 'MDC', 'Event date'),
+                header: Uni.I18n.translate('general.eventTime', 'MDC', 'Event time'),
                 dataIndex: 'eventDate',
                 flex: 1,
                 renderer: function (value) {
@@ -28,7 +30,7 @@ Ext.define('Mdc.usagepointmanagement.view.registersData.event.Grid', {
                 }
             },
             {
-                header: Uni.I18n.translate('general.collectedValue', 'MDC', 'Collected value'),
+                header: Uni.I18n.translate('general.collectedValueWithUnit', 'MDC', 'Collected ({0})', unit),
                 dataIndex: 'collectedValue',
                 flex: 1,
                 align: 'right'

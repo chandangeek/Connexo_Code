@@ -11,6 +11,8 @@ Ext.define('Mdc.usagepointmanagement.view.registersData.notCumulative.Preview', 
 
     initComponent: function () {
         var me = this,
+            readingType = me.register.get('readingType'),
+            unit = readingType && readingType.names ? readingType.names.unitOfMeasure : undefined,
             defaults = {
                 xtype: 'displayfield',
                 labelWidth: 200
@@ -27,13 +29,11 @@ Ext.define('Mdc.usagepointmanagement.view.registersData.notCumulative.Preview', 
                     items: [
                         {
                             itemId: 'collected-value-field',
-                            fieldLabel: Uni.I18n.translate('deviceloadprofiles.readingTime', 'MDC', 'Reading time'),
-                            name: 'collectedValue'
-                        },
-                        {
-                            itemId: 'delta-value-field',
-                            fieldLabel: Uni.I18n.translate('device.registerData.dataValidated', 'MDC', 'Data validated'),
-                            name: 'dataValidated'
+                            fieldLabel: Uni.I18n.translate('deviceloadprofiles.collectedValue', 'MDC', 'Collected value'),
+                            name: 'collectedValue',
+                            renderer: function (value) {
+                                return value + ' ' + unit;
+                            }
                         }
                     ]
                 }
@@ -83,10 +83,10 @@ Ext.define('Mdc.usagepointmanagement.view.registersData.notCumulative.Preview', 
             var interval = record.get('measurementPeriod'),
                 title = Uni.I18n.translate(
                     'general.dateAtTime', 'MDC', '{0} at {1}',
-                    [Uni.DateTime.formatDateLong(new Date(interval.end)), Uni.DateTime.formatTimeLong(new Date(interval.end))], false);
+                    [Uni.DateTime.formatDateTimeShort(new Date(interval.end)), Uni.DateTime.formatDateTimeShort(new Date(interval.end))], false);
         } else {
             var time = record.get('measurementTime'),
-                title = time ? Uni.DateTime.formatDateTimeLong(new Date(time)) : '-'
+                title = time ? Uni.DateTime.formatDateTimeShort(new Date(time)) : '-'
         }
 
         me.record = record;

@@ -16,11 +16,13 @@ Ext.define('Mdc.usagepointmanagement.view.registersData.notCumulative.Grid', {
     register: null,
 
     initComponent: function () {
-        var me = this;
+        var me = this,
+            readingType = me.register.get('readingType'),
+            unit = readingType && readingType.names ? readingType.names.unitOfMeasure : undefined;
 
         me.columns = [
             {
-                header: Uni.I18n.translate('general.collectedValue', 'MDC', 'Collected value'),
+                header: Uni.I18n.translate('general.collectedValueWithUnit', 'MDC', 'Collected ({0})', unit),
                 dataIndex: 'collectedValue',
                 flex: 1,
                 align: 'right'
@@ -49,7 +51,7 @@ Ext.define('Mdc.usagepointmanagement.view.registersData.notCumulative.Grid', {
                         renderer: function (value) {
                             if(!Ext.isEmpty(value)) {
                                 var endDate = new Date(value.end);
-                                if (!!value.start && !!value.end) {
+                                if (value.start && value.end) {
                                     var startDate = new Date(value.start);
                                     return Uni.DateTime.formatDateTimeShort(startDate) + ' - ' + Uni.DateTime.formatDateTimeShort(endDate);
                                 } else {
@@ -65,7 +67,7 @@ Ext.define('Mdc.usagepointmanagement.view.registersData.notCumulative.Grid', {
                         dataIndex: 'measurementTime',
                         flex: 2,
                         renderer: function (value) {
-                            return value ? Uni.DateTime.formatDateLong(new Date(value)) : '-';
+                            return value ? Uni.DateTime.formatDateTimeShort(new Date(value)) : '-';
                         }
                     }
                 }

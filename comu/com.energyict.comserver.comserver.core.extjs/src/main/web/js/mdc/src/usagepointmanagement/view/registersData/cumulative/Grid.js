@@ -16,7 +16,9 @@ Ext.define('Mdc.usagepointmanagement.view.registersData.cumulative.Grid', {
     register: null,
 
     initComponent: function () {
-        var me = this;
+        var me = this,
+            readingType = me.register.get('readingType'),
+            unit = readingType && readingType.names ? readingType.names.unitOfMeasure : undefined;
 
         me.columns = [
             {
@@ -26,7 +28,7 @@ Ext.define('Mdc.usagepointmanagement.view.registersData.cumulative.Grid', {
                 renderer: function (value) {
                     if(!Ext.isEmpty(value)) {
                         var endDate = new Date(value.end);
-                        if (!!value.start && !!value.end) {
+                        if (value.start && value.end) {
                             var startDate = new Date(value.start);
                             return Uni.DateTime.formatDateTimeShort(startDate) + ' - ' + Uni.DateTime.formatDateTimeShort(endDate);
                         } else {
@@ -37,12 +39,7 @@ Ext.define('Mdc.usagepointmanagement.view.registersData.cumulative.Grid', {
                 }
             },
             {
-                header: Uni.I18n.translate('general.deltaValue', 'MDC', 'Delta value'),
-                dataIndex: 'deltaValue',
-                flex: 1
-            },
-            {
-                header: Uni.I18n.translate('general.collectedValue', 'MDC', 'Collected value'),
+                header: Uni.I18n.translate('general.collectedValueWithUnit', 'MDC', 'Collected ({0})', unit),
                 dataIndex: 'collectedValue',
                 flex: 1,
                 align: 'right'
@@ -58,6 +55,11 @@ Ext.define('Mdc.usagepointmanagement.view.registersData.cumulative.Grid', {
 
                     return validationMap[value];
                 }
+            },
+            {
+                header: Uni.I18n.translate('general.deltaValueWithUnit', 'MDC', 'Delta value ({0})', unit),
+                dataIndex: 'deltaValue',
+                flex: 1
             }
         ];
 
@@ -69,15 +71,6 @@ Ext.define('Mdc.usagepointmanagement.view.registersData.cumulative.Grid', {
                 displayMsg: Uni.I18n.translate('device.registerData.pagingtoolbartop.displayMsg', 'MDC', '{0} - {1} of {2} readings'),
                 displayMoreMsg: Uni.I18n.translate('device.registerData.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} readings'),
                 emptyMsg: Uni.I18n.translate('device.registerData.pagingtoolbartop.emptyMsg', 'MDC', 'There are no readings to display'),
-                items: [
-                    {
-                        xtype: 'button',
-                        text: Uni.I18n.translate('general.addReading', 'MDC', 'Add reading'),
-                        privileges: Mdc.privileges.Device.administrateDeviceData,
-                        href: '#/devices/' + encodeURIComponent(me.deviceId) + '/registers/' + me.registerId + '/data/add',
-                        // dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.deviceDataEditActions
-                    }
-                ]
             }
             // {
             //     xtype: 'pagingtoolbarbottom',

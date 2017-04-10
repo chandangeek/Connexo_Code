@@ -11,6 +11,8 @@ Ext.define('Mdc.usagepointmanagement.view.registersData.cumulative.Preview', {
 
     initComponent: function () {
         var me = this,
+            readingType = me.register.get('readingType'),
+            unit = readingType && readingType.names ? readingType.names.unitOfMeasure : undefined,
             defaults = {
                 xtype: 'displayfield',
                 labelWidth: 200
@@ -29,15 +31,14 @@ Ext.define('Mdc.usagepointmanagement.view.registersData.cumulative.Preview', {
                             itemId: 'measurement-period-field',
                             fieldLabel: Uni.I18n.translate('general.measurementPeriod', 'MDC', 'Measurement period'),
                             name: 'measurementPeriod',
-
                             renderer: function (value) {
                                 if(!Ext.isEmpty(value)) {
                                     var endDate = new Date(value.end);
-                                    if (!!value.start && !!value.end) {
+                                    if (value.start && value.end) {
                                         var startDate = new Date(value.start);
-                                        return Uni.DateTime.formatDateTimeShort(startDate) + ' - ' + Uni.DateTime.formatDateTimeShort(endDate);
+                                        return Uni.DateTime.formatDateTimeLong(startDate) + ' - ' + Uni.DateTime.formatDateTimeLong(endDate);
                                     } else {
-                                        return Uni.DateTime.formatDateTimeShort(endDate);
+                                        return Uni.DateTime.formatDateTimeLong(endDate);
                                     }
                                 }
                                 return '-';
@@ -45,13 +46,19 @@ Ext.define('Mdc.usagepointmanagement.view.registersData.cumulative.Preview', {
                         },
                         {
                             itemId: 'collected-value-field',
-                            fieldLabel: Uni.I18n.translate('deviceloadprofiles.readingTime', 'MDC', 'Reading time'),
-                            name: 'collectedValue'
+                            fieldLabel: Uni.I18n.translate('deviceloadprofiles.collectedValue', 'MDC', 'Collected value'),
+                            name: 'collectedValue',
+                            renderer: function (value) {
+                                return value + ' ' + unit;
+                            }
                         },
                         {
                             itemId: 'delta-value-field',
-                            fieldLabel: Uni.I18n.translate('device.registerData.dataValidated', 'MDC', 'Data validated'),
-                            name: 'dataValidated'
+                            fieldLabel: Uni.I18n.translate('general.deltaValue', 'MDC', 'Delta value'),
+                            name: 'deltaValue',
+                            renderer: function (value) {
+                                return value + ' ' + unit;
+                            }
                         }
                     ]
                 }
@@ -66,8 +73,8 @@ Ext.define('Mdc.usagepointmanagement.view.registersData.cumulative.Preview', {
             interval = record.get('measurementPeriod'),
             title = interval ? interval.start ? Uni.I18n.translate(
                 'general.dateAtTime', 'MDC', '{0} at {1}',
-                [Uni.DateTime.formatDateLong(new Date(interval.start)), Uni.DateTime.formatTimeLong(new Date(interval.end))], false) :
-                Uni.DateTime.formatDateTimeLong(new Date(interval.end)) : '-';
+                [Uni.DateTime.formatDateTimeShort(new Date(interval.start)), Uni.DateTime.formatDateTimeShort(new Date(interval.end))], false) :
+                Uni.DateTime.formatDateTimeShort(new Date(interval.end)) : '-';
 
         me.record = record;
         Ext.suspendLayouts();
