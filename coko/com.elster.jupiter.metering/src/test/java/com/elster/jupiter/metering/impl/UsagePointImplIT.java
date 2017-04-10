@@ -8,6 +8,7 @@ import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViol
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.devtools.tests.rules.LocaleNeutral;
+import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
 import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.fsm.Stage;
 import com.elster.jupiter.fsm.State;
@@ -70,6 +71,8 @@ public class UsagePointImplIT {
     public ExpectedException expectedException = ExpectedException.none();
     @Rule
     public LocaleNeutral localeNeutral = Using.localeOfMalta();
+    @Rule
+    public TimeZoneNeutral timeZoneNeutral = Using.timeZoneOfMcMurdo();
 
     @BeforeClass
     public static void setUp() {
@@ -230,7 +233,7 @@ public class UsagePointImplIT {
     @Transactional
     public void testCannotLinkMetrologyConfigWhenAnotherMetrConfigIsAlreadyLinked() {
         expectedException.expect(UsagePointManagementException.class);
-        expectedException.expectMessage("Metrology configuration metrologyConfiguration2 could not be linked to usage point usagePoint at 01:00:00 Mon 01 Aug '16 because another metrology configuration is active at that point in time");
+        expectedException.expectMessage("Metrology configuration metrologyConfiguration2 could not be linked to usage point usagePoint at 10:00:00 Mon 01 Aug '16 because another metrology configuration is active at that point in time");
         MeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
         UsagePoint usagePoint =
