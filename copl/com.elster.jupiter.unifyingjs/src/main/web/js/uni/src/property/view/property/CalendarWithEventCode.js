@@ -53,7 +53,7 @@ Ext.define('Uni.property.view.property.CalendarWithEventCode', {
                     },
                     {
                         xtype: 'combobox',
-                        itemId: 'calendar' + me.key,
+                        itemId: 'calendar',
                         fieldLabel: Uni.I18n.translate('general.calendar', 'UNI', 'Calendar'),
                         queryMode: 'local',
                         name: 'calendar',
