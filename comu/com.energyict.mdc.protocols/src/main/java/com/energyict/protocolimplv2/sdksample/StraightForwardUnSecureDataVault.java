@@ -33,10 +33,4 @@ public class StraightForwardUnSecureDataVault implements DataVault {
             return new byte[0];
         }
     }
-
-    @Override
-    public void createVault(OutputStream stream) {
-
-    }
-
 }

@@ -28,6 +28,7 @@ public enum ConnectionTypePropertySpecName implements TranslationKey {
     OUTBOUND_IP_POST_DIAL_DELAY_MILLIS("postDialDelayMillis", "IP.outbound.postdial.property.delay", "Post dial delay (milli seconds)"),
     OUTBOUND_IP_POST_DIAL_COMMAND_ATTEMPTS("postDialCommandAttempts", "IP.outbound.postdial.property.commandAttempts", "Number of attempts"),
     OUTBOUND_IP_POST_DIAL_COMMAND("postDialCommand", "IP.outbound.postdial.property.command", "Commands"),
+    TLS_CLIENT_CERTIFICATE("tlsClientCertificate", "TLS.client.certificate", "TLS client certificate"),
 
     SERIAL_BAUD_RATE(SerialPortConfigurationPropertySpecNames.BAUDRATE, "SERIAL.property.baudRate", "Baud rate"),
     SERIAL_NR_OF_DATA_BITS(SerialPortConfigurationPropertySpecNames.NR_OF_DATA_BITS, "SERIAL.property.dataBits", "Data bits"),

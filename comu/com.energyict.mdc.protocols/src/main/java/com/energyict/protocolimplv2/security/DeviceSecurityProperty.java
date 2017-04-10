@@ -5,6 +5,7 @@
 package com.energyict.protocolimplv2.security;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.protocols.naming.SecurityPropertySpecName;
@@ -51,6 +52,22 @@ public enum DeviceSecurityProperty {
             return SecurityPropertySpecName.ENCRYPTION_KEY.getKey();
         }
     },
+    ENCRYPTION_KEY_WITH_KEY_ACCESSOR {
+        @Override
+        protected PropertySpec doGetPropertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            return propertySpecService
+                    .referenceSpec(KeyAccessorType.class)
+                    .named(SecurityPropertySpecName.ENCRYPTION_KEY_WITH_KEY_ACCESSOR)
+                    .fromThesaurus(thesaurus)
+                    .markRequired()
+                    .finish();
+        }
+
+        @Override
+        public String javaName() {
+            return SecurityPropertySpecName.ENCRYPTION_KEY_WITH_KEY_ACCESSOR.getKey();
+        }
+    },
     /**
      * A key used for authentication to a device
      */
@@ -68,6 +85,25 @@ public enum DeviceSecurityProperty {
         @Override
         public String javaName() {
             return SecurityPropertySpecName.AUTHENTICATION_KEY.getKey();
+        }
+    },
+    /**
+     * A key used for authentication to a device
+     */
+    AUTHENTICATION_KEY_WITH_KEY_ACCESSOR {
+        @Override
+        protected PropertySpec doGetPropertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            return propertySpecService
+                    .referenceSpec(KeyAccessorType.class)
+                    .named(SecurityPropertySpecName.AUTHENTICATION_KEY_WITH_KEY_ACCESSOR)
+                    .fromThesaurus(thesaurus)
+                    .markRequired()
+                    .finish();
+        }
+
+        @Override
+        public String javaName() {
+            return SecurityPropertySpecName.AUTHENTICATION_KEY_WITH_KEY_ACCESSOR.getKey();
         }
     },
     /**
