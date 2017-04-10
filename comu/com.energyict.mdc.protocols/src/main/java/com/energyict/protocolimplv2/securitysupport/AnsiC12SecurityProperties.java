@@ -8,6 +8,7 @@ import com.energyict.mdc.protocol.api.security.CommonBaseDeviceSecurityPropertie
 import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
 
 import javax.validation.constraints.Size;
+import java.math.BigDecimal;
 
 import static com.elster.jupiter.util.Checks.is;
 
@@ -51,6 +52,16 @@ public class AnsiC12SecurityProperties extends CommonBaseDeviceSecurityPropertie
             @Override
             public String databaseName() {
                 return "USERID";
+            }
+
+            //TODO add version since & to!!!!!
+            @Override
+            public void addTo(Table table) {
+                table
+                        .column(this.databaseName())
+                        .number()
+                        .map(this.javaName())
+                        .add();
             }
         },
         CALLED_AP_TITLE {
@@ -115,8 +126,7 @@ public class AnsiC12SecurityProperties extends CommonBaseDeviceSecurityPropertie
     private String password;
     @Size(max = Table.MAX_STRING_LENGTH)
     private String user;
-    @Size(max = Table.MAX_STRING_LENGTH)
-    private String userId;
+    private BigDecimal userId;
     @Size(max = Table.MAX_STRING_LENGTH)
     private String calledApTitle;
     private Boolean binaryPassword;
@@ -127,9 +137,9 @@ public class AnsiC12SecurityProperties extends CommonBaseDeviceSecurityPropertie
     protected void copyActualPropertiesFrom(CustomPropertySetValues propertyValues) {
         this.password = (String) getTypedPropertyValue(propertyValues, SecurityPropertySpecName.PASSWORD.toString());
         this.user = (String) getTypedPropertyValue(propertyValues, SecurityPropertySpecName.ANSI_C12_USER.toString());
-        this.userId = (String) getTypedPropertyValue(propertyValues, SecurityPropertySpecName.ANSI_C12_USER_ID.toString());
+        this.userId = (BigDecimal) getTypedPropertyValue(propertyValues, SecurityPropertySpecName.ANSI_C12_USER_ID.toString());
         this.calledApTitle = ((String) getTypedPropertyValue(propertyValues, SecurityPropertySpecName.ANSI_CALLED_AP_TITLE.toString()));
-        this.binaryPassword = (Boolean) getTypedPropertyValue(propertyValues, SecurityPropertySpecName.BINARY_PASSWORD.toString());
+        this.binaryPassword = ((Integer) getTypedPropertyValue(propertyValues, SecurityPropertySpecName.BINARY_PASSWORD.toString())) != 0;
         this.encryptionKey = (String) getTypedPropertyValue(propertyValues, SecurityPropertySpecName.ENCRYPTION_KEY.toString());
     }
 
