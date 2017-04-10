@@ -5,8 +5,7 @@
 package com.energyict.mdc.device.data.rest;
 
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.properties.rest.PropertyTypeInfo;
-import com.elster.jupiter.properties.rest.PropertyValueInfo;
+import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.energyict.mdc.common.TypedProperties;
@@ -21,10 +20,11 @@ import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import javax.inject.Inject;
 import javax.ws.rs.core.UriInfo;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import static com.energyict.mdc.pluggable.rest.MdcPropertyUtils.PrivilegePresence.WITH_PRIVILEGES;
-import static com.energyict.mdc.pluggable.rest.MdcPropertyUtils.ValueVisibility.HIDE_VALUES;
 import static com.energyict.mdc.pluggable.rest.MdcPropertyUtils.ValueVisibility.SHOW_VALUES;
 import static java.util.stream.Collectors.toList;
 
@@ -71,26 +71,24 @@ public class SecurityPropertySetInfoFactory {
         info.authenticationLevel = SecurityLevelInfo.from(securityPropertySet.getAuthenticationDeviceAccessLevel());
         info.encryptionLevel = SecurityLevelInfo.from(securityPropertySet.getEncryptionDeviceAccessLevel());
 
-        info.userHasViewPrivilege = securityPropertySet.currentUserIsAllowedToViewDeviceProperties();
-        info.userHasEditPrivilege = securityPropertySet.currentUserIsAllowedToEditDeviceProperties();
-
         List<SecurityProperty> securityProperties = device.getSecurityProperties(securityPropertySet);
         TypedProperties typedProperties = this.toTypedProperties(securityProperties);
 
         info.properties = new ArrayList<>();
-        MdcPropertyUtils.ValueVisibility valueVisibility = info.userHasViewPrivilege && info.userHasEditPrivilege? SHOW_VALUES: HIDE_VALUES;
-        mdcPropertyUtils.convertPropertySpecsToPropertyInfos(uriInfo, securityPropertySet.getPropertySpecs(), typedProperties, info.properties, valueVisibility, WITH_PRIVILEGES);
+        mdcPropertyUtils.convertPropertySpecsToPropertyInfos(uriInfo, securityPropertySet.getPropertySpecs(), typedProperties, info.properties, SHOW_VALUES, WITH_PRIVILEGES);
+
+        // Sort the properties by their (translated) name
+        Collections.sort(info.properties, new Comparator<PropertyInfo>() {
+            @Override
+            public int compare(PropertyInfo o1, PropertyInfo o2) {
+                return o1.name.compareToIgnoreCase(o2.name);
+            }
+        });
 
         info.status = new IdWithNameInfo();
         CompletionState status = getStatus(device, securityPropertySet);
         info.status.id = status;
         info.status.name = status.getTranslation(this.thesaurus);
-        if (!info.userHasViewPrivilege) {
-            info.properties.stream().forEach(p -> p.propertyValueInfo = new PropertyValueInfo<>(p.propertyValueInfo.propertyHasValue));
-            if (!info.userHasEditPrivilege) {
-                info.properties.stream().forEach(p -> p.propertyTypeInfo = new PropertyTypeInfo());
-            }
-        }
         info.version = securityPropertySet.getVersion();
         info.parent = new VersionInfo<>(device.getName(), device.getVersion());
         return info;

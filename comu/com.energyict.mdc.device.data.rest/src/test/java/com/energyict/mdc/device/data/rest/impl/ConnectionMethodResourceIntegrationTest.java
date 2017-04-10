@@ -11,6 +11,7 @@ import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.devtools.rest.ObjectMapperProvider;
 import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.properties.rest.PropertyTypeInfo;
 import com.elster.jupiter.properties.rest.PropertyValueInfo;
@@ -156,6 +157,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
     private static ServiceCallService serviceCallService;
     private static BpmService bpmService;
     private static ThreadPrincipalService threadPrincipalService;
+    private static PkiService pkiService;
 
     @Rule
     public TestRule transactionalRule = new TransactionalRule(inMemoryPersistence.getTransactionService());
@@ -179,6 +181,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         bpmService = mock(BpmService.class);
         threadPrincipalService = mock(ThreadPrincipalService.class);
         userService = mock(UserService.class);
+        pkiService = mock(PkiService.class);
 
         inMemoryPersistence = new InMemoryIntegrationPersistence();
         initializeClock();
@@ -379,6 +382,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         application.setPropertyValueInfoService(inMemoryPersistence.getPropertyValueInfoService());
         application.setMeteringTranslationService(inMemoryPersistence.getMeteringTranslationService());
         application.setDeviceLifeCycleConfigurationService(inMemoryPersistence.getDeviceLifeCycleConfigurationService());
+        application.setPkiService(pkiService);
         return application;
     }
 

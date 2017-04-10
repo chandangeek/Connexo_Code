@@ -15,6 +15,7 @@ import com.energyict.mdc.device.data.rest.DeviceStagesRestricted;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
+import com.energyict.mdc.pluggable.rest.PropertyDefaultValuesProvider;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 
 import javax.annotation.security.RolesAllowed;
@@ -61,7 +62,9 @@ public class DeviceProtocolPropertyResource {
         TypedProperties deviceProperties = device.getDeviceProtocolProperties();
         DeviceProtocolInfo info = new DeviceProtocolInfo();
         device.getDeviceType().getDeviceProtocolPluggableClass().ifPresent(deviceProtocolPluggableClass -> {
-            List<PropertyInfo> propertyInfos = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(deviceProtocolPluggableClass.getDeviceProtocol().getPropertySpecs(), deviceProperties);
+            PropertyDefaultValuesProvider possibleValue = (a,b)->device.getDeviceType().getKeyAccessorTypes();
+
+            List<PropertyInfo> propertyInfos = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(deviceProtocolPluggableClass.getDeviceProtocol().getPropertySpecs(), deviceProperties, possibleValue);
             info.id = deviceProtocolPluggableClass.getId();
             info.name = deviceProtocolPluggableClass.getName();
             info.properties = propertyInfos;

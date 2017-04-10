@@ -13,9 +13,8 @@ import com.elster.jupiter.properties.rest.PropertyTypeInfo;
 import com.elster.jupiter.properties.rest.PropertyValueInfo;
 import com.elster.jupiter.properties.rest.SimplePropertyType;
 import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceSecurityUserAction;
 import com.energyict.mdc.device.config.SecurityPropertySet;
-import com.energyict.mdc.device.configuration.rest.SecurityPropertySetPrivilegeTranslationKeys;
+import com.energyict.mdc.device.configuration.rest.KeyFunctionTypePrivilegeTranslationKeys;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
@@ -26,7 +25,6 @@ import com.jayway.jsonpath.JsonModel;
 import javax.ws.rs.core.Response;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -53,11 +51,11 @@ public class SecurityPropertySetResourceTest extends DeviceDataRestApplicationJe
     @Override
     protected void setupTranslations() {
         super.setupTranslations();
-        Stream.of(SecurityPropertySetPrivilegeTranslationKeys.values()).forEach(this::mockTranslation);
+        Stream.of(KeyFunctionTypePrivilegeTranslationKeys.values()).forEach(this::mockTranslation);
         Stream.of(DefaultTranslationKey.values()).forEach(this::mockTranslation);
     }
 
-    private void mockTranslation(SecurityPropertySetPrivilegeTranslationKeys translationKey) {
+    private void mockTranslation(KeyFunctionTypePrivilegeTranslationKeys translationKey) {
         NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
         when(messageFormat.format(anyVararg())).thenReturn(translationKey.getDefaultFormat());
         doReturn(messageFormat).when(thesaurus).getFormat(translationKey);
@@ -300,9 +298,7 @@ public class SecurityPropertySetResourceTest extends DeviceDataRestApplicationJe
         SecurityPropertySet securityPropertySet = mock(SecurityPropertySet.class);
         when(securityPropertySet.getId()).thenReturn(id);
         when(securityPropertySet.getName()).thenReturn(name);
-        when(securityPropertySet.getUserActions()).thenReturn(EnumSet.of(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES1, DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1));
-        when(securityPropertySet.currentUserIsAllowedToViewDeviceProperties()).thenReturn(canView.bool);
-        when(securityPropertySet.currentUserIsAllowedToEditDeviceProperties()).thenReturn(canEdit.bool);
+//        when(securityPropertySet.getUserActions()).thenReturn(EnumSet.of(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES1, DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1));
         when(securityPropertySet.getAuthenticationDeviceAccessLevel()).thenReturn(authenticationDeviceAccessLevel);
         when(securityPropertySet.getEncryptionDeviceAccessLevel()).thenReturn(encryptionDeviceAccessLevel);
 

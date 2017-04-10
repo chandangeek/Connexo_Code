@@ -24,8 +24,6 @@ public class SecurityPropertySetInfo {
     public IdWithNameInfo status;
 
     public List<PropertyInfo> properties;
-    public boolean userHasViewPrivilege;
-    public boolean userHasEditPrivilege;
 
     public boolean saveAsIncomplete;
     public long version;

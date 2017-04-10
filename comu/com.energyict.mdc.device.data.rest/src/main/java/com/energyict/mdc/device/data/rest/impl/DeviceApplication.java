@@ -31,6 +31,7 @@ import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
+import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
@@ -61,6 +62,7 @@ import com.energyict.mdc.device.data.kpi.rest.KpiResource;
 import com.energyict.mdc.device.data.rest.DeviceMessageStatusTranslationKeys;
 import com.energyict.mdc.device.data.rest.DeviceStateAccessFeature;
 import com.energyict.mdc.device.data.rest.ReadingQualitiesTranslationKeys;
+import com.energyict.mdc.device.data.rest.SecurityAccessorInfoFactory;
 import com.energyict.mdc.device.data.rest.SecurityPropertySetInfoFactory;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskReportService;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
@@ -153,6 +155,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
     private volatile DeviceAlarmService deviceAlarmService;
     private volatile UserService userService;
+    private volatile PkiService pkiService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -175,6 +178,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
                 ChannelResource.class,
                 DeviceGroupResource.class,
                 SecurityPropertySetResource.class,
+                SecurityAccessorResource.class,
                 ConnectionMethodResource.class,
                 ComSessionResource.class,
                 DeviceMessageResource.class,
@@ -203,6 +207,11 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     @Reference
     public void setUserService(UserService userService){
         this.userService = userService;
+    }
+
+    @Reference
+    public void setPkiService(PkiService pkiService){
+        this.pkiService = pkiService;
     }
 
     @Reference
@@ -543,6 +552,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
             bind(clock).to(Clock.class);
             bind(DeviceComTaskInfoFactory.class).to(DeviceComTaskInfoFactory.class);
             bind(SecurityPropertySetInfoFactory.class).to(SecurityPropertySetInfoFactory.class);
+            bind(SecurityAccessorInfoFactory.class).to(SecurityAccessorInfoFactory.class);
             bind(ChannelResource.class).to(ChannelResource.class);
             bind(ValidationInfoHelper.class).to(ValidationInfoHelper.class);
             bind(ComSessionInfoFactory.class).to(ComSessionInfoFactory.class);
@@ -593,12 +603,14 @@ public class DeviceApplication extends Application implements TranslationKeyProv
             bind(calendarService).to(CalendarService.class);
             bind(deviceAlarmService).to(DeviceAlarmService.class);
             bind(userService).to(UserService.class);
+            bind(pkiService).to(PkiService.class);
             bind(propertyValueInfoService).to(PropertyValueInfoService.class);
             bind(TimeOfUseInfoFactory.class).to(TimeOfUseInfoFactory.class);
             bind(MeterActivationInfoFactory.class).to(MeterActivationInfoFactory.class);
             bind(deviceLifeCycleConfigurationService).to(DeviceLifeCycleConfigurationService.class);
             bind(ReadingTypeInfoFactory.class).to(ReadingTypeInfoFactory.class);
             bind(ChannelInfoFactory.class).to(ChannelInfoFactory.class);
+            bind(KeyAccessorPlaceHolder.class).to(KeyAccessorPlaceHolder.class);
         }
     }
 }
