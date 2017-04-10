@@ -40,7 +40,7 @@ Ext.define('Uni.property.view.property.CalendarWithEventCode', {
                         listeners: {
                             change: function(fld, newValue){
                                 me.getCalendarCombo().setDisabled(!newValue);
-                                me.getEventCodeCombo().setDisabled(!me.getCalendarCombo().getValue());
+                                me.getEventCodeCombo().setDisabled(!(newValue && me.getCalendarCombo().getValue()));
                                 if(newValue && !me.getCalendarCombo().getValue()){
                                     me.calendarsStore.load();
                                 }
