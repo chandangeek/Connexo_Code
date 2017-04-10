@@ -5,26 +5,28 @@
 
 Ext.define('Uni.property.view.property.CalendarWithEventCode', {
     extend: 'Uni.property.view.property.Base',
-    listeners: {
-        afterrender: function () {
-            this.calendarsStore = Ext.create('Ext.data.Store', {
-                model: 'Uni.model.timeofuse.Calendar',
-                proxy: {
-                    url: '/api/cal/calendars',
-                    type: 'rest',
-                    reader: {
-                        type: 'json',
-                        root: 'calendars'
-                    }
-                }
-            });
-        }
-    },
+    // listeners: {
+    //     afterrender: function () {
+    //
+    //     }
+    // },
 
 //TODO: displayCmp
     getEditCmp: function () {
         var me = this;
         me.layout = 'vbox';
+
+        me.calendarsStore = Ext.create('Ext.data.Store', {
+            model: 'Uni.model.timeofuse.Calendar',
+            proxy: {
+                url: '/api/cal/calendars',
+                type: 'rest',
+                reader: {
+                    type: 'json',
+                    root: 'calendars'
+                }
+            }
+        });
 
         return [
             {
@@ -106,6 +108,19 @@ Ext.define('Uni.property.view.property.CalendarWithEventCode', {
 
     getDisplayCmp: function () {
         var me = this;
+
+        me.calendarsStore = Ext.create('Ext.data.Store', {
+            model: 'Uni.model.timeofuse.Calendar',
+            proxy: {
+                url: '/api/cal/calendars',
+                type: 'rest',
+                reader: {
+                    type: 'json',
+                    root: 'calendars'
+                }
+            }
+        });
+        
         return [
             {
                 items: [
