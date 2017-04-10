@@ -11,6 +11,8 @@ import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.common.rest.FieldValidationException;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.engine.config.security.Privileges;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.api.ConnectionType;
@@ -37,6 +39,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Path("/devicecommunicationprotocols")
@@ -45,12 +48,16 @@ public class DeviceCommunicationProtocolsResource {
     private final ProtocolPluggableService protocolPluggableService;
     private final MdcPropertyUtils mdcPropertyUtils;
     private final ResourceHelper resourceHelper;
+    private final DeviceConfigurationService deviceConfigurationService;
 
     @Inject
-    public DeviceCommunicationProtocolsResource(ProtocolPluggableService protocolPluggableService, MdcPropertyUtils mdcPropertyUtils, ResourceHelper resourceHelper) {
+    public DeviceCommunicationProtocolsResource(ProtocolPluggableService protocolPluggableService,
+                                                MdcPropertyUtils mdcPropertyUtils, ResourceHelper resourceHelper,
+                                                DeviceConfigurationService deviceConfigurationService) {
         this.protocolPluggableService = protocolPluggableService;
         this.mdcPropertyUtils = mdcPropertyUtils;
         this.resourceHelper = resourceHelper;
+        this.deviceConfigurationService = deviceConfigurationService;
     }
 
     @GET @Transactional
@@ -82,7 +89,7 @@ public class DeviceCommunicationProtocolsResource {
     @RolesAllowed({Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION, Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_TYPE, com.energyict.mdc.device.config.security.Privileges.Constants.ADMINISTRATE_DEVICE_TYPE})
     public List<ConnectionTypeInfo> getAllConnectionTypes(@Context UriInfo uriInfo, @BeanParam JsonQueryFilter queryFilter) {
         return this.protocolPluggableService.findAllConnectionTypePluggableClasses().stream()
-                .map(p -> ConnectionTypeInfo.from(p, uriInfo, mdcPropertyUtils))
+                .map(p -> ConnectionTypeInfo.from(p, uriInfo, mdcPropertyUtils, Optional.empty()))
                 .collect(Collectors.toList());
     }
 
@@ -96,11 +103,19 @@ public class DeviceCommunicationProtocolsResource {
         List<ConnectionTypePluggableClass> allConnectionTypePluggableClassesToCheck = this.protocolPluggableService.findAllConnectionTypePluggableClasses();
         List<ConnectionTypeInfo> infos = new ArrayList<>();
         ConnectionType.Direction direction = ConnectionType.Direction.fromString(queryFilter.getString("direction"));
+        Optional<DeviceConfiguration> deviceConfig = Optional.empty();
+        if (queryFilter.getLong("deviceConfigId")!=null) {
+            try {
+                deviceConfig = deviceConfigurationService.findDeviceConfiguration(queryFilter.getLong("deviceConfigId"));
+            } catch (NumberFormatException e) {
+                deviceConfig = Optional.empty();
+            }
+        }
         for (ConnectionType supportedConnectionType : supportedConnectionTypes) {
             if (ConnectionType.Direction.NULL.equals(direction) || supportedConnectionType.getDirection().equals(direction)) {
                 for (ConnectionTypePluggableClass registeredConnectionTypePluggableClass : allConnectionTypePluggableClassesToCheck) {
                     if (registeredConnectionTypePluggableClass.getJavaClassName().equals(supportedConnectionType.getClass().getCanonicalName())) {
-                        infos.add(ConnectionTypeInfo.from(registeredConnectionTypePluggableClass, uriInfo, mdcPropertyUtils));
+                        infos.add(ConnectionTypeInfo.from(registeredConnectionTypePluggableClass, uriInfo, mdcPropertyUtils, deviceConfig));
                     }
                 }
             }
