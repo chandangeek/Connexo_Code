@@ -82,4 +82,11 @@ public interface KeyAccessor<T extends SecurityValueWrapper> {
      * @return PropertySpecs as reported by the wrapper.
      */
     List<PropertySpec> getPropertySpecs();
+
+    /**
+     * Deletes this KeyAccessor and actual and temp value, if present.
+     * If deletion of actual and temp values fail (veto exception), they will be left as they are, but the KeyAccessor
+     * will be deleted regardless
+     */
+    void delete();
 }

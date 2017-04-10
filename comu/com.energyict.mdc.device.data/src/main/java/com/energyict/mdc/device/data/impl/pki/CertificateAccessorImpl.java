@@ -116,6 +116,11 @@ public class CertificateAccessorImpl extends AbstractKeyAccessorImpl<Certificate
     }
 
     @Override
+    public void delete() {
+        dataModel.remove(this);
+    }
+
+    @Override
     public void save() {
         Save.UPDATE.save(dataModel, this);
     }

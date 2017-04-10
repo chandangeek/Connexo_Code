@@ -99,6 +99,17 @@ public class SymmetricKeyAccessorImpl extends AbstractKeyAccessorImpl<SymmetricK
     }
 
     @Override
+    public void delete() {
+        if (actualSymmetricKeyWrapperReference!=null && actualSymmetricKeyWrapperReference.isPresent()) {
+            ((SymmetricKeyWrapper)actualSymmetricKeyWrapperReference.get()).delete();
+        }
+        if (tempSymmetricKeyWrapperReference!=null && tempSymmetricKeyWrapperReference.isPresent()) {
+            ((SymmetricKeyWrapper)tempSymmetricKeyWrapperReference.get()).delete();
+        }
+        dataModel.remove(this);
+    }
+
+    @Override
     public void save() {
         Save.UPDATE.save(dataModel, this);
     }
