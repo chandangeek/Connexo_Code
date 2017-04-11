@@ -90,6 +90,10 @@ public class DataMapperReader<T> implements TupleParser<T> {
         return findJournal(getPrimaryKeyFragments(keyValue), new Order[]{Order.descending(TableImpl.JOURNALTIMECOLUMNNAME)}, LockMode.NONE);
     }
 
+    List<JournalEntry<T>> findJournals(List<Comparison> comparisons) throws SQLException {
+        return findJournalComparison(comparisons, new Order[]{Order.descending(TableImpl.JOURNALTIMECOLUMNNAME)}, LockMode.NONE);
+    }
+
     List<JournalEntry<T>> findJournals(Instant instant, Map<String, Object> valueMap) throws SQLException {
         List<SqlFragment> fragments = new ArrayList<>();
         getMapperType().addSqlFragment(fragments, dataMapper.getApi(), getAlias());
@@ -211,6 +215,44 @@ public class DataMapperReader<T> implements TupleParser<T> {
     private List<T> find(List<SqlFragment> fragments, Order[] orders, LockMode lockMode, MACEnforcementMode macEnforcementMode) throws SQLException {
         SqlBuilder builder = selectSql(fragments, orders, lockMode);
         return doFind(fragments, builder, macEnforcementMode);
+    }
+
+    private List<JournalEntry<T>> findJournalComparison(List<Comparison> comparisons, Order[] orders, LockMode lockMode) throws SQLException {
+
+        List<SqlFragment> fragments = new ArrayList<>();
+        comparisons.stream().forEach(comparison -> {
+            fragments.add(new SqlFragment() {
+                @Override
+                public String getText() {
+                    if (comparison.getOperator() == Operator.IN) {
+                        String values = new String(new char[comparison.getValues().length]).replace("\0", "?,");
+                        return comparison.getFieldName() + " " + comparison.getOperator().getSymbol() + " (" + values.substring(0, values.length() - 1) + ")";
+                    } else {
+                        return comparison.getFieldName() + " " + comparison.getOperator().getSymbol() + " " + " ? ";
+                    }
+                }
+
+                @Override
+                public int bind(PreparedStatement statement, int index) throws SQLException {
+                    if (comparison.getOperator() == Operator.IN) {
+                        for (int i = 0; i < comparison.getValues().length; i++) {
+                            Object value = comparison.getValues()[i];
+                            if (value instanceof String) {
+                                statement.setString(index++, comparison.getValues()[i].toString()); // only string values supported
+                            } else {
+                                statement.setLong(index++, Long.parseLong(comparison.getValues()[i].toString())); // only string values supported
+
+                            }
+                        }
+                    } else {
+                        statement.setLong(index++, Long.parseLong(comparison.getValues()[0].toString()));
+                    }
+                    return index;
+                }
+            });
+
+        });
+        return findJournal(fragments, orders, lockMode);
     }
 
     private List<JournalEntry<T>> findJournal(List<SqlFragment> fragments, Order[] orders, LockMode lockMode) throws SQLException {
