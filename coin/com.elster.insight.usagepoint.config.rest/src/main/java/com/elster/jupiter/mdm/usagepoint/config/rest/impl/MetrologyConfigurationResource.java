@@ -7,6 +7,7 @@ package com.elster.jupiter.mdm.usagepoint.config.rest.impl;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
@@ -53,8 +54,10 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -122,12 +125,36 @@ public class MetrologyConfigurationResource {
     }
 
     @GET
+    @Path("/{id}/usagepoint/{upName}")
+    @RolesAllowed({Privileges.Constants.VIEW_METROLOGY_CONFIGURATION, Privileges.Constants.ADMINISTER_METROLOGY_CONFIGURATION})
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public PagedInfoList getVersionedCustomPropertySets(@PathParam("id") long id, @PathParam("upName") String upName, @BeanParam JsonQueryParameters queryParameters) {
+        UsagePointMetrologyConfiguration metrologyConfiguration = resourceHelper.getMetrologyConfigOrThrowException(id);
+        List <RegisteredCustomPropertySet> mCCustomAttributeSet=metrologyConfiguration.getCustomPropertySets()
+                .stream()
+                .filter(registeredCustomPropertySet -> registeredCustomPropertySet.getCustomPropertySet().isVersioned())
+                .collect(Collectors.toList());
+        List<CustomPropertySetInfo> infos = new ArrayList<>();
+        for (RegisteredCustomPropertySet rcps:mCCustomAttributeSet){
+            CustomPropertySetValues values = customPropertySetService.getUniqueValuesFor(rcps.getCustomPropertySet(), meteringService.findUsagePointByName(upName).get(), Instant.now());
+            if (!values.isEmpty()){
+                infos.add(customPropertySetInfoFactory.getFullInfo(rcps,values));
+            }
+        }
+        return PagedInfoList.fromCompleteList("customPropertySets",infos,queryParameters);
+    }
+
+    @GET
     @Path("/{id}/deliverables")
     @RolesAllowed({Privileges.Constants.VIEW_METROLOGY_CONFIGURATION, Privileges.Constants.ADMINISTER_METROLOGY_CONFIGURATION})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public PagedInfoList getMetrologyConfigurationDeliverables(@PathParam("id") long id, @BeanParam JsonQueryParameters queryParameters) {
         UsagePointMetrologyConfiguration metrologyConfiguration = resourceHelper.getMetrologyConfigOrThrowException(id);
-        List<ReadingTypeDeliverablesInfo> deliverables =  metrologyConfiguration.getDeliverables().stream().map(readingTypeDeliverableFactory::asInfo).collect(Collectors.toList());
+        List<ReadingTypeDeliverablesInfo> deliverables =  metrologyConfiguration.getContracts().stream()
+                .map(MetrologyContract::getDeliverables)
+                .flatMap(Collection::stream)
+                .map(readingTypeDeliverableFactory::asInfo)
+                .collect(Collectors.toList());
         return PagedInfoList.fromCompleteList("deliverables", deliverables, queryParameters);
     }
 
@@ -276,11 +303,12 @@ public class MetrologyConfigurationResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public MetrologyContractInfo getLinkableValidationRuleSetsForMetrologyContract(@PathParam("contractId") long contractId) {
         MetrologyContract metrologyContract = resourceHelper.findContractByIdOrThrowException(contractId);
+        List<ValidationRuleSet> linkedValidationRuleSets = usagePointConfigurationService.getValidationRuleSets(metrologyContract);
         List<ValidationRuleSetInfo> linkableValidationRuleSets = validationService.getValidationRuleSets()
                 .stream()
                 .filter(validationRuleSet -> validationRuleSet.getQualityCodeSystem().equals(QualityCodeSystem.MDM))
-                .filter(validationRuleSet -> usagePointConfigurationService.isLinkableValidationRuleSet(metrologyContract, validationRuleSet,
-                        usagePointConfigurationService.getValidationRuleSets(metrologyContract)))
+                .filter(validationRuleSet -> !usagePointConfigurationService.getMatchingDeliverablesOnValidationRuleSet(metrologyContract, validationRuleSet).isEmpty())
+                .filter(validationRuleSet -> !linkedValidationRuleSets.contains(validationRuleSet))
                 .map(ValidationRuleSetInfo::new)
                 .collect(Collectors.toList());
         List<EstimationRuleSetInfo> linkableEstimationRuleSets = estimationService.getEstimationRuleSets()

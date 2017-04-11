@@ -9,7 +9,6 @@ import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.search.rest.SearchCriteriaVisualizationInfo;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -33,6 +32,7 @@ public class MetrologyConfigurationInfo {
     public List<SearchCriteriaVisualizationInfo> usagePointRequirements;
     public List<CustomPropertySetInfo> customPropertySets;
     public long version;
+    public Boolean haveSameCASesAsUP;
 
     public void updateCustomPropertySets(MetrologyConfiguration metrologyConfiguration, Function<String, RegisteredCustomPropertySet> rcpsProvider) {
         if (this.customPropertySets != null) {

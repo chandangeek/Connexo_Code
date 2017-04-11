@@ -12,10 +12,12 @@ import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
 
 import javax.inject.Inject;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
+import java.util.List;
 import java.util.Optional;
 
 public class ResourceHelper {
@@ -43,7 +45,7 @@ public class ResourceHelper {
     private Optional<UsagePointMetrologyConfiguration> getLockedMetrologyConfiguration(long id, long version) {
         return metrologyConfigurationService
                 .findAndLockMetrologyConfiguration(id, version)
-                .filter(metrologyConfiguration ->  metrologyConfiguration instanceof UsagePointMetrologyConfiguration)
+                .filter(metrologyConfiguration -> metrologyConfiguration instanceof UsagePointMetrologyConfiguration)
                 .map(UsagePointMetrologyConfiguration.class::cast);
     }
 
@@ -76,15 +78,32 @@ public class ResourceHelper {
     }
 
     MetrologyContract findAndLockContractOnMetrologyConfiguration(MetrologyContractInfo metrologyContractInfo) {
-        return metrologyConfigurationService.findAndLockMetrologyContract(metrologyContractInfo.id, metrologyContractInfo.version)
-                .orElseThrow(conflictFactory.contextDependentConflictOn(metrologyContractInfo.name)
-                .withActualVersion(() -> getCurrentMetrologyContractVersion(metrologyContractInfo.id))
-                .supplier());
+        return findAndLockContractOnMetrologyConfiguration(metrologyContractInfo.id, metrologyContractInfo.version, metrologyContractInfo.name);
+    }
+
+    MetrologyContract findAndLockContractOnMetrologyConfiguration(long id, long version, String name) {
+        return metrologyConfigurationService.findAndLockMetrologyContract(id, version)
+                .orElseThrow(conflictFactory.contextDependentConflictOn(name)
+                        .withActualVersion(() -> getCurrentMetrologyContractVersion(id))
+                        .supplier());
     }
 
     MetrologyContract findContractByIdOrThrowException(long contractId) {
         return metrologyConfigurationService.findMetrologyContract(contractId)
                 .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+    }
+
+    LinkableMetrologyContractInfo getLinkableMetrologyContractInfo(MetrologyContract contract, List<OutputMatchesInfo> matchedOutputs) {
+        LinkableMetrologyContractInfo info = new LinkableMetrologyContractInfo();
+        info.setMetrologyConfigurationInfo(new IdWithNameInfo(contract.getMetrologyConfiguration().getId(),
+                contract.getMetrologyConfiguration().getName()));
+        info.setActive(contract.getMetrologyConfiguration().isActive());
+        info.setOutputs(matchedOutputs);
+        info.setVersion(contract.getVersion());
+        info.setId(contract.getId());
+        info.setName(contract.getMetrologyPurpose().getName());
+
+        return info;
     }
 
     private Long getCurrentMetrologyContractVersion(long id) {

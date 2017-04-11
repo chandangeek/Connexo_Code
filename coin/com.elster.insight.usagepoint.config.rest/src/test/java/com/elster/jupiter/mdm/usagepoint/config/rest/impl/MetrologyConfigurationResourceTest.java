@@ -6,8 +6,11 @@ package com.elster.jupiter.mdm.usagepoint.config.rest.impl;
 
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
+import com.elster.jupiter.cps.rest.CustomPropertySetAttributeInfo;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
+import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
 import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.metering.ReadingType;
@@ -29,31 +32,36 @@ import com.elster.jupiter.metering.config.UsagePointRequirement;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecPossibleValues;
 import com.elster.jupiter.properties.ValueFactory;
+import com.elster.jupiter.properties.rest.PropertyInfo;
+import com.elster.jupiter.properties.rest.PropertyTypeInfo;
+import com.elster.jupiter.properties.rest.PropertyValueInfo;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.search.SearchablePropertyOperator;
 import com.elster.jupiter.search.SearchablePropertyValue;
+import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationRuleSetVersion;
 import com.elster.jupiter.validation.ValidationVersionStatus;
-
 import com.jayway.jsonpath.JsonModel;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
 
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
+import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -78,6 +86,8 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
     private MetrologyContract metrologyContract;
     @Mock
     private MetrologyContractInfo metrologyContractInfo;
+    @Mock
+    private ReadingTypeDeliverable readingTypeDeliverable;
 
     @Before
     public void setUpStubs() {
@@ -115,13 +125,13 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
         when(metrologyConfigurationService.findAndLockMetrologyContract(metrologyContractInfo.id, metrologyContractInfo.version)).thenReturn(Optional.of(metrologyContract));
         when(metrologyConfigurationService.findMetrologyContract(1L)).thenReturn(Optional.of(metrologyContract));
         when(usagePointConfigurationService.getValidationRuleSets(metrologyContract)).thenReturn(Collections.singletonList(vrs));
+        when(usagePointConfigurationService.getMatchingDeliverablesOnValidationRuleSet(metrologyContract, vrs2)).thenReturn(Collections.singletonList(readingTypeDeliverable));
         when(vrs2.getName()).thenReturn("LinkableValidationRuleSet");
         when(vrs2.getId()).thenReturn(31L);
         when(vrs2.getQualityCodeSystem()).thenReturn(QualityCodeSystem.MDM);
         doReturn(Collections.singletonList(validationRuleSetVersion2)).when(vrs2).getRuleSetVersions();
         doReturn(Optional.of(vrs3)).when(validationService).getValidationRuleSet(anyLong());
         when(validationService.getValidationRuleSets()).thenReturn(Arrays.asList(vrs, vrs2));
-        when(usagePointConfigurationService.isLinkableValidationRuleSet(metrologyContract, vrs2, Collections.singletonList(vrs))).thenReturn(true);
         doReturn(Optional.of(ers)).when(estimationService).getEstimationRuleSet(51L);
         doReturn(Optional.of(ers2)).when(estimationService).getEstimationRuleSet(52L);
         doReturn(Optional.of(ers3)).when(estimationService).getEstimationRuleSet(53L);
@@ -232,6 +242,67 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
     }
 
     @Test
+    public void getVersionedCustomPropertySets() {
+        UsagePointMetrologyConfiguration metrologyConfiguration = mockMetrologyConfiguration(13L, "Residential", ServiceKind.GAS, MetrologyConfigurationStatus.INACTIVE);
+        UsagePoint usagePoint = mock(UsagePoint.class);
+        RegisteredCustomPropertySet rcps = mock(RegisteredCustomPropertySet.class);
+        CustomPropertySet customPropertySet = mock(CustomPropertySet.class);
+        CustomPropertySetAttributeInfo attributeInfo = new CustomPropertySetAttributeInfo();
+        PropertyValueInfo valueInfo = new PropertyValueInfo();
+        PropertySpec spec = mock(PropertySpec.class);
+        PropertyInfo propertyInfo = mock(PropertyInfo.class);
+        PropertyTypeInfo typeInfo = mock(PropertyTypeInfo.class);
+        List<PropertySpec> specList = Collections.singletonList(spec);
+        CustomPropertySetValues values = CustomPropertySetValues.empty();
+        ValueFactory valueFactory = mock(ValueFactory.class);
+        CustomPropertySetInfo info = new CustomPropertySetInfo();
+
+        propertyInfo.key="antennaPower";
+        propertyInfo.name="Antenna power";
+        propertyInfo.propertyValueInfo = valueInfo;
+        propertyInfo.propertyTypeInfo = typeInfo;
+        values.setProperty("Antenna power",Quantity.create(BigDecimal.valueOf(55),-3,"Wh"));
+        valueInfo.value = Quantity.create(BigDecimal.valueOf(55),-3,"Wh");
+        info.isVersioned =true;
+        info.name="Antenna";
+        info.id=36;
+        info.properties = Collections.singletonList(attributeInfo);
+        attributeInfo.name="Antenna power";
+        attributeInfo.key="antennaPower";
+        attributeInfo.propertyValueInfo = valueInfo;
+
+        when(propertyInfo.getPropertyValueInfo()).thenReturn(valueInfo);
+        when(clock.instant()).thenReturn(Instant.now());
+        when(metrologyConfigurationService.findMetrologyConfiguration(13L)).thenReturn(Optional.of(metrologyConfiguration));
+        when(meteringService.findUsagePointByName("someName")).thenReturn(Optional.of(usagePoint));
+        when(metrologyConfiguration.getCustomPropertySets()).thenReturn(Collections.singletonList(rcps));
+        when(rcps.getCustomPropertySet()).thenReturn(customPropertySet);
+        when(this.customPropertySetService.getUniqueValuesFor(any(CustomPropertySet.class), any(UsagePoint.class), any(Instant.class))).thenReturn(values);
+        when(customPropertySet.getName()).thenReturn("Antenna");
+        when(customPropertySet.getId()).thenReturn("13");
+        when(customPropertySet.isVersioned()).thenReturn(true);
+        when(customPropertySet.getPropertySpecs()).thenReturn(specList);
+        when(customPropertySet.isVersioned()).thenReturn(true);
+        when(customPropertySet.getDomainClass()).thenReturn(CustomPropertySetInfoFactory.class);
+        when(this.propertyValueInfoService.getPropertyInfo(any(PropertySpec.class),any(Function.class))).thenReturn(propertyInfo);
+        when(spec.getValueFactory()).thenReturn(valueFactory);
+        when(valueFactory.getValueType()).thenReturn(Integer.class);
+
+        //Business method
+        String json = target("metrologyconfigurations/13/usagepoint/someName").request().get(String.class);
+
+        //Asserts
+        JsonModel jsonModel = JsonModel.create(json);
+        assertThat(jsonModel.<String>get("$.customPropertySets[0].name")).isEqualTo("Antenna");
+        assertThat(jsonModel.<Boolean>get("$.customPropertySets[0].isVersioned")).isEqualTo(true);
+        assertThat(jsonModel.<String>get("$.customPropertySets[0].properties[0].propertyValueInfo.value.unit")).isEqualTo("Wh");
+        assertThat(jsonModel.<Integer>get("$.customPropertySets[0].properties[0].propertyValueInfo.value.multiplier")).isEqualTo(-3);
+        assertThat(jsonModel.<Integer>get("$.customPropertySets[0].properties[0].propertyValueInfo.value.value")).isEqualTo(55);
+        assertThat(jsonModel.<String>get("$.customPropertySets[0].properties[0].key")).isEqualTo("antennaPower");
+        assertThat(jsonModel.<String>get("$.customPropertySets[0].properties[0].name")).isEqualTo("Antenna power");
+    }
+
+    @Test
     public void testUpdateMetrologyConfiguration() {
         MetrologyConfigurationInfo metrologyConfigurationInfo = new MetrologyConfigurationInfo();
         metrologyConfigurationInfo.name = "newName";
@@ -254,6 +325,7 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
 
     @Test
     public void testLinkableValidationRuleSetsOfMetrologyContract() {
+        when(usagePointConfigurationService.getValidationRuleSets(metrologyContract)).thenReturn(Collections.emptyList());
         String json = target("/metrologyconfigurations/1/contracts/1").request().header("X-CONNEXO-APPLICATION-NAME", "INS").get(String.class);
         JsonModel jsonModel = JsonModel.create(json);
         assertThat(jsonModel.<Integer>get("$.validationRuleSets[0].id")).isEqualTo(31);
