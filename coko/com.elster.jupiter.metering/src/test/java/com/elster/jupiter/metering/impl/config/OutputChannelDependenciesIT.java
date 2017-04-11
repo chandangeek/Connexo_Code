@@ -6,6 +6,8 @@ package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
+import com.elster.jupiter.fsm.Stage;
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.Meter;
@@ -36,7 +38,9 @@ import com.google.common.collect.Range;
 
 import java.time.Instant;
 import java.util.Collections;
+import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 import org.assertj.core.data.MapEntry;
 import org.junit.AfterClass;
@@ -44,6 +48,7 @@ import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -95,30 +100,23 @@ public class OutputChannelDependenciesIT {
                     .orElseThrow(() -> new NoSuchElementException("Default meter role is not found"));
             aPlusRequirement = addReadingTypeRequirement(metrologyConfiguration, DefaultReadingTypeTemplate.A_PLUS, defaultMeterRole);
             aMinusRequirement = addReadingTypeRequirement(metrologyConfiguration, DefaultReadingTypeTemplate.A_MINUS, defaultMeterRole);
-            ReadingTypeDeliverableBuilder builder = metrologyConfiguration.newReadingTypeDeliverable("15 min A+", min15Plus, Formula.Mode.AUTO);
+            ReadingTypeDeliverableBuilder builder = informationContract.newReadingTypeDeliverable("15 min A+", min15Plus, Formula.Mode.AUTO);
             min15PlusDeliverable = builder.build(builder.requirement(aPlusRequirement));
-            informationContract.addDeliverable(min15PlusDeliverable);
-            builder = metrologyConfiguration.newReadingTypeDeliverable("Daily A+", dailyPlus, Formula.Mode.AUTO);
+            builder = informationContract.newReadingTypeDeliverable("Daily A+", dailyPlus, Formula.Mode.AUTO);
             dailyPlusDeliverable = builder.build(builder.minus(builder.deliverable(min15PlusDeliverable), builder.constant(0)));
-            informationContract.addDeliverable(dailyPlusDeliverable);
-            builder = metrologyConfiguration.newReadingTypeDeliverable("Monthly A+", monthlyPlus, Formula.Mode.AUTO);
+            builder = informationContract.newReadingTypeDeliverable("Monthly A+", monthlyPlus, Formula.Mode.AUTO);
             monthlyPlusDeliverable = builder.build(
                     builder.divide(builder.plus(builder.requirement(aPlusRequirement), builder.deliverable(dailyPlusDeliverable)), builder.constant(2)));
-            informationContract.addDeliverable(monthlyPlusDeliverable);
-            builder = metrologyConfiguration.newReadingTypeDeliverable("Monthly A-", monthlyMinus, Formula.Mode.AUTO);
+            builder = informationContract.newReadingTypeDeliverable("Monthly A-", monthlyMinus, Formula.Mode.AUTO);
             monthlyMinusDeliverable = builder.build(builder.multiply(builder.constant(1), builder.requirement(aMinusRequirement)));
-            informationContract.addDeliverable(monthlyMinusDeliverable);
-            builder = metrologyConfiguration.newReadingTypeDeliverable("Monthly total", monthlyTotal, Formula.Mode.AUTO);
+            builder = informationContract.newReadingTypeDeliverable("Monthly total", monthlyTotal, Formula.Mode.AUTO);
             monthlyTotalDeliverable = builder.build(
                     builder.plus(builder.deliverable(monthlyMinusDeliverable), builder.deliverable(monthlyPlusDeliverable)));
-            informationContract.addDeliverable(monthlyTotalDeliverable);
-            builder = metrologyConfiguration.newReadingTypeDeliverable("Monthly net", monthlyNet, Formula.Mode.AUTO);
+            builder = informationContract.newReadingTypeDeliverable("Monthly net", monthlyNet, Formula.Mode.AUTO);
             monthlyNetDeliverable = builder.build(
                     builder.minus(builder.deliverable(monthlyPlusDeliverable), builder.deliverable(monthlyMinusDeliverable)));
-            informationContract.addDeliverable(monthlyNetDeliverable);
-            builder = metrologyConfiguration.newReadingTypeDeliverable("Nil", nil, Formula.Mode.EXPERT);
+            builder = informationContract.newReadingTypeDeliverable("Nil", nil, Formula.Mode.EXPERT);
             nilDeliverable = builder.build(builder.nullValue());
-            informationContract.addDeliverable(nilDeliverable);
             context.commit();
         }
     }
@@ -137,6 +135,16 @@ public class OutputChannelDependenciesIT {
     @Test
     public void testGetRequirements() {
         assertThat(informationContract.getRequirements()).containsOnly(aPlusRequirement, aMinusRequirement);
+    }
+
+    @Test
+    public void testSortReadingTypesByDependency() {
+        List<ReadingType> sorted = informationContract.sortReadingTypesByDependency();
+        assertThat(sorted).containsSubsequence(nil);
+        assertThat(sorted).containsSubsequence(min15Plus, dailyPlus, monthlyPlus, monthlyTotal);
+        assertThat(sorted).containsSubsequence(min15Plus, dailyPlus, monthlyPlus, monthlyNet);
+        assertThat(sorted).containsSubsequence(monthlyMinus, monthlyTotal);
+        assertThat(sorted).containsSubsequence(monthlyMinus, monthlyNet);
     }
 
     @Test
@@ -225,9 +233,15 @@ public class OutputChannelDependenciesIT {
     }
 
     private static void setUpMeter() {
-        meter = meteringService.findAmrSystem(1)
+        State deviceState = Mockito.mock(State.class);
+        Stage deviceStage = Mockito.mock(Stage.class);
+        String operationalDeviceStageKey = "mtr.enddevicestage.operational";
+        meter = Mockito.spy(meteringService.findAmrSystem(1)
                 .orElseThrow(() -> new NoSuchElementException("Default AMR system is not found."))
-                .newMeter("42", "Retem").create();
+                .newMeter("42", "Retem").create());
+        Mockito.when(meter.getState(Mockito.any(Instant.class))).thenReturn(Optional.of(deviceState));
+        Mockito.when(deviceState.getStage()).thenReturn(Optional.of(deviceStage));
+        Mockito.when(deviceStage.getName()).thenReturn(operationalDeviceStageKey);
         usagePoint.linkMeters().activate(Instant.EPOCH, meter, defaultMeterRole).complete();
 
         MeterActivation meterActivation = meter.getCurrentMeterActivation()

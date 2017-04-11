@@ -15,6 +15,8 @@ import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.fsm.Stage;
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.license.LicenseService;
@@ -34,7 +36,6 @@ import com.elster.jupiter.metering.aggregation.DataAggregationService;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.MeterRole;
-import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
@@ -101,6 +102,7 @@ import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Matchers.matches;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -146,6 +148,13 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
     private MetrologyPurpose metrologyPurpose;
     @Mock
     private MetrologyContract contract;
+    @Mock
+    private static State deviceState;
+    @Mock
+    private static Stage deviceStage;
+
+    private static final String OPERATIONAL_DEVICE_STAGE_KEY = "mtr.enddevicestage.operational";
+
     private SqlBuilder temperatureWithClauseBuilder;
     private SqlBuilder deliverableWithClauseBuilder;
     private SqlBuilder selectClauseBuilder;
@@ -359,8 +368,9 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
         this.temperature1RequirementId = temperature.getId();
 
         // Setup configuration deliverables
+        this.contract = this.configuration.addMetrologyContract(METROLOGY_PURPOSE);
         ReadingTypeDeliverableBuilder builder =
-                newDeliveryBuilder("averageT", configuration, C_daily);
+                newDeliveryBuilder("averageT", contract, C_daily);
         ReadingTypeDeliverable avgTemperature =
                 builder.build(builder.plus(
                         builder.requirement(temperature),
@@ -373,9 +383,6 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
 
         // Apply MetrologyConfiguration to UsagePoint
         this.usagePoint.apply(this.configuration, jan1st2016);
-
-        this.contract = this.configuration.addMetrologyContract(METROLOGY_PURPOSE);
-        this.contract.addDeliverable(avgTemperature);
 
         // Business method
         try {
@@ -446,8 +453,9 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
         this.temperature1RequirementId = temperature.getId();
 
         // Setup configuration deliverables
+        this.contract = this.configuration.addMetrologyContract(METROLOGY_PURPOSE);
         ReadingTypeDeliverableBuilder builder =
-                newDeliveryBuilder("averageT", configuration, F_daily);
+                newDeliveryBuilder("averageT", contract, F_daily);
         ReadingTypeDeliverable avgTemperature =
                 builder.build(builder.plus(
                         builder.requirement(temperature),
@@ -461,9 +469,6 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
 
         // Apply MetrologyConfiguration to UsagePoint
         this.usagePoint.apply(this.configuration, jan1st2016);
-
-        this.contract = this.configuration.addMetrologyContract(METROLOGY_PURPOSE);
-        this.contract.addDeliverable(avgTemperature);
 
         // Business method
         try {
@@ -541,7 +546,8 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
         this.temperature2RequirementId = maxTemperature.getId();
 
         // Setup configuration deliverables
-        ReadingTypeDeliverableBuilder builder = newDeliveryBuilder("averageT", configuration, K_daily);
+        this.contract = this.configuration.addMetrologyContract(METROLOGY_PURPOSE);
+        ReadingTypeDeliverableBuilder builder = newDeliveryBuilder("averageT", contract, K_daily);
         ReadingTypeDeliverable avgTemperature =
                 builder.build(builder.divide(
                         builder.plus(
@@ -561,9 +567,6 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
 
         // Apply MetrologyConfiguration to UsagePoint
         this.usagePoint.apply(this.configuration, jan1st2016);
-
-        this.contract = this.configuration.addMetrologyContract(METROLOGY_PURPOSE);
-        this.contract.addDeliverable(avgTemperature);
 
         // Business method
         try {
@@ -628,15 +631,15 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
 
     private void setupMeter(String amrIdBase) {
         AmrSystem mdc = getMeteringService().findAmrSystem(KnownAmrSystem.MDC.getId()).get();
-        this.meter = mdc.newMeter(amrIdBase, amrIdBase).create();
+        this.meter = spy(mdc.newMeter(amrIdBase, amrIdBase).create());
+        when(meter.getState(any(Instant.class))).thenReturn(Optional.of(deviceState));
+        when(deviceState.getStage()).thenReturn(Optional.of(deviceStage));
+        when(deviceStage.getName()).thenReturn(OPERATIONAL_DEVICE_STAGE_KEY);
     }
 
     private void setupUsagePoint(String name) {
         ServiceCategory electricity = getMeteringService().getServiceCategory(ServiceKind.GAS).get();
-        this.usagePoint = electricity.newUsagePoint(name, jan1st2016.minusSeconds(20)).create();
-        UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("UP1", electricity).create();
-        usagePointMetrologyConfiguration.addMeterRole(getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT));
-        usagePoint.apply(usagePointMetrologyConfiguration, jan1st2016.minusSeconds(20));
+        this.usagePoint = electricity.newUsagePoint(name, jan1st2016).create();
     }
 
     private void activateMeterWithKelvin() {
@@ -652,8 +655,8 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
         return mRID.replace(".", "\\.");
     }
 
-    private ReadingTypeDeliverableBuilder newDeliveryBuilder(String name, MetrologyConfiguration configuration, ReadingType readingType) {
-        return configuration.newReadingTypeDeliverable(name, readingType, Formula.Mode.AUTO);
+    private ReadingTypeDeliverableBuilder newDeliveryBuilder(String name, MetrologyContract contract, ReadingType readingType) {
+        return contract.newReadingTypeDeliverable(name, readingType, Formula.Mode.AUTO);
 
     }
 

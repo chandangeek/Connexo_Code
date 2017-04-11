@@ -15,6 +15,8 @@ class UsagePointMetrologyConfigurationBuilderImpl implements UsagePointMetrology
 
     UsagePointMetrologyConfigurationBuilderImpl(DataModel dataModel) {
         this.underConstruction = dataModel.getInstance(UsagePointMetrologyConfigurationImpl.class);
+        // default value for gapAllowed flag is true
+        this.underConstruction.setGapAllowed(true);
     }
 
     void init(String metrologyConfigurationName, ServiceCategory serviceCategory) {

@@ -155,4 +155,50 @@ public class UsagePointMeterActivationException extends LocalizedException {
         ex.cause = cause;
         return ex;
     }
+
+    public static class ActivationTimeBeforeUsagePointInstallationDate extends UsagePointMeterActivationException {
+        public ActivationTimeBeforeUsagePointInstallationDate(Thesaurus thesaurus, String usagePointInstallationTime) {
+            super(thesaurus, MessageSeeds.METER_ACTIVATION_BEFORE_UP_INSTALLATION_TIME, usagePointInstallationTime);
+        }
+    }
+    public static class IncorrectDeviceStageWithoutMetrologyConfig extends UsagePointMeterActivationException {
+        public IncorrectDeviceStageWithoutMetrologyConfig(Thesaurus thesaurus, String meter, String usagePoint, String date) {
+            super(thesaurus, MessageSeeds.INVALID_END_DEVICE_STAGE, meter, usagePoint, date);
+        }
+    }
+
+    public static class IncorrectStartTimeOfMeterAndMetrologyConfig extends UsagePointMeterActivationException {
+        public IncorrectStartTimeOfMeterAndMetrologyConfig(Thesaurus thesaurus, String meter, String mcStartDate) {
+            super(thesaurus, MessageSeeds.METER_ACTIVATION_INVALID_DATE, meter, mcStartDate);
+        }
+    }
+
+    public static class IncorrectMeterActivationDateWhenGapsAreAllowed extends UsagePointMeterActivationException {
+        public IncorrectMeterActivationDateWhenGapsAreAllowed(Thesaurus thesaurus, String meter, String usagePoint) {
+            super(thesaurus, MessageSeeds.INVALID_END_DEVICE_STAGE_WITH_GAPS_ALLOWED, meter, usagePoint);
+        }
+    }
+
+    public static class IncorrectLifeCycleStage extends UsagePointMeterActivationException {
+        public IncorrectLifeCycleStage(Thesaurus thesaurus, String meter, String usagePoint, String date) {
+            super(thesaurus, MessageSeeds.INVALID_END_DEVICE_STAGE_WITHOUT_MC, meter, usagePoint, date);
+        }
+    }
+
+    public static class MeterCannotBeUnlinked extends UsagePointMeterActivationException {
+        public MeterCannotBeUnlinked(Thesaurus thesaurus, String meter, String usagePoint, String date) {
+            super(thesaurus, MessageSeeds.METER_CANNOT_BE_UNLINKED, meter, usagePoint, date);
+        }
+    }
+
+    public static class UsagePointIncorrectStage extends UsagePointMeterActivationException{
+        public UsagePointIncorrectStage(Thesaurus thesaurus, MessageSeed messageSeed, Object... args) {
+            super(thesaurus, messageSeed, args);
+        }
+    }
+
+    public static UsagePointIncorrectStage usagePointIncorrectStage(Thesaurus thesaurus){
+        UsagePointIncorrectStage ex = new UsagePointIncorrectStage(thesaurus, MessageSeeds.USAGE_POINT_INCORRECT_STAGE);
+        return ex;
+    }
 }
