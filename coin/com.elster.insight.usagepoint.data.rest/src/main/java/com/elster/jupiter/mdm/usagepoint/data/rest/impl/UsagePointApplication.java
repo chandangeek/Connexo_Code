@@ -56,6 +56,7 @@ import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCyclePrivilege
 import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCycleStateInfoFactory;
 import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCycleTransitionInfoFactory;
 import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointTransitionInfoFactory;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.validation.ValidationService;
@@ -121,6 +122,7 @@ public class UsagePointApplication extends Application implements TranslationKey
     private volatile MeteringTranslationService meteringTranslationService;
     private volatile UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService;
     private volatile PropertySpecService propertySpecService;
+    private volatile UserService userService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -361,6 +363,11 @@ public class UsagePointApplication extends Application implements TranslationKey
         this.propertySpecService = propertySpecService;
     }
 
+    @Reference
+    public void setUserService(UserService userService) {
+        this.userService = userService;
+    }
+
     class HK2Binder extends AbstractBinder {
 
         @Override
@@ -398,6 +405,7 @@ public class UsagePointApplication extends Application implements TranslationKey
             bind(CustomPropertySetInfoFactory.class).to(CustomPropertySetInfoFactory.class);
             bind(UsagePointInfoFactory.class).to(UsagePointInfoFactory.class);
             bind(OutputChannelDataInfoFactory.class).to(OutputChannelDataInfoFactory.class);
+            bind(HistoricalMeterActivationInfoFactory.class).to(HistoricalMeterActivationInfoFactory.class);
             bind(OutputRegisterDataInfoFactory.class).to(OutputRegisterDataInfoFactory.class);
             bind(LocationInfoFactory.class).to(LocationInfoFactory.class);
             bind(GoingOnResource.class).to(GoingOnResource.class);
@@ -429,6 +437,8 @@ public class UsagePointApplication extends Application implements TranslationKey
             bind(EstimationTaskInfoFactory.class).to(EstimationTaskInfoFactory.class);
             bind(UsagePointTransitionInfoFactory.class).to(UsagePointTransitionInfoFactory.class);
             bind(propertySpecService).to(PropertySpecService.class);
+            bind(MetrologyConfigurationHistoryInfoFactory.class).to(MetrologyConfigurationHistoryInfoFactory.class);
+            bind(userService).to(UserService.class);
         }
     }
 }

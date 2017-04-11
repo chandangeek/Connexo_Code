@@ -30,9 +30,6 @@ import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
-import com.elster.jupiter.properties.rest.PropertyInfo;
-import com.elster.jupiter.properties.rest.PropertyTypeInfo;
-import com.elster.jupiter.properties.rest.PropertyValueInfo;
 import com.elster.jupiter.rest.util.IntervalInfo;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationEvaluator;
@@ -419,8 +416,6 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         info.intervals = Collections.singletonList(IntervalInfo.from(INTERVAL_3));
         info.estimatorImpl = "com.elster.jupiter.estimators.impl.ValueFillEstimator";
         info.properties = new ArrayList<>();
-        info.properties.add(new PropertyInfo("valuefill.maxNumberOfConsecutiveSuspects", "Max number of consecutive suspects", new PropertyValueInfo<>(123L, null, 10L, true), new PropertyTypeInfo(com.elster.jupiter.properties.rest.SimplePropertyType.NUMBER, null, null, null), true));
-        info.properties.add(new PropertyInfo("valuefill.fillValue", "Fill value", new PropertyValueInfo<>(123L, null, 10L, true), new PropertyTypeInfo(com.elster.jupiter.properties.rest.SimplePropertyType.NUMBER, null, null, null), true));
 
         // Business method
         Response response = target("usagepoints/" + USAGE_POINT_NAME + "/purposes/100/outputs/1/channelData/estimate")
@@ -622,7 +617,7 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         Response response = target("/usagepoints/" + USAGE_POINT_NAME + "/purposes/100/outputs/1/channelData/estimateWithRule").request().get();
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        verify(estimationService).getEstimationRuleSets();
+        verify(usagePointConfigurationService).getEstimationRuleSets(any(MetrologyContract.class));
         verify(estimationRuleSet).getRules();
         verify(estimationRule, times(3)).getRuleSet();
         verify(estimationRuleSet, times(2)).getQualityCodeSystem();
