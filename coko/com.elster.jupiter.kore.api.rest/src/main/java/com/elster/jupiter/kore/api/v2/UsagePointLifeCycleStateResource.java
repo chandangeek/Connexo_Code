@@ -87,7 +87,7 @@ public class UsagePointLifeCycleStateResource {
                                                                     @Context UriInfo uriInfo,
                                                                     @BeanParam JsonQueryParameters queryParameters) {
         List<UsagePointLifeCycleStateInfo> infos = usagePointLifeCycleConfigurationService.getUsagePointStates()
-                .from(queryParameters).stream()
+                .stream()
                 .map(lc -> usagePointLifeCycleStateInfoFactory.from(lc, uriInfo, fieldSelection.getFields()))
                 .collect(toList());
         UriBuilder uriBuilder = uriInfo.getBaseUriBuilder()
