@@ -15,7 +15,8 @@ import java.util.stream.Collectors;
 public enum UsagePointStage {
     PRE_OPERATIONAL("mtr.usagepointstage.preoperational"),
     OPERATIONAL("mtr.usagepointstage.operational"),
-    POST_OPERATIONAL("mtr.usagepointstage.postoperational");
+    POST_OPERATIONAL("mtr.usagepointstage.postoperational"),
+    SUSPENDED("mtr.usagepointstage.suspended")
 
     private String key;
 
