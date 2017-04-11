@@ -1307,6 +1307,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             model = Ext.create('Uni.model.readings.ReadingCorrection'),
             window = me.getCorrectReadingWindow(),
             records = window.record,
+            router = me.getController('Uni.controller.history.Router'),
             intervalsArray =[];
 
         window.updateRecord(model);
@@ -1336,6 +1337,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
 
         window.setLoading();
         Ext.Ajax.suspendEvent('requestexception');
+        model.phantom = false;
         model.save({
             callback: function (rec, operation, success) {
                 Ext.Ajax.resumeEvent('requestexception');
@@ -1344,9 +1346,9 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
 
                 Ext.suspendLayouts();
                 if (success && responseText[0]) {
-                    Ext.Array.each(model.get('intervals'), function(correctedInterval){
+                    Ext.Array.each(responseText, function(correctedInterval){
                         Ext.Array.findBy(records, function (reading) {
-                            if (correctedInterval.start == reading.get('interval').start) {
+                            if (correctedInterval.reportedDateTime == reading.get('reportedDateTime').getTime()) {
                                 me.updateCorrectedValues(reading, correctedInterval);
                                 return true;
                             }
