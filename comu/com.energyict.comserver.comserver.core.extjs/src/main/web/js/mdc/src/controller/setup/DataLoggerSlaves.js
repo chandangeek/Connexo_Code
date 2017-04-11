@@ -144,6 +144,7 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
                     newDataLoggerSlaveForm = me.getNewDataLoggerSlaveForm(),
                     newMultiElementSlaveForm = me.getNewMultiElementSlaveForm();
                 if (!Ext.isEmpty(newDataLoggerSlaveForm)){
+                    newDataLoggerSlaveForm.dataLogger = device;
                     newDataLoggerSlaveForm.loadRecord(slaveDevice);
                 }
                 if (!Ext.isEmpty(newMultiElementSlaveForm)){
@@ -390,7 +391,6 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
                 deviceConfigurationValid = deviceConfigurationWidget.validate(),
                 slaveDeviceType = deviceConfigurationWidget.getDeviceType(),
                 formRecord = me.getNewDataLoggerSlaveForm().getRecord();
-                // formRecord = wizard.down('#mdc-datalogger-slave-device-add').getRecord(),
                 checkName = function () {
                     wizard.setLoading();
                     me.getStore('Mdc.store.Devices').load({

@@ -30,6 +30,12 @@ Ext.define('Mdc.view.setup.dataloggerslaves.LinkWizardStep4', {
                 },
                 items: [
                     {
+                        xtype: 'uni-form-empty-message',
+                        itemId: 'automatic-linking-date',
+                        text: Uni.I18n.translate('general.linkingDate.set.automatically', 'MDC', 'The linking date is set automatically.'),
+                        hidden: true
+                       },
+                    {
                         xtype: 'date-time',
                         layout: 'hbox',
                         itemId: 'mdc-step4-linking-date',
@@ -38,12 +44,6 @@ Ext.define('Mdc.view.setup.dataloggerslaves.LinkWizardStep4', {
                         msgTarget: 'under',
                         fieldLabel: Uni.I18n.translate('general.linkingDate', 'MDC', 'Linking date'),
                         width: 1050
-                    },{
-                        xtype: 'uni-form-empty-message',
-                        itemId: 'automatic-linking-date',
-                        text: Uni.I18n.translate('general.linkingDate.set.automatically', 'MDC', 'The linking date will be set automatically.'),
-                        hidden: true,
-                        margin: '0 0 32 0'
                     }
                 ]
             }
@@ -51,24 +51,28 @@ Ext.define('Mdc.view.setup.dataloggerslaves.LinkWizardStep4', {
         me.callParent(arguments);
     },
 
-    initialize: function(minimalLinkingDateInMillis, linkingDateToSuggest, enabled) {
+    initialize: function (minimalLinkingDateInMillis, linkingDateToSuggest, enabled) {
         var me = this;
         if (me.rendered) {
             me.doConfigureLinkingDate(minimalLinkingDateInMillis, linkingDateToSuggest);
         } else {
-            me.on('afterrender', function() {
+            me.on('afterrender', function () {
                 me.doConfigureLinkingDate(minimalLinkingDateInMillis, linkingDateToSuggest);
-            }, me, {single:true});
+            }, me, {single: true});
         }
-        if (!enabled){
-            me.down('#mdc-step4-linking-date').eachItem(function (item){item.disable()});
+        if (!enabled) {
+            me.down('#mdc-step4-linking-date').eachItem(function (item) {
+                item.disable()
+            });
             me.down('#automatic-linking-date').show();
-        }else{
-            me.down('#mdc-step4-linking-date').eachItem(function (item){item.enable()});
+        } else {
+            me.down('#mdc-step4-linking-date').eachItem(function (item) {
+                item.enable()
+            });
             me.down('#automatic-linking-date').hide()
         }
     },
-    doConfigureLinkingDate: function(minimalLinkingDateInMillis, linkingDateToSuggest) {
+    doConfigureLinkingDate: function (minimalLinkingDateInMillis, linkingDateToSuggest) {
         var me = this;
 
         me.down('#mdc-step4-linking-date').setMinValue(minimalLinkingDateInMillis);

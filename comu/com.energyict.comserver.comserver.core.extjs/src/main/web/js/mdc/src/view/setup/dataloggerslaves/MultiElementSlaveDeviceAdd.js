@@ -52,19 +52,20 @@ Ext.define('Mdc.view.setup.dataloggerslaves.MultiElementSlaveDeviceAdd', {
     },
     setDeviceNameProposal: function(){
         var me = this,
-            nameTextField = me.down('#multiElementSlaveName');
+            nameTextField = me.down('#multiElementSlaveName'),
+            deviceConfigField = this.down('#multiElementSlaveDeviceConfiguration');
         if (me.dataLogger && nameTextField && !nameTextField.getValue()) {
-            nameTextField.setValue(me.proposeDeviceName(me.dataLogger));
+            nameTextField.setValue(Mdc.util.SlaveNameProposal.get(me.dataLogger, deviceConfigField.getDeviceConfiguration()));
         }
-    },
-    proposeDeviceName: function (datalogger) {
-        var deviceConfigField = this.down('#multiElementSlaveDeviceConfiguration'),
-            proposal = '';
-        if (!Ext.isEmpty(datalogger)){
-            proposal = datalogger.get('name') + '-';
-        }
-        proposal += deviceConfigField.getDeviceConfiguration().get('name');
-        return proposal;
-    }
+    } //,
+    //proposeDeviceName: function (datalogger) {
+    //    var deviceConfigField = this.down('#multiElementSlaveDeviceConfiguration'),
+    //        proposal = '';
+    //    if (!Ext.isEmpty(datalogger)){
+    //        proposal = datalogger.get('name') + '-';
+    //    }
+    //    proposal += deviceConfigField.getDeviceConfiguration().get('name');
+    //    return proposal;
+    //}
 });
 
