@@ -108,7 +108,7 @@ Ext.define('Fwc.view.firmware.FirmwareOptionsEdit', {
                         name: 'isAllowed',
                         boxLabel: Uni.I18n.translate('general.allowFirmwareManagement', 'FWC', 'Allow firmware management'),
                         checked: false,
-                        margins: '0 0 0 4'
+                        margin: '7 0 7 4'
                     },
                     {
                         xtype: 'checkboxgroup',
