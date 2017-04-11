@@ -38,6 +38,7 @@ import java.time.ZoneId;
 import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -141,9 +142,8 @@ public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel
 
     @Override
     public List<IntervalReadingRecord> getIntervalReadings(Range<Instant> interval) {
-        Map<Instant, IntervalReadingRecord> calculatedReadings = getCalculatedIntervalReadings(interval, record -> new CalculatedReadingRecordImpl(this.persistedChannel, record,clock));
-        Map<Instant, IntervalReadingRecord> persistedReadings = getPersistedIntervalReadings(interval).stream()
-                .collect(Collectors.toMap(BaseReadingRecord::getTimeStamp, Function.identity()));
+        Map<Instant, IntervalReadingRecord> calculatedReadings = new HashMap<>(getCalculatedIntervalReadings(interval, record -> new CalculatedReadingRecordImpl(this.persistedChannel, record,clock)));
+        Map<Instant, IntervalReadingRecord> persistedReadings = new HashMap<>(getPersistedIntervalReadings(interval).stream().collect(Collectors.toMap(BaseReadingRecord::getTimeStamp, Function.identity())));
         calculatedReadings.putAll(persistedReadings);
         return new ArrayList<>(calculatedReadings.values());
     }
