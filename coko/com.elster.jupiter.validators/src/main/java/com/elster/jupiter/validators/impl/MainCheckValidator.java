@@ -71,6 +71,7 @@ public class MainCheckValidator extends AbstractValidator {
     // {0} - period, {1} - name of the validator, {2} - reading type, {3} - failure reason
     private static final String VALIDATOR_FAILED_MESSAGE_PATTERN = "Failed to validate period %s using method \"%s\" on %s since %s";
 
+    private static final DateFormat DATA_FORMAT = new SimpleDateFormat("E, dd MMM yyyy hh:mm", Locale.US);
 
     private MetrologyConfigurationService metrologyConfigurationService;
     private ValidationService validationService;
@@ -130,24 +131,7 @@ public class MainCheckValidator extends AbstractValidator {
                 .collect(Collectors.toList());
 
         ImmutableList.Builder<PropertySpec> builder = ImmutableList.builder();
-        builder
-                .add(getPropertySpecService()
-                        .specForValuesOf(new TwoValuesDifferenceValueFactory())
-                        .named(MAX_ABSOLUTE_DIFF, TranslationKeys.MAIN_CHECK_VALIDATOR_MAX_ABSOLUTE_DIFF)
-                        .fromThesaurus(this.getThesaurus())
-                        .markRequired()
-                        .setDefaultValue(new TwoValuesAbsoluteDifference() {{
-                            value = new BigDecimal(0);
-                        }})
-                        .finish());
-        builder
-                .add(getPropertySpecService()
-                        .specForValuesOf(new NonOrBigDecimalValueFactory())
-                        .named(MIN_THRESHOLD, TranslationKeys.MAIN_CHECK_VALIDATOR_MIN_THRESHOLD)
-                        .fromThesaurus(this.getThesaurus())
-                        .markRequired()
-                        .setDefaultValue(new NonOrBigDecimalValueProperty())
-                        .finish());
+        addOverridenPropertySpecs(builder);
         builder
                 .add(getPropertySpecService()
                         .stringSpec()
@@ -183,8 +167,13 @@ public class MainCheckValidator extends AbstractValidator {
         return ValidationPropertyDefinitionLevel.VALIDATION_RULE == level ? getPropertySpecs() : getOverridenPropertySpecs();
     }
 
-    private List<PropertySpec> getOverridenPropertySpecs() {
+    private List<PropertySpec> getOverridenPropertySpecs(){
         ImmutableList.Builder<PropertySpec> builder = ImmutableList.builder();
+        addOverridenPropertySpecs(builder);
+        return builder.build();
+    }
+
+    private void addOverridenPropertySpecs(ImmutableList.Builder<PropertySpec> builder) {
         builder
                 .add(getPropertySpecService()
                         .specForValuesOf(new TwoValuesDifferenceValueFactory())
@@ -203,7 +192,6 @@ public class MainCheckValidator extends AbstractValidator {
                         .markRequired()
                         .setDefaultValue(new NonOrBigDecimalValueProperty())
                         .finish());
-        return builder.build();
     }
 
     @Override
@@ -331,9 +319,6 @@ public class MainCheckValidator extends AbstractValidator {
 
     //  "Wed, 15 Feb 2017 00:00 until Thu, 16 Feb 2017 00:00"
     private String rangeToString(Range<Instant> range){
-
-        DateFormat df = new SimpleDateFormat("E, FF MMM yyyy hh:mm", Locale.US);
-
         Instant lowerBound = null;
         if (range.hasLowerBound()){
             lowerBound = range.lowerEndpoint();
@@ -344,8 +329,8 @@ public class MainCheckValidator extends AbstractValidator {
             upperBound= range.upperEndpoint();
         }
 
-        String lower = lowerBound!=null?df.format(new Date(lowerBound.toEpochMilli())):"-\"\\u221E\\t\"";
-        String upper = upperBound!=null?df.format(new Date(upperBound.toEpochMilli())):"+\"\\u221E\\t\"";
+        String lower = lowerBound!=null?DATA_FORMAT.format(new Date(lowerBound.toEpochMilli())):"-\"\\u221E\\t\"";
+        String upper = upperBound!=null?DATA_FORMAT.format(new Date(upperBound.toEpochMilli())):"+\"\\u221E\\t\"";
         return "\"" + lower + " until "+upper+"\"";
     }
 
