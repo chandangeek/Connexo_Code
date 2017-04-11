@@ -15,6 +15,8 @@ import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.fsm.Stage;
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.license.LicenseService;
@@ -91,6 +93,7 @@ import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -99,6 +102,7 @@ import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Matchers.matches;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -138,6 +142,13 @@ public class DataAggregationServiceImplCalculateWithRegisterIT {
     private SqlBuilder completeSqlBuilder;
     private Meter meter;
     private MeterActivation meterActivation;
+
+    @Mock
+    private static State deviceState;
+    @Mock
+    private static Stage deviceStage;
+
+    private static final String OPERATIONAL_DEVICE_STAGE_KEY = "mtr.enddevicestage.operational";
 
     private static class MockModule extends AbstractModule {
         @Override
@@ -330,6 +341,7 @@ public class DataAggregationServiceImplCalculateWithRegisterIT {
         MeterRole defaultMeterRole = getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT);
         this.configuration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("simplestNetConsumption", ELECTRICITY).create();
         this.configuration.addMeterRole(defaultMeterRole);
+        this.contract = configuration.addMetrologyContract(METROLOGY_PURPOSE);
 
         // Setup configuration requirements
         FullySpecifiedReadingTypeRequirement consumption = this.configuration.newReadingTypeRequirement("A-", defaultMeterRole).withReadingType(netConsumptionIndex);
@@ -337,7 +349,7 @@ public class DataAggregationServiceImplCalculateWithRegisterIT {
         System.out.println("simplestNetConsumption::CONSUMPTION_REQUIREMENT_ID = " + this.consumptionRequirementId);
 
         // Setup configuration deliverables
-        ReadingTypeDeliverableBuilder builder = this.configuration.newReadingTypeDeliverable("netConsumptionIndex", netConsumptionIndex, Formula.Mode.AUTO);
+        ReadingTypeDeliverableBuilder builder = this.contract.newReadingTypeDeliverable("netConsumptionIndex", netConsumptionIndex, Formula.Mode.AUTO);
         ReadingTypeDeliverable netConsumption = builder.build(builder.requirement(consumption));
 
         this.netConsumptionDeliverableId = netConsumption.getId();
@@ -347,10 +359,9 @@ public class DataAggregationServiceImplCalculateWithRegisterIT {
         this.initializeSqlBuilders();
 
         // Apply MetrologyConfiguration to UsagePoint
-        this.usagePoint.apply(this.configuration, jan1st2016.plusSeconds(60));
+        this.usagePoint.apply(this.configuration, feb1st2016);
 
         this.contract = this.configuration.addMetrologyContract(METROLOGY_PURPOSE);
-        this.contract.addDeliverable(netConsumption);
 
         // Business method
         try {
@@ -394,19 +405,19 @@ public class DataAggregationServiceImplCalculateWithRegisterIT {
 
     private void setupMeter(String amrIdBase) {
         AmrSystem mdc = getMeteringService().findAmrSystem(KnownAmrSystem.MDC.getId()).get();
-        this.meter = mdc.newMeter(amrIdBase, amrIdBase).create();
+        this.meter = spy(mdc.newMeter(amrIdBase, amrIdBase).create());
+        when(meter.getState(any(Instant.class))).thenReturn(Optional.of(deviceState));
+        when(deviceState.getStage()).thenReturn(Optional.of(deviceStage));
+        when(deviceStage.getName()).thenReturn(OPERATIONAL_DEVICE_STAGE_KEY);
     }
 
     private void setupUsagePoint(String name) {
         ServiceCategory electricity = getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
         this.usagePoint = electricity.newUsagePoint(name, jan1st2016).create();
-        UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("UP1", electricity).create();
-        usagePointMetrologyConfiguration.addMeterRole(getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT));
-        usagePoint.apply(usagePointMetrologyConfiguration, jan1st2016);
     }
 
     private void activateMeterWithBulkWattRegister() {
-        this.meterActivation = this.usagePoint.activate(this.meter, jan1st2016);
+        this.meterActivation = this.usagePoint.activate(this.meter, feb1st2016);
         this.meterActivation.getChannelsContainer().createChannel(netConsumptionIndex);
     }
 

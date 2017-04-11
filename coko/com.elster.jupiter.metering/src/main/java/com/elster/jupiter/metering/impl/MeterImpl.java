@@ -25,8 +25,11 @@ import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationServi
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.JournalEntry;
 import com.elster.jupiter.orm.QueryExecutor;
+import com.elster.jupiter.util.conditions.Comparison;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.conditions.Where;
 
 import com.google.common.collect.Range;
@@ -167,6 +170,11 @@ class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter {
     }
 
     @Override
+    public List<? extends BaseReadingRecord> getJournalReadings(Range<Instant> range, ReadingType readingType) {
+        return MeterActivationsImpl.from(meterActivations, range).getJournalReadings(range, readingType);
+    }
+
+    @Override
     public List<? extends BaseReadingRecord> getReadingsUpdatedSince(Range<Instant> range, ReadingType readingType, Instant since) {
         return MeterActivationsImpl.from(meterActivations, range).getReadingsUpdatedSince(range, readingType, since);
     }
@@ -209,6 +217,28 @@ class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter {
         Condition condition = Where.where("channel.channelsContainer.meterActivation.meter").isEqualTo(this);
         condition = condition.and(Where.where("readingTimestamp").in(range));
         return query.select(condition);
+    }
+
+    @Override
+    public List<JournalEntry<? extends ReadingQualityRecord>> getReadingQualitiesJournal(Range<Instant> range, List<ReadingType> readingTypes, List<Long> channelIds) {
+        List<JournalEntry<? extends ReadingQualityRecord>> result = new ArrayList<>();
+        List<Comparison> comparisons = new ArrayList<>();
+
+        comparisons.add(Operator.GREATERTHAN.compare("readingtimestamp", range.lowerEndpoint().toEpochMilli()));
+        comparisons.add(Operator.LESSTHANOREQUAL.compare("readingtimestamp", range.upperEndpoint().toEpochMilli()));
+        if (readingTypes.size() > 0) {
+            comparisons.add(Operator.IN.compare("readingtype", readingTypes.stream().map(r -> r.getMRID()).collect(Collectors.toList()).toArray()));
+        }
+
+        if (channelIds.size() > 0) {
+            comparisons.add(Operator.IN.compare("channelid", channelIds.toArray()));
+        }
+
+        List<JournalEntry<ReadingQualityRecord>> journalEntries = getDataModel().mapper(ReadingQualityRecord.class)
+                .at(Instant.EPOCH)
+                .find(comparisons);
+        result.addAll(journalEntries);
+        return result;
     }
 
     @Override
@@ -278,4 +308,5 @@ class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter {
         this.meterActivations.addAll(getDataModel().query(MeterActivationImpl.class)
                 .select(where("meter").isEqualTo(this)));
     }
+
 }

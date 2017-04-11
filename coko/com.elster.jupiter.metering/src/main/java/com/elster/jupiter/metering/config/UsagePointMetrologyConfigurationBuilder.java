@@ -21,6 +21,8 @@ public interface UsagePointMetrologyConfigurationBuilder {
 
     UsagePointMetrologyConfigurationBuilder withUsagePointRequirement(SearchablePropertyValue.ValueBean requirementSpecs);
 
+    UsagePointMetrologyConfigurationBuilder withGapAllowed(boolean isGapAllowed);
+
     UsagePointMetrologyConfiguration create();
 
 }

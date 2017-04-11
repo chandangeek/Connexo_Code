@@ -739,6 +739,14 @@ public enum TableSpecs {
                     .varChar()
                     .map(MetrologyConfigurationImpl.Fields.DESCRIPTION.fieldName())
                     .add();
+            table.column(MetrologyConfigurationImpl.Fields.ALLOW_GAP.name())
+                    .type("char(1)")
+                    .notNull()
+                    .conversion(CHAR2BOOLEAN)
+                    .map(MetrologyConfigurationImpl.Fields.ALLOW_GAP.fieldName())
+                    .since(version(10,3))
+                    .installValue("'N'")
+                    .add();
             table.column(MetrologyConfigurationImpl.Fields.STATUS.name())
                     .number()
                     .conversion(NUMBER2ENUM)
@@ -1501,11 +1509,19 @@ public enum TableSpecs {
                     .map(ReadingTypeDeliverableImpl.Fields.NAME.fieldName())
                     .add();
             Column metrologyConfigColumn = table
-                    .column(ReadingTypeDeliverableImpl.Fields.METROLOGY_CONFIGURATION.name())
+                    .column("METROLOGY_CONFIGURATION")
                     .number()
                     .conversion(ColumnConversion.NUMBER2LONG)
                     .notNull()
-                    .add();
+                    .add()
+                    .upTo(version(10, 3));
+            Column metrologyContractColumn = table
+                    .column(ReadingTypeDeliverableImpl.Fields.METROLOGY_CONTRACT.name())
+                    .number()
+                    .conversion(ColumnConversion.NUMBER2LONG)
+                    .notNull()
+                    .add()
+                    .since(version(10, 3));
             Column readingTypeColumn = table
                     .column(ReadingTypeDeliverableImpl.Fields.READING_TYPE.name())
                     .varChar(NAME_LENGTH)
@@ -1526,13 +1542,23 @@ public enum TableSpecs {
             table.addAuditColumns();
 
             table.primaryKey("PK_MTR_DELIVERABLE").on(idColumn).add();
-            table.unique("UK_MTR_DELIVERABLE_NAME").on(nameColumn, metrologyConfigColumn).add();
+            table.unique("UK_MTR_DELIVERABLE_NAME").on(nameColumn, metrologyConfigColumn).upTo(version(10, 3)).add();
+            table.unique("UK_MTR_DELIVERABLE_NAME").on(nameColumn, metrologyContractColumn).since(version(10, 3)).add();
             table.foreignKey("MTR_DELIVERABLE_TO_CONFIG")
                     .references(MetrologyConfiguration.class)
                     .on(metrologyConfigColumn)
-                    .map(ReadingTypeDeliverableImpl.Fields.METROLOGY_CONFIGURATION.fieldName())
+                    .map("METROLOGY_CONFIGURATION")
                     .reverseMap(MetrologyConfigurationImpl.Fields.DELIVERABLES.fieldName())
                     .composition()
+                    .upTo(version(10, 3))
+                    .add();
+            table.foreignKey("MTR_DELIVERABLE_TO_CONTRACT")
+                    .references(MetrologyContract.class)
+                    .on(metrologyContractColumn)
+                    .map(ReadingTypeDeliverableImpl.Fields.METROLOGY_CONTRACT.fieldName())
+                    .reverseMap(MetrologyContractImpl.Fields.DELIVERABLES.fieldName())
+                    .composition()
+                    .since(version(10, 3))
                     .add();
             table.foreignKey("MTR_DELIVERABLE_TO_RT")
                     .references(ReadingType.class)
@@ -1579,6 +1605,7 @@ public enum TableSpecs {
                     .on(deliverableColumn)
                     .map(MetrologyContractReadingTypeDeliverableUsage.Fields.DELIVERABLE.fieldName())
                     .add();
+            table.upTo(version(10, 3));
         }
     },
     MTR_UP_REQUIREMENT {

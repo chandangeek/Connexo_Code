@@ -8,6 +8,8 @@ import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
+import com.elster.jupiter.fsm.Stage;
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.AggregatedChannel;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.BaseReadingRecord;
@@ -47,6 +49,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -55,8 +58,10 @@ import org.junit.Test;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 public class MetrologyContractChannelsContainerImplTestIT {
@@ -96,10 +101,9 @@ public class MetrologyContractChannelsContainerImplTestIT {
         UsagePointMetrologyConfiguration metrologyConfiguration = inMemoryBootstrapModule.getMetrologyConfigurationService()
                 .newUsagePointMetrologyConfiguration("MC", serviceCategory).create();
         metrologyConfiguration.addMeterRole(meterRole);
-        ReadingTypeDeliverableBuilder builder = metrologyConfiguration.newReadingTypeDeliverable("RTD", readingType, Formula.Mode.AUTO);
-        ReadingTypeDeliverable readingTypeDeliverable = builder.build(builder.constant(1080L));
         MetrologyContract metrologyContract = metrologyConfiguration.addMandatoryMetrologyContract(metrologyPurpose);
-        metrologyContract.addDeliverable(readingTypeDeliverable);
+        ReadingTypeDeliverableBuilder builder = metrologyContract.newReadingTypeDeliverable("RTD", readingType, Formula.Mode.AUTO);
+        builder.build(builder.constant(1080L));
         MetrologyPurpose metrologyPurpose2 = inMemoryBootstrapModule.getMetrologyConfigurationService().findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION).get();
         MetrologyContract metrologyContract2 = metrologyConfiguration.addMandatoryMetrologyContract(metrologyPurpose2);
 
@@ -119,41 +123,39 @@ public class MetrologyContractChannelsContainerImplTestIT {
     @Test
     @Transactional
     public void testMetrologyConfigurationChannelsContainerHasChannelsAfterCreation() {
+        State deviceState = mock(State.class);
+        Stage deviceStage = mock(Stage.class);
+        String operationalDeviceStageKey = "mtr.enddevicestage.operational";
         UsagePointMetrologyConfiguration metrologyConfiguration = inMemoryBootstrapModule.getMetrologyConfigurationService()
                 .newUsagePointMetrologyConfiguration("MC", serviceCategory).create();
         metrologyConfiguration.addMeterRole(meterRole);
-        ReadingTypeDeliverableBuilder builder = metrologyConfiguration.newReadingTypeDeliverable("RTD1", readingType, Formula.Mode.AUTO);
-        ReadingTypeDeliverable readingTypeDeliverable1 = builder.build(builder.constant(1080L));
+
+        MetrologyContract metrologyContract = metrologyConfiguration.addMandatoryMetrologyContract(metrologyPurpose);
+        MetrologyPurpose metrologyPurpose2 = inMemoryBootstrapModule.getMetrologyConfigurationService().findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION).get();
+        MetrologyContract metrologyContract2 = metrologyConfiguration.addMandatoryMetrologyContract(metrologyPurpose2);
+
+        ReadingTypeDeliverableBuilder builder = metrologyContract.newReadingTypeDeliverable("RTD1", readingType, Formula.Mode.AUTO);
+        builder.build(builder.constant(1080L));
 
         ReadingType readingType2 = inMemoryBootstrapModule.getMeteringService().getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0")
                 .orElseGet(() -> inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0", ""));
-        builder = metrologyConfiguration.newReadingTypeDeliverable("RTD2", readingType2, Formula.Mode.AUTO);
-        ReadingTypeDeliverable readingTypeDeliverable2 = builder.build(builder.constant(270L));
+        builder = metrologyContract.newReadingTypeDeliverable("RTD2", readingType2, Formula.Mode.AUTO);
+        builder.build(builder.constant(270L));
 
         ReadingType readingType3 = inMemoryBootstrapModule.getMeteringService().getReadingType("0.0.2.4.1.1.19.0.0.0.0.0.0.0.0.3.72.0")
                 .orElseGet(() -> inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.2.4.1.1.19.0.0.0.0.0.0.0.0.3.72.0", ""));
-        builder = metrologyConfiguration.newReadingTypeDeliverable("RTD3", readingType3, Formula.Mode.AUTO);
-        ReadingTypeDeliverable readingTypeDeliverable3 = builder.build(builder.constant(100L));
-
-        ReadingType readingType4 = inMemoryBootstrapModule.getMeteringService().getReadingType("0.0.2.4.1.1.19.0.0.0.0.0.0.0.0.0.72.0")
-                .orElseGet(() -> inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.2.4.1.1.19.0.0.0.0.0.0.0.0.0.72.0", ""));
-        builder = metrologyConfiguration.newReadingTypeDeliverable("RTD4", readingType4, Formula.Mode.AUTO);
-        builder.build(builder.constant(80L)); // Need for check that for RTD4 there is no channel
-
-        MetrologyContract metrologyContract = metrologyConfiguration.addMandatoryMetrologyContract(metrologyPurpose);
-        metrologyContract.addDeliverable(readingTypeDeliverable1);
-        metrologyContract.addDeliverable(readingTypeDeliverable2);
-
-        MetrologyPurpose metrologyPurpose2 = inMemoryBootstrapModule.getMetrologyConfigurationService().findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION).get();
-        MetrologyContract metrologyContract2 = metrologyConfiguration.addMandatoryMetrologyContract(metrologyPurpose2);
-        metrologyContract2.addDeliverable(readingTypeDeliverable3);
+        builder = metrologyContract2.newReadingTypeDeliverable("RTD3", readingType3, Formula.Mode.AUTO);
+        builder.build(builder.constant(100L));
 
         UsagePoint usagePoint = serviceCategory.newUsagePoint("UP", inMemoryBootstrapModule.getClock().instant()).create();
         usagePoint.apply(metrologyConfiguration);
 
         AmrSystem amrSystem = inMemoryBootstrapModule.getMeteringService().findAmrSystem(KnownAmrSystem.MDC.getId()).get();
-        Meter meter = amrSystem.newMeter("", "meter1").create();
-        usagePoint.linkMeters().activate(meter, meterRole);
+        Meter meter = spy(amrSystem.newMeter("", "meter1").create());
+        when(meter.getState(any(Instant.class))).thenReturn(Optional.of(deviceState));
+        when(deviceState.getStage()).thenReturn(Optional.of(deviceStage));
+        when(deviceStage.getName()).thenReturn(operationalDeviceStageKey);
+        usagePoint.linkMeters().activate(Instant.now(), meter, meterRole);
 
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = inMemoryBootstrapModule.getMetrologyConfigurationService()
                 .getDataModel()
@@ -183,10 +185,9 @@ public class MetrologyContractChannelsContainerImplTestIT {
         ReadingType readingType2 = inMemoryBootstrapModule.getMeteringService().getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0")
                 .orElseGet(() -> inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0", ""));
         FullySpecifiedReadingTypeRequirement readingTypeRequirement = metrologyConfiguration.newReadingTypeRequirement("RTR", meterRole).withReadingType(readingType2);
-        ReadingTypeDeliverableBuilder builder = metrologyConfiguration.newReadingTypeDeliverable("RTD", readingType, Formula.Mode.AUTO);
-        ReadingTypeDeliverable readingTypeDeliverable = builder.build(builder.divide(builder.requirement(readingTypeRequirement), builder.constant(1000L)));
         MetrologyContract metrologyContract = metrologyConfiguration.addMandatoryMetrologyContract(metrologyPurpose);
-        metrologyContract.addDeliverable(readingTypeDeliverable);
+        ReadingTypeDeliverableBuilder builder = metrologyContract.newReadingTypeDeliverable("RTD", readingType, Formula.Mode.AUTO);
+        ReadingTypeDeliverable readingTypeDeliverable = builder.build(builder.divide(builder.requirement(readingTypeRequirement), builder.constant(1000L)));
 
         UsagePoint usagePoint = serviceCategory.newUsagePoint("UP", installationTime).create();
         usagePoint.apply(metrologyConfiguration, installationTime);
@@ -247,10 +248,9 @@ public class MetrologyContractChannelsContainerImplTestIT {
         FullySpecifiedReadingTypeRequirement readingTypeRequirement = metrologyConfiguration.newReadingTypeRequirement("RTR", meterRole).withReadingType(readingType2);
         ReadingType readingType3 = inMemoryBootstrapModule.getMeteringService().getReadingType("0.0.0.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0")
                 .orElseGet(() -> inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.0.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0", ""));
-        ReadingTypeDeliverableBuilder builder = metrologyConfiguration.newReadingTypeDeliverable("RTD", readingType3, Formula.Mode.AUTO);
-        ReadingTypeDeliverable readingTypeDeliverable = builder.build(builder.divide(builder.requirement(readingTypeRequirement), builder.constant(1000L)));
         MetrologyContract metrologyContract = metrologyConfiguration.addMandatoryMetrologyContract(metrologyPurpose);
-        metrologyContract.addDeliverable(readingTypeDeliverable);
+        ReadingTypeDeliverableBuilder builder = metrologyContract.newReadingTypeDeliverable("RTD", readingType3, Formula.Mode.AUTO);
+        ReadingTypeDeliverable readingTypeDeliverable = builder.build(builder.divide(builder.requirement(readingTypeRequirement), builder.constant(1000L)));
 
         UsagePoint usagePoint = serviceCategory.newUsagePoint("UP", inMemoryBootstrapModule.getClock().instant()).create();
         usagePoint.apply(metrologyConfiguration);

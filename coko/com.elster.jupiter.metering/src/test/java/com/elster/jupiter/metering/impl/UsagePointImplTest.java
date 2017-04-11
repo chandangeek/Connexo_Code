@@ -30,8 +30,10 @@ import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRepresentation;
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.parties.PartyService;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
 import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.UserService;
 
 import javax.inject.Provider;
 import javax.validation.Validator;
@@ -138,6 +140,10 @@ public class UsagePointImplTest {
     private UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService;
     @Mock
     private DestinationSpec destinationSpec;
+    @Mock
+    private UserService userService;
+    @Mock
+    private ThreadPrincipalService threadPrincipalService;
 
     @Before
     public void setUp() {
@@ -166,7 +172,7 @@ public class UsagePointImplTest {
         MessageBuilder messageBuilder = mock(MessageBuilder.class);
         when(this.destinationSpec.message(anyString())).thenReturn(messageBuilder);
         usagePoint = new UsagePointImpl(clock, dataModel, eventService, thesaurus, this.destinationSpec, meterActivationProvider, accountabilityProvider,
-                customPropertySetService, metrologyConfigurationService, dataAggregationService, usagePointLifeCycleConfigurationService)
+                customPropertySetService, metrologyConfigurationService, dataAggregationService, usagePointLifeCycleConfigurationService, userService, threadPrincipalService)
                 .init(NAME, serviceCategory);
         usagePoint.setInstallationTime(Instant.EPOCH);
     }

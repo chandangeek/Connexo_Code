@@ -32,6 +32,7 @@ import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.Period;
+import java.time.temporal.TemporalAmount;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -101,7 +102,7 @@ public class SyntheticLoadProfileImpl implements SyntheticLoadProfile {
     }
 
     @Override
-    public Duration getInterval() { return Duration.from(timeSeries.get().interval());
+    public TemporalAmount getInterval() { return timeSeries.get().interval();
     }
 
     @Override

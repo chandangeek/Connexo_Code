@@ -15,6 +15,8 @@ import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.fsm.Stage;
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.license.LicenseService;
@@ -93,6 +95,7 @@ import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -101,6 +104,7 @@ import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Matchers.matches;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -157,6 +161,13 @@ public class DataAggregationServiceImplExpertModeIT {
     private Channel pressureChannel;
     private Channel volumeChannel;
     private UsagePoint usagePoint;
+
+    @Mock
+    private static State deviceState;
+    @Mock
+    private static Stage deviceStage;
+
+    private static final String OPERATIONAL_DEVICE_STAGE_KEY = "mtr.enddevicestage.operational";
 
     private static class MockModule extends AbstractModule {
         @Override
@@ -376,7 +387,8 @@ public class DataAggregationServiceImplExpertModeIT {
         this.volumeRequirementId = volume.getId();
 
         // Setup configuration deliverables
-        ReadingTypeDeliverableBuilder builder = this.configuration.newReadingTypeDeliverable("Energy", ENERGY_15min, Formula.Mode.EXPERT);
+        this.contract = this.configuration.addMetrologyContract(METROLOGY_PURPOSE);
+        ReadingTypeDeliverableBuilder builder = this.contract.newReadingTypeDeliverable("Energy", ENERGY_15min, Formula.Mode.EXPERT);
         ReadingTypeDeliverable energy = builder.build(
                 builder.multiply(
                         builder.constant(BigDecimal.valueOf(40L)),   // calorific value
@@ -396,9 +408,6 @@ public class DataAggregationServiceImplExpertModeIT {
 
         // Apply MetrologyConfiguration to UsagePoint
         this.usagePoint.apply(this.configuration, jan1st2016);
-
-        this.contract = this.configuration.addMetrologyContract(METROLOGY_PURPOSE);
-        this.contract.addDeliverable(energy);
 
         // Business method
         try {
@@ -493,7 +502,8 @@ public class DataAggregationServiceImplExpertModeIT {
         this.volumeRequirementId = volume.getId();
 
         // Setup configuration deliverables
-        ReadingTypeDeliverableBuilder builder = this.configuration.newReadingTypeDeliverable(
+        this.contract = this.configuration.addMetrologyContract(METROLOGY_PURPOSE);
+        ReadingTypeDeliverableBuilder builder = this.contract.newReadingTypeDeliverable(
                 "Energy",
                 ENERGY_daily,
                 Formula.Mode.EXPERT);
@@ -518,9 +528,6 @@ public class DataAggregationServiceImplExpertModeIT {
 
         // Apply MetrologyConfiguration to UsagePoint
         this.usagePoint.apply(this.configuration, jan1st2016);
-
-        this.contract = this.configuration.addMetrologyContract(METROLOGY_PURPOSE);
-        this.contract.addDeliverable(energy);
 
         // Business method
         try {
@@ -620,7 +627,8 @@ public class DataAggregationServiceImplExpertModeIT {
         System.out.println("volumeRequirementId = " + this.volumeRequirementId);
 
         // Setup configuration deliverables
-        ReadingTypeDeliverableBuilder builder = this.configuration.newReadingTypeDeliverable(
+        this.contract = this.configuration.addMetrologyContract(METROLOGY_PURPOSE);
+        ReadingTypeDeliverableBuilder builder = this.contract.newReadingTypeDeliverable(
                 "Energy",
                 ENERGY_daily,
                 Formula.Mode.EXPERT);
@@ -644,9 +652,6 @@ public class DataAggregationServiceImplExpertModeIT {
 
         // Apply MetrologyConfiguration to UsagePoint
         this.usagePoint.apply(this.configuration, jan1st2016);
-
-        this.contract = this.configuration.addMetrologyContract(METROLOGY_PURPOSE);
-        this.contract.addDeliverable(energy);
 
         // Business method
         try {
@@ -715,15 +720,15 @@ public class DataAggregationServiceImplExpertModeIT {
 
     private void setupMeter(String amrIdBase) {
         AmrSystem mdc = getMeteringService().findAmrSystem(KnownAmrSystem.MDC.getId()).get();
-        this.meter = mdc.newMeter(amrIdBase, amrIdBase).create();
+        this.meter = spy(mdc.newMeter(amrIdBase, amrIdBase).create());
+        when(meter.getState(any(Instant.class))).thenReturn(Optional.of(deviceState));
+        when(deviceState.getStage()).thenReturn(Optional.of(deviceStage));
+        when(deviceStage.getName()).thenReturn(OPERATIONAL_DEVICE_STAGE_KEY);
     }
 
     private void setupUsagePoint(String name) {
         ServiceCategory electricity = getMeteringService().getServiceCategory(ServiceKind.GAS).get();
-        this.usagePoint = electricity.newUsagePoint(name, jan1st2016.minusSeconds(20)).create();
-        UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("UP1", electricity).create();
-        usagePointMetrologyConfiguration.addMeterRole(getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT));
-        usagePoint.apply(usagePointMetrologyConfiguration, jan1st2016.minusSeconds(20));
+        this.usagePoint = electricity.newUsagePoint(name, jan1st2016).create();
     }
 
     private void activateMeter() {

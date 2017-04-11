@@ -21,9 +21,11 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.ValueFactory;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
+import com.elster.jupiter.users.UserService;
 
 import com.google.common.collect.Sets;
 
@@ -78,6 +80,10 @@ public class ServiceCategoryImplTest {
     private UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService;
     @Mock
     private DestinationSpec destinationSpec;
+    @Mock
+    private UserService userService;
+    @Mock
+    private ThreadPrincipalService threadPrincipalService;
 
     @Before
     public void setUp() {
@@ -121,7 +127,7 @@ public class ServiceCategoryImplTest {
 
     @Test
     public void testNewUsagePoint() {
-        when(dataModel.getInstance(UsagePointImpl.class)).thenReturn(new UsagePointImpl(clock, dataModel, eventService, thesaurus, this.destinationSpec, () -> null, () -> null, customPropertySetService, metrologyConfigurationService, dataAggregationService, usagePointLifeCycleConfigurationService));
+        when(dataModel.getInstance(UsagePointImpl.class)).thenReturn(new UsagePointImpl(clock, dataModel, eventService, thesaurus, this.destinationSpec, () -> null, () -> null, customPropertySetService, metrologyConfigurationService, dataAggregationService, usagePointLifeCycleConfigurationService, userService, threadPrincipalService));
         when(dataModel.getInstance(UsagePointConnectionStateImpl.class)).thenAnswer(invocation -> new UsagePointConnectionStateImpl(dataModel, thesaurus));
         UsagePointState usagePointState = mock(UsagePointState.class);
         when(usagePointState.isInitial()).thenReturn(true);

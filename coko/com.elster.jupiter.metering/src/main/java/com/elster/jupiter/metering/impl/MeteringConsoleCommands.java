@@ -19,17 +19,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.config.DefaultMeterRole;
-import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
-import com.elster.jupiter.metering.config.DefaultReadingTypeTemplate;
-import com.elster.jupiter.metering.config.Formula;
-import com.elster.jupiter.metering.config.MeterRole;
-import com.elster.jupiter.metering.config.MetrologyConfiguration;
-import com.elster.jupiter.metering.config.MetrologyContract;
-import com.elster.jupiter.metering.config.MetrologyPurpose;
-import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
-import com.elster.jupiter.metering.config.ReadingTypeTemplate;
-import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
+import com.elster.jupiter.metering.config.*;
 import com.elster.jupiter.metering.impl.config.ExpressionNodeParser;
 import com.elster.jupiter.metering.impl.config.ReadingTypeDeliverableBuilderImpl;
 import com.elster.jupiter.metering.impl.config.ServerExpressionNode;
@@ -57,6 +47,7 @@ import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -109,9 +100,13 @@ import java.util.stream.Stream;
         "osgi.command.function=activateMetrologyConfig",
         "osgi.command.function=deactivateMetrologyConfig",
         "osgi.command.function=addCustomPropertySet"
+        "osgi.command.function=unlinkMetrologyConfiguration",
 }, immediate = true)
 @SuppressWarnings("unused")
 public class MeteringConsoleCommands {
+
+    private static DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private static DateTimeFormatter dateTimeFormat = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
 
     private volatile Clock clock;
     private volatile CalendarService calendarService;
@@ -651,7 +646,10 @@ public class MeteringConsoleCommands {
     public void deliverables(long id) {
         printDeliverables(metrologyConfigurationService.findMetrologyConfiguration(id)
                 .orElseThrow(() -> new IllegalArgumentException("No such metrology configuration"))
-                .getDeliverables());
+                .getContracts().stream()
+                .map(MetrologyContract::getDeliverables)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList()));
     }
 
     private void printDeliverables(List<ReadingTypeDeliverable> deliverables) {
@@ -673,26 +671,26 @@ public class MeteringConsoleCommands {
         System.out.println("Usage: addDeliverable  <metrology configuration id> <name> <reading type> <formula string>");
     }
 
-    public void addDeliverable(long metrologyConfigId, String name, String readingTypeString, String formulaString) {
-        doAddDeliverable(metrologyConfigId, name, readingTypeString, formulaString, Formula.Mode.AUTO);
+    public void addDeliverable(long metrologyContractId, String name, String readingTypeString, String formulaString) {
+        doAddDeliverable(metrologyContractId, name, readingTypeString, formulaString, Formula.Mode.AUTO);
     }
 
-    public void addDeliverableExpert(long metrologyConfigId, String name, String readingTypeString, String formulaString) {
-        doAddDeliverable(metrologyConfigId, name, readingTypeString, formulaString, Formula.Mode.EXPERT);
+    public void addDeliverableExpert(long metrologyContractId, String name, String readingTypeString, String formulaString) {
+        doAddDeliverable(metrologyContractId, name, readingTypeString, formulaString, Formula.Mode.EXPERT);
     }
 
-    private void doAddDeliverable(long metrologyConfigId, String name, String readingTypeString, String formulaString, Formula.Mode mode) {
+    private void doAddDeliverable(long metrologyContractId, String name, String readingTypeString, String formulaString, Formula.Mode mode) {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
-            MetrologyConfiguration metrologyConfiguration = metrologyConfigurationService.findMetrologyConfiguration(metrologyConfigId)
-                    .orElseThrow(() -> new IllegalArgumentException("No such metrology configuration"));
+            MetrologyContract metrologyContract = metrologyConfigurationService.findMetrologyContract(metrologyContractId)
+                    .orElseThrow(() -> new IllegalArgumentException("No such metrology contract"));
             ReadingType readingType = meteringService.getReadingType(readingTypeString)
                     .orElseThrow(() -> new IllegalArgumentException("No such reading type"));
 
             ServerExpressionNode node = new ExpressionNodeParser(meteringService.getThesaurus(),
-                    metrologyConfigurationService, customPropertySetService, metrologyConfiguration, mode).parse(formulaString);
+                    metrologyConfigurationService, customPropertySetService, metrologyContract.getMetrologyConfiguration(), mode).parse(formulaString);
 
-            long id = ((ReadingTypeDeliverableBuilderImpl) metrologyConfiguration.newReadingTypeDeliverable(name, readingType, mode)).build(node).getId();
+            long id = ((ReadingTypeDeliverableBuilderImpl) metrologyContract.newReadingTypeDeliverable(name, readingType, mode)).build(node).getId();
             System.out.println("Deliverable created: " + id);
             context.commit();
         }
@@ -770,7 +768,7 @@ public class MeteringConsoleCommands {
                     .orElseThrow(() -> new IllegalArgumentException("No such deliverable"));
             MetrologyConfiguration metrologyConfiguration = metrologyConfigurationService.findMetrologyConfiguration(metrologyConfigId)
                     .orElseThrow(() -> new IllegalArgumentException("No such metrology configuration"));
-            metrologyConfiguration.removeReadingTypeDeliverable(deliverable);
+            metrologyConfiguration.getContracts().forEach(contract -> contract.removeDeliverable(deliverable));
             context.commit();
         }
     }
@@ -793,21 +791,6 @@ public class MeteringConsoleCommands {
 
     public void addDeliverableToContract() {
         System.out.println("Usage: addDeliverableToContract <metrology configuration id> <deliverable id> (" + Stream.of(DefaultMetrologyPurpose.values()).map(DefaultMetrologyPurpose::name).collect(Collectors.joining(" | ")) + ")");
-    }
-
-    public void addDeliverableToContract(long metrologyConfigId, long deliverableId, String defaultPurpose) {
-        threadPrincipalService.set(() -> "Console");
-        try (TransactionContext context = transactionService.getContext()) {
-            MetrologyPurpose purpose = metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.valueOf(defaultPurpose))
-                    .orElseThrow(() -> new NoSuchElementException("Default purposes not installed"));
-            ReadingTypeDeliverable deliverable = metrologyConfigurationService.findReadingTypeDeliverable(deliverableId)
-                    .orElseThrow(() -> new IllegalArgumentException("No such deliverable"));
-            MetrologyContract contract = metrologyConfigurationService.findMetrologyConfiguration(metrologyConfigId)
-                    .orElseThrow(() -> new IllegalArgumentException("No such metrology configuration"))
-                    .addMetrologyContract(purpose);
-            contract.addDeliverable(deliverable);
-            context.commit();
-        }
     }
 
     public void removeDeliverableFromContract() {
@@ -903,6 +886,23 @@ public class MeteringConsoleCommands {
                             .findMetrologyConfiguration(metrologyConfigurationId)
                             .orElseThrow(() -> new IllegalArgumentException("Unable to find metrology configuration with id " + metrologyConfigurationId));
             metrologyConfiguration.addCustomPropertySet(customPropertySet);
+            context.commit();
+        }
+    }
+
+    public void unlinkMetrologyConfiguration(){
+        System.out.println("Usage: unlinkMetrologyConfiguration <usage point name>  <timestamp string>");
+    }
+
+    public void unlinkMetrologyConfiguration(String usagePointName ,String timestamp){
+        threadPrincipalService.set(() -> "Console");
+        try (TransactionContext context = transactionService.getContext()) {
+            UsagePoint usagePoint = this.meteringService.findUsagePointByName(usagePointName)
+                    .orElseThrow(() -> new IllegalArgumentException("Usage point " + usagePointName + " does not exist"));
+            Instant endDate = LocalDateTime.from(dateTimeFormat.parse(timestamp)).atZone(ZoneId.systemDefault()).toInstant();
+            EffectiveMetrologyConfigurationOnUsagePoint configurationOnUsagePoint = usagePoint.getCurrentEffectiveMetrologyConfiguration()
+                    .orElseThrow(() -> new IllegalArgumentException("Usage point "+usagePointName + " does not have open metrology configuration"));
+            usagePoint.getCurrentEffectiveMetrologyConfiguration().get().close(endDate);
             context.commit();
         }
     }
