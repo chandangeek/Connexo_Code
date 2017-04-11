@@ -107,7 +107,7 @@ Ext.define('Uni.property.view.property.NoneOrBigDecimal', {
     getValueAsDisplayString: function (value) {
         var me = this;
         if (value.isNone) {
-            return Uni.I18n.translate('value.none', me.translationKey, 'none');
+            return Uni.I18n.translate('value.none1', me.translationKey, 'None');
         } else{
             return value.value;
         }
@@ -127,6 +127,18 @@ Ext.define('Uni.property.view.property.NoneOrBigDecimal', {
         if (Ext.isEmpty(value) || value < field.minValue) {
             field.setValue(field.minValue);
         }
+    },
+
+    initListeners: function () {
+        var me = this,
+            resetButtonListener = function(){
+                me.getProperty().set('isInheritedOrDefaultValue', false);
+                me.updateResetButton();
+            };
+
+        this.callParent(arguments);
+        me.getValueNumberField() && me.getValueNumberField().on('change', resetButtonListener);
+        me.getValueRadioField() && me.getValueRadioField().on('change', resetButtonListener);
     }
 
 });

@@ -153,5 +153,19 @@ Ext.define('Uni.property.view.property.MaximumAbsoluteDifference', {
         } else if(!Ext.isEmpty(field.maxValue) && value > field.maxValue){
             field.setValue(field.maxValue);
         }
-    }
+    },
+
+    initListeners: function () {
+        var me = this,
+            resetButtonListener = function(){
+                me.getProperty().set('isInheritedOrDefaultValue', false);
+                me.updateResetButton();
+            };
+
+        this.callParent(arguments);
+        me.getValueNumberField() && me.getValueNumberField().on('change', resetButtonListener);
+        me.getPercentNumberField() && me.getPercentNumberField().on('change', resetButtonListener);
+        me.getValueRadioField() && me.getValueRadioField().on('change', resetButtonListener);
+
+    },
 });
