@@ -27,7 +27,7 @@ Ext.define('Uni.model.readings.ReadingCorrection', {
             this.url = this.mdmUrl.replace('{usagePointId}', usagePointId).replace('{purposeId}', purposeId).replace('{outputId}', outputId)
         },
         setMdcUrl: function(deviceId, channelId){
-            this.url = this.mdmUrl.replace('{deviceId}', deviceId).replace('{channelId}', channelId)
+            this.url = this.mdcUrl.replace('{deviceId}', deviceId).replace('{channelId}', channelId)
         }
     }
 });
