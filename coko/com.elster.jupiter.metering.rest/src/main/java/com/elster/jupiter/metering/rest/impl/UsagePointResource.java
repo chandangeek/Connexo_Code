@@ -22,8 +22,8 @@ import com.elster.jupiter.metering.config.OverlapsOnMetrologyConfigurationVersio
 import com.elster.jupiter.metering.config.OverlapsOnMetrologyConfigurationVersionStart;
 import com.elster.jupiter.metering.config.UnsatisfiedMerologyConfigurationEndDateInThePast;
 import com.elster.jupiter.metering.config.UnsatisfiedMerologyConfigurationStartDateRelativelyLatestEnd;
-import com.elster.jupiter.metering.config.UnsatisfiedMerologyConfigurationStartDateRelativelyLatestStart;
 import com.elster.jupiter.metering.config.UnsatisfiedMetrologyConfigurationEndDate;
+import com.elster.jupiter.metering.config.UnsatisfiedMetrologyConfigurationStartDateRelativelyLatestStart;
 import com.elster.jupiter.metering.config.UnsatisfiedReadingTypeRequirements;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.rest.ReadingTypeInfos;
@@ -364,7 +364,7 @@ public class UsagePointResource {
                     com.elster.jupiter.metering.rest.impl.MessageSeeds.UNSATISFIED_READING_TYPE_REQUIREMENTS_FOR_DEVICE.getDefaultFormat());
         } catch (UnsatisfiedMetrologyConfigurationEndDate ex) {
             throw new FormValidationException().addException("end", ex.getMessage());
-        } catch (UnsatisfiedMerologyConfigurationStartDateRelativelyLatestStart | UnsatisfiedMerologyConfigurationStartDateRelativelyLatestEnd ex) {
+        } catch (UnsatisfiedMetrologyConfigurationStartDateRelativelyLatestStart | UnsatisfiedMerologyConfigurationStartDateRelativelyLatestEnd ex) {
             throw new FormValidationException().addException("start", ex.getMessage());
         }
         info.metrologyConfigurationVersion = usagePoint.getEffectiveMetrologyConfiguration(start)
