@@ -4,14 +4,16 @@
 
 package com.elster.jupiter.kore.api.v2;
 
-import com.elster.jupiter.metering.config.MeterRole;
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.LinkInfo;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.PropertyCopier;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.Relation;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.SelectableFieldFactory;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
 
+import javax.inject.Inject;
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
@@ -25,6 +27,14 @@ import java.util.stream.Collectors;
 import static java.util.stream.Collectors.toList;
 
 public class MetrologyConfigurationInfoFactory extends SelectableFieldFactory<MetrologyConfigurationInfo, MetrologyConfiguration> {
+
+    private final CustomPropertySetInfoFactory customPropertySetInfoFactory;
+
+    @Inject
+    public MetrologyConfigurationInfoFactory(CustomPropertySetInfoFactory customPropertySetInfoFactory) {
+        this.customPropertySetInfoFactory = customPropertySetInfoFactory;
+    }
+
 
     public LinkInfo asLink(MetrologyConfiguration metrology, Relation relation, UriInfo uriInfo) {
         MetrologyConfigurationInfo info = new MetrologyConfigurationInfo();
@@ -65,14 +75,27 @@ public class MetrologyConfigurationInfoFactory extends SelectableFieldFactory<Me
                 metrologyInfo.link = link(metrology, Relation.REF_SELF, uriInfo)));
         map.put("name", (metrologyInfo, metrology, uriInfo) -> metrologyInfo.name = metrology.getName());
         map.put("active", (metrologyInfo, metrology, uriInfo) -> metrologyInfo.active = metrology.isActive());
+        map.put("allowGaps", (metrologyInfo, metrology, uriInfo) -> metrologyInfo.allowGaps = metrology.isGapAllowed());
         map.put("userName", (metrologyInfo, metrology, uriInfo) -> metrologyInfo.userName = metrology.getUserName());
         map.put("createTime", (metrologyInfo, metrology, uriInfo) -> metrologyInfo.createTime = metrology.getCreateTime());
         map.put("modTime", (metrologyInfo, metrology, uriInfo) -> metrologyInfo.modTime = metrology.getModTime());
         map.put("meterRoles", (metrologyInfo, metrology, uriInfo) -> metrologyInfo.meterRoles
                 = ((UsagePointMetrologyConfiguration) metrology).getMeterRoles()
                 .stream()
-                .map(MeterRole::getKey)
+                .map(meterRole -> asIdWithNameInfo(meterRole.getKey(), meterRole.getDisplayName()))
+                .collect(Collectors.toList()));
+        map.put("customProperties", (metrologyInfo, metrology, uriInfo) -> metrologyInfo.customProperties
+                = metrology.getCustomPropertySets()
+                .stream()
+                .map(customPropertySet -> customPropertySetInfoFactory.asLink(customPropertySet, Relation.REF_RELATION, uriInfo))
                 .collect(Collectors.toList()));
         return map;
+    }
+
+    private IdWithNameInfo asIdWithNameInfo(Object id, String name){
+        IdWithNameInfo info = new IdWithNameInfo();
+        info.id = id;
+        info.name = name;
+        return info;
     }
 }

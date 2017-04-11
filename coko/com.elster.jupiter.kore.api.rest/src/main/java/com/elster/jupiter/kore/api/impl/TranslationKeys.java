@@ -9,7 +9,8 @@ import com.elster.jupiter.nls.TranslationKey;
 
 public enum TranslationKeys implements TranslationKey {
 
-    USAGE_POINT_COMMAND_MESSAGE_HANDLER_DISPLAYNAME(UsagePointCommandMessageHandlerFactory.SUBSCRIBER_NAME, UsagePointCommandMessageHandlerFactory.SUBSCRIBER_DISPLAYNAME);
+    USAGE_POINT_COMMAND_MESSAGE_HANDLER_DISPLAYNAME(UsagePointCommandMessageHandlerFactory.SUBSCRIBER_NAME, UsagePointCommandMessageHandlerFactory.SUBSCRIBER_DISPLAYNAME),
+    ;
 
     private final String key;
     private final String defaultFormat;

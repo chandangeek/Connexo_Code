@@ -5,12 +5,10 @@
 package com.elster.jupiter.kore.api.v2;
 
 import com.elster.jupiter.rest.api.util.v1.hypermedia.LinkInfo;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointStage;
 
-import java.util.List;
-
-public class EndDeviceInfo extends LinkInfo<Long> {
-    public String mRID;
-    public String serialNumber;
+public class UsagePointLifeCycleStateInfo extends LinkInfo<Long> {
     public String name;
-    public EndDeviceLifeCycleStateInfo lifecycleState;
+    public Boolean isInitial;
+    public UsagePointStage.Key stage;
 }

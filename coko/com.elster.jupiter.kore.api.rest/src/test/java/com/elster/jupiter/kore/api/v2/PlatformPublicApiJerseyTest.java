@@ -68,6 +68,10 @@ import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallBuilder;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
+import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointStage;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.WorkGroup;
 
@@ -108,6 +112,10 @@ public class PlatformPublicApiJerseyTest extends FelixRestApplicationJerseyTest 
     @Mock
     MetrologyConfigurationService metrologyConfigurationService;
     @Mock
+    UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService;
+    @Mock
+    UsagePointLifeCycleService usagePointLifeCycleService;
+    @Mock
     MessageService messageService;
     @Mock
     ServiceCallService serviceCallService;
@@ -134,6 +142,7 @@ public class PlatformPublicApiJerseyTest extends FelixRestApplicationJerseyTest 
         application.setClock(clock);
         application.setCustomPropertySetService(customPropertySetService);
         application.setMetrologyConfigurationService(metrologyConfigurationService);
+        application.setUsagePointLifeCycleConfigurationService(usagePointLifeCycleConfigurationService);
         application.setMeteringService(meteringService);
         application.setMessageService(messageService);
         application.setServiceCallService(serviceCallService);
@@ -141,6 +150,7 @@ public class PlatformPublicApiJerseyTest extends FelixRestApplicationJerseyTest 
         application.setThreadPrincipalService(threadPrincipalService);
         application.setLocationService(locationService);
         application.setIssueService(issueService);
+        application.setUsagePointLifeCycleService(usagePointLifeCycleService);
         return application;
     }
 
@@ -229,6 +239,9 @@ public class PlatformPublicApiJerseyTest extends FelixRestApplicationJerseyTest 
         when(meteringService.findAndLockUsagePointByMRIDAndVersion(eq(mRID), longThat(Matcher.matches(v -> v != version)))).thenReturn(Optional.empty());
         when(meteringService.findAndLockUsagePointByMRIDAndVersion(mRID, version)).thenReturn(Optional.of(usagePoint));
         when(detail.getUsagePoint()).thenReturn(usagePoint);
+
+        UsagePointState state = mockUsagePointLifeCycleState(1L, UsagePointStage.Key.PRE_OPERATIONAL);
+        when(usagePoint.getState()).thenReturn(state);
         return usagePoint;
     }
 
@@ -294,6 +307,18 @@ public class PlatformPublicApiJerseyTest extends FelixRestApplicationJerseyTest 
         when(finder.find()).thenReturn(list);
         when(finder.stream()).thenReturn(list.stream());
         return finder;
+    }
+
+    UsagePointState mockUsagePointLifeCycleState(long id, UsagePointStage.Key stageKey){
+        UsagePointState state = mock(UsagePointState.class);
+        when(state.getId()).thenReturn(id);
+        when(state.getName()).thenReturn("testState");
+        when(state.isInitial()).thenReturn(true);
+        UsagePointStage stage = mock(UsagePointStage.class);
+        when(stage.getKey()).thenReturn(stageKey);
+        when(state.getStage()).thenReturn(stage);
+        when(usagePointLifeCycleConfigurationService.findUsagePointState(id)).thenReturn(Optional.of(state));
+        return state;
     }
 
     protected void mockCommands() {

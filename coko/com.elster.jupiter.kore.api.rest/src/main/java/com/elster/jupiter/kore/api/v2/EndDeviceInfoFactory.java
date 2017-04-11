@@ -28,15 +28,17 @@ import static java.util.stream.Collectors.toList;
 public class EndDeviceInfoFactory extends SelectableFieldFactory<EndDeviceInfo, Meter> {
 
     private final Provider<Clock> clock;
+    private final Provider<EndDeviceLifeCycleStateInfoFactory> endDeviceLifeCycleStateInfoFactory;
 
     @Inject
-    public EndDeviceInfoFactory(Provider<Clock> clock) {
+    public EndDeviceInfoFactory(Provider<Clock> clock, Provider<EndDeviceLifeCycleStateInfoFactory> endDeviceLifeCycleStateInfoFactory) {
         this.clock = clock;
+        this.endDeviceLifeCycleStateInfoFactory = endDeviceLifeCycleStateInfoFactory;
     }
 
     public LinkInfo asLink(Meter endDevice, Relation relation, UriInfo uriInfo) {
         EndDeviceInfo info = new EndDeviceInfo();
-        copySelectedFields(info, endDevice, uriInfo, Arrays.asList("id", "version"));
+        copySelectedFields(info, endDevice, uriInfo, Arrays.asList("id", "mRID", "version"));
         info.link = link(endDevice, relation, uriInfo);
         return info;
     }
@@ -75,8 +77,10 @@ public class EndDeviceInfoFactory extends SelectableFieldFactory<EndDeviceInfo, 
         map.put("mRID", (endDeviceInfo, endDevice, uriInfo) -> endDeviceInfo.mRID = endDevice.getMRID());
         map.put("name", (endDeviceInfo, endDevice, uriInfo) -> endDeviceInfo.name = endDevice.getName());
         map.put("serialNumber", (endDeviceInfo, endDevice, uriInfo) -> endDeviceInfo.serialNumber = endDevice.getSerialNumber());
-        map.put("lifecycleState", (endDeviceInfo, endDevice, uriInfo) -> endDeviceInfo.lifecycleState
-                = endDevice.getState(clock.get().instant()).map(State::getName).orElse(null));
+        map.put("lifecycleState", (endDeviceInfo, endDevice, uriInfo) -> endDeviceInfo.lifecycleState = endDevice.getStateTimeline()
+                .flatMap(stateTimeline -> stateTimeline.getSlices().stream().filter(stateTimeSlice -> stateTimeSlice.getPeriod().contains(clock.get().instant())).findAny())
+                .map(e -> endDeviceLifeCycleStateInfoFactory.get().asInfo(e))
+                .orElse(null));
         return map;
     }
 }

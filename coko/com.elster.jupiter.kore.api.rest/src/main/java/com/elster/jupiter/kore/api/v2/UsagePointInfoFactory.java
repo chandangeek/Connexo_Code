@@ -48,6 +48,7 @@ public class UsagePointInfoFactory extends SelectableFieldFactory<UsagePointInfo
     private final CustomPropertySetService customPropertySetService;
     private final ExceptionFactory exceptionFactory;
     private final Provider<EffectiveMetrologyConfigurationInfoFactory> effectiveMetrologyConfigurationInfoFactory;
+    private final Provider<UsagePointLifeCycleStateInfoFactory> usagePointLifeCycleStateInfoFactory;
     private final Provider<MeterActivationInfoFactory> meterActivationInfoFactory;
     private final UsagePointCustomPropertySetInfoFactory customPropertySetInfoFactory;
     private final LocationInfoFactory locationInfoFactory;
@@ -56,6 +57,7 @@ public class UsagePointInfoFactory extends SelectableFieldFactory<UsagePointInfo
     @Inject
     public UsagePointInfoFactory(MeteringService meteringService, CustomPropertySetService customPropertySetService, ExceptionFactory exceptionFactory,
                                  Provider<EffectiveMetrologyConfigurationInfoFactory> effectiveMetrologyConfigurationInfoFactory,
+                                 Provider<UsagePointLifeCycleStateInfoFactory> usagePointLifeCycleStateInfoFactory,
                                  Provider<MeterActivationInfoFactory> meterActivationInfoFactory,
                                  UsagePointCustomPropertySetInfoFactory customPropertySetInfoFactory,
                                  LocationInfoFactory locationInfoFactory, Clock clock) {
@@ -63,6 +65,7 @@ public class UsagePointInfoFactory extends SelectableFieldFactory<UsagePointInfo
         this.customPropertySetService = customPropertySetService;
         this.exceptionFactory = exceptionFactory;
         this.effectiveMetrologyConfigurationInfoFactory = effectiveMetrologyConfigurationInfoFactory;
+        this.usagePointLifeCycleStateInfoFactory = usagePointLifeCycleStateInfoFactory;
         this.meterActivationInfoFactory = meterActivationInfoFactory;
         this.customPropertySetInfoFactory = customPropertySetInfoFactory;
         this.locationInfoFactory = locationInfoFactory;
@@ -169,6 +172,10 @@ public class UsagePointInfoFactory extends SelectableFieldFactory<UsagePointInfo
                 usagePointInfo.coordinates = usagePoint.getSpatialCoordinates().map(locationInfoFactory::asInfo).orElse(null));
         map.put("isSdp", (usagePointInfo, usagePoint, uriInfo) -> usagePointInfo.isSdp = usagePoint.isSdp());
         map.put("isVirtual", (usagePointInfo, usagePoint, uriInfo) -> usagePointInfo.isVirtual = usagePoint.isVirtual());
+        map.put("state", (usagePointInfo, usagePoint, uriInfo) -> {
+            usagePointInfo.state = usagePointLifeCycleStateInfoFactory.get()
+                    .asLink(usagePoint.getState(), Relation.REF_RELATION, uriInfo);
+        });
         return map;
     }
 

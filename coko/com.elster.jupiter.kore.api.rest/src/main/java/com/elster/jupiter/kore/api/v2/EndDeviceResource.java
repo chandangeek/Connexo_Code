@@ -6,10 +6,13 @@ package com.elster.jupiter.kore.api.v2;
 
 import com.elster.jupiter.kore.api.impl.MessageSeeds;
 import com.elster.jupiter.kore.api.security.Privileges;
+import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.FieldSelection;
+import com.elster.jupiter.rest.api.util.v1.hypermedia.JsonQueryParameters;
+import com.elster.jupiter.rest.api.util.v1.hypermedia.PagedInfoList;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.PROPFIND;
 
@@ -26,10 +29,12 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -40,13 +45,15 @@ public class EndDeviceResource {
 
     private final EndDeviceInfoFactory endDeviceInfoFactory;
     private final MeterReadingsFactory meterReadingsFactory;
+    private final EndDeviceLifeCycleStateInfoFactory endDeviceLifeCycleStateInfoFactory;
     private final MeteringService meteringService;
     private final ExceptionFactory exceptionFactory;
     private final Clock clock;
 
     @Inject
-    public EndDeviceResource(EndDeviceInfoFactory endDeviceInfoFactory, MeterReadingsFactory meterReadingsFactory, MeteringService meteringService, ExceptionFactory exceptionFactory, Clock clock) {
+    public EndDeviceResource(EndDeviceInfoFactory endDeviceInfoFactory, MeterReadingsFactory meterReadingsFactory, EndDeviceLifeCycleStateInfoFactory endDeviceLifeCycleStateInfoFactory, MeteringService meteringService, ExceptionFactory exceptionFactory, Clock clock) {
         this.endDeviceInfoFactory = endDeviceInfoFactory;
+        this.endDeviceLifeCycleStateInfoFactory = endDeviceLifeCycleStateInfoFactory;
         this.meteringService = meteringService;
         this.exceptionFactory = exceptionFactory;
         this.meterReadingsFactory = meterReadingsFactory;
@@ -54,7 +61,7 @@ public class EndDeviceResource {
     }
 
     /**
-     * @param meterId Unique identifier of the meter
+     * @param meterMrid Unique identifier of the meter
      * @param uriInfo uriInfo
      * @param fieldSelection field selection
      * @return The meter
@@ -62,16 +69,16 @@ public class EndDeviceResource {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @Path("/{meterId}")
+    @Path("/{meterMrid}")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
-    public EndDeviceInfo getEndDevice(@PathParam("meterId") long meterId, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
-        Meter meter = meteringService.findMeterById(meterId)
+    public EndDeviceInfo getEndDevice(@PathParam("meterMrid") String meterMrid, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
+        Meter meter = meteringService.findMeterByMRID(meterMrid)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_END_DEVICE));
         return endDeviceInfoFactory.from(meter, uriInfo, fieldSelection.getFields());
     }
 
     /**
-     * @param meterId Unique identifier of the meter
+     * @param meterMrid Unique identifier of the meter
      * @param uriInfo uriInfo
      * @param fieldSelection field selection
      * @return The meter
@@ -79,10 +86,10 @@ public class EndDeviceResource {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @Path("/{meterId}/readings")
+    @Path("/{meterMrid}/readings")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
-    public MeterReadingsInfos getEndDeviceReadings(@PathParam("meterId") Long meterId, @QueryParam("from") Long from, @QueryParam("to") Long to, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
-        Meter meter = meteringService.findMeterById(meterId)
+    public MeterReadingsInfos getEndDeviceReadings(@PathParam("meterMrid") String meterMrid, @QueryParam("from") Long from, @QueryParam("to") Long to, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
+        Meter meter = meteringService.findMeterByMRID(meterMrid)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_END_DEVICE));
 
         Range<Instant> range = Range.all();
@@ -120,6 +127,29 @@ public class EndDeviceResource {
         }
 
         return readings;
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @Path("/{meterMrid}/lifecyclestates")
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
+    public PagedInfoList<EndDeviceLifeCycleStateInfo> getEndDeviceLifeCycleStates(@PathParam("meterMrid") String meterMrid, @QueryParam("from") Long from, @QueryParam("to") Long to, @Context UriInfo uriInfo, @BeanParam JsonQueryParameters queryParameters) {
+        Range<Instant> range = Range.openClosed(from != null ? Instant.ofEpochMilli(from) : Instant.EPOCH, to != null ? Instant.ofEpochMilli(to) : Instant.MAX);
+
+        EndDevice meter = meteringService.findMeterByMRID(meterMrid)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_END_DEVICE));
+
+        List<EndDeviceLifeCycleStateInfo> infos = meter.getStateTimeline().map(stateTimeline -> stateTimeline.getSlices().stream()
+                .filter(stateTimeSlice -> stateTimeSlice.getPeriod().isConnected(range))
+                .map(endDeviceLifeCycleStateInfoFactory::asInfo)
+                .collect(Collectors.toList()))
+                .orElse(Collections.emptyList());
+
+        UriBuilder uriBuilder = uriInfo.getBaseUriBuilder()
+                .path(EndDeviceResource.class)
+                .resolveTemplate("meterMrid", meterMrid);
+
+        return PagedInfoList.from(infos, queryParameters, uriBuilder, uriInfo);
     }
 
     /**

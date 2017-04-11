@@ -4,7 +4,10 @@
 
 package com.elster.jupiter.kore.api.v2;
 
+import com.elster.jupiter.fsm.Stage;
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.fsm.StateTimeSlice;
+import com.elster.jupiter.fsm.StateTimeline;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
@@ -36,8 +39,18 @@ import static org.mockito.Mockito.when;
 
 public class EndDeviceResourceTest extends PlatformPublicApiJerseyTest {
 
+    private static final String METER_MRID = "7e1d25cf-c21c-4fe4-899a-3eb07d3f2d23";
+
     @Mock
     Meter meter;
+    @Mock
+    StateTimeline timeline;
+    @Mock
+    StateTimeSlice timeSlice;
+    @Mock
+    State state;
+    @Mock
+    Stage stage;
 
     @Override
     @Before
@@ -48,9 +61,18 @@ public class EndDeviceResourceTest extends PlatformPublicApiJerseyTest {
         when(meter.getState()).thenReturn(Optional.of(state));
         when(meter.getState(any(Instant.class))).thenReturn(Optional.of(state));
         when(meter.getId()).thenReturn(123L);
+        when(meter.getMRID()).thenReturn(METER_MRID);
         when(meter.getName()).thenReturn("testName");
         when(meter.getVersion()).thenReturn(1L);
+        when(meter.getStateTimeline()).thenReturn(Optional.of(timeline));
+        when(timeline.getSlices()).thenReturn(Collections.singletonList(timeSlice));
+        when(timeSlice.getPeriod()).thenReturn(Range.atLeast(Instant.EPOCH));
+        when(timeSlice.getState()).thenReturn(state);
+        when(state.getName()).thenReturn("state");
+        when(state.getStage()).thenReturn(Optional.of(stage));
+        when(stage.getName()).thenReturn("stage");
         when(meteringService.findMeterById(123)).thenReturn(Optional.of(meter));
+        when(meteringService.findMeterByMRID(METER_MRID)).thenReturn(Optional.of(meter));
         ReadingType readingType1 = mockReadingType("0.0.0.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0");
         when(readingType1.isRegular()).thenReturn(true);
         ReadingType readingType2 = mockReadingType("0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0");
@@ -69,7 +91,7 @@ public class EndDeviceResourceTest extends PlatformPublicApiJerseyTest {
 
     @Test
     public void testGetSingleMeterWithFields() throws Exception {
-        Response response = target("enddevices/123").queryParam("fields", "id,name").request().get();
+        Response response = target("enddevices/" + METER_MRID).queryParam("fields", "id,name").request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
         assertThat(model.<Integer>get("$.id")).isEqualTo(123);
@@ -79,7 +101,7 @@ public class EndDeviceResourceTest extends PlatformPublicApiJerseyTest {
 
     @Test
     public void testGetSingleMeterAllFields() throws Exception {
-        Response response = target("enddevices/123").request().get();
+        Response response = target("enddevices/"  + METER_MRID).request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
         assertThat(model.<Integer>get("$.id")).isEqualTo(123);
@@ -87,6 +109,9 @@ public class EndDeviceResourceTest extends PlatformPublicApiJerseyTest {
         assertThat(model.<String>get("$.name")).isEqualTo("testName");
         assertThat(model.<String>get("$.link.params.rel")).isEqualTo(Relation.REF_SELF.rel());
         assertThat(model.<String>get("$.link.href")).isEqualTo("http://localhost:9998/enddevices/123");
+        assertThat(model.<String>get("$.lifecycleState.stage")).isEqualTo("stage");
+        assertThat(model.<String>get("$.lifecycleState.name")).isEqualTo("state");
+        assertThat(model.<Integer>get("$.lifecycleState.interval.start")).isEqualTo(0);
     }
 
     @Test
@@ -102,7 +127,7 @@ public class EndDeviceResourceTest extends PlatformPublicApiJerseyTest {
 
     @Test
     public void testGetReadings() throws Exception {
-        Response response = target("enddevices/123/readings").queryParam("from", 1468343333330L).request().get();
+        Response response = target("enddevices/" + METER_MRID + "/readings").queryParam("from", 1468343333330L).request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
         assertThat(model.<List>get("$.readings")).hasSize(1);

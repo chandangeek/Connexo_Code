@@ -36,4 +36,6 @@ public class UsagePointInfo extends LinkInfo<Long> {
     public List<LinkInfo> accountabilities;
     public List<LinkInfo> usagePointConfigurations;
 
+    public LinkInfo state;
+
 }

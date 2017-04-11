@@ -83,9 +83,9 @@ public class MetrologyConfigurationResourceTest extends PlatformPublicApiJerseyT
         Response response = target("/metrologyconfigurations").request("application/json")
                 .method("PROPFIND", Response.class);
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
-        Assertions.assertThat(model.<List>get("$")).hasSize(9);
+        Assertions.assertThat(model.<List>get("$")).hasSize(11);
         Assertions.assertThat(model.<List<String>>get("$"))
-                .containsOnly("active", "createTime", "id", "link", "meterRoles", "modTime", "name", "userName", "version");
+                .containsOnly("active", "createTime", "id", "link", "allowGaps", "meterRoles", "modTime", "name", "userName", "version", "customProperties");
     }
 
 }

@@ -6,11 +6,10 @@ package com.elster.jupiter.kore.api.v2;
 
 import com.elster.jupiter.rest.api.util.v1.hypermedia.LinkInfo;
 
-import java.util.List;
+import java.time.Instant;
 
-public class EndDeviceInfo extends LinkInfo<Long> {
-    public String mRID;
-    public String serialNumber;
+public class UsagePointTransitionInfo extends LinkInfo<Long> {
     public String name;
-    public EndDeviceLifeCycleStateInfo lifecycleState;
+    public Instant effectiveTimestamp;
+    public Boolean transitionNow = true;
 }

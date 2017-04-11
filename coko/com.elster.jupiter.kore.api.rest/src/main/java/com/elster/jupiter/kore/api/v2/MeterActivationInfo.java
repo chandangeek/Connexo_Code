@@ -13,7 +13,7 @@ import com.elster.jupiter.rest.util.IntervalInfo;
  */
 public class MeterActivationInfo extends LinkInfo<Long> {
     public IntervalInfo interval;
-    public Long meter;
+    public String meter;
     public LinkInfo usagePoint;
     public LinkInfo endDevice;
     public String meterRole;
