@@ -14,64 +14,58 @@ import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
-
 import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocolimpl.mbus.core.MBus;
 
 import java.io.IOException;
 
 /**
- *
  * @author kvds
  */
 public class Generic extends MBus {
 
-    final int DEBUG=0;
-
+    /**
+     * Creates a new instance of Generic
+     */
     public Generic(PropertySpecService propertySpecService, NlsService nlsService) {
         super(propertySpecService, nlsService);
     }
 
-    @Override
     protected void doTheConnect() throws IOException {
-    	if (getInfoTypeSecondaryAddressing() == 0) {
-             getMBusConnection().sendSND_NKE();
-    	}
-    	else {
-    		// getMBusConnection().sendSND_NKE(); I think it IS allowed to send the SND_NKE here to clear the current selection
-    		// however, a wrong secondary addressing also clears the selection bit in the device...
-    		try {
-    			getMBusConnection().selectSecondaryAddress(Long.parseLong(getInfoTypeSerialNumber(),16),getInfoTypeHeaderManufacturerCode(),getInfoTypeHeaderVersion(),getInfoTypeHeaderMedium(),false);
-    		}
-    		catch(NumberFormatException e) {
-    			throw new IOException("Generic, secondary addressing used, configure a valid serial number! SerialNumber "+getInfoTypeSerialNumber()+" is invalid!");
-    		}
-    	}
+        if (getInfoTypeSecondaryAddressing() == 0) {
+            getMBusConnection().sendSND_NKE();
+        } else {
+            // getMBusConnection().sendSND_NKE(); I think it IS allowed to send the SND_NKE here to clear the current selection
+            // however, a wrong secondary addressing also clears the selection bit in the device...
+            try {
+                getMBusConnection().selectSecondaryAddress(Long.parseLong(getInfoTypeSerialNumber(), 16), getInfoTypeHeaderManufacturerCode(), getInfoTypeHeaderVersion(), getInfoTypeHeaderMedium(), false);
+            } catch (NumberFormatException e) {
+                throw new IOException("Generic, secondary addressing used, configure a valid serial number! SerialNumber " + getInfoTypeSerialNumber() + " is invalid!");
+            }
+        }
     }
 
-    @Override
     protected void doTheDisConnect() throws IOException {
-    	if (getInfoTypeSecondaryAddressing() == 1) {
-    		try {
-    		   Thread.sleep(500);
-    		   getMBusConnection().sendSND_NKE();
-    		}
-    	    catch(IOException e) {
-    	    	// absorb
-    	    }
-    	    catch(InterruptedException e) {
+        if (getInfoTypeSecondaryAddressing() == 1) {
+            try {
+                Thread.sleep(500);
+                getMBusConnection().sendSND_NKE();
+            } catch (IOException e) {
+                // absorb
+            } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 throw ConnectionCommunicationException.communicationInterruptedException(e);
             }
-    	}
+        }
+
     }
 
     @Override
     public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
         super.setUPLProperties(properties);
-    	if (getInfoTypeSecondaryAddressing() == 1) {
-    		setInfoTypeDeviceID("253");
-    	}
+        if (getInfoTypeSecondaryAddressing() == 1) {
+            setInfoTypeDeviceID("253");
+        }
     }
 
     @Override
@@ -80,16 +74,17 @@ public class Generic extends MBus {
     }
 
     @Override
-    public String getProtocolVersion() {
-        return "$Date: 2015-11-13 15:14:02 +0100 (Fri, 13 Nov 2015) $";
-    }
-
-    @Override
     public String getProtocolDescription() {
         return "Generic Mbus";
     }
 
-    @Override
+    /**
+     * The protocol version date
+     */
+    public String getProtocolVersion() {
+        return "$Date: 2015-11-13 15:14:02 +0100 (Fri, 13 Nov 2015) $";
+    }
+
     protected void initRegisterFactory() {
         setRegisterFactory(new RegisterFactory(this));
     }

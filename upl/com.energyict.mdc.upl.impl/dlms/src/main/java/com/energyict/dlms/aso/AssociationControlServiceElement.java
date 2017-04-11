@@ -664,7 +664,7 @@ public class AssociationControlServiceElement {
         rlrq[t++] = DLMSCOSEMGlobals.RLRQ_TAG;
 
         if (userInformationData != null) {
-            if (getSecurityContext().getSecurityPolicy().isRequestEncryptedOnly() || getSecurityContext().getSecurityPolicy().isRequestAuthenticatedAndEncrypted()) {
+            if (!getSecurityContext().getSecurityPolicy().isRequestPlain()) {
                 rlrq[t++] = (byte) (userInformationData.length + 4); // total length
                 rlrq[t++] = DLMSCOSEMGlobals.RLRQ_USER_INFORMATION;
                 rlrq[t++] = (byte) (userInformationData.length + 2); // Total length of the userInformation (including the following 2 bytes)

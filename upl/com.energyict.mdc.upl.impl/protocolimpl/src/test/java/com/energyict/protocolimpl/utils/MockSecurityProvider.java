@@ -225,4 +225,9 @@ public class MockSecurityProvider implements SecurityProvider{
     public void changeAuthenticationKey(byte[] newAuthenticationKey) throws IOException {
     }
 
+    @Override
+    public void changeMasterKey(byte[] newMasterKey) throws IOException {
+
+    }
+
 }

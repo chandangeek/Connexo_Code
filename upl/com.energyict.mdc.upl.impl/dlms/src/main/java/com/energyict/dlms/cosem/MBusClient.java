@@ -1,7 +1,13 @@
 package com.energyict.dlms.cosem;
 
 import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.Integer8;
+import com.energyict.dlms.axrdencoding.NullData;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.dlms.cosem.methods.MbusClientMethods;
 
@@ -273,6 +279,14 @@ public class MBusClient extends AbstractCosemObject {
      */
     public void setCapturePeriod(int period) throws IOException {
         write(MbusClientAttributes.CAPTURE_PERIOD.forVersion(getUsedVersion()), new Unsigned32(period).getBEREncodedByteArray());
+    }
+
+    public void setMBusPortReference(OctetString octetString) throws IOException {
+        write(MbusClientAttributes.MBUS_PORT_REFERENCE.forVersion(getUsedVersion()), octetString.getBEREncodedByteArray());
+    }
+
+    public Unsigned8 getPrimaryAddress() throws IOException {
+        return new Unsigned8(getResponseData(MbusClientAttributes.PRIMARY_ADDRESS.forVersion(getUsedVersion())), 0);
     }
 
     @Override

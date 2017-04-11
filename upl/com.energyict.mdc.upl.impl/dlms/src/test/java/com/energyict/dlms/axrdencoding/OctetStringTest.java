@@ -10,10 +10,14 @@ import org.junit.Test;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
 
 import static com.energyict.dlms.DLMSUtils.getBytesFromHexString;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author jme
@@ -94,7 +98,7 @@ public class OctetStringTest {
     @Test
     public final void fromDateTime() throws IOException {
         Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-        cal.setTime(getDateFromYYYYMMddhhmmss("2010-05-07 15:30:45"));
+        cal.setTime(getDateFromYYYYMMddhhmmss("2010-05-07 15:30:45 +0200"));
         AXDRDateTime dateTime = new AXDRDateTime(cal);
         System.out.println(DLMSUtils.getHexStringFromBytes(dateTime.getBEREncodedByteArray()));
 
@@ -121,7 +125,7 @@ public class OctetStringTest {
     private static Date getDateFromYYYYMMddhhmmss(String yyyyMMddhhmmss) {
         try {
             if (yyyyMMddhhmmss != null) {
-                Date date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(yyyyMMddhhmmss);
+                Date date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z").parse(yyyyMMddhhmmss);
                 Calendar cal = Calendar.getInstance();
                 cal.setTime(date);
                 cal.set(Calendar.MILLISECOND, 0);

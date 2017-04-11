@@ -97,7 +97,7 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
 
                 if (getSecurityContext().isDedicatedCiphering()) {
                     // if dedicated ciphering is used, then a new FrameCounter is used for each session
-                    getSecurityContext().setFrameCounterInitialized(false);
+                    getSecurityContext().getSecurityProvider().getRespondingFrameCounterHandler().setRespondingFrameCounter(-1);
                 }
                 handleHighLevelSecurityAuthentication();
             } else {
@@ -276,9 +276,6 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
 
                 ECDSASignatureImpl signing = new ECDSASignatureImpl(getSecurityContext().getECCCurve());
                 PrivateKey clientPrivateSigningKey = getGeneralCipheringSecurityProvider().getClientPrivateSigningKey();
-                if (clientPrivateSigningKey == null) {
-                    throw DeviceConfigurationException.missingProperty(DlmsSessionProperties.CLIENT_PRIVATE_SIGNING_KEY);
-                }
 
                 byte[] signature = signing.sign(plainText, clientPrivateSigningKey);
                 decryptedResponse = replyToHLSAuthentication(signature);
@@ -300,7 +297,7 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
         return (GeneralCipheringSecurityProvider) this.securityContext.getSecurityProvider();
     }
 
-    private byte[] associationEncryption(byte[] plainText) {
+    protected byte[] associationEncryption(byte[] plainText) {
         try {
             return this.securityContext.associationEncryption(plainText);
         } catch (NoSuchAlgorithmException e) {
@@ -452,7 +449,7 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
         }
     }
 
-    private void silentDisconnect() {
+    protected void silentDisconnect() {
         try {
             releaseAssociation();
             getDlmsV2Connection().disconnectMAC();

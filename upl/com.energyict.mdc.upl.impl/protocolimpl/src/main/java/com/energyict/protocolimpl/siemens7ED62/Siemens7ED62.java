@@ -9,6 +9,8 @@
 
 package com.energyict.protocolimpl.siemens7ED62;
 
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
 import com.energyict.mdc.upl.MeterProtocol;
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.UnsupportedException;
@@ -18,9 +20,6 @@ import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.ProfileData;
@@ -103,6 +102,7 @@ public class Siemens7ED62 implements MeterProtocol, RegisterProtocol {
     private long roundTripTime;
     private int DEBUG = 0;
     private boolean software7E1;
+    private boolean wakeupMeter;
 
     public Siemens7ED62(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
@@ -426,7 +426,7 @@ public class Siemens7ED62 implements MeterProtocol, RegisterProtocol {
     }
 
     public String getProtocolVersion() {
-        return "$Date: 2015-11-13 15:14:02 +0100 (Fri, 13 Nov 2015) $";
+        return "$Date: 2017-02-14 10:08:17 +0200 (Tue, 14 Feb 2017)$";
     }
 
     @Override
@@ -462,6 +462,8 @@ public class Siemens7ED62 implements MeterProtocol, RegisterProtocol {
         result.add("ForcedDelay");
         result.add("ChannelMap");
         result.add("TimeSetMethod");
+        result.add("Software7E1");
+        result.add("SendWakeUp");
         return result;
     }
 
@@ -492,7 +494,8 @@ public class Siemens7ED62 implements MeterProtocol, RegisterProtocol {
             forcedDelay = Integer.parseInt(properties.getProperty("ForcedDelay", "100"));
             nrOfChannels = Integer.parseInt(properties.getProperty("ChannelMap", "6"));
             timeSetMethod = Integer.parseInt(properties.getProperty("TimeSetMethod", "0").trim());
-            software7E1 = !"0".equalsIgnoreCase(properties.getProperty("Software7E1", "0"));
+            software7E1 = !properties.getProperty("Software7E1", "0").equalsIgnoreCase("0");
+            wakeupMeter = !properties.getProperty("SendWakeUp", "0").equalsIgnoreCase("0");
         } catch (NumberFormatException e) {
             throw new InvalidPropertyException(this.getClass().getSimpleName() + ", validateProperties, NumberFormatException, " + e.getMessage());
         }
@@ -516,7 +519,7 @@ public class Siemens7ED62 implements MeterProtocol, RegisterProtocol {
         try {
             siemensSCTM = new SiemensSCTM((software7E1 ? new Software7E1InputStream(inputStream) : inputStream),
                     (software7E1 ? new Software7E1OutputStream(outputStream) : outputStream),
-                    iSCTMTimeoutProperty, iProtocolRetriesProperty, null, nodeId, iEchoCancelling, forcedDelay);
+                    iSCTMTimeoutProperty, iProtocolRetriesProperty, null, nodeId, iEchoCancelling, forcedDelay, wakeupMeter);
             genericRegisters = new GenericRegisters(siemensSCTM); // KV 06092005 WVEM
             setMeterReadingRegisters();
 

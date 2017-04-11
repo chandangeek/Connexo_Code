@@ -1,13 +1,6 @@
 package com.energyict.protocolimplv2.dlms.idis.am130.messages;
 
-import com.energyict.mdc.upl.ProtocolException;
-import com.energyict.mdc.upl.issue.IssueFactory;
-import com.energyict.mdc.upl.messages.DeviceMessageStatus;
-import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
-import com.energyict.mdc.upl.meterdata.CollectedMessage;
-import com.energyict.mdc.upl.meterdata.ResultType;
-
+import com.energyict.dlms.aso.SecurityContext;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
@@ -19,6 +12,13 @@ import com.energyict.dlms.cosem.IPv4Setup;
 import com.energyict.dlms.cosem.ObjectDefinition;
 import com.energyict.dlms.cosem.PPPSetup;
 import com.energyict.dlms.cosem.SecuritySetup;
+import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.messages.DeviceMessageStatus;
+import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.meterdata.CollectedMessage;
+import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
@@ -28,6 +28,7 @@ import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.NetworkConnectivityMessage;
 import com.energyict.protocolimplv2.messages.SecurityMessage;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
+import com.energyict.protocolimplv2.messages.enums.ClientSecuritySetup;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -75,6 +76,8 @@ public class AM130MessageExecutor extends IDISMessageExecutor {
             collectedMessage = resetAlarmDescriptor(pendingMessage, collectedMessage);
         } else if (pendingMessage.getSpecification().equals(AlarmConfigurationMessage.RESET_BITS_IN_ALARM_REGISTER_1_OR_2)) {
             collectedMessage = resetAlarmBits(pendingMessage, collectedMessage);
+        } else if (pendingMessage.getSpecification().equals(AlarmConfigurationMessage.RESET_ALL_ALARM_BITS)) {
+            collectedMessage = resetAllAlarmBits1and2(collectedMessage);
         } else if (pendingMessage.getSpecification().equals(AlarmConfigurationMessage.WRITE_FILTER_FOR_ALARM_REGISTER_1_OR_2)) {
             collectedMessage = writeFilterForAlarm1or2(pendingMessage, collectedMessage);
         } else if (pendingMessage.getSpecification().equals(AlarmConfigurationMessage.FULLY_CONFIGURE_PUSH_EVENT_NOTIFICATION)) {
@@ -104,12 +107,38 @@ public class AM130MessageExecutor extends IDISMessageExecutor {
         } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.SetAutoConnectMode)) {
             setAutoConnectMode(pendingMessage);
         } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEYS)) {
-            changeAuthenticationKeyAndUseNewKey(pendingMessage);
+            changeAuthenticationKeyAndUseNewKey(collectedMessage, pendingMessage);
         } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEYS)) {
-            changeEncryptionKeyAndUseNewKey(pendingMessage);
+            changeEncryptionKeyAndUseNewKey(collectedMessage, pendingMessage);
+        } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_MASTER_KEY_WITH_NEW_KEYS)) {
+            changeMasterKeyAndUseNewKey(collectedMessage, pendingMessage);
+        } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEYS_FOR_PREDEFINED_CLIENT)) {
+            changeAuthenticationKeyAndUseNewKey(collectedMessage, pendingMessage);
+        } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEYS_FOR_PREDEFINED_CLIENT)) {
+            changeEncryptionKeyAndUseNewKey(collectedMessage, pendingMessage);
+        } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_MASTER_KEY_WITH_NEW_KEYS_FOR_PREDEFINED_CLIENT)) {
+            changeMasterKeyAndUseNewKey(collectedMessage, pendingMessage);
         } else {
             collectedMessage = super.executeMessage(pendingMessage, collectedMessage);
         }
+        return collectedMessage;
+    }
+
+
+    private CollectedMessage resetAllAlarmBits1and2(CollectedMessage collectedMessage) {
+        StringBuilder   sb = new StringBuilder();
+        ObisCode alarmBitsObisCodes[] = {ALARM_BITS_OBISCODE_1, ALARM_BITS_OBISCODE_2};
+
+        for (ObisCode alarmBitsObisCode : alarmBitsObisCodes) {
+            try {
+                resetAllAlarmBits(alarmBitsObisCode);
+                sb.append("Alarm bits reset for ").append(alarmBitsObisCode.toString()).append("; ");
+            } catch (IOException e) {
+                sb.append(e.getMessage()).append(" while performing alarm bits reset for ").append(alarmBitsObisCode);
+            }
+        }
+
+        collectedMessage.setDeviceProtocolInformation(sb.toString());
         return collectedMessage;
     }
 
@@ -215,45 +244,52 @@ public class AM130MessageExecutor extends IDISMessageExecutor {
         }
     }
 
-    private void changeAuthenticationKeyAndUseNewKey(OfflineDeviceMessage pendingMessage) throws IOException {
-        String newAuthenticationKey = getDeviceMessageAttributeValue(pendingMessage, newAuthenticationKeyAttributeName);
-        String newWrappedAuthenticationKey = getDeviceMessageAttributeValue(pendingMessage, newWrappedAuthenticationKeyAttributeName);
-        byte[] authenticationKeysBytes = ProtocolTools.getBytesFromHexString(newWrappedAuthenticationKey);
-
-        Array authenticationKeyArray = new Array();
-        Structure keyData = new Structure();
-        keyData.addDataType(new TypeEnum(2));    // 2 means keyType: authenticationKey
-        keyData.addDataType(OctetString.fromByteArray(authenticationKeysBytes));
-        authenticationKeyArray.addDataType(keyData);
-
-        SecuritySetup ss = getCosemObjectFactory().getSecuritySetup();
-        ss.transferGlobalKey(authenticationKeyArray);
+    protected CollectedMessage changeMasterKeyAndUseNewKey(CollectedMessage collectedMessage,OfflineDeviceMessage pendingMessage) throws IOException {
+        String newKey = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.newMasterKeyAttributeName);
+        changeKeyAndUseNewKey(pendingMessage, SecurityMessage.KeyID.MASTER_KEY.getId(), DeviceMessageConstants.newWrappedMasterKeyAttributeName);
 
         //Update the key in the security provider, it is used instantly
-        getProtocol().getDlmsSession().getProperties().getSecurityProvider().changeAuthenticationKey(ProtocolTools.getBytesFromHexString(newAuthenticationKey, ""));
+        getProtocol().getDlmsSession().getProperties().getSecurityProvider().changeMasterKey(ProtocolTools.getBytesFromHexString(newKey, ""));
+        return collectedMessage;
     }
 
-    private void changeEncryptionKeyAndUseNewKey(OfflineDeviceMessage pendingMessage) throws IOException {
-        String newEncrytionKey = getDeviceMessageAttributeValue(pendingMessage, newEncryptionKeyAttributeName);
-        String newWrappedEncryptionKey = getDeviceMessageAttributeValue(pendingMessage, newWrappedEncryptionKeyAttributeName);
-        byte[] encryptionKeysBytes = ProtocolTools.getBytesFromHexString(newWrappedEncryptionKey);
-
-        Array encryptionKeyArray = new Array();
-        Structure keyData = new Structure();
-        keyData.addDataType(new TypeEnum(0));    // 0 means keyType: encryptionKey (global key)
-        keyData.addDataType(OctetString.fromByteArray(encryptionKeysBytes));
-        encryptionKeyArray.addDataType(keyData);
-
-        SecuritySetup ss = getCosemObjectFactory().getSecuritySetup();
-        ss.transferGlobalKey(encryptionKeyArray);
+    protected CollectedMessage changeAuthenticationKeyAndUseNewKey(CollectedMessage collectedMessage,OfflineDeviceMessage pendingMessage) throws IOException {
+        String newKey = getDeviceMessageAttributeValue(pendingMessage, newAuthenticationKeyAttributeName);
+        changeKeyAndUseNewKey(pendingMessage, SecurityMessage.KeyID.AUTHENTICATION_KEY.getId(), newWrappedAuthenticationKeyAttributeName);
 
         //Update the key in the security provider, it is used instantly
-        getProtocol().getDlmsSession().getProperties().getSecurityProvider().changeEncryptionKey(ProtocolTools.getBytesFromHexString(newEncrytionKey, ""));
+        getProtocol().getDlmsSession().getProperties().getSecurityProvider().changeAuthenticationKey(ProtocolTools.getBytesFromHexString(newKey, ""));
+        return collectedMessage;
+    }
+
+    protected CollectedMessage changeEncryptionKeyAndUseNewKey(CollectedMessage collectedMessage, OfflineDeviceMessage pendingMessage) throws IOException {
+        String newKey = getDeviceMessageAttributeValue(pendingMessage, newEncryptionKeyAttributeName);
+        changeKeyAndUseNewKey(pendingMessage, SecurityMessage.KeyID.GLOBAL_UNICAST_ENCRYPTION_KEY.getId(), newWrappedEncryptionKeyAttributeName);
+
+        //Update the key in the security provider, it is used instantly
+        getProtocol().getDlmsSession().getProperties().getSecurityProvider().changeEncryptionKey(ProtocolTools.getBytesFromHexString(newKey, ""));
 
         //Reset frame counter, only if a different key has been written
-        if (!newEncrytionKey.equalsIgnoreCase(newWrappedEncryptionKey)) {
-            getProtocol().getDlmsSession().getAso().getSecurityContext().setFrameCounter(1);
-        }
+        SecurityContext securityContext = getProtocol().getDlmsSession().getAso().getSecurityContext();
+        securityContext.setFrameCounter(1);
+        securityContext.getSecurityProvider().getRespondingFrameCounterHandler().setRespondingFrameCounter(-1);
+
+        return collectedMessage;
+    }
+
+    protected void changeKeyAndUseNewKey(OfflineDeviceMessage pendingMessage, int keyId, String wrappedKeyAttributeName) throws IOException {
+        String newWrappedKey = getDeviceMessageAttributeValue(pendingMessage, wrappedKeyAttributeName);
+        byte[] keyBytes = ProtocolTools.getBytesFromHexString(newWrappedKey, "");
+        ObisCode clientSecuritySetupObis = getClientSecuritySetupObis(pendingMessage);
+
+        Array keyArray = new Array();
+        Structure keyData = new Structure();
+        keyData.addDataType(new TypeEnum(keyId));
+        keyData.addDataType(OctetString.fromByteArray(keyBytes));
+        keyArray.addDataType(keyData);
+
+        SecuritySetup ss = getCosemObjectFactory().getSecuritySetup(clientSecuritySetupObis);
+        ss.transferGlobalKey(keyArray);
     }
 
     protected void clearWhiteList() throws IOException {
@@ -459,4 +495,29 @@ public class AM130MessageExecutor extends IDISMessageExecutor {
         getCosemObjectFactory().getData(alarmDescriptorObisCode).setValueAttr(new Unsigned32(alarmBits.longValue()));
         return collectedMessage;
     }
+
+    protected ObisCode getClientSecuritySetupObis(OfflineDeviceMessage pendingMessage){
+        String client = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.client).getValue();
+        if (client!=null && !client.isEmpty()) {
+            try{
+                return ClientSecuritySetup.valueOf(client).getSecuritySetupOBIS();
+            } catch (Exception ex){
+                // ignore
+            }
+        }
+        return ClientSecuritySetup.Management.getSecuritySetupOBIS();
+    }
+
+    protected int getClientId(OfflineDeviceMessage pendingMessage){
+        String client = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.client).getValue();
+        if (client!=null && !client.isEmpty()) {
+            try{
+                return ClientSecuritySetup.valueOf(client).getID();
+            } catch (Exception ex){
+                // ignore
+            }
+        }
+        return ClientSecuritySetup.Management.getID();
+    }
+
 }

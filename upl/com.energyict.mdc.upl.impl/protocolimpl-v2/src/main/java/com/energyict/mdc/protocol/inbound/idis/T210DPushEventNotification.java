@@ -12,35 +12,45 @@ import java.util.List;
  */
 public class T210DPushEventNotification extends DataPushNotification {
 
-    private T210DEventPushNotificationParser parser;
+    protected T210DEventPushNotificationParser parser;
 
     @Override
     public DiscoverResultType doDiscovery() {
-        parser = new T210DEventPushNotificationParser(comChannel, getContext());
-        parser.parseInboundFrame();
+        getEventPushNotificationParser().parseInboundFrame();
         return DiscoverResultType.DATA;
+    }
+
+    protected T210DEventPushNotificationParser getEventPushNotificationParser() {
+        if (parser == null) {
+            parser = new T210DEventPushNotificationParser(comChannel, getContext());
+        }
+        return parser;
     }
 
     @Override
     public boolean hasSupportForRequestsOnInbound() {
-        return true;
+        return false;
     }
 
     @Override
     public List<CollectedData> getCollectedData() {
         List<CollectedData> collectedDatas = new ArrayList<>();
-        if (parser.getCollectedDeviceIpAddres() != null) {
-            collectedDatas.add(parser.getCollectedDeviceIpAddres());
+        if (getEventPushNotificationParser().getCollectedDeviceIpAddres() != null) {
+            collectedDatas.add(getEventPushNotificationParser().getCollectedDeviceIpAddres());
         }
 
-        if (parser.getCollectedLoadProfile() != null && !parser.getCollectedLoadProfile().isEmpty()) {
-            for (CollectedLoadProfile collectedLoadProfile : parser.getCollectedLoadProfile()) {
+        if (getEventPushNotificationParser().getCollectedLoadProfile() != null && getEventPushNotificationParser().getCollectedLoadProfile().size() > 0) {
+            for (CollectedLoadProfile collectedLoadProfile : getEventPushNotificationParser().getCollectedLoadProfile()) {
                 collectedDatas.add(collectedLoadProfile);
             }
         }
 
-        if (parser.getCollectedLogBooks() != null) {
-            collectedDatas.addAll(parser.getCollectedLogBooks());
+        if (getEventPushNotificationParser().getCollectedLogBooks() != null) {
+            collectedDatas.addAll(getEventPushNotificationParser().getCollectedLogBooks());
+        }
+
+        if (getEventPushNotificationParser().getCollectedRegisters() != null) {
+            collectedDatas.add(getEventPushNotificationParser().getCollectedRegisters());
         }
 
         return collectedDatas;
@@ -48,6 +58,11 @@ public class T210DPushEventNotification extends DataPushNotification {
 
     @Override
     public DeviceIdentifier getDeviceIdentifier() {
-        return parser != null ? parser.getDeviceIdentifier() : null;
+        return getEventPushNotificationParser() != null ? getEventPushNotificationParser().getDeviceIdentifier() : null;
+    }
+
+    @Override
+    public String getVersion() {
+        return "$Date: 2017-03-20 16:05:37 +0200 (Mon, 20 Mar 2017)$";
     }
 }

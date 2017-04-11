@@ -1,5 +1,9 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages;
 
+import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.dlms.cosem.G3NetworkManagement;
+import com.energyict.dlms.protocolimplv2.DlmsSession;
+import com.energyict.mdc.upl.NotInObjectListException;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
@@ -8,10 +12,6 @@ import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.offline.OfflineDevice;
-
-import com.energyict.dlms.cosem.DataAccessResultException;
-import com.energyict.dlms.cosem.G3NetworkManagement;
-import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.messages.PLCConfigurationDeviceMessageExecutor;
 import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
@@ -34,10 +34,18 @@ public class Beacon3100PLCConfigurationDeviceMessageExecutor extends PLCConfigur
 
     private static final String SEPARATOR = ";";
     private final CollectedDataFactory collectedDataFactory;
+    boolean readOldObisCodes = false;
 
-    public Beacon3100PLCConfigurationDeviceMessageExecutor(DlmsSession session, OfflineDevice offlineDevice, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+    public Beacon3100PLCConfigurationDeviceMessageExecutor(DlmsSession session, OfflineDevice offlineDevice, boolean readOldObisCodes, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         super(session, offlineDevice, collectedDataFactory, issueFactory);
+        this.readOldObisCodes = readOldObisCodes;
         this.collectedDataFactory = collectedDataFactory;
+    }
+
+    @Override
+    // Beacon3100 uses IC version 0, has only 14 parameters on adp_routing_configuration
+    protected boolean isICVersion0() {
+        return true;
     }
 
     @Override
@@ -73,7 +81,8 @@ public class Beacon3100PLCConfigurationDeviceMessageExecutor extends PLCConfigur
             final long fullRoundTripTimeout = timeoutInMillis + normalTimeout;
             session.getDLMSConnection().setTimeout(fullRoundTripTimeout);
 
-            final G3NetworkManagement g3NetworkManagement = this.session.getCosemObjectFactory().getG3NetworkManagement();
+
+            final G3NetworkManagement g3NetworkManagement = getG3NetworkManagement();
             List<CollectedRegister> collectedRegisters = new ArrayList<>();
             for (String macAddress : macAddresses) {
 
@@ -111,6 +120,14 @@ public class Beacon3100PLCConfigurationDeviceMessageExecutor extends PLCConfigur
             session.getDLMSConnection().setTimeout(normalTimeout);
         }
         return collectedMessage;
+    }
+
+    protected G3NetworkManagement getG3NetworkManagement() throws NotInObjectListException {
+        if(readOldObisCodes) {
+            return this.session.getCosemObjectFactory().getG3NetworkManagement();
+        }else{
+            return this.session.getCosemObjectFactory().getG3NetworkManagement(Beacon3100Messaging.G3_NETWORK_MANAGEMENT_NEW_OBISCODE);
+        }
     }
 
 

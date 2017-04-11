@@ -1,11 +1,10 @@
 package com.energyict.dlms.aso;
 
-import com.energyict.mdc.upl.UnsupportedException;
-
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.DlmsSessionProperties;
 import com.energyict.dlms.aso.framecounter.DefaultRespondingFrameCounterHandler;
 import com.energyict.dlms.aso.framecounter.RespondingFrameCounterHandler;
+import com.energyict.mdc.upl.UnsupportedException;
 
 import java.io.IOException;
 import java.security.SecureRandom;
@@ -215,7 +214,12 @@ public class LocalSecurityProvider implements SecurityProvider {
         this.authenticationPassword = newAuthenticationKey;
     }
 
-	public byte[] getDedicatedKey() {
+    @Override
+    public void changeMasterKey(byte[] newMasterKey) throws IOException {
+        this.masterKey = newMasterKey;
+    }
+
+    public byte[] getDedicatedKey() {
 		if (dedicatedKey == null) {
 			dedicatedKey = new byte[16];
 			RANDOM.nextBytes(dedicatedKey);

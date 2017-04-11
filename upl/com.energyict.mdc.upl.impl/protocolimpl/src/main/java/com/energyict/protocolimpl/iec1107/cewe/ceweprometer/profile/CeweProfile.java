@@ -1,6 +1,9 @@
 package com.energyict.protocolimpl.iec1107.cewe.ceweprometer.profile;
 
-import com.energyict.protocol.*;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.IntervalStateBits;
+import com.energyict.protocol.ProfileData;
 import com.energyict.protocolimpl.base.FirmwareVersion;
 import com.energyict.protocolimpl.base.RetryHandler;
 import com.energyict.protocolimpl.iec1107.cewe.ceweprometer.CeweDateFormats;
@@ -8,7 +11,10 @@ import com.energyict.protocolimpl.iec1107.cewe.ceweprometer.CewePrometer;
 import com.energyict.protocolimpl.iec1107.cewe.ceweprometer.register.ProRegister;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.TimeZone;
 
 /**
  * Copyrights EnergyICT
@@ -115,11 +121,11 @@ public class CeweProfile {
                 ei |= IntervalStateBits.OTHER;
                 break;
             // voltage lost/missing
-            case 0x20:
+            case 0x40:
                 ei |= IntervalStateBits.OTHER;
                 break;
             // corrupted
-            case 0x40:
+            case 0x80:
                 ei |= IntervalStateBits.CORRUPTED;
                 break;
         }

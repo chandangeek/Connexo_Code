@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.edp;
 
 import com.energyict.dlms.DLMSCache;
+import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.channels.serial.direct.rxtx.RxTxSerialConnectionType;
@@ -29,16 +30,19 @@ import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.CollectedTopology;
 import com.energyict.mdc.upl.meterdata.Device;
+import com.energyict.mdc.upl.migration.MigrateFromV1Protocol;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocol.exception.ProtocolExceptionReference;
 import com.energyict.protocol.exception.ProtocolRuntimeException;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.edp.logbooks.LogbookReader;
 import com.energyict.protocolimplv2.edp.messages.EDPMessageExecutor;
@@ -59,7 +63,7 @@ import java.util.Optional;
  * Time: 11:34
  * Author: khe
  */
-public class CX20009 extends AbstractDlmsProtocol {
+public class CX20009 extends AbstractDlmsProtocol implements MigrateFromV1Protocol {
 
     private LogbookReader logbookReader = null;
     private RegisterReader registerReader;
@@ -281,4 +285,16 @@ public class CX20009 extends AbstractDlmsProtocol {
     public ManufacturerInformation getManufacturerInformation() {
         return null;
     }
+
+    @Override
+    public TypedProperties formatLegacyProperties(TypedProperties legacyProperties) {
+        TypedProperties result = com.energyict.protocolimpl.properties.TypedProperties.empty();
+        // Transform 'ReadCache' from int to bool
+        Object readCache = legacyProperties.getProperty(DlmsProtocolProperties.READCACHE_PROPERTY);
+        if (readCache != null) {
+            result.setProperty(DlmsProtocolProperties.READCACHE_PROPERTY, ProtocolTools.getBooleanFromString(readCache.toString()));
+        }
+        return result;
+    }
+
 }

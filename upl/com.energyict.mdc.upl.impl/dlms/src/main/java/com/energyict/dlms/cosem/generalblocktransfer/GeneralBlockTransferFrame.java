@@ -1,9 +1,8 @@
 package com.energyict.dlms.cosem.generalblocktransfer;
 
-import com.energyict.mdc.upl.ProtocolException;
-
 import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.DLMSUtils;
+import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 /**
@@ -35,30 +34,12 @@ public class GeneralBlockTransferFrame {
      * Parse the next GBT frame from the given byteArray
      *
      * @param bytes  The byteArray containing the GBT frame
-     * @param offset The offset in the byteArray from which to start reading the length
+     * @param offset The offset in the byteArray from which to start reading the GBT frame
      * @return the new offset in the byteArray (~ original offset increased with the length of the parsed GBT frame)
      */
     public int parseFrame(byte[] bytes, int offset) throws ProtocolException {
         try {
-            int ptr = offset;
-            if (bytes[ptr] != DLMSCOSEMGlobals.COSEM_GENERAL_BLOCK_TRANSFER) {
-                throw new ProtocolException("Didn't receive a valid general-block-transfer frame: the general-block-transfer APDU should start with tag 0xE0, but was " +
-                        ProtocolTools.getHexStringFromBytes(new byte[]{bytes[offset]}, "0x"));
-            }
-            ptr++;  // Skip the tag (0xE0)
-
-            setBlockControl(new BlockControl(bytes[ptr]));
-            ptr++;
-
-            parseBlockNumber(bytes, ptr);
-            ptr += 2;
-
-            parseAcknowledgedBlockNumber(bytes, ptr);
-            ptr += 2;
-
-            setLengthOfBlockData(DLMSUtils.getAXDRLength(bytes, ptr));
-            ptr += DLMSUtils.getAXDRLengthOffset(bytes, ptr);
-
+            int ptr = parseFrameHeaders(bytes, offset);
             parseBlockData(bytes, ptr);
             ptr += getBlockData().length;
 
@@ -66,6 +47,35 @@ public class GeneralBlockTransferFrame {
         } catch (IndexOutOfBoundsException e) {
             throw new ProtocolException(e, "Failed to parse the general-block-transfer APDU: " + e);
         }
+    }
+
+    /**
+     * Parse the next GBT frame headers (the full frame, except actual block data) from the given byteArray
+     *
+     * @param bytes  The byteArray containing the GBT frame
+     * @param offset The offset in the byteArray from which to start reading the GBT frame
+     * @return the new offset in the byteArray (~ original offset increased with the length of the parsed GBT frame)
+     */
+    public int parseFrameHeaders(byte[] bytes, int offset) throws ProtocolException {
+        int ptr = offset;
+        if (bytes[ptr] != DLMSCOSEMGlobals.COSEM_GENERAL_BLOCK_TRANSFER) {
+            throw new ProtocolException("Didn't receive a valid general-block-transfer frame: the general-block-transfer APDU should start with tag 0xE0, but was " +
+                    ProtocolTools.getHexStringFromBytes(new byte[]{bytes[offset]}, "0x"));
+        }
+        ptr++;  // Skip the tag (0xE0)
+
+        setBlockControl(new BlockControl(bytes[ptr]));
+        ptr++;
+
+        parseBlockNumber(bytes, ptr);
+        ptr += 2;
+
+        parseAcknowledgedBlockNumber(bytes, ptr);
+        ptr += 2;
+
+        setLengthOfBlockData(DLMSUtils.getAXDRLength(bytes, ptr));
+        ptr += DLMSUtils.getAXDRLengthOffset(bytes, ptr);
+        return ptr;
     }
 
     /**
@@ -140,11 +150,18 @@ public class GeneralBlockTransferFrame {
         this.blockData = blockData;
     }
 
-    private void parseBlockData(byte[] bytes, int offset) throws ProtocolException {
-        int from = offset;
+    /**
+     * Parse the GBT frame block data<br/>
+     * <b>Remark:</b> this method should only be called once method {@link #parseFrameHeaders(byte[], int)}
+     * has been called.
+     *
+     * @param offset The offset in the byteArray from which to start reading the GBT frame block data
+     * @throws ProtocolException
+     */
+    public void parseBlockData(byte[] bytes, int offset) throws ProtocolException {
         int to = offset + getLengthOfBlockData();
-        if (ProtocolTools.isArrayIndexInRange(bytes, from) && ProtocolTools.isArrayIndexInRange(bytes, to - 1) && (from < to)) {
-            this.blockData = ProtocolTools.getSubArray(bytes, from, to);
+        if (ProtocolTools.isArrayIndexInRange(bytes, offset) && ProtocolTools.isArrayIndexInRange(bytes, to - 1) && (offset < to)) {
+            this.blockData = ProtocolTools.getSubArray(bytes, offset, to);
         } else {
             throw new ProtocolException("Failed to parse the general-block-transfer APDU: Could not parse the block data, " +
                     "the indicated block length (" + getLengthOfBlockData() + ") doesn't match actual block data length");

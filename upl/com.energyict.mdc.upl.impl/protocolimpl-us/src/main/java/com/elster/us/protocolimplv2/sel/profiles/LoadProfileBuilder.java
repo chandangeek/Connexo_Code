@@ -120,7 +120,7 @@ public class LoadProfileBuilder /*implements DeviceLoadProfileSupport */ {
             CollectedLoadProfileConfiguration clpc = getLoadProfileConfiguration(lpr);
 
             // TODO: set start/end times correctly using timezone
-            LDPData results = meterProtocol.getConnection().readLoadProfileData(lpr);
+            LDPData results = meterProtocol.getConnection().readLoadProfileData(lpr, clpc.getProfileInterval());
             LoadProfileEIServerFormatter formatter = new LoadProfileEIServerFormatter(results, meterProtocol.getProperties());
 
             // These are the channels we are interested in...

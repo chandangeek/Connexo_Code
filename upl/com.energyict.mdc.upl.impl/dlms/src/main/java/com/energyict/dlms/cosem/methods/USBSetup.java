@@ -26,7 +26,8 @@ public class USBSetup extends AbstractCosemObject {
     private static final int USB_ACTIVITY_ATTRIB = 3;
     private static final int USB_LAST_ACTIVITY_TIMESTAMP_ATTRIB = 4;
 
-    private static final ObisCode DEFAULT_OBIS_CODE = ObisCode.fromString("0.0.128.0.28.255");
+    private static final ObisCode DEFAULT_OBIS_CODE_LEGACY = ObisCode.fromString("0.0.128.0.28.255");
+    private static final ObisCode DEFAULT_OBIS_CODE = ObisCode.fromString("0.194.96.144.0.255");
 
     /**
      * @param protocolLink
@@ -39,6 +40,11 @@ public class USBSetup extends AbstractCosemObject {
     public static ObisCode getDefaultObisCode() {
         return DEFAULT_OBIS_CODE;
     }
+
+    public final static ObisCode getLegacyObisCode() {
+        return DEFAULT_OBIS_CODE_LEGACY;
+    }
+
 
     protected int getClassId() {
         return DLMSClassId.USB_SETUP.getClassId();

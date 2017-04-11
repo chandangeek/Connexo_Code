@@ -60,4 +60,8 @@ public class TICommand  extends AbstractCommand {
         return commandIdentification;
     }
 
+    @Override
+    protected String getCommandName() {
+        return "TI";
+    }
 }

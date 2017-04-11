@@ -106,6 +106,31 @@ public final class DeviceMessageConstants {
     public static final String SecurityPolicyMulticastV0 = "FirmwareDeviceMessage.SecurityPolicyMulticastV0";
     public static final String SecurityPolicyMulticastV0DefaultTranslation = "Multicast security policy";
 
+    /**
+     * Indicates to the device whether or not it can read the image block size.
+     */
+    public static final String MCAST_FW_UPGRADE_BLOCK_SIZE_READABLE = "FirmwareDeviceMessage.BlockSizeReadable";
+
+    /**
+     * Indicates to the device whether or not it can write the image block size.
+     */
+    public static final String MCAST_FW_UPGRADE_BLOCK_SIZE_WRITABLE = "FirmwareDeviceMessage.BlockSizeWritable";
+
+    /**
+     * If the device cannot read the block size, spell it out.
+     */
+    public static final String MCAST_FW_UPGRADE_REQUESTED_BLOCK_SIZE = "FirmwareDeviceMessage.RequestedBlockSize";
+
+    /**
+     * max-apdu-size for a pre-established association.
+     */
+    public static final String MCAST_FW_UPGRADE_MAX_REC_PDU_SIZE = "FirmwareDeviceMessage.MaxRecPDUSize";
+
+    /**
+     * The logical name of the frame counter to be used in unicast mode.
+     */
+    public static final String MCAST_FW_UPGRADE_UNICAST_FRAMECOUNTER_LOGICAL_NAME = "FirmwareDeviceMessage.UnicastFrameCounterObiscode";
+
     public static final String contractAttributeName = "contract";
     public static final String contractAttributeDefaultTranslation = "Contract";
     public static final String defaultTariffCodeAttrributeName = "ActivityCalendarDeviceMessage.default.tariff";
@@ -113,6 +138,12 @@ public final class DeviceMessageConstants {
     public static final String activityCalendarTypeAttributeName = "ActivityCalendarDeviceMessage.activitycalendar.type";
     public static final String activityCalendarTypeAttributeDefaultTranslation = "Type";
     public static final String activityCalendarNameAttributeName = "ActivityCalendarDeviceMessage.activitycalendar.name";
+    public static final String activityCalendarObiscodeAttributeName = "ActivityCalendarDeviceMessage.activitycalendar.obiscode";
+    public static final String activityCalendarObiscodeAttributeDefaultTranslation = "Activity calendar obiscode";
+    public static final String specialDaysTableObiscodeAttributeName = "ActivityCalendarDeviceMessage.specialDaysTable.obiscode";
+    public static final String specialDaysTableObiscodeAttributeDefaultTranslation = "Special days obiscode";
+    public static final String dayProfileTableDefinitionAttributeName = "ActivityCalendarDeviceMessage.activitycalendar.dayProfileTable";
+    public static final String activityCalendarCodeTableAttributeName = "ActivityCalendarDeviceMessage.activitycalendar.codetable";
     public static final String activityCalendarNameAttributeDefaultTranslation = "Name";
     public static final String activityCalendarAttributeName = "ActivityCalendarDeviceMessage.activitycalendar.codetable";
     public static final String activityCalendarCodeTableAttributeDefaultTranslation = "Activity calendar";
@@ -121,6 +152,14 @@ public final class DeviceMessageConstants {
     public static final String specialDaysAttributeName = "ActivityCalendarDeviceMessage.specialdays.codetable";
     public static final String specialDaysCodeTableAttributeDefaultTranslation = "Calendar";
     public static final String XmlUserFileAttributeName = "ActivityCalendarDeviceMessage.xml.userfile";
+    public static final String dayProfileXmlUserFileAttributeName = "ActivityCalendarDeviceMessage.xml.dayprofiletable";
+    public static final String dayProfileXmlUserFileAttributeDefaultTranslation = "Day profile XML file";
+    public static final String weekProfileXmlUserFileAttributeName = "ActivityCalendarDeviceMessage.xml.weekprofiletable";
+    public static final String weekProfileXmlUserFileAttributeDefaultTranslation = "Week profile XML file";
+    public static final String seasonProfileXmlUserFileAttributeName = "ActivityCalendarDeviceMessage.xml.seasonprofiletable";
+    public static final String seasonProfileXmlUserFileAttributeDefaultTranslation = "Season profile XML file";
+    public static final String specialDaysXmlUserFileAttributeName = "ActivityCalendarDeviceMessage.xml.specialdaystable";
+    public static final String specialDaysXmlUserFileAttributeDefaultTranslation = "Special days XML file";
     public static final String XmlUserFileAttributeDefaultTranslation = "XML file";
     public static final String activityCalendarActivationDateAttributeName = "ActivityCalendarDeviceMessage.activitycalendar.activationdate";
     public static final String activityCalendarActivationDateAttributeDefaultTranslation = "Activation date";
@@ -135,8 +174,14 @@ public final class DeviceMessageConstants {
     public static final String newAuthenticationKeyAttributeName = "SecurityMessage.new.authenticationkey";
     public static final String newAuthenticationKeyAttributeDefaultTranslation = "New authentication key";
     public static final String newWrappedAuthenticationKeyAttributeName = "SecurityMessage.new.wrapped.authenticationkey";
+    public static final String newMasterKeyAttributeName = "SecurityMessage.new.masterkey";
+    public static final String newMasterKeyAttributeDefaultTranslation = "New master key";
+    public static final String newWrappedMasterKeyAttributeName = "SecurityMessage.new.wrapped.masterkey";
+    public static final String newWrappedMasterKeyAttributeDefaultTranslation = "New wrapped master key";
     public static final String newWrappedAuthenticationKeyAttributeDefaultTranslation = "New wrapped authentication key";
     public static final String clientMacAddress = "ClientMacAddress";
+    public static final String client = "SecurityMessage.client";
+    public static final String clientDefaultTranslation = "Client";
     public static final String clientMacAddressDefaultTranslation = "ClientMacAddress";
     public static final String masterKey = "SecurityMessage.masterkey";
     public static final String masterKeyDefaultTranslation = "Master key";
@@ -199,6 +244,11 @@ public final class DeviceMessageConstants {
     public static final String securitySuiteAttributeName = "SecurityMessage.securitySuite";
     public static final String securitySuiteAttributeDefaultTranslation = "Security suite";
     public static final String certificateEntityAttributeName = "SecurityMessage.certificateEntity";
+    public static final String CACertificateAliasAttributeName = "SecurityMessage.CACertificateAlias";
+    public static final String clientCertificateAliasAttributeName = "SecurityMessage.clientCertificateAlias";
+    public static final String clientCertificateAliasAttributeDefaultTranslation = "Client certificate alias";
+    public static final String certificateWrapperIdAttributeName = "SecurityMessage.certificateWrapperId";
+    public static final String certificateWrapperIdAttributeDefaultTranslation = "Certificate wrapper ID";
     public static final String certificateEntityAttributeDefaultTranslation = "Certificate entity";
     public static final String certificateAliasAttributeName = "SecurityMessage.certificateAlias";
     public static final String certificateAliasAttributeDefaultTranslation = "Certificate alias";
@@ -264,6 +314,14 @@ public final class DeviceMessageConstants {
     public static final String enableSSLDefaultTranslation = "Enable SSL";
     public static final String deviceName = "ConfigurationChangeDeviceMessage.deviceName";
     public static final String deviceNameDefaultTranslation = "Device name";
+    public static final String deviceHostName = "ConfigurationChangeDeviceMessage.deviceHostName";
+    public static final String deviceHostNameDefaultTranslation = "Device host name";
+    public static final String deviceLocation = "ConfigurationChangeDeviceMessage.deviceLocation";
+    public static final String deviceLocationDefaultTranslation = "Device location";
+    public static final String activeAPN = "ConfigurationChangeDeviceMessage.activeAPN";
+    public static final String activeAPNDefaultTranslation = "Active APN";
+    public static final String apnConfigurations = "ConfigurationChangeDeviceMessage.apnConfigurations";
+    public static final String apnConfigurationsDefaultTranslation = "APN configurations";
     public static final String ntpAddress = "ConfigurationChangeDeviceMessage.ntpAddress";
     public static final String ntpAddressDefaultTranslation = "NTP address";
     public static final String enableAutomaticDemandResetAttributeName = "ConfigurationChangeDeviceMessage.enabledemandreset";
@@ -364,6 +422,8 @@ public final class DeviceMessageConstants {
     public static final String emergencyProfileGroupIdListAttributeName = "LoadBalanceDeviceMessage.parameters.emergencyprofilegroupidlist";
     public static final String emergencyProfileGroupIdListAttributeDefaultTranslation = "Emergency profile group ID list";
     public static final String actionWhenUnderThresholdAttributeName = "LoadBalanceDeviceMessage.parameters.actionwhenunderthreshold";
+    public static final String actionWhenOverThresholdAttributeName = "LoadBalanceDeviceMessage.parameters.actionwhenoverthreshold";
+    public static final String actionWhenOverThresholdAttributeDefaultTranslation = "Action when over threshold";
     public static final String actionWhenUnderThresholdAttributeDefaultTranslation = "Action when under threshold";
     public static final String invertDigitalOutput1AttributeName = "LoadBalanceDeviceMessage.invertdigitaloutput1";
     public static final String invertDigitalOutput1AttributeDefaultTranslation = "Invert digital output 1";
@@ -1443,6 +1503,47 @@ public final class DeviceMessageConstants {
     public static final String executionMinutesForEachHourDefaultTranslation = "Execution minutes for each hour of the day";
 
     // Hide constructor for class with only public constants
-    private DeviceMessageConstants() {}
+    private DeviceMessageConstants() {
+    }
 
+    public static final String securityGroupEventCounters = "LogBookDeviceMessage.securityGroupEventCounters";
+    public static final String securityGroupEventCountersDefaultTranslation = "Security group event counters";
+    public static final String deviceLogLevel = "ConfigurationChangeDeviceMessage.deviceLogLevel";
+    public static final String deviceLogLevelDefaultTranslation = "Device log level";
+
+    public static final String RelayMeterNotifications = "DLMSGatewayMessage.RelayMeterNotifications";
+    public static final String RelayMeterNotificationsDefaultTranslation = "Relay meter notifications";
+    public static final String DecipherMeterNotifications = "DLMSGatewayMessage.DecipherMeterNotifications";
+    public static final String DecipherMeterNotificationsDefaultTranslation = "Decipher meter notifications";
+    public static final String DropUnencryptedMeterNotifications = "DLMSGatewayMessage.DropUnencryptedMeterNotifications";
+    public static final String DropUnencryptedMeterNotificationsDefaultTranslation = "Drop unencrypted meter notifications";
+
+    public static final String setupObjectAttributeName = "NetworkConnectivityMessage.setupObjectAttributeName";
+    public static final String setupObjectAttributeDefaultTranslation = "Setup object";
+    public static final String generalCipheringKeyTypeId = "DataProtection.generalCipheringKeyTypeId";
+    public static final String requiredProtection = "DataProtection.requiredProtection";
+    public static final String requiredProtectionDefaultTranslation = "Required protection";
+    public static final String notificationCiphering = "AlarmConfigurationMessage.notificationCiphering";
+    public static final String notificationCipheringDefaultTranslation = "Notification ciphering";
+    public static final String echoTestNotification = "AlarmConfigurationMessage.echoTestNotification";
+    public static final String echoTestNotificationDefaultTranslation = "Echo test notification";
+    public static final String startDate = "DeviceActionMessage.startDate";
+    public static final String startDateDefaultTranslation = "Start date";
+    public static final String endDate = "DeviceActionMessage.endDate";
+    public static final String endDateDefaultTranslation = "End date";
+    public static final String configurationId = "DeviceActionMessage.configurationId";
+    public static final String configurationIdDefaultTranslation = "Configuration ID";
+    public static final String bufferSize = "DeviceActionMessage.bufferSize";
+    public static final String bufferSizeDefaultTranslation = "Buffer size";
+    public static final String obisCode = "DeviceActionMessage.obisCode";
+    public static final String obisCodeDefaultTranslation = "Obis code";
+    public static final String gMeterIdentificationAttributeName = "MBusSetupDeviceMessage.gMeterIdentificationAttributeName";
+    public static final String gMeterIdentificationAttributeDefaultTranslation = "G-Meter identification";
+    public static final String scriptNumber = "ContactorDeviceMessage.scriptNumber";
+    public static final String scriptNumberDefaultTranslation = "Script number";
+    public static final String executionTimeDateArray = "ConfigurationChangeDeviceMessage.executionTimeDateArray";
+    public static final String executionTimeDateArrayDefaultTranslation = "Execution time date array";
+
+    public static final String adHocEndOfBillingActivationDatedAttributeName = "AdHocEndOfBilling.activationDateTime";
+    public static final String adHocEndOfBillingActivationDatedAttributeDefaultTranslation = "Ad hoc end of billing date";
 }

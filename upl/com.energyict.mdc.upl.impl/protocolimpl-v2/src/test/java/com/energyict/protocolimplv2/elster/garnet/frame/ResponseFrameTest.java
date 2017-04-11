@@ -18,7 +18,7 @@ public class ResponseFrameTest {
 
     @Test
     public void testParseEmptyLogBookEventResponse() throws Exception {
-        ResponseFrame responseFrame = new ResponseFrame(TimeZone.getDefault());
+        ResponseFrame responseFrame = new ResponseFrame(TimeZone.getTimeZone("GMT+2"));
         byte[] rawResponse = ProtocolTools.getBytesFromHexString("000011000015042216532900000000000000000000000000000000000000000000000000000000000000006290", "");
 
         // Business method

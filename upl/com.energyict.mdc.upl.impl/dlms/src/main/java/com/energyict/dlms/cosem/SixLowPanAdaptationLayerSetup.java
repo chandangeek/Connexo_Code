@@ -1,7 +1,12 @@
 package com.energyict.dlms.cosem;
 
 import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.BooleanObject;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.cosem.attributes.SixLowPanAdaptationLayerSetupAttribute;
 import com.energyict.obis.ObisCode;
 
@@ -93,16 +98,6 @@ public class SixLowPanAdaptationLayerSetup extends AbstractCosemObject {
     }
 
     /**
-     * The time to live of a route request table entry.
-     *
-     * @return
-     * @throws IOException
-     */
-    public AbstractDataType readAdpRoutingTupleTTL() throws IOException {
-        return readDataType(SixLowPanAdaptationLayerSetupAttribute.ROUTING_TUPLE_TTL);
-    }
-
-    /**
      * The routing table contains information about the different routes in
      * which the device is implicated.
      *
@@ -178,32 +173,36 @@ public class SixLowPanAdaptationLayerSetup extends AbstractCosemObject {
         write(SixLowPanAdaptationLayerSetupAttribute.ADP_WEAK_LQI_VALUE, rawValue);
     }
 
-    /**
-     * @param lowLqiValue
-     * @throws IOException
-     */
-    public void writeLowLqiValue(int lowLqiValue) throws IOException {
-        final Unsigned8 value = new Unsigned8(lowLqiValue);
-        final byte[] rawValue = value.getBEREncodedByteArray();
-        write(SixLowPanAdaptationLayerSetupAttribute.ADP_LOW_LQI_VALUE, rawValue);
-    }
-
-    /**
-     * @param highLqiValue
-     * @throws IOException
-     */
-    public void writeHighLqiValue(int highLqiValue) throws IOException {
-        final Unsigned8 value = new Unsigned8(highLqiValue);
-        final byte[] rawValue = value.getBEREncodedByteArray();
-        write(SixLowPanAdaptationLayerSetupAttribute.ADP_HIGH_LQI_VALUE, rawValue);
-    }
-
     public void writeSecurityLevel(int securityLevel) throws IOException {
         final Unsigned8 value = new Unsigned8(securityLevel);
         write(SixLowPanAdaptationLayerSetupAttribute.ADP_SECURITY_LEVEL, value.getBEREncodedByteArray());
     }
 
-    public void writeRoutingConfiguration(int adp_net_traversal_time,
+    // default write with 15 parameters (IC > 0)
+    public void writeRoutingConfiguration( int adp_net_traversal_time,
+                                           int adp_routing_table_entry_TTL,
+                                           int routing_tuple_TTL,
+                                           int adp_Kr,
+                                           int adp_Km,
+                                           int adp_Kc,
+                                           int adp_Kq,
+                                           int adp_Kh,
+                                           int adp_Krt,
+                                           int adp_RREQ_retries,
+                                           int adp_RREQ_RERR_wait,
+                                           int adp_Blacklist_table_entry_TTL,
+                                           boolean adp_unicast_RREQ_gen_enable,
+                                           boolean adp_RLC_enabled,
+                                           int adp_add_rev_link_cost) throws IOException {
+        writeRoutingConfiguration( false,
+                adp_net_traversal_time,adp_routing_table_entry_TTL,routing_tuple_TTL, adp_Kr, adp_Km, adp_Kc,
+                adp_Kq, adp_Kh, adp_Krt, adp_RREQ_retries, adp_RREQ_RERR_wait, adp_Blacklist_table_entry_TTL,
+                adp_unicast_RREQ_gen_enable, adp_RLC_enabled, adp_add_rev_link_cost);
+
+    }
+
+    public void writeRoutingConfiguration( boolean isICver0,
+                                          int adp_net_traversal_time,
                                           int adp_routing_table_entry_TTL,
                                           int routing_tuple_TTL,
                                           int adp_Kr,
@@ -223,7 +222,9 @@ public class SixLowPanAdaptationLayerSetup extends AbstractCosemObject {
         Structure routingConfiguration = new Structure();
         routingConfiguration.addDataType(new Unsigned8(adp_net_traversal_time));
         routingConfiguration.addDataType(new Unsigned16(adp_routing_table_entry_TTL));
-        routingConfiguration.addDataType(new Unsigned16(routing_tuple_TTL));
+        if (!isICver0) {// this is not available in IC ver 0
+            routingConfiguration.addDataType(new Unsigned16(routing_tuple_TTL));
+        }
         routingConfiguration.addDataType(new Unsigned8(adp_Kr));
         routingConfiguration.addDataType(new Unsigned8(adp_Km));
         routingConfiguration.addDataType(new Unsigned8(adp_Kc));
@@ -249,16 +250,6 @@ public class SixLowPanAdaptationLayerSetup extends AbstractCosemObject {
         final Unsigned16 value = new Unsigned16(broadcastLogTableTTL);
         final byte[] rawValue = value.getBEREncodedByteArray();
         write(SixLowPanAdaptationLayerSetupAttribute.ADP_BROADCAST_LOG_TABLE_ENTRY_TTL, rawValue);
-    }
-
-    /**
-     * @param routingTupleTTL
-     * @throws IOException
-     */
-    public void writeRoutingTupleTTL(int routingTupleTTL) throws IOException {
-        final Unsigned16 value = new Unsigned16(routingTupleTTL);
-        final byte[] rawValue = value.getBEREncodedByteArray();
-        write(SixLowPanAdaptationLayerSetupAttribute.ROUTING_TUPLE_TTL, rawValue);
     }
 
     public void writeMaxJoinWaitTime(int waitTime) throws IOException {

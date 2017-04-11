@@ -72,6 +72,15 @@ public class PLCOFDMType2MACSetup extends AbstractCosemObject {
         return readDataType(PLCOFDMType2MACSetupAttribute.MAC_PAN_ID);
     }
 
+    public AbstractDataType readKeyTable() throws IOException {
+        return readDataType(PLCOFDMType2MACSetupAttribute.MAC_KEY_TABLE);
+    }
+
+
+    public AbstractDataType readFrameCounter() throws IOException {
+        return readDataType(PLCOFDMType2MACSetupAttribute.MAC_FRAME_COUNTER);
+    }
+
     public AbstractDataType readToneMask() throws IOException {
         return readDataType(PLCOFDMType2MACSetupAttribute.MAC_TONE_MASK);
     }
@@ -125,6 +134,10 @@ public class PLCOFDMType2MACSetup extends AbstractCosemObject {
 
     public AbstractDataType readCenelecLegacyMode() throws IOException {
         return readDataType(PLCOFDMType2MACSetupAttribute.MAC_CENELEC_LEGACY_MODE);
+    }
+
+    public AbstractDataType readFccLegacyMode() throws IOException {
+        return readDataType(PLCOFDMType2MACSetupAttribute.MAC_FCC_LEGACY_MODE);
     }
 
     public AbstractDataType readMaxBE() throws IOException {
@@ -207,4 +220,5 @@ public class PLCOFDMType2MACSetup extends AbstractCosemObject {
         final Unsigned8 value = new Unsigned8(minBE);
         write(PLCOFDMType2MACSetupAttribute.MAC_MIN_BE, value.getBEREncodedByteArray());
     }
+
 }

@@ -1,5 +1,7 @@
 package com.energyict.protocolimplv2.dlms.idis.am130.properties;
 
+import com.energyict.dlms.CipheringType;
+import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
@@ -7,9 +9,6 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
-
-import com.energyict.dlms.CipheringType;
-import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.dlms.idis.IDIS;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
@@ -43,7 +42,7 @@ public class AM130ConfigurationSupport implements HasDynamicProperties {
     public static final boolean USE_GBT_DEFAULT_VALUE = true;
     public static final CipheringType DEFAULT_CIPHERING_TYPE = CipheringType.GENERAL_GLOBAL;
 
-    private final PropertySpecService propertySpecService;
+    protected final PropertySpecService propertySpecService;
 
     public AM130ConfigurationSupport(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
@@ -86,7 +85,7 @@ public class AM130ConfigurationSupport implements HasDynamicProperties {
     protected PropertySpec cipheringTypePropertySpec() {
         return UPLPropertySpecFactory
                 .specBuilder(DlmsProtocolProperties.CIPHERING_TYPE, false, PropertyTranslationKeys.V2_DLMS_CIPHERING_TYPE, this.propertySpecService::stringSpec)
-                .setDefaultValue(DEFAULT_CIPHERING_TYPE.getDescription())
+                .setDefaultValue(this.getDefaultCipheringType().getDescription())
                 .addValues(
                     CipheringType.GLOBAL.getDescription(),
                     CipheringType.DEDICATED.getDescription(),
@@ -149,7 +148,7 @@ public class AM130ConfigurationSupport implements HasDynamicProperties {
                 .finish();
     }
 
-    private PropertySpec bigDecimalSpec (String name, BigDecimal defaultValue, TranslationKey translationKey) {
+    protected PropertySpec bigDecimalSpec (String name, BigDecimal defaultValue, TranslationKey translationKey) {
         return UPLPropertySpecFactory
                 .specBuilder(name, false, translationKey, this.propertySpecService::bigDecimalSpec)
                 .setDefaultValue(defaultValue)
@@ -158,5 +157,14 @@ public class AM130ConfigurationSupport implements HasDynamicProperties {
 
     public PropertySpecService getPropertySpecService() {
         return propertySpecService;
+    }
+
+    /**
+     * Returns the default ciphering type.
+     *
+     * @return	The default ciphering type.
+     */
+    protected CipheringType getDefaultCipheringType() {
+    	return DEFAULT_CIPHERING_TYPE;
     }
 }

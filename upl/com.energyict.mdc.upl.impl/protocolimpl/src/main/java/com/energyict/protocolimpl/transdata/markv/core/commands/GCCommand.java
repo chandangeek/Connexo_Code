@@ -62,4 +62,8 @@ public class GCCommand  extends AbstractCommand {
         this.date = date;
     }
 
+    @Override
+    protected String getCommandName() {
+        return "GC";
+    }
 }

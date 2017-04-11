@@ -1,12 +1,11 @@
 package com.energyict.dlms.cosem;
 
-import com.energyict.mdc.upl.ProtocolException;
-
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.cosem.methods.FrameCounterProviderMethods;
+import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
@@ -29,6 +28,9 @@ public final class FrameCounterProvider extends AbstractCosemObject {
 	/** The default OBIS code. */
     private static final ObisCode DEFAULT_OBIS_CODE = ObisCode.fromString("0.0.43.1.0.255");
 
+    /** Indicates whether or not to skip the validation. */
+    private boolean skipValidation;
+
     /**
      * Creates a new instance of AbstractCosemObject
      *
@@ -36,6 +38,7 @@ public final class FrameCounterProvider extends AbstractCosemObject {
      * @param objectReference
      * @param	meterSystemTitle		The system title of the meter.
      * @param	ourSystemTitle			Our system title.
+     * @param	skipValidation			Indicates whether or not to validate the auth tag validation, <code>true</code> for yes, <code>false</code> for no.
      *
      */
     public FrameCounterProvider(ProtocolLink protocolLink, ObjectReference objectReference) {
@@ -49,6 +52,15 @@ public final class FrameCounterProvider extends AbstractCosemObject {
     @Override
     protected int getClassId() {
         return DLMSClassId.FRAME_COUNTER_PROVIDER.getClassId();
+    }
+
+    /**
+     * Indicates whether or not we skip FC auth tag validation.
+     *
+     * @param 	skip		<code>true</code> indicates the check should be skipped, <code>false</code> if not.
+     */
+    public final void setSkipValidation(final boolean skip) {
+    	this.skipValidation = skip;
     }
 
     public final long getFrameCounter(byte[] authenticationKey) throws IOException {
@@ -115,8 +127,10 @@ public final class FrameCounterProvider extends AbstractCosemObject {
 
             if (!Arrays.equals(mac, expectedChallengeResponse)) {
                 getLogger().warning("Framecounter HMAC validation failed, received MAC [" + ProtocolTools.getHexStringFromBytes(mac, "") + "] while expecting [" + ProtocolTools.getHexStringFromBytes(expectedChallengeResponse, "") + "]");
-
-                throw new ProtocolException("Framecounter HMAC validation failed, received MAC [" + ProtocolTools.getHexStringFromBytes(mac, "") + "] while expecting [" + ProtocolTools.getHexStringFromBytes(expectedChallengeResponse, "") + "]");
+                
+                if (!this.skipValidation) {
+                	throw new ProtocolException("Framecounter HMAC validation failed, received MAC [" + ProtocolTools.getHexStringFromBytes(mac, "") + "] while expecting [" + ProtocolTools.getHexStringFromBytes(expectedChallengeResponse, "") + "]");
+                }
             }
         } catch (NoSuchAlgorithmException e) {
             logException(e);

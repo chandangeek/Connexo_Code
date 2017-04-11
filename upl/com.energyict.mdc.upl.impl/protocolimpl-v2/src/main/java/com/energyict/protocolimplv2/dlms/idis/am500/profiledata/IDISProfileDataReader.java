@@ -41,6 +41,7 @@ import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.identifiers.LoadProfileIdentifierById;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -61,7 +62,9 @@ public class IDISProfileDataReader {
 
     private static final ObisCode QUARTER_HOURLY_LOAD_PROFILE_OBISCODE = ObisCode.fromString("1.0.99.1.0.255");
     private static final ObisCode DAILY_LOAD_PROFILE_OBISCODE = ObisCode.fromString("1.0.99.2.0.255");
+    private static final ObisCode BILLING_LOAD_PROFILE_OBISCODE = ObisCode.fromString("0.0.98.1.0.255");
     private static final ObisCode OBISCODE_MBUS_LOAD_PROFILE = ObisCode.fromString("0.x.24.3.0.255");
+    private static final ObisCode PQ_PROFILE_OBISCODE = ObisCode.fromString("1.0.99.14.0.255");
 
     private static final ObisCode OBISCODE_NR_OF_POWER_FAILURES = ObisCode.fromString("0.0.96.7.9.255");
     private static final int DO_NOT_LIMIT_MAX_NR_OF_DAYS = 0;
@@ -72,6 +75,7 @@ public class IDISProfileDataReader {
     private final long limitMaxNrOfDays;
     private Map<LoadProfileReader, List<ChannelInfo>> channelInfosMap;
     private Map<ObisCode, Integer> intervalMap;
+    private Map<ObisCode, Boolean> hasStatus = new HashMap<>();
 
     public IDISProfileDataReader(AbstractDlmsProtocol protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         this(protocol, DO_NOT_LIMIT_MAX_NR_OF_DAYS, collectedDataFactory, issueFactory);
@@ -87,6 +91,8 @@ public class IDISProfileDataReader {
         supportedLoadProfiles.add(QUARTER_HOURLY_LOAD_PROFILE_OBISCODE);
         supportedLoadProfiles.add(DAILY_LOAD_PROFILE_OBISCODE);
         supportedLoadProfiles.add(OBISCODE_MBUS_LOAD_PROFILE);
+        supportedLoadProfiles.add(BILLING_LOAD_PROFILE_OBISCODE);
+        supportedLoadProfiles.add(PQ_PROFILE_OBISCODE);
     }
 
     public List<CollectedLoadProfile> getLoadProfileData(List<LoadProfileReader> loadProfileReaders) {
@@ -122,21 +128,29 @@ public class IDISProfileDataReader {
                             cal.add(Calendar.SECOND, getIntervalMap().get(correctedLoadProfileObisCode));
                             timeStamp = cal.getTime();
                         } else {
-                            Issue problem = this.issueFactory.createProblem(loadProfileReader, "loadProfileXBlockingIssue", correctedLoadProfileObisCode, "Invalid interval data, timestamp should be of type OctetString or NullData");
+                            Issue problem = issueFactory.createProblem(loadProfileReader, "loadProfileXBlockingIssue", correctedLoadProfileObisCode, "Invalid interval data, timestamp should be the first captured object of type OctetString or NullData");
                             collectedLoadProfile.setFailureInformation(ResultType.InCompatible, problem);
                             break;  //Stop parsing, move on
                         }
                         previousTimeStamp = timeStamp;
 
-                        if (hasStatusInformation()) {
+                        if (hasStatusInformation(correctedLoadProfileObisCode)) {
                             status = structure.getInteger(1);
                             offset = 2;
+                        } else {
+                            // no status is expected in this load profile - i.e. billing profile
                         }
 
                         final List<IntervalValue> values = new ArrayList<>();
 
                         for (int channel = 0; channel < channelInfos.size(); channel++) {
-                            value = new IntervalValue(structure.getBigDecimalValue(channel + offset), status, getEiServerStatus(status));
+                            if (structure.isBigDecimal(channel + offset)) {
+                                value = new IntervalValue(structure.getBigDecimalValue(channel + offset), status, getEiServerStatus(status));
+                            } else {
+                                // unwanted channel (like a date), will be removed by com.energyict.comserver.commands.core.SimpleComCommand.removeUnwantedChannels()
+                                value = new IntervalValue(BigDecimal.ZERO, 0, 0);
+                            }
+
                             values.add(value);
                         }
 
@@ -323,11 +337,14 @@ public class IDISProfileDataReader {
                     throw new ProtocolRuntimeException(ProtocolExceptionReference.UNEXPECTED_RESPONSE);
                 }
             } else {
-                //TODO: see https://jira.eict.vpdc/browse/COMMUNICATION-1672
-                // this will throw up an exception if in the LP capture objects (from the meter) is found an obis code
-                // which is not supported by the (same) meter - that's illogical!
-                // we might want in the future to add a new parameter to skip this check (the storage works fine)
-                throw new ProtocolException("The OBIS code "+channelObisCode+" found in the meter load profile capture objects list, is NOT supported by the meter itself. Please reprogram the meter with a valid set of capture objects.");
+                String message = "The OBIS code " + channelObisCode + " found in the meter load profile capture objects list, is NOT supported by the meter itself." +
+                        " If ReadCache property is not active, try again with this property enabled. Otherwise, please reprogram the meter with a valid set of capture objects.";
+
+                if (protocol.getDlmsSessionProperties().validateLoadProfileChannels()) {
+                    throw new ProtocolException(message);
+                } else {
+                    protocol.getLogger().warning(message);
+                }
             }
         }
         return result;
@@ -351,10 +368,14 @@ public class IDISProfileDataReader {
     private boolean isChannel(CapturedObject capturedObject, ObisCode correctedLoadProfileObisCode) throws ProtocolException {
         int classId = capturedObject.getClassId();
         ObisCode obisCode = capturedObject.getLogicalName().getObisCode();
-        if (classId == DLMSClassId.REGISTER.getClassId() || classId == DLMSClassId.EXTENDED_REGISTER.getClassId() || classId == DLMSClassId.DEMAND_REGISTER.getClassId()) {
+        if (!isCaptureTime(capturedObject) && (classId == DLMSClassId.REGISTER.getClassId() || classId == DLMSClassId.EXTENDED_REGISTER.getClassId() || classId == DLMSClassId.DEMAND_REGISTER.getClassId())) {
             return true;
         }
-        if (isClock(obisCode) || isProfileStatus(obisCode)) {
+        if (isClock(obisCode) || isCaptureTime(capturedObject)) {
+            return false;
+        }
+        if (isProfileStatus(obisCode)) {
+            hasStatus.put(correctedLoadProfileObisCode, true);
             return false;
         }
         throw new ProtocolException("Unexpected captured_object in load profile '" + correctedLoadProfileObisCode + "': " + capturedObject.toString());
@@ -366,6 +387,10 @@ public class IDISProfileDataReader {
 
     private boolean isClock(ObisCode obisCode) {
         return (Clock.getDefaultObisCode().equals(obisCode));
+    }
+
+    private boolean isCaptureTime(CapturedObject capturedObject) {
+        return (capturedObject.getAttributeIndex() == 5 && capturedObject.getClassId() == DLMSClassId.EXTENDED_REGISTER.getClassId()) || (capturedObject.getAttributeIndex() == 6 && capturedObject.getClassId() == DLMSClassId.DEMAND_REGISTER.getClassId());
     }
 
     private boolean isSupported(LoadProfileReader lpr) {
@@ -381,7 +406,11 @@ public class IDISProfileDataReader {
         return limitMaxNrOfDays;
     }
 
-    protected boolean hasStatusInformation() {
-        return true;
+    protected boolean hasStatusInformation(ObisCode correctedLoadProfileObisCode) {
+        if (hasStatus.containsKey(correctedLoadProfileObisCode)) {
+            return hasStatus.get(correctedLoadProfileObisCode);
+        }
+
+        return false;
     }
 }

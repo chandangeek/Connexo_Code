@@ -7,11 +7,13 @@ import com.energyict.dlms.IncrementalInvokeIdAndPriorityHandler;
 import com.energyict.dlms.InvokeIdAndPriorityHandler;
 import com.energyict.dlms.NonIncrementalInvokeIdAndPriorityHandler;
 import com.energyict.dlms.aso.ConformanceBlock;
+import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.dlms.protocolimplv2.SecurityProvider;
 import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.protocol.exception.DeviceConfigurationException;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.nta.abstractnta.NTASecurityProvider;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
 
@@ -72,9 +74,9 @@ import static com.energyict.dlms.common.DlmsProtocolProperties.WAKE_UP;
 /**
  * Class that holds all DLMS device properties (general, dialect & security related)
  * Based on these properties, a DLMS session and its connection layer can be fully configured.
- * <p>
+ * <p/>
  * The list of optional and required properties that is shown in EIServer is held in {@link DlmsConfigurationSupport}
- * <p>
+ * <p/>
  * Copyrights EnergyICT
  * Date: 14-jul-2011
  * Time: 11:26:48
@@ -237,6 +239,24 @@ public class DlmsProperties implements DlmsSessionProperties {
     @Override
     public byte[] getSystemIdentifier() {
         return DEFAULT_SYSTEM_IDENTIFIER.getBytes();
+    }
+
+    @Override
+    public byte[] getDeviceSystemTitle() {
+        final String deviceSystemTitle = properties.getTypedProperty(DlmsProtocolProperties.DEVICE_SYSTEM_TITLE, "").trim();
+        if (!deviceSystemTitle.isEmpty()) {
+            try {
+                byte[] bytes = ProtocolTools.getBytesFromHexString(deviceSystemTitle, "");
+                if (bytes.length != 8) {
+                    throw new Exception("incorrect length");
+                }
+                return bytes;
+            } catch (Throwable e) {
+                throw DeviceConfigurationException.invalidPropertyFormat(DlmsProtocolProperties.DEVICE_SYSTEM_TITLE, deviceSystemTitle, "Should be a hex string of 16 characters");
+            }
+        }
+
+        return null;
     }
 
     @Override
@@ -415,9 +435,16 @@ public class DlmsProperties implements DlmsSessionProperties {
         return true;    // Protocols who don't want the frame counter to be increased for retries, can override this method
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public final boolean isPublicClientPreEstablished() {
         return this.properties.getTypedProperty(PUBLIC_CLIENT_ASSOCIATION_PRE_ESTABLISHED, PUBLIC_CLIENT_ASSOCIATION_PRE_ESTABLISHED_DEFAULT);
     }
 
+    @Override
+    public boolean validateLoadProfileChannels() {
+        return this.properties.getTypedProperty(DlmsProtocolProperties.VALIDATE_LOAD_PROFILE_CHANNELS, false);
+    }
 }

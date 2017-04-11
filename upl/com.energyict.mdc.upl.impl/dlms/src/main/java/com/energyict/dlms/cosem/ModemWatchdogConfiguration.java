@@ -20,7 +20,8 @@ public class ModemWatchdogConfiguration extends AbstractCosemObject {
     private Structure wdConfiguration = null;
     private BooleanObject isModemWatchdogEnabled = null;
 
-    public static final ObisCode OBIS_CODE = ObisCode.fromString("0.0.128.0.11.255");
+    public static final ObisCode OBIS_CODE = ObisCode.fromString("0.162.96.128.0.255");
+    public static final ObisCode OBIS_CODE_LEGACY = ObisCode.fromString("0.0.128.0.11.255");
 
     public static final int WD_CONFIG = 2;
     public static final int IS_MODEM_WATCHDOG_ENABLED = 3;
@@ -37,6 +38,11 @@ public class ModemWatchdogConfiguration extends AbstractCosemObject {
 
     public static final ObisCode getDefaultObisCode() {
         return OBIS_CODE;
+    }
+
+
+    public static ObisCode getLegacyObisCode() {
+        return OBIS_CODE_LEGACY;
     }
 
     @Override
@@ -91,4 +97,5 @@ public class ModemWatchdogConfiguration extends AbstractCosemObject {
         structure.addDataType(new Unsigned16(deviceRebootThreshold));
         write(ModemWatchdogConfigurationAttributes.CONFIG_PARAMETERS, structure.getBEREncodedByteArray());
     }
+
 }

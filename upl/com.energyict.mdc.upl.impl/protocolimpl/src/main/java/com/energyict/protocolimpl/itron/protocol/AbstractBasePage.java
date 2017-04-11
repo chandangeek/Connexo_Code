@@ -10,10 +10,9 @@
 
 package com.energyict.protocolimpl.itron.protocol;
 
-import com.energyict.protocolimpl.iec1107.ppm.parser.ByteAssembly;
-import com.energyict.protocolimpl.itron.fulcrum.*;
-import java.io.*;
-import com.energyict.protocolimpl.itron.fulcrum.basepages.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.logging.Logger;
 
 /**
  *
@@ -22,7 +21,8 @@ import com.energyict.protocolimpl.itron.fulcrum.basepages.*;
 abstract public class AbstractBasePage {
     
     private AbstractBasePageFactory basePagesFactory;
-    
+    private Logger logger;
+
     abstract protected BasePageDescriptor preparebuild() throws IOException;
     abstract protected void parse(byte[] data) throws IOException;
     
@@ -67,4 +67,15 @@ abstract public class AbstractBasePage {
     public void setBasePagesFactory(AbstractBasePageFactory basePagesFactory) {
         this.basePagesFactory = basePagesFactory;
     }
+
+    public Logger getLogger() {
+        if (logger==null){
+            logger = getBasePagesFactory().getLogger();
+        }
+        if (logger==null){
+            logger = Logger.getLogger(this.getClass().getName());
+        }
+        return logger;
+    }
+
 }

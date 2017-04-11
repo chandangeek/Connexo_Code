@@ -259,7 +259,7 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol, SerialNumb
         return dlmsSession;
     }
 
-    protected void setDlmsSession(DlmsSession dlmsSession) {
+    public void setDlmsSession(DlmsSession dlmsSession) {
         this.dlmsSession = dlmsSession;
     }
 

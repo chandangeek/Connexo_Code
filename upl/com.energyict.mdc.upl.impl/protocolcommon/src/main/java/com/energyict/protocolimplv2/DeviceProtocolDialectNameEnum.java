@@ -33,6 +33,9 @@ public enum DeviceProtocolDialectNameEnum implements TranslationKey {
     GARNET_SERIAL_DIALECT_NAME("GarnetSerialDialect", "Garnet Serial"),
     ABNT_SERIAL_DIALECT_NAME("AbntSerialDialect", "Abnt Serial"),
     ABNT_OPTICAL_DIALECT_NAME("AbntOpticalDialect", "Abnt Optical"),
+    EDMI_TCP_DIALECT_NAME("EdmiTcpDialect", "EDMI TCP dialect"),
+    EDMI_UDP_DIALECT_NAME("EdmiUdpDialect", "EDMI UDP dialect"),
+    EDMI_MODEM_DIALECT_NAME("EdmiModemDialect", "EDMI modem dialect"),
     NO_PARAMETERS_PROTOCOL_DIALECT_NAME("NoParamsDialect", "Default with no properties");
 
     private final String defaultTranslation;

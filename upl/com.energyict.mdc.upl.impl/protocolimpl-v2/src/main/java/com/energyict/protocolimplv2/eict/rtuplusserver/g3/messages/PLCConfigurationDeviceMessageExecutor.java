@@ -8,6 +8,7 @@ import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.cosem.G3NetworkManagement;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
+import com.energyict.mdc.upl.NotInObjectListException;
 import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
@@ -67,15 +68,12 @@ public class PLCConfigurationDeviceMessageExecutor {
             setMaxNumberOfHops(pendingMessage);
         } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetWeakLQIValueAttributeName)) {
             setWeakLQIValue(pendingMessage);
-        } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetLowLQIValueAttributeName)) {
-            setLowLQIValue(pendingMessage);
-        } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetHighLQIValueAttributeName)) {
-            setHighLQIValue(pendingMessage);
         } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetSecurityLevel)) {
             setSecurityLevelpendingMessage(pendingMessage);
         } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetRoutingConfiguration)) {
             setRoutingConfiguration(pendingMessage);
-        } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetBroadCastLogTableEntryTTLAttributeName)) {
+        } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetBroadCastLogTableEntryTTLAttributeName) ||
+                pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetBroadCastLogTableEntryTTLVersion1)) {
             setBroadCastLogTableEntryTTL(pendingMessage);
         } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetMaxJoinWaitTime)) {
             setMaxJoinWaitTime(pendingMessage);
@@ -179,18 +177,6 @@ public class PLCConfigurationDeviceMessageExecutor {
         cof.getSixLowPanAdaptationLayerSetup().writeWeakLqiValue(value);
     }
 
-    private void setLowLQIValue(OfflineDeviceMessage pendingMessage) throws IOException {
-        int value = getSingleIntegerAttribute(pendingMessage);
-        final CosemObjectFactory cof = this.session.getCosemObjectFactory();
-        cof.getSixLowPanAdaptationLayerSetup().writeLowLqiValue(value);
-    }
-
-    private void setHighLQIValue(OfflineDeviceMessage pendingMessage) throws IOException {
-        int value = getSingleIntegerAttribute(pendingMessage);
-        final CosemObjectFactory cof = this.session.getCosemObjectFactory();
-        cof.getSixLowPanAdaptationLayerSetup().writeHighLqiValue(value);
-    }
-
     private void setSecurityLevelpendingMessage(OfflineDeviceMessage pendingMessage) throws IOException {
         int value = getSingleIntegerAttribute(pendingMessage);
         final CosemObjectFactory cof = this.session.getCosemObjectFactory();
@@ -217,6 +203,7 @@ public class PLCConfigurationDeviceMessageExecutor {
         int adp_add_rev_link_cost = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.adp_add_rev_link_cost).getValue());
 
         cof.getSixLowPanAdaptationLayerSetup().writeRoutingConfiguration(
+                isICVersion0(),
                 adp_net_traversal_time,
                 adp_routing_table_entry_TTL,
                 adp_routing_tuple_TTL,
@@ -233,6 +220,14 @@ public class PLCConfigurationDeviceMessageExecutor {
                 adp_RLC_enabled,
                 adp_add_rev_link_cost
         );
+    }
+
+    /**
+     *  Flag if this is a IC version 0 or greater.
+     *  Beacon3100 uses version 0, which causes some issues on adp_routing_configuration
+     */
+    protected boolean isICVersion0() {
+        return false;
     }
 
     private void setBroadCastLogTableEntryTTL(OfflineDeviceMessage pendingMessage) throws IOException {
@@ -359,7 +354,7 @@ public class PLCConfigurationDeviceMessageExecutor {
 
     private PathRequestFeedback pathRequest(OfflineDeviceMessage pendingMessage) throws IOException {
         String macAddressesString = pendingMessage.getDeviceMessageAttributes().get(0).getValue();
-        final G3NetworkManagement topologyManagement = this.session.getCosemObjectFactory().getG3NetworkManagement();
+        final G3NetworkManagement topologyManagement = getG3NetworkManagement();
         List<String> macAddresses = Arrays.asList(macAddressesString.split(";"));
 
         StringBuilder pingFailed = new StringBuilder();
@@ -500,56 +495,60 @@ public class PLCConfigurationDeviceMessageExecutor {
         boolean routeRequestEnabled = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.routeRequestEnabled).getValue());
         boolean pathRequestEnabled = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.pathRequestEnabled).getValue());
 
-        this.session.getCosemObjectFactory().getG3NetworkManagement().setAutomaticRouteManagement(pingEnabled, routeRequestEnabled, pathRequestEnabled);
+        getG3NetworkManagement().setAutomaticRouteManagement(pingEnabled, routeRequestEnabled, pathRequestEnabled);
     }
 
     private void enableSNR(OfflineDeviceMessage pendingMessage) throws IOException {
-        this.session.getCosemObjectFactory().getG3NetworkManagement().enableSNR(getSingleBooleanAttribute(pendingMessage));
+        getG3NetworkManagement().enableSNR(getSingleBooleanAttribute(pendingMessage));
     }
 
     private void setSNRPacketInterval(OfflineDeviceMessage pendingMessage) throws IOException {
-        this.session.getCosemObjectFactory().getG3NetworkManagement().setSNRPacketInterval(getSingleIntegerAttribute(pendingMessage));
+        getG3NetworkManagement().setSNRPacketInterval(getSingleIntegerAttribute(pendingMessage));
     }
 
     private void setSNRQuietTime(OfflineDeviceMessage pendingMessage) throws IOException {
-        this.session.getCosemObjectFactory().getG3NetworkManagement().setSNRQuietTime(getSingleIntegerAttribute(pendingMessage));
+        getG3NetworkManagement().setSNRQuietTime(getSingleIntegerAttribute(pendingMessage));
     }
 
     private void setSNRPayload(OfflineDeviceMessage pendingMessage) throws IOException {
         byte[] payLoad = ProtocolTools.getBytesFromHexString(pendingMessage.getDeviceMessageAttributes().get(0).getValue(), "");
-        this.session.getCosemObjectFactory().getG3NetworkManagement().setSNRPayload(payLoad);
+        getG3NetworkManagement().setSNRPayload(payLoad);
     }
 
     private void enableKeepAlive(OfflineDeviceMessage pendingMessage) throws IOException {
-        this.session.getCosemObjectFactory().getG3NetworkManagement().enableKeepAlive(getSingleBooleanAttribute(pendingMessage));
+        getG3NetworkManagement().enableKeepAlive(getSingleBooleanAttribute(pendingMessage));
     }
 
     private void setKeepAliveScheduleInterval(OfflineDeviceMessage pendingMessage) throws IOException {
-        this.session.getCosemObjectFactory().getG3NetworkManagement().setKeepAliveScheduleInterval(getSingleIntegerAttribute(pendingMessage));
+        getG3NetworkManagement().setKeepAliveScheduleInterval(getSingleIntegerAttribute(pendingMessage));
     }
 
     private void setKeepAliveBucketSize(OfflineDeviceMessage pendingMessage) throws IOException {
-        this.session.getCosemObjectFactory().getG3NetworkManagement().setKeepAliveBucketSize(getSingleIntegerAttribute(pendingMessage));
+        getG3NetworkManagement().setKeepAliveBucketSize(getSingleIntegerAttribute(pendingMessage));
     }
 
     private void setMinInactiveMeterTime(OfflineDeviceMessage pendingMessage) throws IOException {
-        this.session.getCosemObjectFactory().getG3NetworkManagement().setMinInactiveMeterTime(getSingleIntegerAttribute(pendingMessage));
+        getG3NetworkManagement().setMinInactiveMeterTime(getSingleIntegerAttribute(pendingMessage));
     }
 
     private void setMaxInactiveMeterTime(OfflineDeviceMessage pendingMessage) throws IOException {
-        this.session.getCosemObjectFactory().getG3NetworkManagement().setMaxInactiveMeterTime(getSingleIntegerAttribute(pendingMessage));
+        getG3NetworkManagement().setMaxInactiveMeterTime(getSingleIntegerAttribute(pendingMessage));
+    }
+
+    protected G3NetworkManagement getG3NetworkManagement() throws NotInObjectListException {
+        return this.session.getCosemObjectFactory().getG3NetworkManagement();
     }
 
     private void setKeepAliveRetries(OfflineDeviceMessage pendingMessage) throws IOException {
-        this.session.getCosemObjectFactory().getG3NetworkManagement().setKeepAliveRetries(getSingleIntegerAttribute(pendingMessage));
+        getG3NetworkManagement().setKeepAliveRetries(getSingleIntegerAttribute(pendingMessage));
     }
 
     private void setKeepAliveTimeout(OfflineDeviceMessage pendingMessage) throws IOException {
-        this.session.getCosemObjectFactory().getG3NetworkManagement().setKeepAliveTimeout(getSingleIntegerAttribute(pendingMessage));
+        getG3NetworkManagement().setKeepAliveTimeout(getSingleIntegerAttribute(pendingMessage));
     }
 
     private void enableG3PLCInterface(OfflineDeviceMessage pendingMessage) throws IOException {
-        this.session.getCosemObjectFactory().getG3NetworkManagement().enableG3Interface(getSingleBooleanAttribute(pendingMessage));
+        getG3NetworkManagement().enableG3Interface(getSingleBooleanAttribute(pendingMessage));
     }
 
     private void writePlcG3Timeout(OfflineDeviceMessage pendingMessage) throws IOException {

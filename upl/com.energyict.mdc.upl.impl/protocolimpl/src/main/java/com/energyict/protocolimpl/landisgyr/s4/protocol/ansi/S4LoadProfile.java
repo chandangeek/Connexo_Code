@@ -256,17 +256,16 @@ public class S4LoadProfile {
             IntervalSet[] intervalSets = lpbd.getLoadProfileInterval();
             int nrOfIntervals = currentDayBlock?nrOfValidIntervals:intervalSets.length;
             int startInterval = currentDayBlock?nrOfIntervalsPerBlock-nrOfValidIntervals:0;
-            if (DEBUG>=3) System.out.println("KV_DEBUG> nrOfIntervals="+nrOfIntervals+", startInterval="+startInterval+", nrOfIntervalsPerBlock="+nrOfIntervalsPerBlock+", nrOfValidIntervals="+nrOfValidIntervals);
+            if (DEBUG>=3) System.out.println("KV_DEBUG> nrOfIntervals="+nrOfIntervals+", startInterval="+startInterval+", nrOfIntervalsPerBlock="+nrOfIntervalsPerBlock+", nrOfValidIntervals="+nrOfValidIntervals); 
 
+            int count = 0;
             for (int i=startInterval;i<nrOfIntervalsPerBlock;i++) {
-
-
-
                 //if (!ParseUtils.isOnIntervalBoundary(cal,s4.getProfileInterval())) {
-
-                if (i==(nrOfIntervals-1)) {
-                     ParseUtils.roundDown2nearestInterval(cal,s4.getProfileInterval());
-                     continue;
+            
+                if (count==(nrOfIntervals)) {
+                    ParseUtils.roundDown2nearestInterval(cal,s4.getProfileInterval());
+                    //System.out.println("Continuing, count is " + count);
+                    continue;
                 }
                 //}
 
@@ -283,10 +282,9 @@ public class S4LoadProfile {
                 } // for (int channel=0;channel<s4.getNumberOfChannels();channel++)
                 intervalDatas.add(intervalData);
 
-if (DEBUG>=3) System.out.println("KV_DEBUG> cal interval="+cal.getTime());
+                if (DEBUG>=3) System.out.println("KV_DEBUG> cal interval="+cal.getTime());
                 cal.add(Calendar.SECOND,(-1)*s4.getProfileInterval());
-
-
+                count++;
             } // for (int i=0;i<intervalSets.length;i++)
             profileData.setIntervalDatas(intervalDatas);
             currentDayBlock=false;

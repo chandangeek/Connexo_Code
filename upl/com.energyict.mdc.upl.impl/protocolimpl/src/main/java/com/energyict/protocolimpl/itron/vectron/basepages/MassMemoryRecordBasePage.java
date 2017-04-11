@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Calendar;
 import java.util.TimeZone;
+import java.util.logging.Level;
 
 /**
  * @author Koen
@@ -52,11 +53,11 @@ public class MassMemoryRecordBasePage extends AbstractBasePage {
         for (int i = 0; i < getIntervalRecords().length; i++) {
             strBuff.append("       intervalRecords[" + i + "]=" + getIntervalRecords()[i] + "\n");
         }
-        for (int i = 0; i < getRegisterValues().length; i++) {
-            strBuff.append("       registerValues[" + i + "]=" + getRegisterValues()[i] + "\n");
-        }
-        strBuff.append("   statusFlags=0x" + Integer.toHexString(statusFlags) + "\n");
-        strBuff.append("   outageFlags=0x" + Long.toHexString(outageFlags) + "\n");
+        for (int i=0;i<getRegisterValues().length;i++) {
+            strBuff.append("     registerValues["+i+"]="+getRegisterValues()[i]+"\n");
+        }        
+        strBuff.append("   statusFlags=0x"+Integer.toHexString(statusFlags)+"\n");
+        strBuff.append("   outageFlags=0x"+Long.toHexString(outageFlags)+"\n");
         return strBuff.toString();
     }
 
@@ -73,6 +74,10 @@ public class MassMemoryRecordBasePage extends AbstractBasePage {
     } // protected BasePageDescriptor preparebuild() throws IOException
 
     protected void parse(byte[] data) throws IOException {
+        if (getLogger().isLoggable(Level.INFO)) {
+            getLogger().info("Parsing MassMemoryRecord: " + ProtocolUtils.outputHexString(data));
+        }
+
         int offset = 0;
         TimeZone tz = getBasePagesFactory().getProtocolLink().getTimeZone();
         if (!((BasePagesFactory) getBasePagesFactory()).getOperatingSetUpBasePage().isDstEnabled())

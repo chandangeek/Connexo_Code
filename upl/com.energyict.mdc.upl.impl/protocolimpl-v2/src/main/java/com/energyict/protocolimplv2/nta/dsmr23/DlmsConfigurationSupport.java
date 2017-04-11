@@ -2,19 +2,16 @@ package com.energyict.protocolimplv2.nta.dsmr23;
 
 import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.dlms.common.DlmsProtocolProperties;
+import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
-import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
-import com.energyict.mdc.upl.DeviceProtocol;
-import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.DescriptionTranslationKey;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
-
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -36,7 +33,6 @@ import static com.energyict.dlms.common.DlmsProtocolProperties.MANUFACTURER;
 import static com.energyict.dlms.common.DlmsProtocolProperties.MAX_REC_PDU_SIZE;
 import static com.energyict.dlms.common.DlmsProtocolProperties.NTA_SIMULATION_TOOL;
 import static com.energyict.dlms.common.DlmsProtocolProperties.REQUEST_TIMEZONE;
-import static com.energyict.dlms.common.DlmsProtocolProperties.TIMEOUT;
 import static com.energyict.dlms.common.DlmsProtocolProperties.TIMEZONE;
 import static com.energyict.dlms.common.DlmsProtocolProperties.VALIDATE_INVOKE_ID;
 
@@ -50,7 +46,7 @@ import static com.energyict.dlms.common.DlmsProtocolProperties.VALIDATE_INVOKE_I
  * Time: 15:41
  * Author: khe
  */
-public class DlmsConfigurationSupport implements HasDynamicProperties{
+public class DlmsConfigurationSupport implements HasDynamicProperties {
 
     private static final boolean DEFAULT_VALIDATE_INVOKE_ID = true;
 
@@ -75,7 +71,8 @@ public class DlmsConfigurationSupport implements HasDynamicProperties{
                 this.validateInvokeIdPropertySpec(),
                 this.serverUpperMacAddressPropertySpec(),
                 this.serverLowerMacAddressPropertySpec(),
-                this.deviceId()));
+                this.deviceId(),
+                this.validateLoadProfileChannelsPropertySpec()));
     }
 
     @Override
@@ -155,10 +152,14 @@ public class DlmsConfigurationSupport implements HasDynamicProperties{
     /**
      * Property that can be used to indicate whether or not the public client has a pre-established association.
      *
-     * @return	The property specification.
+     * @return The property specification.
      */
     protected final PropertySpec publicClientPreEstablishedPropertySpec() {
         return this.booleanSpecBuilder(com.energyict.dlms.protocolimplv2.DlmsSessionProperties.PUBLIC_CLIENT_ASSOCIATION_PRE_ESTABLISHED, PropertyTranslationKeys.V2_ELSTER_PUBLIC_CLIENT_ASSOCIATION_PRE_ESTABLISHED).finish();
+    }
+
+    protected PropertySpec validateLoadProfileChannelsPropertySpec() {
+        return this.booleanSpecBuilder(DlmsProtocolProperties.VALIDATE_LOAD_PROFILE_CHANNELS, PropertyTranslationKeys.V2_ELSTER_PUBLIC_CLIENT_ASSOCIATION_PRE_ESTABLISHED).finish();
     }
 
     public PropertySpecService getPropertySpecService() {

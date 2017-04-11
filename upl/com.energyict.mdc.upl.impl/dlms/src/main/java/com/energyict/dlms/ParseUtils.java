@@ -2,10 +2,23 @@ package com.energyict.dlms;
 
 import com.energyict.obis.ObisCode;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.GeneralSecurityException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * DLMS ParseUtils
  */
 public final class ParseUtils {
+	
+	/** The X.509 certificate factory type. */
+	private static final String CERTIFICATE_FACTORY_X509 = "X.509";
 
     /**
      * Hide this static util class
@@ -117,4 +130,47 @@ public final class ParseUtils {
         }
         return data;
     }
+    
+	/**
+	 * Parse a certificate chain from PEM or DER, provided using the passed stream. The caller is responsible for closing the stream.
+	 * 
+	 * @param 	certificateStream	Stream pointing to the certificate chain.
+	 * 
+	 * @return	The parsed certificates.
+	 * 
+	 * @throws 	IOException						If an IO error occurs.
+	 * @throws	GeneralSecurityException		If a security error occurs.
+	 */
+    public static final X509Certificate[] parseCertificates(final byte[] derEncodedCertificates) throws GeneralSecurityException, IOException {
+		final CertificateFactory certificateFactory = CertificateFactory.getInstance(CERTIFICATE_FACTORY_X509);
+		final List<X509Certificate> certificates = new ArrayList<>();
+		
+		try (final InputStream certificateStream = new ByteArrayInputStream(derEncodedCertificates)) {
+			while (certificateStream.available() > 0) {
+				certificates.add((X509Certificate)certificateFactory.generateCertificate(certificateStream));
+			}
+		}
+		
+		return certificates.toArray(new X509Certificate[certificates.size()]);
+    }
+    
+	/**
+	 * Converts the given chain to DER format.
+	 * 
+	 * @param 	chain		The chain to convert.
+	 * 
+	 * @return	The PEM formatted chain.
+	 * 
+	 * @throws	IOException						If an IO error occurs.
+	 * @throws	GeneralSecurityException		If a security error occurs.
+	 */
+	public static final byte[] toDER(final X509Certificate... chain) throws IOException, GeneralSecurityException {
+		try (final ByteArrayOutputStream stream = new ByteArrayOutputStream()) {
+			for (final X509Certificate cert : chain) {
+				stream.write(cert.getEncoded());
+			}
+			
+			return stream.toByteArray();
+		}
+	}
 }

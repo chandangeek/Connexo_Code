@@ -14,7 +14,6 @@ import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connections.Connection;
 import com.energyict.dialer.core.HalfDuplexController;
-import com.energyict.mdc.upl.io.NestedIOException;
 import com.energyict.protocolimpl.base.CRCGenerator;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
@@ -86,8 +85,8 @@ public class S200Connection extends Connection  implements ProtocolConnection {
 
     public void setHHUSignOn(HHUSignOn hhuSignOn) {
     }
-
-    public void delayAndFlush(long delay)  throws ConnectionException, NestedIOException {
+    
+    public void delayAndFlush(long delay)  throws ConnectionException {
         super.delayAndFlush(delay);
     }
 

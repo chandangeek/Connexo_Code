@@ -16,6 +16,7 @@ import com.energyict.protocolimpl.dlms.idis.IDIS;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsConfigurationSupport;
 
+import java.math.BigDecimal;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,6 +36,17 @@ public class Beacon3100ConfigurationSupport extends DlmsConfigurationSupport {
     public static final String DLMS_WAN_KEK = "DlmsWanKEK";
     public static final String POLLING_DELAY = "PollingDelay";
     public static final String REQUEST_AUTHENTICATED_FRAME_COUNTER = "RequestAuthenticatedFrameCounter";
+
+    public static final String USE_CACHED_FRAME_COUNTER = "UseCachedFrameCounter";
+    public static final String VALIDATE_CACHED_FRAMECOUNTER = "ValidateCachedFrameCounterAndFallback";
+    public static final String FRAME_COUNTER_RECOVERY_RETRIES = "FrameCounterRecoveryRetries";
+    public static final String FRAME_COUNTER_RECOVERY_STEP = "FrameCounterRecoveryStep";
+    public static final String INITIAL_FRAME_COUNTER = "InitialFrameCounter";
+    public static final String READ_OLD_OBIS_CODES = "ReadOldObisCodes";
+
+    public static final String DEFAULT_BACKLOG_LOADPROFILE = "DefaultBacklogLoadProfile";
+    public static final String DEFAULT_BACKLOG_EVENTLOG = "DefaultBacklogEventLog";
+    public static final String DEFAULT_BUFFERSIZE_REGISTERS = "DefaultBufferSizeRegisters";
 
     public Beacon3100ConfigurationSupport(PropertySpecService propertySpecService) {
         super(propertySpecService);
@@ -57,6 +69,17 @@ public class Beacon3100ConfigurationSupport extends DlmsConfigurationSupport {
         propertySpecs.add(deviceSystemTitlePropertySpec());
         propertySpecs.add(publicClientPreEstablishedPropertySpec());
 
+        propertySpecs.add(useCachedFrameCounter());
+        propertySpecs.add(validateCachedFrameCounter());
+        propertySpecs.add(frameCounterRecoveryRetries());
+        propertySpecs.add(frameCounterRecoveryStep());
+        propertySpecs.add(initialFrameCounter());
+        propertySpecs.add(readOldObisCodes());
+
+        propertySpecs.add(defaultBacklogLoadProfile());
+        propertySpecs.add(defaultBacklogEventLog());
+        propertySpecs.add(defaultBufferSizeRegisters());
+
         propertySpecs.remove(ntaSimulationToolPropertySpec());
         propertySpecs.remove(manufacturerPropertySpec());
         propertySpecs.remove(fixMbusHexShortIdPropertySpec());
@@ -64,6 +87,42 @@ public class Beacon3100ConfigurationSupport extends DlmsConfigurationSupport {
         propertySpecs.remove(deviceId());
 
         return propertySpecs;
+    }
+
+    private PropertySpec defaultBufferSizeRegisters() {
+        return UPLPropertySpecFactory.specBuilder(DEFAULT_BUFFERSIZE_REGISTERS, false, PropertyTranslationKeys.V2_DEFAULT_BUFFERSIZE_REGISTERS, this.getPropertySpecService()::bigDecimalSpec).setDefaultValue(BigDecimal.valueOf(1)).finish();
+    }
+
+    private PropertySpec defaultBacklogEventLog() {
+        return UPLPropertySpecFactory.specBuilder(DEFAULT_BACKLOG_EVENTLOG, false, PropertyTranslationKeys.V2_DEFAULT_BACKLOG_EVENTLOG, this.getPropertySpecService()::bigDecimalSpec).setDefaultValue(BigDecimal.valueOf(10)).finish();
+    }
+
+    private PropertySpec defaultBacklogLoadProfile() {
+        return UPLPropertySpecFactory.specBuilder(DEFAULT_BACKLOG_LOADPROFILE, false, PropertyTranslationKeys.V2_DEFAULT_BACKLOG_LOADPROFILE, this.getPropertySpecService()::bigDecimalSpec).setDefaultValue(BigDecimal.valueOf(10)).finish();
+    }
+
+    private PropertySpec readOldObisCodes() {
+        return UPLPropertySpecFactory.specBuilder(READ_OLD_OBIS_CODES, false, PropertyTranslationKeys.V2_READ_OLD_OBIS_CODES, this.getPropertySpecService()::booleanSpec).finish();
+    }
+
+    private PropertySpec frameCounterRecoveryRetries() {
+        return UPLPropertySpecFactory.specBuilder(FRAME_COUNTER_RECOVERY_RETRIES, false, PropertyTranslationKeys.V2_FRAME_COUNTER_RECOVERY_RETRIES, this.getPropertySpecService()::bigDecimalSpec).setDefaultValue(BigDecimal.valueOf(100)).finish();
+    }
+
+    private PropertySpec frameCounterRecoveryStep() {
+        return UPLPropertySpecFactory.specBuilder(FRAME_COUNTER_RECOVERY_STEP, false, PropertyTranslationKeys.V2_FRAME_COUNTER_RECOVERY_STEP, this.getPropertySpecService()::bigDecimalSpec).setDefaultValue(BigDecimal.ONE).finish();
+    }
+
+    private PropertySpec validateCachedFrameCounter() {
+        return UPLPropertySpecFactory.specBuilder(VALIDATE_CACHED_FRAMECOUNTER, false, PropertyTranslationKeys.V2_VALIDATE_CACHED_FRAMECOUNTER, this.getPropertySpecService()::booleanSpec).finish();
+    }
+
+    private PropertySpec useCachedFrameCounter() {
+        return UPLPropertySpecFactory.specBuilder(USE_CACHED_FRAME_COUNTER, false, PropertyTranslationKeys.V2_USE_CACHED_FRAME_COUNTER, this.getPropertySpecService()::booleanSpec).finish();
+    }
+
+    private PropertySpec initialFrameCounter() {
+        return UPLPropertySpecFactory.specBuilder(INITIAL_FRAME_COUNTER, false, PropertyTranslationKeys.V2_INITIAL_FRAME_COUNTER, this.getPropertySpecService()::positiveBigDecimalSpec).finish();
     }
 
     private PropertySpec requestAuthenticatedFrameCounter() {

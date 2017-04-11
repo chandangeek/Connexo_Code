@@ -10,10 +10,9 @@
 
 package com.energyict.protocolimpl.landisgyr.s4.protocol.ansi;
 
-import com.energyict.mdc.upl.NoSuchRegisterException;
-
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
+import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
@@ -212,35 +211,43 @@ public class ObisCodeInfoFactory {
     }
 
     private RegisterValue doGetRegister(ObisCodeInfo obi,DataBlock dataBlock,Date toTime) throws IOException {
-        Number value=null;
-        Date date=null;
-        boolean energy=false;
+        RegisterValue retVal;
+        try {
+            Number value = null;
+            Date date = null;
+            boolean energy = false;
 
-        if (obi.isTimeIntegral()) { // D FIELD
-            int registerIndex = obi.getRegisterIndex();// C
-            value = dataBlock.getSummations()[registerIndex];
-            energy=true;
-        }
-        else if (obi.isMaximumDemand()) {
-            int registerIndex = obi.getRegisterIndex();// C
-            value = dataBlock.getDemands()[registerIndex].getDemands()[obi.getOccurance()];
-            if (dataBlock.getDemands()[registerIndex].getEventTimes() != null)
-               date = dataBlock.getDemands()[registerIndex].getEventTimes()[obi.getOccurance()];
-        }
-        else if (obi.isCumulativeMaximumDemand()) {
-            int registerIndex = obi.getRegisterIndex();// C
-            value = dataBlock.getDemands()[registerIndex].getCumDemand();
-        }
-        else if (obi.isContCumulativeMaximumDemand()) {
-            int registerIndex = obi.getRegisterIndex();// C
-            value = dataBlock.getDemands()[registerIndex].getContinueCumDemand();
-        }
-        else if (obi.isCoinMaximumDemandDemand()) {
-            int registerIndex = obi.getRegisterIndex();// C
-            value = dataBlock.getCoincidents()[registerIndex].getCoincidentValues()[obi.getOccurance()];
-        }
+            if (obi.isTimeIntegral()) { // D FIELD
+                int registerIndex = obi.getRegisterIndex();// C
+                value = dataBlock.getSummations()[registerIndex];
+                energy = true;
+            } else if (obi.isMaximumDemand()) {
+                int registerIndex = obi.getRegisterIndex();// C
+                value = dataBlock.getDemands()[registerIndex].getDemands()[obi.getOccurance()];
+                if (dataBlock.getDemands()[registerIndex].getEventTimes() != null)
+                    date = dataBlock.getDemands()[registerIndex].getEventTimes()[obi.getOccurance()];
+            } else if (obi.isCumulativeMaximumDemand()) {
+                int registerIndex = obi.getRegisterIndex();// C
+                value = dataBlock.getDemands()[registerIndex].getCumDemand();
+            } else if (obi.isContCumulativeMaximumDemand()) {
+                int registerIndex = obi.getRegisterIndex();// C
+                value = dataBlock.getDemands()[registerIndex].getContinueCumDemand();
+            } else if (obi.isCoinMaximumDemandDemand()) {
+                int registerIndex = obi.getRegisterIndex();// C
+                value = dataBlock.getCoincidents()[registerIndex].getCoincidentValues()[obi.getOccurance()];
+            }
 
-        return new RegisterValue(obi.getObisCode(),new Quantity(getEngineeringValue((BigDecimal)value,energy, obi), obi.getUnit()),date,toTime);
+            if (s4.convertRegReadsToEngineering()) {
+                retVal = new RegisterValue(obi.getObisCode(),new Quantity(getEngineeringValue((BigDecimal)value,energy, obi), obi.getUnit()),date,toTime);
+            } else {
+                retVal = new RegisterValue(obi.getObisCode(),new Quantity(value, obi.getUnit()),date,toTime);
+            }
+        } catch (Throwable t) {
+            //System.out.println("Failed for OBIS code " + obi.getObisCode());
+            //t.printStackTrace();
+            retVal = new RegisterValue(obi.getObisCode(),new Quantity(getEngineeringValue(new BigDecimal(0),false, obi), obi.getUnit()),new Date(),toTime);
+        }
+        return retVal;
     }
 
     private BigDecimal getEngineeringValue(BigDecimal bd, boolean energy, ObisCodeInfo obi) throws IOException {

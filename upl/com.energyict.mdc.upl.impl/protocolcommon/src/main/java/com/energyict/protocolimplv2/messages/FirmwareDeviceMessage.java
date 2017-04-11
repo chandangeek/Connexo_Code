@@ -99,7 +99,7 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.resum
 
 /**
  * Provides a summary of all <i>Firmware</i> related messages.
- * <p>
+ * <p/>
  * Copyrights EnergyICT
  * Date: 28/02/13
  * Time: 9:10
@@ -483,6 +483,70 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecSupplier {
         public Optional<ProtocolSupportedFirmwareOptions> getProtocolSupportedFirmwareOption() {
             return Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_LATER);
         }
+    },
+    FIRMWARE_IMAGE_ACTIVATION_WITH_DATA_PROTECTION(5028, "Firmware image activation with data protection") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public Optional<ProtocolSupportedFirmwareOptions> getProtocolSupportedFirmwareOption() {
+            return Optional.empty();
+        }
+    },
+    COPY_ACTIVE_FIRMWARE_TO_INACTIVE_PARTITION(5029, "Copy active firmware to inactive partition") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public Optional<ProtocolSupportedFirmwareOptions> getProtocolSupportedFirmwareOption() {
+            return Optional.empty();
+        }
+    },
+    UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE_AND_IMAGE_IDENTIFIER_AND_RESUME(5030, "Upgrade firmware with activation date, image identifier and resume") {
+        @Override
+        public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.firmwareVersionSpec(service, firmwareUpdateFileAttributeName, firmwareUpdateUserFileAttributeDefaultTranslation),
+                    this.dateTimeSpec(service, firmwareUpdateActivationDateAttributeName, firmwareUpdateActivationDateAttributeDefaultTranslation),
+                    this.stringSpec(service, firmwareUpdateImageIdentifierAttributeName, firmwareUpdateImageIdentifierAttributeDefaultTranslation),
+                    this.booleanSpec(service, resumeFirmwareUpdateAttributeName, resumeFirmwareUpdateAttributeDefaultTranslation, false)
+            );
+        }
+
+        @Override
+        public Optional<ProtocolSupportedFirmwareOptions> getProtocolSupportedFirmwareOption() {
+            return Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_WITH_DATE);
+        }
+    },
+    VerifyAndActivateFirmwareAtGivenDate(5031, "Verify and activate firmware at given date") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.dateTimeSpec(service, firmwareUpdateActivationDateAttributeName, firmwareUpdateActivationDateAttributeDefaultTranslation)
+            );
+        }
+
+        @Override
+        public Optional<ProtocolSupportedFirmwareOptions> getProtocolSupportedFirmwareOption() {
+            return Optional.empty();
+        }
+    },
+    FIRMWARE_IMAGE_ACTIVATION_WITH_DATA_PROTECTION_AND_ACTIVATION_DATE(5032, "Firmware image activation with data protection and activation date") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.dateTimeSpec(service, firmwareUpdateActivationDateAttributeName, firmwareUpdateActivationDateAttributeDefaultTranslation)
+            );
+        }
+
+        @Override
+        public Optional<ProtocolSupportedFirmwareOptions> getProtocolSupportedFirmwareOption() {
+            return Optional.empty();
+        }
     };
 
     private final long id;
@@ -508,6 +572,7 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecSupplier {
                 .describedAs(translationKey.description())
                 .markRequired();
     }
+
     protected PropertySpec booleanSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
         return this.booleanPropertySpecBuilder(service, deviceMessageConstantKey, deviceMessageConstantDefaultTranslation).finish();
     }

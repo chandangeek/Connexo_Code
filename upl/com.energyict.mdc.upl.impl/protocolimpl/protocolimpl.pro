@@ -197,3 +197,11 @@
 -keep public class com.energyict.genericprotocolimpl.webrtu.common.MbusProvider { public *;	protected *; }
 
 -keepclasseswithmembers public class com.energyict.protocolimpl.coronis.core.RegisterCache { public void cacheRegisters(java.util.List);}
+
+
+-keepnames class com.energyict.protocolimpl.edmi.common.**  { public *; protected *; }
+-keep class com.energyict.protocolimpl.edmi.mk10.registermapping.MK10RegisterInformation { *;}
+-keep class com.energyict.protocolimpl.edmi.mk10.registermapping.ObisCodeMapper { public *; }
+
+-keep class com.energyict.protocolimpl.edmi.mk6.registermapping.MK6RegisterInformation { *; }
+-keep class com.energyict.protocolimpl.edmi.mk6.registermapping.ObisCodeMapper { public *; }

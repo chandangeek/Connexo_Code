@@ -5,7 +5,11 @@ package com.energyict.dlms.cosem;
 
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.RegisterReadable;
-import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.BooleanObject;
+import com.energyict.dlms.axrdencoding.Integer8;
+import com.energyict.dlms.axrdencoding.InvalidBooleanStateException;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.TypeEnum;
 import com.energyict.dlms.cosem.attributes.DisconnectControlAttribute;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
@@ -65,8 +69,8 @@ public class Disconnector extends AbstractCosemObject implements RegisterReadabl
 	private TypeEnum controlMode = null;		// Configures the behavior of the disconnect control object for all triggers
 
 	/* Method invoke */
-	private static final int METHOD_REMOTE_DISCONNECT = 1;
-	private static final int METHOD_REMOTE_RECONNECT = 2;
+	public static final int METHOD_REMOTE_DISCONNECT = 1;
+	public static final int METHOD_REMOTE_RECONNECT = 2;
 
 	/* Method ShortName writes */
 	private static final int METHOD_REMOTE_DISCONNECT_SN = 0x20;

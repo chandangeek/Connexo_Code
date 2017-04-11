@@ -69,7 +69,7 @@ class DataFieldCoding {
         }
     }
 
-    private static final List<DataFieldCoding> INSTANCES = new ArrayList<>();
+    static final List<DataFieldCoding> INSTANCES = new ArrayList<>();
     static {
         INSTANCES.add(new DataFieldCoding(0,0, "NoData", TYPE_NODATA));
         INSTANCES.add(new DataFieldCoding(1,1, "8 bit integer/binary", TYPE_BINARY));

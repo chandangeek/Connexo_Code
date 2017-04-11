@@ -18,22 +18,21 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
 /**
  *
  * @author koen
  */
 abstract public class QuantitiesCommand extends AbstractCommand {
-
+    
     List registerIdentifications;
     private static final int QUANTITIES_STRING_LENGTH=12;
     abstract protected CommandIdentification getCommandIdentification();
-
+    
     /** Creates a new instance of QuantitiesCommand */
     public QuantitiesCommand(CommandFactory commandFactory) {
         super(commandFactory);
     }
-
+    
     public String toString() {
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("QuantitiesCommand "+getCommandIdentification()+"\n");
@@ -43,36 +42,32 @@ abstract public class QuantitiesCommand extends AbstractCommand {
         return strBuff.toString();
     }
 
-    protected void parse(String strData) throws IOException {
-
-
-//System.out.println(strData);
-
-        BufferedReader br = new BufferedReader(new StringReader(strData));
-        registerIdentifications = new ArrayList();
-        while(true) {
-            String register = br.readLine();
-            if ((register == null) || (register.length() > QUANTITIES_STRING_LENGTH) || (register.getBytes()[0] == 0))
-                break;
-//           if (register.length() != QUANTITIES_STRING_LENGTH)
-//                continue;
-//            if ((register == null) || (register.length() != QUANTITIES_STRING_LENGTH))
-//                break;;
-            //parseRegister(register);
-            RegisterIdentification gri = new RegisterIdentification(register,getCommandFactory().getMarkV().getTimeZone());
-//System.out.println("parse "+register+" to "+gri);
-            registerIdentifications.add(gri);
-        } // while(true)
+    @Override
+    protected void parse(String strData, byte[] xmodemData) throws IOException {
+        parse(strData); // Not sure if/how to use the xmodemData
     }
 
-
+    protected void parse(String strData) throws IOException {
+        BufferedReader br = new BufferedReader(new StringReader(strData));
+        registerIdentifications = new ArrayList();
+        while (true) {
+            String register = br.readLine();
+            if ((register == null) || (register.length() > QUANTITIES_STRING_LENGTH) || (register.getBytes()[0] == 0)) {
+                break;
+            }
+            RegisterIdentification gri = new RegisterIdentification(register, getCommandFactory().getMarkV().getTimeZone());
+            registerIdentifications.add(gri);
+        }
+    }
+    
+    
     public int getNrOfGeneralRegisterIdentifications() {
         return registerIdentifications.size();
     }
     public RegisterIdentification getGeneralRegisterIdentification(int index) {
         return (RegisterIdentification)registerIdentifications.get(index);
     }
-
+    
     public List findRegisterIdentifications(ObisCode obisCode) {
         List ris=new ArrayList();
         Iterator it = registerIdentifications.iterator();
@@ -84,5 +79,5 @@ abstract public class QuantitiesCommand extends AbstractCommand {
         }
         return ris;
     }
-
+    
 }

@@ -14,7 +14,12 @@ import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.energyict.dlms.common.DlmsProtocolProperties.*;
+import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_FORCED_DELAY;
+import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_MAX_REC_PDU_SIZE;
+import static com.energyict.dlms.common.DlmsProtocolProperties.FORCED_DELAY;
+import static com.energyict.dlms.common.DlmsProtocolProperties.MAX_REC_PDU_SIZE;
+import static com.energyict.dlms.common.DlmsProtocolProperties.TIMEZONE;
+import static com.energyict.dlms.common.DlmsProtocolProperties.VALIDATE_INVOKE_ID;
 
 /**
  * A collection of general DLMS properties that are relevant for the G3 gateway protocol.
@@ -61,7 +66,9 @@ public class G3GatewayConfigurationSupport {
     }
 
     private PropertySpec validateInvokeIdPropertySpec() {
-        return UPLPropertySpecFactory.specBuilder(VALIDATE_INVOKE_ID, true, PropertyTranslationKeys.V2_EICT_VALIDATE_INVOKE_ID, propertySpecService::booleanSpec).finish();
+        return UPLPropertySpecFactory.specBuilder(VALIDATE_INVOKE_ID, false, PropertyTranslationKeys.V2_EICT_VALIDATE_INVOKE_ID, propertySpecService::booleanSpec)
+                .setDefaultValue(true)
+                .finish();
     }
 
     private PropertySpec aarqTimeoutPropertySpec() {

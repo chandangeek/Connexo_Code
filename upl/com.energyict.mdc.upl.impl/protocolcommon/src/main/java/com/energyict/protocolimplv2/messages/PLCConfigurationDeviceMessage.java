@@ -7,7 +7,6 @@ import com.energyict.mdc.upl.properties.DeviceGroup;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
 import com.energyict.protocolimplv2.messages.nls.TranslationKeyImpl;
 
 import java.math.BigDecimal;
@@ -483,19 +482,19 @@ public enum PLCConfigurationDeviceMessage implements DeviceMessageSpecSupplier {
     IDISRunRepeaterCallNow(3076, "IDIS Run repeater call now") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
-            return Collections.emptyList() ;
+            return Collections.emptyList();
         }
     },
     IDISRunNewMeterDiscoveryCallNow(3077, "IDIS Run new meter discovery now") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
-            return Collections.emptyList() ;
+            return Collections.emptyList();
         }
     },
     IDISRunAlarmDiscoveryCallNow(3078, "IDIS Run alarm discovery now") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
-            return Collections.emptyList() ;
+            return Collections.emptyList();
         }
     },
     IDISWhitelistConfiguration(3079, "IDIS Local whitelist configuration") {
@@ -583,16 +582,10 @@ public enum PLCConfigurationDeviceMessage implements DeviceMessageSpecSupplier {
             );
         }
     },
-    SetLowLQIValueAttributeName(3088, "Set Low LQI Value") {
+    SetBroadCastLogTableEntryTTLVersion1(3088, "") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
-            return Collections.singletonList(this.bigDecimalSpec(service, DeviceMessageConstants.lowLQIValueAttributeName, DeviceMessageConstants.lowLQIValueAttributeDefaultTranslation));
-        }
-    },
-    SetHighLQIValueAttributeName(3089, "Set High LQI Value") {
-        @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
-            return Collections.singletonList(this.bigDecimalSpec(service, DeviceMessageConstants.highLQIValueAttributeName, DeviceMessageConstants.highLQIValueAttributeDefaultTranslation));
+            return Collections.singletonList(this.bigDecimalSpec(service, DeviceMessageConstants.broadCastLogTableEntryTTLAttributeName, DeviceMessageConstants.broadCastLogTableEntryTTLAttributeDefaultTranslation));
         }
     };
 

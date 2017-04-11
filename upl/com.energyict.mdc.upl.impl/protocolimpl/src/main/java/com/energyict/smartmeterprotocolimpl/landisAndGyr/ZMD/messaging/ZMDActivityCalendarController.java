@@ -7,7 +7,11 @@ package com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD.messaging;
  * Time: 16:16
  */
 
-import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.ActivityCalendar;
 import com.energyict.dlms.cosem.SpecialDaysTable;
@@ -15,9 +19,9 @@ import com.energyict.dlms.cosem.attributeobjects.DayProfileActions;
 import com.energyict.dlms.cosem.attributeobjects.DayProfiles;
 import com.energyict.dlms.cosem.attributeobjects.SeasonProfiles;
 import com.energyict.dlms.cosem.attributeobjects.WeekProfiles;
-import com.energyict.protocolimpl.generic.ParseUtils;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.base.ActivityCalendarController;
+import com.energyict.protocolimpl.generic.ParseUtils;
 import com.energyict.protocolimpl.messages.codetableparsing.CodeTableXml;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD.ZMD;
@@ -34,7 +38,14 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 /**
  * ActivityCalendar implementation for the ZMD Smartmeter protocol
@@ -728,5 +739,23 @@ public class ZMDActivityCalendarController implements ActivityCalendarController
         cal.setTimeInMillis(time);
         dateTime = new AXDRDateTime(cal);
         return dateTime;
+    }
+
+    /**
+     * Write the complete ActivityCalendar to the device
+     */
+    public void write12LinesCalendar(int linePosition) throws IOException {
+        ActivityCalendar ac = getActivityCalendar();
+        switch (linePosition){
+            case 0:
+                ac.writeSeasonProfilePassive(getSeasonArray());
+                break;
+            case 1:
+                ac.writeWeekProfileTablePassive(getWeekArray());
+                break;
+            case 2:
+                ac.writeDayProfileTablePassive(getDayArray());
+                break;
+        }
     }
 }

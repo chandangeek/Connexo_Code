@@ -10,8 +10,11 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import java.io.*;
-import com.energyict.protocolimpl.ansi.c12.*;
+import com.energyict.protocolimpl.ansi.c12.PartialReadInfo;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.logging.Logger;
 /**
  *
  * @author Koen
@@ -23,6 +26,7 @@ abstract public class AbstractTable {
     TableFactory tableFactory;
     private TableIdentification tableIdentification;
     private byte[] tableData;
+    private byte[] partialReadData;
     private PartialReadInfo partialReadInfo=null;
     private PartialReadInfo partialReadInfo2=null;
     private boolean forceFullRead;
@@ -33,7 +37,11 @@ abstract public class AbstractTable {
         this.tableIdentification=tableIdentification;
         setForceFullRead(false);
     }
-    
+
+    protected Logger getLogger(){
+        return getTableFactory().getC12ProtocolLink().getLogger();
+    }
+
     protected TableFactory getTableFactory() {
         return tableFactory;
     }
@@ -55,11 +63,16 @@ abstract public class AbstractTable {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             int offset=getPartialReadInfo().getOffset();
             int count=getPartialReadInfo().getCount();
-            while(count>0) {
-                byte[] responseData = getTableFactory().getC12ProtocolLink().getPSEMServiceFactory().partialReadOffset(getTableIdentification().getTableId(), offset, count);   
-                count-=responseData.length;
-                offset+=responseData.length;
-                baos.write(responseData);
+            if (getPartialReadData() == null) {
+                while (count > 0) {
+                    byte[] responseData = getTableFactory().getC12ProtocolLink().getPSEMServiceFactory().partialReadOffset(getTableIdentification().getTableId(), offset, count);
+                    count -= responseData.length;
+                    offset += responseData.length;
+                    baos.write(responseData);
+                }
+                this.partialReadData = baos.toByteArray();
+            } else{
+                baos.write(getPartialReadData());   // Don't request from the device, but use the preset partial data
             }
 
             // if we need to retrieve a non-continuous second block of data in the same table...
@@ -102,6 +115,21 @@ abstract public class AbstractTable {
 
     public void setPartialReadInfo(PartialReadInfo partialReadInfo) {
         this.partialReadInfo = partialReadInfo;
+    }
+
+    public byte[] getPartialReadData() {
+        return partialReadData;
+    }
+
+    /**
+     * Inject the given byte array as partialReadData<br/>
+     * The injected data will be used as response for the partialRead
+     * (thus avoiding the data has to be (re)requested from the device)
+     *
+     * @param partialReadData
+     */
+    public void injectPartialReadData(byte[] partialReadData) {
+        this.partialReadData = partialReadData;
     }
 
     public boolean isForceFullRead() {

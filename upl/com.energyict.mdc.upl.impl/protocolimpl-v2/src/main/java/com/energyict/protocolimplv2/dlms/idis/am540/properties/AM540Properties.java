@@ -3,10 +3,12 @@ package com.energyict.protocolimplv2.dlms.idis.am540.properties;
 import com.energyict.dlms.CipheringType;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.aso.ConformanceBlock;
+import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.dlms.protocolimplv2.SecurityProvider;
 import com.energyict.mdc.tasks.MirrorTcpDeviceProtocolDialect;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocol.exception.DeviceConfigurationException;
+import com.energyict.protocolimpl.base.ProtocolProperty;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 import com.energyict.protocolimplv2.dlms.g3.properties.AS330DConfigurationSupport;
 import com.energyict.protocolimplv2.dlms.idis.am130.properties.IDISSecurityProvider;
@@ -86,7 +88,7 @@ public class AM540Properties extends IDISProperties {
         }
     }
 
-    private int getMirrorLogicalDeviceId() {
+    protected int getMirrorLogicalDeviceId() {
         final int logicalDeviceId = parseBigDecimalProperty(AS330DConfigurationSupport.MIRROR_LOGICAL_DEVICE_ID);
         if (logicalDeviceId == -1) {
             throw DeviceConfigurationException.invalidPropertyFormat(AS330DConfigurationSupport.MIRROR_LOGICAL_DEVICE_ID, "-1", "Should be a number greater than 0");
@@ -94,7 +96,7 @@ public class AM540Properties extends IDISProperties {
         return logicalDeviceId;
     }
 
-    private int getGatewayLogicalDeviceId() {
+    protected int getGatewayLogicalDeviceId() {
         final int logicalDeviceId = parseBigDecimalProperty(AS330DConfigurationSupport.GATEWAY_LOGICAL_DEVICE_ID);
         if (logicalDeviceId == -1) {
             throw DeviceConfigurationException.invalidPropertyFormat(AS330DConfigurationSupport.GATEWAY_LOGICAL_DEVICE_ID, "-1", "Should be a number greater than 0");
@@ -184,20 +186,64 @@ public class AM540Properties extends IDISProperties {
     public boolean useCachedFrameCounter() {
         return getProperties().getTypedProperty(AM540ConfigurationSupport.USE_CACHED_FRAME_COUNTER, false);
     }
+
     public boolean validateCachedFrameCounter() {
         return getProperties().getTypedProperty(AM540ConfigurationSupport.VALIDATE_CACHED_FRAMECOUNTER, true);
     }
 
-    public int getFrameCounterRecoveryRetries(){
+    public int getFrameCounterRecoveryRetries() {
         return getProperties().getTypedProperty(AM540ConfigurationSupport.FRAME_COUNTER_RECOVERY_RETRIES, BigDecimal.valueOf(100)).intValue();
     }
 
-    public int getFrameCounterRecoveryStep(){
+    public int getFrameCounterRecoveryStep() {
         return getProperties().getTypedProperty(AM540ConfigurationSupport.FRAME_COUNTER_RECOVERY_STEP, BigDecimal.ONE).intValue();
     }
 
-    public long getInitialFrameCounter(){
+    public long getInitialFrameCounter() {
         return getProperties().getTypedProperty(AM540ConfigurationSupport.INITIAL_FRAME_COUNTER, BigDecimal.valueOf(100)).longValue();
     }
 
+    /**
+     * Indicates whether or not the meter supports the hundreths time field.
+     *
+     * @return    <code>true</code> if supported, <code>false</code> if not.
+     */
+    public final boolean supportsHundredthsTimeField() {
+        return getProperties().<Boolean>getTypedProperty(AM540ConfigurationSupport.SUPPORTS_HUNDRETHS_TIMEFIELD, true);
+    }
+
+    /**
+     * Indicates whether or not to skip the frame counter authentication tag check.
+     *
+     * @return    <code>true</code> if this needs to be skipped, <code>false</code> otherwise.
+     */
+    public final boolean skipFramecounterAuthenticationTag() {
+        return this.getProperties().<Boolean>getTypedProperty(AM540ConfigurationSupport.SKIP_FC_AUTH_TAG_VALIDATION, false);
+    }
+
+    /**
+     * Indicates whether or not we use unspecified as clock status.
+     *
+     * @return    <code>true</code> for unspecified, <code>false</code> if not.
+     */
+    public final boolean useUnspecifiedAsClockStatus() {
+        return this.getProperties().<Boolean>getTypedProperty(AM540ConfigurationSupport.USE_UNDEFINED_AS_CLOCK_STATUS, false);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @ProtocolProperty
+    public final CipheringType getCipheringType() {
+        final String cipheringDescription = getProperties().getTypedProperty(DlmsProtocolProperties.CIPHERING_TYPE, AM540ConfigurationSupport.DEFAULT_CIPHERING_TYPE.getDescription());
+
+        for (CipheringType cipheringType : CipheringType.values()) {
+            if (cipheringType.getDescription().equals(cipheringDescription)) {
+                return cipheringType;
+            }
+        }
+
+        return AM540ConfigurationSupport.DEFAULT_CIPHERING_TYPE;
+    }
 }

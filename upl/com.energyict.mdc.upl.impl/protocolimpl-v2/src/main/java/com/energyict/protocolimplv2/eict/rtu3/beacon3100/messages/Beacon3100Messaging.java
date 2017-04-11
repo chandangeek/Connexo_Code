@@ -7,21 +7,32 @@ import com.energyict.dlms.aso.SecurityContext;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.BitString;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.TypeEnum;
 import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.cosem.AssociationLN;
 import com.energyict.dlms.cosem.ConcentratorSetup;
-import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.Data;
 import com.energyict.dlms.cosem.DataAccessResultCode;
 import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.dlms.cosem.EventPushNotificationConfig;
 import com.energyict.dlms.cosem.FirewallSetup;
+import com.energyict.dlms.cosem.G3NetworkManagement;
 import com.energyict.dlms.cosem.ImageTransfer;
 import com.energyict.dlms.cosem.ImageTransfer.RandomAccessFileImageBlockSupplier;
+import com.energyict.dlms.cosem.InactiveFirmwareIC;
+import com.energyict.dlms.cosem.ModemWatchdogConfiguration;
+import com.energyict.dlms.cosem.NTPServerAddress;
 import com.energyict.dlms.cosem.PPPSetup;
 import com.energyict.dlms.cosem.ProfileGeneric;
+import com.energyict.dlms.cosem.ScheduleManager;
 import com.energyict.dlms.cosem.SecuritySetup;
+import com.energyict.dlms.cosem.UplinkPingConfiguration;
+import com.energyict.dlms.cosem.WebPortalSetupV1;
+import com.energyict.dlms.cosem.WebPortalSetupV1.Role;
+import com.energyict.dlms.cosem.WebPortalSetupV1.WebPortalAuthenticationMechanism;
 import com.energyict.dlms.cosem.methods.NetworkInterfaceType;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
@@ -35,6 +46,7 @@ import com.energyict.encryption.kdf.NIST_SP_800_56_KDF;
 import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.mdc.upl.DeviceGroupExtractor;
 import com.energyict.mdc.upl.DeviceMasterDataExtractor;
+import com.energyict.mdc.upl.NotInObjectListException;
 import com.energyict.mdc.upl.ObjectMapperService;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.issue.IssueFactory;
@@ -68,6 +80,7 @@ import com.energyict.protocolcommon.exceptions.CodingException;
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.Beacon3100;
+import com.energyict.protocolimplv2.eict.rtu3.beacon3100.BeaconCache;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.logbooks.Beacon3100LogBookFactory;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.dcmulticast.MulticastMeterState;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.dcmulticast.MulticastProperty;
@@ -78,12 +91,15 @@ import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.firmwareobject
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.firmwareobjects.DeviceInfoSerializer;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects.MasterDataSerializer;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects.MasterDataSync;
+import com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties.Beacon3100Properties;
+import com.energyict.protocolimplv2.eict.rtu3.beacon3100.registers.Beacon3100RegisterFactory;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.messages.PLCConfigurationDeviceMessageExecutor;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
 import com.energyict.protocolimplv2.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
 import com.energyict.protocolimplv2.messages.AlarmConfigurationMessage;
 import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
+import com.energyict.protocolimplv2.messages.DLMSConfigurationDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceActionMessage;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.FirewallConfigurationMessage;
@@ -95,8 +111,10 @@ import com.energyict.protocolimplv2.messages.SecurityMessage;
 import com.energyict.protocolimplv2.messages.UplinkConfigurationDeviceMessage;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.messages.enums.AuthenticationMechanism;
+import com.energyict.protocolimplv2.messages.enums.DLMSGatewayNotificationRelayType;
 import com.energyict.protocolimplv2.messages.enums.DlmsAuthenticationLevelMessageValues;
 import com.energyict.protocolimplv2.messages.enums.DlmsEncryptionLevelMessageValues;
+import com.energyict.protocolimplv2.messages.validators.KeyMessageChangeValidator;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
 import org.apache.commons.codec.binary.Base64;
@@ -108,6 +126,7 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.io.StringReader;
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.cert.CertificateEncodingException;
@@ -117,8 +136,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Date;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
@@ -169,9 +190,49 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     private static final ObisCode MULTICAST_FIRMWARE_UPGRADE_OBISCODE = ObisCode.fromString("0.0.44.0.128.255");
     private static final ObisCode MULTICAST_METER_PROGRESS = ProtocolTools.setObisCodeField(MULTICAST_FIRMWARE_UPGRADE_OBISCODE, 1, (byte) (-1 * ImageTransfer.ATTRIBUTE_UPGRADE_PROGRESS));
     private static final String TEMP_DIR = "java.io.tmpdir";
-    private static final ObisCode DEVICE_NAME_OBISCODE = ObisCode.fromString("0.0.128.0.9.255");
+    private static final ObisCode DEVICE_NAME_OLD_OBISCODE = ObisCode.fromString("0.0.128.0.9.255");
+    private static final ObisCode DEVICE_NAME_NEW_OBISCODE = ObisCode.fromString("0.136.96.128.0.255");
+    private static final ObisCode DEVICE_HOST_NAME_OLD_OBISCODE = ObisCode.fromString("0.0.128.0.24.255");
+    private static final ObisCode DEVICE_HOST_NAME_NEW_OBISCODE = ObisCode.fromString("0.128.96.128.0.255");
+    private static final ObisCode DEVICE_LOCATION_OLD_OBISCODE = ObisCode.fromString("0.0.128.0.32.255");
+    private static final ObisCode DEVICE_LOCATION_NEW_OBISCODE = ObisCode.fromString("0.136.96.160.0.255");
+    private static final ObisCode MULTI_APN_COFIG_OLD_OBISCODE = ObisCode.fromString("0.128.25.3.0.255");
+    private static final ObisCode MULTI_APN_COFIG_NEW_OBISCODE = ObisCode.fromString("0.162.96.160.0.255");
+    private static final ObisCode LIFE_CYCLEMANAGEMENT_NEW_OBISCODE = ObisCode.fromString("0.128.96.160.0.255");
+    public static final ObisCode REMOTE_SHELL_SETUP_NEW_OBISCODE = ObisCode.fromString("0.128.96.193.0.255");
+    public static final ObisCode SNMP_SETUP_NEW_OBISCODE = ObisCode.fromString("0.128.96.194.0.255");
+    public static final ObisCode RTU_DISCOVERY_SETUP_NEW_OBISCODE = ObisCode.fromString("0.128.96.195.0.255");
+    public static final ObisCode TIME_SERVER_NEW_OBISCODE = ObisCode.fromString("0.128.96.196.0.255");
+
+    /**
+     * Old (pre-1.9) OBIS of the web portal setup IC.
+     */
+    private static final ObisCode WEB_PORTAL_SETUP_OLD_OBIS = ObisCode.fromString("0.0.128.0.13.255");
+
+    /**
+     * New (1.9 and up) OBIS of the web portal setup IC.
+     */
+    public static final ObisCode WEB_PORTAL_CONFIG_NEW_OBISCODE = ObisCode.fromString("0.128.96.197.0.255");
+
+    public static final ObisCode PING_SERVICE_NEW_OBISCODE = ObisCode.fromString("0.160.96.144.0.255");
+    public static final ObisCode SCHEDULE_MANAGER_NEW_OBISCODE = ObisCode.fromString("0.187.96.160.0.255");
+    public static final ObisCode CLIENT_MANAGER_NEW_OBISCODE = ObisCode.fromString("0.187.96.170.0.255");
+    public static final ObisCode MODEM_WATCHDOG_NEW_OBISCODE = ObisCode.fromString("0.162.96.128.0.255");
+    public static final ObisCode G3_NETWORK_MANAGEMENT_NEW_OBISCODE = ObisCode.fromString("0.168.96.128.0.255");
+
+    /**
+     * New logical name of the concentrator setup object.
+     */
+    public static final ObisCode CONCENTRATOR_SETUP_NEW_LOGICAL_NAME = ObisCode.fromString("0.187.96.128.0.255");
+
     private static final String SEPARATOR = ";";
     private static final String SEPARATOR2 = ",";
+
+    /**
+     * The set of supported messages (which, ironically, is not a Set).
+     */
+    private static final List<DeviceMessageSpec> SUPPORTED_MESSAGES = new ArrayList<>();
+
     /**
      * We lock the critical section where we write the firmware file, making sure that we don't corrupt it.
      */
@@ -185,25 +246,10 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     private final DeviceExtractor deviceExtractor;
     private final CertificateAliasFinder certificateAliasFinder;
     private final CertificateWrapperExtractor certificateWrapperExtractor;
-    private MasterDataSync masterDataSync;
-    private PLCConfigurationDeviceMessageExecutor plcConfigurationDeviceMessageExecutor = null;
-
-    public Beacon3100Messaging(Beacon3100 protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, ObjectMapperService objectMapperService, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMasterDataExtractor deviceMasterDataExtractor, DeviceGroupExtractor deviceGroupExtractor, DeviceExtractor deviceExtractor, CertificateAliasFinder certificateAliasFinder, CertificateWrapperExtractor certificateWrapperExtractor) {
-        super(protocol, collectedDataFactory, issueFactory);
-        this.objectMapperService = objectMapperService;
-        this.propertySpecService = propertySpecService;
-        this.nlsService = nlsService;
-        this.converter = converter;
-        this.deviceMasterDataExtractor = deviceMasterDataExtractor;
-        this.deviceGroupExtractor = deviceGroupExtractor;
-        this.deviceExtractor = deviceExtractor;
-        this.certificateAliasFinder = certificateAliasFinder;
-        this.certificateWrapperExtractor = certificateWrapperExtractor;
-    }
 
     @Override
     public List<DeviceMessageSpec> getSupportedMessages() {
-        return Arrays.asList(
+        List<DeviceMessageSpec> standardMessages = Arrays.asList(
                 NetworkConnectivityMessage.CHANGE_GPRS_APN_CREDENTIALS.get(this.propertySpecService, this.nlsService, this.converter),
 
                 DeviceActionMessage.SyncMasterdataForDC.get(this.propertySpecService, this.nlsService, this.converter),
@@ -212,6 +258,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                 DeviceActionMessage.ResumeDCScheduler.get(this.propertySpecService, this.nlsService, this.converter),
                 DeviceActionMessage.SyncOneConfigurationForDC.get(this.propertySpecService, this.nlsService, this.converter),
                 DeviceActionMessage.TRIGGER_PRELIMINARY_PROTOCOL.get(this.propertySpecService, this.nlsService, this.converter),
+                DeviceActionMessage.RemoveLogicalDevice.get(this.propertySpecService, this.nlsService, this.converter),
 
                 PLCConfigurationDeviceMessage.PingMeter.get(this.propertySpecService, this.nlsService, this.converter),
 
@@ -222,6 +269,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                 FirmwareDeviceMessage.TRANSFER_SLAVE_FIRMWARE_FILE_TO_DATA_CONCENTRATOR.get(this.propertySpecService, this.nlsService, this.converter),
                 FirmwareDeviceMessage.CONFIGURE_MULTICAST_BLOCK_TRANSFER_TO_SLAVE_DEVICES.get(this.propertySpecService, this.nlsService, this.converter),
                 FirmwareDeviceMessage.START_MULTICAST_BLOCK_TRANSFER_TO_SLAVE_DEVICES.get(this.propertySpecService, this.nlsService, this.converter),
+                FirmwareDeviceMessage.COPY_ACTIVE_FIRMWARE_TO_INACTIVE_PARTITION.get(this.propertySpecService, this.nlsService, this.converter),
 
                 SecurityMessage.CHANGE_DLMS_AUTHENTICATION_LEVEL.get(this.propertySpecService, this.nlsService, this.converter),
                 SecurityMessage.ACTIVATE_DLMS_SECURITY_VERSION1.get(this.propertySpecService, this.nlsService, this.converter),
@@ -229,13 +277,19 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                 SecurityMessage.AGREE_NEW_AUTHENTICATION_KEY.get(this.propertySpecService, this.nlsService, this.converter),
                 SecurityMessage.CHANGE_SECURITY_SUITE.get(this.propertySpecService, this.nlsService, this.converter),
                 SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEYS.get(this.propertySpecService, this.nlsService, this.converter),
+                SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEYS_FOR_CLIENT.get(this.propertySpecService, this.nlsService, this.converter),
                 SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEYS.get(this.propertySpecService, this.nlsService, this.converter),
+                SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEYS_FOR_CLIENT.get(this.propertySpecService, this.nlsService, this.converter),
+                SecurityMessage.CHANGE_MASTER_KEY_WITH_NEW_KEYS.get(this.propertySpecService, this.nlsService, this.converter),
+                SecurityMessage.CHANGE_MASTER_KEY_WITH_NEW_KEYS_FOR_CLIENT.get(this.propertySpecService, this.nlsService, this.converter),
                 SecurityMessage.CHANGE_HLS_SECRET_PASSWORD.get(this.propertySpecService, this.nlsService, this.converter),
+                SecurityMessage.CHANGE_HLS_SECRET_PASSWORD_FOR_CLIENT.get(this.propertySpecService, this.nlsService, this.converter),
                 SecurityMessage.EXPORT_END_DEVICE_CERTIFICATE.get(this.propertySpecService, this.nlsService, this.converter),
                 SecurityMessage.EXPORT_SUB_CA_CERTIFICATES.get(this.propertySpecService, this.nlsService, this.converter),
                 SecurityMessage.EXPORT_ROOT_CA_CERTIFICATE.get(this.propertySpecService, this.nlsService, this.converter),
                 SecurityMessage.IMPORT_CA_CERTIFICATE.get(this.propertySpecService, this.nlsService, this.converter),
-                SecurityMessage.IMPORT_END_DEVICE_CERTIFICATE.get(this.propertySpecService, this.nlsService, this.converter),
+                SecurityMessage.IMPORT_CLIENT_END_DEVICE_CERTIFICATE.get(this.propertySpecService, this.nlsService, this.converter),
+                SecurityMessage.IMPORT_SERVER_END_DEVICE_CERTIFICATE.get(this.propertySpecService, this.nlsService, this.converter),
                 SecurityMessage.DELETE_CERTIFICATE_BY_SERIAL_NUMBER.get(this.propertySpecService, this.nlsService, this.converter),
                 SecurityMessage.DELETE_CERTIFICATE_BY_TYPE.get(this.propertySpecService, this.nlsService, this.converter),
                 SecurityMessage.GENERATE_KEY_PAIR.get(this.propertySpecService, this.nlsService, this.converter),
@@ -262,16 +316,16 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                 AlarmConfigurationMessage.CONFIGURE_PUSH_EVENT_NOTIFICATION.get(this.propertySpecService, this.nlsService, this.converter),
                 AlarmConfigurationMessage.ENABLE_EVENT_NOTIFICATIONS.get(this.propertySpecService, this.nlsService, this.converter),
                 ConfigurationChangeDeviceMessage.SetDeviceName.get(this.propertySpecService, this.nlsService, this.converter),
+                ConfigurationChangeDeviceMessage.SetDeviceHostName.get(this.propertySpecService, this.nlsService, this.converter),
                 ConfigurationChangeDeviceMessage.SetNTPAddress.get(this.propertySpecService, this.nlsService, this.converter),
                 ConfigurationChangeDeviceMessage.SyncNTPServer.get(this.propertySpecService, this.nlsService, this.converter),
+                ConfigurationChangeDeviceMessage.ConfigureAPNs.get(this.propertySpecService, this.nlsService, this.converter),
                 DeviceActionMessage.RebootApplication.get(this.propertySpecService, this.nlsService, this.converter),
                 FirewallConfigurationMessage.ActivateFirewall.get(this.propertySpecService, this.nlsService, this.converter),
                 FirewallConfigurationMessage.DeactivateFirewall.get(this.propertySpecService, this.nlsService, this.converter),
                 FirewallConfigurationMessage.ConfigureFWGPRS.get(this.propertySpecService, this.nlsService, this.converter),
                 FirewallConfigurationMessage.ConfigureFWLAN.get(this.propertySpecService, this.nlsService, this.converter),
                 FirewallConfigurationMessage.ConfigureFWWAN.get(this.propertySpecService, this.nlsService, this.converter),
-                SecurityMessage.CHANGE_WEBPORTAL_PASSWORD1.get(this.propertySpecService, this.nlsService, this.converter),
-                SecurityMessage.CHANGE_WEBPORTAL_PASSWORD2.get(this.propertySpecService, this.nlsService, this.converter),
                 SecurityMessage.CHANGE_WEBPORTAL_PASSWORD.get(this.propertySpecService, this.nlsService, this.converter),
                 PLCConfigurationDeviceMessage.SetMaxNumberOfHopsAttributeName.get(this.propertySpecService, this.nlsService, this.converter),
                 PLCConfigurationDeviceMessage.SetWeakLQIValueAttributeName.get(this.propertySpecService, this.nlsService, this.converter),
@@ -308,23 +362,62 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                 PLCConfigurationDeviceMessage.AddMetersToBlackList.get(this.propertySpecService, this.nlsService, this.converter),
                 PLCConfigurationDeviceMessage.RemoveMetersFromBlackList.get(this.propertySpecService, this.nlsService, this.converter),
                 PLCConfigurationDeviceMessage.PathRequestWithTimeout.get(this.propertySpecService, this.nlsService, this.converter),
+
+                // Logbook resets.
                 LogBookDeviceMessage.ResetMainLogbook.get(this.propertySpecService, this.nlsService, this.converter),
                 LogBookDeviceMessage.ResetSecurityLogbook.get(this.propertySpecService, this.nlsService, this.converter),
                 LogBookDeviceMessage.ResetCoverLogbook.get(this.propertySpecService, this.nlsService, this.converter),
                 LogBookDeviceMessage.ResetCommunicationLogbook.get(this.propertySpecService, this.nlsService, this.converter),
-                LogBookDeviceMessage.ResetVoltageCutLogbook.get(this.propertySpecService, this.nlsService, this.converter));
+                LogBookDeviceMessage.ResetVoltageCutLogbook.get(this.propertySpecService, this.nlsService, this.converter),
+
+                DLMSConfigurationDeviceMessage.MeterPushNotificationSettings.get(this.propertySpecService, this.nlsService, this.converter),
+
+                AlarmConfigurationMessage.RESET_DESCRIPTOR_FOR_SINGLE_ALARM_REGISTER.get(this.propertySpecService, this.nlsService, this.converter),
+                AlarmConfigurationMessage.RESET_BITS_IN_ALARM_SINGLE_REGISTER.get(this.propertySpecService, this.nlsService, this.converter),
+                AlarmConfigurationMessage.WRITE_FILTER_FOR_SINGLE_ALARM_REGISTER.get(this.propertySpecService, this.nlsService, this.converter),
+                AlarmConfigurationMessage.CONFIGURE_PUSH_EVENT_NOTIFICATION_CIPHERING.get(this.propertySpecService, this.nlsService, this.converter),
+                AlarmConfigurationMessage.CONFIGURE_PUSH_EVENT_SEND_TEST_NOTIFICATION.get(this.propertySpecService, this.nlsService, this.converter)
+        );
+
+        if (!readOldObisCodes()) {
+            standardMessages.add(DeviceActionMessage.SyncAllDevicesWithDC.get(this.propertySpecService, this.nlsService, this.converter));
+            standardMessages.add(DeviceActionMessage.SyncOneDeviceWithDC.get(this.propertySpecService, this.nlsService, this.converter));
+            standardMessages.add(DeviceActionMessage.SyncOneDeviceWithDCAdvanced.get(this.propertySpecService, this.nlsService, this.converter));
+            standardMessages.add(DeviceActionMessage.SetBufferForAllLoadProfiles.get(this.propertySpecService, this.nlsService, this.converter));
+            standardMessages.add(DeviceActionMessage.SetBufferForSpecificLoadProfile.get(this.propertySpecService, this.nlsService, this.converter));
+            standardMessages.add(DeviceActionMessage.SetBufferForAllEventLogs.get(this.propertySpecService, this.nlsService, this.converter));
+            standardMessages.add(DeviceActionMessage.SetBufferForSpecificEventLog.get(this.propertySpecService, this.nlsService, this.converter));
+            standardMessages.add(DeviceActionMessage.SetBufferForAllRegisters.get(this.propertySpecService, this.nlsService, this.converter));
+            standardMessages.add(DeviceActionMessage.SetBufferForSpecificRegister.get(this.propertySpecService, this.nlsService, this.converter));
+        }
+
+        return standardMessages;
+    }
+
+    private MasterDataSync masterDataSync;
+    private PLCConfigurationDeviceMessageExecutor plcConfigurationDeviceMessageExecutor = null;
+
+    public Beacon3100Messaging(Beacon3100 protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, ObjectMapperService objectMapperService, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMasterDataExtractor deviceMasterDataExtractor, DeviceGroupExtractor deviceGroupExtractor, DeviceExtractor deviceExtractor, CertificateAliasFinder certificateAliasFinder, CertificateWrapperExtractor certificateWrapperExtractor) {
+        super(protocol, collectedDataFactory, issueFactory);
+        this.objectMapperService = objectMapperService;
+        this.propertySpecService = propertySpecService;
+        this.nlsService = nlsService;
+        this.converter = converter;
+        this.deviceMasterDataExtractor = deviceMasterDataExtractor;
+        this.deviceGroupExtractor = deviceGroupExtractor;
+        this.deviceExtractor = deviceExtractor;
+        this.certificateAliasFinder = certificateAliasFinder;
+        this.certificateWrapperExtractor = certificateWrapperExtractor;
     }
 
     @Override
+    @SuppressWarnings("rawtypes")
     public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, com.energyict.mdc.upl.properties.PropertySpec propertySpec, Object messageAttribute) {
-        if (propertySpec.getName().equals(DeviceMessageConstants.broadcastEncryptionKeyAttributeName)
-                || propertySpec.getName().equals(DeviceMessageConstants.passwordAttributeName)
-                || propertySpec.getName().equals(DeviceMessageConstants.broadcastAuthenticationKeyAttributeName)
-                || propertySpec.getName().equals(DeviceMessageConstants.newAuthenticationKeyAttributeName)
-                || propertySpec.getName().equals(DeviceMessageConstants.newPasswordAttributeName)
-                || propertySpec.getName().equals(DeviceMessageConstants.newEncryptionKeyAttributeName)) {
+        if (propertySpec.getValueFactory().getValueTypeName().equals(Password.class.getName())) {
             return ((Password) messageAttribute).getValue();
-        } else if (propertySpec.getName().equals(DeviceMessageConstants.broadcastDevicesGroupAttributeName)) {
+        }
+
+        if (propertySpec.getName().equals(DeviceMessageConstants.broadcastDevicesGroupAttributeName)) {
             DeviceInfoSerializer serializer = new DeviceInfoSerializer(this.deviceMasterDataExtractor, this.deviceGroupExtractor, this.objectMapperService);
             return serializer.serializeDeviceInfo(messageAttribute);
         } else if (propertySpec.getName().equals(DeviceMessageConstants.broadcastInitialTimeBetweenBlocksAttributeName)
@@ -362,13 +455,22 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                 }
             }
             return macAddresses.toString();
-        } else if (propertySpec.getName().equals(DeviceMessageConstants.certificateAliasAttributeName)) {
+        } else if (propertySpec.getName().equals(DeviceMessageConstants.CACertificateAliasAttributeName)) {
             //Load the certificate with that alias from the EIServer DLMS trust store and encode it.
             String alias = (String) messageAttribute;
             CertificateAlias certificateAlias = certificateAliasFinder.from(alias);
             String certificateEncoded = certificateAlias.getCertificateEncoded();
             if (certificateEncoded == null || certificateEncoded.isEmpty()) {
-                throw new IllegalArgumentException("Certificate with alias '" + alias + "' does not exist in the key store");
+                return "";  //Message executor will recognize this and set the message to failed
+            }
+            return certificateEncoded;
+        } else if (propertySpec.getName().equals(DeviceMessageConstants.clientCertificateAliasAttributeName)) {
+            //Load the certificate with that alias from the EIServer DLMS key store and encode it.
+            String alias = (String) messageAttribute;
+            CertificateAlias certificateAlias = certificateAliasFinder.from(alias); //TODO use privateKeyAliasFinder hear instead!
+            String certificateEncoded = certificateAlias.getCertificateEncoded();
+            if (certificateEncoded == null || certificateEncoded.isEmpty()) {
+                return "";  //Message executor will recognize this and set the message to failed
             }
             return certificateEncoded;
         } else if (propertySpec.getName().equals(DeviceMessageConstants.certificateWrapperAttributeName)) {
@@ -386,22 +488,42 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
 
     @Override
     public Optional<String> prepareMessageContext(com.energyict.mdc.upl.meterdata.Device device, OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
-        MasterDataSerializer masterDataSerializer = new MasterDataSerializer(this.objectMapperService, this.propertySpecService, this.deviceMasterDataExtractor);
+
+        MasterDataSerializer masterDataSerializer = new MasterDataSerializer(this.objectMapperService, this.propertySpecService, this.deviceMasterDataExtractor, getBeacon3100Properties());
         MulticastSerializer multicastSerializer = masterDataSerializer.multicastSerializer();
-        if (deviceMessage.getMessageId() == DeviceActionMessage.SyncMasterdataForDC.id()) {
-            return Optional.of(masterDataSerializer.serializeMasterData(device));
-        } else if (deviceMessage.getMessageId() == DeviceActionMessage.SyncDeviceDataForDC.id()) {
-            return Optional.of(masterDataSerializer.serializeMeterDetails(device));
-        } else if (deviceMessage.getMessageId() == DeviceActionMessage.SyncOneConfigurationForDC.id()) {
-            int configId = ((BigDecimal) deviceMessage.getAttributes().get(0).getValue()).intValue();
-            return Optional.of(masterDataSerializer.serializeMasterDataForOneConfig(configId));
-        } else if (deviceMessage.getMessageId() == FirmwareDeviceMessage.DataConcentratorMulticastFirmwareUpgrade.id()) {
-            return Optional.of(multicastSerializer.serialize(device, offlineDevice, deviceMessage));
-        } else if (deviceMessage.getMessageId() == FirmwareDeviceMessage.CONFIGURE_MULTICAST_BLOCK_TRANSFER_TO_SLAVE_DEVICES.id()) {
-            return Optional.of(multicastSerializer.serialize(device, offlineDevice, deviceMessage));
-        } else {
-            return Optional.empty();
+
+
+        try {
+            if (deviceMessage.getMessageId() == DeviceActionMessage.SyncMasterdataForDC.id()) {
+                return Optional.of(masterDataSerializer.serializeMasterData(device, readOldObisCodes()));
+            } else if (deviceMessage.getMessageId() == DeviceActionMessage.SyncDeviceDataForDC.id()) {
+                return Optional.of(masterDataSerializer.serializeMeterDetails(device));
+            } else if (deviceMessage.getMessageId() == DeviceActionMessage.SyncOneConfigurationForDC.id()) {
+                int configId = ((BigDecimal) deviceMessage.getAttributes().get(0).getValue()).intValue();
+                return Optional.of(masterDataSerializer.serializeMasterDataForOneConfig(configId, readOldObisCodes()));
+            } else if (deviceMessage.getMessageId() == FirmwareDeviceMessage.DataConcentratorMulticastFirmwareUpgrade.id()) {
+                return Optional.of(multicastSerializer.serialize(device, offlineDevice, deviceMessage, getBeacon3100Properties()));
+            } else if (deviceMessage.getMessageId() == FirmwareDeviceMessage.CONFIGURE_MULTICAST_BLOCK_TRANSFER_TO_SLAVE_DEVICES.id()) {
+                return Optional.of(multicastSerializer.serialize(device, offlineDevice, deviceMessage, getBeacon3100Properties()));
+            } else if (deviceMessage.getMessageId() == SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEYS.id()
+                    || deviceMessage.getMessageId() == SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEYS_FOR_CLIENT.id()) {
+                new KeyMessageChangeValidator().validateNewKeyValueForFreeTextClient(offlineDevice.getId(), deviceMessage, SecurityPropertySpecName.AUTHENTICATION_KEY);
+            } else if (deviceMessage.getMessageId() == SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEYS.id()
+                    || deviceMessage.getMessageId() == SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEYS_FOR_CLIENT.id()) {
+                new KeyMessageChangeValidator().validateNewKeyValueForFreeTextClient(offlineDevice.getId(), deviceMessage, SecurityPropertySpecName.ENCRYPTION_KEY);
+            } else if (deviceMessage.getMessageId() == SecurityMessage.CHANGE_MASTER_KEY_WITH_NEW_KEYS.id()
+                    || deviceMessage.getMessageId() == SecurityMessage.CHANGE_MASTER_KEY_WITH_NEW_KEYS_FOR_CLIENT.id()) {
+                new KeyMessageChangeValidator().validateNewKeyValueForFreeTextClient(offlineDevice.getId(), deviceMessage, SecurityPropertySpecName.MASTER_KEY);
+            }
+        } catch (DeviceConfigurationException e) {
+            return Optional.of("DeviceConfigurationException " + e.getMessage());
         }
+
+        return Optional.empty();
+    }
+
+    private Beacon3100Properties getBeacon3100Properties() {
+        return (Beacon3100Properties) getProtocol().getDlmsSessionProperties();
     }
 
     @Override
@@ -422,10 +544,18 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                         collectedMessage = getMasterDataSync().syncMasterData(pendingMessage, collectedMessage);
                     } else if (pendingMessage.getSpecification().equals(DeviceActionMessage.SyncDeviceDataForDC)) {
                         collectedMessage = getMasterDataSync().syncDeviceData(pendingMessage, collectedMessage);
+                    } else if (pendingMessage.getSpecification().equals(DeviceActionMessage.SyncAllDevicesWithDC)) {
+                        collectedMessage = getMasterDataSync().syncAllDeviceData(pendingMessage, collectedMessage);
+                    } else if (pendingMessage.getSpecification().equals(DeviceActionMessage.SyncOneDeviceWithDC)) {
+                        collectedMessage = getMasterDataSync().syncOneDeviceData(pendingMessage, collectedMessage);
+                    } else if (pendingMessage.getSpecification().equals(DeviceActionMessage.SyncOneDeviceWithDCAdvanced)) {
+                        collectedMessage = getMasterDataSync().syncOneDeviceWithDCAdvanced(pendingMessage, collectedMessage);
                     } else if (pendingMessage.getSpecification().equals(DeviceActionMessage.PauseDCScheduler)) {
                         setSchedulerState(SchedulerState.PAUSED);
                     } else if (pendingMessage.getSpecification().equals(DeviceActionMessage.ResumeDCScheduler)) {
                         setSchedulerState(SchedulerState.RUNNING);
+                    } else if (pendingMessage.getSpecification().equals(DeviceActionMessage.RemoveLogicalDevice)) {
+                        removeLogicalDevice(pendingMessage, collectedMessage);
                     } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.CHANGE_GPRS_APN_CREDENTIALS)) {
                         changeGPRSParameters(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.PingMeter)) {
@@ -492,10 +622,18 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                         rebootApplication();
                     } else if (pendingMessage.getSpecification().equals(ConfigurationChangeDeviceMessage.SetDeviceName)) {
                         setDeviceName(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(ConfigurationChangeDeviceMessage.SetDeviceHostName)) {
+                        setDeviceHostName(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(ConfigurationChangeDeviceMessage.SetDeviceLocation)) {
+                        setDeviceLocation(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(ConfigurationChangeDeviceMessage.SetNTPAddress)) {
                         setNTPAddress(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(ConfigurationChangeDeviceMessage.SyncNTPServer)) {
-                        syncNTPServer();
+                        syncNTPServer(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(ConfigurationChangeDeviceMessage.SET_DEVICE_LOG_LEVEL)) {
+                        setDeviceLogLevel(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(ConfigurationChangeDeviceMessage.ConfigureAPNs)) {
+                        configureAPNs(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_DLMS_AUTHENTICATION_LEVEL)) {
                         changeDlmAuthLevel(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(SecurityMessage.ACTIVATE_DLMS_SECURITY_VERSION1)) {
@@ -507,14 +645,20 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                     } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_SECURITY_SUITE)) {
                         changeSecuritySuite(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEYS)) {
-                        changeAuthKey(pendingMessage);
-/*                    } else if (pendingMessage.getSpecification().equals(SecurityMessage.IMPORT_CLIENT_CERTIFICATE)) {
-                        importClientCertificate(pendingMessage);
-                    } else if (pendingMessage.getSpecification().equals(SecurityMessage.REMOVE_CLIENT_CERTIFICATE)) {
-                        removeClientCertificate(pendingMessage);*/
+                        changeAuthKey(collectedMessage, pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEYS_FOR_CLIENT)) {
+                        changeAuthKey(collectedMessage, pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEYS)) {
-                        changeEncryptionKey(pendingMessage);
+                        changeEncryptionKey(collectedMessage, pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEYS_FOR_CLIENT)) {
+                        changeEncryptionKey(collectedMessage, pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_MASTER_KEY_WITH_NEW_KEYS)) {
+                        changeMasterKey(collectedMessage, pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_MASTER_KEY_WITH_NEW_KEYS_FOR_CLIENT)) {
+                        changeMasterKey(collectedMessage, pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_HLS_SECRET_PASSWORD)) {
+                        changeHlsSecret(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_HLS_SECRET_PASSWORD_FOR_CLIENT)) {
                         changeHlsSecret(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(SecurityMessage.EXPORT_END_DEVICE_CERTIFICATE)) {
                         collectedMessage = exportEndDeviceCertificate(collectedMessage, pendingMessage);
@@ -524,8 +668,10 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                         collectedMessage = exportRootCACertificate(collectedMessage);
                     } else if (pendingMessage.getSpecification().equals(SecurityMessage.IMPORT_CA_CERTIFICATE)) {
                         importCACertificate(pendingMessage);
-                    } else if (pendingMessage.getSpecification().equals(SecurityMessage.IMPORT_END_DEVICE_CERTIFICATE)) {
-                        importEndDeviceCertificate(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(SecurityMessage.IMPORT_CLIENT_END_DEVICE_CERTIFICATE)) {
+                        importClientEndDeviceCertificate(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(SecurityMessage.IMPORT_SERVER_END_DEVICE_CERTIFICATE)) {
+                        importServerEndDeviceCertificate(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(SecurityMessage.DELETE_CERTIFICATE_BY_SERIAL_NUMBER)) {
                         deleteCertificateBySerialNumber(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(SecurityMessage.DELETE_CERTIFICATE_BY_TYPE)) {
@@ -544,6 +690,8 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                         configureFWLAN(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(FirewallConfigurationMessage.ConfigureFWWAN)) {
                         configureFWWAN(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(DLMSConfigurationDeviceMessage.MeterPushNotificationSettings)) {
+                        configureDLMSGateway(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(DeviceActionMessage.TRIGGER_PRELIMINARY_PROTOCOL)) {
 
                         String[] macAddressesAndProtocols = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.deviceGroupAttributeName).getValue().split(SEPARATOR);
@@ -569,8 +717,8 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                         collectedMessage = dcMulticastUpgrade(pendingMessage, collectedMessage);
                     } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.ReadMulticastProgress)) {
                         collectedMessage = readMulticastProgress(pendingMessage);
-                    } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.EnableNetworkInterfaces)) {
-                        enableNetworkInterfaces(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.EnableNetworkInterfacesForSetupObject)) {
+                        enableInterfacesForSetupObject(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(LogBookDeviceMessage.ResetMainLogbook)) {
                         this.resetLogbook(Beacon3100LogBookFactory.MAIN_LOGBOOK);
                     } else if (pendingMessage.getSpecification().equals(LogBookDeviceMessage.ResetSecurityLogbook)) {
@@ -581,6 +729,35 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                         this.resetLogbook(Beacon3100LogBookFactory.COMMUNICATION_LOGBOOK);
                     } else if (pendingMessage.getSpecification().equals(LogBookDeviceMessage.ResetVoltageCutLogbook)) {
                         this.resetLogbook(Beacon3100LogBookFactory.VOLTAGE_LOGBOOK);
+                    } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_HLS_SECRET_USING_SERVICE_KEY)) {
+                        this.changeHLSSecretUsingServiceKey(pendingMessage, collectedMessage);
+                    } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.COPY_ACTIVE_FIRMWARE_TO_INACTIVE_PARTITION)) {
+                        copyActiveFirmwareToInactive();
+                    } else if (pendingMessage.getSpecification().equals(AlarmConfigurationMessage.RESET_DESCRIPTOR_FOR_SINGLE_ALARM_REGISTER)) {
+                        resetAlarmDescriptor(pendingMessage);
+                        collectedMessage.setDeviceProtocolInformation("Alarm description reset for " + Beacon3100RegisterFactory.ALARM_DESCRIPTOR);
+                    } else if (pendingMessage.getSpecification().equals(AlarmConfigurationMessage.RESET_BITS_IN_ALARM_SINGLE_REGISTER)) {
+                        resetAllAlarmBits();
+                        collectedMessage.setDeviceProtocolInformation("Alarm bits reset for " + Beacon3100RegisterFactory.ALARM_BITS_REGISTER);
+                    } else if (pendingMessage.getSpecification().equals(AlarmConfigurationMessage.WRITE_FILTER_FOR_SINGLE_ALARM_REGISTER)) {
+                        writeAlarmFilter(pendingMessage);
+                        collectedMessage.setDeviceProtocolInformation("Alarm filter written in " + Beacon3100RegisterFactory.ALARM_FILTER);
+                    } else if (pendingMessage.getSpecification().equals(AlarmConfigurationMessage.CONFIGURE_PUSH_EVENT_NOTIFICATION_CIPHERING)) {
+                        collectedMessage = configurePushSetupNotificationCiphering(pendingMessage, collectedMessage);
+                    } else if (pendingMessage.getSpecification().equals(AlarmConfigurationMessage.CONFIGURE_PUSH_EVENT_SEND_TEST_NOTIFICATION)) {
+                        collectedMessage = configurePushSetupSendTestNotification(pendingMessage, collectedMessage);
+                    } else if (pendingMessage.getSpecification().equals(DeviceActionMessage.SetBufferForAllLoadProfiles)) {
+                        collectedMessage = getMasterDataSync().setBufferForAllLoadProfiles(pendingMessage, collectedMessage);
+                    } else if (pendingMessage.getSpecification().equals(DeviceActionMessage.SetBufferForSpecificLoadProfile)) {
+                        collectedMessage = getMasterDataSync().setBufferForSpecificLoadProfile(pendingMessage, collectedMessage);
+                    } else if (pendingMessage.getSpecification().equals(DeviceActionMessage.SetBufferForAllEventLogs)) {
+                        collectedMessage = getMasterDataSync().setBufferForAllEventLogs(pendingMessage, collectedMessage);
+                    } else if (pendingMessage.getSpecification().equals(DeviceActionMessage.SetBufferForSpecificEventLog)) {
+                        collectedMessage = getMasterDataSync().setBufferForSpecificEventLog(pendingMessage, collectedMessage);
+                    } else if (pendingMessage.getSpecification().equals(DeviceActionMessage.SetBufferForAllRegisters)) {
+                        collectedMessage = getMasterDataSync().setBufferForAllRegisters(pendingMessage, collectedMessage);
+                    } else if (pendingMessage.getSpecification().equals(DeviceActionMessage.SetBufferForSpecificRegister)) {
+                        collectedMessage = getMasterDataSync().setBufferForSpecificRegister(pendingMessage, collectedMessage);
                     } else {   //Unsupported message
                         collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
                         collectedMessage.setDeviceProtocolInformation("Message currently not supported by the protocol");
@@ -605,6 +782,20 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         return result;
     }
 
+    private void removeLogicalDevice(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
+        String mac = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.clientMacAddress).getValue();
+        getLogger().info("Removing client with MAC address: " + mac);
+        final ConcentratorSetup concentratorSetup = readOldObisCodes() ? this.getCosemObjectFactory().getConcentratorSetup() : this.getCosemObjectFactory().getConcentratorSetup(CONCENTRATOR_SETUP_NEW_LOGICAL_NAME);
+        byte[] macAddress = ProtocolTools.getBytesFromHexString(mac.replace(":", ""), 2);
+        concentratorSetup.removeLogicalDevice(macAddress);
+        getLogger().info(" - removed ok");
+    }
+
+    //Sub classes can override this implementation
+    protected CollectedMessage changeHLSSecretUsingServiceKey(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
+        throw new ProtocolException("Service keys can only be injected by the HSM crypto-protocol");
+    }
+
     private void generateKeyPair(OfflineDeviceMessage pendingMessage) throws IOException {
         String certificateTypeAttributeValue = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, certificateTypeAttributeName).getValue();
         SecurityMessage.CertificateType certificateType = SecurityMessage.CertificateType.fromName(certificateTypeAttributeValue);
@@ -626,7 +817,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     /**
      * Delete a certain certificate from the DLMS device.
      * The certificate is identified by its serial number and issuer.
-     * <p>
+     * <p/>
      * Note that this does not remove that certificate from our own persisted key store,
      * this needs to be done manually, using the API.
      */
@@ -640,7 +831,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     /**
      * Delete a certain certificate from the DLMS device.
      * The certificate is identified by its entity, type and common name (system title)
-     * <p>
+     * <p/>
      * Note that this does not remove that certificate from our own persisted key store,
      * this needs to be done manually, using the API.
      */
@@ -672,21 +863,45 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
      * In case of sub-CA or root-CA certificates, their CN must end in "CA".
      */
     private void importCACertificate(OfflineDeviceMessage offlineDeviceMessage) throws IOException {
-        String encodedCertificateString = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.certificateAliasAttributeName).getValue();
+        String encodedCertificateString = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.CACertificateAliasAttributeName).getValue();
+        if (encodedCertificateString == null || encodedCertificateString.isEmpty()) {
+            throw new ProtocolException("The certificate with the specified alias does not exist in the EIServer persisted trust store");
+        }
+
         byte[] encodedCertificate = ProtocolTools.getBytesFromHexString(encodedCertificateString, "");
         getCosemObjectFactory().getSecuritySetup().importCertificate(encodedCertificate);
     }
 
     /**
-     * Imports an X.509 v3 certificate of a public key of an end-device.
+     * Imports an X.509 v3 certificate of a public key of this client (ComServer)
      * The Beacon recognizes the entity by the Common Name (CN) of the certificate.
      * In case of client (ComServer) certificates, this is the system title of the ComServer.
-     * In case of server (Beacon) certificates, this is the system title of the Beacon device.
-     * <p>
+     * <p/>
      * The Beacon recognizes the certificate type (signing/key agreement/TLS) by the certificate extension(s)
      */
-    private void importEndDeviceCertificate(OfflineDeviceMessage offlineDeviceMessage) throws IOException {
+    private void importClientEndDeviceCertificate(OfflineDeviceMessage offlineDeviceMessage) throws IOException {
+        String encodedCertificateString = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.clientCertificateAliasAttributeName).getValue();
+        if (encodedCertificateString == null || encodedCertificateString.isEmpty()) {
+            throw new ProtocolException("The certificate with the specified alias does not exist in the EIServer persisted key store");
+        }
+
+        byte[] encodedCertificate = ProtocolTools.getBytesFromHexString(encodedCertificateString, "");
+        getCosemObjectFactory().getSecuritySetup().importCertificate(encodedCertificate);
+    }
+
+    /**
+     * Imports an X.509 v3 certificate of a public key of a server end-device.
+     * The Beacon recognizes the entity by the Common Name (CN) of the certificate.
+     * In case of server (Beacon) certificates, this is the system title of the Beacon device.
+     * <p/>
+     * The Beacon recognizes the certificate type (signing/key agreement/TLS) by the certificate extension(s)
+     */
+    private void importServerEndDeviceCertificate(OfflineDeviceMessage offlineDeviceMessage) throws IOException {
         String base64EncodedCertificate = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.certificateWrapperAttributeName).getValue();
+        if (base64EncodedCertificate == null || base64EncodedCertificate.isEmpty()) {
+            throw new ProtocolException("The CertificateWrapper with the given ID does not exist in the EIServer database");
+        }
+
         byte[] derEncodedCertificate = Base64.decodeBase64(base64EncodedCertificate);
 
         getCosemObjectFactory().getSecuritySetup().importCertificate(derEncodedCertificate);
@@ -795,7 +1010,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     /**
      * Export a server end-device certificate of type signing/key agreement/TLS from the Beacon.
      * It will be stored as a CertificateWrapper in EIServer, and the relevant property on the device will be filled in
-     * <p>
+     * <p/>
      * Note that the different security suites each have their own certificate, based on a certain elliptical curve.
      * The Beacon returns the proper certificate for the security suite it is currently operating in.
      */
@@ -845,7 +1060,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                     collectedCertificateWrapper);
         }
 
-        String msg = "Property '" + propertyName + "' on the Beacon device is updated with the ID referring to the new CertificateWrapper. This represents the server end-device certificate, with serial number'" + x509Certificate.getSerialNumber().toString() + "' and issuerDN '" + x509Certificate.getIssuerDN().getName() + "').";
+        String msg = "Property '" + propertyName + "' on the Beacon device is updated with the ID referring to the new CertificateWrapper. This represents the server end-device certificate, with serial number '" + x509Certificate.getSerialNumber().toString() + "' and issuerDN '" + x509Certificate.getIssuerDN().getName() + "').";
         getLogger().info(msg);
         collectedMessage.setDeviceProtocolInformation(msg);
         collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
@@ -896,9 +1111,6 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                 ephemeralPublicKeyEncoded
         );
         PrivateKey clientPrivateSigningKey = ((GeneralCipheringSecurityProvider) securityProvider).getClientPrivateSigningKey();
-        if (clientPrivateSigningKey == null) {
-            throw DeviceConfigurationException.missingProperty(DlmsSessionProperties.CLIENT_PRIVATE_SIGNING_KEY);
-        }
         byte[] signature = ecdsaSignature.sign(signData, clientPrivateSigningKey);
 
         byte[] keyData = ProtocolTools.concatByteArrays(ephemeralPublicKeyEncoded, signature);
@@ -957,6 +1169,11 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         if (keyId == 0) {
             securityPropertyName = SecurityPropertySpecName.ENCRYPTION_KEY.toString();
             getProtocol().getDlmsSessionProperties().getSecurityProvider().changeEncryptionKey(agreedKey);
+            byte[] oldEncryptionKey = getProtocol().getDlmsSession().getProperties().getSecurityProvider().getGlobalKey();
+            if (!Arrays.equals(oldEncryptionKey, agreedKey)) { //reset FC values after the EK key change
+                securityContext.setFrameCounter(1);
+                securityContext.getSecurityProvider().getRespondingFrameCounterHandler().setRespondingFrameCounter(-1);
+            }
         } else if (keyId == 2) {
             securityPropertyName = SecurityPropertySpecName.AUTHENTICATION_KEY.toString();
             getProtocol().getDlmsSessionProperties().getSecurityProvider().changeAuthenticationKey(agreedKey);
@@ -1152,7 +1369,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     /**
      * Read out the progress of the multicast FW upgrade.
      * This contains information on all AM540 slave devices that are currently being upgraded.
-     * <p>
+     * <p/>
      * Note that this information will be stored on the proper AM540 slave devices in EIServer, as register 0.3.44.0.128.255
      */
     private CollectedMessage readMulticastProgress(OfflineDeviceMessage pendingMessage) throws IOException {
@@ -1242,7 +1459,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
 
         final byte[] mac = ParseUtils.hexStringToByteArray(macAddress);
 
-        final ConcentratorSetup concentratorSetup = this.getCosemObjectFactory().getConcentratorSetup();
+        final ConcentratorSetup concentratorSetup = readOldObisCodes() ? this.getCosemObjectFactory().getConcentratorSetup() : this.getCosemObjectFactory().getConcentratorSetup(CONCENTRATOR_SETUP_NEW_LOGICAL_NAME);
         concentratorSetup.triggerPreliminaryProtocol(mac, protocolName);
 
         if (getLogger().isLoggable(Level.INFO)) {
@@ -1252,7 +1469,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
 
     private PLCConfigurationDeviceMessageExecutor getPLCConfigurationDeviceMessageExecutor() {
         if (plcConfigurationDeviceMessageExecutor == null) {
-            plcConfigurationDeviceMessageExecutor = new Beacon3100PLCConfigurationDeviceMessageExecutor(getProtocol().getDlmsSession(), getProtocol().getOfflineDevice(), this.getCollectedDataFactory(), this.getIssueFactory());
+            plcConfigurationDeviceMessageExecutor = new Beacon3100PLCConfigurationDeviceMessageExecutor(getProtocol().getDlmsSession(), getProtocol().getOfflineDevice(), readOldObisCodes(), this.getCollectedDataFactory(), this.getIssueFactory());
         }
         return plcConfigurationDeviceMessageExecutor;
     }
@@ -1323,7 +1540,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         final long normalTimeout = getProtocol().getDlmsSessionProperties().getTimeout();
         final long fullRoundTripTimeout = timeoutInMillis + normalTimeout;
         getProtocol().getDlmsSession().getDLMSConnection().setTimeout(fullRoundTripTimeout);
-        final int pingTime = getCosemObjectFactory().getG3NetworkManagement().pingNode(hexMacAddress, ((int) timeoutInMillis) / 1000);
+        final int pingTime = getG3NetworkManagement().pingNode(hexMacAddress, ((int) timeoutInMillis) / 1000);
         getProtocol().getDlmsSession().getDLMSConnection().setTimeout(normalTimeout);
 
         collectedMessage.setDeviceProtocolInformation(pingTime + " ms");
@@ -1333,7 +1550,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     private CollectedMessage kickMeter(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
         String macAddress = pendingMessage.getDeviceMessageAttributes().get(0).getValue();
 
-        final boolean result = getCosemObjectFactory().getG3NetworkManagement().detachNode(macAddress);
+        final boolean result = getG3NetworkManagement().detachNode(macAddress);
 
         if (!result) {
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
@@ -1368,7 +1585,8 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
             macAddresses.add(macAddress);
         }
 
-        final boolean result = getCosemObjectFactory().getG3NetworkManagement().addToBlacklist(macAddresses);
+
+        final boolean result = getG3NetworkManagement().addToBlacklist(macAddresses);
 
         if (!result) {
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
@@ -1378,6 +1596,14 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         }
 
         return collectedMessage;
+    }
+
+    private G3NetworkManagement getG3NetworkManagement() throws NotInObjectListException {
+        if (readOldObisCodes()) {
+            return getCosemObjectFactory().getG3NetworkManagement();
+        } else {
+            return getCosemObjectFactory().getG3NetworkManagement(G3_NETWORK_MANAGEMENT_NEW_OBISCODE);
+        }
     }
 
     private CollectedMessage removeMetersFromBlackList(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
@@ -1403,7 +1629,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
             macAddresses.add(macAddress);
         }
 
-        final boolean result = getCosemObjectFactory().getG3NetworkManagement().removeFromBlacklist(macAddresses);
+        final boolean result = getG3NetworkManagement().removeFromBlacklist(macAddresses);
 
         if (!result) {
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
@@ -1417,13 +1643,21 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
 
     private MasterDataSync getMasterDataSync() {
         if (masterDataSync == null) {
-            masterDataSync = new MasterDataSync(this, objectMapperService, this.getIssueFactory());
+            masterDataSync = new MasterDataSync(this, objectMapperService, this.getIssueFactory(), propertySpecService, deviceMasterDataExtractor);
         }
         return masterDataSync;
     }
 
     private void setSchedulerState(SchedulerState state) throws IOException {
-        getCosemObjectFactory().getScheduleManager().writeSchedulerState(state.toDLMSEnum());
+        getScheduleManager().writeSchedulerState(state.toDLMSEnum());
+    }
+
+    private ScheduleManager getScheduleManager() throws NotInObjectListException {
+        if (readOldObisCodes()) {
+            return getCosemObjectFactory().getScheduleManager();
+        } else {
+            return getCosemObjectFactory().getScheduleManager(SCHEDULE_MANAGER_NEW_OBISCODE);
+        }
     }
 
     private void upgradeFirmware(OfflineDeviceMessage pendingMessage) throws IOException {
@@ -1456,11 +1690,28 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
 
     private void changeHlsSecret(OfflineDeviceMessage pendingMessage) throws IOException {
         String hex = pendingMessage.getDeviceMessageAttributes().get(0).getValue();
-        final CosemObjectFactory cof = getCosemObjectFactory();
-        cof.getAssociationLN().changeHLSSecret(ProtocolTools.getBytesFromHexString(hex, ""));
+        int clientId = getClientId(pendingMessage);
+
+        getAssociationLN(clientId).changeHLSSecret(ProtocolTools.getBytesFromHexString(hex, ""));
     }
 
-    private void enableNetworkInterfaces(OfflineDeviceMessage pendingMessage) throws IOException {
+    protected AssociationLN getAssociationLN(int clientId) throws IOException {
+        if (clientId != 0) {
+            Beacon3100.ClientConfiguration client = Beacon3100.ClientConfiguration.getByID(clientId);
+
+            if (client != null) {
+                return getCosemObjectFactory().getAssociationLN(client.getAssociationLN());
+            } else {
+                throw new IOException("Could not get Beacon3100 client with id " + clientId);
+            }
+        }
+        // legacy Beacon version Support
+        return getCosemObjectFactory().getAssociationLN();
+    }
+
+    private void enableInterfacesForSetupObject(OfflineDeviceMessage pendingMessage) throws IOException {
+        String attributeName = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.setupObjectAttributeName).getValue();
+        NetworkConnectivityMessage.BeaconSetupObject beaconSetupObject = NetworkConnectivityMessage.BeaconSetupObject.valueOf(attributeName);
         boolean isEthernetWanEnabled = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.ETHERNET_WAN).getValue());
         boolean isEthernetLanEnabled = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.ETHERNET_LAN).getValue());
         boolean isWirelessWanEnabled = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.WIRELESS_WAN).getValue());
@@ -1468,67 +1719,159 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         boolean isPlc_NetworkEnabled = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.PLC_NETWORK).getValue());
         boolean allInterfacesEnabled = isEthernetWanEnabled && isEthernetLanEnabled && isWirelessWanEnabled && isIp6_TunnelEnabled && isPlc_NetworkEnabled;
 
-        Array interfacesArray = new Array();
-        if (allInterfacesEnabled) {
-            interfacesArray.addDataType(new TypeEnum(NetworkInterfaceType.ALL.getNetworkType()));
-        } else {
-            if (isEthernetWanEnabled) {
-                interfacesArray.addDataType(new TypeEnum(NetworkInterfaceType.ETHERNET_WAN.getNetworkType()));
+        final Set<NetworkInterfaceType> enabledInterfaces = this.getInterfacesToEnable(isEthernetWanEnabled, isEthernetLanEnabled, isWirelessWanEnabled, isIp6_TunnelEnabled, isPlc_NetworkEnabled, allInterfacesEnabled);
+
+        switch (beaconSetupObject) {
+            case Web_Portal_Config_New_ObisCode: {
+                final WebPortalSetupV1 webportalSetup = this.getCosemObjectFactory().getWebPortalSetupV1(WEB_PORTAL_SETUP_OLD_OBIS);
+                webportalSetup.setEnabledInterfaces(enabledInterfaces);
+
+                break;
             }
-            if (isEthernetLanEnabled) {
-                interfacesArray.addDataType(new TypeEnum(NetworkInterfaceType.ETHERNET_LAN.getNetworkType()));
+
+            case Web_Portal_Config_Old_ObisCode: {
+                final WebPortalSetupV1 webportalSetup = this.getCosemObjectFactory().getWebPortalSetupV1(WEB_PORTAL_CONFIG_NEW_OBISCODE);
+                webportalSetup.setEnabledInterfaces(enabledInterfaces);
+
+                break;
             }
-            if (isWirelessWanEnabled) {
-                interfacesArray.addDataType(new TypeEnum(NetworkInterfaceType.WIRELESS_WAN.getNetworkType()));
-            }
-            if (isIp6_TunnelEnabled) {
-                interfacesArray.addDataType(new TypeEnum(NetworkInterfaceType.IP6_TUNNEL.getNetworkType()));
-            }
-            if (isPlc_NetworkEnabled) {
-                interfacesArray.addDataType(new TypeEnum(NetworkInterfaceType.PLC_NETWORK.getNetworkType()));
+
+            default: {
+                Array interfacesArray = new Array();
+
+                for (final NetworkInterfaceType enabledIface : enabledInterfaces) {
+                    interfacesArray.addDataType(new TypeEnum(enabledIface.getNetworkType()));
+                }
+
+                enableInterfacesOnBeaconSetupObject(beaconSetupObject, interfacesArray);
             }
         }
-        getCosemObjectFactory().getWebPortalConfig().enableInterfaces(interfacesArray);
     }
 
-    protected void changeEncryptionKey(OfflineDeviceMessage pendingMessage) throws IOException {
-        String wrappedHexKey = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.newWrappedEncryptionKeyAttributeName).getValue();
-        String plainHexKey = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.newEncryptionKeyAttributeName).getValue();
-        String oldHexKey = ProtocolTools.getHexStringFromBytes(getProtocol().getDlmsSession().getProperties().getSecurityProvider().getGlobalKey(), "");
+    private final Set<NetworkInterfaceType> getInterfacesToEnable(boolean isEthernetWanEnabled, boolean isEthernetLanEnabled, boolean isWirelessWanEnabled, boolean isIp6_TunnelEnabled, boolean isPlc_NetworkEnabled, boolean allInterfacesEnabled) {
+        final Set<NetworkInterfaceType> enabledInterfaces = EnumSet.noneOf(NetworkInterfaceType.class);
 
-        Array encryptionKeyArray = new Array();
-        Structure keyData = new Structure();
-        keyData.addDataType(new TypeEnum(0));    // 0 means keyType: encryptionKey (global key)
-        keyData.addDataType(OctetString.fromByteArray(ProtocolTools.getBytesFromHexString(wrappedHexKey, "")));
-        encryptionKeyArray.addDataType(keyData);
-        getSecuritySetup().transferGlobalKey(encryptionKeyArray);
+        if (allInterfacesEnabled) {
+            enabledInterfaces.add(NetworkInterfaceType.ALL);
+        } else {
+            if (isEthernetLanEnabled) enabledInterfaces.add(NetworkInterfaceType.ETHERNET_LAN);
+            if (isEthernetWanEnabled) enabledInterfaces.add(NetworkInterfaceType.ETHERNET_WAN);
+            if (isWirelessWanEnabled) enabledInterfaces.add(NetworkInterfaceType.WIRELESS_WAN);
+            if (isPlc_NetworkEnabled) enabledInterfaces.add(NetworkInterfaceType.PLC_NETWORK);
+            if (isIp6_TunnelEnabled) enabledInterfaces.add(NetworkInterfaceType.IP6_TUNNEL);
+        }
+
+        return enabledInterfaces;
+    }
+
+    private void enableInterfacesOnBeaconSetupObject(NetworkConnectivityMessage.BeaconSetupObject beaconSetupObject, Array interfacesArray) throws IOException {
+        switch (beaconSetupObject) {
+            case Remote_Shell_Old_ObisCode:
+                getCosemObjectFactory().getRemoteShellSetup().enableInterfaces(interfacesArray);
+                break;
+            case Remote_Shell_New_ObisCode:
+                getCosemObjectFactory().getRemoteShellSetup(REMOTE_SHELL_SETUP_NEW_OBISCODE).enableInterfaces(interfacesArray);
+                break;
+            case SNMP_Old_ObisCode:
+                getCosemObjectFactory().getSNMPSetup().enableInterfaces(interfacesArray);
+                break;
+            case SNMP_New_ObisCode:
+                getCosemObjectFactory().getSNMPSetup(SNMP_SETUP_NEW_OBISCODE).enableInterfaces(interfacesArray);
+                break;
+            case RTU_Discovery_Old_ObisCode:
+                getCosemObjectFactory().getRtuDiscoverySetup().enableInterfaces(interfacesArray);
+                break;
+            case RTU_Discovery_New_ObisCode:
+                getCosemObjectFactory().getRtuDiscoverySetup(RTU_DISCOVERY_SETUP_NEW_OBISCODE).enableInterfaces(interfacesArray);
+                break;
+        }
+    }
+
+    protected CollectedMessage changeEncryptionKey(CollectedMessage collectedMessage, OfflineDeviceMessage pendingMessage) throws IOException {
+        String newKey = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.newEncryptionKeyAttributeName);
+        changeKeyAndUseNewKey(pendingMessage, SecurityMessage.KeyID.GLOBAL_UNICAST_ENCRYPTION_KEY.getId(), DeviceMessageConstants.newWrappedEncryptionKeyAttributeName);
 
         //Update the key in the security provider, it is used instantly
-        getProtocol().getDlmsSession().getProperties().getSecurityProvider().changeEncryptionKey(ProtocolTools.getBytesFromHexString(plainHexKey, ""));
+        getProtocol().getDlmsSession().getProperties().getSecurityProvider().changeEncryptionKey(ProtocolTools.getBytesFromHexString(newKey, ""));
 
-        //Reset frame counter, only if a different key has been written
-        if (!oldHexKey.equalsIgnoreCase(plainHexKey)) {
-            getProtocol().getDlmsSession().getAso().getSecurityContext().setFrameCounter(1);
+        int clientInUse = getProtocol().getDlmsSession().getProperties().getClientMacAddress();
+        int clientToChangeKeyFor = getClientId(pendingMessage);
+
+        SecurityContext securityContext = getProtocol().getDlmsSession().getAso().getSecurityContext();
+        if (clientInUse == clientToChangeKeyFor) {
+            securityContext.setFrameCounter(1);
+        } else {
+            ((BeaconCache) getProtocol().getDeviceCache()).setTXFrameCounter(clientToChangeKeyFor, 1);
         }
+        securityContext.getSecurityProvider().getRespondingFrameCounterHandler().setRespondingFrameCounter(-1);
+
+        return collectedMessage;
     }
 
     protected SecuritySetup getSecuritySetup() throws IOException {
+        return getSecuritySetup(0); //default security Setup Object for legacy Beacon versions
+    }
+
+    protected SecuritySetup getSecuritySetup(int clientId) throws IOException {
+        if (clientId != 0) {
+            Beacon3100.ClientConfiguration client = Beacon3100.ClientConfiguration.getByID(clientId);
+
+            if (client != null) {
+                return getCosemObjectFactory().getSecuritySetup(client.getSecuritySetupOBIS());
+            } else {
+                throw new IOException("Could not get Beacon3100 client with id " + clientId);
+            }
+        }
+
+        // legacy Beacon version Support
         return getCosemObjectFactory().getSecuritySetup();
     }
 
-    protected void changeAuthKey(OfflineDeviceMessage pendingMessage) throws IOException {
-        String wrappedHexKey = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.newWrappedAuthenticationKeyAttributeName).getValue();
-        String plainHexKey = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.newAuthenticationKeyAttributeName).getValue();
+    protected int getClientId(OfflineDeviceMessage pendingMessage) {
+        String clientIdParam = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.clientMacAddress).getValue();
+        if (clientIdParam != null) {
+            if (!clientIdParam.isEmpty()) {
+                try {
+                    return Integer.parseInt(clientIdParam);
+                } catch (Exception ex) {
+                    // swallow
+                }
+            }
+        }
 
-        Array authenticationKeyArray = new Array();
-        Structure keyData = new Structure();
-        keyData.addDataType(new TypeEnum(2));    // 2 means keyType: authenticationKey
-        keyData.addDataType(OctetString.fromByteArray(ProtocolTools.getBytesFromHexString(wrappedHexKey, "")));
-        authenticationKeyArray.addDataType(keyData);
-        getSecuritySetup().transferGlobalKey(authenticationKeyArray);
+        return 0;
+    }
+
+    protected CollectedMessage changeAuthKey(CollectedMessage collectedMessage, OfflineDeviceMessage pendingMessage) throws IOException {
+        String newKey = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.newAuthenticationKeyAttributeName);
+        changeKeyAndUseNewKey(pendingMessage, SecurityMessage.KeyID.AUTHENTICATION_KEY.getId(), DeviceMessageConstants.newWrappedAuthenticationKeyAttributeName);
 
         //Update the key in the security provider, it is used instantly
-        getProtocol().getDlmsSession().getProperties().getSecurityProvider().changeAuthenticationKey(ProtocolTools.getBytesFromHexString(plainHexKey, ""));
+        getProtocol().getDlmsSession().getProperties().getSecurityProvider().changeAuthenticationKey(ProtocolTools.getBytesFromHexString(newKey, ""));
+        return collectedMessage;
+    }
+
+    protected CollectedMessage changeMasterKey(CollectedMessage collectedMessage, OfflineDeviceMessage pendingMessage) throws IOException {
+        String newKey = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.newMasterKeyAttributeName);
+        changeKeyAndUseNewKey(pendingMessage, SecurityMessage.KeyID.MASTER_KEY.getId(), DeviceMessageConstants.newWrappedMasterKeyAttributeName);
+
+        //Update the key in the security provider, it is used instantly
+        getProtocol().getDlmsSession().getProperties().getSecurityProvider().changeMasterKey(ProtocolTools.getBytesFromHexString(newKey, ""));
+        return collectedMessage;
+    }
+
+    private void changeKeyAndUseNewKey(OfflineDeviceMessage pendingMessage, int keyId, String wrappedKeyAttributeName) throws IOException {
+        String newWrappedKey = getDeviceMessageAttributeValue(pendingMessage, wrappedKeyAttributeName);
+        byte[] keyBytes = ProtocolTools.getBytesFromHexString(newWrappedKey, "");
+        int clientId = getClientId(pendingMessage);
+
+        Array keyArray = new Array();
+        Structure keyData = new Structure();
+        keyData.addDataType(new TypeEnum(keyId));
+        keyData.addDataType(OctetString.fromByteArray(keyBytes));
+        keyArray.addDataType(keyData);
+
+        getSecuritySetup(clientId).transferGlobalKey(keyArray);
     }
 
     private void activateAdvancedDlmsEncryption(OfflineDeviceMessage pendingMessage) throws IOException {
@@ -1597,20 +1940,56 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
 
     private void setNTPAddress(OfflineDeviceMessage pendingMessage) throws IOException {
         String address = pendingMessage.getDeviceMessageAttributes().get(0).getValue();
-        getCosemObjectFactory().getNTPServerAddress().writeNTPServerName(address);
+        getNtpServerAddress().writeNTPServerName(address);
     }
 
-    private void syncNTPServer() throws IOException {
-        getCosemObjectFactory().getNTPServerAddress().ntpSync();
+    private NTPServerAddress getNtpServerAddress() throws NotInObjectListException {
+        if (readOldObisCodes()) {
+            return getCosemObjectFactory().getNTPServerAddress();
+        } else {
+            return getCosemObjectFactory().getNTPServerAddress(TIME_SERVER_NEW_OBISCODE);
+        }
+    }
+
+    private void syncNTPServer(OfflineDeviceMessage pendingMessage) throws IOException {
+        getNtpServerAddress().ntpSync();
     }
 
     private void setDeviceName(OfflineDeviceMessage pendingMessage) throws IOException {
+        if (readOldObisCodes()) {
+            writeOctetStringData(pendingMessage, DEVICE_NAME_OLD_OBISCODE);
+        } else {
+            writeOctetStringData(pendingMessage, DEVICE_NAME_NEW_OBISCODE);
+        }
+    }
+
+    private void setDeviceHostName(OfflineDeviceMessage pendingMessage) throws IOException {
+        if (readOldObisCodes()) {
+            writeOctetStringData(pendingMessage, DEVICE_HOST_NAME_OLD_OBISCODE);
+        } else {
+            writeOctetStringData(pendingMessage, DEVICE_HOST_NAME_NEW_OBISCODE);
+        }
+    }
+
+    private void setDeviceLocation(OfflineDeviceMessage pendingMessage) throws IOException {
+        if (readOldObisCodes()) {
+            writeOctetStringData(pendingMessage, DEVICE_LOCATION_OLD_OBISCODE);
+        } else {
+            writeOctetStringData(pendingMessage, DEVICE_LOCATION_NEW_OBISCODE);
+        }
+    }
+
+    private void writeOctetStringData(OfflineDeviceMessage pendingMessage, ObisCode objectObisCode) throws IOException {
         String name = pendingMessage.getDeviceMessageAttributes().get(0).getValue();
-        getCosemObjectFactory().getData(DEVICE_NAME_OBISCODE).setValueAttr(OctetString.fromString(name));
+        getCosemObjectFactory().getData(objectObisCode).setValueAttr(OctetString.fromString(name));
     }
 
     private void rebootApplication() throws IOException {
-        getCosemObjectFactory().getLifeCycleManagement().restartApplication();
+        if (readOldObisCodes()) {
+            getCosemObjectFactory().getLifeCycleManagement().restartApplication();
+        } else {
+            getCosemObjectFactory().getLifeCycleManagement(LIFE_CYCLEMANAGEMENT_NEW_OBISCODE).restartApplication();
+        }
     }
 
     private void rebootDevice() throws IOException {
@@ -1631,7 +2010,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         int modemResetThreshold = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.modemResetThreshold).getValue());
         int systemRebootThreshold = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.systemRebootThreshold).getValue());
 
-        getCosemObjectFactory().getModemWatchdogConfiguration().writeExtendedConfigParameters(
+        getModemWatchdogConfiguration().writeExtendedConfigParameters(
                 modemWatchdogInterval,
                 modemWatchdogInitialDelay,
                 pppDaemonResetThreshold,
@@ -1642,7 +2021,16 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
 
     private void enableModemWatchdog(OfflineDeviceMessage pendingMessage) throws IOException {
         boolean enable = Boolean.parseBoolean(pendingMessage.getDeviceMessageAttributes().get(0).getValue());
-        getCosemObjectFactory().getModemWatchdogConfiguration().enableWatchdog(enable);
+        getModemWatchdogConfiguration().enableWatchdog(enable);
+    }
+
+    private ModemWatchdogConfiguration getModemWatchdogConfiguration() throws NotInObjectListException {
+        if (readOldObisCodes()) {
+            return getCosemObjectFactory().getModemWatchdogConfiguration();
+        } else {
+            return getCosemObjectFactory().getModemWatchdogConfiguration(MODEM_WATCHDOG_NEW_OBISCODE);
+        }
+
     }
 
     private void configurePushEventNotification(OfflineDeviceMessage pendingMessage) throws IOException {
@@ -1659,7 +2047,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
 
     private void writeUplinkPingTimeout(OfflineDeviceMessage pendingMessage) throws IOException {
         Integer timeout = Integer.valueOf(pendingMessage.getDeviceMessageAttributes().get(0).getValue());
-        getCosemObjectFactory().getUplinkPingConfiguration().writeTimeout(timeout);
+        getUplinkPingConfiguration().writeTimeout(timeout);
     }
 
     private void changePasswordUser1(OfflineDeviceMessage pendingMessage) throws IOException {
@@ -1672,26 +2060,54 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         getCosemObjectFactory().getWebPortalConfig().changeUser2Password(newPassword);
     }
 
+    /**
+     * Change the password for a particular role.
+     *
+     * @param pendingMessage The message.
+     * @throws IOException If an IO error occurs.
+     */
     private void changeUserPassword(OfflineDeviceMessage pendingMessage) throws IOException {
         String userName = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.usernameAttributeName).getValue();
         String newPassword = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.passwordAttributeName).getValue();
 
-        getCosemObjectFactory().getWebPortalConfig().changeUserPassword(userName, newPassword);
+        this.getWebportalSetupICv1().setPassword(Role.forName(userName), newPassword.getBytes(StandardCharsets.US_ASCII));
+    }
+
+    /**
+     * Returns the {@link WebPortalSetupV1} instance.
+     *
+     * @return The {@link WebPortalSetupV1} instance.
+     * @throws NotInObjectListException If the object is not known.
+     */
+    private final WebPortalSetupV1 getWebportalSetupICv1() throws NotInObjectListException {
+        if (this.readOldObisCodes()) {
+            return this.getCosemObjectFactory().getWebPortalSetupV1(WEB_PORTAL_SETUP_OLD_OBIS);
+        } else {
+            return this.getCosemObjectFactory().getWebPortalSetupV1(WEB_PORTAL_CONFIG_NEW_OBISCODE);
+        }
     }
 
     private void writeUplinkPingInterval(OfflineDeviceMessage pendingMessage) throws IOException {
         Integer interval = Integer.valueOf(pendingMessage.getDeviceMessageAttributes().get(0).getValue());
-        getCosemObjectFactory().getUplinkPingConfiguration().writeInterval(interval);
+        getUplinkPingConfiguration().writeInterval(interval);
     }
 
     private void writeUplinkPingDestinationAddress(OfflineDeviceMessage pendingMessage) throws IOException {
         String destinationAddress = pendingMessage.getDeviceMessageAttributes().get(0).getValue();
-        getCosemObjectFactory().getUplinkPingConfiguration().writeDestAddress(destinationAddress);
+        getUplinkPingConfiguration().writeDestAddress(destinationAddress);
+    }
+
+    private UplinkPingConfiguration getUplinkPingConfiguration() throws NotInObjectListException {
+        if (readOldObisCodes()) {
+            return getCosemObjectFactory().getUplinkPingConfiguration();
+        } else {
+            return getCosemObjectFactory().getUplinkPingConfiguration(PING_SERVICE_NEW_OBISCODE);
+        }
     }
 
     private void enableUplinkPing(OfflineDeviceMessage pendingMessage) throws IOException {
         boolean enable = Boolean.parseBoolean(pendingMessage.getDeviceMessageAttributes().get(0).getValue());
-        getCosemObjectFactory().getUplinkPingConfiguration().enableUplinkPing(enable);
+        getUplinkPingConfiguration().enableUplinkPing(enable);
     }
 
     private int getSingleIntegerAttribute(OfflineDeviceMessage pendingMessage) {
@@ -1710,39 +2126,113 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
 
     private void setHttpPort(OfflineDeviceMessage pendingMessage) throws IOException {
         String httpPort = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.SetHttpPortAttributeName).getValue();
-        getCosemObjectFactory().getWebPortalConfig().setHttpPort(httpPort);
+
+        this.getWebportalSetupICv1().setHttpsPort(Integer.parseInt(httpPort));
     }
 
     private void setHttpsPort(OfflineDeviceMessage pendingMessage) throws IOException {
         String httpsPort = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.SetHttpsPortAttributeName).getValue();
-        getCosemObjectFactory().getWebPortalConfig().setHttpsPort(httpsPort);
+
+        this.getWebportalSetupICv1().setHttpsPort(Integer.parseInt(httpsPort));
     }
 
     private void setMaxLoginAttempts(OfflineDeviceMessage pendingMessage) throws IOException {
-        /*final long logAttempts = Long.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.SET_MAX_LOGIN_ATTEMPTS).getDeviceMessageAttributeValue());*/
         String logAttempts = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.SET_MAX_LOGIN_ATTEMPTS).getValue();
-        getCosemObjectFactory().getWebPortalConfig().setMaxLoginAttempts(logAttempts);
+
+        this.getWebportalSetupICv1().setMaxLoginAttempts(Integer.parseInt(logAttempts));
     }
 
     private void setLockoutDuration(OfflineDeviceMessage pendingMessage) throws IOException {
         String duration = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.SET_LOCKOUT_DURATION).getValue();
-        getCosemObjectFactory().getWebPortalConfig().setLockoutDuration(duration);
+
+        this.getWebportalSetupICv1().setLockoutDuration(Long.parseLong(duration));
     }
 
     private void enableGzipCompression(OfflineDeviceMessage pendingMessage) throws IOException {
         boolean enableGzip = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.ENABLE_GZIP_COMPRESSION).getValue());
-        getCosemObjectFactory().getWebPortalConfig().enableGzipCompression(enableGzip);
+
+        this.getWebportalSetupICv1().setGzipEnabled(enableGzip);
     }
 
     private void enableSSL(OfflineDeviceMessage pendingMessage) throws IOException {
         boolean enableSSL = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.enableSSL).getValue());
-        getCosemObjectFactory().getWebPortalConfig().enableSSL(enableSSL);
+
+        this.getWebportalSetupICv1().setGzipEnabled(enableSSL);
     }
 
     private void setAuthenticationMechanism(OfflineDeviceMessage pendingMessage) throws IOException {
         String authName = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.SET_AUTHENTICATION_MECHANISM).getValue();
         int auth = AuthenticationMechanism.fromAuthName(authName);
-        getCosemObjectFactory().getWebPortalConfig().setAuthenticationMechanism(auth);
+
+        this.getWebportalSetupICv1().setWebPortalAuthenticationMechanism(WebPortalAuthenticationMechanism.forValue(auth));
+    }
+
+    private void setDeviceLogLevel(OfflineDeviceMessage pendingMessage) throws IOException {
+        String logLevel = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.deviceLogLevel).getValue();
+        int level = ConfigurationChangeDeviceMessage.DeviceLogLevel.valueOf(logLevel).getId();
+        getCosemObjectFactory().getConcentratorSetup().setDeviceLogLevel(new TypeEnum(level));
+    }
+
+    private void configureDLMSGateway(OfflineDeviceMessage pendingMessage) throws IOException {
+        String relayOptionName = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.RelayMeterNotifications).getValue();
+        int relayMeterNotification = DLMSGatewayNotificationRelayType.fromOptionName(relayOptionName);
+        boolean decypherMeterNotifications = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.DecipherMeterNotifications).getValue());
+        boolean dropUnencryptedNotifications = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.DropUnencryptedMeterNotifications).getValue());
+
+        getCosemObjectFactory().getDLMSGatewaySetup().setNotificationDecipher(decypherMeterNotifications);
+        getCosemObjectFactory().getDLMSGatewaySetup().setNotificationRelaying(relayMeterNotification);
+        getCosemObjectFactory().getDLMSGatewaySetup().setNotificationDropUnencrypted(dropUnencryptedNotifications);
+    }
+
+    private void configureAPNs(OfflineDeviceMessage pendingMessage) throws IOException {
+        final int activeApn = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.activeAPN).getValue());
+        final String apnConfigurations = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.apnConfigurations).getValue();
+        if (readOldObisCodes()) {
+            getCosemObjectFactory().getData(MULTI_APN_COFIG_OLD_OBISCODE).setValueAttr(createApnConfigs(activeApn, apnConfigurations));
+        } else {
+            getCosemObjectFactory().getData(MULTI_APN_COFIG_NEW_OBISCODE).setValueAttr(createApnConfigs(activeApn, apnConfigurations));
+        }
+    }
+
+    private Structure createApnConfigs(final int activeApn, final String providedAPNConfigurations) throws ProtocolException {
+        Structure apnConfiguration = new Structure();
+        Array apnConfigs = new Array();
+        List<String> apnConfigList = Arrays.asList(providedAPNConfigurations.trim().split(";"));
+        if (apnConfigList.size() == 0) {
+            throw new ProtocolException("Provided list of APNs is empty. Please provide the correct configuration");
+        }
+        for (String apnConfig : apnConfigList) {
+            String[] configEntries = apnConfig.trim().split(",");
+            if (configEntries.length != 3) {
+                throw new ProtocolException("The expected number of entries for an apn config is 3 and we receive " + configEntries.length + ". Please provide the correct configuration");
+            }
+            String apnName = configEntries[0].trim();
+            String userName = configEntries[1].trim();
+            String password = configEntries[2].trim();
+
+            Structure apnConfigStructure = new Structure();
+            apnConfigStructure.addDataType(OctetString.fromString(apnName));
+            apnConfigStructure.addDataType(OctetString.fromString(userName));
+            apnConfigStructure.addDataType(OctetString.fromString(password));
+            apnConfigs.addDataType(apnConfigStructure);
+        }
+
+        apnConfiguration.addDataType(new Unsigned8(activeApn));
+        apnConfiguration.addDataType(apnConfigs);
+        return apnConfiguration;
+    }
+
+    private CollectedMessage copyActiveFirmwareToInactive() throws ProtocolException {
+        try {
+            InactiveFirmwareIC inactiveFirmwareIC = getCosemObjectFactory().getInactiveFirmwareIC();
+            inactiveFirmwareIC.copyActiveFirmwareToInactiveFirmware();
+        } catch (NotInObjectListException e) {
+            throw new ProtocolException(e, "Inactive firmware IC object (class_id = 20027, version = 0, logical_name = 0.128.96.132.0.255) not found in object list." + e.getMessage());
+        } catch (IOException e) {
+            throw new ProtocolException(e, "Calling method copy_active_firmware_to_inactive_firmware from Inactive firmware IC object (class_id = 20027, version = 0, logical_name = 0.128.96.132.0.255) failed." + e.getMessage());
+        }
+
+        return null;
     }
 
     /**
@@ -1764,4 +2254,42 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         return this.getProtocol().getLogger();
     }
 
+
+    private void resetAlarmDescriptor(OfflineDeviceMessage pendingMessage) throws IOException {
+        BigDecimal alarmBits = new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.alarmBitMaskAttributeName).getValue());
+        getCosemObjectFactory().getData(ObisCode.fromString(Beacon3100RegisterFactory.ALARM_DESCRIPTOR)).setValueAttr(new BitString(alarmBits.longValue(), 45));
+    }
+
+    protected void resetAllAlarmBits() throws IOException {
+        Data data = getCosemObjectFactory().getData(ObisCode.fromString(Beacon3100RegisterFactory.ALARM_BITS_REGISTER));
+        data.setValueAttr(new BitString(0, 45)); // to reset the alarm bits we have to write zero back to the register
+    }
+
+    protected void writeAlarmFilter(OfflineDeviceMessage pendingMessage) throws IOException {
+        BigDecimal filter = new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.alarmFilterAttributeName).getValue());
+        Data data = getProtocol().getDlmsSession().getCosemObjectFactory().getData(ObisCode.fromString(Beacon3100RegisterFactory.ALARM_FILTER));
+        data.setValueAttr(new BitString(filter.longValue(), 45));
+    }
+
+    private CollectedMessage configurePushSetupNotificationCiphering(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
+        int notificationCiphering = AlarmConfigurationMessage.NotificationCipheringType.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.notificationCiphering).getValue()).getId();
+        ObisCode pushSetupObisCode = EventPushNotificationConfig.getDefaultObisCode();
+        EventPushNotificationConfig eventPushNotificationConfig = getCosemObjectFactory().getEventPushNotificationConfig(pushSetupObisCode);
+        eventPushNotificationConfig.writeNotificationCiphering(notificationCiphering);
+
+        return collectedMessage;
+    }
+
+    private CollectedMessage configurePushSetupSendTestNotification(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
+        String echoTestNotification = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.echoTestNotification).getValue();
+        ObisCode pushSetupObisCode = EventPushNotificationConfig.getDefaultObisCode();
+        EventPushNotificationConfig eventPushNotificationConfig = getCosemObjectFactory().getEventPushNotificationConfig(pushSetupObisCode);
+
+        eventPushNotificationConfig.setSendTestNotificationMethod(echoTestNotification);
+        return collectedMessage;
+    }
+
+    public boolean readOldObisCodes() {
+        return getBeacon3100Properties().getReadOldObisCodes();
+    }
 }

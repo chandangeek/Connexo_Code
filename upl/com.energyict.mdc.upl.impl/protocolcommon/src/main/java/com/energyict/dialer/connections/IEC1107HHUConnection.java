@@ -254,6 +254,7 @@ public class IEC1107HHUConnection extends Connection implements HHUSignOn {
         return signOn(strIdentConfig, nodeId, false, baudrate);
     }
 
+
     public MeterType signOn(String strIdentConfig, String nodeId, boolean wakeup, int baudrate) throws IOException {
         MeterType meterType;
         if (isDataReadoutEnabled()) {
@@ -374,7 +375,7 @@ public class IEC1107HHUConnection extends Connection implements HHUSignOn {
         }
     }
 
-    private void delay300baudForDatalength(byte[] ack) {
+    private void delay300baudForDatalength(byte[] ack) throws NestedIOException, ConnectionException {
         // calc sleeptime using 300 baud and length of data
         try {
             Thread.sleep((ack.length * 10 * 1000) / 300);

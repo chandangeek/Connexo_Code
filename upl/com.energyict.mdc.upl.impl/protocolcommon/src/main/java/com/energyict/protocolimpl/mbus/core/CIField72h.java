@@ -104,18 +104,22 @@ public class CIField72h extends AbstractCIField {
         // build the data records
         setDataRecords(new ArrayList());
         while(offset<data.length) {
-            DataRecord dataRecord = new DataRecord(data,offset,timeZone, Logger.getLogger(CIField72h.class.getName()));
-            getDataRecords().add(dataRecord);
-            offset+=dataRecord.size();
+            try {
+                DataRecord dataRecord = new DataRecord(data,offset,timeZone, Logger.getLogger(CIField72h.class.getName()));
+                getDataRecords().add(dataRecord);
+                offset+=dataRecord.size();
 
-            
-            // KV 12112008 In case of NODATA!
-            if (dataRecord.getDataRecordHeader().getDataInformationBlock().getDataInformationfield().getDataFieldCoding().isTYPE_NODATA())
-            	offset++;
-            	
-            // break when encountering manufacturer specific data structure...
-            if (dataRecord.getDataRecordHeader().getDataInformationBlock().getDataInformationfield().getDataFieldCoding().isTYPE_SPECIALFUNCTIONS())
-                break;
+                // KV 12112008 In case of NODATA!
+                if (dataRecord.getDataRecordHeader().getDataInformationBlock().getDataInformationfield().getDataFieldCoding().isTYPE_NODATA())
+                    offset++;
+
+                // break when encountering manufacturer specific data structure...
+                if (dataRecord.getDataRecordHeader().getDataInformationBlock().getDataInformationfield().getDataFieldCoding().isTYPE_SPECIALFUNCTIONS())
+                    break;
+            } catch (Exception ex){
+                Logger.getAnonymousLogger().warning("@"+offset+"> "+ex.getMessage());
+                offset++;
+            }
         }
         
     }

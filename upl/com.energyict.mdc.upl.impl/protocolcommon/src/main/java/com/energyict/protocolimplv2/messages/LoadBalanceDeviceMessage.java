@@ -16,6 +16,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.actionWhenOverThresholdAttributeDefaultTranslation;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.actionWhenOverThresholdAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.actionWhenUnderThresholdAttributeDefaultTranslation;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.actionWhenUnderThresholdAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activateNowAttributeDefaultTranslation;
@@ -200,7 +202,7 @@ public enum LoadBalanceDeviceMessage implements DeviceMessageSpecSupplier {
             return Collections.emptyList();
         }
     },
-    ENABLE_LOAD_LIMITING_FOR_GROUP(12011,"Enable load limiting for group") {
+    ENABLE_LOAD_LIMITING_FOR_GROUP(12011, "Enable load limiting for group") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -252,14 +254,14 @@ public enum LoadBalanceDeviceMessage implements DeviceMessageSpecSupplier {
                             .finish());
         }
     },
-/*
-  SET_LOAD_LIMIT_MEASUREMENT_VALUE(2018, "Set load limit measurement reading type") {
-        @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
-            return Collections.singletonList(this.readingTypeSpec(service, readingTypeAttributeName, readingTypeAttributeDefaultTranslation));
-        }
-    },
-*/
+    /*
+      SET_LOAD_LIMIT_MEASUREMENT_VALUE(2018, "Set load limit measurement reading type") {
+            @Override
+            protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+                return Collections.singletonList(this.readingTypeSpec(service, readingTypeAttributeName, readingTypeAttributeDefaultTranslation));
+            }
+        },
+    */
     CONFIGURE_LOAD_LIMIT_THRESHOLD_AND_DURATION(12018, "Configure the load limit threshold and duration") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
@@ -305,6 +307,40 @@ public enum LoadBalanceDeviceMessage implements DeviceMessageSpecSupplier {
                     this.bigDecimalSpec(service, phaseAttributeName, phaseAttributeDefaultTranslation, BigDecimal.ONE, BigDecimal.valueOf(2), BigDecimal.valueOf(3)),
                     this.bigDecimalSpec(service, positiveThresholdInAmpereAttributeName, positiveThresholdInAmpereAttributeDefaultTranslation),
                     this.bigDecimalSpec(service, negativeThresholdInAmpereAttributeName, negativeThresholdInAmpereAttributeDefaultTranslation)
+            );
+        }
+    },
+    CONFIGURE_LOAD_LIMIT_PARAMETERS_EXCEPT_EMERGENCY_ONES(12022, "Configure load limit parameters (except emergency ones)") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.stringSpec(service, monitoredValueAttributeName, monitoredValueAttributeDefaultName),
+                    this.bigDecimalSpec(service, normalThresholdAttributeName, normalThresholdAttributeDefaultTranslation),
+                    this.durationSpec(service, overThresholdDurationAttributeName, overThresholdDurationAttributeDefaultTranslation),
+                    this.durationSpec(service, underThresholdDurationAttributeName, underThresholdDurationAttributeDefaultTranslation),
+                    this.stringSpecBuilder(service, actionWhenUnderThresholdAttributeName, actionWhenUnderThresholdAttributeDefaultTranslation)
+                            .addValues(LoadControlActions.getAllDescriptions())
+                            .setDefaultValue(LoadControlActions.Nothing.getDescription())
+                            .finish(),
+                    this.stringSpecBuilder(service, actionWhenOverThresholdAttributeName, actionWhenOverThresholdAttributeDefaultTranslation)
+                            .addValues(LoadControlActions.getAllDescriptions())
+                            .setDefaultValue(LoadControlActions.Nothing.getDescription())
+                            .finish()
+            );
+        }
+    },
+    CONFIGURE_LOAD_LIMIT_PARAMETERS_ATTRIBUTES_4TO9(12023, "Configure basic load limit parameters") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.bigDecimalSpec(service, normalThresholdAttributeName, normalThresholdAttributeDefaultTranslation),
+                    this.bigDecimalSpec(service, emergencyThresholdAttributeName, emergencyThresholdAttributeDefaultTranslation),
+                    this.durationSpec(service, overThresholdDurationAttributeName, overThresholdDurationAttributeDefaultTranslation),
+                    this.durationSpec(service, underThresholdDurationAttributeName, underThresholdDurationAttributeDefaultTranslation),
+                    this.bigDecimalSpec(service, emergencyProfileIdAttributeName, emergencyProfileIdAttributeDefaultTranslation),
+                    this.stringSpec(service, emergencyProfileGroupIdListAttributeName, emergencyProfileGroupIdListAttributeDefaultTranslation),
+                    this.dateTimeSpec(service, emergencyProfileActivationDateAttributeName, emergencyProfileActivationDateAttributeDefaultTranslation),
+                    this.durationSpec(service, emergencyProfileDurationAttributeName, emergencyProfileDurationAttributeDefaultTranslation)
             );
         }
     };

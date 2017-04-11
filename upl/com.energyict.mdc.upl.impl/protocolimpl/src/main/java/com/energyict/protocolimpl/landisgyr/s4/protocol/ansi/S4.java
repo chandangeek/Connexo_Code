@@ -10,16 +10,15 @@
 
 package com.energyict.protocolimpl.landisgyr.s4.protocol.ansi;
 
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
-
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.core.HalfDuplexController;
-import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterInfo;
@@ -70,9 +69,11 @@ public class S4 extends AbstractProtocol implements C12ProtocolLink, SerialNumbe
     private ManufacturerProcedureFactory manufacturerProcedureFactory;
     private S4Fam s4Fam=new S4Fam();
     private S4LoadProfile s4LoadProfile;
+    boolean convertRegReads = true;
 
     private String c12User;
     private int c12UserId;
+    int controlToggleBitMode;
 
     private ObisCodeInfoFactory obisCodeInfoFactory = null;
 
@@ -91,6 +92,10 @@ public class S4 extends AbstractProtocol implements C12ProtocolLink, SerialNumbe
     @Override
     public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         return s4LoadProfile.getProfileData(from,to,includeEvents);
+    }
+
+    public boolean convertRegReadsToEngineering() {
+        return convertRegReads;
     }
 
     @Override
@@ -137,6 +142,8 @@ public class S4 extends AbstractProtocol implements C12ProtocolLink, SerialNumbe
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
         propertySpecs.add(this.stringSpec("C12User", PropertyTranslationKeys.S4_C12User, false));
         propertySpecs.add(this.integerSpec("C12UserId", PropertyTranslationKeys.S4_C12UserId, false));
+        propertySpecs.add(this.stringSpec("ConvertRegReadsToEngineering", PropertyTranslationKeys.S4_C12UserId, false));
+        propertySpecs.add(this.stringSpec("FrameControlToggleBitMode", PropertyTranslationKeys.S4_C12UserId, false));
         return propertySpecs;
     }
 
@@ -147,12 +154,14 @@ public class S4 extends AbstractProtocol implements C12ProtocolLink, SerialNumbe
         setInfoTypeNodeAddress(properties.getTypedProperty(NODEID.getName(), "0"));
         c12User = properties.getTypedProperty("C12User", "");
         c12UserId = Integer.parseInt(properties.getTypedProperty("C12UserId","0").trim());
+        convertRegReads = Boolean.parseBoolean(properties.getTypedProperty("ConvertRegReadsToEngineering", "true"));
+        controlToggleBitMode = Integer.parseInt(properties.getTypedProperty("FrameControlToggleBitMode", "2"));
 
     }
 
     @Override
     protected ProtocolConnection doInit(InputStream inputStream,OutputStream outputStream,int timeoutProperty,int protocolRetriesProperty,int forcedDelay,int echoCancelling,int protocolCompatible,Encryptor encryptor,HalfDuplexController halfDuplexController) throws IOException {
-        c12Layer2 = new C12Layer2(inputStream, outputStream, timeoutProperty, protocolRetriesProperty, forcedDelay, echoCancelling, halfDuplexController);
+        c12Layer2 = new C12Layer2(inputStream, outputStream, timeoutProperty, protocolRetriesProperty, forcedDelay, echoCancelling, halfDuplexController, getLogger(), controlToggleBitMode);
         c12Layer2.initStates();
         psemServiceFactory = new PSEMServiceFactory(this);
         standardTableFactory = new StandardTableFactory(this);

@@ -24,22 +24,35 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activ
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarActivationDateAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarCodeTableAttributeDefaultTranslation;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarCodeTableAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarNameAttributeDefaultTranslation;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarNameAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarObiscodeAttributeDefaultTranslation;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarObiscodeAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarTypeAttributeDefaultTranslation;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarTypeAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.contractAttributeDefaultTranslation;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.contractAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.contractsXmlUserFileAttributeDefaultTranslation;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.contractsXmlUserFileAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.dayProfileXmlUserFileAttributeDefaultTranslation;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.dayProfileXmlUserFileAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.defaultTariffCodeAttrributeDefaultTranslation;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.defaultTariffCodeAttrributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.seasonProfileXmlUserFileAttributeDefaultTranslation;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.seasonProfileXmlUserFileAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.specialDaysAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.specialDaysCodeTableAttributeDefaultTranslation;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.specialDaysTableObiscodeAttributeDefaultTranslation;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.specialDaysTableObiscodeAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.specialDaysXmlUserFileAttributeDefaultTranslation;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.specialDaysXmlUserFileAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.weekProfileXmlUserFileAttributeDefaultTranslation;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.weekProfileXmlUserFileAttributeName;
 
 /**
  * Provides a summary of all <i>ActivityCalendar</i> related messages.
- * <p>
+ * <p/>
  * Copyrights EnergyICT
  * Date: 7/02/13
  * Time: 12:01
@@ -244,6 +257,52 @@ public enum ActivityCalendarDeviceMessage implements DeviceMessageSpecSupplier {
         @Override
         public Optional<ProtocolSupportedCalendarOptions> getProtocolSupportedCalendarOption() {
             return Optional.of(ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR_WITH_DATE_AND_CONTRACT);
+        }
+    },
+    ACTIVITY_CALENDAR_WITH_DATETIME_FROM_XML(16, "Send activity calendar from XML, with activation date") {
+        @Override
+        public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.stringSpec(service, activityCalendarNameAttributeName, activityCalendarNameAttributeDefaultTranslation),
+                    this.stringSpec(service, activityCalendarObiscodeAttributeName, activityCalendarObiscodeAttributeDefaultTranslation),
+                    this.deviceMessageFileSpec(service, dayProfileXmlUserFileAttributeName, dayProfileXmlUserFileAttributeDefaultTranslation),
+                    this.deviceMessageFileSpec(service, weekProfileXmlUserFileAttributeName, weekProfileXmlUserFileAttributeDefaultTranslation),
+                    this.deviceMessageFileSpec(service, seasonProfileXmlUserFileAttributeName, seasonProfileXmlUserFileAttributeDefaultTranslation),
+                    this.dateTimeSpec(service, activityCalendarActivationDateAttributeName, activityCalendarActivationDateAttributeDefaultTranslation)
+            );
+        }
+
+        @Override
+        public Optional<ProtocolSupportedCalendarOptions> getProtocolSupportedCalendarOption() {
+            return Optional.of(ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR_WITH_DATE);
+        }
+    },
+    SPECIAL_DAY_CALENDAR_WITH_GIVEN_TABLE_OBIS_FROM_XML(17, "Send special days from XML, with obiscode ") {
+        @Override
+        public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.stringSpec(service, specialDaysTableObiscodeAttributeName, specialDaysTableObiscodeAttributeDefaultTranslation),
+                    this.deviceMessageFileSpec(service, specialDaysXmlUserFileAttributeName, specialDaysXmlUserFileAttributeDefaultTranslation)
+            );
+        }
+
+        @Override
+        public Optional<ProtocolSupportedCalendarOptions> getProtocolSupportedCalendarOption() {
+            return Optional.of(ProtocolSupportedCalendarOptions.SEND_SPECIAL_DAYS_CALENDAR);
+        }
+    },
+    SELECTION_OF_12_LINES_IN_TOU_TABLE(18, "Send 12 lines from TOU table") {
+        @Override
+        public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.stringSpec(service, activityCalendarNameAttributeName, activityCalendarNameAttributeDefaultTranslation),
+                    this.codeTableSpec(service, activityCalendarCodeTableAttributeName, activityCalendarCodeTableAttributeDefaultTranslation)
+            );
+        }
+
+        @Override
+        public Optional<ProtocolSupportedCalendarOptions> getProtocolSupportedCalendarOption() {
+            return Optional.of(ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR);
         }
     };
 

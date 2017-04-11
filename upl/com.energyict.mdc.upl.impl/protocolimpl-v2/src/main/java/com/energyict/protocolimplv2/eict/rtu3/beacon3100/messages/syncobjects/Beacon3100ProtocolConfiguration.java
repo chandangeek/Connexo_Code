@@ -1,13 +1,19 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects;
 
-import com.energyict.mdc.upl.properties.TypedProperties;
-
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.mdc.upl.properties.TypedProperties;
+import com.energyict.protocolimpl.dlms.idis.IDIS;
+import com.energyict.protocolimplv2.dlms.idis.am540.properties.AM540ConfigurationSupport;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 
 /**
  * Copyrights EnergyICT
@@ -17,6 +23,46 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 @XmlRootElement
 public class Beacon3100ProtocolConfiguration {
+
+    /**
+     * The {@link Set} of {@link Properties} we don't sync.
+     */
+    private static final Set<String> IGNORED_PROPERTY_NAMES = new HashSet<>();
+
+    /**
+     * Contains overrides.
+     */
+    private static final Map<String, Object> OVERRIDES = new HashMap<>();
+
+    /** Setup the ignores property names set. */
+    static {
+        IGNORED_PROPERTY_NAMES.add(IDIS.CALLING_AP_TITLE);
+
+        // We'll need to override this one, default for the management client is true.
+        OVERRIDES.put(AM540ConfigurationSupport.USE_CACHED_FRAME_COUNTER, Boolean.FALSE);
+        OVERRIDES.put(AM540ConfigurationSupport.REQUEST_AUTHENTICATED_FRAME_COUNTER, Boolean.TRUE);
+        OVERRIDES.put(AM540ConfigurationSupport.VALIDATE_CACHED_FRAMECOUNTER, Boolean.FALSE);
+    }
+
+    /**
+     * Indicates whether the given property should be synced to the DC.
+     *
+     * @param propertyName The name of the property.
+     * @return        <code>true</code> if the prop should be passed, <code>false</code> if not.
+     */
+    private static final boolean shouldSync(final String propertyName) {
+        return !IGNORED_PROPERTY_NAMES.contains(propertyName);
+    }
+
+    /**
+     * Gets an optional override for the given property.
+     *
+     * @param propertyName The name of the property.
+     * @return THe overridden value, <code>null</code> if there is none.
+     */
+    private static final Object getOverride(final String propertyName) {
+        return OVERRIDES.get(propertyName);
+    }
 
     private String className;
 
@@ -41,13 +87,19 @@ public class Beacon3100ProtocolConfiguration {
 
         final Array protocolTypedProperties = new Array();
         for (String name : getProperties().propertyNames()) {
-            final Object value = getProperties().getProperty(name);
+            final Object overriddenValue = getOverride(name);
+
+            final Object value = overriddenValue != null ? overriddenValue : this.getProperties().getProperty(name);
 
             //Only add if the type of the value is supported
-            if (value != null && Beacon3100ProtocolTypedProperty.isSupportedType(value)) {
+            if (name != null &&
+                    shouldSync(name) &&
+                    value != null &&
+                    Beacon3100ProtocolTypedProperty.isSupportedType(value)) {
                 protocolTypedProperties.addDataType(new Beacon3100ProtocolTypedProperty(name, value).toStructure());
             }
         }
+
         structure.addDataType(protocolTypedProperties);
 
         return structure;

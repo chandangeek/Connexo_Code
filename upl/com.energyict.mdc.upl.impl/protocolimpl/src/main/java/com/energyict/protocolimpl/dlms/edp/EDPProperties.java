@@ -3,7 +3,6 @@ package com.energyict.protocolimpl.dlms.edp;
 import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
@@ -22,11 +21,11 @@ import java.util.Properties;
  */
 class EDPProperties {
 
-    private static final String PROPNAME_CLIENT_MAC_ADDRESS = "ClientMacAddress";
-    private static final String PROPNAME_SERVER_UPPER_MAC_ADDRESS = "ServerUpperMacAddress";
-    private static final String PROPNAME_SERVER_LOWER_MAC_ADDRESS = "ServerLowerMacAddress";
-    private static final String READCACHE_PROPERTY = "ReadCache";
-    private static final String READ_CACHE_DEFAULT_VALUE = "0";
+    public  static final String PROPNAME_CLIENT_MAC_ADDRESS = "ClientMacAddress";
+    public  static final String PROPNAME_SERVER_UPPER_MAC_ADDRESS = "ServerUpperMacAddress";
+    public  static final String PROPNAME_SERVER_LOWER_MAC_ADDRESS = "ServerLowerMacAddress";
+    public  static final String READCACHE_PROPERTY = "ReadCache";
+    public  static final String READ_CACHE_DEFAULT_VALUE = "0";
     private static final int FIRMWARE_CLIENT = 3;
 
     private final Properties properties;

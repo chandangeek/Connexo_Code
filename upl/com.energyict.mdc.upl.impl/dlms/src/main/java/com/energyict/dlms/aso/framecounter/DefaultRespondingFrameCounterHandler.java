@@ -16,11 +16,11 @@ public class DefaultRespondingFrameCounterHandler implements RespondingFrameCoun
      * @throws com.energyict.dlms.DLMSConnectionException
      *          if the received frameCounter is not valid
      */
-    public Integer checkRespondingFrameCounter(final int receivedFrameCounter) throws DLMSConnectionException {
+    public Long checkRespondingFrameCounter(final long receivedFrameCounter) throws DLMSConnectionException {
         return receivedFrameCounter;
     }
 
     @Override
-    public void resetRespondingFrameCounter(int initialValue) {
+    public void setRespondingFrameCounter(long initialValue) {
     }
 }

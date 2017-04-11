@@ -84,35 +84,9 @@ public class DLMSActivityCalendarController implements ActivityCalendarControlle
     private static final int indexDDayOfWeek = 4;
     private static final byte[] initialSpecialDayDateArray = new byte[]{(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff};
     private static final ObisCode SPECIAL_DAYS_TABLE_OBISCODE = ObisCode.fromString("0.0.11.0.0.255");
-    /**
-     * The current {@link org.apache.commons.logging.Log}
-     */
-    protected final Logger logger = Logger.getLogger(this.getClass().getName());
-    /**
-     * Boolean indicating if the xmlContent is encoded as Base64 or not.<br/>
-     * If the content is encoded as Base64, then during parsing it will be decoded back to plain content.?
-     */
-    protected final boolean xmlContentEncodedAsBase64;
-    /**
-     * A temporary Map to hold the specialDayNodes
-     */
-    protected Map<Long, Node> tempSpecialDayMap = new HashMap<Long, Node>();
-    /**
-     * Sorted list containing the specialDayEntryDatesNode ...
-     */
-    protected List<Node> sortedSpecialDayNodes = new ArrayList<Node>();
-    /**
-     * The time when to active the passive Calendar
-     */
-    protected OctetString activatePassiveCalendarTime;
-    /**
-     * The name of the passive Calendar
-     */
-    protected OctetString passiveCalendarName;
-    /**
-     * Contains a map of given DayProfile Ids and usable DayProfile Ids. The ApolloMeter does not allow a dayId starting from <b>0</b>
-     */
-    protected Map<String, Integer> tempShiftedDayIdMap = new HashMap<String, Integer>();
+
+    private ObisCode dayProfileScriptDefaultLogicalNameObis = ObisCode.fromString("0.0.10.0.100.255");
+
     private CosemObjectFactory cosemObjectFactory;
     private TimeZone timeZone;
     private ObisCode activityCalendarObisCode;
@@ -133,6 +107,41 @@ public class DLMSActivityCalendarController implements ActivityCalendarControlle
      * The {@link com.energyict.dlms.axrdencoding.Array} containing the {@link com.energyict.dlms.cosem.SpecialDaysTable}
      */
     private Array specialDayArray;
+    /**
+     * The current {@link org.apache.commons.logging.Log}
+     */
+    protected final Logger logger = Logger.getLogger(this.getClass().getName());
+
+    /**
+     * A temporary Map to hold the specialDayNodes
+     */
+    protected Map<Long, Node> tempSpecialDayMap = new HashMap<Long, Node>();
+    /**
+     * Sorted list containing the specialDayEntryDatesNode ...
+     */
+    protected List<Node> sortedSpecialDayNodes = new ArrayList<Node>();
+
+    /**
+     * The time when to active the passive Calendar
+     */
+    protected OctetString activatePassiveCalendarTime;
+
+    /**
+     * The name of the passive Calendar
+     */
+    protected OctetString passiveCalendarName;
+
+    /**
+     * Contains a map of given DayProfile Ids and usable DayProfile Ids. The ApolloMeter does not allow a dayId starting from <b>0</b>
+     */
+    protected Map<String, Integer> tempShiftedDayIdMap = new HashMap<String, Integer>();
+
+    /**
+     * Boolean indicating if the xmlContent is encoded as Base64 or not.<br/>
+     * If the content is encoded as Base64, then during parsing it will be decoded back to plain content.?
+     */
+    protected final boolean xmlContentEncodedAsBase64;
+    private Array dayProfileTable;
 
     public DLMSActivityCalendarController(CosemObjectFactory cosemObjectFactory, TimeZone timeZone) {
         this(cosemObjectFactory, timeZone, true);
@@ -144,6 +153,11 @@ public class DLMSActivityCalendarController implements ActivityCalendarControlle
 
     public DLMSActivityCalendarController(CosemObjectFactory cosemObjectFactory, TimeZone timeZone, ObisCode activityCalendarObisCode, ObisCode specialDaysCalendarObisCode) {
         this(cosemObjectFactory, timeZone, true, activityCalendarObisCode, specialDaysCalendarObisCode);
+    }
+
+    public DLMSActivityCalendarController(CosemObjectFactory cosemObjectFactory, TimeZone timeZone, ObisCode activityCalendarObisCode, ObisCode specialDaysCalendarObisCode, Array dayProfileTable) {
+        this(cosemObjectFactory, timeZone, true, activityCalendarObisCode, specialDaysCalendarObisCode);
+        this.dayProfileTable = dayProfileTable;
     }
 
     public DLMSActivityCalendarController(CosemObjectFactory cosemObjectFactory, TimeZone timeZone, boolean xmlContentEncodedAsBase64, ObisCode activityCalendarObisCode, ObisCode specialDaysCalendarObisCode) {
@@ -184,6 +198,9 @@ public class DLMSActivityCalendarController implements ActivityCalendarControlle
      * @return the current {@link #dayArray}
      */
     protected Array getDayArray() {
+        if(dayProfileTable != null){
+            return dayProfileTable;
+        }
         return dayArray;
     }
 
@@ -554,7 +571,7 @@ public class DLMSActivityCalendarController implements ActivityCalendarControlle
                                 dpa.setScriptSelector(new Unsigned16(Integer.valueOf(schedule.getTextContent())));
                             }
                         }
-                        dpa.setScriptLogicalName(OctetString.fromObisCode("0.0.10.0.100.255"));
+                        dpa.setScriptLogicalName(OctetString.fromObisCode(dayProfileScriptDefaultLogicalNameObis));
                         dpsArray.addDataType(dpa);
                     }
                     dp.setDayProfileActions(dpsArray);

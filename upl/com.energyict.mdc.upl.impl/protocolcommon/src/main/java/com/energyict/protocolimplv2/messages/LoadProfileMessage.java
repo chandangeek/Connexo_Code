@@ -5,16 +5,20 @@ import com.energyict.mdc.upl.meterdata.LoadProfile;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocolimplv2.messages.enums.LoadProfileMode;
 import com.energyict.protocolimplv2.messages.enums.LoadProfileOptInOut;
 import com.energyict.protocolimplv2.messages.enums.SetDisplayMode;
 import com.energyict.protocolimplv2.messages.nls.TranslationKeyImpl;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.NewValueAttributeDefaultTranslation;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.NewValueAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.capturePeriodAttributeDefaultTranslation;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.capturePeriodAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.consumerProducerModeAttributeDefaultTranslation;
@@ -121,6 +125,12 @@ public enum LoadProfileMessage implements DeviceMessageSpecSupplier {
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.stringSpec(service, setDisplayOnOffModeAttributeName, setDisplayOnOffModeAttributeDefaultTranslation, SetDisplayMode.getModeNames()));
         }
+    },
+    WRITE_MEASUREMENT_PERIOD_3_FOR_INSTANTANEOUS_VALUES(13013, "Write measurement period 3 for instantaneous values") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.bigDecimalSpecBuilder(service, NewValueAttributeName, NewValueAttributeDefaultTranslation).finish());
+        }
     };
 
     private final long id;
@@ -134,6 +144,15 @@ public enum LoadProfileMessage implements DeviceMessageSpecSupplier {
     @Override
     public long id() {
         return this.id;
+    }
+
+    protected PropertySpecBuilder<BigDecimal> bigDecimalSpecBuilder(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
+        return service
+                .bigDecimalSpec()
+                .named(deviceMessageConstantKey, translationKey)
+                .describedAs(translationKey.description())
+                .markRequired();
     }
 
     protected PropertySpec stringSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation, String... exhaustiveValues) {

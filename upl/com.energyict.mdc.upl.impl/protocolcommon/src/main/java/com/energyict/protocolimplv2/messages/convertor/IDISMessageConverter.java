@@ -39,6 +39,7 @@ import java.util.Map;
 import java.util.TimeZone;
 
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.TIME_OUT_NOT_ADDRESSEDAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.actionWhenOverThresholdAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.actionWhenUnderThresholdAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarActivationDateAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarAttributeName;
@@ -129,6 +130,8 @@ public class IDISMessageConverter extends AbstractMessageConverter {
         } else if (propertySpec.getName().equals(monitoredValueAttributeName)) {
             return String.valueOf(MonitoredValue.fromDescription(messageAttribute.toString()));
         } else if (propertySpec.getName().equals(actionWhenUnderThresholdAttributeName)) {
+            return String.valueOf(LoadControlActions.fromDescription(messageAttribute.toString()));
+        } else if (propertySpec.getName().equals(actionWhenOverThresholdAttributeName)) {
             return String.valueOf(LoadControlActions.fromDescription(messageAttribute.toString()));
         } else if (propertySpec.getName().equals(emergencyProfileActivationDateAttributeName)) {
             return europeanDateTimeFormat.format((Date) messageAttribute);

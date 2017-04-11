@@ -41,6 +41,9 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     SIEMENS_7ED62(13, "com.energyict.protocolimpl.siemens7ED62.Siemens7ED62"),
     SDC(14, "com.energyict.protocolimpl.iec1107.sdc.Sdc"),
     QUANTUM_SCHLUMBERGER(15, "com.energyict.protocolimpl.itron.quantum.Quantum"),
+
+    SDK_DEVICE_PROTOCOL_WITH_ALL_PROPERTIES(16, "test.com.energyict.protocolimplv2.sdksample.SDKDeviceProtocolTestWithAllProperties", FamilyRule.TEST),
+
     DATASTAR(17, "com.energyict.protocolimpl.itron.datastar.Datastar"),
     VECTRON(18, "com.energyict.protocolimpl.itron.vectron.Vectron"),
     EZ7(19, "com.energyict.protocolimpl.emon.ez7.EZ7"),
@@ -292,7 +295,7 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     WEB_RTU_Z3_V2(255, "com.energyict.protocolimplv2.eict.webrtuz3.WebRTUZ3", FamilyRule.EICT_Z3, FamilyRule.EICT_RTU_EMS),
     WEB_RTU_Z3_MBUS_DEVICE_V2(256, "com.energyict.protocolimplv2.eict.webrtuz3.MBusDevice", FamilyRule.EICT_Z3, FamilyRule.EICT_RTU_EMS),
     WEB_RTU_Z3_EMETER_V2(257, "com.energyict.protocolimplv2.eict.webrtuz3.EMeter", FamilyRule.EICT_Z3, FamilyRule.EICT_RTU_EMS),
-    TRANSPARENT_GATEWAY(258, "com.energyict.protocolimplv2.eict.gateway.TransparentGateway"),
+    TRANSPARENT_GATEWAY(258, "com.energyict.protocolimplv2.eict.gateway.TransparentGateway", FamilyRule.EICT_RTU_EMS),
     G3_AS330D_V2(259, "com.energyict.protocolimplv2.dlms.g3.AS330D", FamilyRule.G3_LINKY_DLMS, FamilyRule.G3_PLC),
     G3_BEACON_3100(260, "com.energyict.protocolimplv2.eict.rtu3.beacon3100.Beacon3100", FamilyRule.G3_PLC, FamilyRule.ELSTER_IDIS_P2),
     E35C(261, "com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.E35C.E35C"),
@@ -322,7 +325,20 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     T210D(281, "com.energyict.protocolimplv2.dlms.idis.sagemcom.T210D.T210D"),
     QUAD4(282, "com.elster.us.protocolimpl.landisgyr.quad4.Quad4"),
 
-    SDK_DEVICE_PROTOCOL_WITH_ALL_PROPERTIES(287, "test.com.energyict.protocolimplv2.sdksample.SDKDeviceProtocolTestWithAllProperties", FamilyRule.TEST),
+/*
+    //Evn crypto protocols
+    EVN_CRYPTO_AM540(283, "com.evn.protocolimplv2.dlms.idis.am540.CryptoAM540", FamilyRule.G3_PLC, FamilyRule.ELSTER_IDIS_P2),
+    EVN_CRYPTO_BEACON3100(284, "com.evn.protocolimplv2.eict.rtu3.beacon3100.CryptoBeacon3100", FamilyRule.G3_PLC, FamilyRule.ELSTER_IDIS_P2),
+*/
+
+    T210D_MBUS_DEVICE(285, "com.energyict.protocolimplv2.dlms.idis.sagemcom.T210D.MBusDevice"),
+    MK10_V2(286, "com.energyict.protocolimplv2.edmi.mk10.MK10", FamilyRule.EDMI),
+    MK6_V2(287, "com.energyict.protocolimplv2.edmi.mk6.MK6"),
+
+/*
+    CRYPTO_T210D(288, "com.sagemcom.protocolimplv2.dlms.idis.T210D.CryptoT210D"),
+*/
+
 
     // Deprecated
     FERRANTI(10001, "com.energyict.protocolimpl.iec1107.ferranti.Ferranti"),
@@ -354,7 +370,9 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     DSMR40_PROTOCOL(20009, "com.energyict.smartmeterprotocolimpl.nta.dsmr40.common.Dsmr40Protocol"),
     GENERIC_MODBUS_DISCOVER(20010, "com.energyict.protocolimpl.modbus.core.discover.GenericModbusDiscover"),
     DSMR40_MBUS_DUMMY(20011, "com.energyict.smartmeterprotocolimpl.nta.dsmr40.common.MBusDevice", FamilyRule.DSMR_NTA),
-    WEBRTUZ3_SLAVEMETER(20012, "com.energyict.smartmeterprotocolimpl.eict.webrtuz3.SlaveMeter", FamilyRule.EICT_Z3);
+    WEBRTUZ3_SLAVEMETER(20012, "com.energyict.smartmeterprotocolimpl.eict.webrtuz3.SlaveMeter", FamilyRule.EICT_Z3),
+
+    US_SEL(20013, "com.elster.us.protocolimplv2.sel.SEL");
 
     private int code;
     private String className;

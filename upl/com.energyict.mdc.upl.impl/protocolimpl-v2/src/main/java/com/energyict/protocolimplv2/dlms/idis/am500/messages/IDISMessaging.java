@@ -21,6 +21,7 @@ import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
 import com.energyict.protocolimplv2.messages.AlarmConfigurationMessage;
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
+import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
 import com.energyict.protocolimplv2.messages.GeneralDeviceMessage;
 import com.energyict.protocolimplv2.messages.LoadBalanceDeviceMessage;
@@ -67,7 +68,7 @@ public class IDISMessaging extends AbstractDlmsMessaging implements DeviceMessag
     private final NlsService nlsService;
     private final Converter converter;
     private final TariffCalendarExtractor calendarExtractor;
-    private final DeviceMessageFileExtractor messageFileExtractor;
+    protected final DeviceMessageFileExtractor messageFileExtractor;
 
     public IDISMessaging(AbstractDlmsProtocol protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, TariffCalendarExtractor calendarExtractor, DeviceMessageFileExtractor messageFileExtractor) {
         super(protocol);
@@ -163,13 +164,17 @@ public class IDISMessaging extends AbstractDlmsMessaging implements DeviceMessag
             return String.valueOf(MonitoredValue.fromDescription(messageAttribute.toString()));
         } else if (propertySpec.getName().equals(actionWhenUnderThresholdAttributeName)) {
             return String.valueOf(LoadControlActions.fromDescription(messageAttribute.toString()));
-        } else if (propertySpec.getName().equals(overThresholdDurationAttributeName)
+        } else if (propertySpec.getName().equals(DeviceMessageConstants.actionWhenOverThresholdAttributeName)) {
+            return String.valueOf(LoadControlActions.fromDescription(messageAttribute.toString()));
+        }else if (propertySpec.getName().equals(overThresholdDurationAttributeName)
                 || (propertySpec.getName().equals(capturePeriodAttributeName))
                 || (propertySpec.getName().equals(underThresholdDurationAttributeName))
                 || (propertySpec.getName().equals(emergencyProfileDurationAttributeName))) {
             return String.valueOf(((Duration) messageAttribute).getSeconds());
         } else if (propertySpec.getName().equals(TIME_OUT_NOT_ADDRESSEDAttributeName)) {
             return String.valueOf(((Duration) messageAttribute).getSeconds() / 60);  //Minutes
+        } else if (propertySpec.getName().equals(DeviceMessageConstants.adHocEndOfBillingActivationDatedAttributeName)){
+            return (((Date)messageAttribute)).getTime()+"";
         }
         return messageAttribute.toString();
     }

@@ -3,8 +3,6 @@
  */
 package com.energyict.dlms.cosem;
 
-import com.energyict.mdc.upl.ProtocolException;
-
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.axrdencoding.Array;
@@ -13,6 +11,7 @@ import com.energyict.dlms.axrdencoding.BooleanObject;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.cosem.attributes.Ipv4SetupAttributes;
+import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.obis.ObisCode;
 
 import java.io.IOException;
@@ -520,7 +519,7 @@ public class IPv4Setup extends AbstractCosemObject {
             secondaryDNSByte[i] = (byte) Integer.parseInt(secondaryDNSAddress.substring(pointer, (secondaryDNSAddress.indexOf(".", pointer) == -1) ? secondaryDNSAddress.length() : secondaryDNSAddress.indexOf(".", pointer)));
             pointer = secondaryDNSAddress.indexOf(".", pointer) + 1;
         }
-        writePrimaryDNSAddress(new Unsigned32(secondaryDNSByte, 0));
+        writeSecondaryDNSAddress(new Unsigned32(secondaryDNSByte, 0));
     }
 
     /**

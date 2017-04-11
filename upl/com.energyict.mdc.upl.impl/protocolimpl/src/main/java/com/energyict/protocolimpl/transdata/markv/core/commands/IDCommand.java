@@ -10,7 +10,9 @@
 
 package com.energyict.protocolimpl.transdata.markv.core.commands;
 
-import java.io.*; 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.StringReader;
 /**
  *
  * @author koen
@@ -64,5 +66,9 @@ public class IDCommand extends AbstractCommand {
     public void setSerialNr(String serialNr) {
         this.serialNr = serialNr;
     }
-    
+
+    @Override
+    protected String getCommandName() {
+        return "ID";
+    }
 } // public class IDCommand extends AbstractCommand

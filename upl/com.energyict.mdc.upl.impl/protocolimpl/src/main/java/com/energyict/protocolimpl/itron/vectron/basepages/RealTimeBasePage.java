@@ -18,6 +18,7 @@ import com.energyict.protocolimpl.utils.ProtocolUtils;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.TimeZone;
+import java.util.logging.Level;
 
 /**
  * @author Koen
@@ -60,20 +61,30 @@ public class RealTimeBasePage extends AbstractBasePage {
     }
 
     protected void parse(byte[] data) throws IOException {
-        TimeZone tz = getBasePagesFactory().getProtocolLink().getTimeZone();
+        if (getLogger().isLoggable(Level.INFO)) {
+            getLogger().info("Parsing RealTimeBasePage: " + ProtocolUtils.outputHexString(data));
+        }
 
-        if (!((BasePagesFactory) getBasePagesFactory()).getOperatingSetUpBasePage().isDstEnabled())
+        TimeZone tz = getBasePagesFactory().getProtocolLink().getTimeZone();
+        getLogger().info(" - Protocol configured tz: "+tz.toString());
+        if (!((BasePagesFactory)getBasePagesFactory()).getOperatingSetUpBasePage().isDstEnabled()) {
             tz = ProtocolUtils.getWinterTimeZone(tz);
+            getLogger().info(" - DST is not enabled, using winter tz: "+tz.toString());
+        } else {
+            getLogger().info(" - DST is enabled, using summer tz: "+tz.toString());
+        }
 
         setCalendar(ProtocolUtils.getCleanCalendar(tz));
-        getCalendar().set(Calendar.DAY_OF_WEEK, (int) ParseUtils.getBCD2Long(data, 6, 1));
-        getCalendar().set(Calendar.SECOND, (int) ParseUtils.getBCD2Long(data, 5, 1));
-        getCalendar().set(Calendar.MINUTE, (int) ParseUtils.getBCD2Long(data, 4, 1));
-        getCalendar().set(Calendar.HOUR_OF_DAY, (int) ParseUtils.getBCD2Long(data, 3, 1));
-        getCalendar().set(Calendar.DAY_OF_MONTH, (int) ParseUtils.getBCD2Long(data, 2, 1));
-        getCalendar().set(Calendar.MONTH, (int) ParseUtils.getBCD2Long(data, 1, 1) - 1);
-        int year = (int) ParseUtils.getBCD2Long(data, 0, 1);
-        getCalendar().set(Calendar.YEAR, year > 50 ? year + 1900 : year + 2000);
+        getCalendar().set(Calendar.DAY_OF_WEEK,(int)ParseUtils.getBCD2Long(data,6,1));
+        getCalendar().set(Calendar.SECOND,(int)ParseUtils.getBCD2Long(data,5, 1));
+        getCalendar().set(Calendar.MINUTE,(int)ParseUtils.getBCD2Long(data,4, 1));
+        getCalendar().set(Calendar.HOUR_OF_DAY,(int)ParseUtils.getBCD2Long(data,3, 1));
+        getCalendar().set(Calendar.DAY_OF_MONTH,(int)ParseUtils.getBCD2Long(data,2, 1));
+        getCalendar().set(Calendar.MONTH,(int)ParseUtils.getBCD2Long(data,1, 1)-1);
+        int year = (int)ParseUtils.getBCD2Long(data,0, 1);
+        getCalendar().set(Calendar.YEAR,year>50?year+1900:year+2000);
+
+        getLogger().info(this.toString());
     }
 
     public Calendar getCalendar() {

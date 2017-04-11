@@ -1,7 +1,5 @@
 package com.energyict.mdc.protocol.inbound.g3;
 
-import com.energyict.dlms.DLMSCache;
-import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.OctetString;
@@ -15,12 +13,13 @@ import com.energyict.mdc.channels.ip.socket.TLSConnectionType;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.upl.DeviceProtocol;
 import com.energyict.mdc.upl.InboundDiscoveryContext;
+import com.energyict.mdc.upl.NotInObjectListException;
 import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.io.ConnectionType;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.offline.DeviceOfflineFlags;
 import com.energyict.mdc.upl.offline.OfflineDevice;
-import com.energyict.mdc.upl.properties.HexString;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
@@ -178,11 +177,11 @@ public class G3GatewayPSKProvider {
         protocolProperties.setProperty(DlmsProtocolProperties.READCACHE_PROPERTY, false);
         TypedProperties dialectProperties = context.getDeviceDialectProperties(getDeviceIdentifier()).orElseGet(com.energyict.protocolimpl.properties.TypedProperties::empty);
 
-        DLMSCache dummyCache = new DLMSCache(new UniversalObject[0], 0);     //Empty cache, prevents that the protocol will read out the object list
         OfflineDevice offlineDevice = context.getInboundDAO().getOfflineDevice(getDeviceIdentifier(), new DeviceOfflineFlags());   //Empty flags means don't load any master data
+        DeviceProtocolCache deviceCache = offlineDevice.getDeviceProtocolCache();
         createTcpComChannel(context);
         context.getLogger().info(() -> "Creating a new DLMS session to Beacon device '" + getDeviceIdentifier().toString() + "', to provide the PSK key(s)");
-        gatewayProtocol.setDeviceCache(dummyCache);
+        gatewayProtocol.setDeviceCache(deviceCache);
         gatewayProtocol.setUPLProperties(protocolProperties);
         gatewayProtocol.addDeviceProtocolDialectProperties(dialectProperties);
         gatewayProtocol.setSecurityPropertySet(securityPropertySet);
@@ -227,7 +226,7 @@ public class G3GatewayPSKProvider {
         DlmsSession dlmsSession = getDlmsSession(gatewayProtocol);
         G3NetworkManagement g3NetworkManagement;
         try {
-            g3NetworkManagement = dlmsSession.getCosemObjectFactory().getG3NetworkManagement();
+            g3NetworkManagement = getG3NetworkManagement(gatewayProtocol, dlmsSession);
         } catch (ProtocolException e) {
             throw ConnectionCommunicationException.unExpectedProtocolError(e);
         }
@@ -246,9 +245,9 @@ public class G3GatewayPSKProvider {
                     final DialHomeIdDeviceIdentifier slaveDeviceIdentifier = new DialHomeIdDeviceIdentifier(macAddress);
                     final TypedProperties deviceProtocolProperties = context.getInboundDAO().getDeviceProtocolProperties(slaveDeviceIdentifier);
                     if (deviceProtocolProperties != null) {
-                        final HexString psk = deviceProtocolProperties.getTypedProperty(G3Properties.PSK);
-                        if (psk != null && psk.getContent() != null && psk.getContent().length() > 0) {
-                            final byte[] pskBytes = parseKey(psk.getContent());
+                        final String psk = deviceProtocolProperties.getTypedProperty(G3Properties.PSK);
+                        if (psk != null && psk.length() > 0) {
+                            final byte[] pskBytes = parseKey(psk);
                             if (pskBytes != null) {
                                 final OctetString wrappedPSKKey = wrap(dlmsSession.getProperties().getProperties(), pskBytes);
                                 Structure macAndKeyPair = createMacAndKeyPair(macAddressOctetString, wrappedPSKKey, slaveDeviceIdentifier, context);
@@ -279,6 +278,10 @@ public class G3GatewayPSKProvider {
         } catch (IOException e) {
             throw DLMSIOExceptionHandler.handle(e, dlmsSession.getProperties().getRetries());
         }
+    }
+
+    protected G3NetworkManagement getG3NetworkManagement(DeviceProtocol gatewayProtocol, DlmsSession dlmsSession) throws NotInObjectListException {
+        return dlmsSession.getCosemObjectFactory().getG3NetworkManagement();
     }
 
     protected Structure createMacAndKeyPair(OctetString macAddressOctetString, OctetString wrappedPSKKey, DeviceIdentifier slaveDeviceIdentifier, InboundDiscoveryContext context) {

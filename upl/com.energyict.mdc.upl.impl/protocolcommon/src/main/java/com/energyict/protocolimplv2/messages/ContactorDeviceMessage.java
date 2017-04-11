@@ -5,7 +5,6 @@ import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
 import com.energyict.protocolimplv2.messages.nls.TranslationKeyImpl;
 
 import java.math.BigDecimal;
@@ -21,6 +20,8 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.digit
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.digitalOutputAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.relayNumberAttributeDefaultTranslation;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.relayNumberAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.scriptNumber;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.scriptNumberDefaultTranslation;
 
 /**
  * Provides a summary of all <i>Contactor</i> related messages
@@ -149,6 +150,43 @@ public enum ContactorDeviceMessage implements DeviceMessageSpecSupplier {
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
                     this.bigDecimalSpec(service, digitalOutputAttributeName, digitalOutputAttributeDefaultTranslation, BigDecimal.ONE, BigDecimal.valueOf(2)),
+                    this.dateTimeSpec(service, contactorActivationDateAttributeName, contactorActivationDateAttributeDefaultTranslation)
+            );
+        }
+    },
+    CONTACTOR_OPEN_WITH_DATA_PROTECTION(1015, "Contactor open with data protection") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.emptyList();
+        }
+    },
+    CONTACTOR_CLOSE_WITH_DATA_PROTECTION(1016, "Contactor close with data protection") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.emptyList();
+        }
+    },
+    CONTACTOR_ACTION_WITH_ACTIVATION(1017, "Contactor action with activation date") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.dateTimeSpec(service, contactorActivationDateAttributeName, contactorActivationDateAttributeDefaultTranslation),
+                    this.bigDecimalSpec(service, scriptNumber, scriptNumberDefaultTranslation)
+            );
+        }
+    },
+    REMOTE_DISCONNECT_WITH_DATA_PROTECTION_AND_ACTIVATION(1018, "Remote disconnect with data protection and activation date") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.dateTimeSpec(service, contactorActivationDateAttributeName, contactorActivationDateAttributeDefaultTranslation)
+            );
+        }
+    },
+    REMOTE_CONNECT_WITH_DATA_PROTECTION_AND_ACTIVATION(1019, "Remote connect with data protection and activation date") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
                     this.dateTimeSpec(service, contactorActivationDateAttributeName, contactorActivationDateAttributeDefaultTranslation)
             );
         }

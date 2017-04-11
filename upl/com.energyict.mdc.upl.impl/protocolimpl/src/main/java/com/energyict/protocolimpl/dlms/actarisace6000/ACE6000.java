@@ -1,26 +1,15 @@
 /**
  * @author Koenraad Vanderschaeve
- * <P>
+ * <p/>
  * <B>Description :</B><BR>
  * Class that implements the DLMS COSEM meter protocol of the Actaris SL7000 meter with LN referencing.
  * <BR>
  * <B>@beginchanges</B><BR>
- * 	JM|22052009|Fixed billing point issue in ACE6000 and SL7000 DLMS protocols.
+ * JM|22052009|Fixed billing point issue in ACE6000 and SL7000 DLMS protocols.
  * @endchanges
  */
 
 package com.energyict.protocolimpl.dlms.actarisace6000;
-
-import com.energyict.mdc.upl.NoSuchRegisterException;
-import com.energyict.mdc.upl.UnsupportedException;
-import com.energyict.mdc.upl.cache.CacheMechanism;
-import com.energyict.mdc.upl.nls.TranslationKey;
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
-import com.energyict.mdc.upl.properties.PropertySpec;
-import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
-import com.energyict.mdc.upl.properties.PropertySpecService;
-import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.dialer.connection.ConnectionException;
@@ -43,16 +32,43 @@ import com.energyict.dlms.TCPIPConnection;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.axrdencoding.AxdrType;
+import com.energyict.dlms.axrdencoding.Integer8;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.Clock;
 import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.GenericInvoke;
+import com.energyict.dlms.cosem.ObjectReference;
 import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.cosem.StoredValues;
+import com.energyict.mdc.upl.NoSuchRegisterException;
+import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.cache.CacheMechanism;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
+import com.energyict.mdc.upl.messages.legacy.Message;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.MessageTag;
+import com.energyict.mdc.upl.messages.legacy.MessageValue;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
+import com.energyict.mdc.upl.nls.TranslationKey;
+import com.energyict.mdc.upl.properties.InvalidPropertyException;
+import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
+import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.properties.TypedProperties;
+import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
+import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
+import com.energyict.mdc.upl.security.DeviceSecuritySupport;
+import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.IntervalStateBits;
+import com.energyict.protocol.MessageResult;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterInfo;
@@ -61,10 +77,13 @@ import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.dlms.CapturedObjects;
+import com.energyict.protocolimpl.dlms.actarisace6000.messaging.ACE6000Messages;
+import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
 import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
+import com.energyict.protocolimplv2.security.SimplePasswordSecuritySupport;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -77,6 +96,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.TimeZone;
 import java.util.function.Supplier;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS;
@@ -85,12 +105,15 @@ import static com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD;
 import static com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORRECTION;
 import static com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER;
 
-public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, ProtocolLink, CacheMechanism, RegisterProtocol, SerialNumberSupport {
+public class ACE6000 extends PluggableMeterProtocol implements DeviceSecuritySupport, HHUEnabler, ProtocolLink, CacheMechanism, RegisterProtocol, SerialNumberSupport {
 
     private static final byte DEBUG = 0;  // KV 16012004 changed all DEBUG values
 
     private static final byte[] profileLN = {0, 0, 99, 1, 0, (byte) 255};
     private static final int iNROfIntervals = 50000;
+    private final ACE6000Messages messageProtocol;
+    private ACE6000Properties properties = null;
+
     private static final String PK_TIMEOUT = Property.TIMEOUT.getName();
     private static final String PK_RETRIES = Property.RETRIES.getName();
     private static final String PK_SECURITYLEVEL = Property.SECURITYLEVEL.getName();
@@ -168,6 +191,8 @@ public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, Proto
     private static final int EV_POWER_FAILURE = 0x40;
     private static final int EV_START_OF_MEASUREMENT = 0x80;
     private final PropertySpecService propertySpecService;
+    private final TariffCalendarFinder tariffCalendarFinder;
+    private final TariffCalendarExtractor tariffCalendarExtractor;
     private int iInterval = 0;
     private ScalerUnit[] demandScalerUnits = null;
     private String version = null;
@@ -202,9 +227,13 @@ public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, Proto
     private int extendedLogging;
     private int addressingMode;
     private int connectionMode;
+    private DeviceProtocolSecurityCapabilities securitySupport;
 
-    public ACE6000(PropertySpecService propertySpecService) {
+    public ACE6000(PropertySpecService propertySpecService, TariffCalendarFinder tariffCalendarFinder, TariffCalendarExtractor tariffCalendarExtractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor deviceMessageFileExtractor) {
         this.propertySpecService = propertySpecService;
+        this.tariffCalendarFinder = tariffCalendarFinder;
+        this.tariffCalendarExtractor = tariffCalendarExtractor;
+        this.messageProtocol = new ACE6000Messages(this, tariffCalendarExtractor, tariffCalendarFinder, messageFileFinder, deviceMessageFileExtractor);
     }
 
     @Override
@@ -248,6 +277,9 @@ public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, Proto
 
     private byte[] buildaarq(byte[] aarq1, byte[] aarq2) {
         int i, t = 0;
+        if (strPassword == null) {
+            strPassword = "";
+        }
         // prepare aarq buffer
         byte[] aarq = new byte[3 + aarq1.length + 1 + strPassword.length() + aarq2.length];
         // copy aarq1 to aarq buffer
@@ -560,6 +592,13 @@ public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, Proto
     @Override
     public ApplicationServiceObject getAso() {
         return null;      //Not used, AARQ is manually built here
+    }
+
+    protected DlmsProtocolProperties getProperties() {
+        if (properties == null) {
+            properties = new ACE6000Properties(propertySpecService);
+        }
+        return properties;
     }
 
     private ProfileData doGetDemandValues(Calendar fromCalendar, byte bNROfChannels, boolean includeEvents) throws IOException {
@@ -997,6 +1036,26 @@ public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, Proto
 
     }
 
+    public void applyMessages(List messageEntries) throws IOException {
+        this.messageProtocol.applyMessages(messageEntries);
+    }
+
+    public MessageResult queryMessage(MessageEntry messageEntry) throws IOException {
+        return this.messageProtocol.queryMessage(messageEntry);
+    }
+
+    public String writeMessage(Message msg) {
+        return this.messageProtocol.writeMessage(msg);
+    }
+
+    public String writeTag(MessageTag tag) {
+        return this.messageProtocol.writeTag(tag);
+    }
+
+    public String writeValue(MessageValue value) {
+        return this.messageProtocol.writeValue(value);
+    }
+
     @Override
     public Date getTime() throws IOException {
         Clock clock = getCosemObjectFactory().getClock();
@@ -1240,6 +1299,42 @@ public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, Proto
         } catch (DLMSConnectionException e) {
             logger.severe("DLMSLN: disconnect(), " + e.getMessage());
         }
+    } // public void disconnect() throws IOException
+
+    public String getMeterSerialNumber() throws ConnectionException {
+        try {
+            return getCosemObjectFactory().getGenericRead(0xFD00, DLMSUtils.attrLN2SN(2)).getString();
+        } catch (IOException e) {
+            getLogger().log(Level.FINEST, e.getMessage());
+            throw new ConnectionException("Could not retrieve the Serial number object." + e);
+        }
+    }
+
+    @Override
+    public void setSecurityPropertySet(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
+        deviceProtocolSecurityPropertySet.getSecurityProperties();
+    }
+
+    @Override
+    public List<PropertySpec> getSecurityProperties() {
+        return getSecuritySupport().getSecurityProperties();
+    }
+
+    @Override
+    public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
+        return getSecuritySupport().getAuthenticationAccessLevels();
+    }
+
+    @Override
+    public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
+        return getSecuritySupport().getEncryptionAccessLevels();
+    }
+
+    public DeviceProtocolSecurityCapabilities getSecuritySupport() {
+        if (this.securitySupport == null) {
+            this.securitySupport = new SimplePasswordSecuritySupport(propertySpecService);
+        }
+        return this.securitySupport;
     }
 
     /**
@@ -1277,7 +1372,7 @@ public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, Proto
 
     @Override
     public String getProtocolVersion() {
-        return "$Date: 2015-11-26 15:25:58 +0200 (Thu, 26 Nov 2015)$";
+        return "$Date: 2017-03-10 10:23:42 +0200 (Fr, 10 Mar 2017)$";
     }
 
     @Override
@@ -1290,7 +1385,7 @@ public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, Proto
                  * Voor de root moet je geen structure opvragen! */
                 version = dataContainer.getRoot().getOctetString(0).toString();
             } catch (IOException e) {
-                throw new IOException("DLMSLNSL7000, getFirmwareVersion, Error, " + e.getMessage());
+                throw new IOException("ACE6000, getFirmwareVersion, Error, " + e.getMessage());
             }
         }
         return version;
@@ -1380,9 +1475,47 @@ public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, Proto
         }
     }
 
+    /**
+     * this implementation throws UnsupportedException. Subclasses may override
+     *
+     * @param name  <br>
+     * @param value <br>
+     * @throws IOException             <br>
+     * @throws NoSuchRegisterException <br>
+     * @throws UnsupportedException    <br>
+     */
     @Override
     public void setRegister(String name, String value) throws IOException {
-        throw new UnsupportedException();
+        boolean classSpecified = false;
+        if (name.indexOf(':') >= 0) {
+            classSpecified = true;
+        }
+        final DLMSObis ln = new DLMSObis(name);
+        if ((ln.isLogicalName()) && (classSpecified)) {
+            getCosemObjectFactory().getGenericWrite(ObisCode.fromByteArray(ln.getLN()), ln.getOffset(), ln.getDLMSClass()).write(convert(value));
+        } else {
+            throw new NoSuchRegisterException("GenericGetSet, setRegister, register " + name + " does not exist.");
+        }
+    }
+
+    /**
+     * Converts the given string.
+     *
+     * @param s The string.
+     * @return
+     */
+    private final byte[] convert(final String s) {
+        if ((s.length() % 2) != 0) {
+            throw new IllegalArgumentException("String length is not a modulo 2 hex representation!");
+        } else {
+            final byte[] data = new byte[s.length() / 2];
+
+            for (int i = 0; i < (s.length() / 2); i++) {
+                data[i] = (byte) Integer.parseInt(s.substring(i * 2, (i * 2) + 2), 16);
+            }
+
+            return data;
+        }
     }
 
     @Override
@@ -1477,7 +1610,7 @@ public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, Proto
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         try {
             if (ocm == null) {
-                ocm = new ObisCodeMapper(getCosemObjectFactory());
+                ocm = new ObisCodeMapper(getCosemObjectFactory(), this);
             }
             return ocm.getRegisterValue(obisCode);
         } catch (Exception e) {
@@ -1507,4 +1640,16 @@ public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, Proto
         }
     }
 
-}
+    /*
+     * MessageProtocol methods below this banner
+     */
+
+    public List getMessageCategories() {
+        return this.messageProtocol.getMessageCategories();
+    }
+
+    public void resetDemand() throws IOException {
+        GenericInvoke gi = new GenericInvoke(this, new ObjectReference(getMeterConfig().getObject(new DLMSObis(ObisCode.fromString("0.0.240.1.0.255").getLN(), (short) 10100, (short) 0)).getBaseName()), 6);
+        gi.invoke(new Integer8(0).getBEREncodedByteArray());
+    }
+} // public class DLMSProtocolLN extends MeterProtocol

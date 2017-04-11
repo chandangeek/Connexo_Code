@@ -1,9 +1,8 @@
 package com.energyict.protocolimpl.modbus.core.connection;
 
-import com.energyict.mdc.upl.io.NestedIOException;
-
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.mdc.upl.io.NestedIOException;
 import com.energyict.protocol.meteridentification.MeterType;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
 import com.energyict.protocolimpl.modbus.core.ModbusException;
@@ -77,6 +76,8 @@ public class ModbusTCPConnection extends ModbusConnection {
                 if (retry++ >= getMaxRetries()) {
                     throw new ProtocolConnectionException("ModbusConnection, sendRequest(), error maxRetries (" + getMaxRetries() + "), " + e.getMessage(), MAX_RETRIES_ERROR);
                 }
+            } finally {
+                flushOutputStream();
             }
         }
     }

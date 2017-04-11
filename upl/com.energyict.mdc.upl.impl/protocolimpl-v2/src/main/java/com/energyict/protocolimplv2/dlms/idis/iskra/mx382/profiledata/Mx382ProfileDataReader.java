@@ -2,7 +2,6 @@ package com.energyict.protocolimplv2.dlms.idis.iskra.mx382.profiledata;
 
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
-
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.IntervalStateBits;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
@@ -51,7 +50,7 @@ public class Mx382ProfileDataReader extends IDISProfileDataReader {
     }
 
     @Override
-    protected boolean hasStatusInformation() {
+    protected boolean hasStatusInformation(ObisCode correctedLoadProfileObisCode) {
         return false;
     }
 }

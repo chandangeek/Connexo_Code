@@ -3,7 +3,6 @@ package com.energyict.protocolimplv2.dlms.idis.am500.registers;
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.DataStructure;
-import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.HistoricalRegister;
 import com.energyict.dlms.cosem.HistoricalValue;
@@ -62,16 +61,34 @@ public class IDISStoredValues implements StoredValues {
 
     public HistoricalValue getHistoricalValue(ObisCode obisCode) throws IOException {
         ObisCode baseObisCode = ProtocolTools.setObisCodeField(obisCode, 5, (byte) 255);
-        int channelIndex = checkIfObisCodeIsCaptured(baseObisCode);
+        ExtendedRegisterChannelIndex channelIndex = new ExtendedRegisterChannelIndex(baseObisCode, getProfileGeneric().getCaptureObjects());
         int billingPoint = obisCode.getF();
         if (!isValidBillingPoint(billingPoint)) {
             throw new NoSuchRegisterException("Billing point " + obisCode.getF() + " doesn't exist for obiscode " + baseObisCode + ".");
         }
-        int value = getProfileData().getIntervalData(getReversedBillingPoint(billingPoint)).getIntervalValues().get(channelIndex - 1).getNumber().intValue();
+        int reverseBillingPoint = getReversedBillingPoint(billingPoint);
+        ProfileData historicalProfileData = getProfileData();
+        IntervalData intervalData = historicalProfileData.getIntervalData(reverseBillingPoint);
+
+        // get the value
+        IntervalValue intervalValue = (IntervalValue) intervalData.getIntervalValues().get(channelIndex.getValueIndex() - 1);
+        int value = intervalValue.getNumber().intValue();
+        Date historicalDate = intervalData.getEndTime();
+
+        // try to see if we have also event time (i.e. for extended registers)
+        Date eventTime = null;
+        if (channelIndex.getEventTimeIndex()>0){
+            IntervalValue capturedTime = (IntervalValue) intervalData.getIntervalValues().get(channelIndex.getEventTimeIndex() - 1);
+            if (capturedTime.getNumber()!=null) {
+                eventTime = new Date(capturedTime.getNumber().longValue());
+            }
+        }
+
         HistoricalRegister cosemValue = new HistoricalRegister();
         cosemValue.setQuantityValue(BigDecimal.valueOf(value), getUnit(baseObisCode));
 
-        return new HistoricalValue(cosemValue, getBillingPointTimeDate(getReversedBillingPoint(billingPoint)), new Date(), 0);
+
+        return new HistoricalValue(cosemValue, historicalDate, eventTime, 0);
     }
 
     protected int getReversedBillingPoint(int billingPoint) throws IOException {
@@ -91,11 +108,25 @@ public class IDISStoredValues implements StoredValues {
             Date timeStamp = new Date();
             List<IntervalValue> values = new ArrayList<>();
             for (int channel = 0; channel < structure.getNrOfElements(); channel++) {
-                if (channel == 0) {
-                    timeStamp = structure.getOctetString(0).toDate();
-                } else {
-                    value = new IntervalValue(structure.getInteger(channel), 0, 0);
-                    values.add(value);
+                try {
+                    if (channel == 0) {
+                        timeStamp = structure.getOctetString(0).toDate();
+                    } else {
+                        if (structure.isInteger(channel)) {
+                            value = new IntervalValue(structure.getInteger(channel), 0, 0);
+                        } else if (structure.isOctetString(channel)){
+                            value = new IntervalValue(structure.getOctetString(channel).toDate().getTime(), 0, 0);
+                        } else {
+                            value = new IntervalValue(null, 0, 0);
+                        }
+
+                        values.add(value);
+                    }
+                } catch (Exception ex){
+                    getProtocol().getLogger().warning(ex.getMessage());
+                    if (channel>0){
+                        values.add(new IntervalValue(null, 0, 0));
+                    }
                 }
             }
             intervalDatas.add(new IntervalData(timeStamp, 0, 0, 0, values));
@@ -109,18 +140,6 @@ public class IDISStoredValues implements StoredValues {
     private Unit getUnit(ObisCode baseObisCode) throws IOException {
         Map<ObisCode, Unit> unitMap = am500.getIDISProfileDataReader().readUnits(null, Arrays.asList(baseObisCode));
         return unitMap.get(baseObisCode);
-    }
-
-    protected int checkIfObisCodeIsCaptured(ObisCode obisCode) throws IOException {
-        int channelIndex = 0;
-        List<CapturedObject> captureObjects = getProfileGeneric().getCaptureObjects();
-        for (CapturedObject capturedObject : captureObjects) {
-            if (capturedObject.getLogicalName().getObisCode().equals(obisCode)) {
-                return channelIndex;
-            }
-            channelIndex++;
-        }
-        throw new NoSuchRegisterException("Obiscode " + obisCode.toString() + " is not stored in the billing profile");
     }
 
     public ProfileGeneric getProfileGeneric() throws NotInObjectListException {

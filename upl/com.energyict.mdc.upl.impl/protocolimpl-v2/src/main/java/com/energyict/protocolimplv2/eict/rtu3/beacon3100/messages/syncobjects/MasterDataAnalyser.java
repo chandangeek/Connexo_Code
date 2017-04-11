@@ -1,19 +1,16 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects;
 
-
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.cosem.ClientTypeManager;
-import com.energyict.dlms.cosem.DeviceTypeManager;
-import com.energyict.dlms.cosem.ScheduleManager;
+import com.energyict.dlms.cosem.ConcentratorSetup;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
+import java.util.Set;
 
 /**
  * Created by iulian on 5/27/2016.
@@ -158,11 +155,15 @@ public class MasterDataAnalyser {
     }
 
 
-    public void analyseDeviceTypes(Array existingBeaconDeviceTypesArray ,  List<Beacon3100DeviceType> masterDataDeviceTypes) throws IOException {
+    public void analyseDeviceTypes(Array existingBeaconDeviceTypesArray , final List<ConcentratorSetup.MeterInfo> existingMirrors, List<Beacon3100DeviceType> masterDataDeviceTypes) throws IOException {
         Map<Long, AbstractDataType> existingBeaconDeviceTypes = new HashMap<>();
         Map<Long, Boolean> active = new HashMap<>();
-
+        
+        final Set<Long> deviceTypesUsedByMirrors = getDeviceTypesUsedByMirrors(existingMirrors);
+        
+        log("Device types in use by mirrors : [" + deviceTypesUsedByMirrors + "]");
         log("Analysing DeviceType existing in Beacon:");
+        
         for (AbstractDataType existingDeviceType : existingBeaconDeviceTypesArray) {
             if (existingDeviceType.isStructure() && existingDeviceType.getStructure().nrOfDataTypes() > 0) {
                 final long existingDeviceTypeId = existingDeviceType.getStructure().getDataType(0).longValue(); //First element of the structure is the deviceType ID
@@ -193,12 +194,18 @@ public class MasterDataAnalyser {
         }
 
         log("Checking DeviceType which are not in use in EIServer anymore, but exists in the Beacon:");
+        
+        
         // delete the remaining inactive items
         for (Long beaconDeviceTypeId : active.keySet()){
             if (!active.get(beaconDeviceTypeId)){
-                // we'll have to delete this one
-                deviceTypesToDelete.add(beaconDeviceTypeId);
-                log("- deviceType is not used anymore, will be deleted: "+beaconDeviceTypeId);
+                if (deviceTypesUsedByMirrors.contains(beaconDeviceTypeId)) {
+                    log("- deviceType is not used anymore in EIServer, but it's used by other mirrors, so will not be deleted: "+beaconDeviceTypeId);
+                } else {
+                    // we'll have to delete this one
+                    deviceTypesToDelete.add(beaconDeviceTypeId);
+                    log("- deviceType is not used anymore, will be deleted: " + beaconDeviceTypeId);
+                }
             }
         }
         log("/finished analysing DeviceTypes");
@@ -210,5 +217,24 @@ public class MasterDataAnalyser {
 
     public String getInfo() {
         return info.toString();
+    }
+    
+    /**
+     * Returns the {@link Set} of all device types that are used by mirrors on the Beacon and can hence not be deleted (yet).
+     * 
+     * @param 		mirrors		The mirrors on the Beacon.
+     * 
+     * @return		The {@link Set} of device type IDs that are still in use by one or more mirrors.
+     */
+    private static final Set<Long> getDeviceTypesUsedByMirrors(final List<ConcentratorSetup.MeterInfo> mirrors) {
+    	final Set<Long> deviceTypes = new HashSet<>();
+    	
+    	for (final ConcentratorSetup.MeterInfo mirror : mirrors) {
+    		for (final ConcentratorSetup.DeviceTypeAssignment assignment : mirror.getDeviceTypeAssignments()) {
+    			deviceTypes.add(assignment.getDeviceTypeId());
+    		}
+    	}
+    	
+    	return deviceTypes;
     }
 }

@@ -5,9 +5,10 @@ import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
+import com.energyict.protocolimplv2.messages.enums.DLMSGatewayNotificationRelayType;
 import com.energyict.protocolimplv2.messages.nls.TranslationKeyImpl;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -21,12 +22,28 @@ public enum DLMSConfigurationDeviceMessage implements DeviceMessageSpecSupplier 
     SetDLMSDeviceID(28001, "Set DLMS device ID", DeviceMessageConstants.SetDLMSDeviceIDAttributeName, DeviceMessageConstants.SetDLMSDeviceIDAttributeDefaultTranslation),
     SetDLMSMeterID(28002, "Set DLMS meter ID", DeviceMessageConstants.SetDLMSMeterIDAttributeName, DeviceMessageConstants.SetDLMSMeterIDAttributeDefaultTranslation),
     SetDLMSPassword(28003, "Set DLMS password", DeviceMessageConstants.SetDLMSPasswordAttributeName, DeviceMessageConstants.SetDLMSPasswordAttributeDefaultTranslation),
-    SetDLMSIdleTime(28004, "Set DLMS idle time", DeviceMessageConstants.SetDLMSIdleTimeAttributeName, DeviceMessageConstants.SetDLMSIdleTimeAttributeDefaultTranslation);
+    SetDLMSIdleTime(28004, "Set DLMS idle time", DeviceMessageConstants.SetDLMSIdleTimeAttributeName, DeviceMessageConstants.SetDLMSIdleTimeAttributeDefaultTranslation),
+
+    MeterPushNotificationSettings(28005, "Configure meter push notification settings") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    stringSpecWithValues(service, DeviceMessageConstants.RelayMeterNotifications, DeviceMessageConstants.RelayMeterNotificationsDefaultTranslation, DLMSGatewayNotificationRelayType.getOptionNames()),
+                    booleanSpec(service, DeviceMessageConstants.DecipherMeterNotifications, DeviceMessageConstants.DecipherMeterNotificationsDefaultTranslation),
+                    booleanSpec(service, DeviceMessageConstants.DropUnencryptedMeterNotifications, DeviceMessageConstants.DropUnencryptedMeterNotificationsDefaultTranslation)
+            );
+        }
+    };
 
     private final long id;
     private final String defaultNameTranslation;
-    private final String propertyName;
-    private final String propertyDefaultTranslation;
+    private String propertyName;
+    private String propertyDefaultTranslation;
+
+    DLMSConfigurationDeviceMessage(long id, String defaultNameTranslation) {
+        this.id = id;
+        this.defaultNameTranslation = defaultNameTranslation;
+    }
 
     DLMSConfigurationDeviceMessage(long id, String defaultNameTranslation, String propertyName, String propertyDefaultTranslation) {
         this.id = id;
@@ -44,7 +61,7 @@ public enum DLMSConfigurationDeviceMessage implements DeviceMessageSpecSupplier 
         return DLMSConfigurationDeviceMessage.class.getSimpleName() + "." + this.toString();
     }
 
-    private List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+    protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
         return Collections.singletonList(this.stringSpec(service, this.propertyName, this.propertyDefaultTranslation));
     }
 
@@ -54,6 +71,27 @@ public enum DLMSConfigurationDeviceMessage implements DeviceMessageSpecSupplier 
                 .stringSpec()
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
+                .markRequired()
+                .finish();
+    }
+
+    protected PropertySpec booleanSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
+        return service
+                .booleanSpec()
+                .named(deviceMessageConstantKey, translationKey)
+                .describedAs(translationKey.description())
+                .markRequired()
+                .finish();
+    }
+
+    protected PropertySpec stringSpecWithValues(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation, String[] values) {
+        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
+        return service
+                .stringSpec()
+                .named(deviceMessageConstantKey, translationKey)
+                .describedAs(translationKey.description())
+                .addValues(values)
                 .markRequired()
                 .finish();
     }

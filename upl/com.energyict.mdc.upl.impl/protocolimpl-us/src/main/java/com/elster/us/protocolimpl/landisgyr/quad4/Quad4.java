@@ -1,5 +1,8 @@
 package com.elster.us.protocolimpl.landisgyr.quad4;
 
+import com.elster.us.nls.PropertyTranslationKeys;
+import com.energyict.cbo.Quantity;
+import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.nls.TranslationKey;
@@ -9,10 +12,6 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
-
-import com.elster.us.nls.PropertyTranslationKeys;
-import com.energyict.cbo.Quantity;
-import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterInfo;
@@ -155,7 +154,7 @@ public class Quad4 extends PluggableMeterProtocol implements RegisterProtocol,Se
             // implementation for Imserv: serialnumber = unit_id1
             if (!readUnit1SerialNumber) {
                 TableAddress ta = new TableAddress(this, 2, 19);
-                return ta.readString(11);
+                return ta.readString(11).trim();
             } else {
                 TableAddress ta = new TableAddress(this, 2, 0);
                 byte[] values = ta.readBytes(4);
@@ -276,7 +275,7 @@ public class Quad4 extends PluggableMeterProtocol implements RegisterProtocol,Se
      *     <liF -> Standalone (this allows us in the US to interrogate standalone meters)></li>
      * </ul>
      */
-    private String getpNodePrefix(TypedProperties p) {
+    protected String getpNodePrefix(TypedProperties p) {
          return p.getTypedProperty(PK_NODE_PREFIX, PD_NODE_PREFIX);
     }
 
@@ -313,7 +312,7 @@ public class Quad4 extends PluggableMeterProtocol implements RegisterProtocol,Se
             sendNodeId();
             obisCodeMapper = new ObisCodeMapper(this);
         } catch (ConnectionException e) {
-            logger.severe("MAXSys 2510, " + e.getMessage());
+            logger.severe("Quad4, " + e.getMessage());
             throw e;
         }
         if (logger.isLoggable(Level.INFO)) {
@@ -330,6 +329,11 @@ public class Quad4 extends PluggableMeterProtocol implements RegisterProtocol,Se
         }
     }
 
+    /*
+     * (non-Javadoc)
+     *
+     * @see com.energyict.protocol.MeterProtocol#connect()
+     */
     @Override
     public void connect() throws IOException {
         connect(0);
@@ -360,6 +364,11 @@ public class Quad4 extends PluggableMeterProtocol implements RegisterProtocol,Se
         return getTable11().getTypeStoreCntrlRcd().getNoOfChnls();
     }
 
+    /*
+     * (non-Javadoc)
+     *
+     * @see com.energyict.protocol.MeterProtocol#getProfileData(boolean)
+     */
     @Override
     public ProfileData getProfileData(boolean includeEvents) throws IOException {
         Calendar c = ProtocolUtils.getCalendar(timeZone);
@@ -371,26 +380,52 @@ public class Quad4 extends PluggableMeterProtocol implements RegisterProtocol,Se
         return getProfileData(from, to, includeEvents);
     }
 
+    /*
+     * (non-Javadoc)
+     *
+     * @see com.energyict.protocol.MeterProtocol#getProfileData(java.util.Date, boolean)
+     */
     @Override
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
         return getTable12(lastReading, includeEvents).getProfile();
     }
 
+    /*
+     * (non-Javadoc)
+     *
+     * @see com.energyict.protocol.MeterProtocol#getProfileData(java.util.Date, java.util.Date, boolean)
+     */
     @Override
     public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         throw new UnsupportedException();
     }
 
-    @Override
-    public int getProfileInterval() throws IOException {
+    /*
+     * (non-Javadoc)
+     *
+     * @see com.energyict.protocol.MeterProtocol#getProfileInterval()
+     */
+    public int getProfileInterval() throws UnsupportedException, IOException {
         return getTable11().getTypeStoreCntrlRcd().getIntvlInMins() * 60;
     }
 
+    /* ___ Implement interface RegisterProtocol ___ */
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see com.energyict.protocol.RegisterProtocol#readRegister(com.energyict.obis.ObisCode)
+     */
     @Override
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         return obisCodeMapper.getRegisterValue(obisCode);
     }
 
+    /*
+     * (non-Javadoc)
+     *
+     * @see com.energyict.protocol.RegisterProtocol#translateRegister(com.energyict.obis.ObisCode)
+     */
     @Override
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
         return ObisCodeMapper.getRegisterInfo(obisCode);
@@ -412,7 +447,7 @@ public class Quad4 extends PluggableMeterProtocol implements RegisterProtocol,Se
             builder.append(String.valueOf((char) ProtocolUtils.convertHexLSB(bKar)));
             builder.append(String.valueOf((char) ProtocolUtils.convertHexMSB(bKar)));
         }
-        return builder.toString();
+        return builder.toString().trim();
     }
 
     @Override
@@ -447,6 +482,12 @@ public class Quad4 extends PluggableMeterProtocol implements RegisterProtocol,Se
         return getTable1().getTypeMaximumValues().getClockCalendar().toDate();
     }
 
+    /**
+     * Send the time delta in milliseconds.
+     * (non-Javadoc)
+     *
+     * @see com.energyict.protocol.MeterProtocol#setTime()
+     */
     @Override
     public void setTime() throws IOException {
         Calendar calendar = ProtocolUtils.getCalendar(timeZone);

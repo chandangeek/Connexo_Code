@@ -10,6 +10,9 @@
 
 package com.energyict.protocolimpl.itron.sentinel;
 
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
@@ -17,10 +20,6 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
-
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.core.HalfDuplexController;
-import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterInfo;
@@ -60,14 +59,20 @@ import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
  */
 public class Sentinel extends AbstractProtocol implements C12ProtocolLink, SerialNumberSupport {
 
-    private SentinelItron sentinelItron = new SentinelItron();
-    private SentinelLoadProfile sentinelLoadProfile;
-    private String c12User;
-    private int c12UserId;
-    private int maxNrPackets;
-    private boolean readLoadProfilesChunked = false;
-    private boolean convertRegisterReadsToKiloUnits = false;
-    private int chunkSize;
+    SentinelItron sentinelItron = new SentinelItron();
+    SentinelLoadProfile sentinelLoadProfile;
+    String c12User;
+    int c12UserId;
+    int maxNrPackets;
+    boolean readLoadProfilesChunked = false;
+    boolean convertRegisterReadsToKiloUnits = false;
+    boolean readDemandsAndCoincidents = true;
+    boolean readTiers = true;
+    boolean limitRegisterReadSize = false;
+    int reduceMaxNumberOfUomEntryBy;
+    int chunkSize;
+    int controlToggleBitMode;
+    int eventChunkSize;
 
     // KV_TO_DO extend framework to implement different hhu optical handshake mechanisms for US meters.
     private SerialCommunicationChannel commChannel;
@@ -128,19 +133,23 @@ public class Sentinel extends AbstractProtocol implements C12ProtocolLink, Seria
             setInfoTypePassword(new String(new byte[]{0}));
         }
 
-        //identify with node 1 before you can address other nodes
+      //identify with node 1 before you can address other nodes
         if (c12Layer2.getIdentity()!=1) {
-            int targetIdentity = c12Layer2.getIdentity();
+        	int targetIdentity = c12Layer2.getIdentity();
             c12Layer2.setIdentity(1);
             getPSEMServiceFactory().getIdentificationResponse().getIdentificationFeature0();
-            getPSEMServiceFactory().terminate();
-            c12Layer2.setIdentity(targetIdentity);
+        	getPSEMServiceFactory().terminate();
+        	c12Layer2.setIdentity(targetIdentity);
         }
         getPSEMServiceFactory().logOn(c12UserId,replaceSpaces(c12User),getInfoTypePassword(),getInfoTypeSecurityLevel(),PSEMServiceFactory.PASSWORD_ASCII, 128, maxNrPackets);
     }
 
     private String replaceSpaces(String c12User) {
         return c12User;
+    }
+
+    public int reduceMaxNumberOfUomEntryBy() {
+        return reduceMaxNumberOfUomEntryBy;
     }
 
     @Override
@@ -157,6 +166,12 @@ public class Sentinel extends AbstractProtocol implements C12ProtocolLink, Seria
         propertySpecs.add(this.stringSpec("ReadLoadProfilesChunked", PropertyTranslationKeys.ITRON_READ_LOAD_PROFILE_CHUNKED, false));
         propertySpecs.add(this.integerSpec("ChunkSize", PropertyTranslationKeys.ITRON_CHUNK_SIZE, false));
         propertySpecs.add(this.stringSpec("ConvertRegisterReadsToKiloUnits", PropertyTranslationKeys.ITRON_CONVERT_REGISTER_READS_TO_KILO_UNITS, false));
+        propertySpecs.add(this.booleanSpec("ReadDemandsAndCoincidents", PropertyTranslationKeys.ITRON_READ_DEMANDS_AND_COINCIDENTS, false));
+        propertySpecs.add(this.booleanSpec("ReadTiers", PropertyTranslationKeys.ITRON_READ_TIERS, false));
+        propertySpecs.add(this.booleanSpec("LimitRegisterReadSize", PropertyTranslationKeys.ITRON_LIMIT_REGISTER_READ_SIZE, false));
+        propertySpecs.add(this.integerSpec("ReduceMaxNumberOfUomEntryBy", PropertyTranslationKeys.ITRON_REDUCE_MAX_NUMBER_OF_UOM_ENTRY_BY, false));
+        propertySpecs.add(this.integerSpec("FrameControlToggleBitMode", PropertyTranslationKeys.ELSTER_FRAME_CONTROL_TOGGLE_BIT_MODE, false));
+        propertySpecs.add(this.integerSpec("EventChunkSize", PropertyTranslationKeys.ITRON_EVENT_CHUNK_SIZE, false));
         return propertySpecs;
     }
 
@@ -166,12 +181,18 @@ public class Sentinel extends AbstractProtocol implements C12ProtocolLink, Seria
         try {
             setForcedDelay(Integer.parseInt(properties.getTypedProperty(PROP_FORCED_DELAY, "10").trim()));
             setInfoTypeNodeAddress(properties.getTypedProperty(NODEID.getName(), "0"));
-            c12User = properties.getTypedProperty("C12User","");
-            c12UserId = Integer.parseInt(properties.getTypedProperty("C12UserId","0").trim());
+            c12User = properties.getTypedProperty("C12User", "");
+            c12UserId = Integer.parseInt(properties.getTypedProperty("C12UserId", "0").trim());
             maxNrPackets = Integer.parseInt(properties.getTypedProperty("MaxNrPackets", "1"), 16);
             readLoadProfilesChunked = Boolean.parseBoolean(properties.getTypedProperty("ReadLoadProfilesChunked", "false"));
             chunkSize = Integer.parseInt(properties.getTypedProperty("ChunkSize", "19"));
             convertRegisterReadsToKiloUnits = Boolean.parseBoolean(properties.getTypedProperty("ConvertRegisterReadsToKiloUnits", "false"));
+            readDemandsAndCoincidents = Boolean.parseBoolean(properties.getTypedProperty("ReadDemandsAndCoincidents", "true"));
+            readTiers = Boolean.parseBoolean(properties.getTypedProperty("ReadTiers", "true"));
+            limitRegisterReadSize = Boolean.parseBoolean(properties.getTypedProperty("LimitRegisterReadSize", "false"));
+            reduceMaxNumberOfUomEntryBy = Integer.parseInt(properties.getTypedProperty("ReduceMaxNumberOfUomEntryBy", "0"));
+            this.controlToggleBitMode = Integer.parseInt(properties.getTypedProperty("FrameControlToggleBitMode", "1"));
+            this.eventChunkSize = Integer.parseInt(properties.getTypedProperty("EventChunkSize", "5"));
         } catch (NumberFormatException e) {
             throw new InvalidPropertyException(e, this.getClass().getSimpleName() + ": validation of properties failed before");
         }
@@ -179,7 +200,7 @@ public class Sentinel extends AbstractProtocol implements C12ProtocolLink, Seria
 
     @Override
     protected ProtocolConnection doInit(InputStream inputStream, OutputStream outputStream, int timeoutProperty, int protocolRetriesProperty, int forcedDelay, int echoCancelling, int protocolCompatible, Encryptor encryptor, HalfDuplexController halfDuplexController) throws IOException {
-        c12Layer2 = new C12Layer2(inputStream, outputStream, timeoutProperty, protocolRetriesProperty, forcedDelay, echoCancelling, halfDuplexController);
+        c12Layer2 = new C12Layer2(inputStream, outputStream, timeoutProperty, protocolRetriesProperty, forcedDelay, echoCancelling, halfDuplexController, getLogger(), controlToggleBitMode);
         c12Layer2.initStates();
         psemServiceFactory = new PSEMServiceFactory(this);
         standardTableFactory = new StandardTableFactory(this);
@@ -187,7 +208,7 @@ public class Sentinel extends AbstractProtocol implements C12ProtocolLink, Seria
         standardProcedureFactory = new StandardProcedureFactory(this);
         manufacturerProcedureFactory = new ManufacturerProcedureFactory(this);
         setDataReadFactory(new DataReadFactory(manufacturerTableFactory));
-        sentinelLoadProfile = new SentinelLoadProfile(this, readLoadProfilesChunked, chunkSize);
+        sentinelLoadProfile = new SentinelLoadProfile(this, readLoadProfilesChunked, chunkSize, eventChunkSize);
         return c12Layer2;
     }
 
@@ -222,15 +243,15 @@ public class Sentinel extends AbstractProtocol implements C12ProtocolLink, Seria
 
     @Override
     public String getProtocolVersion() {
-        return "$Date: 2016-09-08 09:36:35 +0300 (Thu, 08 Sep 2016)$";
+        return "$Date: 2016-12-29 12:41:11 +0100 (Th, 29 Dec 2016)$";
     }
 
     @Override
     public String getFirmwareVersion() throws IOException {
         return getStandardTableFactory().getManufacturerIdentificationTable().getManufacturer()+", "+
-                getStandardTableFactory().getManufacturerIdentificationTable().getModel()+", "+
-                "Firmware version.revision="+getStandardTableFactory().getManufacturerIdentificationTable().getFwVersion()+"."+getStandardTableFactory().getManufacturerIdentificationTable().getFwRevision()+", "+
-                "Hardware version.revision="+getStandardTableFactory().getManufacturerIdentificationTable().getHwVersion()+"."+getStandardTableFactory().getManufacturerIdentificationTable().getHwRevision();
+               getStandardTableFactory().getManufacturerIdentificationTable().getModel()+", "+
+               "Firmware version.revision="+getStandardTableFactory().getManufacturerIdentificationTable().getFwVersion()+"."+getStandardTableFactory().getManufacturerIdentificationTable().getFwRevision()+", "+
+               "Hardware version.revision="+getStandardTableFactory().getManufacturerIdentificationTable().getHwVersion()+"."+getStandardTableFactory().getManufacturerIdentificationTable().getHwRevision();
     }
 
     @Override
@@ -447,7 +468,7 @@ public class Sentinel extends AbstractProtocol implements C12ProtocolLink, Seria
 
     public ObisCodeInfoFactory getObisCodeInfoFactory() throws IOException {
         if (obisCodeInfoFactory == null) {
-            obisCodeInfoFactory = new ObisCodeInfoFactory(this, convertRegisterReadsToKiloUnits);
+            obisCodeInfoFactory=new ObisCodeInfoFactory(this, convertRegisterReadsToKiloUnits, readDemandsAndCoincidents, readTiers, limitRegisterReadSize);
         }
         return obisCodeInfoFactory;
     }

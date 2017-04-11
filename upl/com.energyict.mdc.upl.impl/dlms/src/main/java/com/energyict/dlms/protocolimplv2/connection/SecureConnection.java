@@ -16,6 +16,7 @@ import com.energyict.dlms.protocolimplv2.connection.RetryRequestPreparation.Retr
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.io.NestedIOException;
 import com.energyict.protocol.exception.ConnectionCommunicationException;
+import com.energyict.protocol.exception.DeviceConfigurationException;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
@@ -242,7 +243,7 @@ public class SecureConnection implements DLMSConnection, DlmsV2Connection, Retry
     /**
      * Apply DLMS encryption, authentication and signing to the given plain text request
      *
-     * @param plainTextRequest the request, given as plain text byte[]
+     * @param plainTextRequest   the request, given as plain text byte[]
      * @param isAlreadyEncrypted
      * @return the encrypted/authenticated/... request byte[]
      */
@@ -272,6 +273,12 @@ public class SecureConnection implements DLMSConnection, DlmsV2Connection, Retry
                     securedRequest = encryptGeneralCiphering(securedRequest);
                     securedRequest = ParseUtils.concatArray(new byte[]{DLMSCOSEMGlobals.GENERAL_CIPHERING}, securedRequest);
                 } else {
+                    //The general-signing APDU can only be wrapped in a general APDU, not in a global or dedicated one
+                    if (isRequestSigned()) {
+                        CipheringType cipheringType = CipheringType.fromValue(this.aso.getSecurityContext().getCipheringType());
+                        throw DeviceConfigurationException.unsupportedPropertyValueWithReason("CipheringType", cipheringType.getDescription(), "for signed requests, the CipheringType must be general, not global or dedicated.");
+                    }
+
                     //Service specific tags
                     final byte tag = XdlmsApduTags.getEncryptedTag(securedRequest[0], this.aso.getSecurityContext().isGlobalCiphering());
                     securedRequest = encrypt(securedRequest);

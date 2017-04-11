@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Calendar;
 import java.util.TimeZone;
+import java.util.logging.Level;
 
 /**
  *
@@ -86,6 +87,10 @@ public class MassMemoryBasePages extends AbstractBasePage {
     }
     
     protected void parse(byte[] data) throws IOException {
+        if (getLogger().isLoggable(Level.INFO)) {
+            getLogger().info("Parsing MassMemoryBasePages: " + ProtocolUtils.outputHexString(data));
+        }
+
         int offset = 0;
         getChannelPulseWidths()[0] = ParseUtils.convertBCDFixedPoint(data,offset,4,8);
         offset+=4;
@@ -126,6 +131,9 @@ public class MassMemoryBasePages extends AbstractBasePage {
         setIntervalTimer(((temp<<4)&0xF0) + ((temp>>4)&0x0F));
         offset+=2; // skip 2 bytes address 253D
         offset+=2; // skip 2 bytes address 253F
+        if (getLogger().isLoggable(Level.INFO)) {
+            getLogger().info("Parsing MassMemoryBasePages results:" + this.toString());
+        }
     }
 
     

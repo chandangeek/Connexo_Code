@@ -9,8 +9,10 @@ import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.dlms.cosem.ImageTransfer;
+import com.energyict.dlms.cosem.MulticastIC;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
+import com.energyict.mdc.upl.NotInObjectListException;
 import com.energyict.mdc.upl.ObjectMapperService;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
@@ -51,6 +53,8 @@ import java.util.List;
 public class BroadcastUpgrade {
 
     private static final ObisCode AM540_BROADCAST_FRAMECOUNTER_OBISCODE = ObisCode.fromString("0.0.43.1.1.255");
+    private static final ObisCode MULTICAST_NEW_OBISCODE = ObisCode.fromString("0.176.96.160.0.255");
+    private static final ObisCode IMAGE_TRANSFER_NEW_OBISCODE = ObisCode.fromString("0.0.44.0.160.255");
     private final Beacon3100Messaging beacon3100Messaging;
     private final PropertySpecService propertySpecService;
     private final ObjectMapperService objectMapperService;
@@ -106,7 +110,7 @@ public class BroadcastUpgrade {
 
                 //TODO robust
                 // TODO error handling ?? timeout & application errors?
-                final ImageTransfer imageTransfer = unicastDlmsSession.getCosemObjectFactory().getImageTransfer();
+                final ImageTransfer imageTransfer = unicastDlmsSession.getCosemObjectFactory().getImageTransfer(IMAGE_TRANSFER_NEW_OBISCODE);
                 imageTransfer.writeImageTransferEnabledState(true);
                 if (imageTransfer.getImageTransferEnabledState().getState()) {
 
@@ -199,7 +203,8 @@ public class BroadcastUpgrade {
             final Structure broadcastStructure = new Structure();
             broadcastStructure.addDataType(new Unsigned16(broadcastGroupId));
             broadcastStructure.addDataType(new OctetString(apdu));
-            broadcastLogicalDeviceDlmsSession.getCosemObjectFactory().getMulticastIC().sendMulticastPacket(broadcastStructure);
+
+            getMulticastIC(broadcastLogicalDeviceDlmsSession).sendMulticastPacket(broadcastStructure);
 
             //Wait a bit before sending the next block
             try {
@@ -253,6 +258,14 @@ public class BroadcastUpgrade {
         //All blocks were successfully sent. Verification & activation will happen in a meter message.
 
         return collectedMessage;
+    }
+
+    private MulticastIC getMulticastIC(DlmsSession broadcastLogicalDeviceDlmsSession) throws NotInObjectListException {
+        if(((Beacon3100Properties)beacon3100Messaging.getProtocol().getDlmsSessionProperties()).getReadOldObisCodes()) {
+            return broadcastLogicalDeviceDlmsSession.getCosemObjectFactory().getMulticastIC();
+        }else{
+            return broadcastLogicalDeviceDlmsSession.getCosemObjectFactory().getMulticastIC(MULTICAST_NEW_OBISCODE);
+        }
     }
 
     private Structure createBlockStructure(int broadcastBlockSize, byte[] image, int numberOfBlocks, int blockIndex) {

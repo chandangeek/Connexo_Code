@@ -1,17 +1,18 @@
 package com.energyict.protocolimplv2.dlms.idis.am130.messages;
 
 import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.Password;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.idis.am500.messages.IDISMessageExecutor;
 import com.energyict.protocolimplv2.dlms.idis.am500.messages.IDISMessaging;
@@ -25,9 +26,12 @@ import com.energyict.protocolimplv2.messages.LoadProfileMessage;
 import com.energyict.protocolimplv2.messages.MBusSetupDeviceMessage;
 import com.energyict.protocolimplv2.messages.NetworkConnectivityMessage;
 import com.energyict.protocolimplv2.messages.SecurityMessage;
+import com.energyict.protocolimplv2.messages.validators.KeyMessageChangeValidator;
+import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Copyrights EnergyICT
@@ -64,6 +68,7 @@ public class AM130Messaging extends IDISMessaging {
     protected void addCommonDeviceMessages(List<DeviceMessageSpec> supportedMessages) {
         supportedMessages.add(SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEYS.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
         supportedMessages.add(SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEYS.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
+        supportedMessages.add(SecurityMessage.CHANGE_MASTER_KEY_WITH_NEW_KEYS.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
         supportedMessages.add(LoadBalanceDeviceMessage.CONFIGURE_ALL_LOAD_LIMIT_PARAMETERS.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
         supportedMessages.add(LoadBalanceDeviceMessage.CONFIGURE_SUPERVISION_MONITOR.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
         supportedMessages.add(LoadProfileMessage.WRITE_CAPTURE_PERIOD_LP1.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
@@ -114,5 +119,20 @@ public class AM130Messaging extends IDISMessaging {
             return ((Password) messageAttribute).getValue();
         }
         return super.format(offlineDevice, offlineDeviceMessage, propertySpec, messageAttribute);
+    }
+
+    @Override
+    public Optional<String> prepareMessageContext(Device device, OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
+        if (deviceMessage.getMessageId() == SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEYS.id()
+                || deviceMessage.getMessageId() == SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEYS_FOR_PREDEFINED_CLIENT.id()) {
+            new KeyMessageChangeValidator().validateNewKeyValue(offlineDevice.getId(), deviceMessage, SecurityPropertySpecName.AUTHENTICATION_KEY);
+        } else if (deviceMessage.getMessageId() == SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEYS.id()
+                || deviceMessage.getMessageId() == SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEYS_FOR_PREDEFINED_CLIENT.id()) {
+            new KeyMessageChangeValidator().validateNewKeyValue(offlineDevice.getId(), deviceMessage, SecurityPropertySpecName.ENCRYPTION_KEY);
+        } else if (deviceMessage.getMessageId() == SecurityMessage.CHANGE_MASTER_KEY_WITH_NEW_KEYS.id()
+                || deviceMessage.getMessageId() == SecurityMessage.CHANGE_MASTER_KEY_WITH_NEW_KEYS_FOR_PREDEFINED_CLIENT.id()) {
+            new KeyMessageChangeValidator().validateNewKeyValue(offlineDevice.getId(), deviceMessage, SecurityPropertySpecName.MASTER_KEY);
+        }
+        return super.prepareMessageContext(device, offlineDevice, deviceMessage);
     }
 }

@@ -28,12 +28,15 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.io.Serializable;
+import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.MathContext;
 import java.math.RoundingMode;
 import java.security.GeneralSecurityException;
+import java.text.MessageFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -105,6 +108,25 @@ public final class ProtocolTools {
             bb.write(Integer.parseInt(hexString.substring(i + 1, i + PREFIX_AND_HEX_LENGTH), HEX));
         }
         return bb.toByteArray();
+    }
+
+    public static byte[] getBytesFromHexString(final String hexString, int hexLen) {
+        ByteArrayOutputStream bb = new ByteArrayOutputStream();
+        for (int i = 0; i < hexString.length(); i += hexLen) {
+            bb.write(Integer.parseInt(hexString.substring(i, i + hexLen), HEX));
+        }
+        return bb.toByteArray();
+    }
+
+    public static String format(String pattern, Object[] arguments) {
+        try {
+            return MessageFormat.format(pattern.replaceAll("\'", "\'\'"), arguments);
+        } catch (Exception e) {
+            StringWriter stringWriter = new StringWriter();
+            PrintWriter printWriter = new PrintWriter(stringWriter);
+            e.printStackTrace(printWriter);
+            return pattern + "\n" + e.getLocalizedMessage() + "\n" + stringWriter.toString();
+        }
     }
 
     /**
@@ -755,8 +777,16 @@ public final class ProtocolTools {
     }
 
     /**
-     * @param intervals
-     * @return
+     * Merge the duplicate intervals from the given list of IntervalData elements.
+     * <b>Remarks: </b><br/>
+     * <ul>
+     *     <li>When merging multiple IntervalData elements, the Eis/protocol statuses are <b>not</b> merged!</li>
+     *     <li>This method can only be used if the channels contain simple consumption; if the channels contain cumulative
+     * values, then the merging isn't correct!</li>
+     * </ul>
+     *
+     * @param intervals the list of IntervalData elements which should be checked for doubles
+     * @return the merged list of IntervalData elements (which now should no longer contain duplicate intervals)
      */
     public static List<IntervalData> mergeDuplicateIntervals(List<IntervalData> intervals) {
         List<IntervalData> mergedIntervals = new ArrayList<>();
@@ -798,14 +828,15 @@ public final class ProtocolTools {
     /**
      * Merge the duplicate intervals from the given list of IntervalData elements.
      * When merging multiple IntervalData elements, the Eis/protocol statuses are merged as well.
+     * <b>Remark: </b><br/>
+     * This method can only be used if the channels contain simple consumption; if the channels contain cumulative
+     * values, then the merging isn't correct!
      *
      * @param intervals the list of IntervalData elements which should be checked for doubles
      * @return the merged list of IntervalData elements (which now should no longer contain duplicate intervals)
-     * @deprecated this method can only be used if the channels contain simple consumption; if the channels contain cumulative
-     * values, then the merging will be wrong!
      */
     public static List<IntervalData> mergeDuplicateIntervalsIncludingIntervalStatus(List<IntervalData> intervals) {
-        List<IntervalData> mergedIntervals = new ArrayList<IntervalData>();
+        List<IntervalData> mergedIntervals = new ArrayList<>();
         for (IntervalData id2compare : intervals) {
             boolean allreadyProcessed = false;
             for (IntervalData merged : mergedIntervals) {

@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.registers;
 
 import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.protocolimpl.dlms.g3.registers.G3Mapping;
 import com.energyict.protocolimpl.dlms.g3.registers.G3RegisterMapper;
 
 import java.util.TimeZone;
@@ -26,13 +27,27 @@ public class Beacon3100G3RegisterMapper extends G3RegisterMapper {
      */
     @Override
     protected void initializeMappings() {
+        this.mappings.addAll(getModemWatchdogMappings());
         this.mappings.addAll(getPLCStatisticsMappings());
-        this.mappings.addAll(getBeaconPushEventNotificationAttibutesMappings());
+        this.mappings.addAll(getBeaconPushEventNotificationAttibutesMappings()); // TODO legacy ... check the new obis
         this.mappings.addAll(getIPv4SetupMappings());
-        this.mappings.addAll(getUsbSetupRegistering());
-        this.mappings.addAll(getDisconnectControlRegistering());
-        this.mappings.addAll(getGprsModemSetupRegistering());
+        this.mappings.addAll(getUsbSetupMappings());
+        this.mappings.addAll(getGprsModemSetupMappings());
         this.mappings.addAll(getPPPSetupRegistering());
-        this.mappings.addAll(getMetrologyRegistering());
+        this.mappings.addAll(getMultiAPNConfigurationMappings());
+        this.mappings.addAll(getConcentratorSetupMappings());
+        this.mappings.addAll(getMemoryManagementMappings());
     }
+
+    // for debug purposes
+    public String toString(){
+        StringBuilder sb = new StringBuilder();
+        for(G3Mapping mapping : mappings){
+            sb.append(mapping.getBaseObisCode()).append(";");
+            sb.append(mapping.getObisCode()).append(";");
+            sb.append(mapping.getClass().getCanonicalName()).append("\r\n");
+        }
+        return sb.toString();
+    }
+
 }

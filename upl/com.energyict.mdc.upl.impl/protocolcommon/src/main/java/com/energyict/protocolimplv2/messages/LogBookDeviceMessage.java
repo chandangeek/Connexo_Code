@@ -5,7 +5,6 @@ import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
 import com.energyict.protocolimplv2.messages.nls.TranslationKeyImpl;
 
 import java.util.Arrays;
@@ -146,6 +145,20 @@ public enum LogBookDeviceMessage implements DeviceMessageSpecSupplier {
         public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList();
         }
+    },
+    ResetSecurityGroupEventCounterObjects(14021, "Reset security group event counter objects") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.stringSpecWithValues(service, DeviceMessageConstants.securityGroupEventCounters, DeviceMessageConstants.securityGroupEventCountersDefaultTranslation, SecurityEventCounter.getEventCounters())
+            );
+        }
+    },
+    ResetAllSecurityGroupEventCounters(14022, "Reset all security group event counters") {
+        @Override
+        public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.emptyList();
+        }
     };
 
     private final long id;
@@ -173,6 +186,17 @@ public enum LogBookDeviceMessage implements DeviceMessageSpecSupplier {
                 .finish();
     }
 
+    protected PropertySpec stringSpecWithValues(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation, String[] values) {
+        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
+        return service
+                .stringSpec()
+                .named(deviceMessageConstantKey, translationKey)
+                .describedAs(translationKey.description())
+                .addValues(values)
+                .markRequired()
+                .finish();
+    }
+
     protected PropertySpec dateTimeSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
         TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
         return service
@@ -196,4 +220,35 @@ public enum LogBookDeviceMessage implements DeviceMessageSpecSupplier {
                 propertySpecService, nlsService, converter);
     }
 
+    public enum SecurityEventCounter {
+        G_EC_01("0.0.96.15.21.255"),
+        G_EC_02("0.0.96.15.22.255"),
+        G_EC_03("0.0.96.15.23.255"),
+        G_EC_04("0.0.96.15.24.255"),
+        G_EC_05("0.0.96.15.25.255"),
+        G_EC_06("0.0.96.15.26.255"),
+        G_EC_07("0.0.96.15.27.255"),
+        G_EC_08("0.0.96.15.28.255"),
+        G_EC_09("0.0.96.15.29.255"),
+        G_EC_10("0.0.96.15.30.255");
+
+        private final String obis;
+
+        private SecurityEventCounter(String obis) {
+            this.obis = obis;
+        }
+
+        public static String[] getEventCounters() {
+            SecurityEventCounter[] allCounters = values();
+            String[] result = new String[allCounters.length];
+            for (int index = 0; index < allCounters.length; index++) {
+                result[index] = allCounters[index].name();
+            }
+            return result;
+        }
+
+        public String getObis() {
+            return obis;
+        }
+    }
 }

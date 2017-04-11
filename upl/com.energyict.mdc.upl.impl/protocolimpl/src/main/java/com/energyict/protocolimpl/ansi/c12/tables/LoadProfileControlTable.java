@@ -10,13 +10,11 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
-
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
 import com.energyict.protocolimpl.base.FirmwareVersion;
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocol.*;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
+import java.io.IOException;
 
 /**
  *
@@ -112,7 +110,8 @@ public class LoadProfileControlTable extends AbstractTable {
         return formatCode;
     }
     
-    protected void parse(byte[] tableData) throws IOException { 
+    protected void parse(byte[] tableData) throws IOException {
+        getLogger().info("LoadProfileControlTable: "+ ProtocolUtils.outputHexString(tableData));
         //ActualRegisterTable art = getTableFactory().getC12ProtocolLink().getStandardTableFactory().getActualRegisterTable();
         //ActualTimeAndTOUTable atatt = getTableFactory().getC12ProtocolLink().getStandardTableFactory().getActualTimeAndTOUTable();
         ConfigurationTable cfgt = getTableFactory().getC12ProtocolLink().getStandardTableFactory().getConfigurationTable();
@@ -212,7 +211,7 @@ public class LoadProfileControlTable extends AbstractTable {
                 }
             }
         } // if ((cfgt.getStdTablesUsed()[8]&0x08)==0x08)
-        
+        getLogger().info(this.toString());
     }         
 
     public LoadProfileSourceSelection[] getLoadProfileSelectionSet1() {

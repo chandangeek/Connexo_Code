@@ -7,7 +7,6 @@ import com.energyict.mdc.upl.properties.DeviceMessageFile;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
 import com.energyict.protocolimplv2.messages.enums.AuthenticationMechanism;
 import com.energyict.protocolimplv2.messages.nls.TranslationKeyImpl;
 
@@ -272,13 +271,13 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecSupplie
     EnableFW(31041, "Enable firewall") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
-            return Collections.emptyList() ;
+            return Collections.emptyList();
         }
     },
     DisableFW(31042, "Disable firewall") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
-            return Collections.emptyList() ;
+            return Collections.emptyList();
         }
     },
     EnableSSL(31031, "Enable SSL for the web interface") {
@@ -302,19 +301,19 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecSupplie
     Clear_Faults_Flags(31036, "Clear faults flags") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
-            return Collections.emptyList() ;
+            return Collections.emptyList();
         }
     },
     Clear_Statistical_Values(31037, "Clear statistical values") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
-            return Collections.emptyList() ;
+            return Collections.emptyList();
         }
     },
     SyncNTPServer(31034, "Synchronize NTP server") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
-            return Collections.emptyList() ;
+            return Collections.emptyList();
         }
     },
     ConfigureAutomaticDemandReset(31035, "Configure automatic demand reset") {
@@ -334,13 +333,13 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecSupplie
     ENABLE_DISCOVERY_ON_POWER_UP(31038, "Enable discovery on power up") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
-            return Collections.emptyList() ;
+            return Collections.emptyList();
         }
     },
     DISABLE_DISCOVERY_ON_POWER_UP(31039, "Disable discovery on power up") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
-            return Collections.emptyList() ;
+            return Collections.emptyList();
         }
     },
     ConfigureMasterBoardParameters(31040, "Configure masterboard parameters") {
@@ -615,7 +614,7 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecSupplie
     ResetDisplayMessage(31071, "Reset display message") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
-            return Collections.emptyList() ;
+            return Collections.emptyList();
         }
     },
     ConfigureLCDDisplay(31072, "Configure LCD display") {
@@ -831,7 +830,7 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecSupplie
     DISABLE_PUSH_ON_INSTALLATION(31084, "Disable push on installation") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
-            return Collections.emptyList() ;
+            return Collections.emptyList();
         }
     },
     ENABLE_PUSH_ON_INTERVAL_OBJECTS(31085, "Write execution time for push on interval") {
@@ -839,10 +838,58 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecSupplie
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
                     this.stringSpecBuilder(service, DeviceMessageConstants.typeAttributeName, DeviceMessageConstants.typeAttributeDefaultTranslation)
-                        .addValues(PushType.getTypes())
-                        .markExhaustive()
+                            .addValues(PushType.getTypes())
+                            .markExhaustive()
                             .finish(),
                     this.stringSpecBuilder(service, DeviceMessageConstants.executionMinutesForEachHour, DeviceMessageConstants.executionMinutesForEachHourDefaultTranslation).finish()
+            );
+        }
+    },
+    SET_DEVICE_LOG_LEVEL(31086, "Set device log level") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.stringSpecBuilder(service, DeviceMessageConstants.deviceLogLevel, DeviceMessageConstants.deviceLogLevelDefaultTranslation)
+                            .addValues(DeviceLogLevel.getLogLevels())
+                            .markExhaustive()
+                            .finish()
+            );
+        }
+    },
+    SetDeviceLocation(31087, "Set device location") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.stringSpecBuilder(service, DeviceMessageConstants.deviceLocation, DeviceMessageConstants.deviceLocationDefaultTranslation).finish()
+            );
+        }
+    },
+    SetDeviceHostName(31088, "Set device host name") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.stringSpecBuilder(service, DeviceMessageConstants.deviceHostName, DeviceMessageConstants.deviceHostNameDefaultTranslation).finish()
+            );
+        }
+    },
+    ConfigureAPNs(31089, "Configure APNs") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.bigDecimalSpec(service, DeviceMessageConstants.activeAPN, DeviceMessageConstants.activeAPNDefaultTranslation),
+                    this.stringSpecBuilder(service, DeviceMessageConstants.apnConfigurations, DeviceMessageConstants.apnConfigurationsDefaultTranslation).finish()
+            );
+        }
+    },
+    ENABLE_PUSH_ON_INTERVAL_OBJECTS_WITH_TIME_DATE_ARRAY(31090, "Enable push on interval objects, with time date array") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.stringSpecBuilder(service, DeviceMessageConstants.typeAttributeName, DeviceMessageConstants.typeAttributeDefaultTranslation)
+                            .addValues(PushType.getTypes())
+                            .markExhaustive()
+                            .finish(),
+                    this.stringSpecBuilder(service, DeviceMessageConstants.executionTimeDateArray, DeviceMessageConstants.executionTimeDateArrayDefaultTranslation).finish()
             );
         }
     };
@@ -1032,6 +1079,32 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecSupplie
 
         public static String[] getTypes() {
             return Stream.of(values()).map(PushType::name).toArray(String[]::new);
+        }
+
+        public int getId() {
+            return id;
+        }
+    }
+
+    public enum DeviceLogLevel {
+        LOGGING_OFF(0),
+        WARNING(1),
+        INFO(2),
+        DEBUG(3);
+
+        private final int id;
+
+        private DeviceLogLevel(int id) {
+            this.id = id;
+        }
+
+        public static String[] getLogLevels() {
+            DeviceLogLevel[] logLevels = values();
+            String[] result = new String[logLevels.length];
+            for (int index = 0; index < logLevels.length; index++) {
+                result[index] = logLevels[index].name();
+            }
+            return result;
         }
 
         public int getId() {

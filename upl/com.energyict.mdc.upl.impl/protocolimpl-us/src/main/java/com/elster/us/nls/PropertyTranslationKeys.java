@@ -12,6 +12,10 @@ public enum PropertyTranslationKeys implements TranslationKey {
     SEL_DEVICE_PWD_DESCRIPTION("upl.property.us.sel.devicePwd.description", "Device password"),
     SEL_DEVICE_TIMEZONE("upl.property.us.sel.deviceTimeZone", "Device timezone"),
     SEL_DEVICE_TIMEZONE_DESCRIPTION("upl.property.us.sel.deviceTimeZone.description", "Device timezone"),
+    SEL_MAX_INTERVAL_RETRIEVAL_IN_DAYS("upl.property.us.sel.MAX_INTERVAL_RETRIEVAL_IN_DAYS", "Max interval retrieval in days"),
+    SEL_MAX_INTERVAL_RETRIEVAL_IN_DAYS_DESCRIPTION("upl.property.us.sel.MAX_INTERVAL_RETRIEVAL_IN_DAYS.description", "Max interval retrieval in days"),
+    SEL_LP_RECORDER("upl.property.us.sel.SEL_LP_RECORDER", "LP recorder"),
+    SEL_LEVEL_E_PWD("upl.property.us.sel.SEL_LEVEL_E_PWD", "Level 2 password"),
 
     QUAD4_SERIALNUMBER("upl.property.us.quad4.serialNumber", "Serial number"),
     QUAD4_SERIALNUMBER_DESCRIPTION("upl.property.us.quad4.serialNumber.description", "Serial number"),

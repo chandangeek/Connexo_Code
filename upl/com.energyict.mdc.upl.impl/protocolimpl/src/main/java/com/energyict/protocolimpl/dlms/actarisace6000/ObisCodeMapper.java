@@ -6,15 +6,15 @@
 
 package com.energyict.protocolimpl.dlms.actarisace6000;
 
-import com.energyict.mdc.upl.NoSuchRegisterException;
-
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.cosem.CosemObject;
 import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
+import com.energyict.protocolimpl.generic.ParseUtils;
 
 import java.io.IOException;
 import java.util.Date;
@@ -27,9 +27,21 @@ public class ObisCodeMapper {
     private CosemObjectFactory cof;
     private RegisterProfileMapper registerProfileMapper = null;
 
-    public ObisCodeMapper(CosemObjectFactory cof) {
-        this.cof = cof;
+    public static final String ACTIVITY_CALENDAR_NAME = "0.0.13.0.0.255";
+    public static final String VOLTAGE_L1 = "1.1.32.7.0.255";
+    public static final String VOLTAGE_L2 = "1.1.52.7.0.255";
+    public static final String VOLTAGE_L3 = "1.1.72.7.0.255";
+    public static final String CURRENT_L1 = "1.1.31.7.0.255";
+    public static final String CURRENT_L2 = "1.1.51.7.0.255";
+    public static final String CURRENT_L3 = "1.1.71.7.0.255";
+    private final ACE6000 protocol;
+
+    /** Creates a new instance of ObisCodeMapper */
+    public ObisCodeMapper(CosemObjectFactory cof, final ACE6000 protocol) {
+        this.cof=cof;
         registerProfileMapper = new RegisterProfileMapper(cof);
+        this.protocol = protocol;
+
     }
 
     public static RegisterInfo getRegisterInfo(ObisCode obisCode) {
@@ -143,6 +155,21 @@ public class ObisCodeMapper {
                     0,
                     cosemObject.getText());
             return registerValue;
+        } else if (obisCode.equals(ObisCode.fromString("0.0.96.1.0.255"))) {
+            return new RegisterValue(obisCode, protocol.getMeterSerialNumber());
+        } else if (obisCode.equals(ObisCode.fromString("0.0.96.1.5.255"))) {
+            return new RegisterValue(obisCode, this.protocol.getFirmwareVersion());
+        }else if (obisCode.equals(ObisCode.fromString(ACTIVITY_CALENDAR_NAME))) {    // Activity Calendar Name
+            return new RegisterValue(obisCode, null, null, null, null, new Date(), 0,
+                    new String(cof.getActivityCalendar(obisCode).readCalendarNameActive().getOctetStr()));
+        }else if (obisCode.equals(ObisCode.fromString(VOLTAGE_L1))||
+                obisCode.equals(ObisCode.fromString(VOLTAGE_L2))||
+                obisCode.equals(ObisCode.fromString(VOLTAGE_L3)) ||
+                obisCode.equals(ObisCode.fromString(CURRENT_L1))  ||
+                obisCode.equals(ObisCode.fromString(CURRENT_L2)) ||
+                obisCode.equals(ObisCode.fromString(CURRENT_L3))) {    //CURRENT_L3
+            com.energyict.dlms.cosem.Register cosemRegister = cof.getRegister(obisCode);
+            return new RegisterValue(obisCode, ParseUtils.registerToQuantity(cosemRegister));
         }
 
         throw new NoSuchRegisterException("ObisCode " + obisCode.toString() + " is not supported!");

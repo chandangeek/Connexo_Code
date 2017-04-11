@@ -239,21 +239,24 @@ public class SecurityContextTest {
             sc.setResponseFrameCounter(1);
             fail("Should get a DLMSConnectionException for retrying the FrameCounter");
         } catch (DLMSConnectionException e) {
-            assertTrue(e.getMessage().indexOf("Received incorrect FrameCounter.") >= 0);
+            assertTrue(e.getMessage().indexOf("Received incorrect FrameCounter") >= 0);
         }
         sc.setResponseFrameCounter(2);
         assertEquals(2, sc.getResponseFrameCounter());
 
-        msp.setRespondingFrameCounterHandling(new MockRespondingFrameCounterHandler());
-        sc = new SecurityContext(SecurityPolicy.SECURITYPOLICY_AUTHENTICATION, 0, 0, systemTitle, msp, CipheringType.GLOBAL.getType());
-        sc.setResponseFrameCounter(0xFFFFFFFF);
-        assertEquals(0xFFFFFFFF, sc.getResponseFrameCounter());
+        try {
+            sc.setResponseFrameCounter(0xFFFFFFFFl);
+            fail("Should get a DLMSConnectionException beacuse we reached the maximum frame counter value");
+        } catch (DLMSConnectionException e) {
+            assertTrue(e.getMessage().indexOf("FrameCounter reached the maximum value") >= 0);
+        }
         try {
             sc.setResponseFrameCounter(1);
             fail("Should get a DLMSConnectionException for retrying the FrameCounter");
         } catch (DLMSConnectionException e) {
-            assertTrue(e.getMessage().indexOf("Received incorrect overFlow FrameCounter.") >= 0);
+            assertTrue(e.getMessage().indexOf("Received incorrect FrameCounter") >= 0);
         }
+        sc.getSecurityProvider().getRespondingFrameCounterHandler().setRespondingFrameCounter(-1);
         sc.setResponseFrameCounter(0);
         assertEquals(0, sc.getResponseFrameCounter());
     }

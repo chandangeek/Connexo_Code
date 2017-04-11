@@ -64,4 +64,8 @@ public class GTCommand  extends AbstractCommand {
         this.date = date;
     }
 
+    @Override
+    protected String getCommandName() {
+        return "GT";
+    }
 }

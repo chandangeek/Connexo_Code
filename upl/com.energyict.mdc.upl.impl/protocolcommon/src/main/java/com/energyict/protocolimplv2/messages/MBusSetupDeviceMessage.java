@@ -7,7 +7,6 @@ import com.energyict.mdc.upl.properties.HexString;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
 import com.energyict.protocolimplv2.messages.nls.TranslationKeyImpl;
 
 import java.math.BigDecimal;
@@ -163,7 +162,32 @@ public enum MBusSetupDeviceMessage implements DeviceMessageSpecSupplier {
                     this.stringSpec(service, DeviceMessageConstants.MBusSetupDeviceMessage_mBusClientShortId, DeviceMessageConstants.MBusSetupDeviceMessage_mBusClientShortIdDefaultTranslation)
             );
         }
+    },
+    ScanAndInstallWiredMbusDevices(24016, "Scan and install wired MBus devices") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
+            return Collections.emptyList();
+        }
+    },
+    InstallWirelessMbusDevices(24017, "Install wireless MBus devices") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
+            return Collections.emptyList();
+        }
+    },
+    ScanAndInstallWiredMbusDeviceForGivenMeterIdentification(24018, "Scan and install wired MBus device for given meter identification") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
+            return Arrays.asList(stringSpec(service, DeviceMessageConstants.gMeterIdentificationAttributeName, DeviceMessageConstants.gMeterIdentificationAttributeDefaultTranslation));
+        }
+    },
+    InstallWirelessMbusDeviceForGivenMeterIdentification(24019, "Install wireless MBus device for given meter identification") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
+            return Arrays.asList(stringSpec(service, DeviceMessageConstants.gMeterIdentificationAttributeName, DeviceMessageConstants.gMeterIdentificationAttributeDefaultTranslation));
+        }
     };
+
 
     private final long id;
     private final String defaultNameTranslation;

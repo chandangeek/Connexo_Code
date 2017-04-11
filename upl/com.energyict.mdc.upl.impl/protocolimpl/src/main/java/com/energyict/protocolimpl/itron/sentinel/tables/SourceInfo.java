@@ -10,15 +10,14 @@
 
 package com.energyict.protocolimpl.itron.sentinel.tables;
 
-import java.io.*;
-import java.math.*;
+import com.energyict.cbo.Unit;
+import com.energyict.protocolimpl.ansi.c12.tables.StandardTableFactory;
+import com.energyict.protocolimpl.ansi.c12.tables.UOMEntryBitField;
+import com.energyict.protocolimpl.ansi.c12.tables.UnitOfMeasureEntryTable;
+import com.energyict.protocolimpl.itron.sentinel.Sentinel;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocolimpl.ansi.c12.tables.*;
-import com.energyict.cbo.*;
-import com.energyict.protocolimpl.itron.sentinel.*;
+import java.io.IOException;
+import java.math.BigDecimal;
 /**
  *
  * @author Koen
@@ -34,14 +33,23 @@ public class SourceInfo {
 
     public ObisCodeDescriptor getObisCodeDescriptor(int dataControlEntryIndex) throws IOException {
         if (sentinel.getStandardTableFactory().getSourceDefinitionTable().getUomEntryFlag()[dataControlEntryIndex]) {
-            UOMEntryBitField uomEntryBitField = sentinel.getStandardTableFactory().getUnitOfMeasureEntryTable().getUomEntryBitField()[dataControlEntryIndex];
+            StandardTableFactory tableFactory = sentinel.getStandardTableFactory();
+            if (tableFactory != null) {
+                UnitOfMeasureEntryTable uomTable = tableFactory.getUnitOfMeasureEntryTable(false, sentinel.reduceMaxNumberOfUomEntryBy());
+                if (uomTable != null) {
+                    UOMEntryBitField[] uomFields = uomTable.getUomEntryBitField();
+                    if (uomFields != null) {
+                        UOMEntryBitField uomEntryBitField = uomFields[dataControlEntryIndex];
 
-            // if nfs bit, manufacturer specific units of measurement are used...
-//            if (uomEntryBitField.isNfs()) {
-//            }
+                        // if nfs bit, manufacturer specific units of measurement are used...
+                        //            if (uomEntryBitField.isNfs()) {
+                        //            }
 
-            UOM2ObisTranslator uom2ObisTranslator = new UOM2ObisTranslator(uomEntryBitField);
-            return uom2ObisTranslator.getObisCodeDescriptor();
+                        UOM2ObisTranslator uom2ObisTranslator = new UOM2ObisTranslator(uomEntryBitField);
+                        return uom2ObisTranslator.getObisCodeDescriptor();
+                    }
+                }
+            }
         }
         return null;
     }
@@ -57,7 +65,7 @@ public class SourceInfo {
 
     public Unit getUnit(int dataControlEntryIndex) throws IOException {
         if (sentinel.getStandardTableFactory().getSourceDefinitionTable().getUomEntryFlag()[dataControlEntryIndex]) {
-            UOMEntryBitField uomEntryBitField = sentinel.getStandardTableFactory().getUnitOfMeasureEntryTable().getUomEntryBitField()[dataControlEntryIndex];
+            UOMEntryBitField uomEntryBitField = sentinel.getStandardTableFactory().getUnitOfMeasureEntryTable(false, sentinel.reduceMaxNumberOfUomEntryBy()).getUomEntryBitField()[dataControlEntryIndex];
             return uomEntryBitField.getUnit();
         }
         return null; // KV_TO_DO ??
@@ -71,11 +79,11 @@ public class SourceInfo {
         UOMEntryBitField uomEntryBitField=null;
 
         if (sentinel.getStandardTableFactory().getSourceDefinitionTable().getUomEntryFlag()[sourceIndex]) {
-            uomEntryBitField = sentinel.getStandardTableFactory().getUnitOfMeasureEntryTable().getUomEntryBitField()[sourceIndex];
+            uomEntryBitField = sentinel.getStandardTableFactory().getUnitOfMeasureEntryTable(false, sentinel.reduceMaxNumberOfUomEntryBy()).getUomEntryBitField()[sourceIndex];
 
-            System.out.println("basic2engineering value is " + bd + ", uomEntryBitField is " + uomEntryBitField);
+            //System.out.println("basic2engineering value is " + bd + ", uomEntryBitField is " + uomEntryBitField);
 
-            System.out.println("basic2engineering uomEntryBitField unit is " + uomEntryBitField.getUnit() + ", multiplier is " + uomEntryBitField.getMultiplier());
+            //System.out.println("basic2engineering uomEntryBitField unit is " + uomEntryBitField.getUnit() + ", multiplier is " + uomEntryBitField.getMultiplier());
 
             // KV_TO_DO use ConstantsTable to get the multipliers and constants for a sourceinfo?
 

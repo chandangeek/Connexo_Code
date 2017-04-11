@@ -75,12 +75,14 @@ public class Class16EventLogData extends AbstractClass {
                 case TIME_AFTER: {
                     meterEvents.add(new MeterEvent(date,MeterEvent.SETCLOCK_AFTER,type));
                 } break; // TIME_AFTER
-
-                case TEST_MODE_START:
+                
+                case TEST_MODE_START: {
+                    meterEvents.add(new MeterEvent(date,MeterEvent.OTHER,type));
+                } break;  // TEST_MODE_START
                 case TEST_MODE_STOP: {
                     meterEvents.add(new MeterEvent(date,MeterEvent.OTHER,type));
-                } break; // TEST_MODE_START | TEST_MODE_STOP
-
+                } break; // TEST_MODE_STOP
+                
                 case DEMAND_RESET: {
                     meterEvents.add(new MeterEvent(date,MeterEvent.MAXIMUM_DEMAND_RESET,type));
                 } break; // DEMAND_RESET

@@ -10,9 +10,11 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import java.util.*;
-import java.io.*;
 import com.energyict.protocol.MeterEvent;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 /**
  *
  * @author Koen
@@ -44,8 +46,8 @@ abstract public class EventLogCodeFactory {
         stdList.add(new EventLogCode(17, "History log pointers updated","Value of procedure parameter (UINT16)"));
         stdList.add(new EventLogCode(18, "Event log cleared",""));
         stdList.add(new EventLogCode(19, "History log pointers updated","Value of procedure parameter (UINT16)"));
-        stdList.add(new EventLogCode(20, "Demand reset occured","",MeterEvent.BILLING_ACTION));
-        stdList.add(new EventLogCode(21, "Self read occured",""));
+        stdList.add(new EventLogCode(20, "Demand reset occurred","",MeterEvent.BILLING_ACTION));
+        stdList.add(new EventLogCode(21, "Self read occurred",""));
         stdList.add(new EventLogCode(22, "Daylight Savings Time On",""));
         stdList.add(new EventLogCode(23, "Daylight Savings Time Off",""));
         stdList.add(new EventLogCode(24, "Season change","New season number (UINT8)"));
@@ -58,8 +60,8 @@ abstract public class EventLogCodeFactory {
         // C12.21 addendum
         stdList.add(new EventLogCode(30, "Metering mode started",""));
         stdList.add(new EventLogCode(31, "Metering mode stopped",""));
-        stdList.add(new EventLogCode(32, "Test mode started",""));
-        stdList.add(new EventLogCode(33, "Test mode stopped",""));
+        stdList.add(new EventLogCode(32, "Test mode started","", MeterEvent.OTHER));
+        stdList.add(new EventLogCode(33, "Test mode stopped","", MeterEvent.OTHER));
         stdList.add(new EventLogCode(34, "Meter shop mode started",""));
         stdList.add(new EventLogCode(35, "Meter shop mode stopped",""));
         stdList.add(new EventLogCode(36, "Meter reprogrammed","",MeterEvent.CONFIGURATIONCHANGE));
@@ -75,6 +77,7 @@ abstract public class EventLogCodeFactory {
         stdList.add(new EventLogCode(46, "Demand overload detected","",MeterEvent.REGISTER_OVERFLOW));
         stdList.add(new EventLogCode(47, "Tamper attempt detected",""));
         stdList.add(new EventLogCode(48, "Reverse rotation detected",""));
+
     }
     
     /** Creates a new instance of EventLogCodeFactory */

@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.discover;
 
+import com.energyict.mdc.upl.ServletBasedInboundDeviceProtocol;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
@@ -28,7 +29,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Provides an implementation for the {@link com.energyict.mdc.protocol.inbound.ServletBasedInboundDeviceProtocol} interface
+ * Provides an implementation for the {@link ServletBasedInboundDeviceProtocol} interface
  * that will support inbound SMS communication for the CTR protocols (MTU155 and EK155), using Proximus as telecom operator.
  *
  * @author sva
@@ -128,7 +129,7 @@ public class ProximusSMSInboundDeviceProtocol extends AbstractSMSServletBasedInb
         if (!auth.equals(authenticationPropertyValue()) || !source.equals(sourcePropertyValue())) {
             setResultType(ResultType.AUTHENTICATION_FAILURE);
             IOException e = new IOException("Authentication failure: the API_source (" + source + ") and API_authentication (" + auth + ") of the received SMS do not match the credentials stored in EIMaster.");
-            throw  ConnectionCommunicationException.cipheringException(e);
+            throw ConnectionCommunicationException.cipheringException(e);
         }
 
         String dcsString = isValidHexString(checkParameter(request.getParameter(DCS), DCS), DCS);
@@ -160,8 +161,8 @@ public class ProximusSMSInboundDeviceProtocol extends AbstractSMSServletBasedInb
             setResultType(ResultType.MISSING_PARAMETER);
             resultType.addAdditionInformation(parameter);
             throw (getDeviceIdentifier() == null)
-                ? DeviceConfigurationException.missingProperty(parameter)
-                : DeviceConfigurationException.missingProperty(parameter, this.getDeviceIdentifier().toString());
+                    ? DeviceConfigurationException.missingProperty(parameter)
+                    : DeviceConfigurationException.missingProperty(parameter, this.getDeviceIdentifier().toString());
         }
         return text != null ? text : "";
     }

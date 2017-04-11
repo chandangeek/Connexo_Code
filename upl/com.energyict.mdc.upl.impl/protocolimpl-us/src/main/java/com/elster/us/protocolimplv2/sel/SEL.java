@@ -44,6 +44,7 @@ import com.energyict.protocolimplv2.dialects.NoParamsDeviceProtocolDialect;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.security.NoOrPasswordSecuritySupport;
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -63,29 +64,30 @@ import static com.elster.us.protocolimplv2.sel.Consts.COMMAND_TIME;
 public class SEL implements DeviceProtocol {
 
     private SELConnection connection;
-    private SELProperties properties;
-    private OfflineDevice offlineDevice;
-    private SerialPortComChannel comChannel;
-    private Logger logger = Logger.getLogger(this.getClass().getName());
-    private LoadProfileBuilder loadProfileBuilder;
     private final PropertySpecService propertySpecService;
     private final CollectedDataFactory collectedDataFactory;
+    private SELProperties properties;
+    private OfflineDevice offlineDevice;
+    Logger logger = Logger.getLogger(this.getClass().getName());
+    private LoadProfileBuilder loadProfileBuilder;
 
     public SEL(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory) {
         this.propertySpecService = propertySpecService;
         this.collectedDataFactory = collectedDataFactory;
-        this.properties = new SELProperties(propertySpecService);
-    }
-
-    public CollectedDataFactory getCollectedDataFactory() {
-        return collectedDataFactory;
     }
 
     public SELConnection getConnection() {
         return connection;
     }
 
+    public CollectedDataFactory getCollectedDataFactory() {
+        return collectedDataFactory;
+    }
+
     public SELProperties getProperties() {
+        if (properties == null) {
+            properties = new SELProperties(propertySpecService);
+        }
         return properties;
     }
 
@@ -94,18 +96,16 @@ public class SEL implements DeviceProtocol {
     }
 
     private TimeZone getTimeZone() {
-        if (properties.getTimezone() != null) {
-            return TimeZone.getTimeZone(properties.getTimezone());
-        } else {
+        if (getProperties().getTimezone() != null)
+            return TimeZone.getTimeZone(getProperties().getTimezone());
+        else
             return null;
-        }
     }
 
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
         this.offlineDevice = offlineDevice;
-        this.comChannel = (SerialPortComChannel) comChannel;
-        connection = new SELConnection((SerialPortComChannel) comChannel, properties, collectedDataFactory, logger);
+        connection = new SELConnection((SerialPortComChannel) comChannel, getProperties(), logger, collectedDataFactory);
 
     }
 
@@ -117,18 +117,17 @@ public class SEL implements DeviceProtocol {
 
     @Override
     public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
-        this.properties.setAllProperties(properties);
+        this.getProperties().setAllProperties(properties);
     }
 
     @Override
     public String getVersion() {
-        // TODO Auto-generated method stub
-        return null;
+        return "$Date$";
     }
 
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
-        return this.properties.getPropertySpecs();
+        return getProperties().getUPLPropertySpecs();
     }
 
     @Override
@@ -144,7 +143,7 @@ public class SEL implements DeviceProtocol {
 
     @Override
     public void logOff() {
-        // no logoff just let commserver send ATH
+        getConnection().doDisconnect();
     }
 
     @Override
@@ -153,8 +152,15 @@ public class SEL implements DeviceProtocol {
     }
 
     @Override
-    public void setTime(Date arg0) {
-        // Not Implemented
+    public void setTime(Date date) {
+        boolean success = getConnection().setTime(date);
+        try {
+            if (!success) {
+                throw new IOException("Failed to set the device time");
+            }
+        } catch (IOException ioe) {
+            getLogger().warning("Failed to set device time for SEL");
+        }
 
     }
 
@@ -178,7 +184,7 @@ public class SEL implements DeviceProtocol {
         SimpleDateFormat format = new SimpleDateFormat("ddMMyyyyHHmmss");
         String str = format.format(d);
 
-        format.setTimeZone(TimeZone.getTimeZone(properties.getDeviceTimezone()));
+        format.setTimeZone(TimeZone.getTimeZone(getProperties().getDeviceTimezone()));
 
         Date d1 = null;
         try {
@@ -187,27 +193,28 @@ public class SEL implements DeviceProtocol {
             e.printStackTrace();
         }
 
-        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone(properties.getDeviceTimezone()));
+        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone(getProperties().getDeviceTimezone()));
         cal.setTime(d1);
         TimeZone tz = getTimeZone(); //Get the timezone that we are running in
-        if (tz != null) {
+        if (tz != null)
             cal.setTimeZone(tz);
-        } else {
+        else
             cal.setTimeZone(TimeZone.getDefault());
-        }
 
+        Date meterTime = cal.getTime();
         return cal.getTime();
     }
 
     @Override
     public void addDeviceProtocolDialectProperties(TypedProperties dialectProperties) {
-        properties.setAllProperties(dialectProperties);
+        getProperties().setAllProperties(dialectProperties);
 
     }
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        return Arrays.<DeviceProtocolDialect>asList(new NoParamsDeviceProtocolDialect());
+        return Arrays.<DeviceProtocolDialect>asList(
+                new NoParamsDeviceProtocolDialect());
     }
 
     @Override
@@ -240,7 +247,7 @@ public class SEL implements DeviceProtocol {
 
     @Override
     public CollectedTopology getDeviceTopology() {
-        return this.collectedDataFactory.createCollectedTopology(new DeviceIdentifierById(getOfflineDevice().getId()));
+        return collectedDataFactory.createCollectedTopology(new DeviceIdentifierById(getOfflineDevice().getId()));
     }
 
     @Override
@@ -262,7 +269,7 @@ public class SEL implements DeviceProtocol {
     }
 
     @Override
-    public Optional<String> prepareMessageContext(Device device, OfflineDevice arg0, DeviceMessage arg1) {
+    public Optional<String> prepareMessageContext(Device device, OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
         return Optional.empty();
     }
 
@@ -286,7 +293,7 @@ public class SEL implements DeviceProtocol {
 
     @Override
     public void setSecurityPropertySet(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
-        properties.setAllProperties(deviceProtocolSecurityPropertySet.getSecurityProperties());
+        getProperties().setAllProperties(deviceProtocolSecurityPropertySet.getSecurityProperties());
 
     }
 
@@ -306,14 +313,9 @@ public class SEL implements DeviceProtocol {
     }
 
     @Override
-    public Optional<PropertySpec> getSecurityPropertySpec(String name) {
-        return new NoOrPasswordSecuritySupport(propertySpecService).getSecurityPropertySpec(name);
-    }
-
-    @Override
     public List<ConnectionType> getSupportedConnectionTypes() {
         List<ConnectionType> retVal = new ArrayList<>();
-        retVal.add(new SioAtModemConnectionType(this.propertySpecService));
+        retVal.add(new SioAtModemConnectionType(propertySpecService));
         return retVal;
     }
 
@@ -340,7 +342,7 @@ public class SEL implements DeviceProtocol {
 
     @Override
     public DeviceFunction getDeviceFunction() {
-        return DeviceFunction.NONE;
+        return null;
     }
 
     @Override
@@ -350,16 +352,16 @@ public class SEL implements DeviceProtocol {
 
     @Override
     public CollectedCalendar getCollectedCalendar() {
-        return null;
+        return collectedDataFactory.createCalendarCollectedData(offlineDevice.getDeviceIdentifier());
     }
 
     @Override
     public CollectedBreakerStatus getBreakerStatus() {
-        return null;
+        return collectedDataFactory.createBreakerStatusCollectedData(offlineDevice.getDeviceIdentifier());
     }
 
     @Override
     public CollectedFirmwareVersion getFirmwareVersions() {
-        return null;
+        return collectedDataFactory.createFirmwareVersionsCollectedData(offlineDevice.getDeviceIdentifier());
     }
 }

@@ -1,8 +1,18 @@
 package com.energyict.protocolimplv2.eict.rtuplusserver.g3;
 
+import com.energyict.cbo.ObservationTimestampProperties;
+import com.energyict.dlms.DLMSCache;
+import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
+import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.dlms.cosem.SAPAssignmentItem;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
+import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.channels.ip.InboundIpConnectionType;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.mdc.tasks.TcpDeviceProtocolDialect;
 import com.energyict.mdc.upl.DeviceFunction;
 import com.energyict.mdc.upl.DeviceGroupExtractor;
@@ -45,19 +55,10 @@ import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
-
-import com.energyict.cbo.ObservationTimestampProperties;
-import com.energyict.dlms.DLMSCache;
-import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.dlms.cosem.DataAccessResultException;
-import com.energyict.dlms.cosem.SAPAssignmentItem;
-import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
-import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
+import com.energyict.protocol.ProtocolLoggingSupport;
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.dlms.g3.G3Properties;
@@ -81,8 +82,12 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -90,7 +95,7 @@ import java.util.logging.Logger;
  * Date: 9/04/13
  * Time: 16:00
  */
-public class RtuPlusServer implements DeviceProtocol, SerialNumberSupport {
+public class RtuPlusServer implements DeviceProtocol, SerialNumberSupport, ProtocolLoggingSupport {
 
     private static final ObisCode SERIAL_NUMBER_OBISCODE = ObisCode.fromString("0.0.96.1.0.255");
     private static final ObisCode FRAMECOUNTER_OBISCODE = ObisCode.fromString("0.0.43.1.1.255");
@@ -293,7 +298,95 @@ public class RtuPlusServer implements DeviceProtocol, SerialNumberSupport {
                 }
             }
         }
+
+        try {
+            deviceTopology = cleanupDuplicatesLastSeenDate(deviceTopology);
+        } catch (Exception ex) {
+            getLogger().log(Level.WARNING, ex.getMessage(), ex);
+        }
+
         return deviceTopology;
+    }
+
+    /**
+     * Issue EISERVERSG-4655 - when a G3 Gateway is restarted, all slave devices will have the SAME lastSeenDate.
+     * This method will clear the lastSeenDate in this case.
+     *
+     * @param deviceTopology
+     */
+    protected CollectedTopology cleanupDuplicatesLastSeenDate(CollectedTopology deviceTopology) {
+        getLogger().finest("Cleaning up lastSeenDate with the same value, due to a gateway reset");
+        Map<Long, Integer> counters = new HashMap<>();
+
+        Iterator<DeviceIdentifier> iterator = deviceTopology.getSlaveDeviceIdentifiers().keySet().iterator();
+        while (iterator.hasNext()) {
+            DeviceIdentifier deviceIdentifier = iterator.next();
+            Long currentValue = deviceTopology.getSlaveDeviceIdentifiers().get(deviceIdentifier).getValue().getTime();
+
+            getLogger().finest(" - " + deviceIdentifier.toString() + " : " + getDateString(currentValue));
+
+            if (counters.containsKey(currentValue)) {
+                counters.put(currentValue, counters.get(currentValue) + 1);
+            } else {
+                counters.put(currentValue, 1);
+            }
+        }
+
+        getLogger().finest("Checking lastSeenDate duplicates:");
+
+        iterator = deviceTopology.getSlaveDeviceIdentifiers().keySet().iterator();
+        while (iterator.hasNext()) {
+            DeviceIdentifier deviceIdentifier = iterator.next();
+            Long currentValue = deviceTopology.getSlaveDeviceIdentifiers().get(deviceIdentifier).getValue().getTime();
+
+            Integer count = counters.get(currentValue);
+            if (count > 1) {
+                getLogger().finest(" - setting LSD from " + deviceIdentifier.toString() + ", to 01/01/2000 because the LSD appears " + count + " times. (" + getDateString(currentValue) + ")");
+                //iterator.remove(); // -> this will remove this device from gateway, we don't want this
+                // instead put an old date, to keep it attached to current gateway, or move it to a different gateway with a newer LSD
+                CollectedTopology.ObservationTimestampProperty oldLastSeenDate = ObservationTimestampProperties.from(new Date(100, 0, 1), "LastSeenDate"); // 2000 Jan 01
+                deviceTopology.getSlaveDeviceIdentifiers().put(deviceIdentifier, oldLastSeenDate);
+            }
+        }
+        getLogger().finest("-done checking duplicates.");
+        return deviceTopology;
+    }
+
+    private String getDateString(Long time) {
+        if (time == null) {
+            return "null";
+        }
+
+        Date date = new Date(time);
+        return date.toString();
+    }
+
+    /**
+     * This node is only considered an actual slave device if:
+     * - the configuredLastSeenDate in EIServer is still empty
+     * - the read out last seen date is empty (==> always update EIServer, by design)
+     * - the read out last seen date is the same, or newer, compared to the configuredLastSeenDate in EIServer
+     * <p/>
+     * If true, the gateway link in EIServer will be created and the properties will be set.
+     * If false, the gateway link (if it exists at all) will be removed.
+     */
+    private boolean hasNewerLastSeenDate(G3Topology.G3Node g3Node, long configuredLastSeenDate) {
+        return (configuredLastSeenDate == 0) || (g3Node.getLastSeenDate() == null) || (g3Node.getLastSeenDate().getTime() >= configuredLastSeenDate);
+    }
+
+    /**
+     * Return property "LastSeenDate" on slave device with callHomeId == macAddress
+     * Return 0 if not found.
+     */
+    private long getConfiguredLastSeenDate(String macAddress) {
+        for (OfflineDevice slaveDevice : offlineDevice.getAllSlaveDevices()) {
+            String configuredCallHomeId = slaveDevice.getAllProperties().getTypedProperty(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME);
+            configuredCallHomeId = configuredCallHomeId == null ? "" : configuredCallHomeId;
+            if (macAddress.equals(configuredCallHomeId)) {
+                return slaveDevice.getAllProperties().getTypedProperty(G3Properties.PROP_LASTSEENDATE, BigDecimal.ZERO).longValue();
+            }
+        }
+        return 0L;
     }
 
     private G3Topology.G3Node findG3Node(final String macAddress, final List<G3Topology.G3Node> g3Nodes) {
@@ -499,6 +592,11 @@ public class RtuPlusServer implements DeviceProtocol, SerialNumberSupport {
             logger = Logger.getLogger(this.getClass().getName());
         }
         return logger;
+    }
+
+    @Override
+    public void setProtocolLogger(Logger protocolLogger) {
+        this.logger = protocolLogger;
     }
 
     @Override

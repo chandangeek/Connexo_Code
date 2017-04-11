@@ -1,11 +1,12 @@
 package com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD;
 
-import com.energyict.mdc.upl.properties.PropertySpec;
-
 import com.energyict.dlms.ConnectionMode;
 import com.energyict.dlms.DLMSReference;
 import com.energyict.dlms.aso.SecurityProvider;
+import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.properties.TypedProperties;
+import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.protocolimpl.base.ProtocolProperty;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
@@ -28,6 +29,8 @@ class ZMDProperties extends DlmsProtocolProperties {
     private static final String DEFAULT_CLIENT_MAC_ADDRESS = "32";
 
     private SecurityProvider securityProvider;
+    private DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet;
+    TypedProperties properties = com.energyict.protocolimpl.properties.TypedProperties.empty();
 
     private final PropertySpecService propertySpecService;
 
@@ -56,7 +59,8 @@ class ZMDProperties extends DlmsProtocolProperties {
                 UPLPropertySpecFactory.specBuilder(ROUND_TRIP_CORRECTION, false, PropertyTranslationKeys.EICT_ROUND_TRIP_CORRECTION, this.propertySpecService::integerSpec).finish(),
                 UPLPropertySpecFactory.specBuilder(BULK_REQUEST, false, PropertyTranslationKeys.EICT_BULK_REQUEST, this.propertySpecService::integerSpec).finish(),
                 UPLPropertySpecFactory.specBuilder(CIPHERING_TYPE, false, PropertyTranslationKeys.EICT_CIPHERING_TYPE, this.propertySpecService::integerSpec).finish(),
-                UPLPropertySpecFactory.specBuilder(INVOKE_ID_AND_PRIORITY, false, PropertyTranslationKeys.EICT_INVOKE_ID_AND_PRIORITY, this.propertySpecService::integerSpec).finish());
+                UPLPropertySpecFactory.specBuilder(INVOKE_ID_AND_PRIORITY, false, PropertyTranslationKeys.EICT_INVOKE_ID_AND_PRIORITY, this.propertySpecService::integerSpec).finish(),
+                UPLPropertySpecFactory.specBuilder("Password", false, PropertyTranslationKeys.DLMS_PASSWORD, this.propertySpecService::stringSpec).finish());
     }
 
     @Override
@@ -71,17 +75,17 @@ class ZMDProperties extends DlmsProtocolProperties {
 
     @Override
     public int getClientMacAddress() {
-         return getIntProperty(CLIENT_MAC_ADDRESS, DEFAULT_CLIENT_MAC_ADDRESS);
+        return getIntProperty(CLIENT_MAC_ADDRESS, DEFAULT_CLIENT_MAC_ADDRESS);
     }
 
     @ProtocolProperty
     public int getRequestTimeZone() {
-        return getIntProperty("RequestTimeZone","0");
+        return getIntProperty("RequestTimeZone", "0");
     }
 
     @ProtocolProperty
     public int getEventIdIndex() {
-        return getIntProperty("EventIdIndex","-1");
+        return getIntProperty("EventIdIndex", "-1");
     }
 
     public DLMSReference getReference() {
@@ -114,7 +118,7 @@ class ZMDProperties extends DlmsProtocolProperties {
 
     @Override
     public byte[] getSystemIdentifier() {
-        return "".getBytes();
+        return null; // Which will ensure the AssociationControlServiceElement 'CallingApplicationProcessTitle' tag is not present
     }
 
     @Override
@@ -122,4 +126,16 @@ class ZMDProperties extends DlmsProtocolProperties {
         return ConnectionMode.HDLC;
     }
 
+    public void setSecurityPropertySet(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
+        getProperties().setAllProperties(deviceProtocolSecurityPropertySet.getSecurityProperties());
+        this.deviceProtocolSecurityPropertySet = deviceProtocolSecurityPropertySet;
+    }
+
+    public TypedProperties getProperties() {
+        return properties;
+    }
+
+    public DeviceProtocolSecurityPropertySet getDeviceProtocolSecurityPropertySet() {
+        return deviceProtocolSecurityPropertySet;
+    }
 }

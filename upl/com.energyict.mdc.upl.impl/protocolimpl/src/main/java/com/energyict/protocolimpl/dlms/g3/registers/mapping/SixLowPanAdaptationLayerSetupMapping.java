@@ -1,7 +1,5 @@
 package com.energyict.protocolimpl.dlms.g3.registers.mapping;
 
-import com.energyict.mdc.upl.NoSuchRegisterException;
-
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
@@ -10,6 +8,7 @@ import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.SixLowPanAdaptationLayerSetup;
+import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
 
@@ -23,7 +22,7 @@ import java.io.IOException;
 public class SixLowPanAdaptationLayerSetupMapping extends RegisterMapping {
 
     private static final int MIN_ATTR = 1;
-    private static final int MAX_ATTR = 22;
+    private static final int MAX_ATTR = 19;
 
     public SixLowPanAdaptationLayerSetupMapping(CosemObjectFactory cosemObjectFactory) {
         super(cosemObjectFactory);
@@ -103,9 +102,6 @@ public class SixLowPanAdaptationLayerSetupMapping extends RegisterMapping {
 
             case 19:
                 return sixLowPanSetup.readDeviceType();
-
-            case 22:
-                return sixLowPanSetup.readAdpRoutingTupleTTL();
 
             default:
                 throw new NoSuchRegisterException("SixLowPanAdaptationLayerSetupMapping attribute [" + obisCode.getB() + "] not supported!");

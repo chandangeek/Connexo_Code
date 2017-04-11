@@ -1,15 +1,14 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.dcmulticast;
 
 import com.energyict.mdc.upl.DeviceMasterDataExtractor;
-import com.energyict.mdc.upl.ObjectMapperService;
 import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.offline.OfflineDevice;
-import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocol.exception.DeviceConfigurationException;
 import com.energyict.protocolimpl.properties.TypedProperties;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects.MasterDataSerializer;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties.Beacon3100ConfigurationSupport;
+import com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties.Beacon3100Properties;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
 
 import java.util.ArrayList;
@@ -29,10 +28,6 @@ public class MulticastSerializer {
     private final DeviceMasterDataExtractor extractor;
     private final MasterDataSerializer serializer;
 
-    public MulticastSerializer(ObjectMapperService objectMapperService, PropertySpecService propertySpecService, DeviceMasterDataExtractor extractor) {
-        this(extractor, new MasterDataSerializer(objectMapperService, propertySpecService, extractor));
-    }
-
     public MulticastSerializer(DeviceMasterDataExtractor extractor, MasterDataSerializer serializer) {
         this.extractor = extractor;
         this.serializer = serializer;
@@ -42,7 +37,7 @@ public class MulticastSerializer {
      * Fetch the relevant information (keys etc) from the given list of AM540 slave devices.
      * Return it in a serialized form (so it can also be used on the remote comserver).
      */
-    public String serialize(Device device, OfflineDevice offlineDevice, com.energyict.mdc.upl.messages.DeviceMessage deviceMessage) {
+    public String serialize(Device device, OfflineDevice offlineDevice, com.energyict.mdc.upl.messages.DeviceMessage deviceMessage, Beacon3100Properties beacon3100Properties) {
         Object value = deviceMessage.getAttributes().get(0).getValue();
         if (!(value instanceof String)) {
             throw DeviceConfigurationException.invalidPropertyFormat("Device IDs", value.toString(), "Should be a comma separated list of integers");
@@ -81,20 +76,20 @@ public class MulticastSerializer {
             String macAddress = this.serializer.parseCallHomeId(slaveDevice);
 
             //Find the keys in a security set that has clientMacAddress 1 (management client)
-            byte[] ak = this.serializer.getSecurityKey(slaveDevice, SecurityPropertySpecName.AUTHENTICATION_KEY.toString(), 1);
+          byte[] ak = this.serializer.getSecurityKey(slaveDevice, SecurityPropertySpecName.AUTHENTICATION_KEY.toString(), 1);
             byte[] ek = this.serializer.getSecurityKey(slaveDevice, SecurityPropertySpecName.ENCRYPTION_KEY.toString(), 1);
             byte[] password = this.serializer.getSecurityKey(slaveDevice, SecurityPropertySpecName.PASSWORD.toString(), 1);
-            final String wrappedAK = ak == null ? "" : ProtocolTools.getHexStringFromBytes(ProtocolTools.aesWrap(ak, dlmsMeterKEK), "");
-            final String wrappedEK = ek == null ? "" : ProtocolTools.getHexStringFromBytes(ProtocolTools.aesWrap(ek, dlmsMeterKEK), "");
-            final String wrappedPassword = password == null ? "" : ProtocolTools.getHexStringFromBytes(ProtocolTools.aesWrap(password, dlmsMeterKEK), "");
+            final String wrappedAK = ak == null ? "" : ProtocolTools.getHexStringFromBytes(serializer.wrap(ak, dlmsMeterKEK), "");
+            final String wrappedEK = ek == null ? "" : ProtocolTools.getHexStringFromBytes(serializer.wrap(ek, dlmsMeterKEK), "");
+            final String wrappedPassword = password == null ? "" : ProtocolTools.getHexStringFromBytes(serializer.wrap(password, dlmsMeterKEK), "");
 
             //Find the keys in a security set that has clientMacAddress 102 (broadcast client)
-            byte[] broadCastAK = this.serializer.getSecurityKey(slaveDevice, SecurityPropertySpecName.AUTHENTICATION_KEY.toString(), 102);
+                byte[] broadCastAK = this.serializer.getSecurityKey(slaveDevice, SecurityPropertySpecName.AUTHENTICATION_KEY.toString(), 102);
             byte[] broadCastEK = this.serializer.getSecurityKey(slaveDevice, SecurityPropertySpecName.ENCRYPTION_KEY.toString(), 102);
             byte[] broadCastPassword = this.serializer.getSecurityKey(slaveDevice, SecurityPropertySpecName.PASSWORD.toString(), 102);
-            final String wrappedMulticastAK = broadCastAK == null ? "" : ProtocolTools.getHexStringFromBytes(ProtocolTools.aesWrap(broadCastAK, dlmsMeterKEK), "");
-            final String wrappedMulticastEK = broadCastEK == null ? "" : ProtocolTools.getHexStringFromBytes(ProtocolTools.aesWrap(broadCastEK, dlmsMeterKEK), "");
-            final String wrappedMulticastPassword = broadCastPassword == null ? "" : ProtocolTools.getHexStringFromBytes(ProtocolTools.aesWrap(broadCastPassword, dlmsMeterKEK), "");
+            final String wrappedMulticastAK = broadCastAK == null ? "" : ProtocolTools.getHexStringFromBytes(serializer.wrap(broadCastAK, dlmsMeterKEK), "");
+            final String wrappedMulticastEK = broadCastEK == null ? "" : ProtocolTools.getHexStringFromBytes(serializer.wrap(broadCastEK, dlmsMeterKEK), "");
+            final String wrappedMulticastPassword = broadCastPassword == null ? "" : ProtocolTools.getHexStringFromBytes(serializer.wrap(broadCastPassword, dlmsMeterKEK), "");
 
             MulticastKeySet unicastSecurity = new MulticastKeySet(new MulticastGlobalKeySet(new MulticastKey(wrappedAK), new MulticastKey(wrappedEK), new MulticastKey(wrappedPassword)));
             MulticastKeySet multicastSecurity = new MulticastKeySet(new MulticastGlobalKeySet(new MulticastKey(wrappedMulticastAK), new MulticastKey(wrappedMulticastEK), new MulticastKey(wrappedMulticastPassword)));

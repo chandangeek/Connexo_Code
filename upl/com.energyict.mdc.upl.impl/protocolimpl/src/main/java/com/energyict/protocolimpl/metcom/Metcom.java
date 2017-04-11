@@ -582,18 +582,23 @@ public abstract class Metcom extends PluggableMeterProtocol implements HalfDuple
         // lazy initializing
         dumpDatas = null;
 
-        // KV 16022004 STA changed from 0x6X to 0x3X
-        siemensSCTM = new SiemensSCTM(
-                isSoftware7E1() ? new Software7E1InputStream(inputStream) : inputStream,
-                isSoftware7E1() ? new Software7E1OutputStream(outputStream) : outputStream,
-                iSCTMTimeoutProperty,
-                iProtocolRetriesProperty,
-                strPassword,
-                nodeId,
-                iEchoCancelling,
-                halfDuplex != 0 ? halfDuplexController : null,
-                forcedDelay
-        );
+        try {
+            // KV 16022004 STA changed from 0x6X to 0x3X
+            siemensSCTM = new SiemensSCTM(
+                    isSoftware7E1() ? new Software7E1InputStream(inputStream) : inputStream,
+                    isSoftware7E1() ? new Software7E1OutputStream(outputStream) : outputStream,
+                    iSCTMTimeoutProperty,
+                    iProtocolRetriesProperty,
+                    strPassword,
+                    nodeId,
+                    iEchoCancelling,
+                    halfDuplex != 0 ? halfDuplexController : null,
+                    forcedDelay,
+                    false
+            );
+        } catch (SiemensSCTMException e) {
+            logger.severe("SiemensSCTM: init(...), " + e.getMessage());
+        }
     }
 
     @Override

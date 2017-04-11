@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.nta.dsmr50.elster.am540.messages;
 
+import com.energyict.dlms.aso.SecurityContext;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
@@ -168,7 +169,7 @@ public class Dsmr50MessageExecutor extends Dsmr40MessageExecutor {
     protected void changeAuthenticationKeyAndUseNewKey(OfflineDeviceMessage pendingMessage) throws IOException {
         String newAuthenticationKey = getDeviceMessageAttributeValue(pendingMessage, newAuthenticationKeyAttributeName);
         String newWrappedAuthenticationKey = getDeviceMessageAttributeValue(pendingMessage, newWrappedAuthenticationKeyAttributeName);
-        byte[] authenticationKeysBytes = ProtocolTools.getBytesFromHexString(newWrappedAuthenticationKey);
+        byte[] authenticationKeysBytes = ProtocolTools.getBytesFromHexString(newWrappedAuthenticationKey, "");
 
         Array authenticationKeyArray = new Array();
         Structure keyData = new Structure();
@@ -192,7 +193,7 @@ public class Dsmr50MessageExecutor extends Dsmr40MessageExecutor {
         Array encryptionKeyArray = new Array();
         Structure keyData = new Structure();
         keyData.addDataType(new TypeEnum(0));    // 0 means keyType: encryptionKey (global key)
-        keyData.addDataType(OctetString.fromByteArray(ProtocolTools.getBytesFromHexString(wrappedHexKey)));
+        keyData.addDataType(OctetString.fromByteArray(ProtocolTools.getBytesFromHexString(wrappedHexKey, "")));
         encryptionKeyArray.addDataType(keyData);
 
         SecuritySetup ss = getCosemObjectFactory().getSecuritySetup();
@@ -203,7 +204,9 @@ public class Dsmr50MessageExecutor extends Dsmr40MessageExecutor {
 
         //Reset frame counter, only if a different key has been written
         if (!newHexKey.equalsIgnoreCase(oldHexKey)) {
-            getProtocol().getDlmsSession().getAso().getSecurityContext().setFrameCounter(1);
+            SecurityContext securityContext = getProtocol().getDlmsSession().getAso().getSecurityContext();
+            securityContext.setFrameCounter(1);
+            securityContext.getSecurityProvider().getRespondingFrameCounterHandler().setRespondingFrameCounter(-1);
         }
     }
 

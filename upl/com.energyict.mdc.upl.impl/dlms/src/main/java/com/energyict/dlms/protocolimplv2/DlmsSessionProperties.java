@@ -1,12 +1,11 @@
 package com.energyict.dlms.protocolimplv2;
 
-import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
-
 import com.energyict.dlms.CipheringType;
 import com.energyict.dlms.DLMSReference;
 import com.energyict.dlms.GeneralCipheringKeyType;
 import com.energyict.dlms.InvokeIdAndPriorityHandler;
 import com.energyict.dlms.aso.ConformanceBlock;
+import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 
 import java.util.TimeZone;
 
@@ -131,6 +130,11 @@ public interface DlmsSessionProperties extends CommunicationSessionProperties {
     byte[] getSystemIdentifier();
 
     /**
+     * The device system title (calledAPtitle)
+     */
+    byte[] getDeviceSystemTitle();
+
+    /**
      * Getter for the InvokeIdAndPriorityHandler that will handle the InvokeId and priority byte in the DLMS requests and responses.
      * The handler can check and verify the ID (and can reject a response if it has an invalid ID).
      */
@@ -211,4 +215,16 @@ public interface DlmsSessionProperties extends CommunicationSessionProperties {
      * @return		<code>true</code> if the public client is pre-established, false if not.
      */
     boolean isPublicClientPreEstablished();
+
+
+    /**
+     * Will validate the load profile channels before decoding.
+     *
+     * If some of the load profiled captured objects is not supported by the meter, the validation will fail.
+     * This might cause issues for single-phase vs poly-phase configurations, where the poly-phase objects might be
+     * captured in single-phase objects (ex. voltage/current on phase 2, 3).
+     *
+     * @return
+     */
+    boolean validateLoadProfileChannels();
 }

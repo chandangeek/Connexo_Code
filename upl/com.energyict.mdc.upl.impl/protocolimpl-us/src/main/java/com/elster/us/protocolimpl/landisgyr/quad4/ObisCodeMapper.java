@@ -6,10 +6,9 @@
 
 package com.elster.us.protocolimpl.landisgyr.quad4;
 
-import com.energyict.mdc.upl.NoSuchRegisterException;
-
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
+import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
@@ -21,7 +20,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -33,11 +31,11 @@ class ObisCodeMapper {
     /**
      * Collection for sorting the keys
      */
-    private List<ObisCodeWrapper> keys = new ArrayList<>();
+    private ArrayList keys = new ArrayList();
     /**
      * HashMap with the ValueFactories per ObisCode
      */
-    private Map<ObisCodeWrapper, ValueFactory> oMap = new HashMap<>();
+    private HashMap oMap = new HashMap();
 
     int dataBlkTblSize[];
     HashMap dMap = new HashMap();
@@ -55,7 +53,7 @@ class ObisCodeMapper {
     /**
      * @return a RegisterInfo for the obiscode
      */
-    public static RegisterInfo getRegisterInfo(ObisCode obisCode) {
+    static public RegisterInfo getRegisterInfo(ObisCode obisCode) throws IOException {
         return new RegisterInfo(obisCode.toString());
     }
 
@@ -63,10 +61,9 @@ class ObisCodeMapper {
      * @return a RegisterValue for the obiscode
      */
     public RegisterValue getRegisterValue(ObisCode obisCode) throws IOException {
-        ValueFactory vFactory = get(obisCode);
-        if (vFactory == null) {
+        ValueFactory vFactory = (ValueFactory) get(obisCode);
+        if (vFactory == null)
             throw new NoSuchRegisterException();
-        }
         return vFactory.getRegisterValue(obisCode);
     }
 
@@ -74,7 +71,7 @@ class ObisCodeMapper {
      * Retrieves objects from the ObisCodeMap
      */
     public ValueFactory get(ObisCode o) {
-        return oMap.get(new ObisCodeWrapper(o));
+        return (ValueFactory) oMap.get(new ObisCodeWrapper(o));
     }
 
     /**
@@ -98,46 +95,44 @@ class ObisCodeMapper {
      * @return construct extended logging
      */
     public String getExtendedLogging() throws IOException {
-        StringBuilder builder = new StringBuilder();
-        List<ObisCode> obisList = getMeterSupportedObisCodes();
-        for (ObisCode obc : obisList) {
-            builder
-                    .append(obc.toString())
-                    .append(" ")
-                    .append(getRegisterInfo(obc))
-                    .append("\n");
+        StringBuffer result = new StringBuffer();
+        List obisList = getMeterSupportedObisCodes();
+        Iterator i = obisList.iterator();
+        while (i.hasNext()) {
+            ObisCode obc = (ObisCode) i.next();
+            result.append(obc.toString() + " " + getRegisterInfo(obc) + "\n");
         }
-        return builder.toString();
+        return result.toString();
     }
 
     /**
      * @return get Values for all available obiscodes
      */
     public String getDebugLogging() throws IOException {
-        StringBuilder builder = new StringBuilder();
-        for (ObisCode o : getMeterSupportedObisCodes()) {
-            ValueFactory vf = oMap.get(new ObisCodeWrapper(o));
-            builder.append(o).append(" ").append(vf).append("\n");
-            builder.append(getRegisterValue(o)).append("\n");
+        StringBuffer result = new StringBuffer();
+        Iterator i = getMeterSupportedObisCodes().iterator();
+        while (i.hasNext()) {
+            ObisCode o = (ObisCode) i.next();
+            ValueFactory vf = (ValueFactory) oMap.get(new ObisCodeWrapper(o));
+            result.append(o + " " + vf + "\n");
+            result.append(getRegisterValue(o) + "\n");
         }
-        return builder.toString();
+        return result.toString();
     }
 
     /**
      * @return short desciption of ALL the possibly available obiscodes
      */
     public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("All possibly supported ObisCodes \n");
-        for (ObisCodeWrapper key : keys) {
-            ValueFactory vf = oMap.get(key);
-            builder
-                    .append(key)
-                    .append(" ")
-                    .append(vf.toString())
-                    .append("\n");
+        StringBuffer result = new StringBuffer();
+        result.append("All possibly supported ObisCodes \n");
+        Iterator i = keys.iterator();
+        while (i.hasNext()) {
+            ObisCodeWrapper key = (ObisCodeWrapper) i.next();
+            ValueFactory vf = (ValueFactory) oMap.get(key);
+            result.append(key + " " + vf.toString() + "\n");
         }
-        return builder.toString();
+        return result.toString();
     }
 
     /**
@@ -150,12 +145,12 @@ class ObisCodeMapper {
     private void init() throws IOException {
 
         int maxSelfReads = quad4.getTable0().getTypeMaximumValues().getMaxSelfReads();
-
+        
         /* current */
         init(255, 0);
         /* past season */
         init(128, getDataBlkTblSize());
-
+        
         /* billing points */
         int offset = getDataBlkTblSize();
         for (int i = 0; i < maxSelfReads; i++) {
@@ -197,22 +192,23 @@ class ObisCodeMapper {
         Date d = (Date) dMap.get(new Integer(billingPoint));
         if (d == null) {
             int offset = 0;
-            if (billingPoint == 255) {
+            if (billingPoint == 255)
                 offset = 0;
-            }
-            if (billingPoint == 128) {
+            if (billingPoint == 128)
                 offset = getDataBlkTblSize();
-            }
-            if (billingPoint >= 0 && billingPoint <= quad4.getTable0().getTypeMaximumValues().getMaxSelfReads()) {
+            if (billingPoint >= 0 && billingPoint <= quad4.getTable0().getTypeMaximumValues().getMaxSelfReads())
                 offset = getDataBlkTblSize() * (billingPoint + 2);
-            }
             d = new TableAddress(quad4, 15, offset).readDate();
         }
         return d;
     }
 
     private void init(final int billing, final int offset) throws IOException {
-        ObisCode o = ObisCode.fromString("1.1.0.1.2." + billing);// create obiscodes for time register
+
+        ObisCode o = null;
+
+        // create obiscodes for time register
+        o = ObisCode.fromString("1.1.0.1.2." + billing);
         put(o, new ValueFactory(o) {
             Quantity getQuantity() {
                 return null;
@@ -228,20 +224,20 @@ class ObisCodeMapper {
         Bus b = Bus.TOTALIZATION_BUS;
         LineSelect l = LineSelect.VARH;
 
-        Set<Integer> dataBlocksMapped = new HashSet<>();
+        Set<Integer> dataBlocksMapped = new HashSet<Integer>();
         Iterator si = t14.getSummations(b, l).iterator();
         while (si.hasNext()) {
             final TypeChannelSelectRcd rcd = (TypeChannelSelectRcd) si.next();
             int dataBlockIndex = rcd.getDataBlockIndex();
             int rowIndex = rcd.getRowIndex();
-            String obisPartE;
+            String obisPartE = null;
             if (!dataBlocksMapped.contains(dataBlockIndex)) {
                 dataBlocksMapped.add(dataBlockIndex);
                 obisPartE = Integer.toString(dataBlockIndex);
             } else {
                 obisPartE = Integer.toString(dataBlockIndex) + Integer.toString(rowIndex);
             }
-            o = ObisCode.fromString("1.1.5.9." + obisPartE + "" + billing);
+            o = ObisCode.fromString("1.1.5.9." + obisPartE + "." + billing);
             //System.out.println("mapping obis code " + o + " to " + rcd);
             createValueFactory(offset, rcd, l, o);
         }
@@ -252,7 +248,7 @@ class ObisCodeMapper {
         si = t14.getSummations(b, l).iterator();
         while (si.hasNext()) {
             final TypeChannelSelectRcd rcd = (TypeChannelSelectRcd) si.next();
-            o = ObisCode.fromString("1.1.2.9." + rcd.getDataBlockIndex() + "" + billing);
+            o = ObisCode.fromString("1.1.2.9." + rcd.getDataBlockIndex() + "." + billing);
             //System.out.println("mapping obis code " + o + " to " + rcd);
             createValueFactory(offset, rcd, l, o);
         }
@@ -263,7 +259,7 @@ class ObisCodeMapper {
         si = t14.getSummations(b, l).iterator();
         while (si.hasNext()) {
             final TypeChannelSelectRcd rcd = (TypeChannelSelectRcd) si.next();
-            o = ObisCode.fromString("1.1.6.9." + rcd.getDataBlockIndex() + "" + billing);
+            o = ObisCode.fromString("1.1.6.9." + rcd.getDataBlockIndex() + "." + billing);
 
             createValueFactory(offset, rcd, l, o);
         }
@@ -274,7 +270,7 @@ class ObisCodeMapper {
         si = t14.getSummations(b, l).iterator();
         while (si.hasNext()) {
             final TypeChannelSelectRcd rcd = (TypeChannelSelectRcd) si.next();
-            o = ObisCode.fromString("1.1.7.9." + rcd.getDataBlockIndex() + "" + billing);
+            o = ObisCode.fromString("1.1.7.9." + rcd.getDataBlockIndex() + "." + billing);
             createValueFactory(offset, rcd, l, o);
         }
 
@@ -285,7 +281,7 @@ class ObisCodeMapper {
         while (si.hasNext()) {
             final TypeChannelSelectRcd rcd = (TypeChannelSelectRcd) si.next();
 
-            o = ObisCode.fromString("1.1.8.9." + rcd.getDataBlockIndex() + "" + billing);
+            o = ObisCode.fromString("1.1.8.9." + rcd.getDataBlockIndex() + "." + billing);
             createValueFactory(offset, rcd, l, o);
         }
 
@@ -297,7 +293,7 @@ class ObisCodeMapper {
         si = t14.getSummations(b, l).iterator();
         while (si.hasNext()) {
             final TypeChannelSelectRcd rcd = (TypeChannelSelectRcd) si.next();
-            o = ObisCode.fromString("1.1.21.9." + rcd.getDataBlockIndex() + "" + billing);
+            o = ObisCode.fromString("1.1.21.9." + rcd.getDataBlockIndex() + "." + billing);
             createValueFactory(offset, rcd, l, o);
         }
 
@@ -307,7 +303,7 @@ class ObisCodeMapper {
         si = t14.getSummations(b, l).iterator();
         while (si.hasNext()) {
             final TypeChannelSelectRcd rcd = (TypeChannelSelectRcd) si.next();
-            o = ObisCode.fromString("1.1.22.9." + rcd.getDataBlockIndex() + "" + billing);
+            o = ObisCode.fromString("1.1.22.9." + rcd.getDataBlockIndex() + "." + billing);
             createValueFactory(offset, rcd, l, o);
         }
 
@@ -317,7 +313,7 @@ class ObisCodeMapper {
         si = t14.getSummations(b, l).iterator();
         while (si.hasNext()) {
             final TypeChannelSelectRcd rcd = (TypeChannelSelectRcd) si.next();
-            o = ObisCode.fromString("1.1.25.9." + rcd.getDataBlockIndex() + "" + billing);
+            o = ObisCode.fromString("1.1.25.9." + rcd.getDataBlockIndex() + "." + billing);
             createValueFactory(offset, rcd, l, o);
         }
 
@@ -327,7 +323,7 @@ class ObisCodeMapper {
         si = t14.getSummations(b, l).iterator();
         while (si.hasNext()) {
             final TypeChannelSelectRcd rcd = (TypeChannelSelectRcd) si.next();
-            o = ObisCode.fromString("1.1.26.9." + rcd.getDataBlockIndex() + "" + billing);
+            o = ObisCode.fromString("1.1.26.9." + rcd.getDataBlockIndex() + "." + billing);
             createValueFactory(offset, rcd, l, o);
         }
 
@@ -337,7 +333,7 @@ class ObisCodeMapper {
         si = t14.getSummations(b, l).iterator();
         while (si.hasNext()) {
             final TypeChannelSelectRcd rcd = (TypeChannelSelectRcd) si.next();
-            o = ObisCode.fromString("1.1.27.9." + rcd.getDataBlockIndex() + "" + billing);
+            o = ObisCode.fromString("1.1.27.9." + rcd.getDataBlockIndex() + "." + billing);
             createValueFactory(offset, rcd, l, o);
         }
 
@@ -347,7 +343,7 @@ class ObisCodeMapper {
         si = t14.getSummations(b, l).iterator();
         while (si.hasNext()) {
             final TypeChannelSelectRcd rcd = (TypeChannelSelectRcd) si.next();
-            o = ObisCode.fromString("1.1.28.9." + rcd.getDataBlockIndex() + "" + billing);
+            o = ObisCode.fromString("1.1.28.9." + rcd.getDataBlockIndex() + "." + billing);
             createValueFactory(offset, rcd, l, o);
         }
 
@@ -360,7 +356,7 @@ class ObisCodeMapper {
         si = t14.getSummations(b, l).iterator();
         while (si.hasNext()) {
             final TypeChannelSelectRcd rcd = (TypeChannelSelectRcd) si.next();
-            o = ObisCode.fromString("1.1.41.9." + rcd.getDataBlockIndex() + "" + billing);
+            o = ObisCode.fromString("1.1.41.9." + rcd.getDataBlockIndex() + "." + billing);
             createValueFactory(offset, rcd, l, o);
         }
 
@@ -370,7 +366,7 @@ class ObisCodeMapper {
         si = t14.getSummations(b, l).iterator();
         while (si.hasNext()) {
             final TypeChannelSelectRcd rcd = (TypeChannelSelectRcd) si.next();
-            o = ObisCode.fromString("1.1.42.9." + rcd.getDataBlockIndex() + "" + billing);
+            o = ObisCode.fromString("1.1.42.9." + rcd.getDataBlockIndex() + "." + billing);
             createValueFactory(offset, rcd, l, o);
         }
 
@@ -380,7 +376,7 @@ class ObisCodeMapper {
         si = t14.getSummations(b, l).iterator();
         while (si.hasNext()) {
             final TypeChannelSelectRcd rcd = (TypeChannelSelectRcd) si.next();
-            o = ObisCode.fromString("1.1.45.9." + rcd.getDataBlockIndex() + "" + billing);
+            o = ObisCode.fromString("1.1.45.9." + rcd.getDataBlockIndex() + "." + billing);
             createValueFactory(offset, rcd, l, o);
         }
 
@@ -390,7 +386,7 @@ class ObisCodeMapper {
         si = t14.getSummations(b, l).iterator();
         while (si.hasNext()) {
             final TypeChannelSelectRcd rcd = (TypeChannelSelectRcd) si.next();
-            o = ObisCode.fromString("1.1.46.9." + rcd.getDataBlockIndex() + "" + billing);
+            o = ObisCode.fromString("1.1.46.9." + rcd.getDataBlockIndex() + "." + billing);
             createValueFactory(offset, rcd, l, o);
         }
 
@@ -400,7 +396,7 @@ class ObisCodeMapper {
         si = t14.getSummations(b, l).iterator();
         while (si.hasNext()) {
             final TypeChannelSelectRcd rcd = (TypeChannelSelectRcd) si.next();
-            o = ObisCode.fromString("1.1.47.9." + rcd.getDataBlockIndex() + "" + billing);
+            o = ObisCode.fromString("1.1.47.9." + rcd.getDataBlockIndex() + "." + billing);
             createValueFactory(offset, rcd, l, o);
         }
 
@@ -410,7 +406,7 @@ class ObisCodeMapper {
         si = t14.getSummations(b, l).iterator();
         while (si.hasNext()) {
             final TypeChannelSelectRcd rcd = (TypeChannelSelectRcd) si.next();
-            o = ObisCode.fromString("1.1.48.9." + rcd.getDataBlockIndex() + "" + billing);
+            o = ObisCode.fromString("1.1.48.9." + rcd.getDataBlockIndex() + "." + billing);
             createValueFactory(offset, rcd, l, o);
         }
 
@@ -422,7 +418,7 @@ class ObisCodeMapper {
         si = t14.getSummations(b, l).iterator();
         while (si.hasNext()) {
             final TypeChannelSelectRcd rcd = (TypeChannelSelectRcd) si.next();
-            o = ObisCode.fromString("1.1.61.9." + rcd.getDataBlockIndex() + "" + billing);
+            o = ObisCode.fromString("1.1.61.9." + rcd.getDataBlockIndex() + "." + billing);
             createValueFactory(offset, rcd, l, o);
         }
 
@@ -432,7 +428,7 @@ class ObisCodeMapper {
         si = t14.getSummations(b, l).iterator();
         while (si.hasNext()) {
             final TypeChannelSelectRcd rcd = (TypeChannelSelectRcd) si.next();
-            o = ObisCode.fromString("1.1.62.9." + rcd.getDataBlockIndex() + "" + billing);
+            o = ObisCode.fromString("1.1.62.9." + rcd.getDataBlockIndex() + "." + billing);
             createValueFactory(offset, rcd, l, o);
         }
 
@@ -442,7 +438,7 @@ class ObisCodeMapper {
         si = t14.getSummations(b, l).iterator();
         while (si.hasNext()) {
             final TypeChannelSelectRcd rcd = (TypeChannelSelectRcd) si.next();
-            o = ObisCode.fromString("1.1.65.9." + rcd.getDataBlockIndex() + "" + billing);
+            o = ObisCode.fromString("1.1.65.9." + rcd.getDataBlockIndex() + "." + billing);
             createValueFactory(offset, rcd, l, o);
         }
 
@@ -452,7 +448,7 @@ class ObisCodeMapper {
         si = t14.getSummations(b, l).iterator();
         while (si.hasNext()) {
             final TypeChannelSelectRcd rcd = (TypeChannelSelectRcd) si.next();
-            o = ObisCode.fromString("1.1.66.9." + rcd.getDataBlockIndex() + "" + billing);
+            o = ObisCode.fromString("1.1.66.9." + rcd.getDataBlockIndex() + "." + billing);
             createValueFactory(offset, rcd, l, o);
         }
 
@@ -462,7 +458,7 @@ class ObisCodeMapper {
         si = t14.getSummations(b, l).iterator();
         while (si.hasNext()) {
             final TypeChannelSelectRcd rcd = (TypeChannelSelectRcd) si.next();
-            o = ObisCode.fromString("1.1.67.9." + rcd.getDataBlockIndex() + "" + billing);
+            o = ObisCode.fromString("1.1.67.9." + rcd.getDataBlockIndex() + "." + billing);
             createValueFactory(offset, rcd, l, o);
         }
 
@@ -472,7 +468,7 @@ class ObisCodeMapper {
         si = t14.getSummations(b, l).iterator();
         while (si.hasNext()) {
             final TypeChannelSelectRcd rcd = (TypeChannelSelectRcd) si.next();
-            o = ObisCode.fromString("1.1.68.9." + rcd.getDataBlockIndex() + "" + billing);
+            o = ObisCode.fromString("1.1.68.9." + rcd.getDataBlockIndex() + "." + billing);
             createValueFactory(offset, rcd, l, o);
         }
 
@@ -498,9 +494,11 @@ class ObisCodeMapper {
      * @return list of all ObisCodes supported by the currently connected
      * meter.  Does this by trial and error.
      */
-    private List<ObisCode> getMeterSupportedObisCodes() throws IOException {
-        List<ObisCode> validObisCodes = new ArrayList<>();
-        for (ObisCodeWrapper key : keys) {
+    private List getMeterSupportedObisCodes() throws IOException {
+        ArrayList validObisCodes = new ArrayList();
+        Iterator i = keys.iterator();
+        while (i.hasNext()) {
+            ObisCodeWrapper key = (ObisCodeWrapper) i.next();
             ObisCode oc = key.obisCode;
             // if no exception is thrown, the ObisCode is supported
             try {
@@ -531,7 +529,7 @@ class ObisCodeMapper {
     abstract class ValueFactory {
         ObisCode obisCode = null;
 
-        ValueFactory(ObisCode o) {
+        public ValueFactory(ObisCode o) {
             obisCode = o;
         }
 
@@ -539,41 +537,28 @@ class ObisCodeMapper {
             return null;
         }
 
-        ;
-
         Date getFromTime() throws IOException {
             return null;
         }
-
-        ;
 
         Date getToTime() throws IOException {
             return getBillingPointDate(obisCode.getF());
         }
 
-        ;
-
         Date getEventTime() throws IOException {
-            if (obisCode.getF() == 255) {
+            if (obisCode.getF() == 255)
                 return getBillingPointDate(obisCode.getF());
-            } else {
+            else
                 return null;
-            }
         }
-
-        ;
 
         ObisCode getObisCode() throws IOException {
             return obisCode;
         }
 
-        ;
-
         RegisterValue getRegisterValue(ObisCode obisCode) throws IOException {
             Quantity q = getQuantity();
-            if (q == null) {
-                throwException(obisCode);
-            }
+            if (q == null) throwException(obisCode);
             Date e = getEventTime();
             Date f = getFromTime();
             Date t = getToTime();
@@ -589,7 +574,7 @@ class ObisCodeMapper {
     /**
      * The ObisCodeMapper works with a Map that links the available obis
      * codes to ValueFactories that can retrieve data from the RegisterFactory.
-     * <p>
+     * <p/>
      * The keys of the Map are actuall ObisCodes.  But the equal method of
      * obis codes makes a distinction between relative period (VZ) and
      * absolute periods.  This is not the behaviour that is needed here.
@@ -607,7 +592,7 @@ class ObisCodeMapper {
         ObisCodeWrapper(ObisCode oc) {
             obisCode = oc;
 
-            os = obisCode.getA() + "" + obisCode.getB() + "" +
+            os = obisCode.getA() + "." + obisCode.getB() + "." +
                     obisCode.getC() + "." + obisCode.getD() + "." +
                     obisCode.getE() + "." + Math.abs(obisCode.getF());
 
@@ -615,9 +600,8 @@ class ObisCodeMapper {
         }
 
         public boolean equals(Object o) {
-            if (!(o instanceof ObisCodeWrapper)) {
+            if (!(o instanceof ObisCodeWrapper))
                 return false;
-            }
 
             ObisCodeWrapper other = (ObisCodeWrapper) o;
             return os.equals(other.os);
@@ -637,5 +621,4 @@ class ObisCodeMapper {
         }
 
     }
-
 }

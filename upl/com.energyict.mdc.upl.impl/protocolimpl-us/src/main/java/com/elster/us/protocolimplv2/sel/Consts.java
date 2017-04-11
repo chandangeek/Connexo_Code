@@ -7,6 +7,7 @@ public class Consts {
   public final static String ENCODING = "US-ASCII"; // Encoding for String -> byte[]
   public final static String ACC0 = "Invalid Access Level"; // prompt indicating serial port communications are established
   public final static String ACC1 = "=>"; // Access Level 1 meter prompt
+  public final static String EAC = "E=>"; // Access Level E meter prompt
   public final static String ENTER_PASWD = "Password:"; //password prompt
   public final static String CR = "\r";
 
@@ -25,12 +26,13 @@ public class Consts {
   public final static String COMMAND_RG = "RG"; // Read group
   public final static String COMMAND_EM = "EM"; // Read events (SEL)
   public final static String COMMAND_RE = "RE"; // Read events (other)
-  
+
   //SEL ASCII Commands
   public final static String COMMAND_ID = "ID";
   public final static String COMMAND_TIME = "TIM";
   public final static String COMMAND_DATE = "DAT";
   public final static String COMMAND_ACC = "ACC"; // switch to access level 1
+  public final static String COMMAND_EAC = "EAC"; //switch to access level 1
   public final static String COMMAND_REG = "MET E";
   public final static String COMMAND_LP = "ldp_data.bin";
 
@@ -58,7 +60,7 @@ public class Consts {
   public final static byte CONTROL_CR     = 0x0D;
   public final static byte CONTROL_FS     = 0x28;
   public final static byte CONTROL_RS     = 0x30;
-  
+
   // Load Profile (ymodem) Record Types
   public final static byte RECORD_METER_CONFIG  = 0x64;
   public final static byte RECORD_PRESENT_VALUES = 0x65;
@@ -67,7 +69,7 @@ public class Consts {
   public final static byte RECORD_SER_DATA = 0x68;
   public final static byte RECORD_LDP_ERROR = 0x69;
 
-  
+
   //OBIS map
   public final static String OBJECT_KWH_DELIVERED = "kWh";
   public final static String OBJECT_KVARH_DELIVERED = "kvarh";
@@ -87,8 +89,8 @@ public class Consts {
 
   // Error strings not related to protocol
   public final static String ERROR_COMMAND_LENGTH = "Command code can only be two bytes in length";
-  
-  
+
+
   //SEL Events (Meter Word Bits) configured in SER1, SER2, SER3. Returned in SER(sequential event recorder) report
   public final static String EVENT_HALARM = "HALARM";
   public final static String EVENT_SALARM = "SALARM";

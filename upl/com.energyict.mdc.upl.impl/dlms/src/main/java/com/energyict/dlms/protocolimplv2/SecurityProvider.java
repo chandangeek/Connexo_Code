@@ -1,8 +1,7 @@
 package com.energyict.dlms.protocolimplv2;
 
-import com.energyict.mdc.upl.UnsupportedException;
-
 import com.energyict.dlms.aso.framecounter.RespondingFrameCounterHandler;
+import com.energyict.mdc.upl.UnsupportedException;
 
 import java.io.IOException;
 
@@ -91,6 +90,15 @@ public interface SecurityProvider {
      * @throws java.io.IOException if the key is not correctly filled in
      */
     void changeAuthenticationKey(byte[] newAuthenticationKey) throws IOException;
+
+    /**
+     * Swap the currently used master key with the new master key (see property)
+     * This is necessary after writing a new master key to a device that switches the keys immediately.
+     * This is not necessary if the device only starts to use the new key in the next association
+     *
+     * @throws java.io.IOException if the key is not correctly filled in
+     */
+    void changeMasterKey(byte[] newMasterKey) throws IOException;
 
     /**
      * A master key shall be present in each COSEM server logical device configured in the system.

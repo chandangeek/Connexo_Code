@@ -266,9 +266,8 @@ public abstract class Connection implements HalfDuplexEnabler {
      *
      * @param txbuffer    data to send
      * @param waitForEcho wait for echo enabled or disabled
-     * @throws NestedIOException Thrown for all other then communication related exceptions
-     * @throws com.energyict.dialer.connection.ConnectionException
-     *          Thrown for communication related exceptions
+     * @throws NestedIOException                                   Thrown for all other then communication related exceptions
+     * @throws com.energyict.dialer.connection.ConnectionException Thrown for communication related exceptions
      */
     public void sendOutTerminalMode(byte[] txbuffer, boolean waitForEcho) throws NestedIOException, ConnectionException {
 
@@ -307,9 +306,8 @@ public abstract class Connection implements HalfDuplexEnabler {
      * Wait until nothing receives anymore. Use delay as timeout
      *
      * @param delay timeout waiting for empty buffer
-     * @throws NestedIOException Thrown for all other then communication related exceptions
-     * @throws com.energyict.dialer.connection.ConnectionException
-     *          Thrown for communication related exceptions
+     * @throws NestedIOException                                   Thrown for all other then communication related exceptions
+     * @throws com.energyict.dialer.connection.ConnectionException Thrown for communication related exceptions
      */
     public void waitForEmptyBuffer(long delay) throws NestedIOException, ConnectionException {
         long emptyBufferTimeout = System.currentTimeMillis() + delay;
@@ -341,8 +339,7 @@ public abstract class Connection implements HalfDuplexEnabler {
      * Send 1 byte. This implements also the echocancelling and halfduplex mechanism.
      *
      * @param txbyte byte to send
-     * @throws com.energyict.dialer.connection.ConnectionException
-     *          Thrown for communication related exceptions
+     * @throws com.energyict.dialer.connection.ConnectionException Thrown for communication related exceptions
      */
     public void sendOut(byte txbyte) throws ConnectionException {
         byte[] txbuffer = new byte[1];
@@ -354,8 +351,7 @@ public abstract class Connection implements HalfDuplexEnabler {
      * Send byte array. This implements also the echocancelling and halfduplex mechanism.
      *
      * @param txbuffer byte[] to send
-     * @throws com.energyict.dialer.connection.ConnectionException
-     *          Thrown for communication related exceptions
+     * @throws com.energyict.dialer.connection.ConnectionException Thrown for communication related exceptions
      */
     public void sendOut(byte[] txbuffer) throws ConnectionException {
         doSendOut(txbuffer, 0, txbuffer.length);
@@ -367,8 +363,7 @@ public abstract class Connection implements HalfDuplexEnabler {
      * @param txbuffer byte[] to send
      * @param offset   int
      * @param length   int
-     * @throws com.energyict.dialer.connection.ConnectionException
-     *          Thrown for communication related exceptions
+     * @throws com.energyict.dialer.connection.ConnectionException Thrown for communication related exceptions
      */
     protected void sendOut(byte[] txbuffer, int offset, int length) throws ConnectionException {
         doSendOut(txbuffer, offset, length);
@@ -413,11 +408,10 @@ public abstract class Connection implements HalfDuplexEnabler {
      * this is a non blocking method since we need to do timeout management in the sub class calling this method
      *
      * @return character or -1 if none is available
-     * @throws NestedIOException Thrown for all other then communication related exceptions
-     * @throws com.energyict.dialer.connection.ConnectionException
-     *          Thrown for communication related exceptions
+     * @throws NestedIOException                                   Thrown for all other then communication related exceptions
+     * @throws com.energyict.dialer.connection.ConnectionException Thrown for communication related exceptions
      */
-    protected int readIn() throws NestedIOException, ConnectionException {
+    protected int readIn() throws ConnectionException {
         try {
             int iNewKar;
 
@@ -446,11 +440,10 @@ public abstract class Connection implements HalfDuplexEnabler {
      * this is a non blocking method since we need to do timeout management in the sub class calling this method
      *
      * @return byte[] or null if none is available
-     * @throws NestedIOException Thrown for all other then communication related exceptions
-     * @throws com.energyict.dialer.connection.ConnectionException
-     *          Thrown for communication related exceptions
+     * @throws NestedIOException                                   Thrown for all other then communication related exceptions
+     * @throws com.energyict.dialer.connection.ConnectionException Thrown for communication related exceptions
      */
-    protected byte[] readInArray() throws NestedIOException, ConnectionException {
+    protected byte[] readInArray() throws ConnectionException {
         try {
             byte[] data;
             int len;
@@ -486,6 +479,7 @@ public abstract class Connection implements HalfDuplexEnabler {
             Thread.sleep(lDelay);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
+            throw ConnectionCommunicationException.communicationInterruptedException(e);
         }
     }
 
@@ -510,20 +504,32 @@ public abstract class Connection implements HalfDuplexEnabler {
      * delay for ms and then flush inputbuffer
      *
      * @param delay long delay in ms
-     * @throws NestedIOException Thrown for all other then communication related exceptions
-     * @throws com.energyict.dialer.connection.ConnectionException
-     *          Thrown for communication related exceptions
+     * @throws NestedIOException                                   Thrown for all other then communication related exceptions
+     * @throws com.energyict.dialer.connection.ConnectionException Thrown for communication related exceptions
      */
-    protected void delayAndFlush(long delay) throws ConnectionException, NestedIOException {
+    protected void delayAndFlush(long delay) throws ConnectionException {
         delay(delay);
         flushInputStream();
     }
 
     /**
+     * Flush all waiting characters in the outputstream.
+     *
+     * @throws com.energyict.dialer.connection.ConnectionException Thrown for communication related exceptions
+     */
+    protected void flushOutputStream() throws ConnectionException {
+        try {
+            outputStream.flush();
+        } catch (IOException e) {
+            logger.error(e.getMessage(), e);
+            throw new ConnectionException("Connection, flushOutputStream() error " + e.getMessage());
+        }
+    }
+
+    /**
      * Flush all waiting characters ikn the inputstream.
      *
-     * @throws com.energyict.dialer.connection.ConnectionException
-     *          Thrown for communication related exceptions
+     * @throws com.energyict.dialer.connection.ConnectionException Thrown for communication related exceptions
      */
     protected void flushInputStream() throws ConnectionException {
         try {
@@ -540,8 +546,7 @@ public abstract class Connection implements HalfDuplexEnabler {
      * Same as sendOut(byte[] txbuffer) but preceeded by a flushEchoBuffer()
      *
      * @param txbuffer byte[] to send
-     * @throws com.energyict.dialer.connection.ConnectionException
-     *          Thrown for communication related exceptions
+     * @throws com.energyict.dialer.connection.ConnectionException Thrown for communication related exceptions
      */
     protected void sendRawDataNoDelay(byte[] txbuffer) throws ConnectionException {
         flushEchoBuffer();
@@ -553,9 +558,8 @@ public abstract class Connection implements HalfDuplexEnabler {
      *
      * @param txbuffer    data to send
      * @param waitForEcho wait for echo enabled or disabled
-     * @throws NestedIOException Thrown for all other then communication related exceptions
-     * @throws com.energyict.dialer.connection.ConnectionException
-     *          Thrown for communication related exceptions
+     * @throws NestedIOException                                   Thrown for all other then communication related exceptions
+     * @throws com.energyict.dialer.connection.ConnectionException Thrown for communication related exceptions
      */
     protected void sendRawDataNoDelayTerminalMode(byte[] txbuffer, boolean waitForEcho) throws NestedIOException, ConnectionException {
         flushEchoBuffer();
@@ -566,9 +570,8 @@ public abstract class Connection implements HalfDuplexEnabler {
      * Same as sendOut(byte[] txbuffer) but preceeded by a delay(lForceDelay) and flushEchoBuffer()
      *
      * @param txbuffer byte[] to send
-     * @throws NestedIOException Thrown for all other then communication related exceptions
-     * @throws com.energyict.dialer.connection.ConnectionException
-     *          Thrown for communication related exceptions
+     * @throws NestedIOException                                   Thrown for all other then communication related exceptions
+     * @throws com.energyict.dialer.connection.ConnectionException Thrown for communication related exceptions
      */
     protected void sendRawData(byte[] txbuffer) throws NestedIOException, ConnectionException {
         delay(lForceDelay);
@@ -580,9 +583,8 @@ public abstract class Connection implements HalfDuplexEnabler {
      * Same as sendOut(byte txbuffer) but preceeded by a delay(lForceDelay) and flushEchoBuffer()
      *
      * @param txbuffer character to send
-     * @throws NestedIOException Thrown for all other then communication related exceptions
-     * @throws com.energyict.dialer.connection.ConnectionException
-     *          Thrown for communication related exceptions
+     * @throws NestedIOException                                   Thrown for all other then communication related exceptions
+     * @throws com.energyict.dialer.connection.ConnectionException Thrown for communication related exceptions
      */
     protected void sendRawData(byte txbuffer) throws NestedIOException, ConnectionException {
         delay(lForceDelay);
@@ -597,8 +599,7 @@ public abstract class Connection implements HalfDuplexEnabler {
      * @param length nr of bytes of data to calculate checksum
      * @param offset offset in byte array to calculate checksum
      * @return byte checksum
-     * @throws com.energyict.dialer.connection.ConnectionException
-     *          Thrown for communication related exceptions
+     * @throws com.energyict.dialer.connection.ConnectionException Thrown for communication related exceptions
      */
     protected byte calcChecksum(byte[] data, int length, int offset) throws ConnectionException {
         return (doCalcChecksum(data, length, offset));
@@ -610,8 +611,7 @@ public abstract class Connection implements HalfDuplexEnabler {
      * @param data   byte array to calculate checksum on
      * @param length nr of bytes of data to calculate checksum
      * @return byte checksum
-     * @throws com.energyict.dialer.connection.ConnectionException
-     *          Thrown for communication related exceptions
+     * @throws com.energyict.dialer.connection.ConnectionException Thrown for communication related exceptions
      */
     protected byte calcChecksum(byte[] data, int length) throws ConnectionException {
         return (doCalcChecksum(data, length, 0));
@@ -622,8 +622,7 @@ public abstract class Connection implements HalfDuplexEnabler {
      *
      * @param data byte array to calculate checksum on
      * @return byte checksum
-     * @throws com.energyict.dialer.connection.ConnectionException
-     *          Thrown for communication related exceptions
+     * @throws com.energyict.dialer.connection.ConnectionException Thrown for communication related exceptions
      */
     protected byte calcChecksum(byte[] data) throws ConnectionException {
         return (doCalcChecksum(data, data.length, 0));

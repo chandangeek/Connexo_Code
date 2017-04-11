@@ -10,12 +10,9 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
 
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocol.*;
+import java.io.IOException;
 
 /**
  *
@@ -33,6 +30,15 @@ public class HistoryLog {
     
     
     /** Creates a new instance of HistoryLog */
+    public HistoryLog(byte[] data,int offset,TableFactory tableFactory, int nrOfHistoryEntriesToRequest) throws IOException {
+        setEntries(new HistoryEntry[nrOfHistoryEntriesToRequest]);
+        for (int i=0;i<nrOfHistoryEntriesToRequest;i++) {
+            getEntries()[i] = new HistoryEntry(data, offset, tableFactory);
+            offset+= HistoryEntry.getSize(tableFactory);
+        }
+    }
+
+    /** Creates a new instance of HistoryLog */
     public HistoryLog(byte[] data,int offset,TableFactory tableFactory, boolean header) throws IOException {
         ActualLogTable alt = tableFactory.getC12ProtocolLink().getStandardTableFactory().getActualLogTable();
         setHistoryFlags(new ListStatusBitfield(data, offset));
@@ -47,7 +53,7 @@ public class HistoryLog {
         offset+=4;
         int nrOfUnreadEntries = C12ParseUtils.getInt(data,offset,2,dataOrder);
         offset+=2;
-        
+
         if (!header) { // if only requesting header, do not
             if (getNrOfValidentries() > 0) {
                 setEntries(new HistoryEntry[alt.getLog().getNrOfHistoryEntries()]);
@@ -57,7 +63,7 @@ public class HistoryLog {
                 }
             }
         }
-        
+
     }
     public String toString() {
         StringBuffer strBuff = new StringBuffer();

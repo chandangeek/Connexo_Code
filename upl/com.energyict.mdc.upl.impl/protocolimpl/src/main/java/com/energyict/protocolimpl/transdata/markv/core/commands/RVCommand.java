@@ -12,6 +12,7 @@ package com.energyict.protocolimpl.transdata.markv.core.commands;
 
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocolimpl.base.ParseUtils;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.BufferedReader;
@@ -47,17 +48,18 @@ public class RVCommand extends AbstractCommand {
         }
         return strBuff.toString();
     }
-    
+
+    @Override
     protected void parse(String strData) throws IOException {
-        
-        byte[] data = strData.getBytes();
-        
+        throw new IOException(ProtocolTools.format("Command parsing without xmodem data is not supported for command '{0}'", new Object[]{getCommandName()}));
+    }
+
+    protected void parse(String strData, byte[] xmodemData) throws IOException {
         int eventLogCode;
         Date eventDate;
         int eventAverageMagnitude;
         long eventDuration;
         int durationUnit;
-        int length = data.length;
         int offset=1024; // first block only contains the eventlog size...
 //        if ((length%16) != 0)
 //            throw new IOException("RVCommand, parse(), data length is not divisable by 16, data.length="+length);
@@ -68,19 +70,19 @@ public class RVCommand extends AbstractCommand {
         setEventLogs(new ArrayList());
         
         while(offset<logSize) {
-            durationUnit = ProtocolUtils.getInt(data,3+offset,1);
-            eventDuration = ParseUtils.getBCD2LongLE(data,4+offset,4);
-            eventAverageMagnitude = ProtocolUtils.getInt(data,8+offset,1);
+            durationUnit = ProtocolUtils.getInt(xmodemData,3+offset,1);
+            eventDuration = ParseUtils.getBCD2LongLE(xmodemData,4+offset,4);
+            eventAverageMagnitude = ProtocolUtils.getInt(xmodemData,8+offset,1);
             Calendar cal = ProtocolUtils.getCleanCalendar(getCommandFactory().getMarkV().getTimeZone());
-            int year = ProtocolUtils.getInt(data,9+offset,1);
+            int year = ProtocolUtils.getInt(xmodemData,9+offset,1);
             cal.set(Calendar.YEAR,(year>=50)?year+1900:year+2000);
-            cal.set(Calendar.MONTH,ProtocolUtils.getInt(data,10+offset,1)-1);
-            cal.set(Calendar.DAY_OF_MONTH,ProtocolUtils.getInt(data,11+offset,1));
-            cal.set(Calendar.HOUR_OF_DAY,ProtocolUtils.getInt(data,12+offset,1));
-            cal.set(Calendar.MINUTE,ProtocolUtils.getInt(data,13+offset,1));
-            cal.set(Calendar.SECOND,ProtocolUtils.getInt(data,14+offset,1));
+            cal.set(Calendar.MONTH,ProtocolUtils.getInt(xmodemData,10+offset,1)-1);
+            cal.set(Calendar.DAY_OF_MONTH,ProtocolUtils.getInt(xmodemData,11+offset,1));
+            cal.set(Calendar.HOUR_OF_DAY,ProtocolUtils.getInt(xmodemData,12+offset,1));
+            cal.set(Calendar.MINUTE,ProtocolUtils.getInt(xmodemData,13+offset,1));
+            cal.set(Calendar.SECOND,ProtocolUtils.getInt(xmodemData,14+offset,1));
             eventDate = cal.getTime();
-            eventLogCode = ProtocolUtils.getInt(data,15+offset,1);
+            eventLogCode = ProtocolUtils.getInt(xmodemData,15+offset,1);
 
             getEventLogs().add(new EventLog(eventLogCode, eventDate, eventAverageMagnitude, eventDuration, durationUnit));
             offset+=16;
@@ -117,4 +119,8 @@ public class RVCommand extends AbstractCommand {
         this.eventLogs = eventLogs;
     }
 
+    @Override
+    protected String getCommandName() {
+        return "RV";
+    }
 }

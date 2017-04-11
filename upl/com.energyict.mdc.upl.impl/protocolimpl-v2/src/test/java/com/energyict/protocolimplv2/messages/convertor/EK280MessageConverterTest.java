@@ -17,6 +17,7 @@ import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import static junit.framework.Assert.assertEquals;
@@ -27,6 +28,8 @@ import static junit.framework.Assert.assertEquals;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class EK280MessageConverterTest extends AbstractV2MessageConverterTest {
+
+    private Date activationDate = new Date(1441101600000l);
 
     @Test
     public void testMessageConversion_ChangeCredentials() {
@@ -109,7 +112,9 @@ public class EK280MessageConverterTest extends AbstractV2MessageConverterTest {
     public void testMessageConversion_ActivityCalendarSend() {
         OfflineDeviceMessage offlineDeviceMessage = createMessage(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME_AND_DEFAULT_TARIFF_CODE.get(propertySpecService, this.nlsService, this.converter));
         MessageEntry messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
-        assertEquals("<UploadPassiveTariff CodeTableId=\"base64_codeTable\" ActivationTime=\"2015-09-01 12:00:00\" DefaultTariff=\"3\"> </UploadPassiveTariff>", messageEntry.getContent());
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String expectedDate = dateFormat.format(activationDate);
+        assertEquals("<UploadPassiveTariff CodeTableId=\"base64_codeTable\" ActivationTime=\"" + expectedDate + "\" DefaultTariff=\"3\"> </UploadPassiveTariff>", messageEntry.getContent());
     }
 
     @Override
@@ -186,7 +191,7 @@ public class EK280MessageConverterTest extends AbstractV2MessageConverterTest {
             case DeviceMessageConstants.activityCalendarAttributeName:
                 return "base64_codeTable";
             case DeviceMessageConstants.activityCalendarActivationDateAttributeName:
-                return new Date(1441101600000l);
+                return activationDate;
             case DeviceMessageConstants.defaultTariffCodeAttrributeName:
                 return "3";
             default:

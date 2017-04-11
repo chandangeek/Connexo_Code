@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.nta.dsmr50;
 
+import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
@@ -9,8 +10,6 @@ import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
-
-import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.dlms.g3.G3Properties;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
@@ -51,6 +50,7 @@ public class Dsmr50ConfigurationSupport implements HasDynamicProperties {
     public static final boolean USE_EQUIPMENT_IDENTIFIER_AS_SERIAL_DEFAULT_VALUE = true;
     public static final String POLLING_DELAY = "PollingDelay";
     private static final boolean DEFAULT_VALIDATE_INVOKE_ID = true;
+    public static final String REQUEST_FRAMECOUNTER = "RequestFrameCounter";
 
     private final PropertySpecService propertySpecService;
     private com.energyict.protocolimpl.properties.TypedProperties properties;
@@ -83,8 +83,13 @@ public class Dsmr50ConfigurationSupport implements HasDynamicProperties {
                 this.lastSeenDatePropertySpec(),
                 this.useEquipmentIdentifierAsSerialNumberPropertySpec(),
                 this.ignoreDstStatusCode(),
-                this.pollingDelayPropertySpec()
+                this.pollingDelayPropertySpec(),
+                this.requestFrameCounter()
         );
+    }
+
+    private PropertySpec requestFrameCounter() {
+        return this.spec(REQUEST_FRAMECOUNTER, PropertyTranslationKeys.V2_REQUEST_FRAMECOUNTER, this.propertySpecService::booleanSpec);
     }
 
     @Override
@@ -156,7 +161,7 @@ public class Dsmr50ConfigurationSupport implements HasDynamicProperties {
     }
 
     protected PropertySpec pskPropertySpec() {
-        return this.spec(G3Properties.PSK, PropertyTranslationKeys.V2_NTA_PSK, this.propertySpecService::hexStringSpec);
+        return this.spec(G3Properties.PSK, PropertyTranslationKeys.V2_NTA_PSK, this.propertySpecService::stringSpec);
     }
 
     protected PropertySpec aarqTimeoutPropertySpec() {

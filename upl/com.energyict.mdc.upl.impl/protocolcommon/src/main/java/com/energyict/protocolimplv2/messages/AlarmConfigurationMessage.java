@@ -6,7 +6,6 @@ import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
 import com.energyict.protocolimplv2.messages.nls.TranslationKeyImpl;
 
 import java.math.BigDecimal;
@@ -137,6 +136,44 @@ public enum AlarmConfigurationMessage implements DeviceMessageSpecSupplier {
                     this.bigDecimalSpec(service, DeviceMessageConstants.alarmFilterAttributeName, DeviceMessageConstants.alarmFilterAttributeDefaultTranslation)
             );
         }
+    },
+    RESET_DESCRIPTOR_FOR_SINGLE_ALARM_REGISTER(2015, "Reset descriptor for single alarm register") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.bigDecimalSpec(service, DeviceMessageConstants.alarmBitMaskAttributeName, DeviceMessageConstants.alarmBitMaskAttributeDefaultTranslation)
+            );
+        }
+    },
+    RESET_BITS_IN_ALARM_SINGLE_REGISTER(2016, "Reset bits in alarm single register") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.emptyList();
+        }
+    },
+    WRITE_FILTER_FOR_SINGLE_ALARM_REGISTER(2017, "Write filter for single alarm register") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.bigDecimalSpec(service, DeviceMessageConstants.alarmFilterAttributeName, DeviceMessageConstants.alarmFilterAttributeDefaultTranslation)
+            );
+        }
+    },
+    CONFIGURE_PUSH_EVENT_NOTIFICATION_CIPHERING(2018, "Configure push event notification ciphering") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.stringSpec(service, DeviceMessageConstants.notificationCiphering, DeviceMessageConstants.notificationCipheringDefaultTranslation, NotificationCipheringType.getTypes())
+            );
+        }
+    },
+    CONFIGURE_PUSH_EVENT_SEND_TEST_NOTIFICATION(2019, "Configure push event send test notification") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.stringSpec(service, DeviceMessageConstants.echoTestNotification, DeviceMessageConstants.echoTestNotificationDefaultTranslation)
+            );
+        }
     };
 
     public enum PushType {
@@ -194,7 +231,8 @@ public enum AlarmConfigurationMessage implements DeviceMessageSpecSupplier {
 
     public enum TransportType {
         TCP(0),
-        UDP(1);
+        UDP(1),
+        UDP_VIA_G3_PLC(200);
 
         private final int id;
 
@@ -208,11 +246,36 @@ public enum AlarmConfigurationMessage implements DeviceMessageSpecSupplier {
 
         public static String getStringValue(int id) {
             return Stream
-                        .of(values())
-                        .filter(each -> each.getId() == id)
-                        .findFirst()
-                        .map(TransportType::name)
-                        .orElse("Unknown transport type");
+                    .of(values())
+                    .filter(each -> each.getId() == id)
+                    .findFirst()
+                    .map(TransportType::name)
+                    .orElse("Unknown transport type");
+        }
+
+        public int getId() {
+            return id;
+        }
+    }
+
+    public enum NotificationCipheringType {
+        NONE(0),
+        GLOBAL_CIPHERING(1),
+        GLOBAL_CIPHERING_WITH_SIGNATURE(2);
+
+        private final int id;
+
+        NotificationCipheringType(int id) {
+            this.id = id;
+        }
+
+        public static String[] getTypes() {
+            NotificationCipheringType[] allTypes = values();
+            String[] result = new String[allTypes.length];
+            for (int index = 0; index < allTypes.length; index++) {
+                result[index] = allTypes[index].name();
+            }
+            return result;
         }
 
         public int getId() {
@@ -239,10 +302,10 @@ public enum AlarmConfigurationMessage implements DeviceMessageSpecSupplier {
 
     protected PropertySpec alarmRegisterAttributeFor3Objects(PropertySpecService service) {
         return this.bigDecimalSpec(service,
-                    DeviceMessageConstants.alarmRegisterAttributeName, DeviceMessageConstants.alarmRegisterAttributeDefaultTranslation,
-                    BigDecimal.ONE,
-                    BigDecimal.valueOf(2),
-                    BigDecimal.valueOf(3));
+                DeviceMessageConstants.alarmRegisterAttributeName, DeviceMessageConstants.alarmRegisterAttributeDefaultTranslation,
+                BigDecimal.ONE,
+                BigDecimal.valueOf(2),
+                BigDecimal.valueOf(3));
     }
 
     private PropertySpecBuilder<BigDecimal> bigDecimalSpecBuilder(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {

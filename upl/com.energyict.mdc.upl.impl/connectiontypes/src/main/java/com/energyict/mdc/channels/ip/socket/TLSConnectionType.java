@@ -59,9 +59,9 @@ import static com.energyict.mdc.upl.crypto.KeyStoreService.StoreType.TRUST;
 public class TLSConnectionType extends OutboundTcpIpConnectionType {
 
     public static final String TLS_VERSION_PROPERTY_NAME = "TLSVersion";
+    public static final String CLIENT_TLS_ALIAS = "ClientTLSAlias";
     private static final String TLS_DEFAULT_VERSION = "TLSv1.2";
     private static final String PREFERRED_CIPHER_SUITES_PROPERTY_NAME = "PreferredCipherSuites";
-    private static final String CLIENT_TLS_ALIAS = "ClientTLSAlias";
     private static final String SEPARATOR = ",";
 
     private final NlsService nlsService;
@@ -81,7 +81,7 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
      * Defaults to TLSv1.2
      */
     private PropertySpec tlsVersionPropertySpec() {
-        return this.stringWithDefault(TLS_VERSION_PROPERTY_NAME, PropertyTranslationKeys.TLS_VERSION ,TLS_DEFAULT_VERSION);
+        return this.stringWithDefault(TLS_VERSION_PROPERTY_NAME, PropertyTranslationKeys.TLS_VERSION, TLS_DEFAULT_VERSION);
     }
 
     /**
@@ -174,7 +174,7 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
     /**
      * Create a TrustManager based on the persisted trust store of EIServer. This contains sub-CA and root-CA certificates.
      */
-    private TrustManager[] getTrustManagers(KeyStore trustStore) throws ConnectionException {
+    protected TrustManager[] getTrustManagers(KeyStore trustStore) throws ConnectionException {
         try {
             return new TrustManager[]{new X509TrustManagerImpl(trustStore)};
         } catch (KeyStoreException | NoSuchAlgorithmException e) {
@@ -185,7 +185,7 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
     /**
      * Create a KeyManager based on the persisted key store of EIServer. This contains the private key for TLS and its matching certificate.
      */
-    private KeyManager[] getKeyManagers(KeyStore keyStore) throws ConnectionException {
+    protected KeyManager[] getKeyManagers(KeyStore keyStore) throws ConnectionException {
         try {
             return new KeyManager[]{new X509KeyManagerImpl(keyStore)};
         } catch (KeyStoreException | UnrecoverableKeyException | NoSuchAlgorithmException e) {
@@ -195,10 +195,10 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
 
     @Override
     public String getVersion() {
-        return "$Date: 2016-10-24 09:40:46 +0200 (Mon, 24 Oct 2016)$";
+        return "$Date: 2016-10-27 14:22:27 +0200 (Thu, 27 Oct 2016)$";
     }
 
-    private class X509TrustManagerImpl implements X509TrustManager {
+    protected class X509TrustManagerImpl implements X509TrustManager {
 
         X509TrustManager x509TrustManager;
 
@@ -216,7 +216,7 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
         /**
          * Given the partial or complete certificate chain provided by the peer, build a certificate path to a trusted root and return if it can be validated and is trusted for server SSL authentication based on the authentication type.
          *
-         * @param chain the peer certificate chain
+         * @param chain    the peer certificate chain
          * @param authType he key exchange algorithm used
          * @throws CertificateException if the certificate chain is not trusted by this TrustManager.
          */
@@ -236,10 +236,10 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
         }
     }
 
-    private class X509KeyManagerImpl implements X509KeyManager {
+    protected class X509KeyManagerImpl implements X509KeyManager {
 
         X509KeyManager x509KeyManager;
-        private KeyStore keyStore;
+        protected KeyStore keyStore;
 
         X509KeyManagerImpl(KeyStore keyStore) throws NoSuchAlgorithmException, java.security.UnrecoverableKeyException, KeyStoreException, ConnectionException {
             this.keyStore = keyStore;

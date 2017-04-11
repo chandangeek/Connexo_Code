@@ -1,14 +1,19 @@
 package com.energyict.protocolimplv2.dlms;
 
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.upl.DeviceFunction;
 import com.energyict.mdc.upl.DeviceProtocol;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.upl.DeviceProtocolDialect;
+import com.energyict.mdc.upl.ManufacturerInformation;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.io.ConnectionType;
 import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
+import com.energyict.mdc.upl.meterdata.CollectedCalendar;
+import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
@@ -220,5 +225,30 @@ public abstract class AbstractDlmsSlaveProtocol implements DeviceProtocol {
     @Override
     public CollectedTopology getDeviceTopology() {
         throw CodingException.unsupportedMethod(this.getClass(), "getDeviceTopology");
+    }
+
+    @Override
+    public DeviceFunction getDeviceFunction() {
+        return DeviceFunction.NONE;
+    }
+
+    @Override
+    public ManufacturerInformation getManufacturerInformation() {
+        throw CodingException.unsupportedMethod(this.getClass(), "getManufacturerInformation");
+    }
+
+    @Override
+    public CollectedCalendar getCollectedCalendar() {
+        throw CodingException.unsupportedMethod(this.getClass(), "getCollectedCalendar");
+    }
+
+    @Override
+    public CollectedBreakerStatus getBreakerStatus() {
+        throw CodingException.unsupportedMethod(this.getClass(), "getBreakerStatus");
+    }
+
+    @Override
+    public CollectedFirmwareVersion getFirmwareVersions() {
+        throw CodingException.unsupportedMethod(this.getClass(), "getFirmwareVersions");
     }
 }

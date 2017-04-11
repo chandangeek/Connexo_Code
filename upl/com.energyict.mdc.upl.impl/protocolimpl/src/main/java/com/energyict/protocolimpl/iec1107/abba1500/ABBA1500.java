@@ -1,6 +1,12 @@
 package com.energyict.protocolimpl.iec1107.abba1500;
 
 
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.Quantity;
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.dialer.connections.IEC1107HHUConnection;
+import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.UnsupportedException;
@@ -12,13 +18,6 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
-
-import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.Quantity;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.dialer.connections.IEC1107HHUConnection;
-import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.MeterExceptionInfo;
@@ -131,6 +130,7 @@ public class ABBA1500 extends PluggableMeterProtocol implements HHUEnabler, Prot
 
     private boolean software7E1;
 
+    protected int profileRequestBlockSize = 8;
     private int forcedDelay;
     private int MaxNrOfDaysProfileData;
 
@@ -228,6 +228,7 @@ public class ABBA1500 extends PluggableMeterProtocol implements HHUEnabler, Prot
                 this.stringSpec("FirmwareVersion", PropertyTranslationKeys.IEC1107_FIRMWARE_VERSION),
                 this.stringSpec("Software7E1", PropertyTranslationKeys.IEC1107_SOFTWARE_7E1),
                 this.integerSpec("MaxNrOfDaysProfileData", PropertyTranslationKeys.IEC1107_MAX_NR_OF_DAYS_PROFILE_DATA),
+                this.integerSpec("ProfileRequestBlockSize", PropertyTranslationKeys.IEC1107_PROFILE_REQUEST_BLOCK_SIZE),
                 this.stringSpec("DateFormat", PropertyTranslationKeys.IEC1107_DATE_FORMAT));
     }
 
@@ -268,6 +269,7 @@ public class ABBA1500 extends PluggableMeterProtocol implements HHUEnabler, Prot
             this.software7E1 = !"0".equalsIgnoreCase(properties.getTypedProperty("Software7E1", "0"));
             this.MaxNrOfDaysProfileData = Integer.parseInt(properties.getTypedProperty("MaxNrOfDaysProfileData", "0").trim());
             strDateFormat = properties.getTypedProperty("DateFormat", "yy/MM/dd").trim();
+            this.profileRequestBlockSize = properties.getTypedProperty("ProfileRequestBlockSize", 8);
         } catch (NumberFormatException e) {
             throw new InvalidPropertyException(e, this.getClass().getSimpleName() + ": validation of properties failed before");
         }
@@ -303,7 +305,7 @@ public class ABBA1500 extends PluggableMeterProtocol implements HHUEnabler, Prot
 
     @Override
     public String getProtocolVersion() {
-        return "$Date: 2015-11-26 15:25:59 +0200 (Thu, 26 Nov 2015)$";
+        return "$Date: Thu Nov 26 15:23:57 2015 +0200 $";
     }
 
     @Override
@@ -320,6 +322,7 @@ public class ABBA1500 extends PluggableMeterProtocol implements HHUEnabler, Prot
             abba1500Registry = new ABBA1500Registry(this, this, getDateFormat());
             abba1500Profile = new ABBA1500Profile(this, this, abba1500Registry);
             abba1500Profile.setFirmwareVersion(getIFirmwareVersion());
+            abba1500Profile.setProfileRequestBlockSize(profileRequestBlockSize);
         } catch (ConnectionException e) {
             logger.severe("ABBA1500: init(...), " + e.getMessage());
         }
@@ -360,7 +363,7 @@ public class ABBA1500 extends PluggableMeterProtocol implements HHUEnabler, Prot
         try {
             serialInfo = readRegister(serialNumbObisCode);
             return serialInfo.getText();
-        } catch (IOException e){
+        } catch (IOException e) {
             throw ProtocolIOExceptionHandler.handle(e, getNrOfRetries() + 1);
         }
     }
@@ -665,7 +668,7 @@ public class ABBA1500 extends PluggableMeterProtocol implements HHUEnabler, Prot
             throw new ProtocolConnectionException("doTheReadBillingRegisterTimestamp(), error: " + e.getMessage());
         } catch (NumberFormatException e) {
             throw new NoSuchRegisterException("ObisCode " + obisCode.toString() + " is not supported!" + e.getMessage());
-        }catch (IOException e) {
+        } catch (IOException e) {
             throw new IOException("doTheReadBillingRegisterTimestamp(), error: " + e.getMessage());
         }
     }

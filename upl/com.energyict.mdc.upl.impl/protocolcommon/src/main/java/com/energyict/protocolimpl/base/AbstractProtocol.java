@@ -33,8 +33,8 @@ import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.SerialNumber;
 import com.energyict.protocol.meteridentification.DiscoverInfo;
 import com.energyict.protocol.meteridentification.MeterType;
-import com.energyict.protocolimpl.properties.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
+import com.energyict.protocolimpl.properties.nls.PropertyTranslationKeys;
 import com.energyict.protocolimplv2.messages.nls.Thesaurus;
 
 import java.io.IOException;
@@ -278,6 +278,10 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
 
     protected PropertySpec stringSpec(String name, TranslationKey translationKey, boolean required) {
         return this.spec(name, translationKey, required, this.propertySpecService::stringSpec);
+    }
+
+    protected PropertySpec booleanSpec(String name, TranslationKey translationKey, boolean required) {
+        return this.spec(name, translationKey, required, this.propertySpecService::booleanSpec);
     }
 
     protected PropertySpec integerSpec(String name, TranslationKey translationKey, boolean required) {

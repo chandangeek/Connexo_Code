@@ -10,9 +10,10 @@
 
 package com.energyict.protocolimpl.transdata.markv.core.commands;
 
-import java.io.*;
-import java.util.*;
 import com.energyict.protocol.MeterEvent;
+
+import java.util.HashMap;
+import java.util.Map;
 /**
  *
  * @author koen

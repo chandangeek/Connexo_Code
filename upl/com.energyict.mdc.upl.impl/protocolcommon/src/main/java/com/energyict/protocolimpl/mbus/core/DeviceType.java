@@ -54,6 +54,9 @@ public class DeviceType {
         INSTANCES.add(new DeviceType("Pressure",0x18,7));
         INSTANCES.add(new DeviceType("A/D Converter",0x19,102));
         INSTANCES.add(new DeviceType("Reserved for valve",0x21,103));
+
+        INSTANCES.add(new DeviceType("Unknown MET (0x78)",0x78,255));
+        INSTANCES.add(new DeviceType("Unknown ABB (0x35)",0x35,255));
     }
 
     private String description;

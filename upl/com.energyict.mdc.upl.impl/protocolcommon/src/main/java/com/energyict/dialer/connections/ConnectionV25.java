@@ -15,6 +15,7 @@ import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.mdc.upl.io.NestedIOException;
 import com.energyict.protocol.HalfDuplexEnabler;
 import com.energyict.protocol.exception.ConnectionCommunicationException;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import serialio.xmodemapi.XGet;
@@ -341,7 +342,7 @@ public abstract class ConnectionV25 implements HalfDuplexEnabler {
                 inputStream.read(data, 0, len);
                 for (int i = 0; i < len; i++) {
                     if (data[i] != (byte) echoByteArrayInputStream.read()) {
-                        return DialerSupport.getSubArray(data, i);
+                        return ProtocolUtils.getSubArray(data, i);
                     }
                 }
             } // if (inputStream.available() != 0)

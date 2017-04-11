@@ -2,7 +2,6 @@ package com.energyict.protocolimpl.dlms.g3.registers;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
-import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.DLMSClassId;
@@ -44,5 +43,20 @@ public class ExtendedRegisterMapping extends G3Mapping {
     @Override
     public int getDLMSClassId() {
         return DLMSClassId.EXTENDED_REGISTER.getClassId();
+    }
+
+    @Override
+    public int getValueAttribute(){
+        return ExtendedRegisterAttributes.VALUE.getAttributeNumber();
+    }
+
+    @Override
+    public int getUnitAttribute() {
+        return ExtendedRegisterAttributes.UNIT.getAttributeNumber();
+    }
+
+    @Override
+    public int getCaptureTimeAttribute() {
+        return ExtendedRegisterAttributes.CAPTURE_TIME.getAttributeNumber();
     }
 }

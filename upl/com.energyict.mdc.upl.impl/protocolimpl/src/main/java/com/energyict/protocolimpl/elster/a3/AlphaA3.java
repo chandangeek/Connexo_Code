@@ -10,6 +10,9 @@
 
 package com.energyict.protocolimpl.elster.a3;
 
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
@@ -17,10 +20,6 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
-
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.core.HalfDuplexController;
-import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterInfo;
@@ -80,9 +79,10 @@ import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
 // changed
 public class AlphaA3 extends AbstractProtocol implements C12ProtocolLink, SerialNumberSupport {
 
-    private static String SECURITY_MODE = "SecurityMode";
-	private static String CALLED_AP_TITLE = "CalledAPTitle";
-    private static String SECURITY_KEY = "SecurityKey";
+    public static final String PACKET_SIZE = "PacketSize";
+    public static String SECURITY_MODE = "SecurityMode";
+	public static String CALLED_AP_TITLE = "CalledAPTitle";
+    public static String SECURITY_KEY = "SecurityKey";
 
 	protected C12Layer2 c12Layer2;
     protected PSEMServiceFactory psemServiceFactory;
@@ -98,10 +98,12 @@ public class AlphaA3 extends AbstractProtocol implements C12ProtocolLink, Serial
 
     protected String c12User;
     protected int c12UserId;
-    private boolean c1222 = false;
-    private String securityMode;
-    private String calledAPTitle;
-    private String securityKey;
+    protected boolean c1222 = false;
+    protected String securityMode;
+    protected String calledAPTitle;
+    protected String securityKey;
+    protected int controlToggleBitMode;
+    protected int packetSize;
     private SerialCommunicationChannel commChannel;
 
     public AlphaA3(PropertySpecService propertySpecService, NlsService nlsService) {
@@ -155,20 +157,18 @@ public class AlphaA3 extends AbstractProtocol implements C12ProtocolLink, Serial
                 setInfoTypePassword(new String(new byte[]{0}));
             }
             String pw=null;
-            if (getInfoTypePassword()!=null) {
-                pw = new String(ParseUtils.extendWithChar0(getInfoTypePassword().getBytes(), 20));
-            }
-            getPSEMServiceFactory().logOn(c12UserId,c12User,pw,getInfoTypeSecurityLevel(),PSEMServiceFactory.PASSWORD_ASCII);
+            if (getInfoTypePassword()!=null)
+               pw = new String(ParseUtils.extendWithChar0(getInfoTypePassword().getBytes(), 20));
+            getPSEMServiceFactory().logOn(c12UserId,c12User,pw,getInfoTypeSecurityLevel(),PSEMServiceFactory.PASSWORD_ASCII, packetSize);
         }
         else {
             if ((getInfoTypeSecurityLevel()!=2) && ((getInfoTypePassword()==null) || (getInfoTypePassword().compareTo("")==0))) {
                 setInfoTypePassword(new String(new byte[]{0, 0}));
             }
             String pw=null;
-            if (getInfoTypePassword()!=null) {
-                pw = new String(ParseUtils.extendWithBinary0(getInfoTypePassword().getBytes(), 20));
-            }
-            getPSEMServiceFactory().logOn(c12UserId,c12User,pw,getInfoTypeSecurityLevel(),PSEMServiceFactory.PASSWORD_BINARY);
+            if (getInfoTypePassword()!=null)
+               pw = new String(ParseUtils.extendWithBinary0(getInfoTypePassword().getBytes(), 20));
+            getPSEMServiceFactory().logOn(c12UserId,c12User,pw,getInfoTypeSecurityLevel(),PSEMServiceFactory.PASSWORD_BINARY, packetSize);
         }
     }
 
@@ -191,6 +191,8 @@ public class AlphaA3 extends AbstractProtocol implements C12ProtocolLink, Serial
         propertySpecs.add(this.stringSpec(CALLED_AP_TITLE, PropertyTranslationKeys.ELSTER_CALLED_AP_TITLE, false));
         propertySpecs.add(this.stringSpec(SECURITY_KEY, PropertyTranslationKeys.ELSTER_SECURITY_KEY, false));
         propertySpecs.add(this.stringSpec(SECURITY_MODE, PropertyTranslationKeys.ELSTER_SECURITY_MODE, false));
+        propertySpecs.add(this.stringSpec("FrameControlToggleBitMode", PropertyTranslationKeys.ELSTER_FRAME_CONTROL_TOGGLE_BIT_MODE, false));
+        propertySpecs.add(this.stringSpec(PACKET_SIZE, PropertyTranslationKeys.ELSTER_PACKET_SIZE, false));
         return propertySpecs;
     }
 
@@ -214,10 +216,12 @@ public class AlphaA3 extends AbstractProtocol implements C12ProtocolLink, Serial
                 throw new InvalidPropertyException("Length of password cannot be higher than 40 binary values. Please correct first.");
             }
         }
+        this.controlToggleBitMode = Integer.parseInt(properties.getTypedProperty("FrameControlToggleBitMode", "1"));
+        this.packetSize = Integer.parseInt(properties.getTypedProperty(PACKET_SIZE, "80"));
     }
 
-    private C1222Buffer checkForC1222() throws IOException {
-        C1222Buffer result = null;
+    protected C1222Buffer checkForC1222() throws IOException {
+    	C1222Buffer result = null;
 
         if (securityMode != null) {
             // C1222Authenticate
@@ -249,12 +253,12 @@ public class AlphaA3 extends AbstractProtocol implements C12ProtocolLink, Serial
 
         C1222Buffer c1222Buffer = checkForC1222();
     	if (c1222Buffer != null) {
-    		c12Layer2 = new C1222Layer(inputStream, outputStream, timeoutProperty, protocolRetriesProperty, forcedDelay, echoCancelling, halfDuplexController);
+    		c12Layer2 = new C1222Layer(inputStream, outputStream, timeoutProperty, protocolRetriesProperty, forcedDelay, echoCancelling, halfDuplexController, getLogger(), this.controlToggleBitMode);
             ((C1222Layer) c12Layer2).setC1222Buffer(c1222Buffer);
             psemServiceFactory.setC1222(c1222);
             psemServiceFactory.setC1222Buffer(c1222Buffer);
     	} else{
-            c12Layer2 = new C12Layer2(inputStream, outputStream, timeoutProperty, protocolRetriesProperty, forcedDelay, echoCancelling, halfDuplexController);
+            c12Layer2 = new C12Layer2(inputStream, outputStream, timeoutProperty, protocolRetriesProperty, forcedDelay, echoCancelling, halfDuplexController, getLogger(), this.controlToggleBitMode);
         }
 
         c12Layer2.initStates();
@@ -322,7 +326,7 @@ public class AlphaA3 extends AbstractProtocol implements C12ProtocolLink, Serial
 
     @Override
     public String getProtocolVersion() {
-        return "$Date: Wed Dec 28 16:35:58 2016 +0100 $";
+        return "$Date: 2017-01-27 11:25:59 +0200 (Fr, 27 Jan 2017)$";
     }
 
     @Override

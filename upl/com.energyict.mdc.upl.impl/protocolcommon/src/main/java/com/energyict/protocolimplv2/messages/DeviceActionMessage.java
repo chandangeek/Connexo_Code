@@ -12,6 +12,7 @@ import com.energyict.protocolimplv2.messages.nls.TranslationKeyImpl;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.IntStream;
 
@@ -331,11 +332,93 @@ public enum DeviceActionMessage implements DeviceMessageSpecSupplier {
         }
     },
 
-    /** Trigger the preliminary protocol (read out serial) for a group of meters. */
-	TRIGGER_PRELIMINARY_PROTOCOL(8053, "Trigger the preliminary protocol for a group of meters") {
+    /**
+     * Trigger the preliminary protocol (read out serial) for a group of meters.
+     */
+    TRIGGER_PRELIMINARY_PROTOCOL(8053, "Trigger the preliminary protocol for a group of meters") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.deviceGroupSpec(service, DeviceMessageConstants.deviceGroupAttributeName, DeviceMessageConstants.deviceGroupAttributeDefaultTranslation));
+        }
+    },
+    SyncAllDevicesWithDC(8054, "Sync all devices with DC") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.emptyList();
+        }
+    },
+    SyncOneDeviceWithDC(8055, "Sync one device with DC") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.deviceId, DeviceMessageConstants.deviceIdDefaultTranslation));
+        }
+    },
+    SyncOneDeviceWithDCAdvanced(8056, "Sync one device with DC (advanced)") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.stringSpec(service, DeviceMessageConstants.deviceId, DeviceMessageConstants.deviceIdDefaultTranslation),
+                    this.dateSpecBuilder(service, DeviceMessageConstants.startDate, DeviceMessageConstants.startDateDefaultTranslation).finish(),
+                    this.dateSpecBuilder(service, DeviceMessageConstants.endDate, DeviceMessageConstants.endDateDefaultTranslation).finish(),
+                    this.stringSpec(service, DeviceMessageConstants.configurationId, DeviceMessageConstants.configurationIdDefaultTranslation)
+            );
+        }
+    },
+    SetBufferForAllLoadProfiles(8057, "Set buffer size for all LP") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.bigDecimalSpec(service, DeviceMessageConstants.bufferSize, DeviceMessageConstants.bufferSizeDefaultTranslation));
+        }
+    },
+    SetBufferForSpecificLoadProfile(8058, "Set buffer size for a specific LP") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.stringSpec(service, DeviceMessageConstants.obisCode, DeviceMessageConstants.obisCodeDefaultTranslation),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.bufferSize, DeviceMessageConstants.bufferSizeDefaultTranslation)
+            );
+        }
+    },
+    SetBufferForAllEventLogs(8059, "Set buffer size for all event logs") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.bigDecimalSpec(service, DeviceMessageConstants.bufferSize, DeviceMessageConstants.bufferSizeDefaultTranslation));
+        }
+    },
+    SetBufferForSpecificEventLog(8060, "Set buffer size for specific event log") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.stringSpec(service, DeviceMessageConstants.obisCode, DeviceMessageConstants.obisCodeDefaultTranslation),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.bufferSize, DeviceMessageConstants.bufferSizeDefaultTranslation)
+            );
+        }
+    },
+    SetBufferForAllRegisters(8061, "Set buffer size for all registers") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.bigDecimalSpec(service, DeviceMessageConstants.bufferSize, DeviceMessageConstants.bufferSizeDefaultTranslation));
+        }
+    },
+    SetBufferForSpecificRegister(8062, "Set buffer size for specific register") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.stringSpec(service, DeviceMessageConstants.obisCode, DeviceMessageConstants.obisCodeDefaultTranslation),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.bufferSize, DeviceMessageConstants.bufferSizeDefaultTranslation)
+            );
+        }
+    },
+    BillingResetWithActivationDate(8063, "Billing reset with activation date") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.dateTimeSpecBuilder(service, DeviceMessageConstants.adHocEndOfBillingActivationDatedAttributeName, DeviceMessageConstants.adHocEndOfBillingActivationDatedAttributeDefaultTranslation).finish());
+        }
+    },
+    RemoveLogicalDevice(8064, "Remove logical device") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.dateTimeSpecBuilder(service, DeviceMessageConstants.clientMacAddress, DeviceMessageConstants.clientMacAddressDefaultTranslation).finish());
         }
     };
 
@@ -368,6 +451,24 @@ public enum DeviceActionMessage implements DeviceMessageSpecSupplier {
         TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
         return service
                 .bigDecimalSpec()
+                .named(deviceMessageConstantKey, translationKey)
+                .describedAs(translationKey.description())
+                .markRequired();
+    }
+
+    protected PropertySpecBuilder<Date> dateSpecBuilder(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
+        return service
+                .dateSpec()
+                .named(deviceMessageConstantKey, translationKey)
+                .describedAs(translationKey.description())
+                .markRequired();
+    }
+
+    protected PropertySpecBuilder<Date> dateTimeSpecBuilder(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
+        return service
+                .dateTimeSpec()
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
                 .markRequired();

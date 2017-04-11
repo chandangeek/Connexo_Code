@@ -1,7 +1,5 @@
 package com.energyict.protocolimpl.dlms.g3.registers;
 
-import com.energyict.mdc.upl.NoSuchRegisterException;
-
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Array;
@@ -12,6 +10,7 @@ import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.SingleActionSchedule;
+import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -81,6 +80,26 @@ public class SingleActionScheduleMapping extends G3Mapping {
             return new int[]{3, 4};   //2 attributes
         }
         return new int[]{3};
+    }
+
+    @Override
+    public int getValueAttribute(){
+        if (getObisCode().getE() == 1) {
+            return 3;
+        } else if (getObisCode().getE() == 2) {
+            return 4;
+        } else if (getObisCode().getE() == 0) {
+            return 3;
+        }
+        return 3;
+    }
+
+    @Override
+    public int getUnitAttribute() {
+        if (getObisCode().getE() == 0) {
+            return 4;
+        }
+        return 0;
     }
 
     /**

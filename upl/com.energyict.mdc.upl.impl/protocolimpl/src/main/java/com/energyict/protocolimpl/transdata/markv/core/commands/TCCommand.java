@@ -61,5 +61,10 @@ public class TCCommand  extends AbstractCommand {
     
     protected CommandIdentification getCommandIdentification() {
         return commandIdentification;
-    }    
+    }
+
+    @Override
+    protected String getCommandName() {
+        return "TC";
+    }
 }

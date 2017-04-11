@@ -1,11 +1,10 @@
 package com.energyict.protocolimpl.dlms.common;
 
-import com.energyict.mdc.upl.UnsupportedException;
-
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.dlms.aso.framecounter.DefaultRespondingFrameCounterHandler;
 import com.energyict.dlms.aso.framecounter.RespondingFrameCounterHandler;
+import com.energyict.mdc.upl.UnsupportedException;
 
 import java.io.IOException;
 import java.security.SecureRandom;
@@ -246,6 +245,11 @@ public class NTASecurityProvider implements SecurityProvider {
     @Override
     public void changeAuthenticationKey(byte[] newAuthenticationKey) throws IOException {
         this.authenticationKey = newAuthenticationKey;
+    }
+
+    @Override
+    public void changeMasterKey(byte[] newMasterKey) throws IOException {
+        this.masterKey = newMasterKey;
     }
 
     public byte[] getDedicatedKey() {

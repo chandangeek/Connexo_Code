@@ -44,7 +44,7 @@ public class ImageTransfer extends AbstractCosemObject {
     public static final int ATTRIBUTE_PREVIOUS_UPGRADE_STATE = -1;
     public static final int ATTRIBUTE_PROTOCOL_CONFIGURATION = -2;
     public static final int ATTRIBUTE_UPGRADE_PROGRESS = -3;
-    static final byte[] LN = new byte[]{0, 0, 44, 0, 0, (byte) 255};
+    public static final byte[] LN = new byte[]{0, 0, 44, 0, 0, (byte) 255};
     private static final String TIMEOUT_MESSAGE = "timeout";
     /* Attribute numbers */
     private static final int ATTRB_IMAGE_BLOCK_SIZE = 2;
@@ -57,7 +57,7 @@ public class ImageTransfer extends AbstractCosemObject {
     private static final int IMAGE_TRANSFER_INITIATE = 1;
     private static final int IMAGE_BLOCK_TRANSFER = 2;
     private static final int IMAGE_VERIFICATION = 3;
-    private static final int IMAGE_ACTIVATION = 4;
+    public static final int IMAGE_ACTIVATION = 4;
     /* Method writes SN */
     private static final int IMAGE_TRANSFER_INITIATE_SN = 0x40;
     private static final int IMAGE_BLOCK_TRANSFER_SN = 0x48;
@@ -221,7 +221,9 @@ public class ImageTransfer extends AbstractCosemObject {
     public final void upgrade(final ImageBlockSupplier dataSupplier, final boolean additionalZeros, final String imageIdentifier, final boolean checkForMissingBlocks) throws IOException {
 
         enableImageTransfer(dataSupplier, imageIdentifier);
-
+        getLogger().finest("Image transfer enabled for imageIdentifier: " + imageIdentifier);
+        getLogger().finest("Add additional zeros to match the last blocksize (additionalZeros): " + additionalZeros);
+        getLogger().finest("checkForMissingBlocks: " + checkForMissingBlocks);
         if (getImageTransferEnabledState().getState()) {
             initializeAndTransferBlocks(dataSupplier, additionalZeros, imageIdentifier);
 
@@ -235,12 +237,12 @@ public class ImageTransfer extends AbstractCosemObject {
             // Step5: Verify image
             updateState(ImageTransferCallBack.ImageTransferState.VERIFY_IMAGE, imageIdentifier, blockCount, dataSupplier.getSize(), 0);
             if (isUsePollingVerifyAndActivate()) {
-                this.protocolLink.getLogger().log(Level.INFO, "Verification of image using polling method ...");
+                getLogger().log(Level.INFO, "Verification of image using polling method ...");
                 verifyAndPollForSuccess();
             } else {
                 verifyAndRetryImage();
             }
-            this.protocolLink.getLogger().log(Level.INFO, "Verification of the image was successful at : " + new Date(System.currentTimeMillis()));
+            getLogger().log(Level.INFO, "Verification of the image was successful at : " + new Date(System.currentTimeMillis()));
 
             // Step6: Check image before activation
             // Skip this step
@@ -284,7 +286,7 @@ public class ImageTransfer extends AbstractCosemObject {
         // Step1: Get the maximum image block size
         // and calculate the amount of blocks in one step
         final long blockSize = readImageBlockSize().getValue();
-        getLogger().info("ImageTransfer block size = [" + blockSize + "] bytes");
+        getLogger().log(Level.INFO, "ImageTransfer block size = [" + blockSize + "] bytes");
 
         this.blockCount = (int) (this.size.getValue() / blockSize) + (((this.size.getValue() % blockSize) == 0) ? 0 : 1);
         getLogger().info("ImageTransfer block count = [" + blockCount + "] blocks");
@@ -303,13 +305,14 @@ public class ImageTransfer extends AbstractCosemObject {
 
         // Step2: Initiate the image transfer
         initiateImageTransfer(imageIdentifier);
+        getLogger().finest("ImageTransfer initiated");
 
         //add delay
         initializationBeforeSendingOfBlocks();
 
         // Step3: Transfer image blocks
         transferImageBlocks(additionalZeros);
-        this.protocolLink.getLogger().log(Level.INFO, "All blocks are sent at : " + new Date(System.currentTimeMillis()));
+        getLogger().log(Level.INFO, "All blocks are sent at : " + new Date(System.currentTimeMillis()));
     }
 
     /**
@@ -395,7 +398,8 @@ public class ImageTransfer extends AbstractCosemObject {
             imageBlockTransfer = new Structure();
             imageBlockTransfer.addDataType(new Unsigned32(i));
             imageBlockTransfer.addDataType(os);
-
+            getLogger().finest("BlockIndex " + i);
+            getLogger().finest("BlockData " + os);
             updateState(ImageTransferCallBack.ImageTransferState.TRANSFER_BLOCKS, "", blockCount, size.intValue(), i);
             imageBlockTransfer(imageBlockTransfer);
 
@@ -406,7 +410,7 @@ public class ImageTransfer extends AbstractCosemObject {
                 final long secondsLeft = (timeLeft / 1000) % 60;
                 String seconds = ((secondsLeft <= 9) ? "0" : "") + secondsLeft;
 
-                this.protocolLink.getLogger().log(Level.INFO, "ImageTransfer: " + (i + 1) + " of " + blockCount + " blocks are sent to the device. Estimated time left until finished: [" + minutesLeft + ":" + seconds + "]");
+                getLogger().log(Level.INFO, "ImageTransfer: " + (i + 1) + " of " + blockCount + " blocks are sent to the device. Estimated time left until finished: [" + minutesLeft + ":" + seconds + "]");
             }
         }
 //		fos.close();
@@ -435,7 +439,7 @@ public class ImageTransfer extends AbstractCosemObject {
             imageBlockTransfer(imageBlockTransfer);
 
             if (i % 50 == 0) { // i is multiple of 50
-                this.protocolLink.getLogger().log(Level.INFO, "ImageTransfer: " + i + " of " + blockCount + " blocks are sent to the device");
+                getLogger().log(Level.INFO, "ImageTransfer: " + i + " of " + blockCount + " blocks are sent to the device");
             }
         }
 //		fos.close();
@@ -453,8 +457,8 @@ public class ImageTransfer extends AbstractCosemObject {
         long previousMissingBlock = -1;
         int retryBlock = 0;
         int totalRetry = 0;
-        protocolLink.getLogger().info("Checking for missing blocks...");
-        protocolLink.getLogger().info("First not transferred block is: " + readFirstNotTransferedBlockNumber().getValue() + ", block count is " + blockCount);
+        getLogger().info("Checking for missing blocks...");
+        getLogger().info("First not transferred block is: " + readFirstNotTransferedBlockNumber().getValue() + ", block count is " + blockCount);
         while (readFirstNotTransferedBlockNumber().getValue() < this.blockCount) {
 
             if (previousMissingBlock == this.getImageFirstNotTransferedBlockNumber().getValue()) {
@@ -473,7 +477,8 @@ public class ImageTransfer extends AbstractCosemObject {
             imageBlockTransfer = new Structure();
             imageBlockTransfer.addDataType(new Unsigned32((int) this.getImageFirstNotTransferedBlockNumber().getValue()));
             imageBlockTransfer.addDataType(os);
-            protocolLink.getLogger().info("Resending block " + this.getImageFirstNotTransferedBlockNumber().getValue());
+            getLogger().info("Resending block " + this.getImageFirstNotTransferedBlockNumber().getValue());
+            getLogger().finest("Resending BlockData: "+octetStringData);
             imageBlockTransfer(imageBlockTransfer);
 
         }
@@ -492,7 +497,7 @@ public class ImageTransfer extends AbstractCosemObject {
                 retry = -1;
             } catch (DataAccessResultException e) {
                 if (isTemporaryFailure(e) && retry >= 1) {
-                    this.protocolLink.getLogger().log(Level.INFO, "Received a temporary failure during verification, will retry.");
+                    getLogger().log(Level.INFO, "Received a temporary failure during verification, will retry.");
                     retry--;
                     DLMSUtils.delay(pollingDelay);
                 } else {

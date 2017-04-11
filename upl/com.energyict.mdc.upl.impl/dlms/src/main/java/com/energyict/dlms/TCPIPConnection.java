@@ -17,11 +17,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * @version  1.0
  * @author Koenraad Vanderschaeve
- * <P>
+ *         <p/>
  *         <B>Description :</B><BR>
  *         Class that implements the TCPIP transport layer wrapper protocol.
+ * @version 1.0
  */
 
 public class TCPIPConnection extends Connection implements DLMSConnection, RetryRequestPreparationConsumer {
@@ -286,12 +286,12 @@ public class TCPIPConnection extends Connection implements DLMSConnection, Retry
         boolean firstRead = true;
         // this.currentTryCount contains the current try number - we should not start again from 0, but continue from current try number
 
-        // strip the HDLC LLC header. This is because of the code inherited from  the days only HDLC existed...
-        byte[] byteRequestBuffer = new byte[retryRequest.length - 3];
-        System.arraycopy(retryRequest, 3, byteRequestBuffer, 0, byteRequestBuffer.length);
-
         while (true) {
             try {
+                // strip the HDLC LLC header. This is because of the code inherited from  the days only HDLC existed...
+                byte[] byteRequestBuffer = new byte[retryRequest.length - 3];
+                System.arraycopy(retryRequest, 3, byteRequestBuffer, 0, byteRequestBuffer.length);
+
                 WPDU wpdu = new WPDU(this.clientAddress, this.serverAddress, byteRequestBuffer);
                 if (DEBUG >= 1) {
                     System.out.println("KV_DEBUG> TX-->" + wpdu);
@@ -330,24 +330,27 @@ public class TCPIPConnection extends Connection implements DLMSConnection, Retry
                 } else {
                     data = getRetryRequestPreparationHandler().prepareRetryRequest(data);
                 }
+            } finally {
+                flushOutputStream();
             }
         }
     }
 
     /**
      * Method that sends an information data field and receives an information field.
+     *
      * @param data with the information field.
      * @return Response data with the information field.
      */
     public byte[] sendRequest(byte[] data) throws IOException {
         resetCurrentRetryCount();
 
-        // strip the HDLC LLC header. This is because of the code inherited from  the days only HDLC existed...
-        byte[] byteRequestBuffer = new byte[data.length - 3];
-        System.arraycopy(data, 3, byteRequestBuffer, 0, byteRequestBuffer.length);
-
         while (true) {
             try {
+                // strip the HDLC LLC header. This is because of the code inherited from  the days only HDLC existed...
+                byte[] byteRequestBuffer = new byte[data.length - 3];
+                System.arraycopy(data, 3, byteRequestBuffer, 0, byteRequestBuffer.length);
+
                 WPDU wpdu = new WPDU(this.clientAddress, this.serverAddress, byteRequestBuffer);
                 if (DEBUG >= 1) {
                     System.out.println("KV_DEBUG> TX-->" + wpdu);
@@ -361,6 +364,8 @@ public class TCPIPConnection extends Connection implements DLMSConnection, Retry
                 } else {
                     data = getRetryRequestPreparationHandler().prepareRetryRequest(data);
                 }
+            } finally {
+                flushOutputStream();
             }
         }
 
@@ -385,12 +390,12 @@ public class TCPIPConnection extends Connection implements DLMSConnection, Retry
     public void sendUnconfirmedRequest(byte[] request) throws IOException {
         resetCurrentRetryCount();
 
-        // strip the HDLC LLC header. This is because of the code inherited from  the days only HDLC existed...
-        byte[] byteRequestBuffer = new byte[request.length - 3];
-        System.arraycopy(request, 3, byteRequestBuffer, 0, byteRequestBuffer.length);
-
         while (true) {
             try {
+                // strip the HDLC LLC header. This is because of the code inherited from  the days only HDLC existed...
+                byte[] byteRequestBuffer = new byte[request.length - 3];
+                System.arraycopy(request, 3, byteRequestBuffer, 0, byteRequestBuffer.length);
+
                 WPDU wpdu = new WPDU(this.clientAddress, this.serverAddress, byteRequestBuffer);
                 sendOut(wpdu.getFrameData());
                 return;
@@ -404,21 +409,21 @@ public class TCPIPConnection extends Connection implements DLMSConnection, Retry
 
                 this.logger.log(Level.WARNING, "Sleeping for [" + timeout + " ms] until next try ...");
                 DLMSUtils.delay(timeout);
-
             }
         }
     }
 
     HHUSignOn hhuSignOn = null;
     String meterId = "";
+
     public void setHHUSignOn(HHUSignOn hhuSignOn, String meterId) {
         this.hhuSignOn = hhuSignOn;
         this.meterId = meterId;
     }
 
-	public void setHHUSignOn(HHUSignOn hhuSignOn,String meterId, int hhuSignonBaudRateCode) {
+    public void setHHUSignOn(HHUSignOn hhuSignOn, String meterId, int hhuSignonBaudRateCode) {
         setHHUSignOn(hhuSignOn, meterId);
-	}
+    }
 
     public HHUSignOn getHhuSignOn() {
         return this.hhuSignOn;

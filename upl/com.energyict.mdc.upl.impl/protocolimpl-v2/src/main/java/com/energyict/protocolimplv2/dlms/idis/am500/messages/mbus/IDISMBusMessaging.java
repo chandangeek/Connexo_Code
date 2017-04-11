@@ -62,7 +62,6 @@ public class IDISMBusMessaging extends AbstractDlmsMessaging implements DeviceMe
                 this.get(ContactorDeviceMessage.CONTACTOR_CLOSE_WITH_ACTIVATION_DATE),
                 this.get(MBusSetupDeviceMessage.Decommission),
                 this.get(MBusSetupDeviceMessage.SetEncryptionKeys),
-                this.get(MBusSetupDeviceMessage.WriteCaptureDefinitionForAllInstances),
                 this.get(MBusSetupDeviceMessage.WriteMBusCapturePeriod));
     }
 

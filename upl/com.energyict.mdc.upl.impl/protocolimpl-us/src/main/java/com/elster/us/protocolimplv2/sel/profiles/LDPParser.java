@@ -1,39 +1,35 @@
 package com.elster.us.protocolimplv2.sel.profiles;
 
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
-import java.io.EOFException;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Logger;
-
 import com.elster.us.protocolimplv2.sel.profiles.structure.Event;
 import com.elster.us.protocolimplv2.sel.profiles.structure.Interval;
 import com.elster.us.protocolimplv2.sel.profiles.structure.LDPError;
 import com.elster.us.protocolimplv2.sel.profiles.structure.LPData;
 import com.elster.us.protocolimplv2.sel.profiles.structure.MeterConfiguration;
 import com.elster.us.protocolimplv2.sel.profiles.structure.MeterStatus;
-import com.elster.us.protocolimplv2.sel.profiles.structure.PresentValues;
 import com.elster.us.protocolimplv2.sel.profiles.structure.SERData;
 
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.EOFException;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Logger;
+
+import static com.elster.us.protocolimplv2.sel.Consts.RECORD_LDP_DATA;
+import static com.elster.us.protocolimplv2.sel.Consts.RECORD_LDP_ERROR;
 import static com.elster.us.protocolimplv2.sel.Consts.RECORD_METER_CONFIG;
 import static com.elster.us.protocolimplv2.sel.Consts.RECORD_METER_STATUS;
 import static com.elster.us.protocolimplv2.sel.Consts.RECORD_PRESENT_VALUES;
-import static com.elster.us.protocolimplv2.sel.Consts.RECORD_LDP_DATA;
 import static com.elster.us.protocolimplv2.sel.Consts.RECORD_SER_DATA;
-import static com.elster.us.protocolimplv2.sel.Consts.RECORD_LDP_ERROR;
 
 public class LDPParser {
-  
+
   private int numberOfChannels;
   private String recorder = "COI";
   Logger logger = Logger.getLogger(this.getClass().getName());
-  
-  
+
+
   public LDPData parseYModemFile(DataInputStream dataInputStream) throws IOException {
     LDPData ldpData = new LDPData();
     List<LPData> lpRecord = new ArrayList<LPData>();
@@ -41,47 +37,47 @@ public class LDPParser {
     List<LDPError> lpErrRecord = new ArrayList<LDPError>();
     byte[] dataBlock;
     int len=0;
-    
+
     try {
       while(dataInputStream.available() > 0) {
         byte recordType = (byte)dataInputStream.readShort();
         int recordSize = dataInputStream.readUnsignedShort();
-        
+
         switch (recordType) {
-        case RECORD_METER_CONFIG:
-          dataBlock = new byte[recordSize];
-          len = dataInputStream.read(dataBlock, 0, recordSize);
-          ldpData.setMeterConfig(parseMeterConfig(dataBlock));
-          break;
-        case RECORD_METER_STATUS:
-          dataBlock = new byte[recordSize];
-          len = dataInputStream.read(dataBlock, 0, recordSize);
-          ldpData.setMeterStatus(parseMeterStatus(dataBlock));
-          break;
-        case RECORD_PRESENT_VALUES:
-          dataBlock = new byte[recordSize];
-          len = dataInputStream.read(dataBlock, 0, recordSize);
-          ldpData.setPresentValues(parsePresentValues(dataBlock));
-          break;
-        case RECORD_LDP_DATA:
-          dataBlock = new byte[recordSize];
-          len = dataInputStream.read(dataBlock, 0, recordSize);
-          lpRecord.add(parseLDPData(dataBlock));
-          break;
-        case RECORD_SER_DATA:
-          dataBlock = new byte[recordSize];
-          len = dataInputStream.read(dataBlock, 0, recordSize);
-          serRecord.add(parseSERData(dataBlock));
-          break;
-        case RECORD_LDP_ERROR:
-          dataBlock = new byte[recordSize];
-          len = dataInputStream.read(dataBlock, 0, recordSize);
-          lpErrRecord.add(parseLDPError(dataBlock));
-          break;
-        default:
-          //either invalid recordtype or EOF
-          //System.out.println("unrecognized recordtype: " + String.format("%02X", recordType));
-          break;
+          case RECORD_METER_CONFIG:
+            dataBlock = new byte[recordSize];
+            len = dataInputStream.read(dataBlock, 0, recordSize);
+            ldpData.setMeterConfig(parseMeterConfig(dataBlock));
+            break;
+          case RECORD_METER_STATUS:
+            dataBlock = new byte[recordSize];
+            len = dataInputStream.read(dataBlock, 0, recordSize);
+            ldpData.setMeterStatus(parseMeterStatus(dataBlock));
+            break;
+          case RECORD_PRESENT_VALUES:
+            dataBlock = new byte[recordSize];
+            len = dataInputStream.read(dataBlock, 0, recordSize);
+            ldpData.setPresentValues(parsePresentValues(dataBlock));
+            break;
+          case RECORD_LDP_DATA:
+            dataBlock = new byte[recordSize];
+            len = dataInputStream.read(dataBlock, 0, recordSize);
+            lpRecord.add(parseLDPData(dataBlock));
+            break;
+          case RECORD_SER_DATA:
+            dataBlock = new byte[recordSize];
+            len = dataInputStream.read(dataBlock, 0, recordSize);
+            serRecord.add(parseSERData(dataBlock));
+            break;
+          case RECORD_LDP_ERROR:
+            dataBlock = new byte[recordSize];
+            len = dataInputStream.read(dataBlock, 0, recordSize);
+            lpErrRecord.add(parseLDPError(dataBlock));
+            break;
+          default:
+            //either invalid recordtype or EOF
+            //System.out.println("unrecognized recordtype: " + String.format("%02X", recordType));
+            break;
         }
       }
     } catch(EOFException e) {
@@ -93,10 +89,10 @@ public class LDPParser {
       ldpData.setSerData(serRecord);
     if(lpErrRecord.size() > 0)
       ldpData.setLdpError(lpErrRecord);
-    
+
     return ldpData;
   }
-  
+
   private LDPError parseLDPError(byte[] dataBlock) {
     // TODO Auto-generated method stub
     return null;
@@ -121,8 +117,8 @@ public class LDPParser {
     return serdata;
   }
 
-  private float[] parsePresentValues(byte[] dataBlock) throws IOException {
-    float[] presentValues = new float[this.numberOfChannels];
+  private Long[] parsePresentValues(byte[] dataBlock) throws IOException {
+    Long[] presentValues = new Long[this.numberOfChannels];
     DataInputStream dis = new DataInputStream(new ByteArrayInputStream(dataBlock, 0, dataBlock.length));
     for(int i=0; i < this.numberOfChannels; i++) {
       presentValues[i] = readUInt32(dis);
@@ -147,8 +143,9 @@ public class LDPParser {
       interval.setJulianDay(dis.readUnsignedShort());
       interval.setTenthsMillSecSinceMidnight(readUInt32(dis));
       for(int j=0; j<intvlValues.length; j++) {
-        if(recorder.trim().equals("EOI"))
+        if(recorder.trim().equals("EOI")) {
           intvlValuesEOI[j] = readUInt32(dis);
+        }
         else
           intvlValues[j] = dis.readFloat();
       }
@@ -156,7 +153,7 @@ public class LDPParser {
         interval.setChannelValues(intvlValuesEOI);
       else
         interval.setChannelValues(intvlValues);
-      
+
       intervals.add(interval);
     }
     lpData.setIntervals(intervals);
@@ -164,7 +161,7 @@ public class LDPParser {
     lpData.setCalCheckSum(calcCheckSum(dataBlock));
     //TODO: figure out why checksum doesn't always validate but data is correct
     //validateChecksum(lpData.getCheckSum(), lpData.getCalCheckSum());
-    
+
     return lpData;
   }
 
@@ -181,7 +178,7 @@ public class LDPParser {
     return null;
   }
 
-  
+
   private MeterConfiguration parseMeterConfig(byte[] dataBlock) throws IOException {
     byte[] buffer = new byte[33];
     DataInputStream dis = new DataInputStream(new ByteArrayInputStream(dataBlock, 0, dataBlock.length));
@@ -273,11 +270,11 @@ public class LDPParser {
     }
     setRecorderType(recorderNames);
     meterConfig.recorderNames = recorderNames;
-    
+
     return meterConfig;
   }
-  
-  private static long readUInt32(DataInputStream in) throws IOException {
+
+  private static long readUInt32(java.io.DataInputStream in) throws java.io.IOException {
     int bytes = 4;
 
     long result = 0;
@@ -287,16 +284,16 @@ public class LDPParser {
     }
     return result;
   }
-  
-  
+
+
   private int getIntFromUINT32(byte[] buffer) {
     return (buffer[0] & 0xFF) | (buffer[1] & 0xFF) << 8 | (buffer[2] & 0xFF) << 16 | (buffer[3] & 0xFF) << 24;
   }
-  
+
   private void setRecorderType(List<String> recorderNames) {
     this.recorder = recorderNames.get(0);
   }
-  
+
   private int calcCheckSum(byte[] dataBlock) {
     long checksum = 0;
     int length = dataBlock.length - 2; //ignore the last two bytes which represent checksum

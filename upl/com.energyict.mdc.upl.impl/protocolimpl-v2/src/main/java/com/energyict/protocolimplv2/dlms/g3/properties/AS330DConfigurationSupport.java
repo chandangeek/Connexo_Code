@@ -3,7 +3,6 @@ package com.energyict.protocolimplv2.dlms.g3.properties;
 import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
 import com.energyict.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.dlms.g3.G3Properties;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
@@ -70,7 +69,7 @@ public class AS330DConfigurationSupport extends DlmsConfigurationSupport {
 
     private PropertySpec pskPropertySpec() {
         return UPLPropertySpecFactory
-                .specBuilder(G3Properties.PSK, false, PropertyTranslationKeys.V2_DLMS_PSK, this.getPropertySpecService()::hexStringSpec)
+                .specBuilder(G3Properties.PSK, false, PropertyTranslationKeys.V2_DLMS_PSK, this.getPropertySpecService()::stringSpec)
                 .finish();
     }
 

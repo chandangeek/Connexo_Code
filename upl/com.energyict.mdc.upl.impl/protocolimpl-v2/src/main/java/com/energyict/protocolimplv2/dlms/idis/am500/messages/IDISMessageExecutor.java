@@ -94,7 +94,7 @@ public class IDISMessageExecutor extends AbstractMessageExecutor {
     protected static final ObisCode MBUS_CLIENT_OBISCODE = ObisCode.fromString("0.1.24.1.0.255");
     private static final ObisCode RELAY_CONTROL_OBISCODE = ObisCode.fromString("0.0.96.3.10.255");
     private static final ObisCode TIMED_CONNECTOR_ACTION_OBISCODE = ObisCode.fromString("0.0.15.0.1.255");
-    private static final ObisCode DISCONNECTOR_SCRIPT_OBISCODE = ObisCode.fromString("0.0.10.0.106.255");
+    protected static final ObisCode DISCONNECTOR_SCRIPT_OBISCODE = ObisCode.fromString("0.0.10.0.106.255");
     private static final ObisCode ERROR_BITS_OBISCODE = ObisCode.fromString("0.0.97.97.0.255");
     private static final ObisCode ALARM_BITS_OBISCODE = ObisCode.fromString("0.0.97.98.0.255");
     private static final ObisCode ALARM_FILTER_OBISCODE = ObisCode.fromString("0.0.97.98.10.255");
@@ -133,6 +133,14 @@ public class IDISMessageExecutor extends AbstractMessageExecutor {
                     collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
                     collectedMessage.setDeviceProtocolInformation(e.getMessage());
                     collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(pendingMessage, e));
+                } catch (Exception e){
+                    //in case we get an exception and we did not managed to put the collected message to failed, we will do it here
+                    if(!collectedMessage.getNewDeviceMessageStatus().equals(DeviceMessageStatus.FAILED)) {
+                        collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
+                        collectedMessage.setDeviceProtocolInformation(e.getMessage());
+                        collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(pendingMessage, e));
+                    }
+                    throw e;
                 }
             }
             result.addCollectedMessage(collectedMessage);
@@ -352,7 +360,7 @@ public class IDISMessageExecutor extends AbstractMessageExecutor {
         limiter.writeActions(actions);
     }
 
-    private void writeEmergencyProfile(int emergencyProfileId, Date date, int emergencyDuration, Limiter limiter) throws IOException {
+    protected void writeEmergencyProfile(int emergencyProfileId, Date date, int emergencyDuration, Limiter limiter) throws IOException {
         Limiter.EmergencyProfile emergencyProfile = limiter.new EmergencyProfile();
         emergencyProfile.addDataType(new Unsigned16(emergencyProfileId));
         emergencyProfile.addDataType(new OctetString(ProtocolTools.getSubArray(new AXDRDateTime(date, getProtocol().getTimeZone()).getBEREncodedByteArray(), 2)));
@@ -360,7 +368,7 @@ public class IDISMessageExecutor extends AbstractMessageExecutor {
         limiter.writeEmergencyProfile(emergencyProfile);
     }
 
-    private void writeEmergencyThreshold(int monitoredValue, long activeThreshold, Limiter limiter) throws IOException {
+    protected void writeEmergencyThreshold(int monitoredValue, long activeThreshold, Limiter limiter) throws IOException {
         if (monitoredValue == 1) {
             limiter.writeThresholdEmergency(new Unsigned16((int) activeThreshold));
         } else {
@@ -368,7 +376,7 @@ public class IDISMessageExecutor extends AbstractMessageExecutor {
         }
     }
 
-    private void writeNormalThreshold(int monitoredValue, long activeThreshold, Limiter limiter) throws IOException {
+    protected void writeNormalThreshold(int monitoredValue, long activeThreshold, Limiter limiter) throws IOException {
         if (monitoredValue == 1) {
             limiter.writeThresholdNormal(new Unsigned16((int) activeThreshold));
         } else {
@@ -376,7 +384,7 @@ public class IDISMessageExecutor extends AbstractMessageExecutor {
         }
     }
 
-    private void setMonitoredValue(Limiter limiter, int monitoredValue) throws IOException {
+    protected void setMonitoredValue(Limiter limiter, int monitoredValue) throws IOException {
         byte[] monitoredAttribute = new byte[]{1, 0, 15, 24, 0, (byte) 255};
         int classId = DLMSClassId.DEMAND_REGISTER.getClassId();
         if (monitoredValue == 1) {
@@ -455,7 +463,7 @@ public class IDISMessageExecutor extends AbstractMessageExecutor {
         data.setValueAttr(new Unsigned32(filter));
     }
 
-    private void writeActivityCalendar(OfflineDeviceMessage offlineDeviceMessage) throws IOException {
+    protected void writeActivityCalendar(OfflineDeviceMessage offlineDeviceMessage) throws IOException {
         String name = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, activityCalendarNameAttributeName).getValue();
         String activationDate = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, activityCalendarActivationDateAttributeName).getValue();
         String codeTableDescription = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, activityCalendarAttributeName).getValue();
@@ -482,7 +490,7 @@ public class IDISMessageExecutor extends AbstractMessageExecutor {
         activityCalendarController.writeCalendar();
     }
 
-    private void writeSpecialDays(OfflineDeviceMessage offlineDeviceMessage) throws IOException {
+    protected void writeSpecialDays(OfflineDeviceMessage offlineDeviceMessage) throws IOException {
         String codeTableDescription = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, specialDaysAttributeName).getValue();
         String type = "Special_Days";
 

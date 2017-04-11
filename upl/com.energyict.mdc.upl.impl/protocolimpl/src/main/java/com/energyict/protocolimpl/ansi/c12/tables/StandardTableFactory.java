@@ -10,9 +10,10 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import java.io.*;
-import java.util.*;
-import com.energyict.protocolimpl.ansi.c12.*;
+import com.energyict.protocolimpl.ansi.c12.C12ProtocolLink;
+
+import java.io.IOException;
+import java.util.Date;
 
 /**
  *
@@ -401,12 +402,29 @@ public class StandardTableFactory extends TableFactory {
         }
         return unitOfMeasureEntryTable;
     }
-    
+
+    public UnitOfMeasureEntryTable getUnitOfMeasureEntryTable(boolean forceFullRead, int reduceMaxNumberOfUomEntryBy) throws IOException {
+        if (unitOfMeasureEntryTable==null) {
+            unitOfMeasureEntryTable = new UnitOfMeasureEntryTable(this, reduceMaxNumberOfUomEntryBy);
+            unitOfMeasureEntryTable.setForceFullRead(forceFullRead);
+            unitOfMeasureEntryTable.build();
+        }
+        return unitOfMeasureEntryTable;
+    }
+
     public CurrentRegisterDataTable getCurrentRegisterDataTable() throws IOException {
         return getCurrentRegisterDataTable(false);
     }
-    public CurrentRegisterDataTable getCurrentRegisterDataTable(boolean forceFullRead) throws IOException { 
+
+    public CurrentRegisterDataTable getCurrentRegisterDataTable(boolean forceFullRead) throws IOException {
         CurrentRegisterDataTable currentRegisterDataTable = new CurrentRegisterDataTable(this);
+        currentRegisterDataTable.setForceFullRead(forceFullRead);
+        currentRegisterDataTable.build();
+        return currentRegisterDataTable;
+    }
+
+    public CurrentRegisterDataTable getCurrentRegisterDataTable(boolean forceFullRead, boolean readDemandsAndCoincidents, boolean readTiers, boolean limitRegisterReadSize) throws IOException {
+        CurrentRegisterDataTable currentRegisterDataTable = new CurrentRegisterDataTable(this, readDemandsAndCoincidents, readTiers, limitRegisterReadSize);
         currentRegisterDataTable.setForceFullRead(forceFullRead);
         currentRegisterDataTable.build();
         return currentRegisterDataTable;

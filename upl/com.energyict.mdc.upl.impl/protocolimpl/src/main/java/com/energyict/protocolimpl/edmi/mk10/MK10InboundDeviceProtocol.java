@@ -11,7 +11,7 @@ import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocol.exception.InboundFrameException;
 import com.energyict.protocol.exception.ProtocolRuntimeException;
-import com.energyict.protocolimpl.edmi.mk10.packets.PushPacket;
+import com.energyict.protocolimpl.edmi.common.packets.PushPacket;
 import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.TypedProperties;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;

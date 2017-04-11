@@ -40,6 +40,7 @@ public class DlmsSession implements ProtocolLink {
 
     private final ComChannel comChannel;
     private final DlmsSessionProperties properties;
+    private Logger logger;
     protected ApplicationServiceObjectV2 aso;
     protected DLMSMeterConfig dlmsMeterConfig;
     protected SecureConnection dlmsConnection;
@@ -61,9 +62,20 @@ public class DlmsSession implements ProtocolLink {
         init(hhuSignOn, deviceId, null);
     }
 
+    public DlmsSession(ComChannel comChannel, DlmsSessionProperties properties, Logger logger) {
+        this.comChannel = comChannel;
+        this.properties = properties;
+        this.logger = logger;
+        init(null, "", null);
+    }
+
     protected void init(HHUSignOnV2 hhuSignOn, String deviceId, String calledSystemTitle) {
         this.cosemObjectFactory = new CosemObjectFactory(this, getProperties().isBulkRequest());
         this.dlmsMeterConfig = DLMSMeterConfig.getInstance(getProperties().getManufacturer());
+
+        if (calledSystemTitle == null && getProperties().isNtaSimulationTool()) {
+            calledSystemTitle = getProperties().getSerialNumber();
+        }
         this.aso = buildAso(calledSystemTitle);
         this.dlmsConnection = new SecureConnection(this.aso, defineTransportDLMSConnection());
         this.dlmsConnection.setInvokeIdAndPriorityHandler(getProperties().getInvokeIdAndPriorityHandler());
@@ -152,10 +164,6 @@ public class DlmsSession implements ProtocolLink {
      * Build a new ApplicationServiceObject
      */
     protected ApplicationServiceObjectV2 buildAso(String calledSystemTitleString) {
-        if (calledSystemTitleString == null && getProperties().isNtaSimulationTool()) {
-            calledSystemTitleString = getProperties().getSerialNumber();
-        }
-
         return new ApplicationServiceObjectV2(
                 buildXDlmsAse(),
                 this,
@@ -257,7 +265,10 @@ public class DlmsSession implements ProtocolLink {
     }
 
     public Logger getLogger() {
-        return Logger.getLogger(this.getClass().getName());
+        if(logger == null){
+            logger = Logger.getLogger(this.getClass().getName());
+        }
+        return logger;
     }
 
     public boolean isRequestTimeZone() {

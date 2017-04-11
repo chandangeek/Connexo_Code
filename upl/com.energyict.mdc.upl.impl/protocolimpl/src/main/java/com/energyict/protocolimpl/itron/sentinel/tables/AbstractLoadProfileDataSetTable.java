@@ -11,7 +11,9 @@
 package com.energyict.protocolimpl.itron.sentinel.tables;
 
 import com.energyict.protocolimpl.ansi.c12.PartialReadInfo;
-import com.energyict.protocolimpl.ansi.c12.tables.*;
+import com.energyict.protocolimpl.ansi.c12.tables.IntervalSet;
+import com.energyict.protocolimpl.ansi.c12.tables.LoadProfileBlockData;
+import com.energyict.protocolimpl.ansi.c12.tables.StandardTableFactory;
 
 import java.io.IOException;
 
@@ -46,13 +48,13 @@ public abstract class AbstractLoadProfileDataSetTable extends com.energyict.prot
             blockSizeRest = LoadProfileBlockData.getSize(getTableFactory(), getTableIdentification().getTableId()-64, getIntervalsets());
         
         int headerSize = LoadProfileBlockData.getSize(getTableFactory(), getTableIdentification().getTableId()-64, true);
-        
+
         if (getNrOfBlocksToRequest() == -1) {
             setHeaderOnly(false);
             setNrOfBlocksToRequest(0);
             return;
         }
-        else if (getNrOfBlocksToRequest() == 0) 
+        else if (getNrOfBlocksToRequest() == 0)
             setHeaderOnly(true);
         else
             setHeaderOnly(false);
@@ -71,8 +73,8 @@ public abstract class AbstractLoadProfileDataSetTable extends com.energyict.prot
                 setPartialReadInfo(partialReadInfo);
                 int intervalSetSize = IntervalSet.getSize(getTableFactory(), getTableIdentification().getTableId()-64);
                 int additionalOffset = count * chunkSize * intervalSetSize;
-                partialReadInfo = new PartialReadInfo(blockSize*getBlockNrOffset()+headerSize+additionalOffset,intervalSetSize*getIntervalsets());
-                setPartialReadInfo2(partialReadInfo);
+                PartialReadInfo partialReadInfo2 = new PartialReadInfo(blockSize*getBlockNrOffset()+headerSize+additionalOffset,intervalSetSize*getIntervalsets());
+                setPartialReadInfo2(partialReadInfo2);
             }
         }
         else throw new IOException("AbstractLoadProfileDataSetTable, prepareBuild, invalid intervalOrder "+getLoadProfileSetStatusCached().getIntervalOrder());

@@ -13,10 +13,12 @@ import com.energyict.mdc.upl.ManufacturerInformation;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.io.ConnectionType;
 import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.offline.OfflineRegister;
@@ -45,6 +47,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Extension of the old AM500 protocol (IDIS package 1), adding extra features (IDIS package 2)
@@ -72,7 +75,7 @@ public class AM130 extends AM500 {
      */
     @Override
     public String getVersion() {
-        return "$Date: 2016-05-10 12:20:42 +0200 (Tue, 10 May 2016)$";
+        return "$Date: Fri Sep 2 11:39:06 2016 +0300 $";
     }
 
     protected HasDynamicProperties getNewInstanceOfConfigurationSupport() {
@@ -123,7 +126,7 @@ public class AM130 extends AM500 {
         initDlmsSession(comChannel);
     }
 
-    private void initDlmsSession(ComChannel comChannel) {
+    protected void initDlmsSession(ComChannel comChannel) {
         readFrameCounter(comChannel, (int) getDlmsSessionProperties().getTimeout());
         setDlmsSession(new DlmsSession(comChannel, getDlmsSessionProperties()));
     }
@@ -217,6 +220,11 @@ public class AM130 extends AM500 {
             this.registerFactory = new AM130RegisterFactory(this, this.getCollectedDataFactory(), this.getIssueFactory());
         }
         return registerFactory;
+    }
+
+    @Override
+    public Optional<String> prepareMessageContext(Device device, OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
+        return getIDISMessaging().prepareMessageContext(device, offlineDevice, deviceMessage);
     }
 
     @Override

@@ -13,6 +13,8 @@ package com.energyict.dlms.axrdencoding;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
 
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.io.IOException;
 import java.math.BigDecimal;
 
@@ -20,6 +22,7 @@ import java.math.BigDecimal;
  *
  * @author kvds
  */
+@XmlRootElement
 public class Unsigned16 extends AbstractDataType {
 
     private static final int SIZE = 3;
@@ -59,6 +62,7 @@ public class Unsigned16 extends AbstractDataType {
         return SIZE;
     }
 
+    @XmlAttribute
     public int getValue() {
         return value;
     }

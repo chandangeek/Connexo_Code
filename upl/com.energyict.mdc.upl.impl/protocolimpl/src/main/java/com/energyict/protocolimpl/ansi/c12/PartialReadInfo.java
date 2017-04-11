@@ -40,5 +40,8 @@ public class PartialReadInfo {
     public void setCount(int count) {
         this.count = count;
     }
-    
+
+    public String toString() {
+        return "PartialRead offset: " + getOffset() + ", count: " + getCount();
+    }
 }

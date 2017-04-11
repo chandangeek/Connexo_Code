@@ -6,6 +6,9 @@ import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.GeneralCipheringKeyType;
+import com.energyict.dlms.ParseUtils;
+import com.energyict.dlms.XdlmsApduTags;
+import com.energyict.dlms.cosem.attributeobjects.dataprotection.ProtectionType;
 import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.dlms.protocolimplv2.GeneralCipheringSecurityProvider;
 import com.energyict.dlms.protocolimplv2.SecurityProvider;
@@ -21,6 +24,7 @@ import com.energyict.encryption.kdf.KDF;
 import com.energyict.encryption.kdf.NIST_SP_800_56_KDF;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocol.exception.DataEncryptionException;
 import com.energyict.protocol.exception.DeviceConfigurationException;
 import com.energyict.protocolcommon.exceptions.CodingException;
@@ -87,15 +91,11 @@ public class SecurityContext {
      */
     private int securitySuite;
     private long frameCounter;
-    private Integer responseFrameCounter = null;
+    private Long responseFrameCounter = null;
     private byte[] systemTitle;
     private byte[] responseSystemTitle;
     private AuthenticationTypes authenticationAlgorithm;
     private boolean lastResponseWasSigned = false;
-    /**
-     * Indicates whether the FrameCounter needs to be validated with a +1
-     */
-    private boolean frameCounterInitialized = false;
 
     /**
      * This state allows us to include the general ciphering key information just once, for the first request.
@@ -244,53 +244,11 @@ public class SecurityContext {
             if (securityPolicy.isRequestPlain()) {
                 return plainText;
             } else if (securityPolicy.isRequestAuthenticatedOnly()) {
-                AesGcm aesGcm = new AesGcm(getEncryptionKey(), DLMS_AUTH_TAG_SIZE);
-
-                /*
-                 * The additional associatedData (AAD) is a concatenation of:
-                 * - the securityControlByte
-                 * - the authenticationKey
-                 * - (the general ciphering header)
-                 * - the plainText
-                 */
-                byte[] associatedData = ProtocolTools.concatByteArrays(
-                        new byte[]{getRequestSecurityControlByte()},
-                        getSecurityProvider().getAuthenticationKey(),
-                        (cipheringType == CipheringType.GENERAL_CIPHERING.getType()) ? createGeneralCipheringHeader() : new byte[0],
-                        plainText
-                );
-
-                aesGcm.setAdditionalAuthenticationData(new BitVector(associatedData));
-                aesGcm.setInitializationVector(new BitVector(getInitializationVector()));
-                aesGcm.encrypt();
-                return createSecuredApdu(plainText, aesGcm.getTag().getValue());
+                return getAuthenticatedRequestBytes(plainText);
             } else if (securityPolicy.isRequestEncryptedOnly()) {
-                AesGcm aesGcm = new AesGcm(getEncryptionKey(), DLMS_AUTH_TAG_SIZE);
-
-                aesGcm.setInitializationVector(new BitVector(getInitializationVector()));
-                aesGcm.setPlainText(new BitVector(plainText));
-                aesGcm.encrypt();
-                return createSecuredApdu(aesGcm.getCipherText().getValue(), null);
+                return getEncryptedRequestBytes(plainText);
             } else if (securityPolicy.isRequestAuthenticatedAndEncrypted()) {
-                AesGcm aesGcm = new AesGcm(getEncryptionKey(), DLMS_AUTH_TAG_SIZE);
-
-                /*
-                 * The additional associatedData (AAD) is a concatenation of:
-                 * - the securityControlByte
-                 * - the authenticationKey
-                 * - (the general ciphering header)
-                 */
-                byte[] associatedData = ProtocolTools.concatByteArrays(
-                        new byte[]{getRequestSecurityControlByte()},
-                        getSecurityProvider().getAuthenticationKey(),
-                        (cipheringType == CipheringType.GENERAL_CIPHERING.getType()) ? createGeneralCipheringHeader() : new byte[0]
-                );
-
-                aesGcm.setAdditionalAuthenticationData(new BitVector(associatedData));
-                aesGcm.setInitializationVector(new BitVector(getInitializationVector()));
-                aesGcm.setPlainText(new BitVector(plainText));
-                aesGcm.encrypt();
-                return createSecuredApdu(aesGcm.getCipherText().getValue(), aesGcm.getTag().getValue());
+                return getAuthenticatedAndEncryptedRequestBytes(plainText);
             } else {
                 throw new UnsupportedException("Unknown securityPolicy: " + this.securityPolicy.getDataTransportSecurityLevel());
             }
@@ -299,6 +257,60 @@ public class SecurityContext {
                 incFrameCounter();
             }
         }
+    }
+
+    private byte[] getAuthenticatedAndEncryptedRequestBytes(byte[] plainText) {
+        AesGcm aesGcm = new AesGcm(getEncryptionKey(), DLMS_AUTH_TAG_SIZE);
+
+                /*
+                 * The additional associatedData (AAD) is a concatenation of:
+                 * - the securityControlByte
+                 * - the authenticationKey
+                 * - (the general ciphering header)
+                 */
+        byte[] associatedData = ProtocolTools.concatByteArrays(
+                new byte[]{getRequestSecurityControlByte()},
+                getSecurityProvider().getAuthenticationKey(),
+                (cipheringType == CipheringType.GENERAL_CIPHERING.getType()) ? createGeneralCipheringHeader() : new byte[0]
+        );
+
+        aesGcm.setAdditionalAuthenticationData(new BitVector(associatedData));
+        aesGcm.setInitializationVector(new BitVector(getInitializationVector()));
+        aesGcm.setPlainText(new BitVector(plainText));
+        aesGcm.encrypt();
+        return createSecuredApdu(aesGcm.getCipherText().getValue(), aesGcm.getTag().getValue());
+    }
+
+    private byte[] getEncryptedRequestBytes(byte[] plainText) {
+        AesGcm aesGcm = new AesGcm(getEncryptionKey(), DLMS_AUTH_TAG_SIZE);
+
+        aesGcm.setInitializationVector(new BitVector(getInitializationVector()));
+        aesGcm.setPlainText(new BitVector(plainText));
+        aesGcm.encrypt();
+        return createSecuredApdu(aesGcm.getCipherText().getValue(), null);
+    }
+
+    private byte[] getAuthenticatedRequestBytes(byte[] plainText) {
+        AesGcm aesGcm = new AesGcm(getEncryptionKey(), DLMS_AUTH_TAG_SIZE);
+
+                /*
+                 * The additional associatedData (AAD) is a concatenation of:
+                 * - the securityControlByte
+                 * - the authenticationKey
+                 * - (the general ciphering header)
+                 * - the plainText
+                 */
+        byte[] associatedData = ProtocolTools.concatByteArrays(
+                new byte[]{getRequestSecurityControlByte()},
+                getSecurityProvider().getAuthenticationKey(),
+                (cipheringType == CipheringType.GENERAL_CIPHERING.getType()) ? createGeneralCipheringHeader() : new byte[0],
+                plainText
+        );
+
+        aesGcm.setAdditionalAuthenticationData(new BitVector(associatedData));
+        aesGcm.setInitializationVector(new BitVector(getInitializationVector()));
+        aesGcm.encrypt();
+        return createSecuredApdu(plainText, aesGcm.getTag().getValue());
     }
 
     private byte[] getEncryptionKey() {
@@ -360,18 +372,33 @@ public class SecurityContext {
     }
 
     /**
-     * Wrap the given APDU (can already by secured) in a new general-signing APDU.
+     * Wrap the given APDU (can already be secured) in a new general-signing APDU.
      * The signature is either 64 bytes or 96 bytes based on the suite that is used.
      */
     public byte[] applyGeneralSigning(byte[] securedRequest) throws UnsupportedException {
-        ECDSASignatureImpl ecdsaSignature = new ECDSASignatureImpl(getECCCurve());
-        byte[] generalCipheringHeader = createGeneralCipheringHeader();
-        PrivateKey clientPrivateSigningKey = getGeneralCipheringSecurityProvider().getClientPrivateSigningKey();
-        if (clientPrivateSigningKey == null) {
-            throw DeviceConfigurationException.missingProperty(DlmsSessionProperties.CLIENT_PRIVATE_SIGNING_KEY);
-        }
+        byte[] dateTime = new byte[]{(byte) 0x00};
+        byte[] otherInfo = new byte[]{(byte) 0x00};
+        return applyGeneralSigning(securedRequest, null, dateTime, otherInfo, false);
+    }
 
-        byte[] signature = ecdsaSignature.sign(ProtocolTools.concatByteArrays(generalCipheringHeader, securedRequest), clientPrivateSigningKey);
+    /**
+     * Wrap the given APDU (can already be secured) in a new general-signing APDU.
+     * The signature is either 64 bytes or 96 bytes based on the suite that is used.
+     */
+    public byte[] applyGeneralSigning(byte[] securedRequest, ECCCurve eccCurve, byte[] dateTime, byte[] otherInfo, boolean includeRequestLength) throws UnsupportedException {
+        ECDSASignatureImpl ecdsaSignature;
+        if (eccCurve == null) {
+            ecdsaSignature = new ECDSASignatureImpl(getECCCurve());
+        } else {
+            ecdsaSignature = new ECDSASignatureImpl(eccCurve);
+        }
+        PrivateKey clientPrivateSigningKey = getGeneralCipheringSecurityProvider().getClientPrivateSigningKey();
+
+        byte[] generalCipheringHeader = createGeneralCipheringHeader(dateTime, otherInfo);
+        byte[] requestData = includeRequestLength ? ProtocolTools.concatByteArrays(DLMSUtils.getAXDRLengthEncoding(securedRequest.length), securedRequest) : securedRequest;
+        byte[] dataToSign = ProtocolTools.concatByteArrays(generalCipheringHeader, requestData);
+        byte[] signature = ecdsaSignature.sign(dataToSign, clientPrivateSigningKey);
+
 
         return ProtocolTools.concatByteArrays(
                 generalCipheringHeader,
@@ -407,7 +434,7 @@ public class SecurityContext {
         PublicKey publicKey = getGeneralCipheringSecurityProvider().getServerSignatureCertificate().getPublicKey();
         boolean verify = ecdsaSignature.verify(input, signature, publicKey);
         if (!verify) {
-            /*throw ConnectionCommunicationException.signatureVerificationError();*/
+            throw ConnectionCommunicationException.signatureVerificationError();
         }
         lastResponseWasSigned = true;
         return content;
@@ -439,13 +466,8 @@ public class SecurityContext {
 
             case WRAPPED_KEY: {
                 if (includeGeneralCipheringKeyInformation) {
-                    byte[] sessionKey = getGeneralCipheringSecurityProvider().getSessionKey();
 
-                    //This is a newly generated session key, so reset our frame counter
-                    setFrameCounter(1);
-
-                    byte[] masterKey = getSecurityProvider().getMasterKey();
-                    byte[] wrappedKey = ProtocolTools.aesWrap(sessionKey, masterKey);
+                    byte[] wrappedKey = getWrappedKey(true);
 
                     //Only include the wrapped key information the first request
                     includeGeneralCipheringKeyInformation = false;
@@ -495,9 +517,6 @@ public class SecurityContext {
 
                     ECDSASignatureImpl ecdsaSignature = new ECDSASignatureImpl(getECCCurve());
                     PrivateKey clientPrivateSigningKey = getGeneralCipheringSecurityProvider().getClientPrivateSigningKey();
-                    if (clientPrivateSigningKey == null) {
-                        throw DeviceConfigurationException.missingProperty(DlmsSessionProperties.CLIENT_PRIVATE_SIGNING_KEY);
-                    }
 
                     byte[] signature = ecdsaSignature.sign(ephemeralPublicKeyBytes, clientPrivateSigningKey);
 
@@ -533,7 +552,19 @@ public class SecurityContext {
         }
     }
 
-    private GeneralCipheringSecurityProvider getGeneralCipheringSecurityProvider() {
+    public byte[] getWrappedKey(boolean resetFC) {
+        byte[] sessionKey = getGeneralCipheringSecurityProvider().getSessionKey();
+
+        if (resetFC) {
+            //This is a newly generated session key, so reset our frame counter
+            setFrameCounter(1);
+        }
+
+        byte[] masterKey = getSecurityProvider().getMasterKey();
+        return ProtocolTools.aesWrap(sessionKey, masterKey);
+    }
+
+    protected GeneralCipheringSecurityProvider getGeneralCipheringSecurityProvider() {
         if (!(getSecurityProvider() instanceof GeneralCipheringSecurityProvider)) {
             throw CodingException.protocolImplementationError("General ciphering is not yet supported in the protocol you are using");
         }
@@ -543,8 +574,7 @@ public class SecurityContext {
     /**
      * Structure: transaction-id, client system title, server system title, date-time, other info, key-info
      */
-    private byte[] createGeneralCipheringHeader() {
-
+    protected byte[] createGeneralCipheringHeader(byte[] dateTime, byte[] otherInfo) {
         //TODO replace epoch by transaction-id and treat it as invokeid??
         return ProtocolTools.concatByteArrays(
                 new byte[]{(byte) TRANSACTION_ID_LENGTH},
@@ -553,12 +583,20 @@ public class SecurityContext {
                 getSystemTitle(),
                 new byte[]{(byte) getResponseSystemTitle().length},
                 getResponseSystemTitle(),
-                new byte[]{(byte) 0x00},        //No datetime
-                new byte[]{(byte) 0x00}         //No other-info
+                dateTime,
+                otherInfo
         );
     }
 
-    private byte[] getTransactionId() {
+    /**
+     * Structure: transaction-id, client system title, server system title, date-time, other info, key-info
+     */
+    private byte[] createGeneralCipheringHeader() {
+        return createGeneralCipheringHeader(new byte[]{(byte) 0x00}, new byte[]{(byte) 0x00});
+    }
+
+
+    public byte[] getTransactionId() {
         if (transactionId == null) {
             transactionId = ProtocolTools.getBytesFromLong(System.currentTimeMillis(), TRANSACTION_ID_LENGTH);
         }
@@ -567,6 +605,10 @@ public class SecurityContext {
 
     private void resetTransactionId() {
         this.transactionId = null;
+    }
+
+    public void setTransactionId(byte[] transactionId) {
+        this.transactionId = transactionId;
     }
 
     /**
@@ -639,14 +681,10 @@ public class SecurityContext {
                     }
 
                     if (!ecdsaSignature.verify(serverEphemeralPublicKeyBytes, signature, serverSignatureCertificate.getPublicKey())) {
-                        /*throw ConnectionCommunicationException.signatureVerificationError();*/
+                        throw ConnectionCommunicationException.signatureVerificationError();
                     }
 
                     PrivateKey clientPrivateKeyAgreementKey = getGeneralCipheringSecurityProvider().getClientPrivateKeyAgreementKey();
-                    if (clientPrivateKeyAgreementKey == null) {
-                        throw DeviceConfigurationException.missingProperty(DlmsSessionProperties.CLIENT_PRIVATE_KEY_AGREEMENT_KEY);
-                    }
-
                     KeyPair keyAgreementKeyPair = new KeyPair(null, clientPrivateKeyAgreementKey);
                     KeyAgreement keyAgreement = new KeyAgreementImpl(getECCCurve(), keyAgreementKeyPair);
 
@@ -712,8 +750,8 @@ public class SecurityContext {
             getGeneralCipheringSecurityProvider().setServerSessionKey(serverSessionKey);
 
             //New server session key in use, so start using a new responding frame counter
-            getSecurityProvider().getRespondingFrameCounterHandler().resetRespondingFrameCounter(0);
-            responseFrameCounter = 0;
+            getSecurityProvider().getRespondingFrameCounterHandler().setRespondingFrameCounter(0);
+            responseFrameCounter = 0l;
         }
     }
 
@@ -925,6 +963,10 @@ public class SecurityContext {
         }
 
         if (!authenticatedResponse && !encryptedResponse) {
+            if (XdlmsApduTags.isGlobalCipheringTag(cipherFrame[0]) || XdlmsApduTags.isDedicatedCipheringTag(cipherFrame[0])) {
+                //An unsecured global-ciphering or dedicated-ciphering APDU. Unwrap it by stripping of the header.
+                cipherFrame = ProtocolTools.getSubArray(cipherFrame, 7);
+            }
             return optionallyUnwrapSignedAPDU(cipherFrame);
         } else if (authenticatedResponse && !encryptedResponse) {
 
@@ -1175,14 +1217,14 @@ public class SecurityContext {
      * Add 1 to the existing frameCounter
      */
     public void incFrameCounter() {
-        setFrameCounter(this.frameCounter+1);
+        setFrameCounter(this.frameCounter + 1);
     }
 
     /**
      * Decrements the existing frameCounter
      */
     public void decrementFrameCounter() {
-        setFrameCounter(this.frameCounter-1);
+        setFrameCounter(this.frameCounter - 1);
     }
 
     /**
@@ -1198,7 +1240,7 @@ public class SecurityContext {
      * @param frameCounter the frameCounter to set from the server
      * @throws com.energyict.dlms.DLMSConnectionException * @throws com.energyict.dlms.DLMSConnectionException if the FrameCounter was not incremented in a proper way
      */
-    public void setResponseFrameCounter(int frameCounter) throws DLMSConnectionException {
+    public void setResponseFrameCounter(long frameCounter) throws DLMSConnectionException {
         this.responseFrameCounter = this.securityProvider.getRespondingFrameCounterHandler().checkRespondingFrameCounter(frameCounter);
     }
 
@@ -1289,11 +1331,34 @@ public class SecurityContext {
         return this.cipheringType == CipheringType.DEDICATED.getType() || this.cipheringType == CipheringType.GENERAL_DEDICATED.getType();
     }
 
-    public boolean isFrameCounterInitialized() {
-        return frameCounterInitialized;
+    /**
+     * Used for encrypt DataProtection -> invoke_protected_method -> protected_method_invocation_parameters
+     *
+     * @param plainText
+     * @param protectionType
+     * @return
+     * @throws UnsupportedException
+     */
+    public byte[] encryptProtectedMethodInvocationParameters(byte[] plainText, ProtectionType protectionType) throws UnsupportedException {
+        try {
+            switch (protectionType) {
+                case AUTHENTICATION_AND_ENCRYPTION:
+                    return getAuthenticatedAndEncryptedRequestBytes(plainText);
+                case AUTHENTICATION:
+                    return getAuthenticatedRequestBytes(plainText);
+                case DIGITAL_SIGNATURE:
+                    byte[] dummyDateTime = new byte[]{(byte) 0x01, (byte) 0x00};
+                    byte[] dummyOtherInfo = new byte[]{(byte) 0x01, (byte) 0x00};
+                    return ParseUtils.concatArray(new byte[]{DLMSCOSEMGlobals.GENERAL_SIGNING}, applyGeneralSigning(plainText, ECCCurve.P256_SHA256, dummyDateTime, dummyOtherInfo, true));
+                case ENCRYPTION:
+                    return getEncryptedRequestBytes(plainText);
+                case NO_PROTECTION:
+                    return plainText;
+            }
+        } finally {
+            //TODO: see if we should do something special in here
+        }
+        return new byte[]{};
     }
 
-    public void setFrameCounterInitialized(boolean frameCounterInitialized) {
-        this.frameCounterInitialized = frameCounterInitialized;
-    }
 }

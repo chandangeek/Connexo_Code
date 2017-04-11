@@ -10,11 +10,12 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 
-import com.energyict.protocolimpl.ansi.c12.*;
+import java.io.IOException;
+import java.util.Date;
+import java.util.TimeZone;
 
 /**
  *
@@ -33,6 +34,7 @@ public class LoadProfileBlockData {
         this(data,offset,tableFactory,set,headerOnly?0:-1,nrOfIntervalsInBlock);
     }
     public LoadProfileBlockData(byte[] data,int offset,TableFactory tableFactory, int set, int intervalsets, int nrOfIntervalsInBlock) throws IOException {
+        tableFactory.getC12ProtocolLink().getLogger().info("LoadProfileBlockData: "+ ProtocolTools.getHexStringFromBytes(data));
         //ActualRegisterTable art = tableFactory.getC12ProtocolLink().getStandardTableFactory().getActualRegisterTable();
         //ActualTimeAndTOUTable atatt = tableFactory.getC12ProtocolLink().getStandardTableFactory().getActualTimeAndTOUTable();
         ConfigurationTable cfgt = tableFactory.getC12ProtocolLink().getStandardTableFactory().getConfigurationTable();
@@ -41,10 +43,16 @@ public class LoadProfileBlockData {
 
         setNrOfIntervalsPerBlock(alpt.getLoadProfileSet().getNrOfBlockIntervalsSet()[set]);
         
-        if (tableFactory.getC12ProtocolLink().getManufacturer().getMeterProtocolClass().compareTo("com.energyict.protocolimpl.itron.sentinel.Sentinel")==0) 
-            setBlockEndTime(C12ParseUtils.getDateFromSTimeAndAdjustForTimeZone(data,offset, cfgt.getTimeFormat(), tableFactory.getC12ProtocolLink().getTimeZone(), dataOrder));
-        else
-            setBlockEndTime(C12ParseUtils.getDateFromSTime(data,offset, cfgt.getTimeFormat(), tableFactory.getC12ProtocolLink().getTimeZone(), dataOrder));
+        if (tableFactory.getC12ProtocolLink().getManufacturer().getMeterProtocolClass().compareTo("com.energyict.protocolimpl.itron.sentinel.Sentinel")==0) {
+            int timeFormat = cfgt.getTimeFormat();
+            TimeZone timeZone = tableFactory.getC12ProtocolLink().getTimeZone();
+
+            tableFactory.getC12ProtocolLink().getLogger().info(" - calling getDateFromSTimeAndAdjustForTimeZone: timeFormat=" + timeFormat + ", timeZone=" + timeZone.toString());
+
+            setBlockEndTime(C12ParseUtils.getDateFromSTimeAndAdjustForTimeZone(data, offset, timeFormat, timeZone, dataOrder));
+        }   else {
+            setBlockEndTime(C12ParseUtils.getDateFromSTime(data, offset, cfgt.getTimeFormat(), tableFactory.getC12ProtocolLink().getTimeZone(), dataOrder));
+        }
         
         offset+=C12ParseUtils.getSTimeSize(cfgt.getTimeFormat());
         setEndReadings(new Readings[alpt.getLoadProfileSet().getNrOfChannelsSet()[set]]);
@@ -73,7 +81,7 @@ public class LoadProfileBlockData {
                 
             }
         }
-        
+        tableFactory.getC12ProtocolLink().getLogger().info(toString());
     }
     
     public int nrOfValidIntervals() {

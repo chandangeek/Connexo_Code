@@ -112,7 +112,7 @@ public class TCPIPConnection implements DlmsV2Connection, RetryRequestV2Preparat
      * Frames that have a wrong WPDU source or destination will be fully read & ignored.
      * After that, we will attempt to read out the next full frame, so the normal protocol sequence can continue.
      *
-     * @throws IOException       in case of a problem with the communication (e.g. timeout)
+     * @throws IOException in case of a problem with the communication (e.g. timeout)
      * @throws ProtocolException in case of a response that contains unexpected data
      */
     private WPDU receiveData() throws IOException {
@@ -398,12 +398,12 @@ public class TCPIPConnection implements DlmsV2Connection, RetryRequestV2Preparat
         boolean firstRead = true;
         // this.currentTryCount contains the current try number - we should not start again from 0, but continue from current try number
 
-        // strip the HDLC LLC header. This is because of the code inherited from the days only HDLC existed...
-        byte[] byteRequestBuffer = new byte[retryRequest.length - 3];
-        System.arraycopy(retryRequest, 3, byteRequestBuffer, 0, byteRequestBuffer.length);
-
         while (true) {
             try {
+                // strip the HDLC LLC header. This is because of the code inherited from the days only HDLC existed...
+                byte[] byteRequestBuffer = new byte[retryRequest.length - 3];
+                System.arraycopy(retryRequest, 3, byteRequestBuffer, 0, byteRequestBuffer.length);
+
                 WPDU wpdu = new WPDU(this.clientAddress, this.serverAddress, byteRequestBuffer);
                 if (firstRead) {
                     firstRead = false;              // In the first iteration, do not send a retry, but start directly reading
@@ -464,12 +464,12 @@ public class TCPIPConnection implements DlmsV2Connection, RetryRequestV2Preparat
     public byte[] sendRequest(byte[] data) {
         resetCurrentRetryCount();
 
-        // strip the HDLC LLC header. This is because of the code inherited from  the days only HDLC existed...
-        byte[] byteRequestBuffer = new byte[data.length - 3];
-        System.arraycopy(data, 3, byteRequestBuffer, 0, byteRequestBuffer.length);
-
         while (true) {
             try {
+                // strip the HDLC LLC header. This is because of the code inherited from  the days only HDLC existed...
+                byte[] byteRequestBuffer = new byte[data.length - 3];
+                System.arraycopy(data, 3, byteRequestBuffer, 0, byteRequestBuffer.length);
+
                 WPDU wpdu = new WPDU(this.clientAddress, this.serverAddress, byteRequestBuffer);
                 sendOut(wpdu.getFrameData());
                 resetNumberOfDroppedWPDUs();

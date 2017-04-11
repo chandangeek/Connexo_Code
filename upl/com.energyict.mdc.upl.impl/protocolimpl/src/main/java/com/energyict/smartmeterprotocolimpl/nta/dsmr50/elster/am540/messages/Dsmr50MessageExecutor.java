@@ -1,5 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.messages;
 
+import com.energyict.dlms.aso.SecurityContext;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
@@ -146,7 +147,9 @@ public class Dsmr50MessageExecutor extends Dsmr40MessageExecutor {
 
         //Reset frame counter, only if a different key has been written
         if (!oldGlobalKey.equalsIgnoreCase(ProtocolTools.getHexStringFromBytes(ProtocolTools.getBytesFromHexString(messageHandler.getPlainEncryptionKey(), ""), ""))) {
-            protocol.getDlmsSession().getAso().getSecurityContext().setFrameCounter(1);
+            SecurityContext securityContext = protocol.getDlmsSession().getAso().getSecurityContext();
+            securityContext.setFrameCounter(1);
+            securityContext.getSecurityProvider().getRespondingFrameCounterHandler().setRespondingFrameCounter(-1);
         }
     }
 

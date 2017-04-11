@@ -15,6 +15,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.security.SecureRandom;
 import java.util.StringTokenizer;
+import java.util.logging.Logger;
 
 public class C1222Layer extends C12Layer2 {
 
@@ -46,8 +47,8 @@ public class C1222Layer extends C12Layer2 {
                       int maxRetries,
                       long forcedDelay,
                       int echoCancelling,
-                      HalfDuplexController halfDuplexController) throws ConnectionException {
-        super(inputStream, outputStream, timeout, maxRetries, forcedDelay, echoCancelling, halfDuplexController);
+                      HalfDuplexController halfDuplexController, Logger logger, int validateControlToggleBit) throws ConnectionException {
+        super(inputStream, outputStream, timeout, maxRetries, forcedDelay, echoCancelling, halfDuplexController, logger, validateControlToggleBit);
         this.timeout = timeout;
         this.maxRetries = maxRetries;
     }
@@ -151,10 +152,10 @@ public class C1222Layer extends C12Layer2 {
         int securityMode = responseParms.getSecurityMode();
         if (securityMode == 0) {
             // 1. Return the unencrypted response data
-             responseData.setData(responseParms.getUserInformation());
+            responseData.setData(responseParms.getUserInformation());
         } else if (securityMode == 1) { // ToDO: SecurityMode 1 needs to be tested out!
             byte[] receivedMac = responseParms.getMac();
-            byte[] receivedCipherText =null;
+            byte[] receivedCipherText = null;
             byte[] responseClearText = buildResponseCanonifiedCleartext(responseParms);
 
             // 1. Verify the authentication fo the response is correct (verify MAC)
@@ -389,7 +390,6 @@ public class C1222Layer extends C12Layer2 {
 
         return canonifiedCleartext.toByteArray();
     }
-
 
 
     private void buildEncryption(C1222Buffer c1222Buffer) throws IOException {

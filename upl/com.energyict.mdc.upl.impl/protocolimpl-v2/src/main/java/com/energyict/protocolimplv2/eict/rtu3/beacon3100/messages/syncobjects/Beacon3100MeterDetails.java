@@ -1,10 +1,15 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects;
 
-import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.dlms.axrdencoding.VisibleString;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -17,7 +22,15 @@ import java.util.List;
 public class Beacon3100MeterDetails {
 
     private String macAddress;
+    /**
+     * For Beacon firmware version < R10.1
+     */
     private long deviceTypeId;
+
+    /**
+     * For Beacon firmware version >= R10.1
+     */
+    private List<DeviceTypeAssignment> deviceTypeAssignments;
     private String deviceTimeZone;
     private String serialNumber;
     private String llsSecret;
@@ -34,7 +47,10 @@ public class Beacon3100MeterDetails {
         this.llsSecret = llsSecret;
         this.authenticationKey = authenticationKey;
         this.encryptionKey = encryptionKey;
+        deviceTypeAssignments = new ArrayList<>();
+        deviceTypeAssignments.add(new DeviceTypeAssignment(deviceTypeId, null, null));
     }
+
 
     //JSon constructor
     private Beacon3100MeterDetails() {
@@ -80,6 +96,12 @@ public class Beacon3100MeterDetails {
         return clientDetails;
     }
 
+    @XmlAttribute
+    public List<DeviceTypeAssignment> getDeviceTypeAssignments() {
+        return deviceTypeAssignments;
+    }
+
+
     public Structure toStructure(boolean isFirmwareVersion140OrAbove) {
         final Structure structure = new Structure();
         structure.addDataType(OctetString.fromByteArray(ProtocolTools.getBytesFromHexString(getMacAddress(), "")));
@@ -99,4 +121,58 @@ public class Beacon3100MeterDetails {
         }
         return structure;
     }
+
+    public Structure toStructureFWVersion10AndAbove(Beacon3100MeterDetails beacon3100MeterDetails) {
+        final Structure structure = new Structure();
+        structure.addDataType(OctetString.fromByteArray(ProtocolTools.getBytesFromHexString(getMacAddress(), "")));
+        final Array deviceTypeAssignmentArray = new Array();
+        for (DeviceTypeAssignment deviceTypeAssignment : beacon3100MeterDetails.getDeviceTypeAssignments()) {
+            if(deviceTypeAssignment.getDeviceTypeId() == 0){
+                deviceTypeAssignment.setDeviceTypeId(beacon3100MeterDetails.getDeviceTypeId());
+            }
+            deviceTypeAssignmentArray.addDataType(deviceTypeAssignment.toStructure());
+        }
+        structure.addDataType(deviceTypeAssignmentArray);
+        structure.addDataType(new VisibleString(getDeviceTimeZone()));
+        structure.addDataType(OctetString.fromString(getSerialNumber()));
+
+        final Array clientDetailsArray = new Array();
+        for (Beacon3100ClientDetails beacon3100ClientDetails : getClientDetails()) {
+            clientDetailsArray.addDataType(beacon3100ClientDetails.toStructure());
+        }
+        structure.addDataType(clientDetailsArray);
+
+        return structure;
+    }
+
+    public boolean containsDeviceAssignment(long configurationId, String startTime, String endTime) {
+        if(deviceTypeAssignments == null){
+            return false;
+        }
+        for(DeviceTypeAssignment deviceTypeAssignment : deviceTypeAssignments){
+            if(deviceTypeAssignment.getDeviceTypeId() == configurationId &&
+               deviceTypeAssignment.getStartDate().equals(startTime) &&
+               deviceTypeAssignment.getEndDate().equals(endTime)){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean containsDeviceAssignment(long configurationId) {
+        if(deviceTypeAssignments == null){
+            return false;
+        }
+        for(DeviceTypeAssignment deviceTypeAssignment : deviceTypeAssignments){
+            if(deviceTypeAssignment.getDeviceTypeId() == configurationId){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void setDeviceTypeAssignments(List<DeviceTypeAssignment> deviceTypeAssignments) {
+        this.deviceTypeAssignments = deviceTypeAssignments;
+    }
+
 }

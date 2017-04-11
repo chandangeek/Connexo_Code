@@ -1,12 +1,11 @@
 package com.energyict.protocolimplv2.nta.abstractnta;
 
-import com.energyict.mdc.upl.UnsupportedException;
-import com.energyict.mdc.upl.properties.TypedProperties;
-
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.aso.framecounter.DefaultRespondingFrameCounterHandler;
 import com.energyict.dlms.aso.framecounter.RespondingFrameCounterHandler;
 import com.energyict.dlms.protocolimplv2.SecurityProvider;
+import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
 
 import java.io.IOException;
@@ -204,6 +203,10 @@ public class NTASecurityProvider implements SecurityProvider {
 
     public void changeAuthenticationKey(byte[] newAuthenticationKey) throws IOException {
         this.authenticationKey = newAuthenticationKey;
+    }
+
+    public void changeMasterKey(byte[] newMasterKey) throws IOException {
+        this.masterKey = newMasterKey;
     }
 
     public byte[] getDedicatedKey() {

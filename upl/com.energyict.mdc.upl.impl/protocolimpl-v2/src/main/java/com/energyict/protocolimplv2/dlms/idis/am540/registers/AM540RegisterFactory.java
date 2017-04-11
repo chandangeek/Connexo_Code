@@ -1,27 +1,30 @@
 package com.energyict.protocolimplv2.dlms.idis.am540.registers;
 
-import com.energyict.mdc.upl.issue.IssueFactory;
-import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
-import com.energyict.mdc.upl.meterdata.CollectedRegister;
-import com.energyict.mdc.upl.meterdata.ResultType;
-import com.energyict.mdc.upl.offline.OfflineRegister;
-
+import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.cosem.ComposedCosemObject;
+import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.G3NetworkManagement;
 import com.energyict.dlms.cosem.ImageTransfer;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
+import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.meterdata.ResultType;
+import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.dlms.g3.registers.G3Mapping;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocolimplv2.common.composedobjects.ComposedData;
 import com.energyict.protocolimplv2.common.composedobjects.ComposedObject;
 import com.energyict.protocolimplv2.common.composedobjects.ComposedRegister;
 import com.energyict.protocolimplv2.dlms.idis.am130.registers.AM130RegisterFactory;
 import com.energyict.protocolimplv2.dlms.idis.am540.AM540;
+import com.energyict.protocolimplv2.dlms.idis.am540.properties.AM540Properties;
 
 import java.io.IOException;
 import java.util.Date;
@@ -39,9 +42,19 @@ import java.util.Map;
  */
 public class AM540RegisterFactory extends AM130RegisterFactory {
 
-    private AM540PLCRegisterMapper plcRegisterMapper;
     private static final ObisCode MULTICAST_FIRMWARE_UPGRADE_OBISCODE = ObisCode.fromString("0.0.44.0.128.255");
     private static final ObisCode MULTICAST_METER_PROGRESS = ProtocolTools.setObisCodeField(MULTICAST_FIRMWARE_UPGRADE_OBISCODE, 1, (byte) (-1 * ImageTransfer.ATTRIBUTE_UPGRADE_PROGRESS));
+
+    /** OBIS code of the image transfer instance. */
+    private static final ObisCode OBIS_IMAGE_TRANSFER = ObisCode.fromString("0.0.44.0.0.255");
+
+    /** Image block size attribute. */
+    private static final byte ATTRIBUTE_IMAGE_BLOCK_SIZE = 2;
+
+    /** Mapped register (0.2.44.0.0.255), maps to the image block size. */
+    private static final ObisCode MAPPED_IMAGE_TRANSFER_BLOCK_SIZE = ProtocolTools.setObisCodeField(OBIS_IMAGE_TRANSFER, 1, ATTRIBUTE_IMAGE_BLOCK_SIZE);
+
+    private AM540PLCRegisterMapper plcRegisterMapper;
 
     public AM540RegisterFactory(AM540 am540, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         super(am540, collectedDataFactory, issueFactory);
@@ -49,34 +62,80 @@ public class AM540RegisterFactory extends AM130RegisterFactory {
 
     @Override
     protected Boolean addComposedObjectToComposedRegisterMap(Map<ObisCode, ComposedObject> composedObjectMap, List<DLMSAttribute> dlmsAttributes, OfflineRegister register) {
-        G3Mapping g3Mapping = getPLCRegisterMapper().getG3Mapping(register.getObisCode());
-        if (g3Mapping != null) {
-            ComposedRegister composedRegister = new ComposedRegister();
-            int[] attributeNumbers = g3Mapping.getAttributeNumbers();
+    	if (register.getObisCode() != null && register.getObisCode().equals(MAPPED_IMAGE_TRANSFER_BLOCK_SIZE)) {
+    		final ComposedData mapping = this.getImageTransferBlockSizeMapping();
 
-            if (dlmsAttributes.size() + attributeNumbers.length > BULK_REQUEST_ATTRIBUTE_LIMIT) {
-                return null; //Don't add the new attributes, no more room
+    		composedObjectMap.put(register.getObisCode(), mapping);
+    		dlmsAttributes.add(mapping.getDataValueAttribute());
+
+    		return true;
+    	} else {
+	        G3Mapping g3Mapping = getPLCRegisterMapper().getG3Mapping(register.getObisCode());
+
+	        if (g3Mapping != null) {
+	            ComposedRegister composedRegister = new ComposedRegister();
+	            int[] attributeNumbers = g3Mapping.getAttributeNumbers();
+
+	            if (dlmsAttributes.size() + attributeNumbers.length > BULK_REQUEST_ATTRIBUTE_LIMIT) {
+	                return null; //Don't add the new attributes, no more room
+	            }
+
+	            for (int index = 0; index < attributeNumbers.length; index++) {
+	                int attributeNumber = attributeNumbers[index];
+	                DLMSAttribute dlmsAttribute = new DLMSAttribute(g3Mapping.getBaseObisCode(), attributeNumber, g3Mapping.getDLMSClassId());
+	                dlmsAttributes.add(dlmsAttribute);
+
+	                //If the mapping contains more than 1 attribute, the order is always value, unit, captureTime
+	                if (index == 0) {
+	                    composedRegister.setRegisterValue(dlmsAttribute);
+	                } else if (index == 1) {
+	                    composedRegister.setRegisterUnit(dlmsAttribute);
+	                } else if (index == 2) {
+	                    composedRegister.setRegisterCaptureTime(dlmsAttribute);
+	                }
+	            }
+	            composedObjectMap.put(register.getObisCode(), composedRegister);
+	            return true;
+	        } else {
+	            return super.addComposedObjectToComposedRegisterMap(composedObjectMap, dlmsAttributes, register);
+	        }
+    	}
+    }
+
+    @Override
+    protected RegisterValue getRegisterValueForComposedRegister(OfflineRegister offlineRegister, Date captureTime, AbstractDataType attributeValue, Unit unit) {
+        AM540Properties am540Properties = (AM540Properties) getMeterProtocol().getDlmsSessionProperties();
+        if (captureTime!=null && am540Properties.useBeaconMirrorDeviceDialect()) {
+            // for composed registers:
+            // - readTime is the value stored in attribute#5=captureTime = the metrological date
+            // - eventTime is the communication time -> not used in macrology
+            if (attributeValue.isOctetString()) {
+                return new RegisterValue(offlineRegister,
+                        null, //quantity
+                        new Date(), // eventTime = read-out time,
+                        null, null, // fromTime, toTime
+                        captureTime, // readTime
+                        0,
+                        attributeValue.getOctetString().stringValue());
+            } else {
+                return new RegisterValue(offlineRegister, new Quantity(attributeValue.toBigDecimal(), unit),
+                        new Date(), // eventTime = read-out time
+                        null,       // fromTime
+                        null,       // toTime
+                        captureTime); // readTime
             }
-
-            for (int index = 0; index < attributeNumbers.length; index++) {
-                int attributeNumber = attributeNumbers[index];
-                DLMSAttribute dlmsAttribute = new DLMSAttribute(g3Mapping.getBaseObisCode(), attributeNumber, g3Mapping.getDLMSClassId());
-                dlmsAttributes.add(dlmsAttribute);
-
-                //If the mapping contains more than 1 attribute, the order is always value, unit, captureTime
-                if (index == 0) {
-                    composedRegister.setRegisterValue(dlmsAttribute);
-                } else if (index == 1) {
-                    composedRegister.setRegisterUnit(dlmsAttribute);
-                } else if (index == 2) {
-                    composedRegister.setRegisterCaptureTime(dlmsAttribute);
-                }
-            }
-            composedObjectMap.put(register.getObisCode(), composedRegister);
-            return true;
         } else {
-            return super.addComposedObjectToComposedRegisterMap(composedObjectMap, dlmsAttributes, register);
+            return super.getRegisterValueForComposedRegister(offlineRegister, captureTime, attributeValue, unit);
         }
+    }
+
+    /**
+     * Treat the image transfer block size mapping as a data object.
+     *
+     * @return	The image transfer block size mapping.
+     */
+    private final ComposedData getImageTransferBlockSizeMapping() {
+    	return new ComposedData(new DLMSAttribute(OBIS_IMAGE_TRANSFER, 2, DLMSClassId.IMAGE_TRANSFER.getClassId()));
     }
 
     /**
@@ -131,6 +190,8 @@ public class AM540RegisterFactory extends AM130RegisterFactory {
                     if (DLMSIOExceptionHandler.isUnexpectedResponse(e, getMeterProtocol().getDlmsSessionProperties().getRetries() + 1)) {
                         if (DLMSIOExceptionHandler.isNotSupportedDataAccessResultException(e)) {
                             return createFailureCollectedRegister(offlineRegister, ResultType.NotSupported);
+                        } else if (DLMSIOExceptionHandler.isTemporaryFailure(e)) {
+                        	return this.dataNotAvailable(offlineRegister);
                         } else {
                             return createFailureCollectedRegister(offlineRegister, ResultType.InCompatible, e.getMessage());
                         }
@@ -148,5 +209,17 @@ public class AM540RegisterFactory extends AM130RegisterFactory {
             plcRegisterMapper = new AM540PLCRegisterMapper(getMeterProtocol().getDlmsSession());
         }
         return plcRegisterMapper;
+    }
+
+
+    /**
+     * Indicates whether or not we are mapping billing registers from a billing profile.
+     *
+     * @return	<code>true</code> if we are mapping, <code>false</code> if we are not (for example when we have a mirror on a Beacon).
+     */
+    @Override
+    protected final boolean mapBillingRegistersFromBillingProfile() {
+    	// Don't map these if we are using a mirror, because they have already been mapped by the Beacon itself (as it runs the AM540 protocol).
+    	return !((AM540)this.getMeterProtocol()).getDlmsSessionProperties().useBeaconMirrorDeviceDialect();
     }
 }

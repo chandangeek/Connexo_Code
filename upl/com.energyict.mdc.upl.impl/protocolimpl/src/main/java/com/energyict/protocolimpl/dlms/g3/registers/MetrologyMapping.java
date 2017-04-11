@@ -31,7 +31,6 @@ public class MetrologyMapping extends G3Mapping {
         AbstractDataType valueAttr = register.getValueAttr();
         Unit unit = register.getScalerUnit().getEisUnit();
         return parse(valueAttr, unit);
-        /*return parse(register.getValueAttr(), register.getScalerUnit().getEisUnit());*/
     }
 
     @Override
@@ -48,5 +47,16 @@ public class MetrologyMapping extends G3Mapping {
     @Override
     public int getDLMSClassId() {
         return DLMSClassId.REGISTER.getClassId();
+    }
+
+
+    @Override
+    public int getValueAttribute(){
+        return RegisterAttributes.VALUE.getAttributeNumber();
+    }
+
+    @Override
+    public int getUnitAttribute() {
+        return RegisterAttributes.SCALER_UNIT.getAttributeNumber();
     }
 }

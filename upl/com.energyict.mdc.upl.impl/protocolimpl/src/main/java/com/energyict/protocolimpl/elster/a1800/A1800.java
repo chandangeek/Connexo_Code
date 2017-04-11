@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.elster.a1800;
 
+import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.mdc.upl.messages.legacy.Message;
 import com.energyict.mdc.upl.messages.legacy.MessageAttribute;
 import com.energyict.mdc.upl.messages.legacy.MessageAttributeSpec;
@@ -16,8 +17,6 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
-
-import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.protocol.HalfDuplexEnabler;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.MessageResult;
@@ -50,14 +49,10 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
 
 public class A1800 extends AlphaA3 implements MessageProtocol, HalfDuplexEnabler {
-
-	/** Logger instance. */
-	private static final Logger logger = Logger.getLogger(A1800.class.getName());
 
 	private A1800LoadProfile a1800LoadProfile;
 	private boolean messageFailed = false;
@@ -78,7 +73,7 @@ public class A1800 extends AlphaA3 implements MessageProtocol, HalfDuplexEnabler
 			halfDuplexController = new RtuPlusServerHalfDuplexController(halfDuplexController);
 		}
 
-		c12Layer2 = new C12Layer2(inputStream, outputStream, timeoutProperty, protocolRetriesProperty, forcedDelay, echoCancelling, halfDuplexController);
+		c12Layer2 = new C12Layer2(inputStream, outputStream, timeoutProperty, protocolRetriesProperty, forcedDelay, echoCancelling, halfDuplexController, getLogger(), this.controlToggleBitMode);
         c12Layer2.initStates();
         psemServiceFactory = new PSEMServiceFactory(this);
         standardTableFactory = new StandardTableFactory(this);
@@ -92,7 +87,7 @@ public class A1800 extends AlphaA3 implements MessageProtocol, HalfDuplexEnabler
 	@Override
 	public List<PropertySpec> getUPLPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
-        propertySpecs.add(this.integerSpec("RS485RtuPlusServer", PropertyTranslationKeys.ELSTER_RS485_RTU_PLUS_SERVER, false));
+		propertySpecs.add(this.integerSpec("RS485RtuPlusServer", PropertyTranslationKeys.ELSTER_RS485_RTU_PLUS_SERVER, false));
         return propertySpecs;
 	}
 
@@ -107,7 +102,8 @@ public class A1800 extends AlphaA3 implements MessageProtocol, HalfDuplexEnabler
         setRetrieveExtraIntervals(Integer.parseInt(properties.getTypedProperty("RetrieveExtraIntervals", "0").trim()));
 
 		this.rs485RtuPlusServer = Integer.parseInt(properties.getTypedProperty("RS485RtuPlusServer", "0").trim());
-    }
+		this.controlToggleBitMode = Integer.parseInt(properties.getTypedProperty("FrameControlToggleBitMode", "0"));
+	}
 
 	protected void doDisconnect() throws IOException {
 		try {

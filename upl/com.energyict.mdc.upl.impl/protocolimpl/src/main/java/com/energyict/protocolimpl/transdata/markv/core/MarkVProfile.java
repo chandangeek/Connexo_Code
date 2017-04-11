@@ -73,15 +73,16 @@ public class MarkVProfile {
                 }
                 intervalData.addValue(new Integer(channelValues[channel]), protocolStatus, eiStatus);
             }
-
-            // all interval tuime correction marked intervals are informative
+            
+            // all interval time correction marked intervals are informative
             // see communications manual for the MarkV meter at page 6
             if (protocolStatus != INTERVAL_TIME_CORRECTION) {
-                intervalTimeCorrection=false;
+                intervalTimeCorrection = false;
                 profileData.addInterval(intervalData);
-                cal.add(Calendar.SECOND,(-1)*markV.getProfileInterval());
+                cal.add(Calendar.SECOND, (-1) * markV.getProfileInterval());
+            } else {
+                intervalTimeCorrection = true;
             }
-            else intervalTimeCorrection=true;
         }
 
         if (includeEvents) {

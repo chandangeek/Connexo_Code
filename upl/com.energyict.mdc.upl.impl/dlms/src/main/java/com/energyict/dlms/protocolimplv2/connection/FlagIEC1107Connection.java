@@ -10,7 +10,6 @@ import com.energyict.mdc.channel.serial.NrOfStopBits;
 import com.energyict.mdc.channel.serial.Parities;
 import com.energyict.mdc.channel.serial.SerialPortConfiguration;
 import com.energyict.mdc.protocol.SerialPortComChannel;
-import com.energyict.mdc.upl.io.NestedIOException;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
@@ -253,7 +252,7 @@ public class FlagIEC1107Connection extends com.energyict.protocolimpl.iec1107.Fl
     }
 
     @Override
-    protected int readIn() throws NestedIOException, ConnectionException {
+    protected int readIn() throws ConnectionException {
         if (comChannel.available() != 0) {
             return comChannel.read();
         } else {
@@ -267,7 +266,7 @@ public class FlagIEC1107Connection extends com.energyict.protocolimpl.iec1107.Fl
     }
 
     @Override
-    public void delayAndFlush(long delay) throws NestedIOException, ConnectionException {
+    public void delayAndFlush(long delay) throws ConnectionException {
         delay(delay);
         flushInputStream();
     }

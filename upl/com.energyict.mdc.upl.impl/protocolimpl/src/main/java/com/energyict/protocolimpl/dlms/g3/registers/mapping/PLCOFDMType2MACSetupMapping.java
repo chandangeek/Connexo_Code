@@ -1,7 +1,5 @@
 package com.energyict.protocolimpl.dlms.g3.registers.mapping;
 
-import com.energyict.mdc.upl.NoSuchRegisterException;
-
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
@@ -11,6 +9,7 @@ import com.energyict.dlms.axrdencoding.BitString;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.PLCOFDMType2MACSetup;
+import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
 
@@ -80,6 +79,13 @@ public class PLCOFDMType2MACSetupMapping extends RegisterMapping {
             case 14:
                 return new RegisterValue(obisCode, new Quantity(abstractDataType.intValue(), Unit.get(BaseUnit.SECOND)));
 
+            case 5:
+                return new RegisterValue(obisCode, getShortDescription((Array) abstractDataType));
+
+            case 6:
+            case 19:
+                return new RegisterValue(obisCode, new Quantity(abstractDataType.longValue(), Unit.getUndefined()));
+
             default:
                 throw new NoSuchRegisterException("PLCOFDMType2MACSetup attribute [" + obisCode.getB() + "] not supported!");
 
@@ -101,6 +107,12 @@ public class PLCOFDMType2MACSetupMapping extends RegisterMapping {
 
             case 4:
                 return macSetup.readPanId();
+
+            case 5:
+                return macSetup.readKeyTable();
+
+            case 6:
+                return macSetup.readFrameCounter();
 
             case 7:
                 return macSetup.readToneMask();
@@ -137,6 +149,9 @@ public class PLCOFDMType2MACSetupMapping extends RegisterMapping {
 
             case 18:
                 return macSetup.readCenelecLegacyMode();
+
+            case 19:
+                return macSetup.readFccLegacyMode();
 
             case 20:
                 return macSetup.readMaxBE();

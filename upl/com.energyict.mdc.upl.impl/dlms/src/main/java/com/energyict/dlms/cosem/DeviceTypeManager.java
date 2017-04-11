@@ -19,7 +19,7 @@ import java.io.IOException;
 public class DeviceTypeManager extends AbstractCosemObject {
 
     private static final ObisCode DEFAULT_OBISCODE = ObisCode.fromString("0.0.128.0.14.255");
-
+    public static final ObisCode NEW_FW_OBISCODE = ObisCode.fromString("0.187.96.171.0.255");
     /**
      * Creates a new instance of AbstractCosemObject
      */
@@ -29,6 +29,10 @@ public class DeviceTypeManager extends AbstractCosemObject {
 
     public static ObisCode getDefaultObisCode() {
         return DEFAULT_OBISCODE;
+    }
+
+    public static ObisCode getNewFWObisCode() {
+        return NEW_FW_OBISCODE;
     }
 
     @Override

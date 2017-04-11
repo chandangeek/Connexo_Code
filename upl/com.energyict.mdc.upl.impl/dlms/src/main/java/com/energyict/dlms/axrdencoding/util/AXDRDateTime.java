@@ -77,11 +77,18 @@ public class AXDRDateTime extends AbstractDataType {
     private static final int DOUBTFUL_STATUS_MASK = 0x02;
     private static final int INVALID_STATUS_MASK = 0x01;
 
+    /** Value to use if rthe clock status is unspecified. */
+    private static final int CLOCK_STATUS_UNSPECIFIED = 0xFF;
+    
     protected static final byte[] NO_DEVIATION = new byte[]{(byte) 0x80, (byte) 0x00};
     public static final int SIZE = 12;
 
+    private static final int DST_STATUS = 0x80;
+
     protected Calendar dateTime;
     protected boolean useUnspecifiedAsDeviation;
+    
+    
     protected int status;
     private boolean setHSByte = true;
 
@@ -102,9 +109,20 @@ public class AXDRDateTime extends AbstractDataType {
     }
 
     public AXDRDateTime(Date date, TimeZone timeZone) {
-        dateTime = Calendar.getInstance(timeZone);
-        dateTime.setTime(date);
-        status = (byte) (dateTime.getTimeZone().inDaylightTime(dateTime.getTime()) ? 0x80 : 0x00);
+    	this(date, timeZone, false);
+    }
+    
+    /**
+     * Create a new instance.
+     * 
+     * @param 	time				The time.
+     * @param 	zone				The {@link TimeZone}.
+     * @param 	statusUnspecified	Indicates whether or not the status should be left unspecified.
+     */
+    public AXDRDateTime(final Date time, final TimeZone zone, final boolean statusUnspecified) {
+        this.dateTime = Calendar.getInstance(zone);
+        this.dateTime.setTime(time);
+        this.status = statusUnspecified ? CLOCK_STATUS_UNSPECIFIED : (byte) (this.dateTime.getTimeZone().inDaylightTime(this.dateTime.getTime()) ? 0x80 : 0x00);
     }
 
     /**
@@ -187,8 +205,6 @@ public class AXDRDateTime extends AbstractDataType {
         ptr = ptr + 1;    // deviation lowbyte
 
         status = ProtocolUtils.getByte2Int(berEncodedData, ptr);
-
-
     }
 
     public AXDRDateTime(OctetString date, OctetString time, TimeZone timeZone) throws ProtocolException {
@@ -269,7 +285,9 @@ public class AXDRDateTime extends AbstractDataType {
         ptr = ptr + 1;    // deviation lowbyte
 
         status = ProtocolUtils.getByte2Int(berEncodedData, ptr);
-
+        if(needsDSTCorrection((byte) status, tz)) {
+            applyDSTCorrection();
+        }
 
     }
 
@@ -332,19 +350,19 @@ public class AXDRDateTime extends AbstractDataType {
     }
 
     public boolean isInvalid() {
-        return (status & INVALID_STATUS_MASK) > 0;
+        return this.status != CLOCK_STATUS_UNSPECIFIED && (this.status & INVALID_STATUS_MASK) > 0;
     }
 
     public boolean isDoubtful() {
-        return (status & DOUBTFUL_STATUS_MASK) > 0;
+        return this.status != CLOCK_STATUS_UNSPECIFIED && (this.status & DOUBTFUL_STATUS_MASK) > 0;
     }
 
     public boolean isDifferentClockBase() {
-        return (status & DIFFERENT_CLOCK_BASE_STATUS_MASK) > 0;
+        return this.status != CLOCK_STATUS_UNSPECIFIED && (this.status & DIFFERENT_CLOCK_BASE_STATUS_MASK) > 0;
     }
 
     public boolean isInvalidClockStatus() {
-        return (status & INVALID_CLOCK_STATUS_MASK) > 0;
+        return this.status != CLOCK_STATUS_UNSPECIFIED && (this.status & INVALID_CLOCK_STATUS_MASK) > 0;
     }
 
     public BigDecimal toBigDecimal() {
@@ -365,6 +383,16 @@ public class AXDRDateTime extends AbstractDataType {
         return getValue().getTime().toString() + " [" + rawData + "]";
     }
 
+    private boolean needsDSTCorrection(byte status, TimeZone timeZone) {
+        boolean calendarInDST = timeZone.inDaylightTime(dateTime.getTime());
+        boolean statusHasDST = (status & DST_STATUS) == DST_STATUS;
+        return !calendarInDST && statusHasDST;
+    }
+
+    private void applyDSTCorrection() {
+       //subtract DST savings (in millisecs)
+       dateTime.add(Calendar.MILLISECOND, dateTime.getTimeZone().getDSTSavings() * -1);
+    }
     /**
      * Indicate whether deviation should (not) be specified, but left at 0x800 (~ undefined)
      * @param useUnspecifiedAsDeviation

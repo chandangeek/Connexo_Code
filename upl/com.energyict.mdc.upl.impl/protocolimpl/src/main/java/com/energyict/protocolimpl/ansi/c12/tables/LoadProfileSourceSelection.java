@@ -10,12 +10,10 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocol.*;
+import java.io.IOException;
 
 /**
  *
@@ -31,10 +29,12 @@ public class LoadProfileSourceSelection {
     
     /** Creates a new instance of LoadProfileSourceSelection */
     public LoadProfileSourceSelection(byte[] data,int offset,TableFactory tableFactory) throws IOException {
+        tableFactory.getC12ProtocolLink().getLogger().info("LoadProfileSourceSelection: "+ ProtocolUtils.outputHexString(data));
         setChannelFlag(C12ParseUtils.getInt(data,offset++));
         endReadingFlag = (getChannelFlag()&0x01) == 0x01;
         setLoadProfileSourceSelect(C12ParseUtils.getInt(data,offset++));
         setEndTimeBlockReadingSourceSelect(C12ParseUtils.getInt(data,offset++));
+        tableFactory.getC12ProtocolLink().getLogger().info(this.toString());
     }
     public String toString() {
         StringBuffer strBuff = new StringBuffer();

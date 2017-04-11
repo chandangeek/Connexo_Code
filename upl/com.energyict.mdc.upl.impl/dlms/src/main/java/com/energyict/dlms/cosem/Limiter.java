@@ -3,8 +3,6 @@
  */
 package com.energyict.dlms.cosem;
 
-import com.energyict.mdc.upl.io.NestedIOException;
-
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.RegisterReadable;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
@@ -17,6 +15,7 @@ import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.cosem.attributes.LimiterAttributes;
+import com.energyict.mdc.upl.io.NestedIOException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
 
@@ -428,8 +427,9 @@ public class Limiter extends AbstractCosemObject implements RegisterReadable {
 		private static final int ITEM_CLASS_ID = 0;
 		private static final int ITEM_LOGICAL_NAME = 1;
 		private static final int ITEM_ATTRIBUTE_INDEX = 2;
+        private int attribute = Integer.MIN_VALUE;
 
-		public ValueDefinitionType(){
+        public ValueDefinitionType(){
 			super();
 		}
 
@@ -453,9 +453,14 @@ public class Limiter extends AbstractCosemObject implements RegisterReadable {
 			}
 
 		public Integer8 getAttributeIndex(){
-			return (Integer8) getDataType(ITEM_ATTRIBUTE_INDEX);
+            int attr = attribute == Integer.MIN_VALUE ? ITEM_ATTRIBUTE_INDEX : attribute;
+			return (Integer8) getDataType(attr);
 		}
-	}
+
+        public void setAttribute(int attribute) {
+            this.attribute = attribute;
+        }
+    }
 
 	public class EmergencyProfile extends Structure {
 

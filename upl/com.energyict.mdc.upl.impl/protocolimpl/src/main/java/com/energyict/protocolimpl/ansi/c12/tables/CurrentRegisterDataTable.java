@@ -10,14 +10,9 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import com.energyict.protocolimpl.ansi.c12.C12ProtocolLink;
-import java.io.*;
-import java.util.*;
-
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
 import com.energyict.protocolimpl.ansi.c12.PartialReadInfo;
+
+import java.io.IOException;
 
 /**
  *
@@ -26,28 +21,38 @@ import com.energyict.protocolimpl.ansi.c12.PartialReadInfo;
 public class CurrentRegisterDataTable extends AbstractTable {
     
     private RegisterData registerData;
-    
-    
+    private boolean readDemandsAndCoincidents = true;
+    private boolean readTiers = true;
+    private boolean limitRegisterReadSize = false;
+
     /** Creates a new instance of CurrentRegisterDataTable */
+    public CurrentRegisterDataTable(StandardTableFactory tableFactory, boolean readDemandsAndCoincidents, boolean readTiers, boolean limitRegisterReadSize) {
+        this(tableFactory);
+        this.readDemandsAndCoincidents = readDemandsAndCoincidents;
+        this.readTiers = readTiers;
+        this.limitRegisterReadSize = limitRegisterReadSize;
+    }
+
     public CurrentRegisterDataTable(StandardTableFactory tableFactory) {
         super(tableFactory,new TableIdentification(23));
     }
-    
+
     public String toString() {
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("CurrentRegisterDataTable: registerData="+getRegisterData()+"\n");
         return strBuff.toString();
     }
-    
-    
-    
+
+
+
     protected void prepareBuild() throws IOException {
-        PartialReadInfo partialReadInfo = new PartialReadInfo(0,RegisterData.getSize(getTableFactory()));
-        setPartialReadInfo(partialReadInfo);        
+        int size = RegisterData.getSize(getTableFactory(), limitRegisterReadSize, readTiers);
+        PartialReadInfo partialReadInfo = new PartialReadInfo(0,size);
+        setPartialReadInfo(partialReadInfo);
     }
-    
-    protected void parse(byte[] tableData) throws IOException { 
-        setRegisterData(new RegisterData(tableData,0, getTableFactory()));
+
+    protected void parse(byte[] tableData) throws IOException {
+        setRegisterData(new RegisterData(tableData,0, getTableFactory(), readDemandsAndCoincidents, readTiers));
     }
 
     public RegisterData getRegisterData() {

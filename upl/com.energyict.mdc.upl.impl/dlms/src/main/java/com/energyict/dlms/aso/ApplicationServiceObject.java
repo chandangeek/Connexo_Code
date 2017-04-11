@@ -67,12 +67,16 @@ public class ApplicationServiceObject {
         this.xDlmsAse = xDlmsAse;
         this.protocolLink = protocolLink;
         this.securityContext = securityContext;
-        this.acse = new AssociationControlServiceElement(this.xDlmsAse, contextId, securityContext);
+        initACSE(securityContext, contextId);
         this.acse.setCallingApplicationProcessTitle(securityContext.getSystemTitle());
         this.acse.setCalledApplicationProcessTitle(calledAPTitle);
         this.acse.setCalledApplicationEntityQualifier(calledAEQualifier);
         this.acse.setCallingApplicationEntityQualifier(callingAEQualifier);
         this.associationStatus = ASSOCIATION_DISCONNECTED;
+    }
+
+    protected void initACSE(SecurityContext securityContext, int contextId) {
+        this.acse = new AssociationControlServiceElement(this.xDlmsAse, contextId, securityContext);
     }
 
     public ApplicationServiceObject(XdlmsAse xDlmsAse, ProtocolLink protocolLink, SecurityContext securityContext) {
@@ -137,7 +141,7 @@ public class ApplicationServiceObject {
 
             if (getSecurityContext().isDedicatedCiphering()) {
                 // if dedicated ciphering is used, then a new FrameCounter is used for each session
-                getSecurityContext().setFrameCounterInitialized(false);
+                getSecurityContext().getSecurityProvider().getRespondingFrameCounterHandler().setRespondingFrameCounter(-1);
             }
             handleHighLevelSecurityAuthentication();
         } else {

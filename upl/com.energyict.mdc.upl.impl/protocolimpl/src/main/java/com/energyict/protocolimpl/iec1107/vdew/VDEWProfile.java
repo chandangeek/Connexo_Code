@@ -46,6 +46,7 @@ abstract public class VDEWProfile {
 
     // COMMUNICATION-665 - On ABBA1500 protocol, old devices with outdated firmware (< 3.02) require R5 mode instead of R6
     private int readMode = 0;
+    protected int profileRequestBlockSize = 8;
 
     /** Creates a new instance of VDEWProfile */
     public VDEWProfile(MeterExceptionInfo meterExceptionInfo,ProtocolLink protocolLink,AbstractVDEWRegistry abstractVDEWRegistry) {
@@ -264,7 +265,7 @@ abstract public class VDEWProfile {
             return vdewReadR5(cmd.getBytes());
         } else {
             // vdewReadR6 is the normal and preferred method - only for devices with very old firmware vdewReadR5 is needed.
-            cmd = "P."+ProtocolUtils.buildStringDecimal(profileid, 2)+"("+data+";8)";
+            cmd = "P."+ProtocolUtils.buildStringDecimal(profileid, 2)+"("+data+";" + profileRequestBlockSize + ")";
         return vdewReadR6(cmd.getBytes());
         }
     } // private byte[] doReadRawProfile()
@@ -773,5 +774,9 @@ abstract public class VDEWProfile {
 
     public void setReadMode(int readMode) {
         this.readMode = readMode;
+    }
+
+    public void setProfileRequestBlockSize(int profileRequestBlockSize) {
+        this.profileRequestBlockSize = profileRequestBlockSize;
     }
 } // VDEWProfile

@@ -69,9 +69,12 @@ public class Beacon3100LogBookFactory implements DeviceLogBookSupport {
                     fromDate.setTime(logBookReader.getLastLogBook());
 
                     try {
-                        /*DataContainer dataContainer = profileGeneric.getBuffer(fromDate, getCalendar());*/
-                        DataContainer dataContainer = profileGeneric.getBuffer();
+                        DataContainer dataContainer = profileGeneric.getBuffer(fromDate, getCalendar());
                         collectedLogBook.setCollectedMeterEvents(parseEvents(dataContainer, logBookReader.getLogBookObisCode()));
+                        if (PROTOCOL_LOGBOOK.equals(logBookReader.getLogBookObisCode())){
+                            Beacon3100ProtocolEventLog protocolEventLog = new Beacon3100ProtocolEventLog(dataContainer, protocol.getTimeZone(), collectedDataFactory);
+                            result.addAll(protocolEventLog.geSlaveLogBooks());
+                        }
                     } catch (IOException e) {
                         if (DLMSIOExceptionHandler.isUnexpectedResponse(e, protocol.getDlmsSessionProperties().getRetries())) {
                             collectedLogBook.setFailureInformation(ResultType.InCompatible, this.issueFactory.createWarning(logBookReader, "logBookXissue", logBookReader.getLogBookObisCode().toString(), e.getMessage()));
@@ -100,7 +103,7 @@ public class Beacon3100LogBookFactory implements DeviceLogBookSupport {
         } else if (logBookObisCode.equals(VOLTAGE_LOGBOOK)) {
             meterEvents = new Beacon3100VoltageEventLog(dataContainer, protocol.getTimeZone()).getMeterEvents();
         } else if (logBookObisCode.equals(PROTOCOL_LOGBOOK)) {
-            meterEvents = new Beacon3100ProtocolEventLog(dataContainer, protocol.getTimeZone()).getMeterEvents();
+            meterEvents = new Beacon3100ProtocolEventLog(dataContainer, protocol.getTimeZone(), collectedDataFactory).getMeterEvents();
         } else {
             return new ArrayList<>();
         }

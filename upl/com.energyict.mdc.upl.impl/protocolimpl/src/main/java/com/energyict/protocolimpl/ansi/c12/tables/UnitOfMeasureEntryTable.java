@@ -10,12 +10,10 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.protocolimpl.ansi.c12.PartialReadInfo;
 
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocol.*;
+import java.io.IOException;
 
 /**
  *
@@ -24,12 +22,19 @@ import com.energyict.protocol.*;
 public class UnitOfMeasureEntryTable extends AbstractTable {
     
     private UOMEntryBitField[] uomEntryBitField;
-    
+
+    int reduceMaxNumberOfUomEntryBy = 0;
+
     /** Creates a new instance of UnitOfMeasureEntryTable */
+    public UnitOfMeasureEntryTable(StandardTableFactory tableFactory, int reduceMaxNumberOfUomEntryBy) {
+        this(tableFactory);
+        this.reduceMaxNumberOfUomEntryBy = reduceMaxNumberOfUomEntryBy;
+    }
+
     public UnitOfMeasureEntryTable(StandardTableFactory tableFactory) {
         super(tableFactory,new TableIdentification(12));
     }
-    
+
     public String toString() {
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("UnitOfMeasureEntryTable: \n");
@@ -37,9 +42,13 @@ public class UnitOfMeasureEntryTable extends AbstractTable {
             strBuff.append("uomEntryBitField["+i+"]="+getUomEntryBitField()[i]+"\n");
         return strBuff.toString();
     }
-    
+
     protected void prepareBuild() throws IOException {
-        int size = getTableFactory().getC12ProtocolLink().getStandardTableFactory().getActualSourcesLimitingTable().getMaxNrOfEntriesUOMEntry() * UOMEntryBitField.getSize(); 
+        int size;
+        int numUomEntries = getTableFactory().getC12ProtocolLink().getStandardTableFactory().getActualSourcesLimitingTable().getMaxNrOfEntriesUOMEntry();
+        numUomEntries -= reduceMaxNumberOfUomEntryBy;
+        size = numUomEntries * UOMEntryBitField.getSize();
+
         PartialReadInfo partialReadInfo = new PartialReadInfo(0,size);
         setPartialReadInfo(partialReadInfo);
     }
@@ -47,15 +56,20 @@ public class UnitOfMeasureEntryTable extends AbstractTable {
     
     protected void parse(byte[] tableData) throws IOException { 
         int offset=0;
-        setUomEntryBitField(new UOMEntryBitField[getTableFactory().getC12ProtocolLink().getStandardTableFactory().getActualSourcesLimitingTable().getMaxNrOfEntriesUOMEntry()]);
-        for (int i=0;i<getUomEntryBitField().length;i++) {
-            getUomEntryBitField()[i] = new UOMEntryBitField(tableData, offset, getTableFactory());
-            offset+=UOMEntryBitField.getSize();
+        int numUomEntries = getTableFactory().getC12ProtocolLink().getStandardTableFactory().getActualSourcesLimitingTable().getMaxNrOfEntriesUOMEntry();
+        numUomEntries -= reduceMaxNumberOfUomEntryBy;
+        setUomEntryBitField(new UOMEntryBitField[numUomEntries]);
+        try {
+            for (int i = 0; i < getUomEntryBitField().length; i++) {
+                getUomEntryBitField()[i] = new UOMEntryBitField(tableData, offset, getTableFactory());
+                offset += UOMEntryBitField.getSize();
+            }
+        } catch (ProtocolException e) {
+            if (!e.getMessage().contains("ProtocolUtils, getLongLE, ArrayIndexOutOfBoundsException")) {
+                throw e;
+            }
         }
-           
-        
-        
-    }         
+    }
 
     public UOMEntryBitField[] getUomEntryBitField() {
         return uomEntryBitField;

@@ -6,6 +6,7 @@ import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocolimplv2.messages.nls.TranslationKeyImpl;
 
 import java.math.BigDecimal;
@@ -347,9 +348,9 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return IntStream
-                        .range(1, 11)
-                        .mapToObj(number -> this.networkOperatorSpec(service, number))
-                        .collect(Collectors.toList());
+                    .range(1, 11)
+                    .mapToObj(number -> this.networkOperatorSpec(service, number))
+                    .collect(Collectors.toList());
         }
     },
     ConfigureAutoAnswer(4047, "Configure auto answer") {
@@ -416,6 +417,21 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.SetHttpsPortAttributeName, DeviceMessageConstants.SetHttpsPortAttributeDefaultTranslation));
         }
+    },
+    EnableNetworkInterfacesForSetupObject(4054, "Enable network interfaces for setup object") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.stringSpecBuilder(service, DeviceMessageConstants.setupObjectAttributeName, DeviceMessageConstants.setupObjectAttributeDefaultTranslation)
+                            .addValues(BeaconSetupObject.getSetupObjectValues())
+                            .finish(),
+                    this.booleanSpec(service, DeviceMessageConstants.ETHERNET_WAN, DeviceMessageConstants.ETHERNET_LANDefaultTranslation),
+                    this.booleanSpec(service, DeviceMessageConstants.ETHERNET_LAN, DeviceMessageConstants.ETHERNET_LANDefaultTranslation),
+                    this.booleanSpec(service, DeviceMessageConstants.WIRELESS_WAN, DeviceMessageConstants.WIRELESS_WANDefaultTranslation),
+                    this.booleanSpec(service, DeviceMessageConstants.IP6_TUNNEL, DeviceMessageConstants.IP6_TUNNELDefaultTranslation),
+                    this.booleanSpec(service, DeviceMessageConstants.PLC_NETWORK, DeviceMessageConstants.PLC_NETWORKDefaultTranslation)
+            );
+        }
     };
 
     public enum AutoConnectMode {
@@ -433,10 +449,10 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
 
         public static AutoConnectMode modeForDescription(String description) {
             return Stream
-                        .of(values())
-                        .filter(each -> each.getDescription().equals(description))
-                        .findFirst()
-                        .orElse(Invalid);
+                    .of(values())
+                    .filter(each -> each.getDescription().equals(description))
+                    .findFirst()
+                    .orElse(Invalid);
         }
 
         public int getMode() {
@@ -454,6 +470,36 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
     NetworkConnectivityMessage(long id, String defaultNameTranslation) {
         this.id = id;
         this.defaultNameTranslation = defaultNameTranslation;
+    }
+
+    public enum BeaconSetupObject {
+        Remote_Shell_Old_ObisCode("0.16.128.0.0.255"),
+        Remote_Shell_New_ObisCode("0.128.96.193.0.255"),
+        SNMP_Old_ObisCode("0.17.128.0.0.255"),
+        SNMP_New_ObisCode("0.128.96.194.0.255"),
+        RTU_Discovery_Old_ObisCode("0.18.128.0.0.255"),
+        RTU_Discovery_New_ObisCode("0.18.128.0.0.255 "),
+        Web_Portal_Config_Old_ObisCode("0.0.128.0.13.255"),
+        Web_Portal_Config_New_ObisCode("0.0.128.0.13.255");
+
+        private final String obis;
+
+        private BeaconSetupObject(String obis) {
+            this.obis = obis;
+        }
+
+        public static String[] getSetupObjectValues() {
+            BeaconSetupObject[] allObjects = values();
+            String[] result = new String[allObjects.length];
+            for (int index = 0; index < allObjects.length; index++) {
+                result[index] = allObjects[index].name();
+            }
+            return result;
+        }
+
+        public ObisCode getObisCode() {
+            return ObisCode.fromString(obis);
+        }
     }
 
     @Override
@@ -483,9 +529,9 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
 
     protected PropertySpec stringSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation, String... exhaustiveValues) {
         return this.stringSpecBuilder(service, deviceMessageConstantKey, deviceMessageConstantDefaultTranslation)
-                        .addValues(exhaustiveValues)
-                        .markExhaustive()
-                        .finish();
+                .addValues(exhaustiveValues)
+                .markExhaustive()
+                .finish();
     }
 
     protected PropertySpecBuilder<BigDecimal> bigDecimalSpecBuilder(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {

@@ -1,18 +1,18 @@
 package com.energyict.protocolimpl.dlms.g3.registers;
 
-import com.energyict.mdc.upl.NoSuchRegisterException;
-
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.cosem.Clock;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.HistoricalValue;
 import com.energyict.dlms.cosem.StoredValues;
+import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.dlms.g3.G3ProfileType;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.TimeZone;
 import java.util.logging.Logger;
@@ -135,6 +135,8 @@ public class G3RegisterMapper {
     private static final ObisCode MAC_SETUP_ATTR2 = ObisCode.fromString("0.2.29.1.0.255");
     private static final ObisCode MAC_SETUP_ATTR3 = ObisCode.fromString("0.3.29.1.0.255");
     private static final ObisCode MAC_SETUP_ATTR4 = ObisCode.fromString("0.4.29.1.0.255");
+    private static final ObisCode MAC_SETUP_ATTR5 = ObisCode.fromString("0.5.29.1.0.255");
+    private static final ObisCode MAC_SETUP_ATTR6 = ObisCode.fromString("0.6.29.1.0.255");
     private static final ObisCode MAC_SETUP_ATTR7 = ObisCode.fromString("0.7.29.1.0.255");
     private static final ObisCode MAC_SETUP_ATTR8 = ObisCode.fromString("0.8.29.1.0.255");
     private static final ObisCode MAC_SETUP_ATTR9 = ObisCode.fromString("0.9.29.1.0.255");
@@ -147,6 +149,7 @@ public class G3RegisterMapper {
     private static final ObisCode MAC_SETUP_ATTR16 = ObisCode.fromString("0.16.29.1.0.255");
     private static final ObisCode MAC_SETUP_ATTR17 = ObisCode.fromString("0.17.29.1.0.255");
     private static final ObisCode MAC_SETUP_ATTR18 = ObisCode.fromString("0.18.29.1.0.255");
+    private static final ObisCode MAC_SETUP_ATTR19 = ObisCode.fromString("0.19.29.1.0.255");
     private static final ObisCode MAC_SETUP_ATTR20 = ObisCode.fromString("0.20.29.1.0.255");
     private static final ObisCode MAC_SETUP_ATTR21 = ObisCode.fromString("0.21.29.1.0.255");
     private static final ObisCode MAC_SETUP_ATTR22 = ObisCode.fromString("0.22.29.1.0.255");
@@ -175,28 +178,44 @@ public class G3RegisterMapper {
     private static final ObisCode EVENT_NOTIFICATION_ATTR2 = ObisCode.fromString("0.2.128.0.12.255");
     private static final ObisCode EVENT_NOTIFICATION_ATTR4 = ObisCode.fromString("0.4.128.0.12.255");
 
-    private static final ObisCode WAN_IP_ADDRESS = ObisCode.fromString("0.0.25.1.3.255");
-    private static final ObisCode WAN_SUBNET_MASK = ObisCode.fromString("0.0.25.1.6.255");
-    private static final ObisCode WAN_GATEWAY_IP_ADDRESS = ObisCode.fromString("0.0.25.1.7.255");
-    private static final ObisCode WAN_PRIMARY_DNS_ADDRESS = ObisCode.fromString("0.0.25.1.9.255");
+    private static final ObisCode WAN_DL_REFERENCE          = ObisCode.fromString("0.0.25.1.2.255");
+    private static final ObisCode WAN_IP_ADDRESS            = ObisCode.fromString("0.0.25.1.3.255");
+    private static final ObisCode WAN_MULTICAST_IP_ADDRESS  = ObisCode.fromString("0.0.25.1.4.255");
+    private static final ObisCode WAN_IP_OPTIONS            = ObisCode.fromString("0.0.25.1.5.255");
+    private static final ObisCode WAN_SUBNET_MASK           = ObisCode.fromString("0.0.25.1.6.255");
+    private static final ObisCode WAN_GATEWAY_IP_ADDRESS    = ObisCode.fromString("0.0.25.1.7.255");
+    private static final ObisCode WAN_USE_DHCP_FLAG         = ObisCode.fromString("0.0.25.1.8.255");
+    private static final ObisCode WAN_PRIMARY_DNS_ADDRESS   = ObisCode.fromString("0.0.25.1.9.255");
     private static final ObisCode WAN_SECONDARY_DNS_ADDRESS = ObisCode.fromString("0.0.25.1.10.255");
 
-    private static final ObisCode LAN_IP_ADDRESS = ObisCode.fromString("0.1.25.1.3.255");
-    private static final ObisCode LAN_SUBNET_MASK = ObisCode.fromString("0.1.25.1.6.255");
-    private static final ObisCode LAN_GATEWAY_IP_ADDRESS = ObisCode.fromString("0.1.25.1.7.255");
-    private static final ObisCode LAN_PRIMARY_DNS_ADDRESS = ObisCode.fromString("0.1.25.1.9.255");
+    private static final ObisCode LAN_DL_REFERENCE          = ObisCode.fromString("0.1.25.1.2.255");
+    private static final ObisCode LAN_IP_ADDRESS            = ObisCode.fromString("0.1.25.1.3.255");
+    private static final ObisCode LAN_MULTICAST_IP_ADDRESS  = ObisCode.fromString("0.1.25.1.4.255");
+    private static final ObisCode LAN_IP_OPTIONS            = ObisCode.fromString("0.1.25.1.5.255");
+    private static final ObisCode LAN_SUBNET_MASK           = ObisCode.fromString("0.1.25.1.6.255");
+    private static final ObisCode LAN_GATEWAY_IP_ADDRESS    = ObisCode.fromString("0.1.25.1.7.255");
+    private static final ObisCode LAN_USE_DHCP_FLAG         = ObisCode.fromString("0.1.25.1.8.255");
+    private static final ObisCode LAN_PRIMARY_DNS_ADDRESS   = ObisCode.fromString("0.1.25.1.9.255");
     private static final ObisCode LAN_SECONDARY_DNS_ADDRESS = ObisCode.fromString("0.1.25.1.10.255");
 
-    private static final ObisCode WWAN_IP_ADDRESS = ObisCode.fromString("0.3.25.1.3.255");
-    private static final ObisCode WWAN_SUBNET_MASK = ObisCode.fromString("0.3.25.1.6.255");
-    private static final ObisCode WWAN_GATEWAY_IP_ADDRESS = ObisCode.fromString("0.3.25.1.7.255");
-    private static final ObisCode WWAN_PRIMARY_DNS_ADDRESS = ObisCode.fromString("0.3.25.1.9.255");
+    private static final ObisCode WWAN_DL_REFERENCE         = ObisCode.fromString("0.3.25.1.2.255");
+    private static final ObisCode WWAN_IP_ADDRESS           = ObisCode.fromString("0.3.25.1.3.255");
+    private static final ObisCode WWAN_MULTICAST_IP_ADDRESS = ObisCode.fromString("0.3.25.1.4.255");
+    private static final ObisCode WWAN_IP_OPTIONS           = ObisCode.fromString("0.3.25.1.5.255");
+    private static final ObisCode WWAN_SUBNET_MASK          = ObisCode.fromString("0.3.25.1.6.255");
+    private static final ObisCode WWAN_GATEWAY_IP_ADDRESS   = ObisCode.fromString("0.3.25.1.7.255");
+    private static final ObisCode WWAN_USE_DHCP_FLAG        = ObisCode.fromString("0.3.25.1.8.255");
+    private static final ObisCode WWAN_PRIMARY_DNS_ADDRESS  = ObisCode.fromString("0.3.25.1.9.255");
     private static final ObisCode WWAN_SECONDARY_DNS_ADDRESS = ObisCode.fromString("0.3.25.1.10.255");
 
-    private static final ObisCode USB_SETUP_ATTR1 = ObisCode.fromString("0.1.128.0.28.255");
-    private static final ObisCode USB_SETUP_ATTR2 = ObisCode.fromString("0.2.128.0.28.255");
-    private static final ObisCode USB_SETUP_ATTR3 = ObisCode.fromString("0.3.128.0.28.255");
-    private static final ObisCode USB_SETUP_ATTR4 = ObisCode.fromString("0.4.128.0.28.255");
+    private static final ObisCode USB_SETUP_ATTR1 = ObisCode.fromString("0.194.96.144.0.1");
+    private static final ObisCode USB_SETUP_ATTR2 = ObisCode.fromString("0.194.96.144.0.2");
+    private static final ObisCode USB_SETUP_ATTR3 = ObisCode.fromString("0.194.96.144.0.3");
+    private static final ObisCode USB_SETUP_ATTR4 = ObisCode.fromString("0.194.96.144.0.4");
+    private static final ObisCode USB_SETUP_ATTR1_LEGACY = ObisCode.fromString("0.0.128.0.28.1");
+    private static final ObisCode USB_SETUP_ATTR2_LEGACY = ObisCode.fromString("0.0.128.0.28.2");
+    private static final ObisCode USB_SETUP_ATTR3_LEGACY = ObisCode.fromString("0.0.128.0.28.3");
+    private static final ObisCode USB_SETUP_ATTR4_LEGACY = ObisCode.fromString("0.0.128.0.28.4");
 
     public static final ObisCode DISCONNECT_CONTROL_ATTR1 = ObisCode.fromString("0.1.96.3.10.255");
     public static final ObisCode DISCONNECT_CONTROL_ATTR2 = ObisCode.fromString("0.2.96.3.10.255");
@@ -222,17 +241,37 @@ public class G3RegisterMapper {
     public static final ObisCode PPP_SETUP_ATTR5 = ObisCode.fromString("0.5.25.3.0.255");
     public static final ObisCode PPP_SETUP_ATTR6 = ObisCode.fromString("0.6.25.3.0.255");
 
-    public static final ObisCode INSTANTANEOUS_VOLTAGE_L1 = ObisCode.fromString("1.0.32.7.0.255");
-    public static final ObisCode INSTANTANEOUS_VOLTAGE_L2 = ObisCode.fromString("1.0.52.7.0.255");
-    public static final ObisCode INSTANTANEOUS_VOLTAGE_L3 = ObisCode.fromString("1.0.72.7.0.255");
-    public static final ObisCode INSTANTANEOUS_FREQUENCY = ObisCode.fromString("1.0.34.7.0.255");
-    public static final ObisCode INSTANTANEOUS_PHASE_ANGLE_L1 = ObisCode.fromString("1.0.81.7.0.255");
-    public static final ObisCode INSTANTANEOUS_PHASE_ANGLE_L2 = ObisCode.fromString("1.0.81.7.1.255");
-    public static final ObisCode INSTANTANEOUS_PHASE_ANGLE_L3 = ObisCode.fromString("1.0.81.7.2.255");
+    // Beacon custom class for Modem Watchdog parameters
+    public static final ObisCode MODEM_WATCHDOG_ATTR1 = ObisCode.fromString("0.162.96.128.0.1");
+    public static final ObisCode MODEM_WATCHDOG_ATTR2 = ObisCode.fromString("0.162.96.128.0.2");
+    public static final ObisCode MODEM_WATCHDOG_ATTR3 = ObisCode.fromString("0.162.96.128.0.3");
+    public static final ObisCode MODEM_WATCHDOG_ATTR1_LEGACY = ObisCode.fromString("0.0.128.0.11.1");
+    public static final ObisCode MODEM_WATCHDOG_ATTR2_LEGACY = ObisCode.fromString("0.0.128.0.11.2");
+    public static final ObisCode MODEM_WATCHDOG_ATTR3_LEGACY = ObisCode.fromString("0.0.128.0.11.3");
 
-    public static final ObisCode MODEM_WATCHDOG_ATTR1 = ObisCode.fromString("0.1.128.0.11.255");
-    public static final ObisCode MODEM_WATCHDOG_ATTR2 = ObisCode.fromString("0.2.128.0.11.255");
-    public static final ObisCode MODEM_WATCHDOG_ATTR3 = ObisCode.fromString("0.3.128.0.11.255");
+
+    public static final ObisCode MULTI_APN_CONFIG = ObisCode.fromString("0.162.96.160.0.255");
+    public static final ObisCode MULTI_APN_CONFIG_LEGACY = ObisCode.fromString("0.128.25.3.0.255");
+
+    /**
+     * ObisCode mappers for the ConcentratorSetup attributes, found on base OBISCode 0.187.96.128.0.255
+     * https://confluence.eict.vpdc/display/G3IntBeacon3100/Manage+DC+operations
+     */
+    public static final ObisCode CONCENTRATOR_SETUP_ACTIVE                      = ObisCode.fromString("0.187.96.128.0.2");
+    public static final ObisCode CONCENTRATOR_SETUP_MAX_CONCURENT_SESSIONS      = ObisCode.fromString("0.187.96.128.0.3");
+    public static final ObisCode CONCENTRATOR_SETUP_METER_INFO_JSON             = ObisCode.fromString("0.187.96.128.0.4");
+    public static final ObisCode CONCENTRATOR_SETUP_METER_INFO_SERIAL           = ObisCode.fromString("0.187.96.128.0.41");
+    public static final ObisCode CONCENTRATOR_SETUP_METER_INFO_MAC              = ObisCode.fromString("0.187.96.128.0.42");
+    public static final ObisCode CONCENTRATOR_SETUP_PROTOCOL_EVENT_LOG_LEVEL    = ObisCode.fromString("0.187.96.128.0.5");
+
+    /**
+     * ObisCode mappers for the MemoryManagement attributes, found on 0.194.96.128.0.255 classId 20021
+     */
+    public static final ObisCode MEMORY_MANAGEMENT_ATTR2 = ObisCode.fromString("0.194.96.128.0.2");
+    public static final ObisCode MEMORY_MANAGEMENT_ATTR3 = ObisCode.fromString("0.194.96.128.0.3");
+    public static final ObisCode MEMORY_MANAGEMENT_ATTR2_LEGACY = ObisCode.fromString("0.0.128.0.20.2");
+    public static final ObisCode MEMORY_MANAGEMENT_ATTR3_LEGACY = ObisCode.fromString("0.0.128.0.20.3");
+
 
     protected final List<G3Mapping> mappings = new ArrayList<G3Mapping>();
     private final Logger logger;
@@ -266,11 +305,11 @@ public class G3RegisterMapper {
         this.mappings.addAll(getRatedEnergyRegistering());
         this.mappings.addAll(getVoltageQualityMeasurements());
         this.mappings.addAll(getPLCStatisticsMappings());
-        this.mappings.addAll(getUsbSetupRegistering());
+        this.mappings.addAll(getUsbSetupMappings());
         this.mappings.addAll(getDisconnectControlRegistering());
-        this.mappings.addAll(getGprsModemSetupRegistering());
+        this.mappings.addAll(getGprsModemSetupMappings());
         this.mappings.addAll(getPPPSetupRegistering());
-        this.mappings.addAll(getMetrologyRegistering());
+        this.mappings.addAll(getModemWatchdogMappings());
     }
 
     /**
@@ -337,6 +376,15 @@ public class G3RegisterMapper {
         List<G3Mapping> basicChecks = new ArrayList<G3Mapping>();
         basicChecks.add(new ClockMapping(Clock.getDefaultObisCode()));
         return basicChecks;
+    }
+
+    protected Collection<? extends G3Mapping> getMemoryManagementMappings() {
+        List<G3Mapping> memoryManagement = new ArrayList<G3Mapping>();
+        memoryManagement.add(new MemoryManagementMapping(MEMORY_MANAGEMENT_ATTR2));
+        memoryManagement.add(new MemoryManagementMapping(MEMORY_MANAGEMENT_ATTR3));
+        memoryManagement.add(new MemoryManagementMapping(MEMORY_MANAGEMENT_ATTR2_LEGACY));
+        memoryManagement.add(new MemoryManagementMapping(MEMORY_MANAGEMENT_ATTR3_LEGACY));
+        return memoryManagement;
     }
 
     private final List<G3Mapping> getBillingPeriodMappings() {
@@ -446,12 +494,16 @@ public class G3RegisterMapper {
         return voltageMappings;
     }
 
-    protected final List<G3Mapping> getUsbSetupRegistering() {
+    protected final List<G3Mapping> getUsbSetupMappings() {
         final List<G3Mapping> usbSetupMappings = new ArrayList<G3Mapping>();
         usbSetupMappings.add(new USBSetupMapping(USB_SETUP_ATTR1));
         usbSetupMappings.add(new USBSetupMapping(USB_SETUP_ATTR2));
         usbSetupMappings.add(new USBSetupMapping(USB_SETUP_ATTR3));
         usbSetupMappings.add(new USBSetupMapping(USB_SETUP_ATTR4));
+        usbSetupMappings.add(new USBSetupMapping(USB_SETUP_ATTR1_LEGACY));
+        usbSetupMappings.add(new USBSetupMapping(USB_SETUP_ATTR2_LEGACY));
+        usbSetupMappings.add(new USBSetupMapping(USB_SETUP_ATTR3_LEGACY));
+        usbSetupMappings.add(new USBSetupMapping(USB_SETUP_ATTR4_LEGACY));
         return usbSetupMappings;
     }
 
@@ -464,7 +516,7 @@ public class G3RegisterMapper {
         return disconnectControlMappings;
     }
 
-    protected final List<G3Mapping> getGprsModemSetupRegistering() {
+    protected final List<G3Mapping> getGprsModemSetupMappings() {
         final List<G3Mapping> gprsModemSetupMappings = new ArrayList<G3Mapping>();
         gprsModemSetupMappings.add(new GprsModemSetupMapping(GPRS_MODEM_SETUP_ATTR1));
         gprsModemSetupMappings.add(new GprsModemSetupMapping(GPRS_MODEM_SETUP_ATTR2));
@@ -491,23 +543,14 @@ public class G3RegisterMapper {
         return pppSetupMappings;
     }
 
-    protected final List<G3Mapping> getMetrologyRegistering() {
-        final List<G3Mapping> MetrologyMappings = new ArrayList<G3Mapping>();
-        MetrologyMappings.add(new MetrologyMapping(INSTANTANEOUS_VOLTAGE_L1));
-        MetrologyMappings.add(new MetrologyMapping(INSTANTANEOUS_VOLTAGE_L2));
-        MetrologyMappings.add(new MetrologyMapping(INSTANTANEOUS_VOLTAGE_L3));
-        MetrologyMappings.add(new MetrologyMapping(INSTANTANEOUS_FREQUENCY));
-        MetrologyMappings.add(new MetrologyMapping(INSTANTANEOUS_PHASE_ANGLE_L1));
-        MetrologyMappings.add(new MetrologyMapping(INSTANTANEOUS_PHASE_ANGLE_L2));
-        MetrologyMappings.add(new MetrologyMapping(INSTANTANEOUS_PHASE_ANGLE_L3));
-        return MetrologyMappings;
-    }
-
-    protected final List<G3Mapping> getModemWatchdogRegistering() {
+    protected final List<G3Mapping> getModemWatchdogMappings() {
         final List<G3Mapping> ModemWatchdogMappings = new ArrayList<G3Mapping>();
         ModemWatchdogMappings.add(new ModemWatchdogMapping(MODEM_WATCHDOG_ATTR1));
         ModemWatchdogMappings.add(new ModemWatchdogMapping(MODEM_WATCHDOG_ATTR2));
         ModemWatchdogMappings.add(new ModemWatchdogMapping(MODEM_WATCHDOG_ATTR3));
+        ModemWatchdogMappings.add(new ModemWatchdogMapping(MODEM_WATCHDOG_ATTR1_LEGACY));
+        ModemWatchdogMappings.add(new ModemWatchdogMapping(MODEM_WATCHDOG_ATTR2_LEGACY));
+        ModemWatchdogMappings.add(new ModemWatchdogMapping(MODEM_WATCHDOG_ATTR3_LEGACY));
         return ModemWatchdogMappings;
     }
 
@@ -528,6 +571,8 @@ public class G3RegisterMapper {
         plcStatistics.add(new PlcStatisticsMapping(MAC_SETUP_ATTR2));
         plcStatistics.add(new PlcStatisticsMapping(MAC_SETUP_ATTR3));
         plcStatistics.add(new PlcStatisticsMapping(MAC_SETUP_ATTR4));
+        plcStatistics.add(new PlcStatisticsMapping(MAC_SETUP_ATTR5));
+        plcStatistics.add(new PlcStatisticsMapping(MAC_SETUP_ATTR6));
         plcStatistics.add(new PlcStatisticsMapping(MAC_SETUP_ATTR7));
         plcStatistics.add(new PlcStatisticsMapping(MAC_SETUP_ATTR8));
         plcStatistics.add(new PlcStatisticsMapping(MAC_SETUP_ATTR9));
@@ -540,6 +585,7 @@ public class G3RegisterMapper {
         plcStatistics.add(new PlcStatisticsMapping(MAC_SETUP_ATTR16));
         plcStatistics.add(new PlcStatisticsMapping(MAC_SETUP_ATTR17));
         plcStatistics.add(new PlcStatisticsMapping(MAC_SETUP_ATTR18));
+        plcStatistics.add(new PlcStatisticsMapping(MAC_SETUP_ATTR19));
         plcStatistics.add(new PlcStatisticsMapping(MAC_SETUP_ATTR20));
         plcStatistics.add(new PlcStatisticsMapping(MAC_SETUP_ATTR21));
         plcStatistics.add(new PlcStatisticsMapping(MAC_SETUP_ATTR22));
@@ -579,24 +625,59 @@ public class G3RegisterMapper {
     protected final List<G3Mapping> getIPv4SetupMappings() {
         final List<G3Mapping> ipv4SetupMappings = new ArrayList<G3Mapping>();
 
+        ipv4SetupMappings.add(new IPv4SetupMapping(WAN_DL_REFERENCE));
         ipv4SetupMappings.add(new IPv4SetupMapping(WAN_IP_ADDRESS));
+        ipv4SetupMappings.add(new IPv4SetupMapping(WAN_MULTICAST_IP_ADDRESS));
+        ipv4SetupMappings.add(new IPv4SetupMapping(WAN_IP_OPTIONS));
         ipv4SetupMappings.add(new IPv4SetupMapping(WAN_SUBNET_MASK));
         ipv4SetupMappings.add(new IPv4SetupMapping(WAN_GATEWAY_IP_ADDRESS));
+        ipv4SetupMappings.add(new IPv4SetupMapping(WAN_USE_DHCP_FLAG));
         ipv4SetupMappings.add(new IPv4SetupMapping(WAN_PRIMARY_DNS_ADDRESS));
         ipv4SetupMappings.add(new IPv4SetupMapping(WAN_SECONDARY_DNS_ADDRESS));
 
+        ipv4SetupMappings.add(new IPv4SetupMapping(LAN_DL_REFERENCE));
         ipv4SetupMappings.add(new IPv4SetupMapping(LAN_IP_ADDRESS));
+        ipv4SetupMappings.add(new IPv4SetupMapping(LAN_MULTICAST_IP_ADDRESS));
+        ipv4SetupMappings.add(new IPv4SetupMapping(LAN_IP_OPTIONS));
         ipv4SetupMappings.add(new IPv4SetupMapping(LAN_SUBNET_MASK));
         ipv4SetupMappings.add(new IPv4SetupMapping(LAN_GATEWAY_IP_ADDRESS));
+        ipv4SetupMappings.add(new IPv4SetupMapping(LAN_USE_DHCP_FLAG));
         ipv4SetupMappings.add(new IPv4SetupMapping(LAN_PRIMARY_DNS_ADDRESS));
         ipv4SetupMappings.add(new IPv4SetupMapping(LAN_SECONDARY_DNS_ADDRESS));
 
+        ipv4SetupMappings.add(new IPv4SetupMapping(WWAN_DL_REFERENCE));
         ipv4SetupMappings.add(new IPv4SetupMapping(WWAN_IP_ADDRESS));
+        ipv4SetupMappings.add(new IPv4SetupMapping(WWAN_MULTICAST_IP_ADDRESS));
+        ipv4SetupMappings.add(new IPv4SetupMapping(WWAN_IP_OPTIONS));
         ipv4SetupMappings.add(new IPv4SetupMapping(WWAN_SUBNET_MASK));
         ipv4SetupMappings.add(new IPv4SetupMapping(WWAN_GATEWAY_IP_ADDRESS));
+        ipv4SetupMappings.add(new IPv4SetupMapping(WWAN_USE_DHCP_FLAG));
         ipv4SetupMappings.add(new IPv4SetupMapping(WWAN_PRIMARY_DNS_ADDRESS));
         ipv4SetupMappings.add(new IPv4SetupMapping(WWAN_SECONDARY_DNS_ADDRESS));
 
         return ipv4SetupMappings;
     }
+
+
+    protected List<G3Mapping> getConcentratorSetupMappings() {
+        final List<G3Mapping> concentratorSetupMapping = new ArrayList<G3Mapping>();
+
+        concentratorSetupMapping.add(new ConcentratorSetupMapping(CONCENTRATOR_SETUP_ACTIVE));
+        concentratorSetupMapping.add(new ConcentratorSetupMapping(CONCENTRATOR_SETUP_MAX_CONCURENT_SESSIONS));
+        concentratorSetupMapping.add(new ConcentratorSetupMapping(CONCENTRATOR_SETUP_METER_INFO_JSON));
+        concentratorSetupMapping.add(new ConcentratorSetupMapping(CONCENTRATOR_SETUP_METER_INFO_SERIAL));
+        concentratorSetupMapping.add(new ConcentratorSetupMapping(CONCENTRATOR_SETUP_METER_INFO_MAC));
+        concentratorSetupMapping.add(new ConcentratorSetupMapping(CONCENTRATOR_SETUP_PROTOCOL_EVENT_LOG_LEVEL));
+
+        return concentratorSetupMapping;
+    }
+
+
+    protected final List<G3Mapping> getMultiAPNConfigurationMappings() {
+        final List<G3Mapping> apnConfigsMappings = new ArrayList<G3Mapping>();
+        apnConfigsMappings.add(new MultiAPNConfigMapping(MULTI_APN_CONFIG));
+        apnConfigsMappings.add(new MultiAPNConfigMapping(MULTI_APN_CONFIG_LEGACY));
+        return apnConfigsMappings;
+    }
+
 }

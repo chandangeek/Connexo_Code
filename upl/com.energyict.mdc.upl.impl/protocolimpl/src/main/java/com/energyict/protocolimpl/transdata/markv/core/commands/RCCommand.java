@@ -11,6 +11,7 @@
 package com.energyict.protocolimpl.transdata.markv.core.commands;
 
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.BufferedReader;
@@ -47,18 +48,21 @@ public class RCCommand extends AbstractCommand {
          return strBuff.toString();
     }
     
+    @Override
     protected void parse(String strData) throws IOException {
+        throw new IOException(ProtocolTools.format("Command parsing without xmodem data is not supported for command '{0}'", new Object[]{getCommandName()}));
+    }
+
+    protected void parse(String strData, byte[] xmodemData) throws IOException {
         int nrOfChannels = getCommandFactory().getDCCommand().getProtocolChannelMap().getNrOfProtocolChannels();
         int recordingType = getCommandFactory().getISCommand().getRecordingType();
         ProtocolChannelMap pcm = getCommandFactory().getDCCommand().getProtocolChannelMap();
         BufferedReader br = new BufferedReader(new StringReader(strData));
         int nrOfRecords = Integer.parseInt(br.readLine());
         int offset=1024;
-        
-        byte[] data = strData.getBytes();
-        
+
         if (DEBUG>=1) {
-            ProtocolUtils.printResponseDataFormatted2(data);
+            ProtocolUtils.printResponseDataFormatted2(xmodemData);
             System.out.println("\nKV_DEBUG> nrOfChannels="+nrOfChannels);
             System.out.println("KV_DEBUG> recordingType="+recordingType);
             System.out.println("KV_DEBUG> protocolChannelMap="+pcm);
@@ -69,11 +73,9 @@ public class RCCommand extends AbstractCommand {
         intervals = new ArrayList();
         for (int interval=0;interval<nrOfIntervals;interval++) {
             int[] channelValues = new int[pcm.getNrOfUsedProtocolChannels()];
-            //for(int channel=0;channel<pcm.getNrOfProtocolChannels();channel++) {
             for(int channel=(channelValues.length-1);channel>=0;channel--) {
                 if (!pcm.isProtocolChannelZero(channel)) {
-                   channelValues[channel] = ProtocolUtils.getInt(data,offset, 2);
-//System.out.println("interval= "+interval+", channel="+channel+", value="+channelValues[channel]);
+                   channelValues[channel] = ProtocolUtils.getInt(xmodemData,offset, 2);
                    offset+=2; 
                 }
             }
@@ -92,5 +94,9 @@ public class RCCommand extends AbstractCommand {
     public List getIntervals() {
         return intervals;
     }
-    
+
+    @Override
+    protected String getCommandName() {
+        return "RC";
+    }
 } // public class RCCommand extends AbstractCommand
