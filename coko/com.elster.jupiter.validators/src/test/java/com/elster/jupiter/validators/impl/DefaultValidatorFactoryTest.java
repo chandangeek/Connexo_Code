@@ -10,6 +10,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
+import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.validation.Validator;
 
@@ -72,6 +73,24 @@ public class DefaultValidatorFactoryTest {
         Validator validator = defaultValidatorFactory.createTemplate(RegisterIncreaseValidator.class.getName());
 
         assertThat(validator).isNotNull().isInstanceOf(RegisterIncreaseValidator.class);
+    }
+
+    @Test
+    public void testCreateConsecutiveValidator() {
+        ImmutableMap<String, Object> properties = ImmutableMap.of(ConsecutiveValidator.MINIMUM_PERIOD, TimeDuration.hours(2),
+                ConsecutiveValidator.MAXIMUM_PERIOD, TimeDuration.days(1),
+                ConsecutiveValidator.MINIMUM_THRESHOLD, BigDecimal.ZERO);
+
+        Validator validator = defaultValidatorFactory.create(ConsecutiveValidator.class.getName(), properties);
+
+        assertThat(validator).isNotNull().isInstanceOf(ConsecutiveValidator.class);
+    }
+
+    @Test
+    public void testCreateConsecutiveValidatorTemplate() {
+        Validator validator = defaultValidatorFactory.createTemplate(ConsecutiveValidator.class.getName());
+
+        assertThat(validator).isNotNull().isInstanceOf(ConsecutiveValidator.class);
     }
 
     @Test(expected = IllegalArgumentException.class)

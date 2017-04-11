@@ -38,6 +38,7 @@ public class DefaultValidatorFactory implements ValidatorFactory, MessageSeedPro
     public static final String MISSING_VALUES_VALIDATOR = MissingValuesValidator.class.getName();
     public static final String REGISTER_INCREASE_VALIDATOR = RegisterIncreaseValidator.class.getName();
     public static final String READING_QUALITIES_VALIDATOR = ReadingQualitiesValidator.class.getName();
+    public static final String CONSECUTIVE_VALIDATOR = ConsecutiveValidator.class.getName();
 
     private volatile Thesaurus thesaurus;
     private volatile PropertySpecService propertySpecService;
@@ -146,6 +147,17 @@ public class DefaultValidatorFactory implements ValidatorFactory, MessageSeedPro
             @Override
             IValidator createTemplate(Thesaurus thesaurus, PropertySpecService propertySpecService, MeteringService meteringService) {
                 return new ReadingQualitiesValidator(thesaurus, propertySpecService);
+            }
+        },
+        CONSECUTIVE_ZERO(CONSECUTIVE_VALIDATOR) {
+            @Override
+            Validator create(Thesaurus thesaurus, PropertySpecService propertySpecService, MeteringService meteringService, Map<String, Object> props) {
+                return new ConsecutiveValidator(thesaurus, propertySpecService, props);
+            }
+
+            @Override
+            IValidator createTemplate(Thesaurus thesaurus, PropertySpecService propertySpecService, MeteringService meteringService) {
+                return new ConsecutiveValidator(thesaurus, propertySpecService);
             }
         };
 
