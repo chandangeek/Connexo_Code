@@ -85,7 +85,7 @@ class UpgraderV10_3 implements Upgrader, PrivilegesProvider {
                     .filter(ootbConfig -> ootbConfig.getName().equals(metrologyConfiguration.getName()))
                     .findFirst()
                     // change gapAllowed flag for existing metrology configuration if it does not match OOTB value
-                    .map(MetrologyConfigurationsInstaller.OOTBMetrologyConfiguration::isGapAllowed)
+                    .map(MetrologyConfigurationsInstaller.OOTBMetrologyConfiguration::areGapsAllowed)
                     .filter(Predicate.isEqual(metrologyConfiguration.areGapsAllowed()).negate())
                     .ifPresent((isGapAllowed) -> metrologyConfiguration
                             .startUpdate().setGapAllowed(isGapAllowed).complete());

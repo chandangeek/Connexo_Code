@@ -123,10 +123,10 @@ class MetrologyConfigurationsInstaller {
         RESIDENTIAL_GAS("Residential gas", "Residential gas installation", true),
         CI_WATER_CONFIGURATION("C&I water configuration", "C&I water configuration with 2 meters", true);
 
-        OOTBMetrologyConfiguration(String name, String description, boolean isGapAllowed) {
+        OOTBMetrologyConfiguration(String name, String description, boolean gapsAllowed) {
             this.name = name;
             this.description = description;
-            this.isGapAllowed = isGapAllowed;
+            this.gapsAllowed = gapsAllowed;
         }
 
         public String getName() {
@@ -137,13 +137,13 @@ class MetrologyConfigurationsInstaller {
             return description;
         }
 
-        public boolean isGapAllowed() {
-            return isGapAllowed;
+        public boolean areGapsAllowed() {
+            return gapsAllowed;
         }
 
         private String name;
         private String description;
-        private boolean isGapAllowed;
+        private boolean gapsAllowed;
 
     }
 
@@ -152,31 +152,32 @@ class MetrologyConfigurationsInstaller {
             return;
         }
         ServiceCategory serviceCategory = this.findElectricityServiceCategoryOrThrowException();
-        UsagePointMetrologyConfiguration configuration = metrologyConfigurationService.newUsagePointMetrologyConfiguration(RESIDENTIAL_PROSUMER_WITH_1_METER
-                .getName(), serviceCategory)
-                .withDescription(RESIDENTIAL_PROSUMER_WITH_1_METER.getDescription())
-                .withGapsAllowed(RESIDENTIAL_PROSUMER_WITH_1_METER.isGapAllowed())
-                .withUsagePointRequirement(
-                        getUsagePointRequirement(
-                                SERVICEKIND,
-                                SearchablePropertyOperator.EQUAL,
-                                ServiceKind.ELECTRICITY.name()))
-                .withUsagePointRequirement(
-                        getUsagePointRequirement(
-                                DETAIL_PHASE_CODE,
-                                SearchablePropertyOperator.EQUAL,
-                                PhaseCode.S1N.name(),
-                                PhaseCode.S2N.name(),
-                                PhaseCode.S12N.name(),
-                                PhaseCode.S1.name(),
-                                PhaseCode.S2.name(),
-                                PhaseCode.S12.name()))
-                .withUsagePointRequirement(
-                        getUsagePointRequirement(
-                                "type",
-                                SearchablePropertyOperator.EQUAL,
-                                UsagePointTypeInfo.UsagePointType.MEASURED_SDP.name()))
-                .create();
+        UsagePointMetrologyConfiguration configuration =
+            metrologyConfigurationService
+                    .newUsagePointMetrologyConfiguration(RESIDENTIAL_PROSUMER_WITH_1_METER.getName(), serviceCategory)
+                    .withDescription(RESIDENTIAL_PROSUMER_WITH_1_METER.getDescription())
+                    .withGapsAllowed(RESIDENTIAL_PROSUMER_WITH_1_METER.areGapsAllowed())
+                    .withUsagePointRequirement(
+                            getUsagePointRequirement(
+                                    SERVICEKIND,
+                                    SearchablePropertyOperator.EQUAL,
+                                    ServiceKind.ELECTRICITY.name()))
+                    .withUsagePointRequirement(
+                            getUsagePointRequirement(
+                                    DETAIL_PHASE_CODE,
+                                    SearchablePropertyOperator.EQUAL,
+                                    PhaseCode.S1N.name(),
+                                    PhaseCode.S2N.name(),
+                                    PhaseCode.S12N.name(),
+                                    PhaseCode.S1.name(),
+                                    PhaseCode.S2.name(),
+                                    PhaseCode.S12.name()))
+                    .withUsagePointRequirement(
+                            getUsagePointRequirement(
+                                    "type",
+                                    SearchablePropertyOperator.EQUAL,
+                                    UsagePointTypeInfo.UsagePointType.MEASURED_SDP.name()))
+                    .create();
 
         MeterRole meterRole = findMeterRoleOrThrowException(DefaultMeterRole.DEFAULT);
         configuration.addMeterRole(meterRole);
@@ -239,10 +240,11 @@ class MetrologyConfigurationsInstaller {
             return;
         }
         ServiceCategory serviceCategory = this.findElectricityServiceCategoryOrThrowException();
-        UsagePointMetrologyConfiguration configuration = metrologyConfigurationService.newUsagePointMetrologyConfiguration(RESIDENTIAL_PROSUMER_WITH_2_METERS
-                .getName(), serviceCategory)
+        UsagePointMetrologyConfiguration configuration =
+            metrologyConfigurationService
+                .newUsagePointMetrologyConfiguration(RESIDENTIAL_PROSUMER_WITH_2_METERS.getName(), serviceCategory)
                 .withDescription(RESIDENTIAL_PROSUMER_WITH_2_METERS.getDescription())
-                .withGapsAllowed(RESIDENTIAL_PROSUMER_WITH_2_METERS.isGapAllowed())
+                .withGapsAllowed(RESIDENTIAL_PROSUMER_WITH_2_METERS.areGapsAllowed())
                 .withUsagePointRequirement(
                         getUsagePointRequirement(
                                 SERVICEKIND,
@@ -310,10 +312,11 @@ class MetrologyConfigurationsInstaller {
             return;
         }
         ServiceCategory serviceCategory = this.findElectricityServiceCategoryOrThrowException();
-        UsagePointMetrologyConfiguration config = metrologyConfigurationService.newUsagePointMetrologyConfiguration(RESIDENTIAL_NET_METERING_PRODUCTION
-                .getName(), serviceCategory)
+        UsagePointMetrologyConfiguration config =
+            metrologyConfigurationService
+                .newUsagePointMetrologyConfiguration(RESIDENTIAL_NET_METERING_PRODUCTION.getName(), serviceCategory)
                 .withDescription(RESIDENTIAL_NET_METERING_PRODUCTION.getDescription())
-                .withGapsAllowed(RESIDENTIAL_NET_METERING_PRODUCTION.isGapAllowed())
+                .withGapsAllowed(RESIDENTIAL_NET_METERING_PRODUCTION.areGapsAllowed())
                 .withUsagePointRequirement(
                         getUsagePointRequirement(
                                 SERVICEKIND,
@@ -363,10 +366,11 @@ class MetrologyConfigurationsInstaller {
             return;
         }
         ServiceCategory serviceCategory = this.findElectricityServiceCategoryOrThrowException();
-        UsagePointMetrologyConfiguration config = metrologyConfigurationService.newUsagePointMetrologyConfiguration(RESIDENTIAL_NET_METERING_CONSUMPTION
-                .getName(), serviceCategory)
+        UsagePointMetrologyConfiguration config =
+            metrologyConfigurationService
+                .newUsagePointMetrologyConfiguration(RESIDENTIAL_NET_METERING_CONSUMPTION.getName(), serviceCategory)
                 .withDescription(RESIDENTIAL_NET_METERING_CONSUMPTION.getDescription())
-                .withGapsAllowed(RESIDENTIAL_NET_METERING_CONSUMPTION.isGapAllowed())
+                .withGapsAllowed(RESIDENTIAL_NET_METERING_CONSUMPTION.areGapsAllowed())
                 .withUsagePointRequirement(
                         getUsagePointRequirement(
                                 SERVICEKIND,
@@ -563,11 +567,12 @@ class MetrologyConfigurationsInstaller {
         }
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY)
                 .orElseThrow(() -> new NoSuchElementException(SERVICE_CATEGORY_NOT_FOUND + ServiceKind.ELECTRICITY));
-        UsagePointMetrologyConfiguration config = metrologyConfigurationService.newUsagePointMetrologyConfiguration(RESIDENTIAL_NON_SMART_INSTALLATION
-                .getName(), serviceCategory)
-                .withDescription(RESIDENTIAL_NON_SMART_INSTALLATION.getDescription())
-                .withGapsAllowed(RESIDENTIAL_NON_SMART_INSTALLATION.isGapAllowed())
-                .create();
+        UsagePointMetrologyConfiguration config =
+                metrologyConfigurationService
+                        .newUsagePointMetrologyConfiguration(RESIDENTIAL_NON_SMART_INSTALLATION.getName(), serviceCategory)
+                        .withDescription(RESIDENTIAL_NON_SMART_INSTALLATION.getDescription())
+                        .withGapsAllowed(RESIDENTIAL_NON_SMART_INSTALLATION.areGapsAllowed())
+                        .create();
 
         MeterRole meterRole = findMeterRoleOrThrowException(DefaultMeterRole.DEFAULT);
         config.addMeterRole(meterRole);
@@ -597,11 +602,12 @@ class MetrologyConfigurationsInstaller {
         }
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY)
                 .orElseThrow(() -> new NoSuchElementException(SERVICE_CATEGORY_NOT_FOUND + ServiceKind.ELECTRICITY));
-        UsagePointMetrologyConfiguration config = metrologyConfigurationService.newUsagePointMetrologyConfiguration(RESIDENTIAL_GAS_NON_SMART_INSTALLATION
-                .getName(), serviceCategory)
-                .withDescription(RESIDENTIAL_GAS_NON_SMART_INSTALLATION.getDescription())
-                .withGapsAllowed(RESIDENTIAL_GAS_NON_SMART_INSTALLATION.isGapAllowed())
-                .create();
+        UsagePointMetrologyConfiguration config =
+                metrologyConfigurationService
+                        .newUsagePointMetrologyConfiguration(RESIDENTIAL_GAS_NON_SMART_INSTALLATION.getName(), serviceCategory)
+                        .withDescription(RESIDENTIAL_GAS_NON_SMART_INSTALLATION.getDescription())
+                        .withGapsAllowed(RESIDENTIAL_GAS_NON_SMART_INSTALLATION.areGapsAllowed())
+                        .create();
 
         MeterRole meterRole = findMeterRoleOrThrowException(DefaultMeterRole.DEFAULT);
         config.addMeterRole(meterRole);
@@ -624,10 +630,11 @@ class MetrologyConfigurationsInstaller {
         }
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY)
                 .orElseThrow(() -> new NoSuchElementException(SERVICE_CATEGORY_NOT_FOUND + ServiceKind.ELECTRICITY));
-        UsagePointMetrologyConfiguration config = metrologyConfigurationService.newUsagePointMetrologyConfiguration(CI_3_PHASED_CONSUMER_WITH_SMART_METER_WITH_2_TOU
-                .getName(), serviceCategory)
+        UsagePointMetrologyConfiguration config =
+            metrologyConfigurationService
+                .newUsagePointMetrologyConfiguration(CI_3_PHASED_CONSUMER_WITH_SMART_METER_WITH_2_TOU.getName(), serviceCategory)
                 .withDescription(CI_3_PHASED_CONSUMER_WITH_SMART_METER_WITH_2_TOU.getDescription())
-                .withGapsAllowed(CI_3_PHASED_CONSUMER_WITH_SMART_METER_WITH_2_TOU.isGapAllowed())
+                .withGapsAllowed(CI_3_PHASED_CONSUMER_WITH_SMART_METER_WITH_2_TOU.areGapsAllowed())
                 .withUsagePointRequirement(
                         getUsagePointRequirement(
                                 SERVICEKIND,
@@ -717,12 +724,17 @@ class MetrologyConfigurationsInstaller {
         if (metrologyConfigurationService.findMetrologyConfiguration(RESIDENTIAL_CONSUMER_WITH_4_TOU.getName()).isPresent()) {
             return;
         }
-        ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY)
-                .orElseThrow(() -> new NoSuchElementException(SERVICE_CATEGORY_NOT_FOUND + ServiceKind.ELECTRICITY));
-        UsagePointMetrologyConfiguration configuration = metrologyConfigurationService.newUsagePointMetrologyConfiguration(RESIDENTIAL_CONSUMER_WITH_4_TOU
-                .getName(), serviceCategory)
+        ServiceCategory serviceCategory = this.findElectricityServiceCategoryOrThrowException();
+        UsagePointMetrologyConfiguration configuration =
+            metrologyConfigurationService
+                .newUsagePointMetrologyConfiguration(RESIDENTIAL_CONSUMER_WITH_4_TOU.getName(), serviceCategory)
                 .withDescription(RESIDENTIAL_CONSUMER_WITH_4_TOU.getDescription())
-                .withGapsAllowed(RESIDENTIAL_CONSUMER_WITH_4_TOU.isGapAllowed())
+                .withGapsAllowed(RESIDENTIAL_CONSUMER_WITH_4_TOU.areGapsAllowed())
+                .withUsagePointRequirement(
+                        getUsagePointRequirement(
+                                SERVICEKIND,
+                                SearchablePropertyOperator.EQUAL,
+                                ServiceKind.ELECTRICITY.name()))
                 .withUsagePointRequirement(
                         getUsagePointRequirement(
                                 DETAIL_PHASE_CODE,
@@ -783,10 +795,11 @@ class MetrologyConfigurationsInstaller {
             return;
         }
         ServiceCategory serviceCategory = this.findGasServiceCategoryOrThrowException();
-        UsagePointMetrologyConfiguration config = metrologyConfigurationService.newUsagePointMetrologyConfiguration(RESIDENTIAL_GAS
-                .getName(), serviceCategory)
+        UsagePointMetrologyConfiguration config =
+            metrologyConfigurationService
+                .newUsagePointMetrologyConfiguration(RESIDENTIAL_GAS.getName(), serviceCategory)
                 .withDescription(RESIDENTIAL_GAS.getDescription())
-                .withGapsAllowed(RESIDENTIAL_GAS.isGapAllowed())
+                .withGapsAllowed(RESIDENTIAL_GAS.areGapsAllowed())
                 .create();
 
         MeterRole meterRole = findMeterRoleOrThrowException(DefaultMeterRole.DEFAULT);
@@ -815,7 +828,9 @@ class MetrologyConfigurationsInstaller {
             return;
         }
         ServiceCategory serviceCategory = this.findWaterServiceCategoryOrThrowException();
-        UsagePointMetrologyConfiguration config = metrologyConfigurationService.newUsagePointMetrologyConfiguration("Residential water", serviceCategory)
+        UsagePointMetrologyConfiguration config =
+            metrologyConfigurationService
+                .newUsagePointMetrologyConfiguration("Residential water", serviceCategory)
                 .withDescription("Residential water")
                 .withUsagePointRequirement(
                         getUsagePointRequirement(
@@ -863,10 +878,11 @@ class MetrologyConfigurationsInstaller {
             return;
         }
         ServiceCategory serviceCategory = this.findWaterServiceCategoryOrThrowException();
-        UsagePointMetrologyConfiguration config = metrologyConfigurationService.newUsagePointMetrologyConfiguration(CI_WATER_CONFIGURATION
-                .getName(), serviceCategory)
+        UsagePointMetrologyConfiguration config =
+            metrologyConfigurationService
+                .newUsagePointMetrologyConfiguration(CI_WATER_CONFIGURATION.getName(), serviceCategory)
                 .withDescription(CI_WATER_CONFIGURATION.getDescription())
-                .withGapsAllowed(CI_WATER_CONFIGURATION.isGapAllowed())
+                .withGapsAllowed(CI_WATER_CONFIGURATION.areGapsAllowed())
                 .create();
 
         MeterRole meterRolePeakConsumption = findMeterRoleOrThrowException(DefaultMeterRole.PEAK_CONSUMPTION);

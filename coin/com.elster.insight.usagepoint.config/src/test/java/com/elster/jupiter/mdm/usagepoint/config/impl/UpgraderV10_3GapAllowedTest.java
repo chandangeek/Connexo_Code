@@ -81,7 +81,7 @@ public class UpgraderV10_3GapAllowedTest {
         correctOotbMetrologyConfigurations.addAll(Arrays.stream(MetrologyConfigurationsInstaller.OOTBMetrologyConfiguration
                 .values()).map
                 (ootbMetrologyConfiguration -> mockMetrologyConfiguration(ootbMetrologyConfiguration.getName(),
-                        ootbMetrologyConfiguration.isGapAllowed())).collect(Collectors.toList()));
+                        ootbMetrologyConfiguration.areGapsAllowed())).collect(Collectors.toList()));
 
         when(metrologyConfigurationService.findAllMetrologyConfigurations()).thenReturn
                 (Stream.concat(correctOotbMetrologyConfigurations.stream(), Stream.of(notOotbConfiguration))
@@ -107,7 +107,7 @@ public class UpgraderV10_3GapAllowedTest {
         incorrectOotbMetrologyConfigurations.addAll(Arrays.stream(MetrologyConfigurationsInstaller.OOTBMetrologyConfiguration
                 .values())
                 .map(ootbMetrologyConfiguration -> mockMetrologyConfiguration(ootbMetrologyConfiguration.getName(),
-                        !ootbMetrologyConfiguration.isGapAllowed()))
+                        !ootbMetrologyConfiguration.areGapsAllowed()))
                 .collect(Collectors.toList()));
 
         when(metrologyConfigurationService.findAllMetrologyConfigurations()).thenReturn
