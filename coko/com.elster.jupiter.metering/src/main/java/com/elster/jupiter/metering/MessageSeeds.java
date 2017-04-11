@@ -121,7 +121,7 @@ public enum MessageSeeds implements MessageSeed {
     USAGE_POINT_DETAILS_NOT_UNIQUE(7015, Constants.UNIQUE_DETAILS, "The usage point already has details for this interval"),
     ACTIVATION_FAILED_BY_CUSTOM_VALIDATORS(7016, Constants.ACTIVATION_FAILED_BY_CUSTOM_VALIDATORS, "Usage point activation failed by custom validator: {0}"),
     USAGE_POINT_ALREADY_ACTIVE_WITH_GIVEN_ROLE(7017, Constants.USAGE_POINT_ALREADY_ACTIVE_WITH_GIVEN_ROLE, "Usage point already has linked meter {0} for role {1}"),
-    USAGE_POINT_INCORRECT_STAGE(7018, Constants.USAGE_POINT_INCORRECT_STAGE, "Incorrect usage point stage, should be preoperational"),
+    USAGE_POINT_INCORRECT_STAGE(7018, Constants.USAGE_POINT_INCORRECT_STAGE, "Incorrect usage point stage, should be pre-operational"),
     UNSATISFIED_READING_TYPE_REQUIREMENT_FOR_METER(7019, Constants.UNSATISFIED_READING_TYPE_REQUIREMENT_FOR_METER, "Meter {0} does not provide reading types required by purpose {1}"),
     CANNOT_START_PRIOR_TO_LATEST_CALENDAR_OF_SAME_CATEGORY(7020, "usagepoint.calendar.cannot.start.prior.of.same.category", "Cannot start calendar on usage point, prior to latest calendar of same category."),
     CANNOT_START_BEFORE_NOW(7022, "usagepoint.calendar.cannot.start.before.now", "Activation date can''t be in the past."),
@@ -136,7 +136,19 @@ public enum MessageSeeds implements MessageSeed {
     CONNECTION_STATE_CHANGE_BEFORE_LATEST_CHANGE(10002, "connection.state.change.before.latest.change", "Connection state change should be after the latest connection state change on usage point"),
     INVALID_COORDINATES(10003, "invalidCoordinates", "All coordinates fields must contain valid values"),
 
-    DUPLICATE_SLP_NAME(11001, Constants.DUPLICATE_SLP_NAME, "Synthetic load profile name must be unique", Level.SEVERE);
+    DUPLICATE_SLP_NAME(11001, Constants.DUPLICATE_SLP_NAME, "Synthetic load profile name must be unique", Level.SEVERE),
+
+    METROLOGY_CONFIGURATION_INVALID_START_DATE(12002, Constants.METROLOGY_CONFIGURATION_INVALID_START_DATE, "Metrology configuration linking error. Metrology configuration {0} could not be linked to usage point {1} at {2} because another metrology configuration is active at that point in time or later"),
+    METER_ACTIVATION_INVALID_REQUIREMENTS(12203, Constants.METER_ACTIVATION_INVALID_REQUIREMENTS, "Meter linking error. The meters of the usage point do not provide the necessary reading types for purposes {0} of the new metrology configuration"),
+    INVALID_END_DEVICE_STAGE(12204, Constants.INVALID_END_DEVICE_STAGE, "Metrology configuration linking error. Not all meters are in an operational life cycle stage as of the metrology configurations'' linking date {0}."),
+    METER_ACTIVATION_INVALID_DATE(12205, Constants.METER_ACTIVATION_INVALID_DATE, "Meter linking error. Because the metrology configuration does not allow gaps, the activation date of meter {0} must be less than or equal to the date of the metrology configuration linking {1}."),
+    INVALID_END_DEVICE_STAGE_WITH_GAPS_ALLOWED(12206, Constants.INVALID_END_DEVICE_STAGE_WITH_GAPS_ALLOWED, "Meter linking error. Meter {0} cannot be linked to usage point {1}, as the linking would occur after the metrology configuration''s activation and before the meter''s activation."),
+    INVALID_END_DEVICE_STAGE_WITHOUT_MC(12207, Constants.INVALID_END_DEVICE_STAGE_WITHOUT_MC, "Meter linking error. Meter {0} cannot be linked to usage point {1} because this meter is in incorrect life cycle stage after the linking date {2}."),
+    METER_ACTIVATION_BEFORE_UP_INSTALLATION_TIME(12208, Constants.METER_ACTIVATION_BEFORE_UP_INSTALLATION_TIME, "Meter linking error. The meter activation date must be greater than, or equal to, the usage point creation date. This usage point''s creation date is {0}."),
+    METER_CANNOT_BE_UNLINKED(12209, Constants.METER_CANNOT_BE_UNLINKED, "Meter unlinking error. Because the metrology configration does not allow gaps, meter {0} cannot be unlinked from usage point {1} at {2}. This meter is required for the calculation of the active purposes of the metrology configuration."),
+    METROLOGY_CONFIG_INVALID_START_DATE(12210, Constants.METROLOGY_CONFIG_INVALID_START_DATE, "Metrology configuration linking error. The metrology configuration''s start date must be greater than, or equal to, the creation date of the usage point {0}"),
+    METERS_ARE_NOT_SPECIFIED_FOR_CONFIGURATION(122211, Constants.METERS_ARE_NOT_SPECIFIED_FOR_CONFIGURATION, "Metrology configuration linking error.  Meters must be specified for all the meter roles required for the calculation of the active purposes of the selected metrology configuration. Required meter roles: {0}")
+    ;
 
     private final int number;
     private final String key;
@@ -286,6 +298,16 @@ public enum MessageSeeds implements MessageSeed {
         public static final String METER_NOT_IN_OPERATIONAL_STAGE = "meter.not.in.operational.stage";
         public static final String METER_IN_POST_OPERATIONAL_STAGE = "meter.in.post.operational.stage";
         public static final String DUPLICATE_SLP_NAME = "slp.name.already.exists";
+        public static final String METER_ACTIVATION_INVALID_DATE = "meter.activation.invalid.date";
+        public static final String METROLOGY_CONFIGURATION_INVALID_START_DATE = "metrology.configuration.invalid.start.date";
+        public static final String METER_ACTIVATION_INVALID_REQUIREMENTS = "meter.activation.invalid.requirements";
+        public static final String INVALID_END_DEVICE_STAGE = "invalid.end.device.stage";
+        public static final String INVALID_END_DEVICE_STAGE_WITH_GAPS_ALLOWED = "invalid.end.device.stage.with.gaps.allowed";
+        public static final String INVALID_END_DEVICE_STAGE_WITHOUT_MC = "invalid.end.device.stage.without.mc";
+        public static final String METER_ACTIVATION_BEFORE_UP_INSTALLATION_TIME = "meter.activation.before.up.installation.time";
+        public static final String METER_CANNOT_BE_UNLINKED = "meter.cannot.be.unlinked";
+        public static final String METROLOGY_CONFIG_INVALID_START_DATE = "metrology.config.invalid.start.date";
+        public static final String METERS_ARE_NOT_SPECIFIED_FOR_CONFIGURATION = "meters.are.not.specified.for.configuration";
     }
 
 }
