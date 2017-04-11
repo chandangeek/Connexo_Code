@@ -14,6 +14,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.util.units.Quantity;
+import com.elster.jupiter.validation.ValidationPropertyDefinitionLevel;
 import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validators.MissingRequiredProperty;
 
@@ -78,6 +79,11 @@ class ThresholdValidator extends AbstractValidator {
                     .setDefaultValue(BigDecimal.ZERO)
                     .finish());
         return builder.build();
+    }
+
+    @Override
+    public List<PropertySpec> getPropertySpecs(ValidationPropertyDefinitionLevel level) {
+        return getPropertySpecs();
     }
 
     @Override
