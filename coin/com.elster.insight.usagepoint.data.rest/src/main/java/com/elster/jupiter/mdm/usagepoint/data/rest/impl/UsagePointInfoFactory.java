@@ -46,6 +46,7 @@ import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointStage;
 import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCycleInfoFactory;
 import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCycleStateInfoFactory;
 import com.elster.jupiter.util.geo.SpatialCoordinates;
@@ -269,10 +270,10 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         info.lifeCycle = this.lifeCycleInfoFactory.shortInfo(usagePoint.getLifeCycle());
         info.lastTransitionTime = usagePointLifeCycleService.getLastUsagePointStateChangeRequest(usagePoint).map(cr -> cr.getTransitionTime().toEpochMilli()).orElse(null);
 
-        String temp = usagePoint.getState().getStage().getDisplayName();
+        String temp = usagePoint.getState().getStage().get().getName();
         List temp2 = usagePoint.getEffectiveMetrologyConfigurations().stream().map(EffectiveMetrologyConfigurationOnUsagePoint::getId).sorted().collect(Collectors.toList());
         Long temp3 =usagePoint.getEffectiveMetrologyConfigurations().stream().collect(Collectors.counting());
-        if(usagePoint.getState().getStage().getDisplayName().equals("Suspended") || usagePoint.getState().getStage().getDisplayName().equals("Pre-operational") ){
+        if(usagePoint.getState().getStage().get().getName().equals(UsagePointStage.SUSPENDED.getKey()) || usagePoint.getState().getStage().get().getName().equals(UsagePointStage.PRE_OPERATIONAL.getKey()) ){
             if(!usagePoint.getEffectiveMetrologyConfigurations()
                     .stream()
                     .anyMatch(effectiveMetrologyConfigurationOnUsagePoint -> effectiveMetrologyConfigurationOnUsagePoint.getEnd()==null)){

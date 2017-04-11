@@ -415,7 +415,7 @@ public class UsagePointResource {
     public Response activateMeters(@PathParam("name") String name, UsagePointInfo info) {
         UsagePoint usagePoint = resourceHelper.findAndLockUsagePointByNameOrThrowException(name, info.version);
         Stage stage = usagePoint.getState().getStage().get();
-        if(!stage.getName().equals(UsagePointStage.PRE_OPERATIONAL.getKey() && !stage.getName().equals(UsagePointStage.SUSPENDED.getKey()))){
+        if(!stage.getName().equals(UsagePointStage.PRE_OPERATIONAL.getKey())  && !stage.getName().equals(UsagePointStage.SUSPENDED.getKey())){
             throw UsagePointMeterActivationException.usagePointIncorrectStage(thesaurus);
         }
         try {
