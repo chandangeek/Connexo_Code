@@ -181,10 +181,8 @@ public class MetrologyConfigurationResource {
                     .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.DEFAULT_METER_ROLE_NOT_FOUND));
 
             if (isUpdate) {
-                metrologyConfiguration.getDeliverables().forEach(deliverable -> {
-                    metrologyConfiguration.getContracts().forEach(metrologyContract -> metrologyContract.removeDeliverable(deliverable));
-                    metrologyConfiguration.removeReadingTypeDeliverable(deliverable);
-                });
+                metrologyConfiguration.getContracts().forEach(contract ->
+                    contract.getDeliverables().forEach(deliverable -> contract.removeDeliverable(deliverable)));
                 metrologyConfiguration.getRequirements().forEach(metrologyConfiguration::removeReadingTypeRequirement);
             } else {
                 metrologyConfiguration.addMeterRole(meterRoleDefault);
@@ -195,10 +193,9 @@ public class MetrologyConfigurationResource {
                         metrologyConfiguration
                                 .newReadingTypeRequirement(readingType.getFullAliasName(), meterRoleDefault)
                                 .withReadingType(readingType);
-                ReadingTypeDeliverableBuilder builder = metrologyConfiguration.newReadingTypeDeliverable(readingType.getFullAliasName(), readingType, Formula.Mode.EXPERT);
-                ReadingTypeDeliverable deliverable = builder.build(builder.requirement(fullySpecifiedReadingTypeRequirement));
                 MetrologyContract metrologyContract = metrologyConfiguration.addMandatoryMetrologyContract(purpose);
-                metrologyContract.addDeliverable(deliverable);
+                ReadingTypeDeliverableBuilder builder = metrologyContract.newReadingTypeDeliverable(readingType.getFullAliasName(), readingType, Formula.Mode.EXPERT);
+                builder.build(builder.requirement(fullySpecifiedReadingTypeRequirement));
             });
         } catch (ConstraintViolationException ex) {
             FormValidationException exception = new FormValidationException();
