@@ -52,6 +52,7 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.controller.setup.DeviceProtocolDialects',
         'Mdc.controller.setup.DeviceRegisterConfiguration',
         'Mdc.controller.setup.DeviceRegisterData',
+        'Mdc.controller.setup.DeviceRegisterHistoryData',
         'Mdc.controller.setup.DeviceRegisterDataEdit',
         'Mdc.controller.setup.Devices',
         'Mdc.controller.setup.DeviceSecuritySettings',
