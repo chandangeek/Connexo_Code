@@ -37,6 +37,7 @@ import com.elster.jupiter.usagepoint.lifecycle.impl.actions.SetConnectionStateAc
 import com.elster.jupiter.usagepoint.lifecycle.impl.checks.MeterRolesAreSpecifiedCheck;
 import com.elster.jupiter.usagepoint.lifecycle.impl.checks.MetrologyConfigurationIsDefinedCheck;
 import com.elster.jupiter.usagepoint.lifecycle.impl.checks.MicroCheckTranslationKeys;
+import com.elster.jupiter.users.PreferenceType;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
@@ -190,11 +191,8 @@ public class UsagePointLifeCycleServiceImpl implements ServerUsagePointLifeCycle
     }
 
     private DateTimeFormatter getDateTimeFormatter() {
-        return DateTimeFormatGenerator.getDateFormatForUser(
-                DateTimeFormatGenerator.Mode.LONG,
-                DateTimeFormatGenerator.Mode.LONG,
-                this.userService.getUserPreferencesService(),
-                getCurrentUser());
+        return userService.getUserPreferencesService()
+                .getDateTimeFormatter(threadPrincipalService.getPrincipal(), PreferenceType.LONG_DATE, PreferenceType.LONG_TIME);
     }
 
     @Override
