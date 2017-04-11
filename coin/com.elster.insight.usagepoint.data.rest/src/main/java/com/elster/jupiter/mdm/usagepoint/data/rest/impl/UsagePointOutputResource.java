@@ -22,6 +22,7 @@ import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.ValueCorrection;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
@@ -57,7 +58,6 @@ import com.google.common.collect.TreeRangeSet;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.swing.text.html.Option;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -70,6 +70,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZonedDateTime;
@@ -783,6 +784,30 @@ public class UsagePointOutputResource {
         return PagedInfoList.fromCompleteList("dataEstimationTasks", dataEstimationTasks, queryParameters);
     }
 
+    @PUT
+    @Transactional
+    @Path("/{purposeId}/outputs/{outputId}/channelData/correctValue")
+    @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public List<OutputChannelDataInfo> correctValue(@PathParam("name") String name, @PathParam("purposeId") long contractId, @PathParam("outputId") long outputId,
+                                                  ValueCorrectionInfo info, @BeanParam JsonQueryParameters queryParameters) {
+        UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
+        EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
+        MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(effectiveMetrologyConfigurationOnUsagePoint, contractId);
+        ReadingTypeDeliverable readingTypeDeliverable = resourceHelper.findReadingTypeDeliverableOrThrowException(metrologyContract, outputId, name);
+        AggregatedChannel channel = effectiveMetrologyConfigurationOnUsagePoint.getAggregatedChannel(metrologyContract, readingTypeDeliverable.getReadingType()).get();
+
+        Range<Instant> intervals = info.intervals.stream()
+                .map(interval -> Range.openClosed(Instant.ofEpochMilli(interval.start), Instant.ofEpochMilli(interval.end)))
+                .reduce(Range::span)
+                .get();
+
+        List<IntervalReadingRecord> intervalReadingRecords = channel.getIntervalReadings(intervals);
+        return intervalReadingRecords.stream()
+                .map(readingRecord -> createCorrectedChannelDataInfo(ValueCorrection.valueOf(info.type), readingRecord, info.amount))
+                .collect(Collectors.toList());
+    }
+
     private boolean isMember(UsagePoint usagePoint, UsagePointGroup usagePointGroup) {
         return !meteringService.getUsagePointQuery()
                 .select(Where.where("id").isEqualTo(usagePoint.getId())
@@ -792,5 +817,10 @@ public class UsagePointOutputResource {
 
     private <T> Predicate<T> getSuspectsFilter(JsonQueryFilter filter, Predicate<T> hasSuspects) {
         return filter.hasProperty("suspect") ? hasSuspects : info -> true;
+    }
+
+    private OutputChannelDataInfo createCorrectedChannelDataInfo(ValueCorrection type, IntervalReadingRecord record, BigDecimal correctionAmount) {
+        BigDecimal newValue = type.correctValue(record.getValue(), correctionAmount);
+        return outputChannelDataInfoFactory.createUpdatedChannelDataInfo(record, newValue);
     }
 }

@@ -131,6 +131,6 @@ public class EstimationHelper {
     }
 
     private OutputChannelDataInfo getChannelDataInfo(IntervalReadingRecord reading, Estimatable estimatable) {
-        return channelDataInfoFactory.createEstimatedChannelDataInfo(reading, estimatable.getEstimation());
+        return channelDataInfoFactory.createUpdatedChannelDataInfo(reading, estimatable.getEstimation());
     }
 }
