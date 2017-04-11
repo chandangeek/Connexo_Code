@@ -30,6 +30,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.MetrologyContractChannelsContainer;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
@@ -47,6 +48,7 @@ import com.elster.jupiter.time.spi.RelativePeriodCategoryTranslationProvider;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.HasName;
 import com.elster.jupiter.util.UpdatableHolder;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
@@ -301,6 +303,14 @@ public class EstimationServiceImpl implements IEstimationService, TranslationKey
         return report;
     }
 
+    private boolean getMatchingMetrologyPurposes(MetrologyContract metrologyContract, ReadingType readingType) {
+        return metrologyContract.getDeliverables()
+                .stream()
+                .filter(readingTypeDeliverable -> readingTypeDeliverable.getReadingType().equals((readingType)))
+                .findAny()
+                .isPresent();
+    }
+
     private void logEstimationReport(ChannelsContainer channelsContainer, Range<Instant> period, Logger logger, EstimationReportImpl report) {
         long notEstimated = report.getResults().values().stream()
                 .map(EstimationResult::remainingToBeEstimated)
@@ -317,8 +327,20 @@ public class EstimationServiceImpl implements IEstimationService, TranslationKey
                 .withLocale(Locale.ENGLISH);
         String from = formatter.format(period.hasLowerBound() ? period.lowerEndpoint() : channelsContainer.getStart());
         String to = period.hasUpperBound() ? formatter.format(period.upperEndpoint()) : "now";
-        String message = "{0} blocks estimated.\nSuccessful estimations {1}, failed estimations {2}\nPeriod of estimation from {3} until {4}";
-        LoggingContext.get().info(logger, message, estimated + notEstimated, estimated, notEstimated, from, to);
+        String channelNames = report.getResults().keySet().stream()
+                .map(ReadingType::getFullAliasName).sorted().collect(Collectors.joining(", "));
+        String name = channelsContainer.getMeter().map(HasName::getName)
+                .orElse(channelsContainer.getUsagePoint().map(HasName::getName).orElse(""));
+        String purpose = channelsContainer.getUsagePoint()
+                .flatMap(usagePoint -> usagePoint.getCurrentEffectiveMetrologyConfiguration().map( emc ->
+                        emc.getMetrologyConfiguration().getContracts()
+                        .stream()
+                        .filter(metrologyContract -> report.getResults().keySet().stream().filter(rt -> getMatchingMetrologyPurposes(metrologyContract,rt)).findFirst().isPresent())
+                        .map(metrologyContract -> metrologyContract.getMetrologyPurpose().getName())
+                        .collect(Collectors.joining(" ,")))).map(p -> " of purpose " + p).orElse("");
+
+        String message = "{0} blocks estimated on {5} of {6}.\nSuccessful estimations {1}, failed estimations {2}\nPeriod of estimation from {3} until {4} .";
+        LoggingContext.get().info(logger, message, estimated + notEstimated, estimated, notEstimated, from, to, channelNames, name, purpose);
     }
 
     private void postEvents(EstimationReportImpl report) {
@@ -382,7 +404,7 @@ public class EstimationServiceImpl implements IEstimationService, TranslationKey
                         estimationResult.estimated().forEach(block -> report.reportEstimated(readingType, block));
                         EstimationResult newResult = estimator.estimate(estimationResult.remainingToBeEstimated(), system);
                         newResult.estimated().forEach(block ->
-                                loggingContext.info(logger, "Successful estimation with {rule}: block {0}",
+                                loggingContext.info(logger, "Successful estimation with {rule} : block {0}",
                                         EstimationBlockFormatter.getInstance().format(block)));
                         result.update(newResult);
                     }
@@ -449,6 +471,8 @@ public class EstimationServiceImpl implements IEstimationService, TranslationKey
     private Condition isNotObsolete() {
         return where(EstimationRuleSetImpl.OBSOLETE_TIME_FIELD).isNull();
     }
+
+
 
     @Override
     public boolean isEstimationRuleSetInUse(EstimationRuleSet estimationRuleSet) {
@@ -636,6 +660,7 @@ public class EstimationServiceImpl implements IEstimationService, TranslationKey
         private Predicate<EstimatorFactory> hasImplementation(String implementation) {
             return f -> f.available().contains(implementation);
         }
+
     }
 
 }
