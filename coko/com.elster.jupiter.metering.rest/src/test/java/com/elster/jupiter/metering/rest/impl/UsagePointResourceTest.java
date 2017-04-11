@@ -112,7 +112,6 @@ public class UsagePointResourceTest extends MeteringApplicationJerseyTest {
         ReadingType readingType = mockReadingType(readingTypeMRID);
         ReadingTypeDeliverable deliverable = mock(ReadingTypeDeliverable.class);
         when(deliverable.getReadingType()).thenReturn(readingType);
-        when(mock.getDeliverables()).thenReturn(Collections.singletonList(deliverable));
         when(mock.getStatus()).thenReturn(MetrologyConfigurationStatus.ACTIVE);
         ServiceCategory serviceCategory = mock(ServiceCategory.class);
         when(serviceCategory.getKind()).thenReturn(ServiceKind.ELECTRICITY);
