@@ -116,7 +116,7 @@ public class CertificateAccessorImpl extends AbstractKeyAccessorImpl<Certificate
 
     @Override
     public void delete() {
-        dataModel.remove(this);
+        getDevice().removeKeyAccessor(this);
     }
 
     @Override
