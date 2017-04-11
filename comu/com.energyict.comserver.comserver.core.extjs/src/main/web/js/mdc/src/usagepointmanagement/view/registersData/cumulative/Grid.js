@@ -57,7 +57,7 @@ Ext.define('Mdc.usagepointmanagement.view.registersData.cumulative.Grid', {
                 }
             },
             {
-                header: Uni.I18n.translate('general.deltaValueWithUnit', 'MDC', 'Delta value ({0})', unit),
+                header: Uni.I18n.translate('general.deltaValueWithUnit', 'MDC', 'Delta ({0})', unit),
                 dataIndex: 'deltaValue',
                 flex: 1
             }
