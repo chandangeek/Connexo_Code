@@ -745,15 +745,13 @@ Ext.define('Imt.purpose.controller.Readings', {
                 if(Uni.util.ReadingEditor.checkReadingInfoStatus(item.get('mainValidationInfo')).isSuspectOrEstimated()){
                     intervalsArray.push({
                         start: item.get('interval').start,
-                        end: item.get('interval').end,
-                        value: item.get('value')
+                        end: item.get('interval').end
                     });
                 }
             } else {
                 intervalsArray.push({
                     start: item.get('interval').start,
-                    end: item.get('interval').end,
-                    value: item.get('value')
+                    end: item.get('interval').end
                 });
             }
         });
@@ -771,9 +769,9 @@ Ext.define('Imt.purpose.controller.Readings', {
 
                 Ext.suspendLayouts();
                 if (success && responseText[0]) {
-                    Ext.Array.each(model.get('intervals'), function(correctedInterval){
+                    Ext.Array.each(responseText, function(correctedInterval){
                         Ext.Array.findBy(records, function (reading) {
-                            if (correctedInterval.start == reading.get('interval').start) {
+                            if (correctedInterval.reportedDateTime == reading.get('reportedDateTime').getTime()) {
                                 me.updateCorrectedValues(reading, correctedInterval);
                                 return true;
                             }
