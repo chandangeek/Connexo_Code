@@ -33,6 +33,7 @@ import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationServi
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointStage;
 import com.elster.jupiter.users.PreferenceType;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.RangeComparatorFactory;
@@ -303,6 +304,12 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
     }
 
     private void validate(ValidationReport validationReport) {
+        // check that we can manage meter activations
+        UsagePointStage.Key usagePointStage = this.usagePoint.getState().getStage().getKey();
+        if (usagePointStage != UsagePointStage.Key.PRE_OPERATIONAL) {
+            validationReport.usagePointIncorrectStage();
+            return;
+        }
         // prepare time lines and virtualize all meter activations, so our changes will not have permanent effect
         Map<Meter, TimeLine<Activation, Instant>> validationTimeLines = new HashMap<>();
         this.meterTimeLines.entrySet().forEach(entry -> {
