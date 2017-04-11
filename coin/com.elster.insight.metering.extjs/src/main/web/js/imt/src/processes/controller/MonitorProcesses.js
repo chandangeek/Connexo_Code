@@ -14,11 +14,19 @@ Ext.define('Imt.processes.controller.MonitorProcesses', {
         'Bpm.monitorprocesses.controller.MonitorProcesses'
     ],
     stores: [
+        'Imt.usagepointsetup.store.Devices',
+        'Imt.usagepointmanagement.store.MeterActivations',
+        'Imt.processes.store.PurposesWithValidationRuleSets',
+        'Imt.processes.store.AvailableTransitions'
     ],
     views: [
         'Imt.processes.view.UsagePointProcessesMainView',
         'Imt.processes.view.UsagePointStartProcess',
-        'Imt.processes.view.MetrologyConfigurationOutputs'
+        'Imt.processes.view.MetrologyConfigurationOutputs',
+        'Imt.processes.view.LinkedMeterActivations',
+        'Imt.processes.view.AvailableMeters',
+        'Imt.processes.view.AvailableMetrologyConfigurations',
+        'Imt.processes.view.AvailableTransitions'
     ],
 
     showUsagePointProcesses: function (usagePointId) {
@@ -64,8 +72,6 @@ Ext.define('Imt.processes.controller.MonitorProcesses', {
         usagePointsController.loadUsagePoint(usagePointId, {
             success: function (types, usagePoint) {
                 var widget;
-
-                Uni.property.controller.Registry.addProperty('METROLOGYCONFIGOUTPUT', 'Imt.processes.view.MetrologyConfigurationOutputs');
                 me.getApplication().fireEvent('usagePointLoaded', usagePoint);
                 viewport.setLoading(false);
                 widget = Ext.widget('usage-point-processes-start', {

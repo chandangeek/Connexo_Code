@@ -261,6 +261,8 @@ Ext.define('Imt.controller.History', {
                             controller: 'Imt.metrologyconfiguration.controller.Edit',
                             action: 'showWizard',
                             privileges: Imt.privileges.UsagePoint.admin,
+                            dynamicPrivilegeStores: Imt.dynamicprivileges.Stores.usagePointMetrologyConfigurationStore,
+                            dynamicPrivilege: Imt.dynamicprivileges.UsagePoint.metrologyConfigurationDefine,
                             route: 'metrologyconfiguration/define'
                         },
                         purpose: {
@@ -573,6 +575,38 @@ Ext.define('Imt.controller.History', {
                             }
                         }
                     }
+                },
+                'rulesets/overview/metrologyconfigurationpurposes': {
+                    title: Uni.I18n.translate('general.metrologyConfigurationPurposes', 'IMT', 'Metrology configuration purposes'),
+                    route: 'validation/rulesets/{ruleSetId}/metrologyconfigurationpurposes',
+                    controller: 'Imt.rulesets.controller.ValidationRuleSetPurposes',
+                    action: 'showMetrologyConfigurationPurposes',
+                    privileges: Imt.privileges.MetrologyConfig.canViewValidation() || Imt.privileges.MetrologyConfig.canAdministrateValidation(),
+                    items: {
+                        add: {
+                            title: Uni.I18n.translate('general.addMetrologyConfigurationPurposes', 'IMT', 'Add metrology configuration purposes'),
+                            route: 'add',
+                            controller: 'Imt.rulesets.controller.AddPurposesToValidationRuleSet',
+                            action: 'showAddMetrologyConfigurationPurposes',
+                            privileges: Imt.privileges.MetrologyConfig.adminValidation
+                        }
+                    }
+                },
+                'estimationrulesets/estimationruleset/metrologyconfigurationpurposes': {
+                    title: Uni.I18n.translate('general.metrologyConfigurationPurposes', 'IMT', 'Metrology configuration purposes'),
+                    route: 'estimationrulesets/{ruleSetId}/metrologyconfigurationpurposes',
+                    controller: 'Imt.rulesets.controller.EstimationRuleSetPurposes',
+                    action: 'showMetrologyConfigurationPurposes',
+                    privileges: Imt.privileges.MetrologyConfig.canViewEstimation() || Imt.privileges.MetrologyConfig.canAdministrateEstimation(),
+                    items: {
+                        add: {
+                            title: Uni.I18n.translate('general.addMetrologyConfigurationPurposes', 'IMT', 'Add metrology configuration purposes'),
+                            route: 'add',
+                            controller: 'Imt.rulesets.controller.AddPurposesToEstimationRuleSet',
+                            action: 'showAddMetrologyConfigurationPurposes',
+                            privileges: Imt.privileges.MetrologyConfig.adminEstimation
+                        }
+                    }
                 }
             }
         },
@@ -605,7 +639,13 @@ Ext.define('Imt.controller.History', {
                     action: 'showFavoriteUsagePointGroups'
                 }
             }
+        },
+        "workspace/dataquality": {
+            title: Uni.I18n.translate('general.dataQuality', 'IMT', 'Data quality'),
+            route: 'workspace/dataquality',
+            controller: 'Imt.dataquality.controller.DataQuality',
+            action: 'showDataQuality',
+            privileges: Cfg.privileges.Validation.viewResultsOrAdministerDataQuality
         }
-
     }
 });

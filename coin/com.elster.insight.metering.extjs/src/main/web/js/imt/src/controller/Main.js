@@ -10,6 +10,7 @@ Ext.define('Imt.controller.Main', {
 
     requires: [
         'Uni.controller.Navigation',
+        'Uni.property.controller.Registry',
         'Imt.usagepointmanagement.controller.View',
         'Imt.usagepointmanagement.controller.Edit',
         'Imt.devicemanagement.controller.Device',
@@ -20,7 +21,14 @@ Ext.define('Imt.controller.Main', {
         'Imt.processes.controller.MonitorProcesses',
         'Imt.servicecalls.controller.ServiceCalls',
         'Imt.metrologyconfiguration.controller.View',
-        'Imt.usagepointsetup.controller.MetrologyConfig'
+        'Imt.usagepointsetup.controller.MetrologyConfig',
+        'Cfg.privileges.Validation',
+        'Imt.processes.view.MetrologyConfigurationOutputs',
+        'Imt.processes.view.LinkedMeterActivations',
+        'Imt.processes.view.AvailableMeters',
+        'Imt.processes.view.AvailableMetrologyConfigurations',
+        'Imt.processes.view.PurposesOnMetrologyConfigarations',
+        'Imt.processes.view.AvailableTransitions'
     ],
 
     privileges: [],
@@ -61,11 +69,17 @@ Ext.define('Imt.controller.Main', {
         'Imt.usagepointlifecycle.controller.UsagePointLifeCycles',
         'Imt.usagepointlifecyclestates.controller.UsagePointLifeCycleStates',
         'Imt.usagepointlifecycletransitions.controller.UsagePointLifeCycleTransitions',
-        'Imt.usagepointmanagement.controller.UsagePointTransitionExecute'
+        'Imt.usagepointmanagement.controller.UsagePointTransitionExecute',
+        'Imt.dataquality.controller.DataQuality',
+        'Imt.rulesets.controller.ValidationRuleSetPurposes',
+        'Imt.rulesets.controller.AddPurposesToValidationRuleSet',
+        'Imt.rulesets.controller.EstimationRuleSetPurposes',
+        'Imt.rulesets.controller.AddPurposesToEstimationRuleSet'
     ],
     stores: [
         'Imt.customattributesonvaluesobjects.store.MetrologyConfigurationCustomAttributeSets',
         'Imt.customattributesonvaluesobjects.store.ServiceCategoryCustomAttributeSets',
+        'Imt.usagepointmanagement.store.DefineMetrologyConfigurationPrivileges',
         'Imt.usagepointmanagement.store.UsagePointPrivileges'
     ],
 
@@ -78,12 +92,64 @@ Ext.define('Imt.controller.Main', {
     init: function () {
         this.initHistorians();
         this.initMenu();
+        this.initDynamicMenusListeners();
+        this.loadCustomProperties();
         this.callParent();
     },
 
     initHistorians: function () {
-        this.getController('Imt.controller.History');
-        this.getController('Imt.controller.Dashboard');
+        var me = this;
+
+        me.getController('Imt.controller.History');
+        me.getController('Imt.controller.Dashboard');
+        me.getController('Cfg.controller.Validation');
+        me.getController('Est.estimationrulesets.controller.EstimationRuleSets');
+    },
+
+    loadCustomProperties: function(){
+        Uni.property.controller.Registry.addProperty('METROLOGYCONFIGOUTPUT', 'Imt.processes.view.MetrologyConfigurationOutputs');
+        Uni.property.controller.Registry.addProperty('UP_METERACTIVATION', 'Imt.processes.view.LinkedMeterActivations');
+        Uni.property.controller.Registry.addProperty('METER_MRID', 'Imt.processes.view.AvailableMeters');
+        Uni.property.controller.Registry.addProperty('METROLOGYCONFIGURATION', 'Imt.processes.view.AvailableMetrologyConfigurations');
+        Uni.property.controller.Registry.addProperty('METROLOGYPURPOSES', 'Imt.processes.view.PurposesOnMetrologyConfigarations');
+        Uni.property.controller.Registry.addProperty('UP_TRANSITION', 'Imt.processes.view.AvailableTransitions');
+    },
+
+    initDynamicMenusListeners: function () {
+        var me = this;
+
+        me.getApplication().on('validationrulesetmenurender', me.onValidationRuleSetMenuBeforeRender, me);
+        me.getApplication().on('estimationRuleSetMenuRender', me.onEstimationRuleSetMenuBeforeRender, me);
+    },
+
+    onValidationRuleSetMenuBeforeRender: function (menu) {
+        var me = this;
+
+        if (Imt.privileges.MetrologyConfig.canViewValidation() || Imt.privileges.MetrologyConfig.canAdministrateValidation()) {
+            menu.add(
+                {
+                    text: Uni.I18n.translate('general.metrologyConfigurationPurposes', 'IMT', 'Metrology configuration purposes'),
+                    itemId: 'metrology-configuration-purposes-link',
+                    href: me.getController('Uni.controller.history.Router')
+                        .getRoute('administration/rulesets/overview/metrologyconfigurationpurposes')
+                        .buildUrl({ruleSetId: menu.ruleSetId})
+                }
+            );
+        }
+    },
+
+    onEstimationRuleSetMenuBeforeRender: function (menu) {
+        var me = this;
+
+        if (Imt.privileges.MetrologyConfig.canViewEstimation() || Imt.privileges.MetrologyConfig.canAdministrateEstimation()) {
+            menu.add(
+                {
+                    text: Uni.I18n.translate('general.metrologyConfigurationPurposes', 'IMT', 'Metrology configuration purposes'),
+                    itemId: 'metrology-configuration-purposes-link',
+                    href: me.getController('Uni.controller.history.Router').getRoute('administration/estimationrulesets/estimationruleset/metrologyconfigurationpurposes').buildUrl()
+                }
+            );
+        }
     },
 
     initMenu: function () {
@@ -167,6 +233,26 @@ Ext.define('Imt.controller.Main', {
                         href: '#/administration/usagepointlifecycles',
                         itemId: 'usagepointlifecycles-portal-item',
                         route: 'usagepointlifecycles'
+                    }
+                ]
+            }));
+        }
+
+        if (Cfg.privileges.Validation.canViewResultsOrAdministerDataQuality()) {
+            Uni.store.MenuItems.add(Ext.create('Uni.model.MenuItem', {
+                text: Uni.I18n.translate('general.workspace', 'IMT', 'Workspace'),
+                glyph: 'workspace',
+                portal: 'workspace',
+                index: 30
+            }));
+
+            Uni.store.PortalItems.add(Ext.create('Uni.model.PortalItem', {
+                title: Uni.I18n.translate('general.dataValidation', 'IMT', 'Data validation'),
+                portal: 'workspace',
+                items: [
+                    {
+                        text: Uni.I18n.translate('general.dataQuality', 'IMT', 'Data quality'),
+                        href: '#/workspace/dataquality'
                     }
                 ]
             }));
