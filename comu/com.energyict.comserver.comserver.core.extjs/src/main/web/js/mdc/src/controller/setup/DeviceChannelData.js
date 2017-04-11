@@ -1320,41 +1320,68 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 if(Uni.util.ReadingEditor.checkReadingInfoStatus(item.get('mainValidationInfo')).isSuspectOrEstimated()){
                     intervalsArray.push({
                         start: item.get('interval').start,
-                        end: item.get('interval').end,
-                        value: item.get('value')
+                        end: item.get('interval').end
                     });
                 }
             } else {
                 intervalsArray.push({
                     start: item.get('interval').start,
-                    end: item.get('interval').end,
-                    value: item.get('value')
+                    end: item.get('interval').end
                 });
             }
         });
 
         model.set('intervals', intervalsArray);
-        //make calculations on BE
-        window.calculateValues(model);
+        model.getProxy().setMdcUrl(encodeURIComponent(router.arguments.deviceId),router.arguments.channelId);
 
+        window.setLoading();
+        Ext.Ajax.suspendEvent('requestexception');
+        model.save({
+            callback: function (rec, operation, success) {
+                Ext.Ajax.resumeEvent('requestexception');
+                var responseText = Ext.decode(operation.response.responseText, true),
+                    chart = me.getPage().down('#deviceLoadProfileChannelGraphView').chart;
 
-        Ext.suspendLayouts();
+                Ext.suspendLayouts();
+                if (success && responseText[0]) {
+                    Ext.Array.each(model.get('intervals'), function(correctedInterval){
+                        Ext.Array.findBy(records, function (reading) {
+                            if (correctedInterval.start == reading.get('interval').start) {
+                                me.updateCorrectedValues(reading, correctedInterval);
+                                return true;
+                            }
+                        });
+                    });
+                    window.destroy();
+                    me.getPage().down('#save-changes-button').isDisabled() && me.showButtons();
+                } else {
+                    window.setLoading(false);
+                    if (responseText) {
+                        if (responseText.message) {
+                            window.down('#error-label').show();
+                            window.down('#error-label').setText('<div style="color: #EB5642">' + responseText.message + '</div>', false);
+                        } else if (responseText.readings) {
+                            window.down('#error-label').show();
+                            var listOfFailedReadings = [];
+                            Ext.Array.each(responseText.readings, function (readingTimestamp) {
+                                listOfFailedReadings.push(Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}', [Uni.DateTime.formatDateShort(new Date(readingTimestamp)), Uni.DateTime.formatTimeShort(new Date(readingTimestamp))], false));
+                            });
+                            window.down('#error-label').setText('<div style="color: #EB5642">' +
+                                Uni.I18n.translate('devicechannels.estimationErrorMessage', 'MDC', 'Could not estimate {0} with {1}',
+                                    [listOfFailedReadings.join(', '), window.down('#estimator-field').getRawValue().toLowerCase()]) + '</div>', false);
+                        } else if (responseText.errors) {
+                            window.down('#form-errors').show();
+                            window.down('#property-form').markInvalid(responseText.errors);
+                        }
+                    }
 
-        Ext.Array.each(model.get('intervals'), function(correctedInterval){
-            Ext.Array.findBy(records, function (reading) {
-                if (correctedInterval.start == reading.get('interval').start) {
-                    me.updateCorrectedValues(model, reading, correctedInterval);
-                    return true;
                 }
-            });
+                Ext.resumeLayouts(true);
+            }
         });
-
-        Ext.resumeLayouts(true);
-
-        window.destroy();
     },
 
-    updateCorrectedValues: function (model, reading, correctedInterval) {
+    updateCorrectedValues: function (reading, correctedInterval) {
         var me = this,
             grid = me.getPage().down('deviceLoadProfileChannelDataGrid');
 
@@ -1368,5 +1395,5 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         me.resumeEditorFieldValidation(grid.editingPlugin, {
             record: reading
         });
-    },
+    }
 });
