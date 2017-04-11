@@ -10,6 +10,7 @@ import com.elster.jupiter.ids.StorerStats;
 import com.elster.jupiter.ids.TimeSeries;
 import com.elster.jupiter.ids.TimeSeriesDataStorer;
 import com.elster.jupiter.ids.TimeSeriesEntry;
+import com.elster.jupiter.ids.TimeSeriesJournalEntry;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OptimisticLockException;
 import com.elster.jupiter.orm.associations.Reference;
@@ -317,7 +318,7 @@ public final class TimeSeriesImpl implements TimeSeries {
 	}
 
 	@Override
-	public List<TimeSeriesEntry> getJournalEntries(Range<Instant> interval) {
+	public List<TimeSeriesJournalEntry> getJournalEntries(Range<Instant> interval) {
 		return getVault().getJournalEntries(this, interval);
 	}
 
@@ -336,20 +337,14 @@ public final class TimeSeriesImpl implements TimeSeries {
     	return getVault().getEntry(this,when);
     }
 
-    void lock() {
+	void lock() {
     	TimeSeriesImpl latest = dataModel.mapper(TimeSeriesImpl.class).lock(getId());
     	if (latest.version != this.version) throw new OptimisticLockException();
     }
 
 	@Override
 	public boolean equals(Object other) {
-        if (this == other) {
-            return true;
-        }
-        if (!(other instanceof TimeSeriesImpl)) {
-            return false;
-        }
-        return this.id == ((TimeSeriesImpl) other).id;
+		return this == other || other instanceof TimeSeriesImpl && this.id == ((TimeSeriesImpl) other).id;
 	}
 
 	@Override

@@ -35,8 +35,4 @@ public interface TimeSeriesEntry {
 
     Optional<TimeSeriesEntry> getVersion(Instant at);
 
-    Instant getJournalTime();
-
-    String getUserName();
-
 }

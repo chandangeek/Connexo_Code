@@ -7,6 +7,7 @@ package com.elster.jupiter.ids.impl;
 import com.elster.jupiter.ids.FieldSpec;
 import com.elster.jupiter.ids.RecordSpec;
 import com.elster.jupiter.ids.TimeSeriesEntry;
+import com.elster.jupiter.ids.TimeSeriesJournalEntry;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
@@ -365,12 +366,12 @@ public final class VaultImpl implements IVault {
         if (hasLocalTime()) {
             builder.append(",LOCALDATE");
         }
-        recordSpec.columnNames().forEach(column -> builder.append(", " + column));
+        recordSpec.columnNames().forEach(column -> builder.append(", ").append(column));
         builder.append(") (SELECT TIMESERIESID,UTCSTAMP,VERSIONCOUNT,RECORDTIME,?,?");
         if (hasLocalTime()) {
             builder.append(",LOCALDATE");
         }
-        recordSpec.columnNames().forEach(column -> builder.append(", " + column));
+        recordSpec.columnNames().forEach(column -> builder.append(", ").append(column));
         builder.append(" FROM ");
         builder.append(getTableName());
         return builder;
@@ -425,7 +426,7 @@ public final class VaultImpl implements IVault {
     }
 
     @Override
-    public List<TimeSeriesEntry> getJournalEntries(TimeSeriesImpl timeSeries, Range<Instant> interval) {
+    public List<TimeSeriesJournalEntry> getJournalEntries(TimeSeriesImpl timeSeries, Range<Instant> interval) {
         try {
             return doGetJournalEntries(timeSeries, interval);
         } catch (SQLException ex) {
@@ -473,8 +474,7 @@ public final class VaultImpl implements IVault {
     }
 
     private SqlBuilder rangeJournalSql(TimeSeriesImpl timeSeries, Range<Instant> interval) {
-        SqlBuilder builder = selectJournalSql(timeSeries, interval);
-        return builder;
+        return selectJournalSql(timeSeries, interval);
     }
 
     private SqlBuilder rangeSql(TimeSeriesImpl timeSeries, Range<Instant> range, List<Pair<String, String>> recordSpecFieldNames) {
@@ -533,13 +533,13 @@ public final class VaultImpl implements IVault {
         return result;
     }
 
-    private List<TimeSeriesEntry> doGetJournalEntries(TimeSeriesImpl timeSeries, Range<Instant> interval) throws SQLException {
-        List<TimeSeriesEntry> result = new ArrayList<>();
+    private List<TimeSeriesJournalEntry> doGetJournalEntries(TimeSeriesImpl timeSeries, Range<Instant> interval) throws SQLException {
+        List<TimeSeriesJournalEntry> result = new ArrayList<>();
         try (Connection connection = getConnection(false)) {
             try (PreparedStatement statement = rangeJournalSql(timeSeries, interval).prepare(connection)) {
                 try (ResultSet rs = statement.executeQuery()) {
                     while (rs.next()) {
-                        result.add(new TimeSeriesEntryImpl(timeSeries, rs, true));
+                        result.add(new TimeSeriesJournalEntryImpl(timeSeries, rs, true));
                     }
                 }
             }
