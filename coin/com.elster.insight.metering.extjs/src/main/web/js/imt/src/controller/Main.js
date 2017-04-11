@@ -80,7 +80,8 @@ Ext.define('Imt.controller.Main', {
         'Imt.customattributesonvaluesobjects.store.MetrologyConfigurationCustomAttributeSets',
         'Imt.customattributesonvaluesobjects.store.ServiceCategoryCustomAttributeSets',
         'Imt.usagepointmanagement.store.DefineMetrologyConfigurationPrivileges',
-        'Imt.usagepointmanagement.store.UsagePointPrivileges'
+        'Imt.usagepointmanagement.store.UsagePointPrivileges',
+        'Imt.processes.store.AvailableMeterRoles'
     ],
 
     refs: [
@@ -113,6 +114,8 @@ Ext.define('Imt.controller.Main', {
         Uni.property.controller.Registry.addProperty('METROLOGYCONFIGURATION', 'Imt.processes.view.AvailableMetrologyConfigurations');
         Uni.property.controller.Registry.addProperty('METROLOGYPURPOSES', 'Imt.processes.view.PurposesOnMetrologyConfigarations');
         Uni.property.controller.Registry.addProperty('UP_TRANSITION', 'Imt.processes.view.AvailableTransitions');
+        Uni.property.controller.Registry.addProperty('METER_INSTALLATION_DATE', 'Imt.processes.view.InstallationDate');
+        Uni.property.controller.Registry.addProperty('METER_ROLE', 'Imt.processes.view.MeterRoles');
     },
 
     initDynamicMenusListeners: function () {
