@@ -34,25 +34,13 @@ Ext.define('Mdc.timeofuse.view.EditSpecificationsForm', {
                         width: 750
                     },
                     {
-                        xtype: 'fieldcontainer',
-                        itemId: 'tou-allowed-radio-group',
-                        fieldLabel: Uni.I18n.translate('timeofuse.timeOfUseAllowed', 'MDC', 'Time of use allowed'),
-                        defaultType: 'radiofield',
-                        required: true,
-                        layout: 'vbox',
-                        items: [
-                            {
-                                boxLabel: Uni.I18n.translate('general.yes', 'MDC', 'Yes'),
-                                name: 'isAllowed',
-                                inputValue: 'true',
-                                itemId: 'tou-allowed-radio-field',
-                            }, {
-                                boxLabel: Uni.I18n.translate('general.no', 'MDC', 'No'),
-                                name: 'isAllowed',
-                                inputValue: 'false',
-                                checked: true
-                            }
-                        ]
+                        xtype: 'checkboxfield',
+                        fieldLabel: Uni.I18n.translate('general.timeOfUse', 'MDC', 'Time of use'),
+                        itemId: 'fwc-tou-devicetype-edit-specs-timeOfUse-checkbox',
+                        name: 'isAllowed',
+                        boxLabel: Uni.I18n.translate('general.allowTimeOfUse', 'FWC', 'Allow time of use'),
+                        checked: false,
+                        margin: '7 0 7 4'
                     },
                     {
                         xtype: 'checkboxgroup',
