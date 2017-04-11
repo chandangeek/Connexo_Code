@@ -723,10 +723,18 @@ public class MeterActivationImplIT {
                 .withGapAllowed(false)
                 .create();
         usagePointMetrologyConfiguration.addMeterRole(metrologyConfigurationService.findDefaultMeterRole(DefaultMeterRole.DEFAULT));
+        ReadingType readingType = meteringService.getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
+        FullySpecifiedReadingTypeRequirement readingTypeRequirement =
+                usagePointMetrologyConfiguration
+                        .newReadingTypeRequirement("Requirement", metrologyConfigurationService.findDefaultMeterRole(DefaultMeterRole.DEFAULT))
+                        .withReadingType(readingType);
+        MetrologyContract metrologyContract = usagePointMetrologyConfiguration.addMandatoryMetrologyContract(metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.BILLING).get());
+        ReadingTypeDeliverableBuilder builder = metrologyContract.newReadingTypeDeliverable("Deliverable", readingType, Formula.Mode.AUTO);
+        builder.build(builder.requirement(readingTypeRequirement));
         usagePoint.linkMeters()
-                .activate(now, meter, inMemoryBootstrapModule.getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT))
+                .activate(now.plusSeconds(600), meter, inMemoryBootstrapModule.getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT))
                 .complete();
-        usagePoint.apply(usagePointMetrologyConfiguration, now.plusSeconds(60));
+        usagePoint.apply(usagePointMetrologyConfiguration, now);
     }
 
     @Test
