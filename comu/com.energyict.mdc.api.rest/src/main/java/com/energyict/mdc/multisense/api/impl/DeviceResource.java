@@ -4,6 +4,13 @@
 
 package com.energyict.mdc.multisense.api.impl;
 
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
+import com.elster.jupiter.metering.config.MeterRole;
+import com.elster.jupiter.metering.config.MetrologyConfiguration;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.FieldSelection;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.PagedInfoList;
 import com.elster.jupiter.rest.util.ExceptionFactory;
@@ -13,6 +20,7 @@ import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.topology.TopologyService;
@@ -39,6 +47,7 @@ import javax.ws.rs.core.UriInfo;
 import java.net.URI;
 import java.time.Clock;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -59,18 +68,23 @@ public class DeviceResource {
     private final DeviceConfigurationService deviceConfigurationService;
     private final ExceptionFactory exceptionFactory;
     private final TopologyService topologyService;
+    private final MeteringService meteringService;
+    private final MetrologyConfigurationService metrologyConfigurationService;
     private final ResourceHelper resourceHelper;
     private final Clock clock;
 
 
     @Inject
     public DeviceResource(DeviceService deviceService, DeviceInfoFactory deviceInfoFactory, DeviceConfigurationService deviceConfigurationService,
+                          MeteringService meteringService, MetrologyConfigurationService metrologyConfigurationService,
                           ExceptionFactory exceptionFactory, TopologyService topologyService, ResourceHelper resourceHelper, Clock clock) {
         this.deviceService = deviceService;
         this.deviceInfoFactory = deviceInfoFactory;
         this.deviceConfigurationService = deviceConfigurationService;
         this.exceptionFactory = exceptionFactory;
         this.topologyService = topologyService;
+        this.meteringService = meteringService;
+        this.metrologyConfigurationService = metrologyConfigurationService;
         this.resourceHelper = resourceHelper;
         this.clock = clock;
     }
@@ -136,6 +150,7 @@ public class DeviceResource {
         if (info.deviceConfiguration != null && info.deviceConfiguration.id != null) {
             deviceConfiguration = deviceConfigurationService.findDeviceConfiguration(info.deviceConfiguration.id);
         }
+        deviceConfiguration = deviceConfiguration.map(Optional::of).orElse(findApplicableDeviceConfiguration(info));
 
         Device newDevice;
         if (!is(info.batch).emptyOrOnlyWhiteSpace()) {
@@ -152,7 +167,31 @@ public class DeviceResource {
                 path(DeviceResource.class, "getDevice").
                 build(newDevice.getmRID());
 
-        return Response.created(uri).build();
+        return Response.created(uri).entity(deviceInfoFactory.asHypermedia(newDevice, uriInfo, Collections.emptyList())).build();
+    }
+
+    private Optional<DeviceConfiguration> findApplicableDeviceConfiguration(DeviceInfo info){
+        if(info.deviceConfiguration.deviceType!=null && info.usagePoint!=null && info.meterRole!=null){
+            DeviceType deviceType = deviceConfigurationService.findDeviceTypeByName(String.valueOf(info.deviceConfiguration.deviceType.id))
+                    .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_DEVICE_TYPE));
+            Optional<UsagePointMetrologyConfiguration> metrologyConfiguration = meteringService.findUsagePointByMRID(info.usagePoint)
+                    .flatMap(usagePoint -> usagePoint.getCurrentEffectiveMetrologyConfiguration().map(EffectiveMetrologyConfigurationOnUsagePoint::getMetrologyConfiguration));
+            MeterRole meterRole = metrologyConfigurationService.findMeterRole(info.meterRole)
+                    .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_METER_ROLE));
+            List<DeviceConfiguration> applicableConfigurations;
+            if(metrologyConfiguration.isPresent()) {
+                applicableConfigurations = resourceHelper.findDeviceConfigurationsApplicableToMetrologyConfig(deviceType, metrologyConfiguration.get(), meterRole);
+            } else {
+                applicableConfigurations = deviceType.getConfigurations();
+            }
+            if(applicableConfigurations.size()!=1){
+                throw exceptionFactory.newException(MessageSeeds.CANNOT_FIND_APPROPRIATE_DEVICE_CONFIGURATION);
+            } else {
+                return applicableConfigurations.stream().findFirst();
+            }
+        } else {
+            return Optional.empty();
+        }
     }
 
     /**
