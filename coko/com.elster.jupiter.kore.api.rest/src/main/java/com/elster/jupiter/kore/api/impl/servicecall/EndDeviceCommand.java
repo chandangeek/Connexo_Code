@@ -23,7 +23,8 @@ public enum EndDeviceCommand {
         Optional<CompletionOptions> completionOptions = commandContext.getEndDevice().getHeadEndInterface()
                 .map(headEndInterface -> headEndInterface.scheduleMeterRead((Meter) commandContext.getEndDevice(),
                         headEndInterface.getCapabilities(commandContext.getEndDevice()).getConfiguredReadingTypes(),
-                        Instant.ofEpochMilli(commandContext.getEndDeviceCommandInfo().effectiveTimestamp)));
+                        Instant.ofEpochMilli(commandContext.getEndDeviceCommandInfo().effectiveTimestamp),
+                        serviceCall));
         completionOptions.ifPresent(co -> co.whenFinishedSendCompletionMessageWith(String.valueOf(serviceCall.getId()), commandContext.getCommandHelper().getDestinationSpec()));
         return completionOptions;
     });
