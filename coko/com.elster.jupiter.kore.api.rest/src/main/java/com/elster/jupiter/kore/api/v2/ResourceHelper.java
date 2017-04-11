@@ -11,8 +11,6 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
-import com.elster.jupiter.metering.config.MetrologyContract;
-import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.rest.util.ExceptionFactory;
@@ -30,9 +28,7 @@ import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class ResourceHelper {
 
@@ -99,7 +95,7 @@ public class ResourceHelper {
         UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = (UsagePointMetrologyConfiguration) this.findMetrologyConfiguration(info.metrologyConfiguration.id)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_METROLOGY_CONFIGURATION));
 
-        if(!usagePointMetrologyConfiguration.isGapAllowed()){
+        if(!usagePointMetrologyConfiguration.areGapsAllowed()){
            validateIfRequiredMetersInstalled(usagePoint, usagePointMetrologyConfiguration, info);
         }
 

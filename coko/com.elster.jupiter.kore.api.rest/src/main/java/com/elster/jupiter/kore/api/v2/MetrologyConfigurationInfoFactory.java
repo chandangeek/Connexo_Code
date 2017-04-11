@@ -4,7 +4,6 @@
 
 package com.elster.jupiter.kore.api.v2;
 
-import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.LinkInfo;
@@ -75,7 +74,7 @@ public class MetrologyConfigurationInfoFactory extends SelectableFieldFactory<Me
                 metrologyInfo.link = link(metrology, Relation.REF_SELF, uriInfo)));
         map.put("name", (metrologyInfo, metrology, uriInfo) -> metrologyInfo.name = metrology.getName());
         map.put("active", (metrologyInfo, metrology, uriInfo) -> metrologyInfo.active = metrology.isActive());
-        map.put("allowGaps", (metrologyInfo, metrology, uriInfo) -> metrologyInfo.allowGaps = metrology.isGapAllowed());
+        map.put("allowGaps", (metrologyInfo, metrology, uriInfo) -> metrologyInfo.allowGaps = metrology.areGapsAllowed());
         map.put("userName", (metrologyInfo, metrology, uriInfo) -> metrologyInfo.userName = metrology.getUserName());
         map.put("createTime", (metrologyInfo, metrology, uriInfo) -> metrologyInfo.createTime = metrology.getCreateTime());
         map.put("modTime", (metrologyInfo, metrology, uriInfo) -> metrologyInfo.modTime = metrology.getModTime());
