@@ -126,7 +126,7 @@ public class PropertyTypeInfo {
         } else if ("meterInstallationDate".equalsIgnoreCase(getComboBoxValues(field, "param1"))) {
             simplePropertyType = "METER_INSTALLATION_DATE";
         } else if ("meterRole".equalsIgnoreCase(getComboBoxValues(field, "param1"))) {
-            simplePropertyType = "METER_RROLE";
+            simplePropertyType = "METER_ROLE";
         }
     }
 
