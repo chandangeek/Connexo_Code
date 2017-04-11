@@ -44,10 +44,8 @@ import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationRuleSetVersion;
 import com.elster.jupiter.validation.ValidationVersionStatus;
+
 import com.jayway.jsonpath.JsonModel;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
 
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;
@@ -62,6 +60,10 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -100,6 +102,8 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
         when(metrologyConfigurationService.findAllMetrologyConfigurations()).thenReturn(Arrays.asList(config1, config2));
         when(metrologyConfigurationService.findMetrologyConfiguration(1)).thenReturn(Optional.of(config1));
         when(metrologyConfigurationService.findMetrologyConfiguration(2)).thenReturn(Optional.of(config2));
+        when(this.config1.getContracts()).thenReturn(Collections.singletonList(this.metrologyContract1));
+        when(this.config2.getContracts()).thenReturn(Collections.singletonList(this.metrologyContract2));
 
         ValidationRuleSetVersion validationRuleSetVersion = mockValidationRuleSetVersion(vrs);
         ValidationRuleSetVersion validationRuleSetVersion2 = mockValidationRuleSetVersion(vrs2);
@@ -115,7 +119,6 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
         when(ers3.getName()).thenReturn("EstimationRuleSet3");
         when(ers3.getQualityCodeSystem()).thenReturn(QualityCodeSystem.MDM);
         when(ers3.getId()).thenReturn(53L);
-        metrologyContract1 = config1.getContracts().stream().findFirst().get();
         metrologyContractInfo = new MetrologyContractInfo(metrologyContract1);
         metrologyContractInfo.validationRuleSets = Collections.singletonList(new ValidationRuleSetInfo(vrs3));
         metrologyContractInfo.estimationRuleSets = Collections.emptyList();
@@ -129,7 +132,7 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
         when(metrologyConfigurationService.findAndLockMetrologyContract(metrologyContractInfo.id, metrologyContractInfo.version)).thenReturn(Optional.of(metrologyContract1));
         when(metrologyConfigurationService.findMetrologyContract(1L)).thenReturn(Optional.of(metrologyContract1));
         when(usagePointConfigurationService.getValidationRuleSets(metrologyContract1)).thenReturn(Collections.singletonList(vrs));
-        when(usagePointConfigurationService.getMatchingDeliverablesOnValidationRuleSet(metrologyContract, vrs2)).thenReturn(Collections.singletonList(readingTypeDeliverable));
+        when(usagePointConfigurationService.getMatchingDeliverablesOnValidationRuleSet(metrologyContract1, vrs2)).thenReturn(Collections.singletonList(readingTypeDeliverable));
         when(vrs2.getName()).thenReturn("LinkableValidationRuleSet");
         when(vrs2.getId()).thenReturn(31L);
         when(vrs2.getQualityCodeSystem()).thenReturn(QualityCodeSystem.MDM);
@@ -168,7 +171,7 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
         when(mock.getStatus()).thenReturn(status);
         when(mock.getVersion()).thenReturn(1L);
         when(mock.getDescription()).thenReturn("some description");
-        when(mock.isGapAllowed()).thenReturn(true);
+        when(mock.areGapsAllowed()).thenReturn(true);
 
         MeterRole role = mock(MeterRole.class);
         when(role.getKey()).thenReturn(DefaultMeterRole.DEFAULT.getKey());
@@ -251,7 +254,8 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
 
     @Test
     public void getVersionedCustomPropertySets() {
-        UsagePointMetrologyConfiguration metrologyConfiguration = mockMetrologyConfiguration(13L, "Residential", ServiceKind.GAS, MetrologyConfigurationStatus.INACTIVE);
+        MetrologyContract metrologyContract = mock(MetrologyContract.class);
+        UsagePointMetrologyConfiguration metrologyConfiguration = mockMetrologyConfiguration(13L, "Residential", ServiceKind.GAS, MetrologyConfigurationStatus.INACTIVE, metrologyContract);
         UsagePoint usagePoint = mock(UsagePoint.class);
         RegisteredCustomPropertySet rcps = mock(RegisteredCustomPropertySet.class);
         CustomPropertySet customPropertySet = mock(CustomPropertySet.class);
@@ -271,12 +275,12 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
         propertyInfo.propertyTypeInfo = typeInfo;
         values.setProperty("Antenna power",Quantity.create(BigDecimal.valueOf(55),-3,"Wh"));
         valueInfo.value = Quantity.create(BigDecimal.valueOf(55),-3,"Wh");
-        info.isVersioned =true;
-        info.name="Antenna";
-        info.id=36;
+        info.isVersioned = true;
+        info.name = "Antenna";
+        info.id = 36;
         info.properties = Collections.singletonList(attributeInfo);
-        attributeInfo.name="Antenna power";
-        attributeInfo.key="antennaPower";
+        attributeInfo.name = "Antenna power";
+        attributeInfo.key = "antennaPower";
         attributeInfo.propertyValueInfo = valueInfo;
 
         when(propertyInfo.getPropertyValueInfo()).thenReturn(valueInfo);
@@ -333,7 +337,7 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
 
     @Test
     public void testLinkableValidationRuleSetsOfMetrologyContract() {
-        when(usagePointConfigurationService.getValidationRuleSets(metrologyContract)).thenReturn(Collections.emptyList());
+        when(usagePointConfigurationService.getValidationRuleSets(this.metrologyContract1)).thenReturn(Collections.emptyList());
         String json = target("/metrologyconfigurations/1/contracts/1").request().header("X-CONNEXO-APPLICATION-NAME", "INS").get(String.class);
         JsonModel jsonModel = JsonModel.create(json);
         assertThat(jsonModel.<Integer>get("$.validationRuleSets[0].id")).isEqualTo(31);
