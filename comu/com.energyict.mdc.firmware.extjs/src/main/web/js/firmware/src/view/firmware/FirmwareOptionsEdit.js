@@ -46,12 +46,12 @@ Ext.define('Fwc.view.firmware.FirmwareOptionsEdit', {
                 },
                 loadRecord: function (record) {
                     var checkboxgroup = this.down('#firmwareUpgradeOptions'),
-                        radiogroup = this.down('#allowedRadioGroup');
+                        allowedCheckBox = this.down('#fwc-firmware-options-edit-firmware-checkbox');
 
                     this.getForm().loadRecord(record);
 
                     if (!record.get('isAllowed')) {
-                        radiogroup.setValue({'isAllowed': 0});
+                        allowedCheckBox.setValue(false);
                         checkboxgroup.disable();
                         checkboxgroup.setValue([]);
                     }
@@ -75,11 +75,11 @@ Ext.define('Fwc.view.firmware.FirmwareOptionsEdit', {
 
                     });
 
-                    radiogroup.on('change', function (radiogroup, newValue) {
-                        var form = radiogroup.up('form'),
+                    allowedCheckBox.on('change', function (checkBox, newValue) {
+                        var form = checkBox.up('form'),
                             checkboxgroup = form.down('#firmwareUpgradeOptions');
 
-                        if (!newValue.isAllowed) {
+                        if (!newValue) {
                             checkboxgroup.disable();
                             checkboxgroup.setValue([]);
                         } else {
@@ -88,7 +88,7 @@ Ext.define('Fwc.view.firmware.FirmwareOptionsEdit', {
                                 checkbox.setValue(true);
                             });
                         }
-                    }, radiogroup);
+                    }, allowedCheckBox);
                 },
                 updateRecord: function () {
                     this.getForm().updateRecord();
@@ -102,28 +102,13 @@ Ext.define('Fwc.view.firmware.FirmwareOptionsEdit', {
                         hidden: true
                     },
                     {
-                        xtype: 'radiogroup',
-                        fieldLabel: Uni.I18n.translate('deviceType.firmwaremanagementoptions.allowed', 'FWC', 'Firmware management allowed'),
-                        itemId: 'allowedRadioGroup',
-                        required: true,
-                        columns: 1,
-                        vertical: true,
-                        defaults: {
-                            name: 'isAllowed'
-                        },
-                        items: [
-                            {
-                                itemId: 'rbtn-is-allowed-yes',
-                                boxLabel: '<b>' + Uni.I18n.translate('general.yes', 'FWC', 'Yes') + '</b>',
-                                inputValue: 1
-
-                            },
-                            {
-                                itemId: 'rbtn-is-allowed-no',
-                                boxLabel: '<b>' + Uni.I18n.translate('general.no', 'FWC', 'No') + '</b>',
-                                inputValue: 0
-                            }
-                        ]
+                        xtype: 'checkboxfield',
+                        fieldLabel: Uni.I18n.translate('general.firmwareManagement', 'MDC', 'Firmware management'),
+                        itemId: 'fwc-firmware-options-edit-firmware-checkbox',
+                        name: 'isAllowed',
+                        boxLabel: Uni.I18n.translate('general.allowFirmwareManagement', 'FWC', 'Allow firmware management'),
+                        checked: false,
+                        margins: '0 0 0 4'
                     },
                     {
                         xtype: 'checkboxgroup',
@@ -137,7 +122,6 @@ Ext.define('Fwc.view.firmware.FirmwareOptionsEdit', {
                             getModelData: function () {
                                 return this.getSubmitData();
                             }
-
                         },
                         items: [
                             {
