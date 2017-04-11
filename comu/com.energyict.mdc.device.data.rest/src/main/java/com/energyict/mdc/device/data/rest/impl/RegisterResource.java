@@ -37,6 +37,7 @@ public class RegisterResource {
     private final ExceptionFactory exceptionFactory;
     private final ResourceHelper resourceHelper;
     private final Provider<RegisterDataResource> registerDataResourceProvider;
+    private final Provider<RegisterHistoryDataResource> registerHistoryDataResourceProvider;
     private final ValidationInfoHelper validationInfoHelper;
     private final DeviceDataInfoFactory deviceDataInfoFactory;
     private final TopologyService topologyService;
@@ -44,10 +45,11 @@ public class RegisterResource {
     private final Clock clock;
 
     @Inject
-    public RegisterResource(ExceptionFactory exceptionFactory, ResourceHelper resourceHelper, Provider<RegisterDataResource> registerDataResourceProvider, ValidationInfoHelper validationInfoHelper, Clock clock, DeviceDataInfoFactory deviceDataInfoFactory, TopologyService topologyService, MasterDataService masterDataService) {
+    public RegisterResource(ExceptionFactory exceptionFactory, ResourceHelper resourceHelper, Provider<RegisterDataResource> registerDataResourceProvider, Provider<RegisterHistoryDataResource> registerHistoryDataResourceProvider, ValidationInfoHelper validationInfoHelper, Clock clock, DeviceDataInfoFactory deviceDataInfoFactory, TopologyService topologyService, MasterDataService masterDataService) {
         this.exceptionFactory = exceptionFactory;
         this.resourceHelper = resourceHelper;
         this.registerDataResourceProvider = registerDataResourceProvider;
+        this.registerHistoryDataResourceProvider = registerHistoryDataResourceProvider;
         this.clock = clock;
         this.validationInfoHelper = validationInfoHelper;
         this.deviceDataInfoFactory = deviceDataInfoFactory;
@@ -445,6 +447,11 @@ public class RegisterResource {
     @Path("/{registerId}/data")
     public RegisterDataResource getRegisterDataResource() {
         return registerDataResourceProvider.get();
+    }
+
+    @Path("/{registerId}/historydata")
+    public RegisterHistoryDataResource getRegisterHistoryDataResource() {
+        return registerHistoryDataResourceProvider.get();
     }
 
     @Path("{registerId}/validationstatus")

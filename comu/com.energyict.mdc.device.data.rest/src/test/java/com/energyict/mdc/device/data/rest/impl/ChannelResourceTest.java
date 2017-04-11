@@ -27,7 +27,6 @@ import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.ProtocolReadingQualities;
 import com.elster.jupiter.properties.rest.PropertyInfo;
-import com.elster.jupiter.properties.rest.PropertyTypeInfo;
 import com.elster.jupiter.properties.rest.PropertyValueInfo;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.time.TimeDuration;
@@ -52,6 +51,7 @@ import com.energyict.mdc.device.data.ChannelDataUpdater;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceValidation;
 import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.device.data.LoadProfileJournalReading;
 import com.energyict.mdc.device.data.LoadProfileReading;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidation;
 import com.energyict.mdc.issue.datavalidation.NotEstimatedBlock;
@@ -389,6 +389,57 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         assertThat(jsonModel.<String>get("$.readingQualities[1].indexName")).isEqualTo("Data valid");
         assertThat(jsonModel.<String>get("$.readingQualities[1].systemName")).isEqualTo("MDC");
         assertThat(jsonModel.<String>get("$.readingQualities[1].categoryName")).isEqualTo("Valid");
+    }
+
+    @Test
+    public void testChannelHistoryData() throws UnsupportedEncodingException {
+        String filter = ExtjsFilter.filter()
+                .property("intervalStart", INTERVAL_START)
+                .property("intervalEnd", INTERVAL_END)
+                .create();
+        when(topologyService.getDataLoggerChannelTimeLine(any(Channel.class), any(Range.class))).thenReturn(Collections.singletonList(Pair
+                .of(channel, Ranges.openClosed(Instant.ofEpochMilli(INTERVAL_START), Instant
+                        .ofEpochMilli(INTERVAL_END)))));
+
+        LoadProfileJournalReading loadProfileJournalReading = mock(LoadProfileJournalReading.class);
+        when(loadProfileJournalReading.getActive()).thenReturn(false);
+        when(loadProfileJournalReading.getUserName()).thenReturn("admin");
+        when(loadProfileJournalReading.getVersion()).thenReturn(1L);
+        when(loadProfileJournalReading.getRange()).thenReturn(Ranges.openClosed(Instant.ofEpochMilli(INTERVAL_START), Instant.ofEpochMilli(INTERVAL_END)));
+        when(loadProfileJournalReading.getJournalTime()).thenReturn(Instant.ofEpochMilli(INTERVAL_END));
+        when(channel.getChannelWithHistoryData(Ranges.openClosed(Instant.ofEpochMilli(INTERVAL_START), Instant.ofEpochMilli(INTERVAL_END)), false))
+                .thenReturn(Collections.singletonList(loadProfileJournalReading));
+        String json = target("devices/1/channels/" + CHANNEL_ID1 + "/historydata")
+                .queryParam("filter", filter)
+                .request().get(String.class);
+
+        JsonModel jsonModel = JsonModel.create(json);
+        assertThat(jsonModel.<List<?>>get("$.data")).hasSize(1);
+        assertThat(jsonModel.<Long>get("$.data[0].journalTime")).isEqualTo(INTERVAL_END);
+        assertThat(jsonModel.<String>get("$.data[0].userName")).isEqualTo("admin");
+        assertThat(jsonModel.<Integer>get("$.data[0].version")).isEqualTo(1);
+        assertThat(jsonModel.<Boolean>get("$.data[0].isActive")).isEqualTo(false);
+    }
+
+    @Test
+    public void testChannelEmptyHistoryData() throws UnsupportedEncodingException {
+        String filter = ExtjsFilter.filter()
+                .property("intervalStart", INTERVAL_START)
+                .property("intervalEnd", INTERVAL_END)
+                .create();
+        when(topologyService.getDataLoggerChannelTimeLine(any(Channel.class), any(Range.class))).thenReturn(Collections.singletonList(Pair
+                .of(channel, Ranges.openClosed(Instant.ofEpochMilli(INTERVAL_START), Instant
+                        .ofEpochMilli(INTERVAL_END)))));
+
+        when(channel.getChannelWithHistoryData(Ranges.openClosed(Instant.ofEpochMilli(INTERVAL_START), Instant.ofEpochMilli(INTERVAL_END)), false))
+                .thenReturn(Collections.emptyList());
+
+        String json = target("devices/1/channels/" + CHANNEL_ID1 + "/historydata")
+                .queryParam("filter", filter)
+                .request().get(String.class);
+
+        JsonModel jsonModel = JsonModel.create(json);
+        assertThat(jsonModel.<List<?>>get("$.data")).hasSize(0);
     }
 
     @Test
@@ -986,8 +1037,6 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         estimateChannelDataInfo.intervals = new ArrayList<>();
         estimateChannelDataInfo.intervals.add(intervalInfo);
         estimateChannelDataInfo.properties = new ArrayList<>();
-        estimateChannelDataInfo.properties.add(new PropertyInfo("valuefill.maxNumberOfConsecutiveSuspects", "Max number of consecutive suspects", new PropertyValueInfo<>(123L, null, 10L, true), new PropertyTypeInfo(com.elster.jupiter.properties.rest.SimplePropertyType.NUMBER, null, null, null), true));
-        estimateChannelDataInfo.properties.add(new PropertyInfo("valuefill.fillValue", "Fill value", new PropertyValueInfo<>(123L, null, 10L, true), new PropertyTypeInfo(com.elster.jupiter.properties.rest.SimplePropertyType.NUMBER, null, null, null), true));
 
         Estimator estimator = mock(Estimator.class);
         EstimationResult estimationResult = mock(EstimationResult.class);
@@ -1007,6 +1056,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         Finder finder = mock(Finder.class);
         ReadingType readingType = mockReadingType("1.2.3.4.5.6.7.8.9.10.11.12.13.14.15.16.17.18");
         when(channel.getReadingType()).thenReturn(readingType);
+        when(readingType.getCalculatedReadingType()).thenReturn(Optional.of(readingType));
         doReturn(Collections.singletonList(estimationRuleSet)).when(estimationService).getEstimationRuleSets();
         doReturn(Collections.singletonList(estimationRule)).when(estimationRuleSet).getRules();
         doReturn(Collections.singleton(readingType)).when(estimationRule).getReadingTypes();
