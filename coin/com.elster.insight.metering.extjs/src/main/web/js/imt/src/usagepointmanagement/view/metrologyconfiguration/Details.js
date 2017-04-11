@@ -34,7 +34,10 @@ Ext.define('Imt.usagepointmanagement.view.metrologyconfiguration.Details', {
             }),
             remoteMeterRolesStore = Ext.getStore('Imt.usagepointmanagement.store.MeterRoles'),
             mcIsLinked = !!me.usagePoint.get('metrologyConfiguration'),
-            canModify = me.usagePoint.get('state').stageName === 'mtr.usagepointstage.preoperational';
+            isReadyForLinkingMC = me.usagePoint.get('isReadyForLinkingMC'),
+            hasEffectiveMCs = me.usagePoint.get('hasEffectiveMCs'),
+            stage = me.usagePoint.get('state').stage,
+            canModify = stage === 'PRE_OPERATIONAL' || stage === 'SUSPENDED';
 
         me.content = [
             {
@@ -47,7 +50,7 @@ Ext.define('Imt.usagepointmanagement.view.metrologyconfiguration.Details', {
                         xtype: 'button',
                         itemId: 'unlink-metrology-configuration-button',
                         text: Uni.I18n.translate('usagePoint.metrologyConfiguration.unlink', 'IMT', 'Unlink metrology configuration'),
-                        privileges: mcIsLinked && canModify && Imt.privileges.UsagePoint.canAdministrate(),
+                        privileges: hasEffectiveMCs && Imt.privileges.UsagePoint.canAdministrate(),
                         usagePoint: me.usagePoint
                     }
                 ],
@@ -62,7 +65,7 @@ Ext.define('Imt.usagepointmanagement.view.metrologyconfiguration.Details', {
                         stepItems: [
                             {
                                 text: Uni.I18n.translate('usagePoint.metrologyConfiguration.link', 'IMT', 'Link metrology configuration'),
-                                privileges: Imt.privileges.UsagePoint.canAdministrate,
+                                privileges: Imt.privileges.UsagePoint.canAdministrate && isReadyForLinkingMC,
                                 href: me.router.getRoute('usagepoints/view/definemetrology').buildUrl(),
                                 action: 'define',
                                 itemId: 'define-metrology-configuration'
@@ -93,6 +96,15 @@ Ext.define('Imt.usagepointmanagement.view.metrologyconfiguration.Details', {
                             title: Uni.I18n.translate('usagePoint.meterRoles.empty.title', 'IMT', 'No meter roles'),
                             reasons: [
                                 Uni.I18n.translate('usagePoint.meterRoles.empty.reason', 'IMT', 'Meter roles have not been linked to this usage point yet')
+                            ],
+                            stepItems: [
+                                {
+                                    xtype: 'button',
+                                    text: Uni.I18n.translate('general.linkMeters', 'IMT', 'Link meters'),
+                                    itemId: 'edit-meters',
+                                    privileges: hasEffectiveMCs && Imt.privileges.UsagePoint.canAdministrate(),
+                                    href: me.router.getRoute('usagepoints/view/metrologyconfiguration/activatemeters').buildUrl()
+                                }
                             ],
                             style: 'margin-top: 15px'
                         }

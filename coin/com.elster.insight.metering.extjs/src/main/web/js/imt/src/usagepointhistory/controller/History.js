@@ -17,14 +17,16 @@ Ext.define('Imt.usagepointhistory.controller.History', {
         'Imt.customattributesonvaluesobjects.store.CustomAttributeSetVersionsOnUsagePoint',
         'Imt.usagepointmanagement.store.CalendarHistory',
         'Imt.usagepointhistory.store.LifeCycleAndState',
-        'Imt.usagepointhistory.store.HistoricalMeters'
+        'Imt.usagepointhistory.store.HistoricalMeters',
+        'Imt.usagepointhistory.store.MetrologyConfigurationsHistory'
     ],
     views: [
         'Imt.usagepointhistory.view.Overview',
         'Imt.usagepointhistory.view.VersionsOverview',
         'Imt.usagepointhistory.view.CalendarsVersionsOverview',
         'Imt.usagepointhistory.view.lifecycleandstate.LifeCycleAndState',
-        'Imt.usagepointhistory.view.meters.Meters'
+        'Imt.usagepointhistory.view.meters.Meters',
+        'Imt.usagepointhistory.view.metrologyconfigurations.MetrologyConfigurationVersion'
     ],
     refs: [
         {
@@ -108,6 +110,9 @@ Ext.define('Imt.usagepointhistory.controller.History', {
             case 'up-life-cycle-tab':
                 me.showLifeCycleTab();
                 break;
+            case 'metrology-configurations-tab':
+                me.showMetrologyConfiguartionsTab();
+                break;
             default:
                 me.showCustomAttributeSetTab(isInit);
                 break;
@@ -188,6 +193,22 @@ Ext.define('Imt.usagepointhistory.controller.History', {
             margin: '10 0 0 0'
         });
         lifeCycleAndStateStore.load();
+    },
+
+    showMetrologyConfiguartionsTab: function () {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            metrologyConfigurationsHistoryStore = me.getStore('Imt.usagepointhistory.store.MetrologyConfigurationsHistory');
+
+        metrologyConfigurationsHistoryStore.getProxy().setParams(me.usagePointId);
+
+        me.newCard.add({
+            xtype: 'metrology-configuration-version-overview',
+            itemId: 'metrology-configuration-version-overview',
+            margin: '10 0 0 0',
+            router: router
+        });
+        metrologyConfigurationsHistoryStore.load();
     },
 
     showCustomAttributeSetTab: function (isInit) {
