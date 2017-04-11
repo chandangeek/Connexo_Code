@@ -10,7 +10,7 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.dynamic.TimeDurationValueFactory;
+import com.elster.jupiter.properties.TimeDurationValueFactory;
 import com.energyict.mdc.protocol.api.CommonDeviceProtocolDialectProperties;
 
 /**
