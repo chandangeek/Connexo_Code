@@ -6,7 +6,7 @@ package com.energyict.mdc.channels;
 
 import com.energyict.mdc.channel.SynchroneousComChannel;
 import com.energyict.mdc.protocol.ComChannelType;
-import com.energyict.protocol.exception.ConnectionCommunicationException;
+import com.energyict.mdc.upl.io.ConnectionCommunicationException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
