@@ -57,9 +57,7 @@ import com.google.common.collect.TreeRangeSet;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.swing.text.html.Option;
 import javax.ws.rs.BeanParam;
-import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -306,7 +304,7 @@ public class UsagePointOutputResource {
     @Transactional
     @Path("/{purposeId}/outputs/{outputId}/channelData")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT, Privileges.Constants.VIEW_METROLOGY_CONFIGURATION, Privileges.Constants.ESTIMATE_WITH_RULE, Privileges.Constants.EDIT_WITH_ESTIMATOR})
+    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT, Privileges.Constants.VIEW_METROLOGY_CONFIGURATION, com.elster.jupiter.estimation.security.Privileges.Constants.ESTIMATE_WITH_RULE, com.elster.jupiter.estimation.security.Privileges.Constants.EDIT_WITH_ESTIMATOR})
     public Response editChannelDataOfOutput(@PathParam("name") String name, @PathParam("purposeId") long contractId, @PathParam("outputId") long outputId,
                                             @BeanParam JsonQueryParameters queryParameters, List<OutputChannelDataInfo> channelDataInfos) {
 
@@ -390,7 +388,7 @@ public class UsagePointOutputResource {
     @Transactional
     @Path("/{purposeId}/outputs/{outputId}/channelData/estimate")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT, Privileges.Constants.VIEW_METROLOGY_CONFIGURATION, Privileges.Constants.EDIT_WITH_ESTIMATOR})
+    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT, Privileges.Constants.VIEW_METROLOGY_CONFIGURATION, com.elster.jupiter.estimation.security.Privileges.Constants.EDIT_WITH_ESTIMATOR})
     public List<OutputChannelDataInfo> previewEstimateChannelDataOfOutput(@PathParam("name") String name, @PathParam("purposeId") long contractId, @PathParam("outputId") long outputId,
                                                                           EstimateChannelDataInfo estimateChannelDataInfo) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
@@ -409,9 +407,8 @@ public class UsagePointOutputResource {
 
     @GET
     @Path("/{purposeId}/outputs/{outputId}/channelData/estimateWithRule")
-    @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_USAGEPOINT, Privileges.Constants.ESTIMATE_WITH_RULE})
+    @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_USAGEPOINT, com.elster.jupiter.estimation.security.Privileges.Constants.ESTIMATE_WITH_RULE})
     public PagedInfoList getEstimationRulesForChannel(@PathParam("name") String name, @PathParam("purposeId") long contractId, @PathParam("outputId") long outputId, @BeanParam JsonQueryParameters queryParameters) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
@@ -431,15 +428,15 @@ public class UsagePointOutputResource {
     }
 
     private List<EstimationRuleInfo> getMatchingEstimationRules(List<ReadingType> readingTypesFromContract, MetrologyContract metrologyContract) {
-        return estimationService.getEstimationRuleSets()
+        return usagePointConfigurationService.getEstimationRuleSets(metrologyContract)
                 .stream()
-                .filter(ruleSet -> usagePointConfigurationService.getEstimationRuleSets(metrologyContract).contains(ruleSet))
                 .flatMap(ruleSet -> ruleSet.getRules().stream())
                 .filter(estimationRule -> estimationRule.getRuleSet().getQualityCodeSystem().equals(QualityCodeSystem.MDM))
                 .filter(estimationRule -> estimationRule.getReadingTypes()
                         .stream()
                         .filter(readingTypesFromContract::contains)
-                        .findFirst().isPresent())
+                        .findAny()
+                        .isPresent())
                 .map(estimationRuleInfoFactory::createEstimationRuleInfo)
                 .collect(Collectors.toList());
     }
