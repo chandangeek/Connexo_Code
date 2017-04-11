@@ -31,6 +31,9 @@ public final class FrameCounterProvider extends AbstractCosemObject {
     /** Indicates whether or not to skip the validation. */
     private boolean skipValidation;
 
+    /** Indicates whether or not to skip the validation. */
+    private boolean skipValidation;
+
     /**
      * Creates a new instance of AbstractCosemObject
      *

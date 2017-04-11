@@ -32,6 +32,10 @@ public class IEC1107SecuritySupport extends AbstractSecuritySupport implements L
         super(propertySpecService);
     }
 
+    protected String getLegacySecurityLevelDefault() {
+        return "1";
+    }
+
     @Override
     public List<String> getLegacySecurityProperties() {
         return Collections.singletonList(SECURITY_LEVEL_PROPERTY_NAME);

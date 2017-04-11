@@ -17,10 +17,15 @@ import java.util.List;
 public class AM540LogBookFactory extends AM130LogBookFactory {
 
     private static ObisCode SECURITY_LOG = ObisCode.fromString("0.0.99.98.9.255");
+    private static ObisCode ALTERNATE_PANID_LOG = ObisCode.fromString("0.0.94.33.9.255");
+
 
     public AM540LogBookFactory(AM130 protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         super(protocol, collectedDataFactory, issueFactory);
         supportedLogBooks.add(SECURITY_LOG);
+        supportedLogBooks.add(ALTERNATE_PANID_LOG);
+
+        supportedLogBooks.add(Beacon3100LogBookFactory.PROTOCOL_LOGBOOK); // this is an virtual logbook, populated while reading the beacon
     }
 
     protected List<MeterProtocolEvent> parseEvents(DataContainer dataContainer, ObisCode logBookObisCode) {

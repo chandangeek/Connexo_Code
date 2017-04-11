@@ -180,6 +180,9 @@ public class AlphaPlus extends AbstractProtocol implements Alpha, SerialNumberSu
         return "Elster Alpha Plus";
     }
 
+    /**
+     * The protocol version
+     */
     @Override
     public String getProtocolVersion() {
         return "$Date: 2017-02-13 16:43:02 +0100 (Mon, 13 Feb 2017)$";

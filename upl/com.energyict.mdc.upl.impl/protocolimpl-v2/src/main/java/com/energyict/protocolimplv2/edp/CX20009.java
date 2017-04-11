@@ -50,7 +50,10 @@ import com.energyict.protocolimplv2.edp.messages.EDPMessaging;
 import com.energyict.protocolimplv2.edp.registers.RegisterReader;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.nta.dsmr23.profiles.LoadProfileBuilder;
+import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.Dsmr50Properties;
+import com.energyict.smartmeterprotocolimpl.nta.dsmr40.Dsmr40Properties;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;

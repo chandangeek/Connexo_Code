@@ -7,6 +7,8 @@ import com.energyict.mdc.upl.properties.HexString;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
+
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.temporal.TemporalAmount;
@@ -19,6 +21,23 @@ import java.time.temporal.TemporalAmount;
  */
 @XmlRootElement
 public class Beacon3100ProtocolTypedProperty {
+	
+	/**
+	 * Parses the given protocol property from the given {@link Structure}.
+	 * 
+	 * @param 		structure	The {@link Structure} received from the device.
+	 * 
+	 * @return		The {@link Structure} parsed into a {@link Beacon3100ProtocolTypedProperty}.
+	 * 
+	 * @throws 		IOException		If an IO error occurs.
+	 */
+	public static final Beacon3100ProtocolTypedProperty fromStructure(final Structure structure) throws IOException {
+		final String name = structure.getDataType(0, OctetString.class).stringValue();
+		final String value = structure.getDataType(1, OctetString.class).stringValue();
+		final PropertyType type = PropertyType.forType(structure.getDataType(2, TypeEnum.class).getValue());
+		
+		return new Beacon3100ProtocolTypedProperty(name, value, type);
+	}
 
     private String name;
     private String value;
@@ -29,6 +48,19 @@ public class Beacon3100ProtocolTypedProperty {
 
     }
 
+    /**
+     * Create a new instance.
+     * 
+     * @param 	name		The name of the property.	
+     * @param 	value		The value of the property.
+     * @param 	type		The type of the property.
+     */
+    public Beacon3100ProtocolTypedProperty(final String name, final String value, final PropertyType type) {
+    	this.name = name;
+    	this.value = value;
+    	this.type = type;
+    }
+    
     public Beacon3100ProtocolTypedProperty(String name, Object value) {
         this.name = name;
 
@@ -87,6 +119,23 @@ public class Beacon3100ProtocolTypedProperty {
         TimeDuration(2),
         Boolean(3);
 
+    	/**
+    	 * Returns the {@link PropertyType} that matches the given type ID.
+    	 * 
+    	 * @param 		type		The ID of the type.
+    	 * 
+    	 * @return		The matching {@link PropertyType}.
+    	 */
+    	public static final PropertyType forType(final int type) {
+    		for (final PropertyType propertyType : PropertyType.values()) {
+    			if (propertyType.type == type) {
+    				return propertyType;
+    			}
+    		}
+    		
+    		return null;
+    	}
+    	
         private final int type;
 
         PropertyType(int type) {

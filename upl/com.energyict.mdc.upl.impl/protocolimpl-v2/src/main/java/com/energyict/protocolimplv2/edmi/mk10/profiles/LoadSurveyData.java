@@ -179,7 +179,7 @@ public class LoadSurveyData {
                 channelValue = rtp.parse2Internal('C', getData(intervalIndex, channel));
             } else {
                 channelValue = rtp.parse2Internal(loadSurveyChannel.isInstantaneousChannel() ? 'I' : 'H', getData(intervalIndex, channel));
-                if (!loadSurveyChannel.isInstantaneousChannel() && decimalPointPositionScaling != 1) {  //TODO: check behaviour in case decimal point position is set to 1
+                if (!loadSurveyChannel.isInstantaneousChannel()) {  // EDMI confirmed decimals only apply to energy values, not instantaneous values
                     channelValue = new RegisterTypeFloat(channelValue.getBigDecimal().movePointLeft(decimalPointPositionScaling).floatValue());
                 }
             }

@@ -8,7 +8,7 @@ import com.energyict.mdc.upl.properties.PropertySpecService;
  * @author khe
  * @since 30/07/2015 - 11:39
  */
-public class DLMSLNSL7000SecuritySupport extends DlmsSecuritySupport {
+public class DlmsSecuritySupportLevelOne extends DlmsSecuritySupport {
 
     public DLMSLNSL7000SecuritySupport(PropertySpecService propertySpecService) {
         super(propertySpecService);

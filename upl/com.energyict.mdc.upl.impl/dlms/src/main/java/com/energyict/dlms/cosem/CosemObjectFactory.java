@@ -256,6 +256,10 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
         return new BeaconEventPushNotificationConfig(protocolLink, getObjectReference(BeaconEventPushNotificationConfig.getDefaultObisCode()));
     }
 
+    public Beacon3100PushSetup getBeacon3100PushSetup() throws NotInObjectListException {
+        return new Beacon3100PushSetup(protocolLink, getObjectReference(Beacon3100PushSetup.getDefaultObisCode()));
+    }
+
     public EventPushNotificationConfig getEventPushNotificationConfig(ObisCode obisCode) throws NotInObjectListException {
         return new EventPushNotificationConfig(protocolLink, getObjectReference(obisCode));
     }
@@ -264,14 +268,14 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
     public WebPortalConfig getWebPortalConfig() throws NotInObjectListException {
         return new WebPortalConfig(protocolLink, getObjectReference(WebPortalConfig.getDefaultObisCode()));
     }
-    
+
     /**
      * Returns an instance of the {@link WebPortalSetupV1} class (Beacon3100).
-     * 
+     *
      * @param 		obis		Logical name of the instance.
-     * 
+     *
      * @return		An instance of the {@link WebPortalSetupV1}.
-     * 
+     *
      * @throws 		NotInObjectListException		If the instance is not defined.
      */
     public final WebPortalSetupV1 getWebPortalSetupV1(final ObisCode obis) throws NotInObjectListException {
@@ -782,9 +786,9 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
 
     /**
      * Returns the Beacon 3100 ConcentratorSetupIC object using the given logical name.
-     * 
+     *
      * @param	logicalName		The logical name of the {@link ConcentratorSetup} object.
-     * 
+     *
      * @return	The {@link ConcentratorSetup} object.
      */
     public final ConcentratorSetup getConcentratorSetup(final ObisCode logicalName) throws NotInObjectListException {
@@ -805,6 +809,10 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
 
     public final DLMSGatewaySetup getDLMSGatewaySetup() {
         return new DLMSGatewaySetup(this.protocolLink, DLMSGatewaySetup.DEFAULT_OBIS_CODE);
+    }
+
+    public final DLMSGatewaySetup getDLMSGatewaySetup(ObisCode obisCode) throws NotInObjectListException {
+        return new DLMSGatewaySetup(this.protocolLink, this.getObjectReference(obisCode));
     }
 
     public final DataProtection getDataProtectionSetup() throws NotInObjectListException {

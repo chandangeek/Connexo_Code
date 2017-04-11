@@ -27,10 +27,13 @@ import com.energyict.protocolimplv2.dlms.idis.am540.AM540;
 import com.energyict.protocolimplv2.dlms.idis.am540.properties.AM540Properties;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * RegisterFactory created for the AM540 protocol <br/>
@@ -44,6 +47,17 @@ public class AM540RegisterFactory extends AM130RegisterFactory {
 
     private static final ObisCode MULTICAST_FIRMWARE_UPGRADE_OBISCODE = ObisCode.fromString("0.0.44.0.128.255");
     private static final ObisCode MULTICAST_METER_PROGRESS = ProtocolTools.setObisCodeField(MULTICAST_FIRMWARE_UPGRADE_OBISCODE, 1, (byte) (-1 * ImageTransfer.ATTRIBUTE_UPGRADE_PROGRESS));
+
+    /** OBIS code of the image transfer instance. */
+    private static final ObisCode OBIS_IMAGE_TRANSFER = ObisCode.fromString("0.0.44.0.0.255");
+
+    /** Image block size attribute. */
+    private static final byte ATTRIBUTE_IMAGE_BLOCK_SIZE = 2;
+
+    /** Mapped register (0.2.44.0.0.255), maps to the image block size. */
+    private static final ObisCode MAPPED_IMAGE_TRANSFER_BLOCK_SIZE = ProtocolTools.setObisCodeField(OBIS_IMAGE_TRANSFER, 1, ATTRIBUTE_IMAGE_BLOCK_SIZE);
+
+    private AM540PLCRegisterMapper plcRegisterMapper;
 
     /** OBIS code of the image transfer instance. */
     private static final ObisCode OBIS_IMAGE_TRANSFER = ObisCode.fromString("0.0.44.0.0.255");
@@ -163,6 +177,20 @@ public class AM540RegisterFactory extends AM130RegisterFactory {
         return invalidRegisters;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    protected final List<CollectedRegister> createCollectedRegisterListFromComposedCosemObject(List<OfflineRegister> registers, Map<ObisCode, ComposedObject> composedObjectMap, ComposedCosemObject composedCosemObject) {
+        final List<CollectedRegister> collectedRegisters = super.createCollectedRegisterListFromComposedCosemObject(registers, composedObjectMap, composedCosemObject);
+
+        if (!this.mapBillingRegistersFromBillingProfile()) {
+        	// If we don't map from a profile, but read directly, from a DC, we'll need to perform a couple of fixups.
+        	fixupBillingRegisterTimestamps(collectedRegisters);
+        }
+
+        return collectedRegisters;
+    }
+
     @Override
     protected CollectedRegister createCollectedRegisterFor(OfflineRegister offlineRegister, Map<ObisCode, ComposedObject> composedObjectMap, ComposedCosemObject composedCosemObject) {
         ComposedObject composedObject = composedObjectMap.get(offlineRegister.getObisCode());
@@ -211,6 +239,73 @@ public class AM540RegisterFactory extends AM130RegisterFactory {
         return plcRegisterMapper;
     }
 
+    /**
+     * Fixes up the billing register time stamps.
+     */
+    private static final void fixupBillingRegisterTimestamps(final List<CollectedRegister> registers) {
+    	final Set<CollectedRegister> pRegisters = new HashSet<>();
+    	final Set<CollectedRegister> aRegisters = new HashSet<>();
+
+    	for (int index = 0; index < 15; index++) {
+	    	for (final CollectedRegister register : registers) {
+	    		if (isPBillingRegister(register.getRegisterIdentifier().getRegisterObisCode(), index)) {
+	    			pRegisters.add(register);
+	    		} else if (isABillingRegister(register.getRegisterIdentifier().getRegisterObisCode(), index)) {
+	    			aRegisters.add(register);
+	    		}
+	    	}
+
+	    	if (aRegisters.size() > 0) {
+	    		final Date toTime = aRegisters.iterator().next().getReadTime();
+	    		final Date readTime = new Date();
+
+				for (final CollectedRegister pRegister : pRegisters) {
+					pRegister.setCollectedTimeStamps(readTime, null, toTime, pRegister.getReadTime());
+				}
+
+				for (final CollectedRegister aRegister : aRegisters) {
+					aRegister.setCollectedTimeStamps(readTime, null, toTime);
+				}
+	    	}
+
+			pRegisters.clear();
+			aRegisters.clear();
+    	}
+    }
+
+    /**
+     * Indicates whether or not this concerns a P+- billing register.
+     *
+     * @param 		logicalName		The logical name.
+     * @param		index			The index.
+     *
+     * @return		<code>true</code> if this is a P+ or P- register, <code>false</code> if not.
+     */
+    private static final boolean isPBillingRegister(final ObisCode logicalName, final int index) {
+    	return logicalName.getA() == 1 &&
+    		   logicalName.getB() == 0 &&
+    		   (logicalName.getC() == 1 || logicalName.getC() == 2) &&
+    		   logicalName.getD() == 6 &&
+    		   logicalName.getE() == 0 &&
+    		   logicalName.getF() == index;
+    }
+
+    /**
+     * Indicates whether or not this concerns a A+- billing register.
+     *
+     * @param 		logicalName		The logical name.
+     * @param		index			The index.
+     *
+     * @return		<code>true</code> if this is a A+ or A- register, <code>false</code> if not.
+     */
+    private static final boolean isABillingRegister(final ObisCode logicalName, final int index) {
+    	return logicalName.getA() == 1 &&
+     		   logicalName.getB() == 0 &&
+     		   (logicalName.getC() == 1 || logicalName.getC() == 2) &&
+     		   logicalName.getD() == 8 &&
+     		   logicalName.getE() == 0 &&
+     		   logicalName.getF() == index;
+    }
 
     /**
      * Indicates whether or not we are mapping billing registers from a billing profile.

@@ -31,6 +31,8 @@ public class EK280MessageConverterTest extends AbstractV2MessageConverterTest {
 
     private Date activationDate = new Date(1441101600000l);
 
+    private Date activationDate = new Date(1441101600000l);
+
     @Test
     public void testMessageConversion_ChangeCredentials() {
         OfflineDeviceMessage offlineDeviceMessage = createMessage(NetworkConnectivityMessage.CHANGE_GPRS_APN_CREDENTIALS.get(propertySpecService, this.nlsService, this.converter));

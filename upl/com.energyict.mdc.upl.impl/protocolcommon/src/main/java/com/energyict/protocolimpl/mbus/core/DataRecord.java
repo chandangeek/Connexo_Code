@@ -313,7 +313,7 @@ public class DataRecord {
 
         if (DEBUG>=1) System.out.println("KV_DEBUG> DataRecord, quantity="+quantity);
         
-        
+
     } // public DataRecord(byte[] data, int offset, TimeZone timeZone) throws IOException
 
     private Unit getUnitForVIF(String vifUnit){
@@ -329,7 +329,7 @@ public class DataRecord {
         }
         return unit;
     }
-    
+
     private int decodeVariableLength(byte[] data, int offset) throws IOException {
         int length = ProtocolUtils.getInt(data,offset++,1);
         if ((length>=0x00) && (length<=0xBF)) {

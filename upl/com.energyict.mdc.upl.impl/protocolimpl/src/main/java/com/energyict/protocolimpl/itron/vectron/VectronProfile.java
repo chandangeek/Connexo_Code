@@ -36,7 +36,7 @@ import java.util.logging.Logger;
  * @author Koen
  */
 public class VectronProfile {
-    
+
     Vectron vectron;
     
     /** Creates a new instance of VectronProfile */
@@ -47,7 +47,7 @@ public class VectronProfile {
     public Logger getLogger(){
         return vectron.getLogger();
     }
-    
+
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
         getLogger().info("read from " + lastReading);
         
@@ -124,7 +124,7 @@ public class VectronProfile {
         Calendar now = vectron.getBasePagesFactory().getRealTimeBasePage().getCalendar();
 
         return parseMassMemoryRecords(massMemoryRecords, now, currentIntervalNr, profileInterval, nrOfChannels);
-        
+
     } // private List buildIntervalData(Date lastReading, boolean includeEvents) throws IOException
 
     // moved the parsing in a dedicated method to allow mocking

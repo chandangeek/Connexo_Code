@@ -70,7 +70,7 @@ public class DateTime extends AbstractDataType {
 	private static final int	DOUBTFUL_MASK				= 0x02;
 	private static final int	DIFFERENT_CLOCK_BASE_MASK	= 0x04;
 	private static final int	INVALID_CLOCK_MASK			= 0x08;
-
+    private static final int    DST_ACTIVE_MASK             = 0x80;
 
 	private Calendar dateTime;
     private int status;
@@ -221,6 +221,13 @@ public class DateTime extends AbstractDataType {
 	public boolean isInvalidClockStatus() {
 		return (status & INVALID_CLOCK_MASK) > 0;
 	}
+
+    public boolean isDST() {
+        if (status == 0xFF)
+            return false; // not specified;
+
+        return (status & DST_ACTIVE_MASK) > 0;
+    }
 
 	public BigDecimal toBigDecimal() {
 		return BigDecimal.valueOf(getValue().getTime().getTime());

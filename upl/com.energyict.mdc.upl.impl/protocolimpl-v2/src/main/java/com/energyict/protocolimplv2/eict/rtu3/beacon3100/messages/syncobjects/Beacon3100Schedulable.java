@@ -10,6 +10,9 @@ import com.energyict.obis.ObisCode;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
+
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -20,6 +23,54 @@ import java.util.List;
  */
 @XmlRootElement
 public class Beacon3100Schedulable {
+
+	/**
+	 * Parses a {@link Beacon3100Schedulable} from the given {@link Structure}.
+	 *
+	 * @param 		structure		The {@link Structure} to parse.
+	 *
+	 * @return		The parsed {@link Beacon3100Schedulable}.
+	 *
+	 * @throws 		IOException		If an IO error occurs.
+	 */
+	public static final Beacon3100Schedulable fromStructure(final Structure structure) throws IOException {
+		final long scheduleId = structure.getDataType(0, Unsigned32.class).longValue();
+		final int logicalDeviceId = structure.getDataType(1, Unsigned16.class).intValue();
+		final int clientTypeId = structure.getDataType(2, Unsigned32.class).intValue();
+		final List<SchedulableItem> profiles = toSchedulableItems(structure.getDataType(3, Array.class));
+		final List<SchedulableItem> registers = toSchedulableItems(structure.getDataType(4,  Array.class));
+		final List<SchedulableItem> eventLogs = toSchedulableItems(structure.getDataType(5, Array.class));
+
+		return new Beacon3100Schedulable(null, scheduleId, logicalDeviceId, clientTypeId, profiles, registers, eventLogs);
+	}
+
+	/**
+	 * Converts the given {@link Array} into a {@link List} of {@link SchedulableItem}s.
+	 *
+	 * @param 		items		The {@link Array} to convert.
+	 *
+	 * @return		The {@link List} of {@link SchedulableItem}s.
+	 *
+	 * @throws 		IOException		If an error occurs while parsing the data.
+	 */
+	private static final List<SchedulableItem> toSchedulableItems(final Array items) throws IOException {
+		final List<SchedulableItem> schedulableItems = new ArrayList<>();
+
+		for (final AbstractDataType dataType : items) {
+			if (dataType.isOctetString()) {
+				final ObisCode logicalName = ObisCode.fromByteArray(dataType.getOctetString().getContentByteArray());
+
+				schedulableItems.add(new SchedulableItem(logicalName, new Unsigned16(1)));
+			} else if (dataType.isStructure()) {
+				final Structure structure = dataType.getStructure();
+
+				schedulableItems.add(SchedulableItem.fromStructure(structure));
+			}
+		}
+
+		return schedulableItems;
+	}
+
 
     private long scheduleId;
     private int logicalDeviceId;

@@ -361,8 +361,8 @@ public class SecurityContext {
      * - ciphered APDU
      *
      * @param plainText - the text to encrypt
-     * @return the cipherText
-     */
+    * @return the cipherText
+    */
     public byte[] dataTransportGeneralGloOrDedEncryption(byte[] plainText) throws IOException {
         ByteArrayOutputStream securedRequestStream = new ByteArrayOutputStream();
         securedRequestStream.write(getSystemTitle().length);
@@ -449,107 +449,107 @@ public class SecurityContext {
      */
     public byte[] dataTransportGeneralEncryption(byte[] plainText) throws IOException {
 
-        //Reset it, so our next request will have a newly generated transactionId.
-        //It is used in the header of the general-ciphering APDU and the calculation of the authentication tag.
-        resetTransactionId();
+            //Reset it, so our next request will have a newly generated transactionId.
+            //It is used in the header of the general-ciphering APDU and the calculation of the authentication tag.
+            resetTransactionId();
 
-        switch (this.generalCipheringKeyType) {
-            case IDENTIFIED_KEY: {
-                return ProtocolTools.concatByteArrays(
-                        createGeneralCipheringHeader(),
-                        new byte[]{(byte) 0x01},    //Yes, key info is present
-                        new byte[]{(byte) generalCipheringKeyType.getId()}, //key-id
-                        new byte[]{(byte) GeneralCipheringKeyType.IdentifiedKeyTypes.GLOBAL_UNICAST_ENCRYPTION_KEY.getId()},
-                        dataTransportEncryption(plainText)
-                );
-            }
+            switch (this.generalCipheringKeyType) {
+                case IDENTIFIED_KEY: {
+                    return ProtocolTools.concatByteArrays(
+                            createGeneralCipheringHeader(),
+                            new byte[]{(byte) 0x01},    //Yes, key info is present
+                            new byte[]{(byte) generalCipheringKeyType.getId()}, //key-id
+                            new byte[]{(byte) GeneralCipheringKeyType.IdentifiedKeyTypes.GLOBAL_UNICAST_ENCRYPTION_KEY.getId()},
+                            dataTransportEncryption(plainText)
+                    );
+                }
 
             case WRAPPED_KEY: {
                 if (includeGeneralCipheringKeyInformation) {
 
                     byte[] wrappedKey = getWrappedKey(true);
 
-                    //Only include the wrapped key information the first request
-                    includeGeneralCipheringKeyInformation = false;
+                        //Only include the wrapped key information the first request
+                        includeGeneralCipheringKeyInformation = false;
 
-                    return ProtocolTools.concatByteArrays(
-                            createGeneralCipheringHeader(),
-                            new byte[]{(byte) 0x01},    //Yes, key info is present
-                            new byte[]{(byte) generalCipheringKeyType.getId()}, //key-id
-                            new byte[]{(byte) GeneralCipheringKeyType.WrappedKeyTypes.MASTER_KEY.getId()},
-                            new byte[]{(byte) wrappedKey.length},
-                            wrappedKey,
-                            dataTransportEncryption(plainText)
-                    );
-                } else {
-                    //Do not include the wrapped key information any more for the next requests
-                    return ProtocolTools.concatByteArrays(
-                            createGeneralCipheringHeader(),
-                            new byte[]{(byte) 0x00},    //Key info is not present
-                            dataTransportEncryption(plainText)
-                    );
-                }
-            }
-
-            case AGREED_KEY: {
-                if (includeGeneralCipheringKeyInformation) {
-
-                    //One-Pass Diffie-Hellman C(1e, 1s, ECC CDH):
-                    //We are party U (sender), the meter is party V (receiver).
-                    //This means we generate an ephemeral keypair and use its private key combined with
-                    //the public static key agreement key of the server to derive a shared secret.
-                    //The server side will do the same, using its static key agreement private key and our ephemeral public key.
-
-                    KeyAgreement keyAgreement = new KeyAgreementImpl(getECCCurve());
-                    Certificate serverKeyAgreementCertificate = getGeneralCipheringSecurityProvider().getServerKeyAgreementCertificate();
-                    if (serverKeyAgreementCertificate == null) {
-                        throw DeviceConfigurationException.missingProperty(SecurityPropertySpecName.SERVER_KEY_AGREEMENT_CERTIFICATE.toString());
+                        return ProtocolTools.concatByteArrays(
+                                createGeneralCipheringHeader(),
+                                new byte[]{(byte) 0x01},    //Yes, key info is present
+                                new byte[]{(byte) generalCipheringKeyType.getId()}, //key-id
+                                new byte[]{(byte) GeneralCipheringKeyType.WrappedKeyTypes.MASTER_KEY.getId()},
+                                new byte[]{(byte) wrappedKey.length},
+                                wrappedKey,
+                                dataTransportEncryption(plainText)
+                        );
+                    } else {
+                        //Do not include the wrapped key information any more for the next requests
+                        return ProtocolTools.concatByteArrays(
+                                createGeneralCipheringHeader(),
+                                new byte[]{(byte) 0x00},    //Key info is not present
+                                dataTransportEncryption(plainText)
+                        );
                     }
-
-                    byte[] sharedSecretZ = keyAgreement.generateSecret(serverKeyAgreementCertificate.getPublicKey());
-                    byte[] partyUInfo = getSystemTitle();           //Party U is the sender, us, the client
-                    byte[] partyVInfo = getResponseSystemTitle();   //Party V is the receiver, the server, the meter
-                    byte[] sessionKey = NIST_SP_800_56_KDF.getInstance().derive(getKeyDerivingHashFunction(), sharedSecretZ, getKeyDerivingEncryptionAlgorithm(), partyUInfo, partyVInfo);
-                    getGeneralCipheringSecurityProvider().setSessionKey(sessionKey);
-
-                    PublicKey ephemeralPublicKey = keyAgreement.getEphemeralPublicKey();
-                    byte[] ephemeralPublicKeyBytes = KeyUtils.toRawData(getECCCurve(), ephemeralPublicKey);
-
-                    ECDSASignatureImpl ecdsaSignature = new ECDSASignatureImpl(getECCCurve());
-                    PrivateKey clientPrivateSigningKey = getGeneralCipheringSecurityProvider().getClientPrivateSigningKey();
-
-                    byte[] signature = ecdsaSignature.sign(ephemeralPublicKeyBytes, clientPrivateSigningKey);
-
-                    //This is a newly generated session key, so reset our frame counter
-                    setFrameCounter(1);
-
-                    //Only include the key information the first request
-                    includeGeneralCipheringKeyInformation = false;
-
-                    return ProtocolTools.concatByteArrays(
-                            createGeneralCipheringHeader(),
-                            new byte[]{(byte) 0x01},    //Yes, key info is present
-                            new byte[]{(byte) generalCipheringKeyType.getId()}, //key-id
-                            new byte[]{(byte) 0x01},    //Length of the AgreedKeyTypes byte is 1
-                            new byte[]{(byte) GeneralCipheringKeyType.AgreedKeyTypes.ECC_CDH_1E1S.getId()},
-                            DLMSUtils.getAXDRLengthEncoding(ephemeralPublicKeyBytes.length + signature.length),
-                            ephemeralPublicKeyBytes,
-                            signature,
-                            dataTransportEncryption(plainText)
-                    );
-                } else {
-                    //Do not include the key information any more for the next requests
-                    return ProtocolTools.concatByteArrays(
-                            createGeneralCipheringHeader(),
-                            new byte[]{(byte) 0x00},    //Key info is not present
-                            dataTransportEncryption(plainText)
-                    );
                 }
-            }
 
-            default:
-                throw DeviceConfigurationException.missingProperty(DlmsSessionProperties.GENERAL_CIPHERING_KEY_TYPE);
-        }
+                case AGREED_KEY: {
+                    if (includeGeneralCipheringKeyInformation) {
+
+                        //One-Pass Diffie-Hellman C(1e, 1s, ECC CDH):
+                        //We are party U (sender), the meter is party V (receiver).
+                        //This means we generate an ephemeral keypair and use its private key combined with
+                        //the public static key agreement key of the server to derive a shared secret.
+                        //The server side will do the same, using its static key agreement private key and our ephemeral public key.
+
+                        KeyAgreement keyAgreement = new KeyAgreementImpl(getECCCurve());
+                        Certificate serverKeyAgreementCertificate = getGeneralCipheringSecurityProvider().getServerKeyAgreementCertificate();
+                        if (serverKeyAgreementCertificate == null) {
+                            throw DeviceConfigurationException.missingProperty(SecurityPropertySpecName.SERVER_KEY_AGREEMENT_CERTIFICATE.toString());
+                        }
+
+                        byte[] sharedSecretZ = keyAgreement.generateSecret(serverKeyAgreementCertificate.getPublicKey());
+                        byte[] partyUInfo = getSystemTitle();           //Party U is the sender, us, the client
+                        byte[] partyVInfo = getResponseSystemTitle();   //Party V is the receiver, the server, the meter
+                        byte[] sessionKey = NIST_SP_800_56_KDF.getInstance().derive(getKeyDerivingHashFunction(), sharedSecretZ, getKeyDerivingEncryptionAlgorithm(), partyUInfo, partyVInfo);
+                        getGeneralCipheringSecurityProvider().setSessionKey(sessionKey);
+
+                        PublicKey ephemeralPublicKey = keyAgreement.getEphemeralPublicKey();
+                        byte[] ephemeralPublicKeyBytes = KeyUtils.toRawData(getECCCurve(), ephemeralPublicKey);
+
+                        ECDSASignatureImpl ecdsaSignature = new ECDSASignatureImpl(getECCCurve());
+                        PrivateKey clientPrivateSigningKey = getGeneralCipheringSecurityProvider().getClientPrivateSigningKey();
+
+                        byte[] signature = ecdsaSignature.sign(ephemeralPublicKeyBytes, clientPrivateSigningKey);
+
+                        //This is a newly generated session key, so reset our frame counter
+                        setFrameCounter(1);
+
+                        //Only include the key information the first request
+                        includeGeneralCipheringKeyInformation = false;
+
+                        return ProtocolTools.concatByteArrays(
+                                createGeneralCipheringHeader(),
+                                new byte[]{(byte) 0x01},    //Yes, key info is present
+                                new byte[]{(byte) generalCipheringKeyType.getId()}, //key-id
+                                new byte[]{(byte) 0x01},    //Length of the AgreedKeyTypes byte is 1
+                                new byte[]{(byte) GeneralCipheringKeyType.AgreedKeyTypes.ECC_CDH_1E1S.getId()},
+                                DLMSUtils.getAXDRLengthEncoding(ephemeralPublicKeyBytes.length + signature.length),
+                                ephemeralPublicKeyBytes,
+                                signature,
+                                dataTransportEncryption(plainText)
+                        );
+                    } else {
+                        //Do not include the key information any more for the next requests
+                        return ProtocolTools.concatByteArrays(
+                                createGeneralCipheringHeader(),
+                                new byte[]{(byte) 0x00},    //Key info is not present
+                                dataTransportEncryption(plainText)
+                        );
+                    }
+                }
+
+                default:
+                    throw DeviceConfigurationException.missingProperty(DlmsSessionProperties.GENERAL_CIPHERING_KEY_TYPE);
+            }
     }
 
     public byte[] getWrappedKey(boolean resetFC) {

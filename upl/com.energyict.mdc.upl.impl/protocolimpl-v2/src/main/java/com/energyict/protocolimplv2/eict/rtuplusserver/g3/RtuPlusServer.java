@@ -362,6 +362,58 @@ public class RtuPlusServer implements DeviceProtocol, SerialNumberSupport, Proto
     }
 
     /**
+     * Issue EISERVERSG-4655 - when a G3 Gateway is restarted, all slave devices will have the SAME lastSeenDate.
+     * This method will clear the lastSeenDate in this case.
+     *
+     * @param deviceTopology
+     */
+    protected CollectedTopology cleanupDuplicatesLastSeenDate(CollectedTopology deviceTopology) {
+        getLogger().finest("Cleaning up lastSeenDate with the same value, due to a gateway reset");
+        Map<Long, Integer> counters = new HashMap<>();
+
+        Iterator<DeviceIdentifier> iterator = deviceTopology.getSlaveDeviceIdentifiers().keySet().iterator();
+        while(iterator.hasNext()){
+            DeviceIdentifier deviceIdentifier = iterator.next();
+            Long currentValue = deviceTopology.getSlaveDeviceIdentifiers().get(deviceIdentifier).toLong();
+
+            getLogger().finest(" - "+deviceIdentifier.toString()+" : "+getDateString(currentValue));
+
+            if (counters.containsKey(currentValue)){
+                counters.put(currentValue, counters.get(currentValue) + 1);
+            } else {
+                counters.put(currentValue, 1);
+            }
+        }
+
+        getLogger().finest("Checking lastSeenDate duplicates:");
+
+        iterator = deviceTopology.getSlaveDeviceIdentifiers().keySet().iterator();
+        while(iterator.hasNext()){
+            DeviceIdentifier deviceIdentifier = iterator.next();
+            Long currentValue = deviceTopology.getSlaveDeviceIdentifiers().get(deviceIdentifier).toLong();
+
+            Integer count = counters.get(currentValue);
+            if (count > 1) {
+                getLogger().finest(" - setting LSD from " + deviceIdentifier.toString() + ", to 01/01/2000 because the LSD appears "+count+ " times. (" + getDateString(currentValue)+")");
+                //iterator.remove(); // -> this will remove this device from gateway, we don't want this
+                // instead put an old date, to keep it attached to current gateway, or move it to a different gateway with a newer LSD
+                LastSeenDateInfo oldLastSeenDate = new LastSeenDateInfo("LastSeenDate", new Date(100,0, 1)); // 2000 Jan 01
+                deviceTopology.getSlaveDeviceIdentifiers().put(deviceIdentifier, oldLastSeenDate);
+            }
+        }
+        getLogger().finest("-done checking duplicates.");
+        return deviceTopology;
+    }
+
+    private String getDateString(Long time){
+        if (time == null){
+            return "null";
+        }
+
+        Date date = new Date(time);
+        return date.toString();
+    }
+    /**
      * This node is only considered an actual slave device if:
      * - the configuredLastSeenDate in EIServer is still empty
      * - the read out last seen date is empty (==> always update EIServer, by design)
