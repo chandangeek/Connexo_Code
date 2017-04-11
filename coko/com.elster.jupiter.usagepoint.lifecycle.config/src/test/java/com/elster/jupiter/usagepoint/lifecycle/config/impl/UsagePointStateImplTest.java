@@ -48,6 +48,10 @@ public class UsagePointStateImplTest {
         return new UsagePointStateImpl(this.thesaurus, this.eventService, this.dataModel).init(this.lifeCycle, this.fsmState, UsagePointStage.Key.OPERATIONAL);
     }
 
+    private UsagePointState getTestInstanceSuspended()  {
+        return new UsagePointStateImpl(this.thesaurus, this.eventService, this.dataModel).init(this.lifeCycle, this.fsmState, UsagePointStage.Key.SUSPENDED);
+    }
+
     @Test
     public void testIsInitialWhenDelegateIsInitial() {
         when(this.fsmState.isInitial()).thenReturn(true);
@@ -145,5 +149,10 @@ public class UsagePointStateImplTest {
     @Test
     public void testStage() {
         assertThat(getTestInstance().getStage().getKey()).isEqualTo(UsagePointStage.Key.OPERATIONAL);
+    }
+
+    @Test
+    public void testStageIsSuspended()  {
+        assertThat(getTestInstanceSuspended().getStage().getKey()).isEqualTo(UsagePointStage.Key.SUSPENDED);
     }
 }

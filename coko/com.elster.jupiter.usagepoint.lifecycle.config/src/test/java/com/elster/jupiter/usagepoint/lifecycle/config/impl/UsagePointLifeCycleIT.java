@@ -196,4 +196,16 @@ public class UsagePointLifeCycleIT extends BaseTestIT {
         // assert no exception
         assertThat(lifeCycle.getId()).isNotEqualTo(id);
     }
+
+    @Test
+    @Transactional
+    public void testInactiveStateHaveSuspendStageAfterLifeCycleCreated(){
+        UsagePointLifeCycleConfigurationService service = get(UsagePointLifeCycleConfigurationService.class);
+        UsagePointLifeCycle lifeCycle = service.newUsagePointLifeCycle("Test");
+        assertThat(
+        lifeCycle.getStates()
+                .stream()
+                .filter(usagePointState -> usagePointState.getStage().getDisplayName().equals("SUSPENDED"))
+                .map(UsagePointState::getName).findFirst().get()).isEqualTo("Inactive");
+    }
 }
