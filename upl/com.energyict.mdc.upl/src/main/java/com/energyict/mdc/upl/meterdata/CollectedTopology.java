@@ -21,12 +21,22 @@ public interface CollectedTopology extends CollectedData {
     /**
      * @return a map containing the unique device identifiers of all attached slave devices, mapped to the proper LastSeenDate info for each slave device.
      * Note that protocols don't have to provide the LastSeenDate info, it can be null.
-     * <p>
+     * <p/>
      * The ComServer framework will take the provided LastSeenDate info into account when updating the GW link of the slaves.
-     * <p>
+     * <p/>
      * If this device has no attached slaves, the return list is empty.
      */
     Map<DeviceIdentifier, ObservationTimestampProperty> getSlaveDeviceIdentifiers();
+
+    /**
+     * @return the list of slave devices which joined the network.
+     */
+    Map<DeviceIdentifier, ObservationTimestampProperty> getJoinedSlaveDeviceIdentifiers();
+
+    /**
+     * @return the list of lost device identifiers.
+     */
+    List<DeviceIdentifier> getLostSlaveDeviceIdentifiers();
 
     /**
      * Add a slave device to the topology, without any information on its "last seen date".
@@ -34,6 +44,17 @@ public interface CollectedTopology extends CollectedData {
      * @param slaveIdentifier the device identifier of the slave device
      */
     void addSlaveDevice(DeviceIdentifier slaveIdentifier);
+
+    /**
+     * Adds a joined slave device to the topology. If a list of joined devices is present, only those will be processed.
+     */
+    void addJoinedSlaveDevice(DeviceIdentifier slaveIdentifier, ObservationTimestampProperty lastSeenDateInfo);
+
+    /**
+     * Adds a lost slave device to the topology. If a list of lost devices is present, only those will be processed.
+     */
+    void addLostSlaveDevice(DeviceIdentifier slaveIdentifier);
+
 
     /**
      * Add a slave device to the topology
