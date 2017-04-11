@@ -100,6 +100,7 @@ public class InMemoryIntegrationPersistence {
         modules.add(new UsagePointLifeCycleModule());
         modules.add(new CalendarModule());
         modules.add(new TaskModule());
+        modules.add(new FiniteStateMachineModule());
         modules.add(bootstrapModule);
 
         injector = Guice.createInjector(modules.toArray(new Module[modules.size()]));
@@ -107,6 +108,7 @@ public class InMemoryIntegrationPersistence {
             injector.getInstance(ThreadPrincipalService.class);
             injector.getInstance(FiniteStateMachineService.class);
             injector.getInstance(PropertySpecService.class);
+            injector.getInstance(FiniteStateMachineService.class);
             createDefaultUsagePointLifeCycle();
             ctx.commit();
         }
