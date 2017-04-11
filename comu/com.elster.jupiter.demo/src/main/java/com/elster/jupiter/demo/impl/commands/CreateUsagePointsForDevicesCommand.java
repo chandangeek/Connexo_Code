@@ -9,11 +9,11 @@ import com.elster.jupiter.demo.impl.Builders;
 import com.elster.jupiter.demo.impl.Constants;
 import com.elster.jupiter.demo.impl.builders.UsagePointBuilder;
 import com.elster.jupiter.demo.impl.templates.DeviceConfigurationTpl;
-import com.elster.jupiter.demo.impl.templates.MetrologyConfigurationTpl;
 import com.elster.jupiter.demo.impl.templates.UserTpl;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
@@ -22,6 +22,7 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.util.units.Unit;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.lifecycle.config.DefaultState;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
@@ -29,10 +30,10 @@ import java.security.Principal;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalUnit;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -64,16 +65,39 @@ public class CreateUsagePointsForDevicesCommand {
     }
 
     public void run() {
-        getDeviceList().forEach(this::accept);
+        getDeviceList(Constants.Device.STANDARD_PREFIX).forEach(this::acceptElectricityDevice);
+        getDeviceList(Constants.Device.WATER_PREFIX).forEach(this::acceptWaterDevice);
+        getDeviceList(Constants.Device.GAS_PREFIX).forEach(this::acceptGasDevice);
     }
 
-    private List<Device> getDeviceList() {
-        return this.devices != null ? this.devices : this.deviceService.deviceQuery().select(where("name").like(Constants.Device.STANDARD_PREFIX + "*"));
+    public void run(String prefix) {
+        switch (prefix) {
+            case Constants.Device.STANDARD_PREFIX:
+                devices.stream().forEach(this::acceptElectricityDevice);
+                break;
+            case Constants.Device.WATER_PREFIX:
+                devices.stream().forEach(this::acceptWaterDevice);
+                break;
+            case Constants.Device.GAS_PREFIX:
+                devices.stream().forEach(this::acceptGasDevice);
+                break;
+        }
     }
 
-    private void accept(Device device) {
+    private List<Device> getDeviceList(String prefix) {
+        //we need 80% of active devices
+        List<Device> devices = this.deviceService.deviceQuery().select(where("name").like(prefix + "*")).stream().
+                filter(device -> device.getState().getName().equals(DefaultState.ACTIVE.getKey()))
+                .collect(Collectors.toList());
+
+        double length = (double) devices.size();
+        Collections.shuffle(devices);
+        return devices.subList(0, (int) Math.floor(length / 10 * 8));
+    }
+
+    private void acceptElectricityDevice(Device device) {
         UsagePoint usagePoint = device.getUsagePoint()
-                .orElseGet(newUsagePointSupplier(device));
+                .orElseGet(newUsagePointSupplier(device, ServiceKind.ELECTRICITY, "SUPE"));
         usagePoint.forCustomProperties().getPropertySetsOnServiceCategory().stream()
                 .filter(cps -> "com.elster.jupiter.metering.cps.impl.UsagePointGeneralDomainExtension".equals(cps.getCustomPropertySet().getId()))
                 .forEach(cps -> cps.setValues(getUsagePointGeneralDomainExtensionValues(clock.instant().plusSeconds(60))));
@@ -84,7 +108,7 @@ public class CreateUsagePointsForDevicesCommand {
         if (device.getDeviceConfiguration().getName().equals(DeviceConfigurationTpl.CONSUMERS.getName())) {
             metrologyConfiguration = (UsagePointMetrologyConfiguration) metrologyConfigurationService.findMetrologyConfiguration("Residential consumer with 1 meter").get();
         } else {
-            metrologyConfiguration =  (UsagePointMetrologyConfiguration) metrologyConfigurationService.findMetrologyConfiguration("Residential prosumer with 1 meter").get();
+            metrologyConfiguration = (UsagePointMetrologyConfiguration) metrologyConfigurationService.findMetrologyConfiguration("Residential prosumer with 1 meter").get();
         }
         metrologyConfiguration.addMeterRole(metrologyConfigurationService.findDefaultMeterRole(DefaultMeterRole.DEFAULT));
         usagePoint.apply(metrologyConfiguration, clock.instant());
@@ -92,17 +116,44 @@ public class CreateUsagePointsForDevicesCommand {
         setUsagePoint(device, usagePoint);
     }
 
-    private Supplier<UsagePoint> newUsagePointSupplier(Device device) {
+    private void acceptWaterDevice(Device device) {
+        UsagePoint usagePoint = device.getUsagePoint()
+                .orElseGet(newUsagePointSupplier(device, ServiceKind.WATER, "SUPW"));
+        usagePoint.forCustomProperties().getPropertySetsOnServiceCategory().stream()
+                .filter(cps -> "com.elster.jupiter.metering.cps.impl.UsagePointGeneralDomainExtension".equals(cps.getCustomPropertySet().getId()))
+                .forEach(cps -> cps.setValues(getUsagePointGeneralDomainExtensionValues(clock.instant().plusSeconds(60))));
+        UsagePointMetrologyConfiguration metrologyConfiguration = (UsagePointMetrologyConfiguration) metrologyConfigurationService.findMetrologyConfiguration("Residential water").get();
+        metrologyConfiguration.addMeterRole(metrologyConfigurationService.findDefaultMeterRole(DefaultMeterRole.DEFAULT));
+        usagePoint.apply(metrologyConfiguration, clock.instant());
+        usagePoint.update();
+        setUsagePoint(device, usagePoint);
+    }
+
+    private void acceptGasDevice(Device device) {
+        UsagePoint usagePoint = device.getUsagePoint()
+                .orElseGet(newUsagePointSupplier(device, ServiceKind.GAS, "SUPG"));
+        usagePoint.forCustomProperties().getPropertySetsOnServiceCategory().stream()
+                .filter(cps -> "com.elster.jupiter.metering.cps.impl.UsagePointGeneralDomainExtension".equals(cps.getCustomPropertySet().getId()))
+                .forEach(cps -> cps.setValues(getUsagePointGeneralDomainExtensionValues(clock.instant().plusSeconds(60))));
+        UsagePointMetrologyConfiguration metrologyConfiguration = (UsagePointMetrologyConfiguration) metrologyConfigurationService.findMetrologyConfiguration("Residential gas").get();
+        metrologyConfiguration.addMeterRole(metrologyConfigurationService.findDefaultMeterRole(DefaultMeterRole.DEFAULT));
+        usagePoint.apply(metrologyConfiguration, clock.instant());
+        usagePoint.update();
+        setUsagePoint(device, usagePoint);
+    }
+
+    private Supplier<UsagePoint> newUsagePointSupplier(Device device, ServiceKind serviceKind, String prefix) {
         return () -> {
             Principal currentPrincipal = threadPrincipalService.getPrincipal();
             // need 'real' user to create usage point,
             // so that initial UsagePointState change request will be created with this user
             threadPrincipalService.set(Builders.from(UserTpl.MELISSA).get());
             UsagePoint usagePoint = Builders.from(UsagePointBuilder.class)
-                    .withName(newName(device.getSerialNumber()))
+                    .withName(prefix + device.getSerialNumber())
                     .withInstallationTime(clock.instant())
                     .withLocation(device.getLocation().orElse(null))
                     .withGeoCoordinates(device.getSpatialCoordinates().orElse(null))
+                    .withServiceKind(serviceKind)
                     .get();
             threadPrincipalService.set(currentPrincipal);
             return usagePoint;
@@ -121,10 +172,6 @@ public class CreateUsagePointsForDevicesCommand {
         CustomPropertySetValues values = CustomPropertySetValues.empty();
         values.setProperty("substationDistance", Unit.METER.amount(BigDecimal.ZERO));
         return values;
-    }
-
-    private String newName(String serialNumber) {
-        return "UP_" + serialNumber;
     }
 
     private void setUsagePoint(Device device, UsagePoint usagePoint) {

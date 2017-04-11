@@ -289,12 +289,12 @@ public class CreateCollectRemoteDataSetupCommand extends CommandWithTransaction 
             if (deviceTypeTpl == DeviceTypeTpl.Elster_AS1440 || deviceTypeTpl == DeviceTypeTpl.Elster_A1800) {
                 DeviceType deviceType = Builders.from(DeviceTypeTpl.BK_GF).get();
                 if (deviceType.getConfigurations().isEmpty()) {
-                    Builders.from(DeviceConfigurationTpl.DEFAULT_GAS).withDeviceType(deviceType).get().activate();
+                    Builders.from(DeviceConfigurationTpl.DEFAULT_GAS).withDeviceType(deviceType).withPostBuilder(new ChannelsOnDevConfPostBuilder()).get().activate();
                 }
                 createGasDevice(Builders.from(DeviceConfigurationTpl.DEFAULT_GAS).withDeviceType(deviceType).get(), serialNumber, DeviceTypeTpl.BK_GF, devicename);
                 deviceType = Builders.from(DeviceTypeTpl.V200PR_6).get();
                 if (deviceType.getConfigurations().isEmpty()) {
-                    Builders.from(DeviceConfigurationTpl.DEFAULT_WATER).withDeviceType(deviceType).get().activate();
+                    Builders.from(DeviceConfigurationTpl.DEFAULT_WATER).withDeviceType(deviceType).withPostBuilder(new ChannelsOnDevConfPostBuilder()).get().activate();
                 }
                 createWaterDevice(Builders.from(DeviceConfigurationTpl.DEFAULT_GAS).withDeviceType(deviceType).get(), serialNumber, DeviceTypeTpl.V200PR_6, devicename);
             }
@@ -325,7 +325,6 @@ public class CreateCollectRemoteDataSetupCommand extends CommandWithTransaction 
         createDeviceCommand.setSerialNumber(serialNumber);
         createDeviceCommand.setHost(this.host);
         createDeviceCommand.withLocation();
-        //createDeviceCommand.withUsagePoint();
         return createDeviceCommand.run();
     }
 
@@ -374,7 +373,7 @@ public class CreateCollectRemoteDataSetupCommand extends CommandWithTransaction 
     private void addLocationAndUsagePoints() {
         List<Device> devices = this.deviceService.deviceQuery().select(where("name").like(Constants.Device.STANDARD_PREFIX + "*"));
         this.addLocationInfoToDevicesCommandProvider.get().setDevices(devices).run();
-        this.createUsagePointsForDevicesCommandProvider.get().setDevices(devices).run();
+        this.createUsagePointsForDevicesCommandProvider.get().run();
     }
 
     private void corruptDeviceSettingsForIssueManagement() {

@@ -167,7 +167,7 @@ public class CreateSPEDeviceCommand {
         if (this.withUsagePoint) {
             CreateUsagePointsForDevicesCommand createUsagePointsForDevicesCommand = this.createUsagePointsForDevicesCommandProvider.get();
             createUsagePointsForDevicesCommand.setDevices(Collections.singletonList(device));
-            createUsagePointsForDevicesCommand.run();
+            createUsagePointsForDevicesCommand.run(Constants.Device.STANDARD_PREFIX);
         }
         return name;
     }

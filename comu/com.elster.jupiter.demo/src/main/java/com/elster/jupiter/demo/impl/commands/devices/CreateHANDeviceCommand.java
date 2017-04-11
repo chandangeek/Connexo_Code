@@ -11,6 +11,7 @@ import com.elster.jupiter.demo.impl.builders.DeviceBuilder;
 import com.elster.jupiter.demo.impl.builders.device.SecurityPropertiesDevicePostBuilder;
 import com.elster.jupiter.demo.impl.commands.ActivateDevicesCommand;
 import com.elster.jupiter.demo.impl.commands.AddLocationInfoToDevicesCommand;
+import com.elster.jupiter.demo.impl.commands.CreateUsagePointsForDevicesCommand;
 import com.elster.jupiter.demo.impl.templates.ComScheduleTpl;
 import com.elster.jupiter.demo.impl.templates.DeviceTypeTpl;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -38,7 +39,7 @@ public class CreateHANDeviceCommand {
     private DeviceTypeTpl deviceTypeTpl;
     private DeviceConfiguration deviceConfiguration;
     private String serialNumber;
-    private String prefix = Constants.Device.STANDARD_PREFIX;
+    private String prefix;
     private String linkToDeviceName;
     private String serialPrefix = "";
     private String serialSuffix = "";
@@ -116,8 +117,10 @@ public class CreateHANDeviceCommand {
                     .withPostBuilder(new SecurityPropertiesDevicePostBuilder());
             deviceBuilder.get();
 
-            Device   device = deviceService.findDeviceByName(name).get();
+            Device device = deviceService.findDeviceByName(name).get();
             master.getLocation().ifPresent(device::setLocation);
+            master.getSpatialCoordinates().ifPresent(device::setSpatialCoordinates);
+            device.save();
             topologyService.setPhysicalGateway(device, master);
             ActivateDevicesCommand activateDevicesCommand = activateDevicesCommandProvider.get();
             activateDevicesCommand.setDevices(Collections.singletonList(device));
