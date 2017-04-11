@@ -63,7 +63,7 @@ Ext.define('Mdc.usagepointmanagement.view.registersData.notCumulative.Preview', 
                 } else {
                     return {
                         itemId: 'measurement-time-field',
-                        fieldLabel: Uni.I18n.translate('general.measurementPeriod', 'MDC', 'Measurement time'),
+                        fieldLabel: Uni.I18n.translate('general.measurementTime', 'MDC', 'Measurement time'),
                         name: 'measurementTime',
                         renderer: function (value) {
                             return value ? Uni.DateTime.formatDateTimeLong(new Date(value)) : '-';
