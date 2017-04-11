@@ -418,7 +418,7 @@ public class EventPushNotificationParserTest extends TestCase {
         assertEquals(194, meterProtocolEvent.getProtocolCode());
 
 
-        Beacon3100PushEventNotification beacon3100PushEventNotification = new Beacon3100PushEventNotification(mock(PropertySpecService.class), mock(CollectedDataFactory.class));
+        Beacon3100PushEventNotification beacon3100PushEventNotification = new Beacon3100PushEventNotification(mock(PropertySpecService.class), collectedDataFactory);
         CollectedTopology collectedTopology = beacon3100PushEventNotification.extractTopologyUpdateFromRegisterEvent(meterProtocolEvent);
 
         DeviceIdentifier needle = new DialHomeIdDeviceIdentifier("02237EFFFEFDAF26");
@@ -448,7 +448,7 @@ public class EventPushNotificationParserTest extends TestCase {
         assertEquals(203, meterProtocolEvent.getProtocolCode());
 
 
-        Beacon3100PushEventNotification beacon3100PushEventNotification = new Beacon3100PushEventNotification(mock(PropertySpecService.class), mock(CollectedDataFactory.class));
+        Beacon3100PushEventNotification beacon3100PushEventNotification = new Beacon3100PushEventNotification(mock(PropertySpecService.class), collectedDataFactory);
         CollectedTopology collectedTopology = beacon3100PushEventNotification.extractNodeInformation(meterProtocolEvent.getMessage(), Beacon3100PushEventNotification.TopologyAction.REMOVE);
 
         DeviceIdentifier needle = new DialHomeIdDeviceIdentifier("02237EFFFEFDAF26");
