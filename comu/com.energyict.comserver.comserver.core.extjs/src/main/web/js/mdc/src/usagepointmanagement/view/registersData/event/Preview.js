@@ -43,7 +43,7 @@ Ext.define('Mdc.usagepointmanagement.view.registersData.event.Preview', {
                             fieldLabel: Uni.I18n.translate('device.dataValidation.collectedValue', 'MDC', 'Collected value'),
                             name: 'collectedValue',
                             renderer: function (value) {
-                                return value ? value + ' ' + unit : '-';
+                                return value + ' ' + unit;
                             }
                         }
                     ]
@@ -51,39 +51,39 @@ Ext.define('Mdc.usagepointmanagement.view.registersData.event.Preview', {
             }
         ];
 
-        me.items[0].items.items.unshift(
-            (function () {
-                if (me.register.get('registerType') === 'EVENT_BILLING_VALUE') {
-                    return {
-                        itemId: 'measurement-period-field',
-                        fieldLabel: Uni.I18n.translate('general.measurementPeriod', 'MDC', 'Measurement period'),
-                        name: 'measurementPeriod',
-                        htmlEncode: false,
-                        renderer: function (value) {
-                            if(!Ext.isEmpty(value)) {
-                                var endDate = new Date(value.end);
-                                if (value.start && value.end) {
-                                    var startDate = new Date(value.start);
-                                    return Uni.DateTime.formatDateTimeLong(startDate) + ' - ' + Uni.DateTime.formatDateTimeLong(endDate);
-                                } else {
-                                    return Uni.DateTime.formatDateTimeLong(endDate);
-                                }
+        if (me.register.get('registerType') === 'EVENT_BILLING_VALUE') {
+            me.items[0].items.items.unshift(
+                {
+                    itemId: 'measurement-period-field',
+                    fieldLabel: Uni.I18n.translate('general.measurementPeriod', 'MDC', 'Measurement period'),
+                    name: 'measurementPeriod',
+                    htmlEncode: false,
+                    renderer: function (value) {
+                        if(!Ext.isEmpty(value)) {
+                            var endDate = new Date(value.end);
+                            if (value.start && value.end) {
+                                var startDate = new Date(value.start);
+                                return Uni.DateTime.formatDateTimeLong(startDate) + ' - ' + Uni.DateTime.formatDateTimeLong(endDate);
+                            } else {
+                                return Uni.DateTime.formatDateTimeLong(endDate);
                             }
-                            return '-';
                         }
-                    }
-                } else {
-                    return {
-                        itemId: 'measurement-time-field',
-                        fieldLabel: Uni.I18n.translate('general.measurementTime', 'MDC', 'Measurement time'),
-                        name: 'measurementTime',
-                        renderer: function (value) {
-                            return value ? Uni.DateTime.formatDateTimeLong(new Date(value)) : '-';
-                        }
+                        return '-';
                     }
                 }
-            })()
-        );
+            );
+        } else {
+            me.items[0].items.items.splice(1, 0,
+                {
+                    itemId: 'measurement-time-field',
+                    fieldLabel: Uni.I18n.translate('general.measurementTime', 'MDC', 'Measurement time'),
+                    name: 'measurementTime',
+                    renderer: function (value) {
+                        return value ? Uni.DateTime.formatDateTimeLong(new Date(value)) : '-';
+                    }
+                }
+            );
+        }
 
         me.callParent(arguments);
     },
@@ -92,10 +92,9 @@ Ext.define('Mdc.usagepointmanagement.view.registersData.event.Preview', {
         var me = this;
         if (me.register.get('registerType') === 'EVENT_BILLING_VALUE') {
             var interval = record.get('measurementPeriod'),
-                title = interval ? interval.start ? Uni.I18n.translate(
-                    'general.dateAtTime', 'MDC', '{0} at {1}',
-                    [Uni.DateTime.formatDateTimeShort(new Date(interval.start)), Uni.DateTime.formatDateTimeShort(new Date(interval.end))], false) :
-                    Uni.DateTime.formatDateTimeShort(new Date(interval.end)) : '-';
+                title = Uni.I18n.translate(
+                'general.dateAtTime', 'MDC', '{0} at {1}',
+                [Uni.DateTime.formatDateTimeShort(new Date(interval.end)), Uni.DateTime.formatDateTimeShort(new Date(interval.end))], false);
         } else {
             var time = record.get('measurementTime'),
                 title = time ? Uni.DateTime.formatDateTimeShort(new Date(time)) : '-';
