@@ -84,107 +84,42 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationEdit', {
                                                 itemId: 'editDeviceConfigurationDescriptionField'
                                             },
                                             {
-                                                xtype: 'fieldcontainer',
-                                                itemId: 'fld-device-config-addressable',
-                                                columnWidth: 0.5,
+                                                xtype: 'checkboxfield',
                                                 fieldLabel: Uni.I18n.translate('deviceconfiguration.isDirectlyAddressable', 'MDC', 'Directly addressable'),
-                                                required: true,
-                                                layout: 'fit',
-                                                items: [
-                                                    {
-                                                        xtype: 'radiogroup',
-                                                        itemId: 'directlyAddressableCombo',
-                                                        name: "isDirectlyAddressable",
-                                                        msgTarget: 'under',
-                                                        combineErrors: true,
-                                                        columns: 1,
-                                                        vertical: true,
-                                                        items: [
-                                                            {
-                                                                name: "isDirectlyAddressable",
-                                                                itemId: 'rbtn-device-config-addressable-yes',
-                                                                boxLabel: '<b>' + Uni.I18n.translate('general.yes', 'MDC', 'Yes') + '</b>',
-                                                                inputValue: true,
-                                                                checked: true
-                                                            },
-                                                            {
-                                                                name: "isDirectlyAddressable",
-                                                                itemId: 'rbtn-device-config-addressable-no',
-                                                                boxLabel: '<b>' + Uni.I18n.translate('general.no', 'MDC', 'No') + '</b>',
-                                                                inputValue: false,
-                                                                checked: false
-                                                            },
-                                                            {
-                                                                xtype: 'container',
-                                                                itemId: 'isDirectlyAddressableError'
-                                                            }
-                                                        ]
-                                                    }
-                                                ]
+                                                itemId: 'mdc-device-config-directly-addressable-checkbox',
+                                                name: 'isDirectlyAddressable',
+                                                boxLabel: Uni.I18n.translate('deviceconfiguration.directlyAddressable.boxLabel', 'MDC', 'Connection can be made to this device'),
+                                                checked: false
                                             },
                                             {
                                                 xtype: 'fieldcontainer',
                                                 fieldLabel: ' ',
                                                 padding: '-5 0 15 5',
-                                                itemId: 'addressableMessage',
+                                                itemId: 'mdc-device-config-directly-addressable-msg',
                                                 items: [
                                                     {
                                                         xtype: 'container',
-                                                        html: '<span style="color: grey;">' + Uni.I18n.translate('deviceconfiguration.directlyAddressable.description', 'MDC', 'If a device is directly addressable, a connection can be made to this device') + '</span>',
-                                                        setText: function(text) {
-                                                            this.update('<span style="color: grey;">' + text + '</span>');
-                                                        }
+                                                        html: '<span style="color: grey;">' + Uni.I18n.translate('deviceconfiguration.directlyAddressableMessage', 'MDC', "The protocol doesn't support directly addressing the device.") + '</span>'
                                                     }
                                                 ]
                                             },
                                             {
-                                                xtype: 'fieldcontainer',
-                                                itemId: 'fld-device-config-gateway',
-                                                columnWidth: 0.5,
+                                                xtype: 'checkboxfield',
                                                 fieldLabel: Uni.I18n.translate('deviceconfiguration.deviceIsGateway', 'MDC', 'Device is a gateway'),
-                                                required: true,
-                                                layout: 'fit',
-                                                hidden: false,
-                                                items: [
-                                                    {
-                                                        xtype: 'radiogroup',
-                                                        itemId: 'deviceIsGatewayCombo',
-                                                        columns: 1,
-                                                        name: "canBeGateway",
-                                                        msgTarget: 'under',
-                                                        combineErrors: true,
-                                                        vertical: true,
-                                                        items: [
-                                                            {
-                                                                name: "canBeGateway",
-                                                                itemId: 'rbtn-device-config-gateway-yes',
-                                                                boxLabel: '<b>' + Uni.I18n.translate('general.yes', 'MDC', 'Yes') + '</b>',
-                                                                inputValue: true,
-                                                                checked: false
-                                                            },
-                                                            {
-                                                                name: "canBeGateway",
-                                                                itemId: 'rbtn-device-config-gateway-no',
-                                                                boxLabel: '<b>' + Uni.I18n.translate('general.no', 'MDC', 'No') + '</b>',
-                                                                inputValue: false,
-                                                                checked: true
-                                                            }
-                                                        ]
-                                                    }
-                                                ]
+                                                itemId: 'mdc-device-config-gateway-checkbox',
+                                                name: 'canBeGateway',
+                                                boxLabel: Uni.I18n.translate('deviceconfiguration.deviceIsGateway.boxLabel', 'MDC', 'Can be used as a connection to slave devices'),
+                                                checked: false
                                             },
                                             {
                                                 xtype: 'fieldcontainer',
                                                 fieldLabel: ' ',
                                                 padding: '-5 0 15 5',
-                                                itemId: 'gatewayMessage',
+                                                itemId: 'mdc-device-config-gateway-msg',
                                                 items: [
                                                     {
                                                         xtype: 'container',
-                                                        html: '<span style="color: grey;">' + Uni.I18n.translate('deviceconfiguration.deviceIsGateway.description', 'MDC', 'Gateways can be used as a connection to slave devices') + '</span>',
-                                                        setText: function(text) {
-                                                            this.update('<span style="color: grey;">' + text + '</span>');
-                                                        }
+                                                        html: '<span style="color: grey;">' + Uni.I18n.translate('deviceconfiguration.gatewayMessage', 'MDC', "The protocol doesn't support the device to function as a gateway.") + '</span>'
                                                     }
                                                 ]
                                             },
@@ -230,154 +165,28 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationEdit', {
                                                 ]
                                             },
                                             {
-                                                xtype: 'fieldcontainer',
-                                                itemId: 'mdc-device-config-dataLogger-container',
-                                                columnWidth: 0.5,
+                                                xtype: 'checkboxfield',
                                                 fieldLabel: Uni.I18n.translate('deviceconfiguration.dataLoggerFunctionality', 'MDC', 'Data logger functionality'),
-                                                required: true,
-                                                layout: 'fit',
-                                                items: [
-                                                    {
-                                                        xtype: 'radiogroup',
-                                                        itemId: 'dataLoggerRadioGroup',
-                                                        name: "dataloggerEnabled",
-                                                        msgTarget: 'under',
-                                                        combineErrors: true,
-                                                        columns: 1,
-                                                        vertical: true,
-                                                        items: [
-                                                            {
-                                                                name: 'dataloggerEnabled',
-                                                                itemId: 'rbtn-device-config-datalogger-yes',
-                                                                boxLabel: '<b>' + Uni.I18n.translate('general.yes', 'MDC', 'Yes') + '</b>',
-                                                                inputValue: true,
-                                                                checked: false
-                                                            },
-                                                            {
-                                                                name: 'dataloggerEnabled',
-                                                                itemId: 'rbtn-device-config-datalogger-no',
-                                                                boxLabel: '<b>' + Uni.I18n.translate('general.no', 'MDC', 'No') + '</b>',
-                                                                inputValue: false,
-                                                                checked: true
-                                                            }
-                                                        ]
-                                                    }
-                                                ]
+                                                itemId: 'mdc-device-config-dataLogger-checkbox',
+                                                name: 'dataloggerEnabled',
+                                                boxLabel: Uni.I18n.translate('deviceconfiguration.dataLogger.boxLabel', 'MDC', 'Can be used as a data logger and share its own channels and registers with its slave devices'),
+                                                checked: false
                                             },
                                             {
-                                                xtype: 'fieldcontainer',
-                                                fieldLabel: ' ',
-                                                padding: '-5 0 15 5',
-                                                itemId: 'dataLoggerMessage',
-                                                items: [
-                                                    {
-                                                        xtype: 'container',
-                                                        html: '<span style="color: grey;">' + Uni.I18n.translate('deviceconfiguration.dataLogger.description', 'MDC', 'Can be used as a data logger and share its own channels and registers with its slave devices') + '</span>',
-                                                        setText: function(text) {
-                                                            this.update('<span style="color: grey;">' + text + '</span>');
-                                                        }
-                                                    }
-                                                ]
-                                            },
-                                            {
-                                                xtype: 'fieldcontainer',
-                                                itemId: 'mdc-device-config-multi-element-device-container',
-                                                columnWidth: 0.5,
+                                                xtype: 'checkboxfield',
                                                 fieldLabel: Uni.I18n.translate('deviceconfiguration.multiElementFunctionality', 'MDC', 'Multi-element functionality'),
-                                                required: true,
-                                                layout: 'fit',
-                                                items: [
-                                                    {
-                                                        xtype: 'radiogroup',
-                                                        itemId: 'multiElementRadioGroup',
-                                                        name: "multiElementEnabled",
-                                                        msgTarget: 'under',
-                                                        combineErrors: true,
-                                                        columns: 1,
-                                                        vertical: true,
-                                                        items: [
-                                                            {
-                                                                name: 'multiElementEnabled',
-                                                                itemId: 'rbtn-device-config-multi-element-yes',
-                                                                boxLabel: '<b>' + Uni.I18n.translate('general.yes', 'MDC', 'Yes') + '</b>',
-                                                                inputValue: true,
-                                                                checked: false
-                                                            },
-                                                            {
-                                                                name: 'multiElementEnabled',
-                                                                itemId: 'rbtn-device-config-multi-element-no',
-                                                                boxLabel: '<b>' + Uni.I18n.translate('general.no', 'MDC', 'No') + '</b>',
-                                                                inputValue: false,
-                                                                checked: true
-                                                            }
-                                                        ]
-                                                    }
-                                                ]
+                                                itemId: 'mdc-device-config-multiElement-checkbox',
+                                                name: 'multiElementEnabled',
+                                                boxLabel: Uni.I18n.translate('deviceconfiguration.multielement.boxLabel', 'MDC', 'Can be used as a multi-element device and contain logical devices'),
+                                                checked: false
                                             },
                                             {
-                                                xtype: 'fieldcontainer',
-                                                fieldLabel: ' ',
-                                                padding: '-5 0 15 5',
-                                                itemId: 'multiElementMessage',
-                                                items: [
-                                                    {
-                                                        xtype: 'container',
-                                                        html: '<span style="color: grey;">' + Uni.I18n.translate('deviceconfiguration.multielement.description', 'MDC', 'Can be used as a multi-element device and share its own channels and registers with its submetering devices') + '</span>',
-                                                        setText: function(text) {
-                                                            this.update('<span style="color: grey;">' + text + '</span>');
-                                                        }
-                                                    }
-                                                ]
-                                            },
-                                            {
-                                                xtype: 'fieldcontainer',
-                                                itemId: 'mdc-device-config-validate-on-store-container',
-                                                columnWidth: 0.5,
+                                                xtype: 'checkboxfield',
                                                 fieldLabel: Uni.I18n.translate('deviceconfiguration.validateOnStore', 'MDC', 'Validate data on storage'),
-                                                required: true,
-                                                layout: 'fit',
-                                                items: [
-                                                    {
-                                                        xtype: 'radiogroup',
-                                                        itemId: 'validateOnStoreRadioGroup',
-                                                        name: "validateOnStore",
-                                                        msgTarget: 'under',
-                                                        combineErrors: true,
-                                                        columns: 1,
-                                                        vertical: true,
-                                                        items: [
-                                                            {
-                                                                name: 'validateOnStore',
-                                                                itemId: 'rbtn-validate-on-store-yes',
-                                                                boxLabel: '<b>' + Uni.I18n.translate('general.yes', 'MDC', 'Yes') + '</b>',
-                                                                inputValue: true,
-                                                                checked: true
-                                                            },
-                                                            {
-                                                                name: 'validateOnStore',
-                                                                itemId: 'rbtn-validate-on-store-no',
-                                                                boxLabel: '<b>' + Uni.I18n.translate('general.no', 'MDC', 'No') + '</b>',
-                                                                inputValue: false,
-                                                                checked: false
-                                                            }
-                                                        ]
-                                                    }
-                                                ]
-                                            },
-                                            {
-                                                xtype: 'fieldcontainer',
-                                                fieldLabel: ' ',
-                                                padding: '-5 0 15 5',
-                                                itemId: 'validateOnStoreMessage',
-                                                items: [
-                                                    {
-                                                        xtype: 'container',
-                                                        html: '<span style="color: grey;">' + Uni.I18n.translate('deviceconfiguration.validateOnStore.description', 'MDC', 'Data will be validated when it\'s available in the system') + '</span>',
-                                                        setText: function(text) {
-                                                            this.update('<span style="color: grey;">' + text + '</span>');
-                                                        }
-                                                    }
-                                                ]
+                                                itemId: 'mdc-device-config-validateOnStore-checkbox',
+                                                name: 'validateOnStore',
+                                                boxLabel: Uni.I18n.translate('deviceconfiguration.validateOnStore.boxLabel', 'MDC', 'Data will be validated when it\'s available in the system'),
+                                                checked: true
                                             },
                                             {
                                                 xtype: 'fieldcontainer',

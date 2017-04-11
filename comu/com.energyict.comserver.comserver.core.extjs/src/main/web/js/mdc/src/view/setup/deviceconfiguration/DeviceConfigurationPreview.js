@@ -92,7 +92,8 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationPreview', {
                                     xtype: 'displayfield',
                                     fieldLabel: Uni.I18n.translate('deviceconfiguration.isDirectlyAddressable', 'MDC', 'Directly addressable'),
                                     name: 'isDirectlyAddressable',
-                                    renderer: function (value) {
+                                    itemId: 'mdc-deviceConfigurationPreview-directlyAddressable',
+                                    renderer: function (value, field) {
                                         return value === true
                                             ? Uni.I18n.translate('general.yes', 'MDC', 'Yes')
                                             : Uni.I18n.translate('general.no', 'MDC', 'No');
@@ -101,6 +102,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationPreview', {
                                 {
                                     xtype: 'displayfield',
                                     fieldLabel: Uni.I18n.translate('deviceconfiguration.Gateway', 'MDC', 'Gateway'),
+                                    itemId: 'mdc-deviceConfigurationPreview-gateway',
                                     name: 'canBeGateway',
                                     renderer: function (value) {
                                         var text,
@@ -121,6 +123,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationPreview', {
                                 {
                                     xtype: 'displayfield',
                                     fieldLabel: Uni.I18n.translate('deviceconfiguration.dataLoggerFunctionality', 'MDC', 'Data logger functionality'),
+                                    itemId: 'mdc-deviceConfigurationPreview-dataLogger',
                                     name: 'dataloggerEnabled',
                                     renderer: function (value) {
                                         return value === true
@@ -131,6 +134,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationPreview', {
                                 {
                                     xtype: 'displayfield',
                                     fieldLabel: Uni.I18n.translate('deviceconfiguration.multiElementFunctionality', 'MDC', 'Multi-element functionality'),
+                                    itemId: 'mdc-deviceConfigurationPreview-multiElement',
                                     name: 'multiElementEnabled',
                                     renderer: function (value) {
                                         return value === true
@@ -141,6 +145,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationPreview', {
                                 {
                                     xtype: 'displayfield',
                                     fieldLabel: Uni.I18n.translate('deviceconfiguration.validateOnStore', 'MDC', 'Validate data on storage'),
+                                    itemId: 'mdc-deviceConfigurationPreview-validateOnStore',
                                     name: 'validateOnStore',
                                     renderer: function (value) {
                                         return value === true
@@ -202,9 +207,6 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationPreview', {
                 }
             ]
         }
-    ],
+    ]
 
-    initComponent: function () {
-        this.callParent(arguments);
-    }
 });
