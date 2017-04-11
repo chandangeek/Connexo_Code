@@ -10,11 +10,15 @@ import com.elster.jupiter.metering.slp.SyntheticLoadProfile;
 import com.elster.jupiter.slp.importers.impl.AbstractImportProcessor;
 import com.elster.jupiter.slp.importers.impl.MessageSeeds;
 import com.elster.jupiter.slp.importers.impl.SyntheticLoadProfileDataImporterContext;
+import com.elster.jupiter.slp.importers.impl.properties.TimeZonePropertySpec;
 import com.elster.jupiter.util.time.DefaultDateTimeFormatters;
 
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.temporal.TemporalAmount;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,11 +26,13 @@ public class SyntheticLoadProfileImportProcessor extends AbstractImportProcessor
 
     private Map<String, Map<Instant, BigDecimal>> values = new HashMap<>();
     private Map<String, SyntheticLoadProfile> syntheticLoadProfiles = new HashMap<>();
-    private Instant previousTimeStamp;
-    private Duration interval;
+    private LocalDateTime previousTimeStamp;
+    private TemporalAmount interval;
+    private ZoneId zoneId;
 
-    SyntheticLoadProfileImportProcessor(SyntheticLoadProfileDataImporterContext context) {
+    SyntheticLoadProfileImportProcessor(String timeZone, SyntheticLoadProfileDataImporterContext context) {
         super(context);
+        this.zoneId = ZoneId.from(TimeZonePropertySpec.format.parse(timeZone));
     }
 
     @Override
@@ -37,7 +43,7 @@ public class SyntheticLoadProfileImportProcessor extends AbstractImportProcessor
         } catch (Exception e) {
             throw e;
         } finally {
-            previousTimeStamp = data.getTimeStamp();
+            previousTimeStamp = LocalDateTime.ofInstant(data.getTimeStamp(), zoneId);
         }
     }
 
@@ -62,7 +68,7 @@ public class SyntheticLoadProfileImportProcessor extends AbstractImportProcessor
             }
         }
         //Check for wrong interval of data (current timestamp minus previous timestamp is not equal to 'Interval' of all of the synthetic load profiles specified in the file)
-        if (previousTimeStamp != null && !previousTimeStamp.plus(getInterval(data)).equals(data.getTimeStamp())) {
+        if (previousTimeStamp != null && !previousTimeStamp.plus(getInterval(data)).equals(LocalDateTime.ofInstant(data.getTimeStamp(), zoneId))) {
             throw new ProcessorException(MessageSeeds.CORRECTIONFACTOR_WRONG_INTERVAL, data.getLineNumber());
         }
     }
@@ -71,8 +77,8 @@ public class SyntheticLoadProfileImportProcessor extends AbstractImportProcessor
         //Check for unexpected end of file (amount of data is less than 'Duration' of synthetic load profile specification)
         for (Map.Entry<String, Map<Instant, BigDecimal>> entry : values.entrySet()) {
             SyntheticLoadProfile syntheticLoadProfile = findSyntheticLoadProfile(entry.getKey());
-            Instant startTime = entry.getValue().keySet().stream().min(Instant::compareTo).get();
-            Instant endTime = entry.getValue().keySet().stream().max(Instant::compareTo).get();
+            LocalDateTime startTime = LocalDateTime.ofInstant(entry.getValue().keySet().stream().min(Instant::compareTo).get(), zoneId);
+            LocalDateTime endTime = LocalDateTime.ofInstant(entry.getValue().keySet().stream().max(Instant::compareTo).get(), zoneId);
             if (startTime.plus(syntheticLoadProfile.getDuration()).isAfter(endTime.plus(syntheticLoadProfile.getInterval()))) {
                 throw new ProcessorException(MessageSeeds.CORRECTIONFACTOR_NOT_ENOUGH_DATA);
             }
@@ -100,7 +106,7 @@ public class SyntheticLoadProfileImportProcessor extends AbstractImportProcessor
         return syntheticLoadProfiles.get(syntheticLoadProfileName);
     }
 
-    private Duration getInterval(SyntheticLoadProfileImportRecord data){
+    private TemporalAmount getInterval(SyntheticLoadProfileImportRecord data){
         if(interval == null) {
             interval = findSyntheticLoadProfile(data.getSyntheticLoadProfiles().keySet().iterator().next()).getInterval();
         }

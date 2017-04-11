@@ -59,7 +59,7 @@ public class SyntheticLoadProfileImporterFactory extends AbstractFileImporterFac
 
         FileImportParser<SyntheticLoadProfileImportRecord> parser = new SyntheticLoadProfileParser(context, new InstantParser(dateFormat, timeZone), new BigDecimalParser(numberFormat));
 
-        FileImportProcessor<SyntheticLoadProfileImportRecord> processor = new SyntheticLoadProfileImportProcessor(context);
+        FileImportProcessor<SyntheticLoadProfileImportRecord> processor = new SyntheticLoadProfileImportProcessor(timeZone, context);
 
         FileImportLogger<FileImportRecord> logger = new SyntheticLoadProfileImportLogger(getContext());
         return CsvImporter.withParser(parser)

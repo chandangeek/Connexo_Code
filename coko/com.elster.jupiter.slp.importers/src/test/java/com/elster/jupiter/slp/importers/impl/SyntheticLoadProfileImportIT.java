@@ -60,6 +60,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.TimeZone;
 import java.util.logging.Logger;
 
 import org.junit.After;
@@ -170,7 +171,7 @@ public class SyntheticLoadProfileImportIT {
 
         try (TransactionContext context = transactionService.getContext()) {
             for (int i = 1; i < 4; i++) {
-                SyntheticLoadProfileBuilder builder = syntheticLoadProfileService.newSyntheticLoadProfile("slp" + i, Period.ofDays(1), DATE, readingType);
+                SyntheticLoadProfileBuilder builder = syntheticLoadProfileService.newSyntheticLoadProfile("slp" + i, Period.ofDays(1), DATE, readingType, TimeZone.getTimeZone("UTC"));
                 builder.withDescription("synthetic load profile description");
                 builder.build();
             }
