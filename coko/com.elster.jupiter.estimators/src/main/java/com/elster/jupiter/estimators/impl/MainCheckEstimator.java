@@ -320,14 +320,14 @@ public class MainCheckEstimator extends AbstractEstimator implements Estimator {
             String getMessage(EstimationBlock block, String usagePointName, String purpose) {
                 return "Failed to estimate period \"" + blockToString(block) + "\" using method " + TranslationKeys.ESTIMATOR_NAME
                         .getDefaultFormat() + " on " + block.getReadingType()
-                        .getFullAliasName() + " since the specified purpose doesn't exist on the " + usagePointName;
+                        .getFullAliasName() + " since the specified purpose doesn'\''t exist on the " + usagePointName;
             }
         }, NO_OUTPUTS_ON_PURPOSE_WITH_READING_TYPE {
             @Override
             String getMessage(EstimationBlock block, String usagePointName, String purpose) {
                 return "Failed to estimate period \"" + blockToString(block) + "\" using method " + TranslationKeys.ESTIMATOR_NAME
                         .getDefaultFormat() + " on " + block.getReadingType()
-                        .getFullAliasName() + " since 'check' output with matching reading type on the specified purpose doesn't exist on " + usagePointName;
+                        .getFullAliasName() + " since '\''check'\'' output with matching reading type on the specified purpose doesn'\''t exist on " + usagePointName;
             }
         }, DATA_SUSPECT_OR_MISSING {
             @Override
@@ -357,7 +357,7 @@ public class MainCheckEstimator extends AbstractEstimator implements Estimator {
                     .getTimestamp().toEpochMilli());
         }
 
-        static DateFormat DATA_FORMAT = new SimpleDateFormat("E, FF MMM yyyy hh:mm", Locale.US);
+        static DateFormat DATA_FORMAT = new SimpleDateFormat("E, dd MMM yyyy hh:mm", Locale.US);
 
     }
 

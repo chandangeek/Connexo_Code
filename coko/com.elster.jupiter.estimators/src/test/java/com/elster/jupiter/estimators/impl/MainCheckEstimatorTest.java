@@ -4,11 +4,8 @@
 
 package com.elster.jupiter.estimators.impl;
 
-import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.estimation.Estimatable;
 import com.elster.jupiter.estimation.EstimationBlock;
-import com.elster.jupiter.estimation.EstimationResult;
-import com.elster.jupiter.estimation.Estimator;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.IntervalReadingRecord;
@@ -20,7 +17,6 @@ import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.readings.BaseReading;
-import com.elster.jupiter.metering.readings.IntervalReading;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.validation.DataValidationStatus;
@@ -44,55 +40,26 @@ import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-/**
- * Created by dantonov on 10.04.2017.
- */
 @RunWith(MockitoJUnitRunner.class)
-public class MainCheckEstimatorTest {
+public abstract class MainCheckEstimatorTest {
 
-    private static final Logger LOGGER = Logger.getLogger(PowerGapFillTest.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(MainCheckEstimatorTest.class.getName());
     private static final String PURPOSE = "Purpose";
+    private static final String NOT_EXISTING_PURPOSE = "Not existing purpose";
     private static DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
-
-    @Test
-    public void basicTest() {
-
-        EstimationConfiguration estimationConfiguration = new EstimationConfiguration()
-                .withCompletePeriod(false)
-                .withBlock(new BlockConfiguration()
-                        .withEstimatable(new EstimatableConf()
-                                .of(instant("20160101000000"))
-                                .withReferenceValue(new ReferenceValue()
-                                        .withValue(bigDecimal(100D))
-                                        .withValidationResult(ValidationResult.VALID)))
-                        .withEstimatable(new EstimatableConf()
-                                .of(instant("20160102000000"))
-                                .withReferenceValue(new ReferenceValue()
-                                        .withValue(bigDecimal(200D))
-                                        .withValidationResult(ValidationResult.NOT_VALIDATED))));
-
-        estimationConfiguration.mockAll();
-
-        Estimator estimator = mockEstimator(estimationConfiguration);
-        EstimationResult estimationResult = estimator.estimate(estimationConfiguration.getAllBlocks(), QualityCodeSystem.MDM);
-        assertEquals(1,estimationResult.estimated().size());
-        assertEquals(0,estimationResult.remainingToBeEstimated().size());
-        assertEquals(2,estimationResult.estimated().get(0).estimatables().size());
-    }
 
     MainCheckEstimator mockEstimator(EstimationConfiguration estimationConfiguration) {
         MainCheckEstimator estimator = new MainCheckEstimator(estimationConfiguration.thesaurus, estimationConfiguration.metrologyConfigurationService, estimationConfiguration.validationService, estimationConfiguration.propertySpecService, estimationConfiguration.properties);
-        estimator.init(LOGGER);
+        estimator.init(estimationConfiguration.logger==null?LOGGER:estimationConfiguration.logger);
         return estimator;
     }
 
@@ -107,6 +74,10 @@ public class MainCheckEstimatorTest {
         return BigDecimal.valueOf(value);
     }
 
+    BigDecimal findEstimatedValue(EstimationConfiguration estimationConfiguration, Instant timeStamp) {
+        return estimationConfiguration.blocks.stream().flatMap(blockConfiguration -> blockConfiguration.estimatables.stream()).filter(estimatableConf -> estimatableConf.timeStamp.compareTo(timeStamp)==0).findFirst().map(estimatableConf -> estimatableConf.estimatedValue).orElse(null);
+    }
+
     class EstimationConfiguration {
         // Objects to mock
         Thesaurus thesaurus;
@@ -119,7 +90,14 @@ public class MainCheckEstimatorTest {
         // internal data
         List<BlockConfiguration> blocks = new ArrayList<>();
         boolean completePeriod;
+        boolean notAvailablePurpose;
+        private Logger logger;
 
+
+        EstimationConfiguration withLogger(Logger logger) {
+            this.logger = logger;
+            return this;
+        }
         EstimationConfiguration withCompletePeriod(boolean completePeriod) {
             this.completePeriod = completePeriod;
             return this;
@@ -130,17 +108,25 @@ public class MainCheckEstimatorTest {
             return this;
         }
 
+        EstimationConfiguration withNotAvailablePurpose(){
+            this.notAvailablePurpose = true;
+            return this;
+        }
+
         List<EstimationBlock> getAllBlocks() {
             return estimationBlocks;
         }
 
         void mockAll() {
             properties = new HashMap<String, Object>() {{
-                put(MainCheckEstimator.CHECK_PURPOSE, PURPOSE);
+                put(MainCheckEstimator.CHECK_PURPOSE, notAvailablePurpose?NOT_EXISTING_PURPOSE:PURPOSE);
                 put(MainCheckEstimator.COMPLETE_PERIOD, completePeriod);
             }};
 
-            estimationBlocks = blocks.stream().map(BlockConfiguration::mockBlock).collect(Collectors.toList());
+            UsagePoint usagePoint = mock(UsagePoint.class);
+            when(usagePoint.getName()).thenReturn("usage point name");
+
+            estimationBlocks = blocks.stream().map(b-> b.mockBlock(usagePoint)).collect(Collectors.toList());
 
             validationService = mock(ValidationService.class);
             ValidationEvaluator validationEvaluator = mock(ValidationEvaluator.class);
@@ -166,21 +152,26 @@ public class MainCheckEstimatorTest {
 
     class BlockConfiguration {
         List<EstimatableConf> estimatables = new ArrayList<>();
+        boolean noCheckChannel;
 
         BlockConfiguration withEstimatable(EstimatableConf estimatableConf) {
             estimatables.add(estimatableConf);
             return this;
         }
 
-        EstimationBlock mockBlock() {
+        BlockConfiguration withNoCheckChannel() {
+            this.noCheckChannel = true;
+            return this;
+        }
+
+
+        EstimationBlock mockBlock(UsagePoint usagePoint) {
             EstimationBlock estimationBlock = mock(EstimationBlock.class);
             Channel channel = mock(Channel.class);
             when(estimationBlock.getChannel()).thenReturn(channel);
             ChannelsContainer channelsContainer = mock(ChannelsContainer.class);
             when(channel.getChannelsContainer()).thenReturn(channelsContainer);
-            UsagePoint usagePoint = mock(UsagePoint.class);
             when(channelsContainer.getUsagePoint()).thenReturn(Optional.of(usagePoint));
-            when(usagePoint.getName()).thenReturn("usage point name");
 
             List<Estimatable> estimatablesList = estimatables.stream()
                     .map(EstimatableConf::mockEstimatable)
@@ -188,11 +179,13 @@ public class MainCheckEstimatorTest {
             doReturn(estimatablesList).when(estimationBlock).estimatables();
 
             ReadingType readingType = mock(ReadingType.class);
+            when(readingType.getFullAliasName()).thenReturn("[Daily] Secondary Delta A+ (kWh)");
 
             when(estimationBlock.getReadingType()).thenReturn(readingType);
 
             EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint = mock(EffectiveMetrologyConfigurationOnUsagePoint.class);
-            when(usagePoint.getEffectiveMetrologyConfiguration(any(Instant.class))).thenReturn(Optional.of(effectiveMetrologyConfigurationOnUsagePoint));
+
+            estimatables.stream().map(estimatableConf -> estimatableConf.timeStamp).forEach(i->when(usagePoint.getEffectiveMetrologyConfiguration(i)).thenReturn(Optional.of(effectiveMetrologyConfigurationOnUsagePoint)));
 
             UsagePointMetrologyConfiguration metrologyConfiguration = mock(UsagePointMetrologyConfiguration.class);
             when(effectiveMetrologyConfigurationOnUsagePoint.getMetrologyConfiguration()).thenReturn(metrologyConfiguration);
@@ -207,9 +200,8 @@ public class MainCheckEstimatorTest {
 
             Channel checkChannel = mock(Channel.class);
 
-            when(channelsContainer.getChannel(readingType)).thenReturn(Optional.of(checkChannel));
+            when(channelsContainer.getChannel(readingType)).thenReturn(noCheckChannel?Optional.empty():Optional.of(checkChannel));
 
-            IntervalReadingRecord checkReading = mock(IntervalReadingRecord.class);
             when(checkChannel.getIntervalReadings(any())).thenAnswer(invocationOnMock -> {
                 Range<Instant> interval = (Range<Instant>)invocationOnMock.getArguments()[0];
                 Optional<EstimatableConf> estimatableConf =
@@ -235,8 +227,9 @@ public class MainCheckEstimatorTest {
 
     class EstimatableConf {
         ReferenceValue referenceValue;
-        BigDecimal value;
         Instant timeStamp;
+
+        BigDecimal estimatedValue;
 
         EstimatableConf of(Instant timeStamp) {
             this.timeStamp = timeStamp;
@@ -256,6 +249,10 @@ public class MainCheckEstimatorTest {
         Estimatable mockEstimatable() {
             Estimatable estimatable = mock(Estimatable.class);
             when(estimatable.getTimestamp()).thenReturn(timeStamp);
+            doAnswer(invocationOnMock -> {
+                estimatedValue = (BigDecimal)invocationOnMock.getArguments()[0];
+                return null;
+            }).when(estimatable).setEstimation(any());
             return estimatable;
         }
     }
