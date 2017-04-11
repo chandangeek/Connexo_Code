@@ -287,27 +287,27 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
                 for (var i = 1; i < currentSteps.length; i++) {
                     wizard.remove(currentSteps[i], true);
                 }
-            wizard.getRecord().customPropertySets().removeAll();
-            clearRecords = clearRecords.findRecordByValue(metrologyConfigurationId);
+                wizard.getRecord().customPropertySets().removeAll();
+                clearRecords = clearRecords.findRecordByValue(metrologyConfigurationId);
 
-            records = !buttonValue.customAttributes ? injectRecord[0] : clearRecords;
-            records.customPropertySets().each(function (record) {
-                name = record.get('name');
+                records = !buttonValue.customAttributes ? injectRecord[0] : clearRecords;
+                records.customPropertySets().each(function (record) {
+                    name = record.get('name');
 
-                stepNumber++;
-                stepsToAdd.push({
-                    xtype: 'cps-info-form',
-                    title: Uni.I18n.translate('metrologyConfiguration.wizard.cpsStepTitle', 'IMT', 'Step {0}: {1}', [stepNumber, name]),
-                    navigationIndex: stepNumber,
-                    itemId: 'define-metrology-configuration-step' + stepNumber,
-                    ui: 'large',
-                    isWizardStep: true,
-                    predefinedRecord: record
+                    stepNumber++;
+                    stepsToAdd.push({
+                        xtype: 'cps-info-form',
+                        title: Uni.I18n.translate('metrologyConfiguration.wizard.cpsStepTitle', 'IMT', 'Step {0}: {1}', [stepNumber, name]),
+                        navigationIndex: stepNumber,
+                        itemId: 'define-metrology-configuration-step' + stepNumber,
+                        ui: 'large',
+                        isWizardStep: true,
+                        predefinedRecord: record
+                    });
+
+                    wizard.add(stepsToAdd);
+                    wizard.updateRecord(clearRecords);
                 });
-
-                wizard.add(stepsToAdd);
-                wizard.updateRecord(clearRecords);
-            });
             }
             Ext.resumeLayouts(true);
         } else {

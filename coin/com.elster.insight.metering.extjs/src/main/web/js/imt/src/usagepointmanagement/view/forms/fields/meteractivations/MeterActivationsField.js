@@ -49,7 +49,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.meteractivations.MeterAct
                     return {
                         meterRole: meterRole,
                         meter: meterRole.meter,
-                        activationTime: usagePointCreationDate ? usagePointCreationDate : new Date().getTime()
+                        activationTime: usagePointCreationDate ? usagePointCreationDate : meterRole.activationTime ? meterRole.activationTime : new Date().getTime()
                     }
                 }
             );
