@@ -281,7 +281,7 @@ public class UsagePointsImportProcessor extends AbstractImportProcessor<UsagePoi
                     .findMeterRole(meterRole.getMeterRole())
                     .get();
             Meter meter = getContext().getMeteringService().findMeterByName(meterRole.getMeter()).get();
-            usagePointMeterActivator.activate(meter, role);
+            usagePointMeterActivator.activate(getActivationDate(meterRole.getActivation()), meter, role);
             usagePointMeterActivator.complete();
         });
     }
@@ -290,10 +290,8 @@ public class UsagePointsImportProcessor extends AbstractImportProcessor<UsagePoi
     private void performUsagePointTransition(UsagePointImportRecord record, UsagePoint usagePoint) {
         if (record.getTransition().isPresent()) {
             PropertyValueInfoService propertyValueInfoService = getContext().getPropertyValueInfoService();
-            UsagePointTransition usagePointTransition = getOptionalTransition(usagePoint.getState(), record.getTransition()
+            UsagePointTransition usagePointTransition = getOptionalTransition(usagePoint.getState(record.getTransitionDate()), record.getTransition()
                     .get()).get();
-
-            checkPreTransitionRequirements(usagePointTransition, usagePoint, record.getTransitionDate());
 
             List<PropertySpec> transitionAttributes = usagePointTransition.getMicroActionsProperties();
 

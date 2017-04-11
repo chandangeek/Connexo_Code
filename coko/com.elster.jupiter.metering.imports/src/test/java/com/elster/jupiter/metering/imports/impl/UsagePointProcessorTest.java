@@ -398,7 +398,7 @@ public class UsagePointProcessorTest {
         verify(usagePoint, times(2)).linkMeters();
         verify(meteringService, times(2)).findMeterByName("meter");
         verify(metrologyConfigurationService, times(2)).findMeterRole("meter.role.default");
-        verify(linker).activate(any(), eq(meter), eq(meterRole));
+        verify(linker, times(2)).activate(any(Instant.class), eq(meter), eq(meterRole));
     }
 
     @Test

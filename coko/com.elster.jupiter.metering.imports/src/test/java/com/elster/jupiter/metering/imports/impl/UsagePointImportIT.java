@@ -9,11 +9,19 @@ import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.fileimport.FileImportOccurrence;
 import com.elster.jupiter.fileimport.FileImporter;
+import com.elster.jupiter.fsm.FiniteStateMachine;
+import com.elster.jupiter.fsm.FiniteStateMachineBuilder;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
+import com.elster.jupiter.fsm.Stage;
+import com.elster.jupiter.fsm.StageSet;
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.ElectricityDetail;
+import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.LocationMember;
+import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ServiceCategory;
@@ -47,6 +55,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -57,6 +66,11 @@ import static org.mockito.Mockito.when;
 public class UsagePointImportIT {
     @Rule
     public TestRule transactionalRule = new TransactionalRule(inMemoryPersistence.getTransactionService());
+
+    @Mock
+    private State deviceState;
+    @Mock
+    private Stage deviceStage;
 
     private static InMemoryIntegrationPersistence inMemoryPersistence;
     private static final TimeZone utcTimeZone = TimeZone.getTimeZone("UTC");
@@ -83,8 +97,8 @@ public class UsagePointImportIT {
     public void testUsagePointImport() {
         configureServices();
         FileImporter importer = createUsagePointImporter();
-        String csv = "id;created;serviceKind;countryCode;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;isSDP;isVirtual;phaseCode;countryName;administrativeArea;locality;metrologyConfiguration;metrologyConfigurationTime;meterRole1;meter1;activationdate1;transition;transitionDate;transitionConnectionState;allowUpdate\n" +
-                "UP_TEST;01/12/2016 00:00;electricity;code;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;TRUE;FALSE;S1;US;California;Los Angeles;Residential net metering (consumption);01/12/2017 00:00;meter.role.default;DEVICE;01/12/2017 00:00;Install active;02/12/2017 00:00;Connected;FALSE\n";
+        String csv = "id;created;installationTime;serviceKind;countryCode;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;isSDP;isVirtual;phaseCode;countryName;administrativeArea;locality;metrologyConfiguration;metrologyConfigurationTime;meterRole1;meter1;activationdate1;transition;transitionDate;transitionConnectionState;allowUpdate\n" +
+                "UP_TEST;01/12/2016 00:00;01/12/2016 00:00;electricity;code;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;TRUE;FALSE;S1;US;California;Los Angeles;Residential net metering (consumption);01/12/2017 00:00;meter.role.default;DEVICE;01/12/2017 00:00;Install active;02/12/2017 00:00;Connected;FALSE\n";
         when(inMemoryPersistence.getClock().instant()).thenReturn(LocalDate.of(2015, 8, 1).atStartOfDay().toInstant(ZoneOffset.UTC));
         FileImportOccurrence occurrence = mockFileImportOccurrence(csv);
 
@@ -98,7 +112,7 @@ public class UsagePointImportIT {
         assertThat(usagePoint.getEffectiveMetrologyConfigurations()).hasSize(1);
         assertThat(usagePoint.getEffectiveMetrologyConfigurations().get(0).getMetrologyConfiguration().getName())
                 .isEqualTo("Residential net metering (consumption)");
-        assertThat(usagePoint.getCurrentMeterActivations()).hasSize(1);
+        assertThat(usagePoint.getMeterActivations()).hasSize(1);
         checkMeterActivation(usagePoint.getMeterActivations().get(0));
         checkUsagePointTransition(usagePoint);
     }
@@ -151,8 +165,13 @@ public class UsagePointImportIT {
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
         metrologyConfigurationService.newUsagePointMetrologyConfiguration("Residential net metering (consumption)", serviceCategory)
                 .create();
+        FiniteStateMachineService finiteStateMachineService = inMemoryPersistence.getService(FiniteStateMachineService.class);
+        StageSet operational = finiteStateMachineService.newStageSet("operational").stage(EndDeviceStage.OPERATIONAL.getKey()).add();
+        FiniteStateMachineBuilder builder = finiteStateMachineService.newFiniteStateMachine("finiteStateMachine", operational);
+        FiniteStateMachine machine = builder.complete(builder.newCustomState("custom", operational.getStageByName(EndDeviceStage.OPERATIONAL.getKey()).get()).complete());
         AmrSystem system = meteringService.findAmrSystem(1).get();
-        system.newMeter("DEVICE", "DEVICE").create();
+        Meter meter = system.newMeter("DEVICE", "DEVICE").setStateMachine(machine).create();
+        meter.activate(Instant.ofEpochMilli(1477872000000L));
         inMemoryPersistence.getService(MetrologyConfigurationService.class).findMetrologyConfiguration("Residential net metering (consumption)").get().activate();
         ThreadPrincipalService threadPrincipalService = inMemoryPersistence.getService(ThreadPrincipalService.class);
         UserService userService = inMemoryPersistence.getService(UserService.class);
