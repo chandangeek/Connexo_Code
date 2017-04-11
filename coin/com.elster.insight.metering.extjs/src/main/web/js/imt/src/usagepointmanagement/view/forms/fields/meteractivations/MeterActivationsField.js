@@ -10,13 +10,14 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.meteractivations.MeterAct
         field: 'Ext.form.field.Field',
         bindable: 'Ext.util.Bindable'
     },
-
+    meterRoles: null,
     initComponent: function () {
         var me = this;
 
         me.grid = {
             xtype: 'meter-activations-grid',
             itemId: 'meter-activations-grid',
+            meterRoles: me.meterRoles,
             maxHeight: 500,
             listeners: {
                 edit: Ext.bind(me.onMeterActivationEdit, me)
@@ -25,6 +26,9 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.meteractivations.MeterAct
                 xtype: 'component',
                 itemId: 'meter-activations-field-errors',
                 cls: 'x-form-invalid-under',
+                style: {
+                    'white-space': 'normal'
+                },
                 hidden: true
             }
         };
@@ -44,11 +48,11 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.meteractivations.MeterAct
                 function (meterRole) {
                     return {
                         meterRole: meterRole,
-                        activationTime: usagePointCreationDate ? usagePointCreationDate : new Date().getTime()
+                        meter: meterRole.meter,
+                        activationTime: usagePointCreationDate ? usagePointCreationDate : meterRole.activationTime ? meterRole.activationTime : new Date().getTime()
                     }
                 }
             );
-
         store.loadData(data);
         store.fireEvent('load', data);
     },
@@ -61,9 +65,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.meteractivations.MeterAct
         store.each(function (record) {
             var result = record.getData();
 
-            if (!Ext.isEmpty(result.meter)) {
-                value.push(result);
-            }
+            value.push(result);
         });
 
         return !Ext.isEmpty(value) ? value : null;
