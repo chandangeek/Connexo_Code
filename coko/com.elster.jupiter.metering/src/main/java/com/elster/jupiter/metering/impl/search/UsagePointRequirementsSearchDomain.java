@@ -16,7 +16,6 @@ import com.elster.jupiter.search.SearchablePropertyConstriction;
 
 import javax.inject.Inject;
 import java.time.Clock;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -52,9 +51,9 @@ public class UsagePointRequirementsSearchDomain extends UsagePointSearchDomain i
 
     @Override
     public List<SearchableProperty> getProperties() {
-        return new ArrayList<>(Arrays.asList(
+        return Arrays.asList(
                 new ServiceCategorySearchableProperty(this, getPropertySpecService(), getMeteringTranslationService(), getMetrologyConfigurationService().getThesaurus()),
-                new TypeSearchableProperty(this, getPropertySpecService(), getMetrologyConfigurationService().getThesaurus())));
+                new TypeSearchableProperty(this, getPropertySpecService(), getMetrologyConfigurationService().getThesaurus()));
     }
 
     @Override

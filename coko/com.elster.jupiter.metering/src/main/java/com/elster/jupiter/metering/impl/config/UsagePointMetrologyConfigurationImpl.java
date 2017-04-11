@@ -144,21 +144,27 @@ class UsagePointMetrologyConfigurationImpl extends MetrologyConfigurationImpl im
 
     @Override
     public UsagePointRequirement addUsagePointRequirement(SearchablePropertyValue.ValueBean valueBean) {
-        Optional<UsagePointRequirementImpl> existingRequirement = getUsagePointRequirements()
+        boolean requirementDoesNotExist =
+            this.getUsagePointRequirements()
                 .stream()
-                .filter(requirement -> requirement.getSearchableProperty().getName().equals(valueBean.getPropertyName()))
-                .findAny()
-                .map(UsagePointRequirementImpl.class::cast);
-        UsagePointRequirementImpl usagePointRequirement = existingRequirement
-                .orElseGet(() -> getMetrologyConfigurationService().getDataModel().getInstance(UsagePointRequirementImpl.class))
-                .init(this, valueBean);
-        Save.CREATE.validate(getMetrologyConfigurationService().getDataModel(), usagePointRequirement);
-        if (!existingRequirement.isPresent()) {
+                .map(UsagePointRequirement::getName)
+                .noneMatch(propertyName -> propertyName.equals(valueBean.getPropertyName()));
+        if (requirementDoesNotExist) {
+            UsagePointRequirementImpl usagePointRequirement =
+                    getMetrologyConfigurationService()
+                            .getDataModel()
+                            .getInstance(UsagePointRequirementImpl.class)
+                            .init(this, valueBean);
+            Save.CREATE.validate(getMetrologyConfigurationService().getDataModel(), usagePointRequirement);
             this.usagePointRequirements.add(usagePointRequirement);
+            return usagePointRequirement;
         } else {
-            getMetrologyConfigurationService().getDataModel().update(usagePointRequirement);
+            return this.getUsagePointRequirements()
+                    .stream()
+                    .filter(requirement -> requirement.getSearchableProperty().getName().equals(valueBean.getPropertyName()))
+                    .findAny()
+                    .get();
         }
-        return usagePointRequirement;
     }
 
     @Override
