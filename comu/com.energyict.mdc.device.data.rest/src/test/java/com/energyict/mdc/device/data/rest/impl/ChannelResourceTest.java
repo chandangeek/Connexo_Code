@@ -1056,6 +1056,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         Finder finder = mock(Finder.class);
         ReadingType readingType = mockReadingType("1.2.3.4.5.6.7.8.9.10.11.12.13.14.15.16.17.18");
         when(channel.getReadingType()).thenReturn(readingType);
+        when(readingType.getCalculatedReadingType()).thenReturn(Optional.of(readingType));
         doReturn(Collections.singletonList(estimationRuleSet)).when(estimationService).getEstimationRuleSets();
         doReturn(Collections.singletonList(estimationRule)).when(estimationRuleSet).getRules();
         doReturn(Collections.singleton(readingType)).when(estimationRule).getReadingTypes();
