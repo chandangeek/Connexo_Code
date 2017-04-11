@@ -60,6 +60,7 @@ public enum PrivateMessageSeeds implements MessageSeed {
     FAILED_TO_DEACTIVATE_METROLOGY_CONFIGURATION(4023, Constants.FAILED_TO_DEACTIVATE_METROLOGY_CONFIGURATION, "The metrology configuration is still used by at least one usage point. Use search to find the usage points with such metrology configuration."),
     DELIVERABLE_TOU_NOT_BACKED_BY_EVENTSET(4024, Constants.DELIVERABLE_TOU_NOT_BACKED_BY_EVENTSET, "The time of use bucket {0} of the deliverable {1} is not backed by one of the event sets of the metrology configuration."),
     REQUIREMENT_NOT_BACKED_BY_METER(4025, "requirement.not.backed.by.meter", "Unable to determine preferred channel for requirement {0}, most likely because not meter is providing a matching channel."),
+    READING_TYPE_FOR_DELIVERABLE_ALREADY_USED_ON_CONTRACT(4026, Constants.READING_TYPE_FOR_DELIVERABLE_ALREADY_USED_ON_CONTRACT, "The readingtype is already used for another deliverable on this metrology contract."),
 
     INVALID_DIMENSION(5000, Constants.INVALID_DIMENSION, "Invalid dimension"),
     INVALID_ARGUMENTS_FOR_MULTIPLICATION(5001, Constants.INVALID_ARGUMENTS_FOR_MULTIPLICATION, "Dimensions from multiplication arguments do not result in a valid dimension."),
@@ -90,6 +91,7 @@ public enum PrivateMessageSeeds implements MessageSeed {
     CUSTOM_PROPERTY_SET_NOT_VERSIONED(5026, Constants.CUSTOM_PROPERTY_SET_NOT_VERSIONED, "The custom property set ''{0}'' is not versioned, only versioned sets are supported."),
     CUSTOM_PROPERTY_MUST_BE_NUMERICAL(5027, Constants.CUSTOM_PROPERTY_MUST_BE_NUMERICAL, "The property ''{0}'' of custom property set ''{1}'' must be numerical."),
     CUSTOM_PROPERTY_MUST_BE_SLP(5028, Constants.CUSTOM_PROPERTY_MUST_BE_SLP, "The property ''{0}'' of custom property set ''{1}'' must be numerical."),
+    INVALID_METROLOGYCONTRACT_FOR_DELIVERABLE(5029, Constants.INVALID_METROLOGYCONTRACT_FOR_DELIVERABLE, "The deliverable with id ''{0}'' cannot be used because it has a different metrology contract."),
 
     TIME_OF_USE_BUCKET_INCONSISTENCY(6002, Constants.TIME_OF_USE_BUCKET_INCONSISTENCY, "Inconsistency between requested (={0}) and provided (={1}) time of use bucket for the calculation of deliverable (name={2}) for usagepoint (mRID={3}) in period {4}"),
 
@@ -101,7 +103,6 @@ public enum PrivateMessageSeeds implements MessageSeed {
     USAGE_POINT_DETAILS_NOT_UNIQUE(7015, Constants.UNIQUE_DETAILS, "The usage point already has details for this interval"),
     ACTIVATION_FAILED_BY_CUSTOM_VALIDATORS(7016, Constants.ACTIVATION_FAILED_BY_CUSTOM_VALIDATORS, "Usage point activation failed by custom validator: {0}"),
     USAGE_POINT_ALREADY_ACTIVE_WITH_GIVEN_ROLE(7017, Constants.USAGE_POINT_ALREADY_ACTIVE_WITH_GIVEN_ROLE, "Usage point already has linked meter {0} for role {1}"),
-    USAGE_POINT_INCORRECT_STAGE(7018, Constants.USAGE_POINT_INCORRECT_STAGE, "Incorrect usage point stage, should be preoperational"),
     UNSATISFIED_READING_TYPE_REQUIREMENT_FOR_METER(7019, Constants.UNSATISFIED_READING_TYPE_REQUIREMENT_FOR_METER, "Meter {0} does not provide reading types required by purpose {1}"),
     CANNOT_START_PRIOR_TO_LATEST_CALENDAR_OF_SAME_CATEGORY(7020, "usagepoint.calendar.cannot.start.prior.of.same.category", "Cannot start calendar on usage point, prior to latest calendar of same category."),
     METER_NOT_IN_OPERATIONAL_STAGE(7021, Constants.METER_NOT_IN_OPERATIONAL_STAGE, "Meter {0} is not operational"),
@@ -116,7 +117,14 @@ public enum PrivateMessageSeeds implements MessageSeed {
     DUPLICATE_SLP_NAME(11001, Constants.DUPLICATE_SLP_NAME, "Synthetic load profile name must be unique", Level.SEVERE),
 
     CONNECTION_STATE_CHANGE_BEFORE_INSTALLATION_TIME(12001, "connection.state.change.before.installation.time", "Connection state change should be after usage point installation time"),
-    CONNECTION_STATE_CHANGE_BEFORE_LATEST_CHANGE(12002, "connection.state.change.before.latest.change", "Connection state change should be after the latest connection state change on usage point");
+    CONNECTION_STATE_CHANGE_BEFORE_LATEST_CHANGE(12002, "connection.state.change.before.latest.change", "Connection state change should be after the latest connection state change on usage point"),
+    METROLOGY_CONFIGURATION_INVALID_START_DATE(12003, Constants.METROLOGY_CONFIGURATION_INVALID_START_DATE, "Metrology configuration linking error. Metrology configuration {0} could not be linked to usage point {1} at {2} because another metrology configuration is active at that point in time or later"),
+    INVALID_END_DEVICE_STAGE(12205, Constants.INVALID_END_DEVICE_STAGE, "Metrology configuration linking error. Not all meters are in an operational life cycle stage as of the metrology configurations'' linking date {0}."),
+    METER_ACTIVATION_INVALID_DATE(12206, Constants.METER_ACTIVATION_INVALID_DATE, "Meter linking error. Because the metrology configuration does not allow gaps, the activation date of meter {0} must be less than or equal to the date of the metrology configuration linking {1}."),
+    INVALID_END_DEVICE_STAGE_WITH_GAPS_ALLOWED(12207, Constants.INVALID_END_DEVICE_STAGE_WITH_GAPS_ALLOWED, "Meter linking error. Meter {0} cannot be linked to usage point {1}, as the linking would occur after the metrology configuration''s activation and before the meter''s activation."),
+    METER_ACTIVATION_BEFORE_UP_INSTALLATION_TIME(12209, Constants.METER_ACTIVATION_BEFORE_UP_INSTALLATION_TIME, "Meter linking error. The meter activation date must be greater than, or equal to, the usage point creation date. This usage point''s creation date is {0}."),
+    METROLOGY_CONFIG_INVALID_START_DATE(12211, Constants.METROLOGY_CONFIG_INVALID_START_DATE, "Metrology configuration linking error. The metrology configuration''s start date must be greater than, or equal to, the creation date of the usage point {0}"),
+    METERS_ARE_NOT_SPECIFIED_FOR_CONFIGURATION(12212, Constants.METERS_ARE_NOT_SPECIFIED_FOR_CONFIGURATION, "Metrology configuration linking error.  Meters must be specified for all the meter roles required for the calculation of the active purposes of the selected metrology configuration. Required meter roles: {0}");
 
     private final int number;
     private final String key;
@@ -183,7 +191,6 @@ public enum PrivateMessageSeeds implements MessageSeed {
         public static final String REQUIRED_CPS_MISSING = "required.cps.missing";
         public static final String TIME_OF_USE_BUCKET_INCONSISTENCY = "time.of.use.bucket.inconsistency";
         public static final String UNSATISFIED_READING_TYPE_REQUIREMENT_FOR_METER = "unsatisfied.reading.type.requirement.for.meter";
-        public static final String USAGE_POINT_INCORRECT_STAGE = "usage.point.incorrect.stage";
         public static final String DUPLICATE_USAGE_POINT_MRID = "usagepoint.mrid.already.exists";
         public static final String DUPLICATE_USAGE_POINT_NAME = "usagepoint.name.already.exists";
         public static final String FAIL_MANAGE_CPS_ON_ACTIVE_METROLOGY_CONFIGURATION = "fail.manage.cps.on.active.metrology.configuration";
@@ -242,6 +249,15 @@ public enum PrivateMessageSeeds implements MessageSeed {
         public static final String DENOMINATOR_CANNOT_BE_ZERO = "denominator.cannot.be.zero";
         public static final String METER_NOT_IN_OPERATIONAL_STAGE = "meter.not.in.operational.stage";
         public static final String DUPLICATE_SLP_NAME = "slp.name.already.exists";
+        public static final String READING_TYPE_FOR_DELIVERABLE_ALREADY_USED_ON_CONTRACT = "reading.type.already.used.for.deliverable.on.same.metrologycontract";
+        public static final String INVALID_METROLOGYCONTRACT_FOR_DELIVERABLE = "invalid.metrologycontract.for.deliverable";
+        public static final String METROLOGY_CONFIGURATION_INVALID_START_DATE = "metrology.configuration.invalid.start.date";
+        public static final String METER_ACTIVATION_INVALID_DATE = "meter.activation.invalid.date";
+        public static final String INVALID_END_DEVICE_STAGE = "invalid.end.device.stage";
+        public static final String INVALID_END_DEVICE_STAGE_WITH_GAPS_ALLOWED = "invalid.end.device.stage.with.gaps.allowed";
+        public static final String METER_ACTIVATION_BEFORE_UP_INSTALLATION_TIME = "meter.activation.before.up.installation.time";
+        public static final String METROLOGY_CONFIG_INVALID_START_DATE = "metrology.config.invalid.start.date";
+        public static final String METERS_ARE_NOT_SPECIFIED_FOR_CONFIGURATION = "meters.are.not.specified.for.configuration";
     }
 
 }

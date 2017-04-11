@@ -214,7 +214,7 @@ public class MetrologyConfigurationCrudTest {
     /**
      * This test verifies that {@link MetrologyConfiguration} created by using
      * {@link com.elster.jupiter.metering.config.UsagePointMetrologyConfigurationBuilder}
-     * will return <code>true</code> on {@link MetrologyConfiguration#isGapAllowed()}<br>
+     * will return <code>true</code> on {@link MetrologyConfiguration#areGapsAllowed()}<br>
      * This builder is used during OOTB configuration installation
      */
     @Test
@@ -224,6 +224,6 @@ public class MetrologyConfigurationCrudTest {
                 .withDescription("Description")
                 .create();
 
-        assertThat(metrologyConfiguration.isGapAllowed()).isEqualTo(true);
+        assertThat(metrologyConfiguration.areGapsAllowed()).isEqualTo(true);
     }
 }

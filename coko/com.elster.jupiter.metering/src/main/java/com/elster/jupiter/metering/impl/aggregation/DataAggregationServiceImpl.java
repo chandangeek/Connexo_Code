@@ -23,6 +23,7 @@ import com.elster.jupiter.metering.config.CustomPropertyNode;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Formula;
+import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.NullNode;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;

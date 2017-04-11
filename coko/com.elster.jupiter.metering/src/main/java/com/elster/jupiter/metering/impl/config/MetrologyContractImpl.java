@@ -8,7 +8,6 @@ import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.EventType;
-import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
@@ -17,7 +16,6 @@ import com.elster.jupiter.metering.config.DeliverableType;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
-import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverableBuilder;
@@ -47,7 +45,7 @@ import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
-public class MetrologyContractImpl implements MetrologyContract {
+public class MetrologyContractImpl implements ServerMetrologyContract {
 
     public enum Fields {
         METROLOGY_CONFIG("metrologyConfiguration"),
@@ -138,11 +136,6 @@ public class MetrologyContractImpl implements MetrologyContract {
                 this.customPropertySetService,
                 this.metrologyConfigurationService.getDataModel(),
                 this.metrologyConfigurationService.getThesaurus());
-    }
-
-    @Override
-    public MetrologyContract addDeliverable(ReadingTypeDeliverable deliverable) {
-        return this;
     }
 
     ReadingTypeDeliverable addDeliverable(String name, DeliverableType deliverableType, ReadingType readingType, Formula formula) {
@@ -341,4 +334,5 @@ public class MetrologyContractImpl implements MetrologyContract {
     void deliverableUpdated(ReadingTypeDeliverableImpl deliverable) {
         this.touch();
     }
+
 }

@@ -10,7 +10,6 @@ import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViol
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
-import com.elster.jupiter.devtools.tests.rules.LocaleNeutral;
 import com.elster.jupiter.fsm.Stage;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.AmrSystem;
@@ -28,7 +27,6 @@ import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointManagementException;
-import com.elster.jupiter.metering.UsagePointMeterActivationException;
 import com.elster.jupiter.metering.ami.EndDeviceCapabilities;
 import com.elster.jupiter.metering.ami.HeadEndInterface;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
@@ -722,7 +720,7 @@ public class MeterActivationImplIT {
         UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = spy(metrologyConfigurationService
                 .newUsagePointMetrologyConfiguration("testConfiguration", meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get()).create());
         usagePointMetrologyConfiguration.addMeterRole(metrologyConfigurationService.findDefaultMeterRole(DefaultMeterRole.DEFAULT));
-        when(usagePointMetrologyConfiguration.isGapAllowed()).thenReturn(false);
+        when(usagePointMetrologyConfiguration.areGapsAllowed()).thenReturn(false);
         usagePoint.linkMeters()
                 .activate(now, meter, inMemoryBootstrapModule.getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT))
                 .complete();
@@ -732,7 +730,7 @@ public class MeterActivationImplIT {
     @Test
     @Transactional
     public void testActivationTimeBeforeUsagePointInstallationDate() {
-        expectedException.expect(UsagePointMeterActivationException.ActivationTimeBeforeUsagePointInstallationDate.class);
+        expectedException.expect(com.elster.jupiter.metering.impl.UsagePointMeterActivationException.ActivationTimeBeforeUsagePointInstallationDate.class);
         ServerMeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
         AmrSystem system = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
         Meter meter = spy(system.newMeter("meterForActivation", "testMeter").create());

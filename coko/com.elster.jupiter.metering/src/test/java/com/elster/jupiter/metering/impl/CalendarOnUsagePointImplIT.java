@@ -27,8 +27,8 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
+import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
-import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverableBuilder;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
@@ -437,14 +437,11 @@ public class CalendarOnUsagePointImplIT {
                             .add();
             peakOffPeakConfiguration = this.metrologyConfigurationService.newUsagePointMetrologyConfiguration("Peak_OffPeak", serviceCategory).create();
             peakOffPeakConfiguration.addEventSet(eventSet);
-            ReadingTypeDeliverableBuilder peakBuilder = peakOffPeakConfiguration.newReadingTypeDeliverable("PEAK", peakReadingType, Formula.Mode.AUTO);
-            ReadingTypeDeliverable peakConsumption = peakBuilder.build(peakBuilder.constant(BigDecimal.TEN));
-            ReadingTypeDeliverableBuilder offPeakBuilder = peakOffPeakConfiguration.newReadingTypeDeliverable("OFFPEAK", offPeakReadingType, Formula.Mode.AUTO);
-            ReadingTypeDeliverable offpeakConsumption = offPeakBuilder.build(offPeakBuilder.constant(BigDecimal.TEN));
-            peakOffPeakConfiguration
-                    .addMandatoryMetrologyContract(billingPurpose)
-                    .addDeliverable(peakConsumption)
-                    .addDeliverable(offpeakConsumption);
+            MetrologyContract billingContract = peakOffPeakConfiguration.addMandatoryMetrologyContract(billingPurpose);
+            ReadingTypeDeliverableBuilder peakBuilder = billingContract.newReadingTypeDeliverable("PEAK", peakReadingType, Formula.Mode.AUTO);
+            peakBuilder.build(peakBuilder.constant(BigDecimal.TEN));
+            ReadingTypeDeliverableBuilder offPeakBuilder = billingContract.newReadingTypeDeliverable("OFFPEAK", offPeakReadingType, Formula.Mode.AUTO);
+            offPeakBuilder.build(offPeakBuilder.constant(BigDecimal.TEN));
             peakOffPeakConfiguration.activate();
             context.commit();
         }
@@ -459,11 +456,9 @@ public class CalendarOnUsagePointImplIT {
             ServiceCategory serviceCategory = this.meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
             metrologyConfiguration = this.metrologyConfigurationService.newUsagePointMetrologyConfiguration("Flat", serviceCategory).create();
             ReadingType kWh_15min = this.meteringService.createReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0", "Consumption");
-            ReadingTypeDeliverableBuilder builder = metrologyConfiguration.newReadingTypeDeliverable("PEAK", kWh_15min, Formula.Mode.AUTO);
-            ReadingTypeDeliverable consumption = builder.build(builder.constant(BigDecimal.TEN));
-            metrologyConfiguration
-                    .addMandatoryMetrologyContract(billingPurpose)
-                    .addDeliverable(consumption);
+            MetrologyContract billingContract = metrologyConfiguration.addMandatoryMetrologyContract(billingPurpose);
+            ReadingTypeDeliverableBuilder builder = billingContract.newReadingTypeDeliverable("PEAK", kWh_15min, Formula.Mode.AUTO);
+            builder.build(builder.constant(BigDecimal.TEN));
             metrologyConfiguration.activate();
             context.commit();
         }

@@ -55,7 +55,7 @@ public class MetrologyConfigurationEqualsContractTest extends EqualsContractTest
     @Override
     protected Object getInstanceA() {
         if (instanceA == null) {
-            instanceA = new MetrologyConfigurationImpl(dataModel, metrologyConfigurationService, eventService, this.customPropertySetService, clock, publisher);
+            instanceA = new MetrologyConfigurationImpl(dataModel, metrologyConfigurationService, eventService, clock, publisher);
             Reflection.field("id").ofType(Long.TYPE).in(instanceA).set(INSTANCE_A_ID);
         }
         return instanceA;
@@ -63,14 +63,14 @@ public class MetrologyConfigurationEqualsContractTest extends EqualsContractTest
 
     @Override
     protected Object getInstanceEqualToA() {
-        MetrologyConfigurationImpl other = new MetrologyConfigurationImpl(dataModel, metrologyConfigurationService, eventService, customPropertySetService, clock, publisher);
+        MetrologyConfigurationImpl other = new MetrologyConfigurationImpl(dataModel, metrologyConfigurationService, eventService, clock, publisher);
         Reflection.field("id").ofType(Long.TYPE).in(other).set(INSTANCE_A_ID);
         return other;
     }
 
     @Override
     protected Iterable<?> getInstancesNotEqualToA() {
-        MetrologyConfigurationImpl other = new MetrologyConfigurationImpl(dataModel, metrologyConfigurationService, eventService, customPropertySetService, clock, publisher);
+        MetrologyConfigurationImpl other = new MetrologyConfigurationImpl(dataModel, metrologyConfigurationService, eventService, clock, publisher);
         Reflection.field("id").ofType(Long.TYPE).in(other).set(INSTANCE_A_ID + 1);
         return singletonList(other);
     }

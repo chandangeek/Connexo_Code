@@ -171,7 +171,6 @@ public class SupportsTimeOfUseEventsFromEffectiveMetrologyConfigurationsValidato
         when(this.mandatoryContract.getDeliverables()).thenReturn(Collections.singletonList(this.deliverableWithoutTimeOfUse));
         when(this.optionalContract.getDeliverables()).thenReturn(Collections.singletonList(deliverableWithOtherTOU));
         when(this.metrologyConfiguration.getContracts()).thenReturn(Arrays.asList(this.mandatoryContract, this.optionalContract));
-        when(this.metrologyConfiguration.getDeliverables()).thenReturn(Arrays.asList(this.deliverableWithoutTimeOfUse, deliverableWithOtherTOU));
         when(this.usagePoint.getEffectiveMetrologyConfigurations(any(Range.class))).thenReturn(Collections.singletonList(effectiveMetrologyConfigurationOnUsagePoint));
         CalendarUsageImpl calendarUsage = CalendarUsageImpl.create(this.dataModel, CALENDAR_USAGE_START, this.usagePoint, this.calendarWithCompatibleEvents);
 
@@ -198,7 +197,6 @@ public class SupportsTimeOfUseEventsFromEffectiveMetrologyConfigurationsValidato
         when(this.mandatoryContract.getDeliverables()).thenReturn(Collections.singletonList(this.deliverableWithoutTimeOfUse));
         when(this.optionalContract.getDeliverables()).thenReturn(Collections.singletonList(this.deliverableWithTimeOfUse));
         when(this.metrologyConfiguration.getContracts()).thenReturn(Arrays.asList(this.mandatoryContract, this.optionalContract));
-        when(this.metrologyConfiguration.getDeliverables()).thenReturn(Arrays.asList(this.deliverableWithoutTimeOfUse, this.deliverableWithTimeOfUse));
         when(this.usagePoint.getEffectiveMetrologyConfigurations(any(Range.class))).thenReturn(Collections.singletonList(effectiveMetrologyConfigurationOnUsagePoint));
         CalendarUsageImpl calendarUsage = CalendarUsageImpl.create(this.dataModel, CALENDAR_USAGE_START, this.usagePoint, this.calendarWithCompatibleEvents);
 
@@ -225,7 +223,6 @@ public class SupportsTimeOfUseEventsFromEffectiveMetrologyConfigurationsValidato
         when(this.mandatoryContract.getDeliverables()).thenReturn(Collections.singletonList(this.deliverableWithTimeOfUse));
         when(this.optionalContract.getDeliverables()).thenReturn(Collections.singletonList(this.deliverableWithoutTimeOfUse));
         when(this.metrologyConfiguration.getContracts()).thenReturn(Arrays.asList(this.mandatoryContract, this.optionalContract));
-        when(this.metrologyConfiguration.getDeliverables()).thenReturn(Arrays.asList(this.deliverableWithoutTimeOfUse, this.deliverableWithTimeOfUse));
         when(this.usagePoint.getEffectiveMetrologyConfigurations(any(Range.class))).thenReturn(Collections.singletonList(effectiveMetrologyConfigurationOnUsagePoint));
         CalendarUsageImpl calendarUsage = CalendarUsageImpl.create(this.dataModel, CALENDAR_USAGE_START, this.usagePoint, this.calendarWithCompatibleEvents);
 
@@ -257,7 +254,6 @@ public class SupportsTimeOfUseEventsFromEffectiveMetrologyConfigurationsValidato
         when(this.mandatoryContract.getDeliverables()).thenReturn(Collections.singletonList(deliverableWithOtherTimeOfUse));
         when(this.optionalContract.getDeliverables()).thenReturn(Collections.singletonList(this.deliverableWithoutTimeOfUse));
         when(this.metrologyConfiguration.getContracts()).thenReturn(Arrays.asList(this.mandatoryContract, this.optionalContract));
-        when(this.metrologyConfiguration.getDeliverables()).thenReturn(Arrays.asList(this.deliverableWithoutTimeOfUse, this.deliverableWithTimeOfUse));
         when(this.usagePoint.getEffectiveMetrologyConfigurations(any(Range.class))).thenReturn(Collections.singletonList(effectiveMetrologyConfigurationOnUsagePoint));
         CalendarUsageImpl calendarUsage = CalendarUsageImpl.create(this.dataModel, CALENDAR_USAGE_START, this.usagePoint, this.calendarWithOtherEvents);
 
@@ -290,7 +286,6 @@ public class SupportsTimeOfUseEventsFromEffectiveMetrologyConfigurationsValidato
         when(this.mandatoryContract.getDeliverables()).thenReturn(Collections.singletonList(deliverableWithOtherTimeOfUse));
         when(this.optionalContract.getDeliverables()).thenReturn(Collections.singletonList(this.deliverableWithoutTimeOfUse));
         when(this.metrologyConfiguration.getContracts()).thenReturn(Arrays.asList(this.mandatoryContract, this.optionalContract));
-        when(this.metrologyConfiguration.getDeliverables()).thenReturn(Arrays.asList(this.deliverableWithoutTimeOfUse, this.deliverableWithTimeOfUse));
         when(this.usagePoint.getEffectiveMetrologyConfigurations(any(Range.class))).thenReturn(Collections.singletonList(effectiveMetrologyConfigurationOnUsagePoint));
         CalendarUsageImpl calendarUsage = CalendarUsageImpl.create(this.dataModel, CALENDAR_USAGE_START, this.usagePoint, this.calendarWithOtherEvents);
 

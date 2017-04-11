@@ -2112,7 +2112,7 @@ public class FormulaCrudTest {
         try {
             builder2.build(builder2.constant(10));
         } catch (ReadingTypeAlreadyUsedOnMetrologyContract e) {
-            assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.READING_TYPE_FOR_DELIVERABLE_ALREADY_USED_ON_CONTRACT);
+            assertThat(e.getMessageSeed()).isEqualTo(PrivateMessageSeeds.READING_TYPE_FOR_DELIVERABLE_ALREADY_USED_ON_CONTRACT);
             throw e;
         }
     }

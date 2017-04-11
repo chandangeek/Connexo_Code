@@ -353,19 +353,6 @@ public class ReadingTypeDeliverableImplTestIT {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + PrivateMessageSeeds.Constants.DELIVERABLE_MUST_HAVE_THE_SAME_CONFIGURATION + "}", property = "deliverable", strict = true)
-    public void testCanNotAddDeliverableFromAnotherMetrologyConfigurationToMetrologyContract() {
-        ServiceCategory serviceCategory = inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
-        MetrologyConfiguration anotherConfiguration = inMemoryBootstrapModule.getMetrologyConfigurationService()
-                .newMetrologyConfiguration("Another configuration", serviceCategory).create();
-        ReadingTypeDeliverableBuilder builder = anotherConfiguration.newReadingTypeDeliverable("Some deliverable", readingType, Formula.Mode.AUTO);
-        ReadingTypeDeliverable deliverable = builder.build(builder.constant(10));
-
-        metrologyContract.addDeliverable(deliverable);
-    }
-
-    @Test
-    @Transactional
     public void testCanRemoveDeliverableFromMetrologyConfiguration() {
         ReadingTypeDeliverableBuilder builder = metrologyContract.newReadingTypeDeliverable("Some deliverable", readingType, Formula.Mode.AUTO);
         ReadingTypeDeliverable deliverable = builder.build(builder.constant(10));

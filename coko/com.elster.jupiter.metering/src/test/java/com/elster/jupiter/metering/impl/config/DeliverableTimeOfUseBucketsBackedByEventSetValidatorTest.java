@@ -20,7 +20,6 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.ConstantNode;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
-import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.ReadingTypeRequirementNode;
@@ -97,7 +96,7 @@ public class DeliverableTimeOfUseBucketsBackedByEventSetValidatorTest {
     @Mock
     private Formula formulaWithThickTimeOfUseRequirements;
     @Mock
-    private MetrologyContract metrologyContract;
+    private ServerMetrologyContract metrologyContract;
     @Mock
     private EventSetOnMetrologyConfiguration eventSetOnMetrologyConfiguration;
     @Mock
@@ -117,7 +116,7 @@ public class DeliverableTimeOfUseBucketsBackedByEventSetValidatorTest {
         when(messageFormat.format(anyVararg())).thenReturn("Translation not supported in unit testing");
         when(this.thesaurus.getFormat(any(TranslationKey.class))).thenReturn(messageFormat);
         when(this.thesaurus.getFormat(any(MessageSeed.class))).thenReturn(messageFormat);
-        this.metrologyConfiguration = new MetrologyConfigurationImpl(this.dataModel, this.metrologyConfigurationService, this.eventService, this.cpsService, this.clock, this.publisher);
+        this.metrologyConfiguration = new MetrologyConfigurationImpl(this.dataModel, this.metrologyConfigurationService, this.eventService, this.clock, this.publisher);
 
         ConstantNode constantNode = new ConstantNodeImpl(BigDecimal.ONE);
         when(this.formulaWithConstants.getExpressionNode()).thenReturn(constantNode);
@@ -167,7 +166,8 @@ public class DeliverableTimeOfUseBucketsBackedByEventSetValidatorTest {
 
     @Test
     public void noEventSetsNoDeliverablesWithTimeOfUseDoesNotProduceConstraintViolations() {
-        this.metrologyConfiguration.doAddReadingTypeDeliverable(this.deliverableWithoutTimeOfUse);
+        when(this.metrologyContract.getDeliverables()).thenReturn(Collections.singletonList(this.deliverableWithoutTimeOfUse));
+        this.metrologyConfiguration.doAddMetrologyContract(this.metrologyContract);
 
         // Business method
         this.testValidation(this.metrologyConfiguration);
@@ -177,7 +177,6 @@ public class DeliverableTimeOfUseBucketsBackedByEventSetValidatorTest {
 
     @Test
     public void noEventSetsButOneDeliverableWithThickTimeOfUseDoesNotProducesConstraintViolations() {
-        this.metrologyConfiguration.doAddReadingTypeDeliverable(this.deliverableWithThickTimeOfUse);
         when(this.metrologyContract.getDeliverables()).thenReturn(Collections.singletonList(this.deliverableWithThickTimeOfUse));
         when(this.metrologyContract.isMandatory()).thenReturn(true);
         this.metrologyConfiguration.doAddMetrologyContract(this.metrologyContract);
@@ -191,7 +190,6 @@ public class DeliverableTimeOfUseBucketsBackedByEventSetValidatorTest {
     @Test
     @ExpectedConstraintViolation(property = "deliverables[0.0.2.1.4.2.12.0.0.0.0.3.0.0.0.3.72.0].tou", messageId = "Translation not supported in unit testing", strict = true)
     public void noEventSetsButOneDeliverableWithTimeOfUseProducesOneConstraintViolation() {
-        this.metrologyConfiguration.doAddReadingTypeDeliverable(this.deliverableWithThinTimeOfUse);
         when(this.metrologyContract.getDeliverables()).thenReturn(Collections.singletonList(this.deliverableWithThinTimeOfUse));
         when(this.metrologyContract.isMandatory()).thenReturn(true);
         this.metrologyConfiguration.doAddMetrologyContract(this.metrologyContract);
@@ -206,13 +204,11 @@ public class DeliverableTimeOfUseBucketsBackedByEventSetValidatorTest {
     @Test
     @ExpectedConstraintViolation(messageId = "Translation not supported in unit testing", strict = false)
     public void noEventSetsButMultipleDeliverablesWithTimeOfUseProducesMultipleConstraintViolations() {
-        this.metrologyConfiguration.doAddReadingTypeDeliverable(this.deliverableWithThinTimeOfUse);
         ReadingTypeDeliverable readingTypeDeliverable = mock(ReadingTypeDeliverable.class);
         ReadingType readingType = mock(ReadingType.class);
         this.initializeReadingType(readingType, 5);
         when(readingTypeDeliverable.getReadingType()).thenReturn(readingType);
         when(readingTypeDeliverable.getFormula()).thenReturn(this.formulaWithConstants);
-        this.metrologyConfiguration.doAddReadingTypeDeliverable(readingTypeDeliverable);
         when(this.metrologyContract.getDeliverables()).thenReturn(Arrays.asList(this.deliverableWithThinTimeOfUse, readingTypeDeliverable));
         when(this.metrologyContract.isMandatory()).thenReturn(true);
         this.metrologyConfiguration.doAddMetrologyContract(this.metrologyContract);
@@ -237,7 +233,8 @@ public class DeliverableTimeOfUseBucketsBackedByEventSetValidatorTest {
     @Test
     public void oneEventSetsButNoDeliverablesWithTimeOfUseDoesNotProduceConstraintViolations() {
         this.metrologyConfiguration.doAddEventSet(this.eventSetOnMetrologyConfiguration);
-        this.metrologyConfiguration.doAddReadingTypeDeliverable(this.deliverableWithoutTimeOfUse);
+        when(this.metrologyContract.getDeliverables()).thenReturn(Collections.singletonList(this.deliverableWithoutTimeOfUse));
+        this.metrologyConfiguration.doAddMetrologyContract(this.metrologyContract);
 
         // Business method
         this.testValidation(this.metrologyConfiguration);
@@ -249,7 +246,6 @@ public class DeliverableTimeOfUseBucketsBackedByEventSetValidatorTest {
     public void oneEventSetsAndOneCompatibleDeliverableWithTimeOfUseDoesNotProducesConstraintViolations() {
         this.metrologyConfiguration.doAddEventSet(this.eventSetOnMetrologyConfiguration);
         when(this.eventSet.getEvents()).thenReturn(Arrays.asList(this.peak, this.offpeak));
-        this.metrologyConfiguration.doAddReadingTypeDeliverable(this.deliverableWithThinTimeOfUse);
         when(this.metrologyContract.getDeliverables()).thenReturn(Collections.singletonList(this.deliverableWithThinTimeOfUse));
         when(this.metrologyContract.isMandatory()).thenReturn(true);
         this.metrologyConfiguration.doAddMetrologyContract(this.metrologyContract);
@@ -266,7 +262,6 @@ public class DeliverableTimeOfUseBucketsBackedByEventSetValidatorTest {
         this.metrologyConfiguration.doAddEventSet(this.eventSetOnMetrologyConfiguration);
         when(this.eventSet.getEvents()).thenReturn(Arrays.asList(this.peak, this.offpeak));
         this.initializeReadingType(this.readingTypeWithTimeOfUse, 33);
-        this.metrologyConfiguration.doAddReadingTypeDeliverable(this.deliverableWithThinTimeOfUse);
         when(this.metrologyContract.getDeliverables()).thenReturn(Collections.singletonList(this.deliverableWithThinTimeOfUse));
         when(this.metrologyContract.isMandatory()).thenReturn(true);
         this.metrologyConfiguration.doAddMetrologyContract(this.metrologyContract);

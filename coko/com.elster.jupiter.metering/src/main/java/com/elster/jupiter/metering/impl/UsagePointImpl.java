@@ -597,7 +597,7 @@ public class UsagePointImpl implements ServerUsagePoint {
     }
 
     private void validateMetersIfGapsAreNotAllowed(UsagePointMetrologyConfiguration metrologyConfiguration, Instant start) {
-        if (!metrologyConfiguration.isGapAllowed()) {
+        if (!metrologyConfiguration.areGapsAllowed()) {
             List<ChannelsContainer> channelsContainers = getMeterActivations(start)
                     .stream()
                     .map(MeterActivation::getChannelsContainer)
@@ -730,7 +730,7 @@ public class UsagePointImpl implements ServerUsagePoint {
     private void validateUsagePointStage(Instant when) {
         UsagePointStage.Key usagePointStage = this.getState(when).getStage().getKey();
         if(!UsagePointStage.Key.PRE_OPERATIONAL.equals(usagePointStage) && !UsagePointStage.Key.SUSPENDED.equals(usagePointStage)){
-            throw UsagePointManagementException.incorrectStage(thesaurus);
+            throw com.elster.jupiter.metering.UsagePointManagementException.incorrectStage(thesaurus);
         }
     }
 
@@ -777,7 +777,7 @@ public class UsagePointImpl implements ServerUsagePoint {
                     .collect(Collectors.toList());
 
             if (!metrologyPurposes.isEmpty()) {
-                throw UsagePointManagementException.incorrectMeterActivationRequirements(thesaurus, metrologyPurposes);
+                throw com.elster.jupiter.metering.UsagePointManagementException.incorrectMeterActivationRequirements(thesaurus, metrologyPurposes);
             }
         }
     }

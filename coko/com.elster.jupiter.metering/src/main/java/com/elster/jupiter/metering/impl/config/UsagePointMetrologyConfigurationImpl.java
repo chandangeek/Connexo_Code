@@ -48,7 +48,7 @@ class UsagePointMetrologyConfigurationImpl extends MetrologyConfigurationImpl im
 
     @Inject
     UsagePointMetrologyConfigurationImpl(DataModel dataModel, ServerMetrologyConfigurationService metrologyConfigurationService, EventService eventService, CustomPropertySetService customPropertySetService, UsagePointRequirementsSearchDomain searchDomain, Clock clock, Publisher publisher) {
-        super(dataModel, metrologyConfigurationService, eventService, customPropertySetService, clock, publisher);
+        super(dataModel, metrologyConfigurationService, eventService, clock, publisher);
         this.searchDomain = searchDomain;
     }
 

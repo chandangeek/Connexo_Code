@@ -8,11 +8,14 @@ import com.elster.jupiter.metering.CustomUsagePointMeterActivationValidationExce
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.MeterRole;
-import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
 
-public class UsagePointMeterActivationException extends LocalizedException {
+import com.google.common.collect.Range;
+
+import java.time.Instant;
+
+public class UsagePointMeterActivationException extends com.elster.jupiter.metering.UsagePointMeterActivationException {
 
     protected UsagePointMeterActivationException(Thesaurus thesaurus, MessageSeed messageSeed, Object... args) {
         super(thesaurus, messageSeed, args);
@@ -30,10 +33,16 @@ public class UsagePointMeterActivationException extends LocalizedException {
 
     }
 
-    public static MeterActiveOnDifferentUsagePoint meterActiveOnDifferentUsagePoint(Thesaurus thesaurus, Meter meter, MeterRole currentRole, UsagePoint meterCurrentUsagePoint) {
+    public static MeterActiveOnDifferentUsagePoint meterActiveOnDifferentUsagePoint(Thesaurus thesaurus, Meter meter,
+            MeterRole currentRole, MeterRole desiredRole,
+            UsagePoint meterCurrentUsagePoint,
+            Range<Instant> conflictActivationRange) {
         return new MeterActiveOnDifferentUsagePoint(
-                thesaurus, PrivateMessageSeeds.METER_ALREADY_LINKED_TO_USAGEPOINT,
-                meter.getName(), meterCurrentUsagePoint.getName(), currentRole.getDisplayName());
+                thesaurus,
+                PrivateMessageSeeds.METER_ALREADY_LINKED_TO_USAGEPOINT,
+                meter.getName(),
+                meterCurrentUsagePoint.getName(),
+                currentRole.getDisplayName());
     }
 
     public static class MeterActiveWithDifferentMeterRole extends UsagePointMeterActivationException {
@@ -44,7 +53,7 @@ public class UsagePointMeterActivationException extends LocalizedException {
 
     }
 
-    public static MeterActiveWithDifferentMeterRole meterActiveWithDifferentMeterRole(Thesaurus thesaurus) {
+    public static MeterActiveWithDifferentMeterRole meterActiveWithDifferentMeterRole(Thesaurus thesaurus, Meter meter, MeterRole currentRole, MeterRole desiredRole, Range<Instant> conflictActivationRange) {
         return new MeterActiveWithDifferentMeterRole(thesaurus, PrivateMessageSeeds.THE_SAME_METER_ACTIVATED_TWICE_ON_USAGE_POINT);
     }
 
@@ -58,6 +67,30 @@ public class UsagePointMeterActivationException extends LocalizedException {
 
     public static ActivationFailedByCustomValidator activationFailedByCustomValidator(Thesaurus thesaurus, CustomUsagePointMeterActivationValidationException cause) {
         return new ActivationFailedByCustomValidator(thesaurus, PrivateMessageSeeds.ACTIVATION_FAILED_BY_CUSTOM_VALIDATORS, cause, cause.getLocalizedMessage());
+    }
+
+    public static class ActivationTimeBeforeUsagePointInstallationDate extends UsagePointMeterActivationException {
+        public ActivationTimeBeforeUsagePointInstallationDate(Thesaurus thesaurus, String usagePointInstallationTime) {
+            super(thesaurus, PrivateMessageSeeds.METER_ACTIVATION_BEFORE_UP_INSTALLATION_TIME, usagePointInstallationTime);
+        }
+    }
+
+    public static class IncorrectDeviceStageWithoutMetrologyConfig extends UsagePointMeterActivationException {
+        public IncorrectDeviceStageWithoutMetrologyConfig(Thesaurus thesaurus, String meter, String usagePoint, String date) {
+            super(thesaurus, PrivateMessageSeeds.INVALID_END_DEVICE_STAGE, meter, usagePoint, date);
+        }
+    }
+
+    public static class IncorrectStartTimeOfMeterAndMetrologyConfig extends UsagePointMeterActivationException {
+        public IncorrectStartTimeOfMeterAndMetrologyConfig(Thesaurus thesaurus, String meter, String mcStartDate) {
+            super(thesaurus, PrivateMessageSeeds.METER_ACTIVATION_INVALID_DATE, meter, mcStartDate);
+        }
+    }
+
+    public static class IncorrectMeterActivationDateWhenGapsAreAllowed extends UsagePointMeterActivationException {
+        public IncorrectMeterActivationDateWhenGapsAreAllowed(Thesaurus thesaurus, String meter, String usagePoint) {
+            super(thesaurus, PrivateMessageSeeds.INVALID_END_DEVICE_STAGE_WITH_GAPS_ALLOWED, meter, usagePoint);
+        }
     }
 
 }

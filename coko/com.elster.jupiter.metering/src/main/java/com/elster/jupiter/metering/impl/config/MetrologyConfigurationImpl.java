@@ -5,16 +5,13 @@
 package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.calendar.EventSet;
-import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
-import com.elster.jupiter.metering.config.DeliverableType;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
@@ -72,7 +69,7 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
     public enum Fields {
         NAME("name"),
         DESCRIPTION("description"),
-        ALLOW_GAP("gapAllowed"),
+        ALLOW_GAPS("gapsAllowed"),
         STATUS("status"),
         SERVICECATEGORY("serviceCategory"),
         CUSTOM_PROPERTY_SETS("customPropertySets"),
@@ -98,7 +95,6 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
     private final DataModel dataModel;
     private final ServerMetrologyConfigurationService metrologyConfigurationService;
     private final EventService eventService;
-    private final CustomPropertySetService customPropertySetService;
     private final Clock clock;
     private final Publisher publisher;
 
@@ -109,7 +105,7 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
     private String name;
     @Size(max = Table.SHORT_DESCRIPTION_LENGTH, message = "{" + PrivateMessageSeeds.Constants.FIELD_TOO_LONG + "}")
     private String description;
-    private boolean gapAllowed;
+    private boolean gapsAllowed;
     @NotNull
     private MetrologyConfigurationStatus status = MetrologyConfigurationStatus.INACTIVE;
     @IsPresent(message = "{" + PrivateMessageSeeds.Constants.REQUIRED + "}")
@@ -117,10 +113,10 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
     @Valid
     private List<MetrologyConfigurationCustomPropertySetUsage> customPropertySets = new ArrayList<>();
     private List<ReadingTypeRequirement> readingTypeRequirements = new ArrayList<>();
-    private List<MetrologyContractImpl> metrologyContracts = new ArrayList<>();
+    private List<ServerMetrologyContract> metrologyContracts = new ArrayList<>();
+    private List<EventSetOnMetrologyConfiguration> eventSets = new ArrayList<>();
     @Deprecated // up to version 10.3
     private List<ReadingTypeDeliverable> deliverables;
-    private List<EventSetOnMetrologyConfiguration> eventSets = new ArrayList<>();
 
     private Instant obsoleteTime;
     @SuppressWarnings("unused")
@@ -133,11 +129,10 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
     private String userName;
 
     @Inject
-    MetrologyConfigurationImpl(DataModel dataModel, ServerMetrologyConfigurationService metrologyConfigurationService, EventService eventService, CustomPropertySetService customPropertySetService, Clock clock, Publisher publisher) {
+    MetrologyConfigurationImpl(DataModel dataModel, ServerMetrologyConfigurationService metrologyConfigurationService, EventService eventService, Clock clock, Publisher publisher) {
         this.dataModel = dataModel;
         this.metrologyConfigurationService = metrologyConfigurationService;
         this.eventService = eventService;
-        this.customPropertySetService = customPropertySetService;
         this.clock = clock;
         this.publisher = publisher;
     }
@@ -190,12 +185,12 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
     }
 
     @Override
-    public boolean isGapAllowed() {
-        return gapAllowed;
+    public boolean areGapsAllowed() {
+        return gapsAllowed;
     }
 
-    public void setGapAllowed(boolean gapAllowed){
-        this.gapAllowed = gapAllowed;
+    public void setGapsAllowed(boolean gapAllowed){
+        this.gapsAllowed = gapAllowed;
     }
 
     @Override
@@ -298,7 +293,7 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
 
     @Override
     public List<MetrologyContract> getContracts() {
-        return Collections.unmodifiableList(new ArrayList<>(this.metrologyContracts));
+        return Collections.unmodifiableList(this.metrologyContracts);
     }
 
     @Override
@@ -330,7 +325,7 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
         return metrologyContract;
     }
 
-    void doAddMetrologyContract(MetrologyContract contract) {
+    void doAddMetrologyContract(ServerMetrologyContract contract) {
         this.metrologyContracts.add(contract);
     }
 
@@ -358,52 +353,6 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
         if (this.readingTypeRequirements.remove(readingTypeRequirement)) {
             touch();
         }
-    }
-
-    @Override
-    public ReadingTypeDeliverableBuilderImpl newReadingTypeDeliverable(String name, ReadingType readingType, Formula.Mode mode) {
-        return this.newReadingTypeDeliverable(name, DeliverableType.NUMERICAL, readingType, mode);
-    }
-
-    @Override
-    public ReadingTypeDeliverableBuilderImpl newReadingTypeDeliverable(String name, DeliverableType deliverableType, ReadingType readingType, Formula.Mode mode) {
-        return new ReadingTypeDeliverableBuilderImpl(
-                this.metrologyContracts.stream().findFirst().get(),
-                name,
-                deliverableType,
-                readingType,
-                mode,
-                this.customPropertySetService,
-                this.metrologyConfigurationService.getDataModel(),
-                this.metrologyConfigurationService.getThesaurus());
-    }
-
-    @Override
-    public ReadingTypeDeliverable addReadingTypeDeliverable(String name, DeliverableType deliverableType, ReadingType readingType, Formula formula) {
-        ReadingTypeDeliverableImpl deliverable =
-                this.metrologyConfigurationService.getDataModel()
-                        .getInstance(ReadingTypeDeliverableImpl.class)
-                        .init(this, name, deliverableType, readingType, (ServerFormula) formula);
-        Save.CREATE.validate(this.metrologyConfigurationService.getDataModel(), deliverable);
-        this.doAddReadingTypeDeliverable(deliverable);
-        touch();
-        return deliverable;
-    }
-
-    void doAddReadingTypeDeliverable(ReadingTypeDeliverable deliverable) {
-        this.deliverables.add(deliverable);
-    }
-
-    @Override
-    public void removeReadingTypeDeliverable(ReadingTypeDeliverable deliverable) {
-        metrologyContracts.stream()
-                .filter(contract -> contract.getDeliverables().contains(deliverable))
-                .forEach(contract -> contract.removeDeliverable(deliverable));
-    }
-
-    @Override
-    public List<ReadingTypeDeliverable> getDeliverables() {
-        return getContracts().stream().map(MetrologyContract::getDeliverables).flatMap(Collection::stream).collect(Collectors.toList());
     }
 
     void create() {

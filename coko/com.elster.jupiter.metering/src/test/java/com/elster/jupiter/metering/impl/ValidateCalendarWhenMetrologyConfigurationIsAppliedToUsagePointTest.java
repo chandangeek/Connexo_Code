@@ -262,7 +262,6 @@ public class ValidateCalendarWhenMetrologyConfigurationIsAppliedToUsagePointTest
         when(this.mandatoryContract.getDeliverables()).thenReturn(Collections.singletonList(this.deliverableWithoutTimeOfUse));
         when(this.optionalContract.getDeliverables()).thenReturn(Collections.singletonList(otherDeliverableWithoutTOU));
         when(this.metrologyConfiguration.getContracts()).thenReturn(Arrays.asList(this.mandatoryContract, this.optionalContract));
-        when(this.metrologyConfiguration.getDeliverables()).thenReturn(Arrays.asList(this.deliverableWithoutTimeOfUse, otherDeliverableWithoutTOU));
         UsagePointImpl usagePoint = this.getTestUsagePoint();
 
         // Business method
@@ -282,7 +281,6 @@ public class ValidateCalendarWhenMetrologyConfigurationIsAppliedToUsagePointTest
         when(this.mandatoryContract.getDeliverables()).thenReturn(Collections.singletonList(this.deliverableWithoutTimeOfUse));
         when(this.optionalContract.getDeliverables()).thenReturn(Collections.singletonList(this.deliverableWithTimeOfUse));
         when(this.metrologyConfiguration.getContracts()).thenReturn(Arrays.asList(this.mandatoryContract, this.optionalContract));
-        when(this.metrologyConfiguration.getDeliverables()).thenReturn(Arrays.asList(this.deliverableWithoutTimeOfUse, this.deliverableWithTimeOfUse));
         UsagePointImpl usagePoint = this.getTestUsagePoint();
 
         // Business method
@@ -302,7 +300,6 @@ public class ValidateCalendarWhenMetrologyConfigurationIsAppliedToUsagePointTest
         when(this.mandatoryContract.getDeliverables()).thenReturn(Collections.singletonList(this.deliverableWithTimeOfUse));
         when(this.optionalContract.getDeliverables()).thenReturn(Collections.singletonList(this.deliverableWithoutTimeOfUse));
         when(this.metrologyConfiguration.getContracts()).thenReturn(Arrays.asList(this.mandatoryContract, this.optionalContract));
-        when(this.metrologyConfiguration.getDeliverables()).thenReturn(Arrays.asList(this.deliverableWithoutTimeOfUse, this.deliverableWithTimeOfUse));
         UsagePointImpl usagePoint = this.getTestUsagePoint();
 
         // Business method
@@ -334,7 +331,6 @@ public class ValidateCalendarWhenMetrologyConfigurationIsAppliedToUsagePointTest
         when(this.mandatoryContract.getDeliverables()).thenReturn(Collections.singletonList(this.deliverableWithoutTimeOfUse));
         when(this.optionalContract.getDeliverables()).thenReturn(Collections.singletonList(otherDeliverableWithoutTOU));
         when(this.metrologyConfiguration.getContracts()).thenReturn(Arrays.asList(this.mandatoryContract, this.optionalContract));
-        when(this.metrologyConfiguration.getDeliverables()).thenReturn(Arrays.asList(this.deliverableWithoutTimeOfUse, otherDeliverableWithoutTOU));
         UsagePointImpl usagePoint = this.getTestUsagePoint();
         usagePoint.getUsedCalendars().addCalendar(this.calendarWithCompatibleEvents);
 
@@ -355,7 +351,6 @@ public class ValidateCalendarWhenMetrologyConfigurationIsAppliedToUsagePointTest
         when(this.mandatoryContract.getDeliverables()).thenReturn(Collections.singletonList(this.deliverableWithoutTimeOfUse));
         when(this.optionalContract.getDeliverables()).thenReturn(Collections.singletonList(this.deliverableWithTimeOfUse));
         when(this.metrologyConfiguration.getContracts()).thenReturn(Arrays.asList(this.mandatoryContract, this.optionalContract));
-        when(this.metrologyConfiguration.getDeliverables()).thenReturn(Arrays.asList(this.deliverableWithoutTimeOfUse, this.deliverableWithTimeOfUse));
         UsagePointImpl usagePoint = this.getTestUsagePoint();
         usagePoint.getUsedCalendars().addCalendar(this.calendarWithCompatibleEvents);
 
@@ -376,7 +371,6 @@ public class ValidateCalendarWhenMetrologyConfigurationIsAppliedToUsagePointTest
         when(this.mandatoryContract.getDeliverables()).thenReturn(Collections.singletonList(this.deliverableWithoutTimeOfUse));
         when(this.optionalContract.getDeliverables()).thenReturn(Collections.singletonList(this.deliverableWithTimeOfUse));
         when(this.metrologyConfiguration.getContracts()).thenReturn(Arrays.asList(this.mandatoryContract, this.optionalContract));
-        when(this.metrologyConfiguration.getDeliverables()).thenReturn(Arrays.asList(this.deliverableWithoutTimeOfUse, this.deliverableWithTimeOfUse));
         UsagePointImpl usagePoint = this.getTestUsagePoint();
         usagePoint.getUsedCalendars().addCalendar(this.calendarWithOtherEvents);
 
@@ -397,7 +391,6 @@ public class ValidateCalendarWhenMetrologyConfigurationIsAppliedToUsagePointTest
         when(this.mandatoryContract.getDeliverables()).thenReturn(Collections.singletonList(this.deliverableWithTimeOfUse));
         when(this.optionalContract.getDeliverables()).thenReturn(Collections.singletonList(this.deliverableWithoutTimeOfUse));
         when(this.metrologyConfiguration.getContracts()).thenReturn(Arrays.asList(this.mandatoryContract, this.optionalContract));
-        when(this.metrologyConfiguration.getDeliverables()).thenReturn(Arrays.asList(this.deliverableWithoutTimeOfUse, this.deliverableWithTimeOfUse));
         UsagePointImpl usagePoint = this.getTestUsagePoint();
         usagePoint.getUsedCalendars().addCalendar(this.calendarWithCompatibleEvents);
 
@@ -418,7 +411,6 @@ public class ValidateCalendarWhenMetrologyConfigurationIsAppliedToUsagePointTest
         when(this.mandatoryContract.getDeliverables()).thenReturn(Collections.singletonList(this.deliverableWithTimeOfUse));
         when(this.optionalContract.getDeliverables()).thenReturn(Collections.singletonList(this.deliverableWithoutTimeOfUse));
         when(this.metrologyConfiguration.getContracts()).thenReturn(Arrays.asList(this.mandatoryContract, this.optionalContract));
-        when(this.metrologyConfiguration.getDeliverables()).thenReturn(Arrays.asList(this.deliverableWithoutTimeOfUse, this.deliverableWithTimeOfUse));
         UsagePointImpl usagePoint = this.getTestUsagePoint();
         usagePoint.getUsedCalendars().addCalendar(this.calendarWithOtherEvents);
 

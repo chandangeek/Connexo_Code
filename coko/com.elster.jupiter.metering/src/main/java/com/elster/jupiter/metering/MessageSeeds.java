@@ -31,9 +31,13 @@ public enum MessageSeeds implements MessageSeed {
     THIS_DATE_IS_OVERLAPPED_BY_OTHER_METROLOGYCONFIGURATION_VERSION(7009, Constants.THIS_DATE_IS_OVERLAPPED_BY_OTHER_METROLOGYCONFIGURATION_VERSION, "This date is overlapped by other metrology configuration version."),
     END_DATE_CANT_BE_IN_THE_PAST_FOR_CURRENT_METROLOGYCONFIGURATION_VERSION(7010, Constants.END_DATE_CANT_BE_IN_THE_PAST_FOR_CURRENT_METROLOGYCONFIGURATION_VERSION, "End date can''t be in the past for current metrology configuration version"),
     UNSUPPORTED_COMMAND(7012, Constants.UNSPPORTED_COMMAND, "Unsupported Command {0} for end device {1}"),
+    USAGE_POINT_INCORRECT_STAGE(7018, Constants.USAGE_POINT_INCORRECT_STAGE, "Incorrect usage point stage, should be preoperational"),
     INCOMPATIBLE_TIME_OF_USE_FOR_EDITING(7023, "incompatible.time.of.use.for.editing", "Cannot edit/confirm/estimate/remove reading on a timestamp with time of use {1} when {0} was expected"),
 
-    INVALID_COORDINATES(10003, "invalidCoordinates", "All coordinates fields must contain valid values");
+    INVALID_COORDINATES(10003, "invalidCoordinates", "All coordinates fields must contain valid values"),
+    INVALID_END_DEVICE_STAGE_WITHOUT_MC(12208, Constants.INVALID_END_DEVICE_STAGE_WITHOUT_MC, "Meter linking error. Meter {0} cannot be linked to usage point {1} because this meter is in incorrect life cycle stage after the linking date {2}."),
+    METER_CANNOT_BE_UNLINKED(12210, Constants.METER_CANNOT_BE_UNLINKED, "Meter unlinking error. Because the metrology configration does not allow gaps, meter {0} cannot be unlinked from usage point {1} at {2}. This meter is required for the calculation of the active purposes of the metrology configuration."),
+    METER_ACTIVATION_INVALID_REQUIREMENTS(12204, Constants.METER_ACTIVATION_INVALID_REQUIREMENTS, "Meter linking error. The meters of the usage point do not provide the necessary reading types for purposes {0} of the new metrology configuration");
 
     private final int number;
     private final String key;
@@ -96,6 +100,10 @@ public enum MessageSeeds implements MessageSeed {
         public static final String THIS_DATE_IS_OVERLAPPED_BY_OTHER_METROLOGYCONFIGURATION_VERSION = "this.date.is.overlapped.by.other.metrology.configuration.version";
         public static final String END_DATE_CANT_BE_IN_THE_PAST_FOR_CURRENT_METROLOGYCONFIGURATION_VERSION = "End.date.cant.be.in.the.past.for.current.metrology.configuration.version";
         public static final String UNSPPORTED_COMMAND = "Unsupported.Command.for.enddevice";
+        public static final String INVALID_END_DEVICE_STAGE_WITHOUT_MC = "invalid.end.device.stage.without.mc";
+        public static final String METER_CANNOT_BE_UNLINKED = "meter.cannot.be.unlinked";
+        public static final String USAGE_POINT_INCORRECT_STAGE = "usage.point.incorrect.stage";
+        public static final String METER_ACTIVATION_INVALID_REQUIREMENTS = "meter.activation.invalid.requirements";
     }
 
 }
