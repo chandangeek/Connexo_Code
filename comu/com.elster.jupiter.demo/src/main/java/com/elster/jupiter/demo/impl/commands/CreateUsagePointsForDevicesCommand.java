@@ -29,7 +29,6 @@ import java.security.Principal;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalUnit;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
@@ -82,12 +81,14 @@ public class CreateUsagePointsForDevicesCommand {
                 .forEach(cps -> cps.setValues(getUsagePointTechnicalInstallationDomainExtensionValues()));
         UsagePointMetrologyConfiguration metrologyConfiguration;
         if (device.getDeviceConfiguration().getName().equals(DeviceConfigurationTpl.CONSUMERS.getName())) {
-           metrologyConfiguration = Builders.from(MetrologyConfigurationTpl.CONSUMER).get();
+            metrologyConfiguration = Builders.from(MetrologyConfigurationTpl.CONSUMER).get();
         } else {
             metrologyConfiguration = Builders.from(MetrologyConfigurationTpl.PROSUMER).get();
         }
         metrologyConfiguration.addMeterRole(metrologyConfigurationService.findDefaultMeterRole(DefaultMeterRole.DEFAULT));
-        usagePoint.apply(metrologyConfiguration, clock.instant());
+        Instant now = clock.instant();
+        usagePoint.getEffectiveMetrologyConfiguration(now).ifPresent(effectiveMC -> effectiveMC.close(now));
+        usagePoint.apply(metrologyConfiguration, now);
         usagePoint.update();
         setUsagePoint(device, usagePoint);
     }
