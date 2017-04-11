@@ -130,7 +130,7 @@ Ext.define('Uni.property.view.property.Period', {
             if (countValue && timeUnitValue) {
                 if (initialValue) {
                     isChangedValue = (initialValue.count !== countValue) || (initialValue.timeUnit !== timeUnitValue) || (initialValue.count !== rawValue.inheritedValue.count) || (initialValue.timeUnit !== rawValue.inheritedValue.timeUnit);
-                } else {
+                } else if (rawValue.inheritedValue) {
                     isChangedValue = (rawValue.inheritedValue.count !== countValue) || (rawValue.inheritedValue.timeUnit !== timeUnitValue);
                 }
             }
