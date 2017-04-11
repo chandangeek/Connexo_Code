@@ -15,6 +15,8 @@ import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.fsm.Stage;
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.license.LicenseService;
@@ -34,7 +36,6 @@ import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.FullySpecifiedReadingTypeRequirement;
 import com.elster.jupiter.metering.config.MeterRole;
-import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
@@ -86,7 +87,6 @@ import java.time.Instant;
 import java.time.LocalTime;
 import java.time.Month;
 import java.time.MonthDay;
-import java.time.temporal.TemporalUnit;
 import java.util.Optional;
 
 import org.junit.After;
@@ -96,6 +96,8 @@ import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -127,7 +129,6 @@ public class DataAggregationServiceImplCalculateGasIT {
     private static BundleContext bundleContext;
     private static ReadingType fifteenMinutesGasCubicMeter;
     private static ReadingType fifteenMinutesGas_kWh;
-    private static ReadingType monthlyGasCubicMeter;
     private static ReadingType monthlyGas_kWh;
     private static ServiceCategory GAS;
     private static SearchService searchService;
@@ -153,6 +154,13 @@ public class DataAggregationServiceImplCalculateGasIT {
     private SqlBuilder completeSqlBuilder;
 
     private Meter meter;
+
+    @Mock
+    private static State deviceState;
+    @Mock
+    private static Stage deviceStage;
+
+    private static final String OPERATIONAL_DEVICE_STAGE_KEY = "mtr.enddevicestage.operational";
 
     private static class MockModule extends AbstractModule {
         @Override
@@ -272,7 +280,6 @@ public class DataAggregationServiceImplCalculateGasIT {
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             fifteenMinutesGasCubicMeter = getMeteringService().getReadingType(FIFTEEN_MINS_GAS_VOLUME_M3_MRID).get();
             fifteenMinutesGas_kWh = getMeteringService().getReadingType(FIFTEEN_MINS_GAS_VOLUME_KWH_MRID).get();
-            monthlyGasCubicMeter = getMeteringService().getReadingType(MONTHLY_GAS_VOLUME_M3_MRID).get();
             monthlyGas_kWh = getMeteringService().getReadingType(MONTHLY_GAS_VOLUME_KWH_MRID).get();
             ctx.commit();
         }
@@ -390,7 +397,7 @@ public class DataAggregationServiceImplCalculateGasIT {
         this.initializeSqlBuilders();
 
         // Apply MetrologyConfiguration to UsagePoint
-        this.usagePoint.apply(this.configuration, jan1st2016.plusSeconds(60));
+        this.usagePoint.apply(this.configuration, feb1st2016);
 
         // Business method
         try {
@@ -470,7 +477,7 @@ public class DataAggregationServiceImplCalculateGasIT {
         this.initializeSqlBuilders();
 
         // Apply MetrologyConfiguration to UsagePoint
-        this.usagePoint.apply(this.configuration, jan1st2016.plusSeconds(60));
+        this.usagePoint.apply(this.configuration, feb1st2016);
 
         // Business method
         try {
@@ -514,25 +521,25 @@ public class DataAggregationServiceImplCalculateGasIT {
 
     private void setupMeter(String amrIdBase) {
         AmrSystem mdc = getMeteringService().findAmrSystem(KnownAmrSystem.MDC.getId()).get();
-        this.meter = mdc.newMeter(amrIdBase, amrIdBase).create();
+        this.meter = Mockito.spy(mdc.newMeter(amrIdBase, amrIdBase).create());
+        when(meter.getState(any(Instant.class))).thenReturn(Optional.of(deviceState));
+        when(deviceState.getStage()).thenReturn(Optional.of(deviceStage));
+        when(deviceStage.getName()).thenReturn(OPERATIONAL_DEVICE_STAGE_KEY);
     }
 
     private void setupUsagePoint(String name) {
         ServiceCategory electricity = getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
         this.usagePoint = electricity.newUsagePoint(name, jan1st2016)
                 .create();
-        UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("UP", electricity).create();
-        usagePointMetrologyConfiguration.addMeterRole(getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT));
-        usagePoint.apply(usagePointMetrologyConfiguration, jan1st2016);
     }
 
     private void activateMeterWith15min_m3_Channel(MeterRole meterRole) {
-        MeterActivation meterActivation = this.usagePoint.activate(this.meter, meterRole, jan1st2016);
+        MeterActivation meterActivation = this.usagePoint.activate(this.meter, meterRole, feb1st2016);
         meterActivation.getChannelsContainer().createChannel(fifteenMinutesGasCubicMeter);
     }
 
     private void activateMeterWith15min_kWh_Channel(MeterRole meterRole) {
-        MeterActivation meterActivation = this.usagePoint.activate(this.meter, meterRole, jan1st2016);
+        MeterActivation meterActivation = this.usagePoint.activate(this.meter, meterRole, feb1st2016);
         meterActivation.getChannelsContainer().createChannel(fifteenMinutesGas_kWh);
     }
 

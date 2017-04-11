@@ -17,17 +17,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.config.DefaultMeterRole;
-import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
-import com.elster.jupiter.metering.config.DefaultReadingTypeTemplate;
-import com.elster.jupiter.metering.config.Formula;
-import com.elster.jupiter.metering.config.MeterRole;
-import com.elster.jupiter.metering.config.MetrologyConfiguration;
-import com.elster.jupiter.metering.config.MetrologyContract;
-import com.elster.jupiter.metering.config.MetrologyPurpose;
-import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
-import com.elster.jupiter.metering.config.ReadingTypeTemplate;
-import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
+import com.elster.jupiter.metering.config.*;
 import com.elster.jupiter.metering.impl.config.ExpressionNodeParser;
 import com.elster.jupiter.metering.impl.config.ReadingTypeDeliverableBuilderImpl;
 import com.elster.jupiter.metering.impl.config.ServerExpressionNode;
@@ -50,8 +40,7 @@ import org.osgi.service.component.annotations.Reference;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.time.Instant;
-import java.time.ZonedDateTime;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -104,7 +93,8 @@ import java.util.stream.Stream;
         "osgi.command.function=addUsagePointLocation",
         "osgi.command.function=addUsagePointGeoCoordinates",
         "osgi.command.function=activateMetrologyConfig",
-        "osgi.command.function=addCustomPropertySet"
+        "osgi.command.function=addCustomPropertySet",
+        "osgi.command.function=unlinkMetrologyConfiguration",
 }, immediate = true)
 @SuppressWarnings("unused")
 public class MeteringConsoleCommands {
@@ -116,6 +106,9 @@ public class MeteringConsoleCommands {
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile CustomPropertySetService customPropertySetService;
     private volatile ServerMetrologyConfigurationService metrologyConfigurationService;
+
+    private static DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private static DateTimeFormatter dateTimeFormat = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
 
     @Reference
     public void setUserService(UserService userService) {
@@ -838,6 +831,23 @@ public class MeteringConsoleCommands {
                             .findMetrologyConfiguration(metrologyConfigurationId)
                             .orElseThrow(() -> new IllegalArgumentException("Unable to find metrology configuration with id " + metrologyConfigurationId));
             metrologyConfiguration.addCustomPropertySet(customPropertySet);
+            context.commit();
+        }
+    }
+
+    public void unlinkMetrologyConfiguration(){
+        System.out.println("Usage: unlinkMetrologyConfiguration <usage point name>  <timestamp string>");
+    }
+
+    public void unlinkMetrologyConfiguration(String usagePointName ,String timestamp){
+        threadPrincipalService.set(() -> "Console");
+        try (TransactionContext context = transactionService.getContext()) {
+            UsagePoint usagePoint = this.meteringService.findUsagePointByName(usagePointName)
+                    .orElseThrow(() -> new IllegalArgumentException("Usage point " + usagePointName + " does not exist"));
+            Instant endDate = LocalDateTime.from(dateTimeFormat.parse(timestamp)).atZone(ZoneId.systemDefault()).toInstant();
+            EffectiveMetrologyConfigurationOnUsagePoint configurationOnUsagePoint = usagePoint.getCurrentEffectiveMetrologyConfiguration()
+                    .orElseThrow(() -> new IllegalArgumentException("Usage point "+usagePointName + " does not have open metrology configuration"));
+            usagePoint.getCurrentEffectiveMetrologyConfiguration().get().close(endDate);
             context.commit();
         }
     }
