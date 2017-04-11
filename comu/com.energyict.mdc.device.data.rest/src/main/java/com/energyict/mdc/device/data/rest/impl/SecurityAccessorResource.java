@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.pki.CryptographicType;
 import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.pki.PkiService;
@@ -48,6 +49,11 @@ import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
 public class SecurityAccessorResource {
+    private static final String CURRENT_PROPERTIES = "currentProperties";
+    private static final String TEMP_PROPERTIES = "tempProperties";
+    private static final String ALIAS = "alias";
+    private static final String TRUST_STORE = "trustStore";
+
     private final Set<CryptographicType> CERTIFICATES = EnumSet.of(CryptographicType.Certificate, CryptographicType.ClientCertificate, CryptographicType.TrustedCertificate);
     private final Set<CryptographicType> KEYS = EnumSet.of(CryptographicType.SymmetricKey, CryptographicType.Passphrase);
 
@@ -117,13 +123,25 @@ public class SecurityAccessorResource {
 
         Optional<KeyAccessor> keyAccessor = device.getKeyAccessor(keyAccessorType);
 
-        BiFunction<KeyAccessor, Map<String, Object>, SecurityValueWrapper> securityValueWrapperCreator = (keyAccessor1, properties) -> {
+        BiFunction<KeyAccessor<SecurityValueWrapper>, Map<String, Object>, SecurityValueWrapper> securityValueWrapperCreator = (keyAccessor1, properties) -> {
             SymmetricKeyWrapper symmetricKeyWrapper = pkiService.newSymmetricKeyWrapper(keyAccessor1.getKeyAccessorType());
             symmetricKeyWrapper.setProperties(properties);
             return symmetricKeyWrapper;
         };
 
-        KeyAccessor result = keyAccessor.map(ka -> updateKeyAccessor(ka, securityAccessorInfo, securityValueWrapperCreator))
+        BiFunction<KeyAccessor<SecurityValueWrapper>, Map<String, Object>, SecurityValueWrapper> actualValueUpdater = (keyAccessor1, properties) -> {
+            SecurityValueWrapper actualValue = keyAccessor1.getActualValue();
+            actualValue.setProperties(properties);
+            return actualValue;
+        };
+
+        BiFunction<KeyAccessor<SecurityValueWrapper>, Map<String, Object>, SecurityValueWrapper> tempValueUpdater = (keyAccessor1, properties) -> {
+            SecurityValueWrapper tempValue = keyAccessor1.getTempValue().get();
+            tempValue.setProperties(properties);
+            return tempValue;
+        };
+
+        KeyAccessor result = keyAccessor.map(ka -> updateKeyAccessor(ka, securityAccessorInfo, securityValueWrapperCreator, actualValueUpdater, tempValueUpdater))
                 .orElseGet(() -> createKeyAccessor(device, keyAccessorType, securityAccessorInfo, securityValueWrapperCreator));
         if (result==null) {
             result = keyAccessorPlaceHolderProvider.get().init(keyAccessorType, device);
@@ -149,22 +167,48 @@ public class SecurityAccessorResource {
 
         Optional<KeyAccessor> keyAccessor = device.getKeyAccessor(keyAccessorType);
 
-        BiFunction<KeyAccessor, Map<String, Object>, SecurityValueWrapper> securityValueWrapperCreator = (keyAccessor1, properties) -> {
-            // resolve certificate
-            return null;
+        BiFunction<KeyAccessor<SecurityValueWrapper>, Map<String, Object>, SecurityValueWrapper> certificateReferenceGetter = (ignored, properties) -> {
+            String alias;
+            if (properties.containsKey(ALIAS)) {
+                alias = (String) properties.get(ALIAS);
+            } else {
+                throw new LocalizedFieldValidationException(MessageSeeds.THIS_FIELD_IS_REQUIRED, ALIAS);
+            }
+            if (properties.containsKey(TRUST_STORE)) {
+                return pkiService.findTrustStore((String) properties.get(TRUST_STORE))
+                        .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_TRUST_STORE, TRUST_STORE))
+                        .getCertificates()
+                        .stream()
+                        .filter(cert -> cert.getAlias().equals(alias))
+                        .findAny()
+                        .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_TRUSTED_CERTIFICATE, ALIAS));
+            } else {
+                return pkiService.findCertificateWrapper(alias).orElseThrow(()-> new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_CERTIFICATE, ALIAS));
+            }
         };
 
-        KeyAccessor result = keyAccessor.map(ka -> updateKeyAccessor(ka, securityAccessorInfo, securityValueWrapperCreator))
-                .orElseGet(() -> createKeyAccessor(device, keyAccessorType, securityAccessorInfo, securityValueWrapperCreator));
-        if (result==null) {
-            result = keyAccessorPlaceHolderProvider.get().init(keyAccessorType, device);
-        }
+        BiFunction<KeyAccessor<SecurityValueWrapper>, Map<String, Object>, SecurityValueWrapper> actualValueUpdater = (keyAccessor1, properties) -> {
+            SecurityValueWrapper securityValueWrapper = certificateReferenceGetter.apply(keyAccessor1, properties);
+            keyAccessor1.setActualValue(securityValueWrapper);
+            keyAccessor1.save();
+            return securityValueWrapper;
+        };
+
+        BiFunction<KeyAccessor<SecurityValueWrapper>, Map<String, Object>, SecurityValueWrapper> tempValueUpdater = (keyAccessor1, properties) -> {
+            SecurityValueWrapper securityValueWrapper = certificateReferenceGetter.apply(keyAccessor1, properties);
+            keyAccessor1.setTempValue(securityValueWrapper);
+            keyAccessor1.save();
+            return securityValueWrapper;
+        };
+
+        KeyAccessor result = keyAccessor.map(ka -> updateKeyAccessor(ka, securityAccessorInfo, certificateReferenceGetter, actualValueUpdater, tempValueUpdater))
+                .orElseGet(() -> createKeyAccessor(device, keyAccessorType, securityAccessorInfo, certificateReferenceGetter));
         return Response.ok().entity(securityAccessorInfoFactory.from(result)).build();
     }
 
     private KeyAccessor<SecurityValueWrapper> createKeyAccessor(Device device, KeyAccessorType keyAccessorType,
                                                                 SecurityAccessorInfo securityAccessorInfo,
-                                                                BiFunction<KeyAccessor, Map<String, Object>, SecurityValueWrapper> securityValueWrapperCreator) {
+                                                                BiFunction<KeyAccessor<SecurityValueWrapper>, Map<String, Object>, SecurityValueWrapper> securityValueWrapperCreator) {
         List<PropertySpec> propertySpecs = pkiService.getPropertySpecs(keyAccessorType);
         Map<String, Object> tempProperties = getPropertiesAsMap(propertySpecs, securityAccessorInfo.tempProperties);
         Map<String, Object> actualProperties = getPropertiesAsMap(propertySpecs, securityAccessorInfo.currentProperties);
@@ -177,69 +221,87 @@ public class SecurityAccessorResource {
                     keyAccessor.save();
                 }
             } catch (ConstraintViolationException e) {
-                throw new PathPrependingConstraintViolationException(e, "currentProperties");
+                throw new PathPrependingConstraintViolationException(e, CURRENT_PROPERTIES);
+            } catch (LocalizedFieldValidationException e) {
+                throw e.fromSubField(CURRENT_PROPERTIES);
             }
             try {
                 if (propertiesContainValues(tempProperties)) {
                     SecurityValueWrapper securityValueWrapper = securityValueWrapperCreator.apply(keyAccessor, tempProperties);
                     keyAccessor.setTempValue(securityValueWrapper);
                     keyAccessor.save();
-
                 }
             } catch (ConstraintViolationException e) {
-                throw new PathPrependingConstraintViolationException(e, "tempProperties");
+                throw new PathPrependingConstraintViolationException(e, TEMP_PROPERTIES);
+            } catch (LocalizedFieldValidationException e) {
+                throw e.fromSubField(TEMP_PROPERTIES);
             }
             return keyAccessor;
         }
-        return null;
+        return keyAccessorPlaceHolderProvider.get().init(keyAccessorType, device);
     }
 
-    private KeyAccessor<SecurityValueWrapper> updateKeyAccessor(KeyAccessor keyAccessor, SecurityAccessorInfo securityAccessorInfo, BiFunction<KeyAccessor, Map<String, Object>, SecurityValueWrapper> tempValueCreator) {
+    private KeyAccessor<SecurityValueWrapper> updateKeyAccessor(KeyAccessor keyAccessor,
+                                                                SecurityAccessorInfo securityAccessorInfo,
+                                                                BiFunction<KeyAccessor<SecurityValueWrapper>, Map<String, Object>, SecurityValueWrapper> valueCreator,
+                                                                BiFunction<KeyAccessor<SecurityValueWrapper>, Map<String, Object>, SecurityValueWrapper> actualValueUpdater,
+                                                                BiFunction<KeyAccessor<SecurityValueWrapper>, Map<String, Object>, SecurityValueWrapper> tempValueUpdater) {
         List<PropertySpec> propertySpecs = keyAccessor.getPropertySpecs();
-        updateKeyAccessorTempValue(keyAccessor, securityAccessorInfo, tempValueCreator, propertySpecs);
-        updateKeyAccessorActualValue(keyAccessor, securityAccessorInfo, propertySpecs);
+        updateKeyAccessorTempValue(keyAccessor, securityAccessorInfo, valueCreator, tempValueUpdater, propertySpecs);
+        updateKeyAccessorActualValue(keyAccessor, securityAccessorInfo, propertySpecs, actualValueUpdater);
 
         return keyAccessor;
     }
 
-    private void updateKeyAccessorActualValue(KeyAccessor keyAccessor, SecurityAccessorInfo securityAccessorInfo, List<PropertySpec> propertySpecs) {
+    private void updateKeyAccessorActualValue(KeyAccessor<SecurityValueWrapper> keyAccessor, SecurityAccessorInfo securityAccessorInfo,
+                                              List<PropertySpec> propertySpecs,
+                                              BiFunction<KeyAccessor<SecurityValueWrapper>, Map<String, Object>, SecurityValueWrapper> actualValueUpdater) {
         try {
             Map<String, Object> properties = getPropertiesAsMap(propertySpecs, securityAccessorInfo.currentProperties);
             if (propertiesContainValues(properties)) {
                 if (propertiesDiffer(properties, keyAccessor.getActualValue().getProperties())) {
-                    SecurityValueWrapper actualValue = keyAccessor.getActualValue();
-                    actualValue.setProperties(properties);
+                    actualValueUpdater.apply(keyAccessor, properties);
                 }
             } else {
                 keyAccessor.delete();
             }
         } catch (ConstraintViolationException e) {
-            throw new PathPrependingConstraintViolationException(e, "currentProperties");
+            throw new PathPrependingConstraintViolationException(e, CURRENT_PROPERTIES);
+        } catch (LocalizedFieldValidationException e) {
+            throw e.fromSubField(CURRENT_PROPERTIES);
         }
     }
 
-    private void updateKeyAccessorTempValue(KeyAccessor keyAccessor, SecurityAccessorInfo securityAccessorInfo, BiFunction<KeyAccessor, Map<String, Object>, SecurityValueWrapper> tempValueCreator, List<PropertySpec> propertySpecs) {
+    private void updateKeyAccessorTempValue(KeyAccessor<SecurityValueWrapper> keyAccessor,
+                                            SecurityAccessorInfo securityAccessorInfo,
+                                            BiFunction<KeyAccessor<SecurityValueWrapper>, Map<String, Object>, SecurityValueWrapper> valueCreator,
+                                            BiFunction<KeyAccessor<SecurityValueWrapper>, Map<String, Object>, SecurityValueWrapper> tempValueUpdater,
+                                            List<PropertySpec> propertySpecs) {
         try {
             Optional<SecurityValueWrapper> tempValue = keyAccessor.getTempValue();
             Map<String, Object> properties = getPropertiesAsMap(propertySpecs, securityAccessorInfo.tempProperties);
             if (tempValue.isPresent()) {
-                if (propertiesContainValues(properties) && propertiesDiffer(properties, tempValue.get().getProperties())) {
-                    tempValue.get().setProperties(properties);
+                if (propertiesContainValues(properties)) {
+                    if (propertiesDiffer(properties, tempValue.get().getProperties())) {
+                        tempValueUpdater.apply(keyAccessor, properties);
+                    }
                 } else {
                     keyAccessor.clearTempValue();
                 }
             } else if (!properties.isEmpty()) {
-                SecurityValueWrapper securityValueWrapper = tempValueCreator.apply(keyAccessor, properties);
+                SecurityValueWrapper securityValueWrapper = valueCreator.apply(keyAccessor, properties);
                 keyAccessor.setTempValue(securityValueWrapper);
                 keyAccessor.save();
             }
         } catch (ConstraintViolationException e) {
-            throw new PathPrependingConstraintViolationException(e, "tempProperties");
+            throw new PathPrependingConstraintViolationException(e, TEMP_PROPERTIES);
+        } catch (LocalizedFieldValidationException e) {
+            throw e.fromSubField(TEMP_PROPERTIES);
         }
     }
 
     private boolean propertiesDiffer(Map<String, Object> newProperties, Map<String, Object> existingProperties) {
-        return !newProperties.equals(existingProperties); // hmm, will equals() work well for all property-types? well, it should
+        return !newProperties.equals(existingProperties); // hmm, will equals() work well for all property-types? well, it should, right?
     }
 
     private Map<String, Object> getPropertiesAsMap(Collection<PropertySpec> propertySpecs, List<PropertyInfo> propertyInfos) {
