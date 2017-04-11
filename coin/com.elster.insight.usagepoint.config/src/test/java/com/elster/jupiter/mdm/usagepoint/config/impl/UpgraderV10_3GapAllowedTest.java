@@ -126,7 +126,7 @@ public class UpgraderV10_3GapAllowedTest {
         UsagePointMetrologyConfiguration metrologyConfiguration = mock(UsagePointMetrologyConfiguration.class);
 
         when(metrologyConfiguration.getName()).thenReturn(name);
-        when(metrologyConfiguration.isGapAllowed()).thenReturn(isGapAllowed);
+        when(metrologyConfiguration.areGapsAllowed()).thenReturn(isGapAllowed);
 
         MetrologyConfigurationUpdater updater = mock(MetrologyConfigurationUpdater.class);
         when(updater.setGapAllowed(anyBoolean())).thenReturn(updater);

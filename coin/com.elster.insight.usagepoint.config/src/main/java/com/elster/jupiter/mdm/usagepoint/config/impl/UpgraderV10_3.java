@@ -86,7 +86,7 @@ class UpgraderV10_3 implements Upgrader, PrivilegesProvider {
                     .findFirst()
                     // change gapAllowed flag for existing metrology configuration if it does not match OOTB value
                     .map(MetrologyConfigurationsInstaller.OOTBMetrologyConfiguration::isGapAllowed)
-                    .filter(Predicate.isEqual(metrologyConfiguration.isGapAllowed()).negate())
+                    .filter(Predicate.isEqual(metrologyConfiguration.areGapsAllowed()).negate())
                     .ifPresent((isGapAllowed) -> metrologyConfiguration
                             .startUpdate().setGapAllowed(isGapAllowed).complete());
         }));
@@ -109,10 +109,10 @@ class UpgraderV10_3 implements Upgrader, PrivilegesProvider {
                     .findFirst();
 
             if (contract.isPresent() && meterRole.isPresent() && readingTypeTemplate.isPresent()) {
-                ReadingType readingTypeAplusWh = meteringService.findReadingTypes(Collections.singletonList(MetrologyConfigurationsInstaller.BULK_A_PLUS_WH))
+                ReadingType readingTypeAplusWh = meteringService.findReadingTypes(Collections.singletonList(MetrologyConfigurationsInstaller.BULK_A_PLUS_KWH))
                         .stream()
                         .findFirst()
-                        .orElseGet(() -> meteringService.createReadingType(MetrologyConfigurationsInstaller.BULK_A_PLUS_WH, "A+"));
+                        .orElseGet(() -> meteringService.createReadingType(MetrologyConfigurationsInstaller.BULK_A_PLUS_KWH, "A+"));
                 ReadingTypeRequirement requirementAplusRegister = (metrologyConfiguration)
                         .newReadingTypeRequirement(DefaultReadingTypeTemplate.BULK_A_PLUS.getNameTranslation()
                         .getDefaultFormat(), meterRole.get())
@@ -157,12 +157,11 @@ class UpgraderV10_3 implements Upgrader, PrivilegesProvider {
                                             .findAny()
                                             .orElseGet(() -> mc.newReadingTypeRequirement(DefaultReadingTypeTemplate.A_MINUS.getNameTranslation().getDefaultFormat(), meterRole)
                                                     .withReadingTypeTemplate(readingTypeTemplate));
-                                    ReadingTypeDeliverable min15 = metrologyConfigurationsInstaller.buildFormulaSingleRequirement(
+                                    return metrologyConfigurationsInstaller.buildFormulaSingleRequirement(
                                             contractInformation, readingType15minAMinusWh, requirementAMinus, "15-min A- kWh");
-                                    return min15;
                                 });
                         // add second reading type if not found
-                        ReadingType readingTypeHourlyAMinusWh = this.findOrCreateReadingType(MetrologyConfigurationsInstaller.HOURLY_A_MINUS_WH, "A-");
+                        ReadingType readingTypeHourlyAMinusWh = this.findOrCreateReadingType(MetrologyConfigurationsInstaller.HOURLY_A_MINUS_KWH, "A-");
                         // add second deliverable if not found
                         if (contractInformation.getDeliverables().stream()
                                 .noneMatch(deliverable -> readingTypeHourlyAMinusWh.equals(deliverable.getReadingType()))) {
@@ -237,22 +236,22 @@ class UpgraderV10_3 implements Upgrader, PrivilegesProvider {
         if (usagePointMetrologyConfiguration.isPresent() && usagePointMetrologyConfiguration.get() instanceof UsagePointMetrologyConfiguration) {
             UsagePointMetrologyConfiguration config = (UsagePointMetrologyConfiguration) usagePointMetrologyConfiguration
                     .get();
-            ReadingType readingTypeMonthlyAplusWh = meteringService.findReadingTypes(Collections.singletonList(MetrologyConfigurationsInstaller.MONTHLY_A_PLUS_WH))
+            ReadingType readingTypeMonthlyAplusWh = meteringService.findReadingTypes(Collections.singletonList(MetrologyConfigurationsInstaller.MONTHLY_A_PLUS_KWH))
                     .stream()
                     .findFirst()
-                    .orElseGet(() -> meteringService.createReadingType(MetrologyConfigurationsInstaller.MONTHLY_A_PLUS_WH, "A+"));
-            ReadingType readingTypeMonthlyNetWh = meteringService.findReadingTypes(Collections.singletonList(MetrologyConfigurationsInstaller.MONTHLY_NET_WH))
+                    .orElseGet(() -> meteringService.createReadingType(MetrologyConfigurationsInstaller.MONTHLY_A_PLUS_KWH, "A+"));
+            ReadingType readingTypeMonthlyNetWh = meteringService.findReadingTypes(Collections.singletonList(MetrologyConfigurationsInstaller.MONTHLY_NET_KWH))
                     .stream()
                     .findFirst()
-                    .orElseGet(() -> meteringService.createReadingType(MetrologyConfigurationsInstaller.MONTHLY_NET_WH, "Monthly Net kWh"));
-            ReadingType readingTypeYearlyNetWh = meteringService.findReadingTypes(Collections.singletonList(MetrologyConfigurationsInstaller.YEARLY_NET_WH))
+                    .orElseGet(() -> meteringService.createReadingType(MetrologyConfigurationsInstaller.MONTHLY_NET_KWH, "Monthly Net kWh"));
+            ReadingType readingTypeYearlyNetWh = meteringService.findReadingTypes(Collections.singletonList(MetrologyConfigurationsInstaller.YEARLY_NET_KWH))
                     .stream()
                     .findFirst()
-                    .orElseGet(() -> meteringService.createReadingType(MetrologyConfigurationsInstaller.YEARLY_NET_WH, "Yearly Net kWh"));
-            ReadingType readingTypeYearlyAminusWh = meteringService.findReadingTypes(Collections.singletonList(MetrologyConfigurationsInstaller.YEARLY_A_MINUS_WH))
+                    .orElseGet(() -> meteringService.createReadingType(MetrologyConfigurationsInstaller.YEARLY_NET_KWH, "Yearly Net kWh"));
+            ReadingType readingTypeYearlyAminusWh = meteringService.findReadingTypes(Collections.singletonList(MetrologyConfigurationsInstaller.YEARLY_A_MINUS_KWH))
                     .stream()
                     .findFirst()
-                    .orElseGet(() -> meteringService.createReadingType(MetrologyConfigurationsInstaller.YEARLY_A_MINUS_WH, "A-"));
+                    .orElseGet(() -> meteringService.createReadingType(MetrologyConfigurationsInstaller.YEARLY_A_MINUS_KWH, "A-"));
 
             MetrologyPurpose purposeBilling = metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.BILLING)
                     .orElseThrow(() -> new NoSuchElementException("Billing metrology purpose not found"));
