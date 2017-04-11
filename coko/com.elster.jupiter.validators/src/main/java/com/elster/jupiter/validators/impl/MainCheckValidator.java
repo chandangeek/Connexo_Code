@@ -28,6 +28,7 @@ import com.elster.jupiter.properties.TwoValuesPercentDifference;
 import com.elster.jupiter.util.logging.LoggingContext;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationEvaluator;
+import com.elster.jupiter.validation.ValidationPropertyDefinitionLevel;
 import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validators.MissingRequiredProperty;
@@ -40,7 +41,6 @@ import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -175,6 +175,34 @@ public class MainCheckValidator extends AbstractValidator {
                         .setDefaultValue(false)
                         .finish());
 
+        return builder.build();
+    }
+
+    @Override
+    public List<PropertySpec> getPropertySpecs(ValidationPropertyDefinitionLevel level) {
+        return ValidationPropertyDefinitionLevel.VALIDATION_RULE == level ? getPropertySpecs() : getOverridenPropertySpecs();
+    }
+
+    private List<PropertySpec> getOverridenPropertySpecs() {
+        ImmutableList.Builder<PropertySpec> builder = ImmutableList.builder();
+        builder
+                .add(getPropertySpecService()
+                        .specForValuesOf(new TwoValuesDifferenceValueFactory())
+                        .named(MAX_ABSOLUTE_DIFF, TranslationKeys.MAIN_CHECK_VALIDATOR_MAX_ABSOLUTE_DIFF)
+                        .fromThesaurus(this.getThesaurus())
+                        .markRequired()
+                        .setDefaultValue(new TwoValuesAbsoluteDifference() {{
+                            value = new BigDecimal(0);
+                        }})
+                        .finish());
+        builder
+                .add(getPropertySpecService()
+                        .specForValuesOf(new NonOrBigDecimalValueFactory())
+                        .named(MIN_THRESHOLD, TranslationKeys.MAIN_CHECK_VALIDATOR_MIN_THRESHOLD)
+                        .fromThesaurus(this.getThesaurus())
+                        .markRequired()
+                        .setDefaultValue(new NonOrBigDecimalValueProperty())
+                        .finish());
         return builder.build();
     }
 
