@@ -141,7 +141,7 @@ public class SecurityAccessorResource {
             return tempValue;
         };
 
-        KeyAccessor result = keyAccessor.map(ka -> updateKeyAccessor(ka, securityAccessorInfo, securityValueWrapperCreator, actualValueUpdater, tempValueUpdater))
+        KeyAccessor result = keyAccessor.map(ka -> updateKeyAccessor(device, ka, securityAccessorInfo, securityValueWrapperCreator, actualValueUpdater, tempValueUpdater))
                 .orElseGet(() -> createKeyAccessor(device, keyAccessorType, securityAccessorInfo, securityValueWrapperCreator));
         if (result==null) {
             result = keyAccessorPlaceHolderProvider.get().init(keyAccessorType, device);
@@ -201,7 +201,7 @@ public class SecurityAccessorResource {
             return securityValueWrapper;
         };
 
-        KeyAccessor result = keyAccessor.map(ka -> updateKeyAccessor(ka, securityAccessorInfo, certificateReferenceGetter, actualValueUpdater, tempValueUpdater))
+        KeyAccessor result = keyAccessor.map(ka -> updateKeyAccessor(device, ka, securityAccessorInfo, certificateReferenceGetter, actualValueUpdater, tempValueUpdater))
                 .orElseGet(() -> createKeyAccessor(device, keyAccessorType, securityAccessorInfo, certificateReferenceGetter));
         return Response.ok().entity(securityAccessorInfoFactory.from(result)).build();
     }
@@ -241,29 +241,33 @@ public class SecurityAccessorResource {
         return keyAccessorPlaceHolderProvider.get().init(keyAccessorType, device);
     }
 
-    private KeyAccessor<SecurityValueWrapper> updateKeyAccessor(KeyAccessor keyAccessor,
+    private KeyAccessor<SecurityValueWrapper> updateKeyAccessor(Device device, KeyAccessor keyAccessor,
                                                                 SecurityAccessorInfo securityAccessorInfo,
                                                                 BiFunction<KeyAccessor<SecurityValueWrapper>, Map<String, Object>, SecurityValueWrapper> valueCreator,
                                                                 BiFunction<KeyAccessor<SecurityValueWrapper>, Map<String, Object>, SecurityValueWrapper> actualValueUpdater,
                                                                 BiFunction<KeyAccessor<SecurityValueWrapper>, Map<String, Object>, SecurityValueWrapper> tempValueUpdater) {
         List<PropertySpec> propertySpecs = keyAccessor.getPropertySpecs();
         updateKeyAccessorTempValue(keyAccessor, securityAccessorInfo, valueCreator, tempValueUpdater, propertySpecs);
-        updateKeyAccessorActualValue(keyAccessor, securityAccessorInfo, propertySpecs, actualValueUpdater);
+        Optional<KeyAccessor<SecurityValueWrapper>> result = updateKeyAccessorActualValue(keyAccessor, securityAccessorInfo, propertySpecs, actualValueUpdater);
 
-        return keyAccessor;
+        return result.orElseGet(()->keyAccessorPlaceHolderProvider.get().init(keyAccessor.getKeyAccessorType(), device));
     }
 
-    private void updateKeyAccessorActualValue(KeyAccessor<SecurityValueWrapper> keyAccessor, SecurityAccessorInfo securityAccessorInfo,
-                                              List<PropertySpec> propertySpecs,
-                                              BiFunction<KeyAccessor<SecurityValueWrapper>, Map<String, Object>, SecurityValueWrapper> actualValueUpdater) {
+    private Optional<KeyAccessor<SecurityValueWrapper>> updateKeyAccessorActualValue(
+                                             KeyAccessor<SecurityValueWrapper> keyAccessor,
+                                             SecurityAccessorInfo securityAccessorInfo,
+                                             List<PropertySpec> propertySpecs,
+                                             BiFunction<KeyAccessor<SecurityValueWrapper>, Map<String, Object>, SecurityValueWrapper> actualValueUpdater) {
         try {
             Map<String, Object> properties = getPropertiesAsMap(propertySpecs, securityAccessorInfo.currentProperties);
             if (propertiesContainValues(properties)) {
                 if (propertiesDiffer(properties, keyAccessor.getActualValue().getProperties())) {
                     actualValueUpdater.apply(keyAccessor, properties);
                 }
+                return Optional.of(keyAccessor);
             } else {
                 keyAccessor.delete();
+                return Optional.empty();
             }
         } catch (ConstraintViolationException e) {
             throw new PathPrependingConstraintViolationException(e, CURRENT_PROPERTIES);
