@@ -98,8 +98,8 @@ public class UsagePointImportIT {
         configureServices();
         FileImporter importer = createUsagePointImporter();
         String csv = "id;created;installationTime;serviceKind;countryCode;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;isSDP;isVirtual;phaseCode;countryName;administrativeArea;locality;metrologyConfiguration;metrologyConfigurationTime;meterRole1;meter1;activationdate1;transition;transitionDate;transitionConnectionState;allowUpdate\n" +
-                "UP_TEST;01/12/2016 00:00;01/12/2016 00:00;electricity;code;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;TRUE;FALSE;S1;US;California;Los Angeles;Residential net metering (consumption);01/12/2017 00:00;meter.role.default;DEVICE;01/12/2017 00:00;Install active;02/12/2017 00:00;Connected;FALSE\n";
-        when(inMemoryPersistence.getClock().instant()).thenReturn(LocalDate.of(2015, 8, 1).atStartOfDay().toInstant(ZoneOffset.UTC));
+                "UP_TEST;01/12/2015 00:00;01/12/2015 00:00;electricity;code;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;TRUE;FALSE;S1;US;California;Los Angeles;Residential net metering (consumption);01/12/2017 00:00;meter.role.default;DEVICE;01/12/2017 00:00;Install active;02/12/2017 00:00;Connected;FALSE\n";
+        when(inMemoryPersistence.getClock().instant()).thenReturn(LocalDate.of(2016, 8, 1).atStartOfDay().toInstant(ZoneOffset.UTC));
         FileImportOccurrence occurrence = mockFileImportOccurrence(csv);
 
         importer.process(occurrence);
@@ -163,8 +163,7 @@ public class UsagePointImportIT {
         MeteringService meteringService = inMemoryPersistence.getService(MeteringService.class);
         MetrologyConfigurationService metrologyConfigurationService = inMemoryPersistence.getService(MetrologyConfigurationService.class);
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
-        metrologyConfigurationService.newUsagePointMetrologyConfiguration("Residential net metering (consumption)", serviceCategory)
-                .create();
+        metrologyConfigurationService.newUsagePointMetrologyConfiguration("Residential net metering (consumption)", serviceCategory).create();
         FiniteStateMachineService finiteStateMachineService = inMemoryPersistence.getService(FiniteStateMachineService.class);
         StageSet operational = finiteStateMachineService.newStageSet("operational").stage(EndDeviceStage.OPERATIONAL.getKey()).add();
         FiniteStateMachineBuilder builder = finiteStateMachineService.newFiniteStateMachine("finiteStateMachine", operational);
