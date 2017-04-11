@@ -18,7 +18,6 @@
     <name>[Jupiter] com.elster.jupiter.validation</name>
 
     <dependencies>
-
         <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.core</artifactId>
@@ -55,7 +54,6 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>kpi</artifactId>
         </dependency>
-
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>cbo</artifactId>
@@ -108,6 +106,8 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>search</artifactId>
         </dependency>
+
+        <!-- Test dependencies -->
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>devtools</artifactId>
@@ -174,5 +174,4 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
 </project>

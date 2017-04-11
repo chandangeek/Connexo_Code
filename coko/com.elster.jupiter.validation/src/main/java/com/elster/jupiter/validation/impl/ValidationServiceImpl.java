@@ -41,6 +41,7 @@ import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Pair;
+import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Order;
@@ -62,8 +63,6 @@ import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.Validator;
 import com.elster.jupiter.validation.ValidatorFactory;
 import com.elster.jupiter.validation.ValidatorNotFoundException;
-import com.elster.jupiter.validation.impl.kpi.DataValidationKpiServiceImpl;
-import com.elster.jupiter.validation.kpi.DataValidationKpiService;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
@@ -105,8 +104,9 @@ import static com.elster.jupiter.util.conditions.Where.where;
 public class ValidationServiceImpl implements ServerValidationService, MessageSeedProvider, TranslationKeyProvider {
 
     static final String DESTINATION_NAME = "DataValidation";
-    public static final String SUBSCRIBER_NAME = "DataValidation";
+    static final String SUBSCRIBER_NAME = "DataValidation";
     public static final String VALIDATION_USER = "validation";
+
     private volatile EventService eventService;
     private volatile MeteringService meteringService;
     private volatile MeteringGroupsService meteringGroupsService;
@@ -120,13 +120,11 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
     private volatile QueryService queryService;
     private volatile UserService userService;
     private volatile UpgradeService upgradeService;
-
     private volatile KpiService kpiService;
 
     private final List<ValidatorFactory> validatorFactories = new CopyOnWriteArrayList<>();
     private final List<ValidationRuleSetResolver> ruleSetResolvers = new CopyOnWriteArrayList<>();
     private DestinationSpec destinationSpec;
-    private DataValidationKpiService dataValidationKpiService;
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
 
     public ValidationServiceImpl() {
@@ -135,6 +133,7 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
     @Inject
     ValidationServiceImpl(BundleContext bundleContext, Clock clock, MessageService messageService, EventService eventService, TaskService taskService, MeteringService meteringService, MeteringGroupsService meteringGroupsService,
                           OrmService ormService, QueryService queryService, NlsService nlsService, UserService userService, Publisher publisher, UpgradeService upgradeService, KpiService kpiService, MetrologyConfigurationService metrologyConfigurationService, SearchService searchService) {
+        this();
         this.clock = clock;
         this.messageService = messageService;
         this.setMetrologyConfigurationService(metrologyConfigurationService);
@@ -160,7 +159,6 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
 
     @Activate
     public final void activate(BundleContext context) {
-        this.dataValidationKpiService = new DataValidationKpiServiceImpl(this);
         dataModel.register(new AbstractModule() {
             @Override
             protected void configure() {
@@ -177,7 +175,6 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(KpiService.class).toInstance(kpiService);
                 bind(MessageService.class).toInstance(messageService);
-                bind(DataValidationKpiService.class).toInstance(dataValidationKpiService);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(UserService.class).toInstance(userService);
                 bind(DestinationSpec.class).toProvider(ValidationServiceImpl.this::getDestination);
@@ -186,7 +183,6 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
                 bind(MetrologyConfigurationService.class).toInstance(metrologyConfigurationService);
             }
         });
-        this.registerDataValidationKpiService(context);
         upgradeService.register(
                 InstallIdentifier.identifier("Pulse", COMPONENTNAME),
                 dataModel,
@@ -506,7 +502,7 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
     }
 
     private static Range<Instant> makeEndless(Range<Instant> range) {
-        return range.hasLowerBound() ? Range.downTo(range.lowerEndpoint(), range.lowerBoundType()) : Range.all();
+        return Ranges.copy(range).withoutUpperBound();
     }
 
     private Set<QualityCodeSystem> getQualityCodeSystemsWithAllowedValidation(ValidationContext validationContext) {
@@ -868,9 +864,4 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
     private Optional<DataValidationTask> getDataValidationTaskForRecurrentTask(RecurrentTask recurrentTask) {
         return dataModel.mapper(DataValidationTask.class).getUnique("recurrentTask", recurrentTask);
     }
-
-    private void registerDataValidationKpiService(BundleContext bundleContext) {
-        this.serviceRegistrations.add(bundleContext.registerService(DataValidationKpiService.class, this.dataValidationKpiService, null));
-    }
-
 }

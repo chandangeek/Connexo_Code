@@ -202,10 +202,9 @@ public class ValidateMetrologyConfigurationChannelsContainerTestIT {
         UsagePointMetrologyConfiguration metrologyConfiguration = metrologyConfigurationService.newUsagePointMetrologyConfiguration("MC", serviceCategory).create();
         metrologyConfiguration.addMeterRole(meterRole);
         FullySpecifiedReadingTypeRequirement readingTypeRequirement = metrologyConfiguration.newReadingTypeRequirement("RTR", meterRole).withReadingType(inputReadingType);
-        ReadingTypeDeliverableBuilder builder = metrologyConfiguration.newReadingTypeDeliverable("RTD", outputReadingType, Formula.Mode.AUTO);
-        ReadingTypeDeliverable readingTypeDeliverable = builder.build(builder.divide(builder.requirement(readingTypeRequirement), builder.constant(1000L)));
         MetrologyContract metrologyContract = metrologyConfiguration.addMandatoryMetrologyContract(metrologyPurpose);
-        metrologyContract.addDeliverable(readingTypeDeliverable);
+        ReadingTypeDeliverableBuilder builder = metrologyContract.newReadingTypeDeliverable("RTD", outputReadingType, Formula.Mode.AUTO);
+        ReadingTypeDeliverable readingTypeDeliverable = builder.build(builder.divide(builder.requirement(readingTypeRequirement), builder.constant(1000L)));
         UsagePoint usagePoint = serviceCategory.newUsagePoint("UP", firstReadingTimestamp.minus(1, ChronoUnit.DAYS)).create();
         usagePoint.apply(metrologyConfiguration, firstReadingTimestamp.minus(1, ChronoUnit.DAYS));
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = usagePoint.getCurrentEffectiveMetrologyConfiguration().get();
