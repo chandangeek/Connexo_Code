@@ -24,7 +24,10 @@ public enum Privileges implements TranslationKey {
     FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE_CONFIGURATION(Constants.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE_CONFIGURATION, "Fine tune device configuration estimation"),
     VIEW_ESTIMATION_TASK(Constants.VIEW_ESTIMATION_TASK, "View task"),
     ADMINISTRATE_ESTIMATION_TASK(Constants.ADMINISTRATE_ESTIMATION_TASK, "Administer task"),
-    ESTIMATE_MANUAL(Constants.ESTIMATE_MANUAL, "Estimate manual");
+    ESTIMATE_MANUAL(Constants.ESTIMATE_MANUAL, "Estimate manual"),
+    ESTIMATE_WITH_RULE(Constants.ESTIMATE_WITH_RULE, "Estimate with rule"),
+    EDIT_WITH_ESTIMATOR(Constants.EDIT_WITH_ESTIMATOR, "Edit with estimator")
+    ;
 
     private final String key;
     private final String description;
@@ -63,6 +66,8 @@ public enum Privileges implements TranslationKey {
         String VIEW_ESTIMATION_TASK = "privilege.view.ScheduleEstimationTask";
         String ADMINISTRATE_ESTIMATION_TASK = "privilege.administrate.ScheduleEstimationTask";
         String ESTIMATE_MANUAL = "privilege.view.estimateManual";
+        String ESTIMATE_WITH_RULE = "privilege.estimate.with.rule";
+        String EDIT_WITH_ESTIMATOR = "privilege.edit.with.estimator";
 
         String FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE = "privilege.view.fineTuneEstimationConfiguration.onDevice";
         String FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE_CONFIGURATION = "privilege.view.fineTuneEstimationConfiguration.onDeviceConfiguration";
