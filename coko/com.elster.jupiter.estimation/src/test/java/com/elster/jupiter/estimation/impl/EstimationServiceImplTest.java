@@ -223,8 +223,8 @@ public class EstimationServiceImplTest {
         doReturn(fetcher).when(cimChannel1).findReadingQualities();
         doReturn(fetcher).when(cimChannel2).findReadingQualities();
         doAnswer(invocation -> ((Instant) invocation.getArguments()[0]).plus(Duration.ofMinutes(15))).when(channel).getNextDateTime(any());
-        doReturn(estimator1).when(rule1).createNewEstimator();
-        doReturn(estimator2).when(rule2).createNewEstimator();
+        doReturn(estimator1).when(rule1).createNewEstimator(any(), any());
+        doReturn(estimator2).when(rule2).createNewEstimator(any(), any());
         doReturn(true).when(rule1).isActive();
         doReturn(true).when(rule2).isActive();
         doReturn(channelsContainer).when(channel).getChannelsContainer();
