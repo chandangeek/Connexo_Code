@@ -12,9 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-/**
- * Created by mbarinov on 17.08.2016.
- */
 @ProviderType
 public interface PropertyValueInfoService {
 
@@ -26,9 +23,13 @@ public interface PropertyValueInfoService {
 
     PropertyInfo getPropertyInfo(PropertySpec propertySpec, Function<String, Object> propertyValueProvider);
 
+    PropertyInfo getPropertyInfo(PropertySpec propertySpec, Function<String, Object> propertyValueProvider, Function<String, Object> inheritedPropertyValueProvider);
+
     List<PropertyInfo> getPropertyInfos(List<PropertySpec> propertySpecs);
 
     List<PropertyInfo> getPropertyInfos(List<PropertySpec> propertySpecs, Map<String, Object> propertyValues);
+
+    List<PropertyInfo> getPropertyInfos(List<PropertySpec> propertySpecs, Map<String, Object> propertyValues, Map<String, Object> inheritedPropertyValues);
 
     Object findPropertyValue(PropertySpec propertySpec, List<PropertyInfo> propertyInfos);
 
