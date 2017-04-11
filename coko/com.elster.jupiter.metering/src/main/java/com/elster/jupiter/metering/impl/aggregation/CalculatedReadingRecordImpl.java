@@ -110,7 +110,11 @@ class CalculatedReadingRecordImpl implements CalculatedReadingRecord {
     }
 
     private static Instant max(Instant timestamp1, Instant timestamp2) {
-        if (timestamp1.compareTo(timestamp2) < 0) {
+        if (timestamp1 == null) {
+            return timestamp2;
+        } else if (timestamp2 == null) {
+            return timestamp1;
+        } else if (timestamp1.compareTo(timestamp2) < 0) {
             return timestamp2;
         } else {
             return timestamp1;
