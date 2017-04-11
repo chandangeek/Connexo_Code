@@ -322,7 +322,7 @@ public class ResourceHelper {
 
     private void validateUnlinkMeters(UsagePoint usagePoint, MeterRole meterRole) {
         Optional<EffectiveMetrologyConfigurationOnUsagePoint> mc = usagePoint.getCurrentEffectiveMetrologyConfiguration();
-        if (mc.isPresent() && !mc.get().getMetrologyConfiguration().isGapAllowed()) {
+        if (mc.isPresent() && !mc.get().getMetrologyConfiguration().areGapsAllowed()) {
             EffectiveMetrologyConfigurationOnUsagePoint metrologyConfiguration = mc.get();
             List<ReadingTypeRequirement> requirementsForMeterRole = metrologyConfiguration.getMetrologyConfiguration().getRequirements(meterRole)
                     .stream()
@@ -344,8 +344,11 @@ public class ResourceHelper {
                     .findAny()
                     .ifPresent(meterActivation -> {
                         DateTimeFormatter dateTimeFormatter = userService.getUserPreferencesService().getDateTimeFormatter(threadPrincipalService.getPrincipal(), PreferenceType.LONG_DATE, PreferenceType.LONG_TIME);
-                        throw new UsagePointMeterActivationException.MeterCannotBeUnlinked(thesaurus, meterActivation.getMeter().get().getName(), usagePoint.getName(), dateTimeFormatter.format(LocalDateTime
-                                .ofInstant(clock.instant(), ZoneId.systemDefault())));
+                        throw new UsagePointMeterActivationException.MeterCannotBeUnlinked(
+                                thesaurus,
+                                meterActivation.getMeter().get().getName(),
+                                usagePoint.getName(),
+                                dateTimeFormatter.format(LocalDateTime.ofInstant(clock.instant(), ZoneId.systemDefault())));
                     });
         }
     }
