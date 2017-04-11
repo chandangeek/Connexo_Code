@@ -384,8 +384,9 @@ public class UsagePointMeterActivatorImplManageActivationsIT {
         when(meter2.getState(any(Instant.class))).thenReturn(Optional.of(deviceState));
         when(deviceState.getStage()).thenReturn(Optional.of(deviceStage));
         when(deviceStage.getName()).thenReturn(operationalDeviceStageKey);
-        usagePoint.getEffectiveMetrologyConfiguration(INSTALLATION_TIME).get().close(INSTALLATION_TIME.plusSeconds(60));
-        usagePoint.apply(usagePointMetrologyConfiguration, INSTALLATION_TIME.plusSeconds(60));
+        Instant sixtySecondsAfterInstallationTime = INSTALLATION_TIME.plusSeconds(60);
+        usagePoint.getEffectiveMetrologyConfiguration(INSTALLATION_TIME).get().close(sixtySecondsAfterInstallationTime);
+        usagePoint.apply(usagePointMetrologyConfiguration, sixtySecondsAfterInstallationTime);
         usagePoint.linkMeters().activate(ONE_DAY_AFTER, meter, meterRole)
                 .activate(INSTALLATION_TIME, meter2, meterRole2).complete();
         UsagePointMeterActivatorImpl activator = (UsagePointMeterActivatorImpl) usagePoint.linkMeters();

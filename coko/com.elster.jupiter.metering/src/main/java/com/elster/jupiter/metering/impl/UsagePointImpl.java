@@ -57,8 +57,8 @@ import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.ReadingTypeRequirementsCollector;
 import com.elster.jupiter.metering.config.UnsatisfiedMerologyConfigurationEndDateInThePast;
 import com.elster.jupiter.metering.config.UnsatisfiedMerologyConfigurationStartDateRelativelyLatestEnd;
-import com.elster.jupiter.metering.config.UnsatisfiedMerologyConfigurationStartDateRelativelyLatestStart;
 import com.elster.jupiter.metering.config.UnsatisfiedMetrologyConfigurationEndDate;
+import com.elster.jupiter.metering.config.UnsatisfiedMetrologyConfigurationStartDateRelativelyLatestStart;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.impl.aggregation.CalendarTimeSeriesCacheHandler;
 import com.elster.jupiter.metering.impl.aggregation.CalendarTimeSeriesCacheHandlerFactory;
@@ -581,7 +581,7 @@ public class UsagePointImpl implements ServerUsagePoint {
     private void apply(UsagePointMetrologyConfiguration metrologyConfiguration, Set<MetrologyContract> optionalContractsToActivate, Instant start, Instant end) {
         validateApplyTimeAndCreateDate(start);
         validateUsagePointStage(start);
-        validateMetersIfGapsAreNotAllowed(metrologyConfiguration, start);
+        validateMetersIfGapsAreNotAllowedWithMeterRoles(metrologyConfiguration, start);
         validateEndDeviceStage(this.getMeterActivations(), start);
         validateMetrologyConfigOverlapping(metrologyConfiguration, start);
         validateMeters(this.getMeterActivations(start), metrologyConfiguration.getContracts());
@@ -596,8 +596,8 @@ public class UsagePointImpl implements ServerUsagePoint {
         this.postCalendarTimeSeriesCacheHandlerMessage(start);
     }
 
-    private void validateMetersIfGapsAreNotAllowed(UsagePointMetrologyConfiguration metrologyConfiguration, Instant start) {
-        if (!metrologyConfiguration.areGapsAllowed()) {
+    private void validateMetersIfGapsAreNotAllowedWithMeterRoles(UsagePointMetrologyConfiguration metrologyConfiguration, Instant start) {
+        if (!metrologyConfiguration.areGapsAllowed() && !metrologyConfiguration.getMeterRoles().isEmpty()) {
             List<ChannelsContainer> channelsContainers = getMeterActivations(start)
                     .stream()
                     .map(MeterActivation::getChannelsContainer)
@@ -611,10 +611,13 @@ public class UsagePointImpl implements ServerUsagePoint {
                     .isPresent();
 
             if (!meterActivationsMatched) {
-                throw UsagePointManagementException.incorrectMetersSpecification(thesaurus, metrologyConfiguration.getMeterRoles()
-                        .stream()
-                        .map(MeterRole::getDisplayName)
-                        .collect(Collectors.toList()));
+                throw UsagePointManagementException.incorrectMetersSpecification(
+                        thesaurus,
+                        metrologyConfiguration
+                            .getMeterRoles()
+                            .stream()
+                            .map(MeterRole::getDisplayName)
+                            .collect(Collectors.toList()));
             }
         }
     }
@@ -673,7 +676,7 @@ public class UsagePointImpl implements ServerUsagePoint {
         Instant latestEndDate = latestEffectiveMetrologyConfiguration.getEnd();
 
         if (nextStartDate.isBefore(latestStartDate) || nextStartDate.equals(latestStartDate)) {
-            throw new UnsatisfiedMerologyConfigurationStartDateRelativelyLatestStart(thesaurus);
+            throw new UnsatisfiedMetrologyConfigurationStartDateRelativelyLatestStart(thesaurus);
         }
         if (latestEndDate != null && nextStartDate.isBefore(latestEndDate)) {
             throw new UnsatisfiedMerologyConfigurationStartDateRelativelyLatestEnd(thesaurus);

@@ -138,7 +138,8 @@ public class MetrologyContractImpl implements ServerMetrologyContract {
                 this.metrologyConfigurationService.getThesaurus());
     }
 
-    ReadingTypeDeliverable addDeliverable(String name, DeliverableType deliverableType, ReadingType readingType, Formula formula) {
+    @Override
+    public ReadingTypeDeliverable addDeliverable(String name, DeliverableType deliverableType, ReadingType readingType, Formula formula) {
         ReadingTypeDeliverableImpl deliverable =
                 this.metrologyConfigurationService.getDataModel()
                         .getInstance(ReadingTypeDeliverableImpl.class)
@@ -151,19 +152,26 @@ public class MetrologyContractImpl implements ServerMetrologyContract {
 
     @Override
     public void removeDeliverable(ReadingTypeDeliverable deliverableForRemove) {
-        if(!metrologyConfigurationService.getDataModel()
+        if (this.doRemoveDeliverable(deliverableForRemove)) {
+            this.touch();
+        }
+    }
+
+    public boolean doRemoveDeliverable(ReadingTypeDeliverable deliverableForRemove) {
+        if (!metrologyConfigurationService.getDataModel()
                 .query(ReadingTypeDeliverableNodeImpl.class)
                 .select(where("readingTypeDeliverable").isEqualTo(deliverableForRemove))
                 .isEmpty()){
             throw new CannotDeleteReadingTypeDeliverableException(metrologyConfigurationService.getThesaurus(), deliverableForRemove.getName());
         }
-        if(this.deliverables.contains(deliverableForRemove)) {
+        if (this.deliverables.contains(deliverableForRemove)) {
             ((ReadingTypeDeliverableImpl) deliverableForRemove).prepareDelete();
-            if(this.deliverables.remove(deliverableForRemove)) {
+            if (this.deliverables.remove(deliverableForRemove)) {
                 this.eventService.postEvent(EventType.READING_TYPE_DELIVERABLE_DELETED.topic(), deliverableForRemove);
-                this.touch();
+                return true;
             }
         }
+        return false;
     }
 
     @Override
@@ -200,6 +208,13 @@ public class MetrologyContractImpl implements ServerMetrologyContract {
         if (this.getId() > 0) {
             this.metrologyConfigurationService.getDataModel().touch(this);
             this.metrologyConfiguration.getOptional().ifPresent(ServerMetrologyConfiguration::invalidateCache);
+        }
+    }
+
+    @Override
+    public void delete() {
+        if (this.getId() > 0) {
+            this.getDeliverables().forEach(this::doRemoveDeliverable);
         }
     }
 
@@ -254,10 +269,6 @@ public class MetrologyContractImpl implements ServerMetrologyContract {
             return allMeterRolesHasMeters ? MetrologyContractStatusKey.COMPLETE : MetrologyContractStatusKey.INCOMPLETE;
         }
         return MetrologyContractStatusKey.UNKNOWN;
-    }
-
-    void prepareDelete() {
-        this.deliverables.clear();
     }
 
     private static class StatusImpl implements Status {

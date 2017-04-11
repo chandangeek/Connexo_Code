@@ -331,7 +331,7 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
 
     @Override
     public void removeMetrologyContract(MetrologyContract metrologyContract) {
-        ((MetrologyContractImpl) metrologyContract).prepareDelete();
+        ((ServerMetrologyContract) metrologyContract).delete();
         this.eventService.postEvent(EventType.METROLOGY_CONTRACT_DELETED.topic(), metrologyContract);
         if (this.metrologyContracts.remove(metrologyContract)) {
             touch();
@@ -382,8 +382,7 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
 
     @Override
     public void delete() {
-        getContracts().forEach(contract -> contract.getDeliverables().forEach(contract::removeDeliverable));
-        getContracts().forEach(this::removeMetrologyContract);
+        this.metrologyContracts.forEach(ServerMetrologyContract::delete);
         readingTypeRequirements.clear();
         customPropertySets.clear();
         this.metrologyConfigurationService.getDataModel().remove(this);

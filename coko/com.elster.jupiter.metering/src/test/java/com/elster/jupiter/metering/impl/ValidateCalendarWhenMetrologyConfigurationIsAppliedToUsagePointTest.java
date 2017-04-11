@@ -31,10 +31,12 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresentReferenceValidator;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointStage;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import com.google.inject.AbstractModule;
@@ -82,6 +84,10 @@ public class ValidateCalendarWhenMetrologyConfigurationIsAppliedToUsagePointTest
     private Clock clock;
     @Mock
     private DataModel dataModel;
+    @Mock
+    private UserService userService;
+    @Mock
+    private ThreadPrincipalService threadPrincipalService;
     @Mock
     private EventService eventService;
     @Mock
@@ -221,6 +227,8 @@ public class ValidateCalendarWhenMetrologyConfigurationIsAppliedToUsagePointTest
                 bind(SimpleChannelContract.class).toInstance(channel);
                 bind(Clock.class).toInstance(clock);
                 bind(DataModel.class).toInstance(dataModel);
+                bind(UserService.class).toInstance(userService);
+                bind(ThreadPrincipalService.class).toInstance(threadPrincipalService);
                 bind(EventService.class).toInstance(eventService);
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(MessageInterpolator.class).toInstance(thesaurus);

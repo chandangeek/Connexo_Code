@@ -125,7 +125,7 @@ public class ApplyMetrologyConfigurationToUsagePointIT {
         mc2Id = mc2.getId();
 
         up.apply(mc1, jan1st2016);
-        up.getEffectiveMetrologyConfiguration(jan1st2016).get().close(feb1st2016);
+        up.getEffectiveMetrologyConfiguration(feb1st2016).get().close(feb1st2016);
         up.apply(mc2, feb1st2016);
 
         Optional<MetrologyConfiguration> janConfiguration = up.getEffectiveMetrologyConfiguration(feb1st2016.minusSeconds(3600L))

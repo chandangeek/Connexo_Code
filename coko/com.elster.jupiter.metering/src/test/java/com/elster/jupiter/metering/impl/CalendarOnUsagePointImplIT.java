@@ -337,6 +337,7 @@ public class CalendarOnUsagePointImplIT {
             usagePoint.apply(peakOffPeakConfiguration);
 
             tenSecondsFromNow = this.meteringModelService.getClock().instant().plusSeconds(10);
+            usagePoint.getEffectiveMetrologyConfiguration(tenSecondsFromNow).get().close(tenSecondsFromNow);    // Apparently, we need to close the current one as of now
             usagePoint.apply(metrologyConfiguration, tenSecondsFromNow);
 
             // Business method
@@ -406,7 +407,9 @@ public class CalendarOnUsagePointImplIT {
             tenSecondsFromNow = now.plusSeconds(10);
             twentySecondsFromNow = now.plusSeconds(20);
 
+            usagePoint.getEffectiveMetrologyConfiguration(tenSecondsFromNow).get().close(tenSecondsFromNow);    // Apparently, we need to close the current one as of now
             usagePoint.apply(metrologyConfiguration, tenSecondsFromNow);
+            usagePoint.getEffectiveMetrologyConfiguration(twentySecondsFromNow).get().close(twentySecondsFromNow);    // Apparently, we need to close the current one as of now
             usagePoint.apply(peakOffPeakConfiguration, twentySecondsFromNow);
             usagePoint.getUsedCalendars().addCalendar(calendar, twentySecondsFromNow);
 

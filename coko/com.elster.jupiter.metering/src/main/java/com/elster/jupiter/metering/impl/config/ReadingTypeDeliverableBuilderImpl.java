@@ -12,7 +12,6 @@ import com.elster.jupiter.metering.config.AggregationLevel;
 import com.elster.jupiter.metering.config.DeliverableType;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.FormulaBuilder;
-import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverableBuilder;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
@@ -41,12 +40,12 @@ public class ReadingTypeDeliverableBuilderImpl implements ReadingTypeDeliverable
 
     private final FormulaBuilderImpl formulaBuilder;
     private final String name;
-    private final MetrologyContractImpl metrologyContract;
+    private final ServerMetrologyContract metrologyContract;
     private final ReadingType readingType;
     private final CustomPropertySetService customPropertySetService;
     private final DeliverableType deliverableType;
 
-    ReadingTypeDeliverableBuilderImpl(MetrologyContractImpl metrologyContract, String name, DeliverableType deliverableType, ReadingType readingType, Formula.Mode mode, CustomPropertySetService customPropertySetService, DataModel dataModel, Thesaurus thesaurus) {
+    ReadingTypeDeliverableBuilderImpl(ServerMetrologyContract metrologyContract, String name, DeliverableType deliverableType, ReadingType readingType, Formula.Mode mode, CustomPropertySetService customPropertySetService, DataModel dataModel, Thesaurus thesaurus) {
         this.formulaBuilder = new FormulaBuilderImpl(mode, dataModel, thesaurus);
         this.name = name;
         this.metrologyContract = metrologyContract;
