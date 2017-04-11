@@ -53,6 +53,7 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.ValidationContext;
+import com.elster.jupiter.validation.ValidationPropertyDefinitionLevel;
 import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
@@ -191,6 +192,7 @@ public class ValidationOnStoreIT {
         when(validatorFactory.create(eq(MIN_MAX), anyMapOf(String.class, Object.class))).thenReturn(minMax);
         when(minMax.getReadingQualityCodeIndex()).thenReturn(Optional.empty());
         when(minMax.getPropertySpecs()).thenReturn(Arrays.asList(min, max));
+        when(minMax.getPropertySpecs(ValidationPropertyDefinitionLevel.VALIDATION_RULE)).thenReturn(Arrays.asList(min, max));
         when(minMax.validate(any(IntervalReadingRecord.class))).thenReturn(ValidationResult.SUSPECT);
         when(min.getName()).thenReturn(MIN);
         when(min.getValueFactory()).thenReturn(valueFactory);
@@ -198,6 +200,7 @@ public class ValidationOnStoreIT {
         when(max.getValueFactory()).thenReturn(valueFactory);
         when(conseqZero.getReadingQualityCodeIndex()).thenReturn(Optional.empty());
         when(conseqZero.getPropertySpecs()).thenReturn(Collections.singletonList(conZero));
+        when(conseqZero.getPropertySpecs(ValidationPropertyDefinitionLevel.VALIDATION_RULE)).thenReturn(Collections.singletonList(conZero));
         when(conZero.getName()).thenReturn(MAX_NUMBER_IN_SEQUENCE);
         when(conZero.getValueFactory()).thenReturn(valueFactory);
 

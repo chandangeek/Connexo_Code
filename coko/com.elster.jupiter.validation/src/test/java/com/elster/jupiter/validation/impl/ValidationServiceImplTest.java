@@ -273,7 +273,7 @@ public class ValidationServiceImplTest {
         when(factory.createTemplate(anotherName)).thenReturn(validator2);
         validationService.addResource(factory);
 
-        Provider<ValidationRuleImpl> ruleProvider = () -> new ValidationRuleImpl(dataModel, validatorCreator, thesaurus, meteringService, eventService,
+        Provider<ValidationRuleImpl> ruleProvider = () -> new ValidationRuleImpl(dataModel, validatorCreator, thesaurus, meteringService, eventService, validationService,
                 () -> new ReadingTypeInValidationRuleImpl(meteringService), clock);
         Provider<ValidationRuleSetVersionImpl> versionProvider = () -> new ValidationRuleSetVersionImpl(dataModel, eventService, ruleProvider, clock);
         when(dataModel.getInstance(ValidationRuleSetImpl.class))

@@ -59,6 +59,7 @@ import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.ValidationContext;
+import com.elster.jupiter.validation.ValidationPropertyDefinitionLevel;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationRuleSetResolver;
@@ -180,6 +181,7 @@ public class ValidationAddRemoveIT {
         when(validatorFactory.create(eq(MIN_MAX), anyMapOf(String.class, Object.class))).thenReturn(minMax);
         when(minMax.getReadingQualityCodeIndex()).thenReturn(Optional.empty());
         when(minMax.getPropertySpecs()).thenReturn(Arrays.asList(min, max));
+        when(minMax.getPropertySpecs(ValidationPropertyDefinitionLevel.VALIDATION_RULE)).thenReturn(Arrays.asList(min, max));
         when(min.getName()).thenReturn(MIN);
         when(min.getValueFactory()).thenReturn(valueFactory);
         when(max.getName()).thenReturn(MAX);

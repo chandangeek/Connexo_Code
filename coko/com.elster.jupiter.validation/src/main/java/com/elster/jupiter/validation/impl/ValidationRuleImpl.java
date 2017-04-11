@@ -9,11 +9,11 @@ import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
@@ -21,9 +21,11 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.collections.ArrayDiffList;
 import com.elster.jupiter.util.collections.DiffList;
+import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.validation.EventType;
 import com.elster.jupiter.validation.ReadingTypeInValidationRule;
 import com.elster.jupiter.validation.ValidationAction;
+import com.elster.jupiter.validation.ValidationPropertyDefinitionLevel;
 import com.elster.jupiter.validation.ValidationRuleProperties;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationRuleSetVersion;
@@ -42,7 +44,9 @@ import javax.validation.groups.Default;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -100,16 +104,20 @@ public final class ValidationRuleImpl implements IValidationRule {
     private final Thesaurus thesaurus;
     private final MeteringService meteringService;
     private final EventService eventService;
+    private final ServerValidationService validationService;
     private final Provider<ReadingTypeInValidationRuleImpl> readingTypeInRuleProvider;
     private final Clock clock;
 
     @Inject
-    ValidationRuleImpl(DataModel dataModel, ValidatorCreator validatorCreator, Thesaurus thesaurus, MeteringService meteringService, EventService eventService, Provider<ReadingTypeInValidationRuleImpl> readingTypeInRuleProvider, Clock clock) {
+    ValidationRuleImpl(DataModel dataModel, ValidatorCreator validatorCreator, Thesaurus thesaurus,
+                       MeteringService meteringService, EventService eventService, ServerValidationService validationService,
+                       Provider<ReadingTypeInValidationRuleImpl> readingTypeInRuleProvider, Clock clock) {
         this.dataModel = dataModel;
         this.validatorCreator = validatorCreator;
         this.thesaurus = thesaurus;
         this.meteringService = meteringService;
         this.eventService = eventService;
+        this.validationService = validationService;
         this.readingTypeInRuleProvider = readingTypeInRuleProvider;
         this.clock = clock;
     }
@@ -319,6 +327,11 @@ public final class ValidationRuleImpl implements IValidationRule {
     }
 
     @Override
+    public List<PropertySpec> getPropertySpecs(ValidationPropertyDefinitionLevel level) {
+        return getValidator().getPropertySpecs(level);
+    }
+
+    @Override
     public PropertySpec getPropertySpec(final String name) {
         return getValidator().getPropertySpecs().stream()
                 .filter(p -> name.equals(p.getName()))
@@ -333,6 +346,7 @@ public final class ValidationRuleImpl implements IValidationRule {
 
     @Override
     public void save() {
+        getValidator().validateProperties(getProps());
         if (getId() == 0) {
             doPersist();
         } else {
@@ -404,12 +418,25 @@ public final class ValidationRuleImpl implements IValidationRule {
     }
 
     @Override
-    public Validator createNewValidator() {
-        Validator createdValidator = validatorCreator.getValidator(this.implementation, getProps());
+    public Validator createNewValidator(ChannelsContainer channelsContainer, ReadingType readingType) {
+        Map<String, Object> properties = getPropsWithOverriddenValues(channelsContainer, readingType);
+        Validator createdValidator = validatorCreator.getValidator(this.implementation, properties);
         if (createdValidator == null) {
             throw new ValidatorNotFoundException(thesaurus, implementation);
         }
         return createdValidator;
+    }
+
+    private Map<String, Object> getPropsWithOverriddenValues(ChannelsContainer channelsContainer, ReadingType readingType) {
+        Map<String, Object> properties = new HashMap<>(getProps());
+        Map<String, Object> overriddenProperties = validationService.getValidationPropertyResolvers().stream()
+                .map(resolver -> resolver.resolve(channelsContainer))
+                .flatMap(Functions.asStream())
+                .map(propertyProvider -> propertyProvider.getProperties(ValidationRuleImpl.this, readingType).entrySet())
+                .flatMap(Collection::stream)
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (v1, v2) -> v1));
+        properties.putAll(overriddenProperties);
+        return properties;
     }
 
     private void doPersist() {
@@ -420,10 +447,6 @@ public final class ValidationRuleImpl implements IValidationRule {
     private void doUpdate() {
         Save.UPDATE.save(dataModel, this);
         eventService.postEvent(EventType.VALIDATIONRULE_UPDATED.topic(), this);
-    }
-
-    private DataMapper<ValidationRuleProperties> rulePropertiesFactory() {
-        return dataModel.mapper(ValidationRuleProperties.class);
     }
 
     private void setActive(boolean active) {
