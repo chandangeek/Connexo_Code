@@ -10,7 +10,6 @@ import com.energyict.obis.ObisCode;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -25,32 +24,30 @@ import java.util.List;
 @XmlRootElement
 public class Beacon3100DeviceType {
 
-	/**
-	 * Parses the given {@link Structure} received from the device into a {@link Beacon3100DeviceType} object.
-	 *
-	 * @param 		structure		THe {@link Structure} received from the device.
-	 *
-	 * @return		The parsed {@link Beacon3100DeviceType}.
-	 *
-	 * @throws		IOException		If an error occurs parsing the data.
-	 */
-	public static final Beacon3100DeviceType fromStructure(final Structure structure) throws IOException {
-		final long id = structure.getDataType(0, Unsigned32.class).longValue();
-		final String name = structure.getDataType(1, OctetString.class).stringValue();
-		final Beacon3100MeterSerialConfiguration serialConfiguration = Beacon3100MeterSerialConfiguration.fromStructure(structure.getDataType(2, Structure.class));
-		final Beacon3100ProtocolConfiguration protocolConfiguration = Beacon3100ProtocolConfiguration.fromStructure(structure.getDataType(3, Structure.class));
+    /**
+     * Parses the given {@link Structure} received from the device into a {@link Beacon3100DeviceType} object.
+     *
+     * @param structure THe {@link Structure} received from the device.
+     * @return The parsed {@link Beacon3100DeviceType}.
+     * @throws IOException        If an error occurs parsing the data.
+     */
+    public static final Beacon3100DeviceType fromStructure(final Structure structure) throws IOException {
+        final long id = structure.getDataType(0, Unsigned32.class).longValue();
+        final String name = structure.getDataType(1, OctetString.class).stringValue();
+        final Beacon3100MeterSerialConfiguration serialConfiguration = Beacon3100MeterSerialConfiguration.fromStructure(structure.getDataType(2, Structure.class));
+        final Beacon3100ProtocolConfiguration protocolConfiguration = Beacon3100ProtocolConfiguration.fromStructure(structure.getDataType(3, Structure.class));
 
-		final List<Beacon3100Schedulable> schedulables = new ArrayList<>();
-		final Array schedulableArray = structure.getDataType(4, Array.class);
+        final List<Beacon3100Schedulable> schedulables = new ArrayList<>();
+        final Array schedulableArray = structure.getDataType(4, Array.class);
 
-		for (final AbstractDataType schedulable : schedulableArray) {
-			schedulables.add(Beacon3100Schedulable.fromStructure(schedulable.getStructure()));
-		}
+        for (final AbstractDataType schedulable : schedulableArray) {
+            schedulables.add(Beacon3100Schedulable.fromStructure(schedulable.getStructure()));
+        }
 
-		final Beacon3100ClockSyncConfiguration clockSyncConfiguration = Beacon3100ClockSyncConfiguration.fromStructure(structure.getDataType(5,  Structure.class));
+        final Beacon3100ClockSyncConfiguration clockSyncConfiguration = Beacon3100ClockSyncConfiguration.fromStructure(structure.getDataType(5, Structure.class));
 
-		return new Beacon3100DeviceType(id, name, serialConfiguration, protocolConfiguration, schedulables, clockSyncConfiguration, false);
-	}
+        return new Beacon3100DeviceType(id, name, serialConfiguration, protocolConfiguration, schedulables, clockSyncConfiguration, false);
+    }
 
     private long id;
     private String name;
@@ -73,7 +70,7 @@ public class Beacon3100DeviceType {
         this.readOldObisCodes = readOldObisCodes;
     }
 
-    public boolean equals(AbstractDataType anotherClientTypeStructure){
+    public boolean equals(AbstractDataType anotherClientTypeStructure) {
 
         try {
             byte[] otherByteArray = anotherClientTypeStructure.getBEREncodedByteArray();
@@ -81,7 +78,7 @@ public class Beacon3100DeviceType {
 
             return Arrays.equals(thisByteArray, otherByteArray);
 
-        }catch (Exception ex){
+        } catch (Exception ex) {
             return false;
         }
     }
@@ -90,12 +87,12 @@ public class Beacon3100DeviceType {
         return this.equals(toStructure(readOldObisCodes));
     }
 
-        //JSon constructor
+    //JSon constructor
     private Beacon3100DeviceType() {
     }
 
     public Structure toStructure() {
-       return toStructure(true);
+        return toStructure(true);
     }
 
     public Structure toStructure(boolean oldFirmware) {
@@ -117,9 +114,9 @@ public class Beacon3100DeviceType {
     }
 
     private Structure toStructure(Beacon3100Schedulable beacon3100Schedulable, boolean oldFirmware) {
-        if(oldFirmware) {
+        if (oldFirmware) {
             return beacon3100Schedulable.toStructure();
-        }else{
+        } else {
             return beacon3100Schedulable.toStructureForNewFirmware();
         }
     }
@@ -155,8 +152,8 @@ public class Beacon3100DeviceType {
     }
 
     public boolean updateBufferSizeForRegister(ObisCode obisCode, Unsigned16 bufferSize) {
-        for(Beacon3100Schedulable schedulable: schedulables){
-            if(schedulable.updateBufferSizeForRegister(obisCode, bufferSize))
+        for (Beacon3100Schedulable schedulable : schedulables) {
+            if (schedulable.updateBufferSizeForRegister(obisCode, bufferSize))
                 return true;
         }
         return false;
@@ -164,16 +161,16 @@ public class Beacon3100DeviceType {
 
     public boolean updateBufferSizeForAllRegisters(Unsigned16 bufferSize) {
         boolean updated = false;
-        for(Beacon3100Schedulable schedulable: schedulables){
-           schedulable.updateBufferSizeForAllRegisters(bufferSize);
-           updated = updated || schedulable.getRegisters().size() != 0;
+        for (Beacon3100Schedulable schedulable : schedulables) {
+            schedulable.updateBufferSizeForAllRegisters(bufferSize);
+            updated = updated || schedulable.getRegisters().size() != 0;
         }
         return false;
     }
 
     public boolean updateBufferSizeForLoadProfiles(ObisCode obisCode, Unsigned32 bufferSize) {
-        for(Beacon3100Schedulable schedulable: schedulables){
-            if(schedulable.updateBufferSizeForLoadProfile(obisCode, bufferSize))
+        for (Beacon3100Schedulable schedulable : schedulables) {
+            if (schedulable.updateBufferSizeForLoadProfile(obisCode, bufferSize))
                 return true;
         }
         return false;
@@ -181,7 +178,7 @@ public class Beacon3100DeviceType {
 
     public boolean updateBufferSizeForAllLoadProfiles(Unsigned32 bufferSize) {
         boolean updated = false;
-        for(Beacon3100Schedulable schedulable: schedulables){
+        for (Beacon3100Schedulable schedulable : schedulables) {
             schedulable.updateBufferSizeForAllLoadProfiles(bufferSize);
             updated = updated || schedulable.getProfiles().size() != 0;
         }
@@ -189,8 +186,8 @@ public class Beacon3100DeviceType {
     }
 
     public boolean updateBufferSizeForEventLogs(ObisCode obisCode, Unsigned32 bufferSize) {
-        for(Beacon3100Schedulable schedulable: schedulables){
-            if(schedulable.updateBufferSizeForEventLogs(obisCode, bufferSize))
+        for (Beacon3100Schedulable schedulable : schedulables) {
+            if (schedulable.updateBufferSizeForEventLogs(obisCode, bufferSize))
                 return true;
         }
         return false;
@@ -198,9 +195,9 @@ public class Beacon3100DeviceType {
 
     public boolean updateBufferSizeForAllEventLogs(Unsigned32 bufferSize) {
         boolean updated = false;
-        for(Beacon3100Schedulable schedulable: schedulables){
+        for (Beacon3100Schedulable schedulable : schedulables) {
             schedulable.updateBufferSizeForAllEventLogs(bufferSize);
-            updated = updated || schedulable.getEventLogs().size()!= 0;
+            updated = updated || schedulable.getEventLogs().size() != 0;
         }
         return false;
     }
@@ -208,28 +205,28 @@ public class Beacon3100DeviceType {
     /**
      * {@inheritDoc}
      */
-	@Override
-	public final int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + (int) (id ^ (id >>> 32));
-		return result;
-	}
+    @Override
+    public final int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + (int) (id ^ (id >>> 32));
+        return result;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public final boolean equals(final Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Beacon3100DeviceType other = (Beacon3100DeviceType) obj;
-		if (id != other.id)
-			return false;
-		return true;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public final boolean equals(final Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        Beacon3100DeviceType other = (Beacon3100DeviceType) obj;
+        if (id != other.id)
+            return false;
+        return true;
+    }
 }

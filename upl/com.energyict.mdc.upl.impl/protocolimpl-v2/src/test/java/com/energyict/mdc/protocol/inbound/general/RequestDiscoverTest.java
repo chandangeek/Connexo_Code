@@ -43,7 +43,7 @@ import static org.mockito.Mockito.when;
 
 /**
  * Tests that mock the comchannel and stub an incoming frame to test the inbound parsing of the RequestDiscover implementation
- * <p>
+ * <p/>
  * Copyrights EnergyICT
  * Date: 28/06/12
  * Time: 11:34

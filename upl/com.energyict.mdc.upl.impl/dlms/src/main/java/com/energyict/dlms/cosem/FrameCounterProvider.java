@@ -25,13 +25,14 @@ import java.util.logging.Level;
  */
 public final class FrameCounterProvider extends AbstractCosemObject {
 
-	/** The default OBIS code. */
+    /**
+     * The default OBIS code.
+     */
     private static final ObisCode DEFAULT_OBIS_CODE = ObisCode.fromString("0.0.43.1.0.255");
 
-    /** Indicates whether or not to skip the validation. */
-    private boolean skipValidation;
-
-    /** Indicates whether or not to skip the validation. */
+    /**
+     * Indicates whether or not to skip the validation.
+     */
     private boolean skipValidation;
 
     /**
@@ -39,10 +40,9 @@ public final class FrameCounterProvider extends AbstractCosemObject {
      *
      * @param protocolLink
      * @param objectReference
-     * @param	meterSystemTitle		The system title of the meter.
-     * @param	ourSystemTitle			Our system title.
-     * @param	skipValidation			Indicates whether or not to validate the auth tag validation, <code>true</code> for yes, <code>false</code> for no.
-     *
+     * @param    meterSystemTitle        The system title of the meter.
+     * @param    ourSystemTitle            Our system title.
+     * @param    skipValidation            Indicates whether or not to validate the auth tag validation, <code>true</code> for yes, <code>false</code> for no.
      */
     public FrameCounterProvider(ProtocolLink protocolLink, ObjectReference objectReference) {
         super(protocolLink, objectReference);
@@ -60,10 +60,10 @@ public final class FrameCounterProvider extends AbstractCosemObject {
     /**
      * Indicates whether or not we skip FC auth tag validation.
      *
-     * @param 	skip		<code>true</code> indicates the check should be skipped, <code>false</code> if not.
+     * @param skip <code>true</code> indicates the check should be skipped, <code>false</code> if not.
      */
     public final void setSkipValidation(final boolean skip) {
-    	this.skipValidation = skip;
+        this.skipValidation = skip;
     }
 
     public final long getFrameCounter(byte[] authenticationKey) throws IOException {
@@ -72,38 +72,38 @@ public final class FrameCounterProvider extends AbstractCosemObject {
         final byte[] challenge = new byte[64];
         new SecureRandom().nextBytes(challenge);
 
-        if (authenticationKey == null || authenticationKey.length !=16){
+        if (authenticationKey == null || authenticationKey.length != 16) {
             throw new ProtocolException("Cannot invoke get_frame_counter because Authentication Key is invalid.");
         }
 
         final byte[] clientSystemTitle = this.getProtocolLink().getAso().getAssociationControlServiceElement().getCallingApplicationProcessTitle();
         final byte[] serverSystemTitle = this.getProtocolLink().getAso().getAssociationControlServiceElement().getRespondingAPTtitle();
 
-        if (clientSystemTitle == null){
+        if (clientSystemTitle == null) {
             throw new ProtocolException("Cannot invoke get_frame_counter because getCallingApplicationProcessTitle is null.");
         }
 
-        if (serverSystemTitle == null){
+        if (serverSystemTitle == null) {
             throw new ProtocolException("Cannot invoke get_frame_counter because getRespondingAPTtitle is null.");
         }
 
-        getLogger().finest(" - all validation passed cST=["+clientSystemTitle+"], sST=["+serverSystemTitle+"], invoking method  ...");
+        getLogger().finest(" - all validation passed cST=[" + clientSystemTitle + "], sST=[" + serverSystemTitle + "], invoking method  ...");
         byte[] responseByteArray = this.methodInvoke(FrameCounterProviderMethods.GET_FRAME_COUNTER, OctetString.fromByteArray(challenge));
 
         getLogger().finest(" - response received!");
-        Structure response =  AXDRDecoder.decode(responseByteArray, Structure.class);
+        Structure response = AXDRDecoder.decode(responseByteArray, Structure.class);
         if (response != null && response.isStructure()) {
             OctetString mac = response.getDataType(0).getOctetString();
             long counter = response.getDataType(1).longValue();
-            getLogger().finest(" - response decoded, frameCounter=["+counter+"], but first will validate the challenge ...");
+            getLogger().finest(" - response decoded, frameCounter=[" + counter + "], but first will validate the challenge ...");
 
-            this.validateMac(mac.getOctetStr(),counter, challenge, authenticationKey, clientSystemTitle, serverSystemTitle);
+            this.validateMac(mac.getOctetStr(), counter, challenge, authenticationKey, clientSystemTitle, serverSystemTitle);
 
-            getLogger().finest(" - finished with happy-ending, returning frameCounter="+counter);
+            getLogger().finest(" - finished with happy-ending, returning frameCounter=" + counter);
 
             return counter;
         } else {
-            if (response!=null) {
+            if (response != null) {
                 throw new ProtocolException("FrameCounterProvider response received is not an structure: " + response.toString());
             } else {
                 throw new ProtocolException("FrameCounterProvider null response");
@@ -130,9 +130,9 @@ public final class FrameCounterProvider extends AbstractCosemObject {
 
             if (!Arrays.equals(mac, expectedChallengeResponse)) {
                 getLogger().warning("Framecounter HMAC validation failed, received MAC [" + ProtocolTools.getHexStringFromBytes(mac, "") + "] while expecting [" + ProtocolTools.getHexStringFromBytes(expectedChallengeResponse, "") + "]");
-                
+
                 if (!this.skipValidation) {
-                	throw new ProtocolException("Framecounter HMAC validation failed, received MAC [" + ProtocolTools.getHexStringFromBytes(mac, "") + "] while expecting [" + ProtocolTools.getHexStringFromBytes(expectedChallengeResponse, "") + "]");
+                    throw new ProtocolException("Framecounter HMAC validation failed, received MAC [" + ProtocolTools.getHexStringFromBytes(mac, "") + "] while expecting [" + ProtocolTools.getHexStringFromBytes(expectedChallengeResponse, "") + "]");
                 }
             }
         } catch (NoSuchAlgorithmException e) {

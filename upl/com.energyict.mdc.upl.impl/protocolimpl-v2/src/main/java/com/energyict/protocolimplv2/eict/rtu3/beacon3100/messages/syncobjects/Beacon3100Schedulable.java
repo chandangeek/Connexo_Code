@@ -10,7 +10,6 @@ import com.energyict.obis.ObisCode;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,7 +40,7 @@ public class Beacon3100Schedulable {
 		final List<SchedulableItem> registers = toSchedulableItems(structure.getDataType(4,  Array.class));
 		final List<SchedulableItem> eventLogs = toSchedulableItems(structure.getDataType(5, Array.class));
 
-		return new Beacon3100Schedulable(null, scheduleId, logicalDeviceId, clientTypeId, profiles, registers, eventLogs);
+		return new Beacon3100Schedulable(0L, scheduleId, logicalDeviceId, clientTypeId, profiles, registers, eventLogs);
 	}
 
 	/**

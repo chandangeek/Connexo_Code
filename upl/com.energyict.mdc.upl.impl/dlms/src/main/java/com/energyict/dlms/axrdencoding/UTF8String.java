@@ -2,8 +2,8 @@ package com.energyict.dlms.axrdencoding;
 
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.axrdencoding.util.DateTime;
-import com.energyict.protocol.ProtocolException;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -15,9 +15,9 @@ import java.util.TimeZone;
 public class UTF8String extends AbstractDataType {
 
     private byte[] utfStr;
-    private int		size;
-    private int		offsetBegin, offsetEnd;
-    private boolean	fixed;
+    private int size;
+    private int offsetBegin, offsetEnd;
+    private boolean fixed;
 
     /**
      * Creates a new instance of UTF8String from the raw BER encoded bytes
@@ -75,7 +75,7 @@ public class UTF8String extends AbstractDataType {
      * It is possible to create a fixed length UTF8String
      *
      * @param utfStr
-     * @param fixed a boolean to indicate whether it is fixed or not
+     * @param fixed  a boolean to indicate whether it is fixed or not
      */
     public UTF8String(byte[] utfStr, boolean fixed) {
         this(utfStr, utfStr.length, (fixed ? 1 : 0));
@@ -176,7 +176,6 @@ public class UTF8String extends AbstractDataType {
     }
 
     /**
-     *
      * @param string
      * @param size
      * @param fixed

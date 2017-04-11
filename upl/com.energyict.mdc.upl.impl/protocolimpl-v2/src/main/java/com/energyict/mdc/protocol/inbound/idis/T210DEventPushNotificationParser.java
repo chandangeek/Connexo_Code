@@ -1,12 +1,5 @@
 package com.energyict.mdc.protocol.inbound.idis;
 
-import com.energyict.mdc.meterdata.CollectedDeviceInfo;
-import com.energyict.mdc.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.meterdata.CollectedLogBook;
-import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
-import com.energyict.mdc.protocol.inbound.InboundDiscoveryContext;
-
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.DLMSCOSEMGlobals;
@@ -282,7 +275,7 @@ public class T210DEventPushNotificationParser extends DataPushNotificationParser
 
     private void parsePushOnInterval1(Structure structure) {
         DeviceOfflineFlags offlineContext = new DeviceOfflineFlags(DeviceOfflineFlags.ALL_LOAD_PROFILES_FLAG);
-        OfflineDevice offlineDevice = inboundDAO.goOfflineDevice(deviceIdentifier, offlineContext);
+        OfflineDevice offlineDevice = inboundDAO.getOfflineDevice(deviceIdentifier, offlineContext);
         List<OfflineLoadProfile> allOfflineLoadProfiles = offlineDevice.getAllOfflineLoadProfiles();
         for (int i = dataObjectsOffset; i <= pushObjectList.size() - 1; i++) {
             ObisCode obisCode = pushObjectList.get(i).getObisCode();

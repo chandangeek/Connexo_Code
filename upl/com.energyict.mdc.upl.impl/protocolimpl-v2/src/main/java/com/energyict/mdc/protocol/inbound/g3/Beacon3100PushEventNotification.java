@@ -201,29 +201,6 @@ public class Beacon3100PushEventNotification extends PushEventNotification {
         return deviceTopology;
     }
 
-
-    /**
-     * Generates when node successfully joins the PAN.
-     */
-    public CollectedTopology extractTopologyUpdateFromRegisterEvent(MeterProtocolEvent receivedEvent) throws JSONException {
-        String message = receivedEvent.getMessage();
-
-        if (message == null || message.isEmpty()) {
-            return null;
-        }
-
-        CollectedTopology deviceTopology = null;
-
-        deviceTopology = extractRegisterEventBeacon10(receivedEvent.getMessage());
-        if (deviceTopology != null) {
-            return deviceTopology;
-        }
-
-        deviceTopology = extractRegisterEventBeacon11(receivedEvent.getMessage());
-
-        return deviceTopology;
-    }
-
     /**
      * Extract topology update from an register event sent by an beacon 1.11, in JSON format:
      * <p/>
@@ -339,6 +316,43 @@ public class Beacon3100PushEventNotification extends PushEventNotification {
         return deviceTopology;
     }
 
+    private int getJsonInt(JSONObject json, String key) throws JSONException {
+        String value = json.getString(key);
+        if (value.contains("0x")) {
+            return Integer.parseInt(value.replace("0x", ""), 16);
+        } else {
+            return Integer.parseInt(value);
+        }
+    }
+
+    private BigDecimal getNow() {
+        long mills = new Date().getTime();
+        return BigDecimal.valueOf(mills);
+    }
+
+
+    /**
+     * Generates when node successfully joins the PAN.
+     */
+    public CollectedTopology extractTopologyUpdateFromRegisterEvent(MeterProtocolEvent receivedEvent) throws JSONException {
+        String message = receivedEvent.getMessage();
+
+        if (message == null || message.isEmpty()) {
+            return null;
+        }
+
+        CollectedTopology deviceTopology = null;
+
+        deviceTopology = extractRegisterEventBeacon10(receivedEvent.getMessage());
+        if (deviceTopology != null) {
+            return deviceTopology;
+        }
+
+        deviceTopology = extractRegisterEventBeacon11(receivedEvent.getMessage());
+
+        return deviceTopology;
+    }
+
     /**
      * Decode an event received from an Beacon 1.10, in the format:
      * Node [0223:7EFF:FEFD:A955] [0x0056] has registered on the network
@@ -356,305 +370,11 @@ public class Beacon3100PushEventNotification extends PushEventNotification {
         return extractNodeInformation(macAddress, TopologyAction.ADD);
     }
 
-    private int getJsonInt(JSONObject json, String key) throws JSONException {
-        String value = json.getString(key);
-        if (value.contains("0x")) {
-            return Integer.parseInt(value.replace("0x", ""), 16);
-        } else {
-            return Integer.parseInt(value);
-        }
-    }
-
-    private BigDecimal getNow() {
-        long mills = new Date().getTime();
-        return BigDecimal.valueOf(mills);
-    }
-
 
     @Override
     public List<CollectedData> getCollectedData() {
         List<CollectedData> collectedData = super.getCollectedData();
         if (collectedTopology != null) {
-            collectedData.add(collectedTopology);
-        }
-
-        return collectedData;
-    }
-
-    @Override
-    public DiscoverResultType doDiscovery() {
-        DiscoverResultType discoverResultType = super.doDiscovery();
-
-        // do a specific Beacon post-processing of the push event
-        try {
-            searchForTopologyUpdateEvents();
-        } catch (JSONException e) {
-            getContext().getLogger().log(Level.WARNING,"Exception while parsing inbound message: "+e.getMessage(),e);
-        }
-
-        return discoverResultType;
-    }
-
-    private void searchForTopologyUpdateEvents() throws JSONException {
-        MeterProtocolEvent receivedEvent = getMeterProtocolEvent();
-
-        if (receivedEvent==null){
-            return;
-        }
-
-        switch (receivedEvent.getProtocolCode()){
-
-            /**
-             * Generates when node successfully joins the PAN.
-             */
-            case PLC_G3_REGISTER_NODE:
-                this.collectedTopology = extractTopologyUpdateFromRegisterEvent(receivedEvent);
-                break;
-
-            /**
-             * Generated when node is considered lost (i.e. does no longer respond without proper de-registration from the network)
-             */
-            case PLC_G3_NODE_LINK_LOST:
-                this.collectedTopology = extractNodeInformation(receivedEvent.getMessage(), TopologyAction.REMOVE);
-                break;
-
-            /**
-             * Generated when a node recovered from the lost state (i.e. it is reachable again after being unreachable for prolonged period of time).
-             */
-            case PLC_G3_NODE_LINK_RECOVERED:
-                this.collectedTopology = extractNodeInformation(receivedEvent.getMessage(), TopologyAction.ADD);
-                break;
-
-            /**
-             * Generated when node leaves the PAN.
-             */
-            case PLC_G3_UNREGISTER_NODE:
-                this.collectedTopology = extractNodeInformation(receivedEvent.getMessage(), TopologyAction.REMOVE);
-        }
-
-        logWhatWeDiscovered();
-    }
-
-    private void logWhatWeDiscovered() {
-        if (collectedTopology!=null) {
-            if (collectedTopology.getJoinedSlaveDeviceIdentifiers()!=null) {
-                getContext().getLogger().info("> joined devices: " + collectedTopology.getJoinedSlaveDeviceIdentifiers());
-            }
-            if (collectedTopology.getLostSlaveDeviceIdentifiers()!=null) {
-                getContext().getLogger().info("> lost devices: " + collectedTopology.getLostSlaveDeviceIdentifiers());
-            }
-            if (collectedTopology.getAdditionalCollectedDeviceInfo()!=null) {
-                getContext().getLogger().info("> device parameters: " + collectedTopology.getAdditionalCollectedDeviceInfo().toString());
-            }
-        }
-    }
-
-    public CollectedTopology extractNodeInformation(String macAddress, TopologyAction action) {
-        if (macAddress==null || macAddress.isEmpty()){
-            return null;
-        }
-
-        macAddress = macAddress.replace(":","").replace(".","");
-        DeviceIdentifier slaveDeviceIdentified = new DialHomeIdDeviceIdentifier(macAddress);
-
-        CollectedTopology deviceTopology = MdcManager.getCollectedDataFactory().createCollectedTopology(getDeviceIdentifier());
-
-        switch (action){
-            case ADD:
-                LastSeenDateInfo lastSeenDateInfo = new LastSeenDateInfo(G3Properties.PROP_LASTSEENDATE, getNow());
-                deviceTopology.addJoinedSlaveDevice(slaveDeviceIdentified, lastSeenDateInfo);
-                break;
-
-            case REMOVE:
-                deviceTopology.addLostSlaveDevice(slaveDeviceIdentified);
-                break;
-
-        }
-
-        return deviceTopology;
-    }
-
-
-    /**
-     * Generates when node successfully joins the PAN.
-     *
-     */
-    public CollectedTopology extractTopologyUpdateFromRegisterEvent(MeterProtocolEvent receivedEvent) throws JSONException {
-        String message = receivedEvent.getMessage();
-
-        if (message == null || message.isEmpty()){
-            return null;
-        }
-
-        CollectedTopology deviceTopology = null;
-
-        deviceTopology = extractRegisterEventBeacon10(receivedEvent.getMessage());
-        if (deviceTopology!=null){
-            return deviceTopology;
-        }
-
-        deviceTopology = extractRegisterEventBeacon11(receivedEvent.getMessage());
-
-        return deviceTopology;
-    }
-
-    /**
-     * Extract topology update from an register event sent by an beacon 1.11, in JSON format:
-     *
-     * Received message contains JSON structure with EUI-64 of the meter, and list of possible service access points for that meter.
-     * Included SAP list depends on the configuration.
-     *
-     * Keys present in the JSON include:
-     *      MeterIdentifier: holds the EUI-64 of the meter
-     *      SAP_802_15_4_ID: short address of the meter on the PAN
-     *      SAP_DLMS_GW: DLMS gateway virtual logical device ID (if the gateway is enabled)
-     *      SAP_DLMS_MIR: DLMS data-concentrator mirrored logical device (if the meter is scheduled for readout)
-     *      SAP_IPV6: Routable IPv6 address of the meter (if the border routing functionality is enabled)
-     *      SAP_IPV4: Routable IPv4 address of the meter (if the border routing functionality is enabled)
-     *
-     * @param receivedEvent
-     * @return
-     */
-    private CollectedTopology extractRegisterEventBeacon11(String message) throws JSONException {
-
-        JSONObject json;
-
-        try {
-            json = new JSONObject(message);
-        } catch (Exception e) {
-            getContext().getLogger().warning("- message is not a JSON: "+e.getMessage());
-            return null;
-        }
-
-
-        DeviceIdentifier slaveDeviceIdentifier = null;
-
-
-        if (json.has(JSON_METER_IDENTIFIER)) {
-            String meterIdentifier = json.get(JSON_METER_IDENTIFIER).toString();
-            String macAddress = meterIdentifier.replace(":", "").replace(".", "");
-            slaveDeviceIdentifier = new DialHomeIdDeviceIdentifier(macAddress);
-        }
-
-        if (slaveDeviceIdentifier == null){
-            // no information about a slave device
-            return null;
-        }
-
-        // we have a slave device, so create the topology object to be filled in
-        CollectedTopology deviceTopology = MdcManager.getCollectedDataFactory().createCollectedTopology(getDeviceIdentifier());
-
-        BigDecimal lastSeenDate = getNow();
-        LastSeenDateInfo lastSeenDateInfo = new LastSeenDateInfo(G3Properties.PROP_LASTSEENDATE, lastSeenDate);
-        deviceTopology.addJoinedSlaveDevice(slaveDeviceIdentifier, lastSeenDateInfo);
-
-        if (json.has(JSON_SAP_DLMS_GW)) {
-            int SAP_DLMS_GW = getJsonInt(json, JSON_SAP_DLMS_GW);
-            if (SAP_DLMS_GW > 0) {
-                deviceTopology.addAdditionalCollectedDeviceInfo(
-                        MdcManager.getCollectedDataFactory().createCollectedDeviceProtocolProperty(
-                                slaveDeviceIdentifier, AS330DConfigurationSupport.GATEWAY_LOGICAL_DEVICE_ID, SAP_DLMS_GW
-                        )
-                );
-            }
-        }
-
-
-        if (json.has(JSON_SAP_DLMS_MIR)){
-            int SAP_DLMS_MIR = getJsonInt(json, JSON_SAP_DLMS_MIR);
-            if (SAP_DLMS_MIR > 0){
-                deviceTopology.addAdditionalCollectedDeviceInfo(
-                        MdcManager.getCollectedDataFactory().createCollectedDeviceProtocolProperty(
-                                slaveDeviceIdentifier, AS330DConfigurationSupport.MIRROR_LOGICAL_DEVICE_ID, SAP_DLMS_MIR
-                        )
-                );
-            }
-        }
-
-        if (json.has(JSON_SAP_IPV_6)){
-            String SAP_IPV6 = json.getString(JSON_SAP_IPV_6);
-            if (SAP_IPV6 != null && SAP_IPV6.length() > 0){
-                deviceTopology.addAdditionalCollectedDeviceInfo(
-                        MdcManager.getCollectedDataFactory().createCollectedDeviceProtocolProperty(
-                                slaveDeviceIdentifier, AM540ConfigurationSupport.IP_V6_ADDRESS, SAP_IPV6
-                        )
-                );
-            }
-        }
-
-
-        if (json.has(JSON_SAP_IPV_4)){
-            String SAP_IPV4 = json.getString(JSON_SAP_IPV_4);
-            if (SAP_IPV4 != null && SAP_IPV4.length() > 0){
-                deviceTopology.addAdditionalCollectedDeviceInfo(
-                        MdcManager.getCollectedDataFactory().createCollectedDeviceProtocolProperty(
-                                slaveDeviceIdentifier,  AM540ConfigurationSupport.IP_V4_ADDRESS, SAP_IPV4
-                        )
-                );
-            }
-        }
-
-        if (json.has(JSON_SAP_802_15_4_ID)){
-            int SAP_802_15_4_ID = getJsonInt(json, JSON_SAP_802_15_4_ID);
-            if (SAP_802_15_4_ID > 0){
-                deviceTopology.addAdditionalCollectedDeviceInfo(
-                        MdcManager.getCollectedDataFactory().createCollectedDeviceProtocolProperty(
-                                slaveDeviceIdentifier,  AM540ConfigurationSupport.SHORT_ADDRESS_PAN, SAP_802_15_4_ID
-                        )
-                );
-            }
-        }
-
-        deviceTopology.addAdditionalCollectedDeviceInfo(
-                MdcManager.getCollectedDataFactory().createCollectedDeviceProtocolProperty(
-                        slaveDeviceIdentifier,
-                        G3Properties.PROP_LASTSEENDATE,
-                        lastSeenDate
-                )
-        );
-
-        return deviceTopology;
-    }
-
-    /**
-     * Decode an event received from an Beacon 1.10, in the format:
-     *          Node [0223:7EFF:FEFD:A955] [0x0056] has registered on the network
-     *
-     * @param receivedEvent
-     * @return
-     */
-    private CollectedTopology extractRegisterEventBeacon10(String message) {
-        if (!message.startsWith("Node [")){
-            return null;
-        }
-
-        String[] parts = message.split("[\\[\\]]");
-        if (parts.length<2){
-            return null;
-        }
-        String macAddress = parts[1];
-        return extractNodeInformation(macAddress, TopologyAction.ADD);
-    }
-
-    private int getJsonInt(JSONObject json, String key) throws JSONException {
-        String value = json.getString(key);
-        if (value.contains("0x")){
-            return Integer.parseInt(value.replace("0x",""), 16);
-        } else {
-            return Integer.parseInt(value);
-        }
-    }
-
-    private BigDecimal getNow() {
-        long mills = new Date().getTime();
-        return BigDecimal.valueOf(mills);
-    }
-
-
-    @Override
-    public List<CollectedData> getCollectedData() {
-        List<CollectedData> collectedData = super.getCollectedData();
-        if (collectedTopology != null){
             collectedData.add(collectedTopology);
         }
 

@@ -86,8 +86,6 @@ public class DLMSActivityCalendarController implements ActivityCalendarControlle
     private static final ObisCode SPECIAL_DAYS_TABLE_OBISCODE = ObisCode.fromString("0.0.11.0.0.255");
     private ObisCode dayProfileScriptDefaultLogicalNameObis = ObisCode.fromString("0.0.10.0.100.255");
 
-    private ObisCode dayProfileScriptDefaultLogicalNameObis = ObisCode.fromString("0.0.10.0.100.255");
-
     private CosemObjectFactory cosemObjectFactory;
     private TimeZone timeZone;
     private ObisCode activityCalendarObisCode;

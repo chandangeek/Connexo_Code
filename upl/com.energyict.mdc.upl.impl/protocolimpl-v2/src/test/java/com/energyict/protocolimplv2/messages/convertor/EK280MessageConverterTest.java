@@ -29,9 +29,7 @@ import static junit.framework.Assert.assertEquals;
 @RunWith(MockitoJUnitRunner.class)
 public class EK280MessageConverterTest extends AbstractV2MessageConverterTest {
 
-    private Date activationDate = new Date(1441101600000l);
-
-    private Date activationDate = new Date(1441101600000l);
+    private Date activationDate = new Date(1441101600000L);
 
     @Test
     public void testMessageConversion_ChangeCredentials() {

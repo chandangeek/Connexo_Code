@@ -18,7 +18,6 @@ import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.NotInObjectListException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.properties.G3GatewayProperties;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
@@ -224,8 +223,8 @@ public class PLCConfigurationDeviceMessageExecutor {
     }
 
     /**
-     *  Flag if this is a IC version 0 or greater.
-     *  Beacon3100 uses version 0, which causes some issues on adp_routing_configuration
+     * Flag if this is a IC version 0 or greater.
+     * Beacon3100 uses version 0, which causes some issues on adp_routing_configuration
      */
     protected boolean isICVersion0() {
         return false;

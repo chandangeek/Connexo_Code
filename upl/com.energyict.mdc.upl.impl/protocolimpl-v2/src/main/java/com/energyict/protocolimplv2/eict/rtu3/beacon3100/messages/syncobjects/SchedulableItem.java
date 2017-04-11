@@ -9,6 +9,7 @@ import com.energyict.obis.ObisCode;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -33,21 +34,19 @@ public class SchedulableItem {
     /**
      * Parses a {@link SchedulableItem} based on the given {@link Structure}.
      *
-     * @param 	structure		The {@link Structure} to parse.
-     *
-     * @return	The corresponding {@link SchedulableItem}.
-     *
-     * @throws	IOException		If an {@link IOException} occurs.
+     * @param structure The {@link Structure} to parse.
+     * @return The corresponding {@link SchedulableItem}.
+     * @throws IOException        If an {@link IOException} occurs.
      */
     public static final SchedulableItem fromStructure(final Structure structure) throws IOException {
-    	if (structure.nrOfDataTypes() >= 1) {
-    		final ObisCode logicalName = ObisCode.fromByteArray(structure.getDataType(0, OctetString.class).getContentByteArray());
-    		AbstractDataType bufferSize = structure.getDataType(1);
+        if (structure.nrOfDataTypes() >= 1) {
+            final ObisCode logicalName = ObisCode.fromByteArray(structure.getDataType(0, OctetString.class).getContentByteArray());
+            AbstractDataType bufferSize = structure.getDataType(1);
 
-    		return new SchedulableItem(logicalName, bufferSize);
-    	} else {
-    		throw new IllegalArgumentException("Error converting the received structure : expected a structure of at least 1 element, but got one containing [" + structure.nrOfDataTypes() + "] elements.");
-    	}
+            return new SchedulableItem(logicalName, bufferSize);
+        } else {
+            throw new IllegalArgumentException("Error converting the received structure : expected a structure of at least 1 element, but got one containing [" + structure.nrOfDataTypes() + "] elements.");
+        }
     }
 
     public SchedulableItem(ObisCode obisCode, AbstractDataType bufferSize) {

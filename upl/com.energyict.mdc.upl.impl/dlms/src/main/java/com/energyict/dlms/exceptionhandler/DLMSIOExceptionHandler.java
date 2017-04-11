@@ -30,7 +30,7 @@ public class DLMSIOExceptionHandler {
      */
 
     public static CommunicationException handle(IOException e, int nbRetries) {
-    	if (isUnexpectedResponse(e, nbRetries)) {
+        if (isUnexpectedResponse(e, nbRetries)) {
             //Unexpected problem or response, but we can still communicate with the device
             return CommunicationException.unexpectedResponse(e);
         } else {
@@ -77,57 +77,40 @@ public class DLMSIOExceptionHandler {
 
     /**
      * Indicates whether or not the given {@link IOException} is a {@link DataAccessResultCode#TEMPORARY_FAILURE}.
-     * 
-     * @param 		e		The {@link IOException}.
-     * 
-     * @return		<code>true</code> if the {@link IOException} is in fact a {@link DataAccessResultCode#TEMPORARY_FAILURE}, <code>false</code> otherwise.
+     *
+     * @param e The {@link IOException}.
+     * @return        <code>true</code> if the {@link IOException} is in fact a {@link DataAccessResultCode#TEMPORARY_FAILURE}, <code>false</code> otherwise.
      */
     public static final boolean isTemporaryFailure(final IOException e) {
-    	if (e instanceof DataAccessResultException) {
-    		return ((DataAccessResultException)e).getCode() == DataAccessResultCode.TEMPORARY_FAILURE;
-    	}
-    	
-    	return false;
+        if (e instanceof DataAccessResultException) {
+            return ((DataAccessResultException) e).getCode() == DataAccessResultCode.TEMPORARY_FAILURE;
+        }
+
+        return false;
     }
-    
-    /**
-     * Indicates whether or not the given {@link IOException} is a {@link DataAccessResultCode#TEMPORARY_FAILURE}.
-     * 
-     * @param 		e		The {@link IOException}.
-     * 
-     * @return		<code>true</code> if the {@link IOException} is in fact a {@link DataAccessResultCode#TEMPORARY_FAILURE}, <code>false</code> otherwise.
-     */
-    public static final boolean isTemporaryFailure(final IOException e) {
-    	if (e instanceof DataAccessResultException) {
-    		return ((DataAccessResultException)e).getCode() == DataAccessResultCode.TEMPORARY_FAILURE;
-    	}
-    	
-    	return false;
-    }
-    
+
     /**
      * Checks whether the returned error is an authorization error (basically an R/W denied).
      *
-     * @param 		e		The IO error.
-     *
-     * @return		<code>true</code> if this concerns an authorization problem, <code>false</code> if not.
+     * @param e The IO error.
+     * @return        <code>true</code> if this concerns an authorization problem, <code>false</code> if not.
      */
     public static final boolean isAuthorizationProblem(final IOException e) {
-    	Throwable t = e;
+        Throwable t = e;
 
-    	while (t != null) {
-	    	if (t instanceof DataAccessResultException) {
-	    		final DataAccessResultException dataAccessResultException = (DataAccessResultException)t;
+        while (t != null) {
+            if (t instanceof DataAccessResultException) {
+                final DataAccessResultException dataAccessResultException = (DataAccessResultException) t;
 
-	    		if (dataAccessResultException.getCode() == DataAccessResultCode.RW_DENIED) {
-	    			return true;
-	    		}
-	    	}
+                if (dataAccessResultException.getCode() == DataAccessResultCode.RW_DENIED) {
+                    return true;
+                }
+            }
 
-	    	t = t.getCause();
-    	}
+            t = t.getCause();
+        }
 
-    	return false;
+        return false;
     }
 
     private static CommunicationException connectionCommunicationException(IOException e, int noRetries) {

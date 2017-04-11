@@ -149,10 +149,6 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
         }
     }
 
-    protected DLMSKeyStoreUserFileProvider getDlmsKeyStoreUserFile() {
-        return new DLMSKeyStoreUserFileProviderImpl();
-    }
-
     private void handlePreferredCipherSuites(SSLSocket socket) throws ConnectionException {
         String preferredCipherSuitesPropertyValue = getPreferredCipherSuitesPropertyValue();
         if (preferredCipherSuitesPropertyValue != null) {

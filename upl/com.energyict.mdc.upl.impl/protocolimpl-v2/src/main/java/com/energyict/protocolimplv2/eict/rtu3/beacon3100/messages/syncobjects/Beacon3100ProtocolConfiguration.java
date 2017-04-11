@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects;
 
+import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
@@ -9,6 +10,7 @@ import com.energyict.protocolimplv2.dlms.idis.am540.properties.AM540Configuratio
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -23,6 +25,24 @@ import java.util.Set;
  */
 @XmlRootElement
 public class Beacon3100ProtocolConfiguration {
+
+    /**
+     * The {@link Set} of {@link Properties} we don't sync.
+     */
+    public static final Beacon3100ProtocolConfiguration fromStructure(final Structure structure) throws IOException {
+        final String className = structure.getDataType(0, OctetString.class).stringValue();
+        final Array propertiesArray = structure.getDataType(1, Array.class);
+
+        final TypedProperties protocolProperties = com.energyict.protocolimpl.properties.TypedProperties.empty();
+
+        for (final AbstractDataType propEntry : propertiesArray) {
+            final Beacon3100ProtocolTypedProperty property = Beacon3100ProtocolTypedProperty.fromStructure(propEntry.getStructure());
+
+            protocolProperties.setProperty(property.getName(), property.getValue());
+        }
+
+        return new Beacon3100ProtocolConfiguration(className, protocolProperties);
+    }
 
     /**
      * The {@link Set} of {@link Properties} we don't sync.
@@ -48,7 +68,7 @@ public class Beacon3100ProtocolConfiguration {
      * Indicates whether the given property should be synced to the DC.
      *
      * @param propertyName The name of the property.
-     * @return        <code>true</code> if the prop should be passed, <code>false</code> if not.
+     * @return <code>true</code> if the prop should be passed, <code>false</code> if not.
      */
     private static final boolean shouldSync(final String propertyName) {
         return !IGNORED_PROPERTY_NAMES.contains(propertyName);
