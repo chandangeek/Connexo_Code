@@ -6,6 +6,7 @@ Ext.define('Mdc.view.setup.dataloggerslaves.DataLoggerSlaveDeviceAdd', {
     alias: 'widget.datalogger-slave-device-add',
     itemId: 'mdc-datalogger-slave-device-add',
     requires: [
+        'Mdc.util.SlaveNameProposal',
         'Mdc.widget.DeviceConfigurationField',
         'Mdc.store.AvailableDeviceTypes'
     ],
@@ -20,7 +21,7 @@ Ext.define('Mdc.view.setup.dataloggerslaves.DataLoggerSlaveDeviceAdd', {
         labelWidth: 145
     },
     deviceTypeStore: undefined,
-
+    dataLogger: null,
     initComponent: function () {
         var me = this;
         me.items = [
@@ -144,12 +145,18 @@ Ext.define('Mdc.view.setup.dataloggerslaves.DataLoggerSlaveDeviceAdd', {
     },
     setLinkPurpose: function() {
         var me = this,
-            deviceType = me.down('#dataLoggerSlaveDeviceConfiguration').getDeviceType(),
-            dataLoggerSlaveFields = me.down('#dataLoggerSlaveFields');
+            deviceConfigurationField = me.down('#dataLoggerSlaveDeviceConfiguration'),
+            deviceType = deviceConfigurationField.getDeviceType(),
+            deviceConfiguration = deviceConfigurationField.getDeviceConfiguration(),
+            dataLoggerSlaveFields = me.down('#dataLoggerSlaveFields'),
+            nameTextField = me.down('#dataLoggerSlaveDeviceName');
         if (deviceType.isDataLoggerSlave()){
             dataLoggerSlaveFields.show();
         }else{
             dataLoggerSlaveFields.hide();
+            if (me.dataLogger && nameTextField && !nameTextField.getValue()) {
+                nameTextField.setValue(Mdc.util.SlaveNameProposal.get(me.dataLogger, deviceConfiguration));
+            }
         }
     }
 });
