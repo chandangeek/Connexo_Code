@@ -6,8 +6,9 @@ package com.elster.jupiter.metering.cps.impl;
 
 import com.elster.jupiter.metering.cps.impl.metrology.UsagePointAntennaCPS;
 import com.elster.jupiter.metering.cps.impl.metrology.UsagePointContCustomPropertySet;
-import com.elster.jupiter.metering.cps.impl.metrology.UsagePointCorrectionFactorsCPS;
+import com.elster.jupiter.metering.cps.impl.metrology.UsagePointElectricityCorrectionFactorsCPS;
 import com.elster.jupiter.metering.cps.impl.metrology.UsagePointDecentProdCustomPropertySet;
+import com.elster.jupiter.metering.cps.impl.metrology.UsagePointGasCorrectionFactorsCPS;
 import com.elster.jupiter.metering.cps.impl.metrology.UsagePointMetrologyGeneralCPS;
 import com.elster.jupiter.metering.cps.impl.metrology.UsagePointSettlementCustomPropertySet;
 import com.elster.jupiter.metering.cps.impl.metrology.UsagePointTechInstAllCustomPropertySet;
@@ -58,7 +59,8 @@ public class InsightServiceCategoryCustomPropertySetsCheckList implements Upgrad
                 InstallIdentifier.identifier(application(), UsagePointGeneralCustomPropertySet.COMPONENT_NAME),
                 InstallIdentifier.identifier(application(), UsagePointTechElCPS.COMPONENT_NAME),
                 InstallIdentifier.identifier(application(), UsagePointContrElectrCPS.COMPONENT_NAME),
-                InstallIdentifier.identifier(application(), UsagePointCorrectionFactorsCPS.COMPONENT_NAME));
+                InstallIdentifier.identifier(application(), UsagePointElectricityCorrectionFactorsCPS.COMPONENT_NAME),
+                InstallIdentifier.identifier(application(), UsagePointGasCorrectionFactorsCPS.COMPONENT_NAME));
     }
 
 }

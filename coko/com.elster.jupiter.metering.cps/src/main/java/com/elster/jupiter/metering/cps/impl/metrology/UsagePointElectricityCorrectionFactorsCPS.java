@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-public class UsagePointCorrectionFactorsCPS implements CustomPropertySet<UsagePoint, UsagePointCorrectionFactorsDomExt> {
+public class UsagePointElectricityCorrectionFactorsCPS implements CustomPropertySet<UsagePoint, UsagePointElectricityCorrectionFactorsDomExt> {
     public static final String TABLE_NAME = "SLP_CPS_CORRECTIONFACTOR";
     public static final String DOMAIN_FK_NAME = "PK_SLP_CPS_CORRFACTOR";
     public static final String COMPONENT_NAME = "CF1";
@@ -39,11 +39,11 @@ public class UsagePointCorrectionFactorsCPS implements CustomPropertySet<UsagePo
     public SyntheticLoadProfileService syntheticLoadProfileService;
     public Thesaurus thesaurus;
 
-    public UsagePointCorrectionFactorsCPS() {
+    public UsagePointElectricityCorrectionFactorsCPS() {
         super();
     }
 
-    public UsagePointCorrectionFactorsCPS(PropertySpecService propertySpecService, SyntheticLoadProfileService syntheticLoadProfileService, Thesaurus thesaurus) {
+    public UsagePointElectricityCorrectionFactorsCPS(PropertySpecService propertySpecService, SyntheticLoadProfileService syntheticLoadProfileService, Thesaurus thesaurus) {
         this();
         this.propertySpecService = propertySpecService;
         this.syntheticLoadProfileService = syntheticLoadProfileService;
@@ -72,7 +72,7 @@ public class UsagePointCorrectionFactorsCPS implements CustomPropertySet<UsagePo
     }
 
     @Override
-    public PersistenceSupport<UsagePoint, UsagePointCorrectionFactorsDomExt> getPersistenceSupport() {
+    public PersistenceSupport<UsagePoint, UsagePointElectricityCorrectionFactorsDomExt> getPersistenceSupport() {
         return new UsagePointCorrectionFactorsPerSupp(this.getThesaurus());
     }
 
@@ -101,7 +101,7 @@ public class UsagePointCorrectionFactorsCPS implements CustomPropertySet<UsagePo
         List<SyntheticLoadProfile> correctionFactors = syntheticLoadProfileService.findSyntheticLoadProfiles();
         PropertySpecBuilder<SyntheticLoadProfile> lossFactorSpec = propertySpecService
                 .referenceSpec(SyntheticLoadProfile.class)
-                .named(UsagePointCorrectionFactorsDomExt.Fields.LOSS_FACTOR.javaName(), TranslationKeys.CPS_CORRECTIONFACTOR_LOSS_FACTOR)
+                .named(UsagePointElectricityCorrectionFactorsDomExt.Fields.LOSS_FACTOR.javaName(), TranslationKeys.CPS_CORRECTIONFACTOR_LOSS_FACTOR)
                 .describedAs(TranslationKeys.CPS_CORRECTIONFACTOR_LOSS_FACTOR)
                 .fromThesaurus(this.getThesaurus())
                 .markRequired();
@@ -114,7 +114,7 @@ public class UsagePointCorrectionFactorsCPS implements CustomPropertySet<UsagePo
         return Collections.singletonList(lossFactorSpec.finish());
     }
 
-    private static class UsagePointCorrectionFactorsPerSupp implements PersistenceSupport<UsagePoint, UsagePointCorrectionFactorsDomExt> {
+    private static class UsagePointCorrectionFactorsPerSupp implements PersistenceSupport<UsagePoint, UsagePointElectricityCorrectionFactorsDomExt> {
 
         private Thesaurus thesaurus;
 
@@ -134,7 +134,7 @@ public class UsagePointCorrectionFactorsCPS implements CustomPropertySet<UsagePo
 
         @Override
         public String domainFieldName() {
-            return UsagePointCorrectionFactorsDomExt.Fields.DOMAIN.javaName();
+            return UsagePointElectricityCorrectionFactorsDomExt.Fields.DOMAIN.javaName();
         }
 
         @Override
@@ -143,8 +143,8 @@ public class UsagePointCorrectionFactorsCPS implements CustomPropertySet<UsagePo
         }
 
         @Override
-        public Class<UsagePointCorrectionFactorsDomExt> persistenceClass() {
-            return UsagePointCorrectionFactorsDomExt.class;
+        public Class<UsagePointElectricityCorrectionFactorsDomExt> persistenceClass() {
+            return UsagePointElectricityCorrectionFactorsDomExt.class;
         }
 
         @Override
@@ -164,25 +164,25 @@ public class UsagePointCorrectionFactorsCPS implements CustomPropertySet<UsagePo
 
         @Override
         public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
-            Column correctionFactorColumn = table.column(UsagePointCorrectionFactorsDomExt.Fields.LOSS_FACTOR.databaseName())
+            Column correctionFactorColumn = table.column(UsagePointElectricityCorrectionFactorsDomExt.Fields.LOSS_FACTOR.databaseName())
                     .number()
                     .conversion(ColumnConversion.NUMBER2LONG)
                     .add();
             table.foreignKey("FK_SLP_CPS_CORRFACTOR")
                     .references(SyntheticLoadProfile.class)
                     .on(correctionFactorColumn)
-                    .map(UsagePointCorrectionFactorsDomExt.Fields.LOSS_FACTOR.javaName())
+                    .map(UsagePointElectricityCorrectionFactorsDomExt.Fields.LOSS_FACTOR.javaName())
                     .add();
         }
 
         @Override
         public String columnNameFor(PropertySpec propertySpec) {
             return EnumSet
-                    .complementOf(EnumSet.of(UsagePointCorrectionFactorsDomExt.Fields.DOMAIN))
+                    .complementOf(EnumSet.of(UsagePointElectricityCorrectionFactorsDomExt.Fields.DOMAIN))
                     .stream()
                     .filter(each -> each.javaName().equals(propertySpec.getName()))
                     .findFirst()
-                    .map(UsagePointCorrectionFactorsDomExt.Fields::databaseName)
+                    .map(UsagePointElectricityCorrectionFactorsDomExt.Fields::databaseName)
                     .orElseThrow(() -> new IllegalArgumentException("Unknown property spec: " + propertySpec.getName()));
         }
 

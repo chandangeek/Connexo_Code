@@ -144,6 +144,7 @@ public enum TranslationKeys implements TranslationKey {
 
     CPS_CORRECTIONFACTORS_NAME("usage.point.cps.correction.factors.name", "Correction factors"),
     CPS_CORRECTIONFACTOR_LOSS_FACTOR("usage.point.cps.loss.factor", "Loss factor"),
+    CPS_CORRECTIONFACTOR_CLIMATE_FACTOR("usage.point.cps.climate.correction.factor", "Climate correction factor"),
     ;
 
     private String key;
