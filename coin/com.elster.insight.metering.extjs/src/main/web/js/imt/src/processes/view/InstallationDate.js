@@ -56,7 +56,7 @@ Ext.define('Imt.processes.view.InstallationDate', {
                 },
                 blur: function (fld) {
                     if (!Ext.isDate(fld.getValue())) {
-                        fld.restoreDefault();
+                        me.restoreDefault();
                     }
                 }
             }
@@ -65,5 +65,13 @@ Ext.define('Imt.processes.view.InstallationDate', {
 
     getField: function () {
         return this.down('datefield');
-    }
+    },
+
+    getValue: function () {
+        if (Ext.isDate(this.getField().getValue())) {
+            return this.getField().getValue().getTime()
+        } else {
+            return null;
+        }
+    },
 });
