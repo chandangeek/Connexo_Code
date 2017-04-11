@@ -13,6 +13,12 @@ public class SourceChannelSetFactory {
 
     private final MeteringService meteringService;
 
+    public static String format(Set<String> channelIds) {
+        return channelIds
+                .stream()
+                .collect(Collectors.joining(" || '" + SOURCE_CHANNEL_IDS_SEPARATOR + "' || "));
+    }
+
     public SourceChannelSetFactory(MeteringService meteringService) {
         this.meteringService = meteringService;
     }

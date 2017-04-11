@@ -415,7 +415,7 @@ public class DataAggregationServiceImplCalculateGasIT {
                             anyVararg());
             // Assert that the consumption requirement is used as source for the timeline
             assertThat(this.consumptionDeliverableWithClauseBuilder.getText())
-                    .matches("SELECT -1, rid" + consumptionRequirementId + "_" + consumptionDeliverableId + "_1\\.timestamp,.*");
+                    .matches("SELECT -1 as id, rid" + consumptionRequirementId + "_" + consumptionDeliverableId + "_1\\.timestamp as timestamp,.*");
             // Assert that the consumption requirements' values is multiplied with the constant in the select clause
             assertThat(this.consumptionDeliverableWithClauseBuilder.getText())
                     .matches("SELECT.*\\(\\s*\\?\\s*\\* rid" + consumptionRequirementId + "_" + consumptionDeliverableId + "_1\\.value\\).*");
@@ -486,27 +486,29 @@ public class DataAggregationServiceImplCalculateGasIT {
             // Asserts:
             verify(clauseAwareSqlBuilder)
                     .with(
-                            matches("rid" + consumptionRequirementId + ".*" + consumptionDeliverableId + ".*1"),
-                            any(Optional.class),
-                            anyVararg());
+                        matches("rid" + consumptionRequirementId + ".*" + consumptionDeliverableId + ".*1"),
+                        any(Optional.class),
+                        anyVararg());
             assertThat(consumptionRequirementWithClauseBuilder.getText()).isNotEmpty();
             verify(clauseAwareSqlBuilder)
                     .with(
-                            matches("rod" + consumptionDeliverableId + ".*1"),
-                            any(Optional.class),
-                            anyVararg());
+                        matches("rod" + consumptionDeliverableId + ".*1"),
+                        any(Optional.class),
+                        anyVararg());
             // Assert that the consumption requirement is used as source for the timeline
             assertThat(this.consumptionDeliverableWithClauseBuilder.getText())
-                    .matches("SELECT -1, rid" + consumptionRequirementId + "_" + consumptionDeliverableId + "_1\\.timestamp,.*");
+                    .matches("SELECT\\s*MIN\\(id\\), MAX\\(realrod" + consumptionRequirementId + "_" + consumptionDeliverableId + "\\.timestamp\\),.*");
+            // Assert that the overall select statement sums the values and the timestamp from the with clause for the deliverable
+            assertThat(this.consumptionDeliverableWithClauseBuilder.getText())
+                    .matches("SELECT.*SUM\\(realrod" + consumptionRequirementId + "_" + consumptionDeliverableId + "\\.value\\).*");
+            // Assert that the select statement truncates to monthly level and takes the gas day start options into account.
+            assertThat(this.consumptionDeliverableWithClauseBuilder.getText())
+                    .matches("SELECT.*[trunc|TRUNC]\\(realrod" + consumptionRequirementId + "_" + consumptionDeliverableId + "\\.localdate - INTERVAL '17' HOUR, 'MONTH'\\) \\+ INTERVAL '17' HOUR\\).*");
             verify(clauseAwareSqlBuilder).select();
             String overallSelectWithoutNewlines = this.selectClauseBuilder.getText().replace("\n", " ");
             // Assert that the overall select statement selects the target reading type
             assertThat(overallSelectWithoutNewlines).matches(".*'" + this.mRID2GrepPattern(MONTHLY_GAS_VOLUME_KWH_MRID) + "'.*");
-            // Assert that the overall select statement truncates to monthly level and takes the gas day start options into account.
-            assertThat(overallSelectWithoutNewlines).matches(".*\\(TRUNC\\(rod" + consumptionDeliverableId + "_1.localdate - INTERVAL '17' HOUR, 'MONTH'\\) \\+ INTERVAL '17' HOUR\\).*");
-            assertThat(overallSelectWithoutNewlines).matches(".*GROUP BY \\(TRUNC\\(rod" + consumptionDeliverableId + "_1.localdate - INTERVAL '17' HOUR, 'MONTH'\\) \\+ INTERVAL '17' HOUR\\).*");
-            // Assert that the overall select statement sums the values and the timestamp from the with clause for the deliverable
-            assertThat(overallSelectWithoutNewlines).matches(".*SUM\\(rod" + consumptionDeliverableId + "_1\\.value\\).*");
+            assertThat(overallSelectWithoutNewlines).endsWith("rod" + consumptionDeliverableId + "_1.value, rod" + consumptionDeliverableId + "_1.localdate, rod" + consumptionDeliverableId + "_1.timestamp, rod" + consumptionDeliverableId + "_1.recordtime, rod" + consumptionDeliverableId + "_1.readingQuality, 1, rod" + consumptionDeliverableId + "_1.sourceChannels   FROM rod" + consumptionDeliverableId + "_1");
         }
     }
 

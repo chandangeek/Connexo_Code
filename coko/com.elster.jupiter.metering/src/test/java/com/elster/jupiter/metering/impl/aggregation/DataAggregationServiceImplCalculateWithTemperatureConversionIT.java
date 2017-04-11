@@ -389,30 +389,33 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
             // Asserts:
             verify(clauseAwareSqlBuilder)
                     .with(
-                            matches("rid" + temperature1RequirementId + ".*" + deliverableId + ".*1"),
-                            any(Optional.class),
-                            anyVararg());
+                        matches("rid" + temperature1RequirementId + ".*" + deliverableId + ".*1"),
+                        any(Optional.class),
+                        anyVararg());
             assertThat(temperatureWithClauseBuilder.getText()).isNotEmpty();
             verify(clauseAwareSqlBuilder)
                     .with(
-                            matches("rod" + deliverableId + ".*1"),
-                            any(Optional.class),
-                            anyVararg());
+                        matches("rod" + deliverableId + ".*1"),
+                        any(Optional.class),
+                        anyVararg());
             // Assert that one of the requirements is used as source for the timeline
             assertThat(this.deliverableWithClauseBuilder.getText())
-                    .matches("SELECT -1, rid" + temperature1RequirementId + "_" + deliverableId + "_1\\.timestamp,.*");
+                    .matches("SELECT.*FROM.*\\(SELECT -1 as id, rid" + temperature1RequirementId + "_" + deliverableId + "_1\\.timestamp as timestamp.*\\) realrod" + deliverableId + "_1.*");
             // Assert that the formula is applied to the requirements' value in the select clause
             assertThat(this.deliverableWithClauseBuilder.getText())
                     .matches("SELECT.*\\(rid" + temperature1RequirementId + "_" + deliverableId + "_1\\.value\\s*\\+\\s*\\?\\s*\\).*");
             verify(clauseAwareSqlBuilder).select();
+            /* Assert that the select statement converts the Kelvin values to Celcius
+             * first and then takes the average to group by day. */
+            assertThat(this.deliverableWithClauseBuilder.getText())
+                    .matches(".*[avg|AVG]\\(\\(realrod" + deliverableId + "_1\\.value\\s*-\\s*273\\.15\\)\\).*");
+            assertThat(this.deliverableWithClauseBuilder.getText())
+                    .matches(".*[trunc|TRUNC]\\(realrod" + deliverableId + "_1\\.localdate, 'DDD'\\).*");
+            assertThat(this.deliverableWithClauseBuilder.getText())
+                    .matches(".*[group by trunc|GROUP BY TRUNC]\\(realrod" + deliverableId + "_1\\.localdate, 'DDD'\\).*");
             // Assert that the overall select statement selects the target reading type
             String overallSelectWithoutNewlines = this.selectClauseBuilder.getText().replace("\n", " ");
             assertThat(overallSelectWithoutNewlines).matches(".*'" + this.mRID2GrepPattern(DAILY_TEMPERATURE_CELCIUS_MRID) + "'.*");
-            /* Assert that the overall select statement converts the Kelvin values to Celcius
-             * first and then takes the average to group by day. */
-            assertThat(overallSelectWithoutNewlines).matches(".*[avg|AVG]\\(\\(rod" + deliverableId + "_1\\.value\\s*-\\s*273\\.15\\)\\).*");
-            assertThat(overallSelectWithoutNewlines).matches(".*[trunc|TRUNC]\\(rod" + deliverableId + "_1\\.localdate, 'DDD'\\).*");
-            assertThat(overallSelectWithoutNewlines).matches(".*[group by trunc|GROUP BY TRUNC]\\(rod" + deliverableId + "_1\\.localdate, 'DDD'\\).*");
         }
     }
 
@@ -477,30 +480,33 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
             // Asserts:
             verify(clauseAwareSqlBuilder)
                     .with(
-                            matches("rid" + temperature1RequirementId + ".*" + deliverableId + ".*1"),
-                            any(Optional.class),
-                            anyVararg());
+                        matches("rid" + temperature1RequirementId + ".*" + deliverableId + ".*1"),
+                        any(Optional.class),
+                        anyVararg());
             assertThat(temperatureWithClauseBuilder.getText()).isNotEmpty();
             verify(clauseAwareSqlBuilder)
                     .with(
-                            matches("rod" + deliverableId + ".*1"),
-                            any(Optional.class),
-                            anyVararg());
+                        matches("rod" + deliverableId + ".*1"),
+                        any(Optional.class),
+                        anyVararg());
             // Assert that one of the requirements is used as source for the timeline
             assertThat(this.deliverableWithClauseBuilder.getText())
-                    .matches("SELECT -1, rid" + temperature1RequirementId + "_" + deliverableId + "_1\\.timestamp,.*");
+                    .matches("SELECT.*FROM.*\\(SELECT -1 as id, rid" + temperature1RequirementId + "_" + deliverableId + "_1\\.timestamp as timestamp.*\\) realrod" + deliverableId + "_1.*");
             // Assert that the formula is applied to the requirements' value in the select clause
             assertThat(this.deliverableWithClauseBuilder.getText())
                     .matches("SELECT.*\\(rid" + temperature1RequirementId + "_" + deliverableId + "_1\\.value\\s*\\+\\s*\\?\\s*\\).*");
             verify(clauseAwareSqlBuilder).select();
+            /* Assert that the select statement converts the Kelvin values to Celcius
+             * first and then takes the average to group by day. */
+            assertThat(this.deliverableWithClauseBuilder.getText())
+                    .matches(".*[avg|AVG]\\(\\(\\(9\\s*\\*\\s*\\(realrod" + deliverableId + "_1\\.value\\s*-\\s*255\\.3722*\\)\\)\\s*/\\s*5\\)\\).*");
+            assertThat(this.deliverableWithClauseBuilder.getText())
+                    .matches(".*[trunc|TRUNC]\\(realrod" + deliverableId + "_1\\.localdate, 'DDD'\\).*");
+            assertThat(this.deliverableWithClauseBuilder.getText())
+                    .matches(".*[group by trunc|GROUP BY TRUNC]\\(realrod" + deliverableId + "_1\\.localdate, 'DDD'\\).*");
             // Assert that the overall select statement selects the target reading type
             String overallSelectWithoutNewlines = this.selectClauseBuilder.getText().replace("\n", " ");
             assertThat(overallSelectWithoutNewlines).matches(".*'" + this.mRID2GrepPattern(DAILY_TEMPERATURE_FAHRENHEIT_MRID) + "'.*");
-            /* Assert that the overall select statement converts the Kelvin values to Celcius
-             * first and then takes the average to group by day. */
-            assertThat(overallSelectWithoutNewlines).matches(".*[avg|AVG]\\(\\(\\(9\\s*\\*\\s*\\(rod" + deliverableId + "_1\\.value\\s*-\\s*255\\.3722*\\)\\)\\s*/\\s*5\\)\\).*");
-            assertThat(overallSelectWithoutNewlines).matches(".*[trunc|TRUNC]\\(rod" + deliverableId + "_1\\.localdate, 'DDD'\\).*");
-            assertThat(overallSelectWithoutNewlines).matches(".*[group by trunc|GROUP BY TRUNC]\\(rod" + deliverableId + "_1\\.localdate, 'DDD'\\).*");
         }
     }
 
@@ -577,24 +583,24 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
             // Asserts:
             verify(clauseAwareSqlBuilder)
                     .with(
-                            matches("rid" + temperature1RequirementId + ".*" + deliverableId + ".*1"),
-                            any(Optional.class),
-                            anyVararg());
+                        matches("rid" + temperature1RequirementId + ".*" + deliverableId + ".*1"),
+                        any(Optional.class),
+                        anyVararg());
             assertThat(minTemperatureWithClauseBuilder.getText()).isNotEmpty();
             verify(clauseAwareSqlBuilder)
                     .with(
-                            matches("rid" + temperature2RequirementId + ".*" + deliverableId + ".*1"),
-                            any(Optional.class),
-                            anyVararg());
+                        matches("rid" + temperature2RequirementId + ".*" + deliverableId + ".*1"),
+                        any(Optional.class),
+                        anyVararg());
             assertThat(maxTemperatureWithClauseBuilder.getText()).isNotEmpty();
             verify(clauseAwareSqlBuilder)
                     .with(
-                            matches("rod" + deliverableId + ".*1"),
-                            any(Optional.class),
-                            anyVararg());
+                        matches("rod" + deliverableId + ".*1"),
+                        any(Optional.class),
+                        anyVararg());
             // Assert that one of the requirements is used as source for the timeline
             assertThat(this.deliverableWithClauseBuilder.getText())
-                    .matches("SELECT -1, rid" + temperature1RequirementId + "_" + deliverableId + "_1\\.timestamp,.*");
+                    .matches("SELECT.*FROM.*\\(SELECT -1 as id, rid" + temperature1RequirementId + "_" + deliverableId + "_1\\.timestamp as timestamp.*\\) realrod" + deliverableId + "_1.*");
             // Assert that the min temperature requirements' value is not converted
             assertThat(this.deliverableWithClauseBuilder.getText())
                     .matches("SELECT.*\\(rid" + temperature1RequirementId + "_" + deliverableId + "_1\\.value\\s*\\+\\s*\\(.*");
@@ -603,14 +609,17 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
             assertThat(this.deliverableWithClauseBuilder.getText())
                     .matches("SELECT.*\\(255.3722*\\s*\\+\\s*\\(\\(5\\s*\\*\\s*rid" + temperature2RequirementId + "_" + deliverableId + "_1\\.value\\).*");
             verify(clauseAwareSqlBuilder).select();
+            /* Assert that the select statement converts the Celcius values to Kelvin
+             * first and then takes the average to group by day. */
+            assertThat(this.deliverableWithClauseBuilder.getText())
+                    .matches(".*[avg|AVG]\\(\\(273.15*\\s*\\+\\s*realrod" + deliverableId + "_1\\.value\\)\\).*");
+            assertThat(this.deliverableWithClauseBuilder.getText())
+                    .matches(".*[trunc|TRUNC]\\(realrod" + deliverableId + "_1\\.localdate, 'DDD'\\).*");
+            assertThat(this.deliverableWithClauseBuilder.getText())
+                    .matches(".*[group by trunc|GROUP BY TRUNC]\\(realrod" + deliverableId + "_1\\.localdate, 'DDD'\\).*");
             // Assert that the overall select statement selects the target reading type
             String overallSelectWithoutNewlines = this.selectClauseBuilder.getText().replace("\n", " ");
             assertThat(overallSelectWithoutNewlines).matches(".*'" + this.mRID2GrepPattern(DAILY_TEMPERATURE_KELVIN_MRID) + "'.*");
-            /* Assert that the overall select statement converts the Celcius values to Kelvin
-             * first and then takes the average to group by day. */
-            assertThat(overallSelectWithoutNewlines).matches(".*[avg|AVG]\\(\\(273.15*\\s*\\+\\s*rod" + deliverableId + "_1\\.value\\)\\).*");
-            assertThat(overallSelectWithoutNewlines).matches(".*[trunc|TRUNC]\\(rod" + deliverableId + "_1\\.localdate, 'DDD'\\).*");
-            assertThat(overallSelectWithoutNewlines).matches(".*[group by trunc|GROUP BY TRUNC]\\(rod" + deliverableId + "_1\\.localdate, 'DDD'\\).*");
         }
     }
 

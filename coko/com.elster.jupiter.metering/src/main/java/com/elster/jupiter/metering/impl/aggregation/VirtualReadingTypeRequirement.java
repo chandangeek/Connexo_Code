@@ -138,7 +138,7 @@ class VirtualReadingTypeRequirement {
         sqlBuilder.append(", ");
         sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.READINGQUALITY.sqlName());
         sqlBuilder.append(", ");
-        sqlBuilder.addLong(this.getPreferredChannel().getId());
+        sqlBuilder.append(this.sourceChannelValue());
         sqlBuilder.append(" AS ");
         sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.SOURCECHANNELS.sqlName());
         sqlBuilder.append(", ");
@@ -258,9 +258,9 @@ class VirtualReadingTypeRequirement {
         sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.RECORDTIME.fieldSpecName());
         sqlBuilder.append(", ");
         sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.READINGQUALITY.sqlName());
-        sqlBuilder.append(", ");
+        sqlBuilder.append(", '");
         sqlBuilder.append(Long.toString(this.getPreferredChannel().getId()));
-        sqlBuilder.append(" AS ");
+        sqlBuilder.append("' AS ");
         sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.SOURCECHANNELS.sqlName());
         sqlBuilder.append(", ");
         sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.VALUE.sqlName());
@@ -343,6 +343,10 @@ class VirtualReadingTypeRequirement {
                         this.mode,
                         this.sqlName() + "." + SqlConstants.TimeSeriesColumnNames.VALUE.sqlName(),
                         this.targetReadingType));
+    }
+
+    String sourceChannelValue() {
+        return "'" + Long.toString(this.getPreferredChannel().getId()) + "'";
     }
 
     VirtualReadingType getSourceReadingType() {

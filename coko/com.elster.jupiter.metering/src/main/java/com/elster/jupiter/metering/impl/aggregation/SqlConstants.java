@@ -10,7 +10,6 @@ import com.elster.jupiter.util.sql.SqlBuilder;
 
 import java.util.Collections;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.Checks.is;
@@ -180,16 +179,7 @@ final class SqlConstants {
         SOURCECHANNELS("sourceChannels", null) {
             @Override
             void appendAsDeliverableSelectValue(Formula.Mode mode, ServerExpressionNode expressionNode, Optional<IntervalLength> expertIntervalLength, VirtualReadingType targetReadingType, SqlBuilder sqlBuilder) {
-                SourceChannelSqlNamesCollector collector = new SourceChannelSqlNamesCollector();
-                expressionNode.accept(collector);
-                String channels = collector.getSourceChannelSqlNames()
-                        .stream()
-                        .collect(Collectors.joining(" || '" + SourceChannelSetFactory.SOURCE_CHANNEL_IDS_SEPARATOR + "' || "));
-                if (channels.isEmpty()) {
-                    sqlBuilder.append("''");
-                } else {
-                    sqlBuilder.append(channels);
-                }
+                SourceChannelSqlNamesCollector.appendTo(sqlBuilder, expressionNode);
             }
 
             @Override
@@ -277,6 +267,8 @@ final class SqlConstants {
         static void appendAllDeliverableSelectValues(Formula.Mode mode, ServerExpressionNode expressionNode, Optional<IntervalLength> expertIntervalLength, VirtualReadingType targetReadingType, SqlBuilder sqlBuilder) {
             for (TimeSeriesColumnNames columnName : values()) {
                 columnName.appendAsDeliverableSelectValue(mode, expressionNode, expertIntervalLength, targetReadingType, sqlBuilder);
+                sqlBuilder.append(" as ");
+                sqlBuilder.append(columnName.sqlName());
                 if (columnName != LOCALDATE) {
                     sqlBuilder.append(", ");
                 }

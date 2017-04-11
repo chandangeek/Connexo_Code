@@ -24,6 +24,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
@@ -161,6 +162,10 @@ class ReadingTypeDeliverableForMeterActivationSet {
         return "rod" + this.getId() + "_" + this.getMeterActivationSequenceNumber();
     }
 
+    String nestedSqlName() {
+        return "real" + sqlName();
+    }
+
     private String sqlComment() {
         return this.getName() + this.prettyPrintedReadingType() + " in " + this.prettyPrintMeterActivationPeriod();
     }
@@ -195,6 +200,12 @@ class ReadingTypeDeliverableForMeterActivationSet {
                         targetReadingType));
     }
 
+    Set<String> sourceChannelValues() {
+        SourceChannelSqlNamesCollector collector = new SourceChannelSqlNamesCollector(false);
+        this.expressionNode.accept(collector);
+        return collector.getSourceChannelSqlNames();
+    }
+
     void appendDefinitionTo(ClauseAwareSqlBuilder sqlBuilder) {
         /* Check if the expression tree contains any CustomPropertyNode and
          * add the definition for it if that was not already done by another ReadingTypeDeliverableForMeterActivation. */
@@ -203,9 +214,6 @@ class ReadingTypeDeliverableForMeterActivationSet {
         this.appendWithClause(withClauseBuilder);
         SqlBuilder selectClause = sqlBuilder.select();
         this.appendSelectClause(selectClause);
-        if (this.expertModeAppliesAggregation()) {
-            this.appendWithGroupByClause(withClauseBuilder);
-        }
     }
 
     private void appendNewCustomPropertyDefinitions(ClauseAwareSqlBuilder sqlBuilder) {
@@ -221,9 +229,92 @@ class ReadingTypeDeliverableForMeterActivationSet {
     }
 
     private void appendWithClause(SqlBuilder withClauseBuilder) {
+        if (this.resultValueNeedsTimeBasedAggregation()) {
+            Loggers.SQL.debug(() ->
+                    "Statement for deliverable " + this.deliverable.getName() + " in meter activation " + this.meterActivationSet.getRange() +
+                    " requires time based aggregation because raw data interval length is " + this.expressionReadingType.getIntervalLength() +
+                    " and target interval length is " + this.targetReadingType.getIntervalLength());
+            withClauseBuilder.append("SELECT  ");
+            this.appendAllAggregatedDeliverableSelectValues(withClauseBuilder);
+            withClauseBuilder.append(" FROM (");
+        }
         this.appendWithSelectClause(withClauseBuilder);
         DataSourceTable source = this.appendWithFromClause(withClauseBuilder);
         this.appendWithJoinClauses(withClauseBuilder, source);
+        if (this.resultValueNeedsTimeBasedAggregation()) {
+            withClauseBuilder.append(") ");
+            withClauseBuilder.append(nestedSqlName());
+        }
+        if (this.expertModeAppliesAggregation()) {
+            this.appendWithGroupByClause(withClauseBuilder);
+        } else {
+            this.appendGroupByClauseIfApplicable(withClauseBuilder);
+        }
+    }
+
+    private void appendAllAggregatedDeliverableSelectValues(SqlBuilder sqlBuilder) {
+        for (SqlConstants.TimeSeriesColumnNames columnName : SqlConstants.TimeSeriesColumnNames.values()) {
+            this.appendAggregatedDeliverableSelectValue(columnName, sqlBuilder);
+            if (columnName != SqlConstants.TimeSeriesColumnNames.LOCALDATE) {
+                sqlBuilder.append(", ");
+            }
+        }
+    }
+
+    private void appendAggregatedDeliverableSelectValue(SqlConstants.TimeSeriesColumnNames columnName, SqlBuilder sqlBuilder) {
+        switch (columnName) {
+            case VERSIONCOUNT:  // Intentional fall-through
+            case ID: {
+                columnName
+                    .aggregationFunctionFor(this.targetReadingType)
+                    .appendTo(sqlBuilder, Collections.singletonList(new TextFragment(columnName.sqlName())));
+                break;
+            }
+            case TIMESTAMP: {
+                sqlBuilder.append(AggregationFunction.MAX.sqlName());
+                sqlBuilder.append("(");
+                sqlBuilder.append(this.nestedSqlName());
+                sqlBuilder.append(".");
+                sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.TIMESTAMP.sqlName());
+                sqlBuilder.append(")");
+                break;
+            }
+            case RECORDTIME: {
+                sqlBuilder.append(AggregationFunction.MAX.sqlName());
+                sqlBuilder.append("(");
+                sqlBuilder.append(this.nestedSqlName());
+                sqlBuilder.append(".");
+                sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.RECORDTIME.sqlName());
+                sqlBuilder.append(")");
+                break;
+            }
+            case READINGQUALITY: {
+                this.appendAggregatedReadingQuality(sqlBuilder);
+                break;
+            }
+            case SOURCECHANNELS: {
+                this.appendAggregatedSourceChannelsToSelectClause(sqlBuilder);
+                break;
+            }
+            case VALUE: {
+                sqlBuilder.append(this.targetReadingType.aggregationFunction().sqlName());
+                sqlBuilder.append("(");
+                sqlBuilder.append(
+                        this.expressionReadingType.buildSqlUnitConversion(
+                                Formula.Mode.AUTO,
+                                this.nestedSqlName() + "." + columnName.sqlName(),
+                                this.targetReadingType));
+                sqlBuilder.append(")");
+                break;
+            }
+            case LOCALDATE: {
+                this.appendTruncatedTimeline(sqlBuilder, this.nestedSqlName() + "." + SqlConstants.TimeSeriesColumnNames.LOCALDATE.sqlName());
+                break;
+            }
+            default: {
+                throw new IllegalArgumentException("Unexpected TimeSeriesColumnName: " + columnName.name());
+            }
+        }
     }
 
     private void appendWithSelectClause(SqlBuilder withClauseBuilder) {
@@ -279,61 +370,30 @@ class ReadingTypeDeliverableForMeterActivationSet {
         this.appendSourceChannelsToSelectClause(sqlBuilder);
         sqlBuilder.append("\n  FROM ");
         sqlBuilder.append(this.sqlName());
-        this.appendGroupByClauseIfApplicable(sqlBuilder);
     }
 
     private void appendValueToSelectClause(SqlBuilder sqlBuilder) {
         if (this.resultValueNeedsTimeBasedAggregation()) {
-            Loggers.SQL.debug(() ->
-                    "Statement for deliverable " + this.deliverable.getName() + " in meter activation " + this.meterActivationSet.getRange() +
-                            " requires time based aggregation because raw data interval length is " + this.expressionReadingType.getIntervalLength() +
-                            " and target interval length is " + this.targetReadingType.getIntervalLength());
-            sqlBuilder.append(this.targetReadingType.aggregationFunction().sqlName());
-            sqlBuilder.append("(");
+            // required aggregation and unit conversion has already been done in the with-select clause
+            this.appendTimeSeriesColumnName(SqlConstants.TimeSeriesColumnNames.VALUE, sqlBuilder, this.sqlName());
+        }
+        else if (!this.expressionReadingType.equalsIgnoreCommodity(this.targetReadingType)) {
             sqlBuilder.append(
                     this.expressionReadingType.buildSqlUnitConversion(
                             this.mode,
                             this.sqlName() + "." + SqlConstants.TimeSeriesColumnNames.VALUE.sqlName(),
                             this.targetReadingType));
-            sqlBuilder.append(")");
         } else {
-            if (!this.expressionReadingType.equalsIgnoreCommodity(this.targetReadingType)) {
-                sqlBuilder.append(
-                        this.expressionReadingType.buildSqlUnitConversion(
-                                this.mode,
-                                this.sqlName() + "." + SqlConstants.TimeSeriesColumnNames.VALUE.sqlName(),
-                                this.targetReadingType));
-            } else {
-                this.appendTimeSeriesColumnName(SqlConstants.TimeSeriesColumnNames.VALUE, sqlBuilder, this.sqlName());
-            }
+            this.appendTimeSeriesColumnName(SqlConstants.TimeSeriesColumnNames.VALUE, sqlBuilder, this.sqlName());
         }
     }
 
     private void appendTimelineToSelectClause(SqlBuilder sqlBuilder) {
-        if (this.resultValueNeedsTimeBasedAggregation()) {
-            Loggers.SQL.debug(() -> "Truncating timeline for deliverable " + this.deliverable.getName() + " in meter activation set " + this.meterActivationSet.getRange());
-            this.appendTruncatedTimeline(sqlBuilder, this.sqlName() + "." + SqlConstants.TimeSeriesColumnNames.LOCALDATE.sqlName());
-            sqlBuilder.append(", ");
-            sqlBuilder.append(AggregationFunction.MAX.sqlName());
-            sqlBuilder.append("(");
-            sqlBuilder.append(this.sqlName());
-            sqlBuilder.append(".");
-            sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.TIMESTAMP.sqlName());
-            sqlBuilder.append(")");
-            sqlBuilder.append(", ");
-            sqlBuilder.append(AggregationFunction.MAX.sqlName());
-            sqlBuilder.append("(");
-            sqlBuilder.append(this.sqlName());
-            sqlBuilder.append(".");
-            sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.RECORDTIME.sqlName());
-            sqlBuilder.append(")");
-        } else {
-            this.appendTimeSeriesColumnName(SqlConstants.TimeSeriesColumnNames.LOCALDATE, sqlBuilder, this.sqlName());
-            sqlBuilder.append(", ");
-            this.appendTimeSeriesColumnName(SqlConstants.TimeSeriesColumnNames.TIMESTAMP, sqlBuilder, this.sqlName());
-            sqlBuilder.append(", ");
-            this.appendTimeSeriesColumnName(SqlConstants.TimeSeriesColumnNames.RECORDTIME, sqlBuilder, this.sqlName());
-        }
+        this.appendTimeSeriesColumnName(SqlConstants.TimeSeriesColumnNames.LOCALDATE, sqlBuilder, this.sqlName());
+        sqlBuilder.append(", ");
+        this.appendTimeSeriesColumnName(SqlConstants.TimeSeriesColumnNames.TIMESTAMP, sqlBuilder, this.sqlName());
+        sqlBuilder.append(", ");
+        this.appendTimeSeriesColumnName(SqlConstants.TimeSeriesColumnNames.RECORDTIME, sqlBuilder, this.sqlName());
     }
 
     private void appendTruncatedTimeline(SqlBuilder sqlBuilder, String sqlName) {
@@ -362,29 +422,22 @@ class ReadingTypeDeliverableForMeterActivationSet {
     }
 
     private void appendReadingQualityToSelectClause(SqlBuilder sqlBuilder) {
-        if (this.resultValueNeedsTimeBasedAggregation()) {
-            this.appendAggregatedReadingQuality(sqlBuilder);
-            sqlBuilder.append(", count(*)");
-        } else {
-            this.appendTimeSeriesColumnName(SqlConstants.TimeSeriesColumnNames.READINGQUALITY, sqlBuilder, this.sqlName());
-            sqlBuilder.append(", 1");
-        }
+        this.appendTimeSeriesColumnName(SqlConstants.TimeSeriesColumnNames.READINGQUALITY, sqlBuilder, this.sqlName());
+        sqlBuilder.append(", 1");
     }
 
     private void appendAggregatedReadingQuality(SqlBuilder sqlBuilder) {
         sqlBuilder.append("MAX(");
-        this.appendTimeSeriesColumnName(SqlConstants.TimeSeriesColumnNames.READINGQUALITY, sqlBuilder, this.sqlName());
+        this.appendTimeSeriesColumnName(SqlConstants.TimeSeriesColumnNames.READINGQUALITY, sqlBuilder, this.nestedSqlName());
         sqlBuilder.append(")");
     }
 
     private void appendSourceChannelsToSelectClause(SqlBuilder sqlBuilder) {
-        if (this.resultValueNeedsTimeBasedAggregation()) {
-            sqlBuilder.append("MAX(");
-            this.appendTimeSeriesColumnName(SqlConstants.TimeSeriesColumnNames.SOURCECHANNELS, sqlBuilder, this.sqlName());
-            sqlBuilder.append(")");
-        } else {
-            this.appendTimeSeriesColumnName(SqlConstants.TimeSeriesColumnNames.SOURCECHANNELS, sqlBuilder, this.sqlName());
-        }
+        this.appendTimeSeriesColumnName(SqlConstants.TimeSeriesColumnNames.SOURCECHANNELS, sqlBuilder, this.sqlName());
+    }
+
+    private void appendAggregatedSourceChannelsToSelectClause(SqlBuilder sqlBuilder) {
+        SourceChannelSqlNamesCollector.appendLeafsTo(sqlBuilder, this.expressionNode);
     }
 
     private void appendGroupByClauseIfApplicable(SqlBuilder sqlBuilder) {
@@ -395,14 +448,14 @@ class ReadingTypeDeliverableForMeterActivationSet {
 
     private void appendGroupByClause(SqlBuilder sqlBuilder) {
         sqlBuilder.append(" GROUP BY ");
-        this.appendTruncatedTimeline(sqlBuilder, this.sqlName() + "." + SqlConstants.TimeSeriesColumnNames.LOCALDATE.sqlName());
+        this.appendTruncatedTimeline(sqlBuilder, this.nestedSqlName() + "." + SqlConstants.TimeSeriesColumnNames.LOCALDATE.sqlName());
     }
 
     private boolean resultValueNeedsTimeBasedAggregation() {
         return !this.expressionReadingType.isDontCare()
-                && Formula.Mode.AUTO.equals(this.mode)
-                && (this.expressionReadingType.getIntervalLength() != this.targetReadingType.getIntervalLength()
-                || this.unitConversionNodeRequiresTimeBasedAggregation());
+            && Formula.Mode.AUTO.equals(this.mode)
+            && (this.expressionReadingType.getIntervalLength() != this.targetReadingType.getIntervalLength()
+            || this.unitConversionNodeRequiresTimeBasedAggregation());
     }
 
     private boolean unitConversionNodeRequiresTimeBasedAggregation() {

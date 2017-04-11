@@ -401,25 +401,25 @@ public class DataAggregationServiceImplCalculateWithFlowToVolumeConversionIT {
             // Asserts:
             verify(clauseAwareSqlBuilder)
                     .with(
-                            matches("rid" + consumptionRequirementId + ".*" + netConsumptionDeliverableId + ".*1"),
-                            any(Optional.class),
-                            anyVararg());
+                        matches("rid" + consumptionRequirementId + ".*" + netConsumptionDeliverableId + ".*1"),
+                        any(Optional.class),
+                        anyVararg());
             assertThat(consumptionWithClauseBuilder.getText()).isNotEmpty();
             verify(clauseAwareSqlBuilder)
                     .with(
-                            matches("rid" + productionRequirementId + ".*" + netConsumptionDeliverableId + ".*1"),
-                            any(Optional.class),
-                            anyVararg());
+                        matches("rid" + productionRequirementId + ".*" + netConsumptionDeliverableId + ".*1"),
+                        any(Optional.class),
+                        anyVararg());
             assertThat(productionWithClauseBuilder.getText()).isNotEmpty();
             verify(clauseAwareSqlBuilder)
                     .with(
-                            matches("rod" + netConsumptionDeliverableId + ".*1"),
-                            any(Optional.class),
-                            anyVararg());
+                        matches("rod" + netConsumptionDeliverableId + ".*1"),
+                        any(Optional.class),
+                        anyVararg());
             // Assert that one of the requirements is used as source for the timeline
             assertThat(this.netConsumptionWithClauseBuilder.getText())
-                    .matches("SELECT -1, rid" + productionRequirementId + "_" + netConsumptionDeliverableId + "_1\\.timestamp,.*");
-            // Assert that one of both requirements' values are added up in the select clause
+                    .matches("SELECT -1 as id, rid" + productionRequirementId + "_" + netConsumptionDeliverableId + "_1\\.timestamp as timestamp,.*");
+            // Assert that both requirements' values are added up in the select clause
             assertThat(this.netConsumptionWithClauseBuilder.getText())
                     .matches("SELECT.*\\(rid" + productionRequirementId + "_" + netConsumptionDeliverableId + "_1\\.value \\+ \\(rid" + consumptionRequirementId + "_" + netConsumptionDeliverableId + "_1\\.value / 4\\)\\).*");
             // Assert that the with clauses for both requirements are joined on the utc timestamp
@@ -508,21 +508,21 @@ public class DataAggregationServiceImplCalculateWithFlowToVolumeConversionIT {
             // Asserts:
             verify(clauseAwareSqlBuilder)
                     .with(
-                            matches("rid" + consumptionRequirementId + ".*" + netConsumptionDeliverableId + ".*1"),
-                            any(Optional.class),
-                            anyVararg());
+                        matches("rid" + consumptionRequirementId + ".*" + netConsumptionDeliverableId + ".*1"),
+                        any(Optional.class),
+                        anyVararg());
             assertThat(consumptionWithClauseBuilder.getText()).isNotEmpty();
             verify(clauseAwareSqlBuilder)
                     .with(
-                            matches("rid" + productionRequirementId + ".*" + netConsumptionDeliverableId + ".*1"),
-                            any(Optional.class),
-                            anyVararg());
+                        matches("rid" + productionRequirementId + ".*" + netConsumptionDeliverableId + ".*1"),
+                        any(Optional.class),
+                        anyVararg());
             assertThat(productionWithClauseBuilder.getText()).isNotEmpty();
             verify(clauseAwareSqlBuilder)
                     .with(
-                            matches("rod" + netConsumptionDeliverableId + ".*1"),
-                            any(Optional.class),
-                            anyVararg());
+                        matches("rod" + netConsumptionDeliverableId + ".*1"),
+                        any(Optional.class),
+                        anyVararg());
             // Assert that the with clause for the the production requirement does not contain aggregation constructs
             String productionWithSelectClause = this.productionWithClauseBuilder.getText();
             assertThat(productionWithSelectClause).doesNotMatch(".*TRUNC.*");
@@ -531,23 +531,25 @@ public class DataAggregationServiceImplCalculateWithFlowToVolumeConversionIT {
             assertThat(consumptionWithSelectClause).doesNotMatch(".*TRUNC.*");
             // Assert that one of the requirements is used as source for the timeline
             assertThat(this.netConsumptionWithClauseBuilder.getText())
-                    .matches("SELECT -1, rid" + productionRequirementId + "_" + netConsumptionDeliverableId + "_1\\.timestamp,.*");
-            // Assert that one of both requirements' values are added up in the select clause
+                    .matches("SELECT.*FROM.*\\(SELECT -1 as id, rid" + productionRequirementId + "_" + netConsumptionDeliverableId + "_1\\.timestamp as timestamp.*\\) realrod" + netConsumptionDeliverableId + "_1.*");
+            // Assert that both requirements' values are added up in the select clause
             assertThat(this.netConsumptionWithClauseBuilder.getText())
                     .matches("SELECT.*\\(rid" + productionRequirementId + "_" + netConsumptionDeliverableId + "_1\\.value \\+ \\(rid" + consumptionRequirementId + "_" + netConsumptionDeliverableId + "_1\\.value / 4\\)\\).*");
             // Assert that the with clauses for both requirements are joined on the utc timestamp
             assertThat(this.netConsumptionWithClauseBuilder.getText())
                     .matches("SELECT.*JOIN rid" + consumptionRequirementId + "_" + netConsumptionDeliverableId + "_1 ON rid" + consumptionRequirementId + "_" + netConsumptionDeliverableId + "_1\\.timestamp = rid" + productionRequirementId + "_" + netConsumptionDeliverableId + "_1\\.timestamp.*");
+            /* Assert that the select statement sums up the values
+             * using a group by construct that truncs the localdate to month. */
+            assertThat(this.netConsumptionWithClauseBuilder.getText())
+                    .matches(".*[sum|SUM]\\(realrod" + netConsumptionDeliverableId + "_1\\.value\\).*");
+            assertThat(this.netConsumptionWithClauseBuilder.getText())
+                    .matches(".*[trunc|TRUNC]\\(realrod" + netConsumptionDeliverableId + "_1\\.localdate, 'MONTH'\\).*");
+            assertThat(this.netConsumptionWithClauseBuilder.getText())
+                    .matches(".*[group by trunc|GROUP BY TRUNC]\\(realrod" + netConsumptionDeliverableId + "_1\\.localdate, 'MONTH'\\).*");
             verify(clauseAwareSqlBuilder).select();
             // Assert that the overall select statement selects the target reading type
             String overallSelectWithoutNewlines = this.selectClauseBuilder.getText().replace("\n", " ");
             assertThat(overallSelectWithoutNewlines).matches(".*'" + this.mRID2GrepPattern(MONTHLY_NET_CONSUMPTION_MRID) + "'.*");
-            /* Assert that the overall select statement sums up the values
-             * from the with clause for the deliverable, using a group by
-             * construct that truncs the localdate to month. */
-            assertThat(overallSelectWithoutNewlines).matches(".*[sum|SUM]\\(rod" + netConsumptionDeliverableId + "_1\\.value\\).*");
-            assertThat(overallSelectWithoutNewlines).matches(".*[trunc|TRUNC]\\(rod" + netConsumptionDeliverableId + "_1\\.localdate, 'MONTH'\\).*");
-            assertThat(overallSelectWithoutNewlines).matches(".*[group by trunc|GROUP BY TRUNC]\\(rod" + netConsumptionDeliverableId + "_1\\.localdate, 'MONTH'\\).*");
         }
     }
 
@@ -625,21 +627,21 @@ public class DataAggregationServiceImplCalculateWithFlowToVolumeConversionIT {
             // Asserts:
             verify(clauseAwareSqlBuilder)
                     .with(
-                            matches("rid" + productionRequirementId + ".*" + netConsumptionDeliverableId + ".*1"),
-                            any(Optional.class),
-                            anyVararg());
+                        matches("rid" + productionRequirementId + ".*" + netConsumptionDeliverableId + ".*1"),
+                        any(Optional.class),
+                        anyVararg());
             assertThat(productionWithClauseBuilder.getText()).isNotEmpty();
             verify(clauseAwareSqlBuilder)
                     .with(
-                            matches("rid" + consumptionRequirementId + ".*" + netConsumptionDeliverableId + ".*1"),
-                            any(Optional.class),
-                            anyVararg());
+                        matches("rid" + consumptionRequirementId + ".*" + netConsumptionDeliverableId + ".*1"),
+                        any(Optional.class),
+                        anyVararg());
             assertThat(consumptionWithClauseBuilder.getText()).isNotEmpty();
             verify(clauseAwareSqlBuilder)
                     .with(
-                            matches("rod" + netConsumptionDeliverableId + ".*1"),
-                            any(Optional.class),
-                            anyVararg());
+                        matches("rod" + netConsumptionDeliverableId + ".*1"),
+                        any(Optional.class),
+                        anyVararg());
             // Assert that the with clause for the the production requirement does not contain aggregation constructs
             String productionWithSelectClause = this.productionWithClauseBuilder.getText();
             assertThat(productionWithSelectClause).doesNotMatch(".*TRUNC.*");
@@ -648,23 +650,25 @@ public class DataAggregationServiceImplCalculateWithFlowToVolumeConversionIT {
             assertThat(consumptionWithSelectClause).matches(".*[trunc|TRUNC]\\(localdate, 'HH'\\).*");
             // Assert that one of the requirements is used as source for the timeline
             assertThat(this.netConsumptionWithClauseBuilder.getText())
-                    .matches("SELECT -1, rid" + consumptionRequirementId + "_" + netConsumptionDeliverableId + "_1\\.timestamp,.*");
-            // Assert that one of both requirements' values are added up in the select clause
+                    .matches("SELECT.*FROM.*\\(SELECT -1 as id, rid" + consumptionRequirementId + "_" + netConsumptionDeliverableId + "_1\\.timestamp as timestamp.*\\) realrod" + netConsumptionDeliverableId + "_1.*");
+            // Assert that both requirements' values are added up in the select clause
             assertThat(this.netConsumptionWithClauseBuilder.getText())
                     .matches("SELECT.*\\(\\(rid" + consumptionRequirementId + "_" + netConsumptionDeliverableId + "_1\\.value\\s/\\s4\\)\\s\\+\\s*\\(rid" + productionRequirementId + "_" + netConsumptionDeliverableId + "_1\\.value\\s*\\*\\s*\\?\\s*\\)\\).*");
             // Assert that the with clauses for both requirements are joined on the utc timestamp
             assertThat(this.netConsumptionWithClauseBuilder.getText())
                     .matches("SELECT.*JOIN rid" + productionRequirementId + "_" + netConsumptionDeliverableId + "_1 ON rid" + productionRequirementId + "_" + netConsumptionDeliverableId + "_1\\.timestamp = rid" + consumptionRequirementId + "_" + netConsumptionDeliverableId + "_1\\.timestamp.*");
+            /* Assert that the select statement sums up the values
+             * using a group by construct that truncs the localdate to month. */
+            assertThat(this.netConsumptionWithClauseBuilder.getText())
+                    .matches(".*[sum|SUM]\\(realrod" + netConsumptionDeliverableId + "_1\\.value\\).*");
+            assertThat(this.netConsumptionWithClauseBuilder.getText())
+                    .matches(".*[trunc|TRUNC]\\(realrod" + netConsumptionDeliverableId + "_1\\.localdate, 'MONTH'\\).*");
+            assertThat(this.netConsumptionWithClauseBuilder.getText())
+                    .matches(".*[group by trunc|GROUP BY TRUNC]\\(realrod" + netConsumptionDeliverableId + "_1\\.localdate, 'MONTH'\\).*");
             verify(clauseAwareSqlBuilder).select();
             // Assert that the overall select statement selects the target reading type
             String overallSelectWithoutNewlines = this.selectClauseBuilder.getText().replace("\n", " ");
             assertThat(overallSelectWithoutNewlines).matches(".*'" + this.mRID2GrepPattern(MONTHLY_NET_CONSUMPTION_MRID) + "'.*");
-            /* Assert that the overall select statement sums up the values
-             * from the with clause for the deliverable, using a group by
-             * construct that truncs the localdate to month. */
-            assertThat(overallSelectWithoutNewlines).matches(".*[sum|SUM]\\(rod" + netConsumptionDeliverableId + "_1\\.value\\).*");
-            assertThat(overallSelectWithoutNewlines).matches(".*[trunc|TRUNC]\\(rod" + netConsumptionDeliverableId + "_1\\.localdate, 'MONTH'\\).*");
-            assertThat(overallSelectWithoutNewlines).matches(".*[group by trunc|GROUP BY TRUNC]\\(rod" + netConsumptionDeliverableId + "_1\\.localdate, 'MONTH'\\).*");
         }
     }
 

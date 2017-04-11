@@ -371,10 +371,10 @@ public class DataAggregationServiceImplCalculateWithRegisterIT {
                             anyVararg());
             // Assert that the requirement is used as source for the timeline
             assertThat(this.netConsumptionWithClauseBuilder.getText())
-                    .matches("SELECT -1, rid" + this.consumptionRequirementId + "_" + this.netConsumptionDeliverableId + "_1\\.timestamp,.*");
+                    .matches("SELECT -1 as id, rid" + this.consumptionRequirementId + "_" + this.netConsumptionDeliverableId + "_1\\.timestamp as timestamp,.*");
             // Assert that the requirements' value is used in the select clause
             assertThat(this.netConsumptionWithClauseBuilder.getText())
-                    .matches("SELECT.*rid" + this.consumptionRequirementId + "_" + this.netConsumptionDeliverableId + "_1\\.value.*");
+                    .matches("SELECT.*rid" + this.consumptionRequirementId + "_" + this.netConsumptionDeliverableId + "_1\\.value as value.*");
             verify(clauseAwareSqlBuilder).select();
             // Assert that the overall select statement selects the target reading type
             String overallSelectWithoutNewlines = this.selectClauseBuilder.getText().replace("\n", " ");

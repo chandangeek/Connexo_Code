@@ -189,9 +189,9 @@ class VirtualRequirementNode implements ServerExpressionNode {
     }
 
     void setTargetReadingType(VirtualReadingType targetReadingType) {
-        this.targetReadingType = targetReadingType;
+        this.targetReadingType = targetReadingType.withTimeOfUseBucketIfNotNull(this.targetReadingType.getTimeOfUseBucket());
         if (this.virtualRequirement != null) {
-            this.virtualRequirement.setTargetReadingType(targetReadingType);
+            this.virtualRequirement.setTargetReadingType(this.targetReadingType);
         }
     }
 
@@ -244,6 +244,16 @@ class VirtualRequirementNode implements ServerExpressionNode {
     void appendTo(SqlBuilder sqlBuilder) {
         this.ensureVirtualized();
         this.virtualRequirement.appendSimpleReferenceTo(sqlBuilder);
+    }
+
+    /**
+     * Returns the appropriate source channel for this node's {@link ReadingTypeRequirement}.
+     *
+     * @return The source channel value
+     */
+    String sourceChannelValue() {
+        this.ensureVirtualized();
+        return this.virtualRequirement.sourceChannelValue();
     }
 
     /**
