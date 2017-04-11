@@ -43,7 +43,7 @@ Ext.define('Mdc.usagepointmanagement.view.registersData.event.Preview', {
                             fieldLabel: Uni.I18n.translate('device.dataValidation.collectedValue', 'MDC', 'Collected value'),
                             name: 'collectedValue',
                             renderer: function (value) {
-                                return value + ' ' + unit;
+                                return value ? value + ' ' + unit : '-';
                             }
                         }
                     ]
@@ -92,9 +92,10 @@ Ext.define('Mdc.usagepointmanagement.view.registersData.event.Preview', {
         var me = this;
         if (me.register.get('registerType') === 'EVENT_BILLING_VALUE') {
             var interval = record.get('measurementPeriod'),
-                title = Uni.I18n.translate(
-                'general.dateAtTime', 'MDC', '{0} at {1}',
-                [Uni.DateTime.formatDateTimeShort(new Date(interval.end)), Uni.DateTime.formatDateTimeShort(new Date(interval.end))], false);
+                title = interval ? interval.start ? Uni.I18n.translate(
+                    'general.dateAtTime', 'MDC', '{0} at {1}',
+                    [Uni.DateTime.formatDateTimeShort(new Date(interval.start)), Uni.DateTime.formatDateTimeShort(new Date(interval.end))], false) :
+                    Uni.DateTime.formatDateTimeShort(new Date(interval.end)) : '-';
         } else {
             var time = record.get('measurementTime'),
                 title = time ? Uni.DateTime.formatDateTimeShort(new Date(time)) : '-';

@@ -26,7 +26,7 @@ Ext.define('Mdc.usagepointmanagement.view.registersData.event.Grid', {
                 dataIndex: 'eventDate',
                 flex: 1,
                 renderer: function (value) {
-                    return value ? Uni.DateTime.formatDateShort(new Date(value)) : '-';
+                    return value ? Uni.DateTime.formatDateTimeShort(new Date(value)) : '-';
                 }
             },
             {
@@ -80,6 +80,17 @@ Ext.define('Mdc.usagepointmanagement.view.registersData.event.Grid', {
                 usesExactCount: true,
                 displayMsg: Uni.I18n.translate('usagePointChannelData.pagingtoolbartop.displayMsg', 'MDC', '{2} readings'),
                 emptyMsg: Uni.I18n.translate('usagePointChannelData.pagingtoolbartop.emptyMsg', 'MDC', 'There are no readings to display')
+            },
+            {
+                xtype: 'pagingtoolbarbottom',
+                store: me.store,
+                deferLoading: true,
+                params: [
+                    {usagePointId: me.usagePointId},
+                    {registerId: me.register.get('id'),}
+                ],
+                dock: 'bottom',
+                itemsPerPageMsg: Uni.I18n.translate('device.registerData.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Readings per page')
             }
         ];
 

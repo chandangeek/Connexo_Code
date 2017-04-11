@@ -49,7 +49,7 @@ Ext.define('Mdc.usagepointmanagement.view.registersData.cumulative.Preview', {
                             fieldLabel: Uni.I18n.translate('deviceloadprofiles.collectedValue', 'MDC', 'Collected value'),
                             name: 'collectedValue',
                             renderer: function (value) {
-                                return value + ' ' + unit;
+                                return value ? value + ' ' + unit : '-';
                             }
                         },
                         {
@@ -57,7 +57,7 @@ Ext.define('Mdc.usagepointmanagement.view.registersData.cumulative.Preview', {
                             fieldLabel: Uni.I18n.translate('general.deltaValue', 'MDC', 'Delta value'),
                             name: 'deltaValue',
                             renderer: function (value) {
-                                return value + ' ' + unit;
+                                return value ? value + ' ' + unit : '-';
                             }
                         }
                     ]

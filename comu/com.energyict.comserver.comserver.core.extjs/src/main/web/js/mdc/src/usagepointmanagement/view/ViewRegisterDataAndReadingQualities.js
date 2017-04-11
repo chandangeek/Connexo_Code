@@ -16,9 +16,7 @@ Ext.define('Mdc.usagepointmanagement.view.ViewRegisterDataAndReadingQualities', 
         'Mdc.usagepointmanagement.view.registersData.notCumulative.Preview',
         'Mdc.usagepointmanagement.view.registersData.event.Preview',
         'Mdc.usagepointmanagement.view.registersData.RegisterTypesMap',
-        'Mdc.usagepointmanagement.view.UsagePointSideMenu',
-        'Mdc.usagepointmanagement.view.RegisterDataGrid',
-        'Mdc.usagepointmanagement.view.RegisterDataPreview'
+        'Mdc.usagepointmanagement.view.UsagePointSideMenu'
     ],
     mixins: {
         bindable: 'Ext.util.Bindable'
@@ -76,11 +74,11 @@ Ext.define('Mdc.usagepointmanagement.view.ViewRegisterDataAndReadingQualities', 
                         xtype: 'preview-container',
                         itemId: 'readings-preview-container',
                         grid: {
-                            // xtype: Mdc.usagepointmanagement.view.registersData.RegisterTypesMap.getAddGrid(),
                             xtype: Mdc.usagepointmanagement.view.registersData.RegisterTypesMap.getAddGrid(me.register.get('registerType')),
                             itemId: 'register-data-grid',
                             store: me.store,
                             register: me.register,
+                            usagePointId: me.usagePointId,
                             viewConfig: {
                                 loadMask: false,
                                 doFocus: Ext.emptyFn // workaround to avoid page jump during row selection
@@ -105,7 +103,6 @@ Ext.define('Mdc.usagepointmanagement.view.ViewRegisterDataAndReadingQualities', 
                             ]
                         },
                         previewComponent: {
-                            // xtype: Mdc.usagepointmanagement.view.registersData.RegisterTypesMap.getAddPreview(),
                             xtype: Mdc.usagepointmanagement.view.registersData.RegisterTypesMap.getAddPreview(me.register.get('registerType')),
                             itemId: 'register-data-preview',
                             router: me.router,

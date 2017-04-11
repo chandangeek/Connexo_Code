@@ -8,9 +8,6 @@ Ext.define('Mdc.usagepointmanagement.store.RegisterData', {
     proxy: {
         type: 'rest',
         url: '/api/upr/usagepoints/{usagePointId}/registers/{registerId}/data',
-        pageParam: false,
-        startParam: false,
-        limitParam: false,
         reader: {
             type: 'json',
             root: 'data'

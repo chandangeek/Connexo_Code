@@ -32,7 +32,7 @@ Ext.define('Mdc.usagepointmanagement.view.registersData.notCumulative.Preview', 
                             fieldLabel: Uni.I18n.translate('deviceloadprofiles.collectedValue', 'MDC', 'Collected value'),
                             name: 'collectedValue',
                             renderer: function (value) {
-                                return value + ' ' + unit;
+                                return value ? value + ' ' + unit : '-';
                             }
                         }
                     ]
@@ -63,7 +63,7 @@ Ext.define('Mdc.usagepointmanagement.view.registersData.notCumulative.Preview', 
                 } else {
                     return {
                         itemId: 'measurement-time-field',
-                        fieldLabel: Uni.I18n.translate('general.measurementPeriod', 'MDC', 'Measurement period'),
+                        fieldLabel: Uni.I18n.translate('general.measurementPeriod', 'MDC', 'Measurement time'),
                         name: 'measurementTime',
                         renderer: function (value) {
                             return value ? Uni.DateTime.formatDateTimeLong(new Date(value)) : '-';
@@ -81,9 +81,10 @@ Ext.define('Mdc.usagepointmanagement.view.registersData.notCumulative.Preview', 
         var me = this;
         if (me.register.get('registerType') === 'NOT_CUMULATIVE_BILLING_VALUE') {
             var interval = record.get('measurementPeriod'),
-                title = Uni.I18n.translate(
+                title = interval ? interval.start ? Uni.I18n.translate(
                     'general.dateAtTime', 'MDC', '{0} at {1}',
-                    [Uni.DateTime.formatDateTimeShort(new Date(interval.end)), Uni.DateTime.formatDateTimeShort(new Date(interval.end))], false);
+                    [Uni.DateTime.formatDateTimeShort(new Date(interval.start)), Uni.DateTime.formatDateTimeShort(new Date(interval.end))], false) :
+                    Uni.DateTime.formatDateTimeShort(new Date(interval.end)) : '-';
         } else {
             var time = record.get('measurementTime'),
                 title = time ? Uni.DateTime.formatDateTimeShort(new Date(time)) : '-'
