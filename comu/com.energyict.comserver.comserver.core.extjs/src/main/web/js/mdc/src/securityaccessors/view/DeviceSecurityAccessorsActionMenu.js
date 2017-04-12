@@ -8,21 +8,39 @@ Ext.define('Mdc.securityaccessors.view.DeviceSecurityAccessorsActionMenu', {
     keyMode: undefined,
 
     initComponent: function () {
-        this.items = [
+        var me = this;
+        me.items = [
             {
                 text: Uni.I18n.translate('general.Edit', 'MDC', 'Edit'),
-                //privileges: Mdc.privileges.DeviceType.canAdministrate(),
-                action: 'editDeviceSecurityAccessor',
-                section: this.SECTION_EDIT
+                privileges: Mdc.privileges.Device.administrateDevice,
+                itemId: 'mdc-device-security-accessors-action-menu-edit',
+                action: me.keyMode ? 'editDeviceKey' : 'editDeviceCertificate',
+                section: me.SECTION_EDIT
             },
             {
-                text: Uni.I18n.translate('general.finishRenewal', 'MDC', 'Finish renewal/Renew'),
+                text: me.keyMode
+                    ? Uni.I18n.translate('general.activatePassiveKey', 'MDC', 'Activate passive key')
+                    : Uni.I18n.translate('general.activatePassiveCertificate', 'MDC', 'Activate passive certificate'),
+                //privileges: Mdc.privileges.DeviceType.canAdministrate(),
+                action: me.keyMode ? 'activatePassiveKey' : 'activatePassiveCertificate',
+                section: me.SECTION_EDIT
+            },
+            {
+                text: me.keyMode
+                    ? Uni.I18n.translate('general.clearPassiveKey', 'MDC', 'Clear passive key')
+                    : Uni.I18n.translate('general.clearPassiveCertificate', 'MDC', 'Clear passive certificate'),
+                //privileges: Mdc.privileges.DeviceType.canAdministrate(),
+                action: me.keyMode ? 'clearPassiveKey' : 'clearPassiveCertificate',
+                section: me.SECTION_EDIT
+            },
+            {
+                text: Uni.I18n.translate('general.generatePassiveKey', 'MDC', 'Generate passive key'),
                 //privileges: Mdc.privileges.DeviceType.canAdministrate(),
                 visible: function () {
                     return !Ext.isEmpty(this.keyMode) && this.keyMode;
                 },
-                action: 'finishRenewal',
-                section: this.SECTION_EDIT
+                action: 'generatePassiveKey',
+                section: me.SECTION_EDIT
             },
             {
                 text: Uni.I18n.translate('general.showValues', 'MDC', 'Show values'),
@@ -30,8 +48,8 @@ Ext.define('Mdc.securityaccessors.view.DeviceSecurityAccessorsActionMenu', {
                 visible: function () {
                     return !Ext.isEmpty(this.keyMode) && this.keyMode;
                 },
-                action: 'showValues',
-                section: this.SECTION_VIEW
+                action: 'showKeyValues',
+                section: me.SECTION_VIEW
             }
         ];
         this.callParent(arguments);

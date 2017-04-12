@@ -13,60 +13,73 @@ Ext.define('Mdc.securityaccessors.view.DeviceSecurityAccessorPreviewForm', {
 
     initComponent: function () {
         var me = this,
+            statusField = {
+                //xtype: 'displayfield',
+                //labelWidth: 200,
+                fieldLabel: Uni.I18n.translate('general.status', 'MDC', 'Status'),
+                name: 'status'
+            },
+            validUntilField = {
+                //xtype: 'displayfield',
+                //labelWidth: 200,
+                fieldLabel: Uni.I18n.translate('general.validUntil', 'MDC', 'Valid until'),
+                name: 'expirationTime',
+                renderer: function (value) {
+                    if (Ext.isEmpty(value)) {
+                        return '-';
+                    }
+                    return Uni.DateTime.formatDateShort(new Date(value));
+                }
+            },
+            lastReadDateField = {
+                //xtype: 'displayfield',
+                //labelWidth: 200,
+                fieldLabel: Uni.I18n.translate('general.lastReadDate', 'MDC', 'Last read date'),
+                name: 'lastReadDate'
+            },
+            leftContainer = {
+                xtype: 'container',
+                layout: 'form',
+                columnWidth: 0.5,
+                itemId: 'mdc-device-security-accessor-preview-form-leftContainer',
+                defaults: {
+                    xtype: 'displayfield',
+                    labelWidth: 200
+                },
+                items: [
+                    {
+                        fieldLabel: Uni.I18n.translate('general.name', 'MDC', 'Name'),
+                        name: 'name'
+                    },
+                    {
+                        fieldLabel: Uni.I18n.translate('general.description', 'MDC', 'Description'),
+                        name: 'description'
+                    }
+                ]
+            },
+            rightContainer = {
+                xtype: 'container',
+                layout: 'form',
+                columnWidth: 0.5,
+                itemId: 'mdc-device-security-accessor-preview-form-rightContainer',
+                defaults: {
+                    xtype: 'displayfield',
+                    labelWidth: 200
+                },
+                items: []
+            },
             items = [
                 {
                     xtype: 'form',
                     layout: 'column',
-                    defaults: {
-                        xtype: 'container',
-                        layout: 'form',
-                        columnWidth: 0.5
-                    },
                     items: [
-                        {
-                            defaults: {
-                                xtype: 'displayfield',
-                                labelWidth: 200
-                            },
-                            items: [
-                                {
-                                    fieldLabel: Uni.I18n.translate('general.name', 'MDC', 'Name'),
-                                    name: 'name'
-                                },
-                                {
-                                    fieldLabel: Uni.I18n.translate('general.description', 'MDC', 'Description'),
-                                    name: 'description'
-                                }
-                            ]
-                        },
-                        {
-                            defaults: {
-                                xtype: 'displayfield',
-                                labelWidth: 200
-                            },
-                            items: [
-                                {
-                                    fieldLabel: Uni.I18n.translate('general.lastReadDate', 'MDC', 'Last read date'),
-                                    hidden: me.keyMode,
-                                    name: 'lastReadDate'
-                                },
-                                {
-                                    fieldLabel: Uni.I18n.translate('general.validUntil', 'MDC', 'Valid until'),
-                                    name: 'expirationTime',
-                                    renderer: function (value) {
-                                        if (Ext.isEmpty(value)) {
-                                            return '-';
-                                        }
-                                        return Uni.DateTime.formatDateShort(new Date(value));
-                                    }
-                                }
-                            ]
-                        }
+                        leftContainer,
+                        rightContainer
                     ]
                 },
                 {
                     xtype: 'container',
-                    itemId: 'mdc-device-security-accessor-preview-current-attributes-container',
+                    itemId: 'mdc-device-security-accessor-preview-active-attributes-container',
                     items: [
                         {
                             xtype: 'form',
@@ -79,7 +92,43 @@ Ext.define('Mdc.securityaccessors.view.DeviceSecurityAccessorPreviewForm', {
                                 {
                                     xtype: 'displayfield',
                                     emptyValueDisplay: '',
-                                    fieldLabel: Uni.I18n.translate('general.currentAttributes', 'MDC', 'Current attributes')
+                                    fieldLabel: me.keyMode
+                                        ? Uni.I18n.translate('general.currentKey', 'MDC', 'Current key')
+                                        : Uni.I18n.translate('general.currentCertificate', 'MDC', 'Current certificate')
+                                }
+                            ]
+                        },
+                        {
+                            xtype: 'property-form',
+                            isEdit: false,
+                            layout: 'column',
+                            defaults: {
+                                layout: 'form',
+                                resetButtonHidden: true,
+                                labelWidth: 200,
+                                columnWidth: 0.5
+                            }
+                        }
+                    ]
+                },
+                {
+                    xtype: 'container',
+                    itemId: 'mdc-device-security-accessor-preview-passive-attributes-container',
+                    items: [
+                        {
+                            xtype: 'form',
+                            border: false,
+                            defaults: {
+                                labelWidth: 200,
+                                labelAlign: 'left'
+                            },
+                            items: [
+                                {
+                                    xtype: 'displayfield',
+                                    emptyValueDisplay: '',
+                                    fieldLabel: me.keyMode
+                                        ? Uni.I18n.translate('general.passiveKey', 'MDC', 'Passive key')
+                                        : Uni.I18n.translate('general.passiveCertificate', 'MDC', 'Passive certificate')
                                 }
                             ]
                         },
@@ -98,42 +147,14 @@ Ext.define('Mdc.securityaccessors.view.DeviceSecurityAccessorPreviewForm', {
                 }
             ];
 
-        //if (me.keyMode) {
-            items.push(
-                {
-                    xtype: 'container',
-                    itemId: 'mdc-device-security-accessor-preview-temp-attributes-container',
-                    items: [
-                        {
-                            xtype: 'form',
-                            border: false,
-                            defaults: {
-                                labelWidth: 200,
-                                labelAlign: 'left'
-                            },
-                            items: [
-                                {
-                                    xtype: 'displayfield',
-                                    emptyValueDisplay: '',
-                                    fieldLabel: Uni.I18n.translate('general.otherAttributes', 'MDC', 'Other attributes TBD')
-                                }
-                            ]
-                        },
-                        {
-                            xtype: 'property-form',
-                            isEdit: false,
-                            layout: 'column',
-                            defaults: {
-                                layout: 'form',
-                                resetButtonHidden: true,
-                                labelWidth: 200,
-                                columnWidth: 0.5
-                            }
-                        }
-                    ]
-                }
-            );
-        //}
+        if (me.keyMode) {
+            rightContainer.items.push(statusField);
+            rightContainer.items.push(validUntilField);
+        } else {
+            leftContainer.items.push(statusField);
+            rightContainer.items.push(lastReadDateField);
+            rightContainer.items.push(validUntilField);
+        }
 
         me.items = items;
         me.callParent(arguments);

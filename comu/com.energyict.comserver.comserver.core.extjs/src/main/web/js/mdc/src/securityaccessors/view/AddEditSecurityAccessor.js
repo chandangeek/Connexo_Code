@@ -200,7 +200,7 @@ Ext.define('Mdc.securityaccessors.view.AddEditSecurityAccessor', {
                         },
                         {
                             xtype: 'button',
-                            itemId: 'mdc-security-accessor-cancel-add-button',
+                            itemId: 'mdc-security-accessor-cancel-link',
                             text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
                             ui: 'link',
                             action: 'cancelAddEditSecurityAccessor'
