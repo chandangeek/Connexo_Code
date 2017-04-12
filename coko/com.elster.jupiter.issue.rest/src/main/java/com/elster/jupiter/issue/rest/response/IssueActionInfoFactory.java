@@ -49,6 +49,7 @@ public class IssueActionInfoFactory {
         IssueActionTypeInfo info = new IssueActionTypeInfo();
         info.id = actionType.getId();
         info.name = action.getDisplayName();
+        info.actionType = action.getActionType();
         info.issueType = new IssueTypeInfo(actionType.getIssueType());
         action.setIssue(issue);
         List<PropertySpec> propertySpecs = action.getPropertySpecs();
