@@ -283,7 +283,6 @@ public class UsagePointResourceTest extends UsagePointApplicationJerseyTest {
         when(register.isRegular()).thenReturn(false);
 
         when(metrologyContract.getDeliverables()).thenReturn(Collections.singletonList(deliverable));
-        when(metrologyConfiguration.getDeliverables()).thenReturn(Collections.singletonList(deliverable));
         when(deliverable.getReadingType()).thenReturn(readingType);
         doReturn(Arrays.asList(oldMeterActivation, meterActivation)).when(usagePoint).getMeterActivations();
         when(deliverable.getFormula()).thenReturn(formula);
