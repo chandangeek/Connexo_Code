@@ -35,8 +35,6 @@ public class UpgraderV10_3 implements Upgrader {
         return new String[]{
                 // Usage point
                 com.elster.jupiter.metering.security.Privileges.Constants.MANAGE_USAGE_POINT_ATTRIBUTES,
-                com.elster.jupiter.metering.security.Privileges.Constants.ESTIMATE_WITH_RULE,
-                com.elster.jupiter.metering.security.Privileges.Constants.EDIT_WITH_ESTIMATOR,
 
                 //com.elster.jupiter.cps
                 com.elster.jupiter.cps.Privileges.Constants.VIEW_CUSTOM_PROPERTIES_1,
@@ -76,6 +74,8 @@ public class UpgraderV10_3 implements Upgrader {
                 com.elster.jupiter.estimation.security.Privileges.Constants.VIEW_ESTIMATION_TASK,
                 com.elster.jupiter.estimation.security.Privileges.Constants.ADMINISTRATE_ESTIMATION_TASK,
                 com.elster.jupiter.estimation.security.Privileges.Constants.ESTIMATE_MANUAL,
+                com.elster.jupiter.estimation.security.Privileges.Constants.ESTIMATE_WITH_RULE,
+                com.elster.jupiter.estimation.security.Privileges.Constants.EDIT_WITH_ESTIMATOR,
 
                 // Estimation configuration on metrology configuration
                 com.elster.jupiter.mdm.usagepoint.config.security.Privileges.Constants.VIEW_ESTIMATION_ON_METROLOGY_CONFIGURATION,
@@ -121,6 +121,8 @@ public class UpgraderV10_3 implements Upgrader {
                 com.elster.jupiter.estimation.security.Privileges.Constants.VIEW_ESTIMATION_CONFIGURATION,
                 com.elster.jupiter.estimation.security.Privileges.Constants.VIEW_ESTIMATION_TASK,
                 com.elster.jupiter.estimation.security.Privileges.Constants.ESTIMATE_MANUAL,
+                com.elster.jupiter.estimation.security.Privileges.Constants.ESTIMATE_WITH_RULE,
+                com.elster.jupiter.estimation.security.Privileges.Constants.EDIT_WITH_ESTIMATOR,
 
                 // Usage point life cycle
                 com.elster.jupiter.usagepoint.lifecycle.config.Privileges.Constants.USAGE_POINT_LIFE_CYCLE_VIEW,
