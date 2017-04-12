@@ -682,6 +682,9 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
 
             if (event.column) {
                 event.record.get('mainValidationInfo').validationResult = 'validationStatus.ok';
+                if(!event.record.get('estimatedNotSaved')){
+                    event.record.set('mainModificationState', Uni.util.ReadingEditor.modificationState('EDITED'));
+                }
                 grid.getView().refreshNode(grid.getStore().indexOf(event.record));
                 event.record.get('confirmed') && event.record.set('confirmed', false);
             }
@@ -975,7 +978,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             reading.get('bulkValidationInfo').validationResult = 'validationStatus.ok';
             reading.get('bulkValidationInfo').estimatedNotSaved = true;
             if(action === 'editWithEstimator'){
-                Uni.util.ReadingEditor.setReadingStatus(reading.get('bulkModificationState'),'EDITED');
+                reading.set('bulkModificationState', Uni.util.ReadingEditor.modificationState('EDITED'));
             } else if(action === 'estimate'){
                 reading.get('bulkValidationInfo').estimatedByRule = true;
             }
@@ -985,9 +988,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 reading.get('mainValidationInfo').ruleId =  ruleId;
             }
             reading.get('mainValidationInfo').validationResult = 'validationStatus.ok';
-            if(action === 'editWithEstimator'){
-                Uni.util.ReadingEditor.setReadingStatus(reading.get('mainModificationState'),'EDITED');
-            } else if(action === 'estimate'){
+            if(action === 'estimate'){
                 reading.get('mainValidationInfo').estimatedByRule = true;
             }
 
@@ -1108,7 +1109,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 record.set('confirmed', false);
             }
             record.get('mainValidationInfo').validationResult = 'validationStatus.ok';
-            Uni.util.ReadingEditor.setReadingStatus(record.get('mainModificationState'),'REMOVED');
+            record.set('mainModificationState',Uni.util.ReadingEditor.modificationState('REMOVED'));
             record.endEdit(true);
             gridView.refreshNode(store.indexOf(record));
             point = chart.get(record.get('interval').start);
@@ -1388,6 +1389,8 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                             window.down('#form-errors').show();
                             window.down('#property-form').markInvalid(responseText.errors);
                         }
+                    } else {
+                        window.destroy();
                     }
 
                 }
@@ -1402,7 +1405,6 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
 
         reading.beginEdit();
         reading.set('value', correctedInterval.value);
-        Uni.util.ReadingEditor.setReadingStatus(reading.get('mainModificationState'),'EDITED');
         reading.endEdit(true);
 
         grid.getView().refreshNode(grid.getStore().indexOf(reading));
