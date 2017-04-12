@@ -98,7 +98,7 @@ Ext.define('Isu.view.component.UserAssigneeCombo', {
                 method: 'GET',
                 success: function (response) {
                     var users = Ext.JSON.decode(response.responseText).data;
-                    if (Ext.isObject(users.find(function (user) {
+                    if (Ext.isObject(_.find(users, function (user) {
                             return user.id == newValue;
                         })) == false) {
                         me.checked = true;

@@ -19,7 +19,11 @@ Ext.define('Isu.model.Action', {
         {
             name: 'issueType',
             type: 'auto'
-        }
+        },
+        {
+            name: 'actionType',
+            type: 'int'
+        },
     ],
     associations: [
         {

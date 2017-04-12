@@ -10,6 +10,7 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
+
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.annotations.Activate;
@@ -38,7 +39,7 @@ public class IsuUiInstaller implements TranslationKeyProvider {
     public void activate(BundleContext context) {
         HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, HTTP_RESOURCE_LOCAL_NAME, new BundleResolver(context));
         // EXAMPLE: Below is how to enable local development mode.
-//      HttpResource resource =  new HttpResource(HTTP_RESOURCE_ALIAS, "/home/lvz/Documents/Workspace/Jupiter/com.elster.jupiter.bpm.extjs/src/main/web/js/bpm", new FileResolver());
+        //    HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, "C:\\Development\\Jupiter\\Connexo\\coko\\com.elster.jupiter.issue.extjs\\src\\main\\web\\js\\issue", new FileResolver());
         registration = context.registerService(HttpResource.class, resource, null);
     }
 
