@@ -761,6 +761,7 @@ Ext.define('Imt.purpose.controller.Readings', {
         model.getProxy().setMdmUrl(router.arguments.usagePointId, router.arguments.purposeId, router.arguments.outputId);
         window.setLoading();
         Ext.Ajax.suspendEvent('requestexception');
+        model.phantom = false;
         model.save({
             callback: function (rec, operation, success) {
                 Ext.Ajax.resumeEvent('requestexception');
