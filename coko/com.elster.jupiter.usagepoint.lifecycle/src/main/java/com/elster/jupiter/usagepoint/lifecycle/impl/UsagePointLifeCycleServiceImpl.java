@@ -27,12 +27,15 @@ import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointStateChangeException;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointStateChangeRequest;
 import com.elster.jupiter.usagepoint.lifecycle.config.DefaultTransition;
+import com.elster.jupiter.usagepoint.lifecycle.config.MicroAction;
+import com.elster.jupiter.usagepoint.lifecycle.config.MicroCheck;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleBuilder;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 import com.elster.jupiter.usagepoint.lifecycle.impl.actions.MicroActionTranslationKeys;
+import com.elster.jupiter.usagepoint.lifecycle.impl.actions.ResetValidationResultsAction;
 import com.elster.jupiter.usagepoint.lifecycle.impl.actions.SetConnectionStateAction;
 import com.elster.jupiter.usagepoint.lifecycle.impl.checks.MeterRolesAreSpecifiedCheck;
 import com.elster.jupiter.usagepoint.lifecycle.impl.checks.MetrologyConfigurationIsDefinedCheck;
@@ -44,7 +47,6 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.exception.MessageSeed;
 
-import com.google.common.collect.ImmutableSet;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -65,6 +67,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -169,7 +172,11 @@ public class UsagePointLifeCycleServiceImpl implements ServerUsagePointLifeCycle
     public void activate() {
         this.dataModel.register(getModule());
         this.usagePointLifeCycleConfigurationService.addUsagePointLifeCycleBuilder(this);
-        this.upgradeService.register(InstallIdentifier.identifier("Pulse", UsagePointLifeCycleService.COMPONENT_NAME), this.dataModel, Installer.class, Collections.emptyMap());
+        this.upgradeService.register(
+                InstallIdentifier.identifier("Pulse", UsagePointLifeCycleService.COMPONENT_NAME),
+                this.dataModel,
+                Installer.class,
+                Collections.emptyMap());
     }
 
     private Module getModule() {
@@ -368,23 +375,27 @@ public class UsagePointLifeCycleServiceImpl implements ServerUsagePointLifeCycle
 
     @Override
     public void accept(UsagePointLifeCycle usagePointLifeCycle) {
-        usagePointLifeCycle.getTransitions().forEach(transition -> {
-            DefaultTransition.getDefaultTransition(transition).ifPresent(defaultTransition -> {
-                switch (defaultTransition) {
-                    case INSTALL_ACTIVE:
-                        transition.startUpdate()
-                                .withChecks(ImmutableSet.of(MetrologyConfigurationIsDefinedCheck.class.getSimpleName(), MeterRolesAreSpecifiedCheck.class.getSimpleName()))
-                                .withActions(Collections.singleton(SetConnectionStateAction.class.getSimpleName()))
-                                .complete();
-                        break;
-                    case INSTALL_INACTIVE:
-                        transition.startUpdate()
-                                .withChecks(ImmutableSet.of(MetrologyConfigurationIsDefinedCheck.class.getSimpleName(), MeterRolesAreSpecifiedCheck.class.getSimpleName()))
-                                .withActions(Collections.singleton(SetConnectionStateAction.class.getSimpleName()))
-                                .complete();
-                        break;
-                }
-            });
-        });
+        usagePointLifeCycle.getTransitions().forEach(transition ->
+                DefaultTransition.getDefaultTransition(transition).ifPresent(defaultTransition -> {
+                    Set<String> actions = transition.getActions().stream()
+                            .map(MicroAction::getKey)
+                            .collect(Collectors.toSet());
+                    Set<String> checks = transition.getChecks().stream()
+                            .map(MicroCheck::getKey)
+                            .collect(Collectors.toSet());
+                    switch (defaultTransition) {
+                        case INSTALL_ACTIVE:
+                        case INSTALL_INACTIVE:
+                            checks.add(MetrologyConfigurationIsDefinedCheck.class.getSimpleName());
+                            checks.add(MeterRolesAreSpecifiedCheck.class.getSimpleName());
+                            actions.add(SetConnectionStateAction.class.getSimpleName());
+                            break;
+                    }
+                    actions.add(ResetValidationResultsAction.class.getSimpleName());
+                    transition.startUpdate()
+                            .withChecks(checks)
+                            .withActions(actions)
+                            .complete();
+                }));
     }
 }

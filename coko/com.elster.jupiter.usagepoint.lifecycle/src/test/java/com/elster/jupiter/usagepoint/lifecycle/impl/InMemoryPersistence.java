@@ -12,8 +12,10 @@ import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
+import com.elster.jupiter.kpi.impl.KpiModule;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
+import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
@@ -29,13 +31,13 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
-import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointMicroActionFactory;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointMicroCheckFactory;
 import com.elster.jupiter.usagepoint.lifecycle.config.impl.UsagePointLifeCycleConfigurationModule;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
+import com.elster.jupiter.validation.impl.ValidationModule;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -79,10 +81,13 @@ public class InMemoryPersistence {
                 new IdsModule(),
                 new CalendarModule(),
                 new MeteringModule(),
-                new TaskModule());
+                new MeteringGroupsModule(),
+                new TaskModule(),
+                new KpiModule(),
+                new ValidationModule());
         TransactionService transactionService = this.injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = transactionService.getContext()) {
-            this.injector.getInstance(UsagePointLifeCycleService.class);
+            this.injector.getInstance(UsagePointLifeCycleServiceImpl.class);
             this.injector.getInstance(UsagePointLifeCycleConfigurationService.class).addMicroActionFactory(this.injector.getInstance(UsagePointMicroActionFactory.class));
             this.injector.getInstance(UsagePointLifeCycleConfigurationService.class).addMicroCheckFactory(this.injector.getInstance(UsagePointMicroCheckFactory.class));
             ctx.commit();
