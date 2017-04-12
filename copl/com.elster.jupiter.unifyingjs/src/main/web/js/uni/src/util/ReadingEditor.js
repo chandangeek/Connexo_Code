@@ -17,13 +17,12 @@ Ext.define('Uni.util.ReadingEditor', {
         }
     },
 
-    setReadingStatus: function(readingInfo, status){
-        var modificationState = {
+    modificationState: function(status){
+        return {
             flag: status,
             date: new Date(),
             app: null
-        };
-        Ext.merge(readingInfo, modificationState);
+        }
     }
 
 });
