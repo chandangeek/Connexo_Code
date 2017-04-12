@@ -5,6 +5,7 @@
 package com.elster.jupiter.metering.groups.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
@@ -41,7 +42,7 @@ import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.usagepoint.lifecycle.config.impl.UsagePointLifeCycleConfigurationModule;
-import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Subquery;
@@ -82,7 +83,6 @@ public class EnumeratedEndDeviceGroupImplIT {
     private static class MockModule extends AbstractModule {
         @Override
         protected void configure() {
-            bind(UserService.class).toInstance(mock(UserService.class));
             bind(BundleContext.class).toInstance(mock(BundleContext.class));
             bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
             bind(LicenseService.class).toInstance(mock(LicenseService.class));
@@ -97,6 +97,7 @@ public class EnumeratedEndDeviceGroupImplIT {
                 inMemoryBootstrapModule,
                 new InMemoryMessagingModule(),
                 new IdsModule(),
+                new UserModule(),
                 new UsagePointLifeCycleConfigurationModule(),
                 new MeteringModule(),
                 new BasicPropertiesModule(),
@@ -112,6 +113,7 @@ public class EnumeratedEndDeviceGroupImplIT {
                 new PubSubModule(),
                 new TransactionModule(),
                 new NlsModule(),
+                new BpmModule(),
                 new FiniteStateMachineModule(),
                 new CalendarModule(),
                 new DataVaultModule(),
