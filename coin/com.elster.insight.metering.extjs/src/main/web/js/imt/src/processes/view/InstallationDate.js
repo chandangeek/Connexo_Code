@@ -3,7 +3,7 @@
  */
 
 Ext.define('Imt.processes.view.InstallationDate', {
-    extend: 'Uni.property.view.property.Date',
+    extend: 'Uni.property.view.property.DateTime',
 
 
     listeners: {
@@ -29,49 +29,33 @@ Ext.define('Imt.processes.view.InstallationDate', {
         }
     },
 
-    getEditCmp: function () {
-        var me = this;
+    restoreDefault: function () {
+        this.fireEvent('reloadMeterRoleStore', null);
+        this.callParent(arguments);
+    },
 
-        return {
-            xtype: 'datefield',
-            name: this.getName(),
-            itemId: me.key + 'datefield',
-            format: me.format,
-            altFormats: me.formats.join('|'),
-            width: me.width,
-            maxWidth: 128,
-            required: me.required,
-            readOnly: me.isReadOnly,
-            inputType: me.inputType,
-            allowBlank: me.allowBlank,
-            blankText: me.blankText,
-            editable: false,
-            listeners: {
-                change: function (fld, newValue) {
-                    if (!newValue && !Ext.isDate(newValue)) {
-                        fld.setValue(null);
-                    } else {
-                        me.fireEvent('reloadMeterRoleStore', newValue);
-                    }
-                },
-                blur: function (fld) {
-                    if (!Ext.isDate(fld.getValue())) {
-                        me.restoreDefault();
-                    }
+    initListeners: function () {
+        var me = this,
+            dateField = me.getField();
+
+        if (dateField) {
+            dateField.on('change', function (fld, newValue) {
+                if (!newValue && !Ext.isDate(newValue)) {
+                    fld.setValue(null);
+                } else {
+                    me.fireEvent('reloadMeterRoleStore', newValue);
                 }
-            }
-        };
+            });
+            dateField.on('blur', function (fld, newValue) {
+                if (!Ext.isDate(fld.getValue())) {
+                    me.restoreDefault();
+                }
+            });
+        }
+        this.callParent(arguments);
     },
 
     getField: function () {
         return this.down('datefield');
-    },
-
-    getValue: function () {
-        if (Ext.isDate(this.getField().getValue())) {
-            return this.getField().getValue().getTime()
-        } else {
-            return null;
-        }
-    },
+    }
 });
