@@ -8,6 +8,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.upgrade.Upgrader;
+import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -26,10 +27,14 @@ import static com.elster.jupiter.util.streams.Predicates.not;
 class UpgraderV10_3 implements Upgrader {
 
     private final DataModel dataModel;
+    private final UserService userService;
+    private final PrivilegesProviderV10_3 privilegesProviderV10_3;
 
     @Inject
-    UpgraderV10_3(DataModel dataModel) {
+    UpgraderV10_3(DataModel dataModel, UserService userService, PrivilegesProviderV10_3 privilegesProviderV10_3) {
         this.dataModel = dataModel;
+        this.userService = userService;
+        this.privilegesProviderV10_3 = privilegesProviderV10_3;
     }
 
     @Override
@@ -37,6 +42,7 @@ class UpgraderV10_3 implements Upgrader {
         upgradeExistingScheduledComTaskExecutions();
         dataModelUpgrader.upgrade(dataModel, Version.version(10,3));
         moveProtocolDialectProperties();
+        userService.addModulePrivileges(privilegesProviderV10_3);
     }
 
     private void upgradeExistingScheduledComTaskExecutions() {
@@ -101,5 +107,4 @@ class UpgraderV10_3 implements Upgrader {
             }
         });
     }
-
 }

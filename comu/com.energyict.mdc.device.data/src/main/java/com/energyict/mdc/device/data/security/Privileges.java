@@ -41,7 +41,9 @@ public enum Privileges implements TranslationKey {
     ADMINISTER_DATA_COLLECTION_KPI(Constants.ADMINISTER_DATA_COLLECTION_KPI, "Administrate data collection KPI"),
     ADMINISTER_DEVICE_TIME_SLICED_CPS(Constants.ADMINISTER_DEVICE_TIME_SLICED_CPS, "Administer device time-sliced CAS"),
     ESTIMATE_WITH_RULE(Constants.ESTIMATE_WITH_RULE, "Estimate with rule"),
-    EDIT_WITH_ESTIMATOR(Constants.EDIT_WITH_ESTIMATOR, "Edit with estimator")
+    EDIT_WITH_ESTIMATOR(Constants.EDIT_WITH_ESTIMATOR, "Edit with estimator"),
+    ADMINISTER_VALIDATION_CONFIGURATION(Constants.ADMINISTER_VALIDATION_CONFIGURATION, "Administer validation configuration"),
+    ADMINISTER_ESTIMATION_CONFIGURATION(Constants.ADMINISTER_ESTIMATION_CONFIGURATION, "Administer estimation configuration")
     ;
 
     private final String key;
@@ -99,5 +101,8 @@ public enum Privileges implements TranslationKey {
 
         String ESTIMATE_WITH_RULE = "privilege.estimate.with.rule";
         String EDIT_WITH_ESTIMATOR = "privilege.edit.with.estimator";
+
+        String ADMINISTER_VALIDATION_CONFIGURATION = "privilege.administer.device.validationConfiguration";
+        String ADMINISTER_ESTIMATION_CONFIGURATION = "privilege.administer.device.estimationConfiguration";
     }
 }
