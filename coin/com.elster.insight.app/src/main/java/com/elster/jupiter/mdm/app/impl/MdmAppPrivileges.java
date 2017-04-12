@@ -4,8 +4,6 @@
 
 package com.elster.jupiter.mdm.app.impl;
 
-import com.elster.jupiter.metering.security.Privileges;
-
 import java.util.Arrays;
 import java.util.List;
 
@@ -22,8 +20,6 @@ class MdmAppPrivileges {
                 com.elster.jupiter.metering.security.Privileges.Constants.VIEW_ANY_USAGEPOINT,
                 com.elster.jupiter.metering.security.Privileges.Constants.VIEW_OWN_USAGEPOINT,
                 com.elster.jupiter.metering.security.Privileges.Constants.VIEW_READINGTYPE,
-                com.elster.jupiter.metering.security.Privileges.Constants.ESTIMATE_WITH_RULE,
-                com.elster.jupiter.metering.security.Privileges.Constants.EDIT_WITH_ESTIMATOR,
                 //export
                 com.elster.jupiter.export.security.Privileges.Constants.ADMINISTRATE_DATA_EXPORT_TASK,
                 com.elster.jupiter.export.security.Privileges.Constants.VIEW_DATA_EXPORT_TASK,
@@ -89,13 +85,12 @@ class MdmAppPrivileges {
                 //Calendars
                 com.elster.jupiter.calendar.security.Privileges.Constants.MANAGE_TOU_CALENDARS,
 
-               // Usage point groups
+                // Usage point groups
                 com.elster.jupiter.mdm.usagepoint.data.security.Privileges.Constants.ADMINISTER_USAGE_POINT_GROUP,
                 com.elster.jupiter.mdm.usagepoint.data.security.Privileges.Constants.ADMINISTER_USAGE_POINT_ENUMERATED_GROUP,
                 com.elster.jupiter.mdm.usagepoint.data.security.Privileges.Constants.VIEW_USAGE_POINT_GROUP_DETAIL,
 
-
-                  //estimation
+                //estimation
                 com.elster.jupiter.estimation.security.Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION,
                 com.elster.jupiter.estimation.security.Privileges.Constants.VIEW_ESTIMATION_CONFIGURATION,
                 com.elster.jupiter.estimation.security.Privileges.Constants.UPDATE_ESTIMATION_CONFIGURATION,
@@ -104,6 +99,8 @@ class MdmAppPrivileges {
                 com.elster.jupiter.estimation.security.Privileges.Constants.VIEW_ESTIMATION_TASK,
                 com.elster.jupiter.estimation.security.Privileges.Constants.ADMINISTRATE_ESTIMATION_TASK,
                 com.elster.jupiter.estimation.security.Privileges.Constants.ESTIMATE_MANUAL,
+                com.elster.jupiter.estimation.security.Privileges.Constants.ESTIMATE_WITH_RULE,
+                com.elster.jupiter.estimation.security.Privileges.Constants.EDIT_WITH_ESTIMATOR,
 
                 // Usage point life cycle
                 com.elster.jupiter.usagepoint.lifecycle.config.Privileges.Constants.USAGE_POINT_LIFE_CYCLE_ADMINISTER,
@@ -111,7 +108,12 @@ class MdmAppPrivileges {
                 com.elster.jupiter.usagepoint.lifecycle.config.Privileges.Constants.EXECUTE_TRANSITION_1,
                 com.elster.jupiter.usagepoint.lifecycle.config.Privileges.Constants.EXECUTE_TRANSITION_2,
                 com.elster.jupiter.usagepoint.lifecycle.config.Privileges.Constants.EXECUTE_TRANSITION_3,
-                com.elster.jupiter.usagepoint.lifecycle.config.Privileges.Constants.EXECUTE_TRANSITION_4
+                com.elster.jupiter.usagepoint.lifecycle.config.Privileges.Constants.EXECUTE_TRANSITION_4,
+
+                //data quality kpi
+                com.elster.jupiter.dataquality.security.Privileges.Constants.ADMINISTER_DATA_QUALITY_KPI_CONFIGURATION,
+                com.elster.jupiter.dataquality.security.Privileges.Constants.VIEW_DATA_QUALITY_KPI_CONFIGURATION,
+                com.elster.jupiter.dataquality.security.Privileges.Constants.VIEW_DATA_QUALITY_RESULTS
         );
     }
 }
