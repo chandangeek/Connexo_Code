@@ -958,6 +958,9 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                             window.down('#form-errors').show();
                             window.down('#property-form').markInvalid(responseText.errors);
                         }
+                    } else {
+                        window.down('#error-label').show();
+                        window.down('#error-label').setText('<div style="color: #EB5642">' + Uni.I18n.translate('value.cannot.be.estimted', 'MDC', 'Value cannot be estimated') + '</div>', false);
                     }
 
                 }
