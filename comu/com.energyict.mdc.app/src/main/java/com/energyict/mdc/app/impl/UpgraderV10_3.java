@@ -33,8 +33,8 @@ public class UpgraderV10_3 implements Upgrader {
                 com.elster.jupiter.fileimport.security.Privileges.Constants.IMPORT_FILE,
 
                 // manual estimation
-                com.energyict.mdc.device.data.security.Privileges.Constants.ESTIMATE_WITH_RULE,
-                com.energyict.mdc.device.data.security.Privileges.Constants.EDIT_WITH_ESTIMATOR,
+                com.elster.jupiter.estimation.security.Privileges.Constants.ESTIMATE_WITH_RULE,
+                com.elster.jupiter.estimation.security.Privileges.Constants.EDIT_WITH_ESTIMATOR,
 
                 //data quality kpi
                 com.elster.jupiter.dataquality.security.Privileges.Constants.ADMINISTER_DATA_QUALITY_KPI_CONFIGURATION,
@@ -53,8 +53,8 @@ public class UpgraderV10_3 implements Upgrader {
                 com.elster.jupiter.fileimport.security.Privileges.Constants.IMPORT_FILE,
 
                 // manual estimation
-                com.energyict.mdc.device.data.security.Privileges.Constants.ESTIMATE_WITH_RULE,
-                com.energyict.mdc.device.data.security.Privileges.Constants.EDIT_WITH_ESTIMATOR,
+                com.elster.jupiter.estimation.security.Privileges.Constants.ESTIMATE_WITH_RULE,
+                com.elster.jupiter.estimation.security.Privileges.Constants.EDIT_WITH_ESTIMATOR,
 
                 //data quality kpi
                 com.elster.jupiter.dataquality.security.Privileges.Constants.VIEW_DATA_QUALITY_KPI_CONFIGURATION,
