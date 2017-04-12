@@ -121,7 +121,7 @@ Ext.define('Uni.view.readings.CorrectValuesWindow', {
                 {
                     xtype: 'checkbox',
                     fieldLabel: Uni.I18n.translate('correct.window.limitValues', 'UNI', 'Limit values'),
-                    boxLabel: Uni.I18n.translate('correct.window.correctionAmount', 'UNI', 'Only suspect and estimated values'),
+                    boxLabel: Uni.I18n.translate('correct.window.onlySuspects', 'UNI', 'Only suspect and estimated values'),
                     itemId: 'limit-checkbox',
                     name: 'onlySuspectOrEstimated'
                 },
