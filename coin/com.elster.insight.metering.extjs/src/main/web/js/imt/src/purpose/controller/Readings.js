@@ -206,6 +206,7 @@ Ext.define('Imt.purpose.controller.Readings', {
                         chart.get(rec.get('interval').start).select(false);
                         me.getOutputReadings().down('#output-readings-preview-container').fireEvent('rowselect', record);
                         rec.set('confirmed', true);
+                        rec.set('isConfirmed', true);
                     }
                 }
             };
@@ -475,6 +476,7 @@ Ext.define('Imt.purpose.controller.Readings', {
         Ext.Array.each(records, function (record) {
             calculatedValue = record.get('calculatedValue');
             record.beginEdit();
+            Uni.util.ReadingEditor.setReadingStatus(record.get('modificationState'),'RESET');
             record.set('removedNotSaved', true);
             record.set('value', calculatedValue);
             if (record.get('confirmed')) {
@@ -596,7 +598,7 @@ Ext.define('Imt.purpose.controller.Readings', {
         }
         model.set('intervals', intervalsArray);
         model.set('markAsProjected', markAsProjected);
-        me.saveChannelDataEstimateModel(model, record, window);
+        me.saveChannelDataEstimateModel(model, record, window, null, 'editWithEstimator');
     },
 
     estimateReadingWithRule: function () {
@@ -632,10 +634,10 @@ Ext.define('Imt.purpose.controller.Readings', {
         }
         model.set('intervals', intervalsArray);
         model.set('markAsProjected', markAsProjected);
-        me.saveChannelDataEstimateModel(model, record, window, estimationRuleId);
+        me.saveChannelDataEstimateModel(model, record, window, estimationRuleId, 'estimate');
     },
 
-    saveChannelDataEstimateModel: function (record, readings, window, ruleId) {
+    saveChannelDataEstimateModel: function (record, readings, window, ruleId, action) {
         var me = this,
             grid = me.getReadingsList(),
             router = me.getController('Uni.controller.history.Router');
@@ -652,12 +654,12 @@ Ext.define('Imt.purpose.controller.Readings', {
                 Ext.suspendLayouts();
                 if (success && responseText[0]) {
                     if (!Ext.isArray(readings)) {
-                        me.updateEstimatedValues(record, readings, responseText[0], ruleId);
+                        me.updateEstimatedValues(record, readings, responseText[0], ruleId, action);
                     } else {
                         Ext.Array.each(responseText, function (estimatedReading) {
                             Ext.Array.findBy(readings, function (reading) {
                                 if (estimatedReading.interval.start == reading.get('interval').start) {
-                                    me.updateEstimatedValues(record, reading, estimatedReading, ruleId);
+                                    me.updateEstimatedValues(record, reading, estimatedReading, ruleId, action);
                                     return true;
                                 }
                             });
@@ -692,7 +694,7 @@ Ext.define('Imt.purpose.controller.Readings', {
         });
     },
 
-    updateEstimatedValues: function (record, reading, estimatedReading, ruleId) {
+    updateEstimatedValues: function (record, reading, estimatedReading, ruleId, action) {
         var me = this,
             grid = me.getReadingsList();
 
@@ -700,6 +702,11 @@ Ext.define('Imt.purpose.controller.Readings', {
         ruleId && reading.set('ruleId', ruleId);
         reading.set('validationResult', 'validationStatus.ok');
         reading.set('estimatedNotSaved', true);
+        if(action === 'editWithEstimator'){
+            Uni.util.ReadingEditor.setReadingStatus(reading.get('modificationState'),'EDITED');
+        } else if(action === 'estimate'){
+            reading.set('estimatedByRule', true);
+        }
         reading.set('isProjected', estimatedReading.isProjected);
         grid.getView().refreshNode(grid.getStore().indexOf(reading));
 
@@ -709,13 +716,14 @@ Ext.define('Imt.purpose.controller.Readings', {
         reading.get('confirmed') && reading.set('confirmed', false);
     },
 
-    updateCorrectedValues: function (reading, correctedInterval) {
+    updateCorrectedValues: function (reading, correctedInterval, model) {
         var me = this,
             grid = me.getReadingsList();
 
         reading.beginEdit();
         reading.set('value', correctedInterval.value);
-        Uni.util.ReadingEditor.setReadingInfoStatus(reading,'corrected');
+        reading.set('isProjected', model.get('projected'));
+        Uni.util.ReadingEditor.setReadingStatus(reading.get('modificationState'),'EDITED');
         reading.endEdit(true);
 
         grid.getView().refreshNode(grid.getStore().indexOf(reading));
@@ -772,8 +780,8 @@ Ext.define('Imt.purpose.controller.Readings', {
                 if (success && responseText[0]) {
                     Ext.Array.each(responseText, function(correctedInterval){
                         Ext.Array.findBy(records, function (reading) {
-                            if (correctedInterval.reportedDateTime == reading.get('reportedDateTime').getTime()) {
-                                me.updateCorrectedValues(reading, correctedInterval);
+                            if (correctedInterval.interval.start == reading.get('interval').start) {
+                                me.updateCorrectedValues(reading, correctedInterval, model);
                                 return true;
                             }
                         });
