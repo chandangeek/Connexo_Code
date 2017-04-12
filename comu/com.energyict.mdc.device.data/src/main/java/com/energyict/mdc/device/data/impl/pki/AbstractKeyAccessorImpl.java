@@ -103,4 +103,9 @@ public abstract class AbstractKeyAccessorImpl<T extends SecurityValueWrapper> im
     public boolean isSwapped() {
         return swapped;
     }
+
+    @Override
+    public Instant getModTime() {
+        return modTime;
+    }
 }

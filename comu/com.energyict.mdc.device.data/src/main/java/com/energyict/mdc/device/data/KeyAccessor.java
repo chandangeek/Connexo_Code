@@ -10,6 +10,7 @@ import com.elster.jupiter.properties.PropertySpec;
 
 import aQute.bnd.annotation.ProviderType;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -103,4 +104,10 @@ public interface KeyAccessor<T extends SecurityValueWrapper> {
      * @return
      */
     boolean isSwapped();
+
+    /**
+     * Returns the Instant of this KeyAccessor's latest modification. This information is part of the general audit-information
+     * @return Time of latest modification
+     */
+    Instant getModTime();
 }
