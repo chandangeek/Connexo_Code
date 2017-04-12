@@ -9,6 +9,7 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirementsCollector;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
@@ -16,6 +17,7 @@ import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -28,11 +30,12 @@ abstract class AbstractUsagePointChannelInfoFactory {
 
     void fillDevicePartList(List<UsagePointDeviceChannelInfo> list, ReadingType readingType,
                             UsagePointMetrologyConfiguration metrologyConfiguration, UsagePoint usagePoint) {
-        ReadingTypeDeliverable readingTypeDeliverable = metrologyConfiguration.getDeliverables().stream()
+        ReadingTypeDeliverable readingTypeDeliverable = metrologyConfiguration.getContracts().stream()
+                .map(MetrologyContract::getDeliverables)
+                .flatMap(Collection::stream)
                 .filter(deliverable -> deliverable.getReadingType().equals(readingType))
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Deliverable has not been found by reading type " +
-                        readingType.getMRID()));
+                .orElseThrow(() -> new IllegalArgumentException("Mismatch between channels configuration and reading type deliverable"));
         ReadingTypeRequirementsCollector requirementsCollector = new ReadingTypeRequirementsCollector();
         readingTypeDeliverable.getFormula().getExpressionNode().accept(requirementsCollector);
         MeterActivation meterActivationOld = null;
