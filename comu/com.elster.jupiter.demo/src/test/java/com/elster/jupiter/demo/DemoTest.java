@@ -16,7 +16,6 @@ import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.datavault.impl.DataVaultServiceImpl;
 import com.elster.jupiter.demo.impl.ConsoleUser;
 import com.elster.jupiter.demo.impl.DemoServiceImpl;
-import com.elster.jupiter.demo.impl.UnableToCreate;
 import com.elster.jupiter.demo.impl.templates.ComTaskTpl;
 import com.elster.jupiter.demo.impl.templates.DeviceConfigurationTpl;
 import com.elster.jupiter.demo.impl.templates.DeviceTypeTpl;
@@ -701,16 +700,6 @@ public class DemoTest {
         demoService.createDemoData("DemoServ", "host", "2014-12-01", "2", true); // Skip firmware management data, as H2 doesn't support update of LOB
         demoService.createDemoData("DemoServ", "host", "2014-12-01", "2", true);
         // Calling the command 'createDemoData' twice shouldn't produce errors
-    }
-
-    @Test
-    public void testStartDate() {
-        DemoServiceImpl demoService = injector.getInstance(DemoServiceImpl.class);
-        try {
-            demoService.createDemoData("DemoServ", "host", "2020-12-01", "2", true); // Skip firmware management data, as H2 doesn't support update of LOB
-        } catch (UnableToCreate e) {
-            assertThat(e.getMessage()).contains("Incorrect start date parameter");
-        }
     }
 
     @Test
