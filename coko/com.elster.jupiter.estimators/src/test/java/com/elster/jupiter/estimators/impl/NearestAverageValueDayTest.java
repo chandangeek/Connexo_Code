@@ -4,7 +4,6 @@ import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.calendar.Event;
 import com.elster.jupiter.cbo.MacroPeriod;
-import com.elster.jupiter.cbo.QualityCodeCategory;
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cbo.TimeAttribute;
@@ -12,7 +11,6 @@ import com.elster.jupiter.devtools.tests.assertions.JupiterAssertions;
 import com.elster.jupiter.devtools.tests.fakes.LogRecorder;
 import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
 import com.elster.jupiter.devtools.tests.rules.Using;
-import com.elster.jupiter.estimation.BulkAdvanceReadingsSettings;
 import com.elster.jupiter.estimation.DiscardDayWithEventSettings;
 import com.elster.jupiter.estimation.Estimatable;
 import com.elster.jupiter.estimation.EstimationBlock;
@@ -20,8 +18,6 @@ import com.elster.jupiter.estimation.EstimationResult;
 import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.EstimationRuleProperties;
 import com.elster.jupiter.estimation.Estimator;
-import com.elster.jupiter.estimation.NoneAdvanceReadingsSettings;
-import com.elster.jupiter.estimation.ReadingTypeAdvanceReadingsSettings;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
@@ -33,7 +29,6 @@ import com.elster.jupiter.metering.ReadingQualityWithTypeFetcher;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpecService;
-import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.time.impl.AllRelativePeriod;
 import com.elster.jupiter.util.logging.LoggingContext;
@@ -54,7 +49,6 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
-import java.time.Duration;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
@@ -64,7 +58,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -101,7 +94,7 @@ public class NearestAverageValueDayTest {
     private MeteringService meteringService;
     @Mock
     private EstimationBlock block;
-    private Estimatable estimable, estimable2;
+    private Estimatable estimable;
     @Mock
     private ReadingType readingType, bulkReadingType, deltaReadingType;
     @Mock
@@ -113,11 +106,11 @@ public class NearestAverageValueDayTest {
     @Mock
     private TimeService timeService;
     @Mock
-    private CimChannel deltaCimChannel, bulkCimChannel, advanceCimChannel;
+    private CimChannel deltaCimChannel;
     @Mock
     private Meter meter;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
-    private ReadingQualityWithTypeFetcher deltaFetcher, advanceFetcher;
+    private ReadingQualityWithTypeFetcher deltaFetcher;
     @Mock
     private CalendarService calendarService;
     @Mock
@@ -135,12 +128,11 @@ public class NearestAverageValueDayTest {
         when(calendar.getId()).thenReturn(1L);
         when(event.getId()).thenReturn(1L);
         when(calendar.getEvents()).thenReturn(eventList);
-        when(calendar.forZone(any(),any(),any())).thenReturn(zonedView);
+        when(calendar.forZone(any(), any(), any())).thenReturn(zonedView);
         when(zonedView.eventFor(ESTIMABLE_TIME.toInstant())).thenReturn(falseEvent);
         when(falseEvent.getId()).thenReturn(2L);
         when(meterActivation.getChannelsContainer()).thenReturn(channelsContainer);
         estimable = new EstimableImpl(ESTIMABLE_TIME.toInstant());
-        estimable2 = new EstimableImpl(ESTIMABLE_TIME.plusMinutes(15).toInstant());
         doReturn(AllRelativePeriod.INSTANCE).when(timeService).getAllRelativePeriod();
         doReturn(singletonList(estimable)).when(block).estimatables();
         doReturn(readingType).when(block).getReadingType();
@@ -153,19 +145,15 @@ public class NearestAverageValueDayTest {
         doReturn(asList(deltaReadingType, bulkReadingType)).when(channel).getReadingTypes();
         doReturn(singletonList(readingType)).when(otherChannel).getReadingTypes();
         doReturn(Optional.of(deltaCimChannel)).when(channel).getCimChannel(readingType);
-        doReturn(Optional.of(bulkCimChannel)).when(channel).getCimChannel(bulkReadingType);
         doReturn(Optional.of(deltaCimChannel)).when(channel).getCimChannel(deltaReadingType);
-
         doReturn(deltaFetcher).when(deltaCimChannel).findReadingQualities();
-        doReturn(advanceFetcher).when(advanceCimChannel).findReadingQualities();
 
         doReturn(START.toInstant()).when(channelsContainer).getStart();
         doReturn(Optional.of(LAST_CHECKED.toInstant())).when(validationService).getLastChecked(channel);
-        doReturn(buildReadings()).when(channel).getReadings(Range.closedOpen(ESTIMABLE_TIME.toInstant().minus(3 * ChronoUnit.WEEKS.getDuration().toDays(),ChronoUnit.DAYS ), ESTIMABLE_TIME.toInstant()));
+        doReturn(buildReadings()).when(channel).getReadings(Range.closedOpen(ESTIMABLE_TIME.toInstant().minus(3 * ChronoUnit.WEEKS.getDuration().toDays(), ChronoUnit.DAYS), ESTIMABLE_TIME.toInstant()));
         doReturn(TimeZoneNeutral.getMcMurdo()).when(channel).getZoneId();
         doReturn(Optional.of(bulkReadingType)).when(readingType).getBulkReadingType();
         doReturn(TimeAttribute.FIXEDBLOCK15MIN).when(readingType).getMeasuringPeriod();
-//        when(readingType.getMeasuringPeriod().getMinutes()).thenReturn(15);
         doReturn(false).when(deltaReadingType).isCumulative();
         doReturn(true).when(deltaReadingType).isRegular();
         doAnswer(invocation -> ((Instant) invocation.getArguments()[0]).minus(15, ChronoUnit.MINUTES)).when(channel).getPreviousDateTime(any());
@@ -186,7 +174,7 @@ public class NearestAverageValueDayTest {
     }
 
     private List<BaseReadingRecord> buildReadings() {
-        Long[] values = new Long[] {4L, 1000L, 100000L, 100L, 100L, 5L, 200L, null, 6L, 100L, 7L};
+        Long[] values = new Long[]{4L, 1000L, 100000L, 100L, 100L, 5L, 200L, null, 6L, 100L, 7L};
         int number = values.length;
         int start = -5;
         Set<Instant> badTimes = Stream.of(
@@ -210,48 +198,6 @@ public class NearestAverageValueDayTest {
         return readingRecords;
     }
 
-    private List<BaseReadingRecord> buildTwiceTheReadings() {
-        Long[] values = new Long[] {4L, 100L, 100L, 5L, 200L, null, 6L, 100L, 7L};
-        int number = values.length;
-        int start = -4;
-        Set<Instant> sourTimes = Stream.of(
-                ESTIMABLE_TIME.minusDays(21),
-                ESTIMABLE_TIME.minusDays(14),
-                ESTIMABLE_TIME.plusDays(21)
-        ).flatMap(timestamp -> Stream.of(timestamp, timestamp.plusMinutes(15)))
-                .map(ZonedDateTime::toInstant)
-                .collect(Collectors.toSet());
-        return IntStream.rangeClosed(start, start + number - 1)
-                .mapToObj(i -> {
-                    ZonedDateTime mainTime = ESTIMABLE_TIME.plusDays(7 * i);
-                    return Stream.of(mainTime, mainTime.plusMinutes(15))
-                            .map(ZonedDateTime::toInstant)
-                            .map(instant -> mockDeltaReadingWithQuality(instant, values[i - start],
-                                    sourTimes.contains(instant)));
-                })
-                .flatMap(Function.identity())
-                .collect(Collectors.toCollection(ArrayList::new));
-    }
-
-    private void buildReadingsForSuccessfulEstimationWithDelta() {
-        doReturn(buildTwiceTheReadings()).when(channel).getReadings(Range.openClosed(START.toInstant(), LAST_CHECKED.toInstant()));
-        BaseReadingRecord preAdvanceReading = mockAdvanceReadingWithQuality(ESTIMABLE_TIME.minusMinutes(35).toInstant(), 14L, false);
-        BaseReadingRecord postAdvanceReading = mockAdvanceReadingWithQuality(ESTIMABLE_TIME.plusMinutes(35).toInstant(), 32L, false);
-        doReturn(singletonList(preAdvanceReading)).when(channelsContainer).getReadingsBefore(ESTIMABLE_TIME.toInstant(), readingType, 1);
-        doReturn(singletonList(postAdvanceReading)).when(channelsContainer).getReadings(Range.atLeast(ESTIMABLE_TIME.plusMinutes(15).toInstant()), readingType);
-        BaseReadingRecord pre1Reading = mockDeltaReadingWithQuality(ESTIMABLE_TIME.minusMinutes(30).toInstant(), 3L, false);
-        BaseReadingRecord pre2Reading = mockDeltaReadingWithQuality(ESTIMABLE_TIME.minusMinutes(15).toInstant(), 3L, false);
-        doReturn(asList(pre1Reading, pre2Reading)).when(channel).getReadings(Range.openClosed(ESTIMABLE_TIME.minusMinutes(35).toInstant(), ESTIMABLE_TIME.minusMinutes(15).toInstant()));
-        BaseReadingRecord post1Reading = mockDeltaReadingWithQuality(ESTIMABLE_TIME.plusMinutes(30).toInstant(), 4L, false);
-        BaseReadingRecord post2Reading = mockDeltaReadingWithQuality(ESTIMABLE_TIME.plusMinutes(45).toInstant(), 6L, false);
-        doReturn(asList(post1Reading, post2Reading)).when(channel).getReadings(Range.openClosed(ESTIMABLE_TIME.plusMinutes(15).toInstant(), ESTIMABLE_TIME.plusMinutes(45).toInstant()));
-        doReturn(singletonList(ESTIMABLE_TIME.plusMinutes(30).toInstant())).when(channel).toList(Range.openClosed(ESTIMABLE_TIME.plusMinutes(15).toInstant(), ESTIMABLE_TIME.plusMinutes(35).toInstant()));
-        doReturn(ESTIMABLE_TIME.plusMinutes(45).toInstant()).when(channel).getNextDateTime(ESTIMABLE_TIME.plusMinutes(30).toInstant());
-        doReturn(asList(ESTIMABLE_TIME.minusMinutes(30).toInstant(), ESTIMABLE_TIME.minusMinutes(15).toInstant())).when(channel).toList(Range.openClosed(ESTIMABLE_TIME.minusMinutes(35).toInstant(), ESTIMABLE_TIME
-                .minusMinutes(15).toInstant()));
-        doReturn(Optional.of(Duration.ofMinutes(15))).when(channel).getIntervalLength();
-    }
-
     private BaseReadingRecord mockDeltaReadingIsValid(Instant instant, Long value, boolean isValid) {
         when(deltaFetcher
                 .atTimestamp(instant)
@@ -263,47 +209,16 @@ public class NearestAverageValueDayTest {
         return mockDeltaReading(instant, value);
     }
 
-    private BaseReadingRecord mockDeltaReadingWithQuality(Instant instant, Long value, boolean hasQuality) {
-        when(deltaFetcher
-                .atTimestamp(instant)
-                .actual()
-                .ofQualitySystems(SYSTEMS)
-                .ofQualityIndices(ImmutableSet.of(QualityCodeIndex.SUSPECT, QualityCodeIndex.ACCEPTED))
-                .orOfAnotherTypeInSameSystems()
-                .ofAnyQualityIndexInCategories(ImmutableSet.of(QualityCodeCategory.ESTIMATED, QualityCodeCategory.EDITED))
-                .noneMatch())
-                .thenReturn(!hasQuality);
-        return mockDeltaReading(instant, value);
-    }
-
     private BaseReadingRecord mockDeltaReading(Instant instant, Long value) {
-        return mockReading(instant, value, readingType);
-    }
-
-    private BaseReadingRecord mockAdvanceReadingWithQuality(Instant instant, Long value, boolean hasQuality) {
-        when(advanceFetcher
-                .atTimestamp(instant)
-                .actual()
-                .ofQualitySystems(SYSTEMS)
-                .ofQualityIndices(ImmutableSet.of(QualityCodeIndex.SUSPECT, QualityCodeIndex.OVERFLOWCONDITIONDETECTED))
-                .orOfAnotherTypeInSameSystems()
-                .ofAnyQualityIndexInCategory(QualityCodeCategory.ESTIMATED)
-                .noneMatch())
-                .thenReturn(!hasQuality);
-        return mockAdvanceReading(instant, value);
-    }
-
-    private BaseReadingRecord mockAdvanceReading(Instant instant, Long value) {
         return mockReading(instant, value, readingType);
     }
 
     private static BaseReadingRecord mockReading(Instant instant, Long value, ReadingType readingType) {
         BaseReadingRecord reading = mock(BaseReadingRecord.class);
         doReturn(instant).when(reading).getTimeStamp();
-        if (value==null){
+        if (value == null) {
             doReturn(BigDecimal.valueOf(0)).when(reading).getValue();
-        }
-        else {
+        } else {
             doReturn(BigDecimal.valueOf(value)).when(reading).getValue();
         }
         Quantity amount = Optional.ofNullable(value)
@@ -323,6 +238,8 @@ public class NearestAverageValueDayTest {
     @Test
     public void testEstimatePasses() {
         when(zonedView.eventFor(any())).thenReturn(falseEvent);
+        when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.DAILY);
+
         Map<String, Object> props = ImmutableMap.<String, Object>builder()
                 .put(NearestAverageValueDayEstimator.NUMBER_OF_SAMPLES, 2L)
                 .put(NearestAverageValueDayEstimator.MAXIMUM_NUMBER_OF_WEEKS, 3L)
@@ -339,11 +256,31 @@ public class NearestAverageValueDayTest {
     }
 
     @Test
+    public void testEstimatePassesWithDiscardDayFalse() {
+        when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.DAILY);
+        Map<String, Object> props = ImmutableMap.<String, Object>builder()
+                .put(NearestAverageValueDayEstimator.NUMBER_OF_SAMPLES, 2L)
+                .put(NearestAverageValueDayEstimator.MAXIMUM_NUMBER_OF_WEEKS, 3L)
+                .put(NearestAverageValueDayEstimator.DISCARD_SPECIFIC_DAY, new DiscardDayWithEventSettings(false, null, null))
+                .build();
+        NearestAverageValueDayEstimator estimator = new NearestAverageValueDayEstimator(thesaurus, propertySpecService, validationService, meteringService, timeService, calendarService, props);
+
+        estimator.init();
+
+        EstimationResult result = estimator.estimate(singletonList(block), QualityCodeSystem.MDC);
+
+        assertThat(result.estimated()).contains(block);
+        assertThat(estimable.getEstimation()).isEqualTo(BigDecimal.valueOf(50050));
+    }
+
+    @Test
     public void testEstimateFailsIfNotEnoughSamples() {
         List<BaseReadingRecord> readingRecords = buildReadings();
         readingRecords = readingRecords.subList(0, readingRecords.size() - 10);
-        doReturn(readingRecords).when(channel).getReadings(Range.closedOpen(ESTIMABLE_TIME.toInstant().minus(3 * ChronoUnit.WEEKS.getDuration().toDays(),ChronoUnit.DAYS ), ESTIMABLE_TIME.toInstant()));
+        doReturn(readingRecords).when(channel).getReadings(Range.closedOpen(ESTIMABLE_TIME.toInstant().minus(3 * ChronoUnit.WEEKS.getDuration().toDays(), ChronoUnit.DAYS), ESTIMABLE_TIME.toInstant()));
         when(zonedView.eventFor(any())).thenReturn(falseEvent);
+        when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.DAILY);
+
         Map<String, Object> props = ImmutableMap.<String, Object>builder()
                 .put(NearestAverageValueDayEstimator.NUMBER_OF_SAMPLES, 2L)
                 .put(NearestAverageValueDayEstimator.MAXIMUM_NUMBER_OF_WEEKS, 3L)
@@ -364,6 +301,8 @@ public class NearestAverageValueDayTest {
     @Test
     public void testEstimateFailsIfEstimableDayIsDiscarded() {
         when(zonedView.eventFor(any())).thenReturn(event);
+        when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.DAILY);
+
         Map<String, Object> props = ImmutableMap.<String, Object>builder()
                 .put(NearestAverageValueDayEstimator.NUMBER_OF_SAMPLES, 2L)
                 .put(NearestAverageValueDayEstimator.MAXIMUM_NUMBER_OF_WEEKS, 3L)
@@ -444,6 +383,7 @@ public class NearestAverageValueDayTest {
         JupiterAssertions.assertThat(logRecorder).hasRecordWithMessage(message -> message.startsWith("Failed estimation with rule:")).atLevel(Level.INFO);
         JupiterAssertions.assertThat(logRecorder).hasRecordWithMessage(message -> message.contains("measuring period  is larger than day")).atLevel(Level.INFO);
     }
+
 
     @Test
     public void testGetSupportedApplications() {
