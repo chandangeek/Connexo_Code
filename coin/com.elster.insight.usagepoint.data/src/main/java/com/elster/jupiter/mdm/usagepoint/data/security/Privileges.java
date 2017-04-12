@@ -17,6 +17,8 @@ public enum Privileges implements TranslationKey {
     ADMINISTER_USAGE_POINT_GROUP(Constants.ADMINISTER_USAGE_POINT_GROUP, "Administer"),
     ADMINISTER_USAGE_POINT_ENUMERATED_GROUP(Constants.ADMINISTER_USAGE_POINT_ENUMERATED_GROUP, "Administer static usage point groups"),
     VIEW_USAGE_POINT_GROUP_DETAIL(Constants.VIEW_USAGE_POINT_GROUP_DETAIL, "View detail"),
+    ADMINISTER_VALIDATION_CONFIGURATION(Constants.ADMINISTER_VALIDATION_CONFIGURATION, "Administer validation configuration"),
+    ADMINISTER_ESTIMATION_CONFIGURATION(Constants.ADMINISTER_ESTIMATION_CONFIGURATION, "Administer estimation configuration")
     ;
 
     private final String key;
@@ -50,5 +52,8 @@ public enum Privileges implements TranslationKey {
         String ADMINISTER_USAGE_POINT_GROUP = "privilege.administer.usagePointGroup";
         String ADMINISTER_USAGE_POINT_ENUMERATED_GROUP = "privilege.administer.usagePointEnumeratedGroup";
         String VIEW_USAGE_POINT_GROUP_DETAIL = "privilege.view.usagePointGroupDetail";
+
+        String ADMINISTER_VALIDATION_CONFIGURATION = "privilege.administer.usagepoint.validationConfiguration";
+        String ADMINISTER_ESTIMATION_CONFIGURATION = "privilege.administer.usagepoint.estimationConfiguration";
     }
 }
