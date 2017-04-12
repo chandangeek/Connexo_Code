@@ -125,12 +125,58 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
                                     hidden: true
                                 },
                                 emptyComponent: {
-                                    xtype: 'uni-form-empty-message',
+                                    xtype: 'no-items-found-panel',
                                     itemId: 'ctr-table-no-data',
-                                    text: Uni.I18n.translate('deviceloadprofiles.data.empty', 'MDC', 'No readings have been defined yet.')
+                                    title: Uni.I18n.translate('deviceloadprofiles.data.empty.title', 'MDC', 'No readings found'),
+                                    reasons: [
+                                        Uni.I18n.translate('deviceloadprofiles.data.empty.list.item1', 'MDC', 'This channel has never been read.'),
+                                        Uni.I18n.translate('deviceloadprofiles.data.empty.list.item2', 'MDC', 'No readings have been provided for this channel.'),
+                                        Uni.I18n.translate('deviceloadprofiles.data.empty.list.item3', 'MDC', 'No readings comply with the filter.')
+                                    ],
+                                    stepItems: [
+                                        {
+                                            text: Uni.I18n.translate('deviceloadprofiles.data.empty.addReadings', 'MDC', 'Add readings'),
+                                            itemId: 'add-device-load-profile-btn',
+                                            handler: function () {
+                                                var me = this,
+                                                    preview = me.up('#channel-data-preview-container'),
+                                                    noItemFoundClass = Ext.getClass(preview);
+
+                                                arguments[0] = false;
+                                                noItemFoundClass.prototype.updateOnChange.apply(preview, arguments);
+                                            }
+                                        }
+                                    ]
                                 },
                                 listeners: {
                                     rowselect: Ext.bind(me.onRowSelect, me)
+                                },
+                                updateOnChange: function (isEmpty) {
+                                    var me = this,
+                                        noItemFoundClass = Ext.getClass(me);
+
+                                    if (isEmpty) {
+                                        noItemFoundClass.prototype.updateOnChange.apply(me, arguments);
+                                        me.down('#no-items-found-panel-steps-label') && me.down('#no-items-found-panel-steps-label').setVisible(false);
+                                        me.down('#add-device-load-profile-btn') && me.down('#add-device-load-profile-btn').setVisible(false);
+                                    }
+                                    else {
+                                        var store = me.grid.getStore(),
+                                            count = store.getCount()
+                                        hasValues = false;
+
+                                        for (var i = 0; i < count; i++) {
+                                            if (store.getAt(i).get('value')) {
+                                                hasValues = true;
+                                                return;
+                                            }
+                                        }
+                                        arguments[0] = !hasValues;
+                                        noItemFoundClass.prototype.updateOnChange.apply(me, arguments);
+                                        me.down('#add-device-load-profile-btn') && me.down('#add-device-load-profile-btn').setVisible(true);
+                                        me.down('#no-items-found-panel-steps-label') && me.down('#no-items-found-panel-steps-label').setVisible(true);
+                                        me.up('#deviceLoadProfileChannelData') && me.up('#deviceLoadProfileChannelData').down('deviceLoadProfileChannelGraphView') && me.up('#deviceLoadProfileChannelData').down('deviceLoadProfileChannelGraphView').setVisible(hasValues);
+                                    }
                                 }
                             }
                         ]
