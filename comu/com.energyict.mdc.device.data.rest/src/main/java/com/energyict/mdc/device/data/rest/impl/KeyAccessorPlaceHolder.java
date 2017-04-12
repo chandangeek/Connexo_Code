@@ -10,6 +10,7 @@ import com.elster.jupiter.pki.SecurityValueWrapper;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.KeyAccessor;
+import com.energyict.mdc.device.data.KeyAccessorStatus;
 
 import javax.inject.Inject;
 import java.time.Instant;
@@ -135,5 +136,10 @@ public class KeyAccessorPlaceHolder implements KeyAccessor {
     @Override
     public Instant getModTime() {
         return null;
+    }
+
+    @Override
+    public KeyAccessorStatus getStatus() {
+        return KeyAccessorStatus.INCOMPLETE;
     }
 }

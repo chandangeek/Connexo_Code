@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.data.rest;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.data.CertificateAccessor;
@@ -17,10 +18,12 @@ import java.util.List;
 public class SecurityAccessorInfoFactory {
 
     private final MdcPropertyUtils mdcPropertyUtils;
+    private final Thesaurus thesaurus;
 
     @Inject
-    public SecurityAccessorInfoFactory(MdcPropertyUtils mdcPropertyUtils) {
+    public SecurityAccessorInfoFactory(MdcPropertyUtils mdcPropertyUtils, Thesaurus thesaurus) {
         this.mdcPropertyUtils = mdcPropertyUtils;
+        this.thesaurus = thesaurus;
     }
 
     public SecurityAccessorInfo from(KeyAccessor<?> keyAccessor) {
@@ -31,6 +34,7 @@ public class SecurityAccessorInfoFactory {
         info.swapped = keyAccessor.isSwapped();
         info.version = keyAccessor.getVersion();
         info.modificationDate = keyAccessor.getModTime();
+        info.status = thesaurus.getFormat(keyAccessor.getStatus()).format();
         List<PropertySpec> propertySpecs = keyAccessor.getPropertySpecs();
         keyAccessor.getActualValue().getExpirationTime().ifPresent(expiration -> info.expirationTime = expiration);
 
