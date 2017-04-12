@@ -310,6 +310,9 @@ Ext.define('Imt.purpose.controller.Readings', {
                     event.record.set('ruleId', 0);
                     grid.getView().refreshNode(grid.getStore().indexOf(event.record));
                     event.record.get('confirmed') && event.record.set('confirmed', false);
+                    if(!event.record.get('estimatedNotSaved')){
+                        event.record.set('mainModificationState', Uni.util.ReadingEditor.modificationState('EDITED'));
+                    }
                 }
                 Ext.resumeLayouts();
             } else if (condition) {
@@ -476,7 +479,8 @@ Ext.define('Imt.purpose.controller.Readings', {
         Ext.Array.each(records, function (record) {
             calculatedValue = record.get('calculatedValue');
             record.beginEdit();
-            Uni.util.ReadingEditor.setReadingStatus(record.get('modificationState'),'RESET');
+            record.set('mainModificationState', Uni.util.ReadingEditor.modificationState('RESET'));
+
             record.set('removedNotSaved', true);
             record.set('value', calculatedValue);
             if (record.get('confirmed')) {
@@ -702,9 +706,7 @@ Ext.define('Imt.purpose.controller.Readings', {
         ruleId && reading.set('ruleId', ruleId);
         reading.set('validationResult', 'validationStatus.ok');
         reading.set('estimatedNotSaved', true);
-        if(action === 'editWithEstimator'){
-            Uni.util.ReadingEditor.setReadingStatus(reading.get('modificationState'),'EDITED');
-        } else if(action === 'estimate'){
+        if(action === 'estimate'){
             reading.set('estimatedByRule', true);
         }
         reading.set('isProjected', estimatedReading.isProjected);
@@ -723,7 +725,6 @@ Ext.define('Imt.purpose.controller.Readings', {
         reading.beginEdit();
         reading.set('value', correctedInterval.value);
         reading.set('isProjected', model.get('projected'));
-        Uni.util.ReadingEditor.setReadingStatus(reading.get('modificationState'),'EDITED');
         reading.endEdit(true);
 
         grid.getView().refreshNode(grid.getStore().indexOf(reading));
@@ -807,6 +808,8 @@ Ext.define('Imt.purpose.controller.Readings', {
                             window.down('#form-errors').show();
                             window.down('#property-form').markInvalid(responseText.errors);
                         }
+                    } else {
+                        window.destroy();
                     }
 
                 }
