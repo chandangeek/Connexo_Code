@@ -4,7 +4,6 @@
 
 package com.energyict.mdc.device.data.impl;
 
-import com.elster.jupiter.cbo.Aggregate;
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
@@ -213,14 +212,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Deque;
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeMap;
 import java.util.UUID;
@@ -820,7 +817,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     //  All 'EndDevice' fields
-    private SyncDeviceWithKoreForSimpleUpdate findOrCreateKoreUpdater(){
+    private SyncDeviceWithKoreForSimpleUpdate findOrCreateKoreUpdater() {
         Optional<SyncDeviceWithKoreForSimpleUpdate> currentKoreUpdater = getKoreMeterUpdater();
         SyncDeviceWithKoreForSimpleUpdate koreUpdater = new SyncDeviceWithKoreForSimpleUpdate(this, deviceService, readingTypeUtilService, eventService);
         if (!currentKoreUpdater.isPresent()) {
@@ -837,7 +834,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         Optional<SyncDeviceWithKoreForSimpleUpdate> currentKoreUpdater = getKoreMeterUpdater();
         if (currentKoreUpdater.isPresent()) {
             return currentKoreUpdater.get().getManufacturer();
-        }else if (meter.isPresent()) {
+        } else if (meter.isPresent()) {
             return meter.get().getManufacturer();
         }
         return null;
@@ -853,7 +850,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         Optional<SyncDeviceWithKoreForSimpleUpdate> currentKoreUpdater = getKoreMeterUpdater();
         if (currentKoreUpdater.isPresent()) {
             currentKoreUpdater.get().getModelNumber();
-        }else if (meter.isPresent()) {
+        } else if (meter.isPresent()) {
             return meter.get().getModelNumber();
         }
         return null;
@@ -869,7 +866,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         Optional<SyncDeviceWithKoreForSimpleUpdate> currentKoreUpdater = getKoreMeterUpdater();
         if (currentKoreUpdater.isPresent()) {
             return currentKoreUpdater.get().getModelVersion();
-        }else if (meter.isPresent()) {
+        } else if (meter.isPresent()) {
             return meter.get().getModelVersion();
         }
         return null;
@@ -1468,7 +1465,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             Range<Instant> clipped = Ranges.openClosed(interval.lowerEndpoint(), lastReadingClipped(channel.getLoadProfile(), interval));
 
             Map<Instant, List<LoadProfileJournalReadingImpl>> sortedHistoryLoadProfileReadingMap = sortedLoadProfileReadingMap.entrySet().stream().collect(Collectors.toMap(
-                    instantLoadProfileReadingEntry -> instantLoadProfileReadingEntry.getKey(),
+                    Map.Entry::getKey,
                     instantLoadProfileReadingEntry -> {
                         List<LoadProfileJournalReadingImpl> listOfReadings = new ArrayList<LoadProfileJournalReadingImpl>();
                         LoadProfileJournalReadingImpl loadProfileJournalReadingImpl = new LoadProfileJournalReadingImpl();
@@ -1586,102 +1583,109 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             }
 
             for (IntervalReadingRecord meterReading : meterReadings) {
-                List<ReadingType> channelReadingTypes = getChannelReadingTypes(mdcChannel, meterReading.getTimeStamp());
                 List<LoadProfileJournalReadingImpl> loadProfileReadingList = sortedHistoryLoadProfileReadingMap.get(meterReading.getTimeStamp());
-                LoadProfileJournalReadingImpl loadProfileHistoryReading = null;
-                if (loadProfileReadingList.size() == 1 && loadProfileReadingList.get(0).getReadingTime() == null) {
-                    loadProfileHistoryReading = loadProfileReadingList.get(0);
-                } else {
-                    loadProfileHistoryReading = new LoadProfileJournalReadingImpl();
-                    loadProfileReadingList.add(loadProfileHistoryReading);
-                }
-
-                loadProfileHistoryReading.setRange(loadProfileReadingList.get(0).getRange());
-                loadProfileHistoryReading.setUserName(meterReading.getUserName());
-                loadProfileHistoryReading.setJournalTime(meterReading.getJournalTime());
-                loadProfileHistoryReading.setChannelData(mdcChannel, meterReading);
-                loadProfileHistoryReading.setReadingTime(meterReading.getReportedDateTime());
-                loadProfileHistoryReading.setReadingQualities(mdcChannel, new ArrayList<>());
+                setLoadProfileHistoryReading(loadProfileReadingList, meterReading, mdcChannel);
             }
 
             sortedHistoryLoadProfileReadingMap = sortedHistoryLoadProfileReadingMap.entrySet()
                     .stream()
                     .filter(r -> r.getValue().get(0).getReadingTime() != null)
-                    .collect(Collectors.toMap(p -> p.getKey(), p -> p.getValue()));
-            final List<JournalEntry<? extends ReadingQualityRecord>> finalReadingQualitiesJournal = readingQualitiesJournal;
-            sortedHistoryLoadProfileReadingMap.entrySet().stream()
-                    .forEach(instantListEntry -> {
-                        List<ReadingType> channelReadingTypes = getChannelReadingTypes(mdcChannel, instantListEntry.getKey());
-
-                        List<? extends ReadingQualityRecord> readingQualityList = readingQualities.stream()
-                                .filter(o -> instantListEntry.getKey().equals(o.getReadingTimestamp()))
-                                .filter(o -> channelReadingTypes.contains(o.getReadingType()))
-                                .collect(Collectors.toList());
-                        List<? extends ReadingQualityRecord> readingQualityJournalList = finalReadingQualitiesJournal.stream()
-                                .filter(o -> instantListEntry.getKey().equals(o.get().getReadingTimestamp()))
-                                .filter(o -> channelReadingTypes.contains(o.get().getReadingType()))
-                                .map(o -> o.get()).collect(Collectors.toList());
-
-                        List<ReadingQualityRecord> allReadingQuality = readingQualityList.stream().collect(Collectors.toList());
-                        allReadingQuality.addAll(readingQualityJournalList.stream().collect(Collectors.toList()));
-                        allReadingQuality.stream().forEach(rqj -> {
-
-                            Optional<LoadProfileJournalReadingImpl> journalReadingOptional = Optional.empty();
-                            if ((rqj.getTypeCode().compareTo("2.5.258") == 0) || (rqj.getTypeCode().compareTo("2.5.259") == 0)) {
-                                journalReadingOptional = instantListEntry.getValue()
-                                        .stream()
-                                        .sorted((a, b) -> b.getReadingTime().compareTo(a.getReadingTime()))
-                                        .filter(x -> x.getReadingTime().compareTo(rqj.getTimestamp()) <= 0)
-                                        .findFirst();
-                            } else {
-                                journalReadingOptional = instantListEntry.getValue()
-                                        .stream()
-                                        .sorted((a, b) -> a.getReadingTime().compareTo(b.getReadingTime()))
-                                        .filter(x -> x.getReadingTime().compareTo(rqj.getTimestamp()) >= 0)
-                                        .findFirst();
-                            }
-                            journalReadingOptional.ifPresent(journalReading -> {
-                                Map<Channel, List<? extends ReadingQualityRecord>> readingQualitiesList = journalReading.getReadingQualities();
-                                List<ReadingQualityRecord> original = readingQualitiesList.get(mdcChannel).stream().collect(Collectors.toList());
-                                original.add(rqj);
-                                journalReading.setReadingQualities(mdcChannel, original);
-                            });
-
-                        });
-                    });
-
-            //
+                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+            setJournalReadingQualities(sortedHistoryLoadProfileReadingMap, readingQualitiesJournal, mdcChannel, readingQualities);
             Optional<com.elster.jupiter.metering.Channel> koreChannel = this.getChannel(meterActivation.getChannelsContainer(), readingType);
             if (koreChannel.isPresent()) {
-
-                sortedHistoryLoadProfileReadingMap.forEach((instant, journalReadingList) -> {
-                    journalReadingList.forEach(journalReading -> {
-                        List<ReadingQualityRecord> readingQualitiesList = journalReading.getReadingQualities()
-                                .entrySet().stream()
-                                .map(channelListEntry -> channelListEntry.getValue())
-                                .flatMap(List::stream)
-                                .collect(Collectors.toList());
-                        DataValidationStatus validationStatus = forValidation().getValidationStatus(mdcChannel, instant, readingQualitiesList, meterActivationInterval);
-
-                        journalReading.setDataValidationStatus(mdcChannel, validationStatus);
-                        //code below is the processing of removed readings
-                        validationStatus.getReadingQualities()
-                                .stream()
-                                .filter(rq -> rq.getType().qualityIndex().orElse(null) == QualityCodeIndex.REJECTED)
-                                .findAny()
-                                .map(ReadingQualityRecord.class::cast)
-                                .ifPresent(readingQuality -> journalReading.setReadingTime(readingQuality.getTimestamp()));
-                    });
-                });
+                setJournalReadingValidationStatusAndJournalTime(sortedHistoryLoadProfileReadingMap, mdcChannel, meterActivationInterval);
             }
         }
         return meterHasData;
     }
 
+
+    private void setLoadProfileHistoryReading(List<LoadProfileJournalReadingImpl> loadProfileReadingList, IntervalReadingRecord meterReading, Channel mdcChannel) {
+        LoadProfileJournalReadingImpl loadProfileHistoryReading;
+        if (loadProfileReadingList.size() == 1 && loadProfileReadingList.get(0).getReadingTime() == null) {
+            loadProfileHistoryReading = loadProfileReadingList.get(0);
+        } else {
+            loadProfileHistoryReading = new LoadProfileJournalReadingImpl();
+            loadProfileReadingList.add(loadProfileHistoryReading);
+        }
+
+        loadProfileHistoryReading.setRange(loadProfileReadingList.get(0).getRange());
+        loadProfileHistoryReading.setUserName(meterReading.getUserName());
+        loadProfileHistoryReading.setJournalTime(meterReading.getJournalTime());
+        loadProfileHistoryReading.setChannelData(mdcChannel, meterReading);
+        loadProfileHistoryReading.setReadingTime(meterReading.getReportedDateTime());
+        loadProfileHistoryReading.setReadingQualities(mdcChannel, new ArrayList<>());
+    }
+
+    private void setJournalReadingQualities(Map<Instant, List<LoadProfileJournalReadingImpl>> sortedHistoryLoadProfileReadingMap, List<JournalEntry<? extends ReadingQualityRecord>> readingQualitiesJournal, Channel mdcChannel, List<? extends ReadingQualityRecord> readingQualities) {
+        final List<JournalEntry<? extends ReadingQualityRecord>> finalReadingQualitiesJournal = readingQualitiesJournal;
+        sortedHistoryLoadProfileReadingMap.entrySet().stream()
+                .forEach(instantListEntry -> {
+                    List<ReadingType> channelReadingTypes = getChannelReadingTypes(mdcChannel, instantListEntry.getKey());
+
+                    List<? extends ReadingQualityRecord> readingQualityList = readingQualities.stream()
+                            .filter(o -> instantListEntry.getKey().equals(o.getReadingTimestamp()))
+                            .filter(o -> channelReadingTypes.contains(o.getReadingType()))
+                            .collect(Collectors.toList());
+                    List<? extends ReadingQualityRecord> readingQualityJournalList = finalReadingQualitiesJournal.stream()
+                            .filter(o -> instantListEntry.getKey().equals(o.get().getReadingTimestamp()))
+                            .filter(o -> channelReadingTypes.contains(o.get().getReadingType()))
+                            .map(JournalEntry::get).collect(Collectors.toList());
+
+                    List<ReadingQualityRecord> allReadingQuality = readingQualityList.stream().collect(Collectors.toList());
+                    allReadingQuality.addAll(readingQualityJournalList.stream().collect(Collectors.toList()));
+                    allReadingQuality.stream().forEach(rqj -> {
+
+                        Optional<LoadProfileJournalReadingImpl> journalReadingOptional = Optional.empty();
+                        if ((rqj.getTypeCode().compareTo("2.5.258") == 0) || (rqj.getTypeCode().compareTo("2.5.259") == 0)) {
+                            journalReadingOptional = instantListEntry.getValue()
+                                    .stream()
+                                    .sorted((a, b) -> b.getReadingTime().compareTo(a.getReadingTime()))
+                                    .filter(x -> x.getReadingTime().compareTo(rqj.getTimestamp()) <= 0)
+                                    .findFirst();
+                        } else {
+                            journalReadingOptional = instantListEntry.getValue()
+                                    .stream()
+                                    .sorted((a, b) -> a.getReadingTime().compareTo(b.getReadingTime()))
+                                    .filter(x -> x.getReadingTime().compareTo(rqj.getTimestamp()) >= 0)
+                                    .findFirst();
+                        }
+                        journalReadingOptional.ifPresent(journalReading -> {
+                            Map<Channel, List<? extends ReadingQualityRecord>> readingQualitiesList = journalReading.getReadingQualities();
+                            List<ReadingQualityRecord> original = readingQualitiesList.get(mdcChannel).stream().collect(Collectors.toList());
+                            original.add(rqj);
+                            journalReading.setReadingQualities(mdcChannel, original);
+                        });
+
+                    });
+                });
+    }
+
+    private void setJournalReadingValidationStatusAndJournalTime(Map<Instant, List<LoadProfileJournalReadingImpl>> sortedHistoryLoadProfileReadingMap, Channel mdcChannel, Range<Instant> meterActivationInterval) {
+        sortedHistoryLoadProfileReadingMap.forEach((instant, journalReadingList) -> journalReadingList.forEach(journalReading -> {
+            List<ReadingQualityRecord> readingQualitiesList = journalReading.getReadingQualities()
+                    .entrySet().stream()
+                    .map(Map.Entry::getValue)
+                    .flatMap(List::stream)
+                    .collect(Collectors.toList());
+            DataValidationStatus validationStatus = forValidation().getValidationStatus(mdcChannel, instant, readingQualitiesList, meterActivationInterval);
+
+            journalReading.setDataValidationStatus(mdcChannel, validationStatus);
+            //code below is the processing of removed readings
+            validationStatus.getReadingQualities()
+                    .stream()
+                    .filter(rq -> rq.getType().qualityIndex().orElse(null) == QualityCodeIndex.REJECTED)
+                    .findAny()
+                    .map(ReadingQualityRecord.class::cast)
+                    .ifPresent(readingQuality -> journalReading.setReadingTime(readingQuality.getTimestamp()));
+        }));
+    }
+
     private List<ReadingType> getChannelReadingTypes(Channel channel, Instant instant) {
         ArrayList<ReadingType> readingTypes = new ArrayList<>();
         readingTypes.add(channel.getReadingType());
-        channel.getCalculatedReadingType(instant).ifPresent(calculatedReadingType -> readingTypes.add(calculatedReadingType));
+        channel.getCalculatedReadingType(instant).ifPresent(readingTypes::add);
         return readingTypes;
     }
 
@@ -2908,7 +2912,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                                 .filter(comTaskExecution -> comTaskExecution.getComTask().getId() == comTaskEnablement.getComTask().getId())
                                 .findAny();
                         if (existingComTaskExecution.isPresent()) { //update
-                            if(existingComTaskExecution.get().usesSharedSchedule() && existingComTaskExecution.get().getComSchedule().get().getId() != comSchedule.getId()){
+                            if (existingComTaskExecution.get().usesSharedSchedule() && existingComTaskExecution.get().getComSchedule().get().getId() != comSchedule.getId()) {
                                 throw new CannotSetMultipleComSchedulesWithSameComTask(comSchedule, DeviceImpl.this, thesaurus);
                             }
                             comTaskExecutionsUpdaters.add(existingComTaskExecution.get().getUpdater().addSchedule(comSchedule));
