@@ -20,7 +20,9 @@ import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.ValueCorrection;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
@@ -51,6 +53,7 @@ import java.time.Period;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -399,7 +402,6 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel jsonModel = JsonModel.model((ByteArrayInputStream) response.getEntity());
-        assertThat(jsonModel.<Number>get("$[0].reportedDateTime")).isEqualTo(INTERVAL_3.upperEndpoint().toEpochMilli());
         assertThat(jsonModel.<Number>get("$[0].value")).isEqualTo("327");
     }
 
@@ -644,6 +646,29 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
                 .thenReturn(Arrays.asList(dataValidationStatus_1, dataValidationStatus_2, dataValidationStatus_3, dataValidationStatus_4));
     }
 
+    @Test
+    public void testCorrectValuesOnChannelData() {
+        Instant now = Instant.now();
+        AggregatedChannel channel = mock(AggregatedChannel.class);
+        IntervalReadingRecord readingRecord = mock(IntervalReadingRecord.class);
+        TemporalAmount temporalAmount = mock(TemporalAmount.class);
+        ValueCorrectionInfo valueCorrectionInfo = new ValueCorrectionInfo();
+        valueCorrectionInfo.intervals = Collections.singletonList(com.elster.jupiter.mdm.common.rest.IntervalInfo.from(Range.openClosed(now, now.plusSeconds(60))));
+        valueCorrectionInfo.amount = new BigDecimal(10);
+        valueCorrectionInfo.type = ValueCorrection.MULTIPLY.getType();
+        when(effectiveMC.getAggregatedChannel(any(MetrologyContract.class), any(ReadingType.class))).thenReturn(Optional.of(channel));
+        when(channel.getIntervalReadings(any(Range.class))).thenReturn(Collections.singletonList(readingRecord));
+        when(readingRecord.getValue()).thenReturn(new BigDecimal(10));
+        when(readingRecord.getTimeStamp()).thenReturn(now.plusSeconds(60));
+        when(readingRecord.getReadingType()).thenReturn(regularReadingType);
+        when(regularReadingType.getIntervalLength()).thenReturn(Optional.of(temporalAmount));
+        when(temporalAmount.subtractFrom(any(Instant.class))).thenReturn(now);
+
+        JsonModel model = JsonModel.create(target("/usagepoints/" + USAGE_POINT_NAME + "/purposes/100/outputs/1/channelData/correctValues").request().put(Entity.json(valueCorrectionInfo), String.class));
+
+        assertThat(model.<String>get("$.[0].value")).isEqualTo("100");
+    }
+
     private ValidationRule mockValidationRule(long id, String name) {
         ValidationRule validationRule = mock(ValidationRule.class);
         ValidationRuleSet validationRuleSet = mock(ValidationRuleSet.class);
@@ -673,6 +698,8 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         when(intervalReadingRecord.getTimePeriod()).thenReturn(Optional.of(interval));
         when(intervalReadingRecord.getTimeStamp()).thenReturn(interval.upperEndpoint());
         when(intervalReadingRecord.getValue()).thenReturn(value);
+        when(intervalReadingRecord.getReadingType()).thenReturn(regularReadingType);
+        when(regularReadingType.getIntervalLength()).thenReturn(Optional.empty());
         return intervalReadingRecord;
     }
 
