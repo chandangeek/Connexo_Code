@@ -80,6 +80,8 @@ public class UpgraderV10_3 implements Upgrader {
                         "UPDATE MTR_RT_DELIVERABLE SET MTR_RT_DELIVERABLE.METROLOGY_CONTRACT = " +
                                 "(SELECT METROLOGY_CONTRACT FROM MTR_CONTRACT_TO_DELIVERABLE WHERE MTR_RT_DELIVERABLE.ID = MTR_CONTRACT_TO_DELIVERABLE.DELIVERABLE)");
                 statement.execute("DELETE FROM MTR_CONTRACT_TO_DELIVERABLE");
+                statement.execute("DROP TABLE MTR_CONTRACT_TO_DELIVERABLE");
+                statement.execute("DROP TABLE MTR_CONTRACT_TO_DELIVERABLE_JRNL");
             }
         });
 
