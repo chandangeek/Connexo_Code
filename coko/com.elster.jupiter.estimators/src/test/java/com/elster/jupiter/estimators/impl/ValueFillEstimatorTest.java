@@ -82,6 +82,7 @@ public class ValueFillEstimatorTest {
         doReturn("readingType").when(readingType).getMRID();
         doReturn(channelsContainer).when(channel).getChannelsContainer();
         doReturn(Optional.of(meter)).when(channelsContainer).getMeter();
+        doReturn(Optional.empty()).when(channelsContainer).getUsagePoint();
 
         LoggingContext.getCloseableContext().with("rule", "rule");
     }

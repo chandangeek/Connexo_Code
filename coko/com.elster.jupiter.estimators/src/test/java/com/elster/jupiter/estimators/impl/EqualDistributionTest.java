@@ -135,6 +135,7 @@ public class EqualDistributionTest {
         doReturn(channel).when(estimationBlock).getChannel();
         doReturn(channelsContainer).when(channel).getChannelsContainer();
         doReturn(Optional.empty()).when(channelsContainer).getMeter();
+        doReturn(Optional.empty()).when(channelsContainer).getUsagePoint();
         doReturn(asList(channel, otherChannel)).when(channelsContainer).getChannels();
         doReturn(asList(deltaReadingType, bulkReadingType)).when(channel).getReadingTypes();
         doReturn(singletonList(advanceReadingType)).when(otherChannel).getReadingTypes();
