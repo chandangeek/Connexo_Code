@@ -27,6 +27,7 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.validation.ConstraintViolationException;
 import javax.ws.rs.BeanParam;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -119,7 +120,46 @@ public class SecurityAccessorResource {
         KeyAccessor<SecurityValueWrapper> keyAccessor = deviceService.findAndLockKeyAccessorByIdAndVersion(device, keyAccessorType, securityAccessorInfo.version)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_KEY_ACCESSOR));
         keyAccessor.renew();
-        return Response.status(Response.Status.CREATED).build();
+        return Response.ok(securityAccessorInfoFactory.from(keyAccessor)).build();
+    }
+
+    @DELETE
+    @Transactional
+    @Path("/keys/{id}/temp")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    public Response clearTempValue(@PathParam("name") String deviceName, @PathParam("id") long keyAccessorTypeId, SecurityAccessorInfo securityAccessorInfo) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(deviceName);
+        KeyAccessorType keyAccessorType = findKeyAccessorTypeOrThrowException(keyAccessorTypeId, device);
+        KeyAccessor<SecurityValueWrapper> keyAccessor = deviceService.findAndLockKeyAccessorByIdAndVersion(device, keyAccessorType, securityAccessorInfo.version)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_KEY_ACCESSOR));
+        keyAccessor.clearTempValue();
+        return Response.ok(securityAccessorInfoFactory.from(keyAccessor)).build();
+    }
+
+    @PUT
+    @Transactional
+    @Path("/keys/{id}/swap")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    public Response swapKeyValues(@PathParam("name") String deviceName, @PathParam("id") long keyAccessorTypeId, SecurityAccessorInfo securityAccessorInfo) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(deviceName);
+        KeyAccessorType keyAccessorType = findKeyAccessorTypeOrThrowException(keyAccessorTypeId, device);
+        KeyAccessor<SecurityValueWrapper> keyAccessor = deviceService.findAndLockKeyAccessorByIdAndVersion(device, keyAccessorType, securityAccessorInfo.version)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_KEY_ACCESSOR));
+        keyAccessor.swapValues();
+        return Response.ok(securityAccessorInfoFactory.from(keyAccessor)).build();
+    }
+
+    @PUT
+    @Transactional
+    @Path("/certificates/{id}/swap")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    public Response swapCertificateValues(@PathParam("name") String deviceName, @PathParam("id") long keyAccessorTypeId, SecurityAccessorInfo securityAccessorInfo) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(deviceName);
+        KeyAccessorType keyAccessorType = findKeyAccessorTypeOrThrowException(keyAccessorTypeId, device);
+        KeyAccessor<SecurityValueWrapper> keyAccessor = deviceService.findAndLockKeyAccessorByIdAndVersion(device, keyAccessorType, securityAccessorInfo.version)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_KEY_ACCESSOR));
+        keyAccessor.swapValues();
+        return Response.ok(securityAccessorInfoFactory.from(keyAccessor)).build();
     }
 
     @PUT

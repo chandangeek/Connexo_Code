@@ -453,6 +453,17 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
         verify(symmetrickeyAccessor, times(1)).renew();
     }
 
+    @Test
+    public void testSwapValues() throws Exception {
+        SecurityAccessorInfo securityAccessorInfo = new SecurityAccessorInfo();
+        securityAccessorInfo.version = 11L;
+        securityAccessorInfo.currentProperties = Collections.emptyList();
+        securityAccessorInfo.tempProperties = Collections.emptyList();
+
+        Response response = target("/devices/BVN001/securityaccessors/keys/111/swap").request().put(Entity.json(securityAccessorInfo));
+        verify(symmetrickeyAccessor, times(1)).swapValues();
+    }
+
     private PropertyInfo createPropertyInfo(String key, String value) {
         PropertyInfo propertyInfo = new PropertyInfo();
         propertyInfo.key = key;
