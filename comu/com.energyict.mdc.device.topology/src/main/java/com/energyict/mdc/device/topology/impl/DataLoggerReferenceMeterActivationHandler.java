@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @Component(name = "com.energyict.mdc.device.topology.impl.DataLoggerReferenceMeterActivationHandler", service = TopicHandler.class, immediate = true)
+@SuppressWarnings("unused")
 public class DataLoggerReferenceMeterActivationHandler implements TopicHandler {
 
     private static final String TOPIC = "com/energyict/mdc/device/data/meteractivation/RESTARTED";
