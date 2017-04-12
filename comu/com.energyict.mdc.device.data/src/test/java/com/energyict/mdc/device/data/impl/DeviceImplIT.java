@@ -2478,7 +2478,9 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         Instant startMC2 = freezeClock(2016, 6, 4);
 
         usagePoint.apply(mc0, startMC0);
+        usagePoint.getEffectiveMetrologyConfiguration(startMC0).ifPresent(mc -> mc.close(startMC1.minus(2, ChronoUnit.MINUTES)));
         usagePoint.apply(mc1, startMC1);
+        usagePoint.getEffectiveMetrologyConfiguration(startMC1).ifPresent(mc -> mc.close(startMC2));
         usagePoint.apply(mc2, startMC2);
 
         expectedEx.expect(UnsatisfiedReadingTypeRequirementsOfUsagePointException.class);
@@ -2489,7 +2491,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
                         "'" + mc2.getName() + "' (" + monthlyDeltaAPlus.getName() + ")");
 
         // Business method
-        getReloadedDevice(device).activate(startMC1, usagePoint, defaultMeterRole);
+        getReloadedDevice(device).activate(startMC1.minusMillis(1), usagePoint, defaultMeterRole);
 
         // Asserts
         //exception is thrown

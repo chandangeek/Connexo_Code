@@ -449,6 +449,11 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
     }
 
     @Override
+    public EventService eventService() {
+        return this.eventService;
+    }
+
+    @Override
     public DeviceMessageSpecificationService deviceMessageSpecificationService() {
         return this.deviceMessageSpecificationService;
     }

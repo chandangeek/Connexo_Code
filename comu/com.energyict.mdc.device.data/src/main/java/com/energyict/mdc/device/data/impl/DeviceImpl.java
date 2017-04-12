@@ -1464,8 +1464,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                             channel.getLoadProfile(),
                             interval,
                             meter.get());
-            Range<Instant> clipped = Ranges.openClosed(interval.lowerEndpoint(), lastReadingClipped(channel.getLoadProfile(), interval));
-            meterHasData = this.addChannelDataToMap(clipped, meter.get(), channel, sortedLoadProfileReadingMap);
+            meterHasData = this.addChannelDataToMap(interval, meter.get(), channel, sortedLoadProfileReadingMap);
             if (meterHasData) {
                 loadProfileReadings = new ArrayList<>(sortedLoadProfileReadingMap.values());
             }
