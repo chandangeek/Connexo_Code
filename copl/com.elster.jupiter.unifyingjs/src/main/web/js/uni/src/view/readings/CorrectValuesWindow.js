@@ -128,7 +128,7 @@ Ext.define('Uni.view.readings.CorrectValuesWindow', {
                 {
                     xtype: 'checkbox',
                     fieldLabel: Uni.I18n.translate('correct.window.projectedValues', 'UNI', 'Projected value'),
-                    boxLabel: Uni.I18n.translate('correct.window.projectedValues.markValues', 'UNI', 'Mark values as projected'),
+                    boxLabel: Uni.I18n.translate('correct.window.projectedValues.markValuess', 'UNI', 'Mark value(s) as projected'),
                     itemId: 'projected-checkbox',
                     name: 'projected'
                 },
