@@ -77,6 +77,12 @@ class JoinClausesForExpressionNode implements ServerExpressionNode.Visitor<Void>
     }
 
     @Override
+    public Void visitSyntheticLoadProfile(SyntheticLoadProfilePropertyNode slp) {
+        this.visitTimeSeries(slp.sqlName());
+        return null;
+    }
+
+    @Override
     public Void visitSqlFragment(SqlFragmentNode variable) {
         return null;
     }
