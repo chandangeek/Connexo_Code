@@ -21,8 +21,8 @@ Ext.define('Mdc.view.setup.comtasks.parameters.BasicCheck', {
                 margin: '0 10 0 0'
             },
             items: [
-                {boxLabel: Uni.I18n.translate('general.yes', 'MDC', 'Yes'), inputValue: 'true'},
-                {boxLabel: Uni.I18n.translate('general.no', 'MDC', 'No'), inputValue: 'false', checked: true}
+                {boxLabel: Uni.I18n.translate('general.yes', 'MDC', 'Yes'), inputValue: 'true', checked: true},
+                {boxLabel: Uni.I18n.translate('general.no', 'MDC', 'No'), inputValue: 'false'}
             ]
         },
         {
@@ -36,13 +36,8 @@ Ext.define('Mdc.view.setup.comtasks.parameters.BasicCheck', {
                 margin: '0 10 0 0'
             },
             items: [
-                {boxLabel: Uni.I18n.translate('general.yes', 'MDC', 'Yes'), inputValue: 'true', id: 'radioYes'},
-                {
-                    boxLabel: Uni.I18n.translate('general.no', 'MDC', 'No'),
-                    inputValue: 'false',
-                    checked: true,
-                    id: 'radioNo'
-                }
+                {boxLabel: Uni.I18n.translate('general.yes', 'MDC', 'Yes'), inputValue: 'true', id: 'radioYes', checked: true},
+                {boxLabel: Uni.I18n.translate('general.no', 'MDC', 'No'), inputValue: 'false', id: 'radioNo'}
             ],
             listeners: {
                 change: function () {
@@ -63,7 +58,7 @@ Ext.define('Mdc.view.setup.comtasks.parameters.BasicCheck', {
             fieldLabel: Uni.I18n.translate('comtask.maximum.clock.difference', 'MDC', 'Maximum clock difference'),
             labelWidth: 300,
             width: 500,
-            disabled: true,
+            disabled: false,
             items: [
                 {
                     xtype: 'textfield',

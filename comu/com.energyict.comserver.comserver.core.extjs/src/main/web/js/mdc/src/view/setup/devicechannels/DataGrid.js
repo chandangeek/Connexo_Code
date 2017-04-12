@@ -143,8 +143,12 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                 dataIndex: 'reportedDateTime',
                 flex: 0.5,
                 renderer: function(value){
-                    var date = new Date(value);
-                    return Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}', [Uni.DateTime.formatDateShort(date), Uni.DateTime.formatTimeShort(date)])
+                    if(value) {
+                        var date = new Date(value);
+                        return Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}', [Uni.DateTime.formatDateShort(date), Uni.DateTime.formatTimeShort(date)])
+                    } else {
+                        return '-';
+                    }
                 }
             },
             {
@@ -238,7 +242,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                 : Uni.I18n.translate('general.estimatedOnX', 'MDC', 'Estimated on {0}', formattedDate);
             icon = '<span class="icon-flag5" style="margin-left:10px; position:absolute; color:#33CC33;" data-qtip="'
                 + tooltipText + '"></span>';
-        } else if (validationInfo.isConfirmed && !record.isModified('value')) {
+        } else if ((validationInfo.isConfirmed || validationInfo.confirmedNotSaved) && !record.isModified('value')) {
             icon = '<span class="icon-checkmark" style="margin-left:10px; position:absolute;" data-qtip="'
                 + Uni.I18n.translate('reading.validationResult.confirmed', 'MDC', 'Confirmed') + '"></span>';
         }
