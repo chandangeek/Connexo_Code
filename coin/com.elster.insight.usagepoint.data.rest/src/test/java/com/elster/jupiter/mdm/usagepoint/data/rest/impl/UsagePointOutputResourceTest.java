@@ -7,11 +7,16 @@ package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.estimation.EstimationTask;
+import com.elster.jupiter.mdm.common.rest.IntervalInfo;
 import com.elster.jupiter.mdm.usagepoint.config.rest.FormulaInfo;
 import com.elster.jupiter.mdm.usagepoint.config.rest.ReadingTypeDeliverablesInfo;
+import com.elster.jupiter.metering.AggregatedChannel;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
+import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.ValueCorrection;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
@@ -26,12 +31,15 @@ import com.elster.jupiter.validation.DataValidationTask;
 import com.elster.jupiter.validation.ValidationContextImpl;
 import com.elster.jupiter.validation.ValidationEvaluator;
 
+import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
+import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.temporal.TemporalAmount;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -264,5 +272,28 @@ public class UsagePointOutputResourceTest extends UsagePointDataRestApplicationJ
         assertThat(model.<Integer>get("$.total")).isEqualTo(1);
         assertThat(model.<List>get("$.dataEstimationTasks")).hasSize(1);
         assertThat(model.<Integer>get("$.dataEstimationTasks[0].id")).isEqualTo(32);
+    }
+
+    @Test
+    public void testCorrectValuesOnChannelData() {
+        Instant now = Instant.now();
+        AggregatedChannel channel = mock(AggregatedChannel.class);
+        IntervalReadingRecord readingRecord = mock(IntervalReadingRecord.class);
+        TemporalAmount temporalAmount = mock(TemporalAmount.class);
+        ValueCorrectionInfo valueCorrectionInfo = new ValueCorrectionInfo();
+        valueCorrectionInfo.intervals = Collections.singletonList(IntervalInfo.from(Range.openClosed(now, now.plusSeconds(60))));
+        valueCorrectionInfo.amount = new BigDecimal(10);
+        valueCorrectionInfo.type = ValueCorrection.MULTIPLY.getType();
+        when(effectiveMC.getAggregatedChannel(any(MetrologyContract.class), any(ReadingType.class))).thenReturn(Optional.of(channel));
+        when(channel.getIntervalReadings(any(Range.class))).thenReturn(Collections.singletonList(readingRecord));
+        when(readingRecord.getValue()).thenReturn(new BigDecimal(10));
+        when(readingRecord.getTimeStamp()).thenReturn(now);
+        when(readingRecord.getReadingType()).thenReturn(regularReadingType);
+        when(regularReadingType.getIntervalLength()).thenReturn(Optional.of(temporalAmount));
+        when(temporalAmount.subtractFrom(any(Instant.class))).thenReturn(now);
+
+        JsonModel model = JsonModel.create(target("/usagepoints/" + USAGE_POINT_NAME + "/purposes/100/outputs/1/channelData/correctValues").request().put(Entity.json(valueCorrectionInfo), String.class));
+
+        assertThat(model.<String>get("$.[0].value")).isEqualTo("100");
     }
 }

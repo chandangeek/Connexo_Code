@@ -12,8 +12,11 @@ import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
 
+import com.google.common.collect.Range;
+
 import javax.inject.Inject;
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -108,7 +111,10 @@ public class OutputChannelDataInfoFactory {
     public OutputChannelDataInfo createUpdatedChannelDataInfo(IntervalReadingRecord readingRecord, BigDecimal newValue) {
         OutputChannelDataInfo outputChannelDataInfo = new OutputChannelDataInfo();
         outputChannelDataInfo.reportedDateTime = readingRecord.getReportedDateTime();
-        outputChannelDataInfo.interval = readingRecord.getTimePeriod().map(IntervalInfo::from).orElse(null);
+        readingRecord.getReadingType().getIntervalLength().ifPresent(intervalLength -> {
+            Instant readingTimeStamp = readingRecord.getTimeStamp();
+            outputChannelDataInfo.interval = IntervalInfo.from(Range.openClosed(readingTimeStamp.minus(intervalLength), readingTimeStamp));
+        });
         outputChannelDataInfo.value = newValue;
         return outputChannelDataInfo;
     }

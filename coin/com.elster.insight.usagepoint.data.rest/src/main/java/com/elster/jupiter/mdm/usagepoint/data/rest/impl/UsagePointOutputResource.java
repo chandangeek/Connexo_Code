@@ -81,6 +81,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -786,10 +787,10 @@ public class UsagePointOutputResource {
 
     @PUT
     @Transactional
-    @Path("/{purposeId}/outputs/{outputId}/channelData/correctValue")
+    @Path("/{purposeId}/outputs/{outputId}/channelData/correctValues")
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public List<OutputChannelDataInfo> correctValue(@PathParam("name") String name, @PathParam("purposeId") long contractId, @PathParam("outputId") long outputId,
+    public List<OutputChannelDataInfo> correctValues(@PathParam("name") String name, @PathParam("purposeId") long contractId, @PathParam("outputId") long outputId,
                                                   ValueCorrectionInfo info, @BeanParam JsonQueryParameters queryParameters) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
@@ -797,15 +798,24 @@ public class UsagePointOutputResource {
         ReadingTypeDeliverable readingTypeDeliverable = resourceHelper.findReadingTypeDeliverableOrThrowException(metrologyContract, outputId, name);
         AggregatedChannel channel = effectiveMetrologyConfigurationOnUsagePoint.getAggregatedChannel(metrologyContract, readingTypeDeliverable.getReadingType()).get();
 
-        Range<Instant> intervals = info.intervals.stream()
+        List<OutputChannelDataInfo> result = new ArrayList<>();
+
+        Set<Instant> timestamps = info.intervals.stream()
+                .map(intervalInfo -> Instant.ofEpochMilli(intervalInfo.end))
+                .collect(Collectors.toSet());
+
+        info.intervals.stream()
                 .map(interval -> Range.openClosed(Instant.ofEpochMilli(interval.start), Instant.ofEpochMilli(interval.end)))
                 .reduce(Range::span)
-                .get();
+                .ifPresent(intervals -> {
+                    List<IntervalReadingRecord> intervalReadingRecords = channel.getIntervalReadings(intervals);
+                    result.addAll(intervalReadingRecords.stream()
+                            .filter(record -> timestamps.contains(record.getTimeStamp()))
+                            .map(readingRecord -> createCorrectedChannelDataInfo(ValueCorrection.valueOf(info.type), readingRecord, info.amount))
+                            .collect(Collectors.toList()));
+                });
 
-        List<IntervalReadingRecord> intervalReadingRecords = channel.getIntervalReadings(intervals);
-        return intervalReadingRecords.stream()
-                .map(readingRecord -> createCorrectedChannelDataInfo(ValueCorrection.valueOf(info.type), readingRecord, info.amount))
-                .collect(Collectors.toList());
+        return result;
     }
 
     private boolean isMember(UsagePoint usagePoint, UsagePointGroup usagePointGroup) {
