@@ -14,7 +14,6 @@ import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.rest.DeviceConnectionTaskInfo;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.config.EngineConfigurationService;

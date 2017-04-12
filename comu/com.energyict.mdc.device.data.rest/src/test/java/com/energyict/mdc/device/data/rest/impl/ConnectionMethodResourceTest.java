@@ -36,8 +36,11 @@ import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
-
 import com.jayway.jsonpath.JsonModel;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Matchers;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
@@ -48,11 +51,6 @@ import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Matchers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
