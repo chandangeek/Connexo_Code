@@ -22,7 +22,7 @@ Ext.define('Mdc.usagepointmanagement.view.registersData.event.Grid', {
 
         me.columns = [
             {
-                header: Uni.I18n.translate('general.eventTime', 'MDC', 'Event time'),
+                header: Uni.I18n.translate('general.register.eventDate', 'MDC', 'Event date'),
                 dataIndex: 'eventDate',
                 flex: 1,
                 renderer: function (value) {
@@ -87,7 +87,7 @@ Ext.define('Mdc.usagepointmanagement.view.registersData.event.Grid', {
                 deferLoading: true,
                 params: [
                     {usagePointId: me.usagePointId},
-                    {registerId: me.register.get('id'),}
+                    {registerId: me.register.get('id')}
                 ],
                 dock: 'bottom',
                 itemsPerPageMsg: Uni.I18n.translate('device.registerData.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Readings per page')

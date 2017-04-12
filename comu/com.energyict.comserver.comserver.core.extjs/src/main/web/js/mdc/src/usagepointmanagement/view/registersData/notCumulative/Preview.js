@@ -29,7 +29,7 @@ Ext.define('Mdc.usagepointmanagement.view.registersData.notCumulative.Preview', 
                     items: [
                         {
                             itemId: 'collected-value-field',
-                            fieldLabel: Uni.I18n.translate('deviceloadprofiles.collectedValue', 'MDC', 'Collected value'),
+                            fieldLabel: Uni.I18n.translate('general.collectedValue', 'MDC', 'Collected value'),
                             name: 'collectedValue',
                             renderer: function (value) {
                                 return value ? value + ' ' + unit : '-';

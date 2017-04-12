@@ -32,7 +32,7 @@ Ext.define('Mdc.usagepointmanagement.view.registersData.event.Preview', {
                     items: [
                         {
                             itemId: 'eventDate-field',
-                            fieldLabel: Uni.I18n.translate('deviceloadprofiles.eventTime', 'MDC', 'Event time'),
+                            fieldLabel: Uni.I18n.translate('general.register.eventDate', 'MDC', 'Event date'),
                             name: 'eventDate',
                             renderer: function (value) {
                                 return value ? Uni.DateTime.formatDateTimeLong(new Date(value)) : '-';
@@ -40,7 +40,7 @@ Ext.define('Mdc.usagepointmanagement.view.registersData.event.Preview', {
                         },
                         {
                             itemId: 'collectedValue-field',
-                            fieldLabel: Uni.I18n.translate('device.dataValidation.collectedValue', 'MDC', 'Collected value'),
+                            fieldLabel: Uni.I18n.translate('general.collectedValue', 'MDC', 'Collected value'),
                             name: 'collectedValue',
                             renderer: function (value) {
                                 return value + ' ' + unit;

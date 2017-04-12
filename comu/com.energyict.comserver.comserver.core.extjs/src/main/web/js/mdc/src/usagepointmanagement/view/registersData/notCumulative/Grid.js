@@ -91,7 +91,7 @@ Ext.define('Mdc.usagepointmanagement.view.registersData.notCumulative.Grid', {
                 deferLoading: true,
                 params: [
                     {usagePointId: me.usagePointId},
-                    {registerId: me.register.get('id'),}
+                    {registerId: me.register.get('id')}
                 ],
                 dock: 'bottom',
                 itemsPerPageMsg: Uni.I18n.translate('device.registerData.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Readings per page')
