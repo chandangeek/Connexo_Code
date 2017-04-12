@@ -110,4 +110,11 @@ public interface KeyAccessor<T extends SecurityValueWrapper> {
      * @return Time of latest modification
      */
     Instant getModTime();
+
+    /**
+     * Status indicates if this KeyAccessor is ready for use or not. A KeyAccessor is considered complete/ready for use
+     * if it has an actual value and all properties of this actual value have been filled id
+     * @return Complete if ready for use, Incomplete otherwise.
+     */
+    KeyAccessorStatus getStatus();
 }

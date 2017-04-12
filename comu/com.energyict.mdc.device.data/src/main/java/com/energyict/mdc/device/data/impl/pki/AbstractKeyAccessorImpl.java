@@ -11,6 +11,7 @@ import com.elster.jupiter.pki.SecurityValueWrapper;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.KeyAccessor;
+import com.energyict.mdc.device.data.KeyAccessorStatus;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -107,5 +108,13 @@ public abstract class AbstractKeyAccessorImpl<T extends SecurityValueWrapper> im
     @Override
     public Instant getModTime() {
         return modTime;
+    }
+
+    @Override
+    public KeyAccessorStatus getStatus() {
+        if (getActualValue().getProperties().containsValue(null) || getActualValue().getProperties().size()!=getPropertySpecs().size()) {
+            return KeyAccessorStatus.INCOMPLETE;
+        }
+        return KeyAccessorStatus.COMPLETE;
     }
 }
