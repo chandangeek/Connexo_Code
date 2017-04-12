@@ -99,6 +99,30 @@ public class SecurityAccessorResource {
 
     @GET
     @Transactional
+    @Path("/keys/{id}")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    public Response getKey(@PathParam("name") String name, @PathParam("id") long keyAccessorTypeId) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
+        KeyAccessorType keyAccessorType = findKeyAccessorTypeOrThrowException(keyAccessorTypeId, device);
+        KeyAccessor keyAccessor = device.getKeyAccessor(keyAccessorType)
+                .orElseGet(() -> keyAccessorPlaceHolderProvider.get().init(keyAccessorType, device));
+        return Response.ok(securityAccessorInfoFactory.from(keyAccessor)).build();
+    }
+
+    @GET
+    @Transactional
+    @Path("/certificates/{id}")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    public Response getCertificate(@PathParam("name") String name, @PathParam("id") long keyAccessorTypeId) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
+        KeyAccessorType keyAccessorType = findKeyAccessorTypeOrThrowException(keyAccessorTypeId, device);
+        KeyAccessor keyAccessor = device.getKeyAccessor(keyAccessorType)
+                .orElseGet(() -> keyAccessorPlaceHolderProvider.get().init(keyAccessorType, device));
+        return Response.ok(securityAccessorInfoFactory.from(keyAccessor)).build();
+    }
+
+    @GET
+    @Transactional
     @Path("/certificates")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
 //    @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA,
