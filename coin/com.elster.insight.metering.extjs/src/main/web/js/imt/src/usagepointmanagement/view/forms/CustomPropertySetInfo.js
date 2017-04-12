@@ -41,6 +41,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.CustomPropertySetInfo', {
         ];
 
         me.callParent(arguments);
+
         if (me.predefinedRecord) {
             me.loadRecord(me.predefinedRecord);
         }
