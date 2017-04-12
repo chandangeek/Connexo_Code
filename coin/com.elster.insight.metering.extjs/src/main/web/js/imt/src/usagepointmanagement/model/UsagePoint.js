@@ -15,7 +15,9 @@ Ext.define('Imt.usagepointmanagement.model.UsagePoint', {
         {name: 'serviceCategory', type: 'string'},
         {name: 'name', type: 'string'},
         {name: 'installationTime', type: 'int', defaultValue: null, useNull: true},
+        {name: 'createTime', type: 'int', defaultValue: null, useNull: true},
         {name: 'lastTransitionTime', type: 'int', defaultValue: null, useNull: true},
+        {name: 'isReadyForLinkingMC', type: 'boolean', defaultValue: true},
         {name: 'state', persist: false},
         {
             name: 'extendedGeoCoordinates',
@@ -46,6 +48,8 @@ Ext.define('Imt.usagepointmanagement.model.UsagePoint', {
         {name: 'serviceDeliveryRemark', type: 'string'},
         {name: 'techInfo', type: 'auto', defaultValue: {}},
         {name: 'metrologyConfiguration', type: 'auto', defaultValue: null},
+        {name: 'effectiveMetrologyConfiguration', type: 'auto', defaultValue: null},
+        {name: 'hasEffectiveMCs', type: 'boolean', defaultValue: false},
         {name: 'meterActivations', type: 'auto', defaultValue: null},
         {name: 'lifeCycle', type: 'auto', persist: false},
         {

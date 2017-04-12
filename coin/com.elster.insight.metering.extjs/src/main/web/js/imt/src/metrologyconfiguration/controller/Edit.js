@@ -15,7 +15,8 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
         'Imt.metrologyconfiguration.model.LinkableMetrologyConfiguration'
     ],
     stores: [
-             'Imt.metrologyconfiguration.store.LinkableMetrologyConfigurations'
+        'Imt.metrologyconfiguration.store.LinkableMetrologyConfigurations',
+        'Imt.metrologyconfiguration.store.CustomAttributeSetsValue'
     ],
     refs: [
         {ref: 'metrologyConfigurationEditPage', selector: 'metrologyConfigurationEdit'},
@@ -222,14 +223,15 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
             router = me.getController('Uni.controller.history.Router'),
             usagePointModel = me.getModel('Imt.usagepointmanagement.model.UsagePoint'),
             configurationModel = me.getModel('Imt.metrologyconfiguration.model.LinkableMetrologyConfiguration'),
-            store = me.getStore('Imt.metrologyconfiguration.store.LinkableMetrologyConfigurations');
+            store = me.getStore('Imt.metrologyconfiguration.store.LinkableMetrologyConfigurations'),
+            customAttributeSetsValueStore = me.getStore('Imt.metrologyconfiguration.store.CustomAttributeSetsValue');
 
         mainView.setLoading();
-
         usagePointModel.load(usagePointId, {
             success: function (record) {
                 me.getApplication().fireEvent('usagePointLoaded', record);
                 store.getProxy().setExtraParam('usagePointId', usagePointId);
+                customAttributeSetsValueStore.getProxy().setExtraParam('upId', usagePointId);
                 me.returnLink = router.queryParams.fromLandingPage ? router.getRoute('usagepoints/view').buildUrl() : router.getRoute('usagepoints/view/metrologyconfiguration').buildUrl();
                 configurationModel.getProxy().setExtraParam('usagePointId', usagePointId);
                 me.getStore('Imt.metrologyconfiguration.store.LinkableMetrologyConfigurations').load(function (records) {
@@ -238,7 +240,8 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
                         itemId: 'define-metrology-configuration',
                         returnLink: me.returnLink,
                         isPossibleAdd: isPossibleAdd,
-                        upVersion: record.get('version')
+                        upVersion: record.get('version'),
+                        createTime: record.get('createTime')
                     }));
                     me.getWizard().loadRecord(Ext.create('Imt.metrologyconfiguration.model.LinkableMetrologyConfiguration'));
                     mainView.setLoading(false);
@@ -253,10 +256,20 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
             wizard = me.getWizard(),
             wizardLayout = wizard.getLayout(),
             stepView = wizardLayout.getActiveItem(),
+            buttonValue = wizard.down('#custom-attributes-radiogroup').getValue(),
+            clearRecords = wizard.down('#metrology-configuration-combo'),
+            customAttributeSetsValueStore = me.getStore('Imt.metrologyconfiguration.store.CustomAttributeSetsValue'),
+            injectRecord = customAttributeSetsValueStore.getRange(),
+            metrologyConfigurationId = clearRecords.getValue(),
+            currentSteps = wizard.query('[isWizardStep=true]'),
             currentStep = stepView.navigationIndex,
             validationParams = {validate: true},
+            stepsToAdd = [],
+            stepNumber = 1,
             direction,
             nextStep,
+            records,
+            name,
             changeStep = function () {
                 Ext.suspendLayouts();
                 me.prepareNextStep(nextStep);
@@ -268,6 +281,35 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
         if (button.action === 'step-next') {
             direction = 1;
             nextStep = currentStep + direction;
+            Ext.suspendLayouts();
+            if (currentStep === 1) {
+                // remove all steps except first
+                for (var i = 1; i < currentSteps.length; i++) {
+                    wizard.remove(currentSteps[i], true);
+                }
+                wizard.getRecord().customPropertySets().removeAll();
+                clearRecords = clearRecords.findRecordByValue(metrologyConfigurationId);
+
+                records = !buttonValue.customAttributes ? injectRecord[0] : clearRecords;
+                records.customPropertySets().each(function (record) {
+                    name = record.get('name');
+
+                    stepNumber++;
+                    stepsToAdd.push({
+                        xtype: 'cps-info-form',
+                        title: Uni.I18n.translate('metrologyConfiguration.wizard.cpsStepTitle', 'IMT', 'Step {0}: {1}', [stepNumber, name]),
+                        navigationIndex: stepNumber,
+                        itemId: 'define-metrology-configuration-step' + stepNumber,
+                        ui: 'large',
+                        isWizardStep: true,
+                        predefinedRecord: record
+                    });
+
+                    wizard.add(stepsToAdd);
+                    wizard.updateRecord(clearRecords);
+                });
+            }
+            Ext.resumeLayouts(true);
         } else {
             direction = -1;
             if (button.action === 'step-back') {
@@ -299,7 +341,6 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
             wizard = me.getWizard(),
             record,
             modelProxy;
-
         wizard.clearInvalid();
         wizard.updateRecord();
         wizard.setLoading();
@@ -307,6 +348,7 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
         modelProxy = record.getProxy();
         record.phantom = false;       // force 'PUT' method for request otherwise 'POST' will be performed
         modelProxy.appendId = false; // remove 'id' part from request url
+
         record.save(Ext.merge({
                 callback: function () {
                     wizard.setLoading(false);
@@ -319,7 +361,9 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
                         wizard.markInvalid(me.mapErrors(errors.errors));
                     }
                 }
-            }, Ext.merge(options, {
+            },
+            Ext.merge(options, {
+
                 params: {
                     upVersion: wizard.upVersion
                 },
@@ -356,41 +400,26 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
             wizard = me.getWizard(),
             stepNumber = 1,
             buttons = wizard.getDockedComponent('define-metrology-configuration-wizard-buttons'),
+            customAttributeSetsValueStore = me.getStore('Imt.metrologyconfiguration.store.CustomAttributeSetsValue'),
             nextBtn = buttons.down('[action=step-next]'),
             addBtn = buttons.down('[action=add]'),
+            radioBtn = wizard.down('#custom-attributes-radiogroup'),
             navigation = me.getNavigationMenu(),
-            currentSteps = wizard.query('[isWizardStep=true]'),
             currentMenuItems = navigation.query('menuitem'),
-            stepsToAdd = [],
             navigationItemsToAdd = [];
 
         Ext.suspendLayouts();
-        // remove all steps except first
-        for (var i = 1; i < currentSteps.length; i++) {
-            wizard.remove(currentSteps[i], true);
-        }
+
         // remove all menu items except first
         for (var j = 1; j < currentMenuItems.length; j++) {
             navigation.remove(currentMenuItems[j], true);
         }
-        wizard.getRecord().customPropertySets().removeAll();
-        if (configuration) {
-            configuration.customPropertySets().each(function (record) {
-                stepNumber++;
-                stepsToAdd.push({
-                    xtype: 'cps-info-form',
-                    title: Uni.I18n.translate('metrologyConfiguration.wizard.cpsStepTitle', 'IMT', 'Step {0}: {1}', [stepNumber, record.get('name')]),
-                    navigationIndex: stepNumber,
-                    itemId: 'define-metrology-configuration-step' + stepNumber,
-                    ui: 'large',
-                    isWizardStep: true,
-                    predefinedRecord: record
-                });
-                navigationItemsToAdd.push({
-                    text: record.get('name')
-                });
+
+        configuration.customPropertySets().each(function (record) {
+            navigationItemsToAdd.push({
+                text: record.get('name')
             });
-        }
+        });
 
         if (navigationItemsToAdd.length) {
             addBtn.hide();
@@ -401,15 +430,22 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
         }
 
         navigation.add(navigationItemsToAdd);
-        wizard.add(stepsToAdd);
-        wizard.updateRecord(configuration);
         Ext.resumeLayouts(true);
-
+        customAttributeSetsValueStore.getProxy().setExtraParam('id', newValue);
         wizard.setLoading();
         me.getModel('Imt.metrologyconfiguration.model.MetrologyConfiguration').load(newValue, {
             success: function (record) {
                 if (wizard.rendered) {
-                    wizard.down('#purposes-field').setStore(record.metrologyContracts())
+                    wizard.down('#purposes-field').setStore(record.metrologyContracts());
+                    wizard.down('#metrology-configuration-start-date').show();
+                    customAttributeSetsValueStore.load(function (item) {
+                        if (item[0].customPropertySets().getCount()) {
+                            radioBtn.show();
+                        } else {
+                            radioBtn.hide();
+                            radioBtn.reset();
+                        }
+                    });
                 }
             },
             callback: function () {
@@ -420,9 +456,12 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
 
     linkUsagePointToMetrologyConfiguration: function () {
         var me = this,
-            router = me.getController('Uni.controller.history.Router');
+            wizard = me.getWizard(),
+            router = me.getController('Uni.controller.history.Router'),
+            buttonValue = wizard.down('#custom-attributes-radiogroup').getValue();
 
         me.doRequest({
+            params: buttonValue.customAttributes ? {createNew: true} : null,
             success: function (record) {
                 router.getRoute('usagepoints/view/metrologyconfiguration').forward();
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('metrologyConfiguration.wizard.successMsg', 'IMT', "Metrology configuration defined"));
