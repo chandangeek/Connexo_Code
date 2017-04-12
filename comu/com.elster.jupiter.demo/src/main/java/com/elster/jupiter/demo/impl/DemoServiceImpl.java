@@ -58,6 +58,8 @@ import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.validation.ValidationService;
@@ -177,6 +179,8 @@ public class DemoServiceImpl {
     private volatile com.elster.jupiter.tasks.TaskService platformTaskService;
     private volatile DataQualityKpiService dataQualityKpiService;
     private volatile CommandRuleService commandRuleService;
+    private volatile UsagePointLifeCycleService usagePointLifeCycleService;
+    private volatile UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService;
 
     private volatile TopologyService topologyService;
 
@@ -231,7 +235,9 @@ public class DemoServiceImpl {
             com.elster.jupiter.tasks.TaskService platformTaskService,
             CommandRuleService commandRuleService,
             DataQualityKpiService dataQualityKpiService,
-            TopologyService topologyService) {
+            TopologyService topologyService,
+            UsagePointLifeCycleService usagePointLifeCycleService,
+            UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
         this();
         setEngineConfigurationService(engineConfigurationService);
         setUserService(userService);
@@ -278,6 +284,8 @@ public class DemoServiceImpl {
         setTopologyService(topologyService);
         setCommandRuleService(commandRuleService);
         setDataQualityKpiService(dataQualityKpiService);
+        setUsagePointLifeCycleService(usagePointLifeCycleService);
+        setUsagePointLifeCycleConfigurationService(usagePointLifeCycleConfigurationService);
         activate();
         reThrowEx = true;
     }
@@ -335,6 +343,8 @@ public class DemoServiceImpl {
                 bind(TopologyService.class).toInstance(topologyService);
                 bind(CommandRuleService.class).toInstance(commandRuleService);
                 bind(DataQualityKpiService.class).toInstance(dataQualityKpiService);
+                bind(UsagePointLifeCycleService.class).toInstance(usagePointLifeCycleService);
+                bind(UsagePointLifeCycleConfigurationService.class).toInstance(usagePointLifeCycleConfigurationService);
             }
         });
         Builders.initWith(this.injector);
@@ -602,6 +612,16 @@ public class DemoServiceImpl {
     @Reference
     public void setCommandRuleService(CommandRuleService commandRuleService) {
         this.commandRuleService = commandRuleService;
+    }
+
+    @Reference
+    public void setUsagePointLifeCycleService(UsagePointLifeCycleService usagePointLifeCycleService) {
+        this.usagePointLifeCycleService = usagePointLifeCycleService;
+    }
+
+    @Reference
+    public void setUsagePointLifeCycleConfigurationService(UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
+        this.usagePointLifeCycleConfigurationService = usagePointLifeCycleConfigurationService;
     }
 
     private void executeTransaction(Runnable toRunInsideTransaction) {

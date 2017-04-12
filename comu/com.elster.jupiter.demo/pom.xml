@@ -380,5 +380,13 @@
             <groupId>com.energyict</groupId>
             <artifactId>mdc.device.alarms</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>usagepoint.lifecycle</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>usagepoint.lifecycle.config</artifactId>
+        </dependency>
     </dependencies>
 </project>
