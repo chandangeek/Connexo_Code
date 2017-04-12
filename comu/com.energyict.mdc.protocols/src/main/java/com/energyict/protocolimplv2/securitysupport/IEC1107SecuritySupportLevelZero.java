@@ -12,28 +12,27 @@ import javax.inject.Inject;
 import java.util.Optional;
 
 /**
- * Provides general security <b>capabilities</b> for the DLMSLNSL7000 protocol.
+ * Provides general security <b>capabilities</b> for an IEC1107 protocol.
  * <p>
  *
- * Date: 10/01/13
- * Time: 16:39
+ * Date: 21/01/13
+ * Time: 11:10
  */
-public class DLMSLNSL7000SecuritySupport extends AbstractSecuritySupportAdapter implements DeviceProtocolSecurityCapabilities, LegacySecurityPropertyConverter {
+public class IEC1107SecuritySupportLevelZero extends AbstractSecuritySupportAdapter implements DeviceProtocolSecurityCapabilities, LegacySecurityPropertyConverter {
 
-    // For unit testing purposes
     @Inject
-    public DLMSLNSL7000SecuritySupport(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+    public IEC1107SecuritySupportLevelZero(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         super(propertySpecService, thesaurus);
     }
 
     @Override
     public Optional<CustomPropertySet<Device, ? extends PersistentDomainExtension<Device>>> getCustomPropertySet() {
-        return Optional.of(new DlmsSecurityCustomPropertySet(this.thesaurus, this.propertySpecService));
+        return Optional.of(new IEC1107CustomPropertySet(this.thesaurus, this.propertySpecService));
     }
 
     protected com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities getSecuritySupport() {
         if (securitySupport == null) {
-            securitySupport = new com.energyict.protocolimplv2.security.DLMSLNSL7000SecuritySupport(propertySpecService);
+            securitySupport = new com.energyict.protocolimplv2.security.IEC1107SecuritySupportLevelZero(propertySpecService);
         }
         return securitySupport;
     }
