@@ -164,7 +164,7 @@ public class FileImportScheduleResource {
         AppServer appServer = findAppServerWithImportSchedule(importSchedule);
 
         String importFolder = String.valueOf(appServer.getImportDirectory().get().toAbsolutePath()
-                .resolve(importSchedule.getImportDirectory()));
+                .resolve(importSchedule.getImportDirectory())).replace('\\','/');
         String fileName = contentDispositionHeader.getFileName();
 
         if (fileName == null || fileName.isEmpty()) {
