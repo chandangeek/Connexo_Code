@@ -5,6 +5,7 @@
 package com.elster.jupiter.servicecall.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.cps.AbstractPersistentDomainExtension;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
@@ -59,7 +60,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
-import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.time.Never;
@@ -118,8 +119,6 @@ public class ServiceCallServiceImplIT {
     public TestRule expectedRule = new ExpectedExceptionRule();
 
     @Mock
-    private UserService userService;
-    @Mock
     private BundleContext bundleContext;
     @Mock
     private EventAdmin eventAdmin;
@@ -148,7 +147,6 @@ public class ServiceCallServiceImplIT {
 
         @Override
         protected void configure() {
-            bind(UserService.class).toInstance(userService);
             bind(BundleContext.class).toInstance(bundleContext);
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(MessageInterpolator.class).toInstance(messageInterpolator);
@@ -170,6 +168,7 @@ public class ServiceCallServiceImplIT {
                     new MockModule(),
                     inMemoryBootstrapModule,
                     new InMemoryMessagingModule(),
+                    new UserModule(),
                     new EventsModule(),
                     new DomainUtilModule(),
                     new OrmModule(),
@@ -179,6 +178,7 @@ public class ServiceCallServiceImplIT {
                     new TransactionModule(),
                     new NlsModule(),
                     new DataVaultModule(),
+                    new BpmModule(),
                     new FiniteStateMachineModule(),
                     new CustomPropertySetsModule(),
                     new TimeModule(),
