@@ -907,6 +907,68 @@ Ext.define('Mdc.controller.history.Setup', {
                                         return this;
                                     }
                                 },
+                                validation: {
+                                    title: Uni.I18n.translate('general.validationConfiguration', 'MDC', 'Validation configuration'),
+                                    route: '{channelId}/validation',
+                                    controller: 'Mdc.controller.setup.DeviceChannelData',
+                                    privileges: Mdc.privileges.Device.viewDeviceCommunication,
+                                    action: 'showValidationConfiguration',
+                                    callback: function (route) {
+                                        this.getApplication().on('channelOfLoadProfileOfDeviceLoad', function (record) {
+                                            route.setTitle(record.get('readingType').fullAliasName);
+                                            return true;
+                                        }, {single: true});
+                                        return this;
+                                    },
+                                    items: {
+                                        editrule: {
+                                            title: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
+                                            route: '{ruleId}/editRule',
+                                            controller: 'Mdc.controller.setup.DeviceChannelData',
+                                            privileges: Mdc.privileges.Device.viewDeviceCommunication,
+                                            action: 'showEditValidationRuleWithAttributes',
+                                            callback: function (route) {
+                                                this.getApplication().on('rule-with-attributes-loaded', function (rule) {
+                                                    if (rule) {
+                                                        route.setTitle(Ext.String.format("{0} '{1}'", Uni.I18n.translate('general.editAttributesFor', 'MDC', 'Edit attributes for'), rule.get('name')));
+                                                    }
+                                                    return true;
+                                                }, {single: true});
+                                            }
+                                        }
+                                    }
+                                },
+                                estimation: {
+                                    title: Uni.I18n.translate('general.estimationConfiguration', 'MDC', 'Estimation configuration'),
+                                    route: '{channelId}/estimation',
+                                    controller: 'Mdc.controller.setup.DeviceChannelData',
+                                    privileges: Mdc.privileges.Device.viewDeviceCommunication,
+                                    action: 'showEstimationConfiguration',
+                                    callback: function (route) {
+                                        this.getApplication().on('channelOfLoadProfileOfDeviceLoad', function (record) {
+                                            route.setTitle(record.get('readingType').fullAliasName);
+                                            return true;
+                                        }, {single: true});
+                                        return this;
+                                    },
+                                    items: {
+                                        editrule: {
+                                            title: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
+                                            route: '{ruleId}/editRule',
+                                            controller: 'Mdc.controller.setup.DeviceChannelData',
+                                            privileges: Mdc.privileges.Device.viewDeviceCommunication,
+                                            action: 'showEditEstimationRuleWithAttributes',
+                                            callback: function (route) {
+                                                this.getApplication().on('rule-with-attributes-loaded', function (rule) {
+                                                    if (rule) {
+                                                        route.setTitle(Ext.String.format("{0} '{1}'", Uni.I18n.translate('general.editAttributesFor', 'MDC', 'Edit attributes for'), rule.get('name')));
+                                                    }
+                                                    return true;
+                                                }, {single: true});
+                                            }
+                                        }
+                                    }
+                                },
                                 channelvalidationblocks: {
                                     title: Uni.I18n.translate('routing.channelData', 'MDC', 'Channel data'),
                                     route: '{channelId}/validationblocks/{issueId}',
