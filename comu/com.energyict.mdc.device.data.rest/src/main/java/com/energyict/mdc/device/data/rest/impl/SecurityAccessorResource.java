@@ -28,6 +28,7 @@ import javax.inject.Provider;
 import javax.validation.ConstraintViolationException;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -108,6 +109,19 @@ public class SecurityAccessorResource {
         return PagedInfoList.fromCompleteList("certificates", collect, queryParameters);
     }
 
+    @POST
+    @Transactional
+    @Path("/keys/{id}/temp")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    public Response generateTempValue(@PathParam("name") String deviceName, @PathParam("id") long keyAccessorTypeId, SecurityAccessorInfo securityAccessorInfo) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(deviceName);
+        KeyAccessorType keyAccessorType = findKeyAccessorTypeOrThrowException(keyAccessorTypeId, device);
+        KeyAccessor<SecurityValueWrapper> keyAccessor = deviceService.findAndLockKeyAccessorByIdAndVersion(device, keyAccessorType, securityAccessorInfo.version)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_KEY_ACCESSOR));
+        keyAccessor.renew();
+        return Response.status(Response.Status.CREATED).build();
+    }
+
     @PUT
     @Transactional
     @Path("/keys/{id}")
@@ -117,12 +131,7 @@ public class SecurityAccessorResource {
 //            com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_1, com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_2,com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_3,com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_4,})
     public Response updateOrCreateKeyAccessor(@PathParam("name") String deviceName, @PathParam("id") long keyAccessorTypeId, SecurityAccessorInfo securityAccessorInfo) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(deviceName);
-        KeyAccessorType keyAccessorType = device.getDeviceType()
-                .getKeyAccessorTypes()
-                .stream()
-                .filter(kat -> kat.getId() == keyAccessorTypeId)
-                .findAny()
-                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_KEY_ACCESSOR_TYPE));
+        KeyAccessorType keyAccessorType = findKeyAccessorTypeOrThrowException(keyAccessorTypeId, device);
 
         Optional<KeyAccessor> keyAccessor = device.getKeyAccessor(keyAccessorType);
 
@@ -161,12 +170,7 @@ public class SecurityAccessorResource {
 //            com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_1, com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_2,com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_3,com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_4,})
     public Response updateOrCreateCertificateAccessor(@PathParam("name") String deviceName, @PathParam("id") long keyAccessorTypeId, SecurityAccessorInfo securityAccessorInfo) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(deviceName);
-        KeyAccessorType keyAccessorType = device.getDeviceType()
-                .getKeyAccessorTypes()
-                .stream()
-                .filter(kat -> kat.getId() == keyAccessorTypeId)
-                .findAny()
-                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_KEY_ACCESSOR_TYPE));
+        KeyAccessorType keyAccessorType = findKeyAccessorTypeOrThrowException(keyAccessorTypeId, device);
 
         Optional<KeyAccessor> keyAccessor = device.getKeyAccessor(keyAccessorType);
 
@@ -207,6 +211,15 @@ public class SecurityAccessorResource {
         KeyAccessor result = keyAccessor.map(ka -> updateKeyAccessor(device, ka, securityAccessorInfo, certificateReferenceGetter, actualValueUpdater, tempValueUpdater))
                 .orElseGet(() -> createKeyAccessor(device, keyAccessorType, securityAccessorInfo, certificateReferenceGetter));
         return Response.ok().entity(securityAccessorInfoFactory.from(result)).build();
+    }
+
+    private KeyAccessorType findKeyAccessorTypeOrThrowException(@PathParam("id") long keyAccessorTypeId, Device device) {
+        return device.getDeviceType()
+                .getKeyAccessorTypes()
+                .stream()
+                .filter(kat -> kat.getId() == keyAccessorTypeId)
+                .findAny()
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_KEY_ACCESSOR_TYPE));
     }
 
     private KeyAccessor<SecurityValueWrapper> createKeyAccessor(Device device, KeyAccessorType keyAccessorType,

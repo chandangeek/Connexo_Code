@@ -442,6 +442,17 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
         verify(symmetrickeyAccessor, times(1)).clearTempValue();
     }
 
+    @Test
+    public void testGenerateTempValue() throws Exception {
+        SecurityAccessorInfo securityAccessorInfo = new SecurityAccessorInfo();
+        securityAccessorInfo.version = 11L;
+        securityAccessorInfo.currentProperties = Collections.emptyList();
+        securityAccessorInfo.tempProperties = Collections.emptyList();
+
+        Response response = target("/devices/BVN001/securityaccessors/keys/111/temp").request().post(Entity.json(securityAccessorInfo));
+        verify(symmetrickeyAccessor, times(1)).renew();
+    }
+
     private PropertyInfo createPropertyInfo(String key, String value) {
         PropertyInfo propertyInfo = new PropertyInfo();
         propertyInfo.key = key;
