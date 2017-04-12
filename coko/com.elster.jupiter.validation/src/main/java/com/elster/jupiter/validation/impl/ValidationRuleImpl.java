@@ -346,10 +346,13 @@ public final class ValidationRuleImpl implements IValidationRule {
 
     @Override
     public void save() {
-        getValidator().validateProperties(getProps());
         if (getId() == 0) {
+            Save.CREATE.validate(dataModel, this);
+            getValidator().validateProperties(getProps());
             doPersist();
         } else {
+            Save.UPDATE.validate(dataModel, this);
+            getValidator().validateProperties(getProps());
             doUpdate();
         }
     }
