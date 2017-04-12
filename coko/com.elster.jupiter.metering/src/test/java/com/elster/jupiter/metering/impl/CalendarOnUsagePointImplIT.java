@@ -5,6 +5,7 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.calendar.Category;
@@ -114,6 +115,7 @@ public class CalendarOnUsagePointImplIT {
                     new ThreadSecurityModule(),
                     new PubSubModule(),
                     new TransactionModule(),
+                    new BpmModule(),
                     new CustomPropertySetsModule(),
                     new FiniteStateMachineModule(),
                     new NlsModule(),
