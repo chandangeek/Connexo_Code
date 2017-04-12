@@ -18,6 +18,7 @@ import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.PathPrependingConstraintViolationException;
 import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.KeyAccessor;
 import com.energyict.mdc.device.data.rest.SecurityAccessorInfoFactory;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
@@ -63,6 +64,7 @@ public class SecurityAccessorResource {
     private final Provider<KeyAccessorPlaceHolder> keyAccessorPlaceHolderProvider;
     private final ExceptionFactory exceptionFactory;
     private final MdcPropertyUtils mdcPropertyUtils;
+    private final DeviceService deviceService;
 
     @Inject
     public SecurityAccessorResource(ResourceHelper resourceHelper,
@@ -70,13 +72,14 @@ public class SecurityAccessorResource {
                                     PkiService pkiService,
                                     Provider<KeyAccessorPlaceHolder> keyAccessorPlaceHolderProvider,
                                     ExceptionFactory exceptionFactory,
-                                    MdcPropertyUtils mdcPropertyUtils) {
+                                    MdcPropertyUtils mdcPropertyUtils, DeviceService deviceService) {
         this.securityAccessorInfoFactory = securityAccessorInfoFactory;
         this.resourceHelper = resourceHelper;
         this.pkiService = pkiService;
         this.keyAccessorPlaceHolderProvider = keyAccessorPlaceHolderProvider;
         this.exceptionFactory = exceptionFactory;
         this.mdcPropertyUtils = mdcPropertyUtils;
+        this.deviceService = deviceService;
     }
 
     @GET
@@ -254,11 +257,13 @@ public class SecurityAccessorResource {
                                                                 BiFunction<KeyAccessor<SecurityValueWrapper>, Map<String, Object>, SecurityValueWrapper> valueCreator,
                                                                 BiFunction<KeyAccessor<SecurityValueWrapper>, Map<String, Object>, SecurityValueWrapper> actualValueUpdater,
                                                                 BiFunction<KeyAccessor<SecurityValueWrapper>, Map<String, Object>, SecurityValueWrapper> tempValueUpdater) {
-        List<PropertySpec> propertySpecs = keyAccessor.getPropertySpecs();
-        updateTempValueOnKeyAccessor(keyAccessor, securityAccessorInfo, valueCreator, tempValueUpdater, propertySpecs);
-        Optional<KeyAccessor<SecurityValueWrapper>> result = updateActualValueOnKeyAccessor(keyAccessor, securityAccessorInfo, propertySpecs, actualValueUpdater);
+        KeyAccessor<SecurityValueWrapper> lockedKeyAccessor = deviceService.findAndLockKeyAccessorByIdAndVersion(device, keyAccessor.getKeyAccessorType(), securityAccessorInfo.version)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_KEY_ACCESSOR));
+        List<PropertySpec> propertySpecs = lockedKeyAccessor.getPropertySpecs();
+        updateTempValueOnKeyAccessor(lockedKeyAccessor, securityAccessorInfo, valueCreator, tempValueUpdater, propertySpecs);
+        Optional<KeyAccessor<SecurityValueWrapper>> result = updateActualValueOnKeyAccessor(lockedKeyAccessor, securityAccessorInfo, propertySpecs, actualValueUpdater);
 
-        return result.orElseGet(()->keyAccessorPlaceHolderProvider.get().init(keyAccessor.getKeyAccessorType(), device));
+        return result.orElseGet(()->keyAccessorPlaceHolderProvider.get().init(lockedKeyAccessor.getKeyAccessorType(), device));
     }
 
     private Optional<KeyAccessor<SecurityValueWrapper>> updateActualValueOnKeyAccessor(

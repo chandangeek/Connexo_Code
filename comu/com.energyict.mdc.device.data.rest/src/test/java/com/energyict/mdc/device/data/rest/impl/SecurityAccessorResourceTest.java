@@ -44,6 +44,7 @@ import org.mockito.ArgumentCaptor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -52,7 +53,15 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
- * Created by bvn on 4/4/17.
+ * >> Setup description <<
+ * All tests revolve around a device with mRID BVN001.
+ * The device has 1 key accessor for a symmetric key and 1 for a client certificate.
+ * The symmetric key accessor has KeyAccessorType 'aes' with id 111L
+ * The certificate accessor has KeyAccessorType 'tls1' with id 222L
+ *
+ * A CertificateWrapper exists, name 'comserver', whether or not it exists on the device depends on the test in question.
+ * A 2nd CertificateWrapper exists, named 'newcomserver', whether or not it exists on the device's temp value depends on the test in question.
+ * A symmetric key accessor exists, whether or not it is linked to the device depends on the test in question.
  */
 public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerseyTest {
 
@@ -109,6 +118,9 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
         when(pkiService.findCertificateWrapper("comserver")).thenReturn(Optional.of(actualClientCertificateWrapper));
         tempClientCertificateWrapper = mockClientCertificateWrapper(certificatePropertySpecs, "alias", "newcomserver");
         when(pkiService.findCertificateWrapper("newcomserver")).thenReturn(Optional.of(tempClientCertificateWrapper));
+        when(deviceService.findAndLockKeyAccessorByIdAndVersion(any(Device.class), any(KeyAccessorType.class), anyLong())).thenReturn(Optional.empty());
+        when(deviceService.findAndLockKeyAccessorByIdAndVersion(device, symmetricKeyAccessorType, 11L)).thenReturn(Optional.of(symmetrickeyAccessor));
+        when(deviceService.findAndLockKeyAccessorByIdAndVersion(device, certificateKeyAccessorType, 22L)).thenReturn(Optional.of(clientCertificateAccessor));
     }
 
     @Test
@@ -177,6 +189,7 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
     @Test
     public void setActualAndTempOnExistingKeyAccessorWithoutTemp() throws Exception {
         SecurityAccessorInfo securityAccessorInfo = new SecurityAccessorInfo();
+        securityAccessorInfo.version = 11L;
         securityAccessorInfo.currentProperties = Arrays.asList(createPropertyInfo("key", "actualKey"));
         securityAccessorInfo.tempProperties = Arrays.asList(createPropertyInfo("key", "tempKey"));
 
@@ -198,6 +211,7 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
     @Test
     public void setActualAndTempOnExistingCertificateAccessorWithoutTemp() throws Exception {
         SecurityAccessorInfo securityAccessorInfo = new SecurityAccessorInfo();
+        securityAccessorInfo.version = 22L;
         securityAccessorInfo.currentProperties = Arrays.asList(createPropertyInfo("alias", "comserver"));
         securityAccessorInfo.tempProperties = Arrays.asList(createPropertyInfo("alias", "newcomserver"));
 
@@ -214,6 +228,7 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
     @Test
     public void setActualAndNoTempOnExistingKeyAccessorWithoutTemp() throws Exception {
         SecurityAccessorInfo securityAccessorInfo = new SecurityAccessorInfo();
+        securityAccessorInfo.version = 11L;
         securityAccessorInfo.currentProperties = Arrays.asList(createPropertyInfo("key", "actualKey"));
         securityAccessorInfo.tempProperties = Arrays.asList(createPropertyInfo("key", null));
 
@@ -233,6 +248,7 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
     @Test
     public void setActualAndNoTempOnExistingCertificateAccessorWithoutTemp() throws Exception {
         SecurityAccessorInfo securityAccessorInfo = new SecurityAccessorInfo();
+        securityAccessorInfo.version = 22L;
         securityAccessorInfo.currentProperties = Arrays.asList(createPropertyInfo("alias", "comserver"));
         securityAccessorInfo.tempProperties = Arrays.asList(createPropertyInfo("alias", null));
 
@@ -249,6 +265,7 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
     @Test
     public void setTempAndNoActualOnExistingKeyAccessorWithoutTemp() throws Exception {
         SecurityAccessorInfo securityAccessorInfo = new SecurityAccessorInfo();
+        securityAccessorInfo.version = 11L;
         securityAccessorInfo.currentProperties = Arrays.asList(createPropertyInfo("key", null));
         securityAccessorInfo.tempProperties = Arrays.asList(createPropertyInfo("key", "tempKey"));
 
@@ -264,6 +281,7 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
     @Test
     public void setTempAndNoActualOnExistingCertificateAccessorWithoutTemp() throws Exception {
         SecurityAccessorInfo securityAccessorInfo = new SecurityAccessorInfo();
+        securityAccessorInfo.version = 22L;
         securityAccessorInfo.currentProperties = Arrays.asList(createPropertyInfo("alias", null));
         securityAccessorInfo.tempProperties = Arrays.asList(createPropertyInfo("alias", "newcomserver"));
 
@@ -275,13 +293,14 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
     @Test
     public void setActualAndTempOnExistingKeyAccessorWithTemp() throws Exception {
         SecurityAccessorInfo securityAccessorInfo = new SecurityAccessorInfo();
+        securityAccessorInfo.version = 11L;
         securityAccessorInfo.currentProperties = Arrays.asList(createPropertyInfo("key", "actualKey"));
         securityAccessorInfo.tempProperties = Arrays.asList(createPropertyInfo("key", "tempKey"));
 
         SymmetricKeyWrapper tempSymmetricKeyWrapper = mockSymmetricKeyWrapper(symmetricKeyPropertySpecs, "key", "oldtempvalue");
         symmetrickeyAccessor = mockSymmetricKeyAccessor(actualSymmetricKeyWrapper, tempSymmetricKeyWrapper);
-        when(device.getKeyAccessor(symmetricKeyAccessorType)).thenReturn(Optional.ofNullable(symmetrickeyAccessor));
-
+        when(device.getKeyAccessor(symmetricKeyAccessorType)).thenReturn(Optional.of(symmetrickeyAccessor));
+        when(deviceService.findAndLockKeyAccessorByIdAndVersion(device, symmetricKeyAccessorType, 11L)).thenReturn(Optional.of(symmetrickeyAccessor));
         Response response = target("/devices/BVN001/securityaccessors/keys/111").request().put(Entity.json(securityAccessorInfo));
 
         verify(symmetrickeyAccessor, never()).setActualValue(any(SymmetricKeyWrapper.class));
@@ -298,6 +317,7 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
     @Test
     public void setActualAndTempOnExistingCertificateAccessorWithTemp() throws Exception {
         SecurityAccessorInfo securityAccessorInfo = new SecurityAccessorInfo();
+        securityAccessorInfo.version = 22L;
         securityAccessorInfo.currentProperties = Arrays.asList(createPropertyInfo("alias", "comserver"));
         securityAccessorInfo.tempProperties = Arrays.asList(createPropertyInfo("alias", "newcomserver"));
 
@@ -315,6 +335,7 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
     @Test
     public void setActualAndNewTempOnExistingCertificateAccessorWithTemp() throws Exception {
         SecurityAccessorInfo securityAccessorInfo = new SecurityAccessorInfo();
+        securityAccessorInfo.version = 22L;
         securityAccessorInfo.currentProperties = Arrays.asList(createPropertyInfo("alias", "comserver"));
         securityAccessorInfo.tempProperties = Arrays.asList(createPropertyInfo("alias", "newnewcomserver"));
 
@@ -334,12 +355,14 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
     @Test
     public void setActualAndTempOnExistingKeyAccessorWithTempWithIdenticalValues() throws Exception {
         SecurityAccessorInfo securityAccessorInfo = new SecurityAccessorInfo();
+        securityAccessorInfo.version = 11L;
         securityAccessorInfo.currentProperties = Arrays.asList(createPropertyInfo("key", "b21nLEkgY2FuJ3QgYmVsaWV2ZSB5b3UgZGVjb2RlZCB0aGlz"));
         securityAccessorInfo.tempProperties = Arrays.asList(createPropertyInfo("key", "oldtempvalue"));
 
         SymmetricKeyWrapper tempSymmetricKeyWrapper = mockSymmetricKeyWrapper(symmetricKeyPropertySpecs, "key", "oldtempvalue");
         symmetrickeyAccessor = mockSymmetricKeyAccessor(actualSymmetricKeyWrapper, tempSymmetricKeyWrapper);
-        when(device.getKeyAccessor(symmetricKeyAccessorType)).thenReturn(Optional.ofNullable(symmetrickeyAccessor));
+        when(device.getKeyAccessor(symmetricKeyAccessorType)).thenReturn(Optional.of(symmetrickeyAccessor));
+        when(deviceService.findAndLockKeyAccessorByIdAndVersion(device, symmetricKeyAccessorType, 11L)).thenReturn(Optional.of(symmetrickeyAccessor));
 
         Response response = target("/devices/BVN001/securityaccessors/keys/111").request().put(Entity.json(securityAccessorInfo));
 
@@ -353,6 +376,7 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
     @Test
     public void setActualAndTempOnNonExistingKeyAccessor() throws Exception {
         SecurityAccessorInfo securityAccessorInfo = new SecurityAccessorInfo();
+        securityAccessorInfo.version = 11L;
         securityAccessorInfo.currentProperties = Arrays.asList(createPropertyInfo("key", "actualKey"));
         securityAccessorInfo.tempProperties = Arrays.asList(createPropertyInfo("key", "tempKey"));
 
@@ -382,6 +406,7 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
     @Test
     public void setActualAndTempOnNonExistingCertificateAccessor() throws Exception {
         SecurityAccessorInfo securityAccessorInfo = new SecurityAccessorInfo();
+        securityAccessorInfo.version = 22L;
         securityAccessorInfo.currentProperties = Arrays.asList(createPropertyInfo("alias", "comserver"));
         securityAccessorInfo.tempProperties = Arrays.asList(createPropertyInfo("alias", "newcomserver"));
 
@@ -400,12 +425,14 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
     @Test
     public void testDeleteTempOnKeyAccessorWithTempAndActual() throws Exception {
         SecurityAccessorInfo securityAccessorInfo = new SecurityAccessorInfo();
+        securityAccessorInfo.version = 11L;
         securityAccessorInfo.currentProperties = Arrays.asList(createPropertyInfo("key", "b21nLEkgY2FuJ3QgYmVsaWV2ZSB5b3UgZGVjb2RlZCB0aGlz"));
         securityAccessorInfo.tempProperties = Collections.emptyList();
 
         SymmetricKeyWrapper tempSymmetricKeyWrapper = mockSymmetricKeyWrapper(symmetricKeyPropertySpecs, "key", "oldtempvalue");
         symmetrickeyAccessor = mockSymmetricKeyAccessor(actualSymmetricKeyWrapper, tempSymmetricKeyWrapper);
         when(device.getKeyAccessor(symmetricKeyAccessorType)).thenReturn(Optional.ofNullable(symmetrickeyAccessor));
+        when(deviceService.findAndLockKeyAccessorByIdAndVersion(device, symmetricKeyAccessorType, 11L)).thenReturn(Optional.of(symmetrickeyAccessor));
 
         Response response = target("/devices/BVN001/securityaccessors/keys/111").request().put(Entity.json(securityAccessorInfo));
 
@@ -462,8 +489,8 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
         return keyAccessorType;
     }
 
-    private KeyAccessor mockSymmetricKeyAccessor(SecurityValueWrapper actual, SecurityValueWrapper temp) {
-        KeyAccessor keyAccessor1 = mock(KeyAccessor.class);
+    private KeyAccessor<SecurityValueWrapper> mockSymmetricKeyAccessor(SecurityValueWrapper actual, SecurityValueWrapper temp) {
+        KeyAccessor<SecurityValueWrapper> keyAccessor1 = mock(KeyAccessor.class);
         when(keyAccessor1.getPropertySpecs()).thenReturn(symmetricKeyPropertySpecs);
         when(keyAccessor1.getTempValue()).thenReturn(Optional.ofNullable(temp));
         when(keyAccessor1.getActualValue()).thenReturn(actual);

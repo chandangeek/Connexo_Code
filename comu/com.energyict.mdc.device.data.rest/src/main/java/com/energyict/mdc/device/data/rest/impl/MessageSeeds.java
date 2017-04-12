@@ -116,7 +116,8 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_KEY_ACCESSOR_TYPE(294, "NoSuchKeyAccessorType", "The device type does not have a security accessor with that id"),
     NO_SUCH_CERTIFICATE(295, "NoSuchCertificate", "No such certificate could be found in the certificate store"),
     NO_SUCH_TRUSTED_CERTIFICATE(296, "NoSuchCertificate", "No such certificate could be found in the trust store"),
-    NO_SUCH_TRUST_STORE(297, "NoSuchCertificate", "No such trust store");
+    NO_SUCH_TRUST_STORE(297, "NoSuchCertificate", "No such trust store"),
+    NO_SUCH_KEY_ACCESSOR(298, "NoSuchKeyAccessor", "No such security accessor");
     private final int number;
     private final String key;
     private final String format;

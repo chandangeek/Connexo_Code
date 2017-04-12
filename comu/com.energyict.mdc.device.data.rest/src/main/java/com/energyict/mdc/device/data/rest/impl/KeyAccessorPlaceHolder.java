@@ -121,4 +121,14 @@ public class KeyAccessorPlaceHolder implements KeyAccessor {
     public void delete() {
         
     }
+
+    @Override
+    public long getVersion() {
+        return -1;
+    }
+
+    @Override
+    public boolean isSwapped() {
+        return false;
+    }
 }
