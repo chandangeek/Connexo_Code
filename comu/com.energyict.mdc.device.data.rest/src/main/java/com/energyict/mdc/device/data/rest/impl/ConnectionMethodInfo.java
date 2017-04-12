@@ -53,6 +53,7 @@ public abstract class ConnectionMethodInfo<T extends ConnectionTask<? extends Co
     public TemporalExpressionInfo nextExecutionSpecs;
     public String protocolDialect;
     public String protocolDialectDisplayName;
+    public DeviceConnectionTaskInfo.ConnectionStrategyInfo connectionStrategyInfo;
 
     public ConnectionMethodInfo() {
     }
@@ -77,6 +78,7 @@ public abstract class ConnectionMethodInfo<T extends ConnectionTask<? extends Co
         this.version = connectionTask.getVersion();
         Device device = connectionTask.getDevice();
         this.parent = new VersionInfo<>(device.getName(), device.getVersion());
+        this.connectionStrategyInfo = new DeviceConnectionTaskInfo.ConnectionStrategyInfo();
     }
 
 

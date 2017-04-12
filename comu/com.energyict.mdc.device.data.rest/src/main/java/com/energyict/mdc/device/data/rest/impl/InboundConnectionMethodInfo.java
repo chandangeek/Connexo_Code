@@ -7,6 +7,7 @@ package com.energyict.mdc.device.data.rest.impl;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
@@ -44,6 +45,7 @@ public class InboundConnectionMethodInfo extends ConnectionMethodInfo<InboundCon
         }
         PartialInboundConnectionTask partialInboundConnectionTask = (PartialInboundConnectionTask) partialConnectionTask;
         Device.InboundConnectionTaskBuilder inboundConnectionTaskBuilder = device.getInboundConnectionTaskBuilder(partialInboundConnectionTask);
+        inboundConnectionTaskBuilder.setProtocolDialectConfigurationProperties(getProtocolDialectConfigurationProperties(device));
         if (!Checks.is(comPortPool).emptyOrOnlyWhiteSpace()) {
             engineConfigurationService
                     .findInboundComPortPoolByName(this.comPortPool)
@@ -51,6 +53,10 @@ public class InboundConnectionMethodInfo extends ConnectionMethodInfo<InboundCon
         }
         inboundConnectionTaskBuilder.setConnectionTaskLifecycleStatus(this.status);
         return inboundConnectionTaskBuilder.add();
+    }
+
+    private ProtocolDialectConfigurationProperties getProtocolDialectConfigurationProperties(Device device) {
+        return device.getDeviceConfiguration().getProtocolDialectConfigurationPropertiesList().stream().filter(protocolDialectConfigurationProperties -> protocolDialectConfigurationProperties.getName().equals(this.protocolDialect)).findFirst().orElse(null);
     }
 
 }
