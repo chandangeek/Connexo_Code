@@ -7,6 +7,7 @@ package com.elster.jupiter.issue.share;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
 import com.elster.jupiter.issue.security.Privileges;
+import com.elster.jupiter.issue.share.entity.ActionType;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
@@ -63,7 +64,12 @@ public abstract class AbstractIssueAction implements IssueAction {
     public Map<String, Object> getProperties() {
         return Collections.unmodifiableMap(this.properties);
     }
-    
+
+    @Override
+    public long getActionType() {
+        return ActionType.ACTION.getValue();
+    }
+
     protected PropertySpecService getPropertySpecService() {
         return propertySpecService;
     }
