@@ -5,6 +5,8 @@
 package com.elster.jupiter.estimators.impl;
 
 import com.elster.jupiter.estimation.EstimationService;
+import com.elster.jupiter.calendar.CalendarService;
+import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
@@ -35,6 +37,8 @@ public class DefaultEstimatorFactoryTest {
     private MeteringService meteringService;
     @Mock
     private TimeService timeService;
+    @Mock
+    private CalendarService calendarService;
 
     @Before
     public void setUp() {
@@ -44,7 +48,8 @@ public class DefaultEstimatorFactoryTest {
 
     @Test
     public void testCreatePowerGapFill() {
-        DefaultEstimatorFactory defaultEstimatorFactory = new DefaultEstimatorFactory(nlsService, propertySpecService, validationService, meteringService, timeService);
+
+        DefaultEstimatorFactory defaultEstimatorFactory = new DefaultEstimatorFactory(nlsService, propertySpecService, validationService, meteringService, timeService, calendarService);
 
         assertThat(defaultEstimatorFactory.available()).containsOnly(
                 DefaultEstimatorFactory.POWER_GAP_FILL_ESTIMATOR,

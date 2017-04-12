@@ -5,6 +5,7 @@
 package com.elster.jupiter.estimators.impl;
 
 import com.elster.jupiter.estimation.EstimationService;
+import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.estimation.Estimator;
 import com.elster.jupiter.estimation.EstimatorFactory;
 import com.elster.jupiter.estimators.AbstractEstimator;
@@ -44,24 +45,27 @@ public class DefaultEstimatorFactory implements EstimatorFactory, TranslationKey
     public static final String AVG_WITH_SAMPLES_ESTIMATOR = AverageWithSamplesEstimator.class.getName();
     public static final String POWER_GAP_FILL_ESTIMATOR = PowerGapFill.class.getName();
     public static final String EQUAL_DISTRIBUTION_ESTIMATOR = EqualDistribution.class.getName();
+    public static final String NEAREST_AVERAGE_VALUE_DAY_ESTIMATOR = NearestAverageValueDayEstimator.class.getName();
 
     private volatile Thesaurus thesaurus;
     private volatile PropertySpecService propertySpecService;
     private volatile ValidationService validationService;
     private volatile MeteringService meteringService;
     private volatile TimeService timeService;
+    private volatile CalendarService calendarService;
 
     public DefaultEstimatorFactory() {
     }
 
     @Inject
-    public DefaultEstimatorFactory(NlsService nlsService, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService, TimeService timeService) {
+    public DefaultEstimatorFactory(NlsService nlsService, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService, TimeService timeService, CalendarService calendarService) {
         this();
         setNlsService(nlsService);
         setPropertySpecService(propertySpecService);
         setValidationService(validationService);
         setMeteringService(meteringService);
         setTimeService(timeService);
+        setCalendarService(calendarService);
     }
 
     @Reference
@@ -90,6 +94,9 @@ public class DefaultEstimatorFactory implements EstimatorFactory, TranslationKey
         this.timeService = timeService;
     }
 
+    @Reference
+    public void setCalendarService(CalendarService calendarService) {this.calendarService = calendarService; }
+
     @Override
     public String getComponentName() {
         // Translation keys from estimators are historically shared with estimation bundle, most likely due to the fact
@@ -111,6 +118,7 @@ public class DefaultEstimatorFactory implements EstimatorFactory, TranslationKey
         Collections.addAll(keys, LinearInterpolation.TranslationKeys.values());
         Collections.addAll(keys, PowerGapFill.TranslationKeys.values());
         Collections.addAll(keys, ValueFillEstimator.TranslationKeys.values());
+        Collections.addAll(keys, NearestAverageValueDayEstimator.TranslationKeys.values());
         return keys;
     }
 
@@ -122,57 +130,68 @@ public class DefaultEstimatorFactory implements EstimatorFactory, TranslationKey
     private enum EstimatorDefinition {
         VALUE_FILL(VALUE_FILL_ESTIMATOR) {
             @Override
-            Estimator create(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService, TimeService timeService, Map<String, Object> props) {
+            Estimator create(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService, TimeService timeService, CalendarService calendarService, Map<String, Object> props) {
                 return new ValueFillEstimator(thesaurus, propertySpecService, props);
             }
 
             @Override
-            AbstractEstimator createTemplate(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService, TimeService timeService) {
+            AbstractEstimator createTemplate(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService, TimeService timeService, CalendarService calendarService) {
                 return new ValueFillEstimator(thesaurus, propertySpecService);
             }
         },
         LINEAR_INTERPOLATION(LINEAR_INTERPOLATION_ESTIMATOR) {
             @Override
-            Estimator create(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService, TimeService timeService, Map<String, Object> props) {
+            Estimator create(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService, TimeService timeService, CalendarService calendarService, Map<String, Object> props) {
                 return new LinearInterpolation(thesaurus, propertySpecService, props);
             }
 
             @Override
-            AbstractEstimator createTemplate(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService, TimeService timeService) {
+            AbstractEstimator createTemplate(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService, TimeService timeService, CalendarService calendarService) {
                 return new LinearInterpolation(thesaurus, propertySpecService);
             }
         },
         AVG_WITH_SAMPLES(AVG_WITH_SAMPLES_ESTIMATOR) {
             @Override
-            Estimator create(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService, TimeService timeService, Map<String, Object> props) {
+            Estimator create(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService, TimeService timeService, CalendarService calendarService, Map<String, Object> props) {
                 return new AverageWithSamplesEstimator(thesaurus, propertySpecService, validationService, meteringService, timeService, props);
             }
 
             @Override
-            AbstractEstimator createTemplate(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService, TimeService timeService) {
+            AbstractEstimator createTemplate(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService, TimeService timeService, CalendarService calendarService) {
                 return new AverageWithSamplesEstimator(thesaurus, propertySpecService, validationService, meteringService, timeService);
             }
         },
         POWER_GAP_FILL(POWER_GAP_FILL_ESTIMATOR) {
             @Override
-            Estimator create(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService, TimeService timeService, Map<String, Object> props) {
+            Estimator create(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService, TimeService timeService, CalendarService calendarService, Map<String, Object> props) {
                 return new PowerGapFill(thesaurus, propertySpecService, props);
             }
 
             @Override
-            AbstractEstimator createTemplate(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService, TimeService timeService) {
+            AbstractEstimator createTemplate(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService, TimeService timeService, CalendarService calendarService) {
                 return new PowerGapFill(thesaurus, propertySpecService);
             }
         },
         EQUAL_DISTRIBUTION(EQUAL_DISTRIBUTION_ESTIMATOR) {
             @Override
-            Estimator create(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService, TimeService timeService, Map<String, Object> props) {
+            Estimator create(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService, TimeService timeService, CalendarService calendarService, Map<String, Object> props) {
                 return new EqualDistribution(thesaurus, propertySpecService, meteringService, props);
             }
 
             @Override
-            AbstractEstimator createTemplate(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService, TimeService timeService) {
+            AbstractEstimator createTemplate(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService, TimeService timeService, CalendarService calendarService) {
                 return new EqualDistribution(thesaurus, propertySpecService, meteringService);
+            }
+        },
+        NEAREST_AVERAGE_VALUE_DAY(NEAREST_AVERAGE_VALUE_DAY_ESTIMATOR) {
+            @Override
+            Estimator create(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService, TimeService timeService, CalendarService calendarService, Map<String, Object> props){
+                return new NearestAverageValueDayEstimator(thesaurus, propertySpecService, validationService, meteringService, timeService, calendarService, props );
+            }
+
+            @Override
+            AbstractEstimator createTemplate(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService, TimeService timeService, CalendarService calendarService) {
+                return new NearestAverageValueDayEstimator(thesaurus,propertySpecService,validationService,meteringService,timeService,calendarService);
             }
         };
 
@@ -186,9 +205,9 @@ public class DefaultEstimatorFactory implements EstimatorFactory, TranslationKey
             this.implementation = implementation;
         }
 
-        abstract Estimator create(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService, TimeService timeService, Map<String, Object> props);
+        abstract Estimator create(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService, TimeService timeService, CalendarService calendarService, Map<String, Object> props);
 
-        abstract AbstractEstimator createTemplate(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService, TimeService timeService);
+        abstract AbstractEstimator createTemplate(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService, TimeService timeService, CalendarService calendarService);
 
 
         public boolean matches(String implementation) {
@@ -212,7 +231,7 @@ public class DefaultEstimatorFactory implements EstimatorFactory, TranslationKey
         return estimatorDefinitions()
                 .filter(estimatorDefinition -> estimatorDefinition.matches(implementation))
                 .findFirst()
-                .map(estimatorDefinition -> estimatorDefinition.create(thesaurus, propertySpecService, validationService, meteringService, timeService, props))
+                .map(estimatorDefinition -> estimatorDefinition.create(thesaurus, propertySpecService, validationService, meteringService, timeService,calendarService, props))
                 .orElseThrow(() -> new IllegalArgumentException("Unsupported implementation " + implementation));
     }
 
@@ -221,7 +240,7 @@ public class DefaultEstimatorFactory implements EstimatorFactory, TranslationKey
         return estimatorDefinitions()
                 .filter(estimatorDefinition -> estimatorDefinition.matches(implementation))
                 .findFirst()
-                .map(estimatorDefinition -> estimatorDefinition.createTemplate(thesaurus, propertySpecService, validationService, meteringService, timeService))
+                .map(estimatorDefinition -> estimatorDefinition.createTemplate(thesaurus, propertySpecService, validationService, meteringService, timeService, calendarService))
                 .orElseThrow(() -> new IllegalArgumentException("Unsupported implementation " + implementation));
     }
 }
