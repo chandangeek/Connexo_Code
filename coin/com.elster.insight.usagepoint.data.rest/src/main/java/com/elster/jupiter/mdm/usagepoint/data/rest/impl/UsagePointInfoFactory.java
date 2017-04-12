@@ -245,13 +245,20 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         );
         info.displayServiceCategory = usagePoint.getServiceCategory().getDisplayName();
         info.displayType = this.getUsagePointDisplayType(usagePoint);
+        info.hasEffectiveMCs = usagePoint.getEffectiveMetrologyConfiguration(clock.instant()).isPresent() ||
+                usagePoint.getEffectiveMetrologyConfigurations().stream()
+                .filter(mc -> mc.getStart().isAfter(clock.instant()))
+                .findAny()
+                .isPresent();
 
-        usagePoint.getCurrentEffectiveMetrologyConfiguration()
-                .map(EffectiveMetrologyConfigurationOnUsagePoint::getMetrologyConfiguration)
-                .ifPresent(mc -> {
-                    info.metrologyConfiguration = new MetrologyConfigurationInfo(mc, usagePoint, this.thesaurus, this.clock, readingTypeDeliverableFactory);
-                    info.displayMetrologyConfiguration = mc.getName();
-                });
+        usagePoint.getEffectiveMetrologyConfigurations().forEach(mc -> {
+            if (mc.isEffectiveAt(clock.instant())) {
+                info.metrologyConfiguration = new MetrologyConfigurationInfo(mc, usagePoint, this.thesaurus, this.clock, readingTypeDeliverableFactory);
+                info.displayMetrologyConfiguration = mc.getMetrologyConfiguration().getName();
+            } else  {
+                info.effectiveMetrologyConfiguration =  new MetrologyConfigurationInfo(mc, usagePoint, this.thesaurus, this.clock, readingTypeDeliverableFactory);
+            }
+        });
 
         addDetailsInfo(info, usagePoint);
         addCustomPropertySetInfo(info, usagePoint);
@@ -259,6 +266,24 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         info.state = this.stateInfoFactory.from(usagePoint.getState());
         info.lifeCycle = this.lifeCycleInfoFactory.shortInfo(usagePoint.getState().getLifeCycle());
         info.lastTransitionTime = usagePointLifeCycleService.getLastUsagePointStateChangeRequest(usagePoint).map(cr -> cr.getTransitionTime().toEpochMilli()).orElse(null);
+
+        String temp = usagePoint.getState().getStage().getDisplayName();
+        List temp2 = usagePoint.getEffectiveMetrologyConfigurations().stream().map(EffectiveMetrologyConfigurationOnUsagePoint::getId).sorted().collect(Collectors.toList());
+        Long temp3 =usagePoint.getEffectiveMetrologyConfigurations().stream().collect(Collectors.counting());
+        if(usagePoint.getState().getStage().getDisplayName().equals("Suspended") || usagePoint.getState().getStage().getDisplayName().equals("Pre-operational") ){
+            if(!usagePoint.getEffectiveMetrologyConfigurations()
+                    .stream()
+                    .anyMatch(effectiveMetrologyConfigurationOnUsagePoint -> effectiveMetrologyConfigurationOnUsagePoint.getEnd()==null)){
+                info.isReadyForLinkingMC=true;
+            }
+            else if (usagePoint.getEffectiveMetrologyConfigurations().size()==0){
+                info.isReadyForLinkingMC=true;
+            }
+            else
+                info.isReadyForLinkingMC=false;
+        }
+        else
+            info.isReadyForLinkingMC=false;
         return info;
     }
 

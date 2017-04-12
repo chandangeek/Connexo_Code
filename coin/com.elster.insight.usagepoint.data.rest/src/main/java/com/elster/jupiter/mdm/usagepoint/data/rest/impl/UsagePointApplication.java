@@ -56,6 +56,7 @@ import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCyclePrivilege
 import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCycleStateInfoFactory;
 import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCycleTransitionInfoFactory;
 import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointTransitionInfoFactory;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.validation.ValidationService;
@@ -121,6 +122,7 @@ public class UsagePointApplication extends Application implements TranslationKey
     private volatile MeteringTranslationService meteringTranslationService;
     private volatile UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService;
     private volatile PropertySpecService propertySpecService;
+    private volatile UserService userService;
     private volatile UsagePointDataModelService usagePointDataModelService;
 
     @Override
@@ -369,6 +371,11 @@ public class UsagePointApplication extends Application implements TranslationKey
         this.usagePointDataModelService = usagePointDataModelService;
     }
 
+    @Reference
+    public void setUserService(UserService userService) {
+        this.userService = userService;
+    }
+
     class HK2Binder extends AbstractBinder {
 
         @Override
@@ -441,6 +448,8 @@ public class UsagePointApplication extends Application implements TranslationKey
             bind(usagePointDataModelService).to(UsagePointDataModelService.class);
             bind(ChannelValidationRuleInfoFactory.class).to(ChannelValidationRuleInfoFactory.class);
             bind(ChannelEstimationRuleInfoFactory.class).to(ChannelEstimationRuleInfoFactory.class);
+            bind(MetrologyConfigurationHistoryInfoFactory.class).to(MetrologyConfigurationHistoryInfoFactory.class);
+            bind(userService).to(UserService.class);
         }
     }
 }
