@@ -216,9 +216,6 @@ public class DeviceInfoFactory extends SelectableFieldFactory<DeviceInfo, Device
                     .title("Device type")
                     .build(device.getDeviceType().getId());
         });
-        map.put("installationDate", (deviceInfo, device, uriInfo) ->  device.getLifecycleDates()
-                .getInstalledDate()
-                .ifPresent(installationDate -> deviceInfo.installationDate = installationDate));
         map.put("usagePoint", (deviceInfo, device, uriInfo) ->  device.getUsagePoint().ifPresent(usagePoint -> deviceInfo.usagePoint = usagePoint.getMRID()));
         map.put("meterRole", (deviceInfo, device, uriInfo) -> device.getCurrentMeterActivation()
                 .flatMap(MeterActivation::getMeterRole)
