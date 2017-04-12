@@ -30,6 +30,7 @@ public class SecurityAccessorInfoFactory {
         info.description = keyAccessor.getKeyAccessorType().getDescription();
         info.swapped = keyAccessor.isSwapped();
         info.version = keyAccessor.getVersion();
+        info.modificationDate = keyAccessor.getModTime();
         List<PropertySpec> propertySpecs = keyAccessor.getPropertySpecs();
         keyAccessor.getActualValue().getExpirationTime().ifPresent(expiration -> info.expirationTime = expiration);
 

@@ -131,4 +131,9 @@ public class KeyAccessorPlaceHolder implements KeyAccessor {
     public boolean isSwapped() {
         return false;
     }
+
+    @Override
+    public Instant getModTime() {
+        return null;
+    }
 }

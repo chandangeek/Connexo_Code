@@ -17,6 +17,7 @@ public class SecurityAccessorInfo {
     public long version;
     public Instant expirationTime;
     public Instant lastReadDate;
+    public Instant modificationDate;
     public List<PropertyInfo> currentProperties;
     public List<PropertyInfo> tempProperties;
 }
