@@ -396,7 +396,7 @@ public class CalculatedMetrologyContractDataImplTest {
                 .get()).isEqualTo(Range.openClosed(march30st2016, march31st2016));
         assertThat(beforeLastMarchRecord.getQuantity(0)).isEqualTo(Quantity.create(BigDecimal.TEN, "m3"));
         BaseReadingRecord lastMarchRecord = readingRecords.get(2);
-        assertThat(lastMarchRecord.getTimeStamp()).isEqualTo(april1stMidnight2016);
+        assertThat(lastMarchRecord.getTimeStamp()).isEqualTo(april1st2016);
         assertThat(lastMarchRecord.getTimePeriod().get()).isEqualTo(Range.openClosed(march31st2016, april1st2016));
         assertThat(lastMarchRecord.getQuantity(0)).isEqualTo(Quantity.create(BigDecimal.TEN, "m3"));
     }

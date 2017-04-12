@@ -9,7 +9,8 @@ import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
-import com.elster.jupiter.domain.util.VerboseConstraintViolationException;
+import com.elster.jupiter.fsm.Stage;
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
@@ -25,15 +26,16 @@ import com.elster.jupiter.metering.UsagePointMeterActivationException;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
-import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
 import com.elster.jupiter.metering.impl.config.TestHeadEndInterface;
 import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.transaction.TransactionContext;
-import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointStage;
 
 import com.google.common.collect.Range;
+import org.junit.*;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -42,6 +44,7 @@ import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.junit.After;
@@ -51,9 +54,13 @@ import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class UsagePointMeterActivatorImplManageActivationsIT {
@@ -74,9 +81,16 @@ public class UsagePointMeterActivatorImplManageActivationsIT {
     @Rule
     public TransactionalRule transactionalRule = new TransactionalRule(inMemoryBootstrapModule.getTransactionService());
 
+    private static final String operationalDeviceStageKey = "mtr.enddevicestage.operational";
+
     private static Meter meter;
     private static MeterRole meterRole;
     private static UsagePoint usagePoint;
+
+    @Mock
+    private static State deviceState;
+    @Mock
+    private static Stage deviceStage;
 
     @BeforeClass
     public static void setUp() {
@@ -84,7 +98,7 @@ public class UsagePointMeterActivatorImplManageActivationsIT {
         try (TransactionContext context = inMemoryBootstrapModule.getTransactionService().getContext()) {
             ServerMeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
             AmrSystem system = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
-            meter = system.newMeter("Meter", "myName").create();
+            meter = Mockito.spy(system.newMeter("Meter", "myName").create());
             ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
             usagePoint = serviceCategory.newUsagePoint("UsagePoint", INSTALLATION_TIME).create();
             meterRole = inMemoryBootstrapModule.getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT);
@@ -96,8 +110,14 @@ public class UsagePointMeterActivatorImplManageActivationsIT {
     }
 
     private static void reloadObjects() {
-        meter = inMemoryBootstrapModule.getMeteringService().findMeterById(meter.getId()).get();
+        meter = Mockito.spy(inMemoryBootstrapModule.getMeteringService().findMeterById(meter.getId()).get());
         usagePoint = inMemoryBootstrapModule.getMeteringService().findUsagePointById(usagePoint.getId()).get();
+    }
+
+    private static void mockStage() {
+        when(meter.getState(any(Instant.class))).thenReturn(Optional.of(deviceState));
+        when(deviceState.getStage()).thenReturn(Optional.of(deviceStage));
+        when(deviceStage.getName()).thenReturn(operationalDeviceStageKey);
     }
 
     @AfterClass
@@ -108,6 +128,7 @@ public class UsagePointMeterActivatorImplManageActivationsIT {
     @Before
     public void beforeTest() {
         reloadObjects();
+        mockStage();
     }
 
     @After
@@ -352,7 +373,7 @@ public class UsagePointMeterActivatorImplManageActivationsIT {
         ServiceCategory serviceCategory = inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
         UsagePoint usagePoint2 = serviceCategory.newUsagePoint("UsagePoint2", THREE_DAYS_BEFORE).create();
         AmrSystem system = inMemoryBootstrapModule.getMeteringService().findAmrSystem(KnownAmrSystem.MDC.getId()).get();
-        Meter meter2 = system.newMeter("Meter2", "myName2").create();
+        Meter meter2 = Mockito.spy(system.newMeter("Meter2", "myName2").create());
         MeterRole meterRole2 = inMemoryBootstrapModule.getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.MAIN);
 
         UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = inMemoryBootstrapModule.getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("UP2", serviceCategory).create();
@@ -362,6 +383,11 @@ public class UsagePointMeterActivatorImplManageActivationsIT {
         usagePoint2.linkMeters().activate(meter, meterRole).complete();
         usagePoint2.linkMeters().clear(ONE_DAY_AFTER, meterRole).complete();
         reloadObjects();
+        when(meter.getState(any(Instant.class))).thenReturn(Optional.of(deviceState));
+        when(meter2.getState(any(Instant.class))).thenReturn(Optional.of(deviceState));
+        when(deviceState.getStage()).thenReturn(Optional.of(deviceStage));
+        when(deviceStage.getName()).thenReturn(operationalDeviceStageKey);
+        usagePoint.getEffectiveMetrologyConfiguration(INSTALLATION_TIME).get().close(INSTALLATION_TIME.plusSeconds(60));
         usagePoint.apply(usagePointMetrologyConfiguration, INSTALLATION_TIME.plusSeconds(60));
         usagePoint.linkMeters().activate(ONE_DAY_AFTER, meter, meterRole)
                 .activate(INSTALLATION_TIME, meter2, meterRole2).complete();
@@ -381,7 +407,7 @@ public class UsagePointMeterActivatorImplManageActivationsIT {
         List<MeterActivation> usagePointActivations = usagePoint.getMeterActivations();
         assertThat(usagePointActivations).hasSize(2);
         assertThat(usagePointActivations.get(0).getRange()).isEqualTo(Range.atLeast(THREE_DAYS_AFTER));
-        assertThat(usagePointActivations.get(0).getMeter().get()).isEqualTo(meter);
+        assertThat(usagePointActivations.get(0).getMeter().get().getName()).isEqualTo(meter.getName());
         assertThat(usagePointActivations.get(1).getRange()).isEqualTo(Range.atLeast(THREE_DAYS_AFTER));
         assertThat(usagePointActivations.get(1).getMeter().get()).isEqualTo(meter2);
 
@@ -393,14 +419,15 @@ public class UsagePointMeterActivatorImplManageActivationsIT {
         usagePointActivations = usagePoint2.getMeterActivations();
         assertThat(usagePointActivations).hasSize(1);
         assertThat(usagePointActivations.get(0).getRange()).isEqualTo(Range.closedOpen(THREE_DAYS_BEFORE, ONE_DAY_AFTER));
-        assertThat(usagePointActivations.get(0).getMeter().get()).isEqualTo(meter);
+        assertThat(usagePointActivations.get(0).getMeter().get().getName()).isEqualTo(meter.getName());
     }
 
     @Test(expected = UsagePointMeterActivationException.UsagePointHasMeterOnThisRole.class)
     @Transactional
     public void testCanNotLinkTwoMetersOnTheSameMeterRole() {
         AmrSystem system = inMemoryBootstrapModule.getMeteringService().findAmrSystem(KnownAmrSystem.MDC.getId()).get();
-        Meter meter2 = system.newMeter("Meter2", "myName2").create();
+        Meter meter2 = Mockito.spy(system.newMeter("Meter2", "myName2").create());
+        when(meter2.getState(any(Instant.class))).thenReturn(Optional.of(deviceState));
 
         usagePoint.linkMeters()
                 .activate(meter, meterRole)

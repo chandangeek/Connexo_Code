@@ -65,6 +65,7 @@ import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.YesNoAnswer;
@@ -524,7 +525,8 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
         this.nlsService = nlsService;
         Thesaurus myThesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.DOMAIN);
         Thesaurus cboThesaurus = nlsService.getThesaurus(I18N.COMPONENT_NAME, Layer.DOMAIN);
-        this.thesaurus = myThesaurus.join(cboThesaurus);
+        Thesaurus uplThesaurus = nlsService.getThesaurus(UsagePointLifeCycleConfigurationService.COMPONENT_NAME, Layer.DOMAIN);
+        this.thesaurus = myThesaurus.join(cboThesaurus).join(uplThesaurus);
     }
 
     @Reference(name = "thePublisher")
