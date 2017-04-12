@@ -64,6 +64,7 @@ import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.validation.impl.ValidationServiceImpl;
 
@@ -173,6 +174,8 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
     ReadingType regularReadingType;
     @Mock
     ReadingType irregularReadingType;
+    @Mock
+    UserService userService;
 
     @Override
     protected Application getApplication() {
@@ -221,6 +224,7 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
         application.setUsagePointLifeCycleConfigurationService(usagePointLifeCycleConfigurationService);
         application.setPropertySpecService(propertySpecService);
         application.setUsagePointDataModelService(usagePointDataModelService);
+        application.setUserService(userService);
         return application;
     }
 
