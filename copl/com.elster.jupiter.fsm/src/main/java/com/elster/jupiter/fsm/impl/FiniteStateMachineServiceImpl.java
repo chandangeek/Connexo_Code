@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.fsm.impl;
 
+import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.CustomStateTransitionEventType;
 import com.elster.jupiter.fsm.FiniteStateMachine;
@@ -85,6 +86,7 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
     private volatile Thesaurus thesaurus;
     private volatile Publisher publisher;
     private volatile UpgradeService upgradeService;
+    private volatile BpmService bpmService;
 
     private final RegistrationHandler registrationHandler = new DelayedRegistrationHandler();
 
@@ -95,7 +97,7 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
 
     // For unit testing purposes
     @Inject
-    public FiniteStateMachineServiceImpl(OrmService ormService, NlsService nlsService, UserService userService, EventService eventService, TransactionService transactionService, Publisher publisher, UpgradeService upgradeService) {
+    public FiniteStateMachineServiceImpl(OrmService ormService, NlsService nlsService, UserService userService, EventService eventService, TransactionService transactionService, Publisher publisher, UpgradeService upgradeService, BpmService bpmService) {
         this();
         setOrmService(ormService);
         setNlsService(nlsService);
@@ -104,6 +106,7 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
         setTransactionService(transactionService);
         setPublisher(publisher);
         setUpgradeService(upgradeService);
+        setBpmService(bpmService);
         this.activate();
     }
 
@@ -190,6 +193,11 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
     @Reference(name = "theTransactionService")
     public void setTransactionService(TransactionService transactionService) {
         this.transactionService = transactionService;
+    }
+
+    @Reference(name = "theBpmService")
+    public void setBpmService(BpmService bpmService) {
+        this.bpmService = bpmService;
     }
 
     @Reference(name = "thePublisher")
