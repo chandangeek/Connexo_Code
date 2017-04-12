@@ -16,7 +16,7 @@ import java.util.Optional;
 
 /**
  * Represents access to a wrapper object. This security object can be a certificate, symmetric key or password.
- * The Security accessor stores the actual value for a KeyAccessorType
+ * The Security accessor stores the real value(s) for a KeyAccessorType
  * An accessor stores two values: one for current use (ActualValue), and one value that is stored during the renew
  * process (TempValue).
  */
