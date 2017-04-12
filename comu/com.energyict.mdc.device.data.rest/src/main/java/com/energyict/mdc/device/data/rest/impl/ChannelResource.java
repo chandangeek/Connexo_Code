@@ -76,6 +76,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -860,34 +861,36 @@ public class ChannelResource {
 
     @PUT
     @Transactional
-    @Path("/{channelid}/data/correctValue")
+    @Path("/{channelid}/data/correctValues")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public List<ChannelDataInfo> correctValues(@PathParam("name") String name, @PathParam("channelid") long channelId, ValueCorrectionInfo valueCorrectionInfo, @BeanParam JsonQueryParameters queryParameters) {
         Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(name, channelId);
+        List<ChannelDataInfo> result = new ArrayList<>();
 
-        Range<Instant> intervals = valueCorrectionInfo.intervals.stream()
+        Set<Instant> timestamps = valueCorrectionInfo.intervals.stream()
+                .map(intervalInfo -> Instant.ofEpochMilli(intervalInfo.end))
+                .collect(Collectors.toSet());
+
+        valueCorrectionInfo.intervals.stream()
                 .map(info -> Range.openClosed(Instant.ofEpochMilli(info.start), Instant.ofEpochMilli(info.end)))
                 .reduce(Range::span)
-                .get();
-
-
-        channel.getChannelData(intervals).stream()
-                .map(loadProfileReading -> loadProfileReading.getChannelValues()
-                            .entrySet()
-                            .stream()
-                            .map(Map.Entry::getValue)
-                            .findFirst())
-                .collect(Collectors.toList());
-        return channel.getChannelData(intervals).stream()
-                .flatMap(loadProfileReading -> loadProfileReading.getChannelValues().values().stream())
-        .map(readingRecord -> createCorrectedChannelDataInfo(channel, ValueCorrection.valueOf(valueCorrectionInfo.type), readingRecord, valueCorrectionInfo.amount))
-        .collect(Collectors.toList());
+                .ifPresent(intervals ->
+                    result.addAll(channel.getChannelData(intervals).stream()
+                            .flatMap(loadProfileReading -> loadProfileReading.getChannelValues().values().stream())
+                            .filter(readingRecord -> timestamps.contains(readingRecord.getTimeStamp()))
+                            .map(readingRecord -> createCorrectedChannelDataInfo(channel, ValueCorrection.valueOf(valueCorrectionInfo.type), readingRecord, valueCorrectionInfo.amount))
+                            .collect(Collectors.toList())));
+        return result;
     }
 
     private ChannelDataInfo createCorrectedChannelDataInfo(Channel channel, ValueCorrection type, IntervalReadingRecord record, BigDecimal correctionAmount) {
         ChannelDataInfo channelDataInfo = new ChannelDataInfo();
         channelDataInfo.reportedDateTime = record.getReportedDateTime();
+        record.getReadingType().getIntervalLength().ifPresent(intervalLength -> {
+            Instant readingTimeStamp = record.getTimeStamp();
+            channelDataInfo.interval = IntervalInfo.from(Range.openClosed(readingTimeStamp.minus(intervalLength), readingTimeStamp));
+        });
         channel.getCalculatedReadingType(record.getTimeStamp()).ifPresent(readingType -> {
             Quantity quantity = record.getQuantity(readingType);
             BigDecimal value = getRoundedBigDecimal(quantity != null ? quantity.getValue() : null, channel);
