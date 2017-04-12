@@ -202,7 +202,11 @@ class MdcAppPrivileges {
                 //data quality kpi
                 com.elster.jupiter.dataquality.security.Privileges.Constants.ADMINISTER_DATA_QUALITY_KPI_CONFIGURATION,
                 com.elster.jupiter.dataquality.security.Privileges.Constants.VIEW_DATA_QUALITY_KPI_CONFIGURATION,
-                com.elster.jupiter.dataquality.security.Privileges.Constants.VIEW_DATA_QUALITY_RESULTS
+                com.elster.jupiter.dataquality.security.Privileges.Constants.VIEW_DATA_QUALITY_RESULTS,
+
+                //device validation/estimation configuration
+                com.energyict.mdc.device.data.security.Privileges.Constants.ADMINISTER_VALIDATION_CONFIGURATION,
+                com.energyict.mdc.device.data.security.Privileges.Constants.ADMINISTER_ESTIMATION_CONFIGURATION
         );
     }
 }
