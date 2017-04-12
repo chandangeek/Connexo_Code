@@ -69,7 +69,11 @@ public class UsagePointOutputEstimationResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT})
+    @RolesAllowed({
+            Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT,
+            Privileges.Constants.ADMINISTER_ANY_USAGEPOINT, Privileges.Constants.ADMINISTER_OWN_USAGEPOINT,
+            com.elster.jupiter.mdm.usagepoint.data.security.Privileges.Constants.ADMINISTER_ESTIMATION_CONFIGURATION
+    })
     public PagedInfoList getUsagePointChannelEstimationConfiguration(@PathParam("name") String name, @PathParam("purposeId") long contractId,
                                                                      @PathParam("outputId") long outputId, @BeanParam JsonQueryParameters queryParameters) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
@@ -95,7 +99,11 @@ public class UsagePointOutputEstimationResource {
     @GET
     @Path("/{ruleId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT})
+    @RolesAllowed({
+            Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT,
+            Privileges.Constants.ADMINISTER_ANY_USAGEPOINT, Privileges.Constants.ADMINISTER_OWN_USAGEPOINT,
+            com.elster.jupiter.mdm.usagepoint.data.security.Privileges.Constants.ADMINISTER_ESTIMATION_CONFIGURATION
+    })
     public ChannelEstimationRuleInfo getUsagePointChannelEstimationRuleById(@PathParam("name") String name, @PathParam("purposeId") long contractId,
                                                                             @PathParam("outputId") long outputId, @PathParam("ruleId") long ruleId,
                                                                             @BeanParam JsonQueryParameters queryParameters) {
@@ -111,7 +119,7 @@ public class UsagePointOutputEstimationResource {
     @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT})
+    @RolesAllowed({com.elster.jupiter.mdm.usagepoint.data.security.Privileges.Constants.ADMINISTER_ESTIMATION_CONFIGURATION})
     public Response overrideChannelEstimationRuleProperties(@PathParam("name") String name, @PathParam("purposeId") long contractId,
                                                             @PathParam("outputId") long outputId, ChannelEstimationRuleInfo channelEstimationRuleInfo) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
@@ -137,7 +145,7 @@ public class UsagePointOutputEstimationResource {
     @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT})
+    @RolesAllowed({com.elster.jupiter.mdm.usagepoint.data.security.Privileges.Constants.ADMINISTER_ESTIMATION_CONFIGURATION})
     public Response editChannelEstimationRuleOverriddenProperties(@PathParam("name") String name, @PathParam("purposeId") long contractId,
                                                                   @PathParam("outputId") long outputId, @PathParam("ruleId") long ruleId,
                                                                   ChannelEstimationRuleInfo channelEstimationRuleInfo) {
@@ -170,7 +178,7 @@ public class UsagePointOutputEstimationResource {
     @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT})
+    @RolesAllowed({com.elster.jupiter.mdm.usagepoint.data.security.Privileges.Constants.ADMINISTER_ESTIMATION_CONFIGURATION})
     public Response restoreChannelValidationRuleProperties(@PathParam("name") String name, @PathParam("purposeId") long contractId,
                                                            @PathParam("outputId") long outputId, @PathParam("ruleId") long ruleId,
                                                            ChannelEstimationRuleInfo channelEstimationRuleInfo) {

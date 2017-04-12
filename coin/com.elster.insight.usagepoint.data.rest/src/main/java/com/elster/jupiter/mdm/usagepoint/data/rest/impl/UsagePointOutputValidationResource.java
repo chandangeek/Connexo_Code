@@ -69,7 +69,11 @@ public class UsagePointOutputValidationResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT})
+    @RolesAllowed({
+            Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT,
+            Privileges.Constants.ADMINISTER_ANY_USAGEPOINT, Privileges.Constants.ADMINISTER_OWN_USAGEPOINT,
+            com.elster.jupiter.mdm.usagepoint.data.security.Privileges.Constants.ADMINISTER_VALIDATION_CONFIGURATION
+    })
     public PagedInfoList getUsagePointChannelValidationConfiguration(@PathParam("name") String name, @PathParam("purposeId") long contractId,
                                                                      @PathParam("outputId") long outputId, @BeanParam JsonQueryParameters queryParameters) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
@@ -96,7 +100,11 @@ public class UsagePointOutputValidationResource {
     @GET
     @Path("/{ruleId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT})
+    @RolesAllowed({
+            Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT,
+            Privileges.Constants.ADMINISTER_ANY_USAGEPOINT, Privileges.Constants.ADMINISTER_OWN_USAGEPOINT,
+            com.elster.jupiter.mdm.usagepoint.data.security.Privileges.Constants.ADMINISTER_VALIDATION_CONFIGURATION
+    })
     public ChannelValidationRuleInfo getUsagePointChannelValidationRuleById(@PathParam("name") String name, @PathParam("purposeId") long contractId,
                                                                             @PathParam("outputId") long outputId, @PathParam("ruleId") long ruleId,
                                                                             @BeanParam JsonQueryParameters queryParameters) {
@@ -112,7 +120,7 @@ public class UsagePointOutputValidationResource {
     @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT})
+    @RolesAllowed({com.elster.jupiter.mdm.usagepoint.data.security.Privileges.Constants.ADMINISTER_VALIDATION_CONFIGURATION})
     public Response overrideChannelValidationRuleProperties(@PathParam("name") String name, @PathParam("purposeId") long contractId,
                                                             @PathParam("outputId") long outputId, ChannelValidationRuleInfo channelValidationRuleInfo) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
@@ -138,7 +146,7 @@ public class UsagePointOutputValidationResource {
     @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT})
+    @RolesAllowed({com.elster.jupiter.mdm.usagepoint.data.security.Privileges.Constants.ADMINISTER_VALIDATION_CONFIGURATION})
     public Response editChannelValidationRuleOverriddenProperties(@PathParam("name") String name, @PathParam("purposeId") long contractId,
                                                                   @PathParam("outputId") long outputId, @PathParam("ruleId") long ruleId,
                                                                   ChannelValidationRuleInfo channelValidationRuleInfo) {
@@ -171,7 +179,7 @@ public class UsagePointOutputValidationResource {
     @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT})
+    @RolesAllowed({com.elster.jupiter.mdm.usagepoint.data.security.Privileges.Constants.ADMINISTER_VALIDATION_CONFIGURATION})
     public Response restoreChannelValidationRuleProperties(@PathParam("name") String name, @PathParam("purposeId") long contractId,
                                                            @PathParam("outputId") long outputId, @PathParam("ruleId") long ruleId,
                                                            ChannelValidationRuleInfo channelValidationRuleInfo) {
