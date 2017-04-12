@@ -227,7 +227,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                 + Uni.I18n.translate('general.suspect', 'MDC', 'Suspect') + '"></span>';
         }
 
-        if (validationInfo.estimatedByRule && !record.isModified('value')) {
+        if (validationInfo.estimatedByRule) {
             date = Ext.isDate(record.get('readingTime')) ? record.get('readingTime') : new Date(record.get('readingTime'));
             formattedDate = Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}',
                 [Uni.DateTime.formatDateLong(date), Uni.DateTime.formatTimeLong(date)]
