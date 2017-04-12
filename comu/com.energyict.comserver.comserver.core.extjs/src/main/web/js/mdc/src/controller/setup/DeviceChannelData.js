@@ -856,7 +856,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         }
         model.set('estimateBulk', estimateBulk);
         model.set('intervals', intervalsArray);
-        me.saveChannelDataEstimateModelr(model, record, window);
+        me.saveChannelDataEstimateModelr(model, record, window, null, 'editWithEstimator');
     },
 
     estimateReadingWithRule: function () {
@@ -904,10 +904,10 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         }
         model.set('estimateBulk', estimateBulk);
         model.set('intervals', intervalsArray);
-        me.saveChannelDataEstimateModelr(model, record, window, estimationRuleId);
+        me.saveChannelDataEstimateModelr(model, record, window, estimationRuleId, 'estimate');
     },
 
-    saveChannelDataEstimateModelr: function (record, readings, window, ruleId) {
+    saveChannelDataEstimateModelr: function (record, readings, window, ruleId, action) {
         var me = this,
             router = me.getController('Uni.controller.history.Router');
 
@@ -923,12 +923,12 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 Ext.suspendLayouts();
                 if (success && responseText[0]) {
                     if (!Ext.isArray(readings)) {
-                        me.updateEstimatedValues(record, readings, responseText[0], ruleId);
+                        me.updateEstimatedValues(record, readings, responseText[0], ruleId, action);
                     } else {
                         Ext.Array.each(responseText, function (estimatedReading) {
                             Ext.Array.findBy(readings, function (reading) {
                                 if (estimatedReading.interval.start == reading.get('interval').start) {
-                                    me.updateEstimatedValues(record, reading, estimatedReading, ruleId);
+                                    me.updateEstimatedValues(record, reading, estimatedReading, ruleId, action);
                                     return true;
                                 }
                             });
@@ -963,7 +963,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         });
     },
 
-    updateEstimatedValues: function (record, reading, estimatedReading, ruleId) {
+    updateEstimatedValues: function (record, reading, estimatedReading, ruleId, action) {
         var me = this,
             grid = me.getPage().down('deviceLoadProfileChannelDataGrid');
 
@@ -974,13 +974,23 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             }
             reading.get('bulkValidationInfo').validationResult = 'validationStatus.ok';
             reading.get('bulkValidationInfo').estimatedNotSaved = true;
+            if(action === 'editWithEstimator'){
+                Uni.util.ReadingEditor.setReadingStatus(reading.get('bulkModificationState'),'EDITED');
+            } else if(action === 'estimate'){
+                reading.get('bulkValidationInfo').estimatedByRule = true;
+            }
         } else {
             reading.set('value', estimatedReading.value);
             if(ruleId){
                 reading.get('mainValidationInfo').ruleId =  ruleId;
             }
             reading.get('mainValidationInfo').validationResult = 'validationStatus.ok';
-            reading.get('mainValidationInfo').estimatedNotSaved = true;
+            if(action === 'editWithEstimator'){
+                Uni.util.ReadingEditor.setReadingStatus(reading.get('mainModificationState'),'EDITED');
+            } else if(action === 'estimate'){
+                reading.get('mainValidationInfo').estimatedByRule = true;
+            }
+
         }
         grid.getView().refreshNode(grid.getStore().indexOf(reading));
 
@@ -1047,6 +1057,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
 
                     if (mainStatus) {
                         rec.get('mainValidationInfo').confirmedNotSaved = true;
+                        rec.get('mainValidationInfo').isConfirmed = true;
                         chart.get(rec.get('interval').start).update({color: 'rgba(112,187,81,0.3)'});
                         chart.get(rec.get('interval').start).select(false);
                         me.getPage().down('#channel-data-preview-container').fireEvent('rowselect', record)
@@ -1054,6 +1065,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
 
                     if (bulkStatus) {
                         rec.get('bulkValidationInfo').confirmedNotSaved = true;
+                        rec.get('bulkValidationInfo').isConfirmed = true;
                     }
 
                     if (mainStatus || bulkStatus) {
@@ -1096,6 +1108,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 record.set('confirmed', false);
             }
             record.get('mainValidationInfo').validationResult = 'validationStatus.ok';
+            Uni.util.ReadingEditor.setReadingStatus(record.get('mainModificationState'),'REMOVED');
             record.endEdit(true);
             gridView.refreshNode(store.indexOf(record));
             point = chart.get(record.get('interval').start);
@@ -1348,7 +1361,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 if (success && responseText[0]) {
                     Ext.Array.each(responseText, function(correctedInterval){
                         Ext.Array.findBy(records, function (reading) {
-                            if (correctedInterval.reportedDateTime == reading.get('reportedDateTime').getTime()) {
+                            if (correctedInterval.interval.start == reading.get('interval').start) {
                                 me.updateCorrectedValues(reading, correctedInterval);
                                 return true;
                             }
@@ -1389,7 +1402,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
 
         reading.beginEdit();
         reading.set('value', correctedInterval.value);
-        Uni.util.ReadingEditor.setReadingInfoStatus(reading,'corrected');
+        Uni.util.ReadingEditor.setReadingStatus(reading.get('mainModificationState'),'EDITED');
         reading.endEdit(true);
 
         grid.getView().refreshNode(grid.getStore().indexOf(reading));
