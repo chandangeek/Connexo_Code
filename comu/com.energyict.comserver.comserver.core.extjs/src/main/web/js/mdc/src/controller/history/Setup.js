@@ -107,7 +107,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                     action: 'editCustomAttributeVersion',
                                     callback: function (route) {
                                         this.getApplication().on('loadCustomAttributeSetVersionOnDevice', function (record) {
-                                            route.setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", [record.get('period')]));
+                                            route.setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", record.get('period'), false));
                                             return true;
                                         }, {single: true});
 
@@ -137,7 +137,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                     privileges: Mdc.privileges.Device.administrateDeviceData,
                                     callback: function (route) {
                                         this.getApplication().on('loadCustomAttributeSetVersionOnDeviceClone', function (record) {
-                                            route.setTitle(Uni.I18n.translate('general.clonex', 'MDC', "Clone '{0}'", [record.get('period')]));
+                                            route.setTitle(Uni.I18n.translate('general.clonex', 'MDC', "Clone '{0}'", [record.get('period')], false));
                                             return true;
                                         }, {single: true});
 

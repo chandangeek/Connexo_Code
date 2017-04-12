@@ -14,7 +14,8 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
         'Uni.grid.column.Edited',
         'Uni.view.toolbar.PagingTop',
         'Uni.grid.column.Action',
-        'Mdc.view.setup.devicechannels.DataBulkActionMenu'
+        'Mdc.view.setup.devicechannels.DataBulkActionMenu',
+        'Uni.grid.plugin.CopyPasteForGrid'
     ],
     viewConfig: {
         loadMask: false,
@@ -35,6 +36,10 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
             unitOfCalculatedValues = calculatedReadingType && calculatedReadingType.names ? calculatedReadingType.names.unitOfMeasure : undefined;
 
         me.plugins = [
+            {
+                ptype: 'gridviewcopypaste',
+                editColumnDataIndex: 'value'
+            },
             {
                 ptype: 'bufferedrenderer',
                 trailingBufferZone: 12,
@@ -60,8 +65,8 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                     var readingQualitiesPresent = !Ext.isEmpty(record.get('readingQualities')),
                         text = value
                             ? Uni.I18n.translate(
-                                'general.dateAtTime', 'MDC', '{0} at {1}',
-                                [Uni.DateTime.formatDateShort(value), Uni.DateTime.formatTimeShort(value)])
+                            'general.dateAtTime', 'MDC', '{0} at {1}',
+                            [Uni.DateTime.formatDateShort(value), Uni.DateTime.formatTimeShort(value)])
                             : '-',
                         tooltipContent = '',
                         icon = '';
@@ -213,9 +218,9 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
             value = Ext.isEmpty(v)
                 ? '-'
                 : Uni.Number.formatNumber(
-                    v.toString(),
-                    me.channelRecord && !Ext.isEmpty(me.channelRecord.get('overruledNbrOfFractionDigits')) ? me.channelRecord.get('overruledNbrOfFractionDigits') : -1
-                );
+                v.toString(),
+                me.channelRecord && !Ext.isEmpty(me.channelRecord.get('overruledNbrOfFractionDigits')) ? me.channelRecord.get('overruledNbrOfFractionDigits') : -1
+            );
 
         if (status === 'notValidated') {
             icon = '<span class="icon-flag6" style="margin-left:10px; position:absolute;" data-qtip="'
