@@ -46,6 +46,22 @@ Ext.define('Imt.purpose.view.OutputReadings', {
                 }
             ];
         }
+        else {
+            emptyComponent.stepItems = [
+                {
+                    text: Uni.I18n.translate('deviceloadprofiles.data.empty.addReadings', 'MDC', 'Add readings'),
+                    itemId: 'add-readind-data',
+                    handler: function () {
+                        var me = this,
+                            preview = me.up('#output-readings-preview-container'),
+                            noItemFoundClass = Ext.getClass(preview);
+
+                        arguments[0] = false;
+                        noItemFoundClass.prototype.updateOnChange.apply(preview, arguments);
+                    }
+                }
+            ];
+        }
 
         if (me.interval) {
             durations = Ext.create('Uni.store.Durations');
@@ -138,6 +154,33 @@ Ext.define('Imt.purpose.view.OutputReadings', {
                         },
                         listeners: {
                             rowselect: Ext.bind(me.onRowSelect, me)
+                        },
+                        updateOnChange: function (isEmpty) {
+                            var me = this,
+                                noItemFoundClass = Ext.getClass(me);
+
+                            if (isEmpty) {
+                                noItemFoundClass.prototype.updateOnChange.apply(me, arguments);
+                                me.down('#no-items-found-panel-steps-label') && me.down('#no-items-found-panel-steps-label').setVisible(false);
+                                me.down('#add-readind-data') && me.down('#add-readind-data').setVisible(false);
+                            }
+                            else {
+                                var store = me.grid.getStore(),
+                                    count = store.getCount()
+                                hasValues = false;
+
+                                for (var i = 0; i < count; i++) {
+                                    if (store.getAt(i).get('value')) {
+                                        hasValues = true;
+                                        return;
+                                    }
+                                }
+                                arguments[0] = !hasValues;
+                                noItemFoundClass.prototype.updateOnChange.apply(me, arguments);
+                                me.down('#add-readind-data') && me.down('#add-readind-data').setVisible(true);
+                                me.down('#no-items-found-panel-steps-label') && me.down('#no-items-found-panel-steps-label').setVisible(true);
+                                me.up('#output-readings') && me.up('#output-readings').down('readings-graph') && me.up('#output-readings').down('readings-graph').setVisible(hasValues);
+                            }
                         }
                     }
                 );
