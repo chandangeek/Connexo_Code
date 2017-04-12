@@ -19,7 +19,7 @@ Ext.define('Mdc.usagepointmanagement.model.RegisterReading', {
             mapping: function (data) {
                 var result = 'NOT_VALIDATED';
 
-                switch (data) {
+                switch (data.validationResult) {
                     case 'validationStatus.suspect':
                         result = 'SUSPECT';
                         break;

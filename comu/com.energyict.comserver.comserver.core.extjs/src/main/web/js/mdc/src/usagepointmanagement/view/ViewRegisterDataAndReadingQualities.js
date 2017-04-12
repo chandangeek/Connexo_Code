@@ -99,7 +99,8 @@ Ext.define('Mdc.usagepointmanagement.view.ViewRegisterDataAndReadingQualities', 
                             title: Uni.I18n.translate('usagePointRegisterData.empty.title', 'MDC', 'No data is available'),
                             reasons: [
                                 Uni.I18n.translate('usagePointRegisterData.empty.list.item1', 'MDC', 'No data has been collected yet'),
-                                Uni.I18n.translate('usagePointRegisterData.empty.list.item2', 'MDC', 'No devices have been linked to this usage point in specified period of time')
+                                Uni.I18n.translate('usagePointRegisterData.empty.list.item2', 'MDC', 'No devices have been linked to this usage point in specified period of time'),
+                                Uni.I18n.translate('usagePointChannelData.empty.list.item3', 'MDC', 'No data matching the filters')
                             ]
                         },
                         previewComponent: {
