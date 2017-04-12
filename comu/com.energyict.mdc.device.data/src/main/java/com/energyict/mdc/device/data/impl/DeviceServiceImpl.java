@@ -22,6 +22,8 @@ import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.pki.CertificateWrapper;
+import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.SecurityValueWrapper;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.util.Pair;
@@ -278,6 +280,11 @@ class DeviceServiceImpl implements ServerDeviceService {
     public Optional<Device> findAndLockDeviceBymRIDAndVersion(String mRID, long version) {
         DataMapper<Device> mapper = getDeviceMapper();
         return mapper.getUnique(DeviceFields.MRID.fieldName(), mRID).flatMap(device -> mapper.lockObjectIfVersion(version, device.getId()));
+    }
+
+    @Override
+    public Optional<KeyAccessor<SecurityValueWrapper>> findAndLockKeyAccessorByIdAndVersion(Device device, KeyAccessorType keyAccessorType, long version) {
+        return Optional.ofNullable((KeyAccessor<SecurityValueWrapper>)this.deviceDataModelService.dataModel().mapper(KeyAccessor.class).lockObjectIfVersion(version, device.getId(), keyAccessorType.getId()).orElse(null));
     }
 
     @Override

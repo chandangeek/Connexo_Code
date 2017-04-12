@@ -16,7 +16,8 @@ import java.util.Optional;
 /**
  * Represents access to a wrapper object. This security object can be a certificate, symmetric key or password.
  * The Security accessor stores the actual value for a KeyAccessorType
- * An accessor stores two values: one for current use, and one value that is stored during the renew process.
+ * An accessor stores two values: one for current use (ActualValue), and one value that is stored during the renew
+ * process (TempValue).
  */
 @ProviderType
 public interface KeyAccessor<T extends SecurityValueWrapper> {
@@ -89,4 +90,17 @@ public interface KeyAccessor<T extends SecurityValueWrapper> {
      * will be deleted regardless
      */
     void delete();
+
+    /**
+     * Returns the current version of this KeyAccessor. Version is used to prevent concurrent modification.
+     * @return version of this object
+     */
+    long getVersion();
+
+    /**
+     * Indicates if the values are in their original place or swapped. After clearing the temp value of a KeyAccessor,
+     * the actual value is always considered in his original place.
+     * @return
+     */
+    boolean isSwapped();
 }

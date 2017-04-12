@@ -14,6 +14,7 @@ import com.energyict.mdc.device.data.KeyAccessor;
 
 import com.google.common.collect.ImmutableMap;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
@@ -24,6 +25,16 @@ public abstract class AbstractKeyAccessorImpl<T extends SecurityValueWrapper> im
 
     private Reference<KeyAccessorType> keyAccessorTypeReference = Reference.empty();
     private Reference<Device> deviceReference = Reference.empty();
+    private boolean swapped=false;
+
+    @SuppressWarnings("unused")
+    private String userName;
+    @SuppressWarnings("unused")
+    private long version;
+    @SuppressWarnings("unused")
+    private Instant createTime;
+    @SuppressWarnings("unused")
+    private Instant modTime;
 
     public static final Map<String, Class<? extends KeyAccessor>> IMPLEMENTERS =
             ImmutableMap.of(
@@ -37,6 +48,7 @@ public abstract class AbstractKeyAccessorImpl<T extends SecurityValueWrapper> im
     public enum Fields {
         KEY_ACCESSOR_TYPE("keyAccessorTypeReference"),
         DEVICE("deviceReference"),
+        SWAPPED("swapped"),
         CERTIFICATE_WRAPPER_ACTUAL("actualCertificate"),
         CERTIFICATE_WRAPPER_TEMP("tempCertificate"),
         SYMM_KEY_WRAPPER_ACTUAL("actualSymmetricKeyWrapperReference"),
@@ -72,4 +84,23 @@ public abstract class AbstractKeyAccessorImpl<T extends SecurityValueWrapper> im
         return pkiService.getPropertySpecs(getKeyAccessorType());
     }
 
+    @Override
+    public long getVersion() {
+        return version;
+    }
+
+    @Override
+    public void swapValues() {
+        this.swapped=!swapped;
+    }
+
+    @Override
+    public void clearTempValue() {
+        this.swapped=false;
+    }
+
+    @Override
+    public boolean isSwapped() {
+        return swapped;
+    }
 }

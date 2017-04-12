@@ -77,6 +77,7 @@ public class SymmetricKeyAccessorImpl extends AbstractKeyAccessorImpl<SymmetricK
     @Override
     public void clearTempValue() {
         if (tempSymmetricKeyWrapperReference.isPresent()) {
+            super.clearTempValue();
             SymmetricKeyWrapper symmetricKeyWrapper = (SymmetricKeyWrapper) this.tempSymmetricKeyWrapperReference.get();
             this.tempSymmetricKeyWrapperReference = null;
             symmetricKeyWrapper.delete();
@@ -95,6 +96,7 @@ public class SymmetricKeyAccessorImpl extends AbstractKeyAccessorImpl<SymmetricK
         Object actual = actualSymmetricKeyWrapperReference.get();
         actualSymmetricKeyWrapperReference = dataModel.asRefAny(tempSymmetricKeyWrapperReference.get());
         tempSymmetricKeyWrapperReference = dataModel.asRefAny(actual);
+        super.swapValues();
         this.save();
     }
 

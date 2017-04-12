@@ -7,6 +7,8 @@ package com.energyict.mdc.device.data;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.pki.CertificateWrapper;
+import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.SecurityValueWrapper;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -72,6 +74,15 @@ public interface DeviceService {
     Optional<Device> findAndLockDeviceByNameAndVersion(String name, long version);
 
     Optional<Device> findAndLockDeviceBymRIDAndVersion(String mRID, long version);
+
+    /**
+     * If the key accessor identified by device & key accessor type exists AND has the expected version, the corresponding
+     * key accessor will be returned
+     * @param device Part of KeyAccessor primary key
+     * @param keyAccessorType Part of KeyAccessor primary key
+     * @param version The expected version
+     */
+    Optional<KeyAccessor<SecurityValueWrapper>> findAndLockKeyAccessorByIdAndVersion(Device device, KeyAccessorType keyAccessorType, long version);
 
     /**
      * Finds the Device based on his unique internal name
@@ -172,4 +183,5 @@ public interface DeviceService {
      * @return true if in use, false otherwise
      */
     boolean usedByKeyAccessor(CertificateWrapper certificate);
+
 }

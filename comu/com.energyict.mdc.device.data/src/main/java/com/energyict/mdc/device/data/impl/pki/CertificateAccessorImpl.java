@@ -69,6 +69,7 @@ public class CertificateAccessorImpl extends AbstractKeyAccessorImpl<Certificate
         CertificateWrapper actualCertificateWrapper = actualCertificate.get();
         actualCertificate.set(tempCertificate.get());
         tempCertificate.set(actualCertificateWrapper);
+        super.swapValues();
         this.save();
     }
 
@@ -90,6 +91,7 @@ public class CertificateAccessorImpl extends AbstractKeyAccessorImpl<Certificate
     @Override
     public void clearTempValue() {
         if (tempCertificate.isPresent()) {
+            super.clearTempValue();
             tempCertificate.setNull();
             this.save();
         }
