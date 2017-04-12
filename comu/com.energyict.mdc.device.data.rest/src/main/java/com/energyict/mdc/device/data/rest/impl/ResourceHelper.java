@@ -10,8 +10,10 @@ import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.OverlapCalculatorBuilder;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.ValuesRangeConflictType;
+import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.estimation.EstimationService;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
@@ -24,6 +26,8 @@ import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.validation.ValidationRule;
+import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -97,9 +101,16 @@ public class ResourceHelper {
     private final Clock clock;
     private final Thesaurus thesaurus;
     private final DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
+    private final ValidationService validationService;
 
     @Inject
-    public ResourceHelper(DeviceService deviceService, ExceptionFactory exceptionFactory, ConcurrentModificationExceptionFactory conflictFactory, DeviceConfigurationService deviceConfigurationService, LoadProfileService loadProfileService, CommunicationTaskService communicationTaskService, MeteringGroupsService meteringGroupsService, ConnectionTaskService connectionTaskService, DeviceMessageService deviceMessageService, ProtocolPluggableService protocolPluggableService, DataCollectionKpiService dataCollectionKpiService, EstimationService estimationService, MdcPropertyUtils mdcPropertyUtils, CustomPropertySetService customPropertySetService, Clock clock, MasterDataService masterDataService, TopologyService topologyService, NlsService nlsService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+    public ResourceHelper(DeviceService deviceService, ExceptionFactory exceptionFactory, ConcurrentModificationExceptionFactory conflictFactory,
+                          DeviceConfigurationService deviceConfigurationService, LoadProfileService loadProfileService, CommunicationTaskService communicationTaskService,
+                          MeteringGroupsService meteringGroupsService, ConnectionTaskService connectionTaskService, DeviceMessageService deviceMessageService,
+                          ProtocolPluggableService protocolPluggableService, DataCollectionKpiService dataCollectionKpiService, EstimationService estimationService,
+                          MdcPropertyUtils mdcPropertyUtils, CustomPropertySetService customPropertySetService, Clock clock, MasterDataService masterDataService,
+                          TopologyService topologyService, NlsService nlsService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService,
+                          ValidationService validationService) {
         super();
         this.deviceService = deviceService;
         this.exceptionFactory = exceptionFactory;
@@ -118,6 +129,7 @@ public class ResourceHelper {
         this.customPropertySetService = customPropertySetService;
         this.topologyService = topologyService;
         this.clock = clock;
+        this.validationService = validationService;
 
         this.thesaurus = nlsService.getThesaurus(DeviceApplication.COMPONENT_NAME, Layer.REST)
                 .join(nlsService.getThesaurus(DeviceLifeCycleConfigApplication.DEVICE_CONFIG_LIFECYCLE_COMPONENT, Layer.REST));
@@ -648,12 +660,14 @@ public class ResourceHelper {
     }
 
     public List<CustomPropertySetInfo> getVersionedCustomPropertySetHistoryInfos(Device device, long cpsId) {
-        return getVersionedCustomPropertySetHistoryInfos(getRegisteredCustomPropertySet(device, cpsId), device, device.getId(), device.getVersion(), cpsId, Optional.empty(), device.getDeviceType()
+        return getVersionedCustomPropertySetHistoryInfos(getRegisteredCustomPropertySet(device, cpsId), device, device.getId(), device.getVersion(), cpsId, Optional.empty(), device
+                .getDeviceType()
                 .getId(), device.getDeviceType().getVersion());
     }
 
     public List<CustomPropertySetInfo> getVersionedCustomPropertySetHistoryInfos(Channel channel, long cpsId) {
-        return getVersionedCustomPropertySetHistoryInfos(getRegisteredCustomPropertySet(channel, cpsId), channel.getChannelSpec(), channel.getChannelSpec().getId(), channel.getChannelSpec()
+        return getVersionedCustomPropertySetHistoryInfos(getRegisteredCustomPropertySet(channel, cpsId), channel.getChannelSpec(), channel.getChannelSpec()
+                .getId(), channel.getChannelSpec()
                 .getVersion(), cpsId, Optional.of(channel.getDevice().getId()), channel.getChannelSpec().getLoadProfileSpec().getLoadProfileType().getId(), channel.getChannelSpec()
                 .getLoadProfileSpec()
                 .getLoadProfileType()
@@ -661,8 +675,11 @@ public class ResourceHelper {
     }
 
     public List<CustomPropertySetInfo> getVersionedCustomPropertySetHistoryInfos(Register register, long cpsId) {
-        return getVersionedCustomPropertySetHistoryInfos(getRegisteredCustomPropertySet(register, cpsId), register.getRegisterSpec(), register.getRegisterSpec().getId(), register.getRegisterSpec()
-                .getVersion(), cpsId, Optional.of(register.getDevice().getId()), register.getRegisterSpec().getRegisterType().getId(), register.getRegisterSpec().getRegisterType().getVersion());
+        return getVersionedCustomPropertySetHistoryInfos(getRegisteredCustomPropertySet(register, cpsId), register.getRegisterSpec(), register.getRegisterSpec()
+                .getId(), register.getRegisterSpec()
+                .getVersion(), cpsId, Optional.of(register.getDevice().getId()), register.getRegisterSpec().getRegisterType().getId(), register.getRegisterSpec()
+                .getRegisterType()
+                .getVersion());
     }
 
     public <D> List<CustomPropertySetInfo> getVersionedCustomPropertySetHistoryInfos(RegisteredCustomPropertySet registeredCustomPropertySet, D businessObject, long businessObjectId, long businessObjectVersion, long cpsId, Optional<Object> object, long objectTypeId, long objectTypeVersion) {
@@ -737,7 +754,8 @@ public class ResourceHelper {
             throw exceptionFactory.newException(MessageSeeds.NO_SUCH_CUSTOMPROPERTYSET_FOR_CHANNEL, cpsId, channel.getId());
         }
         Range<Instant> newRange = getTimeRange(info.startTime, info.endTime);
-        customPropertySetService.setValuesVersionFor(registeredCustomPropertySet.getCustomPropertySet(), channel.getChannelSpec(), getCustomPropertySetValues(registeredCustomPropertySet.getCustomPropertySet()
+        customPropertySetService.setValuesVersionFor(registeredCustomPropertySet.getCustomPropertySet(), channel.getChannelSpec(), getCustomPropertySetValues(registeredCustomPropertySet
+                .getCustomPropertySet()
                 .getPropertySpecs(), info), newRange, channel.getDevice()
                 .getId());
         channel.getChannelSpec().save();
@@ -750,7 +768,8 @@ public class ResourceHelper {
             throw exceptionFactory.newException(MessageSeeds.NO_SUCH_CUSTOMPROPERTYSET_FOR_CHANNEL, cpsId, channel.getId());
         }
         Range<Instant> newRange = getTimeRange(info.startTime, info.endTime);
-        customPropertySetService.setValuesVersionFor(registeredCustomPropertySet.getCustomPropertySet(), channel.getChannelSpec(), getCustomPropertySetValues(registeredCustomPropertySet.getCustomPropertySet()
+        customPropertySetService.setValuesVersionFor(registeredCustomPropertySet.getCustomPropertySet(), channel.getChannelSpec(), getCustomPropertySetValues(registeredCustomPropertySet
+                .getCustomPropertySet()
                 .getPropertySpecs(), info), newRange, effectiveTimestamp, channel
                 .getDevice()
                 .getId());
@@ -764,7 +783,8 @@ public class ResourceHelper {
             throw exceptionFactory.newException(MessageSeeds.NO_SUCH_CUSTOMPROPERTYSET_FOR_REGISTER, cpsId, register.getRegisterSpecId());
         }
         Range<Instant> newRange = getTimeRange(info.startTime, info.endTime);
-        customPropertySetService.setValuesVersionFor(registeredCustomPropertySet.getCustomPropertySet(), register.getRegisterSpec(), getCustomPropertySetValues(registeredCustomPropertySet.getCustomPropertySet()
+        customPropertySetService.setValuesVersionFor(registeredCustomPropertySet.getCustomPropertySet(), register.getRegisterSpec(), getCustomPropertySetValues(registeredCustomPropertySet
+                .getCustomPropertySet()
                 .getPropertySpecs(), info), newRange, register.getDevice()
                 .getId());
         register.getRegisterSpec().save();
@@ -777,7 +797,8 @@ public class ResourceHelper {
             throw exceptionFactory.newException(MessageSeeds.NO_SUCH_CUSTOMPROPERTYSET_FOR_REGISTER, cpsId, register.getRegisterSpecId());
         }
         Range<Instant> newRange = getTimeRange(info.startTime, info.endTime);
-        customPropertySetService.setValuesVersionFor(registeredCustomPropertySet.getCustomPropertySet(), register.getRegisterSpec(), getCustomPropertySetValues(registeredCustomPropertySet.getCustomPropertySet()
+        customPropertySetService.setValuesVersionFor(registeredCustomPropertySet.getCustomPropertySet(), register.getRegisterSpec(), getCustomPropertySetValues(registeredCustomPropertySet
+                .getCustomPropertySet()
                 .getPropertySpecs(), info), newRange, effectiveTimestamp, register
                 .getDevice()
                 .getId());
@@ -790,7 +811,8 @@ public class ResourceHelper {
     }
 
     public List<CustomPropertySetIntervalConflictInfo> getOverlapsWhenCreate(Device device, long cpsId, Range<Instant> range) {
-        return getOverlaps(getRegisteredCustomPropertySet(device, cpsId), device, device.getId(), device.getVersion(), range, device.getDeviceType().getId(), device.getDeviceType().getVersion());
+        return getOverlaps(getRegisteredCustomPropertySet(device, cpsId), device, device.getId(), device.getVersion(), range, device.getDeviceType().getId(), device.getDeviceType()
+                .getVersion());
     }
 
     public List<CustomPropertySetIntervalConflictInfo> getOverlapsWhenUpdate(Channel channel, long cpsId, Range<Instant> range, Instant effectiveTimestamp) {
@@ -811,13 +833,16 @@ public class ResourceHelper {
 
     public List<CustomPropertySetIntervalConflictInfo> getOverlapsWhenUpdate(Register register, long cpsId, Range<Instant> range, Instant effectiveTimestamp) {
         return getOverlaps(getRegisteredCustomPropertySet(register, cpsId), register.getRegisterSpec(), register.getRegisterSpec().getId(), register.getRegisterSpec()
-                .getVersion(), range, register.getRegisterSpec().getRegisterType().getId(), register.getRegisterSpec().getRegisterType().getVersion(), effectiveTimestamp, register.getDevice()
+                .getVersion(), range, register.getRegisterSpec().getRegisterType().getId(), register.getRegisterSpec()
+                .getRegisterType()
+                .getVersion(), effectiveTimestamp, register.getDevice()
                 .getId());
     }
 
     public List<CustomPropertySetIntervalConflictInfo> getOverlapsWhenCreate(Register register, long cpsId, Range<Instant> range) {
         return getOverlaps(getRegisteredCustomPropertySet(register, cpsId), register.getRegisterSpec(), register.getRegisterSpec().getId(), register.getRegisterSpec()
-                .getVersion(), range, register.getRegisterSpec().getRegisterType().getId(), register.getRegisterSpec().getRegisterType().getVersion(), register.getDevice().getId());
+                .getVersion(), range, register.getRegisterSpec().getRegisterType().getId(), register.getRegisterSpec().getRegisterType().getVersion(), register.getDevice()
+                .getId());
     }
 
     @SuppressWarnings("unchecked")
@@ -900,7 +925,8 @@ public class ResourceHelper {
                 .orElseThrow(conflictException(info));
 
         if (registeredCustomPropertySet.isEditableByCurrentUser() && matches(info, registeredCustomPropertySet)) {
-            customPropertySetService.setValuesFor(registeredCustomPropertySet.getCustomPropertySet(), register.getRegisterSpec(), getCustomPropertySetValues(registeredCustomPropertySet.getCustomPropertySet()
+            customPropertySetService.setValuesFor(registeredCustomPropertySet.getCustomPropertySet(), register.getRegisterSpec(), getCustomPropertySetValues(registeredCustomPropertySet
+                    .getCustomPropertySet()
                     .getPropertySpecs(), info), register.getDevice().getId());
             register.getRegisterSpec().save();
         } else {
@@ -968,7 +994,8 @@ public class ResourceHelper {
                 .getDeviceType()
                 .getLoadProfileTypeCustomPropertySet(channel.getChannelSpec().getLoadProfileSpec().getLoadProfileType());
         if (registeredCustomPropertySet.isPresent() && registeredCustomPropertySet.get().isEditableByCurrentUser()) {
-            customPropertySetService.setValuesFor(registeredCustomPropertySet.get().getCustomPropertySet(), channel.getChannelSpec(), getCustomPropertySetValues(registeredCustomPropertySet.get()
+            customPropertySetService.setValuesFor(registeredCustomPropertySet.get()
+                    .getCustomPropertySet(), channel.getChannelSpec(), getCustomPropertySetValues(registeredCustomPropertySet.get()
                     .getCustomPropertySet()
                     .getPropertySpecs(), info), channel.getDevice().getId());
             channel.getChannelSpec().save();
@@ -997,7 +1024,8 @@ public class ResourceHelper {
     }
 
     public Range<Instant> getCurrentTimeInterval(Channel channel, long cpsId) {
-        return getCurrentTimeInterval(getRegisteredCustomPropertySet(channel, cpsId), channel.getChannelSpec(), channel.getChannelSpec().getId(), channel.getChannelSpec().getVersion(), cpsId, Optional
+        return getCurrentTimeInterval(getRegisteredCustomPropertySet(channel, cpsId), channel.getChannelSpec(), channel.getChannelSpec().getId(), channel.getChannelSpec()
+                .getVersion(), cpsId, Optional
                 .of(channel.getDevice().getId()), channel.getChannelSpec().getLoadProfileSpec().getLoadProfileType().getId(), channel.getChannelSpec()
                 .getLoadProfileSpec()
                 .getLoadProfileType()
@@ -1006,14 +1034,18 @@ public class ResourceHelper {
 
     public Range<Instant> getCurrentTimeInterval(Register register, long cpsId) {
         return getCurrentTimeInterval(getRegisteredCustomPropertySet(register, cpsId), register.getRegisterSpec(), register.getRegisterSpec().getId(), register.getRegisterSpec()
-                .getVersion(), cpsId, Optional.of(register.getDevice().getId()), register.getRegisterSpec().getRegisterType().getId(), register.getRegisterSpec().getRegisterType().getVersion());
+                .getVersion(), cpsId, Optional.of(register.getDevice().getId()), register.getRegisterSpec().getRegisterType().getId(), register.getRegisterSpec()
+                .getRegisterType()
+                .getVersion());
     }
 
     public <D> Range<Instant> getCurrentTimeInterval(RegisteredCustomPropertySet registeredCustomPropertySet, D businessObject, long businessObjectId, long businessObjectVersion, long cpsId, Optional<Object> object, long objectTypeId, long objectTypeVersion) {
         List<CustomPropertySetInfo> customPropertySetInfo = this.getVersionedCustomPropertySetHistoryInfos(registeredCustomPropertySet, businessObject, businessObjectId, businessObjectVersion, cpsId, object, objectTypeId, objectTypeVersion)
                 .stream().filter(e -> e.id == cpsId).collect(Collectors.toList());
         Instant now = this.clock.instant();
-        Optional<CustomPropertySetInfo> curentInterval = customPropertySetInfo.stream().filter(e -> getTimeRange(e.startTime, e.endTime).contains(this.clock.instant())).findFirst();
+        Optional<CustomPropertySetInfo> curentInterval = customPropertySetInfo.stream()
+                .filter(e -> getTimeRange(e.startTime, e.endTime).contains(this.clock.instant()))
+                .findFirst();
         if (curentInterval.isPresent()) {
             return getTimeRange(now.toEpochMilli(), curentInterval.get().endTime);
         }
@@ -1132,7 +1164,7 @@ public class ResourceHelper {
                 .map(dataLoggerReference -> dataLoggerReference.getRange().lowerEndpoint());
     }
 
-    public ConnectionTask updateConnectionTask(ConnectionTask connectionTask, ProtocolDialectConfigurationProperties properties){
+    public ConnectionTask updateConnectionTask(ConnectionTask connectionTask, ProtocolDialectConfigurationProperties properties) {
         return connectionTaskService.updateProtocolDialectConfigurationProperties(connectionTask, properties);
     }
 
@@ -1141,5 +1173,33 @@ public class ResourceHelper {
      */
     public Thesaurus getThesaurus() {
         return thesaurus;
+    }
+
+    public ValidationRule findValidationRuleOrThrowException(long ruleId) {
+        return validationService.findValidationRule(ruleId)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_VALIDATION_RULE, ruleId));
+    }
+
+    public EstimationRule findEstimationRuleOrThrowException(long ruleId) {
+        return estimationService.getEstimationRule(ruleId)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_ESTIMATION_RULE, ruleId));
+    }
+
+    public ReadingType findChannelReadingTypeOrThrowException(Channel channel, String readingTypeMrid) {
+        return Stream.concat(
+                Stream.of(channel.getReadingType()),
+                channel.getCalculatedReadingType(clock.instant()).map(Stream::of).orElse(Stream.empty()))
+                .filter(readingType -> readingType.getMRID().equals(readingTypeMrid))
+                .findAny()
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_READINGTYPE_ON_CHANNEL, channel.getId(), readingTypeMrid));
+    }
+
+    public ReadingType findRegisterReadingTypeOrThrowException(Register<?, ?> register, String readingTypeMrid) {
+        return Stream.concat(
+                Stream.of(register.getReadingType()),
+                register.getCalculatedReadingType(clock.instant()).map(Stream::of).orElse(Stream.empty()))
+                .filter(readingType -> readingType.getMRID().equals(readingTypeMrid))
+                .findAny()
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_READINGTYPE_ON_CHANNEL, register.getRegisterSpecId(), readingTypeMrid));
     }
 }

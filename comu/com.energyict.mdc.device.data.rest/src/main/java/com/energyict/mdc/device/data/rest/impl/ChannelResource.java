@@ -37,7 +37,6 @@ import com.energyict.mdc.device.data.LoadProfileJournalReading;
 import com.energyict.mdc.device.data.LoadProfileReading;
 import com.energyict.mdc.device.data.rest.DeviceStagesRestricted;
 import com.energyict.mdc.device.data.security.Privileges;
-import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.topology.DataLoggerChannelUsage;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidation;
@@ -96,9 +95,17 @@ public class ChannelResource {
     private final MeteringService meteringService;
     private final EstimationRuleInfoFactory estimationRuleInfoFactory;
     private final DeviceConfigurationService deviceConfigurationService;
+    private final Provider<ChannelValidationResource> channelValidationResourceProvider;
+    private final Provider<ChannelEstimationResource> channelEstimationResourceProvider;
 
     @Inject
-    public ChannelResource(ExceptionFactory exceptionFactory, Provider<ChannelResourceHelper> channelHelper, ResourceHelper resourceHelper, Clock clock, DeviceDataInfoFactory deviceDataInfoFactory, ValidationInfoFactory validationInfoFactory, IssueDataValidationService issueDataValidationService, EstimationHelper estimationHelper, TopologyService topologyService, MeteringService meteringService, EstimationRuleInfoFactory estimationRuleInfoFactory, DeviceConfigurationService deviceConfigurationService) {
+    public ChannelResource(ExceptionFactory exceptionFactory, Provider<ChannelResourceHelper> channelHelper,
+                           ResourceHelper resourceHelper, Clock clock, DeviceDataInfoFactory deviceDataInfoFactory,
+                           ValidationInfoFactory validationInfoFactory, IssueDataValidationService issueDataValidationService,
+                           EstimationHelper estimationHelper, TopologyService topologyService, MeteringService meteringService,
+                           EstimationRuleInfoFactory estimationRuleInfoFactory, DeviceConfigurationService deviceConfigurationService,
+                           Provider<ChannelValidationResource> channelValidationResourceProvider,
+                           Provider<ChannelEstimationResource> channelEstimationResourceProvider) {
         this.exceptionFactory = exceptionFactory;
         this.channelHelper = channelHelper;
         this.resourceHelper = resourceHelper;
@@ -111,6 +118,8 @@ public class ChannelResource {
         this.meteringService = meteringService;
         this.estimationRuleInfoFactory = estimationRuleInfoFactory;
         this.deviceConfigurationService = deviceConfigurationService;
+        this.channelValidationResourceProvider = channelValidationResourceProvider;
+        this.channelEstimationResourceProvider = channelEstimationResourceProvider;
     }
 
     @GET
@@ -146,6 +155,16 @@ public class ChannelResource {
         channelUpdater.setObisCode(channelInfo.overruledObisCode);
         channelUpdater.update();
         return Response.ok().build();
+    }
+
+    @Path("/{channelid}/validation")
+    public ChannelValidationResource getChannelValidationResource() {
+        return channelValidationResourceProvider.get();
+    }
+
+    @Path("/{channelid}/estimation")
+    public ChannelEstimationResource getChannelEstimationResource() {
+        return channelEstimationResourceProvider.get();
     }
 
     @GET
@@ -382,7 +401,8 @@ public class ChannelResource {
                         Channel channelWithData = channelRangePair.getFirst();
                         List<LoadProfileReading> loadProfileReadings = channelWithData.getChannelData(Interval.of(channelRangePair.getLast()).toOpenClosedRange());
                         return loadProfileReadings.stream()
-                                .map(loadProfileReading -> deviceDataInfoFactory.createChannelDataInfo(channelWithData, loadProfileReading, isValidationActive, deviceValidation, channel.equals(channelWithData) ? null : channelWithData
+                                .map(loadProfileReading -> deviceDataInfoFactory.createChannelDataInfo(channelWithData, loadProfileReading, isValidationActive, deviceValidation, channel
+                                        .equals(channelWithData) ? null : channelWithData
                                         .getDevice()));
                     })
                     .filter(resourceHelper.getSuspectsFilter(filter, this::hasSuspects))
@@ -571,8 +591,8 @@ public class ChannelResource {
             } else {
                 if (channelDataInfo.value != null) {
                     BaseReading baseReading = channelDataInfo.createNew();
-                    if (channelDataInfo.mainValidationInfo != null &&  channelDataInfo.mainValidationInfo.ruleId!= 0) {
-                        ((BaseReadingImpl)baseReading).addQuality("2.8." + channelDataInfo.mainValidationInfo.ruleId);
+                    if (channelDataInfo.mainValidationInfo != null && channelDataInfo.mainValidationInfo.ruleId != 0) {
+                        ((BaseReadingImpl) baseReading).addQuality("2.8." + channelDataInfo.mainValidationInfo.ruleId);
                         estimatedReadings.add(baseReading);
                     } else {
                         editedReadings.add(baseReading);
@@ -581,7 +601,7 @@ public class ChannelResource {
                 if (channelDataInfo.collectedValue != null) {
                     BaseReading baseReading = channelDataInfo.createNewBulk();
                     if (channelDataInfo.bulkValidationInfo != null && channelDataInfo.bulkValidationInfo.ruleId != 0) {
-                        ((BaseReadingImpl)baseReading).addQuality("2.8." + channelDataInfo.bulkValidationInfo.ruleId);
+                        ((BaseReadingImpl) baseReading).addQuality("2.8." + channelDataInfo.bulkValidationInfo.ruleId);
                         estimatedBulkReadings.add(baseReading);
                     } else {
                         editedBulkReadings.add(baseReading);
@@ -676,7 +696,8 @@ public class ChannelResource {
                 .asRanges();
 
         Instant calculatedReadingTypeTimeStampForEstimationPreview = getCalculatedReadingTypeTimeStampForEstimationPreview(estimateChannelDataInfo);
-        if (!estimateChannelDataInfo.estimateBulk && channel.getReadingType().isCumulative() && channel.getCalculatedReadingType(calculatedReadingTypeTimeStampForEstimationPreview).isPresent()) {
+        if (!estimateChannelDataInfo.estimateBulk && channel.getReadingType().isCumulative() && channel.getCalculatedReadingType(calculatedReadingTypeTimeStampForEstimationPreview)
+                .isPresent()) {
             readingType = channel.getCalculatedReadingType(calculatedReadingTypeTimeStampForEstimationPreview).get();
         }
 
@@ -721,7 +742,8 @@ public class ChannelResource {
                 .asRanges();
 
         Instant calculatedReadingTypeTimeStampForEstimationPreview = getCalculatedReadingTypeTimeStampForEstimationPreview(estimateChannelDataInfo);
-        if (!estimateChannelDataInfo.estimateBulk && channel.getReadingType().isCumulative() && channel.getCalculatedReadingType(calculatedReadingTypeTimeStampForEstimationPreview).isPresent()) {
+        if (!estimateChannelDataInfo.estimateBulk && channel.getReadingType().isCumulative() && channel.getCalculatedReadingType(calculatedReadingTypeTimeStampForEstimationPreview)
+                .isPresent()) {
             readingType = channel.getCalculatedReadingType(calculatedReadingTypeTimeStampForEstimationPreview).get();
         }
 

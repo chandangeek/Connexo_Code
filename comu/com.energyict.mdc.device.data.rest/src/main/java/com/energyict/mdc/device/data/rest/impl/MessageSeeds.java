@@ -68,7 +68,7 @@ public enum MessageSeeds implements MessageSeed {
     CONCURRENT_RUN_BODY(246, "ConcurrentRunMessage", "{0} has changed since the page was last updated."),
     NO_SUCH_CUSTOMPROPERTYSET(247, "noSuchCPS", "No custom property set with ID {0}"),
     DEVICE_SEARCH_DOMAIN_NOT_REGISTERED(248, "DeviceSearchDomainNotRegistered", "Device search domain is not registered"),
-    AT_LEAST_ONE_SEARCH_CRITERIA(249, "AtLeastOneCriteria" , "At least one search criterion has to be provided"),
+    AT_LEAST_ONE_SEARCH_CRITERIA(249, "AtLeastOneCriteria", "At least one search criterion has to be provided"),
     NO_SUCH_REQUIRED_PROPERTY(250, "NoSuchProperty", "No custom property required value"),
     SEARCHABLE_PROPERTY_INVALID_VALUE(251, "SearchablePropertyInvalidValue", "Invalid value"),
     OVERLAP_CUSTOMPROPERTYSET(252, "overlapCPSvalue", "Custom property set conflicting with another sets in timeline"),
@@ -85,12 +85,12 @@ public enum MessageSeeds implements MessageSeed {
     FLAG_DEVICE_CONCURRENT_BODY(263, "FlagDeviceConcurrentMessage", "{0} has changed since the page was last updated."),
     VERSION_MISSING(264, "VersionInfoMissing", "Versioning information is missing in the request"),
     CONFLICT_ON_DEVICE(265, "ConflictOnDevice", "The device you attempted to edit was changed by someone else."),
-    NO_SUCH_DEVICE_CONFIG(266, "NoSuchDeviceConfig" , "Device type does not contain a device configuration with that id"),
-    NO_SUCH_DEVICE_TYPE(267, "NoSuchDeviceType" , "Device type does not exist with that id"),
-    NO_SUCH_DEVICE_ID(268, "NoSuchDeviceId" , "No device with id {0}"),
-    CHANGE_DEVICE_CONFIG_CONFLICT(269, "ChangeDeviceConfigConflict" , "Found change device configuration conflict with id {0}"),
-    NO_SUCH_LOAD_PROFILE_TYPE(270, "NoSuchLoadProfileType" , "Load profile type does not exist with that id"),
-    NO_SUCH_REGISTER_TYPE(271, "NoSuchRegisterType" , "Register type does not exist with that id"),
+    NO_SUCH_DEVICE_CONFIG(266, "NoSuchDeviceConfig", "Device type does not contain a device configuration with that id"),
+    NO_SUCH_DEVICE_TYPE(267, "NoSuchDeviceType", "Device type does not exist with that id"),
+    NO_SUCH_DEVICE_ID(268, "NoSuchDeviceId", "No device with id {0}"),
+    CHANGE_DEVICE_CONFIG_CONFLICT(269, "ChangeDeviceConfigConflict", "Found change device configuration conflict with id {0}"),
+    NO_SUCH_LOAD_PROFILE_TYPE(270, "NoSuchLoadProfileType", "Load profile type does not exist with that id"),
+    NO_SUCH_REGISTER_TYPE(271, "NoSuchRegisterType", "Register type does not exist with that id"),
     VALUE_MAY_NOT_EXCEED_OVERFLOW_VALUE(272, "ValueMayNotExceedOverflowValue", "The value {0} may not exceed the configured overflow value {1}"),
     INVALID_TRACKING_ID(273, "InvalidTrackingId", "The tracking id is invalid for this tracking category"),
     BAD_REQUEST(274, "badRequest", "Bad request"),
@@ -112,7 +112,12 @@ public enum MessageSeeds implements MessageSeed {
     PROCESS_STATUS_ABORTED(290, "ProcessStatusAborted", "Aborted"),
     PROCESS_STATUS_SUSPENDED(291, "ProcessStatusSuspended", "Suspended"),
     OVERLAPPING_COMTASKS_IN_COMSCHEDULES(292, "OverlappingComTasks", "There are overlapping communication tasks in the schedules"),
-    NO_SUCH_PROTOCOL_PROPERTIES(293, "NoSuchProtocolDialectProperties", "\"No protocol dialect with name '{0}'");
+    NO_SUCH_PROTOCOL_PROPERTIES(293, "NoSuchProtocolDialectProperties", "\"No protocol dialect with name '{0}'"),
+    NO_SUCH_VALIDATION_RULE(294, "noSuchValidationRule", "No validation rule with id {0}"),
+    NO_SUCH_ESTIMATION_RULE(295, "noSuchEstimationRule", "No estimation rule with id {0}"),
+    NO_SUCH_READINGTYPE_ON_CHANNEL(296, "noSuchReadingTypeOnChannel", "Device''s channel with id {0} doesn''t provide reading type {1}"),
+    NO_SUCH_READINGTYPE_ON_REGISTER(297, "noSuchReadingTypeOnRegister", "Device''s register with id {0} doesn''t provide reading type {1}");
+
     private final int number;
     private final String key;
     private final String format;

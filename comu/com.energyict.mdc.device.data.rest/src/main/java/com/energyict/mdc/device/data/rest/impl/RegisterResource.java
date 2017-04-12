@@ -7,29 +7,52 @@ package com.energyict.mdc.device.data.rest.impl;
 import com.elster.jupiter.cps.ValuesRangeConflictType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
-import com.elster.jupiter.rest.util.*;
+import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
+import com.elster.jupiter.rest.util.JsonQueryFilter;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.rest.IntervalInfo;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
-import com.energyict.mdc.device.data.*;
+import com.energyict.mdc.device.data.BillingRegister;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.NumericalReading;
+import com.energyict.mdc.device.data.NumericalRegister;
+import com.energyict.mdc.device.data.Reading;
+import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.MeasurementType;
 import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.masterdata.RegisterType;
+
 import com.google.common.collect.Range;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.inject.Provider;
-import javax.ws.rs.*;
+import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class RegisterResource {
@@ -38,6 +61,7 @@ public class RegisterResource {
     private final ResourceHelper resourceHelper;
     private final Provider<RegisterDataResource> registerDataResourceProvider;
     private final Provider<RegisterHistoryDataResource> registerHistoryDataResourceProvider;
+    private final Provider<RegisterValidationResource> registerValidationResourceProvider;
     private final ValidationInfoHelper validationInfoHelper;
     private final DeviceDataInfoFactory deviceDataInfoFactory;
     private final TopologyService topologyService;
@@ -45,11 +69,15 @@ public class RegisterResource {
     private final Clock clock;
 
     @Inject
-    public RegisterResource(ExceptionFactory exceptionFactory, ResourceHelper resourceHelper, Provider<RegisterDataResource> registerDataResourceProvider, Provider<RegisterHistoryDataResource> registerHistoryDataResourceProvider, ValidationInfoHelper validationInfoHelper, Clock clock, DeviceDataInfoFactory deviceDataInfoFactory, TopologyService topologyService, MasterDataService masterDataService) {
+    public RegisterResource(ExceptionFactory exceptionFactory, ResourceHelper resourceHelper, Provider<RegisterDataResource> registerDataResourceProvider,
+                            Provider<RegisterHistoryDataResource> registerHistoryDataResourceProvider, Provider<RegisterValidationResource> registerValidationResourceProvider,
+                            ValidationInfoHelper validationInfoHelper, Clock clock, DeviceDataInfoFactory deviceDataInfoFactory, TopologyService topologyService,
+                            MasterDataService masterDataService) {
         this.exceptionFactory = exceptionFactory;
         this.resourceHelper = resourceHelper;
         this.registerDataResourceProvider = registerDataResourceProvider;
         this.registerHistoryDataResourceProvider = registerHistoryDataResourceProvider;
+        this.registerValidationResourceProvider = registerValidationResourceProvider;
         this.clock = clock;
         this.validationInfoHelper = validationInfoHelper;
         this.deviceDataInfoFactory = deviceDataInfoFactory;
@@ -452,6 +480,11 @@ public class RegisterResource {
     @Path("/{registerId}/historydata")
     public RegisterHistoryDataResource getRegisterHistoryDataResource() {
         return registerHistoryDataResourceProvider.get();
+    }
+
+    @Path("/{registerId}/validation")
+    public RegisterValidationResource getRegisterValidationResource() {
+        return registerValidationResourceProvider.get();
     }
 
     @Path("{registerId}/validationstatus")
