@@ -39,6 +39,4 @@ public class PrivilegesProviderV10_3 implements PrivilegesProvider {
                         Collections.singletonList(Privileges.Constants.MANAGE_USAGE_POINT_ATTRIBUTES)));
         return resources;
     }
-
-
 }

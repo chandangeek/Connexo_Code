@@ -27,7 +27,7 @@ public enum Privileges implements TranslationKey {
 
     ADMINISTER_METROLOGY_CONFIGURATION(Constants.ADMINISTER_METROLOGY_CONFIGURATION, "Administer metrology configuration"),
 	VIEW_METROLOGY_CONFIGURATION(Constants.VIEW_METROLOGY_CONFIGURATION, "View metrology configuration"),
-	MANAGE_USAGE_POINT_ATTRIBUTES(Constants.MANAGE_USAGE_POINT_ATTRIBUTES, "Manage usage point attributes"),
+	MANAGE_USAGE_POINT_ATTRIBUTES(Constants.MANAGE_USAGE_POINT_ATTRIBUTES, "Manage usage point attributes")
 	;
 
 	private final String key;

@@ -8,12 +8,9 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
-import com.elster.jupiter.metering.impl.MeteringDataModelService;
-import com.elster.jupiter.nls.Thesaurus;
 
 import com.google.common.collect.Range;
 
-import javax.inject.Inject;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,14 +27,8 @@ import java.util.stream.Collectors;
 @SuppressWarnings("unused")
 public class VirtualFactoryImpl implements VirtualFactory {
 
-    private final Thesaurus thesaurus;
     private final Map<MeterActivationSet, VirtualFactory> factoriesPerMeterActivationSet = new HashMap<>();
     private VirtualFactory currentFactory = new NoCurrentMeterActivation();
-
-    @Inject
-    public VirtualFactoryImpl(MeteringDataModelService dataModelService) {
-        this.thesaurus = dataModelService.getThesaurus();
-    }
 
     @Override
     public VirtualReadingTypeRequirement requirementFor(Formula.Mode mode, ReadingTypeRequirement requirement, ReadingTypeDeliverable deliverable, VirtualReadingType readingType) {
@@ -59,7 +50,7 @@ public class VirtualFactoryImpl implements VirtualFactory {
 
     @Override
     public void nextMeterActivationSet(MeterActivationSet meterActivationSet, Range<Instant> requestedPeriod) {
-        MeterActivationFactory factory = new MeterActivationFactory(this.thesaurus, meterActivationSet, requestedPeriod, this.currentFactory.sequenceNumber() + 1);
+        MeterActivationFactory factory = new MeterActivationFactory(meterActivationSet, requestedPeriod, this.currentFactory.sequenceNumber() + 1);
         this.factoriesPerMeterActivationSet.put(meterActivationSet, factory);
         this.currentFactory = factory;
     }
@@ -101,22 +92,16 @@ public class VirtualFactoryImpl implements VirtualFactory {
      * that works for a single {@link MeterActivation}.
      */
     private final class MeterActivationFactory implements VirtualFactory {
-        private final Thesaurus thesaurus;
         private final MeterActivationSet meterActivationSet;
         private final Range<Instant> requestedPeriod;
         private final int sequenceNumber;
         private final Map<ReadingTypeRequirement, MeterActivationAndRequirementFactory> factoriesPerRequirement = new HashMap<>();
 
-        private MeterActivationFactory(Thesaurus thesaurus, MeterActivationSet meterActivationSet, Range<Instant> requestedPeriod, int sequenceNumber) {
+        private MeterActivationFactory(MeterActivationSet meterActivationSet, Range<Instant> requestedPeriod, int sequenceNumber) {
             super();
-            this.thesaurus = thesaurus;
             this.meterActivationSet = meterActivationSet;
             this.sequenceNumber = sequenceNumber;
             this.requestedPeriod = requestedPeriod;
-        }
-
-        Thesaurus getThesaurus() {
-            return thesaurus;
         }
 
         @Override
@@ -169,10 +154,6 @@ public class VirtualFactoryImpl implements VirtualFactory {
             this.parent = parent;
         }
 
-        Thesaurus getThesaurus() {
-            return this.parent.getThesaurus();
-        }
-
         public VirtualReadingTypeRequirement requirementFor(Formula.Mode mode, ReadingTypeRequirement requirement, ReadingTypeDeliverable deliverable, VirtualReadingType readingType) {
             return this.requirements
                     .computeIfAbsent(readingType, key -> new MeterActivationAndRequirementInDeliverableFactory(this))
@@ -223,7 +204,6 @@ public class VirtualFactoryImpl implements VirtualFactory {
 
         private VirtualReadingTypeRequirement newRequirement(Formula.Mode mode, ReadingTypeRequirement requirement, ReadingTypeDeliverable deliverable, VirtualReadingType readingType) {
             return new VirtualReadingTypeRequirement(
-                    this.parent.getThesaurus(),
                     mode,
                     requirement,
                     deliverable,

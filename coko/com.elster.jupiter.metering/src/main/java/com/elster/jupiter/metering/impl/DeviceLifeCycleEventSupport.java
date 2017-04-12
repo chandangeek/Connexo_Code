@@ -58,7 +58,9 @@ public class DeviceLifeCycleEventSupport implements StandardEventPredicate, Curr
         return this.deviceRelatedEventTypes()
                 .stream()
                 .map(EventType::topic)
-                .anyMatch(t -> eventType.getTopic().equals(t));
+                .filter(t -> eventType.getTopic().equals(t))
+                .findAny()
+                .isPresent();
     }
 
     private Set<EventType> deviceRelatedEventTypes() {

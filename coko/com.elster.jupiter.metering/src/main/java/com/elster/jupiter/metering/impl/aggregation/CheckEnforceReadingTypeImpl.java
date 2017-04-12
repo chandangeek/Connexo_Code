@@ -60,11 +60,6 @@ class CheckEnforceReadingTypeImpl implements CheckEnforceReadingType {
     }
 
     @Override
-    public Boolean visitSyntheticLoadProfile(SyntheticLoadProfilePropertyNode slp) {
-        return Boolean.TRUE;
-    }
-
-    @Override
     public Boolean visitSqlFragment(SqlFragmentNode variable) {
         return Boolean.TRUE;
     }

@@ -298,4 +298,5 @@ public class MetrologyContractChannelsContainerImplTestIT {
         readings = channel.getReadings(effectiveMetrologyConfiguration.getRange());
         assertThat(readings).hasSize(1);
     }
+
 }

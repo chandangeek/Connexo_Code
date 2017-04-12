@@ -11,8 +11,6 @@ import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.impl.config.ReadingTypeDeliverableNodeImpl;
 import com.elster.jupiter.metering.impl.config.ReadingTypeRequirementNodeImpl;
-import com.elster.jupiter.metering.slp.SyntheticLoadProfile;
-import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.units.Dimension;
 
 import java.util.List;
@@ -61,15 +59,7 @@ class Copy implements ExpressionNode.Visitor<ServerExpressionNode> {
 
     @Override
     public ServerExpressionNode visitProperty(com.elster.jupiter.metering.config.CustomPropertyNode property) {
-        if (this.isSLP(property.getPropertySpec())) {
-            return new SyntheticLoadProfilePropertyNode(this.customPropertySetService, property.getPropertySpec(), property.getRegisteredCustomPropertySet(), this.usagePoint, this.meterActivationSet);
-        } else {
-            return new CustomPropertyNode(this.customPropertySetService, property.getPropertySpec(), property.getRegisteredCustomPropertySet(), this.usagePoint, this.meterActivationSet);
-        }
-    }
-
-    private boolean isSLP(PropertySpec propertySpec) {
-        return propertySpec.isReference() && propertySpec.getValueFactory().getValueType().isAssignableFrom(SyntheticLoadProfile.class);
+        return new CustomPropertyNode(this.customPropertySetService, property.getPropertySpec(), property.getRegisteredCustomPropertySet(), this.usagePoint, this.meterActivationSet);
     }
 
     @Override

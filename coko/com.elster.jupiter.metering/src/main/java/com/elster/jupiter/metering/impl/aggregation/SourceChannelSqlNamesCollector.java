@@ -33,11 +33,6 @@ class SourceChannelSqlNamesCollector implements ServerExpressionNode.Visitor<Str
     }
 
     @Override
-    public String visitSyntheticLoadProfile(SyntheticLoadProfilePropertyNode slp) {
-        return null;
-    }
-
-    @Override
     public String visitSqlFragment(SqlFragmentNode variable) {
         return null;
     }

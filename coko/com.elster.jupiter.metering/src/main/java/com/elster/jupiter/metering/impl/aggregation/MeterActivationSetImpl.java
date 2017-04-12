@@ -4,22 +4,16 @@
 
 package com.elster.jupiter.metering.impl.aggregation;
 
-import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MultiplierType;
 import com.elster.jupiter.metering.ReadingQualityRecord;
-import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
-import com.elster.jupiter.metering.impl.ServerCalendarUsage;
-import com.elster.jupiter.metering.slp.SyntheticLoadProfile;
 import com.elster.jupiter.util.streams.Functions;
 
-import com.google.common.base.MoreObjects;
-import com.google.common.collect.ImmutableRangeSet;
 import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
@@ -28,9 +22,7 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -42,24 +34,18 @@ import java.util.stream.Stream;
  * @since 2016-06-09 (13:18)
  */
 class MeterActivationSetImpl implements MeterActivationSet {
-    private final UsagePoint usagePoint;
-    private final List<MeterActivation> meterActivations = new ArrayList<>();
-    private Calendar calendar;
-    private final Map<String, SyntheticLoadProfile> syntheticLoadProfiles = new HashMap<>();
     private final UsagePointMetrologyConfiguration configuration;
+    private final List<MeterActivation> meterActivations = new ArrayList<>();
     private final int sequenceNumber;
-    private Range<Instant> period;
+    private final Range<Instant> period;
+    private final Instant start;
+    private Instant end;
 
-    MeterActivationSetImpl(UsagePoint usagePoint, UsagePointMetrologyConfiguration configuration, int sequenceNumber, Range<Instant> period, Instant start) {
-        this.usagePoint = usagePoint;
+    MeterActivationSetImpl(UsagePointMetrologyConfiguration configuration, int sequenceNumber, Range<Instant> period, Instant start) {
         this.configuration = configuration;
         this.sequenceNumber = sequenceNumber;
-        this.period = period.intersection(Range.atLeast(start));
-    }
-
-    @Override
-    public UsagePoint getUsagePoint() {
-        return usagePoint;
+        this.period = period;
+        this.start = start;
     }
 
     @Override
@@ -69,46 +55,24 @@ class MeterActivationSetImpl implements MeterActivationSet {
 
     @Override
     public Range<Instant> getRange() {
-        return this.period;
+        return this.period.intersection(this.range());
     }
 
-    @Override
-    public void avoidOverlapWith(MeterActivationSet other) {
-        boolean overlaps = !ImmutableRangeSet.of(this.getRange()).subRangeSet(other.getRange()).isEmpty();
-        if (overlaps) {
-            this.period = Range.closedOpen(this.period.lowerEndpoint(), other.getRange().lowerEndpoint());
+    private Range<Instant> range() {
+        if (this.end != null) {
+            return Range.closedOpen(this.start, this.end);
+        } else {
+            return Range.atLeast(this.start);
         }
     }
 
     @Override
     public void add(MeterActivation meterActivation) {
         this.meterActivations.add(meterActivation);
-        this.period = this.period.intersection(meterActivation.getRange());
-    }
-
-    @Override
-    public Calendar getCalendar() {
-        return calendar;
-    }
-
-    @Override
-    public void setCalendar(ServerCalendarUsage calendarUsage) {
-        this.calendar = calendarUsage.getCalendar();
-        this.period = this.period.intersection(calendarUsage.getRange());
-    }
-
-    @Override
-    public SyntheticLoadProfile getSyntheticLoadProfile(String propertySpecName) {
-        return this.syntheticLoadProfiles.get(propertySpecName);
-    }
-
-    @Override
-    public void addSyntheticLoadProfile(SyntheticLoadProfileUsage syntheticLoadProfileUsage) {
-        syntheticLoadProfileUsage
-                .getSyntheticLoadProfilePropertyNames()
-                .stream()
-                .forEach(propertySpecName -> this.syntheticLoadProfiles.put(propertySpecName, syntheticLoadProfileUsage.getSyntheticLoadProfile(propertySpecName)));
-        this.period = this.period.intersection(syntheticLoadProfileUsage.getRange());
+        Instant meterActivationEnd = meterActivation.getEnd();
+        if (this.end == null || (meterActivationEnd != null && !meterActivationEnd.isAfter(this.end))) {
+            this.end = meterActivationEnd;
+        }
     }
 
     @Override
@@ -136,7 +100,7 @@ class MeterActivationSetImpl implements MeterActivationSet {
                 .collect(Collectors.toList());
     }
 
-    public List<? extends ReadingQualityRecord> getReadingQualitiesFor(ReadingTypeRequirement requirement, Range<Instant> range) {
+    public List<? extends ReadingQualityRecord> getReadingQualitiesFor(ReadingTypeRequirement requirement, Range range) {
         Optional<MeterRole> meterRole = configuration.getMeterRoleFor(requirement);
         if (meterRole.isPresent()) {
             Optional<MeterActivation> meterActivation =
@@ -176,13 +140,6 @@ class MeterActivationSetImpl implements MeterActivationSet {
 
     public ZoneId getZoneId() {
         return meterActivations.iterator().next().getZoneId();
-    }
-
-    @Override
-    public String toString() {
-        return MoreObjects.toStringHelper(this)
-                .add("period", this.period)
-                .toString();
     }
 
 }

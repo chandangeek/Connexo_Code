@@ -31,6 +31,10 @@ public interface EffectiveMetrologyConfigurationOnUsagePoint extends Effectivity
 
     void close(Instant closingDate);
 
+    boolean isActive();
+
+    void activate();
+
     Instant getStart();
 
     Instant getEnd();

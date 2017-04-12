@@ -6,8 +6,6 @@ package com.elster.jupiter.metering.impl.aggregation;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
-import com.elster.jupiter.calendar.CalendarService;
-import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cps.AbstractVersionedPersistentDomainExtension;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
@@ -23,8 +21,6 @@ import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
-import com.elster.jupiter.fsm.Stage;
-import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.license.LicenseService;
@@ -49,15 +45,12 @@ import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverableBuilder;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
-import com.elster.jupiter.metering.impl.MeteringDataModelService;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsKey;
-import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Table;
@@ -84,7 +77,6 @@ import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigu
 import com.elster.jupiter.usagepoint.lifecycle.config.impl.UsagePointLifeCycleConfigurationModule;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
-import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
 import com.google.common.collect.Range;
@@ -121,7 +113,6 @@ import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Matchers.matches;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -148,8 +139,6 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
     private static Instant jan1st2016 = Instant.ofEpochMilli(1451602800000L);
     private static SqlBuilderFactory sqlBuilderFactory = mock(SqlBuilderFactory.class);
     private static ClauseAwareSqlBuilder clauseAwareSqlBuilder = mock(ClauseAwareSqlBuilder.class);
-    private static MeteringDataModelService dataModelService;
-    private static Thesaurus thesaurus;
 
     @Rule
     public TransactionalRule transactionalRule = new TransactionalRule(injector.getInstance(TransactionService.class));
@@ -170,11 +159,7 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
     private Meter meter;
 
     @Mock
-    private static State deviceState;
-    @Mock
-    private static Stage deviceStage;
-
-    private static final String OPERATIONAL_DEVICE_STAGE_KEY = "mtr.enddevicestage.operational";
+    private Thesaurus thesaurus;
 
     private static class MockModule extends AbstractModule {
         @Override
@@ -190,23 +175,12 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
 
     @BeforeClass
     public static void setUp() {
-        dataModelService = mock(MeteringDataModelService.class);
-        setupThesaurus();
         setupServices();
         setupReadingTypes();
         setupCustomPropertySets();
         setupMetrologyPurpose();
         setupDefaultUsagePointLifeCycle();
         ELECTRICITY = getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
-    }
-
-    private static void setupThesaurus() {
-        NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
-        when(messageFormat.format(anyVararg())).thenReturn("Translation not supported in unit tests");
-        thesaurus = mock(Thesaurus.class);
-        when(thesaurus.getFormat(any(TranslationKey.class))).thenReturn(messageFormat);
-        when(thesaurus.getFormat(any(MessageSeed.class))).thenReturn(messageFormat);
-        when(dataModelService.getThesaurus()).thenReturn(thesaurus);
     }
 
     private static void setupServices() {
@@ -236,7 +210,6 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
                     new FiniteStateMachineModule(),
                     new NlsModule(),
                     new BasicPropertiesModule(),
-                    new CalendarModule(),
                     new CustomPropertySetsModule(),
                     new UsagePointLifeCycleConfigurationModule()
             );
@@ -253,10 +226,6 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
 
     private static PropertySpecService getPropertySpecService() {
         return injector.getInstance(PropertySpecService.class);
-    }
-
-    private static CalendarService getCalendarService() {
-        return injector.getInstance(CalendarService.class);
     }
 
     private static CustomPropertySetService getCustomPropertySetService() {
@@ -278,12 +247,11 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
     private static DataAggregationService getDataAggregationService() {
         ServerMeteringService meteringService = getMeteringService();
         return new DataAggregationServiceImpl(
-                        getCalendarService(),
                         getCustomPropertySetService(),
                         meteringService,
                         new InstantTruncaterFactory(meteringService),
                         DataAggregationServiceImplCalculateWithCustomPropertiesIT::getSqlBuilderFactory,
-                        () -> new VirtualFactoryImpl(dataModelService),
+                        VirtualFactoryImpl::new,
                         () -> new ReadingTypeDeliverableForMeterActivationFactoryImpl(meteringService));
     }
 
@@ -401,8 +369,7 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
 
         // Setup MetrologyConfiguration
         this.configuration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("monthlyNetConsumption", ELECTRICITY).create();
-        this.configuration.addMeterRole(getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT));
-        this.contract = configuration.addMetrologyContract(METROLOGY_PURPOSE);
+
         // Add the CustomPropertySet
         RegisteredCustomPropertySet registeredCustomPropertySet = getCustomPropertySetService().findActiveCustomPropertySet(AntennaDetailsCustomPropertySet.ID).get();
         this.customPropertySetId = registeredCustomPropertySet.getId();
@@ -412,7 +379,7 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
         PropertySpec antennaPowerPropertySpec = this.getAntennaPowerPropertySpec(registeredCustomPropertySet);
 
         // Setup configuration deliverables
-        ReadingTypeDeliverableBuilder builder = this.contract.newReadingTypeDeliverable("consumption", monthlyNetConsumption, Formula.Mode.AUTO);
+        ReadingTypeDeliverableBuilder builder = this.configuration.newReadingTypeDeliverable("consumption", monthlyNetConsumption, Formula.Mode.AUTO);
         ReadingTypeDeliverable netConsumption =
                 builder.build(
                         builder.multiply(
@@ -431,6 +398,7 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
         this.usagePoint.apply(this.configuration, jan1st2016);
 
         this.contract = this.configuration.addMetrologyContract(METROLOGY_PURPOSE);
+        this.contract.addDeliverable(netConsumption);
 
         // Business method
         try {
@@ -505,7 +473,6 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
         MeterRole meterRole = getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT);
         this.configuration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("15minNetConsumption", ELECTRICITY).create();
         this.configuration.addMeterRole(meterRole);
-        this.contract = configuration.addMetrologyContract(METROLOGY_PURPOSE);
 
         // Add the CustomPropertySet
         RegisteredCustomPropertySet registeredCustomPropertySet = getCustomPropertySetService().findActiveCustomPropertySet(AntennaDetailsCustomPropertySet.ID).get();
@@ -520,7 +487,7 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
         System.out.println("15minNetConsumption::LOCALPOWER_REQUIREMENT_ID = " + this.localPowerRequirementId);
 
         // Setup configuration deliverables
-        ReadingTypeDeliverableBuilder builder = this.contract.newReadingTypeDeliverable("consumption", fifteenMinutesNetConsumption, Formula.Mode.AUTO);
+        ReadingTypeDeliverableBuilder builder = this.configuration.newReadingTypeDeliverable("consumption", fifteenMinutesNetConsumption, Formula.Mode.AUTO);
         ReadingTypeDeliverable netConsumption =
                 builder.build(
                         builder.plus(
@@ -537,6 +504,7 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
         this.usagePoint.apply(this.configuration, jan1st2016);
 
         this.contract = this.configuration.addMetrologyContract(METROLOGY_PURPOSE);
+        this.contract.addDeliverable(netConsumption);
 
         // Business method
         try {
@@ -583,10 +551,7 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
 
     private void setupMeter(String amrIdBase) {
         AmrSystem mdc = getMeteringService().findAmrSystem(KnownAmrSystem.MDC.getId()).get();
-        this.meter = spy(mdc.newMeter(amrIdBase, amrIdBase).create());
-        when(meter.getState(any(Instant.class))).thenReturn(Optional.of(deviceState));
-        when(deviceState.getStage()).thenReturn(Optional.of(deviceStage));
-        when(deviceStage.getName()).thenReturn(OPERATIONAL_DEVICE_STAGE_KEY);
+        this.meter = mdc.newMeter(amrIdBase, amrIdBase).create();
     }
 
     @SuppressWarnings("unchecked")

@@ -85,12 +85,6 @@ class ApplyCurrentAndOrVoltageTransformer implements ServerExpressionNode.Visito
     }
 
     @Override
-    public ServerExpressionNode visitSyntheticLoadProfile(SyntheticLoadProfilePropertyNode slp) {
-        // No replacement
-        return slp;
-    }
-
-    @Override
     public ServerExpressionNode visitNull(NullNode nullNode) {
         // No replacement
         return nullNode;

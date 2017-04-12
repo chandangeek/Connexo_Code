@@ -4,8 +4,6 @@
 
 package com.elster.jupiter.metering;
 
-import com.elster.jupiter.calendar.Calendar;
-import com.elster.jupiter.calendar.Category;
 import com.elster.jupiter.cbo.IdentifiedObject;
 import com.elster.jupiter.cbo.MarketRoleKind;
 import com.elster.jupiter.metering.ami.CompletionOptions;
@@ -29,7 +27,6 @@ import com.google.common.collect.Range;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -287,24 +284,6 @@ public interface UsagePoint extends HasId, IdentifiedObject {
      */
     void setInitialState();
 
-    ZoneId getZoneId();
-
-    /**
-     * Makes this UsagePoint obsolete.
-     * This UsagePoint will no longer show up in queries
-     * except the one that is looking for a UsagePoint by its database id or mRID.
-     */
-    void makeObsolete();
-
-    /**
-     * The Instant in time when this UsagePoint was made obsolete.
-     *
-     * @return The instant in time or {@code Optional.empty()} if this UsagePoint is not obsolete
-     */
-    Optional<Instant> getObsoleteTime();
-
-    UsedCalendars getUsedCalendars();
-
     interface UsagePointConfigurationBuilder {
 
         UsagePointConfigurationBuilder endingAt(Instant endTime);
@@ -327,28 +306,19 @@ public interface UsagePoint extends HasId, IdentifiedObject {
         UsagePointConfigurationBuilder calculating(ReadingType readingType);
     }
 
-    interface CalendarUsage {
+    ZoneId getZoneId();
 
-        Range<Instant> getRange();
+    /**
+     * Makes this UsagePoint obsolete.
+     * This UsagePoint will no longer show up in queries
+     * except the one that is looking for a UsagePoint by its database id or mrid.
+     */
+    void makeObsolete();
 
-        Calendar getCalendar();
-
-        void end(Instant endAt);
-    }
-
-    interface UsedCalendars {
-
-        List<CalendarUsage> getCalendars(Category category);
-
-        CalendarUsage addCalendar(Calendar calendar);
-
-        CalendarUsage addCalendar(Instant startAt, Calendar calendar);
-
-        List<Calendar> getCalendars(Instant instant);
-
-        Optional<Calendar> getCalendar(Instant instant, Category category);
-
-        Map<Category, List<CalendarUsage>> getCalendars();
-    }
-
+    /**
+     * The Instant in time when this UsagePoint was made obsolete.
+     *
+     * @return The instant in time or {@code Optional.empty()} if this UsagePoint is not obsolete
+     */
+    Optional<Instant> getObsoleteTime();
 }

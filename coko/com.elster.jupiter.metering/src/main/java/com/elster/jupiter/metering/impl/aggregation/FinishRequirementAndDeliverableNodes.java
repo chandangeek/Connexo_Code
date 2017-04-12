@@ -42,12 +42,6 @@ class FinishRequirementAndDeliverableNodes implements ServerExpressionNode.Visit
     }
 
     @Override
-    public Void visitSyntheticLoadProfile(SyntheticLoadProfilePropertyNode slp) {
-        // Nothing to finish here
-        return null;
-    }
-
-    @Override
     public Void visitSqlFragment(SqlFragmentNode variable) {
         // Nothing to finish here
         return null;

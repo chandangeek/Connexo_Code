@@ -128,18 +128,21 @@ public class FormulaImpl implements ServerFormula {
     //return the largest requirement interval or NOT_SUPPORTED if no requirements found or if only requirements with wildcards (for interval) found
     public IntervalLength getIntervalLength() {
         List<ReadingTypeRequirement> reqNodes =
-                this.getExpressionNode().accept(new ReadingTypeRequirementsCollector());
+                this.getExpressionNode().accept(new RequirementsFromExpressionNode());
         Optional<IntervalLength> intervalLength = reqNodes.stream().map(
                 reqNode -> ((ReadingTypeRequirementImpl) reqNode).getIntervalLength())
                 .filter(length -> !length.equals(IntervalLength.NOT_SUPPORTED))
                 .sorted((a1, a2) -> Long.compare(a2.ordinal(), a1.ordinal())).findFirst();
-        return intervalLength.orElse(IntervalLength.NOT_SUPPORTED);
+        if (intervalLength.isPresent()) {
+            return intervalLength.get();
+        }
+        return IntervalLength.NOT_SUPPORTED;
     }
 
     @Override
     public List<IntervalLength> getIntervalLengths() {
         List<ReadingTypeRequirement> reqNodes =
-                this.getExpressionNode().accept(new ReadingTypeRequirementsCollector());
+                this.getExpressionNode().accept(new RequirementsFromExpressionNode());
         return reqNodes.stream().map(
                 reqNode -> ((ReadingTypeRequirementImpl) reqNode).getIntervalLength())
                 .filter(length -> !length.equals(IntervalLength.NOT_SUPPORTED)).collect(Collectors.toList());

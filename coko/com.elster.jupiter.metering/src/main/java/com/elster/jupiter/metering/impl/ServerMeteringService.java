@@ -4,7 +4,6 @@
 
 package com.elster.jupiter.metering.impl;
 
-import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.metering.GasDayOptions;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.MultiplierType;
@@ -58,5 +57,4 @@ public interface ServerMeteringService extends MeteringService {
      */
     GasDayOptions createGasDayOptions(DayMonthTime yearStart);
 
-    boolean isCalendarEffectiveForAnyUsagePoint(Calendar calendar);
 }

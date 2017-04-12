@@ -32,6 +32,7 @@ import javax.inject.Provider;
 import javax.validation.ValidatorFactory;
 import java.time.Clock;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Collections;
 
 import org.junit.Before;
@@ -187,7 +188,7 @@ public class ServiceCategoryImplTest {
         when(registeredCustomPropertySet.getViewPrivileges()).thenReturn(Sets.newHashSet(ViewPrivilege.LEVEL_1));
         when(registeredCustomPropertySet.getEditPrivileges()).thenReturn(Sets.newHashSet(EditPrivilege.LEVEL_2));
         when(registeredCustomPropertySet.getCustomPropertySet()).thenReturn(customPropertySet);
-        when(registeredCustomPropertySet.getCustomPropertySet().getPropertySpecs()).thenReturn(Collections.singletonList(propertySpec));
+        when(registeredCustomPropertySet.getCustomPropertySet().getPropertySpecs()).thenReturn(Arrays.asList(propertySpec));
         return registeredCustomPropertySet;
     }
 

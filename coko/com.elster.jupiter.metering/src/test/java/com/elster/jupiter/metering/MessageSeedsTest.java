@@ -83,11 +83,4 @@ public class MessageSeedsTest {
         }
     }
 
-    @Test
-    public void testAllMessageSeedDefaultFormatsAreWithinLengthLimit() {
-        for (MessageSeeds messageSeed : MessageSeeds.values()) {
-            assertThat(messageSeed.getDefaultFormat().length()).as(messageSeed.name() + " default format is longer than max of 256")
-                    .isLessThanOrEqualTo(256);
-        }
-    }
 }

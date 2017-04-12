@@ -51,11 +51,6 @@ class CollectSourceReadingTypes implements ServerExpressionNode.Visitor<VirtualR
     }
 
     @Override
-    public VirtualReadingType visitSyntheticLoadProfile(SyntheticLoadProfilePropertyNode slp) {
-        return slp.getSourceReadingType();
-    }
-
-    @Override
     public VirtualReadingType visitSqlFragment(SqlFragmentNode variable) {
         // This node does not have a preferred reading type so don't add one to the set
         return null;

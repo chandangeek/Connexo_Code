@@ -106,8 +106,6 @@ public interface Channel {
      */
     void removeReadings(QualityCodeSystem system, List<? extends BaseReadingRecord> readings);
 
-    void estimateReadings(QualityCodeSystem system, List<? extends BaseReading> readings);
-
     Instant getFirstDateTime();
 
     Instant getLastDateTime();

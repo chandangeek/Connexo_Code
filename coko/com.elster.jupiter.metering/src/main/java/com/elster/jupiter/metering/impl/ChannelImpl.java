@@ -364,9 +364,6 @@ public final class ChannelImpl implements ChannelContract {
             return mainDerivationRule.isMultiplied() ? RecordSpecs.VALUE_MULTIPLIED_INTERVAL : RecordSpecs.SINGLEINTERVAL;
         } else {
             if (hasMacroPeriod()) {
-                if(hasMultiplier()) {
-                    return RecordSpecs.BILLINGREGISTER_WITH_MULTIPLIED_REGISTER;
-                }
                 return RecordSpecs.BILLINGPERIOD;
             }
             return hasMultiplier() ? RecordSpecs.BASEREGISTER_WITH_MULTIPLIED_REGISTER : RecordSpecs.BASEREGISTER;
@@ -671,11 +668,6 @@ public final class ChannelImpl implements ChannelContract {
     }
 
     @Override
-    public void estimateReadings(QualityCodeSystem system, List<? extends BaseReading> readings) {
-        getCimChannel(getMainReadingType()).ifPresent(cimChannel -> cimChannel.estimateReadings(system, readings));
-    }
-
-    @Override
     public void confirmReadings(QualityCodeSystem system, List<? extends BaseReading> readings) {
         getCimChannel(getMainReadingType()).ifPresent(cimChannel ->
                 cimChannel.confirmReadings(system, readings));
@@ -711,10 +703,10 @@ public final class ChannelImpl implements ChannelContract {
     }
 
     @Override
-    public MeterReading deleteReadings(Range<Instant> instantRange) {
-        List<BaseReadingRecord> readings = getReadings(Ranges.copy(instantRange).withOpenLowerBound());
+    public MeterReading deleteReadings(Range<Instant> instant) {
+        List<BaseReadingRecord> readings = getReadings(Ranges.copy(instant).withOpenLowerBound());
         MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
-        Map<Instant, List<ReadingQualityRecord>> qualities = findReadingQualities().inTimeInterval(instantRange).stream()
+        Map<Instant, List<ReadingQualityRecord>> qualities = findReadingQualities().inTimeInterval(instant).stream()
                 .collect(Collectors.groupingBy(ReadingQualityRecord::getReadingTimestamp));
         Set<Instant> readingTimes = readings.stream().map(BaseReadingRecord::getTimeStamp).collect(Collectors.toSet());
         if (!readingTimes.isEmpty()) {
@@ -725,7 +717,7 @@ public final class ChannelImpl implements ChannelContract {
                 }
                 for (BaseReadingRecord baseReadingRecord : readings) {
                     IntervalReadingRecord intervalReadingRecord = (IntervalReadingRecord) baseReadingRecord;
-                    intervalBlocks.entrySet().forEach(intervalBlock -> {
+                    intervalBlocks.entrySet().stream().forEach(intervalBlock -> {
                         IntervalReadingRecord filtered = intervalReadingRecord.filter(intervalBlock.getKey());
                         IntervalReadingImpl intervalReading = IntervalReadingImpl.of(filtered.getTimeStamp(), filtered.getValue(), filtered
                                 .getReadingQualities());
@@ -750,7 +742,7 @@ public final class ChannelImpl implements ChannelContract {
                 }
             }
 
-            timeSeries.get().removeEntries(Ranges.copy(instantRange).withOpenLowerBound());
+            timeSeries.get().removeEntries(Ranges.copy(instant).withOpenLowerBound());
             dataModel.mapper(ReadingQualityRecord.class)
                     .remove(qualities.values().stream().flatMap(Collection::stream).collect(Collectors.toList()));
             qualities.values()
@@ -792,10 +784,10 @@ public final class ChannelImpl implements ChannelContract {
     }
 
     public static class ReadingsDeletedEventImpl implements Channel.ReadingsDeletedEvent {
-        private Channel channel;
+        private ChannelImpl channel;
         private Set<Instant> readingTimes;
 
-        public ReadingsDeletedEventImpl(Channel channel, Set<Instant> readingTimes) {
+        public ReadingsDeletedEventImpl(ChannelImpl channel, Set<Instant> readingTimes) {
             this.channel = channel;
             this.readingTimes = readingTimes;
         }

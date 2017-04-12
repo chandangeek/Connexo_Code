@@ -34,10 +34,8 @@ import java.time.Period;
 import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.Currency;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.HolderBuilder.first;
@@ -253,7 +251,7 @@ public final class ReadingTypeImpl implements PersistenceAware, IReadingType {
 
 	@Override
 	public ReadingTypeCodeBuilder builder() {
-		return
+		return 
 			ReadingTypeCodeBuilder.of(commodity)
 				.period(macroPeriod)
 				.aggregate(aggregate)
@@ -293,8 +291,6 @@ public final class ReadingTypeImpl implements PersistenceAware, IReadingType {
 	@Override
 	public Optional<TemporalAmount> getIntervalLength() {
         switch (getMacroPeriod()) {
-	        case YEARLY:
-                return Optional.of(Period.ofYears(1));
             case MONTHLY:
                 return Optional.of(Period.ofMonths(1));
             case DAILY:
@@ -308,15 +304,21 @@ public final class ReadingTypeImpl implements PersistenceAware, IReadingType {
         return minutes == 0 ? Optional.empty() : Optional.of(Duration.ofMinutes(minutes));
     }
 
-    boolean hasMacroPeriod() {
-        return !macroPeriod.equals(MacroPeriod.NOTAPPLICABLE);
-    }
+	boolean hasMacroPeriod() {
+		return !macroPeriod.equals(MacroPeriod.NOTAPPLICABLE);
+	}
 
     @Override
     public final boolean equals(Object o) {
-        return this == o
-                || o instanceof ReadingTypeImpl
-                && mRID.equals(((ReadingTypeImpl) o).mRID);
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof ReadingTypeImpl)) {
+            return false;
+        }
+
+        return mRID.equals(((ReadingTypeImpl) o).mRID);
+
     }
 
     @Override
@@ -499,7 +501,7 @@ public final class ReadingTypeImpl implements PersistenceAware, IReadingType {
 		List<String> fullAliasNameElements = new ArrayList<>();
 		if (!this.getMeasuringPeriod().equals(TimeAttribute.NOTAPPLICABLE)) {
 			fullAliasNameElements.add(ReadingTypeTranslationKeys.MeasuringPeriod.getFullAliasNameElement(this.getMeasuringPeriod(), this.thesaurus));
-		} else if (this.recurringMacroPeriods().contains(this.getMacroPeriod())) {
+		} else if (this.getMacroPeriod().equals(MacroPeriod.DAILY) || this.getMacroPeriod().equals(MacroPeriod.MONTHLY)) {
 			fullAliasNameElements.add(ReadingTypeTranslationKeys.MacroPeriod.getFullAliasNameElement(this.getMacroPeriod(), this.thesaurus));
 		}
 		fullAliasNameElements.add(ReadingTypeTranslationKeys.Commodity.getFullAliasNameElement(this.getCommodity(), this.thesaurus));
@@ -516,10 +518,6 @@ public final class ReadingTypeImpl implements PersistenceAware, IReadingType {
 		}
 		fullAliasName = fullAliasNameElements.stream().filter(s -> !Checks.is(s).emptyOrOnlyWhiteSpace()).collect(Collectors.joining(" "));
 	}
-
-	private Set<MacroPeriod> recurringMacroPeriods() {
-        return EnumSet.of(MacroPeriod.DAILY, MacroPeriod.MONTHLY, MacroPeriod.YEARLY);
-    }
 
     @Override
     public String getFullAliasName() {

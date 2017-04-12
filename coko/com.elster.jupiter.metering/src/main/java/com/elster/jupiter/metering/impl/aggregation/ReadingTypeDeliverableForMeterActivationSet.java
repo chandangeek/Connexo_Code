@@ -6,13 +6,10 @@ package com.elster.jupiter.metering.impl.aggregation;
 
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
-import com.elster.jupiter.metering.impl.ChannelContract;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
-import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
 import com.google.common.collect.ImmutableList;
@@ -21,7 +18,6 @@ import com.google.common.collect.Range;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
@@ -59,12 +55,8 @@ class ReadingTypeDeliverableForMeterActivationSet {
         this.meterActivationSequenceNumber = meterActivationSequenceNumber;
         this.expressionNode = expressionNode;
         this.expressionReadingType = expressionReadingType;
-        this.requirements =
-                this.expressionNode
-                        .accept(RequirementsFromExpressionNode.nonRecursiveOnDeliverables())
-                        .stream()
-                        .map(VirtualRequirementNode::getRequirement)
-                        .collect(Collectors.toList());
+        this.requirements = this.expressionNode.accept(new RequirementsFromExpressionNode()).stream()
+                .map(VirtualRequirementNode::getRequirement).collect(Collectors.toList());
         this.targetReadingType = VirtualReadingType.from(deliverable.getReadingType());
     }
 
@@ -86,7 +78,7 @@ class ReadingTypeDeliverableForMeterActivationSet {
         return meterActivationSequenceNumber;
     }
 
-    Range<Instant> getRange() {
+    private Range<Instant> getRange() {
         return this.meterActivationSet.getRange();
     }
 
@@ -414,18 +406,6 @@ class ReadingTypeDeliverableForMeterActivationSet {
         } else {
             return Optional.empty();
         }
-    }
-
-    Collection<Pair<ReadingTypeRequirement, ChannelContract>> getPreferredChannels() {
-        return this.expressionNode
-                    .accept(RequirementsFromExpressionNode.recursiveOnDeliverables())
-                    .stream()
-                    .map(node -> Pair.of(node.getRequirement(), node.getPreferredChannel()))
-                    .collect(Collectors.toList());
-    }
-
-    List<VirtualRequirementNode> nestedRequirements(ServerExpressionNode.Visitor<List<VirtualRequirementNode>> visitor) {
-        return this.expressionNode.accept(visitor);
     }
 
 }

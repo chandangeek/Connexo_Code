@@ -2,7 +2,6 @@ package com.elster.jupiter.metering.impl.aggregation;
 
 import com.elster.jupiter.metering.MeteringService;
 
-import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -27,11 +26,7 @@ public class SourceChannelSetFactory {
     }
 
     private Set<Long> parseListOfLongs(String value, String separator) {
-        if (value != null) {
-            return Stream.of(value.split(separator)).map(Long::parseLong).collect(Collectors.toSet());
-        } else {
-            return Collections.emptySet();
-        }
+        return Stream.of(value.split(separator)).map(Long::parseLong).collect(Collectors.toSet());
     }
 
     public SourceChannelSet merge(SourceChannelSet... sets) {

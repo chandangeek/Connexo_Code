@@ -69,11 +69,6 @@ class InferReadingType implements ServerExpressionNode.Visitor<VirtualReadingTyp
     }
 
     @Override
-    public VirtualReadingType visitSyntheticLoadProfile(SyntheticLoadProfilePropertyNode slp) {
-        return slp.getSourceReadingType();
-    }
-
-    @Override
     public VirtualReadingType visitNull(NullNode nullNode) {
         return VirtualReadingType.dontCare();
     }
@@ -243,11 +238,6 @@ class InferReadingType implements ServerExpressionNode.Visitor<VirtualReadingTyp
         }
 
         @Override
-        public Void visitSyntheticLoadProfile(SyntheticLoadProfilePropertyNode slp) {
-            return null;
-        }
-
-        @Override
         public Void visitNull(NullNode nullNode) {
             return null;
         }
@@ -331,11 +321,6 @@ class InferReadingType implements ServerExpressionNode.Visitor<VirtualReadingTyp
 
         @Override
         public Void visitProperty(CustomPropertyNode property) {
-            return null;
-        }
-
-        @Override
-        public Void visitSyntheticLoadProfile(SyntheticLoadProfilePropertyNode slp) {
             return null;
         }
 

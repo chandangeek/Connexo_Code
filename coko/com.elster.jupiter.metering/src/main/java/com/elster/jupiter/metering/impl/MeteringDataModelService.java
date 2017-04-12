@@ -4,8 +4,6 @@
 
 package com.elster.jupiter.metering.impl;
 
-import com.elster.jupiter.calendar.CalendarService;
-import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.metering.CustomUsagePointMeterActivationValidationException;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringTranslationService;
@@ -14,7 +12,6 @@ import com.elster.jupiter.metering.aggregation.DataAggregationService;
 import com.elster.jupiter.metering.ami.HeadEndInterface;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
-import com.elster.jupiter.metering.slp.SyntheticLoadProfileService;
 import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
@@ -45,10 +42,6 @@ public interface MeteringDataModelService {
 
     void validateUsagePointMeterActivation(MeterRole meterRole, Meter meter, UsagePoint usagePoint) throws CustomUsagePointMeterActivationValidationException;
 
-    CalendarService getCalendarService();
-
-    CustomPropertySetService getCustomPropertySetService();
-
     ServerMeteringService getMeteringService();
 
     MeteringTranslationService getMeteringTranslationService();
@@ -57,5 +50,4 @@ public interface MeteringDataModelService {
 
     ServerMetrologyConfigurationService getMetrologyConfigurationService();
 
-    SyntheticLoadProfileService getSyntheticLoadProfileService();
 }

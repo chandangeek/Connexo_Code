@@ -107,8 +107,6 @@ public class ReadingEditRemoveIT {
         cimChannel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.ACCEPTED), newDate);
         cimChannel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.ACCEPTED), newDate);
         cimChannel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.ACCEPTED), existDate);
-        cimChannel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.REJECTED), newDate);
-        cimChannel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.REJECTED), existDate);
         cimChannel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.VALIDATION, 1000), newDate);
         cimChannel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeCategory.VALIDATION, 2000), newDate);
         cimChannel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.KNOWNMISSINGREAD), newDate);
@@ -117,7 +115,7 @@ public class ReadingEditRemoveIT {
         cimChannel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT), newDate);
 
         // step 5
-        // test edit & add
+        // test add & edit
         ReadingImpl reading1 = ReadingImpl.of(readingTypeCode, BigDecimal.valueOf(2), existDate);
         ReadingImpl reading2 = ReadingImpl.of(readingTypeCode, BigDecimal.valueOf(2), newDate);
         channel.editReadings(QualityCodeSystem.MDC, ImmutableList.of(reading1, reading2));
@@ -126,15 +124,13 @@ public class ReadingEditRemoveIT {
                 ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.EDITGENERIC)
         }, new ReadingQualityType[]{
                 ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.ZEROUSAGE),
-                ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.ADDED),
-                ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.REJECTED)
+                ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.ADDED)
         });
         // newDate qualities
         assertQualities(channel, newDate, new ReadingQualityType[]{
                 ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.ADDED)
         }, new ReadingQualityType[]{
                 ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.ADDED),
-                ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.REJECTED),
                 ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.VALIDATION, 1000),
                 ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeCategory.VALIDATION, 2000),
                 ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.KNOWNMISSINGREAD),
@@ -156,7 +152,6 @@ public class ReadingEditRemoveIT {
         }, new ReadingQualityType[]{
                 ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.ADDED),
                 ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.ADDED),
-                ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.REJECTED),
                 ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.VALIDATION, 1000),
                 ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeCategory.VALIDATION, 2000),
                 ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.KNOWNMISSINGREAD),

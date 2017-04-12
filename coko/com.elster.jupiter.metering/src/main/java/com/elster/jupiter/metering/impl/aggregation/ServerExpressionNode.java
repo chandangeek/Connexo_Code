@@ -24,8 +24,6 @@ interface ServerExpressionNode {
 
         T visitProperty(CustomPropertyNode property);
 
-        T visitSyntheticLoadProfile(SyntheticLoadProfilePropertyNode slp);
-
         T visitSqlFragment(SqlFragmentNode variable);
 
         T visitVirtualRequirement(VirtualRequirementNode requirement);
