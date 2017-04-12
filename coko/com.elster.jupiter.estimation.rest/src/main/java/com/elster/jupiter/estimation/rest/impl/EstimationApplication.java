@@ -67,6 +67,7 @@ public class EstimationApplication extends Application implements MessageSeedPro
     @Activate
     public void activate() {
         propertyValueInfoService.addPropertyValueInfoConverter(new AdvanceReadingsSettingsValueConverter());
+        propertyValueInfoService.addPropertyValueInfoConverter(new CalendarWithEventCodeValueConverter());
     }
 
     @Reference

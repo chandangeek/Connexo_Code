@@ -6,10 +6,12 @@ package com.elster.jupiter.estimation.rest.impl;
 
 import com.elster.jupiter.estimation.AdvanceReadingsSettingsFactory;
 import com.elster.jupiter.estimation.AdvanceReadingsSettingsWithoutNoneFactory;
+import com.elster.jupiter.estimation.CalendarWithEventSettingsFactory;
 
 public enum PropertyType implements com.elster.jupiter.properties.rest.PropertyType {
     ADVANCEREADINGSSETTINGS(AdvanceReadingsSettingsFactory.class),
-    ADVANCEREADINGSSETTINGSWITHOUTNONE(AdvanceReadingsSettingsWithoutNoneFactory.class)
+    ADVANCEREADINGSSETTINGSWITHOUTNONE(AdvanceReadingsSettingsWithoutNoneFactory.class),
+    CALENDARWITHEVENTCODE(CalendarWithEventSettingsFactory.class)
     ;
 
     private Class valueFactoryClass;
