@@ -120,6 +120,7 @@ public final class ValidationRuleSetVersionImpl implements IValidationRuleSetVer
     public void setStartDate(Instant startDate) {
         this.startDate = startDate;
     }
+
     @Override
     public void setEndDate(Instant endDate) {
         this.endDate = endDate;
@@ -137,10 +138,12 @@ public final class ValidationRuleSetVersionImpl implements IValidationRuleSetVer
 
     @Override
     public ValidationVersionStatus getStatus() {
-        if(Instant.now(clock).isBefore(getNotNullStartDate()))
+        if (Instant.now(clock).isBefore(getNotNullStartDate())) {
             return ValidationVersionStatus.FUTURE;
-        if(Instant.now(clock).isAfter(getNotNullEndDate()))
+        }
+        if (Instant.now(clock).isAfter(getNotNullEndDate())) {
             return ValidationVersionStatus.PREVIOUS;
+        }
         return ValidationVersionStatus.CURRENT;
     }
 
@@ -187,7 +190,7 @@ public final class ValidationRuleSetVersionImpl implements IValidationRuleSetVer
 
     private void doUpdate() {
         Save.UPDATE.save(dataModel, this);
-        doGetRules().forEach( rule -> Save.UPDATE.save(dataModel, rule));
+        doGetRules().forEach(IValidationRule::save);
         eventService.postEvent(EventType.VALIDATIONRULESETVERSION_UPDATED.topic(), this);
     }
 
@@ -212,7 +215,7 @@ public final class ValidationRuleSetVersionImpl implements IValidationRuleSetVer
     }
 
     private void addNewRules() {
-        rulesToSave.forEach( newRule -> {
+        rulesToSave.forEach(newRule -> {
             Save.CREATE.validate(dataModel, newRule);
             rules.add(newRule);
         });
@@ -253,15 +256,15 @@ public final class ValidationRuleSetVersionImpl implements IValidationRuleSetVer
 
     @Override
     public IValidationRule updateRule(long id, String name, boolean activeStatus, ValidationAction action, List<String> mRIDs, Map<String, Object> properties) {
-        IValidationRule rule =  doUpdateRule(getExistingRule(id), name, activeStatus, action,  mRIDs, properties);
-        Save.UPDATE.validate(dataModel,rule);
+        IValidationRule rule = doUpdateRule(getExistingRule(id), name, activeStatus, action, mRIDs, properties);
+        Save.UPDATE.validate(dataModel, rule);
         return rule;
     }
 
     @Override
-    public IValidationRule cloneRule(IValidationRule iValidationRule){
+    public IValidationRule cloneRule(IValidationRule iValidationRule) {
         IValidationRule newRule = newRule(iValidationRule.getAction(), iValidationRule.getImplementation(), iValidationRule.getName());
-        List<String> mRIDs = iValidationRule.getReadingTypes().stream().map(readingTypeInfo -> readingTypeInfo.getMRID()).collect(Collectors.toList());
+        List<String> mRIDs = iValidationRule.getReadingTypes().stream().map(ReadingType::getMRID).collect(Collectors.toList());
         updateReadingTypes(newRule, mRIDs);
         Map<String, Object> properties = iValidationRule.getProperties().stream().collect(Collectors.toMap(ValidationRuleProperties::getName, ValidationRuleProperties::getValue));
         newRule.setProperties(properties);
@@ -298,7 +301,7 @@ public final class ValidationRuleSetVersionImpl implements IValidationRuleSetVer
     @Override
     public void deleteRule(ValidationRule rule) {
         IValidationRule iRule = (IValidationRule) rule;
-        if (doGetRules().anyMatch( candidate -> candidate.equals(iRule))) {
+        if (doGetRules().anyMatch(candidate -> candidate.equals(iRule))) {
             iRule.delete();
             dataModel.touch(this);
         } else {

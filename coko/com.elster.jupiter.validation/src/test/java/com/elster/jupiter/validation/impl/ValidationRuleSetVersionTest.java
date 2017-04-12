@@ -16,6 +16,7 @@ import com.elster.jupiter.validation.ReadingTypeInValidationRule;
 import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleProperties;
+import com.elster.jupiter.validation.Validator;
 
 import com.google.common.collect.ImmutableList;
 
@@ -35,6 +36,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.fest.reflect.core.Reflection.field;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -173,6 +175,8 @@ public class ValidationRuleSetVersionTest extends EqualsContractTest {
 
     @Test
     public void testUpdateWithRulesPerformsNecessaryDBOperations() {
+        mockValidator("A");
+        mockValidator("B");
         IValidationRule rule1 = validationRuleSetVersion.newRule(ValidationAction.FAIL, "A", "rulename");
         IValidationRule rule2 = validationRuleSetVersion.newRule(ValidationAction.FAIL, "B", "rulename");
         validationRuleSetVersion.save();
@@ -182,6 +186,7 @@ public class ValidationRuleSetVersionTest extends EqualsContractTest {
         when(ruleFactory.find()).thenReturn(Arrays.asList(rule1, rule2));
 
         validationRuleSetVersion.deleteRule(rule1);
+        mockValidator("C");
         IValidationRule rule3 = validationRuleSetVersion.newRule(ValidationAction.FAIL, "C", "rulename");
 
         validationRuleSetVersion.save();
@@ -192,6 +197,7 @@ public class ValidationRuleSetVersionTest extends EqualsContractTest {
 
     @Test
     public void testUpdateRuleAction() {
+        mockValidator("A");
         IValidationRule rule1 = validationRuleSetVersion.newRule(ValidationAction.FAIL, "A", "rulename");
         validationRuleSetVersion.save();
         setId(validationRuleSetVersion, ID);
@@ -206,5 +212,11 @@ public class ValidationRuleSetVersionTest extends EqualsContractTest {
         assertThat(validationRuleSetVersion.getRules()).hasSize(1).contains(rule1);
         assertThat(rule1.getName()).isEqualTo("rulename2");
         assertThat(rule1.getAction()).isEqualTo(ValidationAction.WARN_ONLY);
+    }
+
+    private Validator mockValidator(String implementation) {
+        Validator validator = mock(Validator.class);
+        when(validatorCreator.getTemplateValidator(implementation)).thenReturn(validator);
+        return validator;
     }
 }
