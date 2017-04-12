@@ -106,7 +106,7 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.resum
  */
 public enum FirmwareDeviceMessage implements DeviceMessageSpecSupplier {
 
-    UPGRADE_FIRMWARE_WITH_USER_FILE(5001, "Firmware upgrade via file") {
+    UPGRADE_FIRMWARE_WITH_USER_FILE(5001, "Upload firmware and activate later") {
         @Override
         public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.firmwareVersionSpec(service, firmwareUpdateFileAttributeName, firmwareUpdateUserFileAttributeDefaultTranslation));
@@ -117,7 +117,7 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecSupplier {
             return Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_LATER);
         }
     },
-    UPGRADE_FIRMWARE_WITH_USER_FILE_AND_RESUME_OPTION(5002, "Firmware upgrade via file with resume option") {
+    UPGRADE_FIRMWARE_WITH_USER_FILE_AND_RESUME_OPTION(5002, "Upload firmware with resume option and activate immediately") {
         @Override
         public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -131,7 +131,7 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecSupplier {
             return Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE);
         }
     },
-    UPGRADE_FIRMWARE_WITH_USER_FILE_AND_RESUME_OPTION_AND_TYPE(5003, "Firmware upgrade via file with resume option and type") {
+    UPGRADE_FIRMWARE_WITH_USER_FILE_AND_RESUME_OPTION_AND_TYPE(5003, "Upload firmware with resume option and type and activate immediately") {
         @Override
         public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -146,7 +146,7 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecSupplier {
             return Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE);
         }
     },
-    UPGRADE_FIRMWARE_ACTIVATE(5004, "Active last uploaded firmware") {
+    UPGRADE_FIRMWARE_ACTIVATE(5004, "Activate last uploaded firmware") {
         @Override
         public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.dateTimeSpec(service, firmwareUpdateActivationDateAttributeName, firmwareUpdateActivationDateAttributeDefaultTranslation));
@@ -157,7 +157,7 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecSupplier {
             return Optional.empty();
         }
     },
-    UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE(5005, "Firmware upgrade via file with activation date") {
+    UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE(5005, "Upload firmware with activation date") {
         @Override
         public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -171,7 +171,7 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecSupplier {
             return Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_WITH_DATE);
         }
     },
-    UPGRADE_FIRMWARE_WITH_USER_FILE_VERSION_AND_ACTIVATE(5006, "Firmware upgrade via file with version and activation date") {
+    UPGRADE_FIRMWARE_WITH_USER_FILE_VERSION_AND_ACTIVATE(5006, "Upload firmware with version and activation date") {
         @Override
         public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -186,7 +186,7 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecSupplier {
             return Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_WITH_DATE);
         }
     },
-    UPGRADE_FIRMWARE_URL(5007, "Firwmare upgrade via url") {
+    UPGRADE_FIRMWARE_URL(5007, "Upload firmware via url and activate immediately") {
         @Override
         public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.stringSpec(service, firmwareUpdateURLAttributeName, firmwareUpdateURLAttributeDefaultTranslation));
@@ -197,7 +197,7 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecSupplier {
             return Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE);
         }
     },
-    UPGRADE_FIRMWARE_URL_AND_ACTIVATE(5008, "Firwmare upgrade via url with activation date") {
+    UPGRADE_FIRMWARE_URL_AND_ACTIVATE(5008, "Upload firmware via url with activation date") {
         @Override
         public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -288,7 +288,7 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecSupplier {
             return Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE);
         }
     },
-    UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE_AND_IMAGE_IDENTIFIER(5016, "Upgrade firmware with file, activation date and image identifier") {
+    UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE_AND_IMAGE_IDENTIFIER(5016, "Upload firmware with file, activation date and image identifier") {
         @Override
         public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -303,7 +303,7 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecSupplier {
             return Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_WITH_DATE);
         }
     },
-    UPGRADE_FIRMWARE_WITH_USER_FILE_AND_IMAGE_IDENTIFIER(5017, "Upgrade firmware with file and image identifier") {
+    UPGRADE_FIRMWARE_WITH_USER_FILE_AND_IMAGE_IDENTIFIER(5017, "Upload firmware with file and image identifier") {
         @Override
         public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -396,7 +396,7 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecSupplier {
             return Optional.empty();
         }
     },
-    FirmwareUpgradeWithUrlJarJadFileSize(5022, "Firmware upgrade with URL") {
+    FirmwareUpgradeWithUrlJarJadFileSize(5022, "Upload firmware with URL") {
         @Override
         public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -506,7 +506,7 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecSupplier {
             return Optional.empty();
         }
     },
-    UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE_AND_IMAGE_IDENTIFIER_AND_RESUME(5030, "Upgrade firmware with activation date, image identifier and resume") {
+    UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE_AND_IMAGE_IDENTIFIER_AND_RESUME(5030, "Upload firmware with activation date, image identifier and resume") {
         @Override
         public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
