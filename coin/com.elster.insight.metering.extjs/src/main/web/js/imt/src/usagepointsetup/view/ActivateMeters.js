@@ -10,8 +10,16 @@ Ext.define('Imt.usagepointsetup.view.ActivateMeters', {
     meterRoles: null,
     returnLink: null,
     requires: [
-        'Imt.usagepointmanagement.view.UsagePointSideMenu'
+        'Imt.usagepointmanagement.view.UsagePointSideMenu',
+        'Imt.usagepointmanagement.view.forms.fields.meteractivations.MeterActivationsField'
     ],
+
+    listeners: {
+        afterrender: function () {
+            var me = this;
+            me.down('#meter-activations-field').setMeterRoles(me.meterRoles);
+        }
+    },
 
     comboLimitNotification: function (combo) {
         var picker = combo.getPicker(),
@@ -45,80 +53,41 @@ Ext.define('Imt.usagepointsetup.view.ActivateMeters', {
             layout: {},
             items: [
                 {
-                    xtype: 'form',
-                    itemId: 'edit-form',
-                    defaults: {
-                        xtype: 'combobox',
-                        labelWidth: 120,
-                        width: 360,
-                        multiSelect: false,
-                        emptyText: Uni.I18n.translate('usagepoint.setMeters.strtTyping', 'IMT', 'Start typing to select a meter'),
-                        store: 'Imt.usagepointsetup.store.Devices',
-                        displayField: 'name',
-                        valueField: 'name',
-                        anyMatch: true,
-                        queryMode: 'remote',
-                        queryParam: 'like',
-                        queryCaching: false,
-                        minChars: 1,
-                        loadStore: false,
-                        forceSelection: false,
-                        listeners: {
-                            expand: {
-                                fn: me.comboLimitNotification
-                            },
-                            change: {
-                                fn: function (combo, newValue) {
-                                    var index = combo.getStore().findExact('name', newValue);
-                                    if (index >= 0) {
-                                        combo.meterData = combo.getStore().getAt(index).getData();
-                                    } else {
-                                        combo.meterData = null
-                                    }
-                                }
-                            },
-                            blur: {
-                                fn: function (combo) {
-                                    Ext.isEmpty(combo.meterData) && combo.setValue('');
-                                }
-                            }
+                    xtype: 'meter-activations-field',
+                    itemId: 'meter-activations-field',
+                    name: 'metrologyConfiguration.meterRoles',
+                    meterRoles: true,
+                    listeners: {
+                        meterActivationsChange: function (allMetersSpecified) {
+                            me.fireEvent('meterActivationsChange', allMetersSpecified);
                         }
-                    },
-                    getMeterActivations: function () {
-                        var meterActivations = [];
-                        Ext.each(this.getForm().getFields().items, function (combo) {
-                            meterActivations.push(
-                                {
-                                    meter: {
-                                        name: combo.getValue()
-                                    },
-                                    meterRole: {
-                                        id: combo.name,
-                                        name: combo.fieldLabel
-                                    }
-                                }
-                            );
-                        });
-                        return meterActivations
-                    },
-                    items: me.meterRoles,
-                    bbar: {
-                        margin: '0 0 0 134',
-                        items: [{
-                            xtype: 'button',
-                            itemId: 'save-btn',
-                            ui: 'action',
-                            text: Uni.I18n.translate('general.save', 'IMT', 'Save'),
-                            usagePoint: this.usagePoint
-                        }, {
-                            xtype: 'button',
-                            ui: 'link',
-                            href: me.returnLink,
-                            text: Uni.I18n.translate('general.cancel', 'IMT', 'Cancel')
-                        }]
                     }
                 }
-            ]
+            ],
+            tbar: {
+                items: [{
+                    itemId: 'general-info-warning',
+                    xtype: 'uni-form-info-message',
+                    width: '100%',
+                    text: Uni.I18n.translate('general.meterActivations.info', 'IMT', 'Metrology configuration "{0}" is linked to this usage point starting from {1}, so you can link meters to the meter roles provided by this metrogy configuration.',
+                    [me.usagePoint.get('name'), Uni.DateTime.formatDateTimeLong(new Date(me.usagePoint.get('installationTime')))])
+                }]
+            },
+            bbar: {
+                items: [{
+                    xtype: 'button',
+                    itemId: 'save-btn',
+                    ui: 'action',
+                    text: Uni.I18n.translate('general.save', 'IMT', 'Save'),
+                    usagePoint: me.usagePoint,
+                    meterRoles: me.meterRoles
+                }, {
+                    xtype: 'button',
+                    ui: 'link',
+                    href: me.returnLink,
+                    text: Uni.I18n.translate('general.cancel', 'IMT', 'Cancel')
+                }]
+            }
         }];
         me.side = [
             {
@@ -134,7 +103,8 @@ Ext.define('Imt.usagepointsetup.view.ActivateMeters', {
                 ]
             }
         ];
-        me.content[0].items[0].items.push({
+
+        me.content[0].items.push({
             xtype: 'label',
             hidden: true,
             cls: 'x-form-invalid-under',
