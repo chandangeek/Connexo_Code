@@ -49,7 +49,7 @@ Ext.define('Imt.purpose.view.OutputReadings', {
         else {
             emptyComponent.stepItems = [
                 {
-                    text: Uni.I18n.translate('deviceloadprofiles.data.empty.addReadings', 'MDC', 'Add readings'),
+                    text: Uni.I18n.translate('deviceloadprofiles.data.empty.addReadings', 'IMT', 'Add readings'),
                     itemId: 'add-readind-data',
                     handler: function () {
                         var me = this,
