@@ -50,6 +50,16 @@ public class DeviceTopology extends CollectedDeviceData implements CollectedTopo
     private final List<CollectedDeviceInfo> additionalCollectedDeviceInfo;
 
     /**
+     * A list containing only the nodes which joined the network
+     */
+    private Map<DeviceIdentifier, ObservationTimestampProperty> joinedSlaveDeviceIdentifiers;
+
+    /**
+     * A list containing only the nodes which were lost from the network
+     */
+    private List<DeviceIdentifier> lostSlaveDeviceIdentifiers;
+
+    /**
      * The {@link TopologyAction action} that should be executed.
      * By default, topology action UPDATE will be used.
      */
@@ -75,6 +85,8 @@ public class DeviceTopology extends CollectedDeviceData implements CollectedTopo
         this.additionalCollectedDeviceInfo = new ArrayList<>();
         this.topologyPathSegments = new ArrayList<>();
         this.topologyNeighbours = new ArrayList<>();
+        this.joinedSlaveDeviceIdentifiers = null;
+        this.lostSlaveDeviceIdentifiers = null;
     }
 
     @Override
@@ -98,6 +110,16 @@ public class DeviceTopology extends CollectedDeviceData implements CollectedTopo
     }
 
     @Override
+    public Map<DeviceIdentifier, ObservationTimestampProperty> getJoinedSlaveDeviceIdentifiers() {
+        return this.joinedSlaveDeviceIdentifiers;
+    }
+
+    @Override
+    public List<DeviceIdentifier> getLostSlaveDeviceIdentifiers() {
+        return this.lostSlaveDeviceIdentifiers;
+    }
+
+    @Override
     public void addSlaveDevice(DeviceIdentifier slaveIdentifier) {
         slaveDeviceIdentifiers.put(slaveIdentifier, null);
     }
@@ -105,6 +127,24 @@ public class DeviceTopology extends CollectedDeviceData implements CollectedTopo
     @Override
     public void addSlaveDevice(DeviceIdentifier slaveIdentifier, ObservationTimestampProperty observationTimestampProperty) {
         slaveDeviceIdentifiers.put(slaveIdentifier, observationTimestampProperty);
+    }
+
+    @Override
+    public void addJoinedSlaveDevice(DeviceIdentifier slaveIdentifier, ObservationTimestampProperty lastSeenDateInfo) {
+        if (joinedSlaveDeviceIdentifiers == null) {
+            joinedSlaveDeviceIdentifiers = new HashMap<>();
+        }
+
+        joinedSlaveDeviceIdentifiers.put(slaveIdentifier, lastSeenDateInfo);
+    }
+
+    @Override
+    public void addLostSlaveDevice(DeviceIdentifier slaveIdentifier) {
+        if (lostSlaveDeviceIdentifiers == null) {
+            lostSlaveDeviceIdentifiers = new ArrayList<>();
+        }
+
+        lostSlaveDeviceIdentifiers.add(slaveIdentifier);
     }
 
     @Override
