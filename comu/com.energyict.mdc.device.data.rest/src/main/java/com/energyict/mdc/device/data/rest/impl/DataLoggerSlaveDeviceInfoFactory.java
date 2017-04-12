@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.metering.MeterActivation;
 import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
