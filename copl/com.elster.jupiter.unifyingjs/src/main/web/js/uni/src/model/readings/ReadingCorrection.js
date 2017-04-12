@@ -18,8 +18,8 @@ Ext.define('Uni.model.readings.ReadingCorrection', {
 
     proxy: {
         type: 'rest',
-        mdmUrl: '/api/udr/usagepoints/{usagePointId}/purposes/{purposeId}/outputs/{outputId}/channelData/correctValue',
-        mdcUrl: '/api/ddr/devices/{deviceId}/channels/{channelId}/data/correctValue',
+        mdmUrl: '/api/udr/usagepoints/{usagePointId}/purposes/{purposeId}/outputs/{outputId}/channelData/correctValues',
+        mdcUrl: '/api/ddr/devices/{deviceId}/channels/{channelId}/data/correctValues',
         reader: {
             type: 'json'
         },

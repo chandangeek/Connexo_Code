@@ -96,7 +96,6 @@ Ext.define('Uni.view.readings.CorrectValuesWindow', {
                     listeners: {
                         change: function (rdg, newValue, oldValue, eOpts) {
                             switch (newValue.type){
-                                //TODO: add map?
                                 case 'MULTIPLY': {
                                     me.getAmountField().setValue(1);
                                 } break;
@@ -131,8 +130,7 @@ Ext.define('Uni.view.readings.CorrectValuesWindow', {
                     fieldLabel: Uni.I18n.translate('correct.window.projectedValues', 'UNI', 'Projected value'),
                     boxLabel: Uni.I18n.translate('correct.window.projectedValues.markValues', 'UNI', 'Mark values as projected'),
                     itemId: 'projected-checkbox',
-                    name: 'projected',
-                    disabled: true
+                    name: 'projected'
                 },
                 {
                     xtype: 'combobox',
