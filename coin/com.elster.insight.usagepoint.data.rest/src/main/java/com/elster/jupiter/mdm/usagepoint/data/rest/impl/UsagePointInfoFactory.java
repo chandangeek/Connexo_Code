@@ -251,11 +251,14 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
                 .findAny()
                 .isPresent();
 
-        usagePoint.getCurrentEffectiveMetrologyConfiguration()
-                .ifPresent(mc -> {
-                    info.metrologyConfiguration = new MetrologyConfigurationInfo(mc, usagePoint, this.thesaurus, this.clock, readingTypeDeliverableFactory);
-                    info.displayMetrologyConfiguration = mc.getMetrologyConfiguration().getName();
-                });
+        usagePoint.getEffectiveMetrologyConfigurations().forEach(mc -> {
+            if (mc.isEffectiveAt(clock.instant())) {
+                info.metrologyConfiguration = new MetrologyConfigurationInfo(mc, usagePoint, this.thesaurus, this.clock, readingTypeDeliverableFactory);
+                info.displayMetrologyConfiguration = mc.getMetrologyConfiguration().getName();
+            } else  {
+                info.effectiveMetrologyConfiguration =  new MetrologyConfigurationInfo(mc, usagePoint, this.thesaurus, this.clock, readingTypeDeliverableFactory);
+            }
+        });
 
         addDetailsInfo(info, usagePoint);
         addCustomPropertySetInfo(info, usagePoint);
