@@ -375,13 +375,22 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
         meterValidation.save();
     }
 
+    /**
+     * Please consider {@link #moveLastCheckedBefore(ChannelsContainer, Instant)} instead.
+     */
+    @Deprecated
     @Override
     public void updateLastChecked(ChannelsContainer channelsContainer, Instant date) {
         updatedChannelsContainerValidationsFor(new ValidationContextImpl(channelsContainer)).updateLastChecked(Objects.requireNonNull(date));
     }
 
+    @Override
+    public void moveLastCheckedBefore(ChannelsContainer channelsContainer, Instant date) {
+        updatedChannelsContainerValidationsFor(new ValidationContextImpl(channelsContainer)).moveLastCheckedBefore(date);
+    }
+
     /**
-     * Please consider {@link #moveLastCheckedBefore(Channel, Instant)} instead
+     * Please consider {@link #moveLastCheckedBefore(Channel, Instant)} instead.
      */
     @Deprecated
     @Override
