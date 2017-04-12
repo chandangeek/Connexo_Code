@@ -5,7 +5,6 @@
 package com.energyict.mdc.device.lifecycle.impl;
 
 import com.elster.jupiter.fsm.CustomStateTransitionEventType;
-import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTimeSlice;
 import com.elster.jupiter.fsm.StateTransitionEventType;
 import com.elster.jupiter.nls.Layer;
@@ -392,7 +391,7 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
                         .collect(Collectors.toList());
         microCheckFactory.from(MicroCheck.METROLOGY_CONFIGURATION_IN_CORRECT_STATE_IF_ANY)
                 .evaluate(device, effectiveTimestamp, action.getStateTransition().getTo())
-                .ifPresent(violation -> violations.add(violation));
+                .ifPresent(violations::add);
         if (!violations.isEmpty()) {
             throw new MultipleMicroCheckViolationsException(this.thesaurus, MessageSeeds.MULTIPLE_MICRO_CHECKS_FAILED, violations);
         }
