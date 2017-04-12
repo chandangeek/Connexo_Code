@@ -23,6 +23,7 @@ import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskLogHandler;
 import com.elster.jupiter.tasks.TaskOccurrence;
@@ -48,6 +49,7 @@ import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -165,6 +167,7 @@ public class EstimationTaskExecutorTest {
         doReturn(Optional.of(meter2Activation)).when(meter2).getMeterActivation(eq(triggerTime.toInstant()));
         when(meter2Activation.getMeter()).thenReturn(Optional.of(meter2));
         when(meter2.getMRID()).thenReturn("meter2");
+        when(meter2.getName()).thenReturn("meter2");
         when(meter2Activation.getChannelsContainer()).thenReturn(channelsContainer);
         when(channelsContainer.getZoneId()).thenReturn(ZoneId.systemDefault());
         when(estimationTask.getPeriod()).thenReturn(Optional.of(relativePeriod));
