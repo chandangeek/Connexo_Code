@@ -1081,6 +1081,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         valueCorrectionInfo.amount = new BigDecimal(2);
         when(readingRecord.getReadingType()).thenReturn(readingType);
         when(readingRecord.getQuantity(any(ReadingType.class))).thenReturn(quantity);
+        when(readingRecord.getTimeStamp()).thenReturn(Instant.ofEpochMilli(INTERVAL_END));
         when(channel.getChannelData(any(Range.class))).thenReturn(Collections.singletonList(loadProfileReading));
         when(loadProfileReading.getChannelValues()).thenReturn(Collections.singletonMap(channel, readingRecord));
         when(readingType.getIntervalLength()).thenReturn(Optional.of(temporalAmount));
