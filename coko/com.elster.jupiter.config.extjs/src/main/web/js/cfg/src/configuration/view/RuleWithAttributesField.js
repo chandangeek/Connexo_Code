@@ -19,6 +19,7 @@ Ext.define('Cfg.configuration.view.RuleWithAttributesField', {
     },
     record: undefined,
     type: null,
+    kindOfReadingType: '',
 
     initComponent: function () {
         var me = this,
@@ -36,17 +37,12 @@ Ext.define('Cfg.configuration.view.RuleWithAttributesField', {
                 {
                     value: me.record.get('validator'),
                     fieldLabel: Uni.I18n.translate('validation.validator', 'CFG', 'Validator'),
-                    itemId: 'validator' + me.record.getId()
+                    itemId: 'validator' + me.record.getId() + me.kindOfReadingType
                 },
                 {
                     value: me.record.get('dataQualityLevel'),
                     fieldLabel: Uni.I18n.translate('validation.dataQualityLevel', 'CFG', 'Data quality level'),
-                    itemId: 'level' + me.record.getId()
-                },
-                {
-                    xtype: 'property-form',
-                    itemId: 'property-form' + me.record.getId(),
-                    isEdit: false
+                    itemId: 'level' + me.record.getId() + me.kindOfReadingType
                 }
             ];
         } else {
@@ -54,13 +50,13 @@ Ext.define('Cfg.configuration.view.RuleWithAttributesField', {
                 {
                     value: me.record.get('estimator'),
                     fieldLabel: Uni.I18n.translate('general.estimator', 'CFG', 'Estimator'),
-                    itemId: 'validator' + me.record.getId()
+                    itemId: 'validator' + me.record.getId() + me.kindOfReadingType
                 }
             ];
         }
         me.items.push({
             xtype: 'property-form',
-            itemId: 'property-form' + me.record.getId(),
+            itemId: 'property-form' + me.record.getId() + me.kindOfReadingType,
             isEdit: false
         });
 

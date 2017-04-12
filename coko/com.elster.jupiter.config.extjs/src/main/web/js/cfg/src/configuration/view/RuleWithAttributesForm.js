@@ -15,6 +15,7 @@ Ext.define('Cfg.configuration.view.RuleWithAttributesForm', {
     padding: '10 0 0 0',
     layout: 'column',
     type: null,
+    kindOfReadingType: '',
     items: [
         {
             xtype: 'container',
@@ -29,31 +30,32 @@ Ext.define('Cfg.configuration.view.RuleWithAttributesForm', {
             items: []
         }
     ],
-    store: undefined,
+    records: null,
 
     initComponent: function () {
         var me = this,
-            store = Ext.getStore(me.store),
-            itemsPerContainer = Math.ceil(store.getCount() / 2),
-            records = store.getRange(),
+            records = me.records,
+            itemsPerContainer = Math.ceil(records.length / 2),
             showActionsMenu;
 
         me.items[0].items = [];
-        store.getRange(0, itemsPerContainer - 1).forEach(function (record) {
+        records.slice(0, itemsPerContainer).forEach(function (record) {
             me.items[0].items.push({
                 xtype: 'rule-with-attributes-field',
                 type: me.type,
-                itemId: 'rule-with-attributes-field' + record.getId(),
+                kindOfReadingType: me.kindOfReadingType,
+                itemId: 'rule-with-attributes-field' + record.getId() + me.kindOfReadingType,
                 record: record
             });
         });
 
         me.items[1].items = [];
-        store.getRange(itemsPerContainer).forEach(function (record) {
+        records.slice(itemsPerContainer).forEach(function (record) {
             me.items[1].items.push({
                 xtype: 'rule-with-attributes-field',
                 type: me.type,
-                itemId: 'rule-with-attributes-field' + record.getId(),
+                kindOfReadingType: me.kindOfReadingType,
+                itemId: 'rule-with-attributes-field' + record.getId() + me.kindOfReadingType,
                 record: record
             });
         });
@@ -72,14 +74,15 @@ Ext.define('Cfg.configuration.view.RuleWithAttributesForm', {
             me.tools = [
                 {
                     xtype: 'uni-button-action',
-                    itemId: 'rule-with-attributes-btn-' + me.type,
+                    itemId: 'rule-with-attributes-btn-' + me.type + me.kindOfReadingType,
                     menu: {
                         xtype: 'rule-with-attributes-actions-menu',
+                        kindOfReadingType: me.kindOfReadingType,
                         type: me.type,
                         router: me.router,
-                        store: store,
+                        records: records,
                         application: me.application,
-                        itemId: 'rule-with-attributes-actions-menu-' + me.type
+                        itemId: 'rule-with-attributes-actions-menu-' + me.type + me.kindOfReadingType
                     }
                 }
             ];

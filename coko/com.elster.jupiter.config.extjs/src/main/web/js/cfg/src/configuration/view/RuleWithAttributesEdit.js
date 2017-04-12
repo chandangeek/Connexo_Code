@@ -11,9 +11,8 @@ Ext.define('Cfg.configuration.view.RuleWithAttributesEdit', {
         'Uni.property.form.Property',
         'Uni.form.field.ReadingTypeDisplay'
     ],
-    router: null,
     application: null,
-    returnLink: undefined,
+    route: undefined,
     type: null,
 
     initComponent: function () {
@@ -95,7 +94,7 @@ Ext.define('Cfg.configuration.view.RuleWithAttributesEdit', {
                                 text: Uni.I18n.translate('general.cancel', 'CFG', 'Cancel'),
                                 ui: 'link',
                                 action: 'cancel',
-                                href: me.returnLink
+                                href: me.route.buildUrl()
                             }
                         ]
                     }
@@ -167,7 +166,7 @@ Ext.define('Cfg.configuration.view.RuleWithAttributesEdit', {
         record.save({
             success: function () {
                 me.application.fireEvent('acknowledge', Uni.I18n.translate('general.editedAttributesSaved', 'CFG', 'Edited attributes saved'));
-                me.router.getRoute('usagepoints/view/purpose/output').forward();
+                me.route.forward();
             },
             failure: function(record, operation) {
                 if (operation.response.status == 400) {

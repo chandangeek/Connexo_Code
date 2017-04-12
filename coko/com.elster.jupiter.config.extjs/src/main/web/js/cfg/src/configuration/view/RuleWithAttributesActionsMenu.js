@@ -7,15 +7,15 @@ Ext.define('Cfg.configuration.view.RuleWithAttributesActionsMenu', {
     alias: 'widget.rule-with-attributes-actions-menu',
     noSort: true,
     items: [],
-    store: undefined,
+    records: null,
     router: null,
     application: null,
     type: null,
+    kindOfReadingType: '',
 
     initComponent: function () {
         var me = this,
-            store = Ext.getStore(me.store),
-            records = store.getRange(),
+            records = me.records,
             editItems = [],
             restoreItems = [],
             duplicatedNames,
@@ -49,7 +49,7 @@ Ext.define('Cfg.configuration.view.RuleWithAttributesActionsMenu', {
                         text: Ext.String.format("{0} '{1}'", Uni.I18n.translate('general.edit', 'CFG', 'Edit'), record.get('name')) +
                             (!!record.get('duplicated') ? ' (' + record.get('dataQualityLevel').charAt(0).toLowerCase() + record.get('dataQualityLevel').substring(1) + ')' : ''),
                         action: 'edit' + recordId,
-                        itemId: 'edit-rule' + recordId
+                        itemId: 'edit-rule' + recordId + me.kindOfReadingType
                     });
                 }
                 if (hasOverriddenProperty) {
@@ -58,7 +58,7 @@ Ext.define('Cfg.configuration.view.RuleWithAttributesActionsMenu', {
                         text: Ext.String.format("{0} '{1}'", Uni.I18n.translate('general.restore', 'CFG', 'Restore'), record.get('name')) +
                             (!!record.get('duplicated') ? ' (' + record.get('dataQualityLevel').charAt(0).toLowerCase() + record.get('dataQualityLevel').substring(1) + ')' : ''),
                         action: 'restore' + recordId,
-                        itemId: 'restore-rule' + recordId
+                        itemId: 'restore-rule' + recordId + me.kindOfReadingType
                     });
                 }
             }
@@ -97,11 +97,18 @@ Ext.define('Cfg.configuration.view.RuleWithAttributesActionsMenu', {
             router = me.router,
             record = item.record,
             id = record.getId(),
+            queryParams = me.kindOfReadingType ? {readingType: record.get('readingType').mRID} : {},
+            route;
+
+        if (me.kindOfReadingType) {
+            route = me.type === 'validation' ? router.getRoute('devices/device/channels/validation/editrule') : router.getRoute('devices/device/channels/estimation/editrule');
+        } else {
             route = me.type === 'validation' ? router.getRoute('usagepoints/view/purpose/output/editvalidationrule') : router.getRoute('usagepoints/view/purpose/output/editestimationrule');
+        }
 
         switch (item.action) {
             case 'edit' + id:
-                route.forward({ruleId: id});
+                route.forward({ruleId: id}, queryParams);
                 break;
             case 'restore' + id:
                 me.onRestoreRuleWithAttributes(record);
@@ -134,7 +141,11 @@ Ext.define('Cfg.configuration.view.RuleWithAttributesActionsMenu', {
             mainView = Ext.ComponentQuery.query('#contentPanel')[0];
 
         mainView.setLoading();
-        record.getProxy().extraParams = {usagePointId: router.arguments.usagePointId, purposeId: router.arguments.purposeId, outputId: router.arguments.outputId};
+        if (me.kindOfReadingType) {
+            record.getProxy().extraParams = {deviceId: Uni.util.Common.encodeURIComponent(router.arguments.deviceId), channelId: router.arguments.channelId};
+        } else {
+            record.getProxy().extraParams = {usagePointId: router.arguments.usagePointId, purposeId: router.arguments.purposeId, outputId: router.arguments.outputId};
+        }
         record.destroy({
             isNotEdit: true,
             success: function () {
