@@ -108,7 +108,7 @@ Ext.define('Imt.purpose.view.OutputChannelMain', {
                     xtype: 'rule-with-attributes-form',
                     itemId: 'rule-with-attributes-validation-form',
                     router: me.router,
-                    store: me.validationConfigurationStore,
+                    records: me.validationConfigurationStore.getRange(),
                     type: 'validation',
                     application: me.controller.getApplication()
                 },
@@ -127,7 +127,7 @@ Ext.define('Imt.purpose.view.OutputChannelMain', {
                     xtype: 'rule-with-attributes-form',
                     itemId: 'rule-with-attributes-estimation-form',
                     router: me.router,
-                    store: me.estimationConfigurationStore,
+                    records: me.estimationConfigurationStore.getRange(),
                     type: 'estimation',
                     application: me.controller.getApplication()
                 },

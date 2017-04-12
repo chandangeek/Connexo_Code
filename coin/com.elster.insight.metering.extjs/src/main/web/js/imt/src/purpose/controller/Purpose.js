@@ -570,8 +570,7 @@ Ext.define('Imt.purpose.controller.Purpose', {
                 widget = Ext.widget('rule-with-attributes-edit', {
                     itemId: 'rule-with-attributes-edit-' + type,
                     type: type,
-                    router: router,
-                    returnLink: router.getRoute('usagepoints/view/purpose/output').buildUrl(),
+                    route: router.getRoute('usagepoints/view/purpose/output'),
                     application: me.getApplication()
                 });
                 form = widget.down('#rule-with-attributes-edit-form');
