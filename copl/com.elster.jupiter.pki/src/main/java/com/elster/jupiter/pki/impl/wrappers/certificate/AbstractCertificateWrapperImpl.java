@@ -215,7 +215,8 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
                 extendedKeyUsages.addAll(x509Certificate.getExtendedKeyUsage()
                         .stream()
                         .map(ExtendedKeyUsage::byOid)
-                        .map(Optional::get)
+                        .filter(Optional::isPresent)
+                        .map(Optional::get) // TODO Find a solution for ExtendedKeyUsages we don't know (ExtendedKeyUsage as Interface)
                         .collect(toSet()));
             }
             return extendedKeyUsages;
