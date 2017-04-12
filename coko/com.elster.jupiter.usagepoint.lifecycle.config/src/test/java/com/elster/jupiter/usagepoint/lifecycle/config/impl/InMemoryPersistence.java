@@ -5,6 +5,7 @@
 package com.elster.jupiter.usagepoint.lifecycle.config.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
@@ -51,6 +52,7 @@ public class InMemoryPersistence {
                 new OrmModule(),
                 new PubSubModule(),
                 new InMemoryMessagingModule(),
+                new BpmModule(),
                 new FiniteStateMachineModule(),
                 new DataVaultModule(),
                 new EventsModule(),
