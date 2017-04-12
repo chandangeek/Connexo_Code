@@ -7,7 +7,6 @@ import com.energyict.mdc.upl.messages.legacy.MessageSpec;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
 import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
-
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocolimpl.generic.messages.GenericMessaging;
 import com.energyict.protocolimpl.messages.ProtocolMessageCategories;
@@ -28,7 +27,7 @@ public class ZigbeeGasMessaging extends GenericMessaging {
     private static final String SET_STANDING_CHARGE = "SetStandingChargeAndActivationDate";
     private static final String SET_CALORIFIC_VALUE = "SetCalorificValueAndActivationDate";
     private static final String SET_CONVERSION_FACTOR = "SetConversionFactorAndActivationDate";
-    private static final String ID_OF_USER_FILE = "ID of user file containing the price information";
+    private static final String ID_OF_USER_FILE = "ID of file containing the price information";
     private static final String ACTIVATION_DATE = "Activation date (dd/mm/yyyy hh:mm:ss) (optional)";
     private static final String STANDING_CHARGE = "Standing charge";
     private static final String CALORIFIC_VALUE = "Calorific value";

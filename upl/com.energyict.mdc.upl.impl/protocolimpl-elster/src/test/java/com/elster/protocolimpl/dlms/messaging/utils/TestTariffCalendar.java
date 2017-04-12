@@ -201,19 +201,19 @@ public class TestTariffCalendar
         }
         catch (ParserConfigurationException e)
         {
-            throw new IOException("Failed to parse the xml document - the user file does not contain a valid XML document: " + e.getMessage());
+            throw new IOException("Failed to parse the xml document - the file does not contain a valid XML document: " + e.getMessage());
         }
         catch (SAXException e)
         {
-            throw new IOException("Failed to parse the xml document - the user file does not contain a valid XML document: " + e.getMessage());
+            throw new IOException("Failed to parse the xml document - the file does not contain a valid XML document: " + e.getMessage());
         }
         catch (IOException e)
         {
-            throw new IOException("Failed to parse the xml document - the user file does not contain a valid XML document: " + e.getMessage());
+            throw new IOException("Failed to parse the xml document - the file does not contain a valid XML document: " + e.getMessage());
         }
         catch (DOMException e)
         {
-            throw new IOException("Failed to parse the xml document - the user file does not contain a valid XML document: " + e.getMessage());
+            throw new IOException("Failed to parse the xml document - the file does not contain a valid XML document: " + e.getMessage());
         }
     }
 }

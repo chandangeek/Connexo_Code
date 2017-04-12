@@ -1,6 +1,17 @@
 package com.energyict.smartmeterprotocolimpl.eict.AM110R.messaging.xml;
 
-import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.BooleanObject;
+import com.energyict.dlms.axrdencoding.Integer16;
+import com.energyict.dlms.axrdencoding.Integer32;
+import com.energyict.dlms.axrdencoding.Integer8;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.TypeEnum;
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.GenericInvoke;
 import com.energyict.dlms.cosem.GenericWrite;
@@ -73,13 +84,13 @@ public class XMLParser {
             DocumentBuilder builder = factory.newDocumentBuilder();
             return builder.parse(new InputSource(new StringReader(xml)));
         } catch (ParserConfigurationException e) {
-            throw new IOException("Failed to parse the xml document - the user file does not contain a valid XML document: " + e.getMessage());
+            throw new IOException("Failed to parse the xml document - the file does not contain a valid XML document: " + e.getMessage());
         } catch (SAXException e) {
-            throw new IOException("Failed to parse the xml document - the user file does not contain a valid XML document: " + e.getMessage());
+            throw new IOException("Failed to parse the xml document - the file does not contain a valid XML document: " + e.getMessage());
         } catch (IOException e) {
-            throw new IOException("Failed to parse the xml document - the user file does not contain a valid XML document: " + e.getMessage());
+            throw new IOException("Failed to parse the xml document - the file does not contain a valid XML document: " + e.getMessage());
         } catch (DOMException e) {
-            throw new IOException("Failed to parse the xml document - the user file does not contain a valid XML document: " + e.getMessage());
+            throw new IOException("Failed to parse the xml document - the file does not contain a valid XML document: " + e.getMessage());
         }
     }
 
@@ -287,11 +298,8 @@ public class XMLParser {
 
         // Wildcard in E-field of obisCode
         instanceWithWildcardId = ProtocolTools.setObisCodeField(instanceId, 4, (byte) 255);
-        if (this.allowedObjects.contains(instanceWithWildcardId)) {
-            return true;
-        }
+        return this.allowedObjects.contains(instanceWithWildcardId);
 
-        return false;
     }
 
     private void infoLog(String message) {

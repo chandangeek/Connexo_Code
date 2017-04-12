@@ -50,7 +50,7 @@ public class FirmwareUpgrade extends PrimeMessageExecutor {
                 throw new IOException(message);
             }
 
-            getLogger().info("Pulling out user file and dispatching to the device...");
+            getLogger().info("Pulling out file and dispatching to the device...");
             final byte[] base64Data = builder.getFirmwareBytes();
 
             getLogger().info("Decoding BASE64 content ...");

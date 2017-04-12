@@ -92,13 +92,13 @@ public enum ZigBeeConfigurationDeviceMessage implements DeviceMessageSpecSupplie
             );
         }
     },
-    ZigBeeNCPFirmwareUpdateWithUserFile(6011, "ZigBee NCP firmware update with user file") {
+    ZigBeeNCPFirmwareUpdateWithUserFile(6011, "ZigBee NCP firmware update with file") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.messageFileSpec(service, DeviceMessageConstants.ZigBeeConfigurationFirmwareUpdateFileAttributeName, DeviceMessageConstants.ZigBeeConfigurationFirmwareUpdateFileAttributeDefaultTranslation));
         }
     },
-    ZigBeeNCPFirmwareUpdateWithUserFileAndActivate(6012, "ZigBee NCP firmware update with user file and activation date") {
+    ZigBeeNCPFirmwareUpdateWithUserFileAndActivate(6012, "ZigBee NCP firmware update with file and activation date") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(

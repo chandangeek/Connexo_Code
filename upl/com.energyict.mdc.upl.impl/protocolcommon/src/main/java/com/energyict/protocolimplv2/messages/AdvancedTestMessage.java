@@ -6,7 +6,6 @@ import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.DeviceMessageFile;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
 import com.energyict.protocolimplv2.messages.nls.TranslationKeyImpl;
 
 import java.util.Collections;
@@ -32,7 +31,7 @@ public enum AdvancedTestMessage implements DeviceMessageSpecSupplier {
             return Collections.singletonList(this.stringSpec(service, xmlConfigAttributeName, xmlConfigAttributeDefaultTranslation));
         }
     },
-    USERFILE_CONFIG(32002, "User file configuration") {
+    USERFILE_CONFIG(32002, "File configuration") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.deviceMessageFileSpec(service, UserFileConfigAttributeName, UserFileConfigAttributeDefaultTranslation));

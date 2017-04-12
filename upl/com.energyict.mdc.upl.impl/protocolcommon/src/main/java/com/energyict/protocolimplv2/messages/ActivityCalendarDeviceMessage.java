@@ -70,7 +70,7 @@ public enum ActivityCalendarDeviceMessage implements DeviceMessageSpecSupplier {
             return Optional.of(ProtocolSupportedCalendarOptions.VERIFY_ACTIVE_CALENDAR);
         }
     },
-    WRITE_CONTRACTS_FROM_XML_USERFILE(2, "Write contracts from XML user file") {
+    WRITE_CONTRACTS_FROM_XML_USERFILE(2, "Write contracts from XML file") {
         @Override
         public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.deviceMessageFileSpec(service, contractsXmlUserFileAttributeName, contractsXmlUserFileAttributeDefaultTranslation));
@@ -218,7 +218,7 @@ public enum ActivityCalendarDeviceMessage implements DeviceMessageSpecSupplier {
             return Optional.of(ProtocolSupportedCalendarOptions.ACTIVATE_PASSIVE_CALENDAR);
         }
     },
-    SPECIAL_DAY_CALENDAR_SEND_FROM_XML_USER_FILE(13, "Send special days calendar from XLM user file") {
+    SPECIAL_DAY_CALENDAR_SEND_FROM_XML_USER_FILE(13, "Send special days calendar from XML file") {
         @Override
         public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.deviceMessageFileSpec(service, XmlUserFileAttributeName, XmlUserFileAttributeDefaultTranslation));
@@ -229,7 +229,7 @@ public enum ActivityCalendarDeviceMessage implements DeviceMessageSpecSupplier {
             return Optional.of(ProtocolSupportedCalendarOptions.SEND_SPECIAL_DAYS_CALENDAR);
         }
     },
-    ACTIVITY_CALENDAR_SEND_WITH_DATETIME_FROM_XML_USER_FILE(14, "Send activity calendar with activation date from XML user file") {
+    ACTIVITY_CALENDAR_SEND_WITH_DATETIME_FROM_XML_USER_FILE(14, "Send activity calendar with activation date from XML file") {
         @Override
         public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(

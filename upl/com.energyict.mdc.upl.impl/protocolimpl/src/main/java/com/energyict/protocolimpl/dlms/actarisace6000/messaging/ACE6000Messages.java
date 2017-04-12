@@ -92,7 +92,7 @@ public class ACE6000Messages extends ProtocolMessages {
                 infoLog("TimeOfUse message successful");
                 return MessageResult.createSuccess(messageEntry);
             } else {
-                protocol.getLogger().log(Level.SEVERE, "Error executing message - the message content is empty, probably wrong user file id specified.");
+                protocol.getLogger().log(Level.SEVERE, "Error executing message - the message content is empty, probably wrong file id specified.");
                 return MessageResult.createFailed(messageEntry);
             }
         } catch (DataAccessResultException e) {

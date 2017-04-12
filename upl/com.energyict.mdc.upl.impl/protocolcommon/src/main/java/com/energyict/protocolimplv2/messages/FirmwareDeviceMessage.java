@@ -106,7 +106,7 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.resum
  */
 public enum FirmwareDeviceMessage implements DeviceMessageSpecSupplier {
 
-    UPGRADE_FIRMWARE_WITH_USER_FILE(5001, "Firmware upgrade via user file") {
+    UPGRADE_FIRMWARE_WITH_USER_FILE(5001, "Firmware upgrade via file") {
         @Override
         public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.firmwareVersionSpec(service, firmwareUpdateFileAttributeName, firmwareUpdateUserFileAttributeDefaultTranslation));
@@ -117,7 +117,7 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecSupplier {
             return Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_LATER);
         }
     },
-    UPGRADE_FIRMWARE_WITH_USER_FILE_AND_RESUME_OPTION(5002, "Firmware upgrade via user file with resume option") {
+    UPGRADE_FIRMWARE_WITH_USER_FILE_AND_RESUME_OPTION(5002, "Firmware upgrade via file with resume option") {
         @Override
         public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -131,7 +131,7 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecSupplier {
             return Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE);
         }
     },
-    UPGRADE_FIRMWARE_WITH_USER_FILE_AND_RESUME_OPTION_AND_TYPE(5003, "Firmware upgrade via user file with resume option and type") {
+    UPGRADE_FIRMWARE_WITH_USER_FILE_AND_RESUME_OPTION_AND_TYPE(5003, "Firmware upgrade via file with resume option and type") {
         @Override
         public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -157,7 +157,7 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecSupplier {
             return Optional.empty();
         }
     },
-    UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE(5005, "Firmware upgrade via user file with activation date") {
+    UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE(5005, "Firmware upgrade via file with activation date") {
         @Override
         public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -171,7 +171,7 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecSupplier {
             return Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_WITH_DATE);
         }
     },
-    UPGRADE_FIRMWARE_WITH_USER_FILE_VERSION_AND_ACTIVATE(5006, "Firmware upgrade via user file with version and activation date") {
+    UPGRADE_FIRMWARE_WITH_USER_FILE_VERSION_AND_ACTIVATE(5006, "Firmware upgrade via file with version and activation date") {
         @Override
         public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -288,7 +288,7 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecSupplier {
             return Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE);
         }
     },
-    UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE_AND_IMAGE_IDENTIFIER(5016, "Upgrade firmware with user file, activation date and image identifier") {
+    UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE_AND_IMAGE_IDENTIFIER(5016, "Upgrade firmware with file, activation date and image identifier") {
         @Override
         public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -303,7 +303,7 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecSupplier {
             return Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_WITH_DATE);
         }
     },
-    UPGRADE_FIRMWARE_WITH_USER_FILE_AND_IMAGE_IDENTIFIER(5017, "Upgrade firmware with user file and image identifier") {
+    UPGRADE_FIRMWARE_WITH_USER_FILE_AND_IMAGE_IDENTIFIER(5017, "Upgrade firmware with file and image identifier") {
         @Override
         public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(

@@ -61,7 +61,7 @@ public class AS220ImageTransfer {
 
         // We requested an inlined file...
         if (builder.getPath() != null) {
-            getAs220().getLogger().info("Pulling out user file and dispatching to the device...");
+            getAs220().getLogger().info("Pulling out file and dispatching to the device...");
 
             this.data = builder.getFirmwareBytes();
 

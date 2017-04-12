@@ -21,7 +21,7 @@ import java.io.StringReader;
 @SuppressWarnings({"unused"})
 public class SaxUtils
 {
-    private static final String XML_PARSE_ERR_MSG = "Failed to parse the xml document - the user file does not contain a valid XML document: ";
+    private static final String XML_PARSE_ERR_MSG = "Failed to parse the xml document - the file does not contain a valid XML document: ";
 
     public static Document createDocument(String xml) throws IOException
     {

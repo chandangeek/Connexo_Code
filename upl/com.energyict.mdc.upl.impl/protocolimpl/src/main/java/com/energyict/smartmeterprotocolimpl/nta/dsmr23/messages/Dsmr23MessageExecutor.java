@@ -708,8 +708,8 @@ public class Dsmr23MessageExecutor extends MessageParser {
             //Close the input stream
             in.close();
         } catch (Exception e) {
-            log(Level.SEVERE, "Error while parsing or sending user file: " + e.getMessage());
-            return MessageResult.createFailed(messageEntry, "Error while parsing or sending user file: " + e.getMessage());
+            log(Level.SEVERE, "Error while parsing or sending file: " + e.getMessage());
+            return MessageResult.createFailed(messageEntry, "Error while parsing or sending file: " + e.getMessage());
         }
 
         throw new UnsupportedOperationException("Creating global Userfiles is not supported in Connexo, file management is now done in the context of device types");

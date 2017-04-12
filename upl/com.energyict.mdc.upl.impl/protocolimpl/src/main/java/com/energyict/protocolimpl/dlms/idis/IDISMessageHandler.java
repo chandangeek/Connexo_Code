@@ -82,7 +82,7 @@ public class IDISMessageHandler extends GenericMessaging implements MessageProto
     private static final String TIMEZONE = "TimeZone";
     private static final String DATE_DD_MM_YYYY_HH_MM = "Date (dd/mm/yyyy hh:mm)";
     private static final String CONFIGURATION_DOWNLOAD = "Configuration download";
-    private static final String CONFIGURATION_USER_FILE = "Configuration user file";
+    private static final String CONFIGURATION_USER_FILE = "Configuration file";
     protected IDIS idis;
     private final TariffCalendarFinder calendarFinder;
     private final TariffCalendarExtractor extractor;
@@ -147,7 +147,7 @@ public class IDISMessageHandler extends GenericMessaging implements MessageProto
                     return configurationDownload(messageEntry);
                 }
             } else {
-                idis.getLogger().log(Level.SEVERE, "Error executing message - the message content is empty, probably wrong user file id specified.");
+                idis.getLogger().log(Level.SEVERE, "Error executing message - the message content is empty, probably wrong file id specified.");
                 return MessageResult.createFailed(messageEntry);
             }
         } catch (DataAccessResultException e) {

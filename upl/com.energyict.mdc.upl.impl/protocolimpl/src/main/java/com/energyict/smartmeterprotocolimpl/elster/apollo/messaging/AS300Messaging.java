@@ -7,7 +7,6 @@ import com.energyict.mdc.upl.messages.legacy.MessageSpec;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
 import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
-
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocolimpl.generic.messages.GenericMessaging;
@@ -29,7 +28,7 @@ public class AS300Messaging extends GenericMessaging implements MessageProtocol 
     private static final String READ_PRICE_PER_UNIT = "ReadPricePerUnit";
     private static final String READ_ACTIVITY_CALENDAR = "ReadActivityCalendar";
     private static final String SET_STANDING_CHARGE = "SetStandingCharge";
-    private static final String ID_OF_USER_FILE = "ID of user file containing the price information";
+    private static final String ID_OF_USER_FILE = "ID of file containing the price information";
     private static final String COMMA_SEPARATED_PRICES = "CommaSeparatedPrices";
     private static final String ACTIVATION_DATE_TAG = "ActivationDate";
     private static final String ACTIVATION_DATE = "Activation date (dd/mm/yyyy hh:mm:ss) (optional)";

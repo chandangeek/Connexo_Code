@@ -1,6 +1,7 @@
 package com.elster.protocolimpl.dlms.messaging;
 
 import com.elster.dlms.cosem.classes.class11.SpecialDayEntry;
+import org.junit.Test;
 import org.w3c.dom.Attr;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
@@ -18,8 +19,6 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.List;
-
-import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
@@ -191,7 +190,7 @@ public class TestWriteSpecialDaysTableMessage extends A1WriteSpecialDaysTableMes
         }
         catch (ParserConfigurationException | SAXException | IOException | DOMException e)
         {
-            throw new IOException("Failed to parse the xml document - the user file does not contain a valid XML document: " + e.getMessage());
+            throw new IOException("Failed to parse the xml document - the file does not contain a valid XML document: " + e.getMessage());
         }
     }
 }
