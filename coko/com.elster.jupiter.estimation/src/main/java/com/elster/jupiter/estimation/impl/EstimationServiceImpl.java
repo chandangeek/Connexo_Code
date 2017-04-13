@@ -474,8 +474,6 @@ public class EstimationServiceImpl implements IEstimationService, TranslationKey
         return where(EstimationRuleSetImpl.OBSOLETE_TIME_FIELD).isNull();
     }
 
-
-
     @Override
     public boolean isEstimationRuleSetInUse(EstimationRuleSet estimationRuleSet) {
         return resolvers.stream()

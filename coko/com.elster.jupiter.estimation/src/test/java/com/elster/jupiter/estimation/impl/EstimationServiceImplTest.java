@@ -70,7 +70,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Stream;
 
 import org.junit.After;
 import org.junit.Before;
@@ -177,8 +176,7 @@ public class EstimationServiceImplTest {
     ReadingType readingType;
     @Mock
     ReadingTypeDeliverable readingTypeDeliverable;
-    @Mock
-    Stream<String> stringStream;
+
     private LogRecorder logRecorder;
 
     @Before

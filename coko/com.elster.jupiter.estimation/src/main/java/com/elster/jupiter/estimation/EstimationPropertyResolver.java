@@ -14,7 +14,7 @@ import java.util.Optional;
 public interface EstimationPropertyResolver {
 
     /**
-     * Provides a {@link EstimationPropertyProvider} for a specific {@link ChannelsContainer}
+     * Provides an {@link EstimationPropertyProvider} for a specific {@link ChannelsContainer}
      *
      * @param channelsContainer target {@link ChannelsContainer}
      * @return {@link EstimationPropertyProvider} or Optional.empty()
@@ -23,7 +23,7 @@ public interface EstimationPropertyResolver {
     Optional<EstimationPropertyProvider> resolve(ChannelsContainer channelsContainer);
 
     /**
-     * Returns a {@link EstimationPropertyDefinitionLevel} specifying
+     * Returns an {@link EstimationPropertyDefinitionLevel} specifying
      * on which level this {@link EstimationPropertyResolver} gets validation properties
      */
     EstimationPropertyDefinitionLevel getLevel();

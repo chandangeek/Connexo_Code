@@ -20,8 +20,8 @@ public class CachedEstimationPropertyProvider implements EstimationPropertyProvi
 
     private final Map<Key, Map<String, Object>> properties = new HashMap<>();
 
-    public void setProperties(ReadingType readingType, String validationRuleName, String validatorImpl, Map<String, Object> properties) {
-        Key key = new Key(readingType, validationRuleName, validatorImpl);
+    public void setProperties(ReadingType readingType, String estimationRuleName, String estimatorImpl, Map<String, Object> properties) {
+        Key key = new Key(readingType, estimationRuleName, estimatorImpl);
         this.properties.computeIfAbsent(key, props -> new HashMap<>()).putAll(properties);
     }
 
