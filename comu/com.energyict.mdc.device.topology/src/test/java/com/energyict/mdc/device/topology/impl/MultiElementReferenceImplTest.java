@@ -859,7 +859,7 @@ public class MultiElementReferenceImplTest extends PersistenceIntegrationTest {
         registerMapping.put(slaveRegister3, dataLoggerR3);
 
         dataLoggerR2.startEditingData()
-                .editReading(ReadingImpl.of(dataLoggerR2.getReadingType().getMRID(), new BigDecimal(0), readingsDataLoggerR2.get(readingsDataLoggerR2.size()-2).getTimeStamp()))
+                .editReading(ReadingImpl.of(dataLoggerR2.getReadingType().getMRID(), new BigDecimal(0), readingsDataLoggerR2.get(readingsDataLoggerR2.size()-2).getTimeStamp()), r2End)
                 .complete();
 
         inMemoryPersistence.getMultiElementDeviceService().addSlave(slave, dataLogger, startLink, channelMapping, registerMapping);
