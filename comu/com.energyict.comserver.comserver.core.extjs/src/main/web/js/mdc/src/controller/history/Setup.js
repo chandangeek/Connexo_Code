@@ -927,7 +927,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                     title: Uni.I18n.translate('general.validationConfiguration', 'MDC', 'Validation configuration'),
                                     route: '{channelId}/validation',
                                     controller: 'Mdc.controller.setup.DeviceChannelData',
-                                    privileges: Mdc.privileges.Device.viewDeviceCommunication,
+                                    privileges: Mdc.privileges.Device.viewValidationConfiguration,
                                     action: 'showValidationConfiguration',
                                     callback: function (route) {
                                         this.getApplication().on('channelOfLoadProfileOfDeviceLoad', function (record) {
@@ -941,7 +941,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                             title: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
                                             route: '{ruleId}/editRule',
                                             controller: 'Mdc.controller.setup.DeviceChannelData',
-                                            privileges: Mdc.privileges.Device.viewDeviceCommunication,
+                                            privileges: Mdc.privileges.Device.administerValidationConfiguration,
                                             action: 'showEditValidationRuleWithAttributes',
                                             callback: function (route) {
                                                 this.getApplication().on('rule-with-attributes-loaded', function (rule) {
@@ -958,7 +958,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                     title: Uni.I18n.translate('general.estimationConfiguration', 'MDC', 'Estimation configuration'),
                                     route: '{channelId}/estimation',
                                     controller: 'Mdc.controller.setup.DeviceChannelData',
-                                    privileges: Mdc.privileges.Device.viewDeviceCommunication,
+                                    privileges: Mdc.privileges.Device.viewEstimationConfiguration,
                                     action: 'showEstimationConfiguration',
                                     callback: function (route) {
                                         this.getApplication().on('channelOfLoadProfileOfDeviceLoad', function (record) {
@@ -972,7 +972,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                             title: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
                                             route: '{ruleId}/editRule',
                                             controller: 'Mdc.controller.setup.DeviceChannelData',
-                                            privileges: Mdc.privileges.Device.viewDeviceCommunication,
+                                            privileges: Mdc.privileges.Device.administerEstimationConfiguration,
                                             action: 'showEditEstimationRuleWithAttributes',
                                             callback: function (route) {
                                                 this.getApplication().on('rule-with-attributes-loaded', function (rule) {

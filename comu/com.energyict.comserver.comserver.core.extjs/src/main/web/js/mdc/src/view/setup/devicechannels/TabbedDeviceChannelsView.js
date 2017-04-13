@@ -163,8 +163,12 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
             }
         ];
 
-        me.addValidationConfiguration();
-        me.addEstimationConfiguration();
+        if (Mdc.privileges.Device.canViewValidationConfiguration()) {
+            me.addValidationConfiguration();
+        }
+        if (Mdc.privileges.Device.canViewEstimationConfiguration()) {
+            me.addEstimationConfiguration();
+        }
 
         me.side = [
             {
@@ -247,7 +251,8 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
     prepareForm: function (type, store, kindOfReadingType) {
         var me = this,
             titleToken = type === 'validation' ? Uni.I18n.translate('general.validationConfigurationFor', 'MDC', 'Validation configuration for')
-                : Uni.I18n.translate('general.estimationConfigurationFor', 'MDC', 'Estimation configuration for');
+                : Uni.I18n.translate('general.estimationConfigurationFor', 'MDC', 'Estimation configuration for'),
+            hasAdministerPrivileges = type === 'validation' ? Mdc.privileges.Device.canAdministerValidationConfiguration() : Mdc.privileges.Device.canAdministerEstimationConfiguration();
 
         return {
             xtype: 'rule-with-attributes-form',
@@ -258,7 +263,8 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
             type: type,
             ui: 'medium',
             title: Ext.String.format("{0} {1}", titleToken, store.first().get('readingType').fullAliasName),
-            application: me.application
+            application: me.application,
+            hasAdministerPrivileges: hasAdministerPrivileges
         };
     },
 
