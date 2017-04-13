@@ -38,7 +38,7 @@ Ext.define('Mdc.timeofuse.view.EditSpecificationsForm', {
                         fieldLabel: Uni.I18n.translate('general.timeOfUse', 'MDC', 'Time of use'),
                         itemId: 'fwc-tou-devicetype-edit-specs-timeOfUse-checkbox',
                         name: 'isAllowed',
-                        boxLabel: Uni.I18n.translate('general.allowTimeOfUse', 'FWC', 'Allow time of use'),
+                        boxLabel: Uni.I18n.translate('general.allowTimeOfUse', 'MDC', 'Allow time of use'),
                         checked: false,
                         margin: '7 0 7 4'
                     },
