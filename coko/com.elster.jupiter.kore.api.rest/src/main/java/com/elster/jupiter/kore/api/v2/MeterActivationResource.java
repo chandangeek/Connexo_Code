@@ -134,6 +134,7 @@ public class MeterActivationResource {
      * @param meterActivationInfo Description of the to be created meter activation
      * @param uriInfo uriInfo
      * @param validateOnly Indicates that only the validations need to be done without the actual object being created
+     * @param replace Indicates that existing meter activation at new activation start time will be closed.
      * @return The created meter activation
      * @summary Create a new activation for a meter
      */
@@ -142,15 +143,12 @@ public class MeterActivationResource {
     @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     @Transactional
-    public MeterActivationInfo createMeterActivation(@PathParam("mRID") String mRID, @QueryParam("validateOnly") boolean validateOnly, @Context UriInfo uriInfo, MeterActivationInfo meterActivationInfo) {
+    public MeterActivationInfo createMeterActivation(@PathParam("mRID") String mRID, @QueryParam("validateOnly") boolean validateOnly, @QueryParam("replace") boolean replace, @Context UriInfo uriInfo, MeterActivationInfo meterActivationInfo) {
         if (meterActivationInfo == null) {
             throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.EMPTY_REQUEST);
         }
         UsagePoint usagePoint = meteringService.findUsagePointByMRID(mRID)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_USAGE_POINT));
-
-
-
         if (meterActivationInfo.meter == null) {
             throw new LocalizedFieldValidationException(MessageSeeds.FIELD_MISSING, "meter");
         }
@@ -173,28 +171,12 @@ public class MeterActivationResource {
         }
 
         if (!meter.getState(start).filter(state -> state.getStage().filter(stage -> stage.getName().equals(EndDeviceStage.OPERATIONAL.getKey())).isPresent()).isPresent()) {
-            StateTimeSlice state = meter.getStateTimeline().flatMap(stateTimeline -> stateTimeline.getSlices().stream()
-                    .filter(stateTimeSlice -> stateTimeSlice.getPeriod()
-                            .lowerEndpoint()
-                            .isAfter(Instant.ofEpochMilli(meterActivationInfo.interval.start).truncatedTo(ChronoUnit.MINUTES))
-                            && stateTimeSlice.getState().getStage().filter(stage -> stage.getName().equals(EndDeviceStage.OPERATIONAL.getKey())).isPresent())
-                    .min(Comparator.comparing(slice -> slice.getPeriod().lowerEndpoint())))
-                    .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.INVALID_END_DEVICE_STAGE, start));
-            if (!state.getPeriod().lowerEndpoint().truncatedTo(ChronoUnit.MINUTES).equals(state.getPeriod().lowerEndpoint())) {
-                start = state.getPeriod().lowerEndpoint().plus(1, ChronoUnit.MINUTES).truncatedTo(ChronoUnit.MINUTES);
-            } else {
-                start = state.getPeriod().lowerEndpoint();
-            }
+            start = getMeterActivationStartTime(start, meter, meterActivationInfo);
         }
-
-        if (!usagePoint.getMeterActivations().isEmpty() && start.isBefore(usagePoint.getMeterActivations()
-                .get(usagePoint.getMeterActivations().size() - 1)
-                .getStart())) {
-            throw new LocalizedFieldValidationException(MessageSeeds.INVALID_START_TIME, "interval.start");
-        }
+        validateStartTime(usagePoint, start, meterRole, replace);
 
         UsagePointMeterActivator linker = usagePoint.linkMeters();
-        if (usagePoint.getMeterActivations(start).stream().anyMatch(meterActivation -> meterActivation.getMeterRole().filter(meterRole::equals).isPresent())) {
+        if (replace && usagePoint.getMeterActivations(start).stream().anyMatch(meterActivation -> meterActivation.getMeterRole().filter(meterRole::equals).isPresent())) {
             linker.clear(start, meterRole);
         }
         linker.activate(start, meter, meterRole);
@@ -252,6 +234,31 @@ public class MeterActivationResource {
                 .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_METER_ACTIVATION_FOR_METER_ROLE, meterActivationInfo.meterRole));
 
         return meterActivationInfoFactory.from(activation, uriInfo, Collections.emptyList());
+    }
+
+    private Instant getMeterActivationStartTime(Instant start, Meter meter, MeterActivationInfo meterActivationInfo) {
+        StateTimeSlice state = meter.getStateTimeline().flatMap(stateTimeline -> stateTimeline.getSlices().stream()
+                .filter(stateTimeSlice -> stateTimeSlice.getPeriod()
+                        .lowerEndpoint()
+                        .isAfter(Instant.ofEpochMilli(meterActivationInfo.interval.start).truncatedTo(ChronoUnit.MINUTES))
+                        && stateTimeSlice.getState().getStage().filter(stage -> stage.getName().equals(EndDeviceStage.OPERATIONAL.getKey())).isPresent())
+                .min(Comparator.comparing(slice -> slice.getPeriod().lowerEndpoint())))
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.INVALID_END_DEVICE_STAGE, start));
+        if (!state.getPeriod().lowerEndpoint().truncatedTo(ChronoUnit.MINUTES).equals(state.getPeriod().lowerEndpoint())) {
+            return state.getPeriod().lowerEndpoint().plus(1, ChronoUnit.MINUTES).truncatedTo(ChronoUnit.MINUTES);
+        } else {
+            return state.getPeriod().lowerEndpoint();
+        }
+    }
+
+    private void validateStartTime(UsagePoint usagePoint, Instant start, MeterRole meterRole, boolean isReplace) {
+        for (MeterActivation meterActivation : usagePoint.getMeterActivations(meterRole)) {
+            if (meterActivation.getStart().isAfter(start)) {
+                throw new LocalizedFieldValidationException(MessageSeeds.INVALID_START_TIME, "interval.start");
+            } else if (!isReplace && meterActivation.isEffectiveAt(start)) {
+                throw new LocalizedFieldValidationException(MessageSeeds.INVALID_START_TIME, "interval.start");
+            }
+        }
     }
 
     private void validateMeterActivationRequirements(UsagePoint usagePoint, Meter meter, MeterRole meterRole, Instant instant) {

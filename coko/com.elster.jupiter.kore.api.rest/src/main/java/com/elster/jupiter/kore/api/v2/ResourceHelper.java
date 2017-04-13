@@ -99,10 +99,6 @@ public class ResourceHelper {
         UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = (UsagePointMetrologyConfiguration) this.findMetrologyConfiguration(info.metrologyConfiguration.id)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_METROLOGY_CONFIGURATION));
 
-        if(!usagePointMetrologyConfiguration.isGapAllowed()){
-           validateIfRequiredMetersInstalled(usagePoint, usagePointMetrologyConfiguration, info);
-        }
-
         if (info.purposes != null) {
             usagePoint.apply(usagePointMetrologyConfiguration, Instant.ofEpochMilli(info.id), usagePointMetrologyConfiguration.getContracts()
                     .stream()
@@ -118,24 +114,6 @@ public class ResourceHelper {
         usagePoint.update();
     }
 
-    // TODO: 29.03.2017 remove after CXO-5600 done
-    public void validateIfRequiredMetersInstalled(UsagePoint usagePoint, UsagePointMetrologyConfiguration usagePointMetrologyConfiguration, EffectiveMetrologyConfigurationInfo info){
-        List<String> emptyMeterRoles = usagePointMetrologyConfiguration.getContracts().stream()
-                .filter(metrologyContract -> metrologyContract.isMandatory()
-                        || (info.purposes!=null && info.purposes.stream().anyMatch(p -> p.id.equals(metrologyContract.getId()))))
-                .flatMap(metrologyContract -> metrologyContract.getRequirements().stream())
-                .map(usagePointMetrologyConfiguration::getMeterRoleFor)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .distinct()
-                .filter(meterRole -> usagePoint.getMeterActivations(Instant.ofEpochMilli(info.id)).stream().noneMatch(meterActivation -> meterActivation.getMeterRole().filter(meterRole::equals).isPresent()))
-                .map(MeterRole::getDisplayName)
-                .collect(Collectors.toList());
-        if(!emptyMeterRoles.isEmpty()){
-            throw  exceptionFactory.newException(MessageSeeds.METERS_ARE_NOT_SPECIFIED_FOR_METER_ROLES, String.join(", ", emptyMeterRoles));
-        }
-    }
-
     public void performUsagePointTransition(UsagePoint usagePoint, UsagePointTransitionInfo info) {
         UsagePointTransition transition = getTransitionByIdOrThrowException(info.id);
 
@@ -149,14 +127,4 @@ public class ResourceHelper {
             throw exceptionFactory.newException(MessageSeeds.TRANSITION_FAILED, changeRequest.getGeneralFailReason());
         }
     }
-
-    private void wrapWithFormValidationErrorAndRethrow(RequiredMicroActionPropertiesException violationEx) {
-        RestValidationBuilder formValidationErrorBuilder = new RestValidationBuilder();
-        violationEx.getViolatedPropertySpecNames()
-                .forEach(propertyName ->
-                        formValidationErrorBuilder.addValidationError(
-                                new LocalizedFieldValidationException(MessageSeeds.FIELD_MISSING, propertyName)));
-        formValidationErrorBuilder.validate();
-    }
-
 }
