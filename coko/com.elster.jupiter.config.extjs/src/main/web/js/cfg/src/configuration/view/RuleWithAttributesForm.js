@@ -16,6 +16,7 @@ Ext.define('Cfg.configuration.view.RuleWithAttributesForm', {
     layout: 'column',
     type: null,
     kindOfReadingType: '',
+    hasAdministerPrivileges: false,
     items: [
         {
             xtype: 'container',
@@ -70,7 +71,7 @@ Ext.define('Cfg.configuration.view.RuleWithAttributesForm', {
             }
         });
 
-        if (showActionsMenu) {
+        if (showActionsMenu && me.hasAdministerPrivileges) {
             me.tools = [
                 {
                     xtype: 'uni-button-action',
