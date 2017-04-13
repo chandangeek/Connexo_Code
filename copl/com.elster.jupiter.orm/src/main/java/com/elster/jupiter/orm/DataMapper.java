@@ -30,7 +30,9 @@ public interface DataMapper<T> extends Finder<T> {
 	 * This method must be called within a Transaction
 	 *
 	 * @param version              the current version of the object to lock
-	 * @param primaryKeyComposites the identitifiers that together compose the primary key
+	 * @param primaryKeyComposites the identifiers that together compose the primary key. If the identifier is a business
+	 * object, make sure to provide the actual primary key and not the business object itself, e.g. for an object with a
+	 * combined primary key, consisting of 2 foreign keys: lockObjectIfVersion(17, device.getId(), keyAccessor.getId())
 	 * @return the object identified by the primaryKeyComposites and that has the passed version.
 	 * 			If the object did not have the passed version, or no object with the passed primaryKey exists, Optional.emtpy()
 	 * @since 1.2
