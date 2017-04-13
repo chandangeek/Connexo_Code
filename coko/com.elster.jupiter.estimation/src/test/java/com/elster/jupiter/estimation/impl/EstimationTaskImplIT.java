@@ -6,6 +6,7 @@ package com.elster.jupiter.estimation.impl;
 
 import com.elster.jupiter.appserver.impl.AppServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
@@ -211,6 +212,7 @@ public class EstimationTaskImplIT {
                     new MeteringGroupsModule(),
                     new SearchModule(),
                     new UserModule(),
+                    new BpmModule(),
                     new WebServicesModule(),
                     new AppServiceModule(),
                     new DataVaultModule(),

@@ -119,7 +119,7 @@ public class EstimationEngineTest {
         List<EstimationBlock> blocksToEstimate = new EstimationEngine().findBlocksToEstimate(QualityCodeSystem.MDC, meterActivation
                 .getChannelsContainer(), Range.all(), readingType);
         assertThat(blocksToEstimate).isEmpty();
-        verify(cimChannel1).findReadingQualities();
+        verify(cimChannel1, atLeastOnce()).findReadingQualities();
         verify(fetcher, MockitoExtension.and(atLeastOnce(), MockitoExtension.neverWithOtherArguments()))
                 .ofQualitySystems(Collections.singleton(QualityCodeSystem.MDC));
         verify(fetcher, MockitoExtension.and(atLeastOnce(), MockitoExtension.neverWithOtherArguments()))

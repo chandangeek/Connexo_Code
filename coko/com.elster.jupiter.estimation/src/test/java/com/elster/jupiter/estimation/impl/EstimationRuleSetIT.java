@@ -5,6 +5,7 @@
 package com.elster.jupiter.estimation.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cbo.QualityCodeCategory;
 import com.elster.jupiter.cbo.QualityCodeSystem;
@@ -45,7 +46,7 @@ import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.usagepoint.lifecycle.config.impl.UsagePointLifeCycleConfigurationModule;
-import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UpdatableHolder;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.collections.KPermutation;
@@ -84,8 +85,6 @@ public class EstimationRuleSetIT {
     @Mock
     private BundleContext bundleContext;
     @Mock
-    private UserService userService;
-    @Mock
     private EventAdmin eventAdmin;
     @Mock
     private EstimatorFactory estimatorFactory;
@@ -109,7 +108,6 @@ public class EstimationRuleSetIT {
 
         @Override
         protected void configure() {
-            bind(UserService.class).toInstance(userService);
             bind(BundleContext.class).toInstance(bundleContext);
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(LicenseService.class).toInstance(mock(LicenseService.class));
@@ -126,6 +124,8 @@ public class EstimationRuleSetIT {
                     inMemoryBootstrapModule,
                     new InMemoryMessagingModule(),
                     new IdsModule(),
+                    new UserModule(),
+                    new BpmModule(),
                     new FiniteStateMachineModule(),
                     new UsagePointLifeCycleConfigurationModule(),
                     new CalendarModule(),
