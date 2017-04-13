@@ -44,6 +44,14 @@ public interface PropertySpecService {
 
     /**
      * Creates a new {@link PropertySpecBuilder} for building a custom
+     * {@link PropertySpec} of Base64 encoded String values.
+     *
+     * @return The PropertySpecBuilder
+     */
+    PropertySpecBuilderWizard.NlsOptions<String> base64StringSpec();
+
+    /**
+     * Creates a new {@link PropertySpecBuilder} for building a custom
      * {@link PropertySpec} of Boolean values.
      *
      * @return The PropertySpecBuilder
