@@ -66,6 +66,7 @@ import com.elster.jupiter.metering.impl.aggregation.MeterActivationSet;
 import com.elster.jupiter.metering.impl.aggregation.ServerDataAggregationService;
 import com.elster.jupiter.metering.impl.config.EffectiveMetrologyConfigurationOnUsagePointImpl;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
+import com.elster.jupiter.metering.impl.config.ServerReadingTypeDeliverable;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
@@ -87,6 +88,7 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.geo.SpatialCoordinates;
+import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.RangeInstantBuilder;
 import com.elster.jupiter.util.units.Quantity;
@@ -684,12 +686,7 @@ public class UsagePointImpl implements ServerUsagePoint {
     }
 
     private void validateCalendarIfAny(UsagePointMetrologyConfiguration metrologyConfiguration, Range<Instant> period) {
-        Set<Long> requestedEventCodes =
-                mandatoryReadingTypes(metrologyConfiguration)
-                    .map(ReadingType::getTou)
-                    .map(Long::new)
-                    .collect(Collectors.toSet());
-        requestedEventCodes.remove(0L);  // zero is used when time of use in not active on the ReadingType
+        Set<Long> requestedEventCodes = this.requestedEventCodes(metrologyConfiguration);
         Set<Long> providedEventCodes = this.calendarUsages
                 .stream()
                 .filter(calendarUsage -> calendarUsage.overlaps(period))
@@ -710,11 +707,14 @@ public class UsagePointImpl implements ServerUsagePoint {
         }
     }
 
-    private Stream<ReadingType> mandatoryReadingTypes(UsagePointMetrologyConfiguration configuration) {
+    private Set<Long> requestedEventCodes(UsagePointMetrologyConfiguration configuration) {
         return mandatoryContracts(configuration)
                 .map(MetrologyContract::getDeliverables)
                 .flatMap(Collection::stream)
-                .map(ReadingTypeDeliverable::getReadingType);
+                .map(ServerReadingTypeDeliverable.class::cast)
+                .map(ServerReadingTypeDeliverable::getRequiredTimeOfUse)
+                .flatMap(Functions.asStream())
+                .collect(Collectors.toSet());
     }
 
     private Stream<MetrologyContract> mandatoryContracts(UsagePointMetrologyConfiguration configuration) {

@@ -26,6 +26,7 @@ import com.elster.jupiter.metering.impl.config.EffectiveMetrologyConfigurationOn
 import com.elster.jupiter.metering.impl.config.EffectiveMetrologyContractOnUsagePointImpl;
 import com.elster.jupiter.metering.impl.config.MetrologyContractChannelsContainerImpl;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
+import com.elster.jupiter.metering.impl.config.ServerReadingTypeDeliverable;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
@@ -55,6 +56,7 @@ import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -111,11 +113,11 @@ public class ValidateCalendarWhenMetrologyConfigurationIsAppliedToUsagePointTest
     @Mock
     private MetrologyContract optionalContract;
     @Mock
-    private ReadingTypeDeliverable deliverableWithTimeOfUse;
+    private ServerReadingTypeDeliverable deliverableWithTimeOfUse;
     @Mock
     private IReadingType readingTypeWithTimeOfUse;
     @Mock
-    private ReadingTypeDeliverable deliverableWithoutTimeOfUse;
+    private ServerReadingTypeDeliverable deliverableWithoutTimeOfUse;
     @Mock
     private IReadingType readingTypeWithoutTimeOfUse;
     @Mock
@@ -147,9 +149,11 @@ public class ValidateCalendarWhenMetrologyConfigurationIsAppliedToUsagePointTest
         when(this.readingTypeWithTimeOfUse.getTou()).thenReturn(tou);
         when(this.readingTypeWithTimeOfUse.getMRID()).thenReturn("Reading type with TOU: " + tou);
         when(this.deliverableWithTimeOfUse.getReadingType()).thenReturn(this.readingTypeWithTimeOfUse);
+        when(this.deliverableWithTimeOfUse.getRequiredTimeOfUse()).thenReturn(Optional.of((long) tou));
         when(this.readingTypeWithoutTimeOfUse.getTou()).thenReturn(0);
         when(this.readingTypeWithoutTimeOfUse.getMRID()).thenReturn("Reading type without TOU");
         when(this.deliverableWithoutTimeOfUse.getReadingType()).thenReturn(this.readingTypeWithoutTimeOfUse);
+        when(this.deliverableWithoutTimeOfUse.getRequiredTimeOfUse()).thenReturn(Optional.empty());
 
         when(this.category.getName()).thenReturn(OutOfTheBoxCategory.TOU.name());
         when(this.category.getDisplayName()).thenReturn("Time of use in testing context");
@@ -280,8 +284,7 @@ public class ValidateCalendarWhenMetrologyConfigurationIsAppliedToUsagePointTest
         verify(this.mandatoryContract, atLeastOnce()).getDeliverables();
         verify(this.optionalContract, atLeastOnce()).isMandatory();
         verify(this.optionalContract, never()).getDeliverables();
-        verify(this.deliverableWithoutTimeOfUse, atLeastOnce()).getReadingType();
-        verify(this.readingTypeWithoutTimeOfUse, atLeastOnce()).getTou();
+        verify(this.deliverableWithoutTimeOfUse, atLeastOnce()).getRequiredTimeOfUse();
     }
 
     @Test
@@ -299,8 +302,7 @@ public class ValidateCalendarWhenMetrologyConfigurationIsAppliedToUsagePointTest
         verify(this.mandatoryContract, atLeastOnce()).getDeliverables();
         verify(this.optionalContract, atLeastOnce()).isMandatory();
         verify(this.optionalContract, never()).getDeliverables();
-        verify(this.deliverableWithoutTimeOfUse, atLeastOnce()).getReadingType();
-        verify(this.readingTypeWithoutTimeOfUse, atLeastOnce()).getTou();
+        verify(this.deliverableWithoutTimeOfUse, atLeastOnce()).getRequiredTimeOfUse();
     }
 
     @Test(expected = UnsatisfiedTimeOfUseBucketsException.class)
@@ -314,6 +316,25 @@ public class ValidateCalendarWhenMetrologyConfigurationIsAppliedToUsagePointTest
         usagePoint.apply(this.metrologyConfiguration);
 
         // Asserts: see expected exception rule
+    }
+
+    @Test
+    public void applyWithoutCalendar_OptionalContractWithoutTimeOfUse_MandatoryContractsWithTimeOfUseDeliverables_ThickRequirements() {
+        when(this.deliverableWithTimeOfUse.getRequiredTimeOfUse()).thenReturn(Optional.empty());
+        when(this.mandatoryContract.getDeliverables()).thenReturn(Collections.singletonList(this.deliverableWithTimeOfUse));
+        when(this.optionalContract.getDeliverables()).thenReturn(Collections.singletonList(this.deliverableWithoutTimeOfUse));
+        when(this.metrologyConfiguration.getContracts()).thenReturn(Arrays.asList(this.mandatoryContract, this.optionalContract));
+        UsagePointImpl usagePoint = this.getTestUsagePoint();
+
+        // Business method
+        usagePoint.apply(this.metrologyConfiguration);
+
+        // Asserts
+        verify(this.mandatoryContract, atLeastOnce()).isMandatory();
+        verify(this.mandatoryContract, atLeastOnce()).getDeliverables();
+        verify(this.optionalContract, atLeastOnce()).isMandatory();
+        verify(this.optionalContract, never()).getDeliverables();
+        verify(this.deliverableWithTimeOfUse, atLeastOnce()).getRequiredTimeOfUse();
     }
 
     @Test
@@ -350,8 +371,7 @@ public class ValidateCalendarWhenMetrologyConfigurationIsAppliedToUsagePointTest
         verify(this.mandatoryContract, atLeastOnce()).getDeliverables();
         verify(this.optionalContract, atLeastOnce()).isMandatory();
         verify(this.optionalContract, never()).getDeliverables();
-        verify(this.deliverableWithoutTimeOfUse, atLeastOnce()).getReadingType();
-        verify(this.readingTypeWithoutTimeOfUse, atLeastOnce()).getTou();
+        verify(this.deliverableWithoutTimeOfUse, atLeastOnce()).getRequiredTimeOfUse();
     }
 
     @Test
@@ -370,8 +390,7 @@ public class ValidateCalendarWhenMetrologyConfigurationIsAppliedToUsagePointTest
         verify(this.mandatoryContract, atLeastOnce()).getDeliverables();
         verify(this.optionalContract, atLeastOnce()).isMandatory();
         verify(this.optionalContract, never()).getDeliverables();
-        verify(this.deliverableWithoutTimeOfUse, atLeastOnce()).getReadingType();
-        verify(this.readingTypeWithoutTimeOfUse, atLeastOnce()).getTou();
+        verify(this.deliverableWithoutTimeOfUse, atLeastOnce()).getRequiredTimeOfUse();
     }
 
     @Test
@@ -390,8 +409,7 @@ public class ValidateCalendarWhenMetrologyConfigurationIsAppliedToUsagePointTest
         verify(this.mandatoryContract, atLeastOnce()).getDeliverables();
         verify(this.optionalContract, atLeastOnce()).isMandatory();
         verify(this.optionalContract, never()).getDeliverables();
-        verify(this.deliverableWithoutTimeOfUse, atLeastOnce()).getReadingType();
-        verify(this.readingTypeWithoutTimeOfUse, atLeastOnce()).getTou();
+        verify(this.deliverableWithoutTimeOfUse, atLeastOnce()).getRequiredTimeOfUse();
     }
 
     @Test
@@ -410,8 +428,7 @@ public class ValidateCalendarWhenMetrologyConfigurationIsAppliedToUsagePointTest
         verify(this.mandatoryContract, atLeastOnce()).getDeliverables();
         verify(this.optionalContract, atLeastOnce()).isMandatory();
         verify(this.optionalContract, never()).getDeliverables();
-        verify(this.deliverableWithTimeOfUse, atLeastOnce()).getReadingType();
-        verify(this.readingTypeWithTimeOfUse, atLeastOnce()).getTou();
+        verify(this.deliverableWithTimeOfUse, atLeastOnce()).getRequiredTimeOfUse();
     }
 
     @Test(expected = UnsatisfiedTimeOfUseBucketsException.class)

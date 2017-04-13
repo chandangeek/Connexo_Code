@@ -83,7 +83,7 @@ public class MetrologyContractImpl implements ServerMetrologyContract {
     private Instant createTime;
     @SuppressWarnings("unused") // Managed by ORM
     private Instant modTime;
-    private List<ReadingTypeDeliverable> deliverables = new ArrayList<>();
+    private List<ServerReadingTypeDeliverable> deliverables = new ArrayList<>();
 
     @Inject
     public MetrologyContractImpl(ServerMetrologyConfigurationService metrologyConfigurationService, CustomPropertySetService customPropertySetService, EventService eventService) {
@@ -152,12 +152,12 @@ public class MetrologyContractImpl implements ServerMetrologyContract {
 
     @Override
     public void removeDeliverable(ReadingTypeDeliverable deliverableForRemove) {
-        if (this.doRemoveDeliverable(deliverableForRemove)) {
+        if (this.doRemoveDeliverable((ServerReadingTypeDeliverable) deliverableForRemove)) {
             this.touch();
         }
     }
 
-    public boolean doRemoveDeliverable(ReadingTypeDeliverable deliverableForRemove) {
+    public boolean doRemoveDeliverable(ServerReadingTypeDeliverable deliverableForRemove) {
         if (!metrologyConfigurationService.getDataModel()
                 .query(ReadingTypeDeliverableNodeImpl.class)
                 .select(where("readingTypeDeliverable").isEqualTo(deliverableForRemove))
@@ -165,7 +165,7 @@ public class MetrologyContractImpl implements ServerMetrologyContract {
             throw new CannotDeleteReadingTypeDeliverableException(metrologyConfigurationService.getThesaurus(), deliverableForRemove.getName());
         }
         if (this.deliverables.contains(deliverableForRemove)) {
-            ((ReadingTypeDeliverableImpl) deliverableForRemove).prepareDelete();
+            deliverableForRemove.prepareDelete();
             if (this.deliverables.remove(deliverableForRemove)) {
                 this.eventService.postEvent(EventType.READING_TYPE_DELIVERABLE_DELETED.topic(), deliverableForRemove);
                 return true;
@@ -214,7 +214,7 @@ public class MetrologyContractImpl implements ServerMetrologyContract {
     @Override
     public void delete() {
         if (this.getId() > 0) {
-            this.getDeliverables().forEach(this::doRemoveDeliverable);
+            new ArrayList<>(this.deliverables).forEach(this::doRemoveDeliverable);
         }
     }
 
