@@ -25,11 +25,6 @@ Ext.define('Uni.controller.Error', {
         window: null
     },
 
-    unhandledErrorMessages: [
-        Uni.I18n.translate('error.communication.failure', 'UNI', 'Connexo has encountered a problem, try refreshing the page. If the problem persists, please contact your system administrator.')
-        //
-    ],
-
     routeConfig: {
         notfound: {
             title: Uni.I18n.translate('error.pageNotFound', 'UNI', 'Page not found'),
@@ -81,10 +76,25 @@ Ext.define('Uni.controller.Error', {
 
         if (Ext.isObject(error) && Ext.isDefined(error.title)) {
             title = error.title;
-        } else if (Ext.isObject(error)) {
-            title = Uni.I18n.translate('error.requestFailedConnexoKnownError', 'UNI', 'Couldn\'t perform your action');
         } else {
-            title = Uni.I18n.translate('error.requestFailed', 'UNI', 'Your action can\'t be successfully executed');
+            if (Ext.isObject(error) && Ext.isDefined(error.code) && error.code.indexOf('-') > 0) {
+                title = Uni.I18n.translate(
+                    'error.requestFailed',
+                    'UNI',
+                    'Your action can\'t be successfully executed'
+                );
+            } else if (Ext.isObject(error) && Ext.isDefined(error.code) && !(error.code.indexOf('-') > 0)) {
+                title = Uni.I18n.translate(
+                    'error.requestFailedConnexoKnownError',
+                    'UNI',
+                    'Couldn\'t perform your action'
+                );
+            } else {
+                title = Uni.I18n.translate('error.communication.failureTitle',
+                    'UNI',
+                    'Your action took longer than expected'
+                );
+            }
         }
         if (Ext.isObject(error) && Ext.isDefined(error.msg)) {
             error = error.msg;
@@ -121,7 +131,7 @@ Ext.define('Uni.controller.Error', {
                     message = Uni.I18n.translate(
                         'error.unknownErrorOccurred',
                         'UNI',
-                        'An unknown error occurred.'
+                        'An unknown error occurred'
                     );
                 }
             }
@@ -133,25 +143,36 @@ Ext.define('Uni.controller.Error', {
             //</debug>
         }
 
-        if (Ext.isEmpty(message)) {
-            title = Uni.I18n.translate(
-                'error.connectionProblemsTitle',
+        if (Ext.isEmpty(message) || code == null) {
+            title = Uni.I18n.translate('error.communication.failureTitle',
                 'UNI',
-                'Unexpected connection problems'
+                'Your action took longer than expected'
             );
-
-            message = Uni.I18n.translate(
-                'error.connectionProblemsMessage',
+            message = Uni.I18n.translate('error.communication.failure',
                 'UNI',
-                'Please check that server is available.'
+                'Connexo has encountered a problem, try refreshing the page. If the problem persists, please contact your system administrator'
             );
-            code = 'CFT-1001'; // known code - to be extracted to a reference file
-        }
-        else {
-
-            title = Uni.I18n.translate('error.communication.failureTitle', 'UNI', 'Your action took longer than expected');
-            message = Uni.I18n.translate('error.' + message.replace(' ', '.'), 'UNI', message);
-            code = code ? code : 'CFT-1000'; // known code - to be extracted to a reference file
+            code = 'CFT-1000'; // known code - to be extracted to a reference file
+        } else {
+            if (code.indexOf('-') > 0) {
+                title = Uni.I18n.translate(
+                    'error.requestFailed',
+                    'UNI',
+                    'Your action can\'t be successfully executed'
+                );
+                message = Uni.I18n.translate(
+                    'error.internalServerErrorMessage',
+                    'UNI',
+                    'Connexo has encountered an error, please contact your system administrator'
+                );
+            } else {
+                title = Uni.I18n.translate(
+                    'error.requestFailedConnexoKnownError',
+                    'UNI',
+                    'Couldn\'t perform your action'
+                );
+                message = Uni.I18n.translate('error.' + message.replace(' ', '.'), 'UNI', message);
+            }
         }
 
         switch (response.status) {
@@ -161,31 +182,54 @@ Ext.define('Uni.controller.Error', {
                 }
                 break;
             case 400: // Bad request.
-                if (decoded && decoded.message) {
+                code = decoded.errorCode ? decoded.errorCode : code;
+                message = decoded.message ? decoded.message : message;
+                if (code.indexOf('-') > 0) {
                     title = Uni.I18n.translate(
                         'error.requestFailed',
                         'UNI',
                         'Your action can\'t be successfully executed'
                     );
-                    me.showError(title, decoded.message ? decoded.message : message, decoded.errorCode ? decoded.errorCode : code);
+                    message = Uni.I18n.translate(
+                        'error.internalServerErrorMessage',
+                        'UNI',
+                        'Connexo has encountered an error, please contact your system administrator'
+                    );
+                } else {
+                    title = Uni.I18n.translate(
+                        'error.requestFailedConnexoKnownError',
+                        'UNI',
+                        'Couldn\'t perform your action'
+                    );
                 }
+                me.showError(title, message, code);
                 break;
             case 500: // Internal server error.
                 title = Uni.I18n.translate(
-                    'error.internalServerError',
+                    'error.internalConnexoErrorTitle',
                     'UNI',
                     'Internal Connexo error'
                 );
-                me.showError(title, decoded.message ? decoded.message : message, decoded.errorCode ? decoded.errorCode : code);
+                message = Uni.I18n.translate(
+                    'error.internalServerErrorMessage',
+                    'UNI',
+                    'Connexo has encountered an error, please contact your system administrator'
+                );
+                me.showError(title, message, decoded.errorCode ? decoded.errorCode : code);
                 break;
             case 503: // Service unavailable.
-                title = Uni.I18n.translate(
-                    'error.serviceUnavailable',
+                title = Uni.I18n.translate('error.communication.failureTitle',
                     'UNI',
-                    'Service Unavailable'
+                    'Your action took longer than expected'
                 );
-                me.showError(title, decoded.message ? decoded.message : message, decoded.errorCode ? decoded.errorCode : code);
+                message = Uni.I18n.translate('error.communication.failure',
+                    'UNI',
+                    'Connexo has encountered a problem, try refreshing the page. If the problem persists, please contact your system administrator'
+                );
+                code = 'CFT-1000'; // known code - to be extracted to a reference file
+                me.showError(title, message, code);
                 break;
+            case 422:
             case 404: // Not found.
                 title = Uni.I18n.translate(
                     'error.requestFailed',
@@ -195,9 +239,9 @@ Ext.define('Uni.controller.Error', {
                 message = Uni.I18n.translate(
                     'error.internalServerErrorMessage',
                     'UNI',
-                    'Connexo has encountered an error, please contact your system administrator.'
+                    'Connexo has encountered an error, please contact your system administrator'
                 );
-                options.method !== 'HEAD' && me.showError(title, message, code);
+                options.method !== 'HEAD';
                 break;
             case 401: // Unauthorized.
                 me.getApplication().fireEvent('sessionexpired');
@@ -209,12 +253,19 @@ Ext.define('Uni.controller.Error', {
                 message = Uni.I18n.translate(
                     'error.forbiddenAccess',
                     'UNI',
-                    'Access denied.'
+                    'Access denied'
                 );
                 break;
             case 408:
-                title = Uni.I18n.translate('general.timeOut', 'UNI', 'Time out');
-                message = Uni.I18n.translate('general.timeOutMessage', 'UNI', 'Request processing took too long.');
+                title = Uni.I18n.translate('error.communication.failureTitle',
+                    'UNI',
+                    'Your action took longer than expected'
+                );
+                message = Uni.I18n.translate('error.communication.failure',
+                    'UNI',
+                    'Connexo has encountered a problem, try refreshing the page. If the problem persists, please contact your system administrator'
+                );
+                code = 'CFT-1000'; // known code - to be extracted to a reference file
                 break;
             case 409:
                 me.concurrentErrorHandler(options, decoded);
@@ -347,7 +398,7 @@ Ext.define('Uni.controller.Error', {
             ui: 'message-error',
             icon: 'icon-warning2',
             style: 'font-size: 34px;',
-            minWidth: 300
+            minWidth: 450
         });
 
         var box = Ext.create('Ext.window.MessageBox', {
@@ -367,26 +418,16 @@ Ext.define('Uni.controller.Error', {
             initComponent: function () {
                 var me = this,
                     msgClass = Ext.getClass(me),
-                    sLabel = Uni.I18n.translate('general.errorCode', 'UNI', 'Error Code'),
-                    tm = new Ext.util.TextMetrics(),
-                    separator = ':',
-                    labelWidth = tm.getSize(sLabel).width + tm.getSize(separator).width;
+                    sLabel = Uni.I18n.translate('general.errorCode', 'UNI', 'Error code'),
+                    separator = ': ';
                 msgClass.prototype.initComponent.apply(me, arguments);
                 me.down('displayfield').margin = '0px';
                 me.down('displayfield').fieldStyle = 'min-height: 0px';
-
                 var fieldErrorCode = new Ext.form.field.Display({
-                    fieldLabel: sLabel,
-                    value: errorCode,
-                    labelStyle: 'margin: 1px',
-                    fieldStyle: 'margin: 0px',
-                    labelWidth: labelWidth,
-                    labelAlign: 'left',
-                    labelSeparator: separator,
-                    labelPad: 0
+                    value: sLabel + separator + errorCode,
+                    fieldStyle: 'margin: 0px'
                 });
                 me.promptContainer.insert(2, fieldErrorCode);
-
             }
         });
         box.show(config);
