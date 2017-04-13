@@ -593,8 +593,15 @@ Ext.define('Uni.grid.filtertop.Interval', {
         var me = this,
             fromValue = me.getFromDateValue(),
             toValue = me.getToDateValue(),
-            fromDate = me.withoutTime ? Uni.DateTime.formatDateShort(new Date(fromValue)) : Uni.DateTime.formatDateTimeShort(new Date(fromValue)),
+            fromDate,
+            toDate;
+
+        if (Ext.isDefined(fromValue)) {
+            fromDate = me.withoutTime ? Uni.DateTime.formatDateShort(new Date(fromValue)) : Uni.DateTime.formatDateTimeShort(new Date(fromValue));
+        }
+        if (Ext.isDefined(toValue)) {
             toDate = me.withoutTime ? Uni.DateTime.formatDateShort(new Date(toValue)) : Uni.DateTime.formatDateTimeShort(new Date(toValue));
+        }
 
         if (Ext.isDefined(fromValue) && Ext.isDefined(toValue)) {
             me.down('button').setText(fromDate + ' / ' + toDate);
