@@ -385,6 +385,12 @@
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
+                <artifactId>mdc.processes.keyrenewal</artifactId>
+                <version>1.0.0${revision}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.energyict</groupId>
                 <artifactId>mdc.protocols</artifactId>
                 <version>1.3.0${revision}</version>
                 <scope>provided</scope>
