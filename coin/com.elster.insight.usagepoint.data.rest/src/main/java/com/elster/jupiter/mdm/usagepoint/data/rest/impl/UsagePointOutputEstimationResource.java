@@ -179,7 +179,7 @@ public class UsagePointOutputEstimationResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({com.elster.jupiter.mdm.usagepoint.data.security.Privileges.Constants.ADMINISTER_ESTIMATION_CONFIGURATION})
-    public Response restoreChannelValidationRuleProperties(@PathParam("name") String name, @PathParam("purposeId") long contractId,
+    public Response restoreChannelEstimationRuleProperties(@PathParam("name") String name, @PathParam("purposeId") long contractId,
                                                            @PathParam("outputId") long outputId, @PathParam("ruleId") long ruleId,
                                                            ChannelEstimationRuleInfo channelEstimationRuleInfo) {
         channelEstimationRuleInfo.ruleId = ruleId;
