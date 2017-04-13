@@ -201,5 +201,10 @@
             <artifactId>calendar</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>bpm</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 </project>

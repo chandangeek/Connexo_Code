@@ -6,6 +6,7 @@ package com.elster.jupiter.dataquality.impl;
 
 import com.elster.jupiter.appserver.impl.AppServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.dataquality.DataQualityKpiService;
@@ -94,6 +95,7 @@ public class InMemoryPersistence {
                 new DataVaultModule(),
                 new CustomPropertySetsModule(),
                 new UserModule(),
+                new BpmModule(),
                 new DataQualityKpiModule()
         );
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
