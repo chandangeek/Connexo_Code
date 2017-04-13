@@ -54,16 +54,22 @@ public class CertificateAccessorImpl extends AbstractKeyAccessorImpl<Certificate
     }
 
     @Override
+    public void setTempValue(CertificateWrapper newValueWrapper) {
+        tempCertificate.set(newValueWrapper);
+    }
+
+    @Override
     public void swapValues() {
         if (!tempCertificate.isPresent()) {
             throw new PkiLocalizedException(thesaurus, MessageSeeds.TEMP_VALUE_NOT_SET);
         }
         if (!actualCertificate.isPresent()) {
-            throw new PkiLocalizedException(thesaurus, MessageSeeds.TEMP_VALUE_NOT_SET);
+            throw new PkiLocalizedException(thesaurus, MessageSeeds.ACTUAL_VALUE_NOT_SET);
         }
         CertificateWrapper actualCertificateWrapper = actualCertificate.get();
         actualCertificate.set(tempCertificate.get());
         tempCertificate.set(actualCertificateWrapper);
+        super.swapValues();
         this.save();
     }
 
@@ -85,9 +91,9 @@ public class CertificateAccessorImpl extends AbstractKeyAccessorImpl<Certificate
     @Override
     public void clearTempValue() {
         if (tempCertificate.isPresent()) {
-            CertificateWrapper certificateWrapper = this.tempCertificate.get();
+            super.clearTempValue();
             tempCertificate.setNull();
-            certificateWrapper.delete();
+            this.save();
         }
     }
 
@@ -108,6 +114,11 @@ public class CertificateAccessorImpl extends AbstractKeyAccessorImpl<Certificate
     private X500Name getDNFromCertificate(CertificateWrapper original) throws CertificateEncodingException {
         JcaX509CertificateHolder certificateHolder = new JcaX509CertificateHolder(original.getCertificate().get());
         return certificateHolder.getSubject();
+    }
+
+    @Override
+    public void delete() {
+        getDevice().removeKeyAccessor(this);
     }
 
     @Override

@@ -3350,6 +3350,11 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         return null; // TODO throw exception
     }
 
+    @Override
+    public void removeKeyAccessor(KeyAccessor keyAccessor) {
+        this.getKeyAccessor(keyAccessor.getKeyAccessorType()).ifPresent(keyAccessors::remove);
+    }
+
     static class DeviceEstimationImpl implements DeviceEstimation {
         private ServerDevice device;
         private List<DeviceEstimationRuleSetActivation> estimationRuleSetActivations;

@@ -44,6 +44,7 @@ import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.KeyAccessorStatus;
 import com.energyict.mdc.device.data.LoadProfileService;
 import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertySet;
@@ -706,6 +707,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
         keys.addAll(Arrays.asList(TaskStatusTranslationKeys.values()));
         keys.addAll(Arrays.asList(CompletionCodeTranslationKeys.values()));
         keys.addAll(Arrays.asList(CustomPropertySetsTranslationKeys.values()));
+        keys.addAll(Arrays.asList(KeyAccessorStatus.values()));
         return keys;
     }
 
