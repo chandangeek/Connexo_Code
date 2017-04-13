@@ -5,6 +5,7 @@
 package com.elster.jupiter.validators.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cbo.Accumulation;
 import com.elster.jupiter.cbo.Commodity;
@@ -152,6 +153,7 @@ public class RegisterValidationEvaluatorIT {
                 new NlsModule(),
                 new EventsModule(),
                 new UserModule(),
+                new BpmModule(),
                 new BasicPropertiesModule(),
                 new DataVaultModule(),
                 new CustomPropertySetsModule()
