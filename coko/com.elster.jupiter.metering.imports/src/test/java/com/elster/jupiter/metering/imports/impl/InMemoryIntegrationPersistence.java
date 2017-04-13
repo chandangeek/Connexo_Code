@@ -13,9 +13,11 @@ import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
+import com.elster.jupiter.kpi.impl.KpiModule;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
+import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
@@ -42,6 +44,7 @@ import com.elster.jupiter.usagepoint.lifecycle.impl.UsagePointLifeCycleModule;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.elster.jupiter.validation.impl.ValidationModule;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -101,6 +104,9 @@ public class InMemoryIntegrationPersistence {
         modules.add(new CalendarModule());
         modules.add(new TaskModule());
         modules.add(new FiniteStateMachineModule());
+        modules.add(new KpiModule());
+        modules.add(new MeteringGroupsModule());
+        modules.add(new ValidationModule());
         modules.add(bootstrapModule);
 
         injector = Guice.createInjector(modules.toArray(new Module[modules.size()]));

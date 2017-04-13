@@ -12,9 +12,7 @@ import com.elster.jupiter.fileimport.FileImporter;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.FiniteStateMachineBuilder;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
-import com.elster.jupiter.fsm.Stage;
 import com.elster.jupiter.fsm.StageSet;
-import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.ElectricityDetail;
@@ -55,7 +53,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -66,11 +63,6 @@ import static org.mockito.Mockito.when;
 public class UsagePointImportIntegrationTest {
     @Rule
     public TestRule transactionalRule = new TransactionalRule(inMemoryPersistence.getTransactionService());
-
-    @Mock
-    private State deviceState;
-    @Mock
-    private Stage deviceStage;
 
     private static InMemoryIntegrationPersistence inMemoryPersistence;
     private static final TimeZone utcTimeZone = TimeZone.getTimeZone("UTC");
