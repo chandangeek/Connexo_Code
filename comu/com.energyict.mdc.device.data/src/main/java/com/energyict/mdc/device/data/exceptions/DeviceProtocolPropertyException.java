@@ -9,6 +9,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.UPLDeviceProtocolAdapter;
 
 public class DeviceProtocolPropertyException extends LocalizedException {
 
@@ -41,6 +42,12 @@ public class DeviceProtocolPropertyException extends LocalizedException {
      * @return the newly created DeviceProtocolException
      */
     public static DeviceProtocolPropertyException propertyDoesNotExistForDeviceProtocol(String name, DeviceProtocol deviceProtocol, Device device, Thesaurus thesaurus, MessageSeed messageSeed) {
-        return new DeviceProtocolPropertyException(thesaurus, messageSeed, name, deviceProtocol.getClass().getSimpleName(), device.getName());
+        String simpleName;
+        if (deviceProtocol instanceof UPLDeviceProtocolAdapter) {
+            simpleName = ((UPLDeviceProtocolAdapter) deviceProtocol).getActualClass().getSimpleName();
+        } else {
+            simpleName = deviceProtocol.getClass().getSimpleName();
+        }
+        return new DeviceProtocolPropertyException(thesaurus, messageSeed, name, simpleName, device.getName());
     }
 }
