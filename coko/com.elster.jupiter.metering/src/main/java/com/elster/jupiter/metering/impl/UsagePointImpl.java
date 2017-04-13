@@ -1270,6 +1270,9 @@ public class UsagePointImpl implements ServerUsagePoint {
 
     @Override
     public UsagePointState getState() {
+        if (this.clock.instant().isBefore(this.installationTime)) {
+            return this.state.effective(this.installationTime).get().getState();
+        }
         return this.state.effective(this.clock.instant())
                 .map(UsagePointStateTemporalImpl::getState)
                 .orElseThrow(() -> new IllegalArgumentException("Usage point has no state at the moment."));
