@@ -47,6 +47,7 @@ final class EstimationTaskImpl implements IEstimationTask {
     private long id;
 
     private String name;
+    private boolean reValidate;
     private Reference<RecurrentTask> recurrentTask = ValueReference.absent();
     private Reference<EndDeviceGroup> endDeviceGroup = ValueReference.absent();
     private Reference<UsagePointGroup> usagePointGroup = ValueReference.absent();
@@ -76,12 +77,13 @@ final class EstimationTaskImpl implements IEstimationTask {
         this.logLevel = Level.WARNING.intValue();
     }
 
-    static IEstimationTask from(DataModel dataModel, String name, EndDeviceGroup endDeviceGroup, UsagePointGroup usagePointGroup, ScheduleExpression scheduleExpression, Instant nextExecution, QualityCodeSystem qualityCodeSystem, int logLevel) {
-        return dataModel.getInstance(EstimationTaskImpl.class).init(name, endDeviceGroup, usagePointGroup, scheduleExpression, nextExecution, qualityCodeSystem, logLevel);
+    static IEstimationTask from(DataModel dataModel, String name, boolean reValidate, EndDeviceGroup endDeviceGroup, UsagePointGroup usagePointGroup, ScheduleExpression scheduleExpression, Instant nextExecution, QualityCodeSystem qualityCodeSystem, int logLevel) {
+        return dataModel.getInstance(EstimationTaskImpl.class).init(name, reValidate, endDeviceGroup, usagePointGroup, scheduleExpression, nextExecution, qualityCodeSystem, logLevel);
     }
 
-    private EstimationTaskImpl init(String name, EndDeviceGroup endDeviceGroup, UsagePointGroup usagePointGroup, ScheduleExpression scheduleExpression, Instant nextExecution, QualityCodeSystem qualityCodeSystem, int logLevel) {
+    private EstimationTaskImpl init(String name, boolean reValidate, EndDeviceGroup endDeviceGroup, UsagePointGroup usagePointGroup, ScheduleExpression scheduleExpression, Instant nextExecution, QualityCodeSystem qualityCodeSystem, int logLevel) {
         this.name = name;
+        this.reValidate = reValidate;
         this.logLevel = logLevel;
         this.endDeviceGroup.set(endDeviceGroup);
         this.usagePointGroup.set(usagePointGroup);
@@ -214,6 +216,11 @@ final class EstimationTaskImpl implements IEstimationTask {
     }
 
     @Override
+    public void setReValidate(boolean reValidate) {
+        this.reValidate = reValidate;
+    }
+
+    @Override
     public void setName(String name) {
         this.name = (name != null ? name.trim() : "");
         recurrentTaskDirty = true;
@@ -318,6 +325,11 @@ final class EstimationTaskImpl implements IEstimationTask {
                         new Order[]{Order.descending("startDate")}, false, null, 0, 1)
                 .stream()
                 .findFirst();
+    }
+
+    @Override
+    public boolean isReValidate() {
+        return reValidate;
     }
 
     @Override

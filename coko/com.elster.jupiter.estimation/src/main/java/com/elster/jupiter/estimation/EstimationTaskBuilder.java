@@ -30,6 +30,8 @@ public interface EstimationTaskBuilder {
 
     EstimationTaskBuilder setName(String string);
 
+    EstimationTaskBuilder setReValidate(Boolean state);
+
     EstimationTaskBuilder setLogLevel(int logLevel);
 
     EstimationTaskBuilder setEndDeviceGroup(EndDeviceGroup endDeviceGroup);
