@@ -48,16 +48,18 @@ public class DeviceConfigChangeEnginePartialConnectionTasksTest {
     }
 
     @Test
-    public void dataLoggerEnabledConfigsAreNotTakenIntoAccountTest() {
+    public void dataLoggerEnabledConfigsAreTakenIntoAccountTest() {
         DeviceType deviceType = mockDeviceType();
         ConnectionTypePluggableClass connectionTypePluggableClass = mockConnectionTypePluggableClass(1000L);
         String connectionTaskName = "ct1";
+        PartialConnectionTask partialConnectionTask1 = mockPartialConnectionTask(connectionTaskName, connectionTypePluggableClass);
         DeviceConfiguration deviceConfiguration1 = mockActiveDeviceConfiguration();
+        when(deviceConfiguration1.getPartialConnectionTasks()).thenReturn(Collections.singletonList(partialConnectionTask1));
         when(deviceConfiguration1.isDataloggerEnabled()).thenReturn(true);
         DeviceConfiguration deviceConfiguration2 = mockActiveDeviceConfiguration();
+        when(deviceConfiguration2.getPartialConnectionTasks()).thenReturn(Collections.singletonList(partialConnectionTask1));
         when(deviceConfiguration2.isDataloggerEnabled()).thenReturn(true);
         DeviceConfiguration deviceConfiguration3 = mockActiveDeviceConfiguration();
-        PartialConnectionTask partialConnectionTask1 = mockPartialConnectionTask(connectionTaskName, connectionTypePluggableClass);
         when(deviceConfiguration3.getPartialConnectionTasks()).thenReturn(Collections.singletonList(partialConnectionTask1));
         DeviceConfiguration deviceConfiguration4 = mockActiveDeviceConfiguration();
         PartialConnectionTask partialConnectionTask2 = mockPartialConnectionTask(connectionTaskName, connectionTypePluggableClass);
@@ -65,7 +67,66 @@ public class DeviceConfigChangeEnginePartialConnectionTasksTest {
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration1, deviceConfiguration2, deviceConfiguration3, deviceConfiguration4));
 
         List<DeviceConfigChangeAction> deviceConfigChangeActions = DeviceConfigChangeEngine.INSTANCE.calculateDeviceConfigChangeActionsForConflicts(deviceType);
-        assertThat(deviceConfigChangeActions).hasSize(2);
+        assertThat(deviceConfigChangeActions).hasSize(12);
+        assertThat(deviceConfigChangeActions).haveAtMost(3, new Condition<DeviceConfigChangeAction>() {
+            @Override
+            public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
+                return deviceConfigChangeAction.getOrigin().equals(deviceConfiguration1);
+            }
+        });
+        assertThat(deviceConfigChangeActions).haveAtMost(3, new Condition<DeviceConfigChangeAction>() {
+            @Override
+            public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
+                return deviceConfigChangeAction.getOrigin().equals(deviceConfiguration2);
+            }
+        });
+        assertThat(deviceConfigChangeActions).haveAtMost(1, new Condition<DeviceConfigChangeAction>() {
+            @Override
+            public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
+                return deviceConfigChangeAction.getOrigin().equals(deviceConfiguration3) && deviceConfigChangeAction.getDestination().equals(deviceConfiguration4);
+            }
+        });
+        assertThat(deviceConfigChangeActions).haveAtMost(1, new Condition<DeviceConfigChangeAction>() {
+            @Override
+            public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
+                return deviceConfigChangeAction.getOrigin().equals(deviceConfiguration4) && deviceConfigChangeAction.getDestination().equals(deviceConfiguration3);
+            }
+        });
+    }
+
+    @Test
+    public void multiEnabledConfigsAreTakenIntoAccountTest() {
+        DeviceType deviceType = mockDeviceType();
+        ConnectionTypePluggableClass connectionTypePluggableClass = mockConnectionTypePluggableClass(1000L);
+        String connectionTaskName = "ct1";
+        PartialConnectionTask partialConnectionTask1 = mockPartialConnectionTask(connectionTaskName, connectionTypePluggableClass);
+        DeviceConfiguration deviceConfiguration1 = mockActiveDeviceConfiguration();
+        when(deviceConfiguration1.getPartialConnectionTasks()).thenReturn(Collections.singletonList(partialConnectionTask1));
+        when(deviceConfiguration1.isMultiElementEnabled()).thenReturn(true);
+        DeviceConfiguration deviceConfiguration2 = mockActiveDeviceConfiguration();
+        when(deviceConfiguration2.getPartialConnectionTasks()).thenReturn(Collections.singletonList(partialConnectionTask1));
+        when(deviceConfiguration2.isMultiElementEnabled()).thenReturn(true);
+        DeviceConfiguration deviceConfiguration3 = mockActiveDeviceConfiguration();
+        when(deviceConfiguration3.getPartialConnectionTasks()).thenReturn(Collections.singletonList(partialConnectionTask1));
+        DeviceConfiguration deviceConfiguration4 = mockActiveDeviceConfiguration();
+        PartialConnectionTask partialConnectionTask2 = mockPartialConnectionTask(connectionTaskName, connectionTypePluggableClass);
+        when(deviceConfiguration4.getPartialConnectionTasks()).thenReturn(Collections.singletonList(partialConnectionTask2));
+        when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration1, deviceConfiguration2, deviceConfiguration3, deviceConfiguration4));
+
+        List<DeviceConfigChangeAction> deviceConfigChangeActions = DeviceConfigChangeEngine.INSTANCE.calculateDeviceConfigChangeActionsForConflicts(deviceType);
+        assertThat(deviceConfigChangeActions).hasSize(12);
+        assertThat(deviceConfigChangeActions).haveAtMost(3, new Condition<DeviceConfigChangeAction>() {
+            @Override
+            public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
+                return deviceConfigChangeAction.getOrigin().equals(deviceConfiguration1);
+            }
+        });
+        assertThat(deviceConfigChangeActions).haveAtMost(3, new Condition<DeviceConfigChangeAction>() {
+            @Override
+            public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
+                return deviceConfigChangeAction.getOrigin().equals(deviceConfiguration2);
+            }
+        });
         assertThat(deviceConfigChangeActions).haveAtMost(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
