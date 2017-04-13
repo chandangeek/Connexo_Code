@@ -6,7 +6,6 @@ package com.elster.jupiter.validators.impl;
 
 import com.elster.jupiter.cbo.Accumulation;
 import com.elster.jupiter.cbo.QualityCodeSystem;
-import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.ReadingRecord;
@@ -72,16 +71,14 @@ public class ConsecutiveValidator extends AbstractValidator{
     @Override
     public List<PropertySpec> getPropertySpecs() {
         ImmutableList.Builder<PropertySpec> builder = ImmutableList.builder();
-        builder
-                .add(getPropertySpecService()
+        builder.add(getPropertySpecService()
                         .timeDurationSpec()
                         .named(MINIMUM_PERIOD, TranslationKeys.CONSECUTIVE_VALIDATOR_MIN_PERIOD)
                         .fromThesaurus(this.getThesaurus())
                         .markRequired()
                         .setDefaultValue(TimeDuration.hours(2))
                         .finish());
-        builder
-                .add(getPropertySpecService()
+        builder.add(getPropertySpecService()
                         .timeDurationSpec()
                         .named(MAXIMUM_PERIOD, TranslationKeys.CONSECUTIVE_VALIDATOR_MAX_PERIOD)
                         .fromThesaurus(this.getThesaurus())
@@ -110,7 +107,7 @@ public class ConsecutiveValidator extends AbstractValidator{
     @Override
     public ValidationResult validate(IntervalReadingRecord intervalReadingRecord) {
         if(readingType.getAccumulation().equals(Accumulation.DELTADELTA)) {
-            return validateBaseReadingRecord(intervalReadingRecord);
+            return zeroIntervals.contains(intervalReadingRecord.getTimeStamp()) ? SUSPECT : VALID;
         }
         logger.log(Level.INFO, "{0} is not a delta reading type", intervalReadingRecord.getReadingType().getMRID());
         return VALID;
@@ -150,7 +147,7 @@ public class ConsecutiveValidator extends AbstractValidator{
         TimeDuration minPeriod = (TimeDuration) properties.get(MINIMUM_PERIOD);
         TimeDuration maxPeriod = (TimeDuration) properties.get(MAXIMUM_PERIOD);
         if (minPeriod.compareTo(maxPeriod) > 0) {
-            throw new LocalizedFieldValidationException(MAX_PERIOD_SHORTER_THEN_MIN_PERIOD, MAXIMUM_PERIOD);
+            throw new LocalizedFieldValidationException(MAX_PERIOD_SHORTER_THEN_MIN_PERIOD, "properties." + MAXIMUM_PERIOD);
         }
     }
 
@@ -192,16 +189,12 @@ public class ConsecutiveValidator extends AbstractValidator{
                 if (intervalStarted) {
                     long periodLength = timeStamp.getEpochSecond() - startZeroInterval.getEpochSecond();
                     if (periodLength > minPeriod.getSeconds() && periodLength < maxPeriod.getSeconds()) {
-                        zeroIntervals.add(Range.openClosed(startZeroInterval, timeStamp));
+                        zeroIntervals.add(Range.closedOpen(startZeroInterval, timeStamp));
                     }
                     intervalStarted = false;
                 }
             }
         }
         return zeroIntervals;
-    }
-
-    private ValidationResult validateBaseReadingRecord(BaseReadingRecord baseReadingRecord){
-        return zeroIntervals.contains(baseReadingRecord.getTimeStamp()) ? SUSPECT : VALID;
     }
 }
