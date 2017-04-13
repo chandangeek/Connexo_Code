@@ -80,8 +80,8 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
+import com.energyict.mdc.protocol.api.security.AdvancedDeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
-import com.energyict.mdc.protocol.api.security.DeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.RequestSecurityLevel;
 import com.energyict.mdc.protocol.api.security.ResponseSecurityLevel;
@@ -99,13 +99,6 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.fest.assertions.api.Assertions;
 import org.fest.assertions.core.Condition;
-
-import org.junit.*;
-import org.junit.rules.TestRule;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
@@ -114,7 +107,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
 
-import static com.energyict.mdc.protocol.api.security.DeviceAccessLevel.NOT_USED_DEVICE_ACCESS_LEVEL_ID;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -125,7 +117,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
@@ -135,7 +126,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class SecurityPropertySetImplCrudIT {
+public class SecurityPropertySetImplCrudWhenUsingSecuritySuiteIT {
 
     @Rule
     public final TestRule transactional = new TransactionalRule(transactionService);
@@ -153,12 +144,18 @@ public class SecurityPropertySetImplCrudIT {
 
     @Mock
     private MyDeviceProtocolPluggableClass deviceProtocolPluggableClass;
-    @Mock
+    @Mock(extraInterfaces = AdvancedDeviceProtocolSecurityCapabilities.class)
     private DeviceProtocol deviceProtocol;
     @Mock
     private AuthenticationDeviceAccessLevel authLevel, authLevel2;
     @Mock
     private EncryptionDeviceAccessLevel encLevel;
+    @Mock
+    private SecuritySuite securitySuite;
+    @Mock
+    private RequestSecurityLevel requestSecurityLevel1, requestSecurityLevel2;
+    @Mock
+    private ResponseSecurityLevel responseSecurityLevel1, responseSecurityLevel2;
 
     private static class MockModule extends AbstractModule {
 
@@ -176,7 +173,7 @@ public class SecurityPropertySetImplCrudIT {
     public static void initializeDatabase() {
         initializeStaticMocks();
         User principal = mock(User.class);
-        when(principal.getName()).thenReturn(SecurityPropertySetImplCrudIT.class.getSimpleName());
+        when(principal.getName()).thenReturn(SecurityPropertySetImplCrudWhenUsingSecuritySuiteIT.class.getSimpleName());
         when(principal.hasPrivilege(anyString(), anyString())).thenReturn(true);
         GrantPrivilege superGrant = mock(GrantPrivilege.class);
         when(superGrant.canGrant(any())).thenReturn(true);
@@ -291,9 +288,23 @@ public class SecurityPropertySetImplCrudIT {
         when(protocolPluggableService.findDeviceProtocolPluggableClass(anyLong())).thenReturn(Optional.of(deviceProtocolPluggableClass));
         when(deviceProtocol.getAuthenticationAccessLevels()).thenReturn(Arrays.asList(authLevel, authLevel2));
         when(deviceProtocol.getEncryptionAccessLevels()).thenReturn(Collections.singletonList(encLevel));
+        when(((AdvancedDeviceProtocolSecurityCapabilities) deviceProtocol).getSecuritySuites()).thenReturn(Collections.singletonList(securitySuite));
+        when(((AdvancedDeviceProtocolSecurityCapabilities) deviceProtocol).getRequestSecurityLevels()).thenReturn(Arrays.asList(requestSecurityLevel1, requestSecurityLevel2));
+        when(((AdvancedDeviceProtocolSecurityCapabilities) deviceProtocol).getResponseSecurityLevels()).thenReturn(Arrays.asList(responseSecurityLevel1, responseSecurityLevel2));
+
         when(authLevel.getId()).thenReturn(1);
         when(authLevel2.getId()).thenReturn(2);
         when(encLevel.getId()).thenReturn(2);
+        when(securitySuite.getId()).thenReturn(100);
+        when(requestSecurityLevel1.getId()).thenReturn(201);
+        when(requestSecurityLevel2.getId()).thenReturn(202);
+        when(responseSecurityLevel1.getId()).thenReturn(301);
+        when(responseSecurityLevel2.getId()).thenReturn(302);
+
+        when(securitySuite.getEncryptionAccessLevels()).thenReturn(Collections.singletonList(encLevel));
+        when(securitySuite.getAuthenticationAccessLevels()).thenReturn(Arrays.asList(authLevel, authLevel2));
+        when(securitySuite.getRequestSecurityLevels()).thenReturn(Arrays.asList(requestSecurityLevel1, requestSecurityLevel2));
+        when(securitySuite.getResponseSecurityLevels()).thenReturn(Arrays.asList(responseSecurityLevel1, responseSecurityLevel2));
     }
 
     @Test
@@ -308,6 +319,9 @@ public class SecurityPropertySetImplCrudIT {
         propertySet = deviceConfiguration.createSecurityPropertySet("Name")
                 .authenticationLevel(1)
                 .encryptionLevel(2)
+                .securitySuite(100)
+                .requestSecurityLevel(201)
+                .responseSecurityLevel(302)
                 .build();
 
         Optional<SecurityPropertySet> found = deviceConfigurationService.findSecurityPropertySet(propertySet.getId());
@@ -319,9 +333,10 @@ public class SecurityPropertySetImplCrudIT {
         assertThat(reloaded.getName()).isEqualTo("Name");
         assertThat(reloaded.getAuthenticationDeviceAccessLevel()).isEqualTo(authLevel);
         assertThat(reloaded.getEncryptionDeviceAccessLevel()).isEqualTo(encLevel);
-        assertThat(reloaded.getSecuritySuite().getId()).isEqualTo(NOT_USED_DEVICE_ACCESS_LEVEL_ID);
-        assertThat(reloaded.getRequestSecurityLevel().getId()).isEqualTo(NOT_USED_DEVICE_ACCESS_LEVEL_ID);
-        assertThat(reloaded.getResponseSecurityLevel().getId()).isEqualTo(NOT_USED_DEVICE_ACCESS_LEVEL_ID);
+        assertThat(reloaded.getSecuritySuite()).isEqualTo(securitySuite);
+        assertThat(reloaded.getRequestSecurityLevel()).isEqualTo(requestSecurityLevel1);
+        assertThat(reloaded.getResponseSecurityLevel()).isEqualTo(responseSecurityLevel2);
+
     }
 
     @Test
@@ -336,6 +351,9 @@ public class SecurityPropertySetImplCrudIT {
         propertySet = deviceConfiguration.createSecurityPropertySet("Name")
                 .authenticationLevel(1)
                 .encryptionLevel(2)
+                .securitySuite(100)
+                .requestSecurityLevel(201)
+                .responseSecurityLevel(302)
                 .build();
         DeviceConfiguration clonedDeviceConfig = deviceType.newConfiguration("Clone").add();
         SecurityPropertySet clonedSecurityPropertySet = ((ServerSecurityPropertySet) propertySet).cloneForDeviceConfig(clonedDeviceConfig);
@@ -361,6 +379,9 @@ public class SecurityPropertySetImplCrudIT {
         propertySet = deviceConfiguration.createSecurityPropertySet("Name")
                 .authenticationLevel(1)
                 .encryptionLevel(2)
+                .securitySuite(100)
+                .requestSecurityLevel(201)
+                .responseSecurityLevel(302)
                 .build();
 
         deviceConfiguration.removeSecurityPropertySet(propertySet);
@@ -382,6 +403,9 @@ public class SecurityPropertySetImplCrudIT {
         propertySet = deviceConfiguration.createSecurityPropertySet("Name")
                 .authenticationLevel(1)
                 .encryptionLevel(2)
+                .securitySuite(100)
+                .requestSecurityLevel(201)
+                .responseSecurityLevel(302)
                 .build();
         deviceConfiguration.enableComTask(testComTask, propertySet).add();
         // prepareDelete should delete everything
@@ -411,10 +435,15 @@ public class SecurityPropertySetImplCrudIT {
         propertySet = deviceConfiguration.createSecurityPropertySet("Name")
                 .authenticationLevel(1)
                 .encryptionLevel(2)
+                .securitySuite(100)
+                .requestSecurityLevel(201)
+                .responseSecurityLevel(301)
                 .build();
 
         SecurityPropertySet toUpdate = deviceConfiguration.getSecurityPropertySets().get(0);
         toUpdate.setAuthenticationLevelId(2);
+        toUpdate.setRequestSecurityLevelId(202);
+        toUpdate.setResponseSecurityLevelId(302);
         toUpdate.update();
 
         Optional<SecurityPropertySet> found = deviceConfigurationService.findSecurityPropertySet(propertySet.getId());
@@ -426,9 +455,9 @@ public class SecurityPropertySetImplCrudIT {
         assertThat(reloaded.getName()).isEqualTo("Name");
         assertThat(reloaded.getAuthenticationDeviceAccessLevel()).isEqualTo(authLevel2);
         assertThat(reloaded.getEncryptionDeviceAccessLevel()).isEqualTo(encLevel);
-        assertThat(reloaded.getSecuritySuite()).isEqualTo(propertySet.getSecuritySuite());
-        assertThat(reloaded.getRequestSecurityLevel()).isEqualTo(propertySet.getRequestSecurityLevel());
-        assertThat(reloaded.getResponseSecurityLevel()).isEqualTo(propertySet.getResponseSecurityLevel());
+        assertThat(reloaded.getSecuritySuite()).isEqualTo(securitySuite);
+        assertThat(reloaded.getRequestSecurityLevel()).isEqualTo(requestSecurityLevel2);
+        assertThat(reloaded.getResponseSecurityLevel()).isEqualTo(responseSecurityLevel2);
     }
 
     @Test
@@ -443,6 +472,9 @@ public class SecurityPropertySetImplCrudIT {
         deviceConfiguration.createSecurityPropertySet(null)
                 .authenticationLevel(1)
                 .encryptionLevel(2)
+                .securitySuite(100)
+                .requestSecurityLevel(201)
+                .responseSecurityLevel(302)
                 .build();
     }
 
@@ -458,6 +490,9 @@ public class SecurityPropertySetImplCrudIT {
         deviceConfiguration.createSecurityPropertySet("       ")
                 .authenticationLevel(1)
                 .encryptionLevel(2)
+                .securitySuite(100)
+                .requestSecurityLevel(201)
+                .responseSecurityLevel(302)
                 .build();
     }
 
@@ -473,6 +508,9 @@ public class SecurityPropertySetImplCrudIT {
         deviceConfiguration.createSecurityPropertySet("приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--")
                 .authenticationLevel(1)
                 .encryptionLevel(2)
+                .securitySuite(100)
+                .requestSecurityLevel(201)
+                .responseSecurityLevel(302)
                 .build();
     }
 
@@ -488,10 +526,16 @@ public class SecurityPropertySetImplCrudIT {
         deviceConfiguration.createSecurityPropertySet("Name")
                 .authenticationLevel(1)
                 .encryptionLevel(2)
+                .securitySuite(100)
+                .requestSecurityLevel(201)
+                .responseSecurityLevel(302)
                 .build();
         deviceConfiguration.createSecurityPropertySet("Name")
                 .authenticationLevel(1)
                 .encryptionLevel(2)
+                .securitySuite(100)
+                .requestSecurityLevel(201)
+                .responseSecurityLevel(302)
                 .build();
     }
 
@@ -507,10 +551,16 @@ public class SecurityPropertySetImplCrudIT {
         deviceConfiguration.createSecurityPropertySet("A")
                 .authenticationLevel(1)
                 .encryptionLevel(2)
+                .securitySuite(100)
+                .requestSecurityLevel(201)
+                .responseSecurityLevel(302)
                 .build();
         SecurityPropertySet securityPropertySet = deviceConfiguration.createSecurityPropertySet("B")
                 .authenticationLevel(1)
                 .encryptionLevel(2)
+                .securitySuite(100)
+                .requestSecurityLevel(201)
+                .responseSecurityLevel(302)
                 .build();
 
         // Business method
@@ -531,6 +581,9 @@ public class SecurityPropertySetImplCrudIT {
         deviceConfiguration1.createSecurityPropertySet(expectedName)
                 .authenticationLevel(1)
                 .encryptionLevel(2)
+                .securitySuite(100)
+                .requestSecurityLevel(201)
+                .responseSecurityLevel(302)
                 .build();
         DeviceConfiguration deviceConfiguration2 = deviceType.newConfiguration("Normal-2").add();
         deviceConfiguration2.save();
@@ -539,6 +592,9 @@ public class SecurityPropertySetImplCrudIT {
         propertySet = deviceConfiguration2.createSecurityPropertySet(expectedName)
                 .authenticationLevel(1)
                 .encryptionLevel(2)
+                .securitySuite(100)
+                .requestSecurityLevel(201)
+                .responseSecurityLevel(302)
                 .build();
 
         // Asserts
@@ -562,6 +618,9 @@ public class SecurityPropertySetImplCrudIT {
         deviceConfiguration1.createSecurityPropertySet(expectedName)
                 .authenticationLevel(1)
                 .encryptionLevel(2)
+                .securitySuite(100)
+                .requestSecurityLevel(201)
+                .responseSecurityLevel(302)
                 .build();
         DeviceConfiguration deviceConfiguration2 = deviceType.newConfiguration("Normal-2").add();
         deviceConfiguration2.save();
@@ -569,6 +628,9 @@ public class SecurityPropertySetImplCrudIT {
         propertySet = deviceConfiguration2.createSecurityPropertySet("Other")
                 .authenticationLevel(1)
                 .encryptionLevel(2)
+                .securitySuite(100)
+                .requestSecurityLevel(201)
+                .responseSecurityLevel(302)
                 .build();
 
         // Business method
@@ -594,6 +656,9 @@ public class SecurityPropertySetImplCrudIT {
 
         deviceConfiguration.createSecurityPropertySet("Name")
                 .encryptionLevel(2)
+                .securitySuite(100)
+                .requestSecurityLevel(201)
+                .responseSecurityLevel(302)
                 .build();
     }
 
@@ -602,7 +667,7 @@ public class SecurityPropertySetImplCrudIT {
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.UNSUPPORTED_SECURITY_LEVEL + "}")
     public void testAuthenticationLevelShouldNotBeSpecifiedWhenProtocolDoesNotProvideAuthenticationLevels() {
         DeviceConfiguration deviceConfiguration;
-        when(deviceProtocol.getAuthenticationAccessLevels()).thenReturn(Collections.<AuthenticationDeviceAccessLevel>emptyList());
+        when(securitySuite.getAuthenticationAccessLevels()).thenReturn(Collections.<AuthenticationDeviceAccessLevel>emptyList());
         DeviceType deviceType = createDeviceType("MyType");
 
         deviceConfiguration = createNewInactiveConfiguration(deviceType, "Normal");
@@ -610,6 +675,27 @@ public class SecurityPropertySetImplCrudIT {
         deviceConfiguration.createSecurityPropertySet("Name")
                 .authenticationLevel(1)
                 .encryptionLevel(2)
+                .securitySuite(100)
+                .requestSecurityLevel(201)
+                .responseSecurityLevel(302)
+                .build();
+    }
+
+    @Test
+    @Transactional
+    public void testUnsupportedAuthenticationLevelWhenProtocolDoesNotProvideAuthenticationLevels() {
+        DeviceConfiguration deviceConfiguration;
+        when(securitySuite.getAuthenticationAccessLevels()).thenReturn(Collections.<AuthenticationDeviceAccessLevel>emptyList());
+        DeviceType deviceType = createDeviceType("MyType");
+
+        deviceConfiguration = createNewInactiveConfiguration(deviceType, "Normal");
+
+        deviceConfiguration.createSecurityPropertySet("Name")
+                .authenticationLevel(-1)
+                .encryptionLevel(2)
+                .securitySuite(100)
+                .requestSecurityLevel(201)
+                .responseSecurityLevel(302)
                 .build();
     }
 
@@ -632,7 +718,7 @@ public class SecurityPropertySetImplCrudIT {
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.UNSUPPORTED_SECURITY_LEVEL + "}")
     public void testEncryptionLevelShouldNotBeSpecifiedWhenProtocolDoesNotProvideEncryptionLevels() {
         DeviceConfiguration deviceConfiguration;
-        when(deviceProtocol.getEncryptionAccessLevels()).thenReturn(Collections.<EncryptionDeviceAccessLevel>emptyList());
+        when(securitySuite.getEncryptionAccessLevels()).thenReturn(Collections.<EncryptionDeviceAccessLevel>emptyList());
         DeviceType deviceType = createDeviceType("MyType");
 
         deviceConfiguration = createNewInactiveConfiguration(deviceType, "Normal");
@@ -640,6 +726,135 @@ public class SecurityPropertySetImplCrudIT {
         deviceConfiguration.createSecurityPropertySet("Name")
                 .authenticationLevel(1)
                 .encryptionLevel(2)
+                .securitySuite(100)
+                .requestSecurityLevel(201)
+                .responseSecurityLevel(302)
+                .build();
+    }
+
+    @Test
+    @Transactional
+    public void testUnsupportedEncryptionLevelWhenProtocolDoesNotProvideEncryptionLevels() {
+        DeviceConfiguration deviceConfiguration;
+        when(securitySuite.getEncryptionAccessLevels()).thenReturn(Collections.<EncryptionDeviceAccessLevel>emptyList());
+        DeviceType deviceType = createDeviceType("MyType");
+
+        deviceConfiguration = createNewInactiveConfiguration(deviceType, "Normal");
+
+        deviceConfiguration.createSecurityPropertySet("Name")
+                .authenticationLevel(1)
+                .encryptionLevel(-1)
+                .securitySuite(100)
+                .requestSecurityLevel(201)
+                .responseSecurityLevel(302)
+                .build();
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.UNSUPPORTED_SECURITY_LEVEL + "}")
+    public void testSecuritySuiteIsRequiredWhenProtocolProvidesAtLeastOneEncryptionLevel() {
+        DeviceConfiguration deviceConfiguration;
+        DeviceType deviceType = createDeviceType("MyType");
+
+        deviceConfiguration = createNewInactiveConfiguration(deviceType, "Normal");
+
+        deviceConfiguration.createSecurityPropertySet("Name")
+                .authenticationLevel(1)
+                .encryptionLevel(2)
+                .requestSecurityLevel(201)
+                .responseSecurityLevel(302)
+                .build();
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.UNSUPPORTED_SECURITY_LEVEL + "}")
+    public void testSecuritySuiteShouldNotBeSpecifiedWhenProtocolDoesNotProvideEncryptionLevels() {
+        DeviceConfiguration deviceConfiguration;
+        when(((AdvancedDeviceProtocolSecurityCapabilities)deviceProtocol).getSecuritySuites()).thenReturn(Collections.<SecuritySuite>emptyList());
+        DeviceType deviceType = createDeviceType("MyType");
+
+        deviceConfiguration = createNewInactiveConfiguration(deviceType, "Normal");
+
+        deviceConfiguration.createSecurityPropertySet("Name")
+                .authenticationLevel(1)
+                .encryptionLevel(2)
+                .securitySuite(100)
+                .requestSecurityLevel(201)
+                .responseSecurityLevel(302)
+                .build();
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.UNSUPPORTED_SECURITY_LEVEL + "}")
+    public void testRequestSecurityLevelIsRequiredWhenProtocolProvidesAtLeastOneEncryptionLevel() {
+        DeviceConfiguration deviceConfiguration;
+        DeviceType deviceType = createDeviceType("MyType");
+
+        deviceConfiguration = createNewInactiveConfiguration(deviceType, "Normal");
+
+        deviceConfiguration.createSecurityPropertySet("Name")
+                .authenticationLevel(1)
+                .encryptionLevel(2)
+                .securitySuite(100)
+                .responseSecurityLevel(302)
+                .build();
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.UNSUPPORTED_SECURITY_LEVEL + "}")
+    public void testRequestSecurityLevelShouldNotBeSpecifiedWhenProtocolDoesNotProvideEncryptionLevels() {
+        DeviceConfiguration deviceConfiguration;
+        when(securitySuite.getRequestSecurityLevels()).thenReturn(Collections.<RequestSecurityLevel>emptyList());
+        DeviceType deviceType = createDeviceType("MyType");
+
+        deviceConfiguration = createNewInactiveConfiguration(deviceType, "Normal");
+
+        deviceConfiguration.createSecurityPropertySet("Name")
+                .authenticationLevel(1)
+                .encryptionLevel(2)
+                .securitySuite(100)
+                .requestSecurityLevel(201)
+                .responseSecurityLevel(302)
+                .build();
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.UNSUPPORTED_SECURITY_LEVEL + "}")
+    public void testResponseSecurityLevelIsRequiredWhenProtocolProvidesAtLeastOneEncryptionLevel() {
+        DeviceConfiguration deviceConfiguration;
+        DeviceType deviceType = createDeviceType("MyType");
+
+        deviceConfiguration = createNewInactiveConfiguration(deviceType, "Normal");
+
+        deviceConfiguration.createSecurityPropertySet("Name")
+                .authenticationLevel(1)
+                .encryptionLevel(2)
+                .securitySuite(100)
+                .requestSecurityLevel(201)
+                .build();
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.UNSUPPORTED_SECURITY_LEVEL + "}")
+    public void testResponseSecurityLevelShouldNotBeSpecifiedWhenProtocolDoesNotProvideEncryptionLevels() {
+        DeviceConfiguration deviceConfiguration;
+        when(securitySuite.getResponseSecurityLevels()).thenReturn(Collections.<ResponseSecurityLevel>emptyList());
+        DeviceType deviceType = createDeviceType("MyType");
+
+        deviceConfiguration = createNewInactiveConfiguration(deviceType, "Normal");
+
+        deviceConfiguration.createSecurityPropertySet("Name")
+                .authenticationLevel(1)
+                .encryptionLevel(2)
+                .securitySuite(100)
+                .requestSecurityLevel(201)
+                .responseSecurityLevel(302)
                 .build();
     }
 
@@ -674,14 +889,17 @@ public class SecurityPropertySetImplCrudIT {
     public void simpleConflictTest() {
         int authenticationLevel = 1;
         int encryptionLevel = 2;
+        int securitySuite = 100;
+        int requestSecurityLevel = 201;
+        int responseSecurityLevel = 302;
         DeviceType deviceType = createDeviceType("simpleConflictTest");
 
 
         DeviceConfiguration deviceConfiguration1 = createActiveConfiguration(deviceType, "FirstConfig");
-        SecurityPropertySet securityPropertySet1 = createSecurityPropertySet(deviceConfiguration1, "NoSecurity", authenticationLevel, encryptionLevel);
+        SecurityPropertySet securityPropertySet1 = createSecurityPropertySet(deviceConfiguration1, "NoSecurity", authenticationLevel, encryptionLevel, securitySuite, requestSecurityLevel, responseSecurityLevel);
 
         DeviceConfiguration deviceConfiguration2 = createActiveConfiguration(deviceType, "SecondConfig");
-        SecurityPropertySet securityPropertySet2 = createSecurityPropertySet(deviceConfiguration2, "None", authenticationLevel, encryptionLevel);
+        SecurityPropertySet securityPropertySet2 = createSecurityPropertySet(deviceConfiguration2, "None", authenticationLevel, encryptionLevel, securitySuite, requestSecurityLevel, responseSecurityLevel);
 
         DeviceType reloadedDeviceType = deviceConfigurationService.findDeviceType(deviceType.getId()).get();
 
@@ -715,13 +933,16 @@ public class SecurityPropertySetImplCrudIT {
     public void resolveConflictsWhenDeviceConfigBecomesInactiveTest() {
         int authenticationLevel = 1;
         int encryptionLevel = 2;
+        int securitySuite = 100;
+        int requestSecurityLevel = 201;
+        int responseSecurityLevel = 302;
         DeviceType deviceType = createDeviceType("simpleConflictTest");
 
         DeviceConfiguration deviceConfiguration1 = createActiveConfiguration(deviceType, "FirstConfig");
-        SecurityPropertySet securityPropertySet1 = createSecurityPropertySet(deviceConfiguration1, "NoSecurity", authenticationLevel, encryptionLevel);
+        SecurityPropertySet securityPropertySet1 = createSecurityPropertySet(deviceConfiguration1, "NoSecurity", authenticationLevel, encryptionLevel, securitySuite, requestSecurityLevel, responseSecurityLevel);
 
         DeviceConfiguration deviceConfiguration2 = createActiveConfiguration(deviceType, "SecondConfig");
-        SecurityPropertySet securityPropertySet2 = createSecurityPropertySet(deviceConfiguration2, "None", authenticationLevel, encryptionLevel);
+        SecurityPropertySet securityPropertySet2 = createSecurityPropertySet(deviceConfiguration2, "None", authenticationLevel, encryptionLevel, securitySuite, requestSecurityLevel, responseSecurityLevel);
 
         deviceConfiguration1.deactivate();
 
@@ -734,13 +955,16 @@ public class SecurityPropertySetImplCrudIT {
     public void resolveSecuritySetConflictWhenRemovalOfSecuritySetTest() {
         int authenticationLevel = 1;
         int encryptionLevel = 2;
+        int securitySuite = 100;
+        int requestSecurityLevel = 201;
+        int responseSecurityLevel = 302;
         DeviceType deviceType = createDeviceType("simpleConflictTest");
 
         DeviceConfiguration deviceConfiguration1 = createActiveConfiguration(deviceType, "FirstConfig");
-        SecurityPropertySet securityPropertySet1 = createSecurityPropertySet(deviceConfiguration1, "NoSecurity", authenticationLevel, encryptionLevel);
+        SecurityPropertySet securityPropertySet1 = createSecurityPropertySet(deviceConfiguration1, "NoSecurity", authenticationLevel, encryptionLevel, securitySuite, requestSecurityLevel, responseSecurityLevel);
 
         DeviceConfiguration deviceConfiguration2 = createActiveConfiguration(deviceType, "SecondConfig");
-        SecurityPropertySet securityPropertySet2 = createSecurityPropertySet(deviceConfiguration2, "None", authenticationLevel, encryptionLevel);
+        SecurityPropertySet securityPropertySet2 = createSecurityPropertySet(deviceConfiguration2, "None", authenticationLevel, encryptionLevel, securitySuite, requestSecurityLevel, responseSecurityLevel);
 
         deviceConfiguration1.removeSecurityPropertySet(securityPropertySet1);
 
@@ -753,13 +977,16 @@ public class SecurityPropertySetImplCrudIT {
     public void solvedMappingsAreNotRemovedWhenNewConflictArisesTest() {
         int authenticationLevel = 1;
         int encryptionLevel = 2;
+        int securitySuite = 100;
+        int requestSecurityLevel = 201;
+        int responseSecurityLevel = 302;
         DeviceType deviceType = createDeviceType("simpleConflictTest");
 
         DeviceConfiguration deviceConfiguration1 = createActiveConfiguration(deviceType, "FirstConfig");
-        SecurityPropertySet securityPropertySet1 = createSecurityPropertySet(deviceConfiguration1, "NoSecurity", authenticationLevel, encryptionLevel);
+        SecurityPropertySet securityPropertySet1 = createSecurityPropertySet(deviceConfiguration1, "NoSecurity", authenticationLevel, encryptionLevel, securitySuite, requestSecurityLevel, responseSecurityLevel);
 
         DeviceConfiguration deviceConfiguration2 = createActiveConfiguration(deviceType, "SecondConfig");
-        SecurityPropertySet securityPropertySet2 = createSecurityPropertySet(deviceConfiguration2, "None", authenticationLevel, encryptionLevel);
+        SecurityPropertySet securityPropertySet2 = createSecurityPropertySet(deviceConfiguration2, "None", authenticationLevel, encryptionLevel, securitySuite, requestSecurityLevel, responseSecurityLevel);
 
         DeviceConfigConflictMapping deviceConfigConflictMapping1 = deviceType.getDeviceConfigConflictMappings().get(0);
         ConflictingSecuritySetSolution conflictingSecuritySetSolution1 = deviceConfigConflictMapping1.getConflictingSecuritySetSolutions().get(0);
@@ -782,7 +1009,7 @@ public class SecurityPropertySetImplCrudIT {
 
         // Logic that we want to test: if new SecuritySet is added, new conflicts will be calculated. Existing solved conflicts should still remain
         DeviceConfiguration thirdConfig = createActiveConfiguration(deviceType, "ThirdConfig");
-        SecurityPropertySet securityPropertySet3 = createSecurityPropertySet(thirdConfig, "Blablabla", authenticationLevel, encryptionLevel);
+        SecurityPropertySet securityPropertySet3 = createSecurityPropertySet(thirdConfig, "Blablabla", authenticationLevel, encryptionLevel, securitySuite, requestSecurityLevel, responseSecurityLevel);
 
         DeviceType finalDeviceType = deviceConfigurationService.findDeviceType(deviceType.getId()).get();
         Assertions.assertThat(finalDeviceType.getDeviceConfigConflictMappings()).hasSize(6);
@@ -823,10 +1050,13 @@ public class SecurityPropertySetImplCrudIT {
                 && deviceConfigConflictMapping.getDestinationDeviceConfiguration().getId() == destinationConfig.getId();
     }
 
-    private SecurityPropertySet createSecurityPropertySet(DeviceConfiguration deviceConfiguration, String setName, int authenticationLevel, int encryptionLevel) {
+    private SecurityPropertySet createSecurityPropertySet(DeviceConfiguration deviceConfiguration, String setName, int authenticationLevel, int encryptionLevel, int securitySuite, int requestSecurityLevel, int responseSecurityLevel) {
         return deviceConfiguration.createSecurityPropertySet(setName)
                 .authenticationLevel(authenticationLevel)
                 .encryptionLevel(encryptionLevel)
+                .securitySuite(securitySuite)
+                .requestSecurityLevel(requestSecurityLevel)
+                .responseSecurityLevel(responseSecurityLevel)
                 .build();
     }
 }

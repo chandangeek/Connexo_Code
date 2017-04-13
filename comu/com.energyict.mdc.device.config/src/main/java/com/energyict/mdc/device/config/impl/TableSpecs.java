@@ -668,6 +668,9 @@ public enum TableSpecs {
             Column deviceConfiguration = table.column("DEVICECONFIG").conversion(NUMBER2LONG).number().notNull().add();
             table.column("AUTHENTICATIONLEVEL").number().conversion(NUMBER2INT).notNull().map("authenticationLevelId").add();
             table.column("ENCRYPTIONLEVEL").number().conversion(NUMBER2INT).notNull().map("encryptionLevelId").add();
+            table.column("SECURITYSUITE").number().conversion(NUMBER2INT).notNull().installValue("-1").map("securitySuiteId").since(version(10, 3)).add();
+            table.column("REQUESTSECURITYLEVEL").number().conversion(NUMBER2INT).notNull().installValue("-1").map("requestSecurityLevelId").since(version(10, 3)).add();
+            table.column("RESPONSESECURITYLEVEL").number().conversion(NUMBER2INT).notNull().installValue("-1").map("responseSecurityLevelId").since(version(10, 3)).add();
             table.setJournalTableName("DTC_SECURITYPROPERTYSETJRNL").since(version(10, 2));
             table.addAuditColumns();
             table.foreignKey("FK_DTC_SECPROPSET_DEVCONFIG")

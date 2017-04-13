@@ -1508,13 +1508,31 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
 
         @Override
         public SecurityPropertySetBuilder authenticationLevel(int level) {
-            underConstruction.setAuthenticationLevel(level);
+            underConstruction.setAuthenticationLevelId(level);
             return this;
         }
 
         @Override
         public SecurityPropertySetBuilder encryptionLevel(int level) {
             underConstruction.setEncryptionLevelId(level);
+            return this;
+        }
+
+        @Override
+        public SecurityPropertySetBuilder securitySuite(int suite) {
+            underConstruction.setSecuritySuiteId(suite);
+            return this;
+        }
+
+        @Override
+        public SecurityPropertySetBuilder requestSecurityLevel(int level) {
+            underConstruction.setRequestSecurityLevelId(level);
+            return this;
+        }
+
+        @Override
+        public SecurityPropertySetBuilder responseSecurityLevel(int level) {
+            underConstruction.setResponseSecurityLevelId(level);
             return this;
         }
 

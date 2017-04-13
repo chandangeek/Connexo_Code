@@ -13,5 +13,11 @@ public interface SecurityPropertySetBuilder {
 
     SecurityPropertySetBuilder encryptionLevel(int level);
 
+    SecurityPropertySetBuilder securitySuite(int suite);
+
+    SecurityPropertySetBuilder requestSecurityLevel(int level);
+
+    SecurityPropertySetBuilder responseSecurityLevel(int level);
+
     SecurityPropertySet build();
 }

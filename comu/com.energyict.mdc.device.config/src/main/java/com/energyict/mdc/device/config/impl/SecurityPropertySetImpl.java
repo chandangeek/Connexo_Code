@@ -27,8 +27,12 @@ import com.energyict.mdc.device.config.events.EventType;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteSecurityPropertySetWhileInUseException;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.api.security.AdvancedDeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
+import com.energyict.mdc.protocol.api.security.RequestSecurityLevel;
+import com.energyict.mdc.protocol.api.security.ResponseSecurityLevel;
+import com.energyict.mdc.protocol.api.security.SecuritySuite;
 
 import javax.inject.Inject;
 import javax.validation.ConstraintValidator;
@@ -70,6 +74,12 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
     private AuthenticationDeviceAccessLevel authenticationLevel;
     private int encryptionLevelId;
     private EncryptionDeviceAccessLevel encryptionLevel;
+    private int securitySuiteId = -1;
+    private SecuritySuite securitySuite;
+    private int requestSecurityLevelId = -1;
+    private RequestSecurityLevel requestSecurityLevel;
+    private int responseSecurityLevelId = -1;
+    private ResponseSecurityLevel responseSecurityLevel;
     private Set<DeviceSecurityUserAction> userActions = EnumSet.noneOf(DeviceSecurityUserAction.class);
     private List<UserActionRecord> userActionRecords = new ArrayList<>();
     private final ThreadPrincipalService threadPrincipalService;
@@ -88,7 +98,6 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
         super(SecurityPropertySet.class, dataModel, eventService, thesaurus);
         this.threadPrincipalService = threadPrincipalService;
     }
-
 
     @Override
     public String getName() {
@@ -251,6 +260,102 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
         return new NoEncryption(getThesaurus());
     }
 
+    @Override
+    public SecuritySuite getSecuritySuite() {
+        if (this.securitySuite == null) {
+            if (this.securitySuiteId == NOT_USED_DEVICE_ACCESS_LEVEL_ID) {
+                this.securitySuite = new NoSecuritySuite(getThesaurus());
+            } else {
+                this.securitySuite = this.findSecuritySuite(this.securitySuiteId);
+            }
+        }
+        return this.securitySuite;
+    }
+
+    /**
+     * Finds the {@link SecuritySuite} with the specified id
+     * and returns {@link NoSecuritySuite} when it does not exists.
+     *
+     * @param id The unique identifier of the SecuritySuite
+     * @return The SecuritySuite or NoSecuritySuite when the device protocol
+     * does not have a SecuritySuite with the specified id
+     */
+    private SecuritySuite findSecuritySuite(int id) {
+        if (this.getDeviceProtocol() instanceof AdvancedDeviceProtocolSecurityCapabilities) {
+            List<SecuritySuite> securitySuites = ((AdvancedDeviceProtocolSecurityCapabilities) this.getDeviceProtocol()).getSecuritySuites();
+            for (SecuritySuite suite : securitySuites) {
+                if (id == suite.getId()) {
+                    return suite;
+                }
+            }
+        }
+        return new NoSecuritySuite(getThesaurus());
+    }
+
+    @Override
+    public RequestSecurityLevel getRequestSecurityLevel() {
+        if (this.requestSecurityLevel == null) {
+            if (this.requestSecurityLevelId == NOT_USED_DEVICE_ACCESS_LEVEL_ID) {
+                this.requestSecurityLevel = new NoRequestSecurity(getThesaurus());
+            } else {
+                this.requestSecurityLevel = this.findRequestSecurityLevel(this.requestSecurityLevelId);
+            }
+        }
+        return this.requestSecurityLevel;
+    }
+
+    /**
+     * Finds the {@link RequestSecurityLevel} with the specified id
+     * and returns {@link NoRequestSecurity} when it does not exists.
+     *
+     * @param id The unique identifier of the EncryptionDeviceAccessLevel
+     * @return The EncryptionDeviceAccessLevel or NoEncryption when the device protocol
+     * does not have an EncryptionDeviceAccessLevel with the specified id
+     */
+    private RequestSecurityLevel findRequestSecurityLevel(int id) {
+        if (this.getDeviceProtocol() instanceof AdvancedDeviceProtocolSecurityCapabilities) {
+            List<RequestSecurityLevel> requestSecurityLevels = ((AdvancedDeviceProtocolSecurityCapabilities) this.getDeviceProtocol()).getRequestSecurityLevels();
+            for (RequestSecurityLevel level : requestSecurityLevels) {
+                if (id == level.getId()) {
+                    return level;
+                }
+            }
+        }
+        return new NoRequestSecurity(getThesaurus());
+    }
+
+    @Override
+    public ResponseSecurityLevel getResponseSecurityLevel() {
+        if (this.responseSecurityLevel == null) {
+            if (this.responseSecurityLevelId == NOT_USED_DEVICE_ACCESS_LEVEL_ID) {
+                this.responseSecurityLevel = new NoResponseSecurity(getThesaurus());
+            } else {
+                this.responseSecurityLevel = this.findResponseSecurityLevel(this.responseSecurityLevelId);
+            }
+        }
+        return this.responseSecurityLevel;
+    }
+
+    /**
+     * Finds the {@link ResponseSecurityLevel} with the specified id
+     * and returns {@link NoResponseSecurity} when it does not exists.
+     *
+     * @param id The unique identifier of the EncryptionDeviceAccessLevel
+     * @return The EncryptionDeviceAccessLevel or NoEncryption when the device protocol
+     * does not have an EncryptionDeviceAccessLevel with the specified id
+     */
+    private ResponseSecurityLevel findResponseSecurityLevel(int id) {
+        if (this.getDeviceProtocol() instanceof AdvancedDeviceProtocolSecurityCapabilities) {
+            List<ResponseSecurityLevel> responseSecurityLevels = ((AdvancedDeviceProtocolSecurityCapabilities) this.getDeviceProtocol()).getResponseSecurityLevels();
+            for (ResponseSecurityLevel level : responseSecurityLevels) {
+                if (id == level.getId()) {
+                    return level;
+                }
+            }
+        }
+        return new NoResponseSecurity(getThesaurus());
+    }
+
     private DeviceProtocol getDeviceProtocol() {
         if (this.deviceProtocol == null) {
             DeviceProtocolPluggableClass protocolPluggableClass = this.getDeviceProtocolPluggableClass();
@@ -291,57 +396,8 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
         }
     }
 
-//    @Override
-//    public Set<DeviceSecurityUserAction> getUserActions() {
-//        return this.userActions;
-//    }
-
-//    @Override
-//    public boolean currentUserIsAllowedToEditDeviceProperties() {
-//        Principal principal = threadPrincipalService.getPrincipal();
-//        if (!(principal instanceof User)) {
-//            return false;
-//        }
-//        User user = (User) principal;
-//        Set<DeviceSecurityUserAction> deviceSecurityUserActions = this.getUserActions();
-//        for (DeviceSecurityUserAction deviceSecurityUserAction : deviceSecurityUserActions) {
-//            if (editingIsAuthorizedFor(deviceSecurityUserAction, user)) {
-//                return true;
-//            }
-//        }
-//        return false;
-//    }
-//
-//    @Override
-//    public boolean currentUserIsAllowedToViewDeviceProperties() {
-//        Principal principal = threadPrincipalService.getPrincipal();
-//        if (!(principal instanceof User)) {
-//            return false;
-//        }
-//        User user = (User) principal;
-//        Set<DeviceSecurityUserAction> deviceSecurityUserActions = this.getUserActions();
-//        for (DeviceSecurityUserAction deviceSecurityUserAction : deviceSecurityUserActions) {
-//            if (viewingIsAuthorizedFor(deviceSecurityUserAction, user)) {
-//                return true;
-//            }
-//        }
-//        return false;
-//    }
-
-//    private boolean viewingIsAuthorizedFor(DeviceSecurityUserAction action, User user) {
-//        return action.isViewing() && this.isAuthorized(action, user);
-//    }
-
-//    private boolean isAuthorized(DeviceSecurityUserAction action, User user) {
-//        return user.hasPrivilege("MDC", action.getPrivilege());
-//    }
-
-//    private boolean editingIsAuthorizedFor(DeviceSecurityUserAction action, User user) {
-//        return action.isEditing() && this.isAuthorized(action, user);
-//    }
-
     @Override
-    public void setAuthenticationLevel(int authenticationLevelId) {
+    public void setAuthenticationLevelId(int authenticationLevelId) {
         this.authenticationLevelId = authenticationLevelId;
 
     }
@@ -349,6 +405,21 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
     @Override
     public void setEncryptionLevelId(int encryptionLevelId) {
         this.encryptionLevelId = encryptionLevelId;
+    }
+
+    @Override
+    public void setSecuritySuiteId(int securitySuiteId) {
+        this.securitySuiteId = securitySuiteId;
+    }
+
+    @Override
+    public void setRequestSecurityLevelId(int requestSecurityLevelId) {
+        this.requestSecurityLevelId = requestSecurityLevelId;
+    }
+
+    @Override
+    public void setResponseSecurityLevelId(int responseSecurityLevelId) {
+        this.responseSecurityLevelId = responseSecurityLevelId;
     }
 
     private static class NoAuthentication implements AuthenticationDeviceAccessLevel {
@@ -372,6 +443,11 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
         @Override
         public List<PropertySpec> getSecurityProperties() {
             return Collections.emptyList();
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            return this == o || !(o == null || getClass() != o.getClass()) && ((NoAuthentication) o).getId() == NOT_USED_DEVICE_ACCESS_LEVEL_ID;
         }
     }
 
@@ -397,6 +473,117 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
             return Collections.emptyList();
         }
 
+        @Override
+        public boolean equals(Object o) {
+            return this == o || !(o == null || getClass() != o.getClass()) && ((NoEncryption) o).getId() == NOT_USED_DEVICE_ACCESS_LEVEL_ID;
+        }
+    }
+
+    private static class NoSecuritySuite implements SecuritySuite {
+
+        private final Thesaurus thesaurus;
+
+        public NoSecuritySuite(Thesaurus thesaurus) {
+            this.thesaurus = thesaurus;
+        }
+
+        @Override
+        public int getId() {
+            return NOT_USED_DEVICE_ACCESS_LEVEL_ID;
+        }
+
+        @Override
+        public String getTranslation() {
+            return thesaurus.getFormat(TranslationKeys.NO_SECURITY_SUITE).format();
+        }
+
+        @Override
+        public List<PropertySpec> getSecurityProperties() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public List<RequestSecurityLevel> getRequestSecurityLevels() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public List<ResponseSecurityLevel> getResponseSecurityLevels() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            return this == o || !(o == null || getClass() != o.getClass()) && ((NoSecuritySuite) o).getId() == NOT_USED_DEVICE_ACCESS_LEVEL_ID;
+        }
+    }
+
+    private static class NoRequestSecurity implements RequestSecurityLevel {
+
+        private final Thesaurus thesaurus;
+
+        public NoRequestSecurity(Thesaurus thesaurus) {
+            this.thesaurus = thesaurus;
+        }
+
+        @Override
+        public int getId() {
+            return NOT_USED_DEVICE_ACCESS_LEVEL_ID;
+        }
+
+        @Override
+        public String getTranslation() {
+            return thesaurus.getFormat(TranslationKeys.NO_REQUEST_SECURITY).format();
+        }
+
+        @Override
+        public List<PropertySpec> getSecurityProperties() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            return this == o || !(o == null || getClass() != o.getClass()) && ((NoRequestSecurity) o).getId() == NOT_USED_DEVICE_ACCESS_LEVEL_ID;
+        }
+    }
+
+    private static class NoResponseSecurity implements ResponseSecurityLevel {
+
+        private final Thesaurus thesaurus;
+
+        public NoResponseSecurity(Thesaurus thesaurus) {
+            this.thesaurus = thesaurus;
+        }
+
+        @Override
+        public int getId() {
+            return NOT_USED_DEVICE_ACCESS_LEVEL_ID;
+        }
+
+        @Override
+        public String getTranslation() {
+            return thesaurus.getFormat(TranslationKeys.NO_RESPONSE_SECURITY).format();
+        }
+
+        @Override
+        public List<PropertySpec> getSecurityProperties() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            return this == o || !(o == null || getClass() != o.getClass()) && ((NoResponseSecurity) o).getId() == NOT_USED_DEVICE_ACCESS_LEVEL_ID;
+        }
     }
 
     @Override
@@ -425,11 +612,11 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
 
         @Override
         public boolean isValid(SecurityPropertySetImpl value, ConstraintValidatorContext context) {
-            return authLevelSupported(value) && encLevelSupported(value);
+            return authLevelSupported(value) && encLevelSupported(value) && securitySuiteSupported(value) && requestSecurityLevelSupported(value) && responseSecurityLevelSupported(value);
         }
 
         private boolean encLevelSupported(SecurityPropertySetImpl value) {
-            for (EncryptionDeviceAccessLevel supportedEncLevel : supportedEncryptionlevels(value)) {
+            for (EncryptionDeviceAccessLevel supportedEncLevel : supportedEncryptionLevels(value)) {
                 if (supportedEncLevel.getId() == value.encryptionLevelId) {
                     return true;
                 }
@@ -437,18 +624,18 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
             return false;
         }
 
-        private List<EncryptionDeviceAccessLevel> supportedEncryptionlevels(SecurityPropertySetImpl value) {
-            List<EncryptionDeviceAccessLevel> levels = value.getDeviceProtocol().getEncryptionAccessLevels();
-            if (levels.isEmpty()) {
-                return Collections.singletonList(new NoEncryption(thesaurus));
+        private List<EncryptionDeviceAccessLevel> supportedEncryptionLevels(SecurityPropertySetImpl value) {
+            List<EncryptionDeviceAccessLevel> levels;
+            if (value.getDeviceProtocol() instanceof AdvancedDeviceProtocolSecurityCapabilities) {
+                levels = value.getSecuritySuite().getEncryptionAccessLevels();
+            } else {
+                levels = value.getDeviceProtocol().getEncryptionAccessLevels();
             }
-            else {
-                return levels;
-            }
+            return levels.isEmpty() ? Collections.singletonList(new NoEncryption(thesaurus)) : levels;
         }
 
         private boolean authLevelSupported(SecurityPropertySetImpl value) {
-            for (AuthenticationDeviceAccessLevel supportedAuthLevel : supportedAutheticationLevels(value)) {
+            for (AuthenticationDeviceAccessLevel supportedAuthLevel : supportedAuthenticationLevels(value)) {
                 if (supportedAuthLevel.getId() == value.authenticationLevelId) {
                     return true;
                 }
@@ -456,14 +643,69 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
             return false;
         }
 
-        private List<AuthenticationDeviceAccessLevel> supportedAutheticationLevels(SecurityPropertySetImpl value) {
-            List<AuthenticationDeviceAccessLevel> levels = value.getDeviceProtocol().getAuthenticationAccessLevels();
-            if (levels.isEmpty()) {
-                return Collections.singletonList(new NoAuthentication(thesaurus));
+        private List<AuthenticationDeviceAccessLevel> supportedAuthenticationLevels(SecurityPropertySetImpl value) {
+            List<AuthenticationDeviceAccessLevel> levels;
+            if (value.getDeviceProtocol() instanceof AdvancedDeviceProtocolSecurityCapabilities) {
+                levels = value.getSecuritySuite().getAuthenticationAccessLevels();
+            } else {
+                levels = value.getDeviceProtocol().getAuthenticationAccessLevels();
             }
-            else {
-                return levels;
+            return levels.isEmpty() ? Collections.singletonList(new NoAuthentication(thesaurus)) : levels;
+        }
+
+        private boolean securitySuiteSupported(SecurityPropertySetImpl value) {
+            for (SecuritySuite securitySuite : supportedSecuritySuites(value)) {
+                if (securitySuite.getId() == value.securitySuiteId) {
+                    return true;
+                }
             }
+            return false;
+        }
+
+        private List<SecuritySuite> supportedSecuritySuites(SecurityPropertySetImpl value) {
+            List<SecuritySuite> securitySuites = null;
+            if (value.getDeviceProtocol() instanceof AdvancedDeviceProtocolSecurityCapabilities) {
+                securitySuites = ((AdvancedDeviceProtocolSecurityCapabilities) value.getDeviceProtocol()).getSecuritySuites();
+            }
+            return (securitySuites == null || securitySuites.isEmpty()) ? Collections.singletonList(new NoSecuritySuite(thesaurus)) : securitySuites;
+        }
+
+        private boolean requestSecurityLevelSupported(SecurityPropertySetImpl value) {
+            for (RequestSecurityLevel requestSecurityLevel : supportedRequestSecurityLevels(value)) {
+                if (requestSecurityLevel.getId() == value.requestSecurityLevelId) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private List<RequestSecurityLevel> supportedRequestSecurityLevels(SecurityPropertySetImpl value) {
+            List<RequestSecurityLevel> levels;
+            if (value.getDeviceProtocol() instanceof AdvancedDeviceProtocolSecurityCapabilities) {
+                levels = value.getSecuritySuite().getRequestSecurityLevels();
+            } else {
+                levels = Collections.emptyList();
+            }
+            return levels.isEmpty() ? Collections.singletonList(new NoRequestSecurity(thesaurus)) : levels;
+        }
+
+        private boolean responseSecurityLevelSupported(SecurityPropertySetImpl value) {
+            for (ResponseSecurityLevel responseSecurityLevel : supportedResponseSecurityLevels(value)) {
+                if (responseSecurityLevel.getId() == value.responseSecurityLevelId) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private List<ResponseSecurityLevel> supportedResponseSecurityLevels(SecurityPropertySetImpl value) {
+            List<ResponseSecurityLevel> levels;
+            if (value.getDeviceProtocol() instanceof AdvancedDeviceProtocolSecurityCapabilities) {
+                levels = value.getSecuritySuite().getResponseSecurityLevels();
+            } else {
+                levels = Collections.emptyList();
+            }
+            return levels.isEmpty() ? Collections.singletonList(new NoResponseSecurity(thesaurus)) : levels;
         }
     }
 
@@ -472,12 +714,15 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
         SecurityPropertySetBuilder builder = deviceConfiguration.createSecurityPropertySet(getName());
         builder.authenticationLevel(authenticationLevelId);
         builder.encryptionLevel(encryptionLevelId);
+        builder.securitySuite(securitySuiteId);
+        builder.requestSecurityLevel(requestSecurityLevelId);
+        builder.responseSecurityLevel(responseSecurityLevelId);
         return builder.build();
     }
 
     @Override
-    public boolean equals(Object obj){
-        if(obj instanceof SecurityPropertySetImpl){
+    public boolean equals(Object obj) {
+        if (obj instanceof SecurityPropertySetImpl) {
             SecurityPropertySetImpl impl = (SecurityPropertySetImpl) obj;
             return impl.getId() == this.getId();
         }
