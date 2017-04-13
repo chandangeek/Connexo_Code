@@ -28,6 +28,10 @@ public class PropertyTypeInfo {
      */
     public PredefinedPropertyValuesInfo<?> predefinedPropertyValuesInfo;
     /**
+     * Defines REST resource where possible values can be obtained. Resource supports type-ahead functionality.
+     */
+    public PropertyValuesResourceInfo propertyValuesResource;
+    /**
      * Provides a URI where a reference object-list can be fetched
      */
     public URI referenceUri;
