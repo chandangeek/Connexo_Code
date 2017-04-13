@@ -128,7 +128,7 @@ Ext.define('Uni.property.view.property.Period', {
             if (me.getComboField()) { timeUnitValue = me.getComboField().getValue(); }
 
             if (countValue && timeUnitValue) {
-                if (initialValue) {
+                if (initialValue && rawValue.inheritedValue) {
                     isChangedValue = (initialValue.count !== countValue) || (initialValue.timeUnit !== timeUnitValue) || (initialValue.count !== rawValue.inheritedValue.count) || (initialValue.timeUnit !== rawValue.inheritedValue.timeUnit);
                 } else if (rawValue.inheritedValue) {
                     isChangedValue = (rawValue.inheritedValue.count !== countValue) || (rawValue.inheritedValue.timeUnit !== timeUnitValue);
