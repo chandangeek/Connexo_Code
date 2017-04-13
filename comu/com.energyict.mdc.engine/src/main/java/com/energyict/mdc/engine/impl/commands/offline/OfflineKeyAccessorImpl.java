@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.impl.commands.offline;
 
 import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.SecurityValueWrapper;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.KeyAccessor;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
@@ -9,7 +10,7 @@ import com.energyict.mdc.protocol.api.services.IdentificationService;
 
 import java.util.Optional;
 
-public class OfflineKeyAccessorImpl<T> implements OfflineKeyAccessor {
+public class OfflineKeyAccessorImpl<T extends SecurityValueWrapper> implements OfflineKeyAccessor {
 
     /**
      * The {@link com.energyict.mdc.protocol.api.device.BaseLogBook} which is going offline
