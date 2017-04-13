@@ -509,7 +509,6 @@ public class UsagePointImpl implements ServerUsagePoint {
         return this.metrologyConfigurations.stream()
                 .filter(notEmpty())
                 .filter(emc -> emc.getRange().contains(when))
-                .map(EffectiveMetrologyConfigurationOnUsagePoint.class::cast)
                 .findFirst();
     }
 
@@ -518,7 +517,6 @@ public class UsagePointImpl implements ServerUsagePoint {
         return this.metrologyConfigurations.stream()
                 .filter(notEmpty())
                 .filter(emc -> emc.getStart().equals(start))
-                .map(EffectiveMetrologyConfigurationOnUsagePoint.class::cast)
                 .findFirst();
     }
 
@@ -527,7 +525,6 @@ public class UsagePointImpl implements ServerUsagePoint {
         return this.metrologyConfigurations.stream()
                 .filter(notEmpty())
                 .filter(emc -> emc.getRange().contains(clock.instant()))
-                .map(EffectiveMetrologyConfigurationOnUsagePoint.class::cast)
                 .findFirst();
     }
 
