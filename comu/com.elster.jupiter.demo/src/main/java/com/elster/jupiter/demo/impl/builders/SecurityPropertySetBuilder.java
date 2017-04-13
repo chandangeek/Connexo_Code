@@ -40,11 +40,6 @@ public class SecurityPropertySetBuilder extends NamedBuilder<SecurityPropertySet
         return this;
     }
 
-//    public SecurityPropertySetBuilder withUserActions(List<DeviceSecurityUserAction> userActions){
-//        this.userActions = userActions;
-//        return this;
-//    }
-
     private void check(){
         if (this.deviceConfiguration == null) {
             throw new UnableToCreate("You must set the device configuration");
