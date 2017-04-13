@@ -1379,7 +1379,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 });
                 form = widget.down('#rule-with-attributes-edit-form');
                 form.loadRecord(rule);
-                form.setTitle(Ext.String.format("{0} '{1}'", Uni.I18n.translate('general.editAttributesFor', 'IMT', 'Edit attributes for'), rule.get('name')));
+                form.setTitle(Ext.String.format("{0} '{1}'", Uni.I18n.translate('general.editAttributesFor', 'MDC', 'Edit attributes for'), rule.get('name')));
                 form.down('property-form').loadRecord(rule);
                 app.fireEvent('rule-with-attributes-loaded', rule);
                 app.fireEvent('changecontentevent', widget);
