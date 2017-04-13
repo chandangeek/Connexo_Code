@@ -381,6 +381,8 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
         Map<String, PropertySpec> result = new HashMap<>();
         this.addMissingSecurityPropertiesAndAvoidDuplicates(result, this.findAuthenticationLevel(this.authenticationLevelId).getSecurityProperties());
         this.addMissingSecurityPropertiesAndAvoidDuplicates(result, this.findEncryptionLevel(this.encryptionLevelId).getSecurityProperties());
+        this.addMissingSecurityPropertiesAndAvoidDuplicates(result, this.findRequestSecurityLevel(this.requestSecurityLevelId).getSecurityProperties());
+        this.addMissingSecurityPropertiesAndAvoidDuplicates(result, this.findResponseSecurityLevel(this.responseSecurityLevelId).getSecurityProperties());
 
         return result.values()
                 .stream()

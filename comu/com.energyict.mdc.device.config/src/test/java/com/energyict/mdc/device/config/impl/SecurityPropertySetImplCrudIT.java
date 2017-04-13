@@ -36,6 +36,7 @@ import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.pki.impl.PkiModule;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.impl.SearchModule;
@@ -113,8 +114,10 @@ import java.time.Clock;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
+import java.util.Set;
 
 import static com.energyict.mdc.protocol.api.security.DeviceAccessLevel.NOT_USED_DEVICE_ACCESS_LEVEL_ID;
+
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -159,6 +162,8 @@ public class SecurityPropertySetImplCrudIT {
     private AuthenticationDeviceAccessLevel authLevel, authLevel2;
     @Mock
     private EncryptionDeviceAccessLevel encLevel;
+    @Mock
+    private PropertySpec spec1, spec2, spec3;
 
     private static class MockModule extends AbstractModule {
 
@@ -291,9 +296,15 @@ public class SecurityPropertySetImplCrudIT {
         when(protocolPluggableService.findDeviceProtocolPluggableClass(anyLong())).thenReturn(Optional.of(deviceProtocolPluggableClass));
         when(deviceProtocol.getAuthenticationAccessLevels()).thenReturn(Arrays.asList(authLevel, authLevel2));
         when(deviceProtocol.getEncryptionAccessLevels()).thenReturn(Collections.singletonList(encLevel));
+        when(spec1.getName()).thenReturn("spec1");
+        when(spec2.getName()).thenReturn("spec2");
+        when(spec3.getName()).thenReturn("spec3");
         when(authLevel.getId()).thenReturn(1);
+        when(authLevel.getSecurityProperties()).thenReturn(Collections.singletonList(spec1));
         when(authLevel2.getId()).thenReturn(2);
+        when(authLevel2.getSecurityProperties()).thenReturn(Arrays.asList(spec1, spec2));
         when(encLevel.getId()).thenReturn(2);
+        when(encLevel.getSecurityProperties()).thenReturn(Arrays.asList(spec2, spec3));
     }
 
     @Test
@@ -429,6 +440,24 @@ public class SecurityPropertySetImplCrudIT {
         assertThat(reloaded.getSecuritySuite()).isEqualTo(propertySet.getSecuritySuite());
         assertThat(reloaded.getRequestSecurityLevel()).isEqualTo(propertySet.getRequestSecurityLevel());
         assertThat(reloaded.getResponseSecurityLevel()).isEqualTo(propertySet.getResponseSecurityLevel());
+    }
+
+    @Test
+    @Transactional
+    public void testGetPropertySpecs() {
+        SecurityPropertySet propertySet;
+        DeviceType deviceType = createDeviceType("MyType");
+
+        DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("Normal").add();
+        deviceConfiguration.save();
+
+        propertySet = deviceConfiguration.createSecurityPropertySet("Name")
+                .authenticationLevel(2)     // Has spec1 and spec2
+                .encryptionLevel(2)         // Has spec2 and spec3
+                .build();
+        Set<PropertySpec> propertySpecs = propertySet.getPropertySpecs();
+
+        assertThat(propertySpecs.size()).isEqualTo(3);
     }
 
     @Test

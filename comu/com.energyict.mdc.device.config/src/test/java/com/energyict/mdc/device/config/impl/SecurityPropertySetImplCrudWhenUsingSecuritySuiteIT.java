@@ -36,6 +36,7 @@ import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.pki.impl.PkiModule;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.impl.SearchModule;
@@ -106,6 +107,7 @@ import java.time.Clock;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
+import java.util.Set;
 
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -156,6 +158,8 @@ public class SecurityPropertySetImplCrudWhenUsingSecuritySuiteIT {
     private RequestSecurityLevel requestSecurityLevel1, requestSecurityLevel2;
     @Mock
     private ResponseSecurityLevel responseSecurityLevel1, responseSecurityLevel2;
+    @Mock
+    private PropertySpec spec1, spec2, spec3, spec4, spec5, spec6;
 
     private static class MockModule extends AbstractModule {
 
@@ -292,14 +296,27 @@ public class SecurityPropertySetImplCrudWhenUsingSecuritySuiteIT {
         when(((AdvancedDeviceProtocolSecurityCapabilities) deviceProtocol).getRequestSecurityLevels()).thenReturn(Arrays.asList(requestSecurityLevel1, requestSecurityLevel2));
         when(((AdvancedDeviceProtocolSecurityCapabilities) deviceProtocol).getResponseSecurityLevels()).thenReturn(Arrays.asList(responseSecurityLevel1, responseSecurityLevel2));
 
+        when(spec1.getName()).thenReturn("spec1");
+        when(spec2.getName()).thenReturn("spec2");
+        when(spec3.getName()).thenReturn("spec3");
+        when(spec4.getName()).thenReturn("spec4");
+        when(spec5.getName()).thenReturn("spec5");
+        when(spec6.getName()).thenReturn("spec6");
         when(authLevel.getId()).thenReturn(1);
+        when(authLevel.getSecurityProperties()).thenReturn(Collections.singletonList(spec1));
         when(authLevel2.getId()).thenReturn(2);
+        when(authLevel2.getSecurityProperties()).thenReturn(Arrays.asList(spec1, spec2));
         when(encLevel.getId()).thenReturn(2);
+        when(encLevel.getSecurityProperties()).thenReturn(Arrays.asList(spec2, spec3));
         when(securitySuite.getId()).thenReturn(100);
         when(requestSecurityLevel1.getId()).thenReturn(201);
+        when(requestSecurityLevel1.getSecurityProperties()).thenReturn(Collections.singletonList(spec4));
         when(requestSecurityLevel2.getId()).thenReturn(202);
+        when(requestSecurityLevel2.getSecurityProperties()).thenReturn(Arrays.asList(spec4, spec5));
         when(responseSecurityLevel1.getId()).thenReturn(301);
+        when(responseSecurityLevel1.getSecurityProperties()).thenReturn(Collections.singletonList(spec5));
         when(responseSecurityLevel2.getId()).thenReturn(302);
+        when(responseSecurityLevel2.getSecurityProperties()).thenReturn(Arrays.asList(spec5, spec6));
 
         when(securitySuite.getEncryptionAccessLevels()).thenReturn(Collections.singletonList(encLevel));
         when(securitySuite.getAuthenticationAccessLevels()).thenReturn(Arrays.asList(authLevel, authLevel2));
@@ -458,6 +475,27 @@ public class SecurityPropertySetImplCrudWhenUsingSecuritySuiteIT {
         assertThat(reloaded.getSecuritySuite()).isEqualTo(securitySuite);
         assertThat(reloaded.getRequestSecurityLevel()).isEqualTo(requestSecurityLevel2);
         assertThat(reloaded.getResponseSecurityLevel()).isEqualTo(responseSecurityLevel2);
+    }
+
+    @Test
+    @Transactional
+    public void testGetPropertySpecs() {
+        SecurityPropertySet propertySet;
+        DeviceType deviceType = createDeviceType("MyType");
+
+        DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("Normal").add();
+        deviceConfiguration.save();
+
+        propertySet = deviceConfiguration.createSecurityPropertySet("Name")
+                .authenticationLevel(2)         // Has spec1 and spec2
+                .encryptionLevel(2)             // Has Spec2 and spec3
+                .securitySuite(100)
+                .requestSecurityLevel(202)      // Has spec4 and spec5
+                .responseSecurityLevel(301)     // Has spec5
+                .build();
+        Set<PropertySpec> propertySpecs = propertySet.getPropertySpecs();
+
+        assertThat(propertySpecs.size()).isEqualTo(5);
     }
 
     @Test
@@ -772,7 +810,7 @@ public class SecurityPropertySetImplCrudWhenUsingSecuritySuiteIT {
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.UNSUPPORTED_SECURITY_LEVEL + "}")
     public void testSecuritySuiteShouldNotBeSpecifiedWhenProtocolDoesNotProvideEncryptionLevels() {
         DeviceConfiguration deviceConfiguration;
-        when(((AdvancedDeviceProtocolSecurityCapabilities)deviceProtocol).getSecuritySuites()).thenReturn(Collections.<SecuritySuite>emptyList());
+        when(((AdvancedDeviceProtocolSecurityCapabilities) deviceProtocol).getSecuritySuites()).thenReturn(Collections.<SecuritySuite>emptyList());
         DeviceType deviceType = createDeviceType("MyType");
 
         deviceConfiguration = createNewInactiveConfiguration(deviceType, "Normal");
