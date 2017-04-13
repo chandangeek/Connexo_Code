@@ -125,7 +125,6 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
 
     @Test
     public void testGetCertificatesWithoutTempValue() throws Exception {
-
         Response response = target("/devices/BVN001/securityaccessors/certificates").request().get();
         JsonModel jsonModel = JsonModel.create((InputStream) response.getEntity());
         assertThat(jsonModel.<List>get("$.certificates")).hasSize(1);
@@ -133,6 +132,7 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
         assertThat(jsonModel.<List>get("$.certificates[0].currentProperties")).hasSize(1);
         assertThat(jsonModel.<String>get("$.certificates[0].currentProperties[0].key")).isEqualTo("alias");
         assertThat(jsonModel.<String>get("$.certificates[0].currentProperties[0].propertyValueInfo.value")).isEqualTo("comserver");
+        assertThat(jsonModel.<String>get("$.certificates[0].currentProperties[0].propertyTypeInfo.propertyValuesResource.possibleValuesURI")).isEqualTo("http://localhost:9998/devices/x/securityaccessors/certificates/aliases");
         assertThat(jsonModel.<List>get("$.certificates[0].tempProperties")).hasSize(1);
         assertThat(jsonModel.<String>get("$.certificates[0].tempProperties[0].key")).isEqualTo("alias");
         assertThat(jsonModel.<JSONObject>get("$.certificates[0].tempProperties[0].propertyValueInfo")).isEmpty();
