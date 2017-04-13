@@ -10,7 +10,6 @@ Ext.define('Mdc.securityaccessors.controller.DeviceSecurityAccessors', {
     ],
 
     models: [
-        'Mdc.securityaccessors.model.DeviceSecurityAccessor',
         'Mdc.securityaccessors.model.DeviceSecurityKey',
         'Mdc.securityaccessors.model.DeviceSecurityCertificate'
     ],
@@ -57,11 +56,34 @@ Ext.define('Mdc.securityaccessors.controller.DeviceSecurityAccessors', {
         {
             ref: 'passiveCertificateAttributesContainer',
             selector: '#mdc-device-accessors-certificate-preview #mdc-device-security-accessor-preview-passive-attributes-container'
+        },
+        {
+            ref: 'editActiveKeyAttributesContainer',
+            selector: '#mdc-device-key-attributes-edit-active-attributes-container'
+        },
+        {
+            ref: 'editPassiveKeyAttributesContainer',
+            selector: '#mdc-device-key-attributes-edit-passive-attributes-container'
+        },
+        {
+            ref: 'editActiveCertificateAttributesContainer',
+            selector: '#mdc-device-certificate-attributes-edit-active-attributes-container'
+        },
+        {
+            ref: 'editPassiveCertificateAttributesContainer',
+            selector: '#mdc-device-certificate-attributes-edit-passive-attributes-container'
+        },
+        {
+            ref: 'editDeviceKeyPanel',
+            selector: 'device-key-attributes-edit'
+        },
+        {
+            ref: 'editDeviceCertificatePanel',
+            selector: 'device-certificate-attributes-edit'
         }
     ],
 
     deviceId: undefined,
-    certificatesTabNeverSelectedYet: true,
     deviceKeyRecord: undefined,
     deviceCertificateRecord: undefined,
 
@@ -86,6 +108,12 @@ Ext.define('Mdc.securityaccessors.controller.DeviceSecurityAccessors', {
             },
             '#mdc-device-certificate-attributes-edit-cancel-link': {
                 click: me.navigateToCertificatesOverview
+            },
+            '#mdc-device-key-attributes-edit-save-button': {
+                click: me.saveKeyAttributes
+            },
+            '#mdc-device-certificate-attributes-edit-save-button': {
+                click: me.saveCertificateAttributes
             }
         });
     },
@@ -114,10 +142,12 @@ Ext.define('Mdc.securityaccessors.controller.DeviceSecurityAccessors', {
     },
 
     showDeviceKeys: function(deviceId) {
+        this.deviceId = deviceId;
         this.showDeviceSecurityAccessors(deviceId, 0);
     },
 
     showDeviceCertificates: function(deviceId) {
+        this.deviceId = deviceId;
         this.showDeviceSecurityAccessors(deviceId, 1);
     },
 
@@ -151,43 +181,62 @@ Ext.define('Mdc.securityaccessors.controller.DeviceSecurityAccessors', {
             actionsMenu.record = record;
         }
 
-        me.getActiveKeyAttributesContainer().setVisible(record.propertiesStore.data.items.length > 0);
-        me.getActiveKeyAttributesContainer().down('property-form').loadRecord(record);
-        var tempPropertiesAvailable = record.temppropertiesStore.data.items.length > 0;
+        var expDate = Ext.isEmpty(record.get('expirationTime')) ? '-' : Uni.DateTime.formatDateShort( new Date(record.get('expirationTime')));
+        if (record.get('swapped')) {
+            var swapDate = Ext.isEmpty(record.get('modificationDate')) ? '-' : Uni.DateTime.formatDateShort( new Date(record.get('modificationDate')));
+            me.getKeyPreview().down('#mdc-device-security-accessor-preview-active-info').setInfo(
+                Uni.I18n.translate('general.activeFromxUntily', 'MDC', "Active from {0} until {1}", [swapDate, expDate])
+            );
+            me.getKeyPreview().down('#mdc-device-security-accessor-preview-passive-info').setInfo(
+                Uni.I18n.translate('general.activeUntilx', 'MDC', "Active until {0}", swapDate)
+            );
+        } else {
+            me.getKeyPreview().down('#mdc-device-security-accessor-preview-active-info').setInfo(
+                Uni.I18n.translate('general.activeUntilx', 'MDC', "Active until {0}", expDate)
+            );
+            me.getKeyPreview().down('#mdc-device-security-accessor-preview-passive-info').clearInfo();
+        }
+        me.getActiveKeyAttributesContainer().setVisible(record.currentPropertiesStore.data.items.length > 0);
+        me.getActiveKeyAttributesContainer().down('property-form').initProperties(record.currentProperties());
+        var tempPropertiesAvailable = record.tempPropertiesStore.data.items.length > 0;
         me.getPassiveKeyAttributesContainer().setVisible(tempPropertiesAvailable);
         if (tempPropertiesAvailable) {
-            me.getPassiveKeyAttributesContainer().down('property-form').initProperties(record.tempproperties());
+            me.getPassiveKeyAttributesContainer().down('property-form').initProperties(record.tempProperties());
         }
     },
 
     onCertificateRecordSelected: function (grid, record) {
-        var me = this;
-
-        if (me.certificatesTabNeverSelectedYet) {
-            me.getTabPanel().on('tabchange', function() {
-                me.certificatesTabNeverSelectedYet = false;
-                me.previewCertificateRecord(record);
-            }, me, {single: true});
-        } else {
-            me.previewCertificateRecord(record);
-        }
-    },
-
-    previewCertificateRecord: function(record) {
         var me = this,
-            actionsMenu = me.getKeyPreview().down('device-security-accessors-action-menu');
+            actionsMenu = me.getCertificatePreview().down('device-security-accessors-action-menu');
 
         me.getCertificatePreviewForm().loadRecord(record);
         me.getCertificatePreview().setTitle(Ext.htmlEncode(record.get('name')));
         if (actionsMenu) {
             actionsMenu.record = record;
         }
-        me.getActiveCertificateAttributesContainer().setVisible(record.propertiesStore.data.items.length > 0);
-        me.getActiveCertificateAttributesContainer().down('property-form').loadRecord(record);
-        var tempPropertiesAvailable = record.temppropertiesStore.data.items.length > 0;
+
+        var expDate = Ext.isEmpty(record.get('expirationTime')) ? '-' : Uni.DateTime.formatDateShort( new Date(record.get('expirationTime')));
+        if (record.get('swapped')) {
+            var swapDate = Ext.isEmpty(record.get('modificationDate')) ? '-' : Uni.DateTime.formatDateShort( new Date(record.get('modificationDate')));
+            me.getCertificatePreview().down('#mdc-device-security-accessor-preview-active-info').setInfo(
+                Uni.I18n.translate('general.activeFromxUntily', 'MDC', "Active from {0} until {1}", [swapDate, expDate])
+            );
+            me.getCertificatePreview().down('#mdc-device-security-accessor-preview-passive-info').setInfo(
+                Uni.I18n.translate('general.activeUntilx', 'MDC', "Active until {0}", swapDate)
+            );
+        } else {
+            me.getCertificatePreview().down('#mdc-device-security-accessor-preview-active-info').setInfo(
+                Uni.I18n.translate('general.activeUntilx', 'MDC', "Active until {0}", expDate)
+            );
+            me.getCertificatePreview().down('#mdc-device-security-accessor-preview-passive-info').clearInfo();
+        }
+
+        me.getActiveCertificateAttributesContainer().setVisible(record.currentPropertiesStore.data.items.length > 0);
+        me.getActiveCertificateAttributesContainer().down('property-form').initProperties(record.currentProperties());
+        var tempPropertiesAvailable = record.tempPropertiesStore.data.items.length > 0;
         me.getPassiveCertificateAttributesContainer().setVisible(tempPropertiesAvailable);
         if (tempPropertiesAvailable) {
-            me.getPassiveCertificateAttributesContainer().down('property-form').initProperties(record.tempproperties());
+            me.getPassiveCertificateAttributesContainer().down('property-form').initProperties(record.tempProperties());
         }
     },
 
@@ -200,6 +249,12 @@ Ext.define('Mdc.securityaccessors.controller.DeviceSecurityAccessors', {
                 break;
             case 'editDeviceCertificate':
                 me.navigateToEditCertificateAttributes(menu.record);
+                break;
+            case 'clearPassiveKey':
+                me.clearPassive(menu.record, true);
+                break;
+            case 'clearPassiveCertificate':
+                me.clearPassive(menu.record, false);
                 break;
         }
     },
@@ -215,12 +270,15 @@ Ext.define('Mdc.securityaccessors.controller.DeviceSecurityAccessors', {
     },
 
     editDeviceKey: function(deviceId, accessorId) {
-        var me = this;
+        var me = this,
+            keyModel = Ext.ModelManager.getModel('Mdc.securityaccessors.model.DeviceSecurityKey');
+
         me.deviceId = deviceId;
+        keyModel.getProxy().setUrl(encodeURIComponent(deviceId));
 
         if (Ext.isEmpty(me.deviceKeyRecord)) {
-            var keyModel = Ext.ModelManager.getModel('Mdc.securityaccessors.model.DeviceSecurityKey');
-            keyModel.getProxy().setUrl(encodeURIComponent(deviceId));
+
+
             keyModel.load(accessorId, {
                 success: function (keyRecord) {
                     me.deviceKeyRecord = keyRecord;
@@ -247,18 +305,27 @@ Ext.define('Mdc.securityaccessors.controller.DeviceSecurityAccessors', {
                 widget.down('form').setTitle( Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", me.deviceKeyRecord.get('name')) );
                 me.getApplication().fireEvent('deviceKeyLoaded', me.deviceKeyRecord);
                 me.getApplication().fireEvent('loadDevice', device);
+
+                me.getEditActiveKeyAttributesContainer().setVisible(me.deviceKeyRecord.currentPropertiesStore.data.items.length > 0);
+                me.getEditActiveKeyAttributesContainer().down('property-form').initProperties(me.deviceKeyRecord.currentProperties());
+                var tempPropertiesAvailable = me.deviceKeyRecord.tempPropertiesStore.data.items.length > 0;
+                me.getEditPassiveKeyAttributesContainer().setVisible(tempPropertiesAvailable);
+                if (tempPropertiesAvailable) {
+                    me.getEditPassiveKeyAttributesContainer().down('property-form').initProperties(me.deviceKeyRecord.tempProperties());
+                }
                 viewport.setLoading(false);
             }
         });
     },
 
     editDeviceCertificate: function(deviceId, accessorId) {
-        var me = this;
+        var me = this,
+            certificateModel = Ext.ModelManager.getModel('Mdc.securityaccessors.model.DeviceSecurityCertificate');
+
         me.deviceId = deviceId;
+        certificateModel.getProxy().setUrl(encodeURIComponent(deviceId));
 
         if (Ext.isEmpty(me.deviceCertificateRecord)) {
-            var certificateModel = Ext.ModelManager.getModel('Mdc.securityaccessors.model.DeviceSecurityCertificate');
-            certificateModel.getProxy().setUrl(encodeURIComponent(deviceId));
             certificateModel.load(accessorId, {
                 success: function (certificateRecord) {
                     me.deviceCertificateRecord = certificateRecord;
@@ -285,7 +352,206 @@ Ext.define('Mdc.securityaccessors.controller.DeviceSecurityAccessors', {
                 widget.down('form').setTitle( Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", me.deviceCertificateRecord.get('name')) );
                 me.getApplication().fireEvent('deviceCertificateLoaded', me.deviceCertificateRecord);
                 me.getApplication().fireEvent('loadDevice', device);
+
+                me.getEditActiveCertificateAttributesContainer().setVisible(me.deviceCertificateRecord.currentPropertiesStore.data.items.length > 0);
+                me.getEditActiveCertificateAttributesContainer().down('property-form').initProperties(me.deviceCertificateRecord.currentProperties());
+                var tempPropertiesAvailable = me.deviceCertificateRecord.tempPropertiesStore.data.items.length > 0;
+                me.getEditPassiveCertificateAttributesContainer().setVisible(tempPropertiesAvailable);
+                if (tempPropertiesAvailable) {
+                    me.getEditPassiveCertificateAttributesContainer().down('property-form').initProperties(me.deviceCertificateRecord.tempProperties());
+                }
                 viewport.setLoading(false);
+            }
+        });
+    },
+
+    saveKeyAttributes: function() {
+        var me = this,
+            viewport = Ext.ComponentQuery.query('viewport')[0],
+            activePropsForm = me.getEditActiveKeyAttributesContainer().down('#mdc-device-key-attributes-edit-active-attributes-property-form'),
+            passivePropsForm = me.getEditPassiveKeyAttributesContainer().down('#mdc-device-key-attributes-edit-passive-attributes-property-form'),
+            errorMsgPnl = me.getEditDeviceKeyPanel().down('uni-form-error-message'),
+            key,
+            field,
+            raw;
+
+        viewport.setLoading();
+        errorMsgPnl.hide();
+        me.deviceKeyRecord.beginEdit();
+        raw = activePropsForm.getFieldValues();
+        me.deviceKeyRecord.currentProperties().each(function (property) {
+            key = property.get('key');
+            field = activePropsForm.getPropertyField(key);
+            if (field !== undefined) {
+                var value = field.getValue(raw);
+                propertyValue = property.getPropertyValue();
+                propertyValue.set('value', value);
+                propertyValue.set('propertyHasValue', !Ext.isEmpty(value));
+            }
+        });
+        raw = passivePropsForm.getFieldValues();
+        me.deviceKeyRecord.tempProperties().each(function (property) {
+            key = property.get('key');
+            field = passivePropsForm.getPropertyField(key);
+            if (field !== undefined) {
+                var value = field.getValue(raw);
+                propertyValue = property.getPropertyValue();
+                propertyValue.set('value', value);
+                propertyValue.set('propertyHasValue', !Ext.isEmpty(value));
+            }
+        });
+        me.deviceKeyRecord.endEdit();
+
+        if (Ext.isEmpty(me.deviceKeyRecord.get('expirationTime'))) { // Don't know why this is not filled (for keys) in when I get it from the BE
+            // but when you send it back without an expirationTime field, the BE complains
+            me.deviceKeyRecord.set('expirationTime', new Date().getTime());
+        }
+        me.deviceKeyRecord.save({
+            success: function () {
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.key.saved', 'MDC', 'Key saved'));
+                me.navigateToKeysOverview();
+            },
+            failure: function(record, operation) {
+                var json = Ext.decode(operation.response.responseText, true);
+                if (json && json.errors) {
+                    Ext.each(json.errors, function (error) {
+                        var parts = error.id.split('.');
+                        if (parts[0] === 'currentProperties') {
+                            me.deviceKeyRecord.currentProperties().each(function (property) {
+                                if (parts[1] === property.get('key')) {
+                                    activePropsForm.down('[fieldLabel=' + property.name + ']').markInvalid(error.msg);
+                                    return false;
+                                }
+                            });
+                        } else if (parts[0] === 'tempProperties') {
+                            me.deviceKeyRecord.tempProperties().each(function (property) {
+                                if (parts[1] === property.get('key')) {
+                                    passivePropsForm.down('[fieldLabel='+property.name+']').markInvalid(error.msg);
+                                    return false;
+                                }
+                            });
+                        }
+                    });
+                    errorMsgPnl.show();
+                }
+            },
+            callback: function () {
+                viewport.setLoading(false);
+            }
+        });
+    },
+
+    saveCertificateAttributes: function() {
+        var me = this,
+            viewport = Ext.ComponentQuery.query('viewport')[0],
+            activePropsForm = me.getEditActiveCertificateAttributesContainer().down('#mdc-device-certificate-attributes-edit-active-attributes-property-form'),
+            passivePropsForm = me.getEditPassiveCertificateAttributesContainer().down('#mdc-device-certificate-attributes-edit-passive-attributes-property-form'),
+            errorMsgPnl = me.getEditDeviceCertificatePanel().down('uni-form-error-message'),
+            key,
+            field,
+            raw;
+
+        viewport.setLoading();
+        errorMsgPnl.hide();
+        me.deviceCertificateRecord.beginEdit();
+        raw = activePropsForm.getFieldValues();
+        me.deviceCertificateRecord.currentProperties().each(function (property) {
+            key = property.get('key');
+            field = activePropsForm.getPropertyField(key);
+            if (field !== undefined) {
+                var value = field.getValue(raw);
+                propertyValue = property.getPropertyValue();
+                propertyValue.set('value', value);
+                propertyValue.set('propertyHasValue', !Ext.isEmpty(value));
+            }
+        });
+        raw = passivePropsForm.getFieldValues();
+        me.deviceCertificateRecord.tempProperties().each(function (property) {
+            key = property.get('key');
+            field = passivePropsForm.getPropertyField(key);
+            if (field !== undefined) {
+                var value = field.getValue(raw);
+                propertyValue = property.getPropertyValue();
+                propertyValue.set('value', value);
+                propertyValue.set('propertyHasValue', !Ext.isEmpty(value));
+            }
+        });
+        me.deviceCertificateRecord.endEdit();
+        me.deviceCertificateRecord.save({
+            success: function () {
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.certificate.saved', 'MDC', 'Certificate saved'));
+                me.navigateToCertificatesOverview();
+            },
+            failure: function(record, operation) {
+                var json = Ext.decode(operation.response.responseText, true);
+                if (json && json.errors) {
+                    Ext.each(json.errors, function (error) {
+                        var parts = error.id.split('.');
+                        if (parts[0] === 'currentProperties') {
+                            me.deviceCertificateRecord.currentProperties().each(function (property) {
+                                if (parts[1] === property.get('key')) {
+                                    activePropsForm.down('[fieldLabel=' + property.name + ']').markInvalid(error.msg);
+                                    return false;
+                                }
+                            });
+                        } else if (parts[0] === 'tempProperties') {
+                            me.deviceCertificateRecord.tempProperties().each(function (property) {
+                                if (parts[1] === property.get('key')) {
+                                    passivePropsForm.down('[fieldLabel='+property.name+']').markInvalid(error.msg);
+                                    return false;
+                                }
+                            });
+                        }
+                    });
+                    errorMsgPnl.show();
+                }
+            },
+            callback: function () {
+                viewport.setLoading(false);
+            }
+        });
+    },
+
+    clearPassive: function(keyOrCertificateRecord, keyMode) {
+        var me = this,
+            url = '/api/ddr/devices/{deviceId}/securityaccessors/keys/{keyOrCertificateId}/temp',
+            title,
+            confirmMessage,
+            clearedMessage;
+
+        if (keyMode) {
+            if (Ext.isEmpty(keyOrCertificateRecord.get('expirationTime'))) { // Don't know why this is not filled (for keys) in when I get it from the BE
+                // but when you send it back without an expirationTime field, the BE complains
+                keyOrCertificateRecord.set('expirationTime', new Date().getTime());
+            }
+            title = Uni.I18n.translate('general.clearPassiveKey.title', 'MDC', "Clear passive key of '{0}'?", keyOrCertificateRecord.get('name'));
+            confirmMessage = Uni.I18n.translate('general.clearPassiveKey.msg', 'MDC', 'The passive key will no longer be available.');
+            clearedMessage = Uni.I18n.translate('general.passiveKey.cleared', 'MDC', 'Passive key cleared');
+        } else {
+            title = Uni.I18n.translate('general.clearPassiveCertificate.title', 'MDC', "Clear passive certificate of '{0}'?", keyOrCertificateRecord.get('name'));
+            confirmMessage = Uni.I18n.translate('general.clearPassiveCertificate.msg', 'MDC', 'The passive certificate will no longer be available.');
+            clearedMessage = Uni.I18n.translate('general.passiveCertificate.cleared', 'MDC', 'Passive certificate cleared');
+        }
+
+        Ext.create('Uni.view.window.Confirmation', {confirmText: Uni.I18n.translate('general.clear', 'MDC', 'Clear')}).show({
+            title: title,
+            msg: confirmMessage,
+            fn: function (action) {
+                if (action == 'confirm') {
+                    url = url.replace('{deviceId}', me.deviceId).replace('{keyOrCertificateId}', keyOrCertificateRecord.get('id'));
+                    Ext.Ajax.request({
+                        url: url,
+                        method: 'DELETE',
+                        jsonData: Ext.encode(keyOrCertificateRecord.getData()),
+                        success: function () {
+                            me.getApplication().fireEvent('acknowledge', clearedMessage);
+                            var router = me.getController('Uni.controller.history.Router'),
+                                splittedPath = router.currentRoute.split('/');
+                            splittedPath.pop();
+                            router.getRoute(splittedPath.join('/') + '/' + (keyMode ? 'keys' : 'certificates')).forward(router.arguments);
+                        }
+                    });
+                }
             }
         });
     }

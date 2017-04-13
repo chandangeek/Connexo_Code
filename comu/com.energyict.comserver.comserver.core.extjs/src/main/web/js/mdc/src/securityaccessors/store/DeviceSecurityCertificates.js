@@ -4,9 +4,9 @@
 Ext.define('Mdc.securityaccessors.store.DeviceSecurityCertificates', {
     extend: 'Ext.data.Store',
     requires: [
-        'Mdc.securityaccessors.model.DeviceSecurityAccessor'
+        'Mdc.securityaccessors.model.DeviceSecurityCertificate'
     ],
-    model: 'Mdc.securityaccessors.model.DeviceSecurityAccessor',
+    model: 'Mdc.securityaccessors.model.DeviceSecurityCertificate',
     storeId: 'DeviceSecurityCertificates',
     proxy: {
         type: 'rest',
