@@ -463,4 +463,8 @@ public class SDKDeviceProtocol implements DeviceProtocol {
         });
     }
 
+    @Override
+    public boolean supportsCommunicationFirmwareVersion() {
+        return true;
+    }
 }
