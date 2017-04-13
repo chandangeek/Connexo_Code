@@ -12,6 +12,9 @@ import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.configuration.rest.SecurityLevelInfo;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
+import com.energyict.mdc.protocol.api.security.RequestSecurityLevel;
+import com.energyict.mdc.protocol.api.security.ResponseSecurityLevel;
+import com.energyict.mdc.protocol.api.security.SecuritySuite;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -35,12 +38,19 @@ public class SecurityPropertySetInfoFactory {
         info.name = securityPropertySet.getName();
         AuthenticationDeviceAccessLevel authenticationDeviceAccessLevel = securityPropertySet.getAuthenticationDeviceAccessLevel();
         EncryptionDeviceAccessLevel encryptionDeviceAccessLevel = securityPropertySet.getEncryptionDeviceAccessLevel();
+        SecuritySuite securitySuite = securityPropertySet.getSecuritySuite();
+        RequestSecurityLevel requestSecurityLevel = securityPropertySet.getRequestSecurityLevel();
+        ResponseSecurityLevel responseSecurityLevel = securityPropertySet.getResponseSecurityLevel();
         info.authenticationLevelId = authenticationDeviceAccessLevel.getId();
-        info.encryptionLevelId = encryptionDeviceAccessLevel.getId();
         info.authenticationLevel = SecurityLevelInfo.from(authenticationDeviceAccessLevel);
+        info.encryptionLevelId = encryptionDeviceAccessLevel.getId();
         info.encryptionLevel = SecurityLevelInfo.from(encryptionDeviceAccessLevel);
-
-//        info.executionLevels = executionLevelInfoFactory.from(securityPropertySet.getUserActions(), allGroups, securityPropertySet);
+        info.securitySuiteId = securitySuite.getId();
+        info.securitySuite = SecurityLevelInfo.from(securitySuite);
+        info.requestSecurityLevelId = requestSecurityLevel.getId();
+        info.requestSecurityLevel = SecurityLevelInfo.from(requestSecurityLevel);
+        info.responseSecurityLevelId = responseSecurityLevel.getId();
+        info.responseSecurityLevel = SecurityLevelInfo.from(responseSecurityLevel);
         info.version = securityPropertySet.getVersion();
         DeviceConfiguration deviceConfiguration = securityPropertySet.getDeviceConfiguration();
         info.parent = new VersionInfo<>(deviceConfiguration.getId(), deviceConfiguration.getVersion());
