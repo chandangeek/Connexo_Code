@@ -158,8 +158,11 @@ public class ChannelResource {
     }
 
     @Path("/{channelid}/validation")
-    public ChannelValidationResource getChannelValidationResource() {
-        return channelValidationResourceProvider.get();
+    public ChannelValidationResource getChannelValidationResource(@PathParam("channelid") long channelId) {
+        return channelValidationResourceProvider.get().init(
+                device -> resourceHelper.findChannelOnDeviceOrThrowException(device, channelId).getReadingType(),
+                device -> resourceHelper.findChannelOnDeviceOrThrowException(device, channelId).getCalculatedReadingType(clock.instant())
+        );
     }
 
     @Path("/{channelid}/estimation")

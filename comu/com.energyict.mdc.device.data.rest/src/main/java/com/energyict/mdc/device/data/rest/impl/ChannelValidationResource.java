@@ -8,12 +8,11 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
-import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.validation.ValidationPropertyDefinitionLevel;
 import com.elster.jupiter.validation.ValidationRule;
-import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.ChannelValidationRuleOverriddenProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceValidation;
@@ -21,7 +20,6 @@ import com.energyict.mdc.device.data.security.Privileges;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -33,12 +31,12 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.time.Clock;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -46,20 +44,30 @@ import java.util.stream.Collectors;
 public class ChannelValidationResource {
 
     private final PropertyValueInfoService propertyValueInfoService;
-    private final Clock clock;
 
     private final ChannelValidationRuleInfoFactory channelValidationRuleInfoFactory;
+    private final ExceptionFactory exceptionFactory;
     private final ConcurrentModificationExceptionFactory concurrentModificationExceptionFactory;
     private final ResourceHelper resourceHelper;
 
+    private Function<Device, ReadingType> collectedReadingTypeProvider;
+    private Function<Device, Optional<ReadingType>> calculatedReadingTypeProvider;
+
     @Inject
-    public ChannelValidationResource(PropertyValueInfoService propertyValueInfoService, Clock clock, ChannelValidationRuleInfoFactory channelValidationRuleInfoFactory,
-                                     ConcurrentModificationExceptionFactory concurrentModificationExceptionFactory, ResourceHelper resourceHelper) {
+    public ChannelValidationResource(PropertyValueInfoService propertyValueInfoService, ChannelValidationRuleInfoFactory channelValidationRuleInfoFactory,
+                                     ExceptionFactory exceptionFactory, ConcurrentModificationExceptionFactory concurrentModificationExceptionFactory,
+                                     ResourceHelper resourceHelper) {
         this.propertyValueInfoService = propertyValueInfoService;
-        this.clock = clock;
         this.channelValidationRuleInfoFactory = channelValidationRuleInfoFactory;
+        this.exceptionFactory = exceptionFactory;
         this.concurrentModificationExceptionFactory = concurrentModificationExceptionFactory;
         this.resourceHelper = resourceHelper;
+    }
+
+    ChannelValidationResource init(Function<Device, ReadingType> collectedReadingTypeProvider, Function<Device, Optional<ReadingType>> calculatedReadingTypeProvider) {
+        this.collectedReadingTypeProvider = collectedReadingTypeProvider;
+        this.calculatedReadingTypeProvider = calculatedReadingTypeProvider;
+        return this;
     }
 
     @GET
@@ -69,14 +77,12 @@ public class ChannelValidationResource {
             Privileges.Constants.ADMINISTRATE_DEVICE,
             Privileges.Constants.ADMINISTER_VALIDATION_CONFIGURATION
     })
-    public Map<String, Object> getChannelValidationConfiguration(@PathParam("name") String name, @PathParam("channelid") long channelId,
-                                                                 @BeanParam JsonQueryParameters queryParameters) {
+    public Map<String, Object> getChannelValidationConfiguration(@PathParam("name") String name) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
-        Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(device, channelId);
         Map<String, Object> info = new HashMap<>();
-        ReadingType collectedReadingType = channel.getReadingType();
+        ReadingType collectedReadingType = this.collectedReadingTypeProvider.apply(device);
         info.put("rulesForCollectedReadingType", getReadingTypeValidationConfigurationInfos(device, collectedReadingType));
-        channel.getCalculatedReadingType(clock.instant()).ifPresent(calculatedReadingType ->
+        this.calculatedReadingTypeProvider.apply(device).ifPresent(calculatedReadingType ->
                 info.put("rulesForCalculatedReadingType", getReadingTypeValidationConfigurationInfos(device, calculatedReadingType)));
         return info;
     }
@@ -105,13 +111,21 @@ public class ChannelValidationResource {
             Privileges.Constants.ADMINISTRATE_DEVICE,
             Privileges.Constants.ADMINISTER_VALIDATION_CONFIGURATION
     })
-    public ChannelValidationRuleInfo getChannelValidationRuleById(@PathParam("name") String name, @PathParam("channelid") long channelId, @PathParam("ruleId") long ruleId,
-                                                                  @QueryParam("readingType") String readingTypeMrid, @BeanParam JsonQueryParameters queryParameters) {
+    public ChannelValidationRuleInfo getChannelValidationRuleById(@PathParam("name") String name, @PathParam("ruleId") long ruleId, @QueryParam("readingType") String readingTypeMrid) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
-        Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(device, channelId);
-        ReadingType readingType = resourceHelper.findChannelReadingTypeOrThrowException(channel, readingTypeMrid);
+        ReadingType readingType = this.findReadingTypeOrThrowException(device, readingTypeMrid);
         ValidationRule validationRule = resourceHelper.findValidationRuleOrThrowException(ruleId);
         return asInfo(validationRule, readingType, device.forValidation());
+    }
+
+    private ReadingType findReadingTypeOrThrowException(Device device, String readingTypeMrid) {
+        ReadingType collected = this.collectedReadingTypeProvider.apply(device);
+        if (collected.getMRID().equals(readingTypeMrid)) {
+            return collected;
+        }
+        return this.calculatedReadingTypeProvider.apply(device)
+                .filter(readingType -> readingType.getMRID().equals(readingTypeMrid))
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_READINGTYPE_ON_CHANNEL, readingTypeMrid));
     }
 
     @POST
@@ -119,11 +133,9 @@ public class ChannelValidationResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTER_VALIDATION_CONFIGURATION})
-    public Response overrideChannelValidationRuleProperties(@PathParam("name") String name, @PathParam("channelid") long channelId,
-                                                            ChannelValidationRuleInfo channelValidationRuleInfo) {
+    public Response overrideChannelValidationRuleProperties(@PathParam("name") String name, ChannelValidationRuleInfo channelValidationRuleInfo) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
-        Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(device, channelId);
-        ReadingType readingType = resourceHelper.findChannelReadingTypeOrThrowException(channel, channelValidationRuleInfo.readingType.mRID);
+        ReadingType readingType = this.findReadingTypeOrThrowException(device, channelValidationRuleInfo.readingType.mRID);
         ValidationRule validationRule = resourceHelper.findValidationRuleOrThrowException(channelValidationRuleInfo.ruleId);
 
         DeviceValidation.PropertyOverrider propertyOverrider = device.forValidation().overridePropertiesFor(validationRule, readingType);
@@ -150,11 +162,10 @@ public class ChannelValidationResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTER_VALIDATION_CONFIGURATION})
-    public Response editChannelValidationRuleOverriddenProperties(@PathParam("name") String name, @PathParam("channelid") long channelId,
-                                                                  @PathParam("ruleId") long ruleId, ChannelValidationRuleInfo channelValidationRuleInfo) {
+    public Response editChannelValidationRuleOverriddenProperties(@PathParam("name") String name, @PathParam("ruleId") long ruleId,
+                                                                  ChannelValidationRuleInfo channelValidationRuleInfo) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
-        Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(device, channelId);
-        ReadingType readingType = resourceHelper.findChannelReadingTypeOrThrowException(channel, channelValidationRuleInfo.readingType.mRID);
+        ReadingType readingType = this.findReadingTypeOrThrowException(device, channelValidationRuleInfo.readingType.mRID);
         ValidationRule validationRule = resourceHelper.findValidationRuleOrThrowException(channelValidationRuleInfo.ruleId);
         DeviceValidation deviceValidation = device.forValidation();
         ChannelValidationRuleOverriddenProperties channelValidationRule = deviceValidation
@@ -183,11 +194,10 @@ public class ChannelValidationResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTER_VALIDATION_CONFIGURATION})
-    public Response restoreChannelValidationRuleOverriddenProperties(@PathParam("name") String name, @PathParam("channelid") long channelId,
-                                                                     @PathParam("ruleId") long ruleId, ChannelValidationRuleInfo channelValidationRuleInfo) {
+    public Response restoreChannelValidationRuleOverriddenProperties(@PathParam("name") String name, @PathParam("ruleId") long ruleId,
+                                                                     ChannelValidationRuleInfo channelValidationRuleInfo) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
-        Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(device, channelId);
-        ReadingType readingType = resourceHelper.findChannelReadingTypeOrThrowException(channel, channelValidationRuleInfo.readingType.mRID);
+        ReadingType readingType = this.findReadingTypeOrThrowException(device, channelValidationRuleInfo.readingType.mRID);
         ValidationRule validationRule = resourceHelper.findValidationRuleOrThrowException(channelValidationRuleInfo.ruleId);
         DeviceValidation deviceValidation = device.forValidation();
         ChannelValidationRuleOverriddenProperties channelValidationRule = deviceValidation

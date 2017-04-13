@@ -61,7 +61,7 @@ public class RegisterResource {
     private final ResourceHelper resourceHelper;
     private final Provider<RegisterDataResource> registerDataResourceProvider;
     private final Provider<RegisterHistoryDataResource> registerHistoryDataResourceProvider;
-    private final Provider<RegisterValidationResource> registerValidationResourceProvider;
+    private final Provider<ChannelValidationResource> channelValidationResourceProvider;
     private final ValidationInfoHelper validationInfoHelper;
     private final DeviceDataInfoFactory deviceDataInfoFactory;
     private final TopologyService topologyService;
@@ -70,14 +70,14 @@ public class RegisterResource {
 
     @Inject
     public RegisterResource(ExceptionFactory exceptionFactory, ResourceHelper resourceHelper, Provider<RegisterDataResource> registerDataResourceProvider,
-                            Provider<RegisterHistoryDataResource> registerHistoryDataResourceProvider, Provider<RegisterValidationResource> registerValidationResourceProvider,
+                            Provider<RegisterHistoryDataResource> registerHistoryDataResourceProvider, Provider<ChannelValidationResource> channelValidationResourceProvider,
                             ValidationInfoHelper validationInfoHelper, Clock clock, DeviceDataInfoFactory deviceDataInfoFactory, TopologyService topologyService,
                             MasterDataService masterDataService) {
         this.exceptionFactory = exceptionFactory;
         this.resourceHelper = resourceHelper;
         this.registerDataResourceProvider = registerDataResourceProvider;
         this.registerHistoryDataResourceProvider = registerHistoryDataResourceProvider;
-        this.registerValidationResourceProvider = registerValidationResourceProvider;
+        this.channelValidationResourceProvider = channelValidationResourceProvider;
         this.clock = clock;
         this.validationInfoHelper = validationInfoHelper;
         this.deviceDataInfoFactory = deviceDataInfoFactory;
@@ -264,7 +264,8 @@ public class RegisterResource {
                             .collect(Collectors.toList());
                     List<ReadingInfo> infoList = deviceDataInfoFactory.asReadingsInfoList(readings, register1, device.forValidation()
                             .isValidationActive(register1, this.clock.instant()), registers.contains(register1) ? null : register1.getDevice());
-                    infoList.stream().forEach(readingInfo -> readingInfo.register = new IdWithNameInfo(register1.getRegisterSpecId(), register1.getReadingType().getFullAliasName()));
+                    infoList.stream()
+                            .forEach(readingInfo -> readingInfo.register = new IdWithNameInfo(register1.getRegisterSpecId(), register1.getReadingType().getFullAliasName()));
                     Collections.sort(infoList, (ri1, ri2) -> ri2.timeStamp.compareTo(ri1.timeStamp));
                     return infoList;
                 })
@@ -483,8 +484,11 @@ public class RegisterResource {
     }
 
     @Path("/{registerId}/validation")
-    public RegisterValidationResource getRegisterValidationResource() {
-        return registerValidationResourceProvider.get();
+    public ChannelValidationResource getRegisterValidationResource(@PathParam("registerId") long registerId) {
+        return channelValidationResourceProvider.get().init(
+                device -> resourceHelper.findRegisterOnDeviceOrThrowException(device, registerId).getReadingType(),
+                device -> resourceHelper.findRegisterOnDeviceOrThrowException(device, registerId).getCalculatedReadingType(clock.instant())
+        );
     }
 
     @Path("{registerId}/validationstatus")

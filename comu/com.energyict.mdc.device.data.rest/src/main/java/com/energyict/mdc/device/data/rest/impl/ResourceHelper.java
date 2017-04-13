@@ -1191,15 +1191,6 @@ public class ResourceHelper {
                 channel.getCalculatedReadingType(clock.instant()).map(Stream::of).orElse(Stream.empty()))
                 .filter(readingType -> readingType.getMRID().equals(readingTypeMrid))
                 .findAny()
-                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_READINGTYPE_ON_CHANNEL, channel.getId(), readingTypeMrid));
-    }
-
-    public ReadingType findRegisterReadingTypeOrThrowException(Register<?, ?> register, String readingTypeMrid) {
-        return Stream.concat(
-                Stream.of(register.getReadingType()),
-                register.getCalculatedReadingType(clock.instant()).map(Stream::of).orElse(Stream.empty()))
-                .filter(readingType -> readingType.getMRID().equals(readingTypeMrid))
-                .findAny()
-                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_READINGTYPE_ON_CHANNEL, register.getRegisterSpecId(), readingTypeMrid));
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_READINGTYPE_ON_CHANNEL, readingTypeMrid));
     }
 }

@@ -188,8 +188,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
                 EstimationErrorExceptionMapper.class,
                 EstimatorPropertiesExceptionMapper.class,
                 ChannelValidationResource.class,
-                ChannelEstimationResource.class,
-                RegisterValidationResource.class
+                ChannelEstimationResource.class
         );
     }
 
