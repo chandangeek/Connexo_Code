@@ -21,6 +21,13 @@ public class SecurityPropertySetInfo {
     public SecurityLevelInfo authenticationLevel;
     @JsonProperty("encryptionLevel")
     public SecurityLevelInfo encryptionLevel;
+    @JsonProperty("securitySuite")
+    public SecurityLevelInfo securitySuite;
+    @JsonProperty("requestSecurityLevel")
+    public SecurityLevelInfo requestSecurityLevel;
+    @JsonProperty("responseSecurityLevel")
+    public SecurityLevelInfo responseSecurityLevel;
+
     public IdWithNameInfo status;
 
     public List<PropertyInfo> properties;

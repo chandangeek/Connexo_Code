@@ -70,6 +70,9 @@ public class SecurityPropertySetInfoFactory {
         info.name = securityPropertySet.getName();
         info.authenticationLevel = SecurityLevelInfo.from(securityPropertySet.getAuthenticationDeviceAccessLevel());
         info.encryptionLevel = SecurityLevelInfo.from(securityPropertySet.getEncryptionDeviceAccessLevel());
+        info.securitySuite = SecurityLevelInfo.from(securityPropertySet.getSecuritySuite());
+        info.requestSecurityLevel = SecurityLevelInfo.from(securityPropertySet.getRequestSecurityLevel());
+        info.responseSecurityLevel = SecurityLevelInfo.from(securityPropertySet.getResponseSecurityLevel());
 
         List<SecurityProperty> securityProperties = device.getSecurityProperties(securityPropertySet);
         TypedProperties typedProperties = this.toTypedProperties(securityProperties);
