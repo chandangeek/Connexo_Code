@@ -10,11 +10,12 @@ Ext.define('Mdc.model.DeviceSecuritySetting', {
     fields: [
         {name: 'id', type: 'int', useNull: true},
         {name: 'name', type: 'string', useNull: true},
+        {name: 'securitySuite', type: 'auto', useNull: true},
         {name: 'authenticationLevel', type: 'auto', useNull: true},
         {name: 'encryptionLevel', type: 'auto', useNull: true},
+        {name: 'requestSecurityLevel', type: 'auto', useNull: true},
+        {name: 'responseSecurityLevel', type: 'auto', useNull: true},
         {name: 'status', type: 'auto', useNull: true},
-        {name: 'userHasEditPrivilege', type: 'boolean', useNull: true},
-        {name: 'userHasViewPrivilege', type: 'boolean', useNull: true},
         {name: 'saveAsIncomplete', type: 'boolean', userNull: true}
     ],
 

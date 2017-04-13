@@ -15,6 +15,8 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingSetup', {
         'Uni.util.FormEmptyMessage'
     ],
 
+    hasSecuritySuites: undefined,
+
     initComponent: function () {
         var me = this;
 
@@ -51,6 +53,15 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingSetup', {
                         emptyComponent: this.getEmptyComponent(),
                         previewComponent: {
                             xtype: 'deviceSecuritySettingPreview'
+                        },
+                        onLoad: function (store, records, successful) {
+                            var securitySuite = false;
+                            if(store.count() > 0) {
+                                securitySuite = records[0].get('securitySuite')['id'] !== -1;
+                            }
+                            me.down('#deviceSecuritySettingSetupPanel preview-container deviceSecuritySettingGrid').updateColumns(securitySuite);
+                            me.down('#deviceSecuritySettingSetupPanel preview-container deviceSecuritySettingPreview').updateColumns(securitySuite);
+                            Uni.view.container.PreviewContainer.prototype.onLoad.call(this, store, records, successful);
                         }
                     }
                 ]

@@ -28,7 +28,17 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingGrid', {
                 flex: 2
             },
             {
+                header: Uni.I18n.translate('securitySetting.securitySuite', 'MDC', 'Security suite'),
+                itemId: 'mdc-deviceSecuritySettingGrid-securitySuite',
+                dataIndex: 'securitySuite',
+                flex: 3,
+                renderer: function (value) {
+                    return Ext.String.htmlEncode(value.name);
+                }
+            },
+            {
                 header: Uni.I18n.translate('deviceSecuritySetting.authenticationLevel', 'MDC', 'Authentication level'),
+                itemId: 'mdc-deviceSecuritySettingGrid-authenticationLevel',
                 dataIndex: 'authenticationLevel',
                 flex: 3,
                 renderer: function (value) {
@@ -37,7 +47,26 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingGrid', {
             },
             {
                 header: Uni.I18n.translate('deviceSecuritySetting.encryptionLevel', 'MDC', 'Encryption level'),
+                itemId: 'mdc-deviceSecuritySettingGrid-encryptionLevel',
                 dataIndex: 'encryptionLevel',
+                flex: 3,
+                renderer: function (value) {
+                    return Ext.String.htmlEncode(value.name);
+                }
+            },
+            {
+                header: Uni.I18n.translate('securitySetting.requestSecurityLevel', 'MDC', 'Request security level'),
+                itemId: 'mdc-deviceSecuritySettingGrid-requestSecurityLevel',
+                dataIndex: 'requestSecurityLevel',
+                flex: 3,
+                renderer: function (value) {
+                    return Ext.String.htmlEncode(value.name);
+                }
+            },
+            {
+                header: Uni.I18n.translate('securitySetting.responseSecurityLevel', 'MDC', 'Response security level'),
+                itemId: 'mdc-deviceSecuritySettingGrid-responseSecurityLevel',
+                dataIndex: 'responseSecurityLevel',
                 flex: 3,
                 renderer: function (value) {
                     return Ext.String.htmlEncode(value.name);
@@ -54,13 +83,10 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingGrid', {
             {
                 xtype: 'uni-actioncolumn',
                 width: 120,
-                privileges:Mdc.privileges.DeviceSecurity.viewOrEditLevels,
+                privileges: Mdc.privileges.DeviceSecurity.viewOrEditLevels,
                 menu: {
                     xtype: 'device-security-setting-action-menu',
                     itemId: 'deviceSecurityGridMenu'
-                },
-                isDisabled: function(view, rowIndex, colIndex, item, record) {
-                    return !record.data.userHasEditPrivilege
                 }
             }
         ];
@@ -83,6 +109,12 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingGrid', {
         ];
 
         me.callParent();
+    },
+
+    updateColumns: function (securitySuite) {
+        this.down('#mdc-deviceSecuritySettingGrid-securitySuite').setVisible(securitySuite);
+        this.down('#mdc-deviceSecuritySettingGrid-requestSecurityLevel').setVisible(securitySuite);
+        this.down('#mdc-deviceSecuritySettingGrid-responseSecurityLevel').setVisible(securitySuite);
     }
 });
 

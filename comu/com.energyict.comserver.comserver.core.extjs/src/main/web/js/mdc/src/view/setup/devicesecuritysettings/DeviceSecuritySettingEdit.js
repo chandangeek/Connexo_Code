@@ -119,6 +119,7 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingEdit', {
                                 xtype: 'displayfield',
                                 fieldLabel: Uni.I18n.translate('deviceSecuritySetting.authenticationLevel', 'MDC', 'Authentication level'),
                                 name: 'authenticationLevel',
+                                itemId: 'mdc-deviceSecuritySettingEdit-authenticationLevel',
                                 renderer: function (value) {
                                     return Ext.String.htmlEncode(value.name);
                                 }
@@ -127,12 +128,48 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingEdit', {
                                 xtype: 'displayfield',
                                 fieldLabel: Uni.I18n.translate('deviceSecuritySetting.encryptionLevel', 'MDC', 'Encryption level'),
                                 name: 'encryptionLevel',
+                                itemId: 'mdc-deviceSecuritySettingEdit-encryptionLevel',
+                                renderer: function (value) {
+                                    return Ext.String.htmlEncode(value.name);
+                                }
+                            },
+                            {
+                                xtype: 'displayfield',
+                                fieldLabel: Uni.I18n.translate('securitySetting.securitySuite', 'MDC', 'Security suite'),
+                                name: 'securitySuite',
+                                itemId: 'mdc-deviceSecuritySettingEdit-securitySuite',
+                                renderer: function (value) {
+                                    return Ext.String.htmlEncode(value.name);
+
+                                }
+                            },
+                            {
+                                xtype: 'displayfield',
+                                fieldLabel: Uni.I18n.translate('securitySetting.requestSecurityLevel', 'MDC', 'Request security level'),
+                                name: 'requestSecurityLevel',
+                                itemId: 'mdc-deviceSecuritySettingEdit-requestSecurityLevel',
+                                renderer: function (value) {
+                                    return Ext.String.htmlEncode(value.name);
+                                }
+                            },
+                            {
+                                xtype: 'displayfield',
+                                fieldLabel: Uni.I18n.translate('securitySetting.responseSecurityLevel', 'MDC', 'Response security level'),
+                                name: 'responseSecurityLevel',
+                                itemId: 'mdc-deviceSecuritySettingEdit-responseSecurityLevel',
                                 renderer: function (value) {
                                     return Ext.String.htmlEncode(value.name);
                                 }
                             }
 
-                        ]
+                        ],
+                        loadRecord: function (record) {
+                            var hasSecuritySuiteSupport = record.get('securitySuite')['id'] !== -1;
+                            this.down('#mdc-deviceSecuritySettingEdit-securitySuite').setVisible(hasSecuritySuiteSupport);
+                            this.down('#mdc-deviceSecuritySettingEdit-requestSecurityLevel').setVisible(hasSecuritySuiteSupport);
+                            this.down('#mdc-deviceSecuritySettingEdit-responseSecurityLevel').setVisible(hasSecuritySuiteSupport);
+                            this.getForm().loadRecord(record);
+                        }
                     },
                     {
                         xtype: 'form',
@@ -143,7 +180,7 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingEdit', {
                             {
                                 xtype: 'displayfield',
                                 fieldLabel: Uni.I18n.translate('general.attributes', 'MDC', 'Attributes'),
-                                renderer: function() {
+                                renderer: function () {
                                     return ''; // No dash!
                                 }
                             }

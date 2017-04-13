@@ -49,7 +49,7 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingForm', {
                             required: true,
                             regex: /[a-zA-Z0-9]+/,
                             allowBlank: false,
-                            fieldLabel: Uni.I18n.translate('general.name','MDC','Name'),
+                            fieldLabel: Uni.I18n.translate('general.name', 'MDC', 'Name'),
                             msgTarget: 'under'
                         },
                         {
@@ -57,10 +57,24 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingForm', {
                             required: true,
                             editable: false,
                             allowBlank: false,
-                            itemId: 'authCombobox',
-                            fieldLabel: Uni.I18n.translate('securitySetting.authenticationLevel','MDC','Authentication level'),
+                            itemId: 'securitySuiteCombobox',
+                            fieldLabel: Uni.I18n.translate('securitySetting.securitySuite', 'MDC', 'Security suite'),
                             queryMode: 'remote',
-                            emptyText: Uni.I18n.translate('securitySettingForm.selectAuthenticationLevel','MDC','Select authentication level'),  //'Select authentication level',
+                            emptyText: Uni.I18n.translate('securitySettingForm.selectSecuritySuite', 'MDC', 'Select security suite'),
+                            name: 'securitySuiteId',
+                            displayField: 'name',
+                            valueField: 'id',
+                            store: 'SecuritySuites'
+                        },
+                        {
+                            xtype: 'combobox',
+                            required: true,
+                            editable: false,
+                            allowBlank: false,
+                            itemId: 'authCombobox',
+                            fieldLabel: Uni.I18n.translate('securitySetting.authenticationLevel', 'MDC', 'Authentication level'),
+                            queryMode: 'remote',
+                            emptyText: Uni.I18n.translate('securitySettingForm.selectAuthenticationLevel', 'MDC', 'Select authentication level'),  //'Select authentication level',
                             name: 'authenticationLevelId',
                             displayField: 'name',
                             valueField: 'id',
@@ -74,19 +88,64 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingForm', {
                             itemId: 'encrCombobox',
                             fieldLabel: Uni.I18n.translate('securitySetting.encryptionLevel', 'MDC', 'Encryption level'),
                             queryMode: 'remote',
-                            emptyText: Uni.I18n.translate('securitySettingForm.selectEncryptionLevel','MDC','Select encryption level'),
+                            emptyText: Uni.I18n.translate('securitySettingForm.selectEncryptionLevel', 'MDC', 'Select encryption level'),
                             name: 'encryptionLevelId',
                             displayField: 'name',
                             valueField: 'id',
                             store: 'EncryptionLevels'
+                        },
+                        {
+                            xtype: 'combobox',
+                            required: true,
+                            editable: false,
+                            allowBlank: false,
+                            itemId: 'requestSecurityCombobox',
+                            fieldLabel: Uni.I18n.translate('securitySetting.requestSecurityLevel', 'MDC', 'Request security level'),
+                            queryMode: 'remote',
+                            emptyText: Uni.I18n.translate('securitySettingForm.selectRequestSecurityLevel', 'MDC', 'Select request security level'),
+                            name: 'requestSecurityLevelId',
+                            displayField: 'name',
+                            valueField: 'id',
+                            store: 'RequestSecurityLevels'
+                        },
+                        {
+                            xtype: 'combobox',
+                            required: true,
+                            editable: false,
+                            allowBlank: false,
+                            itemId: 'responseSecurityCombobox',
+                            fieldLabel: Uni.I18n.translate('securitySetting.responseSecurityLevel', 'MDC', 'Response security level'),
+                            queryMode: 'remote',
+                            emptyText: Uni.I18n.translate('securitySettingForm.selectResponseSecurityLevel', 'MDC', 'Select response security level'),
+                            name: 'responseSecurityLevelId',
+                            displayField: 'name',
+                            valueField: 'id',
+                            store: 'ResponseSecurityLevels'
                         }
 
                     ],
                     loadRecord: function (record) {
                         //set current xxx levels in the stores
+                        this.getForm().findField('securitySuiteId').getStore().add(record.get('securitySuite'));
                         this.getForm().findField('authenticationLevelId').getStore().add(record.get('authenticationLevel'));
                         this.getForm().findField('encryptionLevelId').getStore().add(record.get('encryptionLevel'));
+                        this.getForm().findField('requestSecurityLevelId').getStore().add(record.get('requestSecurityLevel'));
+                        this.getForm().findField('responseSecurityLevelId').getStore().add(record.get('responseSecurityLevel'));
+
                         this.getForm().loadRecord(record);
+                    }
+                },
+                {
+                    xtype: 'form',
+                    border: false,
+                    itemId: 'SecuritySettingsAddEditButtonForm',
+                    layout: {
+                        type: 'vbox',
+                        align: 'stretch'
+                    },
+                    width: '100%',
+                    defaults: {
+                        labelWidth: 250
                     },
                     buttons: [
                         {
@@ -99,6 +158,7 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingForm', {
                         }
                     ]
                 }
+
             ]
         }
     ],
@@ -106,6 +166,11 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingForm', {
     initComponent: function () {
         this.callParent(this);
         Ext.suspendLayouts();
+        var securitySuiteStore = this.down('#securitySuiteCombobox').getStore();
+        var proxy = securitySuiteStore.getProxy();
+        proxy.setExtraParam('deviceType', this.deviceTypeId);
+        proxy.setExtraParam('deviceConfig', this.deviceConfigurationId);
+
         var authenticationLevelStore = this.down('#authCombobox').getStore();
         var proxy = authenticationLevelStore.getProxy();
         proxy.setExtraParam('deviceType', this.deviceTypeId);
@@ -113,6 +178,16 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingForm', {
 
         var encryptionLevelStore = this.down('#encrCombobox').getStore();
         proxy = encryptionLevelStore.getProxy();
+        proxy.setExtraParam('deviceType', this.deviceTypeId);
+        proxy.setExtraParam('deviceConfig', this.deviceConfigurationId);
+
+        var requestSecurityLevelStore = this.down('#requestSecurityCombobox').getStore();
+        proxy = requestSecurityLevelStore.getProxy();
+        proxy.setExtraParam('deviceType', this.deviceTypeId);
+        proxy.setExtraParam('deviceConfig', this.deviceConfigurationId);
+
+        var responseSecurityLevelStore = this.down('#responseSecurityCombobox').getStore();
+        proxy = responseSecurityLevelStore.getProxy();
         proxy.setExtraParam('deviceType', this.deviceTypeId);
         proxy.setExtraParam('deviceConfig', this.deviceConfigurationId);
 

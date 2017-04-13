@@ -41,7 +41,7 @@ Ext.define('Mdc.controller.setup.DeviceSecuritySettings', {
             '#devicesecuritysettinggrid actioncolumn': {
                 editDeviceSecuritySetting: this.editDeviceSecuritySettingHistory,
                 showValueDeviceSecuritySetting: this.showValues,
-                hideValueDeviceSecuritySetting:  this.hideValues
+                hideValueDeviceSecuritySetting: this.hideValues
             },
             '#deviceSecuritySettingPreview menuitem[action=editDeviceSecuritySetting]': {
                 click: this.editDeviceSecuritySettingHistoryFromPreview
@@ -61,23 +61,23 @@ Ext.define('Mdc.controller.setup.DeviceSecuritySettings', {
             '#deviceSecuritySettingPreview menuitem[action=hideValueDeviceSecuritySetting]': {
                 click: this.hideValues
             },
-            '#deviceSecuritySettingEdit checkbox' :{
+            '#deviceSecuritySettingEdit checkbox': {
                 change: this.showValueInEdit
             }
         });
     },
 
-    showValues: function() {
+    showValues: function () {
         this.showPropertyValues(true);
     },
 
-    hideValues: function() {
+    hideValues: function () {
         this.showPropertyValues(false);
     },
 
     showDeviceSecuritySettings: function (deviceId) {
         var me = this,
-            viewport = Ext.ComponentQuery.query('viewport')[0];
+        viewport = Ext.ComponentQuery.query('viewport')[0];
 
         this.deviceId = deviceId;
 
@@ -110,24 +110,7 @@ Ext.define('Mdc.controller.setup.DeviceSecuritySettings', {
             if (deviceSecuritySetting[0].propertiesStore.data.items.length > 0) {
                 me.getDeviceSecuritySettingPreview().down('property-form').readOnly = true;
                 me.getDeviceSecuritySettingPreview().down('property-form').loadRecord(deviceSecuritySetting[0]);
-                if (deviceSecuritySetting[0].get('userHasViewPrivilege') || deviceSecuritySetting[0].get('userHasEditPrivilege')) {
-                    me.getDeviceSecuritySettingPreviewTitle().setVisible(true);
-                } else {
-                    me.getDeviceSecuritySettingPreviewTitle().setVisible(false);
-                }
-                if (!deviceSecuritySetting[0].get('userHasEditPrivilege')) {
-                    if (me.getDeviceSecuritySettingPreview().getHeader().down('button')) {
-                        me.getDeviceSecuritySettingPreview().getHeader().down('button').hide();
-                    }
-                } else {
-                    if (me.getDeviceSecuritySettingPreview().getHeader().down('button')) {
-                        me.getDeviceSecuritySettingPreview().getHeader().down('button').setVisible(true);
-                    }
-
-                    if (deviceSecuritySetting[0].get('userHasViewPrivilege')) {
-                        me.showPropertyValues(false);
-                    }
-                }
+                me.getDeviceSecuritySettingPreviewTitle().setVisible(true);
             } else {
                 me.getDeviceSecuritySettingPreviewTitle().setVisible(false);
             }
@@ -178,8 +161,8 @@ Ext.define('Mdc.controller.setup.DeviceSecuritySettings', {
                 var json = Ext.decode(operation.response.responseText);
                 if (json && json.errors) {
                     if (json.errors.every(function (error) {
-                        return error.id === 'status'
-                    })) {
+                            return error.id === 'status'
+                        })) {
                         Ext.create('Uni.view.window.Confirmation', {
                             confirmText: Uni.I18n.translate('general.yes', 'MDC', 'Yes'),
                             cancelText: Uni.I18n.translate('general.no', 'MDC', 'No')
@@ -231,7 +214,7 @@ Ext.define('Mdc.controller.setup.DeviceSecuritySettings', {
                         me.getApplication().fireEvent('changecontentevent', widget);
                         widget.setLoading(true);
 
-                        var title = Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'",[deviceSecuritySetting.get('name')]);
+                        var title = Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", [deviceSecuritySetting.get('name')]);
                         widget.down('#deviceSecuritySettingEditAddTitle').setTitle(title);
                         var generalForm = widget.down('#deviceSecuritySettingEditForm');
                         generalForm.loadRecord(deviceSecuritySetting);
@@ -239,41 +222,10 @@ Ext.define('Mdc.controller.setup.DeviceSecuritySettings', {
                         form.inputType = 'password';
                         form.passwordAsTextComponent = true;
                         if (deviceSecuritySetting.properties().count()) {
-                            if (deviceSecuritySetting.get('userHasViewPrivilege') && deviceSecuritySetting.get('userHasEditPrivilege')) {
-                                widget.down('#device-security-setting-show-value').setVisible(true);
-                                form.userHasEditPrivilege = true;
-                                form.userHasViewPrivilege = true;
-                                form.show();
-                                form.loadRecord(deviceSecuritySetting);
-                                me.getDeviceSecuritySettingDetailTitle().setVisible(true);
-                                //widget.down('#editDeviceSecuritySetting').setVisible(false);
-                                //widget.down('#showValueDeviceSecuritySetting').setVisible(true);
-                                //widget.down('#hideValueDeviceSecuritySetting').setVisible(false);
-                            } else if (!deviceSecuritySetting.get('userHasViewPrivilege') && deviceSecuritySetting.get('userHasEditPrivilege')) {
-                                widget.down('#device-security-setting-show-value').setVisible(false);
-                                form.userHasEditPrivilege = true;
-                                form.userHasViewPrivilege = false;
-                                form.show();
-                                form.loadRecord(deviceSecuritySetting);
-                                me.getDeviceSecuritySettingDetailTitle().setVisible(true);
-                            } else if (deviceSecuritySetting.get('userHasViewPrivilege') && !deviceSecuritySetting.get('userHasEditPrivilege')) {
-                                // only view
-                                widget.down('#device-security-setting-show-value').setVisible(false);
-                                form.userHasEditPrivilege = false;
-                                form.userHasViewPrivilege = true;
-                                form.isReadOnly = true;
-                                form.show();
-                                me.getRestoreAllButton().hide();
-                                me.getAddEditButton().hide();
-                                form.loadRecord(deviceSecuritySetting);
-                                me.getDeviceSecuritySettingDetailTitle().setVisible(true);
-                            } else {
-                                widget.down('#device-security-setting-show-value').setVisible(false);
-                                form.hide();
-                                me.getRestoreAllButton().hide();
-                                me.getAddEditButton().hide();
-                                me.getDeviceSecuritySettingDetailTitle().setVisible(false);
-                            }
+                            widget.down('#device-security-setting-show-value').setVisible(true);
+                            form.show();
+                            form.loadRecord(deviceSecuritySetting);
+                            me.getDeviceSecuritySettingDetailTitle().setVisible(true);
                         } else {
                             form.hide();
                             var showValuesForm = widget.down('#deviceSecuritySettingEditShowValuesForm');
@@ -283,7 +235,6 @@ Ext.define('Mdc.controller.setup.DeviceSecuritySettings', {
                             me.getDeviceSecuritySettingDetailTitle().setVisible(false);
                         }
 
-
                         widget.setLoading(false);
                     }
                 });
@@ -291,7 +242,7 @@ Ext.define('Mdc.controller.setup.DeviceSecuritySettings', {
         });
     },
 
-    showRestoreAllBtn: function(value) {
+    showRestoreAllBtn: function (value) {
         var restoreBtn = this.getRestoreAllButton();
         if (restoreBtn) {
             if (value) {
@@ -331,7 +282,7 @@ Ext.define('Mdc.controller.setup.DeviceSecuritySettings', {
         this.getDeviceSecuritySettingPreviewForm().focus();
     },
 
-    showValueInEdit: function (field, newValue, oldValue, options){
+    showValueInEdit: function (field, newValue, oldValue, options) {
         var me = this;
         if (newValue) {
             me.getDeviceSecuritySettingEditView().down('property-form').showValues();

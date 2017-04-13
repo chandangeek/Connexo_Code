@@ -2,17 +2,17 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-Ext.define('Mdc.store.EncryptionLevels', {
+Ext.define('Mdc.store.SecuritySuites', {
     extend: 'Ext.data.Store',
-    storeId: 'encryptionLevels',
+    storeId: 'securitySuites',
     requires: [
-        'Mdc.model.EncryptionLevel'
+        'Mdc.model.SecuritySuite'
     ],
-    model: 'Mdc.model.EncryptionLevel',
+    model: 'Mdc.model.SecuritySuite',
     autoLoad: false,
     proxy: {
         type: 'rest',
-        urlTpl: '/api/dtc/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigId}/securityproperties/enclevels',
+        urlTpl: '/api/dtc/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigId}/securityproperties/securitysuites',
         reader: {
             type: 'json',
             root: 'data'
@@ -21,8 +21,9 @@ Ext.define('Mdc.store.EncryptionLevels', {
         startParam: false,
         limitParam: false,
 
-        setUrl: function (deviceTypeId, deviceConfigId) {
+        setUrl: function(deviceTypeId, deviceConfigId) {
             this.url = this.urlTpl.replace('{deviceTypeId}', deviceTypeId).replace('{deviceConfigId}', deviceConfigId);
         }
+
     }
 });
