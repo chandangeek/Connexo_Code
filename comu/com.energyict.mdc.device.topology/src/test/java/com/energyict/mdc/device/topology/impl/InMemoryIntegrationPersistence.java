@@ -5,6 +5,7 @@
 package com.energyict.mdc.device.topology.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
@@ -193,6 +194,7 @@ public class InMemoryIntegrationPersistence {
                 new PartyModule(),
                 new UserModule(),
                 new IdsModule(),
+                new BpmModule(),
                 new UsagePointLifeCycleConfigurationModule(),
                 new MeteringModule(
                          "0.0.0.0.0.41.92.0.0.0.0.0.0.0.0.0.114.0"
