@@ -160,7 +160,7 @@ public class ChannelEstimationResource {
         ChannelEstimationRuleOverriddenProperties channelEstimationRule = deviceEstimation
                 .findAndLockChannelEstimationRuleOverriddenProperties(channelEstimationRuleInfo.id, channelEstimationRuleInfo.version)
                 .orElseThrow(concurrentModificationExceptionFactory.contextDependentConflictOn(estimationRule.getDisplayName())
-                        .withActualVersion(getActualVersionOfChannelValidationRule(deviceEstimation, estimationRule, readingType)).supplier());
+                        .withActualVersion(getActualVersionOfChannelEstimationRule(deviceEstimation, estimationRule, readingType)).supplier());
 
         Map<String, Object> overriddenProperties = estimationRule.getPropertySpecs(EstimationPropertyDefinitionLevel.TARGET_OBJECT)
                 .stream()
@@ -193,12 +193,12 @@ public class ChannelEstimationResource {
         ChannelEstimationRuleOverriddenProperties channelEstimationRule = deviceEstimation
                 .findAndLockChannelEstimationRuleOverriddenProperties(channelEstimationRuleInfo.id, channelEstimationRuleInfo.version)
                 .orElseThrow(concurrentModificationExceptionFactory.contextDependentConflictOn(estimationRule.getDisplayName())
-                        .withActualVersion(getActualVersionOfChannelValidationRule(deviceEstimation, estimationRule, readingType)).supplier());
+                        .withActualVersion(getActualVersionOfChannelEstimationRule(deviceEstimation, estimationRule, readingType)).supplier());
         channelEstimationRule.delete();
         return Response.noContent().build();
     }
 
-    private Supplier<Long> getActualVersionOfChannelValidationRule(DeviceEstimation deviceEstimation, EstimationRule estimationRule, ReadingType readingType) {
+    private Supplier<Long> getActualVersionOfChannelEstimationRule(DeviceEstimation deviceEstimation, EstimationRule estimationRule, ReadingType readingType) {
         return () -> deviceEstimation.findOverriddenProperties(estimationRule, readingType)
                 .map(ChannelEstimationRuleOverriddenProperties::getVersion)
                 .orElse(null);
