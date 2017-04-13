@@ -1,12 +1,13 @@
 package com.energyict.mdc.protocol.api.device.offline;
 
 import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.SecurityValueWrapper;
 import com.energyict.mdc.common.Offline;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 
 import java.util.Optional;
 
-public interface OfflineKeyAccessor<T> extends Offline {
+public interface OfflineKeyAccessor<T extends SecurityValueWrapper> extends Offline {
 
     /**
      * Returns the Id of the Device which owns this SecurityAccessor.
