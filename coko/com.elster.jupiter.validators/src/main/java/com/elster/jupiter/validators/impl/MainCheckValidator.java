@@ -131,7 +131,6 @@ public class MainCheckValidator extends AbstractValidator {
                 .collect(Collectors.toList());
 
         ImmutableList.Builder<PropertySpec> builder = ImmutableList.builder();
-        addOverridenPropertySpecs(builder);
         builder
                 .add(getPropertySpecService()
                         .stringSpec()
@@ -142,12 +141,12 @@ public class MainCheckValidator extends AbstractValidator {
                         .addValues(metrologyPurposes)
                         .markExhaustive(PropertySelectionMode.COMBOBOX)
                         .finish());
+        addMaxAbsoluteDiffPropertySpec(builder);
         builder
                 .add(getPropertySpecService()
                         .booleanSpec()
                         .named(PASS_IF_NO_REF_DATA, TranslationKeys.MAIN_CHECK_VALIDATOR_PASS_IF_NO_REF_DATA)
                         .fromThesaurus(this.getThesaurus())
-                        .markRequired()
                         .setDefaultValue(false)
                         .finish());
         builder
@@ -155,10 +154,9 @@ public class MainCheckValidator extends AbstractValidator {
                         .booleanSpec()
                         .named(USE_VALIDATED_DATA, TranslationKeys.MAIN_CHECK_VALIDATOR_USE_VALIDATED_DATA)
                         .fromThesaurus(this.getThesaurus())
-                        .markRequired()
                         .setDefaultValue(false)
                         .finish());
-
+        addMinThresholdPropertySpec(builder);
         return builder.build();
     }
 
@@ -167,13 +165,18 @@ public class MainCheckValidator extends AbstractValidator {
         return ValidationPropertyDefinitionLevel.VALIDATION_RULE == level ? getPropertySpecs() : getOverridenPropertySpecs();
     }
 
-    private List<PropertySpec> getOverridenPropertySpecs(){
+    private List<PropertySpec> getOverridenPropertySpecs() {
         ImmutableList.Builder<PropertySpec> builder = ImmutableList.builder();
         addOverridenPropertySpecs(builder);
         return builder.build();
     }
 
     private void addOverridenPropertySpecs(ImmutableList.Builder<PropertySpec> builder) {
+        addMaxAbsoluteDiffPropertySpec(builder);
+        addMinThresholdPropertySpec(builder);
+    }
+
+    private void addMaxAbsoluteDiffPropertySpec(ImmutableList.Builder<PropertySpec> builder) {
         builder
                 .add(getPropertySpecService()
                         .specForValuesOf(new TwoValuesDifferenceValueFactory())
@@ -184,6 +187,9 @@ public class MainCheckValidator extends AbstractValidator {
                             value = new BigDecimal(0);
                         }})
                         .finish());
+    }
+
+    private void addMinThresholdPropertySpec(ImmutableList.Builder<PropertySpec> builder) {
         builder
                 .add(getPropertySpecService()
                         .specForValuesOf(new NonOrBigDecimalValueFactory())
@@ -318,20 +324,20 @@ public class MainCheckValidator extends AbstractValidator {
     }
 
     //  "Wed, 15 Feb 2017 00:00 until Thu, 16 Feb 2017 00:00"
-    private String rangeToString(Range<Instant> range){
+    private String rangeToString(Range<Instant> range) {
         Instant lowerBound = null;
-        if (range.hasLowerBound()){
+        if (range.hasLowerBound()) {
             lowerBound = range.lowerEndpoint();
         }
 
         Instant upperBound = null;
-        if (range.hasUpperBound()){
-            upperBound= range.upperEndpoint();
+        if (range.hasUpperBound()) {
+            upperBound = range.upperEndpoint();
         }
 
-        String lower = lowerBound!=null?DATA_FORMAT.format(new Date(lowerBound.toEpochMilli())):"-\"\\u221E\\t\"";
-        String upper = upperBound!=null?DATA_FORMAT.format(new Date(upperBound.toEpochMilli())):"+\"\\u221E\\t\"";
-        return "\"" + lower + " until "+upper+"\"";
+        String lower = lowerBound != null ? DATA_FORMAT.format(new Date(lowerBound.toEpochMilli())) : "-\"\\u221E\\t\"";
+        String upper = upperBound != null ? DATA_FORMAT.format(new Date(upperBound.toEpochMilli())) : "+\"\\u221E\\t\"";
+        return "\"" + lower + " until " + upper + "\"";
     }
 
     private ValidationResult validate(IntervalReadingRecord mainReading, IntervalReadingRecord checkReading) {
@@ -364,8 +370,8 @@ public class MainCheckValidator extends AbstractValidator {
                 preparedValidationResult = ValidationResult.NOT_VALIDATED;
                 return ValidationResult.NOT_VALIDATED;
             }   // else:
-                // [RULE ACTION] Continue validation if Use validated data is unchecked
-                // So, next checks will be applied
+            // [RULE ACTION] Continue validation if Use validated data is unchecked
+            // So, next checks will be applied
 
         }
 
@@ -389,7 +395,7 @@ public class MainCheckValidator extends AbstractValidator {
         if (maxAbsoluteDifference instanceof TwoValuesAbsoluteDifference) {
             differenceValue = ((TwoValuesAbsoluteDifference) maxAbsoluteDifference).value;
         } else if (maxAbsoluteDifference instanceof TwoValuesPercentDifference) {
-            differenceValue = mainValue.multiply(BigDecimal.valueOf(((TwoValuesPercentDifference) maxAbsoluteDifference).percent*0.01D));
+            differenceValue = mainValue.multiply(BigDecimal.valueOf(((TwoValuesPercentDifference) maxAbsoluteDifference).percent * 0.01D));
         } else {
             return ValidationResult.NOT_VALIDATED;
         }
