@@ -5,6 +5,7 @@
 package com.elster.jupiter.issue.impl.service;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
@@ -172,6 +173,7 @@ public abstract class BaseTest {
                 new TransactionModule(),
                 new NlsModule(),
                 new UserModule(),
+                new BpmModule(),
                 new FiniteStateMachineModule(),
                 new IssueModule(),
                 new BasicPropertiesModule(),
