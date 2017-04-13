@@ -13,8 +13,12 @@ public class SecurityAccessorInfo {
     public long id;
     public String name;
     public String description;
+    public boolean swapped;
+    public long version;
     public Instant expirationTime;
     public Instant lastReadDate;
+    public Instant modificationDate;
+    public String status;
     public List<PropertyInfo> currentProperties;
     public List<PropertyInfo> tempProperties;
 }

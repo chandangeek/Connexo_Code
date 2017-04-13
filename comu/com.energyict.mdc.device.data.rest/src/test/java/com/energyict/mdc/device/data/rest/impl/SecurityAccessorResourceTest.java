@@ -4,13 +4,18 @@
 
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.ClientCertificateWrapper;
 import com.elster.jupiter.pki.CryptographicType;
 import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.pki.KeyType;
+import com.elster.jupiter.pki.SecurityValueWrapper;
 import com.elster.jupiter.pki.SymmetricKeyWrapper;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.ValueFactory;
+import com.elster.jupiter.properties.rest.PropertyInfo;
+import com.elster.jupiter.properties.rest.PropertyValueInfo;
 import com.elster.jupiter.properties.rest.impl.PropertyValueInfoServiceImpl;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.config.DeviceType;
@@ -20,32 +25,57 @@ import com.energyict.mdc.device.data.KeyAccessor;
 import com.jayway.jsonpath.JsonModel;
 import net.minidev.json.JSONObject;
 
+import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Response;
 import java.io.InputStream;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.assertj.core.data.MapEntry;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyLong;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
- * Created by bvn on 4/4/17.
+ * >> Setup description <<
+ * All tests revolve around a device with mRID BVN001.
+ * The device has 1 key accessor for a symmetric key and 1 for a client certificate.
+ * The symmetric key accessor has KeyAccessorType 'aes' with id 111L
+ * The certificate accessor has KeyAccessorType 'tls1' with id 222L
+ *
+ * A CertificateWrapper exists, name 'comserver', whether or not it exists on the device depends on the test in question.
+ * A 2nd CertificateWrapper exists, named 'newcomserver', whether or not it exists on the device's temp value depends on the test in question.
+ * A symmetric key accessor exists, whether or not it is linked to the device depends on the test in question.
  */
 public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerseyTest {
 
     private KeyAccessorType symmetricKeyAccessorType;
+    private List<PropertySpec> symmetricKeyPropertySpecs;
+    private List<PropertySpec> certificatePropertySpecs;
     private KeyAccessorType certificateKeyAccessorType;
     private DeviceType deviceType;
+    private KeyAccessor clientCertificateAccessor;
+    private KeyAccessor symmetrickeyAccessor;
+    private SymmetricKeyWrapper actualSymmetricKeyWrapper;
+    private ClientCertificateWrapper actualClientCertificateWrapper;
+    private ClientCertificateWrapper tempClientCertificateWrapper;
+    private Device device;
 
     @Override
     protected Application getApplication() {
@@ -60,22 +90,37 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        Device device = mock(Device.class);
-        symmetricKeyAccessorType = mockSymmetricKeyType(1L, "aes");
-        certificateKeyAccessorType = mockCertificateKeyAccessorType(1L, "tls1");
+        symmetricKeyPropertySpecs = Arrays.asList(mockPropertySpec("key"));
+        certificatePropertySpecs = Arrays.asList(mockPropertySpec("alias"));
 
-        KeyAccessor keyAccessor1 = mockClientCertificateAccessor();
-        KeyAccessor keyAccessor2 = mockSymmetricKeyAccessor();
+        symmetricKeyAccessorType = mockSymmetricKeyAccessorType(111L, "aes");
+        certificateKeyAccessorType = mockCertificateKeyAccessorType(222L, "tls1");
+
+        actualClientCertificateWrapper = mockClientCertificateWrapper(certificatePropertySpecs, "alias", "comserver");
+        clientCertificateAccessor = mockClientCertificateAccessor(certificatePropertySpecs, actualClientCertificateWrapper);
+
+        actualSymmetricKeyWrapper = mockSymmetricKeyWrapper(symmetricKeyPropertySpecs, "key", "b21nLEkgY2FuJ3QgYmVsaWV2ZSB5b3UgZGVjb2RlZCB0aGlz");
+        symmetrickeyAccessor = mockSymmetricKeyAccessor(actualSymmetricKeyWrapper, null);
 
         deviceType = mock(DeviceType.class);
         when(deviceType.getKeyAccessorTypes()).thenReturn(Arrays.asList(symmetricKeyAccessorType, certificateKeyAccessorType));
+        device = mock(Device.class);
         when(device.getDeviceType()).thenReturn(deviceType);
-        when(device.getKeyAccessors()).thenReturn(Arrays.asList(keyAccessor1, keyAccessor2));
+        when(device.getKeyAccessors()).thenReturn(Arrays.asList(clientCertificateAccessor, symmetrickeyAccessor));
         when(device.getKeyAccessor(any(KeyAccessorType.class))).thenReturn(Optional.empty());
-        when(device.getKeyAccessor(certificateKeyAccessorType)).thenReturn(Optional.ofNullable(keyAccessor1));
-        when(device.getKeyAccessor(symmetricKeyAccessorType)).thenReturn(Optional.ofNullable(keyAccessor2));
+        when(device.getKeyAccessor(certificateKeyAccessorType)).thenReturn(Optional.ofNullable(clientCertificateAccessor));
+        when(device.getKeyAccessor(symmetricKeyAccessorType)).thenReturn(Optional.ofNullable(symmetrickeyAccessor));
         when(deviceService.findDeviceByName("BVN001")).thenReturn(Optional.of(device));
 
+        when(pkiService.getPropertySpecs(symmetricKeyAccessorType)).thenReturn(symmetricKeyPropertySpecs);
+        when(pkiService.getPropertySpecs(certificateKeyAccessorType)).thenReturn(certificatePropertySpecs);
+        when(pkiService.findCertificateWrapper(anyString())).thenReturn(Optional.empty());
+        when(pkiService.findCertificateWrapper("comserver")).thenReturn(Optional.of(actualClientCertificateWrapper));
+        tempClientCertificateWrapper = mockClientCertificateWrapper(certificatePropertySpecs, "alias", "newcomserver");
+        when(pkiService.findCertificateWrapper("newcomserver")).thenReturn(Optional.of(tempClientCertificateWrapper));
+        when(deviceService.findAndLockKeyAccessorByIdAndVersion(any(Device.class), any(KeyAccessorType.class), anyLong())).thenReturn(Optional.empty());
+        when(deviceService.findAndLockKeyAccessorByIdAndVersion(device, symmetricKeyAccessorType, 11L)).thenReturn(Optional.of(symmetrickeyAccessor));
+        when(deviceService.findAndLockKeyAccessorByIdAndVersion(device, certificateKeyAccessorType, 22L)).thenReturn(Optional.of(clientCertificateAccessor));
     }
 
     @Test
@@ -134,35 +179,322 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
         JsonModel jsonModel = JsonModel.create((InputStream) response.getEntity());
         assertThat(jsonModel.<List>get("$.keys")).hasSize(1);
         assertThat(jsonModel.<List>get("$.keys[0].currentProperties")).hasSize(1);
-        assertThat(jsonModel.<String>get("$.keys[0].currentProperties[0].key")).isEqualTo("encryptedKey");
-        assertThat(jsonModel.<String>get("$.keys[0].currentProperties[0].propertyValueInfo.value")).isEqualTo("YWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXoK");
+        assertThat(jsonModel.<String>get("$.keys[0].currentProperties[0].key")).isEqualTo("key");
+        assertThat(jsonModel.<String>get("$.keys[0].currentProperties[0].propertyValueInfo.value")).isEqualTo("b21nLEkgY2FuJ3QgYmVsaWV2ZSB5b3UgZGVjb2RlZCB0aGlz");
         assertThat(jsonModel.<List>get("$.keys[0].tempProperties")).hasSize(1);
-        assertThat(jsonModel.<String>get("$.keys[0].tempProperties[0].key")).isEqualTo("encryptedKey");
+        assertThat(jsonModel.<String>get("$.keys[0].tempProperties[0].key")).isEqualTo("key");
         assertThat(jsonModel.<JSONObject>get("$.keys[0].tempProperties[0].propertyValueInfo")).isEmpty();
     }
 
-    private KeyAccessor mockClientCertificateAccessor() {
+    @Test
+    public void setActualAndTempOnExistingKeyAccessorWithoutTemp() throws Exception {
+        SecurityAccessorInfo securityAccessorInfo = new SecurityAccessorInfo();
+        securityAccessorInfo.version = 11L;
+        securityAccessorInfo.currentProperties = Arrays.asList(createPropertyInfo("key", "actualKey"));
+        securityAccessorInfo.tempProperties = Arrays.asList(createPropertyInfo("key", "tempKey"));
+
+        SymmetricKeyWrapper symmetricKeyWrapper = mockSymmetricKeyWrapper(symmetricKeyPropertySpecs, null, null);
+        when(pkiService.newSymmetricKeyWrapper(symmetricKeyAccessorType)).thenReturn(symmetricKeyWrapper);
+        Response response = target("/devices/BVN001/securityaccessors/keys/111").request().put(Entity.json(securityAccessorInfo));
+
+        verify(symmetrickeyAccessor, never()).setActualValue(any(SymmetricKeyWrapper.class));
+        ArgumentCaptor<Map> actualMapArgumentCaptor = ArgumentCaptor.forClass(Map.class);
+        verify(actualSymmetricKeyWrapper, times(1)).setProperties(actualMapArgumentCaptor.capture());
+        assertThat(actualMapArgumentCaptor.getValue()).contains(MapEntry.entry("key", "actualKey"));
+
+        verify(symmetrickeyAccessor, times(1)).setTempValue(symmetricKeyWrapper);
+        ArgumentCaptor<Map> tempMapArgumentCaptor = ArgumentCaptor.forClass(Map.class);
+        verify(symmetricKeyWrapper, times(1)).setProperties(tempMapArgumentCaptor.capture());
+        assertThat(tempMapArgumentCaptor.getValue()).contains(MapEntry.entry("key", "tempKey"));
+    }
+
+    @Test
+    public void setActualAndTempOnExistingCertificateAccessorWithoutTemp() throws Exception {
+        SecurityAccessorInfo securityAccessorInfo = new SecurityAccessorInfo();
+        securityAccessorInfo.version = 22L;
+        securityAccessorInfo.currentProperties = Arrays.asList(createPropertyInfo("alias", "comserver"));
+        securityAccessorInfo.tempProperties = Arrays.asList(createPropertyInfo("alias", "newcomserver"));
+
+        Response response = target("/devices/BVN001/securityaccessors/certificates/222").request().put(Entity.json(securityAccessorInfo));
+
+        verify(clientCertificateAccessor, never()).setActualValue(any(CertificateWrapper.class));
+        verify(actualClientCertificateWrapper, never()).setProperties(any(Map.class));
+
+        verify(clientCertificateAccessor, times(1)).setTempValue(tempClientCertificateWrapper);
+        verify(tempClientCertificateWrapper, never()).setProperties(any(Map.class));
+        verify(tempClientCertificateWrapper, never()).delete();
+    }
+
+    @Test
+    public void setActualAndNoTempOnExistingKeyAccessorWithoutTemp() throws Exception {
+        SecurityAccessorInfo securityAccessorInfo = new SecurityAccessorInfo();
+        securityAccessorInfo.version = 11L;
+        securityAccessorInfo.currentProperties = Arrays.asList(createPropertyInfo("key", "actualKey"));
+        securityAccessorInfo.tempProperties = Arrays.asList(createPropertyInfo("key", null));
+
+        SymmetricKeyWrapper symmetricKeyWrapper = mockSymmetricKeyWrapper(symmetricKeyPropertySpecs, null, null);
+        when(pkiService.newSymmetricKeyWrapper(symmetricKeyAccessorType)).thenReturn(symmetricKeyWrapper);
+
+        Response response = target("/devices/BVN001/securityaccessors/keys/111").request().put(Entity.json(securityAccessorInfo));
+        verify(symmetrickeyAccessor, never()).setActualValue(any(SymmetricKeyWrapper.class));
+        ArgumentCaptor<Map> actualMapArgumentCaptor = ArgumentCaptor.forClass(Map.class);
+        verify(actualSymmetricKeyWrapper, times(1)).setProperties(actualMapArgumentCaptor.capture());
+        assertThat(actualMapArgumentCaptor.getValue()).contains(MapEntry.entry("key", "actualKey"));
+
+        verify(symmetrickeyAccessor, never()).setTempValue(symmetricKeyWrapper);
+        verify(symmetricKeyWrapper, never()).setProperties(any(Map.class));
+    }
+
+    @Test
+    public void setActualAndNoTempOnExistingCertificateAccessorWithoutTemp() throws Exception {
+        SecurityAccessorInfo securityAccessorInfo = new SecurityAccessorInfo();
+        securityAccessorInfo.version = 22L;
+        securityAccessorInfo.currentProperties = Arrays.asList(createPropertyInfo("alias", "comserver"));
+        securityAccessorInfo.tempProperties = Arrays.asList(createPropertyInfo("alias", null));
+
+        Response response = target("/devices/BVN001/securityaccessors/certificates/222").request().put(Entity.json(securityAccessorInfo));
+
+        verify(clientCertificateAccessor, never()).setActualValue(any(CertificateWrapper.class));
+        verify(actualClientCertificateWrapper, never()).setProperties(any(Map.class));
+
+        verify(clientCertificateAccessor, never()).setTempValue(tempClientCertificateWrapper);
+        verify(tempClientCertificateWrapper, never()).setProperties(any(Map.class));
+        verify(tempClientCertificateWrapper, never()).delete();
+    }
+
+    @Test
+    public void setTempAndNoActualOnExistingKeyAccessorWithoutTemp() throws Exception {
+        SecurityAccessorInfo securityAccessorInfo = new SecurityAccessorInfo();
+        securityAccessorInfo.version = 11L;
+        securityAccessorInfo.currentProperties = Arrays.asList(createPropertyInfo("key", null));
+        securityAccessorInfo.tempProperties = Arrays.asList(createPropertyInfo("key", "tempKey"));
+
+        SymmetricKeyWrapper symmetricKeyWrapper = mockSymmetricKeyWrapper(symmetricKeyPropertySpecs, null, null);
+        when(pkiService.newSymmetricKeyWrapper(symmetricKeyAccessorType)).thenReturn(symmetricKeyWrapper);
+        Response response = target("/devices/BVN001/securityaccessors/keys/111").request().put(Entity.json(securityAccessorInfo));
+
+        verify(symmetrickeyAccessor, never()).setActualValue(any(SymmetricKeyWrapper.class));
+        verify(actualSymmetricKeyWrapper, never()).setProperties(any(Map.class));
+        verify(symmetrickeyAccessor, times(1)).delete();
+    }
+
+    @Test
+    public void setTempAndNoActualOnExistingCertificateAccessorWithoutTemp() throws Exception {
+        SecurityAccessorInfo securityAccessorInfo = new SecurityAccessorInfo();
+        securityAccessorInfo.version = 22L;
+        securityAccessorInfo.currentProperties = Arrays.asList(createPropertyInfo("alias", null));
+        securityAccessorInfo.tempProperties = Arrays.asList(createPropertyInfo("alias", "newcomserver"));
+
+        Response response = target("/devices/BVN001/securityaccessors/certificates/222").request().put(Entity.json(securityAccessorInfo));
+
+        verify(clientCertificateAccessor, times(1)).delete();
+    }
+
+    @Test
+    public void setActualAndTempOnExistingKeyAccessorWithTemp() throws Exception {
+        SecurityAccessorInfo securityAccessorInfo = new SecurityAccessorInfo();
+        securityAccessorInfo.version = 11L;
+        securityAccessorInfo.currentProperties = Arrays.asList(createPropertyInfo("key", "actualKey"));
+        securityAccessorInfo.tempProperties = Arrays.asList(createPropertyInfo("key", "tempKey"));
+
+        SymmetricKeyWrapper tempSymmetricKeyWrapper = mockSymmetricKeyWrapper(symmetricKeyPropertySpecs, "key", "oldtempvalue");
+        symmetrickeyAccessor = mockSymmetricKeyAccessor(actualSymmetricKeyWrapper, tempSymmetricKeyWrapper);
+        when(device.getKeyAccessor(symmetricKeyAccessorType)).thenReturn(Optional.of(symmetrickeyAccessor));
+        when(deviceService.findAndLockKeyAccessorByIdAndVersion(device, symmetricKeyAccessorType, 11L)).thenReturn(Optional.of(symmetrickeyAccessor));
+        Response response = target("/devices/BVN001/securityaccessors/keys/111").request().put(Entity.json(securityAccessorInfo));
+
+        verify(symmetrickeyAccessor, never()).setActualValue(any(SymmetricKeyWrapper.class));
+        ArgumentCaptor<Map> actualMapArgumentCaptor = ArgumentCaptor.forClass(Map.class);
+        verify(actualSymmetricKeyWrapper, times(1)).setProperties(actualMapArgumentCaptor.capture());
+        assertThat(actualMapArgumentCaptor.getValue()).contains(MapEntry.entry("key", "actualKey"));
+
+        verify(symmetrickeyAccessor, never()).setTempValue(any(SymmetricKeyWrapper.class));
+        ArgumentCaptor<Map> tempMapArgumentCaptor = ArgumentCaptor.forClass(Map.class);
+        verify(tempSymmetricKeyWrapper, times(1)).setProperties(tempMapArgumentCaptor.capture());
+        assertThat(tempMapArgumentCaptor.getValue()).contains(MapEntry.entry("key", "tempKey"));
+    }
+
+    @Test
+    public void setActualAndTempOnExistingCertificateAccessorWithTemp() throws Exception {
+        SecurityAccessorInfo securityAccessorInfo = new SecurityAccessorInfo();
+        securityAccessorInfo.version = 22L;
+        securityAccessorInfo.currentProperties = Arrays.asList(createPropertyInfo("alias", "comserver"));
+        securityAccessorInfo.tempProperties = Arrays.asList(createPropertyInfo("alias", "newcomserver"));
+
+        when(clientCertificateAccessor.getTempValue()).thenReturn(Optional.of(tempClientCertificateWrapper));
+
+        Response response = target("/devices/BVN001/securityaccessors/certificates/222").request().put(Entity.json(securityAccessorInfo));
+
+        verify(clientCertificateAccessor, never()).setActualValue(any(CertificateWrapper.class));
+        verify(actualClientCertificateWrapper, never()).setProperties(any(Map.class));
+
+        verify(clientCertificateAccessor, never()).setTempValue(any(SecurityValueWrapper.class));
+        verify(tempClientCertificateWrapper, never()).setProperties(any(Map.class));
+    }
+
+    @Test
+    public void setActualAndNewTempOnExistingCertificateAccessorWithTemp() throws Exception {
+        SecurityAccessorInfo securityAccessorInfo = new SecurityAccessorInfo();
+        securityAccessorInfo.version = 22L;
+        securityAccessorInfo.currentProperties = Arrays.asList(createPropertyInfo("alias", "comserver"));
+        securityAccessorInfo.tempProperties = Arrays.asList(createPropertyInfo("alias", "newnewcomserver"));
+
+        when(clientCertificateAccessor.getTempValue()).thenReturn(Optional.of(tempClientCertificateWrapper));
+        ClientCertificateWrapper newNewComserver = mockClientCertificateWrapper(certificatePropertySpecs, "alias", "newnewcomserver");
+        when(pkiService.findCertificateWrapper("newnewcomserver")).thenReturn(Optional.of(newNewComserver));
+
+        Response response = target("/devices/BVN001/securityaccessors/certificates/222").request().put(Entity.json(securityAccessorInfo));
+
+        verify(clientCertificateAccessor, never()).setActualValue(any(CertificateWrapper.class));
+        verify(actualClientCertificateWrapper, never()).setProperties(any(Map.class));
+
+        verify(clientCertificateAccessor, times(1)).setTempValue(newNewComserver);
+        verify(tempClientCertificateWrapper, never()).setProperties(any(Map.class));
+    }
+
+    @Test
+    public void setActualAndTempOnExistingKeyAccessorWithTempWithIdenticalValues() throws Exception {
+        SecurityAccessorInfo securityAccessorInfo = new SecurityAccessorInfo();
+        securityAccessorInfo.version = 11L;
+        securityAccessorInfo.currentProperties = Arrays.asList(createPropertyInfo("key", "b21nLEkgY2FuJ3QgYmVsaWV2ZSB5b3UgZGVjb2RlZCB0aGlz"));
+        securityAccessorInfo.tempProperties = Arrays.asList(createPropertyInfo("key", "oldtempvalue"));
+
+        SymmetricKeyWrapper tempSymmetricKeyWrapper = mockSymmetricKeyWrapper(symmetricKeyPropertySpecs, "key", "oldtempvalue");
+        symmetrickeyAccessor = mockSymmetricKeyAccessor(actualSymmetricKeyWrapper, tempSymmetricKeyWrapper);
+        when(device.getKeyAccessor(symmetricKeyAccessorType)).thenReturn(Optional.of(symmetrickeyAccessor));
+        when(deviceService.findAndLockKeyAccessorByIdAndVersion(device, symmetricKeyAccessorType, 11L)).thenReturn(Optional.of(symmetrickeyAccessor));
+
+        Response response = target("/devices/BVN001/securityaccessors/keys/111").request().put(Entity.json(securityAccessorInfo));
+
+        verify(symmetrickeyAccessor, never()).setActualValue(any(SymmetricKeyWrapper.class));
+        verify(actualSymmetricKeyWrapper, never()).setProperties(any(Map.class));
+
+        verify(symmetrickeyAccessor, never()).setTempValue(any(SymmetricKeyWrapper.class));
+        verify(tempSymmetricKeyWrapper, never()).setProperties(any(Map.class));
+    }
+
+    @Test
+    public void setActualAndTempOnNonExistingKeyAccessor() throws Exception {
+        SecurityAccessorInfo securityAccessorInfo = new SecurityAccessorInfo();
+        securityAccessorInfo.version = 11L;
+        securityAccessorInfo.currentProperties = Arrays.asList(createPropertyInfo("key", "actualKey"));
+        securityAccessorInfo.tempProperties = Arrays.asList(createPropertyInfo("key", "tempKey"));
+
+        SymmetricKeyWrapper actualSymmetricKeyWrapper = mockSymmetricKeyWrapper(symmetricKeyPropertySpecs, null, null);
+        SymmetricKeyWrapper tempSymmetricKeyWrapper = mockSymmetricKeyWrapper(symmetricKeyPropertySpecs, null, null);
+        when(pkiService.newSymmetricKeyWrapper(symmetricKeyAccessorType)).thenReturn(actualSymmetricKeyWrapper, tempSymmetricKeyWrapper);
+        when(device.getKeyAccessor(symmetricKeyAccessorType)).thenReturn(Optional.empty());
+
+        SymmetricKeyWrapper symmetricKeyWrapper = mockSymmetricKeyWrapper(symmetricKeyPropertySpecs, null, null);
+        KeyAccessor toBeCreatedKeyAccessor = mockSymmetricKeyAccessor(symmetricKeyWrapper, null);
+
+        when(device.newKeyAccessor(symmetricKeyAccessorType)).thenReturn(toBeCreatedKeyAccessor);
+
+        Response response = target("/devices/BVN001/securityaccessors/keys/111").request().put(Entity.json(securityAccessorInfo));
+
+        verify(toBeCreatedKeyAccessor, times(1)).setActualValue(any(SymmetricKeyWrapper.class));
+        ArgumentCaptor<Map> actualMapArgumentCaptor = ArgumentCaptor.forClass(Map.class);
+        verify(actualSymmetricKeyWrapper, times(1)).setProperties(actualMapArgumentCaptor.capture());
+        assertThat(actualMapArgumentCaptor.getValue()).contains(MapEntry.entry("key", "actualKey"));
+
+        verify(toBeCreatedKeyAccessor, times(1)).setTempValue(tempSymmetricKeyWrapper);
+        ArgumentCaptor<Map> tempMapArgumentCaptor = ArgumentCaptor.forClass(Map.class);
+        verify(tempSymmetricKeyWrapper, times(1)).setProperties(tempMapArgumentCaptor.capture());
+        assertThat(tempMapArgumentCaptor.getValue()).contains(MapEntry.entry("key", "tempKey"));
+    }
+
+    @Test
+    public void setActualAndTempOnNonExistingCertificateAccessor() throws Exception {
+        SecurityAccessorInfo securityAccessorInfo = new SecurityAccessorInfo();
+        securityAccessorInfo.version = 22L;
+        securityAccessorInfo.currentProperties = Arrays.asList(createPropertyInfo("alias", "comserver"));
+        securityAccessorInfo.tempProperties = Arrays.asList(createPropertyInfo("alias", "newcomserver"));
+
+        when(clientCertificateAccessor.getTempValue()).thenReturn(Optional.of(tempClientCertificateWrapper));
+        when(device.getKeyAccessor(certificateKeyAccessorType)).thenReturn(Optional.empty());
+        when(device.newKeyAccessor(certificateKeyAccessorType)).thenReturn(clientCertificateAccessor);
+        Response response = target("/devices/BVN001/securityaccessors/certificates/222").request().put(Entity.json(securityAccessorInfo));
+
+        verify(clientCertificateAccessor, times(1)).setActualValue(actualClientCertificateWrapper);
+        verify(actualClientCertificateWrapper, never()).setProperties(any(Map.class));
+
+        verify(clientCertificateAccessor, times(1)).setTempValue(tempClientCertificateWrapper);
+        verify(tempClientCertificateWrapper, never()).setProperties(any(Map.class));
+    }
+
+    @Test
+    public void testDeleteTempOnKeyAccessorWithTempAndActual() throws Exception {
+        SecurityAccessorInfo securityAccessorInfo = new SecurityAccessorInfo();
+        securityAccessorInfo.version = 11L;
+        securityAccessorInfo.currentProperties = Arrays.asList(createPropertyInfo("key", "b21nLEkgY2FuJ3QgYmVsaWV2ZSB5b3UgZGVjb2RlZCB0aGlz"));
+        securityAccessorInfo.tempProperties = Collections.emptyList();
+
+        SymmetricKeyWrapper tempSymmetricKeyWrapper = mockSymmetricKeyWrapper(symmetricKeyPropertySpecs, "key", "oldtempvalue");
+        symmetrickeyAccessor = mockSymmetricKeyAccessor(actualSymmetricKeyWrapper, tempSymmetricKeyWrapper);
+        when(device.getKeyAccessor(symmetricKeyAccessorType)).thenReturn(Optional.ofNullable(symmetrickeyAccessor));
+        when(deviceService.findAndLockKeyAccessorByIdAndVersion(device, symmetricKeyAccessorType, 11L)).thenReturn(Optional.of(symmetrickeyAccessor));
+
+        Response response = target("/devices/BVN001/securityaccessors/keys/111").request().put(Entity.json(securityAccessorInfo));
+
+        verify(symmetrickeyAccessor, never()).setActualValue(any(SymmetricKeyWrapper.class));
+        verify(actualSymmetricKeyWrapper, never()).setProperties(any(Map.class));
+
+        verify(symmetrickeyAccessor, times(1)).clearTempValue();
+    }
+
+    @Test
+    public void testGenerateTempValue() throws Exception {
+        SecurityAccessorInfo securityAccessorInfo = new SecurityAccessorInfo();
+        securityAccessorInfo.version = 11L;
+        securityAccessorInfo.currentProperties = Collections.emptyList();
+        securityAccessorInfo.tempProperties = Collections.emptyList();
+
+        Response response = target("/devices/BVN001/securityaccessors/keys/111/temp").request().post(Entity.json(securityAccessorInfo));
+        verify(symmetrickeyAccessor, times(1)).renew();
+    }
+
+    @Test
+    public void testSwapValues() throws Exception {
+        SecurityAccessorInfo securityAccessorInfo = new SecurityAccessorInfo();
+        securityAccessorInfo.version = 11L;
+        securityAccessorInfo.currentProperties = Collections.emptyList();
+        securityAccessorInfo.tempProperties = Collections.emptyList();
+
+        Response response = target("/devices/BVN001/securityaccessors/keys/111/swap").request().put(Entity.json(securityAccessorInfo));
+        verify(symmetrickeyAccessor, times(1)).swapValues();
+    }
+
+    private PropertyInfo createPropertyInfo(String key, String value) {
+        PropertyInfo propertyInfo = new PropertyInfo();
+        propertyInfo.key = key;
+        propertyInfo.propertyValueInfo = new PropertyValueInfo<String>(value, null);
+        return propertyInfo;
+    }
+
+    private KeyAccessor mockClientCertificateAccessor(List<PropertySpec> propertySpecs, SecurityValueWrapper clientCertificateWrapper) {
         KeyAccessor keyAccessor1 = mock(KeyAccessor.class);
-        ClientCertificateWrapper clientCertificateWrapper = mock(ClientCertificateWrapper.class);
         when(keyAccessor1.getTempValue()).thenReturn(Optional.empty());
         when(keyAccessor1.getActualValue()).thenReturn(clientCertificateWrapper);
         when(keyAccessor1.getKeyAccessorType()).thenReturn(certificateKeyAccessorType);
-        Map<String, Object> map = new HashMap<>();
-        map.put("alias", "comserver");
-        when(clientCertificateWrapper.getProperties()).thenReturn(map);
-        PropertySpec propertySpec = mockPropertySpec("alias");
-        List<PropertySpec> propertySpecs = Arrays.asList(propertySpec);
-        when(clientCertificateWrapper.getPropertySpecs()).thenReturn(propertySpecs);
         when(keyAccessor1.getPropertySpecs()).thenReturn(propertySpecs);
-        when(clientCertificateWrapper.getExpirationTime()).thenReturn(Optional.of(Instant.now()));
         return keyAccessor1;
+    }
+
+    private ClientCertificateWrapper mockClientCertificateWrapper(List<PropertySpec> propertySpecs, String key, String value) {
+        ClientCertificateWrapper clientCertificateWrapper = mock(ClientCertificateWrapper.class);
+        Map<String, Object> map = new HashMap<>();
+        map.put(key, value);
+        when(clientCertificateWrapper.getProperties()).thenReturn(map);
+        when(clientCertificateWrapper.getPropertySpecs()).thenReturn(propertySpecs);
+        when(clientCertificateWrapper.getExpirationTime()).thenReturn(Optional.of(Instant.now()));
+        return clientCertificateWrapper;
     }
 
     private PropertySpec mockPropertySpec(String name) {
         PropertySpec propertySpec = mock(PropertySpec.class);
         ValueFactory valueFactory = mock(ValueFactory.class);
         when(valueFactory.getValueType()).thenReturn(String.class);
-        when(propertySpec.getValueFactory()).thenReturn(valueFactory);
+        when(propertySpec.getValueFactory()).thenReturn(new StringFactory());
         when(propertySpec.getName()).thenReturn(name);
         return propertySpec;
     }
@@ -179,24 +511,30 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
         return keyAccessorType;
     }
 
-    private KeyAccessor mockSymmetricKeyAccessor() {
-        KeyAccessor keyAccessor1 = mock(KeyAccessor.class);
-        SymmetricKeyWrapper symmetricKeyWrapper = mock(SymmetricKeyWrapper.class);
-        when(keyAccessor1.getTempValue()).thenReturn(Optional.empty());
-        when(keyAccessor1.getActualValue()).thenReturn(symmetricKeyWrapper);
+    private KeyAccessor<SecurityValueWrapper> mockSymmetricKeyAccessor(SecurityValueWrapper actual, SecurityValueWrapper temp) {
+        KeyAccessor<SecurityValueWrapper> keyAccessor1 = mock(KeyAccessor.class);
+        when(keyAccessor1.getPropertySpecs()).thenReturn(symmetricKeyPropertySpecs);
+        when(keyAccessor1.getTempValue()).thenReturn(Optional.ofNullable(temp));
+        when(keyAccessor1.getActualValue()).thenReturn(actual);
         when(keyAccessor1.getKeyAccessorType()).thenReturn(symmetricKeyAccessorType);
-        Map<String, Object> map = new HashMap<>();
-        map.put("encryptedKey", "YWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXoK");
-        when(symmetricKeyWrapper.getProperties()).thenReturn(map);
-        PropertySpec propertySpec = mockPropertySpec("encryptedKey");
-        List<PropertySpec> propertySpecs = Arrays.asList(propertySpec);
-        when(symmetricKeyWrapper.getPropertySpecs()).thenReturn(propertySpecs);
-        when(keyAccessor1.getPropertySpecs()).thenReturn(propertySpecs);
-        when(symmetricKeyWrapper.getExpirationTime()).thenReturn(Optional.of(Instant.now()));
         return keyAccessor1;
     }
 
-    private KeyAccessorType mockSymmetricKeyType(long id, String name) {
+    private SymmetricKeyWrapper mockSymmetricKeyWrapper(List<PropertySpec> propertySpecs, String key, String value) {
+        SymmetricKeyWrapper symmetricKeyWrapper = mock(SymmetricKeyWrapper.class);
+        if (key!=null && value!=null) {
+            Map<String, Object> map = new HashMap<>();
+            map.put(key, value);
+            when(symmetricKeyWrapper.getProperties()).thenReturn(map);
+        } else {
+            when(symmetricKeyWrapper.getProperties()).thenReturn(Collections.emptyMap());
+        }
+        when(symmetricKeyWrapper.getPropertySpecs()).thenReturn(propertySpecs);
+        when(symmetricKeyWrapper.getExpirationTime()).thenReturn(Optional.of(Instant.now()));
+        return symmetricKeyWrapper;
+    }
+
+    private KeyAccessorType mockSymmetricKeyAccessorType(long id, String name) {
         KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
         when(keyAccessorType.getId()).thenReturn(id);
         when(keyAccessorType.getName()).thenReturn(name);
