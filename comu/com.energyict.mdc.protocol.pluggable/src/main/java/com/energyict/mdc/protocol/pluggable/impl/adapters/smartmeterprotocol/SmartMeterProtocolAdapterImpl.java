@@ -212,7 +212,7 @@ public class SmartMeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl imp
             this.deviceMessageSupport = (DeviceMessageSupport) this.meterProtocol;
         }
 
-        if (!com.energyict.mdc.upl.security.DeviceSecuritySupport.class.isAssignableFrom(getProtocolClass())) {
+        if (!DeviceSecuritySupport.class.isAssignableFrom(getProtocolClass())) {
             // we only instantiate the adapter if the protocol needs it
             this.smartMeterProtocolSecuritySupportAdapter =
                     new SmartMeterProtocolSecuritySupportAdapter(
