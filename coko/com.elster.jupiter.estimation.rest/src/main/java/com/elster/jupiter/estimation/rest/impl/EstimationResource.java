@@ -415,6 +415,7 @@ public class EstimationResource {
 
         EstimationTask dataExportTask = estimationService.newBuilder()
                 .setName(info.name)
+                .setReValidate(info.reValidate)
                 .setLogLevel(info.logLevel)
                 .setQualityCodeSystem(qualityCodeSystem)
                 .setScheduleExpression(getScheduleExpression(info))
