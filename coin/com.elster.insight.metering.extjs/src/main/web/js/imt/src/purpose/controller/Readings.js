@@ -311,7 +311,7 @@ Ext.define('Imt.purpose.controller.Readings', {
                     grid.getView().refreshNode(grid.getStore().indexOf(event.record));
                     event.record.get('confirmed') && event.record.set('confirmed', false);
                     if(!event.record.get('estimatedNotSaved')){
-                        event.record.set('mainModificationState', Uni.util.ReadingEditor.modificationState('EDITED'));
+                        event.record.set('modificationState', Uni.util.ReadingEditor.modificationState('EDITED'));
                     }
                 }
                 Ext.resumeLayouts();
@@ -479,7 +479,7 @@ Ext.define('Imt.purpose.controller.Readings', {
         Ext.Array.each(records, function (record) {
             calculatedValue = record.get('calculatedValue');
             record.beginEdit();
-            record.set('mainModificationState', Uni.util.ReadingEditor.modificationState('RESET'));
+            record.set('modificationState', Uni.util.ReadingEditor.modificationState('RESET'));
 
             record.set('removedNotSaved', true);
             record.set('value', calculatedValue);
@@ -683,15 +683,17 @@ Ext.define('Imt.purpose.controller.Readings', {
                             Ext.Array.each(responseText.readings, function (readingTimestamp) {
                                 listOfFailedReadings.push(Uni.I18n.translate('general.dateAtTime', 'IMT', '{0} at {1}', [Uni.DateTime.formatDateShort(new Date(readingTimestamp)), Uni.DateTime.formatTimeShort(new Date(readingTimestamp))], false));
                             });
-                            window.down('#error-label').setText('<div style="color: #EB5642">' +
-                                Uni.I18n.translate('output.estimationErrorMessage', 'IMT', 'Could not estimate {0} with {1}',
-                                    [listOfFailedReadings.join(', '), window.down('#estimator-field').getRawValue().toLowerCase()]) + '</div>', false);
+                            var errorMessage = window.down('#estimator-field') ? Uni.I18n.translate('output.estimationErrorMessageWithIntervals', 'IMT', 'Could not estimate {0} with {1}',
+                                [listOfFailedReadings.join(', '), window.down('#estimator-field').getRawValue().toLowerCase()]) : Uni.I18n.translate('output.estimationErrorMessage', 'IMT', 'Could not estimate {0}',
+                                listOfFailedReadings.join(', '));
+                            window.down('#error-label').setText('<div style="color: #EB5642">' + errorMessage + '</div>', false);
                         } else if (responseText.errors) {
                             window.down('#form-errors').show();
                             window.down('#property-form').markInvalid(responseText.errors);
+                        } else {
+                            window.destroy();
                         }
                     }
-
                 }
                 Ext.resumeLayouts(true);
             }
@@ -725,6 +727,7 @@ Ext.define('Imt.purpose.controller.Readings', {
         reading.beginEdit();
         reading.set('value', correctedInterval.value);
         reading.set('isProjected', model.get('projected'));
+        reading.set('modificationState', Uni.util.ReadingEditor.modificationState('EDITED'));
         reading.endEdit(true);
 
         grid.getView().refreshNode(grid.getStore().indexOf(reading));
@@ -802,14 +805,14 @@ Ext.define('Imt.purpose.controller.Readings', {
                                 listOfFailedReadings.push(Uni.I18n.translate('general.dateAtTime', 'IMT', '{0} at {1}', [Uni.DateTime.formatDateShort(new Date(readingTimestamp)), Uni.DateTime.formatTimeShort(new Date(readingTimestamp))], false));
                             });
                             window.down('#error-label').setText('<div style="color: #EB5642">' +
-                                Uni.I18n.translate('output.estimationErrorMessage', 'IMT', 'Could not estimate {0} with {1}',
-                                    [listOfFailedReadings.join(', '), window.down('#estimator-field').getRawValue().toLowerCase()]) + '</div>', false);
+                                Uni.I18n.translate('output.correctionErrorMessage', 'IMT', 'Could not correct {0}',
+                                    listOfFailedReadings.join(', ')) + '</div>', false);
                         } else if (responseText.errors) {
                             window.down('#form-errors').show();
                             window.down('#property-form').markInvalid(responseText.errors);
+                        } else {
+                            window.destroy();
                         }
-                    } else {
-                        window.destroy();
                     }
 
                 }
