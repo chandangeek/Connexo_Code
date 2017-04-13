@@ -191,14 +191,7 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                 waitMsg: Uni.I18n.translate('general.removing', 'MDC', 'Removing...'),
                 success: function () {
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('devicesecuritysetting.saveSuccess.msg.remove', 'MDC', 'Security setting removed'));
-                    me.store.load({ // Trigger a reload of the store
-                        callback: function(records) {
-                            if(records.length === 0){
-                                me.getExecutionLevelsForSecuritySettingPreview().setVisible(false);
-                                me.getExecutionLevelsPreviewContainer().setVisible(false);
-                            }
-                        }
-                    });
+                    me.store.load();
                 },
                 failure: function (response, request) {
                     var errorInfo = Uni.I18n.translate('devicesecuritysetting.removeErrorMsg', 'MDC', 'Error during removal of security setting'),
