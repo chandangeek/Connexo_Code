@@ -5,6 +5,7 @@
 package com.elster.jupiter.metering.imports.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
@@ -83,6 +84,7 @@ public class InMemoryIntegrationPersistence {
         modules.add(new PartyModule());
         modules.add(new FiniteStateMachineModule());
         modules.add(new UserModule());
+        modules.add(new BpmModule());
         modules.add(new EventsModule());
         modules.add(new DomainUtilModule());
         modules.add(new OrmModule());
