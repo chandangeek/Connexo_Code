@@ -107,9 +107,9 @@ public class UsagePointOutputResourceRegisterDataTest extends UsagePointDataRest
         when(effectiveMC1.getUsagePoint()).thenReturn(usagePoint);
         when(effectiveMC1.getChannelsContainer(any())).thenReturn(Optional.of(channelsContainer1));
         when(effectiveMC1.getAggregatedChannel(any(), any())).thenReturn(Optional.of(channel1));
-        Range<Instant> range = Range.atLeast(READING_TIME_STAMP_2);
-        when(channelsContainer1.getRange()).thenReturn(range);
-        when(channelsContainer1.getInterval()).thenReturn(Interval.of(range));
+        Range<Instant> range1 = Range.atLeast(READING_TIME_STAMP_2);
+        when(channelsContainer1.getRange()).thenReturn(range1);
+        when(channelsContainer1.getInterval()).thenReturn(Interval.of(range1));
         when(channelsContainer1.getChannel(any())).thenReturn(Optional.of(channel1));
         when(channel1.toList(any())).thenThrow(new AssertionFailedError("toList() should not be called on register"));
         UsagePointMetrologyConfiguration metrologyConfiguration2 = mockMetrologyConfigurationWithContract(2, "mc2", billing, information);
@@ -117,9 +117,9 @@ public class UsagePointOutputResourceRegisterDataTest extends UsagePointDataRest
         when(effectiveMC2.getUsagePoint()).thenReturn(usagePoint);
         when(effectiveMC2.getChannelsContainer(any())).thenReturn(Optional.of(channelsContainer2));
         when(effectiveMC2.getAggregatedChannel(any(), any())).thenReturn(Optional.of(channel2));
-        range = Range.closedOpen(TIME_STAMP_BEFORE_1, READING_TIME_STAMP_2);
-        when(channelsContainer2.getRange()).thenReturn(range);
-        when(channelsContainer2.getInterval()).thenReturn(Interval.of(range));
+        Range<Instant> range2 = Range.closedOpen(TIME_STAMP_BEFORE_1, READING_TIME_STAMP_2);
+        when(channelsContainer2.getRange()).thenReturn(range2);
+        when(channelsContainer2.getInterval()).thenReturn(Interval.of(range2));
         when(channelsContainer2.getChannel(any())).thenReturn(Optional.of(channel2));
         when(channel2.toList(any())).thenThrow(new AssertionFailedError("toList() should not be called on register"));
         UsagePointMetrologyConfiguration metrologyConfiguration3 = mockMetrologyConfigurationWithContract(3, "mc3");
@@ -140,6 +140,16 @@ public class UsagePointOutputResourceRegisterDataTest extends UsagePointDataRest
                 });
         when(effectiveMC4.getMetrologyConfiguration()).thenReturn(metrologyConfiguration4);
         when(effectiveMC4.getUsagePoint()).thenReturn(usagePoint);
+        when(usagePoint.getEffectiveMetrologyConfiguration(any(Instant.class))).thenAnswer(invocation -> {
+            Instant when = (Instant) invocation.getArguments()[0];
+            if (range1.contains(when)) {
+                return Optional.of(effectiveMC1);
+            }
+            if (range2.contains(when)) {
+                return Optional.of(effectiveMC2);
+            }
+            return Optional.empty();
+        });
 
         when(readingRecord1.getValue()).thenReturn(BigDecimal.valueOf(200, 0));
         when(readingRecord1.getTimeStamp()).thenReturn(READING_TIME_STAMP_1);
@@ -321,8 +331,6 @@ public class UsagePointOutputResourceRegisterDataTest extends UsagePointDataRest
 
     @Test
     public void testEditRegisterData() throws Exception {
-        when(usagePoint.getEffectiveMetrologyConfiguration(READING_TIME_STAMP_2)).thenReturn(Optional.of(effectiveMC2));
-
         NumericalOutputRegisterDataInfo info = new NumericalOutputRegisterDataInfo();
         info.value = BigDecimal.valueOf(101L);
         info.timeStamp = READING_TIME_STAMP_2;
@@ -341,14 +349,12 @@ public class UsagePointOutputResourceRegisterDataTest extends UsagePointDataRest
 
     @Test
     public void testEditRegisterDataWithoutEffectiveMC() throws Exception {
-        when(usagePoint.getEffectiveMetrologyConfiguration(any())).thenReturn(Optional.empty());
-
         NumericalOutputRegisterDataInfo info = new NumericalOutputRegisterDataInfo();
         info.value = BigDecimal.valueOf(101L);
-        info.timeStamp = READING_TIME_STAMP_3;
+        info.timeStamp = TIME_STAMP_BEFORE_1;
 
         // Business method
-        Response response = target("usagepoints/" + USAGE_POINT_NAME + "/purposes/100/outputs/2/registerData/" + READING_TIME_STAMP_3.toEpochMilli())
+        Response response = target("usagepoints/" + USAGE_POINT_NAME + "/purposes/100/outputs/2/registerData/" + TIME_STAMP_BEFORE_1.toEpochMilli())
                 .request().put(Entity.json(info));
         JsonModel model = JsonModel.create((ByteArrayInputStream) response.getEntity());
 
@@ -362,8 +368,6 @@ public class UsagePointOutputResourceRegisterDataTest extends UsagePointDataRest
 
     @Test
     public void testConfirmRegisterData() throws Exception {
-        when(usagePoint.getEffectiveMetrologyConfiguration(READING_TIME_STAMP_1)).thenReturn(Optional.of(effectiveMC2));
-
         NumericalOutputRegisterDataInfo info = new NumericalOutputRegisterDataInfo();
         info.isConfirmed = true;
         info.timeStamp = READING_TIME_STAMP_1;
@@ -382,14 +386,12 @@ public class UsagePointOutputResourceRegisterDataTest extends UsagePointDataRest
 
     @Test
     public void testConfirmRegisterDataWithoutEffectiveMC() throws Exception {
-        when(usagePoint.getEffectiveMetrologyConfiguration(any())).thenReturn(Optional.empty());
-
         NumericalOutputRegisterDataInfo info = new NumericalOutputRegisterDataInfo();
         info.isConfirmed = true;
-        info.timeStamp = READING_TIME_STAMP_3;
+        info.timeStamp = TIME_STAMP_BEFORE_1;
 
         // Business method
-        Response response = target("usagepoints/" + USAGE_POINT_NAME + "/purposes/100/outputs/2/registerData/" + READING_TIME_STAMP_3.toEpochMilli())
+        Response response = target("usagepoints/" + USAGE_POINT_NAME + "/purposes/100/outputs/2/registerData/" + TIME_STAMP_BEFORE_1.toEpochMilli())
                 .request().put(Entity.json(info));
         JsonModel model = JsonModel.create((ByteArrayInputStream) response.getEntity());
 
@@ -403,16 +405,11 @@ public class UsagePointOutputResourceRegisterDataTest extends UsagePointDataRest
 
     @Test
     public void testRemoveRegisterData() throws Exception {
-        when(channel2.getReading(READING_TIME_STAMP_1)).thenReturn(Optional.of(readingRecord1));
-        when(usagePoint.getEffectiveMetrologyConfiguration(READING_TIME_STAMP_1)).thenReturn(Optional.of(effectiveMC2));
-
-        NumericalOutputRegisterDataInfo info = new NumericalOutputRegisterDataInfo();
-        info.value = BigDecimal.valueOf(101L);
-        info.timeStamp = READING_TIME_STAMP_1;
+        when(channel2.getReading(READING_TIME_STAMP_2)).thenReturn(Optional.of(readingRecord1));
 
         // Business method
-        Response response = target("usagepoints/" + USAGE_POINT_NAME + "/purposes/100/outputs/2/registerData/" + READING_TIME_STAMP_1.toEpochMilli())
-                .request().method("DELETE", Entity.json(info));
+        Response response = target("usagepoints/" + USAGE_POINT_NAME + "/purposes/100/outputs/2/registerData/" + READING_TIME_STAMP_2.toEpochMilli())
+                .request().delete();
 
         // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());

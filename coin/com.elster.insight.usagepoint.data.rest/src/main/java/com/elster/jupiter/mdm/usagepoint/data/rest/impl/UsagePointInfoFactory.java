@@ -245,11 +245,9 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         );
         info.displayServiceCategory = usagePoint.getServiceCategory().getDisplayName();
         info.displayType = this.getUsagePointDisplayType(usagePoint);
-        info.hasEffectiveMCs = usagePoint.getEffectiveMetrologyConfiguration(clock.instant()).isPresent() ||
-                usagePoint.getEffectiveMetrologyConfigurations().stream()
-                .filter(mc -> mc.getStart().isAfter(clock.instant()))
-                .findAny()
-                .isPresent();
+        info.hasEffectiveMCs = usagePoint.getEffectiveMetrologyConfiguration(clock.instant()).isPresent()
+                || usagePoint.getEffectiveMetrologyConfigurations().stream()
+                .anyMatch(mc -> mc.getStart().isAfter(clock.instant()));
 
         usagePoint.getEffectiveMetrologyConfigurations().forEach(mc -> {
             if (mc.isEffectiveAt(clock.instant())) {
