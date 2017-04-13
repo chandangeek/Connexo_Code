@@ -83,6 +83,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import static com.elster.jupiter.devtools.tests.assertions.JupiterAssertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyListOf;
+import static org.mockito.Matchers.anySetOf;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doAnswer;
@@ -233,8 +234,8 @@ public class EstimationServiceImplTest {
         doReturn(fetcher).when(channel).findReadingQualities();
         doReturn(fetcher).when(fetcher).ofQualitySystems(Collections.singleton(QualityCodeSystem.MDC));
         doReturn(emptyFetcher).when(fetcher).ofQualitySystems(Collections.singleton(QualityCodeSystem.MDM));
-        doReturn(fetcher).when(fetcher).ofQualityIndex(any(QualityCodeIndex.class));
-        doReturn(emptyFetcher).when(emptyFetcher).ofQualityIndex(any(QualityCodeIndex.class));
+        doReturn(fetcher).when(fetcher).ofQualityIndices(anySetOf(QualityCodeIndex.class));
+        doReturn(emptyFetcher).when(emptyFetcher).ofQualityIndices(anySetOf(QualityCodeIndex.class));
         doReturn(fetcher).when(fetcher).inTimeInterval(Range.all());
         doReturn(emptyFetcher).when(emptyFetcher).inTimeInterval(Range.all());
         doReturn(readingQualityRecords).when(fetcher).collect();
@@ -323,7 +324,8 @@ public class EstimationServiceImplTest {
         when(metrologyContract.getMetrologyPurpose()).thenReturn(metrologyPurpose);
         when(metrologyPurpose.getName()).thenReturn("Billing");
 
-        EstimationReport report = estimationService.previewEstimate(QualityCodeSystem.MDC, channelsContainer, Range.all(), LOGGER);
+        EstimationReport report = estimationService.previewEstimateForSuspects(QualityCodeSystem.MDC, channelsContainer, Range
+                .all(), LOGGER);
         assertThat(report.getResults()).hasSize(2).containsKey(readingType1).containsKey(readingType2);
 
         EstimationResult estimationResult = report.getResults().get(readingType1);
@@ -337,7 +339,8 @@ public class EstimationServiceImplTest {
 
     @Test
     public void testPreviewEstimateFromOtherSystem() {
-        EstimationReport report = estimationService.previewEstimate(QualityCodeSystem.MDM, channelsContainer, Range.all(), LOGGER);
+        EstimationReport report = estimationService.previewEstimateForSuspects(QualityCodeSystem.MDM, channelsContainer, Range
+                .all(), LOGGER);
         assertThat(report.getResults()).isEmpty(); // no suspects, no rules
     }
 
@@ -361,7 +364,8 @@ public class EstimationServiceImplTest {
         when(metrologyContract.getMetrologyPurpose()).thenReturn(metrologyPurpose);
         when(metrologyPurpose.getName()).thenReturn("Billing");
 
-        EstimationReport report = estimationService.previewEstimate(QualityCodeSystem.MDC, channelsContainer, Range.all(), LOGGER);
+        EstimationReport report = estimationService.previewEstimateForSuspects(QualityCodeSystem.MDC, channelsContainer, Range
+                .all(), LOGGER);
         assertThat(report.getResults()).hasSize(2).containsKey(readingType1).containsKey(readingType2);
 
         EstimationResult estimationResult = report.getResults().get(readingType1);

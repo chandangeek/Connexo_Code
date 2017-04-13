@@ -290,12 +290,12 @@ public class EstimationServiceImpl implements IEstimationService, TranslationKey
             report = new EstimationReportImpl();
             if (channelsContainer.getRange().isConnected(period)) {
                 ((MetrologyContractChannelsContainer) channelsContainer).getMetrologyContract().sortReadingTypesByDependencyLevel().stream()
-                        .map(readingTypes -> previewEstimate(system, channelsContainer, period, readingTypes, logger))
+                        .map(readingTypes -> previewEstimateForSuspects(system, channelsContainer, period, readingTypes, logger))
                         .peek(subReport -> estimationEngine.applyEstimations(system, subReport))
                         .forEach(report::add);
             }
         } else {
-            report = previewEstimate(system, channelsContainer, period, logger);
+            report = previewEstimateForSuspects(system, channelsContainer, period, logger);
             estimationEngine.applyEstimations(system, report);
         }
         logEstimationReport(channelsContainer, period, logger, report);
@@ -358,13 +358,13 @@ public class EstimationServiceImpl implements IEstimationService, TranslationKey
 
     @Override
     public EstimationReportImpl previewEstimate(QualityCodeSystem system, ChannelsContainer channelsContainer, Range<Instant> period, Logger logger) {
-        return previewEstimate(system, channelsContainer, period, channelsContainer.getReadingTypes(period), logger);
+        return previewEstimate(system, channelsContainer, period, channelsContainer.getReadingTypes(period), logger, false);
     }
 
-    private EstimationReportImpl previewEstimate(QualityCodeSystem system, ChannelsContainer channelsContainer,
-                                                 Range<Instant> period, Set<ReadingType> readingTypes, Logger logger) {
+    public EstimationReportImpl previewEstimate(QualityCodeSystem system, ChannelsContainer channelsContainer,
+                                                Range<Instant> period, Set<ReadingType> readingTypes, Logger logger, boolean suspectsOnly) {
         EstimationReportImpl report = new EstimationReportImpl();
-        readingTypes.forEach(readingType -> report.add(previewEstimate(system, channelsContainer, period, readingType, logger)));
+        readingTypes.forEach(readingType -> report.add(previewEstimate(system, channelsContainer, period, readingType, logger, suspectsOnly)));
 
         report.getResults().values().stream()
                 .map(EstimationResult::remainingToBeEstimated)
@@ -377,17 +377,27 @@ public class EstimationServiceImpl implements IEstimationService, TranslationKey
         return report;
     }
 
+    private EstimationReportImpl previewEstimateForSuspects(QualityCodeSystem system, ChannelsContainer channelsContainer,
+                                                            Range<Instant> period, Set<ReadingType> readingTypes, Logger logger) {
+        return previewEstimate(system, channelsContainer, period, readingTypes, logger, true);
+    }
+
+    @Override
+    public EstimationReportImpl previewEstimateForSuspects(QualityCodeSystem system, ChannelsContainer channelsContainer, Range<Instant> period, Logger logger) {
+        return previewEstimate(system, channelsContainer, period, channelsContainer.getReadingTypes(period), logger, true);
+    }
+
     @Override
     public EstimationReport previewEstimate(QualityCodeSystem system, ChannelsContainer channelsContainer,
                                             Range<Instant> period, ReadingType readingType) {
-        return previewEstimate(system, channelsContainer, period, readingType, LOGGER);
+        return previewEstimate(system, channelsContainer, period, readingType, LOGGER, false);
     }
 
     @Override
     public EstimationReportImpl previewEstimate(QualityCodeSystem system, ChannelsContainer channelsContainer,
-                                                Range<Instant> period, ReadingType readingType, Logger logger) {
+                                                Range<Instant> period, ReadingType readingType, Logger logger, boolean suspectsOnly) {
         UpdatableHolder<EstimationResult> result = new UpdatableHolder<>(
-                getInitialBlocksToEstimateAsResult(system, channelsContainer, period, readingType));
+                getInitialBlocksToEstimateAsResult(system, channelsContainer, period, readingType, suspectsOnly));
 
         EstimationReportImpl report = new EstimationReportImpl();
 
@@ -419,7 +429,7 @@ public class EstimationServiceImpl implements IEstimationService, TranslationKey
                                             ReadingType readingType, Estimator estimator) {
         try (LoggingContext parentContext = LoggingContext.getCloseableContext();
              LoggingContext loggingContext = parentContext.with("rule", estimator.getDisplayName())) {
-            return estimator.estimate(getBlocksToEstimate(system, channelsContainer, period, readingType), system);
+            return estimator.estimate(getBlocksToEstimate(system, channelsContainer, period, readingType, false), system);
         }
     }
 
@@ -561,8 +571,8 @@ public class EstimationServiceImpl implements IEstimationService, TranslationKey
     }
 
     private EstimationResult getInitialBlocksToEstimateAsResult(QualityCodeSystem system, ChannelsContainer channelsContainer,
-                                                                Range<Instant> period, ReadingType readingType) {
-        return asInitialResult(getBlocksToEstimate(system, channelsContainer, period, readingType));
+                                                                Range<Instant> period, ReadingType readingType, boolean suspectsOnly) {
+        return asInitialResult(getBlocksToEstimate(system, channelsContainer, period, readingType, suspectsOnly));
     }
 
     private EstimationResult asInitialResult(List<EstimationBlock> blocksToEstimate) {
@@ -580,8 +590,12 @@ public class EstimationServiceImpl implements IEstimationService, TranslationKey
     }
 
     private List<EstimationBlock> getBlocksToEstimate(QualityCodeSystem system, ChannelsContainer channelsContainer,
-                                                      Range<Instant> period, ReadingType readingType) {
-        return estimationEngine.findBlocksToEstimate(system, channelsContainer, period, readingType);
+                                                      Range<Instant> period, ReadingType readingType, boolean suspectsOnly) {
+        if (suspectsOnly) {
+            return estimationEngine.findBlocksOfSuspectsToEstimate(system, channelsContainer, period, readingType);
+        } else {
+            return estimationEngine.findBlocksToEstimate(system, channelsContainer, period, readingType);
+        }
     }
 
     @Reference

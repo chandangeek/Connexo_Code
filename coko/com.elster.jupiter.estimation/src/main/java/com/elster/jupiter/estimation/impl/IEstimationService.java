@@ -11,7 +11,6 @@ import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.estimation.EstimationTask;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.metering.ChannelsContainer;
-import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.nls.Thesaurus;
@@ -28,9 +27,11 @@ interface IEstimationService extends EstimationService {
 
     Thesaurus getThesaurus();
 
+    EstimationReportImpl previewEstimateForSuspects(QualityCodeSystem system, ChannelsContainer channelsContainer, Range<Instant> period, Logger logger);
+
     EstimationReportImpl previewEstimate(QualityCodeSystem system, ChannelsContainer channelsContainer, Range<Instant> period, Logger logger);
 
-    EstimationReportImpl previewEstimate(QualityCodeSystem system, ChannelsContainer channelsContainer, Range<Instant> period, ReadingType readingType, Logger logger);
+    EstimationReportImpl previewEstimate(QualityCodeSystem system, ChannelsContainer channelsContainer, Range<Instant> period, ReadingType readingType, Logger logger, boolean suspectsOnly);
 
     DestinationSpec getDestination();
 

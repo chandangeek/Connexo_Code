@@ -23,6 +23,7 @@ import com.elster.jupiter.metering.ReadingQualityWithTypeFetcher;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.BaseReading;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
@@ -106,7 +107,7 @@ public class EstimationEngineTest {
         when(channel1.findReadingQualities()).thenReturn(fetcher);
         when(cimChannel1.findReadingQualities()).thenReturn(fetcher);
         when(fetcher.ofQualitySystems(anySetOf(QualityCodeSystem.class))).thenReturn(fetcher);
-        when(fetcher.ofQualityIndex(any(QualityCodeIndex.class))).thenReturn(fetcher);
+        when(fetcher.ofQualityIndices(anySetOf(QualityCodeIndex.class))).thenReturn(fetcher);
         when(fetcher.inTimeInterval(Range.all())).thenReturn(fetcher);
     }
 
@@ -116,14 +117,14 @@ public class EstimationEngineTest {
 
     @Test
     public void testFindBlocksWhenThereAreNoSuspects() {
-        List<EstimationBlock> blocksToEstimate = new EstimationEngine().findBlocksToEstimate(QualityCodeSystem.MDC, meterActivation
+        List<EstimationBlock> blocksToEstimate = new EstimationEngine().findBlocksOfSuspectsToEstimate(QualityCodeSystem.MDC, meterActivation
                 .getChannelsContainer(), Range.all(), readingType);
         assertThat(blocksToEstimate).isEmpty();
         verify(cimChannel1, atLeastOnce()).findReadingQualities();
         verify(fetcher, MockitoExtension.and(atLeastOnce(), MockitoExtension.neverWithOtherArguments()))
                 .ofQualitySystems(Collections.singleton(QualityCodeSystem.MDC));
         verify(fetcher, MockitoExtension.and(atLeastOnce(), MockitoExtension.neverWithOtherArguments()))
-                .ofQualityIndex(QualityCodeIndex.SUSPECT);
+                .ofQualityIndices(ImmutableSet.of(QualityCodeIndex.SUSPECT));
         verify(fetcher, MockitoExtension.and(atLeastOnce(), MockitoExtension.neverWithOtherArguments()))
                 .inTimeInterval(Range.all());
     }
@@ -133,7 +134,7 @@ public class EstimationEngineTest {
         when(fetcher.collect()).thenReturn(Collections.singletonList(readingQualityRecord2));
         when(readingQualityRecord2.getBaseReadingRecord()).thenReturn(Optional.empty());
 
-        List<EstimationBlock> blocksToEstimate = new EstimationEngine().findBlocksToEstimate(QualityCodeSystem.MDC, meterActivation
+        List<EstimationBlock> blocksToEstimate = new EstimationEngine().findBlocksOfSuspectsToEstimate(QualityCodeSystem.MDC, meterActivation
                 .getChannelsContainer(), Range.all(), readingType);
 
         assertThat(blocksToEstimate).hasSize(1);
@@ -152,7 +153,7 @@ public class EstimationEngineTest {
     public void testFindBlocksWhenThereIsOneSuspectForReading() {
         when(fetcher.collect()).thenReturn(Collections.singletonList(readingQualityRecord2));
 
-        List<EstimationBlock> blocksToEstimate = new EstimationEngine().findBlocksToEstimate(QualityCodeSystem.MDC, meterActivation
+        List<EstimationBlock> blocksToEstimate = new EstimationEngine().findBlocksOfSuspectsToEstimate(QualityCodeSystem.MDC, meterActivation
                 .getChannelsContainer(), Range.all(), readingType);
 
         assertThat(blocksToEstimate).hasSize(1);
@@ -171,7 +172,7 @@ public class EstimationEngineTest {
     public void testFindBlocksWhenThereIsOneBlockOfSuspectForReading() {
         when(fetcher.collect()).thenReturn(Arrays.asList(readingQualityRecord2, readingQualityRecord3, readingQualityRecord4));
 
-        List<EstimationBlock> blocksToEstimate = new EstimationEngine().findBlocksToEstimate(QualityCodeSystem.MDC, meterActivation
+        List<EstimationBlock> blocksToEstimate = new EstimationEngine().findBlocksOfSuspectsToEstimate(QualityCodeSystem.MDC, meterActivation
                 .getChannelsContainer(), Range.all(), readingType);
 
         assertThat(blocksToEstimate).hasSize(1);

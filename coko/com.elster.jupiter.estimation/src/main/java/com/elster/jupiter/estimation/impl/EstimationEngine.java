@@ -16,13 +16,17 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.beans.ReadingImpl;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -30,36 +34,26 @@ import static com.elster.jupiter.util.streams.DecoratedStream.decorate;
 
 class EstimationEngine {
 
+    List<EstimationBlock> findBlocksOfSuspectsToEstimate(QualityCodeSystem system, ChannelsContainer channelsContainer, Range<Instant> period, ReadingType readingType) {
+        return findBlocksToEstimate(system, channelsContainer, period, readingType, ImmutableSet.of(QualityCodeIndex.SUSPECT));
+    }
+
     List<EstimationBlock> findBlocksToEstimate(QualityCodeSystem system, ChannelsContainer channelsContainer, Range<Instant> period, ReadingType readingType) {
+        return findBlocksToEstimate(system, channelsContainer, period, readingType, Arrays.stream(QualityCodeIndex.values())
+                .collect(Collectors.toSet()));
+    }
+
+    private List<EstimationBlock> findBlocksToEstimate(QualityCodeSystem system, ChannelsContainer channelsContainer, Range<Instant> period, ReadingType readingType, Set<QualityCodeIndex> qualityCodes) {
         return channelsContainer.getChannels().stream()
                 .filter(Channel::isRegular)
                 .filter(channel -> channel.getReadingTypes().contains(readingType))
-                .flatMap(channel -> findBlocksToEstimate(system, channel, period, readingType))
+                .flatMap(channel -> findBlocksToEstimate(system, channel, period, readingType, qualityCodes))
                 .collect(Collectors.toList());
     }
 
-    private static Stream<EstimationBlock> findBlocksToEstimate(QualityCodeSystem system, Channel channel, Range<Instant> period, ReadingType readingType) {
-        if(channel.getIntervalReadings(readingType, period).isEmpty()){
-            List<ReadingQualityRecord> readingQualityRecords = channel.getCimChannel(readingType)
-                    .map(cimChannel -> cimChannel.findReadingQualities()
-                            .ofQualitySystems(Collections.singleton(system))
-                            .ofQualityIndex(QualityCodeIndex.SUSPECT)
-                            .inTimeInterval(period)
-                            .collect())
-                    .orElse(Collections.emptyList());
-            if(readingQualityRecords.isEmpty()){
-                readingQualityRecords = channel.getCimChannel(readingType)
-                        .map(cimChannel -> cimChannel.findReadingQualities()
-                                .ofQualitySystems(Collections.singleton(system))
-                                .inTimeInterval(period)
-                                .collect())
-                        .orElse(Collections.emptyList());
-            }
-            return decorate(readingQualityRecords.stream())
-                    .map(EstimationEngine::toEstimatable)
-                    .partitionWhen((est1, est2) -> !channel.getNextDateTime(est1.getTimestamp()).equals(est2.getTimestamp()))
-                    .map(estimableList -> SimpleEstimationBlock.of(channel, readingType, estimableList));
-        }else {
+    private static Stream<EstimationBlock> findBlocksToEstimate(QualityCodeSystem system, Channel channel, Range<Instant> period, ReadingType readingType, Set<QualityCodeIndex> qualityCodes) {
+        if (qualityCodes.size() > 1 && !channel.getIntervalReadings(readingType, period)
+                .isEmpty()) { // not only suspects
             return decorate(channel.getIntervalReadings(readingType, period).stream())
                     .map(BaseReadingRecordEstimatable::new)
                     .map(Estimatable.class::cast)
@@ -67,6 +61,27 @@ class EstimationEngine {
                             .equals(est2.getTimestamp()))
                     .map(estimableList -> SimpleEstimationBlock.of(channel, readingType, estimableList));
         }
+
+        return findBlocksBasedOnReadingQualities(system, channel, period, readingType, qualityCodes);
+    }
+
+    private static Stream<EstimationBlock> findBlocksBasedOnReadingQualities(QualityCodeSystem system, Channel channel, Range<Instant> period, ReadingType readingType, Set<QualityCodeIndex> qualityCodes) {
+        return decorate(findReadingQualities(Collections.singleton(system), channel, period, readingType, qualityCodes).stream())
+                .sorted(Comparator.comparing(ReadingQualityRecord::getReadingTimestamp))
+                .map(EstimationEngine::toEstimatable)
+                .partitionWhen((est1, est2) -> !channel.getNextDateTime(est1.getTimestamp())
+                        .equals(est2.getTimestamp()))
+                .map(estimableList -> SimpleEstimationBlock.of(channel, readingType, estimableList));
+    }
+
+    private static List<ReadingQualityRecord> findReadingQualities(Set<QualityCodeSystem> systems, Channel channel, Range<Instant> period, ReadingType readingType, Set<QualityCodeIndex> qualityCodes) {
+        return channel.getCimChannel(readingType)
+                .map(cimChannel -> cimChannel.findReadingQualities()
+                        .ofQualitySystems(systems)
+                        .ofQualityIndices(qualityCodes)
+                        .inTimeInterval(period)
+                        .collect())
+                .orElse(Collections.emptyList());
     }
 
     private static Estimatable toEstimatable(ReadingQualityRecord readingQualityRecord) {
