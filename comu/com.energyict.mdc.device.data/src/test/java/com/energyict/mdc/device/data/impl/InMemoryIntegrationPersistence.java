@@ -6,6 +6,7 @@ package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cps.CustomPropertySetService;
@@ -247,6 +248,7 @@ public class InMemoryIntegrationPersistence {
                 new DomainUtilModule(),
                 new PartyModule(),
                 new UserModule(),
+                new BpmModule(),
                 new IdsModule(),
                 new FiniteStateMachineModule(),
                 new UsagePointLifeCycleConfigurationModule(),
