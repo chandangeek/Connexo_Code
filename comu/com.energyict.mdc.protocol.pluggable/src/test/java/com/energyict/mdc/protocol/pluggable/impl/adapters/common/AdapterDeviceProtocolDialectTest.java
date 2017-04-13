@@ -5,6 +5,7 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.common;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
@@ -116,6 +117,7 @@ public class AdapterDeviceProtocolDialectTest {
                 new IdsModule(),
                 new UserModule(),
                 new PartyModule(),
+                new BpmModule(),
                 new FiniteStateMachineModule(),
                 new UsagePointLifeCycleConfigurationModule(),
                 new CalendarModule(),
