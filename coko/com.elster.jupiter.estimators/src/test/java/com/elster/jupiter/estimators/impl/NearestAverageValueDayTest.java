@@ -203,7 +203,7 @@ public class NearestAverageValueDayTest {
                 .atTimestamp(instant)
                 .actual()
                 .ofQualitySystems(SYSTEMS)
-                .ofQualityIndices(ImmutableSet.of(QualityCodeIndex.SUSPECT, QualityCodeIndex.KNOWNMISSINGREAD))///Missing ??
+                .ofQualityIndices(ImmutableSet.of(QualityCodeIndex.SUSPECT, QualityCodeIndex.KNOWNMISSINGREAD))
                 .noneMatch())
                 .thenReturn(isValid);
         return mockDeltaReading(instant, value);

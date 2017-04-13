@@ -54,6 +54,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static java.lang.Math.abs;
+import static java.math.RoundingMode.HALF_UP;
 
 
 public class NearestAverageValueDayEstimator extends AbstractEstimator implements Estimator {
@@ -315,6 +316,7 @@ public class NearestAverageValueDayEstimator extends AbstractEstimator implement
                         .filter(brrc -> ZonedDateTime.ofInstant(brrc.getTimeStamp(), zone).get(ChronoField.DAY_OF_WEEK) == ZonedDateTime.ofInstant(estimatable.getTimestamp(), zone).get(ChronoField.DAY_OF_WEEK))
                         .filter(brrc -> ZonedDateTime.ofInstant(brrc.getTimeStamp(), zone).get(ChronoField.MINUTE_OF_DAY) == ZonedDateTime.ofInstant(estimatable.getTimestamp(), zone).get(ChronoField.MINUTE_OF_DAY))
                         .filter(brrc -> view.eventFor(brrc.getTimeStamp()).getId() != calendarEventCode)
+                        .filter(brcc->isValidSample(estimationBlock,brcc.getTimeStamp(),brcc,systems))
                         .collect(Collectors.toList());
 
                 if (zonedView.eventFor(estimatable.getTimestamp()).getId() == calendarEventCode && discardDay == true) {
@@ -329,6 +331,7 @@ public class NearestAverageValueDayEstimator extends AbstractEstimator implement
                         .stream()
                         .filter(brrc -> ZonedDateTime.ofInstant(brrc.getTimeStamp(), zone).get(ChronoField.DAY_OF_WEEK) == ZonedDateTime.ofInstant(estimatable.getTimestamp(), zone).get(ChronoField.DAY_OF_WEEK))
                         .filter(brrc -> ZonedDateTime.ofInstant(brrc.getTimeStamp(), zone).get(ChronoField.MINUTE_OF_DAY) == ZonedDateTime.ofInstant(estimatable.getTimestamp(), zone).get(ChronoField.MINUTE_OF_DAY))
+                        .filter(brcc->isValidSample(estimationBlock,brcc.getTimeStamp(),brcc,systems))
                         .collect(Collectors.toList());
 
 
@@ -342,7 +345,7 @@ public class NearestAverageValueDayEstimator extends AbstractEstimator implement
             int count = 0;
             for (BaseReadingRecord reading : readingsBefore) {
 
-                if (isValidSample(estimationBlock, reading.getTimeStamp(), reading, systems) && count < numberOfSamples) {
+                if (count < numberOfSamples) {
                     result = result.add(reading.getValue());
                     count++;
                 }
@@ -354,7 +357,7 @@ public class NearestAverageValueDayEstimator extends AbstractEstimator implement
                 LoggingContext.get().info(getLogger(), message, count, numberOfSamples);
                 return false;
             }
-            result = result.divide(BigDecimal.valueOf(count));
+            result = result.divide(BigDecimal.valueOf(count), 6, HALF_UP);
             valuesForEstimatables.put(estimatable, result);
         }
 
