@@ -43,7 +43,7 @@ public interface DeviceEstimation {
      *
      * @param estimationRule target {@link EstimationRule}
      * @param readingType target {@link ReadingType} of device's channel
-     * @return {@link ChannelValidationRuleOverriddenProperties} or Optional.empty() if no properties are overridden for specified validation rule and reading type
+     * @return {@link ChannelEstimationRuleOverriddenProperties} or Optional.empty() if no properties are overridden for specified estimation rule and reading type
      */
     Optional<? extends ChannelEstimationRuleOverriddenProperties> findOverriddenProperties(EstimationRule estimationRule, ReadingType readingType);
 
