@@ -12,7 +12,8 @@ Ext.define('Mdc.securityaccessors.model.DeviceSecurityAccessor', {
         {name: 'id', type: 'int', useNull: true},
         {name: 'name', type: 'string'},
         {name: 'description', type: 'string'},
-        'expirationTime'
+        'expirationTime',
+        'status'
     ],
     associations: [
         {
@@ -36,7 +37,7 @@ Ext.define('Mdc.securityaccessors.model.DeviceSecurityAccessor', {
             type: 'json'
         },
 
-        setUrl: function (deviceTypeId) {
+        setUrl: function (deviceId) {
             this.url = this.urlTpl.replace('{deviceId}', deviceId);
         }
     }

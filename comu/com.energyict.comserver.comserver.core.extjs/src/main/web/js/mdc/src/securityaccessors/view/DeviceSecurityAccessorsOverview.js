@@ -15,6 +15,8 @@ Ext.define('Mdc.securityaccessors.view.DeviceSecurityAccessorsOverview', {
         'Uni.util.FormEmptyMessage'
     ],
 
+    activeTab: undefined,
+
     initComponent: function () {
         var me = this,
             securityKeysStore = Ext.getStore('Mdc.securityaccessors.store.DeviceSecurityKeys'),

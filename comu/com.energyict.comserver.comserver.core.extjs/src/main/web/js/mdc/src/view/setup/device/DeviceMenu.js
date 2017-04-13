@@ -177,7 +177,7 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
                         {
                             text: Uni.I18n.translate('general.securityAccessors', 'MDC', 'Security accessors'),
                             itemId: 'securityAccessorsLink',
-                            href: '#/devices/' + encodeURIComponent(deviceId) + '/securityaccessors'
+                            href: '#/devices/' + encodeURIComponent(deviceId) + '/keys'
                         },
                         {
                             text: Uni.I18n.translate('devicemenu.protocols', 'MDC', 'Protocol dialects'),
