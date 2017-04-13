@@ -9,7 +9,6 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.BinderProvider;
-import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.yellowfin.YellowfinService;
 import com.elster.jupiter.yellowfin.groups.YellowfinGroupsService;
@@ -42,7 +41,7 @@ public class YellowfinApplication extends Application implements BinderProvider 
 
     @Override
     public Set<Class<?>> getClasses() {
-        return ImmutableSet.of(LocalizedExceptionMapper.class, YellowfinResource.class, YellowfinDeviceGroupsResource.class, YellowfinReportInfoResource.class);
+        return ImmutableSet.of(YellowfinResource.class, YellowfinDeviceGroupsResource.class, YellowfinReportInfoResource.class);
     }
 
 
