@@ -15,6 +15,7 @@ import java.util.Optional;
 @ProviderType
 public interface PkiService {
 
+
     enum AsymmetricKeyAlgorithms {
         RSA, DSA, ECDSA
     }
@@ -196,6 +197,16 @@ public interface PkiService {
      * @return All Certificates and ClientCertificates, TrustedCertificates will not be part of the list.
      */
     Finder<CertificateWrapper> findAllCertificates();
+
+    /**
+     * List all known aliases from the certificate store that match the search filter.
+     * @see {https://confluence.eict.vpdc/pages/viewpage.action?spaceKey=JDG&title=Filter}
+     * @see {https://confluence.eict.vpdc/pages/viewpage.action?spaceKey=JDG&title=Forms+and+form+elements}
+     * @param searchString Search filter, possibly containing wildcards
+     * @return List of marching aliases
+     */
+    List<String> getAliasesByFilter(String searchString);
+
 
     public interface ClientCertificateWrapperBuilder {
         ClientCertificateWrapperBuilder alias(String alias);

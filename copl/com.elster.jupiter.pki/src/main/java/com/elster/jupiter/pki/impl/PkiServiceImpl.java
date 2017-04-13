@@ -35,6 +35,7 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.conditions.Where;
 
 import com.google.inject.AbstractModule;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -414,6 +415,18 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider {
         return DefaultFinder.of(CertificateWrapper.class,
                 where("class").in(Arrays.asList(AbstractCertificateWrapperImpl.CERTIFICATE_DISCRIMINATOR, AbstractCertificateWrapperImpl.CLIENT_CERTIFICATE_DISCRIMINATOR)),
                 getDataModel());
+    }
+
+    @Override
+    public List<String> getAliasesByFilter(String searchString) {
+        return DefaultFinder.of(CertificateWrapper.class,
+                Where.where(AbstractCertificateWrapperImpl.Fields.ALIAS.fieldName()).likeIgnoreCase(searchString)
+                        .and(where("class").in(Arrays.asList(AbstractCertificateWrapperImpl.CERTIFICATE_DISCRIMINATOR, AbstractCertificateWrapperImpl.CLIENT_CERTIFICATE_DISCRIMINATOR))), getDataModel())
+                .paged(0,30)
+                .sorted(AbstractCertificateWrapperImpl.Fields.ALIAS.fieldName(), true)
+                .stream()
+                .map(CertificateWrapper::getAlias)
+                .collect(Collectors.toList());
     }
 
     private class ClientCertificateTypeBuilderImpl implements ClientCertificateTypeBuilder {
