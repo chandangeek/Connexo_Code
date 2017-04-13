@@ -73,7 +73,6 @@ import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.upl.tasks.support.DeviceClockSupport;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
-
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 
@@ -213,13 +212,13 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
         this.meterProtocolClockAdapter = new MeterProtocolClockAdapter(meterProtocol);
         this.deviceProtocolTopologyAdapter = new DeviceProtocolTopologyAdapter(issueService, collectedDataFactory);
 
-        if (!DeviceMessageSupport.class.isAssignableFrom(this.meterProtocol.getClass())) {
+        if (!DeviceMessageSupport.class.isAssignableFrom(getProtocolClass())) {
             this.meterProtocolMessageAdapter = new MeterProtocolMessageAdapter(meterProtocol, this.messageAdapterMappingFactory, this.getProtocolPluggableService(), this.issueService, this.collectedDataFactory, this.deviceMessageSpecificationService);
         } else {
             this.deviceMessageSupport = (DeviceMessageSupport) this.meterProtocol;
         }
 
-        if (!DeviceSecuritySupport.class.isAssignableFrom(this.meterProtocol.getClass())) {
+        if (!DeviceSecuritySupport.class.isAssignableFrom(getProtocolClass())) {
             // we only instantiate the adapter if the protocol needs it
             this.meterProtocolSecuritySupportAdapter =
                     new MeterProtocolSecuritySupportAdapter(

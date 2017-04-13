@@ -27,17 +27,17 @@ public class MeterProtocolMessageAdapter extends AbstractDeviceMessageConverterA
 
     public MeterProtocolMessageAdapter(MeterProtocol meterProtocol, MessageAdapterMappingFactory messageAdapterMappingFactory, ProtocolPluggableService protocolPluggableService, IssueService issueService, CollectedDataFactory collectedDataFactory, DeviceMessageSpecificationService deviceMessageSpecificationService) {
         super(messageAdapterMappingFactory, protocolPluggableService, issueService, collectedDataFactory, deviceMessageSpecificationService);
-        if (MessageProtocol.class.isAssignableFrom(meterProtocol.getClass())) {
+
+        Class clazz;
+        if (meterProtocol instanceof UPLProtocolAdapter) {
+            clazz = ((UPLProtocolAdapter) meterProtocol).getActualClass();
+        } else {
+            clazz = meterProtocol.getClass();
+        }
+
+        if (MessageProtocol.class.isAssignableFrom(clazz)) {
             setMessageProtocol((MessageProtocol) meterProtocol);
-
-            String javaClassName;
-            if (meterProtocol instanceof UPLProtocolAdapter) {
-                javaClassName = ((UPLProtocolAdapter) meterProtocol).getActualClass().getName();
-            } else {
-                javaClassName = meterProtocol.getClass().getName();
-            }
-
-            Object messageConverter = createNewMessageConverterInstance(getDeviceMessageConverterMappingFor(javaClassName));
+            Object messageConverter = createNewMessageConverterInstance(getDeviceMessageConverterMappingFor(clazz.getName()));
             if (LegacyMessageConverter.class.isAssignableFrom(messageConverter.getClass())) {
                 final LegacyMessageConverter legacyMessageConverter = (LegacyMessageConverter) messageConverter;
                 legacyMessageConverter.setMessagingProtocol((MessageProtocol) meterProtocol);

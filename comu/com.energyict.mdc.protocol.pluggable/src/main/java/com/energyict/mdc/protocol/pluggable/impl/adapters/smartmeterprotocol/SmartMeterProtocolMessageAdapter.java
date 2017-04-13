@@ -4,7 +4,6 @@
 
 package com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol;
 
-import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
@@ -28,17 +27,17 @@ public class SmartMeterProtocolMessageAdapter extends AbstractDeviceMessageConve
 
     public SmartMeterProtocolMessageAdapter(SmartMeterProtocol smartMeterProtocol, MessageAdapterMappingFactory messageAdapterMappingFactory, ProtocolPluggableService protocolPluggableService, IssueService issueService, CollectedDataFactory collectedDataFactory, DeviceMessageSpecificationService deviceMessageSpecificationService) {
         super(messageAdapterMappingFactory, protocolPluggableService, issueService, collectedDataFactory, deviceMessageSpecificationService);
-        if (MessageProtocol.class.isAssignableFrom(smartMeterProtocol.getClass())) {
+
+        Class clazz;
+        if (smartMeterProtocol instanceof UPLProtocolAdapter) {
+            clazz = ((UPLProtocolAdapter) smartMeterProtocol).getActualClass();
+        } else {
+            clazz = smartMeterProtocol.getClass();
+        }
+
+        if (MessageProtocol.class.isAssignableFrom(clazz)) {
             setMessageProtocol((MessageProtocol) smartMeterProtocol);
-
-            String javaClassName;
-            if (smartMeterProtocol instanceof UPLProtocolAdapter) {
-                javaClassName = ((UPLProtocolAdapter) smartMeterProtocol).getActualClass().getName();
-            } else {
-                javaClassName = smartMeterProtocol.getClass().getName();
-            }
-
-            Object messageConverter = createNewMessageConverterInstance(getDeviceMessageConverterMappingFor(javaClassName));
+            Object messageConverter = createNewMessageConverterInstance(getDeviceMessageConverterMappingFor(clazz.getName()));
             if (LegacyMessageConverter.class.isAssignableFrom(messageConverter.getClass())) {
                 final LegacyMessageConverter legacyMessageConverter = (LegacyMessageConverter) messageConverter;
                 legacyMessageConverter.setMessagingProtocol((MessageProtocol) smartMeterProtocol);
