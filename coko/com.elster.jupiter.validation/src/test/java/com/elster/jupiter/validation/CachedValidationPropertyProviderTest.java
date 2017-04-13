@@ -58,7 +58,7 @@ public class CachedValidationPropertyProviderTest extends EqualsContractTest {
                 new CachedValidationPropertyProvider.Key(ANOTHER_READINGTYPE, RULE_NAME, VALIDATOR, ACTION),
                 new CachedValidationPropertyProvider.Key(READINGTYPE, ANOTHER_RULE_NAME, VALIDATOR, ACTION),
                 new CachedValidationPropertyProvider.Key(READINGTYPE, RULE_NAME, ANOTHER_VALIDATOR, ACTION),
-                new CachedValidationPropertyProvider.Key(READINGTYPE, RULE_NAME, ANOTHER_VALIDATOR, ANOTHER_ACTION)
+                new CachedValidationPropertyProvider.Key(READINGTYPE, RULE_NAME, VALIDATOR, ANOTHER_ACTION)
         );
     }
 
