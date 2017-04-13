@@ -5,6 +5,7 @@
 package com.energyict.mdc.device.config.impl.deviceconfigchange;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cps.CustomPropertySetService;
@@ -192,6 +193,7 @@ public abstract class AbstractConflictIT {
                     new PartyModule(),
                     new UserModule(),
                     new IdsModule(),
+                    new BpmModule(),
                     new FiniteStateMachineModule(),
                     new UsagePointLifeCycleConfigurationModule(),
                     new MeteringModule(),
