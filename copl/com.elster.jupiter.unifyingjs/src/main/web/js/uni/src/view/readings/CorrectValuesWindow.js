@@ -27,6 +27,8 @@ Ext.define('Uni.view.readings.CorrectValuesWindow', {
      */
     infoMessageText: Uni.I18n.translate('correct.window.info.message', 'UNI', 'The correction will be applied to calculated value'),
 
+    hideProjectedField: false,
+
     requires: [
         'Uni.util.FormEmptyMessage',
         'Uni.model.readings.ReadingCorrection',
@@ -98,12 +100,15 @@ Ext.define('Uni.view.readings.CorrectValuesWindow', {
                             switch (newValue.type){
                                 case 'MULTIPLY': {
                                     me.getAmountField().setValue(1);
+                                    me.getAmountField().minValue= 1;
                                 } break;
                                 case 'ADD': {
                                     me.getAmountField().setValue(0);
+                                    me.getAmountField().minValue= 0;
                                 } break;
                                 case 'SUBTRACT': {
                                     me.getAmountField().setValue(0);
+                                    me.getAmountField().minValue= 0;
                                 } break;
                             }
                         }
@@ -115,8 +120,11 @@ Ext.define('Uni.view.readings.CorrectValuesWindow', {
                     required: true,
                     name: 'amount',
                     value: 1,
-                    minValue: 0,
-                    itemId: 'correction-amount-number-fld'
+                    minValue: 1,
+                    itemId: 'correction-amount-number-fld',
+                    listeners: {
+                        blur: me.recurrenceNumberFieldValidation
+                    }
                 },
                 {
                     xtype: 'checkbox',
@@ -130,7 +138,8 @@ Ext.define('Uni.view.readings.CorrectValuesWindow', {
                     fieldLabel: Uni.I18n.translate('correct.window.projectedValues', 'UNI', 'Projected value'),
                     boxLabel: Uni.I18n.translate('correct.window.projectedValues.markValuess', 'UNI', 'Mark value(s) as projected'),
                     itemId: 'projected-checkbox',
-                    name: 'projected'
+                    name: 'projected',
+                    hidden: me.hideProjectedField
                 },
                 {
                     xtype: 'combobox',
@@ -174,16 +183,11 @@ Ext.define('Uni.view.readings.CorrectValuesWindow', {
         this.down('#correct-values-window-form').updateRecord(record);
     },
 
-    // calculateValues: function(correctionModel){
-    //
-    //     correctionModel
-    //
-    //
-    //     Ext.Array.each(correctionModel.get('intervals'), function(interval){
-    //         interval.value = Uni.util.ReadingEditor.valueCorrector(interval.value, correctionModel.get('type'), correctionModel.get('amount'))
-    //     });
-    //     // return correctionModel.get('intervals').map(function(interval){
-    //     //     return Uni.util.ReadingEditor.valueCorrector(interval.value, correctionModel.get('type'), correctionModel.get('amount'));
-    //     // });
-    // }
+    recurrenceNumberFieldValidation: function (field) {
+        var value = field.getValue();
+
+        if (Ext.isEmpty(value) || value < field.minValue) {
+            field.setValue(field.minValue);
+        }
+    }
 });
