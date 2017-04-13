@@ -101,6 +101,9 @@ public final class ComTaskExecutionOrganizer {
         return new DeviceProtocolSecurityPropertySetImpl(
                 securityPropertySet.getAuthenticationDeviceAccessLevel().getId(),
                 securityPropertySet.getEncryptionDeviceAccessLevel().getId(),
+                securityPropertySet.getSecuritySuite().getId(),
+                securityPropertySet.getRequestSecurityLevel().getId(),
+                securityPropertySet.getResponseSecurityLevel().getId(),
                 securityProperties);
     }
 

@@ -5,18 +5,27 @@
 package com.energyict.mdc.engine.impl.core;
 
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
+import com.energyict.mdc.protocol.api.security.AdvancedDeviceProtocolSecurityPropertySet;
 
-public class DeviceProtocolSecurityPropertySetImpl implements DeviceProtocolSecurityPropertySet {
+/**
+ * Maps the securityPropertySet to a usable property set for a DeviceProtocol.
+ */
+public class DeviceProtocolSecurityPropertySetImpl implements AdvancedDeviceProtocolSecurityPropertySet {
 
-    private int authenticationDeviceAccessLevel;
-    private int encryptionDeviceAccessLevel;
-    private TypedProperties securityProperties;
+    private final int securitySuite;
+    private final int requestSecurityLevel;
+    private final int responseSecurityLevel;
+    private final int authenticationDeviceAccessLevel;
+    private final int encryptionDeviceAccessLevel;
+    private final TypedProperties securityProperties;
 
-    public DeviceProtocolSecurityPropertySetImpl(int authenticationDeviceAccessLevel, int encryptionDeviceAccessLevel, TypedProperties securityProperties) {
+    public DeviceProtocolSecurityPropertySetImpl(int authenticationDeviceAccessLevel, int encryptionDeviceAccessLevel, int securitySuite, int requestSecurityLevel, int responseSecurityLevel, TypedProperties securityProperties) {
         this.authenticationDeviceAccessLevel = authenticationDeviceAccessLevel;
         this.encryptionDeviceAccessLevel = encryptionDeviceAccessLevel;
         this.securityProperties = securityProperties;
+        this.securitySuite = securitySuite;
+        this.requestSecurityLevel = requestSecurityLevel;
+        this.responseSecurityLevel = responseSecurityLevel;
     }
 
     @Override
@@ -34,4 +43,18 @@ public class DeviceProtocolSecurityPropertySetImpl implements DeviceProtocolSecu
         return securityProperties;
     }
 
+    @Override
+    public int getSecuritySuite() {
+        return securitySuite;
+    }
+
+    @Override
+    public int getRequestSecurityLevel() {
+        return requestSecurityLevel;
+    }
+
+    @Override
+    public int getResponseSecurityLevel() {
+        return responseSecurityLevel;
+    }
 }
