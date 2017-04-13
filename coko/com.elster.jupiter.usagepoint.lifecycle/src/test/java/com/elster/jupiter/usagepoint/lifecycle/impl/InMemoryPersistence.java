@@ -5,6 +5,7 @@
 package com.elster.jupiter.usagepoint.lifecycle.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
@@ -64,6 +65,7 @@ public class InMemoryPersistence {
                 new UserModule(),
                 new OrmModule(),
                 new PubSubModule(),
+                new BpmModule(),
                 new InMemoryMessagingModule(),
                 new FiniteStateMachineModule(),
                 new DataVaultModule(),
