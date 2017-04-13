@@ -7,6 +7,7 @@ package com.energyict.protocolimplv2.nta.abstractnta;
 import com.energyict.mdc.common.HexString;
 import com.energyict.mdc.common.Password;
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.device.config.impl.KeyAccessorTypeImpl;
 import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.protocols.naming.SecurityPropertySpecName;
 
@@ -58,8 +59,13 @@ public class NTASecurityProvider implements SecurityProvider {
      */
     public byte[] getAuthenticationKey() {
         if (this.authenticationKey == null) {
-            String hex = properties.<HexString>getTypedProperty(SecurityPropertySpecName.AUTHENTICATION_KEY.getKey()).getContent();
-            this.authenticationKey = DLMSUtils.hexStringToByteArray(hex);
+            //TODO change niet committen silvie
+          //  String hex = properties.<HexString>getTypedProperty(SecurityPropertySpecName.AUTHENTICATION_KEY.getKey()).getContent();
+
+            //KeyAccessorTypeImpl keyAccessorType = properties.getTypedProperty(SecurityPropertySpecName.AUTHENTICATION_KEY_WITH_KEY_ACCESSOR.getKey());
+
+            //this.authenticationKey = DLMSUtils.hexStringToByteArray(hex);
+            this.authenticationKey = properties.getTypedProperty(SecurityPropertySpecName.AUTHENTICATION_KEY_WITH_KEY_ACCESSOR.getKey());
         }
         return this.authenticationKey;
     }
@@ -73,8 +79,9 @@ public class NTASecurityProvider implements SecurityProvider {
      */
     public byte[] getGlobalKey() {
         if (this.encryptionKey == null) {
-            String hex = properties.<HexString>getTypedProperty(SecurityPropertySpecName.ENCRYPTION_KEY.getKey()).getContent();
-            this.encryptionKey = DLMSUtils.hexStringToByteArray(hex);
+            //String hex = properties.<HexString>getTypedProperty(SecurityPropertySpecName.ENCRYPTION_KEY.getKey()).getContent();
+            //this.encryptionKey = DLMSUtils.hexStringToByteArray(hex);
+            this.encryptionKey = properties.getTypedProperty(SecurityPropertySpecName.ENCRYPTION_KEY_WITH_KEY_ACCESSOR.getKey());
         }
         return this.encryptionKey;
     }
@@ -99,8 +106,9 @@ public class NTASecurityProvider implements SecurityProvider {
     @Override
     public byte[] getMasterKey() {
         if (this.masterKey == null) {
-            String hex = properties.<HexString>getTypedProperty(SecurityPropertySpecName.MASTER_KEY.getKey()).getContent();
-            this.masterKey = DLMSUtils.hexStringToByteArray(hex);
+            //String hex = properties.<HexString>getTypedProperty(SecurityPropertySpecName.MASTER_KEY.getKey()).getContent();
+            //this.masterKey = DLMSUtils.hexStringToByteArray(hex);
+            this.masterKey = properties.getTypedProperty(SecurityPropertySpecName.MASTER_KEY.getKey());
         }
         return this.masterKey;
     }

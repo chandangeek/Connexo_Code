@@ -7,12 +7,17 @@ package com.energyict.protocolimplv2.nta.dsmr23.eict;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.PlaintextSymmetricKey;
+import com.elster.jupiter.pki.SymmetricKeyWrapper;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.dlms.axrdencoding.TypeEnum;
 import com.energyict.dlms.cosem.Disconnector;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.device.data.KeyAccessor;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.*;
@@ -70,12 +75,31 @@ public class WebRTUKP extends AbstractDlmsProtocol {
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
         this.offlineDevice = offlineDevice;
         getDlmsProperties().setSerialNumber(offlineDevice.getSerialNumber());
-
+        //TODO niet committen (silvie) - enkel voor test
+        replaceKeyAccessorTypesWithRealKeys();
         HHUSignOnV2 hhuSignOn = null;
         if (ComChannelType.SERIAL_COM_CHANNEL.is(comChannel) || ComChannelType.OPTICAL_COM_CHANNEL.is(comChannel)) {
             hhuSignOn = getHHUSignOn((SerialComChannel) comChannel);
         }
         setDlmsSession(new DlmsSession(comChannel, getDlmsProperties(), hhuSignOn, getProperDeviceId()));
+    }
+
+    private void replaceKeyAccessorTypesWithRealKeys() {
+        // TODO Silvie loop over all properties and replace the keyaccessortypes by the real values.
+        TypedProperties typedProperties = getDlmsProperties().getProperties();
+        String masterkeyName = ((KeyAccessorType)this.getOfflineDevice().getAllProperties().getTypedProperty("MasterKey")).getName();
+        typedProperties.removeProperty("MasterKey");
+        typedProperties.setProperty("MasterKey", ((PlaintextSymmetricKey)this.getOfflineDevice().getAllOfflineKeyAccessors().stream().filter(keyAccessorType -> keyAccessorType.getKeyAccessorType().getName().equals(masterkeyName)).findFirst().get().getActualValue()).getKey().get().getEncoded());
+        if (typedProperties.hasValueFor("AuthenticationKeyWithKeyAccessor")) {
+            String autKeyName = ((KeyAccessorType) typedProperties.getTypedProperty("AuthenticationKeyWithKeyAccessor")).getName();
+            typedProperties.removeProperty("AuthenticationKeyWithKeyAccessor");
+            typedProperties.setProperty("AuthenticationKeyWithKeyAccessor", ((PlaintextSymmetricKey) this.getOfflineDevice().getAllOfflineKeyAccessors().stream().filter(keyAccessorType -> keyAccessorType.getKeyAccessorType().getName().equals(autKeyName)).findFirst().get().getActualValue()).getKey().get().getEncoded());
+        }
+        if (typedProperties.hasValueFor("EncryptionKeyWithKeyAccessor")) {
+            String encKeyName = ((KeyAccessorType) typedProperties.getTypedProperty("EncryptionKeyWithKeyAccessor")).getName();
+            typedProperties.removeProperty("EncryptionKeyWithKeyAccessor");
+            typedProperties.setProperty("EncryptionKeyWithKeyAccessor", ((PlaintextSymmetricKey) this.getOfflineDevice().getAllOfflineKeyAccessors().stream().filter(keyAccessorType -> keyAccessorType.getKeyAccessorType().getName().equals(encKeyName)).findFirst().get().getActualValue()).getKey().get().getEncoded());
+        }
     }
 
     private HHUSignOnV2 getHHUSignOn(SerialComChannel serialPortComChannel) {
