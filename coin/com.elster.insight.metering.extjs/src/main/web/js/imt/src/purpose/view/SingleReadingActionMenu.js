@@ -15,6 +15,18 @@ Ext.define('Imt.purpose.view.SingleReadingActionMenu', {
                 section: this.SECTION_ACTION
             },
             {
+                itemId: 'copy-form-value',
+                text: Uni.I18n.translate('general.copyFromReference', 'MDC', 'Copy from reference'),
+                action: 'copyFromReference',
+                section: this.SECTION_ACTION
+            },
+            {
+                itemId: 'edit-value',
+                text: Uni.I18n.translate('general.edit', 'IMT', 'Edit'),
+                action: 'editValue',
+                section: this.SECTION_EDIT
+            },
+            {
                 itemId: 'estimate-value',
                 hidden: true,
                 text: Uni.I18n.translate('general.editWithEstimator', 'IMT', 'Edit with estimator'),
@@ -28,12 +40,6 @@ Ext.define('Imt.purpose.view.SingleReadingActionMenu', {
                 text: Uni.I18n.translate('general.estimateValueWithRule', 'IMT', 'Estimate with rule'),
                 action: 'estimateWithRule',
                 section: this.SECTION_ACTION
-            },
-            {
-                itemId: 'edit-value',
-                text: Uni.I18n.translate('general.edit', 'IMT', 'Edit'),
-                action: 'editValue',
-                section: this.SECTION_EDIT
             },
             {
                 itemId: 'reset-value',

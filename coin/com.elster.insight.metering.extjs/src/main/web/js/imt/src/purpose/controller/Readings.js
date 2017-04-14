@@ -9,6 +9,9 @@ Ext.define('Imt.purpose.controller.Readings', {
         'Uni.controller.history.Router',
         'Imt.purpose.view.Outputs',
         'Imt.purpose.store.Outputs',
+        'Cfg.store.AllUsagePoint',
+        'Cfg.store.AllPurpose',
+        'Cfg.store.AllReadingTypes',
         'Imt.purpose.view.OutputChannelMain',
         'Imt.purpose.view.ReadingsList',
         'Uni.store.DataIntervalAndZoomLevels',
@@ -41,7 +44,8 @@ Ext.define('Imt.purpose.controller.Readings', {
     views: [
         'Imt.purpose.view.Outputs',
         'Imt.purpose.view.OutputChannelMain',
-        'Imt.purpose.view.ValidationStatusForm'
+        'Imt.purpose.view.ValidationStatusForm',
+        'Cfg.view.usagepointregister.CopyFromReferenceWindow'
     ],
 
     refs: [
@@ -135,6 +139,9 @@ Ext.define('Imt.purpose.controller.Readings', {
                 break;
             case 'resetValue':
                 me.resetReadings(menu.record);
+                break;
+            case 'copyFromReference':
+                me.copyFromReference(menu.record);
                 break;
             case 'estimateValue':
                 me.estimateValue(menu.record);
@@ -430,6 +437,39 @@ Ext.define('Imt.purpose.controller.Readings', {
         chart.redraw();
         Ext.resumeLayouts(true);
         me.showButtons();
+    },
+
+    copyFromReference: function (record) {
+        var me = this,
+            usagePointStore = me.getStore('Cfg.store.AllUsagePoint'),
+            purposeStore = me.getStore('Cfg.store.AllPurpose'),
+            readingTypeStore = me.getStore('Cfg.store.AllReadingTypes');
+
+        usagePointStore.getProxy().extraParams = {
+            page: 1,
+            start: 0,
+            limit: 50,
+            nameOnly: true
+        };
+
+        purposeStore.getProxy().extraParams = {
+            page: 1,
+            start: 0,
+            limit: 50
+        };
+
+        readingTypeStore.getProxy().extraParams = {
+            page: 1,
+            start: 0,
+            limit: 50,
+            property: 'fullAliasName'
+        };
+
+        Ext.widget('reading-copy-from-reference-window', {
+            itemId: 'channel-reading-copy-from-reference-window',
+            record: record,
+            usagePoint: true
+        }).show();
     },
 
     estimateValue: function (record) {
