@@ -4,16 +4,25 @@
 
 package com.elster.jupiter.export;
 
+import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.time.RelativePeriod;
 
+import aQute.bnd.annotation.ProviderType;
+
+import java.util.Optional;
+
+@ProviderType
 public interface UsagePointReadingSelectorConfig extends ReadingDataSelectorConfig {
 
     UsagePointGroup getUsagePointGroup();
 
+    Optional<MetrologyPurpose> getMetrologyPurpose();
+
     @Override
     Updater startUpdate();
 
+    @ProviderType
     interface Updater extends ReadingDataSelectorConfig.Updater {
 
         @Override
@@ -29,6 +38,8 @@ public interface UsagePointReadingSelectorConfig extends ReadingDataSelectorConf
         Updater setExportContinuousData(boolean exportContinuousData);
 
         Updater setUsagePointGroup(UsagePointGroup usagePointGroup);
+
+        Updater setMetrologyPurpose(MetrologyPurpose metrologyPurpose);
 
         @Override
         UsagePointReadingSelectorConfig complete();

@@ -25,6 +25,7 @@ import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.mail.impl.MailModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
@@ -77,6 +78,7 @@ public class ExportInMemoryBootstrapModule {
     private DataExportService dataExportService;
     private TimeService timeService;
     private MeteringService meteringService;
+    private MetrologyConfigurationService metrologyConfigurationService;
     private MeteringGroupsService meteringGroupsService;
 
     private class MockModule extends AbstractModule {
@@ -136,6 +138,7 @@ public class ExportInMemoryBootstrapModule {
             dataExportService = injector.getInstance(DataExportService.class);
             timeService = injector.getInstance(TimeService.class);
             meteringService = injector.getInstance(MeteringService.class);
+            metrologyConfigurationService = injector.getInstance(MetrologyConfigurationService.class);
             meteringGroupsService = injector.getInstance(MeteringGroupsService.class);
             return null;
         });
@@ -159,6 +162,10 @@ public class ExportInMemoryBootstrapModule {
 
     public MeteringService getMeteringService() {
         return meteringService;
+    }
+
+    public MetrologyConfigurationService getMetrologyConfigurationService(){
+        return metrologyConfigurationService;
     }
 
     public MeteringGroupsService getMeteringGroupsService() {

@@ -12,6 +12,7 @@ import com.elster.jupiter.export.MeterReadingSelectorConfig;
 import com.elster.jupiter.export.UsagePointReadingSelectorConfig;
 import com.elster.jupiter.export.ValidatedDataOption;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.orm.DataModel;
@@ -43,6 +44,7 @@ class DataExportTaskBuilderImpl implements DataExportTaskBuilder {
     private RelativePeriod exportPeriod;
     private RelativePeriod updatePeriod;
     private RelativePeriod updateWindow;
+    private MetrologyPurpose metrologyPurpose;
     private List<ReadingType> readingTypes = new ArrayList<>();
     private Set<String> eventTypeFilters = new LinkedHashSet<>();
     private EndDeviceGroup endDeviceGroup;
@@ -121,7 +123,8 @@ class DataExportTaskBuilderImpl implements DataExportTaskBuilder {
                         .setUsagePointGroup(usagePointGroup)
                         .setValidatedDataOption(validatedDataOption)
                         .setExportContinuousData(exportContinuousData)
-                        .setExportOnlyIfComplete(exportComplete);
+                        .setExportOnlyIfComplete(exportComplete)
+                        .setMetrologyPurpose(metrologyPurpose);
                 readingTypes.forEach(updater::addReadingType);
                 exportTask.setStandardDataSelectorConfig(updater.complete());
                 break;
@@ -257,6 +260,12 @@ class DataExportTaskBuilderImpl implements DataExportTaskBuilder {
         @Override
         public UsagePointReadingSelectorBuilderImpl fromExportPeriod(RelativePeriod relativePeriod) {
             exportPeriod = relativePeriod;
+            return this;
+        }
+
+        @Override
+        public UsagePointReadingSelectorBuilderImpl fromMetrologyPurpose(MetrologyPurpose purpose) {
+            metrologyPurpose = purpose;
             return this;
         }
 
