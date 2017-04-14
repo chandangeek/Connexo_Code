@@ -322,7 +322,7 @@ Ext.define('Imt.controller.History', {
                                             route: '{ruleId}/editvalidationrule',
                                             controller: 'Imt.purpose.controller.Purpose',
                                             action: 'showEditValidationRuleWithAttributes',
-                                            privileges: Imt.privileges.UsagePoint.admin,
+                                            privileges: Imt.privileges.UsagePoint.administerValidationConfiguration,
                                             callback: function (route) {
                                                 this.getApplication().on('rule-with-attributes-loaded', function (rule) {
                                                     if (rule) {
@@ -338,7 +338,7 @@ Ext.define('Imt.controller.History', {
                                             route: '{ruleId}/editestimationrule',
                                             controller: 'Imt.purpose.controller.Purpose',
                                             action: 'showEditEstimationRuleWithAttributes',
-                                            privileges: Imt.privileges.UsagePoint.admin,
+                                            privileges: Imt.privileges.UsagePoint.administerEstimationConfiguration,
                                             callback: function (route) {
                                                 this.getApplication().on('rule-with-attributes-loaded', function (rule) {
                                                     if (rule) {

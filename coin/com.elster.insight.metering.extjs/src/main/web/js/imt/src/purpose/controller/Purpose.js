@@ -189,7 +189,7 @@ Ext.define('Imt.purpose.controller.Purpose', {
             validationConfigurationStore = me.getStore('Imt.purpose.store.OutputValidationConfiguration'),
             estimationConfigurationStore = me.getStore('Imt.purpose.store.OutputEstimationConfiguration');
 
-        if (!tab) {
+        if (!tab || (tab === 'validation' && !Imt.privileges.UsagePoint.canViewValidationConfiguration()) || (tab === 'estimation' && !Imt.privileges.UsagePoint.canViewEstimationConfiguration())) {
             window.location.replace(router.getRoute('usagepoints/view/purpose/output').buildUrl({tab: 'readings'}));
         } else {
             validationConfigurationStore.getProxy().extraParams = {usagePointId: usagePointId, purposeId: purposeId, outputId: outputId};
@@ -570,8 +570,7 @@ Ext.define('Imt.purpose.controller.Purpose', {
                 widget = Ext.widget('rule-with-attributes-edit', {
                     itemId: 'rule-with-attributes-edit-' + type,
                     type: type,
-                    router: router,
-                    returnLink: router.getRoute('usagepoints/view/purpose/output').buildUrl(),
+                    route: router.getRoute('usagepoints/view/purpose/output'),
                     application: me.getApplication()
                 });
                 form = widget.down('#rule-with-attributes-edit-form');
