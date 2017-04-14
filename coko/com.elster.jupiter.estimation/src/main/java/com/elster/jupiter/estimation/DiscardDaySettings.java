@@ -8,23 +8,29 @@ import com.sun.javafx.scene.layout.region.Margins;
 /**
  * Created by aeryomin on 05.04.2017.
  */
-public class DiscardDayWithEventSettings implements CalendarWithEventSettings {
+public class DiscardDaySettings implements CalendarWithEventSettings {
     private boolean discardDay;
     private Calendar calendar;
     private Event event;
 
-    public DiscardDayWithEventSettings(Boolean discardDay, Calendar calendar, Event event){
+    public DiscardDaySettings(Boolean discardDay, Calendar calendar, Event event){
         this.discardDay = discardDay;
         this.calendar=calendar;
         this.event = event;
     }
 
-    public String toString(){return discardDay!=false && calendar!=null && event!=null
-            ? discardDay + ":" + calendar.getId() + ":" + event.getId() : "";}
+    public String toString(){
+        if (discardDay && calendar!=null && event!=null){
+            return discardDay + ":" + calendar.getId() + ":" + event.getId();
+        }
+        else {
+            return "";
+        }
+    }
 
     public Calendar getCalendar() {return this.calendar;}
     public Long getCalendarId() {return this.calendar.getId();}
     public Event getEvent() {return this.event;}
     public Long getEventId() {return this.event.getId();}
-    public Boolean getDiscardDay() {return this.discardDay;}
+    public Boolean isDiscardDay() {return this.discardDay;}
 }

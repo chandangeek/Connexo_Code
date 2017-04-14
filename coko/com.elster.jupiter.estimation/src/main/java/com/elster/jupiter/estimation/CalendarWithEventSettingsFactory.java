@@ -13,9 +13,10 @@ public class CalendarWithEventSettingsFactory extends AbstractValueFactory<Calen
 
     private CalendarService calendarService;
 
-    public CalendarWithEventSettingsFactory(CalendarService calendarService){
+    public CalendarWithEventSettingsFactory(CalendarService calendarService) {
         this.calendarService = calendarService;
     }
+
     @Override
     public Class<CalendarWithEventSettings> getValueType() {
         return CalendarWithEventSettings.class;
@@ -35,20 +36,15 @@ public class CalendarWithEventSettingsFactory extends AbstractValueFactory<Calen
             return NoneCalendarWithEventSettings.INSTANCE;
         } else {
             String[] calendarAndEvent = stringValue.split(VALUE_UNIT_SEPARATOR);
-            if (discardDay=Boolean.parseBoolean(calendarAndEvent[0]) == true){
+            discardDay = Boolean.parseBoolean(calendarAndEvent[0]);
+            if (discardDay == true) {
                 Long eventId = Long.parseLong(calendarAndEvent[2]);
-                calendar=calendarService.findCalendar(Long.parseLong(calendarAndEvent[1])).orElse(null);
-                for (Event ev:calendar.getEvents()){
-                    if (ev.getId()==eventId){
-                        event = ev;
-                    }
-                }
-/*                event = calendar.getEvents()
+                calendar = calendarService.findCalendar(Long.parseLong(calendarAndEvent[1])).orElse(null);
+                event = calendar.getEvents()
                         .stream()
-                        .filter(ev->ev.getCode()==eventId).findFirst().get();*/
-
+                        .filter(ev -> ev.getId() == eventId).findAny().orElse(null);
             }
-            return new DiscardDayWithEventSettings(discardDay,calendar,event);
+            return new DiscardDaySettings(discardDay, calendar, event);
         }
     }
 
@@ -56,6 +52,7 @@ public class CalendarWithEventSettingsFactory extends AbstractValueFactory<Calen
     public String toStringValue(CalendarWithEventSettings object) {
         return object.toString();
     }
+
     @Override
     public CalendarWithEventSettings valueFromDatabase(Object object) {
         return fromStringValue((String) object);
