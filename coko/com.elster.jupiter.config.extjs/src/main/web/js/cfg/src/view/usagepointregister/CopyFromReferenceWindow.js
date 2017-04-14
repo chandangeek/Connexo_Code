@@ -24,8 +24,8 @@ Ext.define('Cfg.view.usagepointregister.CopyFromReferenceWindow', {
             itemId: 'reading-copy-window-form',
             padding: 5,
             defaults: {
-                width: 510,
-                labelWidth: 200,
+                width: 523,
+                labelWidth: 170,
                 margin: 20
             },
             items: [
@@ -46,7 +46,7 @@ Ext.define('Cfg.view.usagepointregister.CopyFromReferenceWindow', {
                     name: 'referenceDevice',
                     fieldLabel: Uni.I18n.translate('copyFromReference.device', 'CFG', 'Check device'),
                     required: true,
-                    width: '100%',
+                    width: '90%',
                     store: 'Cfg.store.AllDevices',
                     valueField: 'name',
                     displayField: 'name',
@@ -65,7 +65,7 @@ Ext.define('Cfg.view.usagepointregister.CopyFromReferenceWindow', {
                     name: 'readingType',
                     fieldLabel: Uni.I18n.translate('copyFromReference.readingType', 'CFG', 'Check reading type'),
                     required: true,
-                    width: '100%',
+                    width: '90%',
                     store: 'Cfg.store.AllReadingTypes',
                     valueField: 'mRID',
                     displayField: 'fullAliasName',
@@ -90,7 +90,7 @@ Ext.define('Cfg.view.usagepointregister.CopyFromReferenceWindow', {
                             xtype: 'date-time',
                             itemId: 'start-date-field',
                             name: 'startDate',
-                            value: new Date(),
+                            value: Array.isArray(me.records) ? me.records[0].get('interval').start : me.records.get('interval').start || new Date(),
                             layout: 'hbox',
                             valueInMilliseconds: true
                         }
@@ -104,26 +104,60 @@ Ext.define('Cfg.view.usagepointregister.CopyFromReferenceWindow', {
                     width: '100%'
                 },
                 {
-                    xtype: 'checkbox',
-                    itemId: 'complete',
-                    name: 'completePeriod',
+                    xtype: 'fieldcontainer',
                     fieldLabel: Uni.I18n.translate('copyFromReference.complete', 'CFG', 'Complete period'),
-                    width: '100%'
+                    width: '100%',
+                    layout: 'hbox',
+                    items: [
+                        {
+                            xtype: 'checkbox',
+                            itemId: 'complete',
+                            name: 'completePeriod'
+                        },
+                        {
+                            xtype: 'label',
+                            margin: 6,
+                            text: Uni.I18n.translate('copyFromReference.completeBoxMassage', 'CFG', 'Only copy when all data is present')
+                        }
+                    ]
                 },
                 {
                     xtype: 'combobox',
                     itemId: 'estimation-comment',
                     fieldLabel: Uni.I18n.translate('copyFromReference.estimationComment', 'CFG', 'Estimation comment'),
-                    width: '100%'
+                    width: '90%'
+                },
+                {
+                    xtype: 'fieldcontainer',
+                    fieldLabel: Uni.I18n.translate('copyFromReference.projectedValue', 'CFG', 'Projected value'),
+                    width: '100%',
+                    layout: 'hbox',
+                    items: [
+                        {
+                            xtype: 'checkbox',
+                            itemId: 'projected',
+                            name: 'projecterdValue'
+                        },
+                        {
+                            xtype: 'label',
+                            margin: 6,
+                            text: Uni.I18n.translate('copyFromReference.projectedBoxMassage', 'CFG', 'Mark values as projected')
+                        }
+                    ]
                 },
                 {
                     xtype: 'fieldcontainer',
                     fieldLabel: '&nbsp;',
-                    margin: '20 0 0 0',
+                    margin: '10 10 0 0',
+                    style: {
+                        display: 'inline-block',
+                        // align: 'center'
+                    },
                     items: [
                         {
                             xtype: 'button',
                             itemId: 'copy-reading-button',
+                            margin: '0 0 0 40',
                             text: Uni.I18n.translate('general.copy', 'CFG', 'Copy'),
                             ui: 'action'
                         },
@@ -149,7 +183,7 @@ Ext.define('Cfg.view.usagepointregister.CopyFromReferenceWindow', {
                     name: 'referenceUsagePoint',
                     fieldLabel: Uni.I18n.translate('copyFromReference.usagePoint', 'CFG', 'Check usage point'),
                     required: true,
-                    width: '100%',
+                    width: '90%',
                     store: 'Cfg.store.AllUsagePoint',
                     valueField: 'name',
                     displayField: 'name',
@@ -168,7 +202,7 @@ Ext.define('Cfg.view.usagepointregister.CopyFromReferenceWindow', {
                     name: 'metrologyPurpose',
                     fieldLabel: Uni.I18n.translate('copyFromReference.purpose', 'CFG', 'Check purpose'),
                     required: true,
-                    width: '100%',
+                    width: '90%',
                     store: 'Cfg.store.AllPurpose',
                     valueField: 'id',
                     displayField: 'name',
