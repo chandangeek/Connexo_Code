@@ -64,7 +64,11 @@ public interface Estimator extends HasDynamicProperties {
     NlsKey getNlsKey();
 
     default List<String> getRequiredProperties() {
-        return getPropertySpecs().stream().filter(PropertySpec::isRequired).map(PropertySpec::getName).collect(Collectors.toList());
+        return getPropertySpecs()
+                .stream()
+                .filter(PropertySpec::isRequired)
+                .map(PropertySpec::getName)
+                .collect(Collectors.toList());
     }
 
     /**
