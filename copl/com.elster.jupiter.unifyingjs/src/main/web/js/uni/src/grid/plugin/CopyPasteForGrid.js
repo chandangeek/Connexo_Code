@@ -66,6 +66,7 @@ Ext.define('Uni.grid.plugin.CopyPasteForGrid', {
             return;
         }
         var me = this,
+            eventEditFired = false,
             celleditingPlugin = grid.findPlugin('cellediting'),
             columns = grid.columns.filter(function (column) {
                 column.dataIndex == me.editColumnDataIndex
@@ -86,13 +87,13 @@ Ext.define('Uni.grid.plugin.CopyPasteForGrid', {
                 if (rec) {
                     if (rec.get(me.editColumnDataIndex) != value) {
                         rec.set(me.editColumnDataIndex, value);
-                        celleditingPlugin.fireEvent('edit', celleditingPlugin, {record: rec, column: column});
+                        !eventEditFired && celleditingPlugin.fireEvent('edit', celleditingPlugin, {record: rec, column: column});
+                        eventEditFired = true;
                     }
                 }
             }
         }
     },
-
 
     collectGridData: function (grid, rows) {
         var me = this, data = [];
