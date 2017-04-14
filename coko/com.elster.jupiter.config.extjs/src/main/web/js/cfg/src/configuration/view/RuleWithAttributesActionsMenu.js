@@ -12,6 +12,7 @@ Ext.define('Cfg.configuration.view.RuleWithAttributesActionsMenu', {
     application: null,
     type: null,
     kindOfReadingType: '',
+    isRegister: false,
 
     initComponent: function () {
         var me = this,
@@ -100,8 +101,10 @@ Ext.define('Cfg.configuration.view.RuleWithAttributesActionsMenu', {
             queryParams = me.kindOfReadingType ? {readingType: record.get('readingType').mRID} : {},
             route;
 
-        if (me.kindOfReadingType) {
+        if (me.kindOfReadingType && !me.isRegister) {
             route = me.type === 'validation' ? router.getRoute('devices/device/channels/validation/editrule') : router.getRoute('devices/device/channels/estimation/editrule');
+        } else if (me.kindOfReadingType && me.isRegister) {
+            route = router.getRoute('devices/device/registers/validation/editrule');
         } else {
             route = me.type === 'validation' ? router.getRoute('usagepoints/view/purpose/output/editvalidationrule') : router.getRoute('usagepoints/view/purpose/output/editestimationrule');
         }
@@ -141,8 +144,10 @@ Ext.define('Cfg.configuration.view.RuleWithAttributesActionsMenu', {
             mainView = Ext.ComponentQuery.query('#contentPanel')[0];
 
         mainView.setLoading();
-        if (me.kindOfReadingType) {
+        if (me.kindOfReadingType && !me.isRegister) {
             record.getProxy().extraParams = {deviceId: Uni.util.Common.encodeURIComponent(router.arguments.deviceId), channelId: router.arguments.channelId};
+        } else if (me.kindOfReadingType && me.isRegister) {
+            record.getProxy().extraParams = {deviceId: Uni.util.Common.encodeURIComponent(router.arguments.deviceId), registerId: router.arguments.registerId};
         } else {
             record.getProxy().extraParams = {usagePointId: router.arguments.usagePointId, purposeId: router.arguments.purposeId, outputId: router.arguments.outputId};
         }

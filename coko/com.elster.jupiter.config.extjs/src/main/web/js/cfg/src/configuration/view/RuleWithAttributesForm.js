@@ -32,6 +32,7 @@ Ext.define('Cfg.configuration.view.RuleWithAttributesForm', {
         }
     ],
     records: null,
+    isRegister: false,
 
     initComponent: function () {
         var me = this,
@@ -79,6 +80,7 @@ Ext.define('Cfg.configuration.view.RuleWithAttributesForm', {
                     menu: {
                         xtype: 'rule-with-attributes-actions-menu',
                         kindOfReadingType: me.kindOfReadingType,
+                        isRegister: me.isRegister,
                         type: me.type,
                         router: me.router,
                         records: records,
