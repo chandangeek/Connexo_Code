@@ -9,9 +9,6 @@ Ext.define('Imt.purpose.controller.Readings', {
         'Uni.controller.history.Router',
         'Imt.purpose.view.Outputs',
         'Imt.purpose.store.Outputs',
-        'Cfg.store.AllUsagePoint',
-        'Cfg.store.AllPurpose',
-        'Cfg.store.AllReadingTypes',
         'Imt.purpose.view.OutputChannelMain',
         'Imt.purpose.view.ReadingsList',
         'Uni.store.DataIntervalAndZoomLevels',
@@ -28,7 +25,10 @@ Ext.define('Imt.purpose.controller.Readings', {
         'Imt.purpose.store.RegisterReadings',
         'Imt.usagepointmanagement.store.UsagePointTypes',
         'Imt.purpose.store.Estimators',
-        'Imt.purpose.store.EstimationRules'
+        'Imt.purpose.store.EstimationRules',
+        'Cfg.store.AllUsagePoint',
+        'Cfg.store.AllPurpose',
+        'Cfg.store.AllReadingTypes'
     ],
 
     models: [
@@ -38,7 +38,8 @@ Ext.define('Imt.purpose.controller.Readings', {
         'Imt.usagepointmanagement.model.SuspectReason',
         'Imt.usagepointmanagement.model.Purpose',
         'Imt.usagepointmanagement.model.UsagePoint',
-        'Imt.purpose.model.ChannelDataEstimate'
+        'Imt.purpose.model.ChannelDataEstimate',
+        'Imt.purpose.model.CopyFromReference'
     ],
 
     views: [
@@ -68,6 +69,10 @@ Ext.define('Imt.purpose.controller.Readings', {
         {
             ref: 'readingPreviewPanel',
             selector: 'output-channel-main reading-preview'
+        },
+        {
+            ref: 'copyFromReferenceWindow',
+            selector: 'reading-copy-from-reference-window'
         },
         {
             ref: 'readingEstimationWindow',
@@ -101,6 +106,9 @@ Ext.define('Imt.purpose.controller.Readings', {
             '#readings-list #save-changes-button': {
                 click: this.saveChannelDataChanges
             },
+            'reading-copy-from-reference-window #copy-reading-button': {
+                click: this.copyFromReferenceUpdateGrid
+            },
             'reading-estimation-window #estimate-reading-button': {
                 click: this.estimateReadingWithEstimator
             },
@@ -120,6 +128,9 @@ Ext.define('Imt.purpose.controller.Readings', {
                 break;
             case 'estimateWithRule':
                 me.estimateWithRule(records);
+                break;
+            case 'copyFromReference':
+                me.copyFromReference(records);
                 break;
             case 'confirmValue':
                 me.confirmValue(records, true);
@@ -439,7 +450,7 @@ Ext.define('Imt.purpose.controller.Readings', {
         me.showButtons();
     },
 
-    copyFromReference: function (record) {
+    copyFromReference: function (records) {
         var me = this,
             usagePointStore = me.getStore('Cfg.store.AllUsagePoint'),
             purposeStore = me.getStore('Cfg.store.AllPurpose'),
@@ -467,9 +478,35 @@ Ext.define('Imt.purpose.controller.Readings', {
 
         Ext.widget('reading-copy-from-reference-window', {
             itemId: 'channel-reading-copy-from-reference-window',
-            record: record,
+            records: records,
             usagePoint: true
         }).show();
+    },
+
+    copyFromReferenceUpdateGrid: function () {
+        var me = this,
+            intervals = [],
+            window = me.getCopyFromReferenceWindow(),
+            form = window.down('#reading-copy-window-form'),
+            model = Ext.create('Imt.purpose.model.CopyFromReference'),
+            router = me.getController('Uni.controller.history.Router');
+        form.updateRecord(model);
+        model.getProxy().extraParams = {
+            usagePointId: router.arguments.usagePointId,
+            purposeId: router.arguments.purposeId,
+            outputId: router.arguments.outputId
+        };
+
+        if (Array.isArray(window.records)) {
+            _.each(window.records, function (record) {
+                intervals.push(record.get('interval'));
+            });
+        } else {
+            intervals.push(window.records.get('interval'));
+        }
+        model.set('intervals', intervals);
+        model.phantom = false;
+        model.save();
     },
 
     estimateValue: function (record) {

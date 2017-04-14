@@ -8,6 +8,13 @@ Ext.define('Imt.purpose.view.MultipleReadingsActionMenu', {
     initComponent: function() {
         this.items = [
             {
+                itemId: 'copy-form-value',
+                privileges: Imt.privileges.UsagePoint.admin,
+                text: Uni.I18n.translate('general.copyFromReference', 'IMT', 'Copy from reference'),
+                action: 'copyFromReference',
+                section: this.SECTION_ACTION
+            },
+            {
                 itemId: 'confirm-value',
                 privileges: Imt.privileges.UsagePoint.admin,
                 hidden: true,
