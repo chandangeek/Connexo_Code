@@ -24,7 +24,7 @@
              but it must be declared as a property because of the jacoco plugin (defined$
              see http://docs.codehaus.org/display/SONAR/JaCoCo+Plugin
              -->
-        <argLine>-Xms512m -Xmx1024m</argLine>
+        <argLine>-Xms512m -Xmx1024m -Djava.util.logging.config.file=../copl/com.elster.jupiter.parent/junit-logging.properties</argLine>
         <javadoc.excluded.package.names>
             *.security.*
         </javadoc.excluded.package.names>
