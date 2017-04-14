@@ -147,7 +147,7 @@ public final class UsagePointDataQualityKpiImpl extends DataQualityKpiImpl imple
                 .map(Map.Entry::getValue)
                 .peek(DataQualityKpiMember::remove)
                 .collect(Collectors.toSet());
-        getKpiMembers().removeAll(obsoleteKpiMembers);
+        this.removeAll(obsoleteKpiMembers);
 
         return usagePointIdsInKpiMembers();
     }
@@ -173,7 +173,7 @@ public final class UsagePointDataQualityKpiImpl extends DataQualityKpiImpl imple
         actualKpiMemberNames.forEach(member -> kpiBuilder.member().named(member).add());
 
         DataQualityKpiMemberImpl dataQualityKpiMember = DataQualityKpiMemberImpl.from(getDataModel(), this, kpiBuilder.create());
-        getKpiMembers().add(dataQualityKpiMember);
+        this.add(dataQualityKpiMember);
         return Optional.of(dataQualityKpiMember);
     }
 
