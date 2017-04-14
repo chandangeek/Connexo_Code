@@ -28,7 +28,9 @@ Ext.define('Imt.controller.Main', {
         'Imt.processes.view.AvailableMeters',
         'Imt.processes.view.AvailableMetrologyConfigurations',
         'Imt.processes.view.PurposesOnMetrologyConfigarations',
-        'Imt.processes.view.AvailableTransitions'
+        'Imt.processes.view.AvailableTransitions',
+        'Imt.processes.view.InstallationDate',
+        'Imt.processes.view.MeterRoles'
     ],
 
     privileges: [],
