@@ -39,8 +39,7 @@ public class CreateCalendarCommand {
 
     void createCalendar(EventSet eventSet) {
         CalendarService.CalendarBuilder builder = this.calendarService
-                .newCalendar("Peak/Offpeak (Belgium)", Year.of(2015), eventSet)
-                .category(this.getTimeOfUseCategory())
+                .newCalendar("Peak/Offpeak (Belgium)", this.getTimeOfUseCategory(), Year.of(2015), eventSet)
                 .description("Default calendar for Belgian market (for demo purposes only)")
                 .newDayType(WEEKEND_DAYTYPE_NAME).eventWithCode(EventCodes.OFFPEAK.getCode()).startsFrom(LocalTime.MIDNIGHT).add()
                 .newDayType(HOLIDAY_DAYTYPE_NAME).eventWithCode(EventCodes.OFFPEAK.getCode()).startsFrom(LocalTime.MIDNIGHT).add()
