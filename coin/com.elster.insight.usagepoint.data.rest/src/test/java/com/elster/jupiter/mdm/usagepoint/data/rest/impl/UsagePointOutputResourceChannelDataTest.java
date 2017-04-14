@@ -13,6 +13,8 @@ import com.elster.jupiter.estimation.EstimationResult;
 import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.estimation.Estimator;
+import com.elster.jupiter.mdm.usagepoint.data.ChannelEstimationRuleOverriddenProperties;
+import com.elster.jupiter.mdm.usagepoint.data.UsagePointEstimation;
 import com.elster.jupiter.metering.AggregatedChannel;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.ChannelsContainer;
@@ -26,6 +28,7 @@ import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.IntervalInfo;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationEvaluator;
@@ -35,6 +38,7 @@ import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationRuleSetVersion;
 import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
 
@@ -71,7 +75,6 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -573,24 +576,39 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
     }
 
     @Test
-    public void testGetEstimationRulesForChannel() {
-        doReturn(Collections.singletonList(estimationRuleSet)).when(estimationService).getEstimationRuleSets();
-        doReturn(Collections.singletonList(estimationRule)).when(estimationRuleSet).getRules();
-        when(estimationRule.getRuleSet()).thenReturn(estimationRuleSet);
+    public void testGetApplicableEstimationRules() {
+        mockPropertyValueInfoService();
+
+        when(estimationRuleSet.getId()).thenReturn(15L);
         when(estimationRuleSet.getQualityCodeSystem()).thenReturn(QualityCodeSystem.MDM);
         when(usagePointConfigurationService.getEstimationRuleSets(any(MetrologyContract.class))).thenReturn(Collections.singletonList(estimationRuleSet));
-        doReturn(Collections.singleton(regularReadingType)).when(estimationRule).getReadingTypes();
-        when(estimationRuleSet.getId()).thenReturn(15L);
 
-        Response response = target("/usagepoints/" + USAGE_POINT_NAME + "/purposes/100/outputs/1/channelData/estimateWithRule").request().get();
+        when(estimationRule.getRuleSet()).thenReturn(estimationRuleSet);
+        when(estimationRule.getId()).thenReturn(16L);
+        when(estimationRule.getName()).thenReturn("ER01");
+        doReturn(Collections.singletonList(estimationRule)).when(estimationRuleSet).getRules(Collections.singleton(regularReadingType));
+        List<PropertySpec> propertySpecs = Arrays.asList(mockPropertySpec("P1"), mockPropertySpec("P2"));
+        when(estimationRule.getPropertySpecs()).thenReturn(propertySpecs);
+        when(estimationRule.getProps()).thenReturn(ImmutableMap.of("P1", 100));
 
-        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        verify(usagePointConfigurationService).getEstimationRuleSets(any(MetrologyContract.class));
-        verify(estimationRuleSet).getRules();
-        verify(estimationRule, times(3)).getRuleSet();
-        verify(estimationRuleSet, times(2)).getQualityCodeSystem();
-        verify(estimationRule).getReadingTypes();
-        verify(estimationRuleSet).getId();
+        UsagePointEstimation usagePointEstimation = mock(UsagePointEstimation.class);
+        when(usagePointDataModelService.forEstimation(usagePoint)).thenReturn(usagePointEstimation);
+        ChannelEstimationRuleOverriddenProperties overriddenProperties = mock(ChannelEstimationRuleOverriddenProperties.class);
+        doReturn(Optional.of(overriddenProperties)).when(usagePointEstimation).findOverriddenProperties(estimationRule, regularReadingType);
+        when(overriddenProperties.getProperties()).thenReturn(ImmutableMap.of("P2", 200));
+
+        // Business method
+        String response = target("/usagepoints/" + USAGE_POINT_NAME + "/purposes/100/outputs/1/channelData/applicableEstimationRules").request().get(String.class);
+
+        // Asserts
+        JsonModel jsonModel = JsonModel.create(response);
+        assertThat(jsonModel.<List<?>>get("$.rules")).hasSize(1);
+        assertThat(jsonModel.<Number>get("$.rules[0].id")).isEqualTo(16);
+        assertThat(jsonModel.<String>get("$.rules[0].name")).isEqualTo("ER01");
+        assertThat(jsonModel.<Number>get("$.rules[0].ruleSetId")).isEqualTo(15);
+        assertThat(jsonModel.<Number>get("$.rules[0].application.id")).isEqualTo(QualityCodeSystem.MDM.name());
+        assertThat(jsonModel.<List<String>>get("$.rules[0].properties[*].key")).containsExactly("P1", "P2");
+        assertThat(jsonModel.<List<Number>>get("$.rules[0].properties[*].propertyValueInfo.value")).containsExactly(100, 200);
     }
 
     private void mockIntervalReadingsWithValidationResult(AggregatedChannel channel) {

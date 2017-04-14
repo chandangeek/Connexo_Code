@@ -365,14 +365,30 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
             List<PropertySpec> propertySpecs = (List<PropertySpec>) arguments[0];
             Map<String, Object> actualProps = (Map<String, Object>) arguments[1];
             Map<String, Object> inheritedProps = (Map<String, Object>) arguments[2];
-            return propertySpecs.stream()
-                    .map(propertySpec -> {
-                        PropertyInfo info = new PropertyInfo();
-                        info.key = propertySpec.getName();
-                        info.propertyValueInfo = new PropertyValueInfo<>(actualProps.get(info.key), inheritedProps.get(info.key), null, null);
-                        return info;
-                    })
-                    .collect(Collectors.toList());
+            return getPropertyInfo(propertySpecs, actualProps, inheritedProps);
         });
+        when(propertyValueInfoService.getPropertyInfos(any(), any())).thenAnswer(invocationOnMock -> {
+            Object[] arguments = invocationOnMock.getArguments();
+            List<PropertySpec> propertySpecs = (List<PropertySpec>) arguments[0];
+            Map<String, Object> actualProps = (Map<String, Object>) arguments[1];
+            return getPropertyInfo(propertySpecs, actualProps, Collections.emptyMap());
+        });
+    }
+
+    private Object getPropertyInfo(List<PropertySpec> propertySpecs, Map<String, Object> actualProps, Map<String, Object> inheritedProps) {
+        return propertySpecs.stream()
+                .map(propertySpec -> {
+                    PropertyInfo info = new PropertyInfo();
+                    info.key = propertySpec.getName();
+                    info.propertyValueInfo = new PropertyValueInfo<>(actualProps.get(info.key), inheritedProps.get(info.key), null, null);
+                    return info;
+                })
+                .collect(Collectors.toList());
+    }
+
+    PropertySpec mockPropertySpec(String name) {
+        PropertySpec propertySpec = mock(PropertySpec.class);
+        when(propertySpec.getName()).thenReturn(name);
+        return propertySpec;
     }
 }

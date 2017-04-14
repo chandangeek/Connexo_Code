@@ -57,6 +57,7 @@ import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -71,6 +72,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumSet;
@@ -399,60 +401,26 @@ public class UsagePointOutputResource {
     }
 
     @POST
-    @Transactional
     @Path("/{purposeId}/outputs/{outputId}/channelData/estimate")
+    @Transactional
+    @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT, Privileges.Constants.VIEW_METROLOGY_CONFIGURATION, com.elster.jupiter.estimation.security.Privileges.Constants.EDIT_WITH_ESTIMATOR})
-    public List<OutputChannelDataInfo> previewEstimateChannelDataOfOutput(@PathParam("name") String name, @PathParam("purposeId") long contractId, @PathParam("outputId") long outputId,
-                                                                          EstimateChannelDataInfo estimateChannelDataInfo) {
+    @RolesAllowed({
+            com.elster.jupiter.estimation.security.Privileges.Constants.EDIT_WITH_ESTIMATOR,
+            com.elster.jupiter.estimation.security.Privileges.Constants.ESTIMATE_WITH_RULE
+    })
+    public List<OutputChannelDataInfo> previewEstimateChannelDataOfOutput(@PathParam("name") String name, @PathParam("purposeId") long contractId,
+                                                                          @PathParam("outputId") long outputId, EstimateChannelDataInfo estimateChannelDataInfo) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
-        EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
-        MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(effectiveMetrologyConfigurationOnUsagePoint, contractId);
+        EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
+        MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(effectiveMetrologyConfiguration, contractId);
         ReadingTypeDeliverable readingTypeDeliverable = resourceHelper.findReadingTypeDeliverableOrThrowException(metrologyContract, outputId, name);
         if (!readingTypeDeliverable.getReadingType().isRegular()) {
             throw exceptionFactory.newException(MessageSeeds.THIS_OUTPUT_IS_IRREGULAR, outputId);
         }
-
-        ChannelsContainer channelsContainer = effectiveMetrologyConfigurationOnUsagePoint.getChannelsContainer(metrologyContract).get();
+        ChannelsContainer channelsContainer = effectiveMetrologyConfiguration.getChannelsContainer(metrologyContract).get();
         Channel channel = channelsContainer.getChannel(readingTypeDeliverable.getReadingType()).get();
-
         return previewEstimate(QualityCodeSystem.MDM, channelsContainer, channel, estimateChannelDataInfo);
-    }
-
-    @GET
-    @Path("/{purposeId}/outputs/{outputId}/channelData/estimateWithRule")
-    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_USAGEPOINT, com.elster.jupiter.estimation.security.Privileges.Constants.ESTIMATE_WITH_RULE})
-    public PagedInfoList getEstimationRulesForChannel(@PathParam("name") String name, @PathParam("purposeId") long contractId, @PathParam("outputId") long outputId, @BeanParam JsonQueryParameters queryParameters) {
-        UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
-        EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
-        MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(effectiveMetrologyConfigurationOnUsagePoint, contractId);
-        ReadingTypeDeliverable readingTypeDeliverable = resourceHelper.findReadingTypeDeliverableOrThrowException(metrologyContract, outputId, name);
-        if (!readingTypeDeliverable.getReadingType().isRegular()) {
-            throw exceptionFactory.newException(MessageSeeds.THIS_OUTPUT_IS_IRREGULAR, outputId);
-        }
-        List<ReadingType> readingTypesFromContract = metrologyContract.getDeliverables()
-                .stream()
-                .map(ReadingTypeDeliverable::getReadingType)
-                .collect(Collectors.toList());
-
-        List<EstimationRuleInfo> estimationRuleInfos = getMatchingEstimationRules(readingTypesFromContract, metrologyContract);
-
-        return PagedInfoList.fromPagedList("rules", estimationRuleInfos, queryParameters);
-    }
-
-    private List<EstimationRuleInfo> getMatchingEstimationRules(List<ReadingType> readingTypesFromContract, MetrologyContract metrologyContract) {
-        return usagePointConfigurationService.getEstimationRuleSets(metrologyContract)
-                .stream()
-                .flatMap(ruleSet -> ruleSet.getRules().stream())
-                .filter(estimationRule -> estimationRule.getRuleSet().getQualityCodeSystem().equals(QualityCodeSystem.MDM))
-                .filter(estimationRule -> estimationRule.getReadingTypes()
-                        .stream()
-                        .filter(readingTypesFromContract::contains)
-                        .findAny()
-                        .isPresent())
-                .map(estimationRuleInfoFactory::createEstimationRuleInfo)
-                .collect(Collectors.toList());
     }
 
     private List<OutputChannelDataInfo> previewEstimate(QualityCodeSystem system, ChannelsContainer channelsContainer, Channel channel, EstimateChannelDataInfo estimateChannelDataInfo) {
@@ -465,13 +433,35 @@ public class UsagePointOutputResource {
                 .collect(ImmutableRangeSet::<Instant>builder, ImmutableRangeSet.Builder::add, (b1, b2) -> b1.addAll(b2.build()))
                 .build()
                 .asRanges();
-
         List<EstimationResult> results = blocks.stream()
                 .map(block -> estimationHelper.previewEstimate(system, channelsContainer, readingType, block, estimator))
                 .collect(Collectors.toList());
         return estimationHelper.getChannelDataInfoFromEstimationReports(channel, ranges, results);
     }
 
+    @GET
+    @Path("/{purposeId}/outputs/{outputId}/channelData/applicableEstimationRules")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_USAGEPOINT, com.elster.jupiter.estimation.security.Privileges.Constants.ESTIMATE_WITH_RULE})
+    public PagedInfoList getEstimationRulesForChannel(@PathParam("name") String name, @PathParam("purposeId") long contractId,
+                                                      @PathParam("outputId") long outputId, @BeanParam JsonQueryParameters queryParameters) {
+        UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
+        EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
+        MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(effectiveMetrologyConfiguration, contractId);
+        ReadingTypeDeliverable readingTypeDeliverable = resourceHelper.findReadingTypeDeliverableOrThrowException(metrologyContract, outputId, name);
+        ReadingType readingType = readingTypeDeliverable.getReadingType();
+        if (!readingType.isRegular()) {
+            throw exceptionFactory.newException(MessageSeeds.THIS_OUTPUT_IS_IRREGULAR, outputId);
+        }
+        List<EstimationRuleInfo> infos = usagePointConfigurationService.getEstimationRuleSets(metrologyContract)
+                .stream()
+                .map(estimationRuleSet -> estimationRuleSet.getRules(Collections.singleton(readingType)))
+                .flatMap(Collection::stream)
+                .map(estimationRule -> estimationRuleInfoFactory.createEstimationRuleInfo(estimationRule, usagePoint, readingType))
+                .sorted(Comparator.comparing(info -> info.name))
+                .collect(Collectors.toList());
+        return PagedInfoList.fromPagedList("rules", infos, queryParameters);
+    }
 
     @GET
     @Transactional

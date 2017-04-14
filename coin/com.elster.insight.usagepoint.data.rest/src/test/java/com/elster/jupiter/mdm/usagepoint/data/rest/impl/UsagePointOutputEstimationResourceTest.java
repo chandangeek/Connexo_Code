@@ -246,10 +246,4 @@ public class UsagePointOutputEstimationResourceTest extends UsagePointDataRestAp
         assertThat(response.getStatus()).isEqualTo(Response.Status.NO_CONTENT.getStatusCode());
         verify(overriddenProperties).delete();
     }
-
-    private PropertySpec mockPropertySpec(String name) {
-        PropertySpec propertySpec = mock(PropertySpec.class);
-        when(propertySpec.getName()).thenReturn(name);
-        return propertySpec;
-    }
 }
