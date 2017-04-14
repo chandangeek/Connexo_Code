@@ -287,7 +287,7 @@ public class SecurityAccessorResource {
     @GET
     @Path("/certificates/aliases")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    public List<String> aliasSource(@BeanParam JsonQueryParameters queryParameters, @QueryParam("searchString") String searchString) {
+    public List<String> aliasSource(@BeanParam JsonQueryParameters queryParameters, @QueryParam("searchField") String searchString) {
         if (searchString!=null && !searchString.isEmpty()) {
             if (!searchString.contains("*") && !searchString.contains("?")) {
                 searchString="*"+searchString+"*";
