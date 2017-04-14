@@ -474,8 +474,8 @@ public class CalendarOnUsagePointImplIT {
                 .addEvent("Off peak").withCode(OFF_PEAK_CODE)
                 .addEvent("Demand response").withCode(97)
                 .add();
-        return calendarService.newCalendar(name, Year.of(2017), eventSet)
-                .category(calendarService.findCategoryByName(OutOfTheBoxCategory.TOU.name()).orElseThrow(AssertionError::new))
+        Category category = calendarService.findCategoryByName(OutOfTheBoxCategory.TOU.name()).orElseThrow(AssertionError::new);
+        return calendarService.newCalendar(name, category, Year.of(2017), eventSet)
                 .description("Description remains to be completed :-)")
                 .mRID("Sample-TOU-rates")
                 .newDayType("Summer weekday")
