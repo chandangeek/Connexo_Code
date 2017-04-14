@@ -5,6 +5,7 @@ import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
@@ -36,6 +37,7 @@ import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Where;
+import com.elster.jupiter.util.exception.MessageSeed;
 
 import com.google.inject.AbstractModule;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -65,10 +67,10 @@ import static com.elster.jupiter.util.conditions.Where.where;
  * Created by bvn on 1/26/17.
  */
 @Component(name="PkiService",
-        service = { PkiService.class, TranslationKeyProvider.class },
+        service = { PkiService.class, TranslationKeyProvider.class, MessageSeedProvider.class },
         property = "name=" + PkiService.COMPONENTNAME,
         immediate = true)
-public class PkiServiceImpl implements PkiService, TranslationKeyProvider {
+public class PkiServiceImpl implements PkiService, TranslationKeyProvider, MessageSeedProvider {
 
     private final Map<String, PrivateKeyFactory> privateKeyFactories = new ConcurrentHashMap<>();
     private final Map<String, SymmetricKeyFactory> symmetricKeyFactories = new ConcurrentHashMap<>();
@@ -356,6 +358,11 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider {
                 Arrays.stream(Privileges.values()))
                 .flatMap(Function.identity())
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<MessageSeed> getSeeds() {
+        return Arrays.asList(MessageSeeds.values());
     }
 
     class ClientCertificateWrapperBuilder implements PkiService.ClientCertificateWrapperBuilder {
