@@ -5,12 +5,12 @@
 package com.energyict.mdc.engine.impl.core.inbound;
 
 import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
-import com.energyict.mdc.engine.FakeTransactionService;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.ComServer;
@@ -97,7 +97,7 @@ public class InboundCommunicationHandlerStatisticsTest {
         when(this.serviceProvider.issueService()).thenReturn(issueService);
         when(this.serviceProvider.hexService()).thenReturn(new HexServiceImpl());
         when(this.serviceProvider.connectionTaskService()).thenReturn(this.connectionTaskService);
-        when(this.serviceProvider.transactionService()).thenReturn(new FakeTransactionService());
+        when(this.serviceProvider.transactionService()).thenReturn(TransactionModule.FakeTransactionService.INSTANCE);
         when(this.connectionTaskService.buildComSession(any(ConnectionTask.class), any(ComPortPool.class), any(ComPort.class), any(Instant.class))).thenReturn(comSessionBuilder);
     }
 

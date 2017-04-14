@@ -5,6 +5,7 @@
 package com.energyict.mdc.engine.impl.core.online;
 
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.TypedProperties;
@@ -20,7 +21,6 @@ import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.topology.TopologyService;
-import com.energyict.mdc.engine.FakeTransactionService;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.OutboundCapableComServer;
@@ -127,7 +127,7 @@ public class ComServerDAOImplTest {
     public void initializeMocks() {
         when(this.device.getDeviceType()).thenReturn(this.deviceType);
         when(this.device.calendars()).thenReturn(this.calendarSupport);
-        TransactionService transactionService = new FakeTransactionService();
+        TransactionService transactionService = TransactionModule.FakeTransactionService.INSTANCE;
         when(this.serviceProvider.transactionService()).thenReturn(transactionService);
         when(this.serviceProvider.engineConfigurationService()).thenReturn(this.engineConfigurationService);
         when(this.serviceProvider.connectionTaskService()).thenReturn(this.connectionTaskService);
