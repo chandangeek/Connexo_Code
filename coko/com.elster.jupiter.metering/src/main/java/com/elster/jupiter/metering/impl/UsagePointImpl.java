@@ -568,7 +568,7 @@ public class UsagePointImpl implements ServerUsagePoint {
         validateMetersIfGapsAreNotAllowed(metrologyConfiguration, start);
         validateEndDeviceStage(this.getMeterActivations(), start);
         validateMetrologyConfigOverlapping(metrologyConfiguration, start);
-        validateMeters(this.getMeterActivations(start), metrologyConfiguration.getContracts());
+        validateMetersForOptionalContracts(this.getMeterActivations(start), optionalContractsToActivate);
         validateEffectiveMetrologyConfigurationInterval(start, end);
         validateAndClosePreviousMetrologyConfigurationIfExists(start);
         Range<Instant> effectiveInterval = end != null ? Range.closedOpen(start, end) : Range.atLeast(start);
@@ -685,13 +685,13 @@ public class UsagePointImpl implements ServerUsagePoint {
         }
     }
 
-    private void validateMeters(List<MeterActivation> meterActivations, List<MetrologyContract> metrologyContracts) {
+    private void validateMetersForOptionalContracts(List<MeterActivation> meterActivations, Set<MetrologyContract> optionalContractsToActivate) {
         List<ReadingType> meterActivationReadingTypes = meterActivations.stream()
                 .flatMap(meterActivation -> meterActivation.getReadingTypes().stream())
                 .collect(Collectors.toList());
 
         if (!meterActivationReadingTypes.isEmpty()) {
-            List<String> metrologyPurposes = metrologyContracts.stream()
+            List<String> metrologyPurposes = optionalContractsToActivate.stream()
                     .filter(contract -> contract.getRequirements().stream()
                             .noneMatch(requirement -> meterActivationReadingTypes.stream()
                                     .anyMatch(requirement::matches)))
