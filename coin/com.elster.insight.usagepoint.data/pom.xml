@@ -3,7 +3,7 @@
   ~ Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
@@ -192,6 +192,11 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>appserver</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>bpm</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
