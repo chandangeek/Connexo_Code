@@ -393,8 +393,7 @@ public class CalendarSupportIT extends PersistenceIntegrationTest {
                 .add();
 
         return calendarService
-                .newCalendar(name, Year.of(2010), eventSet)
-                .category(category)
+                .newCalendar(name, category, Year.of(2010), eventSet)
                 .description("Description remains to be completed :-)")
                 .mRID(name + "-mRID")
                 .newDayType("Summer weekday")

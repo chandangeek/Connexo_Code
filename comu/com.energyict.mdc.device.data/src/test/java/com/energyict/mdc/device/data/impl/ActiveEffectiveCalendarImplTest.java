@@ -147,8 +147,7 @@ public class ActiveEffectiveCalendarImplTest extends PersistenceIntegrationTest 
                 .addEvent("Demand response").withCode(97)
                 .add();
         return calendarService
-                .newCalendar("Calendar", Year.of(2010), eventSet)
-                .category(category)
+                .newCalendar("Calendar", category, Year.of(2010), eventSet)
                 .description("Description remains to be completed :-)")
                 .mRID("Calendar")
                 .newDayType("Summer weekday")

@@ -65,8 +65,7 @@ public class PassiveCalendarImplTest extends PersistenceIntegrationTest {
                 .add();
 
         return calendarService
-                .newCalendar(CALENDAR_NAME, Year.of(2010), eventSet)
-                .category(category)
+                .newCalendar(CALENDAR_NAME, category, Year.of(2010), eventSet)
                 .description("Description remains to be completed :-)")
                 .mRID("Calendar")
                 .newDayType("Summer weekday")
