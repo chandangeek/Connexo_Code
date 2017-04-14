@@ -10,7 +10,7 @@ import java.net.URI;
 
 /**
  * This provider defines the REST resource where possible values for a Property can be obtained.
- * Type ahead is supported on this resource.
+ * Type ahead filtering is supported on this resource, by using the query parameter 'searchField'
  */
 public interface PropertyValuesResourceProvider {
     /**
