@@ -18,6 +18,7 @@ import com.elster.jupiter.properties.rest.PropertyValidationRule;
 import com.elster.jupiter.properties.rest.PropertyValueConverter;
 import com.elster.jupiter.properties.rest.PropertyValueInfo;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
+import com.elster.jupiter.properties.rest.PropertyValuesResourceInfo;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.masterdata.LoadProfileType;
@@ -61,7 +62,7 @@ public class MdcPropertyUtils {
         for (PropertySpec propertySpec : propertySpecs) {
             PropertyInfo propertyInfo = propertyValueInfoService.getPropertyInfo(propertySpec, properties.getLocalValue(propertySpec.getName()) != null ? properties::getLocalValue : null);
             modifyPropertyValueInfo(propertyInfo, propertySpec, properties, showValue, privilegePresence);
-            modifyPropertyTypeInfo(propertyInfo, propertySpec, uriInfo, null);
+            modifyPropertyTypeInfo(propertyInfo, propertySpec, uriInfo, (PropertyDefaultValuesProvider) null);
             propertyInfoList.add(propertyInfo);
         }
     }
@@ -93,12 +94,20 @@ public class MdcPropertyUtils {
         propertyTypeInfo.referenceUri = getReferenceUri(uriInfo, propertySpec, propertyTypeInfo.simplePropertyType);
     }
 
+    private void modifyPropertyTypeInfo(PropertyInfo propertyInfo, PropertySpec propertySpec, PropertyValuesResourceProvider valuesProvider) {
+        PropertyTypeInfo propertyTypeInfo = propertyInfo.propertyTypeInfo;
+        propertyTypeInfo.propertyValidationRule = getPropertyValidationRule(propertySpec);
+        propertyTypeInfo.propertyValuesResource = new PropertyValuesResourceInfo();
+        propertyTypeInfo.propertyValuesResource.possibleValuesURI = valuesProvider.getPropertiesValuesResource(propertySpec).toString();
+        propertyTypeInfo.referenceUri = getReferenceUri(null, propertySpec, propertyTypeInfo.simplePropertyType);
+    }
+
     public List<PropertyInfo> convertPropertySpecsToPropertyInfos(Collection<PropertySpec> propertySpecs, TypedProperties properties) {
         List<PropertyInfo> propertyInfoList = new ArrayList<>();
         for (PropertySpec propertySpec : propertySpecs) {
             PropertyInfo propertyInfo = propertyValueInfoService.getPropertyInfo(propertySpec, properties.getLocalValue(propertySpec.getName()) != null ? properties::getLocalValue : null);
             modifyPropertyValueInfo(propertyInfo, propertySpec, properties, SHOW_VALUES, WITHOUT_PRIVILEGES);
-            modifyPropertyTypeInfo(propertyInfo, propertySpec, null, null);
+            modifyPropertyTypeInfo(propertyInfo, propertySpec, null, (PropertyDefaultValuesProvider)null);
             propertyInfoList.add(propertyInfo);
         }
         return propertyInfoList;
@@ -133,6 +142,17 @@ public class MdcPropertyUtils {
             PropertyInfo propertyInfo = propertyValueInfoService.getPropertyInfo(propertySpec, properties.getLocalValue(propertySpec.getName()) != null ? properties::getLocalValue : null);
             modifyPropertyValueInfo(propertyInfo, propertySpec, properties, SHOW_VALUES, WITHOUT_PRIVILEGES);
             modifyPropertyTypeInfo(propertyInfo, propertySpec, null, valuesProvider);
+            propertyInfoList.add(propertyInfo);
+        }
+        return propertyInfoList;
+    }
+
+    public List<PropertyInfo> convertPropertySpecsToPropertyInfos(Collection<PropertySpec> propertySpecs, TypedProperties properties, PropertyValuesResourceProvider valuesProvider) {
+        List<PropertyInfo> propertyInfoList = new ArrayList<>();
+        for (PropertySpec propertySpec : propertySpecs) {
+            PropertyInfo propertyInfo = propertyValueInfoService.getPropertyInfo(propertySpec, properties.getLocalValue(propertySpec.getName()) != null ? properties::getLocalValue : null);
+            modifyPropertyValueInfo(propertyInfo, propertySpec, properties, SHOW_VALUES, WITHOUT_PRIVILEGES);
+            modifyPropertyTypeInfo(propertyInfo, propertySpec, valuesProvider);
             propertyInfoList.add(propertyInfo);
         }
         return propertyInfoList;
