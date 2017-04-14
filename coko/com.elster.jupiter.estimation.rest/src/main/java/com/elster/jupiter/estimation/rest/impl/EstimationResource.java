@@ -61,6 +61,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -91,17 +92,13 @@ public class EstimationResource {
     private final ConcurrentModificationExceptionFactory conflictFactory;
     private final PropertyValueInfoService propertyValueInfoService;
     private final EstimationRuleInfoFactory estimationRuleInfoFactory;
+    private final EstimatorInfoFactory estimatorInfoFactory;
 
     @Inject
-    public EstimationResource(RestQueryService queryService,
-                              EstimationService estimationService,
-                              TransactionService transactionService,
-                              Thesaurus thesaurus,
-                              TimeService timeService,
-                              MeteringGroupsService meteringGroupsService,
-                              MetrologyConfigurationService metrologyConfigurationService, ConcurrentModificationExceptionFactory conflictFactory,
-                              PropertyValueInfoService propertyValueInfoService,
-                              EstimationRuleInfoFactory estimationRuleInfoFactory) {
+    public EstimationResource(RestQueryService queryService, EstimationService estimationService, TransactionService transactionService, Thesaurus thesaurus,
+                              TimeService timeService, MeteringGroupsService meteringGroupsService, MetrologyConfigurationService metrologyConfigurationService,
+                              ConcurrentModificationExceptionFactory conflictFactory, PropertyValueInfoService propertyValueInfoService,
+                              EstimationRuleInfoFactory estimationRuleInfoFactory, EstimatorInfoFactory estimatorInfoFactory) {
         this.queryService = queryService;
         this.estimationService = estimationService;
         this.transactionService = transactionService;
@@ -112,9 +109,10 @@ public class EstimationResource {
         this.conflictFactory = conflictFactory;
         this.propertyValueInfoService = propertyValueInfoService;
         this.estimationRuleInfoFactory = estimationRuleInfoFactory;
+        this.estimatorInfoFactory = estimatorInfoFactory;
     }
 
-    private QualityCodeSystem getQualityCodeSystemFromApplicationName(@HeaderParam(APPLICATION_HEADER_PARAM) String applicationName) {
+    private QualityCodeSystem getQualityCodeSystemFromApplicationName(String applicationName) {
         // TODO kore shouldn't know anything about applications, to be fixed
         return "MDC".equals(applicationName) ? QualityCodeSystem.MDC : QualityCodeSystem.MDM;
     }
@@ -231,16 +229,22 @@ public class EstimationResource {
     @Path("/estimators")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.Constants.VIEW_ESTIMATION_CONFIGURATION})
-    public PagedInfoList getAvailableEstimators(@HeaderParam(APPLICATION_HEADER_PARAM) String applicationName, @BeanParam JsonQueryParameters parameters) {
+    public PagedInfoList getAvailableEstimators(@HeaderParam(APPLICATION_HEADER_PARAM) String applicationName,
+                                                @QueryParam("propertyDefinitionLevel") String propertyDefinitionLevel,
+                                                @BeanParam JsonQueryParameters parameters) {
         QualityCodeSystem qualityCodeSystem = getQualityCodeSystemFromApplicationName(applicationName);
-        List<EstimationInfo> data = estimationService.getAvailableEstimators(qualityCodeSystem).stream()
-                .sorted(Compare.BY_DISPLAY_NAME)
-                .map(estimator -> new EstimationInfo(
-                        estimator.getClass().getName(),
-                        estimator.getDisplayName(),
-                        propertyValueInfoService.getPropertyInfos(estimator.getPropertySpecs(EstimationPropertyDefinitionLevel.ESTIMATION_RULE))))
+        List<EstimatorInfo> data = estimationService.getAvailableEstimators(qualityCodeSystem).stream()
+                .map(estimator ->
+                        getEstimationPropertyDefinitionLevel(propertyDefinitionLevel)
+                                .map(level -> estimatorInfoFactory.asInfo(estimator, level))
+                                .orElseGet(() -> estimatorInfoFactory.asInfo(estimator)))
+                .sorted(Comparator.comparing(estimatorInfo -> estimatorInfo.displayName))
                 .collect(Collectors.toList());
         return PagedInfoList.fromCompleteList("estimators", data, parameters);
+    }
+
+    private Optional<EstimationPropertyDefinitionLevel> getEstimationPropertyDefinitionLevel(String propertyLevel) {
+        return Optional.ofNullable(propertyLevel).map(EstimationPropertyDefinitionLevel::valueOf);
     }
 
     class RuleSetUsageInfo {
@@ -352,16 +356,6 @@ public class EstimationResource {
         return Response.status(Response.Status.NO_CONTENT).build();
     }
 
-
-    private enum Compare implements Comparator<Estimator> {
-        BY_DISPLAY_NAME;
-
-        @Override
-        public int compare(Estimator o1, Estimator o2) {
-            return o1.getDisplayName().compareTo(o2.getDisplayName());
-        }
-    }
-
     @GET
     @Path("/tasks")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
@@ -421,9 +415,9 @@ public class EstimationResource {
                 .setScheduleExpression(getScheduleExpression(info))
                 .setNextExecution(info.nextRun == null ? null : Instant.ofEpochMilli(info.nextRun))
                 .setPeriod(getRelativePeriod(info.period))
-                .setEndDeviceGroup(info.deviceGroup!=null ? endDeviceGroup(info.deviceGroup.id) : null)
-                .setUsagePointGroup(info.usagePointGroup!=null ? usagePointGroup(info.usagePointGroup.id) : null)
-                .setMetrologyPurpose(info.metrologyPurpose!=null ? metrologyPurpose(info.metrologyPurpose.id) : null)
+                .setEndDeviceGroup(info.deviceGroup != null ? endDeviceGroup(info.deviceGroup.id) : null)
+                .setUsagePointGroup(info.usagePointGroup != null ? usagePointGroup(info.usagePointGroup.id) : null)
+                .setMetrologyPurpose(info.metrologyPurpose != null ? metrologyPurpose(info.metrologyPurpose.id) : null)
                 .create();
 
         return Response.status(Response.Status.CREATED)
@@ -472,16 +466,16 @@ public class EstimationResource {
         }
         task.setPeriod(getRelativePeriod(info.period));
 
-        if(info.deviceGroup!=null) {
+        if (info.deviceGroup != null) {
             task.setEndDeviceGroup(endDeviceGroup(info.deviceGroup.id));
         }
-        if(info.usagePointGroup!=null){
+        if (info.usagePointGroup != null) {
             task.setUsagePointGroup(usagePointGroup(info.usagePointGroup.id));
-            if(info.metrologyPurpose!=null){
+            if (info.metrologyPurpose != null) {
                 task.setMetrologyPurpose(metrologyPurpose(info.metrologyPurpose.id));
             }
         }
-        if(info.usagePointGroup==null && info.deviceGroup==null){
+        if (info.usagePointGroup == null && info.deviceGroup == null) {
             task.setEndDeviceGroup(null);
             task.setUsagePointGroup(null);
         }
@@ -505,13 +499,15 @@ public class EstimationResource {
         EstimationTaskOccurrenceFinder occurrencesFinder = task.getOccurrencesFinder().setStart(parameters.getStart().orElse(0)).setLimit(parameters.getLimit().orElse(10) + 1);
 
         if (filter.hasProperty("startedOnFrom")) {
-            occurrencesFinder.withStartDateIn(filter.hasProperty("startedOnTo") ? Range.closed(filter.getInstant("startedOnFrom"), filter.getInstant("startedOnTo")) : Range.atLeast(filter.getInstant("startedOnFrom")));
+            occurrencesFinder.withStartDateIn(filter.hasProperty("startedOnTo") ?
+                    Range.closed(filter.getInstant("startedOnFrom"), filter.getInstant("startedOnTo")) : Range.atLeast(filter.getInstant("startedOnFrom")));
         } else if (filter.hasProperty("startedOnTo")) {
             occurrencesFinder.withStartDateIn(Range.closed(Instant.EPOCH, filter.getInstant("startedOnTo")));
         }
 
         if (filter.hasProperty("finishedOnFrom")) {
-            occurrencesFinder.withEndDateIn(filter.hasProperty("finishedOnTo") ? Range.closed(filter.getInstant("finishedOnFrom"), filter.getInstant("finishedOnTo")) : Range.atLeast(filter.getInstant("finishedOnFrom")));
+            occurrencesFinder.withEndDateIn(filter.hasProperty("finishedOnTo") ?
+                    Range.closed(filter.getInstant("finishedOnFrom"), filter.getInstant("finishedOnTo")) : Range.atLeast(filter.getInstant("finishedOnFrom")));
         } else if (filter.hasProperty("finishedOnTo")) {
             occurrencesFinder.withStartDateIn(Range.closed(Instant.EPOCH, filter.getInstant("finishedOnTo")));
         }

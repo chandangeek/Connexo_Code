@@ -154,6 +154,7 @@ public class EstimationApplication extends Application implements MessageSeedPro
             bind(propertyValueInfoService).to(PropertyValueInfoService.class);
             bind(ReadingTypeInfoFactory.class).to(ReadingTypeInfoFactory.class);
             bind(EstimationRuleInfoFactory.class).to(EstimationRuleInfoFactory.class);
+            bind(EstimatorInfoFactory.class).to(EstimatorInfoFactory.class);
         }
     }
 }
