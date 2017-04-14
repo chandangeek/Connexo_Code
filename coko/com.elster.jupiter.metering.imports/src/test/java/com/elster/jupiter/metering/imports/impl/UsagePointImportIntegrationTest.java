@@ -14,7 +14,6 @@ import com.elster.jupiter.fsm.FiniteStateMachineBuilder;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.Stage;
 import com.elster.jupiter.fsm.StageSet;
-import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.ElectricityDetail;
@@ -55,7 +54,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -66,11 +64,6 @@ import static org.mockito.Mockito.when;
 public class UsagePointImportIntegrationTest {
     @Rule
     public TestRule transactionalRule = new TransactionalRule(inMemoryPersistence.getTransactionService());
-
-    @Mock
-    private State deviceState;
-    @Mock
-    private Stage deviceStage;
 
     private static InMemoryIntegrationPersistence inMemoryPersistence;
     private static final TimeZone utcTimeZone = TimeZone.getTimeZone("UTC");
@@ -166,9 +159,13 @@ public class UsagePointImportIntegrationTest {
         metrologyConfigurationService.newUsagePointMetrologyConfiguration("Residential net metering (consumption)", serviceCategory)
                 .create();
         FiniteStateMachineService finiteStateMachineService = inMemoryPersistence.getService(FiniteStateMachineService.class);
-        StageSet operational = finiteStateMachineService.newStageSet("operational").stage(EndDeviceStage.OPERATIONAL.getKey()).add();
-        FiniteStateMachineBuilder builder = finiteStateMachineService.newFiniteStateMachine("finiteStateMachine", operational);
-        FiniteStateMachine machine = builder.complete(builder.newCustomState("custom", operational.getStageByName(EndDeviceStage.OPERATIONAL.getKey()).get()).complete());
+        StageSet stageSet = finiteStateMachineService.newStageSet("StageSet")
+                .stage(EndDeviceStage.OPERATIONAL.getKey())
+                .add();
+        Stage operational = stageSet.getStageByName(EndDeviceStage.OPERATIONAL.getKey())
+                .orElseThrow(() -> new IllegalStateException("Stage " + EndDeviceStage.OPERATIONAL.getKey() + " is not created."));
+        FiniteStateMachineBuilder builder = finiteStateMachineService.newFiniteStateMachine("FiniteStateMachine", stageSet);
+        FiniteStateMachine machine = builder.complete(builder.newCustomState("Custom", operational).complete());
         AmrSystem system = meteringService.findAmrSystem(1).get();
         Meter meter = system.newMeter("DEVICE", "DEVICE").setStateMachine(machine).create();
         meter.activate(Instant.ofEpochMilli(1477872000000L));
