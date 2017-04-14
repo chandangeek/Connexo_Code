@@ -363,9 +363,9 @@ public class MainCheckValidator extends AbstractValidator {
                 .getTimeStamp())).orElse(ValidationResult.NOT_VALIDATED);
         if (checkReadingValidationResult != ValidationResult.VALID) {
             // show log
-            LoggingContext.get()
-                    .warning(getLogger(), generateFailMessageWithUsagePoint("data from 'check' output is missing or not validated"));
             if (useValidatedData) {
+                LoggingContext.get()
+                        .warning(getLogger(), generateFailMessageWithUsagePoint("data from 'check' output is missing or not validated"));
                 // [RULE ACTION] Stop the validation at the timestamp where the timestamp with the last validated reference data was found for the channel if Use validated data is checked
                 preparedValidationResult = ValidationResult.NOT_VALIDATED;
                 return ValidationResult.NOT_VALIDATED;
