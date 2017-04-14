@@ -5,6 +5,7 @@
 package com.elster.jupiter.mdm.usagepoint.config.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
@@ -67,6 +68,13 @@ public class MetrologyInMemoryBootstrapModule {
     private Injector injector;
     private boolean printSql;
 
+    private static LicenseService mockLicenseService() {
+        LicenseService licenseService = mock(LicenseService.class);
+        License license = mock(License.class);
+        when(licenseService.getLicenseForApplication(any())).thenReturn(Optional.of(license));
+        return licenseService;
+    }
+
     public void setPrintSql(boolean printSql) {
         this.printSql = printSql;
     }
@@ -83,6 +91,7 @@ public class MetrologyInMemoryBootstrapModule {
                 new PartyModule(),
                 new FiniteStateMachineModule(),
                 new UserModule(),
+                new BpmModule(),
                 new EventsModule(),
                 new InMemoryMessagingModule(),
                 new DomainUtilModule(),
@@ -165,12 +174,5 @@ public class MetrologyInMemoryBootstrapModule {
             bind(LicenseService.class).toInstance(mockLicenseService());
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
         }
-    }
-
-    private static LicenseService mockLicenseService() {
-        LicenseService licenseService = mock(LicenseService.class);
-        License license = mock(License.class);
-        when(licenseService.getLicenseForApplication(any())).thenReturn(Optional.of(license));
-        return licenseService;
     }
 }
