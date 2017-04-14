@@ -994,6 +994,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             reading.get('mainValidationInfo').validationResult = 'validationStatus.ok';
             if(action === 'estimate'){
                 reading.get('mainValidationInfo').estimatedByRule = true;
+                reading.get('mainValidationInfo').estimatedNotSaved = true;
             }
 
         }
