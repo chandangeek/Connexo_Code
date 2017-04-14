@@ -21,7 +21,6 @@ import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -95,11 +94,6 @@ class RegisterIncreaseValidator extends AbstractValidator {
     @Override
     public String getDefaultFormat() {
         return TranslationKeys.REGISTER_INCREASE_VALIDATOR.getDefaultFormat();
-    }
-
-    @Override
-    public List<String> getRequiredProperties() {
-        return Collections.singletonList(FAIL_EQUAL_DATA);
     }
 
     @Override

@@ -24,7 +24,6 @@ import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -110,11 +109,6 @@ class ThresholdValidator extends AbstractValidator {
     @Override
     public String getDefaultFormat() {
         return TranslationKeys.THRESHOLD_VALIDATOR.getDefaultFormat();
-    }
-
-    @Override
-    public List<String> getRequiredProperties() {
-        return Arrays.asList(MIN, MAX);
     }
 
     @Override

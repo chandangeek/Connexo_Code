@@ -15,6 +15,7 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.SimpleNlsKey;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
 import com.elster.jupiter.util.units.Quantity;
@@ -48,10 +49,7 @@ public class ThresholdValidatorTest {
     public static final Quantity ABOVE_MAXIMUM = Quantity.create(BigDecimal.valueOf(6000L), 3, "Wh");
     public static final Quantity IN_THE_MIDDLE = Quantity.create(BigDecimal.valueOf(3000L), 3, "Wh");
     public static final String THRESHOLD_VIOLATION = "Threshold violation";
-    @Mock
-    private Thesaurus thesaurus;
 
-    private PropertySpecService propertySpecService = new PropertySpecServiceImpl();
     @Mock
     private IntervalReadingRecord intervalReadingRecord;
     @Mock
@@ -61,13 +59,15 @@ public class ThresholdValidatorTest {
     @Mock
     private ReadingType readingType;
 
+    private Thesaurus thesaurus = NlsModule.FakeThesaurus.INSTANCE;
+    private PropertySpecService propertySpecService = new PropertySpecServiceImpl();
     private ThresholdValidator thresholdValidator;
 
     @Before
     public void setUp() {
         when(readingType.getUnit()).thenReturn(ReadingTypeUnit.WATTHOUR);
         when(readingType.getMultiplier()).thenReturn(MetricMultiplier.KILO);
-        ImmutableMap<String, Object> properties = ImmutableMap.of(MIN, (Object) MINIMUM, MAX, MAXIMUM);
+        ImmutableMap<String, Object> properties = ImmutableMap.of(MIN, MINIMUM, MAX, MAXIMUM);
         thresholdValidator = new ThresholdValidator(thesaurus, propertySpecService, properties);
         thresholdValidator.init(channel, readingType, Range.closed(Instant.ofEpochMilli(7000L), Instant.ofEpochMilli(14000L)));
     }
@@ -198,25 +198,23 @@ public class ThresholdValidatorTest {
 
     @Test
     public void testDisplayName() {
+        Thesaurus thesaurus = mock(Thesaurus.class);
         when(thesaurus.getString(ThresholdValidator.class.getName(), THRESHOLD_VIOLATION)).thenReturn(THRESHOLD_VIOLATION + " en français");
 
-        assertThat(thresholdValidator.getDisplayName()).isEqualTo(THRESHOLD_VIOLATION + " en français");
-    }
-
-    @Test
-    public void testPropertyDisplayName() {
         NlsMessageFormat minMessageFormat = mock(NlsMessageFormat.class);
         when(minMessageFormat.format()).thenReturn("Minimal");
         when(thesaurus.getFormat(TranslationKeys.THRESHOLD_VALIDATOR_MIN)).thenReturn(minMessageFormat);
+
         NlsMessageFormat maxMessageFormat = mock(NlsMessageFormat.class);
         when(maxMessageFormat.format()).thenReturn("Maximal");
         when(thesaurus.getFormat(TranslationKeys.THRESHOLD_VALIDATOR_MAX)).thenReturn(maxMessageFormat);
 
-        // Business method
-        String displayName = thresholdValidator.getDisplayName(ThresholdValidator.MIN);
+        thresholdValidator = new ThresholdValidator(thesaurus, propertySpecService, ImmutableMap.of(MIN, MINIMUM, MAX, MAXIMUM));
 
         // Asserts
-        assertThat(displayName).isEqualTo("Minimal");
+        assertThat(thresholdValidator.getDisplayName()).isEqualTo(THRESHOLD_VIOLATION + " en français");
+        assertThat(thresholdValidator.getDisplayName(ThresholdValidator.MIN)).isEqualTo("Minimal");
+        assertThat(thresholdValidator.getDisplayName(ThresholdValidator.MAX)).isEqualTo("Maximal");
     }
 
     @Test

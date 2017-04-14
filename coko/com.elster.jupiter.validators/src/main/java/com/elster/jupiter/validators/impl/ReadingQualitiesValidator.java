@@ -145,11 +145,6 @@ class ReadingQualitiesValidator extends AbstractValidator {
     }
 
     @Override
-    public List<String> getRequiredProperties() {
-        return Collections.singletonList(READING_QUALITIES);
-    }
-
-    @Override
     public Set<QualityCodeSystem> getSupportedQualityCodeSystems() {
         return QUALITY_CODE_SYSTEMS;
     }
