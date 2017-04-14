@@ -11,7 +11,7 @@ import com.elster.jupiter.devtools.tests.assertions.JupiterAssertions;
 import com.elster.jupiter.devtools.tests.fakes.LogRecorder;
 import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
 import com.elster.jupiter.devtools.tests.rules.Using;
-import com.elster.jupiter.estimation.DiscardDayWithEventSettings;
+import com.elster.jupiter.estimation.DiscardDaySettings;
 import com.elster.jupiter.estimation.Estimatable;
 import com.elster.jupiter.estimation.EstimationBlock;
 import com.elster.jupiter.estimation.EstimationResult;
@@ -243,7 +243,7 @@ public class NearestAverageValueDayTest {
         Map<String, Object> props = ImmutableMap.<String, Object>builder()
                 .put(NearestAverageValueDayEstimator.NUMBER_OF_SAMPLES, 2L)
                 .put(NearestAverageValueDayEstimator.MAXIMUM_NUMBER_OF_WEEKS, 3L)
-                .put(NearestAverageValueDayEstimator.DISCARD_SPECIFIC_DAY, new DiscardDayWithEventSettings(true, calendar, event))
+                .put(NearestAverageValueDayEstimator.DISCARD_SPECIFIC_DAY, new DiscardDaySettings(true, calendar, event))
                 .build();
         NearestAverageValueDayEstimator estimator = new NearestAverageValueDayEstimator(thesaurus, propertySpecService, validationService, meteringService, timeService, calendarService, props);
 
@@ -261,7 +261,7 @@ public class NearestAverageValueDayTest {
         Map<String, Object> props = ImmutableMap.<String, Object>builder()
                 .put(NearestAverageValueDayEstimator.NUMBER_OF_SAMPLES, 2L)
                 .put(NearestAverageValueDayEstimator.MAXIMUM_NUMBER_OF_WEEKS, 3L)
-                .put(NearestAverageValueDayEstimator.DISCARD_SPECIFIC_DAY, new DiscardDayWithEventSettings(false, null, null))
+                .put(NearestAverageValueDayEstimator.DISCARD_SPECIFIC_DAY, new DiscardDaySettings(false, null, null))
                 .build();
         NearestAverageValueDayEstimator estimator = new NearestAverageValueDayEstimator(thesaurus, propertySpecService, validationService, meteringService, timeService, calendarService, props);
 
@@ -284,7 +284,7 @@ public class NearestAverageValueDayTest {
         Map<String, Object> props = ImmutableMap.<String, Object>builder()
                 .put(NearestAverageValueDayEstimator.NUMBER_OF_SAMPLES, 2L)
                 .put(NearestAverageValueDayEstimator.MAXIMUM_NUMBER_OF_WEEKS, 3L)
-                .put(NearestAverageValueDayEstimator.DISCARD_SPECIFIC_DAY, new DiscardDayWithEventSettings(true, calendar, event))
+                .put(NearestAverageValueDayEstimator.DISCARD_SPECIFIC_DAY, new DiscardDaySettings(true, calendar, event))
                 .build();
         NearestAverageValueDayEstimator estimator = new NearestAverageValueDayEstimator(thesaurus, propertySpecService, validationService, meteringService, timeService, calendarService, props);
 
@@ -306,7 +306,7 @@ public class NearestAverageValueDayTest {
         Map<String, Object> props = ImmutableMap.<String, Object>builder()
                 .put(NearestAverageValueDayEstimator.NUMBER_OF_SAMPLES, 2L)
                 .put(NearestAverageValueDayEstimator.MAXIMUM_NUMBER_OF_WEEKS, 3L)
-                .put(NearestAverageValueDayEstimator.DISCARD_SPECIFIC_DAY, new DiscardDayWithEventSettings(true, calendar, event))
+                .put(NearestAverageValueDayEstimator.DISCARD_SPECIFIC_DAY, new DiscardDaySettings(true, calendar, event))
                 .build();
         NearestAverageValueDayEstimator estimator = new NearestAverageValueDayEstimator(thesaurus, propertySpecService, validationService, meteringService, timeService, calendarService, props);
 
@@ -327,7 +327,7 @@ public class NearestAverageValueDayTest {
         Map<String, Object> props = ImmutableMap.<String, Object>builder()
                 .put(NearestAverageValueDayEstimator.NUMBER_OF_SAMPLES, 2L)
                 .put(NearestAverageValueDayEstimator.MAXIMUM_NUMBER_OF_WEEKS, 3L)
-                .put(NearestAverageValueDayEstimator.DISCARD_SPECIFIC_DAY, new DiscardDayWithEventSettings(true, calendar, event))
+                .put(NearestAverageValueDayEstimator.DISCARD_SPECIFIC_DAY, new DiscardDaySettings(true, calendar, event))
                 .build();
         NearestAverageValueDayEstimator estimator = new NearestAverageValueDayEstimator(thesaurus, propertySpecService, validationService, meteringService, timeService, calendarService, props);
 
@@ -349,7 +349,7 @@ public class NearestAverageValueDayTest {
         Map<String, Object> props = ImmutableMap.<String, Object>builder()
                 .put(NearestAverageValueDayEstimator.NUMBER_OF_SAMPLES, 2L)
                 .put(NearestAverageValueDayEstimator.MAXIMUM_NUMBER_OF_WEEKS, 3L)
-                .put(NearestAverageValueDayEstimator.DISCARD_SPECIFIC_DAY, new DiscardDayWithEventSettings(true, calendar, event))
+                .put(NearestAverageValueDayEstimator.DISCARD_SPECIFIC_DAY, new DiscardDaySettings(true, calendar, event))
                 .build();
         NearestAverageValueDayEstimator estimator = new NearestAverageValueDayEstimator(thesaurus, propertySpecService, validationService, meteringService, timeService, calendarService, props);
 
@@ -370,7 +370,7 @@ public class NearestAverageValueDayTest {
         Map<String, Object> props = ImmutableMap.<String, Object>builder()
                 .put(NearestAverageValueDayEstimator.NUMBER_OF_SAMPLES, 2L)
                 .put(NearestAverageValueDayEstimator.MAXIMUM_NUMBER_OF_WEEKS, 3L)
-                .put(NearestAverageValueDayEstimator.DISCARD_SPECIFIC_DAY, new DiscardDayWithEventSettings(true, calendar, event))
+                .put(NearestAverageValueDayEstimator.DISCARD_SPECIFIC_DAY, new DiscardDaySettings(true, calendar, event))
                 .build();
         NearestAverageValueDayEstimator estimator = new NearestAverageValueDayEstimator(thesaurus, propertySpecService, validationService, meteringService, timeService, calendarService, props);
 
@@ -415,38 +415,4 @@ public class NearestAverageValueDayTest {
             return bigDecimal;
         }
     }
-
-    private EstimationRuleProperties estimationRuleProperty(final String name, final Object value) {
-        return new EstimationRuleProperties() {
-            @Override
-            public String getName() {
-                return name;
-            }
-
-            @Override
-            public String getDisplayName() {
-                return name;
-            }
-
-            @Override
-            public String getDescription() {
-                return "Description for " + name;
-            }
-
-            @Override
-            public Object getValue() {
-                return value;
-            }
-
-            @Override
-            public void setValue(Object value) {
-            }
-
-            @Override
-            public EstimationRule getRule() {
-                return mock(EstimationRule.class);
-            }
-        };
-    }
-
 }
