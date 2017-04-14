@@ -92,7 +92,6 @@ import java.util.Map;
 
 import static com.elster.jupiter.orm.ColumnConversion.CHAR2BOOLEAN;
 import static com.elster.jupiter.orm.ColumnConversion.CHAR2ENUM;
-import static com.elster.jupiter.orm.ColumnConversion.CHAR2UNIT;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUM;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUMPLUSONE;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INSTANT;
