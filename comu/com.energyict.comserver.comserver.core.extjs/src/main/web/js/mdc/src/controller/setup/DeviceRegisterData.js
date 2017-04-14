@@ -34,7 +34,8 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
         'TextRegisterData',
         'FlagsRegisterData',
         'Mdc.store.RegisterConfigsOfDevice',
-        'Mdc.store.RegisterDataDurations'
+        'Mdc.store.RegisterDataDurations',
+        'Mdc.store.RegisterValidationConfiguration'
     ],
 
     refs: [
@@ -80,14 +81,16 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
             registerModel = me.getModel('Mdc.model.Register'),
             router = me.getController('Uni.controller.history.Router'),
             registersStore = me.getStore('Mdc.store.RegisterConfigsOfDevice'),
-            dependenciesCount = 3,
+            validationConfigurationStore = me.getStore('Mdc.store.RegisterValidationConfiguration'),
+            dependenciesCount = 4,
             device,
             onDependenciesLoad = function () {
                 dependenciesCount--;
                 if (!dependenciesCount) {
                     var widget = Ext.widget('tabbedDeviceRegisterView', {
                             device: device,
-                            router: router
+                            router: router,
+                            validationConfigurationStore: validationConfigurationStore
                         }),
                         type = registerBeingViewed.get('type'),
                         collectedReadingType = registerBeingViewed.get('readingType'),
@@ -144,6 +147,11 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
                 me.getApplication().fireEvent('loadRegisterConfiguration', registerBeingViewed);
                 onDependenciesLoad();
             }
+        });
+
+        validationConfigurationStore.getProxy().extraParams = {deviceId: deviceId, registerId: registerId};
+        validationConfigurationStore.load(function () {
+            onDependenciesLoad();
         });
     },
 

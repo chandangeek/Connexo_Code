@@ -515,7 +515,37 @@ Ext.define('Mdc.controller.history.Setup', {
                                         }
                                     }
                                 },
-
+                                validation: {
+                                    title: Uni.I18n.translate('general.validationConfiguration', 'MDC', 'Validation configuration'),
+                                    route: '{registerId}/validation',
+                                    controller: 'Mdc.controller.setup.DeviceRegisterTab',
+                                    privileges: Mdc.privileges.Device.viewValidationConfiguration,
+                                    action: 'initTabShowDeviceRegisterValidationView',
+                                    callback: function (route) {
+                                        this.getApplication().on('loadRegisterConfiguration', function (record) {
+                                            route.setTitle(record.get('readingType').fullAliasName);
+                                            return true;
+                                        }, {single: true});
+                                        return this;
+                                    },
+                                    items: {
+                                        editrule: {
+                                            title: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
+                                            route: '{ruleId}/editRule',
+                                            controller: 'Mdc.controller.setup.DeviceRegisterValidation',
+                                            privileges: Mdc.privileges.Device.administerValidationConfiguration,
+                                            action: 'showEditRuleWithAttributes',
+                                            callback: function (route) {
+                                                this.getApplication().on('rule-with-attributes-loaded', function (rule) {
+                                                    if (rule) {
+                                                        route.setTitle(Ext.String.format("{0} '{1}'", Uni.I18n.translate('general.editAttributesFor', 'MDC', 'Edit attributes for'), rule.get('name')));
+                                                    }
+                                                    return true;
+                                                }, {single: true});
+                                            }
+                                        }
+                                    }
+                                },
                                 tab: {
                                     title: Uni.I18n.translate('general.registers', 'MDC', 'Registers'),
                                     route: 'tab/:tab:',
