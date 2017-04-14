@@ -117,7 +117,7 @@ public class Installer implements FullInstaller, PrivilegesProvider {
             boolean notSubscribedYet = queue
                     .getSubscribers()
                     .stream()
-                    .noneMatch(spec -> spec.getName().equals(subscriberName));
+                    .noneMatch(spec -> spec.getName().equals(subscriberName.getKey()));
             if (notSubscribedYet) {
                 doTry(
                         "Create subsriber " + ServiceCallServiceImpl.SERVICE_CALLS_SUBSCRIBER_NAME + " on " + ServiceCallServiceImpl.SERVICE_CALLS_DESTINATION_NAME,
