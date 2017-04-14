@@ -16,7 +16,8 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         'Mdc.view.setup.devicechannels.ReadingEstimationWindow',
         'Mdc.view.setup.devicechannels.ReadingEstimationWithRuleWindow',
         'Mdc.view.setup.devicechannels.EditCustomAttributes',
-        'Mdc.view.setup.devicechannels.History'
+        'Mdc.view.setup.devicechannels.History',
+        'Cfg.configuration.view.RuleWithAttributesEdit'
     ],
 
     models: [
@@ -25,7 +26,9 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         'Mdc.model.ChannelOfLoadProfilesOfDevice',
         'Mdc.model.ChannelOfLoadProfilesOfDeviceDataFilter',
         'Mdc.model.DeviceChannelDataEstimate',
-        'Mdc.customattributesonvaluesobjects.model.AttributeSetOnChannel'
+        'Mdc.customattributesonvaluesobjects.model.AttributeSetOnChannel',
+        'Mdc.model.ChannelValidationConfigurationForReadingType',
+        'Mdc.model.ChannelEstimationConfigurationForReadingType'
     ],
 
     stores: [
@@ -40,7 +43,9 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         'Mdc.store.DataLoggerSlaveChannelHistory',
         'Mdc.store.EstimationRulesOnChannelMainValue',
         'Mdc.store.DataLoggerSlaveChannelHistory',
-        'Mdc.store.HistoryChannels'
+        'Mdc.store.HistoryChannels',
+        'Mdc.store.ChannelValidationConfiguration',
+        'Mdc.store.ChannelEstimationConfiguration'
     ],
 
     refs: [
@@ -101,6 +106,13 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
     channelModel: null,
     fromSpecification: false,
     hasEstimationRule: false,
+
+    tabLookupTable: {
+        spec: 0,
+        data: 1,
+        validation: 2,
+        estimation: 3
+    },
 
     init: function () {
         this.control({
@@ -169,6 +181,16 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         me.showOverview({deviceId: deviceId, channelId: channelId}, 'data');
     },
 
+    showValidationConfiguration: function (deviceId, channelId) {
+        var me = this;
+        me.showOverview({deviceId: deviceId, channelId: channelId}, 'validation');
+    },
+
+    showEstimationConfiguration: function (deviceId, channelId) {
+        var me = this;
+        me.showOverview({deviceId: deviceId, channelId: channelId}, 'estimation');
+    },
+
     showValidationBlocks: function (deviceId, channelId, issueId) {
         var me = this,
             validationBlocksStore = me.getStore('Mdc.store.ValidationBlocks');
@@ -195,13 +217,22 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             indexLocation = contentName === 'block' ? 'queryParams' : 'arguments',
             routerIdArgument = contentName === 'block' ? 'validationBlock' : 'channelId',
             isFullTotalCount = contentName === 'block',
-            activeTab = contentName === 'spec' ? 0 : 1,
+            activeTab = me.tabLookupTable[contentName],
             timeUnitsStore = Ext.getStore('Mdc.store.TimeUnits'),
             slaveHistoryStore = me.getStore('Mdc.store.DataLoggerSlaveChannelHistory'),
-            dependencyCounter = 4,
+            validationConfigurationStore = me.getStore('Mdc.store.ChannelValidationConfiguration'),
+            estimationConfigurationStore = me.getStore('Mdc.store.ChannelEstimationConfiguration'),
+            dependencyCounter = 6,
             onDependenciesLoad = function () {
                 dependencyCounter--;
                 if (!dependencyCounter) {
+                    var hasValidationRules = validationConfigurationStore.first().rulesForCollectedReadingType().getCount() || validationConfigurationStore.first().rulesForCalculatedReadingType().getCount(),
+                        hasEstimationRules = estimationConfigurationStore.first().rulesForCollectedReadingType().getCount() || estimationConfigurationStore.first().rulesForCalculatedReadingType().getCount();
+
+                    if ((contentName === 'validation' && !hasValidationRules) || (contentName === 'estimation' && !hasEstimationRules)) {
+                        window.location.replace(router.getRoute('devices/device/channels/channeldata').buildUrl());
+                        return;
+                    }
                     var widget = Ext.widget('tabbedDeviceChannelsView', {
                         title: channel.get('readingType').fullAliasName,
                         router: router,
@@ -216,7 +247,10 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                         isFullTotalCount: isFullTotalCount,
                         filterDefault: activeTab === 1 ? me.getDataFilter(channel, contentName, gasDayYearStart, router) : {},
                         mentionDataLoggerSlave: !Ext.isEmpty(device.get('isDataLogger')) && device.get('isDataLogger'),
-                        dataLoggerSlaveHistoryStore: slaveHistoryStore
+                        dataLoggerSlaveHistoryStore: slaveHistoryStore,
+                        application: me.getApplication(),
+                        validationConfigurationStore: validationConfigurationStore,
+                        estimationConfigurationStore: estimationConfigurationStore
                     });
                     me.getApplication().fireEvent('changecontentevent', widget);
                     viewport.setLoading(false);
@@ -294,6 +328,16 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                     onDependenciesLoad();
                 });
             }
+        });
+
+        validationConfigurationStore.getProxy().extraParams = {deviceId: deviceId, channelId: channelId};
+        validationConfigurationStore.load(function () {
+            onDependenciesLoad();
+        });
+
+        estimationConfigurationStore.getProxy().extraParams = {deviceId: deviceId, channelId: channelId};
+        estimationConfigurationStore.load(function () {
+            onDependenciesLoad();
         });
     },
 
@@ -414,18 +458,25 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             routeParams = router.arguments,
             route,
             filterParams = {};
-        if (newTab.itemId === 'deviceLoadProfileChannelData') {
 
-            filterParams.onlySuspect = false;
-            route = 'devices/device/channels/channeldata';
-            route && (route = router.getRoute(route));
-            route && route.forward(routeParams, filterParams);
-
-        } else if (newTab.itemId === 'channel-specifications') {
-            route = 'devices/device/channels/channel';
-            route && (route = router.getRoute(route));
-            route && route.forward(routeParams, filterParams);
+        switch (newTab.itemId) {
+            case 'deviceLoadProfileChannelData':
+                filterParams.onlySuspect = false;
+                route = 'devices/device/channels/channeldata';
+                break;
+            case 'channel-specifications':
+                route = 'devices/device/channels/channel';
+                break;
+            case 'channel-validation-configuration':
+                route = 'devices/device/channels/validation';
+                break;
+            case 'channel-estimation-configuration':
+                route = 'devices/device/channels/estimation';
+                break;
         }
+
+        route && (route = router.getRoute(route));
+        route && route.forward(routeParams, filterParams);
     },
 
     showPreview: function (selectionModel, record) {
@@ -1268,5 +1319,71 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 viewport.setLoading(false);
             }
         });
+    },
+
+    showEditValidationRuleWithAttributes: function() {
+        this.showEditRuleWithAttributes('validation');
+    },
+
+    showEditEstimationRuleWithAttributes: function() {
+        this.showEditRuleWithAttributes('estimation');
+    },
+
+    showEditRuleWithAttributes: function(type) {
+        var me = this,
+            app = me.getApplication(),
+            router = me.getController('Uni.controller.history.Router'),
+            deviceId = router.arguments.deviceId,
+            channelId = router.arguments.channelId,
+            mainView = Ext.ComponentQuery.query('#contentPanel')[0],
+            channelModel = me.getModel('Mdc.model.ChannelOfLoadProfilesOfDevice'),
+            dependenciesCounter = 3,
+            deviceModel = me.getModel('Mdc.model.Device'),
+            ruleWithAttributesModel = type === 'validation' ? me.getModel('Mdc.model.ChannelValidationConfigurationForReadingType') : me.getModel('Mdc.model.ChannelEstimationConfigurationForReadingType'),
+            route = type === 'validation' ? router.getRoute('devices/device/channels/validation') : router.getRoute('devices/device/channels/estimation'),
+            form,
+            rule,
+            widget;
+
+        mainView.setLoading();
+        ruleWithAttributesModel.getProxy().extraParams = {deviceId: Uni.util.Common.encodeURIComponent(router.arguments.deviceId), channelId: channelId, readingType: router.queryParams.readingType};
+        channelModel.getProxy().setExtraParam('deviceId', deviceId);
+        deviceModel.load(deviceId, {
+            success: function (record) {
+                me.getApplication().fireEvent('loadDevice', record);
+                displayPage();
+            }
+        });
+        channelModel.load(channelId, {
+            success: function (record) {
+                me.getApplication().fireEvent('channelOfLoadProfileOfDeviceLoad', record);
+                displayPage();
+            }
+        });
+        ruleWithAttributesModel.load(router.arguments.ruleId, {
+            success: function (record) {
+                rule = record;
+                displayPage();
+            }
+        });
+
+        function displayPage() {
+            dependenciesCounter--;
+            if (!dependenciesCounter) {
+                mainView.setLoading(false);
+                widget = Ext.widget('rule-with-attributes-edit', {
+                    itemId: 'rule-with-attributes-edit-' + type,
+                    type: type,
+                    route: route,
+                    application: me.getApplication()
+                });
+                form = widget.down('#rule-with-attributes-edit-form');
+                form.loadRecord(rule);
+                form.setTitle(Ext.String.format("{0} '{1}'", Uni.I18n.translate('general.editAttributesFor', 'MDC', 'Edit attributes for'), rule.get('name')));
+                form.down('property-form').loadRecord(rule);
+                app.fireEvent('rule-with-attributes-loaded', rule);
+                app.fireEvent('changecontentevent', widget);
+            }
+        }
     }
 });
