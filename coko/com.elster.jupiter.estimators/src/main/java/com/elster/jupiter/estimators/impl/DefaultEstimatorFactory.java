@@ -44,6 +44,7 @@ public class DefaultEstimatorFactory implements EstimatorFactory, TranslationKey
     public static final String AVG_WITH_SAMPLES_ESTIMATOR = AverageWithSamplesEstimator.class.getName();
     public static final String POWER_GAP_FILL_ESTIMATOR = PowerGapFill.class.getName();
     public static final String EQUAL_DISTRIBUTION_ESTIMATOR = EqualDistribution.class.getName();
+    public static final String DUMMY_ESTIMATOR = DummyEstimator.class.getName();
 
     private volatile Thesaurus thesaurus;
     private volatile PropertySpecService propertySpecService;
@@ -173,6 +174,17 @@ public class DefaultEstimatorFactory implements EstimatorFactory, TranslationKey
             @Override
             AbstractEstimator createTemplate(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService, TimeService timeService) {
                 return new EqualDistribution(thesaurus, propertySpecService, meteringService);
+            }
+        },
+        DUMMYESTIMATOR_DEFINITION(DUMMY_ESTIMATOR) {
+            @Override
+            Estimator create(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService, TimeService timeService, Map<String, Object> props) {
+                return new DummyEstimator(thesaurus, propertySpecService);
+            }
+
+            @Override
+            AbstractEstimator createTemplate(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService, TimeService timeService) {
+                return new DummyEstimator(thesaurus, propertySpecService);
             }
         };
 

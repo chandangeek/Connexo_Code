@@ -39,8 +39,11 @@ public abstract class AbstractEstimator implements Estimator {
     protected AbstractEstimator(Thesaurus thesaurus, PropertySpecService propertySpecService, Map<String, Object> properties) {
         this.thesaurus = thesaurus;
         this.propertySpecService = propertySpecService;
-        getRequiredProperties().forEach(propertyName -> checkRequiredProperty(propertyName, properties));
         this.properties = properties;
+    }
+
+    protected void checkRequiredProperties() {
+        getRequiredProperties().forEach(propertyName -> checkRequiredProperty(propertyName, properties));
     }
 
     @Override

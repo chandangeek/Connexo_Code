@@ -31,10 +31,14 @@ import com.elster.jupiter.metering.ReadingQualityWithTypeFetcher;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.impl.NlsModule;
+import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.time.impl.AllRelativePeriod;
+import com.elster.jupiter.util.beans.BeanService;
 import com.elster.jupiter.util.logging.LoggingContext;
 import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.util.units.Unit;
@@ -94,10 +98,8 @@ public class AverageWithSamplesEstimatorTest {
     @Rule
     public TestRule mcMurdo = Using.timeZoneOfMcMurdo();
 
-    @Mock
-    private Thesaurus thesaurus;
-    @Mock
-    private PropertySpecService propertySpecService;
+    private Thesaurus thesaurus = NlsModule.FakeThesaurus.INSTANCE;
+
     @Mock
     private ValidationService validationService;
     @Mock
@@ -121,11 +123,18 @@ public class AverageWithSamplesEstimatorTest {
     private Meter meter;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private ReadingQualityWithTypeFetcher deltaFetcher, advanceFetcher;
+    @Mock
+    private OrmService ormService;
+    @Mock
+    private BeanService beanService;
 
     private LogRecorder logRecorder;
 
+    private PropertySpecService propertySpecService = new PropertySpecServiceImpl(timeService, ormService, beanService);
+
     @Before
     public void setUp() {
+        when(timeService.getAllRelativePeriod()).thenReturn(AllRelativePeriod.INSTANCE);
         when(meterActivation.getChannelsContainer()).thenReturn(channelsContainer);
         estimable = new EstimableImpl(ESTIMABLE_TIME.toInstant());
         estimable2 = new EstimableImpl(ESTIMABLE_TIME.plusMinutes(15).toInstant());

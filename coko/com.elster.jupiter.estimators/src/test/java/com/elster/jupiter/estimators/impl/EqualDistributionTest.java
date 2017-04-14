@@ -36,8 +36,13 @@ import com.elster.jupiter.metering.readings.ProtocolReadingQualities;
 import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.impl.NlsModule;
+import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
 import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.time.TimeService;
+import com.elster.jupiter.util.beans.BeanService;
 import com.elster.jupiter.util.logging.LoggingContext;
 import com.elster.jupiter.util.units.Unit;
 
@@ -99,10 +104,8 @@ public class EqualDistributionTest {
     @Rule
     public TestRule mcMurdo = Using.timeZoneOfMcMurdo();
 
-    @Mock
-    private Thesaurus thesaurus;
-    @Mock
-    private PropertySpecService propertySpecService;
+    private Thesaurus thesaurus = NlsModule.FakeThesaurus.INSTANCE;
+
     @Mock
     private ReadingType deltaReadingType, bulkReadingType, advanceReadingType;
     @Mock
@@ -127,7 +130,16 @@ public class EqualDistributionTest {
     private ReadingQualityRecord suspect1, suspect2, suspect3, suspect4;
     @Mock
     private MeteringService meteringService;
+    @Mock
+    private OrmService ormService;
+    @Mock
+    private BeanService beanService;
+    @Mock
+    private TimeService timeService;
+
     private LogRecorder logRecorder;
+
+    private PropertySpecService propertySpecService = new PropertySpecServiceImpl(timeService, ormService, beanService);
 
     @Before
     public void setUp() {

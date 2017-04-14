@@ -25,7 +25,6 @@ import com.google.common.collect.Range;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -86,6 +85,7 @@ public class ValueFillEstimator extends AbstractEstimator {
 
     ValueFillEstimator(Thesaurus thesaurus, PropertySpecService propertySpecService, Map<String, Object> properties) {
         super(thesaurus, propertySpecService, properties);
+        checkRequiredProperties();
     }
 
     @Override
@@ -94,11 +94,6 @@ public class ValueFillEstimator extends AbstractEstimator {
                 .orElse(MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE);
         fillValue = getProperty(FILL_VALUE, BigDecimal.class)
                 .orElse(DEFAULT_FILL_VALUE);
-    }
-
-    @Override
-    public List<String> getRequiredProperties() {
-        return Collections.emptyList();
     }
 
     @Override

@@ -47,7 +47,6 @@ import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -170,6 +169,7 @@ class AverageWithSamplesEstimator extends AbstractEstimator {
         this.validationService = validationService;
         this.meteringService = meteringService;
         this.timeService = timeService;
+        checkRequiredProperties();
     }
 
     @Override
@@ -232,18 +232,6 @@ class AverageWithSamplesEstimator extends AbstractEstimator {
         if ((maxSamples != null) && (minSamples != null) && (maxSamples < minSamples)) {
             throw new LocalizedFieldValidationException(MessageSeeds.INVALID_NUMBER_OF_SAMPLES, MAX_NUMBER_OF_SAMPLES);
         }
-    }
-
-    @Override
-    public List<String> getRequiredProperties() {
-        return Arrays.asList(
-                MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS,
-                MAX_NUMBER_OF_SAMPLES,
-                MIN_NUMBER_OF_SAMPLES,
-                ALLOW_NEGATIVE_VALUES,
-                RELATIVE_PERIOD,
-                ADVANCE_READINGS_SETTINGS
-        );
     }
 
     @Override

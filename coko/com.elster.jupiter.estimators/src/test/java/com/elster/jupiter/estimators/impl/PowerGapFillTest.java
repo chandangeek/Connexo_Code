@@ -26,8 +26,13 @@ import com.elster.jupiter.metering.readings.ProtocolReadingQualities;
 import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.impl.NlsModule;
+import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
 import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.time.TimeService;
+import com.elster.jupiter.util.beans.BeanService;
 import com.elster.jupiter.util.logging.LoggingContext;
 import com.elster.jupiter.util.units.Unit;
 
@@ -75,10 +80,17 @@ public class PowerGapFillTest {
     public TestRule mcMurdo = Using.timeZoneOfMcMurdo();
 
     private LogRecorder logRecorder;
+
+    private Thesaurus thesaurus = NlsModule.FakeThesaurus.INSTANCE;
+
     @Mock
-    private Thesaurus thesaurus;
+    private TimeService timeService;
     @Mock
-    private PropertySpecService propertySpecService;
+    private OrmService ormService;
+    @Mock
+    private BeanService beanService;
+
+    private PropertySpecService propertySpecService = new PropertySpecServiceImpl(timeService, ormService, beanService);
     @Mock
     private ReadingType deltaReadingType, bulkReadingType;
     @Mock

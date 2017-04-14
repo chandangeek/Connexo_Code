@@ -106,6 +106,7 @@ class EqualDistribution extends AbstractEstimator implements Estimator {
     EqualDistribution(Thesaurus thesaurus, PropertySpecService propertySpecService, MeteringService meteringService, Map<String, Object> properties) {
         super(thesaurus, propertySpecService, properties);
         this.meteringService = meteringService;
+        checkRequiredProperties();
     }
 
     @Override
@@ -114,11 +115,6 @@ class EqualDistribution extends AbstractEstimator implements Estimator {
                 .orElse(BulkAdvanceReadingsSettings.INSTANCE);
         maxPeriodOfConsecutiveSuspects = getProperty(MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS, TimeDuration.class)
                 .orElse(MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE);
-    }
-
-    @Override
-    public List<String> getRequiredProperties() {
-        return Collections.singletonList(ADVANCE_READINGS_SETTINGS);
     }
 
     @Override
