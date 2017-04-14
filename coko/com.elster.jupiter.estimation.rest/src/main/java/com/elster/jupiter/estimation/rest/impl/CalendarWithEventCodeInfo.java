@@ -1,10 +1,8 @@
 package com.elster.jupiter.estimation.rest.impl;
 
 
-import com.elster.jupiter.calendar.Calendar;
-import com.elster.jupiter.calendar.Event;
 import com.elster.jupiter.estimation.CalendarWithEventSettings;
-import com.elster.jupiter.estimation.DiscardDayWithEventSettings;
+import com.elster.jupiter.estimation.DiscardDaySettings;
 import com.elster.jupiter.estimation.NoneCalendarWithEventSettings;
 
 
@@ -21,10 +19,10 @@ public class CalendarWithEventCodeInfo {
             discardDays = false;
         }
         else {
-            DiscardDayWithEventSettings settings = (DiscardDayWithEventSettings)calendarWithEventSettings;
+            DiscardDaySettings settings = (DiscardDaySettings)calendarWithEventSettings;
             calendar = settings.getCalendar().getId();
             eventCode = settings.getEvent().getId();
-            discardDays = settings.getDiscardDay();
+            discardDays = settings.isDiscardDay();
         }
 
     }
