@@ -11,17 +11,18 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
     ],
 
     views: [
+        'Cfg.view.usagepointregister.CopyFromReferenceWindow',
         'Mdc.view.setup.devicechannels.TabbedDeviceChannelsView',
         'Mdc.view.setup.devicechannels.Overview',
         'Mdc.view.setup.devicechannels.ReadingEstimationWindow',
         'Mdc.view.setup.devicechannels.ReadingEstimationWithRuleWindow',
-        'Cfg.view.usagepointregister.CopyFromReferenceWindow',
         'Mdc.view.setup.devicechannels.EditCustomAttributes',
         'Mdc.view.setup.devicechannels.History'
     ],
 
     models: [
         'Mdc.model.Device',
+        'Mdc.model.CopyFromReference',
         'Mdc.model.LoadProfileOfDevice',
         'Mdc.model.ChannelOfLoadProfilesOfDevice',
         'Mdc.model.ChannelOfLoadProfilesOfDeviceDataFilter',
@@ -42,7 +43,9 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         'Mdc.store.DataLoggerSlaveChannelHistory',
         'Mdc.store.EstimationRulesOnChannelMainValue',
         'Mdc.store.DataLoggerSlaveChannelHistory',
-        'Mdc.store.HistoryChannels'
+        'Mdc.store.HistoryChannels',
+        'Cfg.store.AllDevices',
+        'Cfg.store.AllReadingTypes'
     ],
 
     refs: [
@@ -136,7 +139,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             '#deviceLoadProfileChannelData #undo-button': {
                 click: this.undoChannelDataChanges
             },
-            '#reading-copy-from-reference-window #copy-reading-button': {
+            'reading-copy-from-reference-window #copy-reading-button': {
                 click: this.copyFromReferenceUpdateGrid
             },
             '#channel-reading-estimation-window #estimate-reading-button': {
@@ -719,7 +722,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         }
     },
 
-    copyFromReference: function (record) {
+    copyFromReference: function (records) {
         var me = this,
             deviceStore = me.getStore('Cfg.store.AllDevices'),
             readingTypeStore = me.getStore('Cfg.store.AllReadingTypes');
@@ -734,18 +737,38 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             page: 1,
             start: 0,
             limit: 50,
-            filter: [
-                {
-                    property: 'fullAliasName',
-                    value: '*A*'
-                }
-            ]
+            property: 'fullAliasName'
         };
 
         Ext.widget('reading-copy-from-reference-window', {
             itemId: 'channel-reading-copy-from-reference-window',
-            record: record
+            records: records
         }).show();
+    },
+
+    copyFromReferenceUpdateGrid: function () {
+        var me = this,
+            intervals = [],
+            window = me.getReadingCopyFromReferenceWindow(),
+            form = window.down('#reading-copy-window-form'),
+            model = Ext.create('Mdc.model.CopyFromReference'),
+            router = me.getController('Uni.controller.history.Router');
+        form.updateRecord(model);
+        model.getProxy().extraParams = {
+            usagePointId: router.arguments.deviceId,
+            purposeId: router.arguments.channelId
+        };
+
+        if (Array.isArray(window.records)) {
+            _.each(window.records, function (record) {
+                intervals.push(record.get('interval'));
+            });
+        } else {
+            intervals.push(window.records.get('interval'));
+        }
+        model.set('intervals', intervals);
+        model.phantom = false;
+        model.save();
     },
 
     estimateValue: function (record) {
@@ -835,54 +858,6 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             window.down('#property-form').removeAll(true);
             Ext.resumeLayouts(true);
         });
-    },
-
-    copyFromReferenceUpdateGrid: function () {
-        var me = this,
-            window = me.getReadingEstimationWindow(),
-            propertyForm = window.down('#property-form'),
-            model = Ext.create('Mdc.model.DeviceChannelDataEstimate'),
-            estimateBulk = false,
-            record = window.record,
-            intervalsArray = [];
-
-        !window.down('#form-errors').isHidden() && window.down('#form-errors').hide();
-        !window.down('#error-label').isHidden() && window.down('#error-label').hide();
-        propertyForm.clearInvalid();
-
-        if (propertyForm.getRecord()) {
-            propertyForm.updateRecord();
-            model.set('estimatorImpl', window.down('#estimator-field').getValue());
-            model.propertiesStore = propertyForm.getRecord().properties();
-        }
-        if (!window.down('#value-to-estimate-radio-group').isHidden()) {
-            estimateBulk = window.down('#value-to-estimate-radio-group').getValue().isBulk;
-        } else {
-            if (!Ext.isArray(record)) {
-                estimateBulk = record.get('validationResult') && (record.get('validationResult').bulk == 'suspect');
-            } else {
-                Ext.Array.findBy(record, function (item) {
-                    estimateBulk = item.get('validationResult') && (item.get('validationResult').bulk == 'suspect');
-                    return estimateBulk;
-                });
-            }
-        }
-        if (!Ext.isArray(record)) {
-            intervalsArray.push({
-                start: record.get('interval').start,
-                end: record.get('interval').end
-            });
-        } else {
-            Ext.Array.each(record, function (item) {
-                intervalsArray.push({
-                    start: item.get('interval').start,
-                    end: item.get('interval').end
-                });
-            });
-        }
-        model.set('estimateBulk', estimateBulk);
-        model.set('intervals', intervalsArray);
-        me.saveChannelDataEstimateModelr(model, record, window);
     },
 
     estimateReading: function () {
@@ -1081,6 +1056,9 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 break;
             case 'estimateWithRule':
                 me.estimateValueWithRule(records);
+                break;
+            case 'copyFromReference':
+                me.copyFromReference(records);
                 break;
             case 'confirmValue':
                 me.confirmValue(records, true);

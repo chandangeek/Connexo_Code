@@ -8,6 +8,12 @@ Ext.define('Mdc.view.setup.devicechannels.DataBulkActionMenu', {
     initComponent: function () {
         this.items = [
             {
+                itemId: 'copy-form-value',
+                text: Uni.I18n.translate('general.copyFromReference', 'MDC', 'Copy from reference'),
+                action: 'copyFromReference',
+                section: this.SECTION_ACTION
+            },
+            {
                 itemId: 'confirm-value',
                 hidden: true,
                 text: Uni.I18n.translate('general.confirm', 'MDC', 'Confirm'),
