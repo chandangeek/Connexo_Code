@@ -382,11 +382,19 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         int NUMBER_OF_REGISTERS = 8;
         int NUMBER_OF_LOGBOOKS = 10;
 
+        DeviceConfiguration deviceConfig1 = mock(DeviceConfiguration.class);
+        when(deviceConfig1.isActive()).thenReturn(true);
+        DeviceConfiguration deviceConfig2 = mock(DeviceConfiguration.class);
+        when(deviceConfig2.isActive()).thenReturn(true);
+        DeviceConfiguration deviceConfig3 = mock(DeviceConfiguration.class);
+        when(deviceConfig3.isActive()).thenReturn(false);
+        DeviceConfiguration deviceConfig4 = mock(DeviceConfiguration.class);
+        when(deviceConfig4.isActive()).thenReturn(false);
         DeviceType deviceType = mock(DeviceType.class);
         when(deviceType.getName()).thenReturn("unique name");
         when(deviceType.getId()).thenReturn(13L);
-        List configsList = mock(List.class);
-        when(configsList.size()).thenReturn(NUMBER_OF_CONFIGS);
+        List configsList = Arrays.asList(deviceConfig1, deviceConfig2, deviceConfig3, deviceConfig4);
+
         List loadProfileList = mock(List.class);
         when(loadProfileList.size()).thenReturn(NUMBER_OF_LOADPROFILES);
         List registerList = Arrays.asList(new RegisterTypeInfo(), new RegisterTypeInfo(), new RegisterTypeInfo(), new RegisterTypeInfo(), new RegisterTypeInfo(), new RegisterTypeInfo(), new RegisterTypeInfo(), new RegisterTypeInfo());
@@ -421,6 +429,8 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         assertThat(jsonDeviceType.get("registerCount")).isEqualTo(NUMBER_OF_REGISTERS)
                 .describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonDeviceType.get("deviceConfigurationCount")).isEqualTo(NUMBER_OF_CONFIGS)
+                .describedAs("JSon representation of a field, JavaScript impact if it changed");
+        assertThat(jsonDeviceType.get("activeDeviceConfigurationCount")).isEqualTo(2)
                 .describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonDeviceType.get("loadProfileCount")).isEqualTo(NUMBER_OF_LOADPROFILES)
                 .describedAs("JSon representation of a field, JavaScript impact if it changed");
@@ -479,7 +489,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         assertThat((List) map.get("deviceConfigurations")).hasSize(1)
                 .describedAs("JSon representation of a field, JavaScript impact if it changed");
         Map jsonDeviceConfiguration = (Map) ((List) map.get("deviceConfigurations")).get(0);
-        assertThat(jsonDeviceConfiguration).hasSize(16);
+        assertThat(jsonDeviceConfiguration).hasSize(17);
         assertThat(jsonDeviceConfiguration.get("id")).isEqualTo(113)
                 .describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonDeviceConfiguration.get("name")).isEqualTo("defcon")
@@ -503,6 +513,10 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         assertThat(jsonDeviceConfiguration.get("gatewayType")).isEqualTo("HAN")
                 .describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonDeviceConfiguration.get("isDirectlyAddressable")).isEqualTo(true)
+                .describedAs("JSon representation of a field, JavaScript impact if it changed");
+        assertThat(jsonDeviceConfiguration.get("dataloggerEnabled")).isEqualTo(false)
+                .describedAs("JSon representation of a field, JavaScript impact if it changed");
+        assertThat(jsonDeviceConfiguration.get("multiElementEnabled")).isEqualTo(false)
                 .describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonDeviceConfiguration.get("version")).isEqualTo(((Number) OK_VERSION).intValue())
                 .describedAs("JSon representation of a field, JavaScript impact if it changed");
