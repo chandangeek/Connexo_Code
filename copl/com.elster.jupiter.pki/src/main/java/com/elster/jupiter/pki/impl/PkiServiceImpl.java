@@ -36,6 +36,8 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
 
@@ -227,7 +229,7 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
 
     @Override
     public List<TrustStore> getAllTrustStores() {
-        return getDataModel().mapper(TrustStore.class).find();
+        return getDataModel().mapper(TrustStore.class).select(Condition.TRUE, Order.ascending(TrustStoreImpl.Fields.NAME.fieldName()).toUpperCase());
     }
 
     @Override
