@@ -89,17 +89,12 @@ public abstract class MainCheckEstimatorTest {
 
         // internal data
         List<BlockConfiguration> blocks = new ArrayList<>();
-        boolean completePeriod;
         boolean notAvailablePurpose;
         private Logger logger;
 
 
         EstimationConfiguration withLogger(Logger logger) {
             this.logger = logger;
-            return this;
-        }
-        EstimationConfiguration withCompletePeriod(boolean completePeriod) {
-            this.completePeriod = completePeriod;
             return this;
         }
 
@@ -120,7 +115,6 @@ public abstract class MainCheckEstimatorTest {
         void mockAll() {
             properties = new HashMap<String, Object>() {{
                 put(MainCheckEstimator.CHECK_PURPOSE, notAvailablePurpose?NOT_EXISTING_PURPOSE:PURPOSE);
-                put(MainCheckEstimator.COMPLETE_PERIOD, completePeriod);
             }};
 
             UsagePoint usagePoint = mock(UsagePoint.class);

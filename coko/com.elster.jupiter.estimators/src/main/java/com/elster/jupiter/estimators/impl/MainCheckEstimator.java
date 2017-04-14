@@ -40,7 +40,6 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -65,13 +64,11 @@ public class MainCheckEstimator extends AbstractEstimator implements Estimator {
     private static final Set<QualityCodeSystem> QUALITY_CODE_SYSTEMS = ImmutableSet.of(QualityCodeSystem.MDM);
 
     static final String CHECK_PURPOSE = TranslationKeys.CHECK_PURPOSE.getKey();
-    static final String COMPLETE_PERIOD = TranslationKeys.COMPLETE_PERIOD.getKey();
 
     private ValidationService validationService;
     private MetrologyConfigurationService metrologyConfigurationService;
 
     private String checkPurpose;
-    private boolean completePeriod;
 
     private UsagePoint usagePoint;
 
@@ -89,7 +86,7 @@ public class MainCheckEstimator extends AbstractEstimator implements Estimator {
 
     @Override
     public List<String> getRequiredProperties() {
-        return Arrays.asList(CHECK_PURPOSE, COMPLETE_PERIOD);
+        return Collections.singletonList(CHECK_PURPOSE);
     }
 
     @Override
@@ -111,15 +108,6 @@ public class MainCheckEstimator extends AbstractEstimator implements Estimator {
                         .setDefaultValue(metrologyPurposes.size() != 0 ? metrologyPurposes.get(0) : "")
                         .addValues(metrologyPurposes)
                         .markExhaustive(PropertySelectionMode.COMBOBOX)
-                        .finish());
-        builder
-                .add(getPropertySpecService()
-                        .booleanSpec()
-                        .named(TranslationKeys.COMPLETE_PERIOD)
-                        .describedAs(TranslationKeys.COMPLETE_PERIOD_DESCRIPTION)
-                        .fromThesaurus(this.getThesaurus())
-                        .markRequired()
-                        .setDefaultValue(false)
                         .finish());
 
         return builder.build();
@@ -152,13 +140,7 @@ public class MainCheckEstimator extends AbstractEstimator implements Estimator {
             if (estimate(block)) {
                 estimated.add(block);
             } else {
-                // check complete period flag
-                if (completePeriod) {
-                    // so, if any block is not estimated - whole period is not estimated
-                    return SimpleEstimationResult.of(estimationBlocks, Collections.emptyList());
-                } else {
                     remain.add(block);
-                }
             }
         }
         return SimpleEstimationResult.of(remain, estimated);
@@ -282,17 +264,13 @@ public class MainCheckEstimator extends AbstractEstimator implements Estimator {
     @Override
     protected void init() {
         checkPurpose = (String) getProperty(CHECK_PURPOSE);
-        completePeriod = (boolean) getProperty(COMPLETE_PERIOD);
     }
 
     public enum TranslationKeys implements TranslationKey {
         ESTIMATOR_NAME(MainCheckEstimator.class.getName(), "Main/Check substitution"),
 
         CHECK_PURPOSE("maincheck.purpose", "Check purpose"),
-        CHECK_PURPOSE_DESCRIPTION("maincheck.purpose.description", "Check purpose"),
-
-        COMPLETE_PERIOD("maincheck.complete.period", "Complete period"),
-        COMPLETE_PERIOD_DESCRIPTION("maincheck.complete.period.description", "Complete period");
+        CHECK_PURPOSE_DESCRIPTION("maincheck.purpose.description", "Check purpose");
 
         private final String key;
         private final String defaultFormat;

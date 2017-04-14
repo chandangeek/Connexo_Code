@@ -44,7 +44,6 @@ public class MainCheckMisconfigTest extends MainCheckEstimatorTest {
         EstimationConfiguration estimationConfiguration = new EstimationConfiguration()
                 .withNotAvailablePurpose()
                 .withLogger(LOGGER)
-                .withCompletePeriod(false)
                 .withBlock(new BlockConfiguration()
                         .withEstimatable(new EstimatableConf()
                                 .of(instant("20160101000000"))
@@ -73,7 +72,6 @@ public class MainCheckMisconfigTest extends MainCheckEstimatorTest {
     public void noCheckChannelTest() {
         EstimationConfiguration estimationConfiguration = new EstimationConfiguration()
                 .withLogger(LOGGER)
-                .withCompletePeriod(false)
                 .withBlock(new BlockConfiguration()
                         .withNoCheckChannel()
                         .withEstimatable(new EstimatableConf()
@@ -103,7 +101,6 @@ public class MainCheckMisconfigTest extends MainCheckEstimatorTest {
     public void suspectCheckDataTest() {
         EstimationConfiguration estimationConfiguration = new EstimationConfiguration()
                 .withLogger(LOGGER)
-                .withCompletePeriod(false)
                 .withBlock(new BlockConfiguration()
                         .withEstimatable(new EstimatableConf()
                                 .of(instant("20160101000000"))
@@ -132,7 +129,6 @@ public class MainCheckMisconfigTest extends MainCheckEstimatorTest {
     public void missingCheckDataTest() {
         EstimationConfiguration estimationConfiguration = new EstimationConfiguration()
                 .withLogger(LOGGER)
-                .withCompletePeriod(false)
                 .withBlock(new BlockConfiguration()
                         .withEstimatable(new EstimatableConf()
                                 .of(instant("20160101000000"))
