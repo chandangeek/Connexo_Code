@@ -51,6 +51,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
@@ -71,6 +72,8 @@ public class CalendarCrudTest {
     @Rule
     public TransactionalRule transactionalRule = new TransactionalRule(inMemoryBootstrapModule.getTransactionService());
 
+    private Category category;
+
     @BeforeClass
     public static void setUp() {
         inMemoryBootstrapModule.activate();
@@ -83,6 +86,11 @@ public class CalendarCrudTest {
 
     private ServerCalendarService getCalendarService() {
         return inMemoryBootstrapModule.getCalendarService();
+    }
+
+    @Before
+    public void findTimeOfUseCategory() {
+        this.category = getCalendarService().findCategoryByName(OutOfTheBoxCategory.TOU.name()).orElseThrow(AssertionError::new);
     }
 
     @Test
@@ -182,10 +190,8 @@ public class CalendarCrudTest {
     }
 
     private Calendar createTestCalendar(String name) {
-        Category category = getCalendarService().findCategoryByName(OutOfTheBoxCategory.TOU.name()).orElseThrow(AssertionError::new);
         EventSet testEventSet = createTestEventSet();
-        return getCalendarService().newCalendar(name, Year.of(2010), testEventSet)
-                .category(category)
+        return getCalendarService().newCalendar(name, this.category, Year.of(2010), testEventSet)
                 .description("Description remains to be completed :-)")
                 .mRID(name + "-mrid")
                 .newDayType("Summer weekday")
@@ -240,7 +246,7 @@ public class CalendarCrudTest {
 
             EventSet eventSet = createTestEventSet();
 
-            service.newCalendar(null, Year.of(2010), eventSet)
+            service.newCalendar(null, this.category, Year.of(2010), eventSet)
                     .description("Description remains to be completed :-)")
                     .mRID("Sample-TOU-rates")
                     .newDayType("Summer weekday")
@@ -275,13 +281,176 @@ public class CalendarCrudTest {
 
     @Test
     @Transactional
+    public void testDuplicateName() {
+        try {
+            CalendarService service = getCalendarService();
+
+            EventSet eventSet = createTestEventSet();
+
+            String duplicateName = "DuplicateCandidate";
+            String dayTypeName = "Any day";
+            service.newCalendar(duplicateName, this.category, Year.of(2010), eventSet)
+                    .newDayType(dayTypeName)
+                    .eventWithCode(3).startsFrom(LocalTime.of(0, 0, 0))
+                    .add()
+                    .addPeriod("Any", dayTypeName, dayTypeName, dayTypeName, dayTypeName, dayTypeName, dayTypeName, dayTypeName)
+                    .on(MonthDay.of(1, 1)).transitionTo("Any").add();
+
+            // Business method
+            service.newCalendar(duplicateName, this.category, Year.of(2015), eventSet)
+                    .newDayType(dayTypeName)
+                    .eventWithCode(5).startsFrom(LocalTime.of(0, 0, 0))
+                    .add()
+                    .addPeriod("Any", dayTypeName, dayTypeName, dayTypeName, dayTypeName, dayTypeName, dayTypeName, dayTypeName)
+                    .on(MonthDay.of(1, 1)).transitionTo("Any").add();
+        } catch (ConstraintViolationException e) {
+            assertThat(e.getMessage()).isEqualTo("\n" +
+                    "Constraint violation : \n" +
+                    "\tMessage : calendar.name.alreadyexists\n" +
+                    "\tClass : com.elster.jupiter.calendar.impl.CalendarImpl\n" +
+                    "\tElement : name\n");
+        }
+    }
+
+    @Test
+    @Transactional
+    public void testDuplicateMRID() {
+        try {
+            CalendarService service = getCalendarService();
+
+            EventSet eventSet = createTestEventSet();
+
+            String duplicateMRID = "DuplicateCandidate";
+            String dayTypeName = "Any day";
+            service.newCalendar("Cal1", this.category, Year.of(2010), eventSet)
+                    .mRID(duplicateMRID)
+                    .newDayType(dayTypeName)
+                    .eventWithCode(3).startsFrom(LocalTime.of(0, 0, 0))
+                    .add()
+                    .addPeriod("Any", dayTypeName, dayTypeName, dayTypeName, dayTypeName, dayTypeName, dayTypeName, dayTypeName)
+                    .on(MonthDay.of(1, 1)).transitionTo("Any").add();
+
+            // Business method
+            service.newCalendar("Cal2", this.category, Year.of(2015), eventSet)
+                    .mRID(duplicateMRID)
+                    .newDayType(dayTypeName)
+                    .eventWithCode(5).startsFrom(LocalTime.of(0, 0, 0))
+                    .add()
+                    .addPeriod("Any", dayTypeName, dayTypeName, dayTypeName, dayTypeName, dayTypeName, dayTypeName, dayTypeName)
+                    .on(MonthDay.of(1, 1)).transitionTo("Any").add();
+        } catch (ConstraintViolationException e) {
+            assertThat(e.getMessage()).isEqualTo("\n" +
+                    "Constraint violation : \n" +
+                    "\tMessage : calendar.mrid.alreadyexists\n" +
+                    "\tClass : com.elster.jupiter.calendar.impl.CalendarImpl\n" +
+                    "\tElement : mRID\n");
+        }
+    }
+
+    @Test
+    @Transactional
+    public void emptyAndNullMRIDIsNotADuplicate() {
+        CalendarService service = getCalendarService();
+
+        EventSet eventSet = createTestEventSet();
+
+        String dayTypeName = "Any day";
+        Calendar cal1 = service.newCalendar("Cal1", this.category, Year.of(2010), eventSet)
+                .newDayType(dayTypeName)
+                .eventWithCode(3).startsFrom(LocalTime.of(0, 0, 0))
+                .add()
+                .addPeriod("Any", dayTypeName, dayTypeName, dayTypeName, dayTypeName, dayTypeName, dayTypeName, dayTypeName)
+                .on(MonthDay.of(1, 1)).transitionTo("Any")
+                .add();
+
+        // Business method
+        Calendar cal2 = service.newCalendar("Cal2", this.category, Year.of(2015), eventSet)
+                .mRID("")
+                .newDayType(dayTypeName)
+                .eventWithCode(5).startsFrom(LocalTime.of(0, 0, 0))
+                .add()
+                .addPeriod("Any", dayTypeName, dayTypeName, dayTypeName, dayTypeName, dayTypeName, dayTypeName, dayTypeName)
+                .on(MonthDay.of(1, 1)).transitionTo("Any")
+                .add();
+
+        // Asserts
+        assertThat(cal1).isNotNull();
+        assertThat(cal1.getMRID()).isNull();
+        assertThat(cal2).isNotNull();
+        assertThat(cal2.getMRID()).isEqualTo("");
+    }
+
+    @Test
+    @Transactional
+    public void nullMRIDIsNotADuplicate() {
+        CalendarService service = getCalendarService();
+
+        EventSet eventSet = createTestEventSet();
+
+        String dayTypeName = "Any day";
+        Calendar cal1 = service.newCalendar("Cal1", this.category, Year.of(2010), eventSet)
+                .newDayType(dayTypeName)
+                .eventWithCode(3).startsFrom(LocalTime.of(0, 0, 0))
+                .add()
+                .addPeriod("Any", dayTypeName, dayTypeName, dayTypeName, dayTypeName, dayTypeName, dayTypeName, dayTypeName)
+                .on(MonthDay.of(1, 1)).transitionTo("Any")
+                .add();
+
+        // Business method
+        Calendar cal2 = service.newCalendar("Cal2", this.category, Year.of(2015), eventSet)
+                .newDayType(dayTypeName)
+                .eventWithCode(5).startsFrom(LocalTime.of(0, 0, 0))
+                .add()
+                .addPeriod("Any", dayTypeName, dayTypeName, dayTypeName, dayTypeName, dayTypeName, dayTypeName, dayTypeName)
+                .on(MonthDay.of(1, 1)).transitionTo("Any")
+                .add();
+
+        // Asserts
+        assertThat(cal1).isNotNull();
+        assertThat(cal2).isNotNull();
+    }
+
+    @Test
+    @Transactional
+    public void emptyMRIDIsNotADuplicate() {
+        CalendarService service = getCalendarService();
+
+        EventSet eventSet = createTestEventSet();
+
+        String dayTypeName = "Any day";
+        Calendar cal1 = service.newCalendar("Cal1", this.category, Year.of(2010), eventSet)
+                .mRID("")
+                .newDayType(dayTypeName)
+                .eventWithCode(3).startsFrom(LocalTime.of(0, 0, 0))
+                .add()
+                .addPeriod("Any", dayTypeName, dayTypeName, dayTypeName, dayTypeName, dayTypeName, dayTypeName, dayTypeName)
+                .on(MonthDay.of(1, 1)).transitionTo("Any")
+                .add();
+
+        // Business method
+        Calendar cal2 = service.newCalendar("Cal2", this.category, Year.of(2015), eventSet)
+                .mRID("")
+                .newDayType(dayTypeName)
+                .eventWithCode(5).startsFrom(LocalTime.of(0, 0, 0))
+                .add()
+                .addPeriod("Any", dayTypeName, dayTypeName, dayTypeName, dayTypeName, dayTypeName, dayTypeName, dayTypeName)
+                .on(MonthDay.of(1, 1)).transitionTo("Any")
+                .add();
+
+        // Asserts
+        assertThat(cal1).isNotNull();
+        assertThat(cal2).isNotNull();
+    }
+
+    @Test
+    @Transactional
     public void testEmptyName() {
         try {
             CalendarService service = getCalendarService();
 
             EventSet eventSet = createTestEventSet();
 
-            service.newCalendar("", Year.of(2010), eventSet)
+            service.newCalendar("", this.category, Year.of(2010), eventSet)
                     .description("Description remains to be completed :-)")
                     .mRID("Sample-TOU-rates")
                     .newDayType("Summer weekday")
@@ -322,7 +491,7 @@ public class CalendarCrudTest {
 
             EventSet eventSet = createTestEventSet();
 
-            service.newCalendar("test", null, eventSet)
+            service.newCalendar("test", this.category, null, eventSet)
                     .description("Description remains to be completed :-)")
                     .mRID("Sample-TOU-rates")
                     .newDayType("Summer weekday")
@@ -364,7 +533,7 @@ public class CalendarCrudTest {
 
             EventSet eventSet = createTestEventSet();
 
-            service.newCalendar("test", Year.of(2010), eventSet)
+            service.newCalendar("test", this.category, Year.of(2010), eventSet)
                     .description("Description remains to be completed :-)")
                     .mRID("Sample-TOU-rates")
                     .newDayType("Summer weekday")
@@ -403,7 +572,7 @@ public class CalendarCrudTest {
 
             EventSet eventSet = createTestEventSet();
 
-            service.newCalendar("test", Year.of(2010), eventSet)
+            service.newCalendar("test", this.category, Year.of(2010), eventSet)
                     .description("Description remains to be completed :-)")
                     .mRID("Sample-TOU-rates")
                     .newDayType("Summer weekday")

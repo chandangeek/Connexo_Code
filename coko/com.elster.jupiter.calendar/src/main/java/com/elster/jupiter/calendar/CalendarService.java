@@ -31,10 +31,11 @@ public interface CalendarService {
      * Starts the building process for a new {@link Calendar}.
      *
      * @param name The required name for the new Calendar
+     * @param category The required {@link Category} for the new Calendar
      * @param start The year from which any timeline will start
      * @return The CalendarBuilder
      */
-    CalendarBuilder newCalendar(String name, Year start, EventSet eventSet);
+    CalendarBuilder newCalendar(String name, Category category, Year start, EventSet eventSet);
 
     EventSetBuilder newEventSet(String name);
 
@@ -72,7 +73,6 @@ public interface CalendarService {
 
     @ProviderType
     interface CalendarBuilder {
-        CalendarBuilder category(Category category);
         CalendarBuilder name(String name);
         CalendarBuilder startYear(Year start);
         CalendarBuilder mRID(String mRID);

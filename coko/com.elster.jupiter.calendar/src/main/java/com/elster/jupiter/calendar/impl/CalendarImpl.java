@@ -110,6 +110,7 @@ public class CalendarImpl implements ServerCalendar {
     @SuppressWarnings("unused") // Managed by ORM
     private String userName;
 
+    @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     private Reference<Category> category = ValueReference.absent();
     @IsPresent
     private Reference<EventSet> eventSet = ValueReference.absent();
@@ -198,7 +199,6 @@ public class CalendarImpl implements ServerCalendar {
     void setCategory(Category category) {
         this.category.set(category);
     }
-
 
     @Override
     public final boolean equals(Object o) {

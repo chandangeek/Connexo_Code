@@ -18,13 +18,14 @@ import java.time.Year;
 public class ForDemonstrationPurposes {
     public static void main(String[] args) {
         CalendarService service = null;
+        Category category = service.findCategoryByName(OutOfTheBoxCategory.TOU.name()).get();
         EventSet eventSet = service.newEventSet("Test")
                 .addEvent("On peak").withCode(3)
                 .addEvent("Off peak").withCode(5)
                 .addEvent("Demand response").withCode(97)
                 .add();
         Calendar robsExample = service
-            .newCalendar("Test", Year.of(2010), eventSet)
+            .newCalendar("Test", category, Year.of(2010), eventSet)
             .description("Description remains to be completed :-)")
             .mRID("Sample-TOU-rates")
             .newDayType("Summer weekday")

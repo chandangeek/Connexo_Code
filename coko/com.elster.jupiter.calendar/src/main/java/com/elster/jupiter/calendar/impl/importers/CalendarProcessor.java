@@ -234,12 +234,11 @@ public class CalendarProcessor {
                             .orElseThrow(() -> new IllegalArgumentException("illegal eventset name " + calendar
                                     .getEventset()));
                     eventSetHolder.update(eventSet);
-                    return calendarService.newCalendar(
-                            getCalendarName(calendar),
-                            getStartYear(calendar), eventSet)
-                            .description(getDescription(calendar)).mRID(calendar.getMRID());
+                    return calendarService
+                            .newCalendar(getCalendarName(calendar), category, getStartYear(calendar), eventSet)
+                            .description(getDescription(calendar))
+                            .mRID(calendar.getMRID());
                 });
-        builder.category(category);
 
         Set<String> allowedEventIds = eventSetHolder.get().getEvents()
                 .stream()

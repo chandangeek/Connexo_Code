@@ -244,8 +244,7 @@ public class CalendarTimeSeriesZoneTest {
         Category category = getCalendarService().findCategoryByName(OutOfTheBoxCategory.TOU.name()).orElseThrow(() -> new IllegalStateException("Setup failed because out of the box category TOU is missing"));
         EventSet testEventSet = createTestEventSet();
         return (ServerCalendar) getCalendarService()
-            .newCalendar(name, Year.of(2016), testEventSet)
-                .category(category)
+            .newCalendar(name, category, Year.of(2016), testEventSet)
                 .description("Description remains to be completed :-)")
                 .mRID(name + "-mrid")
                 .newDayType("Every day")

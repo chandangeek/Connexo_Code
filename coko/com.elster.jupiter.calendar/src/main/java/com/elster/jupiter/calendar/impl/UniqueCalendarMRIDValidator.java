@@ -34,11 +34,15 @@ public class UniqueCalendarMRIDValidator implements ConstraintValidator<UniqueMR
     }
 
     private boolean checkExisting(Calendar calendar, ConstraintValidatorContext context) {
-        Optional<Calendar> found = calendarService.findCalendarByMRID(calendar.getMRID());
-        if (found.isPresent() && areDifferentWithSameMRID(calendar, found.get())) {
-            context.disableDefaultConstraintViolation();
-            context.buildConstraintViolationWithTemplate(message).addPropertyNode("mRID").addConstraintViolation();
-            return true;
+        String mRID = calendar.getMRID();
+        // Null or empty mRID is never a duplicate as it is an optional field
+        if (!Checks.is(mRID).empty()) {
+            Optional<Calendar> found = calendarService.findCalendarByMRID(mRID);
+            if (found.isPresent() && areDifferentWithSameMRID(calendar, found.get())) {
+                context.disableDefaultConstraintViolation();
+                context.buildConstraintViolationWithTemplate(message).addPropertyNode("mRID").addConstraintViolation();
+                return true;
+            }
         }
         return false;
     }

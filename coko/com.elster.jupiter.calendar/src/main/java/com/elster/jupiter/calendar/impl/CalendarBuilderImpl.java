@@ -36,15 +36,10 @@ public class CalendarBuilderImpl implements CalendarService.CalendarBuilder {
         this.calendarImpl = calendarImpl;
     }
 
-    void init(String name, Year start) {
+    void init(String name, Category category, Year start) {
         this.calendarImpl.setName(name);
         this.calendarImpl.setStartYear(start);
-    }
-
-    @Override
-    public CalendarService.CalendarBuilder category(Category category) {
         this.calendarImpl.setCategory(category);
-        return this;
     }
 
     @Override

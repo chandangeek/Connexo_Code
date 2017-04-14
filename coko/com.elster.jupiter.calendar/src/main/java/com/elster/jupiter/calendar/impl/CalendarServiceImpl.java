@@ -247,9 +247,9 @@ public class CalendarServiceImpl implements ServerCalendarService, MessageSeedPr
     }
 
     @Override
-    public CalendarBuilder newCalendar(String name, Year start, EventSet eventSet) {
+    public CalendarBuilder newCalendar(String name, Category category, Year start, EventSet eventSet) {
         CalendarBuilderImpl builder = new CalendarBuilderImpl(getDataModel(), eventSet);
-        builder.init(name, start);
+        builder.init(name, category, start);
         return builder;
     }
 
