@@ -295,8 +295,7 @@ public class UsagePointGroupResource {
     private void syncListWithInfo(EnumeratedUsagePointGroup enumeratedUsagePointGroup,
                                   UsagePointGroupInfo usagePointGroupInfo) {
         UsagePoint[] usagePoints = buildListOfUsagePoints(usagePointGroupInfo);
-        Map<Long, EnumeratedGroup.Entry<UsagePoint>> currentEntries = enumeratedUsagePointGroup.getEntries().stream()
-                .collect(indexedById());
+        Map<Long, EnumeratedGroup.Entry<UsagePoint>> currentEntries = enumeratedUsagePointGroup.getEntries().stream().collect(indexedById());
         // remove those no longer mapped
         currentEntries.entrySet().stream()
                 .filter(entry -> Arrays.stream(usagePoints)
