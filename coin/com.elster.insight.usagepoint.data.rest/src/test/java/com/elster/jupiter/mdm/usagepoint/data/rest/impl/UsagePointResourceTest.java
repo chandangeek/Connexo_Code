@@ -718,7 +718,6 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         when(usagePoint.getEffectiveMetrologyConfiguration(any(Instant.class))).thenReturn(Optional.of(effectiveMetrologyConfigurationOnUsagePoint));
         when(effectiveMetrologyConfigurationOnUsagePoint.isEffectiveAt(any(Instant.class))).thenReturn(true);
 
-
         when(effectiveMetrologyConfigurationOnUsagePoint.getMetrologyConfiguration()).thenReturn(usagePointMetrologyConfiguration);
         when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMetrologyConfigurationOnUsagePoint));
         when(effectiveMetrologyConfigurationOnUsagePoint.getChannelsContainer(any(MetrologyContract.class), any(Instant.class)))
@@ -963,6 +962,11 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         when(usagePoint.getEffectiveMetrologyConfigurations()).thenReturn(Arrays.asList(currentEffective, closedEffective));
         when(bpmService.getRunningProcesses(anyString(), anyString())).thenReturn(new ProcessInstanceInfos());
 
+        when(currentEffective.getUsagePoint()).thenReturn(usagePoint);
+        when(closedEffective.getUsagePoint()).thenReturn(usagePoint);
+        when(currentMetrologyConfiguration.getId()).thenReturn(555L);
+        when(closedMetrologyConfiguration.getId()).thenReturn(666L);
+        when(usagePoint.getMRID()).thenReturn("MRID");
         Response response = target("/usagepoints/" + USAGE_POINT_NAME + "/history/metrologyConfigurations").request().get();
         JsonModel jsonModel = JsonModel.model((InputStream)response.getEntity());
 
