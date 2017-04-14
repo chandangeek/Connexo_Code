@@ -8,7 +8,6 @@ import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.FormulaBuilder;
-import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
@@ -19,11 +18,9 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.upgrade.Upgrader;
 
 import javax.inject.Inject;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 
 class UpgraderV10_3 implements Upgrader {
 
@@ -45,6 +42,7 @@ class UpgraderV10_3 implements Upgrader {
         meteringCustomPropertySetsDemoInstaller.createSyntheticLoadProfiles();
         meteringCustomPropertySetsDemoInstaller.correctionFactors();
         meteringCustomPropertySetsDemoInstaller.residentialGasWithCorrection();
+        meteringCustomPropertySetsDemoInstaller.createDemoEstimationComments();
     }
 
     private void upgradeUnmeasuredAntennaInstallation(){

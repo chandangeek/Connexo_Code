@@ -67,6 +67,8 @@ class Installer implements FullInstaller {
         meteringCustomPropertySetsDemoInstaller.createSyntheticLoadProfiles();
         meteringCustomPropertySetsDemoInstaller.correctionFactors();
         meteringCustomPropertySetsDemoInstaller.residentialGasWithCorrection();
+
+        meteringCustomPropertySetsDemoInstaller.createDemoEstimationComments();
     }
 
     private void assign(String cps, Consumer<RegisteredCustomPropertySet> action) {

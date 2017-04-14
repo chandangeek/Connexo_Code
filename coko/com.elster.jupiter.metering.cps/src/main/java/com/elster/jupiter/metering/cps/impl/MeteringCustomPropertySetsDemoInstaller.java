@@ -13,6 +13,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePointTypeInfo;
+import com.elster.jupiter.metering.aggregation.ReadingQualityCommentCategory;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
 import com.elster.jupiter.metering.config.DefaultReadingTypeTemplate;
@@ -33,10 +34,10 @@ import com.elster.jupiter.metering.cps.impl.metrology.UsagePointAntennaCPS;
 import com.elster.jupiter.metering.cps.impl.metrology.UsagePointAntennaDomExt;
 import com.elster.jupiter.metering.cps.impl.metrology.UsagePointContCustomPropertySet;
 import com.elster.jupiter.metering.cps.impl.metrology.UsagePointContDomainExtension;
-import com.elster.jupiter.metering.cps.impl.metrology.UsagePointElectricityCorrectionFactorsCPS;
-import com.elster.jupiter.metering.cps.impl.metrology.UsagePointElectricityCorrectionFactorsDomExt;
 import com.elster.jupiter.metering.cps.impl.metrology.UsagePointDecentProdCustomPropertySet;
 import com.elster.jupiter.metering.cps.impl.metrology.UsagePointDecentProdDomExt;
+import com.elster.jupiter.metering.cps.impl.metrology.UsagePointElectricityCorrectionFactorsCPS;
+import com.elster.jupiter.metering.cps.impl.metrology.UsagePointElectricityCorrectionFactorsDomExt;
 import com.elster.jupiter.metering.cps.impl.metrology.UsagePointGasCorrectionFactorsCPS;
 import com.elster.jupiter.metering.cps.impl.metrology.UsagePointGasCorrectionFactorsDomExt;
 import com.elster.jupiter.metering.cps.impl.metrology.UsagePointMetrologyGeneralCPS;
@@ -49,7 +50,7 @@ import com.elster.jupiter.metering.cps.impl.metrology.UsagePointTechInstEGCustom
 import com.elster.jupiter.metering.cps.impl.metrology.UsagePointTechInstEGDomExt;
 import com.elster.jupiter.metering.cps.impl.metrology.UsagePointTechInstElectrCPS;
 import com.elster.jupiter.metering.cps.impl.metrology.UsagePointTechInstElectrDE;
-import com.elster.jupiter.metering.slp.SyntheticLoadProfileBuilder;
+import com.elster.jupiter.metering.slp.SyntheticLoadProfileService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
@@ -61,7 +62,6 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.search.SearchablePropertyOperator;
 import com.elster.jupiter.search.SearchablePropertyValue;
-import com.elster.jupiter.metering.slp.SyntheticLoadProfileService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -434,6 +434,20 @@ public class MeteringCustomPropertySetsDemoInstaller implements TranslationKeyPr
                 .build();
     }
 
+    void createDemoEstimationComments() {
+        meteringService.createReadingQualityComment(ReadingQualityCommentCategory.ESTIMATION, "Estimated by market rule 11");
+        meteringService.createReadingQualityComment(ReadingQualityCommentCategory.ESTIMATION, "Estimated by market rule 12");
+        meteringService.createReadingQualityComment(ReadingQualityCommentCategory.ESTIMATION, "Estimated by market rule 13");
+        meteringService.createReadingQualityComment(ReadingQualityCommentCategory.ESTIMATION, "Estimated by market rule 14");
+        meteringService.createReadingQualityComment(ReadingQualityCommentCategory.ESTIMATION, "Estimated by market rule 15");
+        meteringService.createReadingQualityComment(ReadingQualityCommentCategory.ESTIMATION, "Estimated by market rule 16");
+        meteringService.createReadingQualityComment(ReadingQualityCommentCategory.ESTIMATION, "Estimated by market rule 17");
+        meteringService.createReadingQualityComment(ReadingQualityCommentCategory.ESTIMATION, "Estimated by market rule 18");
+        meteringService.createReadingQualityComment(ReadingQualityCommentCategory.ESTIMATION, "Estimated by market rule 19");
+
+
+    }
+
     private SearchablePropertyValue.ValueBean getUsagePointRequirement(String property, SearchablePropertyOperator operator, String... values) {
         return new SearchablePropertyValue.ValueBean(property, operator,Arrays.asList(values));
     }
@@ -449,14 +463,3 @@ public class MeteringCustomPropertySetsDemoInstaller implements TranslationKeyPr
         return builder.build(builder.requirement(requirement));
     }
 }
-
-
-
-
-
-
-
-
-
-
-
