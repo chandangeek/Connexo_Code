@@ -10,7 +10,7 @@ Ext.define('Imt.purpose.store.EstimationRules', {
     model: 'Imt.purpose.model.EstimationRule',
     proxy: {
         type: 'rest',
-        url: '/api/udr/usagepoints/{usagePointId}/purposes/{purposeId}/outputs/{outputId}/channelData/estimateWithRule',
+        url: '/api/udr/usagepoints/{usagePointId}/purposes/{purposeId}/outputs/{outputId}/channelData/applicableEstimationRules',
         reader: {
             type: 'json',
             root: 'rules',
