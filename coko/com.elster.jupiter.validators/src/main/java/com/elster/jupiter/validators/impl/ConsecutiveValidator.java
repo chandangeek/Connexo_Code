@@ -31,10 +31,13 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import static com.elster.jupiter.validation.ValidationResult.SUSPECT;
 import static com.elster.jupiter.validation.ValidationResult.VALID;
@@ -45,6 +48,7 @@ public class ConsecutiveValidator extends AbstractValidator{
     static final String MINIMUM_PERIOD = "minimumPeriod";
     static final String MAXIMUM_PERIOD = "maximumPeriod";
     static final String MINIMUM_THRESHOLD = "minimumThreshold";
+    static final String CHECK_RETROACTIVELY = "checkRetroactively";
     private static final Set<QualityCodeSystem> QUALITY_CODE_SYSTEMS = ImmutableSet.of(QualityCodeSystem.MDC, QualityCodeSystem.MDM);
 
     private final Logger logger = Logger.getLogger(ConsecutiveValidator.class.getName());
@@ -53,7 +57,10 @@ public class ConsecutiveValidator extends AbstractValidator{
     private TimeDuration maxPeriod;
     private TimeDuration minPeriod;
     private BigDecimal minThreshold;
+    private boolean checkRetroactively;
     private RangeSet<Instant> zeroIntervals;
+    private Instant lastCheck;
+    private List<IntervalReadingRecord> retroactivelyRecords;
 
     ConsecutiveValidator(Thesaurus thesaurus, PropertySpecService propertySpecService) {
         super(thesaurus, propertySpecService);
@@ -65,26 +72,26 @@ public class ConsecutiveValidator extends AbstractValidator{
 
     @Override
     public List<String> getRequiredProperties() {
-        return Arrays.asList(MINIMUM_PERIOD, MAXIMUM_PERIOD, MINIMUM_THRESHOLD);
+        return Arrays.asList(MINIMUM_PERIOD, MAXIMUM_PERIOD, MINIMUM_THRESHOLD, CHECK_RETROACTIVELY);
     }
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
         ImmutableList.Builder<PropertySpec> builder = ImmutableList.builder();
         builder.add(getPropertySpecService()
-                        .timeDurationSpec()
-                        .named(MINIMUM_PERIOD, TranslationKeys.CONSECUTIVE_VALIDATOR_MIN_PERIOD)
-                        .fromThesaurus(this.getThesaurus())
-                        .markRequired()
-                        .setDefaultValue(TimeDuration.hours(2))
-                        .finish());
+                .timeDurationSpec()
+                .named(MINIMUM_PERIOD, TranslationKeys.CONSECUTIVE_VALIDATOR_MIN_PERIOD)
+                .fromThesaurus(this.getThesaurus())
+                .markRequired()
+                .setDefaultValue(TimeDuration.hours(2))
+                .finish());
         builder.add(getPropertySpecService()
-                        .timeDurationSpec()
-                        .named(MAXIMUM_PERIOD, TranslationKeys.CONSECUTIVE_VALIDATOR_MAX_PERIOD)
-                        .fromThesaurus(this.getThesaurus())
-                        .markRequired()
-                        .setDefaultValue(TimeDuration.days(1))
-                        .finish());
+                .timeDurationSpec()
+                .named(MAXIMUM_PERIOD, TranslationKeys.CONSECUTIVE_VALIDATOR_MAX_PERIOD)
+                .fromThesaurus(this.getThesaurus())
+                .markRequired()
+                .setDefaultValue(TimeDuration.days(1))
+                .finish());
         builder.add(getPropertySpecService()
                 .bigDecimalSpec()
                 .named(MINIMUM_THRESHOLD, TranslationKeys.CONSECUTIVE_VALIDATOR_MIN_THRESHOLD)
@@ -92,16 +99,25 @@ public class ConsecutiveValidator extends AbstractValidator{
                 .markRequired()
                 .setDefaultValue(BigDecimal.ZERO)
                 .finish());
+        builder.add(getPropertySpecService()
+                .booleanSpec()
+                .named(CHECK_RETROACTIVELY, TranslationKeys.CONSECUTIVE_VALIDATOR_CHECK_RETROACTIVELY)
+                .fromThesaurus(this.getThesaurus())
+                .setDefaultValue(false)
+                .finish());
         return builder.build();
     }
 
     @Override
     public void init(Channel channel, ReadingType readingType, Range<Instant> interval) {
             this.readingType = readingType;
+            this.checkRetroactively = getRequiredShift(properties, CHECK_RETROACTIVELY);
             this.minPeriod = getRequiredPeriod(properties, MINIMUM_PERIOD);
             this.maxPeriod = getRequiredPeriod(properties, MAXIMUM_PERIOD);
             this.minThreshold = getRequiredThreshold(properties, MINIMUM_THRESHOLD);
-            this.zeroIntervals = getZeroIntervalsFromValidationInterval(channel, interval);
+            this.zeroIntervals = getZeroIntervalsFromValidationInterval(channel, getValidationInterval(interval));
+            this.lastCheck = interval.lowerEndpoint();
+            this.retroactivelyRecords = getRetroactivelyRecodrs(channel, lastCheck);
     }
 
     @Override
@@ -151,6 +167,28 @@ public class ConsecutiveValidator extends AbstractValidator{
         }
     }
 
+    @Override
+    public Map<Instant, ValidationResult> finish() {
+        if(checkRetroactively){
+            Optional<Range<Instant>> retroactivelyZeroInterval = zeroIntervals.asRanges()
+                    .stream()
+                    .filter(interval -> interval.contains(lastCheck))
+                    .findFirst();
+            if(retroactivelyZeroInterval.isPresent()) {
+                return retroactivelyRecords.stream()
+                        .filter(record -> record.getTimeStamp().compareTo(lastCheck) <= 0 && retroactivelyZeroInterval.get().contains(record.getTimeStamp()))
+                        .map(IntervalReadingRecord::getTimeStamp)
+                        .collect(Collectors.toMap(Function.identity(), instant -> ValidationResult.SUSPECT));
+            }
+
+        }
+        return super.finish();
+    }
+
+    private boolean getRequiredShift(Map<String, Object> properties, String key){
+        return (boolean) properties.get(key);
+    }
+
     private TimeDuration getRequiredPeriod(Map<String, Object> properties, String key){
         TimeDuration period = (TimeDuration) properties.get(key);
         if (period == null) {
@@ -167,15 +205,21 @@ public class ConsecutiveValidator extends AbstractValidator{
         return threshold;
     }
 
+    private Range<Instant> getValidationInterval(Range<Instant> interval){
+        if(checkRetroactively) {
+            return Range.openClosed(interval.lowerEndpoint().minusMillis(maxPeriod.getMilliSeconds()), interval.upperEndpoint());
+        }
+        return interval;
+    }
 
-    private RangeSet<Instant> getZeroIntervalsFromValidationInterval(Channel channel, Range<Instant> interval) {
-        Range<Instant> validationInterval = Range.openClosed(interval.lowerEndpoint().minusMillis(minPeriod.getMilliSeconds()), interval.upperEndpoint());
+    private RangeSet<Instant> getZeroIntervalsFromValidationInterval(Channel channel, Range<Instant> validationInterval) {
         TreeMap<Instant, IntervalReadingRecord> intervalReadingRecords = new TreeMap<>();
         List<Instant> timestampsFromInterval = channel.toList(validationInterval);
         timestampsFromInterval.forEach(instant -> intervalReadingRecords.putIfAbsent(instant, null));
         channel.getIntervalReadings(validationInterval).forEach(record -> intervalReadingRecords.putIfAbsent(record.getTimeStamp(), record));
         RangeSet<Instant> zeroIntervals = TreeRangeSet.create();
         Instant startZeroInterval = validationInterval.lowerEndpoint();
+        Instant endZeroInterval = startZeroInterval;
         boolean intervalStarted = false;
         for (Instant timeStamp:
                 timestampsFromInterval) {
@@ -184,10 +228,12 @@ public class ConsecutiveValidator extends AbstractValidator{
                 if (!intervalStarted) {
                         startZeroInterval = timeStamp;
                         intervalStarted = true;
+                } else {
+                    endZeroInterval = timeStamp;
                 }
             } else {
                 if (intervalStarted) {
-                    long periodLength = timeStamp.getEpochSecond() - startZeroInterval.getEpochSecond();
+                    long periodLength = endZeroInterval.getEpochSecond() - startZeroInterval.getEpochSecond();
                     if (periodLength > minPeriod.getSeconds() && periodLength < maxPeriod.getSeconds()) {
                         zeroIntervals.add(Range.closedOpen(startZeroInterval, timeStamp));
                     }
@@ -196,5 +242,12 @@ public class ConsecutiveValidator extends AbstractValidator{
             }
         }
         return zeroIntervals;
+    }
+
+    private List<IntervalReadingRecord> getRetroactivelyRecodrs(Channel channel, Instant lastCheck){
+        if(checkRetroactively){
+            return channel.getIntervalReadings(Range.openClosed(lastCheck.minus(maxPeriod.asTemporalAmount()), lastCheck));
+        }
+        return Collections.emptyList();
     }
 }

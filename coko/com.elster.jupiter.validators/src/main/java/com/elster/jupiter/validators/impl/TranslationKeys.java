@@ -16,6 +16,7 @@ public enum TranslationKeys implements TranslationKey {
     THRESHOLD_VALIDATOR_MIN(ThresholdValidator.class.getName() + "." + ThresholdValidator.MIN, "Minimum"),
     THRESHOLD_VALIDATOR_MAX(ThresholdValidator.class.getName() + "." + ThresholdValidator.MAX, "Maximum"),
     CONSECUTIVE_VALIDATOR(ConsecutiveValidator.class.getName(), "Consecutive zero's"),
+    CONSECUTIVE_VALIDATOR_CHECK_RETROACTIVELY(ConsecutiveValidator.class.getName() + "." + ConsecutiveValidator.CHECK_RETROACTIVELY, "Check retroactively"),
     CONSECUTIVE_VALIDATOR_MIN_PERIOD(ConsecutiveValidator.class.getName() + "." + ConsecutiveValidator.MINIMUM_PERIOD, "Minimum period"),
     CONSECUTIVE_VALIDATOR_MAX_PERIOD(ConsecutiveValidator.class.getName() + "." + ConsecutiveValidator.MAXIMUM_PERIOD, "Maximum period"),
     CONSECUTIVE_VALIDATOR_MIN_THRESHOLD(ConsecutiveValidator.class.getName() + "." + ConsecutiveValidator.MINIMUM_THRESHOLD, "Minimum threshold"),
