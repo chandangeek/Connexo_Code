@@ -1148,8 +1148,7 @@ public class UsagePointResource {
         usagePoint
                 .getUsedCalendars()
                 .addCalendar(this.calendarService
-                        .newCalendar("Fake", Year.now(this.clock), this.createFakeEventSet(eventSets))
-                        .category(this.getTimeOfUseCategory())
+                        .newCalendar("Fake", this.getTimeOfUseCategory(), Year.now(this.clock), this.createFakeEventSet(eventSets))
                         .description("Generated to satisfy the metrology configuration as part of validating one step of the wizzard that creates a usage point")
                         .newDayType(fakeDayTypeName).eventWithCode(randomEventCode).startsFrom(LocalTime.MIDNIGHT).add()
                         .addPeriod(fakePeriodName, fakeDayTypeName, fakeDayTypeName, fakeDayTypeName, fakeDayTypeName, fakeDayTypeName, fakeDayTypeName, fakeDayTypeName)
