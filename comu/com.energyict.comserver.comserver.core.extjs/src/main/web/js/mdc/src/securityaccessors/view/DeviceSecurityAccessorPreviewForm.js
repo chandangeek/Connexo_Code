@@ -14,14 +14,10 @@ Ext.define('Mdc.securityaccessors.view.DeviceSecurityAccessorPreviewForm', {
     initComponent: function () {
         var me = this,
             statusField = {
-                //xtype: 'displayfield',
-                //labelWidth: 200,
                 fieldLabel: Uni.I18n.translate('general.status', 'MDC', 'Status'),
                 name: 'status'
             },
             validUntilField = {
-                //xtype: 'displayfield',
-                //labelWidth: 200,
                 fieldLabel: Uni.I18n.translate('general.validUntil', 'MDC', 'Valid until'),
                 name: 'expirationTime',
                 renderer: function (value) {
@@ -32,8 +28,6 @@ Ext.define('Mdc.securityaccessors.view.DeviceSecurityAccessorPreviewForm', {
                 }
             },
             lastReadDateField = {
-                //xtype: 'displayfield',
-                //labelWidth: 200,
                 fieldLabel: Uni.I18n.translate('general.lastReadDate', 'MDC', 'Last read date'),
                 name: 'lastReadDate'
             },
@@ -93,8 +87,19 @@ Ext.define('Mdc.securityaccessors.view.DeviceSecurityAccessorPreviewForm', {
                                     xtype: 'displayfield',
                                     emptyValueDisplay: '',
                                     fieldLabel: me.keyMode
-                                        ? Uni.I18n.translate('general.currentKey', 'MDC', 'Current key')
-                                        : Uni.I18n.translate('general.currentCertificate', 'MDC', 'Current certificate')
+                                        ? Uni.I18n.translate('general.activeKey', 'MDC', 'Active key')
+                                        : Uni.I18n.translate('general.activeCertificate', 'MDC', 'Active certificate')
+                                },
+                                {
+                                    xtype: 'displayfield',
+                                    itemId: 'mdc-device-security-accessor-preview-active-info',
+                                    emptyValueDisplay: '',
+                                    fieldLabel: '',
+                                    htmlEncode: false,
+                                    value: '',
+                                    setInfo: function(value) {
+                                        this.setValue('<span style="color: #686868; font-style: italic; margin-top: 0px">' + value + '</span>');
+                                    }
                                 }
                             ]
                         },
@@ -129,6 +134,20 @@ Ext.define('Mdc.securityaccessors.view.DeviceSecurityAccessorPreviewForm', {
                                     fieldLabel: me.keyMode
                                         ? Uni.I18n.translate('general.passiveKey', 'MDC', 'Passive key')
                                         : Uni.I18n.translate('general.passiveCertificate', 'MDC', 'Passive certificate')
+                                },
+                                {
+                                    xtype: 'displayfield',
+                                    itemId: 'mdc-device-security-accessor-preview-passive-info',
+                                    emptyValueDisplay: '',
+                                    fieldLabel: '',
+                                    htmlEncode: false,
+                                    value: '',
+                                    setInfo: function(value) {
+                                        this.setValue('<span style="color: #686868; font-style: italic; margin-top: 0px">' + value + '</span>');
+                                    },
+                                    clearInfo: function() {
+                                        this.setValue('');
+                                    }
                                 }
                             ]
                         },

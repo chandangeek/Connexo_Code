@@ -4,6 +4,9 @@
 Ext.define('Mdc.securityaccessors.view.EditDeviceKeyAttributes', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.device-key-attributes-edit',
+    requires: [
+        'Uni.util.FormErrorMessage'
+    ],
 
     device: undefined,
     keyRecord: undefined,
@@ -21,6 +24,72 @@ Ext.define('Mdc.securityaccessors.view.EditDeviceKeyAttributes', {
             title: '',
 
             items: [
+                {
+                    xtype: 'uni-form-error-message',
+                    hidden: true
+                },
+                {
+                    xtype: 'container',
+                    itemId: 'mdc-device-key-attributes-edit-active-attributes-container',
+                    items: [
+                        {
+                            xtype: 'form',
+                            border: false,
+                            defaults: {
+                                labelWidth: 200,
+                                labelAlign: 'left'
+                            },
+                            items: [
+                                {
+                                    xtype: 'displayfield',
+                                    emptyValueDisplay: '',
+                                    fieldLabel: Uni.I18n.translate('general.activeKey', 'MDC', 'Active key')
+                                }
+                            ]
+                        },
+                        {
+                            xtype: 'property-form',
+                            itemId: 'mdc-device-key-attributes-edit-active-attributes-property-form',
+                            isEdit: true,
+                            defaults: {
+                                layout: 'form',
+                                resetButtonHidden: true,
+                                labelWidth: 200
+                            }
+                        }
+                    ]
+                },
+                {
+                    xtype: 'container',
+                    itemId: 'mdc-device-key-attributes-edit-passive-attributes-container',
+                    items: [
+                        {
+                            xtype: 'form',
+                            border: false,
+                            defaults: {
+                                labelWidth: 200,
+                                labelAlign: 'left'
+                            },
+                            items: [
+                                {
+                                    xtype: 'displayfield',
+                                    emptyValueDisplay: '',
+                                    fieldLabel: Uni.I18n.translate('general.passiveKey', 'MDC', 'Passive key')
+                                }
+                            ]
+                        },
+                        {
+                            xtype: 'property-form',
+                            itemId: 'mdc-device-key-attributes-edit-passive-attributes-property-form',
+                            isEdit: true,
+                            defaults: {
+                                layout: 'form',
+                                resetButtonHidden: true,
+                                labelWidth: 200
+                            }
+                        }
+                    ]
+                },
                 {
                     xtype: 'fieldcontainer',
                     itemId: 'mdc-device-key-attributes-edit-buttons',
