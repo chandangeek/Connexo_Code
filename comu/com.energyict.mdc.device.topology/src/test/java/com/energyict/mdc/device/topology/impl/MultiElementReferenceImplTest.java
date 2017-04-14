@@ -47,6 +47,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static com.elster.jupiter.util.streams.Predicates.not;
@@ -58,6 +59,7 @@ import static org.mockito.Mockito.when;
  * Date: 20/03/2017
  * Time: 11:00
  */
+@Ignore
 public class MultiElementReferenceImplTest extends PersistenceIntegrationTest {
 
     private final static Unit kiloWattHours = Unit.get("kWh");
