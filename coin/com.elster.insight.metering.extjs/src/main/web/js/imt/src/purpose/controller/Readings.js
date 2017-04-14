@@ -304,15 +304,16 @@ Ext.define('Imt.purpose.controller.Readings', {
                     me.getOutputReadings().down('#output-readings-preview-container').fireEvent('rowselect', event.record);
                 }
 
+                if(!event.record.get('estimatedNotSaved')){
+                    event.record.set('modificationState', Uni.util.ReadingEditor.modificationState('EDITED'));
+                }
                 if (event.column) {
                     event.record.set('validationResult', 'validationStatus.ok');
                     event.record.set('isProjected', false);
                     event.record.set('ruleId', 0);
+
                     grid.getView().refreshNode(grid.getStore().indexOf(event.record));
                     event.record.get('confirmed') && event.record.set('confirmed', false);
-                    if(!event.record.get('estimatedNotSaved')){
-                        event.record.set('modificationState', Uni.util.ReadingEditor.modificationState('EDITED'));
-                    }
                 }
                 Ext.resumeLayouts();
             } else if (condition) {
@@ -707,8 +708,8 @@ Ext.define('Imt.purpose.controller.Readings', {
         reading.set('value', estimatedReading.value);
         ruleId && reading.set('ruleId', ruleId);
         reading.set('validationResult', 'validationStatus.ok');
-        reading.set('estimatedNotSaved', true);
         if(action === 'estimate'){
+            reading.set('estimatedNotSaved', true);
             reading.set('estimatedByRule', true);
         }
         reading.set('isProjected', estimatedReading.isProjected);
