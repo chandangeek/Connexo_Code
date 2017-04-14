@@ -5,7 +5,7 @@
 package com.energyict.mdc.device.lifecycle.config.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
-import com.elster.jupiter.calendar.Calendar;
+import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cps.CustomPropertySetService;
@@ -68,11 +68,11 @@ import static org.mockito.Mockito.when;
  */
 public class InMemoryPersistence {
 
+    private final Supplier<List<Module>> moduleSupplier;
     private InMemoryBootstrapModule bootstrapModule = new InMemoryBootstrapModule();
     private ThreadSecurityModule threadSecurityModule;
     private Principal principal;
     private Injector injector;
-    private final Supplier<List<Module>> moduleSupplier;
     private TransactionService transactionService;
     private BundleContext bundleContext;
     private EventAdmin eventAdmin;
@@ -83,6 +83,11 @@ public class InMemoryPersistence {
     private PropertySpecService propertySpecService;
     private SearchService searchService;
     private TimeService timeService;
+
+    private InMemoryPersistence(Supplier<List<Module>> modulesSupplier) {
+        super();
+        this.moduleSupplier = modulesSupplier;
+    }
 
     /**
      * Returns a new InMemoryPersistence that uses all the defaults
@@ -109,16 +114,12 @@ public class InMemoryPersistence {
                 new CustomPropertySetsModule(),
                 new UserModule(),
                 new UtilModule(),
+                new BpmModule(),
                 new DomainUtilModule(),
                 new NlsModule(),
                 new FiniteStateMachineModule(),
                 new UsagePointLifeCycleConfigurationModule()
         );
-    }
-
-    private InMemoryPersistence(Supplier<List<Module>> modulesSupplier) {
-        super();
-        this.moduleSupplier = modulesSupplier;
     }
 
     public void initializeDatabase(String testName) {
