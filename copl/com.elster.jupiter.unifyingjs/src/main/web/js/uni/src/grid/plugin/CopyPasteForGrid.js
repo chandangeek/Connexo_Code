@@ -36,8 +36,10 @@ Ext.define('Uni.grid.plugin.CopyPasteForGrid', {
     },
 
     copyToClipBoard: function (grid) {
-        var me = this,
-            data = me.collectGridData(grid);
+        var me = this, data;
+
+        Ext.suspendLayouts();
+        data = me.collectGridData(grid);
         if (window.clipboardData && clipboardData.setData) {
             clipboardData.setData("text", data);
         } else {
@@ -46,12 +48,17 @@ Ext.define('Uni.grid.plugin.CopyPasteForGrid', {
             hiddentextarea.focus();
             hiddentextarea.dom.setSelectionRange(0, hiddentextarea.dom.value.length);
         }
+        Ext.suspendLayouts();
     },
 
     pasteFromClipBoard: function (grid) {
-        var hiddentextarea = this.getHiddenTextArea(grid);
+        var me = this;
+
+        Ext.suspendLayouts();
+        hiddentextarea = me.getHiddenTextArea(grid);
         hiddentextarea.dom.value = "";
         hiddentextarea.focus();
+        Ext.suspendLayouts();
     },
 
     updateGridData: function (e, t, grid) {
