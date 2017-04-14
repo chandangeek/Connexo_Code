@@ -15,7 +15,7 @@ Ext.define('Cfg.store.AllPurpose', {
         url: '/api/mtr/fields/metrologypurposes',
         reader: {
             type: 'json',
-            root: 'devices'
+            root: 'metrologyPurposes'
         }
     }
 });

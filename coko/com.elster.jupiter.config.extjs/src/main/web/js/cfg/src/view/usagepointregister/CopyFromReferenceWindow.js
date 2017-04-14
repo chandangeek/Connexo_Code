@@ -8,20 +8,8 @@ Ext.define('Cfg.view.usagepointregister.CopyFromReferenceWindow', {
     modal: true,
     hideCollapseTool: true,
     title: Uni.I18n.translate('general.copyFromReference', 'CFG', 'Copy from reference'),
-    record: null,
+    records: null,
     usagePoint: null,
-
-    store: {
-        fields: [
-            'referenceDevice',
-            'referenceUsagePoint',
-            'metrologyPurpose',
-            'readingType',
-            'startDate',
-            'allowSuspectData',
-            'completePeriod'
-        ]
-    },
 
     requires: [
         'Uni.util.FormErrorMessage',
@@ -33,7 +21,7 @@ Ext.define('Cfg.view.usagepointregister.CopyFromReferenceWindow', {
 
         me.items = {
             xtype: 'form',
-            itemId: 'reading-estimation-window-form',
+            itemId: 'reading-copy-window-form',
             padding: 5,
             defaults: {
                 width: 510,
@@ -55,13 +43,12 @@ Ext.define('Cfg.view.usagepointregister.CopyFromReferenceWindow', {
                 {
                     xtype: 'combobox',
                     itemId: 'device-field',
-                    dataIndex: 'referenceDevice',
+                    name: 'referenceDevice',
                     fieldLabel: Uni.I18n.translate('copyFromReference.device', 'CFG', 'Check device'),
                     required: true,
                     width: '100%',
-                    name: 'device',
                     store: 'Cfg.store.AllDevices',
-                    valueField: 'id',
+                    valueField: 'name',
                     displayField: 'name',
                     queryMode: 'remote',
                     remoteFilter: true,
@@ -70,30 +57,18 @@ Ext.define('Cfg.view.usagepointregister.CopyFromReferenceWindow', {
                     minChars: 1,
                     editable: true,
                     typeAhead: true,
-                    emptyText: Uni.I18n.translate('copyFromReference.selectDevice', 'CFG', 'Select device'),
-                    // listeners: {
-                    //     change: {
-                    //         fn: function (implementationCombo, newValue) {
-                    //             var estimator = implementationCombo.getStore().getById(newValue);
-                    //
-                    //             estimator && me.down('property-form').loadRecord(estimator);
-                    //             me.updateLayout();
-                    //             me.center();
-                    //         }
-                    //     }
-                    // }
+                    emptyText: Uni.I18n.translate('copyFromReference.selectDevice', 'CFG', 'Select device')
                 },
                 {
                     xtype: 'combobox',
                     itemId: 'readingType-field',
-                    dataIndex: 'readingType',
+                    name: 'readingType',
                     fieldLabel: Uni.I18n.translate('copyFromReference.readingType', 'CFG', 'Check reading type'),
                     required: true,
                     width: '100%',
-                    name: 'readingType',
                     store: 'Cfg.store.AllReadingTypes',
                     valueField: 'mRID',
-                    displayField: 'aliasName',
+                    displayField: 'fullAliasName',
                     queryMode: 'remote',
                     remoteFilter: true,
                     queryParam: 'value',
@@ -101,23 +76,11 @@ Ext.define('Cfg.view.usagepointregister.CopyFromReferenceWindow', {
                     minChars: 1,
                     editable: true,
                     typeAhead: true,
-                    emptyText: Uni.I18n.translate('copyFromReference.selectReadingType', 'CFG', 'Select reading type'),
-                    // listeners: {
-                    //     change: {
-                    //         fn: function (implementationCombo, newValue) {
-                    //             var estimator = implementationCombo.getStore().getById(newValue);
-                    //
-                    //             estimator && me.down('property-form').loadRecord(estimator);
-                    //             me.updateLayout();
-                    //             me.center();
-                    //         }
-                    //     }
-                    // }
+                    emptyText: Uni.I18n.translate('copyFromReference.selectReadingType', 'CFG', 'Select reading type')
                 },
                 {
                     xtype: 'fieldcontainer',
                     itemId: 'start-date-container',
-                    dataIndex: 'startDate',
                     fieldLabel: Uni.I18n.translate('copyFromReference.startDate', 'CFG', 'Start date/time'),
                     defaults: {
                         width: '100%'
@@ -126,6 +89,7 @@ Ext.define('Cfg.view.usagepointregister.CopyFromReferenceWindow', {
                         {
                             xtype: 'date-time',
                             itemId: 'start-date-field',
+                            name: 'startDate',
                             value: new Date(),
                             layout: 'hbox',
                             valueInMilliseconds: true
@@ -135,14 +99,14 @@ Ext.define('Cfg.view.usagepointregister.CopyFromReferenceWindow', {
                 {
                     xtype: 'checkbox',
                     itemId: 'suspect-flag',
-                    dataIndex: 'allowSuspectData',
+                    name: 'allowSuspectData',
                     fieldLabel: Uni.I18n.translate('copyFromReference.suspectFlag', 'CFG', 'Allow suspect date'),
                     width: '100%'
                 },
                 {
                     xtype: 'checkbox',
                     itemId: 'complete',
-                    dataIndex: 'completePeriod',
+                    name: 'completePeriod',
                     fieldLabel: Uni.I18n.translate('copyFromReference.complete', 'CFG', 'Complete period'),
                     width: '100%'
                 },
@@ -177,18 +141,17 @@ Ext.define('Cfg.view.usagepointregister.CopyFromReferenceWindow', {
             ]
         };
 
-        if (true) {
+        if (me.usagePoint) {
             me.items.items.splice(2, 1,
                 {
                     xtype: 'combobox',
                     itemId: 'usage-point-field',
-                    dataIndex: 'referenceUsagePoint',
+                    name: 'referenceUsagePoint',
                     fieldLabel: Uni.I18n.translate('copyFromReference.usagePoint', 'CFG', 'Check usage point'),
                     required: true,
                     width: '100%',
-                    name: 'usagePointImpl',
                     store: 'Cfg.store.AllUsagePoint',
-                    valueField: 'id',
+                    valueField: 'name',
                     displayField: 'name',
                     queryMode: 'remote',
                     remoteFilter: true,
@@ -197,65 +160,26 @@ Ext.define('Cfg.view.usagepointregister.CopyFromReferenceWindow', {
                     minChars: 1,
                     editable: true,
                     typeAhead: true,
-                    emptyText: Uni.I18n.translate('copyFromReference.selectUsagePoint', 'CFG', 'Select usage point'),
-                    // listeners: {
-                    //     change: {
-                    //         fn: function (implementationCombo, newValue) {
-                    //             var estimator = implementationCombo.getStore().getById(newValue);
-                    //
-                    //             estimator && me.down('property-form').loadRecord(estimator);
-                    //             me.updateLayout();
-                    //             me.center();
-                    //         }
-                    //     }
-                    // }
+                    emptyText: Uni.I18n.translate('copyFromReference.selectUsagePoint', 'CFG', 'Select usage point')
                 },
                 {
                     xtype: 'combobox',
                     itemId: 'purpose-field',
-                    dataIndex: 'metrologyPurpose',
+                    name: 'metrologyPurpose',
                     fieldLabel: Uni.I18n.translate('copyFromReference.purpose', 'CFG', 'Check purpose'),
                     required: true,
                     width: '100%',
-                    name: 'purposeImpl',
                     store: 'Cfg.store.AllPurpose',
                     valueField: 'id',
                     displayField: 'name',
-                    queryMode: 'remote',
-                    remoteFilter: true,
-                    queryParam: 'name',
                     queryCaching: false,
                     minChars: 1,
                     editable: true,
                     typeAhead: true,
                     emptyText: Uni.I18n.translate('copyFromReference.selectPurpose', 'CFG', 'Select purpose'),
-                    // listeners: {
-                    //     change: {
-                    //         fn: function (implementationCombo, newValue) {
-                    //             var estimator = implementationCombo.getStore().getById(newValue);
-                    //
-                    //             estimator && me.down('property-form').loadRecord(estimator);
-                    //             me.updateLayout();
-                    //             me.center();
-                    //         }
-                    //     }
-                    // }
                 }
             );
         }
         me.callParent(arguments);
-    },
-
-    // getRecord: function () {
-    //     var me = this;
-    //
-    //     return me.getRecord();
-    //
-    // },
-
-    getEstimator: function () {
-        var me = this,
-            record = me.down('#estimator-field').getStore().getById(me.down('#estimator-field').getValue());
-        return record ? record.get('estimatorImpl') : '';
     }
 });

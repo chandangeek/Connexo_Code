@@ -6,7 +6,7 @@ Ext.define('Cfg.store.AllReadingTypes', {
     extend: 'Ext.data.Store',
 
     fields: [
-        'aliasName',
+        'fullAliasName',
         'mRID'
     ],
 
@@ -20,8 +20,16 @@ Ext.define('Cfg.store.AllReadingTypes', {
     },
 
     listeners: {
-        beforeload: function(){
-            console.log('ssddds');
+        beforeload: function(store, operation){
+            var me = this,
+                filter = [
+                {
+                    property: me.proxy.extraParams.property,
+                    value: '*'+operation.params.value+'*'
+                }
+            ];
+
+            me.proxy.extraParams.filter = JSON.stringify(filter);
         }
     }
 });
