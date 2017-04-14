@@ -43,8 +43,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel {
 
@@ -144,8 +146,13 @@ public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel
         Map<Instant, IntervalReadingRecord> calculatedReadings = getCalculatedIntervalReadings(interval, record -> new CalculatedReadingRecordImpl(this.persistedChannel, record,clock));
         Map<Instant, IntervalReadingRecord> persistedReadings = getPersistedIntervalReadings(interval).stream()
                 .collect(Collectors.toMap(BaseReadingRecord::getTimeStamp, Function.identity()));
-        calculatedReadings.putAll(persistedReadings);
-        return new ArrayList<>(calculatedReadings.values());
+
+        // return elements, sorted by timestamp
+        TreeMap<Instant, IntervalReadingRecord> orderedReadings = new TreeMap<>();
+        orderedReadings.putAll(calculatedReadings);
+        orderedReadings.putAll(persistedReadings);
+
+        return new ArrayList<>(orderedReadings.values());
     }
 
     @Override
