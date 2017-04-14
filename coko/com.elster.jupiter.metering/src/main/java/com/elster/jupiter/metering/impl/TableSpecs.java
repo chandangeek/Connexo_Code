@@ -33,6 +33,7 @@ import com.elster.jupiter.metering.UsagePointConfiguration;
 import com.elster.jupiter.metering.UsagePointConnectionState;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.UsagePointReadingTypeConfiguration;
+import com.elster.jupiter.metering.aggregation.ReadingQualityComment;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Formula;
@@ -48,6 +49,7 @@ import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.config.UsagePointRequirement;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
+import com.elster.jupiter.metering.impl.aggregation.ReadingQualityCommentImpl;
 import com.elster.jupiter.metering.impl.config.AbstractNode;
 import com.elster.jupiter.metering.impl.config.EffectiveMetrologyConfigurationOnUsagePointImpl;
 import com.elster.jupiter.metering.impl.config.EffectiveMetrologyContractOnUsagePoint;
@@ -92,7 +94,6 @@ import java.util.Map;
 
 import static com.elster.jupiter.orm.ColumnConversion.CHAR2BOOLEAN;
 import static com.elster.jupiter.orm.ColumnConversion.CHAR2ENUM;
-import static com.elster.jupiter.orm.ColumnConversion.CHAR2UNIT;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUM;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUMPLUSONE;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INSTANT;
@@ -2023,6 +2024,21 @@ public enum TableSpecs {
                     .map("readingType")
                     .on(readingTypeMRIDColumn)
                     .add();
+        }
+    },
+    MTR_READINGQUALITY_COMMENT {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<ReadingQualityComment> table = dataModel.addTable(name(), ReadingQualityComment.class);
+            table.since(Version.version(10, 3));
+            table.map(ReadingQualityCommentImpl.class);
+            Column idColumn = table.addAutoIdColumn();
+            table.setJournalTableName("MTR_READINGQUALITY_COMMENTJRNL");
+
+            table.column("CATEGORY").varChar(NAME_LENGTH).conversion(CHAR2ENUM).map("category").add();
+            table.column("COMMENTS").varChar(4000).map("comment").add();
+
+            table.primaryKey("PK_MTR_RQC").on(idColumn).add();
         }
     };
 
