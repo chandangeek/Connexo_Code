@@ -5,6 +5,7 @@
 package com.energyict.mdc.device.topology.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
@@ -149,21 +150,6 @@ public class CountNumberOfCommunicationErrorsInGatewayTopologyTest {
 
     private Device device;
 
-    private class MockModule extends AbstractModule {
-        @Override
-        protected void configure() {
-            bind(DataVaultService.class).toInstance(dataVaultService);
-            bind(EventAdmin.class).toInstance(eventAdmin);
-            bind(BundleContext.class).toInstance(bundleContext);
-            bind(LicenseService.class).toInstance(licenseService);
-            bind(LogService.class).toInstance(mock(LogService.class));
-            bind(IssueService.class).toInstance(mock(IssueService.class, RETURNS_DEEP_STUBS));
-            bind(Thesaurus.class).toInstance(mock(Thesaurus.class, RETURNS_DEEP_STUBS));
-            bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
-        }
-
-    }
-
     public void initializeDatabase(boolean showSqlLogging) {
         when(this.connectionTypeService.createConnectionType(NoParamsConnectionType.class.getName())).thenReturn(new NoParamsConnectionType());
         this.bootstrapModule = new InMemoryBootstrapModule();
@@ -181,6 +167,7 @@ public class CountNumberOfCommunicationErrorsInGatewayTopologyTest {
                 new DomainUtilModule(),
                 new PartyModule(),
                 new UserModule(),
+                new BpmModule(),
                 new IdsModule(),
                 new UsagePointLifeCycleConfigurationModule(),
                 new MeteringModule(),
@@ -217,8 +204,10 @@ public class CountNumberOfCommunicationErrorsInGatewayTopologyTest {
             injector.getInstance(ServiceCallService.class);
             injector.getInstance(CustomPropertySetService.class);
             injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CommandCustomPropertySet());
-            injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CompletionOptionsCustomPropertySet());
-            injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new OnDemandReadServiceCallCustomPropertySet());
+            injector.getInstance(CustomPropertySetService.class)
+                    .addCustomPropertySet(new CompletionOptionsCustomPropertySet());
+            injector.getInstance(CustomPropertySetService.class)
+                    .addCustomPropertySet(new OnDemandReadServiceCallCustomPropertySet());
             injector.getInstance(OrmService.class);
             injector.getInstance(FiniteStateMachineService.class);
             injector.getInstance(MasterDataService.class);
@@ -271,7 +260,8 @@ public class CountNumberOfCommunicationErrorsInGatewayTopologyTest {
     @Test
     public void testConnectionSetupFailure() {
         // Business method
-        int numberOfDevices = this.topologyService.countNumberOfDevicesWithCommunicationErrorsInGatewayTopology(CommunicationErrorType.CONNECTION_SETUP_FAILURE, this.device, Interval.sinceEpoch());
+        int numberOfDevices = this.topologyService.countNumberOfDevicesWithCommunicationErrorsInGatewayTopology(CommunicationErrorType.CONNECTION_SETUP_FAILURE, this.device, Interval
+                .sinceEpoch());
 
         // Asserts: validates mostly that no SQLExceptions have occurred
         assertThat(numberOfDevices).isZero();
@@ -280,7 +270,8 @@ public class CountNumberOfCommunicationErrorsInGatewayTopologyTest {
     @Test
     public void testCommunicationFailure() {
         // Business method
-        int numberOfDevices = this.topologyService.countNumberOfDevicesWithCommunicationErrorsInGatewayTopology(CommunicationErrorType.COMMUNICATION_FAILURE, this.device, Interval.sinceEpoch());
+        int numberOfDevices = this.topologyService.countNumberOfDevicesWithCommunicationErrorsInGatewayTopology(CommunicationErrorType.COMMUNICATION_FAILURE, this.device, Interval
+                .sinceEpoch());
 
         // Asserts: validates mostly that no SQLExceptions have occurred
         assertThat(numberOfDevices).isZero();
@@ -289,13 +280,34 @@ public class CountNumberOfCommunicationErrorsInGatewayTopologyTest {
     @Test
     public void testConnectionFailure() {
         // Business method
-        int numberOfDevices = this.topologyService.countNumberOfDevicesWithCommunicationErrorsInGatewayTopology(CommunicationErrorType.CONNECTION_FAILURE, this.device, Interval.sinceEpoch());
+        int numberOfDevices = this.topologyService.countNumberOfDevicesWithCommunicationErrorsInGatewayTopology(CommunicationErrorType.CONNECTION_FAILURE, this.device, Interval
+                .sinceEpoch());
 
         // Asserts: validates mostly that no SQLExceptions have occurred
         assertThat(numberOfDevices).isZero();
     }
 
+    private class MockModule extends AbstractModule {
+        @Override
+        protected void configure() {
+            bind(DataVaultService.class).toInstance(dataVaultService);
+            bind(EventAdmin.class).toInstance(eventAdmin);
+            bind(BundleContext.class).toInstance(bundleContext);
+            bind(LicenseService.class).toInstance(licenseService);
+            bind(LogService.class).toInstance(mock(LogService.class));
+            bind(IssueService.class).toInstance(mock(IssueService.class, RETURNS_DEEP_STUBS));
+            bind(Thesaurus.class).toInstance(mock(Thesaurus.class, RETURNS_DEEP_STUBS));
+            bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
+        }
+
+    }
+
     private class TestDialect implements DeviceProtocolDialect {
+
+        @Override
+        public Optional<CustomPropertySet<DeviceProtocolDialectPropertyProvider, ? extends PersistentDomainExtension<DeviceProtocolDialectPropertyProvider>>> getCustomPropertySet() {
+            return Optional.empty();
+        }
 
         @Override
         public String getDeviceProtocolDialectName() {
@@ -305,11 +317,6 @@ public class CountNumberOfCommunicationErrorsInGatewayTopologyTest {
         @Override
         public String getDisplayName() {
             return "For testing purposes only";
-        }
-
-        @Override
-        public Optional<CustomPropertySet<DeviceProtocolDialectPropertyProvider, ? extends PersistentDomainExtension<DeviceProtocolDialectPropertyProvider>>> getCustomPropertySet() {
-            return Optional.empty();
         }
 
     }
