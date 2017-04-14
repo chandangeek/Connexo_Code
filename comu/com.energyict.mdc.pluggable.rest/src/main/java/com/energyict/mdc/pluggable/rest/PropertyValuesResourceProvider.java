@@ -14,7 +14,9 @@ import java.net.URI;
  */
 public interface PropertyValuesResourceProvider {
     /**
-     * The URI on which the possible values
+     * The URI on which the possible values can be retrieved by using HTTP GET. A query parameter 'searchField' can be
+     * specified to narrow down search results.
+     * @see {https://confluence.eict.vpdc/pages/viewpage.action?spaceKey=JDG&title=Filter}
      * @param propertySpec The propertySpec for which the URI needs to be calculated
      * @return The complete URI on which possible values can be retrieved
      */
