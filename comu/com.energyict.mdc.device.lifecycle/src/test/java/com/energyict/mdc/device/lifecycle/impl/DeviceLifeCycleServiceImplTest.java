@@ -81,6 +81,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.internal.verification.VerificationModeFactory.times;
 
 /**
  * Tests the {@link DeviceLifeCycleServiceImpl} component.
@@ -181,6 +182,8 @@ public class DeviceLifeCycleServiceImplTest {
             ServerMicroAction serverMicroAction = mock(ServerMicroAction.class);
             when(this.microActionFactory.from(microAction)).thenReturn(serverMicroAction);
         }
+        when(this.microCheckFactory.from(MicroCheck.METROLOGY_CONFIGURATION_IN_CORRECT_STATE_IF_ANY)
+                .evaluate(any(Device.class), any(Instant.class), any(State.class))).thenReturn(Optional.empty());
         when(userService.getUserPreferencesService()).thenReturn(userPreferencesService);
         when(userPreferencesService.getPreferenceByKey(any(User.class), any(PreferenceType.class))).thenReturn(Optional.empty());
     }
@@ -331,7 +334,7 @@ public class DeviceLifeCycleServiceImplTest {
 
         // Asserts
         for (MicroCheck microCheck : MicroCheck.values()) {
-            verify(this.microCheckFactory).from(microCheck);
+            verify(this.microCheckFactory, times(microCheck == MicroCheck.METROLOGY_CONFIGURATION_IN_CORRECT_STATE_IF_ANY ? 2: 1)).from(microCheck);
         }
     }
 
