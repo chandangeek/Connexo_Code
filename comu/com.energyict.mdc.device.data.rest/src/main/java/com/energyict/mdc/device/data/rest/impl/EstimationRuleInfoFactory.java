@@ -9,12 +9,18 @@ import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
+import com.energyict.mdc.device.data.ChannelEstimationRuleOverriddenProperties;
+import com.energyict.mdc.device.data.Device;
 
 import javax.inject.Inject;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 public class EstimationRuleInfoFactory {
@@ -45,18 +51,36 @@ public class EstimationRuleInfoFactory {
 
     public IdWithNameInfo getEstimationApplicationInfo(ReadingQualityType readingQualityType) {
         Optional<? extends EstimationRule> estimationRule = estimationService.findEstimationRuleByQualityType(readingQualityType);
-        return estimationRule.isPresent() ?  resourceHelper.getApplicationInfo(estimationRule.get().getRuleSet().getQualityCodeSystem()) : null;
+        return estimationRule.isPresent() ? resourceHelper.getApplicationInfo(estimationRule.get().getRuleSet().getQualityCodeSystem()) : null;
     }
 
     public EstimationRuleInfo asInfo(EstimationRule estimationRule) {
+        EstimationRuleInfo info = asInfoWithoutProperties(estimationRule);
+        info.properties = propertyValueInfoService.getPropertyInfos(
+                estimationRule.getPropertySpecs(EstimationPropertyDefinitionLevel.ESTIMATION_RULE), estimationRule.getProps());
+        return info;
+    }
+
+    public EstimationRuleInfo asInfoWithOverriddenProperties(EstimationRule estimationRule, Device device, ReadingType readingType) {
+        Map<String, Object> actualProperties = new HashMap<>(estimationRule.getProps());
+        Map<String, Object> overriddenProperties = device.forEstimation()
+                .findOverriddenProperties(estimationRule, readingType)
+                .map(ChannelEstimationRuleOverriddenProperties::getProperties)
+                .orElseGet(Collections::emptyMap);
+        actualProperties.putAll(overriddenProperties);
+        EstimationRuleInfo info = asInfoWithoutProperties(estimationRule);
+        info.properties = propertyValueInfoService.getPropertyInfos(estimationRule.getPropertySpecs(), actualProperties);
+        return info;
+    }
+
+    private EstimationRuleInfo asInfoWithoutProperties(EstimationRule estimationRule) {
         EstimationRuleInfo info = new EstimationRuleInfo();
         info.id = estimationRule.getId();
+        info.name = estimationRule.getName();
+        info.estimatorImpl = estimationRule.getImplementation();
         info.ruleSetId = estimationRule.getRuleSet().getId();
         info.deleted = estimationRule.isObsolete();
-        info.name = estimationRule.getName();
-        info.properties = propertyValueInfoService.getPropertyInfos(estimationRule.getPropertySpecs(EstimationPropertyDefinitionLevel.ESTIMATION_RULE), estimationRule.getProps());
         info.application = resourceHelper.getApplicationInfo(estimationRule.getRuleSet().getQualityCodeSystem());
-        info.estimatorImpl = estimationRule.getImplementation();
         return info;
     }
 }
