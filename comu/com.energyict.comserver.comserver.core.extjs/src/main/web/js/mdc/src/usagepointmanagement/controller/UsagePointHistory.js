@@ -314,7 +314,6 @@ Ext.define('Mdc.usagepointmanagement.controller.UsagePointHistory', {
                     if (action == "confirm") {
                         doRemove();
                     }
-                    ;
                 }
             });
         }

@@ -15,6 +15,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         'Mdc.view.setup.devicechannels.Overview',
         'Mdc.view.setup.devicechannels.ReadingEstimationWindow',
         'Mdc.view.setup.devicechannels.ReadingEstimationWithRuleWindow',
+        'Cfg.view.usagepointregister.CopyFromReferenceWindow',
         'Mdc.view.setup.devicechannels.EditCustomAttributes',
         'Mdc.view.setup.devicechannels.History'
     ],
@@ -31,6 +32,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
     stores: [
         'Mdc.customattributesonvaluesobjects.store.ChannelCustomAttributeSets',
         'Mdc.store.ChannelOfLoadProfileOfDeviceData',
+        'Mdc.store.Devices',
         'Uni.store.DataIntervalAndZoomLevels',
         'Mdc.store.LoadProfileDataDurations',
         'Mdc.store.Clipboard',
@@ -75,6 +77,10 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         {
             ref: 'filterPanel',
             selector: '#deviceLoadProfileChannelData #mdc-device-channels-topfilter'
+        },
+        {
+            ref: 'readingCopyFromReferenceWindow',
+            selector: 'reading-copy-from-reference-window'
         },
         {
             ref: 'readingEstimationWindow',
@@ -129,6 +135,9 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             },
             '#deviceLoadProfileChannelData #undo-button': {
                 click: this.undoChannelDataChanges
+            },
+            '#reading-copy-from-reference-window #copy-reading-button': {
+                click: this.copyFromReferenceUpdateGrid
             },
             '#channel-reading-estimation-window #estimate-reading-button': {
                 click: this.estimateReading
@@ -283,13 +292,13 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         });
         var estimationRulesStore = me.getStore('Mdc.store.EstimationRulesOnChannelMainValue');
         estimationRulesStore.getProxy().extraParams = {deviceId: deviceId, channelId: channelId, isBulk: false};
-        estimationRulesStore.load(function(records){
+        estimationRulesStore.load(function (records) {
             if (records.length) {
                 me.hasEstimationRule = true;
                 onDependenciesLoad();
             } else {
                 estimationRulesStore.getProxy().extraParams = {deviceId: deviceId, channelId: channelId, isBulk: true};
-                estimationRulesStore.load(function(records){
+                estimationRulesStore.load(function (records) {
                     me.hasEstimationRule = Boolean(records.length);
                     onDependenciesLoad();
                 });
@@ -468,6 +477,9 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 break;
             case 'removeReading':
                 me.removeReadings(menu.record);
+                break;
+            case 'copyFromReference':
+                me.copyFromReference(menu.record);
                 break;
             case 'estimateValue':
                 me.estimateValue(menu.record);
@@ -707,6 +719,35 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         }
     },
 
+    copyFromReference: function (record) {
+        var me = this,
+            deviceStore = me.getStore('Cfg.store.AllDevices'),
+            readingTypeStore = me.getStore('Cfg.store.AllReadingTypes');
+
+        deviceStore.getProxy().extraParams = {
+            page: 1,
+            start: 0,
+            limit: 50,
+            nameOnly: true
+        };
+        readingTypeStore.getProxy().extraParams = {
+            page: 1,
+            start: 0,
+            limit: 50,
+            filter: [
+                {
+                    property: 'fullAliasName',
+                    value: '*A*'
+                }
+            ]
+        };
+
+        Ext.widget('reading-copy-from-reference-window', {
+            itemId: 'channel-reading-copy-from-reference-window',
+            record: record
+        }).show();
+    },
+
     estimateValue: function (record) {
         var me = this,
             bothSuspected = false,
@@ -786,7 +827,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
 
         window.down('#estimator-field').reset();
         estimationRulesStore.getProxy().setExtraParam('isBulk', newValue.isBulk);
-        estimationRulesStore.load(function(records) {
+        estimationRulesStore.load(function (records) {
             var isNotEmpty = Boolean(records.length);
             Ext.suspendLayouts();
             window.down('#estimator-field').setVisible(isNotEmpty);
@@ -794,6 +835,54 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             window.down('#property-form').removeAll(true);
             Ext.resumeLayouts(true);
         });
+    },
+
+    copyFromReferenceUpdateGrid: function () {
+        var me = this,
+            window = me.getReadingEstimationWindow(),
+            propertyForm = window.down('#property-form'),
+            model = Ext.create('Mdc.model.DeviceChannelDataEstimate'),
+            estimateBulk = false,
+            record = window.record,
+            intervalsArray = [];
+
+        !window.down('#form-errors').isHidden() && window.down('#form-errors').hide();
+        !window.down('#error-label').isHidden() && window.down('#error-label').hide();
+        propertyForm.clearInvalid();
+
+        if (propertyForm.getRecord()) {
+            propertyForm.updateRecord();
+            model.set('estimatorImpl', window.down('#estimator-field').getValue());
+            model.propertiesStore = propertyForm.getRecord().properties();
+        }
+        if (!window.down('#value-to-estimate-radio-group').isHidden()) {
+            estimateBulk = window.down('#value-to-estimate-radio-group').getValue().isBulk;
+        } else {
+            if (!Ext.isArray(record)) {
+                estimateBulk = record.get('validationResult') && (record.get('validationResult').bulk == 'suspect');
+            } else {
+                Ext.Array.findBy(record, function (item) {
+                    estimateBulk = item.get('validationResult') && (item.get('validationResult').bulk == 'suspect');
+                    return estimateBulk;
+                });
+            }
+        }
+        if (!Ext.isArray(record)) {
+            intervalsArray.push({
+                start: record.get('interval').start,
+                end: record.get('interval').end
+            });
+        } else {
+            Ext.Array.each(record, function (item) {
+                intervalsArray.push({
+                    start: item.get('interval').start,
+                    end: item.get('interval').end
+                });
+            });
+        }
+        model.set('estimateBulk', estimateBulk);
+        model.set('intervals', intervalsArray);
+        me.saveChannelDataEstimateModelr(model, record, window);
     },
 
     estimateReading: function () {
@@ -896,7 +985,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         var me = this,
             router = me.getController('Uni.controller.history.Router');
 
-        record.getProxy().setParams(encodeURIComponent(router.arguments.deviceId),router.arguments.channelId);
+        record.getProxy().setParams(encodeURIComponent(router.arguments.deviceId), router.arguments.channelId);
         window.setLoading();
         Ext.Ajax.suspendEvent('requestexception');
         record.save({
@@ -957,15 +1046,15 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
 
         if (record.get('estimateBulk')) {
             reading.set('collectedValue', estimatedReading.collectedValue);
-            if(ruleId){
-                reading.get('bulkValidationInfo').ruleId =  ruleId;
+            if (ruleId) {
+                reading.get('bulkValidationInfo').ruleId = ruleId;
             }
             reading.get('bulkValidationInfo').validationResult = 'validationStatus.ok';
             reading.get('bulkValidationInfo').estimatedNotSaved = true;
         } else {
             reading.set('value', estimatedReading.value);
-            if(ruleId){
-                reading.get('mainValidationInfo').ruleId =  ruleId;
+            if (ruleId) {
+                reading.get('mainValidationInfo').ruleId = ruleId;
             }
             reading.get('mainValidationInfo').validationResult = 'validationStatus.ok';
             reading.get('mainValidationInfo').estimatedNotSaved = true;

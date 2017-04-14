@@ -15,18 +15,24 @@ Ext.define('Mdc.view.setup.devicechannels.DataActionMenu', {
                 section: this.SECTION_VIEW
             },
             {
-                itemId: 'edit-value',
-                text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
-                action: 'editValue',
-                dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.deviceDataEditActions,
-                section: this.SECTION_EDIT
-            },
-            {
                 itemId: 'confirm-value',
                 hidden: true,
                 text: Uni.I18n.translate('general.confirm', 'MDC', 'Confirm'),
                 action: 'confirmValue',
                 section: this.SECTION_ACTION
+            },
+            {
+                itemId: 'copy-form-value',
+                text: Uni.I18n.translate('general.copyFromReference', 'MDC', 'Copy from reference'),
+                action: 'copyFromReference',
+                section: this.SECTION_ACTION
+            },
+            {
+                itemId: 'edit-value',
+                text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
+                action: 'editValue',
+                dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.deviceDataEditActions,
+                section: this.SECTION_EDIT
             },
             {
                 itemId: 'estimate-value',
