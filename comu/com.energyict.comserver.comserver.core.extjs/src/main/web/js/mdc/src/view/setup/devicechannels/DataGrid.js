@@ -148,8 +148,13 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                 dataIndex: 'reportedDateTime',
                 flex: 0.5,
                 renderer: function(value){
-                    var date = new Date(value);
-                    return Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}', [Uni.DateTime.formatDateShort(date), Uni.DateTime.formatTimeShort(date)])
+                    if (value) {
+                        var date = new Date(value);
+                        return Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}', [Uni.DateTime.formatDateShort(date), Uni.DateTime.formatTimeShort(date)])
+                    }
+                    else {
+                        return '-';
+                    }
                 }
             },
             {
