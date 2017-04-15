@@ -6,10 +6,11 @@ Ext.define('Cfg.view.usagepointregister.CopyFromReferenceWindow', {
     extend: 'Ext.window.Window',
     alias: 'widget.reading-copy-from-reference-window',
     modal: true,
-    hideCollapseTool: true,
     title: Uni.I18n.translate('general.copyFromReference', 'CFG', 'Copy from reference'),
     records: null,
     usagePoint: null,
+    frame: true,
+    monitorResize: false,
 
     requires: [
         'Uni.util.FormErrorMessage',
@@ -18,7 +19,7 @@ Ext.define('Cfg.view.usagepointregister.CopyFromReferenceWindow', {
 
     initComponent: function () {
         var me = this;
-
+console.log(me.records);
         me.items = {
             xtype: 'form',
             itemId: 'reading-copy-window-form',
@@ -150,8 +151,7 @@ Ext.define('Cfg.view.usagepointregister.CopyFromReferenceWindow', {
                     fieldLabel: '&nbsp;',
                     margin: '10 10 0 0',
                     style: {
-                        display: 'inline-block',
-                        // align: 'center'
+                        display: 'inline-block'
                     },
                     items: [
                         {
