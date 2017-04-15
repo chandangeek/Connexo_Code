@@ -39,6 +39,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -46,6 +47,7 @@ import java.util.Optional;
         service = UsagePointConsoleCommands.class,
         property = {"osgi.command.scope=usagepoint",
                 "osgi.command.function=createMetrologyConfiguration",
+                "osgi.command.function=instalOOTBMetrologyConfiguration",
                 "osgi.command.function=renameMetrologyConfiguration",
                 "osgi.command.function=deleteMetrologyConfiguration",
                 "osgi.command.function=metrologyConfigurations",
@@ -80,12 +82,39 @@ public class UsagePointConsoleCommands {
         }
     }
 
+    /**
+     * Install OOTB metrology configuration
+     *
+     * @param name
+     */
+    @Descriptor("Install OOTB metrology configuration")
+    public void instalOOTBMetrologyConfiguration(@Descriptor("Name of OOTB metrology configuration") String name) {
+        try {
+            Optional<MetrologyConfigurationsInstaller.OOTBMetrologyConfiguration> ootbMetrologyConfiguration = Arrays.stream(MetrologyConfigurationsInstaller.OOTBMetrologyConfiguration
+                    .values()).filter(c -> c.getName().equals(name)).findFirst();
+            if (!ootbMetrologyConfiguration.isPresent()){
+                System.err.println("No OOTB has been found with name "+ name);
+                return;
+            } else {
+                transactionService.builder()
+                        .principal(() -> "console")
+                        .run(() -> {
+                            MetrologyConfigurationsInstaller metrologyConfigurationsInstaller = new MetrologyConfigurationsInstaller(metrologyConfigurationService, meteringService);
+                            ootbMetrologyConfiguration.get().install(metrologyConfigurationsInstaller);
+                        });
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public void renameMetrologyConfiguration(long id, String name) {
         try {
             transactionService.builder()
                     .principal(() -> "console")
                     .run(() -> {
-                        MetrologyConfiguration metrologyConfiguration = metrologyConfigurationService.findMetrologyConfiguration(id).get();
+                        MetrologyConfiguration metrologyConfiguration = metrologyConfigurationService.findMetrologyConfiguration(id)
+                                .get();
                         metrologyConfiguration.startUpdate().setName(name).complete();
                     });
         } catch (Exception e) {
@@ -98,7 +127,8 @@ public class UsagePointConsoleCommands {
             transactionService.builder()
                     .principal(() -> "console")
                     .run(() -> {
-                        MetrologyConfiguration metrologyConfiguration = metrologyConfigurationService.findMetrologyConfiguration(id).get();
+                        MetrologyConfiguration metrologyConfiguration = metrologyConfigurationService.findMetrologyConfiguration(id)
+                                .get();
                         metrologyConfiguration.delete();
                     });
         } catch (Exception e) {
@@ -176,8 +206,13 @@ public class UsagePointConsoleCommands {
                             .orElseThrow(() -> new IllegalArgumentException("Could not get service"));
                     UsagePointBuilder builder = category.newUsagePoint(name, this.clock.instant());
                     UsagePoint up = builder.withIsSdp(true).withIsVirtual(false).create();
-                    up.newElectricityDetailBuilder(Instant.now(clock)).withGrounded(YesNoAnswer.YES).withPhaseCode(PhaseCode.UNKNOWN).create();
-                    up.linkMeters().activate(meter, metrologyConfigurationService.findDefaultMeterRole(DefaultMeterRole.DEFAULT)).complete();
+                    up.newElectricityDetailBuilder(Instant.now(clock))
+                            .withGrounded(YesNoAnswer.YES)
+                            .withPhaseCode(PhaseCode.UNKNOWN)
+                            .create();
+                    up.linkMeters()
+                            .activate(meter, metrologyConfigurationService.findDefaultMeterRole(DefaultMeterRole.DEFAULT))
+                            .complete();
                     meter.update();
                     up.update();
                     System.out.println("Usage point " + up.getId() + " created with name: " + name);
