@@ -754,6 +754,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             model = Ext.create('Mdc.model.CopyFromReference'),
             router = me.getController('Uni.controller.history.Router');
 
+        window.setLoading(true);
         form.updateRecord(model);
         model.getProxy().extraParams = {
             usagePointId: router.arguments.deviceId,
@@ -770,28 +771,32 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         model.set('intervals', intervals);
         model.save({
             failure: function(record, operation) {
-                window.setLoading(true);
+
+            },
+            success: function(record) {
+                var item = null,
+                    channelData = record.get('channelData');
+
                 Ext.suspendLayouts();
                 if (Array.isArray(window.records)) {
-                    _.each(window.records, function (oneRecord) {
-                        // _.find(record, function (oneRecord) {
-                        //     return
-                        // });
-                        oneRecord.set('value', Math.random() * 100);
+                    _.each(window.records, function (record) {
+                        item = record.get('interval').end;
+                        item = _.find(channelData, function (rec) {
+                            return rec.interval.end === item;
+                        });
+                        recordrecord.set('value', item.value);
+                        oneRecord.set('bulkValidationInfo', item.bulkValidationInfo);
                     });
                 } else {
-                    window.records.set('value', 999);
+                    window.records.set('value', channelData[0].value);
+                    window.records.set('bulkValidationInfo', channelData[0].bulkValidationInfo);
                 }
                 me.showButtons();
                 Ext.resumeLayouts(true);
+                window.close();
+            },
+            callback: function() {
                 window.setLoading(false);
-                window.close();
-            },
-            success: function(record, operation) {
-                window.close();
-            },
-            callback: function(record, operation, success) {
-                //do something whether the load succeeded or failed
             }
         });
 

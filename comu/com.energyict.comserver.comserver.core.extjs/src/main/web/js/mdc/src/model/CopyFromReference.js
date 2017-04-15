@@ -11,7 +11,11 @@ Ext.define('Mdc.model.CopyFromReference', {
         'startDate',
         'allowSuspectData',
         'completePeriod',
-        'intervals'
+        'intervals',
+        {
+            name: 'channelData',
+            persist: false
+        }
     ],
 
     proxy: {
