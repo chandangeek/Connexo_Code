@@ -490,6 +490,7 @@ Ext.define('Imt.purpose.controller.Readings', {
             form = window.down('#reading-copy-window-form'),
             model = Ext.create('Imt.purpose.model.CopyFromReference'),
             router = me.getController('Uni.controller.history.Router');
+
         form.updateRecord(model);
         model.getProxy().extraParams = {
             usagePointId: router.arguments.usagePointId,
@@ -505,8 +506,37 @@ Ext.define('Imt.purpose.controller.Readings', {
             intervals.push(window.records.get('interval'));
         }
         model.set('intervals', intervals);
-        model.phantom = false;
-        model.save();
+
+        model.save({
+            failure: function(record, operation) {
+
+            },
+            success: function(record) {
+                var item = null,
+                    channelData = record.get('channelData');
+
+                Ext.suspendLayouts();
+                if (Array.isArray(window.records)) {
+                    _.each(window.records, function (record) {
+                        item = record.get('interval').end;
+                        item = _.find(channelData, function (rec) {
+                            return rec.interval.end === item;
+                        });
+                        recordrecord.set('value', item.value);
+                        oneRecord.set('bulkValidationInfo', item.bulkValidationInfo);
+                    });
+                } else {
+                    window.records.set('value', channelData[0].value);
+                    window.records.set('bulkValidationInfo', channelData[0].bulkValidationInfo);
+                }
+                me.showButtons();
+                Ext.resumeLayouts(true);
+                window.close();
+            },
+            callback: function() {
+                window.setLoading(false);
+            }
+        });
     },
 
     estimateValue: function (record) {

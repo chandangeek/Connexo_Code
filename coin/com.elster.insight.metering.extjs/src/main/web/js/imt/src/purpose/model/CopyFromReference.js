@@ -7,12 +7,16 @@ Ext.define('Imt.purpose.model.CopyFromReference', {
 
     fields: [
         'referenceUsagePoint',
-        'metrologyPurpose',
+        'referencePurpose',
         'readingType',
         'startDate',
         'allowSuspectData',
         'completePeriod',
-        'intervals'
+        'intervals',
+        {
+            name: 'channelData',
+            persist: false
+        }
     ],
 
     proxy: {
