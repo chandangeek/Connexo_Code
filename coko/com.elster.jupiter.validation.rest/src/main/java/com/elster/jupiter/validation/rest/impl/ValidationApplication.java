@@ -135,6 +135,7 @@ public class ValidationApplication extends Application implements TranslationKey
             bind(timeService).to(TimeService.class);
             bind(DataValidationTaskInfoFactory.class).to(DataValidationTaskInfoFactory.class);
             bind(ReadingTypeInfoFactory.class).to(ReadingTypeInfoFactory.class);
+            bind(ValidationRuleSetInfoFactory.class).to(ValidationRuleSetInfoFactory.class);
         }
     }
 

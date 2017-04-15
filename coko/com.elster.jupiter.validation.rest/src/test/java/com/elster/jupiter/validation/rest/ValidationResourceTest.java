@@ -178,13 +178,17 @@ public class ValidationResourceTest extends BaseValidationRestTest {
 
     @Test
     public void testGetValidationRuleSet() {
-        mockValidationRuleSet(V_RULE_SET_ID);
+        ValidationRuleSet validationRuleSet = mockValidationRuleSet(V_RULE_SET_ID);
+        when(validationService.isValidationRuleSetInUse(validationRuleSet)).thenReturn(true);
+
+        // Business method
         ValidationRuleSetInfo ruleSetInfo = target("/validation/" + V_RULE_SET_ID).request().get(ValidationRuleSetInfo.class);
 
         assertThat(ruleSetInfo.id).isEqualTo(V_RULE_SET_ID);
         assertThat(ruleSetInfo.name).isEqualTo("MyName");
         assertThat(ruleSetInfo.description).isEqualTo("MyDescription");
         assertThat(ruleSetInfo.version).isEqualTo(OK_VERSION);
+        assertThat(ruleSetInfo.isInUse).isTrue();
     }
 
     @Test
@@ -221,7 +225,7 @@ public class ValidationResourceTest extends BaseValidationRestTest {
         Response response = target("/validation/validators").request().header(APPLICATION_HEADER_PARAM, "MDC").get();
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        JsonModel body = JsonModel.create((ByteArrayInputStream)response.getEntity());
+        JsonModel body = JsonModel.create((ByteArrayInputStream) response.getEntity());
         assertThat(body.<Integer>get("$.total")).isZero();
         assertThat(body.<List>get("$.validators")).isEmpty();
     }
@@ -234,7 +238,7 @@ public class ValidationResourceTest extends BaseValidationRestTest {
         Response response = target("/validation/validators").request().header(APPLICATION_HEADER_PARAM, "MDC").get();
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        JsonModel body = JsonModel.create((ByteArrayInputStream)response.getEntity());
+        JsonModel body = JsonModel.create((ByteArrayInputStream) response.getEntity());
         assertThat(body.<Integer>get("$.total")).isEqualTo(2);
         assertThat(body.<List>get("$.validators")).hasSize(2);
         assertThat(body.<String>get("$.validators[0].displayName")).isEqualTo("A Validator");
@@ -587,7 +591,9 @@ public class ValidationResourceTest extends BaseValidationRestTest {
         info.id = V_RULE_ID;
         info.version = OK_VERSION;
         info.parent = new VersionInfo<>(ruleSetVersion.getId(), ruleSetVersion.getVersion());
-        Response response = target("/validation/" + V_RULE_SET_ID + "/versions/" + V_RULE_VERSION_ID + "/rules/" + V_RULE_ID).request().build(HttpMethod.DELETE, Entity.json(info)).invoke();
+        Response response = target("/validation/" + V_RULE_SET_ID + "/versions/" + V_RULE_VERSION_ID + "/rules/" + V_RULE_ID).request()
+                .build(HttpMethod.DELETE, Entity.json(info))
+                .invoke();
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.NO_CONTENT.getStatusCode());
     }
@@ -617,7 +623,9 @@ public class ValidationResourceTest extends BaseValidationRestTest {
         info.parent = new VersionInfo<>(ruleSetVersion.getId(), ruleSetVersion.getVersion());
         doReturn(Optional.empty()).when(validationService).findValidationRule(V_RULE_ID);
         doReturn(Optional.empty()).when(validationService).findAndLockValidationRuleByIdAndVersion(V_RULE_ID, OK_VERSION);
-        Response response = target("/validation/" + V_RULE_SET_ID + "/versions/" + V_RULE_VERSION_ID + "/rules/" + V_RULE_ID).request().build(HttpMethod.DELETE, Entity.json(info)).invoke();
+        Response response = target("/validation/" + V_RULE_SET_ID + "/versions/" + V_RULE_VERSION_ID + "/rules/" + V_RULE_ID).request()
+                .build(HttpMethod.DELETE, Entity.json(info))
+                .invoke();
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
     }
@@ -785,15 +793,15 @@ public class ValidationResourceTest extends BaseValidationRestTest {
     private ValueFactory getValueFactoryFor(SimplePropertyType propertyType) {
         switch (propertyType) {
             case NUMBER:
-               return new BigDecimalFactory();
+                return new BigDecimalFactory();
             case NULLABLE_BOOLEAN:
-               return new ThreeStateFactory();
+                return new ThreeStateFactory();
             case BOOLEAN:
-               return new BooleanFactory();
+                return new BooleanFactory();
             case TEXT:
-               return new StringFactory();
+                return new StringFactory();
             case RELATIVEPERIOD:
-               return new RelativePeriodFactory(this.timeService);
+                return new RelativePeriodFactory(this.timeService);
             case UNKNOWN:
             default:
                 return null;

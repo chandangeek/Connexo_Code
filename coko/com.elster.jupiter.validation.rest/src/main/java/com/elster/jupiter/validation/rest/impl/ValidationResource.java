@@ -75,22 +75,20 @@ public class ValidationResource {
     private final RestQueryService queryService;
     private final ValidationService validationService;
     private final TransactionService transactionService;
+    private final ValidationRuleSetInfoFactory validationRuleSetInfoFactory;
     private final ValidationRuleInfoFactory validationRuleInfoFactory;
     private final PropertyValueInfoService propertyValueInfoService;
     private final ConcurrentModificationExceptionFactory conflictFactory;
     private final Thesaurus thesaurus;
 
     @Inject
-    public ValidationResource(RestQueryService queryService,
-                              ValidationService validationService,
-                              TransactionService transactionService,
-                              ValidationRuleInfoFactory validationRuleInfoFactory,
-                              PropertyValueInfoService propertyValueInfoService,
-                              ConcurrentModificationExceptionFactory conflictFactory,
-                              Thesaurus thesaurus) {
+    public ValidationResource(RestQueryService queryService, ValidationService validationService, TransactionService transactionService,
+                              ValidationRuleSetInfoFactory validationRuleSetInfoFactory, ValidationRuleInfoFactory validationRuleInfoFactory,
+                              PropertyValueInfoService propertyValueInfoService, ConcurrentModificationExceptionFactory conflictFactory, Thesaurus thesaurus) {
         this.queryService = queryService;
         this.validationService = validationService;
         this.transactionService = transactionService;
+        this.validationRuleSetInfoFactory = validationRuleSetInfoFactory;
         this.validationRuleInfoFactory = validationRuleInfoFactory;
         this.propertyValueInfoService = propertyValueInfoService;
         this.conflictFactory = conflictFactory;
@@ -317,7 +315,9 @@ public class ValidationResource {
         } else {
             rules = ruleSetVersion.getRules(queryParameters.getStartInt(), queryParameters.getLimit());
         }
-        ValidationRuleInfos infos = validationRuleInfoFactory.createValidationRuleInfos(rules.stream().map(validationRuleInfoFactory::createValidationRuleInfo).collect(Collectors.toList()));
+        ValidationRuleInfos infos = validationRuleInfoFactory.createValidationRuleInfos(rules.stream()
+                .map(validationRuleInfoFactory::createValidationRuleInfo)
+                .collect(Collectors.toList()));
         return Response.ok(infos).build();
     }
 
@@ -436,12 +436,12 @@ public class ValidationResource {
     }
 
     @GET
-    @Path("/{ruleSetId}/")
+    @Path("/{ruleSetId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.Constants.VIEW_VALIDATION_CONFIGURATION})
     public ValidationRuleSetInfo getValidationRuleSet(@PathParam("ruleSetId") long ruleSetId) {
         ValidationRuleSet validationRuleSet = fetchValidationRuleSet(ruleSetId);
-        return new ValidationRuleSetInfo(validationRuleSet);
+        return validationRuleSetInfoFactory.asFullInfo(validationRuleSet);
     }
 
     private ValidationRuleSet fetchValidationRuleSet(long id) {

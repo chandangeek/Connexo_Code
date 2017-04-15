@@ -24,8 +24,8 @@ public class ValidationRuleInfo {
     public String name;
     public int position;
     public ValidationAction action = ValidationAction.FAIL;
-    public List<PropertyInfo> properties = new ArrayList<PropertyInfo>();
-    public List<ReadingTypeInfo> readingTypes = new ArrayList<ReadingTypeInfo>();
+    public List<PropertyInfo> properties = new ArrayList<>();
+    public List<ReadingTypeInfo> readingTypes = new ArrayList<>();
     public ValidationRuleSetVersionInfo ruleSetVersion;
     public long version;
     public VersionInfo<Long> parent;
@@ -49,5 +49,4 @@ public class ValidationRuleInfo {
     public int hashCode() {
         return Objects.hash(id);
     }
-
 }
