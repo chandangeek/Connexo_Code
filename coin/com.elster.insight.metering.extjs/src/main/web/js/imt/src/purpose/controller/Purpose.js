@@ -342,6 +342,12 @@ Ext.define('Imt.purpose.controller.Purpose', {
             defaultDate: lastChecked ? new Date(lastChecked) : new Date(),
             padding: '-10 0 0 45'
         });
+        confirmationWindow.insert(1, {
+            itemId: 'validate-now-window-errors',
+            xtype: 'label',
+            margin: '0 0 10 50',
+            hidden: true
+        });
         confirmationWindow.show({
             title: Uni.I18n.translate('purpose.validateNow', 'IMT', "Validate data for '{0}' purpose on usage point '{1}'?",
                 [purpose.get('name'), usagePoint.get('name')], false),
@@ -451,18 +457,28 @@ Ext.define('Imt.purpose.controller.Purpose', {
     doOperation: function (purpose, usagePoint, confirmationWindow, successMessage, action) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
+            formErrorsPanel = confirmationWindow.down('uni-form-error-message'),
             purposePage = me.getPurposePage();
 
         purpose[action](usagePoint, {
             isNotEdit: true,
             notHandleTimeout: true,
             callback: function (options, success, response) {
-                if (response.status) {
+                if (response.status && success) {
                     confirmationWindow.close();
                 }
                 if (purposePage.rendered && success) {
                     me.getApplication().fireEvent('acknowledge', successMessage);
                     router.getRoute().forward(null, Ext.Object.fromQueryString(router.getQueryString()));
+                }
+                if(!success){
+                    if(formErrorsPanel){
+                        var responseText = Ext.decode(response.responseText, true);
+                        Ext.suspendLayouts();
+                        formErrorsPanel.setText('<div style="color: #EB5642">' + responseText.message + '</div>', false);
+                        formErrorsPanel.show();
+                        Ext.resumeLayouts(true);
+                    }
                 }
             }
         });
