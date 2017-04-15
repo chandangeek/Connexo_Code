@@ -43,7 +43,6 @@ public class EstimationApplicationJerseyTest extends FelixRestApplicationJerseyT
         EstimationApplication estimationApplication = new EstimationApplication();
         estimationApplication.setEstimationService(estimationService);
         estimationApplication.setRestQueryService(restQueryService);
-        estimationApplication.setTransactionService(transactionService);
         estimationApplication.setNlsService(nlsService);
         estimationApplication.setTimeService(timeService);
         estimationApplication.setMeteringGroupsService(meteringGroupsService);
@@ -57,5 +56,4 @@ public class EstimationApplicationJerseyTest extends FelixRestApplicationJerseyT
         super.setupMocks();
         when(transactionService.execute(Matchers.any())).thenAnswer(invocation -> ((Transaction<?>) invocation.getArguments()[0]).perform());
     }
-
 }

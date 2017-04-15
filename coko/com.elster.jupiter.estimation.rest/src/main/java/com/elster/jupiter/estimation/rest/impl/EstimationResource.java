@@ -38,9 +38,6 @@ import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.time.rest.RelativePeriodInfo;
 import com.elster.jupiter.transaction.CommitException;
-import com.elster.jupiter.transaction.Transaction;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.util.collections.KPermutation;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.logging.LogEntryFinder;
@@ -82,34 +79,38 @@ import static com.elster.jupiter.util.conditions.Where.where;
 public class EstimationResource {
 
     private static final String APPLICATION_HEADER_PARAM = "X-CONNEXO-APPLICATION-NAME";
+
     private final RestQueryService queryService;
     private final EstimationService estimationService;
-    private final TransactionService transactionService;
     private final Thesaurus thesaurus;
     private final TimeService timeService;
     private final MeteringGroupsService meteringGroupsService;
     private final MetrologyConfigurationService metrologyConfigurationService;
     private final ConcurrentModificationExceptionFactory conflictFactory;
     private final PropertyValueInfoService propertyValueInfoService;
+    private final EstimationRuleSetInfoFactory estimationRuleSetInfoFactory;
     private final EstimationRuleInfoFactory estimationRuleInfoFactory;
     private final EstimatorInfoFactory estimatorInfoFactory;
+    private final ResourceHelper resourceHelper;
 
     @Inject
-    public EstimationResource(RestQueryService queryService, EstimationService estimationService, TransactionService transactionService, Thesaurus thesaurus,
-                              TimeService timeService, MeteringGroupsService meteringGroupsService, MetrologyConfigurationService metrologyConfigurationService,
+    public EstimationResource(RestQueryService queryService, EstimationService estimationService, Thesaurus thesaurus, TimeService timeService,
+                              MeteringGroupsService meteringGroupsService, MetrologyConfigurationService metrologyConfigurationService,
                               ConcurrentModificationExceptionFactory conflictFactory, PropertyValueInfoService propertyValueInfoService,
-                              EstimationRuleInfoFactory estimationRuleInfoFactory, EstimatorInfoFactory estimatorInfoFactory) {
+                              EstimationRuleSetInfoFactory estimationRuleSetInfoFactory, EstimationRuleInfoFactory estimationRuleInfoFactory,
+                              EstimatorInfoFactory estimatorInfoFactory, ResourceHelper resourceHelper) {
         this.queryService = queryService;
         this.estimationService = estimationService;
-        this.transactionService = transactionService;
         this.thesaurus = thesaurus;
         this.timeService = timeService;
         this.meteringGroupsService = meteringGroupsService;
         this.metrologyConfigurationService = metrologyConfigurationService;
         this.conflictFactory = conflictFactory;
         this.propertyValueInfoService = propertyValueInfoService;
+        this.estimationRuleSetInfoFactory = estimationRuleSetInfoFactory;
         this.estimationRuleInfoFactory = estimationRuleInfoFactory;
         this.estimatorInfoFactory = estimatorInfoFactory;
+        this.resourceHelper = resourceHelper;
     }
 
     private QualityCodeSystem getQualityCodeSystemFromApplicationName(String applicationName) {
@@ -117,24 +118,21 @@ public class EstimationResource {
         return "MDC".equals(applicationName) ? QualityCodeSystem.MDC : QualityCodeSystem.MDM;
     }
 
-    /**
-     * Get all estimation rulesets
-     *
-     * @param uriInfo uriInfo containing queryparameters
-     * @return all estimation rulesets
-     */
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.Constants.VIEW_ESTIMATION_CONFIGURATION,
-            Privileges.Constants.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE, Privileges.Constants.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
-    public EstimationRuleSetInfos getEstimationRuleSets(@HeaderParam(APPLICATION_HEADER_PARAM) String applicationName, @Context UriInfo uriInfo) {
+    @RolesAllowed({
+            Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION,
+            Privileges.Constants.VIEW_ESTIMATION_CONFIGURATION,
+            Privileges.Constants.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE,
+            Privileges.Constants.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE_CONFIGURATION
+    })
+    public PagedInfoList getEstimationRuleSets(@HeaderParam(APPLICATION_HEADER_PARAM) String applicationName,
+                                               @BeanParam JsonQueryParameters queryParameters, @Context UriInfo uriInfo) {
         QueryParameters params = QueryParameters.wrap(uriInfo.getQueryParameters());
-        List<EstimationRuleSet> list = queryRuleSets(params, getQualityCodeSystemFromApplicationName(applicationName));
-
-        EstimationRuleSetInfos infos = new EstimationRuleSetInfos(params.clipToLimit(list));
-        infos.total = params.determineTotal(list.size());
-
-        return infos;
+        List<EstimationRuleSetInfo> infos = queryRuleSets(params, getQualityCodeSystemFromApplicationName(applicationName)).stream()
+                .map(estimationRuleSetInfoFactory::asInfo)
+                .collect(Collectors.toList());
+        return PagedInfoList.fromPagedList("ruleSets", infos, queryParameters);
     }
 
     private List<EstimationRuleSet> queryRuleSets(QueryParameters queryParameters, QualityCodeSystem qualityCodeSystem) {
@@ -145,84 +143,80 @@ public class EstimationResource {
     }
 
     @GET
+    @Path("/{ruleSetId}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.Constants.VIEW_ESTIMATION_CONFIGURATION})
+    public EstimationRuleSetInfo getEstimationRuleSet(@PathParam("ruleSetId") long ruleSetId) {
+        EstimationRuleSet estimationRuleSet = resourceHelper.findEstimationRuleSetOrThrowException(ruleSetId);
+        return estimationRuleSetInfoFactory.asFullInfo(estimationRuleSet);
+    }
+
+    @GET
     @Path("/{ruleSetId}/rules")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.Constants.VIEW_ESTIMATION_CONFIGURATION,
-            Privileges.Constants.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE, Privileges.Constants.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
-    public EstimationRuleInfos getEstimationRules(@PathParam("ruleSetId") long ruleSetId, @Context UriInfo uriInfo) {
-        QueryParameters params = QueryParameters.wrap(uriInfo.getQueryParameters());
-        Optional<? extends EstimationRuleSet> optional = estimationService.getEstimationRuleSet(ruleSetId);
-        if (optional.isPresent()) {
-            EstimationRuleInfos infos = new EstimationRuleInfos();
-            EstimationRuleSet set = optional.get();
-            List<? extends EstimationRule> rules;
-            if ((params.getLimit() > 0) && (params.getStartInt() >= 0)) {
-                rules = set.getRules(params.getStartInt(), params.getLimit());
-            } else {
-                rules = set.getRules();
-            }
-            for (EstimationRule rule : rules) {
-                infos.add(estimationRuleInfoFactory.createEstimationRuleInfo(rule));
-            }
-            infos.total = set.getRules().size();
-            return infos;
-        } else {
-            return new EstimationRuleInfos();
-        }
+    @RolesAllowed({
+            Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION,
+            Privileges.Constants.VIEW_ESTIMATION_CONFIGURATION,
+            Privileges.Constants.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE,
+            Privileges.Constants.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE_CONFIGURATION
+    })
+    public PagedInfoList getEstimationRules(@PathParam("ruleSetId") long ruleSetId, @BeanParam JsonQueryParameters queryParameters) {
+        EstimationRuleSet estimationRuleSet = resourceHelper.findEstimationRuleSetOrThrowException(ruleSetId);
+        List<EstimationRuleInfo> infos = estimationRuleSet.getRules()
+                .stream()
+                .map(estimationRuleInfoFactory::asInfo)
+                .collect(Collectors.toList());
+        return PagedInfoList.fromCompleteList("rules", infos, queryParameters);
     }
 
     @POST
-    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION)
-    public Response createEstimationRuleSet(final EstimationRuleSetInfo info, @HeaderParam(APPLICATION_HEADER_PARAM) String applicationName) {
-        return Response.status(Response.Status.CREATED)
-                .entity(new EstimationRuleSetInfo(transactionService.execute(
-                        () -> estimationService.createEstimationRuleSet(info.name, getQualityCodeSystemFromApplicationName(applicationName), info.description))))
-                .build();
+    public Response createEstimationRuleSet(EstimationRuleSetInfo info, @HeaderParam(APPLICATION_HEADER_PARAM) String applicationName) {
+        EstimationRuleSet estimationRuleSet = estimationService.createEstimationRuleSet(
+                info.name, getQualityCodeSystemFromApplicationName(applicationName), info.description);
+        EstimationRuleSetInfo estimationRuleSetInfo = estimationRuleSetInfoFactory.asInfo(estimationRuleSet);
+        return Response.status(Response.Status.CREATED).entity(estimationRuleSetInfo).build();
     }
 
     @PUT
     @Path("/{ruleSetId}")
+    @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION)
     public EstimationRuleSetInfo updateEstimationRuleSet(@PathParam("ruleSetId") long ruleSetId, final EstimationRuleSetInfo info) {
-        transactionService.execute(new VoidTransaction() {
-            @Override
-            protected void doPerform() {
-                EstimationRuleSet set = findAndLockRuleSet(info);
-                set.setName(info.name);
-                set.setDescription(info.description);
-                set.save();
-                if ((info.rules != null) && (!info.rules.isEmpty())) {
-                    long[] current = set.getRules().stream()
-                            .mapToLong(EstimationRule::getId)
-                            .toArray();
-                    long[] target = info.rules.stream()
-                            .mapToLong(ruleInfo -> ruleInfo.id)
-                            .toArray();
-                    KPermutation kPermutation = KPermutation.of(current, target);
-                    if (!kPermutation.isNeutral(set.getRules())) {
-                        set.reorderRules(kPermutation);
-                    }
-                }
+        info.id = ruleSetId;
+        EstimationRuleSet set = resourceHelper.findAndLockEstimationRuleSet(info);
+        set.setName(info.name);
+        set.setDescription(info.description);
+        set.save();
+        if (info.rules != null && !info.rules.isEmpty()) {
+            long[] current = set.getRules().stream().mapToLong(EstimationRule::getId).toArray();
+            long[] target = info.rules.stream().mapToLong(ruleInfo -> ruleInfo.id).toArray();
+            KPermutation kPermutation = KPermutation.of(current, target);
+            if (!kPermutation.isNeutral(set.getRules())) {
+                set.reorderRules(kPermutation);
             }
-        });
+        }
         return getEstimationRuleSet(ruleSetId);
     }
 
-    @GET
-    @Path("/{ruleSetId}/")
+    @DELETE
+    @Path("/{ruleSetId}")
+    @Transactional
+    @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.Constants.VIEW_ESTIMATION_CONFIGURATION})
-    public EstimationRuleSetInfo getEstimationRuleSet(@PathParam("ruleSetId") long ruleSetId) {
-        EstimationRuleSet estimationRuleSet = fetchEstimationRuleSet(ruleSetId);
-        return EstimationRuleSetInfo.withRules(estimationRuleSet, estimationRuleInfoFactory);
-    }
-
-    private EstimationRuleSet fetchEstimationRuleSet(long id) {
-        return estimationService.getEstimationRuleSet(id)
-                .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION)
+    public Response removeEstimationRuleSet(@PathParam("ruleSetId") long ruleSetId, EstimationRuleSetInfo info) {
+        info.id = ruleSetId;
+        EstimationRuleSet ruleSet = resourceHelper.findAndLockEstimationRuleSet(info);
+        if (estimationService.isEstimationRuleSetInUse(ruleSet)) {
+            throw new EstimationRuleSetInUseLocalizedException(thesaurus, ruleSet);
+        }
+        ruleSet.delete();
+        return Response.status(Response.Status.NO_CONTENT).build();
     }
 
     @GET
@@ -238,7 +232,7 @@ public class EstimationResource {
                         getEstimationPropertyDefinitionLevel(propertyDefinitionLevel)
                                 .map(level -> estimatorInfoFactory.asInfo(estimator, level))
                                 .orElseGet(() -> estimatorInfoFactory.asInfo(estimator)))
-                .sorted(Comparator.comparing(estimatorInfo -> estimatorInfo.displayName))
+                .sorted(Comparator.comparing(estimatorInfo -> estimatorInfo.displayName.toLowerCase()))
                 .collect(Collectors.toList());
         return PagedInfoList.fromCompleteList("estimators", data, parameters);
     }
@@ -247,112 +241,89 @@ public class EstimationResource {
         return Optional.ofNullable(propertyLevel).map(EstimationPropertyDefinitionLevel::valueOf);
     }
 
-    class RuleSetUsageInfo {
-        public boolean isInUse;
-    }
-
     @GET
     @Path("/{ruleSetId}/usage")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.Constants.VIEW_ESTIMATION_CONFIGURATION})
     public Response getValidationRuleSetUsage(@PathParam("ruleSetId") final long ruleSetId) {
-        EstimationRuleSet estimationRuleSet = fetchEstimationRuleSet(ruleSetId);
+        EstimationRuleSet estimationRuleSet = resourceHelper.findEstimationRuleSetOrThrowException(ruleSetId);
         RuleSetUsageInfo info = new RuleSetUsageInfo();
         info.isInUse = estimationService.isEstimationRuleSetInUse(estimationRuleSet);
         return Response.status(Response.Status.OK).entity(info).build();
     }
 
-    @DELETE
-    @Path("/{ruleSetId}")
-    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed(Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION)
-    public Response deleteEstimationRuleSet(@PathParam("ruleSetId") final long ruleSetId, EstimationRuleSetInfo info) {
-        EstimationRuleSet ruleSet = findAndLockRuleSet(info);
-        if (estimationService.isEstimationRuleSetInUse(ruleSet) && ruleSet.getQualityCodeSystem()
-                .equals(QualityCodeSystem.MDM)) {
-            throw new EstimationRuleSetInUseLocalizedException(thesaurus, ruleSet);
-        } else {
-            transactionService.execute(new VoidTransaction() {
-                @Override
-                protected void doPerform() {
-                    ruleSet.delete();
-                }
-            });
-        }
-        return Response.status(Response.Status.NO_CONTENT).build();
+    class RuleSetUsageInfo {
+        public boolean isInUse;
     }
 
     @POST
     @Path("/{ruleSetId}/rules")
+    @Transactional
+    @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION)
-    public Response addRule(@PathParam("ruleSetId") final long ruleSetId, final EstimationRuleInfo info, @Context SecurityContext securityContext) {
-        EstimationRuleInfo result =
-                transactionService.execute(() -> {
-                    EstimationRuleSet set = estimationService.getEstimationRuleSet(ruleSetId).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
-                    EstimationRuleBuilder estimationRuleBuilder = set.addRule(info.implementation, info.name)
-                            .withReadingType(info.readingTypes.stream().map(readingTypeInfo -> readingTypeInfo.mRID).toArray(String[]::new));
-                    Estimator estimator = estimationService.getEstimator(info.implementation).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
-                    estimator.getPropertySpecs(EstimationPropertyDefinitionLevel.ESTIMATION_RULE)
-                            .forEach(propertySpec -> {
-                                Object value = propertyValueInfoService.findPropertyValue(propertySpec, info.properties);
-                                estimationRuleBuilder.havingProperty(propertySpec.getName()).withValue(value);
-                            });
-                    estimationRuleBuilder.active(false);
-                    EstimationRule rule = estimationRuleBuilder.create();
-                    return estimationRuleInfoFactory.createEstimationRuleInfo(rule);
+    public Response addRule(@PathParam("ruleSetId") long ruleSetId, EstimationRuleInfo info, @Context SecurityContext securityContext) {
+        EstimationRuleSet ruleSet = resourceHelper.findEstimationRuleSetOrThrowException(ruleSetId);
+        String[] readingTypes = info.readingTypes.stream().map(readingTypeInfo -> readingTypeInfo.mRID).toArray(String[]::new);
+        Estimator estimator = resourceHelper.findEstimatorOrThrowException(info.implementation);
+        EstimationRuleBuilder estimationRuleBuilder = ruleSet.addRule(info.implementation, info.name).withReadingType(readingTypes);
+        estimator.getPropertySpecs(EstimationPropertyDefinitionLevel.ESTIMATION_RULE)
+                .forEach(propertySpec -> {
+                    Object value = propertyValueInfoService.findPropertyValue(propertySpec, info.properties);
+                    estimationRuleBuilder.havingProperty(propertySpec.getName()).withValue(value);
                 });
-        return Response.status(Response.Status.CREATED).entity(result).build();
+        estimationRuleBuilder.active(false);
+        EstimationRule rule = estimationRuleBuilder.create();
+        return Response.status(Response.Status.CREATED).entity(estimationRuleInfoFactory.asInfo(rule)).build();
     }
 
     @PUT
     @Path("/{ruleSetId}/rules/{ruleId}")
+    @Transactional
+    @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION)
-    public EstimationRuleInfos editRule(final EstimationRuleInfo info, @Context SecurityContext securityContext) {
-        EstimationRuleInfos result = new EstimationRuleInfos();
-        result.add(estimationRuleInfoFactory.createEstimationRuleInfo(transactionService.execute(() -> {
-            EstimationRule rule = findAndLockRule(info);
-            List<String> mRIDs = info.readingTypes.stream().map(readingTypeInfo -> readingTypeInfo.mRID).collect(Collectors.toList());
-            Map<String, Object> propertyMap = new HashMap<>();
-            try {
-                for (PropertySpec propertySpec : rule.getPropertySpecs(EstimationPropertyDefinitionLevel.ESTIMATION_RULE)) {
-                    Object value = propertyValueInfoService.findPropertyValue(propertySpec, info.properties);
-                    propertyMap.put(propertySpec.getName(), value);
-                }
-            } finally {
-                rule = rule.getRuleSet().updateRule(info.id, info.name, info.active, mRIDs, propertyMap);
+    public EstimationRuleInfo editRule(@PathParam("ruleSetId") long ruleSetId, @PathParam("ruleId") long ruleId, EstimationRuleInfo info) {
+        info.id = ruleId;
+        EstimationRule rule = resourceHelper.findAndLockRule(info);
+        List<String> mRIDs = info.readingTypes.stream().map(readingTypeInfo -> readingTypeInfo.mRID).collect(Collectors.toList());
+        Map<String, Object> propertyMap = new HashMap<>();
+        try {
+            for (PropertySpec propertySpec : rule.getPropertySpecs(EstimationPropertyDefinitionLevel.ESTIMATION_RULE)) {
+                Object value = propertyValueInfoService.findPropertyValue(propertySpec, info.properties);
+                propertyMap.put(propertySpec.getName(), value);
             }
-
-            return rule;
-        })));
-        return result;
+        } finally {
+            rule = rule.getRuleSet().updateRule(info.id, info.name, info.active, mRIDs, propertyMap);
+        }
+        return estimationRuleInfoFactory.asInfo(rule);
     }
 
     @GET
     @Path("/{ruleSetId}/rules/{ruleId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.Constants.VIEW_ESTIMATION_CONFIGURATION,
-            Privileges.Constants.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE, Privileges.Constants.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
-    public Response getRule(@PathParam("ruleSetId") final long ruleSetId, @PathParam("ruleId") final long ruleId) {
-        EstimationRule rule = transactionService.execute((Transaction<EstimationRule>) () -> {
-            EstimationRuleSet ruleSet = estimationService.getEstimationRuleSet(ruleSetId).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
-
-            return getEstimationRuleFromSetOrThrowException(ruleSet, ruleId);
-        });
-        return Response.ok(estimationRuleInfoFactory.createEstimationRuleInfo(rule)).build();
+    @RolesAllowed({
+            Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION,
+            Privileges.Constants.VIEW_ESTIMATION_CONFIGURATION,
+            Privileges.Constants.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE,
+            Privileges.Constants.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE_CONFIGURATION
+    })
+    public Response getRule(@PathParam("ruleSetId") long ruleSetId, @PathParam("ruleId") long ruleId) {
+        EstimationRuleSet ruleSet = resourceHelper.findEstimationRuleSetOrThrowException(ruleSetId);
+        EstimationRule rule = resourceHelper.findEstimationRuleInRuleSetOrThrowException(ruleSet, ruleId);
+        return Response.ok(estimationRuleInfoFactory.asInfo(rule)).build();
     }
 
     @DELETE
     @Path("/{ruleSetId}/rules/{ruleId}")
+    @Transactional
+    @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION)
-    public Response removeRule(EstimationRuleInfo info) {
-        transactionService.execute(() -> {
-            EstimationRule estimationRule = findAndLockRule(info);
-            estimationRule.getRuleSet().deleteRule(estimationRule);
-            return null;
-        });
+    public Response removeRule(@PathParam("ruleSetId") long ruleSetId, @PathParam("ruleId") long ruleId, EstimationRuleInfo info) {
+        info.id = ruleId;
+        EstimationRule estimationRule = resourceHelper.findAndLockRule(info);
+        estimationRule.getRuleSet().deleteRule(estimationRule);
         return Response.status(Response.Status.NO_CONTENT).build();
     }
 
@@ -487,9 +458,13 @@ public class EstimationResource {
 
     @GET
     @Path("/tasks/{id}/history")
-    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.Constants.VIEW_ESTIMATION_CONFIGURATION, Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.Constants.UPDATE_ESTIMATION_CONFIGURATION, Privileges.Constants.UPDATE_SCHEDULE_ESTIMATION_TASK, Privileges.Constants.RUN_ESTIMATION_TASK, Privileges.Constants.VIEW_ESTIMATION_TASK, Privileges.Constants.ADMINISTRATE_ESTIMATION_TASK})
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({
+            Privileges.Constants.VIEW_ESTIMATION_CONFIGURATION, Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION,
+            Privileges.Constants.UPDATE_ESTIMATION_CONFIGURATION, Privileges.Constants.UPDATE_SCHEDULE_ESTIMATION_TASK,
+            Privileges.Constants.RUN_ESTIMATION_TASK, Privileges.Constants.VIEW_ESTIMATION_TASK, Privileges.Constants.ADMINISTRATE_ESTIMATION_TASK
+    })
     public PagedInfoList getEstimationTaskHistory(@PathParam("id") long id, @Context SecurityContext securityContext,
                                                   @BeanParam JsonQueryFilter filter, @BeanParam JsonQueryParameters parameters,
                                                   @HeaderParam(APPLICATION_HEADER_PARAM) String applicationName) {
@@ -520,15 +495,15 @@ public class EstimationResource {
         return PagedInfoList.fromPagedList("data", historyList, parameters);
     }
 
-
     @GET
     @Path("/tasks/{id}/history/{occurrenceId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.Constants.VIEW_ESTIMATION_CONFIGURATION, Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION,
+    @RolesAllowed({
+            Privileges.Constants.VIEW_ESTIMATION_CONFIGURATION, Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION,
             Privileges.Constants.UPDATE_ESTIMATION_CONFIGURATION, Privileges.Constants.UPDATE_SCHEDULE_ESTIMATION_TASK,
-            Privileges.Constants.RUN_ESTIMATION_TASK, Privileges.Constants.VIEW_ESTIMATION_TASK,
-            Privileges.Constants.ADMINISTRATE_ESTIMATION_TASK})
+            Privileges.Constants.RUN_ESTIMATION_TASK, Privileges.Constants.VIEW_ESTIMATION_TASK, Privileges.Constants.ADMINISTRATE_ESTIMATION_TASK
+    })
     public PagedInfoList getEstimationTaskHistory(@PathParam("id") long id, @PathParam("occurrenceId") long occurrenceId,
                                                   @HeaderParam(APPLICATION_HEADER_PARAM) String applicationName,
                                                   @BeanParam JsonQueryParameters parameters) {
@@ -551,59 +526,6 @@ public class EstimationResource {
                 .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
                         .withActualVersion(() -> findEstimationTaskInApplication(info.id, qualityCodeSystem).map(EstimationTask::getVersion).orElse(null))
                         .supplier());
-    }
-
-    private EstimationRuleSet findAndLockRuleSet(EstimationRuleSetInfo info) {
-        return estimationService.findAndLockEstimationRuleSet(info.id, info.version)
-                .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
-                        .withActualVersion(() -> estimationService.getEstimationRuleSet(info.id)
-                                .filter(candidate -> candidate.getObsoleteDate() == null)
-                                .map(EstimationRuleSet::getVersion)
-                                .orElse(null))
-                        .supplier());
-    }
-
-    private EstimationRule findAndLockRule(EstimationRuleInfo info) {
-        Optional<? extends EstimationRuleSet> ruleSet = estimationService.findAndLockEstimationRuleSet(info.parent.id, info.parent.version);
-        Long actualRuleVersion = null;
-        Long actualParentVersion = null;
-        if (!ruleSet.isPresent()) { // parent was changed or deleted
-            Optional<? extends EstimationRuleSet> unlockedRuleSet = estimationService.getEstimationRuleSet(info.parent.id);
-            // if rule set was deleted, the rule should be deleted as well, so both should have the 'null' version
-            if (unlockedRuleSet.isPresent() && unlockedRuleSet.get().getObsoleteDate() == null) {
-                actualParentVersion = unlockedRuleSet.get().getVersion();
-                actualRuleVersion = getCurrentEstimationRuleVersion(info, unlockedRuleSet);
-            }
-        } else { // no changes in parent
-            actualParentVersion = ruleSet.get().getVersion();
-            Optional<? extends EstimationRule> estimationRule = estimationService.findAndLockEstimationRule(info.id, info.version);
-            if (!estimationRule.isPresent()) { // but rule itself was changed
-                actualRuleVersion = getCurrentEstimationRuleVersion(info, ruleSet);
-            } else { // no changes in rule
-                return estimationRule.get();
-            }
-        }
-        Long ruleVersion = actualRuleVersion;
-        Long parentVersion = actualParentVersion;
-        throw conflictFactory.contextDependentConflictOn(info.name)
-                .withActualVersion(() -> ruleVersion)
-                .withActualParent(() -> parentVersion, info.parent.id)
-                .build();
-    }
-
-    private Long getCurrentEstimationRuleVersion(EstimationRuleInfo info, Optional<? extends EstimationRuleSet> ruleSet) {
-        return ruleSet.get().getRules().stream()
-                .filter(input -> input.getId() == info.id && !input.isObsolete())
-                .findAny()
-                .map(EstimationRule::getVersion)
-                .orElse(null);
-    }
-
-    private EstimationRule getEstimationRuleFromSetOrThrowException(EstimationRuleSet ruleSet, long ruleId) {
-        return ruleSet.getRules().stream()
-                .filter(input -> input.getId() == ruleId)
-                .findAny()
-                .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
 
     private ScheduleExpression getScheduleExpression(EstimationTaskInfo info) {

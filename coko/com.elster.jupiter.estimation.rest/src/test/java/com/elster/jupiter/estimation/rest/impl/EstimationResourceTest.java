@@ -45,6 +45,7 @@ import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.util.conditions.Order;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonModel;
 
 import javax.ws.rs.HttpMethod;
@@ -83,7 +84,7 @@ public class EstimationResourceTest extends EstimationApplicationJerseyTest {
 
     private static final String APPLICATION_HEADER_PARAM = "X-CONNEXO-APPLICATION-NAME";
 
-    private static final long RULE_SET_ID = 27L;
+    private static final Long RULE_SET_ID = 27L;
     private static final long RULE_SET_SUCCESS_VERSION = 6L;
     private static final long RULE_SET_FAILURE_VERSION = 3L;
 
@@ -91,14 +92,14 @@ public class EstimationResourceTest extends EstimationApplicationJerseyTest {
     private static final long RULE_SUCCESS_VERSION = 12L;
     private static final long RULE_FAILURE_VERSION = 7L;
 
-    private static EstimationRuleSetInfo baseRuleSetInfo(){
+    private static EstimationRuleSetInfo baseRuleSetInfo() {
         EstimationRuleSetInfo info = new EstimationRuleSetInfo();
         info.id = RULE_SET_ID;
         info.version = RULE_SET_SUCCESS_VERSION;
         return info;
     }
 
-    private static EstimationRuleInfo baseRuleInfo(){
+    private static EstimationRuleInfo baseRuleInfo() {
         EstimationRuleInfo info = new EstimationRuleInfo();
         info.id = RULE_ID;
         info.version = RULE_SUCCESS_VERSION;
@@ -109,26 +110,34 @@ public class EstimationResourceTest extends EstimationApplicationJerseyTest {
     @Test
     public void testGetEstimationRuleSetsNoRuleSets() {
         mockRuleSetQuery();
-        EstimationRuleSetInfos response = target("/estimation").request().header(APPLICATION_HEADER_PARAM, "MDC").get(EstimationRuleSetInfos.class);
 
-        assertThat(response.total).isEqualTo(0);
-        assertThat(response.ruleSets).hasSize(0);
+        // Business method
+        String response = target("/estimation").request().header(APPLICATION_HEADER_PARAM, "MDC").get(String.class);
+
+        // Asserts
+        JsonModel jsonModel = JsonModel.create(response);
+        assertThat(jsonModel.<Number>get("$.total")).isEqualTo(0);
+        assertThat(jsonModel.<List<?>>get("$.ruleSets")).isEmpty();
     }
 
     @Test
     public void testGetEstimationRuleSets() {
         mockRuleSetQuery(mockDefaultRuleSet());
-        EstimationRuleSetInfos response = target("/estimation").request().header(APPLICATION_HEADER_PARAM, "MDC").get(EstimationRuleSetInfos.class);
 
-        assertThat(response.total).isEqualTo(1);
-        List<EstimationRuleSetInfo> ruleSetInfos = response.ruleSets;
-        assertThat(ruleSetInfos).hasSize(1);
-        EstimationRuleSetInfo ruleSetInfo = ruleSetInfos.get(0);
-        assertThat(ruleSetInfo.name).isEqualTo("MyName");
-        assertThat(ruleSetInfo.id).isEqualTo(RULE_SET_ID);
-        assertThat(ruleSetInfo.description).isEqualTo("MyDescription");
-        assertThat(ruleSetInfo.numberOfInactiveRules).isEqualTo(0);
-        assertThat(ruleSetInfo.numberOfRules).isEqualTo(0);
+        // Business method
+        String response = target("/estimation").request().header(APPLICATION_HEADER_PARAM, "MDC").get(String.class);
+
+        // Asserts
+        JsonModel jsonModel = JsonModel.create(response);
+        assertThat(jsonModel.<Number>get("$.total")).isEqualTo(1);
+        assertThat(jsonModel.<List<?>>get("$.ruleSets")).hasSize(1);
+
+        JsonModel subModel = jsonModel.getSubModel("$.ruleSets[0]");
+        assertThat(subModel.<String>get("$.name")).isEqualTo("MyName");
+        assertThat(subModel.<Number>get("$.id")).isEqualTo(RULE_SET_ID.intValue());
+        assertThat(subModel.<String>get("$.description")).isEqualTo("MyDescription");
+        assertThat(subModel.<Number>get("$.numberOfInactiveRules")).isEqualTo(0);
+        assertThat(subModel.<Number>get("$.numberOfRules")).isEqualTo(0);
     }
 
     @Test
@@ -136,45 +145,56 @@ public class EstimationResourceTest extends EstimationApplicationJerseyTest {
         when(estimationService.getEstimationRuleSet(RULE_SET_ID)).thenReturn(Optional.empty());
         Response response = target("/estimation/" + RULE_SET_ID).request().get();
 
-        assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
     public void testGetEstimationRuleSet() {
-        mockEstimationRuleInRuleSet(RULE_ID, mockDefaultRuleSet());
+        EstimationRuleSet ruleSet = mockDefaultRuleSet();
+        mockEstimationRuleInRuleSet(RULE_ID, ruleSet);
+        when(estimationService.isEstimationRuleSetInUse(ruleSet)).thenReturn(true);
 
+        // Business method
         EstimationRuleSetInfo ruleSetInfo = target("/estimation/" + RULE_SET_ID).request().get(EstimationRuleSetInfo.class);
 
+        // Asserts
         assertThat(ruleSetInfo.id).isEqualTo(RULE_SET_ID);
         assertThat(ruleSetInfo.name).isEqualTo("MyName");
         assertThat(ruleSetInfo.description).isEqualTo("MyDescription");
         assertThat(ruleSetInfo.numberOfInactiveRules).isEqualTo(0);
         assertThat(ruleSetInfo.numberOfRules).isEqualTo(1);
+        assertThat(ruleSetInfo.isInUse).isTrue();
     }
 
     @Test
     public void testGetEstimationRulesNoRules() {
         mockRuleSetQuery(mockDefaultRuleSet());
-        EstimationRuleInfos ruleInfos = target("/estimation/" + RULE_SET_ID + "/rules").request().get(EstimationRuleInfos.class);
 
-        assertThat(ruleInfos.total).isEqualTo(0);
-        assertThat(ruleInfos.rules).hasSize(0);
+        // Business method
+        String response = target("/estimation/" + RULE_SET_ID + "/rules").request().get(String.class);
+
+        // Asserts
+        JsonModel jsonModel = JsonModel.create(response);
+        assertThat(jsonModel.<Number>get("$.total")).isEqualTo(0);
+        assertThat(jsonModel.<List<?>>get("$.rules")).isEmpty();
     }
 
     @Test
-    public void testGetEstimationRules() {
+    public void testGetEstimationRules() throws IOException {
         EstimationRuleSet ruleSet = mockDefaultRuleSet();
         mockEstimationRuleInRuleSet(RULE_ID, ruleSet);
         mockRuleSetQuery(ruleSet);
 
-        EstimationRuleInfos ruleInfos = target("/estimation/" + RULE_SET_ID + "/rules").request().get(EstimationRuleInfos.class);
+        // Business method
+        String response = target("/estimation/" + RULE_SET_ID + "/rules").request().get(String.class);
 
-        assertThat(ruleInfos.total).isEqualTo(1);
+        // Asserts
+        JsonModel jsonModel = JsonModel.create(response);
+        assertThat(jsonModel.<Number>get("$.total")).isEqualTo(1);
+        assertThat(jsonModel.<List<?>>get("$.rules")).hasSize(1);
 
-        List<EstimationRuleInfo> rules = ruleInfos.rules;
-        assertThat(rules).hasSize(1);
+        EstimationRuleInfo ruleInfo = new ObjectMapper().readValue(jsonModel.get("$.rules[0]").toString(), EstimationRuleInfo.class);
 
-        EstimationRuleInfo ruleInfo = rules.get(0);
         assertThat(ruleInfo.id).isEqualTo(RULE_ID);
         assertThat(ruleInfo.name).isEqualTo("MyRule");
         assertThat(ruleInfo.implementation).isEqualTo("com.blablabla.Estimator");
@@ -244,7 +264,7 @@ public class EstimationResourceTest extends EstimationApplicationJerseyTest {
     public void testGetEstimatorsNoEstimators() throws IOException {
         Response response = target("/estimation/estimators").request().header(APPLICATION_HEADER_PARAM, "APP").get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        JsonModel body = JsonModel.create((ByteArrayInputStream)response.getEntity());
+        JsonModel body = JsonModel.create((ByteArrayInputStream) response.getEntity());
         assertThat(body.<Integer>get("$.total")).isZero();
         assertThat(body.<List>get("$.estimators")).isEmpty();
     }
@@ -256,7 +276,7 @@ public class EstimationResourceTest extends EstimationApplicationJerseyTest {
 
         Response response = target("/estimation/estimators").request().header(APPLICATION_HEADER_PARAM, "MDC").get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        JsonModel body = JsonModel.model((ByteArrayInputStream)response.getEntity());
+        JsonModel body = JsonModel.model((ByteArrayInputStream) response.getEntity());
         assertThat(body.<Integer>get("$.total")).isEqualTo(2);
         assertThat(body.<List>get("$.estimators")).hasSize(2);
         assertThat(body.<String>get("$.estimators[0].displayName")).isEqualTo("A Estimator");
@@ -337,8 +357,12 @@ public class EstimationResourceTest extends EstimationApplicationJerseyTest {
         Entity<EstimationRuleInfo> entity = Entity.json(info);
 
         when(estimationService.getEstimationRuleSet(666)).thenReturn(Optional.empty());
+
+        // Business method
         Response response = target("/estimation/666/rules").request().post(entity);
-        assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
+
+        // Asserts
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
@@ -378,8 +402,8 @@ public class EstimationResourceTest extends EstimationApplicationJerseyTest {
     @Test
     public void testCreateEstimationRuleSetInfo() throws Exception {
         EstimationRuleSetInfo info = baseRuleSetInfo();
-        info.name="ruleset";
-        info.description="desc";
+        info.name = "ruleset";
+        info.description = "desc";
 
         EstimationRuleSet ruleSet = mockDefaultRuleSet();
         when(estimationService.createEstimationRuleSet(info.name, QualityCodeSystem.MDC, info.description)).thenReturn(ruleSet);
@@ -392,11 +416,11 @@ public class EstimationResourceTest extends EstimationApplicationJerseyTest {
         EstimationRuleSet ruleSet = mockDefaultRuleSet();
         EstimationRule estimationRule = mockEstimationRuleInRuleSet(RULE_ID, ruleSet);
         doReturn(Collections.singletonList(estimationRule)).when(ruleSet).getRules();
-        Response response = target("/estimation/"+RULE_SET_ID+"/rules/"+RULE_ID).request().get();
+        Response response = target("/estimation/" + RULE_SET_ID + "/rules/" + RULE_ID).request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
         assertThat(jsonModel.<String>get("$.name")).isEqualTo("MyRule");
-        assertThat(jsonModel.<Number>get("$.id")).isEqualTo(((Number)RULE_ID).intValue());
+        assertThat(jsonModel.<Number>get("$.id")).isEqualTo(((Number) RULE_ID).intValue());
     }
 
     @Test
@@ -413,7 +437,7 @@ public class EstimationResourceTest extends EstimationApplicationJerseyTest {
         EstimationRuleSet estimationRuleSet = mockDefaultRuleSet();
         EstimationRuleSetInfo info = baseRuleSetInfo();
         info.version = RULE_SET_FAILURE_VERSION;
-        Response response = target("/estimation/"+RULE_SET_ID).request().build(HttpMethod.DELETE, Entity.json(info)).invoke();
+        Response response = target("/estimation/" + RULE_SET_ID).request().build(HttpMethod.DELETE, Entity.json(info)).invoke();
         assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
         verify(estimationRuleSet, never()).delete();
     }
@@ -424,7 +448,7 @@ public class EstimationResourceTest extends EstimationApplicationJerseyTest {
         EstimationRuleSet estimationRuleSet2 = mockEstimationRuleSet(2);
         when(estimationService.isEstimationRuleSetInUse(estimationRuleSet)).thenReturn(true);
         when(estimationService.isEstimationRuleSetInUse(estimationRuleSet2)).thenReturn(false);
-        Response response = target("/estimation/"+RULE_SET_ID+"/usage").request().get();
+        Response response = target("/estimation/" + RULE_SET_ID + "/usage").request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
         assertThat(jsonModel.<Boolean>get("$.isInUse")).isEqualTo(true);
@@ -454,24 +478,26 @@ public class EstimationResourceTest extends EstimationApplicationJerseyTest {
                 Matchers.eq(false),
                 Matchers.eq(new ArrayList<>()),
                 Matchers.eq(props))).
-        thenReturn(rule);
+                thenReturn(rule);
 
         Entity<EstimationRuleInfo> entity = Entity.json(info);
-        Response response = target("/estimation/"+RULE_SET_ID+"/rules/"+RULE_ID).request().put(entity);
 
+        // Business method
+        Response response = target("/estimation/" + RULE_SET_ID + "/rules/" + RULE_ID).request().put(entity);
+
+        // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
 
-        EstimationRuleInfos resultInfos = response.readEntity(EstimationRuleInfos.class);
-        assertThat(resultInfos.total).isEqualTo(1);
-        assertThat(resultInfos.rules).hasSize(1);
-        assertThat(resultInfos.rules.get(0).name).isEqualTo("MyRuleUpdated");
+        String resultInfos = response.readEntity(String.class);
+        JsonModel jsonModel = JsonModel.create(resultInfos);
+        assertThat(jsonModel.<String>get("$.name")).isEqualTo("MyRuleUpdated");
     }
 
     @Test
     public void testDeleteEstimationRule() {
         mockEstimationRuleInRuleSet(RULE_ID, mockDefaultRuleSet());
         EstimationRuleInfo info = baseRuleInfo();
-        Response response = target("/estimation/"+RULE_SET_ID+"/rules/"+RULE_ID).request().build(HttpMethod.DELETE, Entity.json(info)).invoke();
+        Response response = target("/estimation/" + RULE_SET_ID + "/rules/" + RULE_ID).request().build(HttpMethod.DELETE, Entity.json(info)).invoke();
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.NO_CONTENT.getStatusCode());
     }
@@ -481,7 +507,7 @@ public class EstimationResourceTest extends EstimationApplicationJerseyTest {
         when(estimationService.getEstimationRuleSet(RULE_SET_ID)).thenReturn(Optional.empty());
         when(estimationService.findAndLockEstimationRuleSet(RULE_SET_ID, RULE_SET_SUCCESS_VERSION)).thenReturn(Optional.empty());
         EstimationRuleInfo info = baseRuleInfo();
-        Response response = target("/estimation/"+RULE_SET_ID+"/rules/"+RULE_ID).request().build(HttpMethod.DELETE, Entity.json(info)).invoke();
+        Response response = target("/estimation/" + RULE_SET_ID + "/rules/" + RULE_ID).request().build(HttpMethod.DELETE, Entity.json(info)).invoke();
         assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
     }
 
@@ -491,7 +517,7 @@ public class EstimationResourceTest extends EstimationApplicationJerseyTest {
         when(estimationService.getEstimationRule(RULE_ID)).thenReturn(Optional.empty());
         when(estimationService.findAndLockEstimationRule(RULE_ID, RULE_SUCCESS_VERSION)).thenReturn(Optional.empty());
         EstimationRuleInfo info = baseRuleInfo();
-        Response response = target("/estimation/"+RULE_SET_ID+"/rules/"+RULE_ID).request().build(HttpMethod.DELETE, Entity.json(info)).invoke();
+        Response response = target("/estimation/" + RULE_SET_ID + "/rules/" + RULE_ID).request().build(HttpMethod.DELETE, Entity.json(info)).invoke();
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
         ConcurrentModificationInfo errorInfo = response.readEntity(ConcurrentModificationInfo.class);
@@ -507,7 +533,7 @@ public class EstimationResourceTest extends EstimationApplicationJerseyTest {
         when(restQuery.select(any(QueryParameters.class), any(Order.class))).thenReturn(Arrays.asList(ruleSets));
     }
 
-    private EstimationRuleSet mockDefaultRuleSet(){
+    private EstimationRuleSet mockDefaultRuleSet() {
         return mockEstimationRuleSet(RULE_SET_ID);
     }
 
@@ -581,29 +607,29 @@ public class EstimationResourceTest extends EstimationApplicationJerseyTest {
     }
 
     private ReadingType mockReadingType() {
-    	ReadingType readingType = mock(ReadingType.class);
+        ReadingType readingType = mock(ReadingType.class);
         when(readingType.getMRID()).thenReturn("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0");
-    	when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
-    	when(readingType.getAggregate()).thenReturn(Aggregate.NOTAPPLICABLE);
-    	when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.NOTAPPLICABLE);
-    	when(readingType.getAccumulation()).thenReturn(Accumulation.NOTAPPLICABLE);
-    	when(readingType.getFlowDirection()).thenReturn(FlowDirection.NOTAPPLICABLE);
-    	when(readingType.getCommodity()).thenReturn(Commodity.NOTAPPLICABLE);
-    	when(readingType.getMeasurementKind()).thenReturn(MeasurementKind.NOTAPPLICABLE);
-    	when(readingType.getInterharmonic()).thenReturn(RationalNumber.NOTAPPLICABLE);
-    	when(readingType.getArgument()).thenReturn(RationalNumber.NOTAPPLICABLE);
-    	when(readingType.getPhases()).thenReturn(Phase.NOTAPPLICABLE);
-    	when(readingType.getMultiplier()).thenReturn(MetricMultiplier.ZERO);
-    	when(readingType.getUnit()).thenReturn(ReadingTypeUnit.NOTAPPLICABLE);
-    	when(readingType.getCurrency()).thenReturn(Currency.getInstance("XXX"));
-    	return readingType;
+        when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
+        when(readingType.getAggregate()).thenReturn(Aggregate.NOTAPPLICABLE);
+        when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.NOTAPPLICABLE);
+        when(readingType.getAccumulation()).thenReturn(Accumulation.NOTAPPLICABLE);
+        when(readingType.getFlowDirection()).thenReturn(FlowDirection.NOTAPPLICABLE);
+        when(readingType.getCommodity()).thenReturn(Commodity.NOTAPPLICABLE);
+        when(readingType.getMeasurementKind()).thenReturn(MeasurementKind.NOTAPPLICABLE);
+        when(readingType.getInterharmonic()).thenReturn(RationalNumber.NOTAPPLICABLE);
+        when(readingType.getArgument()).thenReturn(RationalNumber.NOTAPPLICABLE);
+        when(readingType.getPhases()).thenReturn(Phase.NOTAPPLICABLE);
+        when(readingType.getMultiplier()).thenReturn(MetricMultiplier.ZERO);
+        when(readingType.getUnit()).thenReturn(ReadingTypeUnit.NOTAPPLICABLE);
+        when(readingType.getCurrency()).thenReturn(Currency.getInstance("XXX"));
+        return readingType;
     }
 
     private List<PropertyInfo> createPropertyInfos() {
         List<PropertyInfo> infos = new ArrayList<>();
-        PropertyInfo numberInfo = new PropertyInfo("number","number", new PropertyValueInfo<>(Double.valueOf(10), null), null, true);
-        PropertyInfo nullableInfo = new PropertyInfo("nullableboolean","nullableboolean", new PropertyValueInfo<>(false, null), null, true);
-        PropertyInfo booleanInfo = new PropertyInfo("boolean","boolean", new PropertyValueInfo<>(true, null), null, true);
+        PropertyInfo numberInfo = new PropertyInfo("number", "number", new PropertyValueInfo<>(Double.valueOf(10), null), null, true);
+        PropertyInfo nullableInfo = new PropertyInfo("nullableboolean", "nullableboolean", new PropertyValueInfo<>(false, null), null, true);
+        PropertyInfo booleanInfo = new PropertyInfo("boolean", "boolean", new PropertyValueInfo<>(true, null), null, true);
         PropertyInfo textInfo = new PropertyInfo("text", "text", new PropertyValueInfo<>("string", null), null, true);
         PropertyInfo listValueInfo = new PropertyInfo();
         listValueInfo.key = "listvalue";

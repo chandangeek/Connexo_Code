@@ -17,9 +17,9 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
+import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.time.TimeService;
-import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import com.google.common.collect.ImmutableSet;
@@ -41,10 +41,10 @@ import java.util.Set;
         immediate = true,
         property = {"alias=/est", "app=SYS", "name=" + EstimationApplication.COMPONENT_NAME})
 public class EstimationApplication extends Application implements MessageSeedProvider, TranslationKeyProvider {
+
     static final String COMPONENT_NAME = "EST";
 
     private volatile EstimationService estimationService;
-    private volatile TransactionService transactionService;
     private volatile RestQueryService restQueryService;
     private volatile MeteringGroupsService meteringGroupsService;
     private volatile MetrologyConfigurationService metrologyConfigurationService;
@@ -61,7 +61,7 @@ public class EstimationApplication extends Application implements MessageSeedPro
         return ImmutableSet.of(
                 EstimationResource.class,
                 MeterGroupsResource.class,
-                FieldResouce.class);
+                FieldResource.class);
     }
 
     @Activate
@@ -72,11 +72,6 @@ public class EstimationApplication extends Application implements MessageSeedPro
     @Reference
     public void setEstimationService(EstimationService estimationService) {
         this.estimationService = estimationService;
-    }
-
-    @Reference
-    public void setTransactionService(TransactionService transactionService) {
-        this.transactionService = transactionService;
     }
 
     @Reference
@@ -146,15 +141,17 @@ public class EstimationApplication extends Application implements MessageSeedPro
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
             bind(nlsService).to(NlsService.class);
             bind(estimationService).to(EstimationService.class);
-            bind(transactionService).to(TransactionService.class);
             bind(thesaurus).to(Thesaurus.class);
             bind(meteringGroupsService).to(MeteringGroupsService.class);
             bind(metrologyConfigurationService).to(MetrologyConfigurationService.class);
             bind(timeService).to(TimeService.class);
             bind(propertyValueInfoService).to(PropertyValueInfoService.class);
             bind(ReadingTypeInfoFactory.class).to(ReadingTypeInfoFactory.class);
+            bind(EstimationRuleSetInfoFactory.class).to(EstimationRuleSetInfoFactory.class);
             bind(EstimationRuleInfoFactory.class).to(EstimationRuleInfoFactory.class);
             bind(EstimatorInfoFactory.class).to(EstimatorInfoFactory.class);
+            bind(ResourceHelper.class).to(ResourceHelper.class);
+            bind(ExceptionFactory.class).to(ExceptionFactory.class);
         }
     }
 }
