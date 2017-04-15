@@ -668,7 +668,7 @@ public class ChannelResource {
                 .map(estimationRuleSet -> estimationRuleSet.getRules(Collections.singleton(readingType)))
                 .flatMap(Collection::stream)
                 .map(estimationRule -> estimationRuleInfoFactory.asInfoWithOverriddenProperties(estimationRule, device, readingType))
-                .sorted(Comparator.comparing(info -> info.name))
+                .sorted(Comparator.comparing(info -> info.name.toLowerCase()))
                 .collect(Collectors.toList());
         return PagedInfoList.fromPagedList("rules", infos, queryParameters);
     }
