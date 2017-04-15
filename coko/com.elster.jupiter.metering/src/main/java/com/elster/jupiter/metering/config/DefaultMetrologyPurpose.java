@@ -13,8 +13,8 @@ import com.elster.jupiter.nls.TranslationKey;
 public enum DefaultMetrologyPurpose {
     BILLING(Translation.BILLING_NAME, Translation.BILLING_DESCRIPTION),
     INFORMATION(Translation.INFORMATION_NAME, Translation.INFORMATION_DESCRIPTION),
-    CHECK(Translation.CHECK_NAME, Translation.CHECK_DESCRIPTION),
-    VOLTAGE_MONITORING(Translation.VOLTAGE_MONITORING_NAME, Translation.VOLTAGE_MONITORING_DESCRIPTION),;
+    VOLTAGE_MONITORING(Translation.VOLTAGE_MONITORING_NAME, Translation.VOLTAGE_MONITORING_DESCRIPTION),
+    CHECK(Translation.CHECK_NAME, Translation.CHECK_DESCRIPTION);
 
     private TranslationKey name;
     private TranslationKey description;
