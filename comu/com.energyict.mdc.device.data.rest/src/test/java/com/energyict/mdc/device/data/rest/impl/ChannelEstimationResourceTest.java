@@ -107,6 +107,7 @@ public class ChannelEstimationResourceTest extends DeviceDataRestApplicationJers
     private void mockEstimationRule() {
         when(estimationRule.getId()).thenReturn(ESTIMATION_RULE_ID);
         when(estimationRule.getName()).thenReturn(ESTIMATION_RULE_NAME);
+        when(estimationRule.getReadingTypes()).thenReturn(Collections.singleton(collectedReadingType));
         when(estimationRule.getImplementation()).thenReturn("com...estimator");
         when(estimationService.getEstimator("com...estimator")).thenReturn(Optional.of(estimator));
         List<PropertySpec> rulePropertySpecs = Arrays.asList(mockPropertySpec(REQUIRED_PROPERTY), mockPropertySpec(OPTIONAL_PROPERTY));

@@ -116,7 +116,9 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_VALIDATION_RULE(294, "noSuchValidationRule", "No validation rule with id {0}"),
     NO_SUCH_ESTIMATION_RULE(295, "noSuchEstimationRule", "No estimation rule with id {0}"),
     NO_SUCH_READINGTYPE_ON_CHANNEL(296, "noSuchReadingTypeOnChannel", "Device''s channel doesn''t provide reading type {0}"),
-    NO_CALCULATED_READINGTYPE_ON_CHANNEL(297, "noCalculatedReadingTypeOnChannel", "Device''s channel with id {0} doesn''t provide calculated reading type");
+    VALIDATION_RULE_IS_NOT_APPLICABLE_TO_READINGTYPE(297, "ValidationRuleIsNotApplicableToReadingType", "Validation rule with id {0} is not applicable to reading type {1}"),
+    ESTIMATION_RULE_IS_NOT_APPLICABLE_TO_READINGTYPE(298, "EstimationRuleIsNotApplicableToReadingType", "Estimation rule with id {0} is not applicable to reading type {1}"),
+    NO_CALCULATED_READINGTYPE_ON_CHANNEL(299, "noCalculatedReadingTypeOnChannel", "Device''s channel with id {0} doesn''t provide calculated reading type"),;
 
     private final int number;
     private final String key;

@@ -132,6 +132,7 @@ public class ChannelValidationResourceTest extends DeviceDataRestApplicationJers
     private void mockValidationRule() {
         when(validationRule.getId()).thenReturn(VALIDATION_RULE_ID);
         when(validationRule.getName()).thenReturn(VALIDATION_RULE_NAME);
+        when(validationRule.getReadingTypes()).thenReturn(Collections.singleton(collectedReadingType));
         when(validationRule.getImplementation()).thenReturn("com...validator");
         when(validationService.getValidator("com...validator")).thenReturn(validator);
         List<PropertySpec> rulePropertySpecs = Arrays.asList(mockPropertySpec(REQUIRED_PROPERTY), mockPropertySpec(OPTIONAL_PROPERTY));

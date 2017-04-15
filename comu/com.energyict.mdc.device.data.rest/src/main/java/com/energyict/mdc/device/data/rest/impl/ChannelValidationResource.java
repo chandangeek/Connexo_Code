@@ -115,6 +115,7 @@ public class ChannelValidationResource {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         ReadingType readingType = this.findReadingTypeOrThrowException(device, readingTypeMrid);
         ValidationRule validationRule = resourceHelper.findValidationRuleOrThrowException(ruleId);
+        validateRuleApplicability(validationRule, readingType);
         return asInfo(validationRule, readingType, device.forValidation());
     }
 
@@ -137,6 +138,7 @@ public class ChannelValidationResource {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         ReadingType readingType = this.findReadingTypeOrThrowException(device, channelValidationRuleInfo.readingType.mRID);
         ValidationRule validationRule = resourceHelper.findValidationRuleOrThrowException(channelValidationRuleInfo.ruleId);
+        validateRuleApplicability(validationRule, readingType);
 
         DeviceValidation.PropertyOverrider propertyOverrider = device.forValidation().overridePropertiesFor(validationRule, readingType);
         validationRule.getPropertySpecs(ValidationPropertyDefinitionLevel.TARGET_OBJECT).stream()
@@ -164,9 +166,11 @@ public class ChannelValidationResource {
     @RolesAllowed({Privileges.Constants.ADMINISTER_VALIDATION_CONFIGURATION})
     public Response editChannelValidationRuleOverriddenProperties(@PathParam("name") String name, @PathParam("ruleId") long ruleId,
                                                                   ChannelValidationRuleInfo channelValidationRuleInfo) {
+        channelValidationRuleInfo.ruleId = ruleId;
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         ReadingType readingType = this.findReadingTypeOrThrowException(device, channelValidationRuleInfo.readingType.mRID);
         ValidationRule validationRule = resourceHelper.findValidationRuleOrThrowException(channelValidationRuleInfo.ruleId);
+        validateRuleApplicability(validationRule, readingType);
         DeviceValidation deviceValidation = device.forValidation();
         ChannelValidationRuleOverriddenProperties channelValidationRule = deviceValidation
                 .findAndLockChannelValidationRuleOverriddenProperties(channelValidationRuleInfo.id, channelValidationRuleInfo.version)
@@ -196,9 +200,11 @@ public class ChannelValidationResource {
     @RolesAllowed({Privileges.Constants.ADMINISTER_VALIDATION_CONFIGURATION})
     public Response restoreChannelValidationRuleOverriddenProperties(@PathParam("name") String name, @PathParam("ruleId") long ruleId,
                                                                      ChannelValidationRuleInfo channelValidationRuleInfo) {
+        channelValidationRuleInfo.ruleId = ruleId;
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         ReadingType readingType = this.findReadingTypeOrThrowException(device, channelValidationRuleInfo.readingType.mRID);
         ValidationRule validationRule = resourceHelper.findValidationRuleOrThrowException(channelValidationRuleInfo.ruleId);
+        validateRuleApplicability(validationRule, readingType);
         DeviceValidation deviceValidation = device.forValidation();
         ChannelValidationRuleOverriddenProperties channelValidationRule = deviceValidation
                 .findAndLockChannelValidationRuleOverriddenProperties(channelValidationRuleInfo.id, channelValidationRuleInfo.version)
@@ -206,6 +212,12 @@ public class ChannelValidationResource {
                         .withActualVersion(getActualVersionOfChannelValidationRule(deviceValidation, validationRule, readingType)).supplier());
         channelValidationRule.delete();
         return Response.noContent().build();
+    }
+
+    private void validateRuleApplicability(ValidationRule validationRule, ReadingType readingType) {
+        if (!validationRule.getReadingTypes().contains(readingType)) {
+            throw exceptionFactory.newException(MessageSeeds.VALIDATION_RULE_IS_NOT_APPLICABLE_TO_READINGTYPE, validationRule.getId(), readingType.getFullAliasName());
+        }
     }
 
     private Supplier<Long> getActualVersionOfChannelValidationRule(DeviceValidation deviceValidation, ValidationRule validationRule, ReadingType readingType) {

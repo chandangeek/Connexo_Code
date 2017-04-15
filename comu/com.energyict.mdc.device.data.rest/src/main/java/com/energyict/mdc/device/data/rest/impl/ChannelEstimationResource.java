@@ -10,6 +10,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
+import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.util.Pair;
@@ -50,15 +51,17 @@ public class ChannelEstimationResource {
 
     private final ChannelEstimationRuleInfoFactory channelEstimationRuleInfoFactory;
     private final ConcurrentModificationExceptionFactory concurrentModificationExceptionFactory;
+    private final ExceptionFactory exceptionFactory;
     private final ResourceHelper resourceHelper;
 
     @Inject
     public ChannelEstimationResource(PropertyValueInfoService propertyValueInfoService, Clock clock, ChannelEstimationRuleInfoFactory channelEstimationRuleInfoFactory,
-                                     ConcurrentModificationExceptionFactory concurrentModificationExceptionFactory, ResourceHelper resourceHelper) {
+                                     ConcurrentModificationExceptionFactory concurrentModificationExceptionFactory, ExceptionFactory exceptionFactory, ResourceHelper resourceHelper) {
         this.propertyValueInfoService = propertyValueInfoService;
         this.clock = clock;
         this.channelEstimationRuleInfoFactory = channelEstimationRuleInfoFactory;
         this.concurrentModificationExceptionFactory = concurrentModificationExceptionFactory;
+        this.exceptionFactory = exceptionFactory;
         this.resourceHelper = resourceHelper;
     }
 
@@ -111,6 +114,7 @@ public class ChannelEstimationResource {
         Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(device, channelId);
         ReadingType readingType = resourceHelper.findChannelReadingTypeOrThrowException(channel, readingTypeMrid);
         EstimationRule estimationRule = resourceHelper.findEstimationRuleOrThrowException(ruleId);
+        validateRuleApplicability(estimationRule, readingType);
         return asInfo(estimationRule, readingType, device.forEstimation());
     }
 
@@ -125,6 +129,7 @@ public class ChannelEstimationResource {
         Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(device, channelId);
         ReadingType readingType = resourceHelper.findChannelReadingTypeOrThrowException(channel, channelEstimationRuleInfo.readingType.mRID);
         EstimationRule estimationRule = resourceHelper.findEstimationRuleOrThrowException(channelEstimationRuleInfo.ruleId);
+        validateRuleApplicability(estimationRule, readingType);
 
         DeviceEstimation.PropertyOverrider propertyOverrider = device.forEstimation().overridePropertiesFor(estimationRule, readingType);
         estimationRule.getPropertySpecs(EstimationPropertyDefinitionLevel.TARGET_OBJECT).stream()
@@ -152,10 +157,12 @@ public class ChannelEstimationResource {
     @RolesAllowed({Privileges.Constants.ADMINISTER_ESTIMATION_CONFIGURATION})
     public Response editChannelEstimationRuleOverriddenProperties(@PathParam("name") String name, @PathParam("channelid") long channelId,
                                                                   @PathParam("ruleId") long ruleId, ChannelEstimationRuleInfo channelEstimationRuleInfo) {
+        channelEstimationRuleInfo.ruleId = ruleId;
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(device, channelId);
         ReadingType readingType = resourceHelper.findChannelReadingTypeOrThrowException(channel, channelEstimationRuleInfo.readingType.mRID);
         EstimationRule estimationRule = resourceHelper.findEstimationRuleOrThrowException(channelEstimationRuleInfo.ruleId);
+        validateRuleApplicability(estimationRule, readingType);
         DeviceEstimation deviceEstimation = device.forEstimation();
         ChannelEstimationRuleOverriddenProperties channelEstimationRule = deviceEstimation
                 .findAndLockChannelEstimationRuleOverriddenProperties(channelEstimationRuleInfo.id, channelEstimationRuleInfo.version)
@@ -185,10 +192,12 @@ public class ChannelEstimationResource {
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE})
     public Response restoreChannelEstimationRuleOverriddenProperties(@PathParam("name") String name, @PathParam("channelid") long channelId,
                                                                      @PathParam("ruleId") long ruleId, ChannelEstimationRuleInfo channelEstimationRuleInfo) {
+        channelEstimationRuleInfo.ruleId = ruleId;
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(device, channelId);
         ReadingType readingType = resourceHelper.findChannelReadingTypeOrThrowException(channel, channelEstimationRuleInfo.readingType.mRID);
         EstimationRule estimationRule = resourceHelper.findEstimationRuleOrThrowException(channelEstimationRuleInfo.ruleId);
+        validateRuleApplicability(estimationRule, readingType);
         DeviceEstimation deviceEstimation = device.forEstimation();
         ChannelEstimationRuleOverriddenProperties channelEstimationRule = deviceEstimation
                 .findAndLockChannelEstimationRuleOverriddenProperties(channelEstimationRuleInfo.id, channelEstimationRuleInfo.version)
@@ -196,6 +205,12 @@ public class ChannelEstimationResource {
                         .withActualVersion(getActualVersionOfChannelEstimationRule(deviceEstimation, estimationRule, readingType)).supplier());
         channelEstimationRule.delete();
         return Response.noContent().build();
+    }
+
+    private void validateRuleApplicability(EstimationRule estimationRule, ReadingType readingType) {
+        if (!estimationRule.getReadingTypes().contains(readingType)) {
+            throw exceptionFactory.newException(MessageSeeds.ESTIMATION_RULE_IS_NOT_APPLICABLE_TO_READINGTYPE, estimationRule.getId(), readingType.getFullAliasName());
+        }
     }
 
     private Supplier<Long> getActualVersionOfChannelEstimationRule(DeviceEstimation deviceEstimation, EstimationRule estimationRule, ReadingType readingType) {
