@@ -458,7 +458,7 @@ public class UsagePointOutputResource {
                 .map(estimationRuleSet -> estimationRuleSet.getRules(Collections.singleton(readingType)))
                 .flatMap(Collection::stream)
                 .map(estimationRule -> estimationRuleInfoFactory.createEstimationRuleInfo(estimationRule, usagePoint, readingType))
-                .sorted(Comparator.comparing(info -> info.name))
+                .sorted(Comparator.comparing(info -> info.name.toLowerCase()))
                 .collect(Collectors.toList());
         return PagedInfoList.fromPagedList("rules", infos, queryParameters);
     }
