@@ -19,7 +19,7 @@ Ext.define('Cfg.view.usagepointregister.CopyFromReferenceWindow', {
 
     initComponent: function () {
         var me = this;
-console.log(me.records);
+
         me.items = {
             xtype: 'form',
             itemId: 'reading-copy-window-form',
@@ -91,7 +91,7 @@ console.log(me.records);
                             xtype: 'date-time',
                             itemId: 'start-date-field',
                             name: 'startDate',
-                            value: Array.isArray(me.records) ? me.records[0].get('interval').start : me.records.get('interval').start || new Date(),
+                            value: Array.isArray(me.records) ? me.records[0].get('interval').end : me.records.get('interval').end || new Date(),
                             layout: 'hbox',
                             valueInMilliseconds: true
                         }
@@ -199,7 +199,7 @@ console.log(me.records);
                 {
                     xtype: 'combobox',
                     itemId: 'purpose-field',
-                    name: 'metrologyPurpose',
+                    name: 'referencePurpose',
                     fieldLabel: Uni.I18n.translate('copyFromReference.purpose', 'CFG', 'Check purpose'),
                     required: true,
                     width: '90%',
