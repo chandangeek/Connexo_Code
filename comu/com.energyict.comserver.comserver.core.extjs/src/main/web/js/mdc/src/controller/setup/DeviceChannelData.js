@@ -753,6 +753,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             form = window.down('#reading-copy-window-form'),
             model = Ext.create('Mdc.model.CopyFromReference'),
             router = me.getController('Uni.controller.history.Router');
+
         form.updateRecord(model);
         model.getProxy().extraParams = {
             usagePointId: router.arguments.deviceId,
@@ -767,8 +768,33 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             intervals.push(window.records.get('interval'));
         }
         model.set('intervals', intervals);
-        model.phantom = false;
-        model.save();
+        model.save({
+            failure: function(record, operation) {
+                window.setLoading(true);
+                Ext.suspendLayouts();
+                if (Array.isArray(window.records)) {
+                    _.each(window.records, function (oneRecord) {
+                        // _.find(record, function (oneRecord) {
+                        //     return
+                        // });
+                        oneRecord.set('value', Math.random() * 100);
+                    });
+                } else {
+                    window.records.set('value', 999);
+                }
+                me.showButtons();
+                Ext.resumeLayouts(true);
+                window.setLoading(false);
+                window.close();
+            },
+            success: function(record, operation) {
+                window.close();
+            },
+            callback: function(record, operation, success) {
+                //do something whether the load succeeded or failed
+            }
+        });
+
     },
 
     estimateValue: function (record) {
