@@ -111,6 +111,7 @@ public class UsagePointOutputValidationResourceTest extends UsagePointDataRestAp
         doReturn(Collections.singletonList(validationRule)).when(validationRuleSetVersion).getRules(eq(ImmutableSet.of(readingType)));
         when(validationRule.getId()).thenReturn(VALIDATION_RULE_ID);
         when(validationRule.getName()).thenReturn(VALIDATION_RULE_NAME);
+        when(validationRule.getReadingTypes()).thenReturn(Collections.singleton(readingType));
         when(validationRule.getImplementation()).thenReturn("com...validator");
         when(validationService.getValidator("com...validator")).thenReturn(validator);
         List<PropertySpec> rulePropertySpecs = Arrays.asList(mockPropertySpec(REQUIRED_PROPERTY), mockPropertySpec(OPTIONAL_PROPERTY));

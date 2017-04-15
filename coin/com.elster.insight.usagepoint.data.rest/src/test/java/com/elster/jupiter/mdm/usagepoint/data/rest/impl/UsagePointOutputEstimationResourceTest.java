@@ -105,6 +105,7 @@ public class UsagePointOutputEstimationResourceTest extends UsagePointDataRestAp
         doReturn(Collections.singletonList(estimationRule)).when(estimationRuleSet).getRules(eq(ImmutableSet.of(readingType)));
         when(estimationRule.getId()).thenReturn(ESTIMATION_RULE_ID);
         when(estimationRule.getName()).thenReturn(ESTIMATION_RULE_NAME);
+        when(estimationRule.getReadingTypes()).thenReturn(Collections.singleton(readingType));
         when(estimationRule.getImplementation()).thenReturn("com...estimator");
         when(estimationService.getEstimator("com...estimator")).thenReturn(Optional.of(estimator));
         List<PropertySpec> rulePropertySpecs = Arrays.asList(mockPropertySpec(REQUIRED_PROPERTY), mockPropertySpec(OPTIONAL_PROPERTY));

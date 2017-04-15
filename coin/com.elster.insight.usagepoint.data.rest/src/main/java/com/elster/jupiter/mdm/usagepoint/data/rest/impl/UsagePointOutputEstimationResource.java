@@ -19,6 +19,7 @@ import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
+import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
@@ -53,17 +54,20 @@ public class UsagePointOutputEstimationResource {
 
     private final ChannelEstimationRuleInfoFactory channelEstimationRuleInfoFactory;
     private final ConcurrentModificationExceptionFactory concurrentModificationExceptionFactory;
+    private final ExceptionFactory exceptionFactory;
     private final ResourceHelper resourceHelper;
 
     @Inject
     UsagePointOutputEstimationResource(UsagePointDataModelService usagePointDataModelService, UsagePointConfigurationService usagePointConfigurationService,
                                        PropertyValueInfoService propertyValueInfoService, ChannelEstimationRuleInfoFactory channelEstimationRuleInfoFactory,
-                                       ConcurrentModificationExceptionFactory concurrentModificationExceptionFactory, ResourceHelper resourceHelper) {
+                                       ConcurrentModificationExceptionFactory concurrentModificationExceptionFactory, ExceptionFactory exceptionFactory,
+                                       ResourceHelper resourceHelper) {
         this.usagePointDataModelService = usagePointDataModelService;
         this.usagePointConfigurationService = usagePointConfigurationService;
         this.propertyValueInfoService = propertyValueInfoService;
         this.channelEstimationRuleInfoFactory = channelEstimationRuleInfoFactory;
         this.concurrentModificationExceptionFactory = concurrentModificationExceptionFactory;
+        this.exceptionFactory = exceptionFactory;
         this.resourceHelper = resourceHelper;
     }
 
@@ -110,9 +114,9 @@ public class UsagePointOutputEstimationResource {
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
         ReadingTypeDeliverable deliverable = findReadingTypeDeliverableOrThrowException(usagePoint, contractId, outputId);
         EstimationRule estimationRule = resourceHelper.findEstimationRuleOrThrowException(ruleId);
-        ReadingType readingType = deliverable.getReadingType();
+        validateRuleApplicability(estimationRule, deliverable);
         UsagePointEstimation usagePointEstimation = usagePointDataModelService.forEstimation(usagePoint);
-        return asInfo(estimationRule, readingType, usagePointEstimation);
+        return asInfo(estimationRule, deliverable.getReadingType(), usagePointEstimation);
     }
 
     @POST
@@ -123,10 +127,11 @@ public class UsagePointOutputEstimationResource {
     public Response overrideChannelEstimationRuleProperties(@PathParam("name") String name, @PathParam("purposeId") long contractId,
                                                             @PathParam("outputId") long outputId, ChannelEstimationRuleInfo channelEstimationRuleInfo) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
-        ReadingType readingType = findReadingTypeDeliverableOrThrowException(usagePoint, contractId, outputId).getReadingType();
+        ReadingTypeDeliverable deliverable = findReadingTypeDeliverableOrThrowException(usagePoint, contractId, outputId);
         EstimationRule estimationRule = resourceHelper.findEstimationRuleOrThrowException(channelEstimationRuleInfo.ruleId);
+        validateRuleApplicability(estimationRule, deliverable);
         UsagePointEstimation usagePointEstimation = usagePointDataModelService.forEstimation(usagePoint);
-        UsagePointEstimation.PropertyOverrider propertyOverrider = usagePointEstimation.overridePropertiesFor(estimationRule, readingType);
+        UsagePointEstimation.PropertyOverrider propertyOverrider = usagePointEstimation.overridePropertiesFor(estimationRule, deliverable.getReadingType());
 
         estimationRule.getPropertySpecs(EstimationPropertyDefinitionLevel.TARGET_OBJECT).stream()
                 .map(propertySpec -> {
@@ -151,13 +156,14 @@ public class UsagePointOutputEstimationResource {
                                                                   ChannelEstimationRuleInfo channelEstimationRuleInfo) {
         channelEstimationRuleInfo.ruleId = ruleId;
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
-        ReadingType readingType = findReadingTypeDeliverableOrThrowException(usagePoint, contractId, outputId).getReadingType();
+        ReadingTypeDeliverable deliverable = findReadingTypeDeliverableOrThrowException(usagePoint, contractId, outputId);
         EstimationRule estimationRule = resourceHelper.findEstimationRuleOrThrowException(channelEstimationRuleInfo.ruleId);
+        validateRuleApplicability(estimationRule, deliverable);
         UsagePointEstimation usagePointEstimation = usagePointDataModelService.forEstimation(usagePoint);
         ChannelEstimationRuleOverriddenProperties channelEstimationRule = usagePointEstimation
                 .findAndLockChannelEstimationRuleOverriddenProperties(channelEstimationRuleInfo.id, channelEstimationRuleInfo.version)
                 .orElseThrow(concurrentModificationExceptionFactory.contextDependentConflictOn(estimationRule.getDisplayName())
-                        .withActualVersion(getActualVersionOfChannelEstimationRule(usagePointEstimation, estimationRule, readingType)).supplier());
+                        .withActualVersion(getActualVersionOfChannelEstimationRule(usagePointEstimation, estimationRule, deliverable.getReadingType())).supplier());
 
         Map<String, Object> overriddenProperties = estimationRule.getPropertySpecs(EstimationPropertyDefinitionLevel.TARGET_OBJECT)
                 .stream()
@@ -184,15 +190,23 @@ public class UsagePointOutputEstimationResource {
                                                            ChannelEstimationRuleInfo channelEstimationRuleInfo) {
         channelEstimationRuleInfo.ruleId = ruleId;
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
-        ReadingType readingType = findReadingTypeDeliverableOrThrowException(usagePoint, contractId, outputId).getReadingType();
+        ReadingTypeDeliverable deliverable = findReadingTypeDeliverableOrThrowException(usagePoint, contractId, outputId);
         EstimationRule estimationRule = resourceHelper.findEstimationRuleOrThrowException(channelEstimationRuleInfo.ruleId);
+        validateRuleApplicability(estimationRule, deliverable);
         UsagePointEstimation usagePointEstimation = usagePointDataModelService.forEstimation(usagePoint);
         ChannelEstimationRuleOverriddenProperties channelEstimationRule = usagePointEstimation
                 .findAndLockChannelEstimationRuleOverriddenProperties(channelEstimationRuleInfo.id, channelEstimationRuleInfo.version)
                 .orElseThrow(concurrentModificationExceptionFactory.contextDependentConflictOn(estimationRule.getDisplayName())
-                        .withActualVersion(getActualVersionOfChannelEstimationRule(usagePointEstimation, estimationRule, readingType)).supplier());
+                        .withActualVersion(getActualVersionOfChannelEstimationRule(usagePointEstimation, estimationRule, deliverable.getReadingType())).supplier());
         channelEstimationRule.delete();
         return Response.noContent().build();
+    }
+
+    private void validateRuleApplicability(EstimationRule estimationRule, ReadingTypeDeliverable deliverable) {
+        ReadingType readingType = deliverable.getReadingType();
+        if (!estimationRule.getReadingTypes().contains(readingType)) {
+            throw exceptionFactory.newException(MessageSeeds.ESTIMATION_RULE_IS_NOT_APPLICABLE_TO_OUTPUT, estimationRule.getId(), deliverable.getName());
+        }
     }
 
     private List<PropertyInfo> toPropertyInfoList(Collection<OverriddenPropertyInfo> infos) {

@@ -17,6 +17,7 @@ import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
+import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
@@ -53,17 +54,20 @@ public class UsagePointOutputValidationResource {
 
     private final ChannelValidationRuleInfoFactory channelValidationRuleInfoFactory;
     private final ConcurrentModificationExceptionFactory concurrentModificationExceptionFactory;
+    private final ExceptionFactory exceptionFactory;
     private final ResourceHelper resourceHelper;
 
     @Inject
     UsagePointOutputValidationResource(UsagePointDataModelService usagePointDataModelService, UsagePointConfigurationService usagePointConfigurationService,
                                        PropertyValueInfoService propertyValueInfoService, ChannelValidationRuleInfoFactory channelValidationRuleInfoFactory,
-                                       ConcurrentModificationExceptionFactory concurrentModificationExceptionFactory, ResourceHelper resourceHelper) {
+                                       ConcurrentModificationExceptionFactory concurrentModificationExceptionFactory, ExceptionFactory exceptionFactory,
+                                       ResourceHelper resourceHelper) {
         this.usagePointDataModelService = usagePointDataModelService;
         this.usagePointConfigurationService = usagePointConfigurationService;
         this.propertyValueInfoService = propertyValueInfoService;
         this.channelValidationRuleInfoFactory = channelValidationRuleInfoFactory;
         this.concurrentModificationExceptionFactory = concurrentModificationExceptionFactory;
+        this.exceptionFactory = exceptionFactory;
         this.resourceHelper = resourceHelper;
     }
 
@@ -111,9 +115,9 @@ public class UsagePointOutputValidationResource {
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
         ReadingTypeDeliverable deliverable = findReadingTypeDeliverableOrThrowException(usagePoint, contractId, outputId);
         ValidationRule validationRule = resourceHelper.findValidationRuleOrThrowException(ruleId);
-        ReadingType readingType = deliverable.getReadingType();
+        validateRuleApplicability(validationRule, deliverable);
         UsagePointValidation usagePointValidation = usagePointDataModelService.forValidation(usagePoint);
-        return asInfo(validationRule, readingType, usagePointValidation);
+        return asInfo(validationRule, deliverable.getReadingType(), usagePointValidation);
     }
 
     @POST
@@ -124,10 +128,11 @@ public class UsagePointOutputValidationResource {
     public Response overrideChannelValidationRuleProperties(@PathParam("name") String name, @PathParam("purposeId") long contractId,
                                                             @PathParam("outputId") long outputId, ChannelValidationRuleInfo channelValidationRuleInfo) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
-        ReadingType readingType = findReadingTypeDeliverableOrThrowException(usagePoint, contractId, outputId).getReadingType();
+        ReadingTypeDeliverable deliverable = findReadingTypeDeliverableOrThrowException(usagePoint, contractId, outputId);
         ValidationRule validationRule = resourceHelper.findValidationRuleOrThrowException(channelValidationRuleInfo.ruleId);
+        validateRuleApplicability(validationRule, deliverable);
         UsagePointValidation usagePointValidation = usagePointDataModelService.forValidation(usagePoint);
-        UsagePointValidation.PropertyOverrider propertyOverrider = usagePointValidation.overridePropertiesFor(validationRule, readingType);
+        UsagePointValidation.PropertyOverrider propertyOverrider = usagePointValidation.overridePropertiesFor(validationRule, deliverable.getReadingType());
 
         validationRule.getPropertySpecs(ValidationPropertyDefinitionLevel.TARGET_OBJECT).stream()
                 .map(propertySpec -> {
@@ -152,13 +157,14 @@ public class UsagePointOutputValidationResource {
                                                                   ChannelValidationRuleInfo channelValidationRuleInfo) {
         channelValidationRuleInfo.ruleId = ruleId;
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
-        ReadingType readingType = findReadingTypeDeliverableOrThrowException(usagePoint, contractId, outputId).getReadingType();
+        ReadingTypeDeliverable deliverable = findReadingTypeDeliverableOrThrowException(usagePoint, contractId, outputId);
         ValidationRule validationRule = resourceHelper.findValidationRuleOrThrowException(channelValidationRuleInfo.ruleId);
+        validateRuleApplicability(validationRule, deliverable);
         UsagePointValidation usagePointValidation = usagePointDataModelService.forValidation(usagePoint);
         ChannelValidationRuleOverriddenProperties channelValidationRule = usagePointValidation
                 .findAndLockChannelValidationRuleOverriddenProperties(channelValidationRuleInfo.id, channelValidationRuleInfo.version)
                 .orElseThrow(concurrentModificationExceptionFactory.contextDependentConflictOn(validationRule.getDisplayName())
-                        .withActualVersion(getActualVersionOfChannelValidationRule(usagePointValidation, validationRule, readingType)).supplier());
+                        .withActualVersion(getActualVersionOfChannelValidationRule(usagePointValidation, validationRule, deliverable.getReadingType())).supplier());
 
         Map<String, Object> overriddenProperties = validationRule.getPropertySpecs(ValidationPropertyDefinitionLevel.TARGET_OBJECT)
                 .stream()
@@ -185,15 +191,23 @@ public class UsagePointOutputValidationResource {
                                                            ChannelValidationRuleInfo channelValidationRuleInfo) {
         channelValidationRuleInfo.ruleId = ruleId;
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
-        ReadingType readingType = findReadingTypeDeliverableOrThrowException(usagePoint, contractId, outputId).getReadingType();
+        ReadingTypeDeliverable deliverable = findReadingTypeDeliverableOrThrowException(usagePoint, contractId, outputId);
         ValidationRule validationRule = resourceHelper.findValidationRuleOrThrowException(channelValidationRuleInfo.ruleId);
+        validateRuleApplicability(validationRule, deliverable);
         UsagePointValidation usagePointValidation = usagePointDataModelService.forValidation(usagePoint);
         ChannelValidationRuleOverriddenProperties channelValidationRule = usagePointValidation
                 .findAndLockChannelValidationRuleOverriddenProperties(channelValidationRuleInfo.id, channelValidationRuleInfo.version)
                 .orElseThrow(concurrentModificationExceptionFactory.contextDependentConflictOn(validationRule.getDisplayName())
-                        .withActualVersion(getActualVersionOfChannelValidationRule(usagePointValidation, validationRule, readingType)).supplier());
+                        .withActualVersion(getActualVersionOfChannelValidationRule(usagePointValidation, validationRule, deliverable.getReadingType())).supplier());
         channelValidationRule.delete();
         return Response.noContent().build();
+    }
+
+    private void validateRuleApplicability(ValidationRule validationRule, ReadingTypeDeliverable deliverable) {
+        ReadingType readingType = deliverable.getReadingType();
+        if (!validationRule.getReadingTypes().contains(readingType)) {
+            throw exceptionFactory.newException(MessageSeeds.VALIDATION_RULE_IS_NOT_APPLICABLE_TO_OUTPUT, validationRule.getId(), deliverable.getName());
+        }
     }
 
     private List<PropertyInfo> toPropertyInfoList(Collection<OverriddenPropertyInfo> infos) {
