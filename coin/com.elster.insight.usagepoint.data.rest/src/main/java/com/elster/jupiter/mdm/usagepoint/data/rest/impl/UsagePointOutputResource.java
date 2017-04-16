@@ -17,11 +17,13 @@ import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyContract;
+import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.metering.readings.BaseReading;
@@ -29,6 +31,7 @@ import com.elster.jupiter.metering.readings.beans.BaseReadingImpl;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.rest.util.IntervalInfo;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.ListPager;
@@ -56,6 +59,7 @@ import com.google.common.collect.TreeRangeSet;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -67,8 +71,10 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.Clock;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.ZonedDateTime;
+import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -400,6 +406,26 @@ public class UsagePointOutputResource {
         return previewEstimate(QualityCodeSystem.MDM, channelsContainer, channel, estimateChannelDataInfo);
     }
 
+    @POST
+    @Transactional
+    @Path("/{purposeId}/outputs/{outputId}/channelData/copyfromreference")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT, Privileges.Constants.VIEW_METROLOGY_CONFIGURATION})
+    public PagedInfoList previewCopyFromReferenceChannelData(@PathParam("name") String name, @PathParam("purposeId") long contractId, @PathParam("outputId") long outputId,
+                                                                     ReferenceChannelDataInfo referenceChannelDataInfo, @BeanParam JsonQueryParameters queryParameters) {
+        UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
+        EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
+        MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(effectiveMetrologyConfigurationOnUsagePoint, contractId);
+        ReadingTypeDeliverable readingTypeDeliverable = resourceHelper.findReadingTypeDeliverableOrThrowException(metrologyContract, outputId, name);
+        if (!readingTypeDeliverable.getReadingType().isRegular()) {
+            throw exceptionFactory.newException(MessageSeeds.THIS_OUTPUT_IS_IRREGULAR, outputId);
+        }
+        AggregatedChannel channel = effectiveMetrologyConfigurationOnUsagePoint.getAggregatedChannel(metrologyContract, readingTypeDeliverable.getReadingType()).get();
+
+        return PagedInfoList.fromCompleteList("channelData", previewCopyFromRefernce(QualityCodeSystem.MDM, channel, referenceChannelDataInfo), queryParameters);
+    }
+
     @GET
     @Path("/{purposeId}/outputs/{outputId}/channelData/estimateWithRule")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
@@ -451,6 +477,73 @@ public class UsagePointOutputResource {
                 .map(block -> estimationHelper.previewEstimate(system, channelsContainer, readingType, block, estimator))
                 .collect(Collectors.toList());
         return estimationHelper.getChannelDataInfoFromEstimationReports(channel, ranges, results);
+    }
+
+    private List<OutputChannelDataInfo> previewCopyFromRefernce(QualityCodeSystem system, AggregatedChannel channel, ReferenceChannelDataInfo referenceChannelDataInfo) {
+        ReadingType readingType = meteringService.getReadingType(referenceChannelDataInfo.readingType)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_READING_TYPE_FOR_MRID, referenceChannelDataInfo.readingType));
+
+        UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(referenceChannelDataInfo.referenceUsagePoint);
+        EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
+        MetrologyPurpose purpose = resourceHelper.findMetrologyPurposeOrThrowException(referenceChannelDataInfo.referencePurpose);
+        MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(effectiveMetrologyConfigurationOnUsagePoint, purpose);
+        ReadingTypeDeliverable readingTypeDeliverable = metrologyContract.getDeliverables().stream().filter(output -> matchReadingTypes(output.getReadingType(),readingType))
+                .findFirst().orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_OUTPUT_FOR_USAGEPOINT));
+        if (!readingTypeDeliverable.getReadingType().isRegular()) {
+            throw exceptionFactory.newException(MessageSeeds.THIS_OUTPUT_IS_IRREGULAR, readingTypeDeliverable.getName());
+        }
+
+        AggregatedChannel referenceChannel = effectiveMetrologyConfigurationOnUsagePoint.getAggregatedChannel(metrologyContract, readingTypeDeliverable.getReadingType()).get();
+        List<OutputChannelDataInfo> resultReadings = new ArrayList<>();
+        for (Map.Entry<Range<Instant>, Range<Instant>> range : getCorrectedTimeStampsForReference(referenceChannelDataInfo.startDate, referenceChannelDataInfo.intervals).entrySet()) {
+            List<IntervalReadingRecord> referenceRecords = referenceChannel.getCalculatedIntervalReadings(range.getValue());
+            channel.getCalculatedIntervalReadings(range.getKey()).stream().forEach(record -> {
+                referenceRecords.stream()
+                        .findFirst()
+                        .ifPresent(referenceReading -> {
+                            OutputChannelDataInfo channelDataInfo = outputChannelDataInfoFactory.createEstimatedChannelDataInfo(record, referenceReading.getValue()
+                                    .scaleByPowerOfTen(referenceReading.getReadingType().getMultiplier().getMultiplier() - record.getReadingType().getMultiplier().getMultiplier()));
+                            if(referenceChannelDataInfo.allowSuspectData || referenceReading.getReadingQualities().stream().noneMatch(ReadingQualityRecord::isSuspect)) {
+                                resultReadings.add(channelDataInfo);
+                            }
+                        });
+            });
+        }
+        if (!referenceChannelDataInfo.completePeriod || resultReadings.size() == referenceChannelDataInfo.intervals.size()) {
+            return resultReadings;
+        } else {
+            return Collections.emptyList();
+        }
+    }
+
+    private Map<Range<Instant>, Range<Instant>> getCorrectedTimeStampsForReference(Instant referenceStartDate,  List<IntervalInfo> intervals){
+        Instant startDate = intervals.stream().map(date -> Instant.ofEpochMilli(date.end)).min(Instant::compareTo).get();
+        TemporalAmount offset = Duration.between(referenceStartDate, Instant.ofEpochMilli(intervals.get(0).end));
+        if(referenceStartDate.isAfter(startDate)){
+            return intervals.stream().map(interval -> Range.openClosed(Instant.ofEpochMilli(interval.start),Instant.ofEpochMilli(interval.end)))
+                    .collect(Collectors.toMap(Function.identity(),interval -> Range.openClosed(interval.lowerEndpoint().plus(offset), interval.upperEndpoint().plus(offset))));
+        } else {
+            return intervals.stream().map(interval -> Range.openClosed(Instant.ofEpochMilli(interval.start),Instant.ofEpochMilli(interval.end)))
+                    .collect(Collectors.toMap(Function.identity(),interval -> Range.openClosed(interval.lowerEndpoint().minus(offset), interval.upperEndpoint().minus(offset))));
+        }
+    }
+
+    private boolean matchReadingTypes(ReadingType first, ReadingType second){
+        return first.equals(second)
+                || (first.getMacroPeriod().equals(second.getMacroPeriod())
+                && first.getAggregate().equals(second.getAggregate())
+                && first.getMeasuringPeriod().equals(second.getMeasuringPeriod())
+                && first.getAccumulation().equals(second.getAccumulation())
+                && first.getFlowDirection().equals(second.getFlowDirection())
+                && first.getCommodity().equals(second.getCommodity())
+                && first.getMeasurementKind().equals(second.getMeasurementKind())
+                && first.getInterharmonic().equals(second.getInterharmonic())
+                && first.getArgument().equals(second.getArgument())
+                && first.getTou() == second.getTou()
+                && first.getCpp() == second.getCpp()
+                && first.getPhases().equals(second.getPhases())
+                && first.getUnit().equals(second.getUnit())
+                && first.getCurrency().equals(second.getCurrency()));
     }
 
 

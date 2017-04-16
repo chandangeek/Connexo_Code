@@ -173,6 +173,13 @@ public class ResourceHelper {
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.METROLOGYCONTRACT_IS_NOT_LINKED_TO_USAGEPOINT, contractId, effectiveMC.getUsagePoint().getName()));
     }
 
+    public MetrologyContract findMetrologyContractOrThrowException(EffectiveMetrologyConfigurationOnUsagePoint effectiveMC, MetrologyPurpose purpose) {
+        return effectiveMC.getMetrologyConfiguration().getContracts().stream()
+                .filter(contract -> contract.getMetrologyPurpose().equals(purpose))
+                .findAny()
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.METROLOGYPURPOSE_IS_NOT_FOUND_ON_USAGEPOINT, purpose.getName(), effectiveMC.getUsagePoint().getName()));
+    }
+
     public MetrologyContract findMetrologyContractOrThrowException(UsagePoint usagePoint, long contractId) {
         return metrologyConfigurationService.findMetrologyContract(contractId)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.METROLOGYCONTRACT_IS_NOT_LINKED_TO_USAGEPOINT, contractId, usagePoint.getName()));
