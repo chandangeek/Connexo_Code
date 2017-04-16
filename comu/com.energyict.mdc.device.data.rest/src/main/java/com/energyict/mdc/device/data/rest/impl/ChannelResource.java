@@ -65,14 +65,17 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.Clock;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.ZonedDateTime;
+import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -629,6 +632,21 @@ public class ChannelResource {
         return previewEstimate(QualityCodeSystem.MDC, device, channel, estimateChannelDataInfo);
     }
 
+    @POST
+    @Transactional
+    @Path("/{channelid}/data/copyfromreference")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_DATA, com.elster.jupiter.estimation.security.Privileges.Constants.EDIT_WITH_ESTIMATOR})
+    public PagedInfoList previewCopyFromReferenceChannelData(@PathParam("name") String name, @PathParam("channelid") long channelId,
+                                                             @HeaderParam(APPLICATION_HEADER_PARAM) String applicationName,
+                                                             ReferenceChannelDataInfo referenceChannelDataInfo,
+                                                             @BeanParam JsonQueryParameters queryParameters) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
+        Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(device, channelId);
+        return PagedInfoList.fromCompleteList("channelData", previewCopyFromRefernce(QualityCodeSystem.MDC, channel, referenceChannelDataInfo), queryParameters);
+    }
+
     @GET
     @Path("/{channelid}/data/estimateWithRule")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
@@ -683,6 +701,88 @@ public class ChannelResource {
             results.add(estimationHelper.previewEstimate(system, device, readingType, block, estimator));
         }
         return estimationHelper.getChannelDataInfoFromEstimationReports(channel, ranges, results);
+    }
+
+    private List<ChannelDataInfo> previewCopyFromRefernce(QualityCodeSystem system, Channel channel, ReferenceChannelDataInfo copyFromReferenceChannelDataInfo) {
+
+        DeviceValidation deviceValidation = channel.getDevice().forValidation();
+        boolean isValidationActive = deviceValidation.isValidationActive();
+
+        Device referenceDevice = resourceHelper.findDeviceByNameOrThrowException(copyFromReferenceChannelDataInfo.referenceDevice);
+        ReadingType readingType = meteringService.getReadingType(copyFromReferenceChannelDataInfo.readingType)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_REGISTER_TYPE));
+        Channel referenceChannel = referenceDevice.getChannels().stream().filter(ch -> matchReadingTypes(ch.getReadingType(), readingType)).findFirst()
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CHANNEL_ON_DEVICE));
+
+        List<ChannelDataInfo> resultReadings = new ArrayList<>();
+
+        for (Map.Entry<Range<Instant>, Range<Instant>> range : getCorrectedTimeStampsForReference(copyFromReferenceChannelDataInfo.startDate, copyFromReferenceChannelDataInfo.intervals)
+                .entrySet()) {
+            List<LoadProfileReading> referenceRecords = referenceChannel.getChannelData(range.getValue());
+
+            channel.getChannelData(range.getKey()).stream().forEach(record -> {
+                referenceRecords.stream()
+                        .findFirst()
+                        .ifPresent(referenceReading -> {
+                            ChannelDataInfo channelDataInfo = deviceDataInfoFactory.createChannelDataInfo(channel, record, isValidationActive, deviceValidation, null);
+                            ChannelDataInfo referenceChannelDataInfo = deviceDataInfoFactory.createChannelDataInfo(channel, referenceReading, isValidationActive, deviceValidation, null);
+                            if (!channel.getReadingType().isCumulative()) {
+                                channelDataInfo.value = referenceChannelDataInfo.value
+                                        .scaleByPowerOfTen(referenceChannel.getReadingType().getMultiplier().getMultiplier()
+                                                - channel.getReadingType().getMultiplier().getMultiplier());
+                            } else {
+                                channelDataInfo.value = referenceChannelDataInfo.value
+                                        .scaleByPowerOfTen(referenceChannel.getReadingType().getMultiplier().getMultiplier()
+                                                - channel.getReadingType().getMultiplier().getMultiplier());
+                                channelDataInfo.collectedValue = referenceChannelDataInfo.collectedValue
+                                        .scaleByPowerOfTen(referenceChannel.getReadingType().getMultiplier().getMultiplier()
+                                                - channel.getReadingType().getMultiplier().getMultiplier());
+                            }
+                            channelDataInfo.mainValidationInfo.validationResult = ValidationStatus.NOT_VALIDATED;
+                            if (copyFromReferenceChannelDataInfo.allowSuspectData || referenceReading.getReadingQualities()
+                                    .values()
+                                    .stream()
+                                    .noneMatch(e -> e.stream().anyMatch(ReadingQualityRecord::isSuspect))) {
+                                resultReadings.add(channelDataInfo);
+                            }
+                        });
+            });
+        }
+        if (!copyFromReferenceChannelDataInfo.completePeriod || resultReadings.size() == copyFromReferenceChannelDataInfo.intervals.size()) {
+            return resultReadings;
+        } else {
+            return Collections.emptyList();
+        }
+    }
+
+    private Map<Range<Instant>, Range<Instant>> getCorrectedTimeStampsForReference(Instant referenceStartDate, List<IntervalInfo> intervals) {
+        Instant startDate = intervals.stream().map(date -> Instant.ofEpochMilli(date.end)).min(Instant::compareTo).get();
+        TemporalAmount offset = Duration.between(referenceStartDate, Instant.ofEpochMilli(intervals.get(0).end));
+        if (referenceStartDate.isAfter(startDate)) {
+            return intervals.stream().map(interval -> Range.openClosed(Instant.ofEpochMilli(interval.start), Instant.ofEpochMilli(interval.end)))
+                    .collect(Collectors.toMap(Function.identity(), interval -> Range.openClosed(interval.lowerEndpoint().plus(offset), interval.upperEndpoint().plus(offset))));
+        } else {
+            return intervals.stream().map(interval -> Range.openClosed(Instant.ofEpochMilli(interval.start), Instant.ofEpochMilli(interval.end)))
+                    .collect(Collectors.toMap(Function.identity(), interval -> Range.openClosed(interval.lowerEndpoint().minus(offset), interval.upperEndpoint().minus(offset))));
+        }
+    }
+
+    private boolean matchReadingTypes(ReadingType first, ReadingType second) {
+        return first.equals(second)
+                || (first.getMacroPeriod().equals(second.getMacroPeriod())
+                && first.getAggregate().equals(second.getAggregate())
+                && first.getMeasuringPeriod().equals(second.getMeasuringPeriod())
+                && first.getAccumulation().equals(second.getAccumulation())
+                && first.getFlowDirection().equals(second.getFlowDirection())
+                && first.getCommodity().equals(second.getCommodity())
+                && first.getMeasurementKind().equals(second.getMeasurementKind())
+                && first.getInterharmonic().equals(second.getInterharmonic())
+                && first.getArgument().equals(second.getArgument())
+                && first.getTou() == second.getTou()
+                && first.getCpp() == second.getCpp()
+                && first.getPhases().equals(second.getPhases())
+                && first.getUnit().equals(second.getUnit())
+                && first.getCurrency().equals(second.getCurrency()));
     }
 
     private Instant getCalculatedReadingTypeTimeStampForEstimationPreview(EstimateChannelDataInfo estimateChannelDataInfo) {
