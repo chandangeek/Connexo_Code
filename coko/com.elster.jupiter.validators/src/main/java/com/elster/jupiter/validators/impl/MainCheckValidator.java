@@ -86,7 +86,8 @@ public class MainCheckValidator extends AbstractValidator {
     private Boolean useValidatedData;
     private NonOrBigDecimalValueProperty minThreshold;
     private ReadingType readingType;
-    private Range<Instant> interval;
+    // interval to log failed validation
+    private Range<Instant> failedValidatonInterval;
 
     private Logger logger;
 
@@ -107,12 +108,12 @@ public class MainCheckValidator extends AbstractValidator {
     }
 
     private String generateFailMessage(String message, Object... args) {
-        return String.format(VALIDATOR_FAILED_MESSAGE_PATTERN, rangeToString(interval), TranslationKeys.MAIN_CHECK_VALIDATOR
+        return String.format(VALIDATOR_FAILED_MESSAGE_PATTERN, rangeToString(failedValidatonInterval), TranslationKeys.MAIN_CHECK_VALIDATOR
                 .getDefaultFormat(), readingType.getFullAliasName(), String.format(message, args));
     }
 
     private String generateFailMessageWithUsagePoint(String message, Object... args) {
-        return String.format(VALIDATOR_FAILED_MESSAGE_PATTERN, rangeToString(interval), TranslationKeys.MAIN_CHECK_VALIDATOR
+        return String.format(VALIDATOR_FAILED_MESSAGE_PATTERN, rangeToString(failedValidatonInterval), TranslationKeys.MAIN_CHECK_VALIDATOR
                 .getDefaultFormat(), usagePointName + "/" + readingType.getFullAliasName(), String.format(message, args));
     }
 
@@ -147,14 +148,12 @@ public class MainCheckValidator extends AbstractValidator {
                         .booleanSpec()
                         .named(PASS_IF_NO_REF_DATA, TranslationKeys.MAIN_CHECK_VALIDATOR_PASS_IF_NO_REF_DATA)
                         .fromThesaurus(this.getThesaurus())
-                        .setDefaultValue(false)
                         .finish());
         builder
                 .add(getPropertySpecService()
                         .booleanSpec()
                         .named(USE_VALIDATED_DATA, TranslationKeys.MAIN_CHECK_VALIDATOR_USE_VALIDATED_DATA)
                         .fromThesaurus(this.getThesaurus())
-                        .setDefaultValue(false)
                         .finish());
         addMinThresholdPropertySpec(builder);
         return builder.build();
@@ -204,7 +203,7 @@ public class MainCheckValidator extends AbstractValidator {
     public void init(Channel channel, ReadingType readingType, Range<Instant> interval) {
 
         this.readingType = readingType;
-        this.interval = interval;
+        this.failedValidatonInterval = interval;
 
         //LoggingContext.get().info(getLogger(), "init main check");
 
@@ -323,6 +322,15 @@ public class MainCheckValidator extends AbstractValidator {
         return validate(intervalReadingRecord, checkIntervalReadingRecord);
     }
 
+    private void prepareValidationResult(ValidationResult validationResult, Instant timeStamp) {
+        preparedValidationResult = validationResult;
+
+        Range<Instant> newFailedValidatonInterval = Range.range(timeStamp, failedValidatonInterval.lowerBoundType(), failedValidatonInterval
+                .upperEndpoint(), failedValidatonInterval.upperBoundType());
+
+        failedValidatonInterval = newFailedValidatonInterval;
+    }
+
     //  "Wed, 15 Feb 2017 00:00 until Thu, 16 Feb 2017 00:00"
     private String rangeToString(Range<Instant> range) {
         Instant lowerBound = null;
@@ -342,6 +350,8 @@ public class MainCheckValidator extends AbstractValidator {
 
     private ValidationResult validate(IntervalReadingRecord mainReading, IntervalReadingRecord checkReading) {
 
+        Instant timeStamp = mainReading.getTimeStamp();
+
         // [RULE CHECK] If no data is available on the check channel:
         if (checkReading == null) {
             // show log
@@ -353,7 +363,7 @@ public class MainCheckValidator extends AbstractValidator {
                 return ValidationResult.VALID;
             } else {
                 // [RULE ACTION]  Stop the validation at the timestamp where the timestamp with the last reference data was found for the channel if Pass if no reference data is not checked
-                preparedValidationResult = ValidationResult.NOT_VALIDATED;
+                prepareValidationResult(ValidationResult.NOT_VALIDATED, timeStamp);
                 return ValidationResult.NOT_VALIDATED;
             }
         }
@@ -367,7 +377,7 @@ public class MainCheckValidator extends AbstractValidator {
                 LoggingContext.get()
                         .warning(getLogger(), generateFailMessageWithUsagePoint("data from 'check' output is missing or not validated"));
                 // [RULE ACTION] Stop the validation at the timestamp where the timestamp with the last validated reference data was found for the channel if Use validated data is checked
-                preparedValidationResult = ValidationResult.NOT_VALIDATED;
+                prepareValidationResult(ValidationResult.NOT_VALIDATED, timeStamp);
                 return ValidationResult.NOT_VALIDATED;
             }   // else:
             // [RULE ACTION] Continue validation if Use validated data is unchecked

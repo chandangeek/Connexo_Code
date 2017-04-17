@@ -34,7 +34,7 @@ public class MainCheckValidatorMiscTest extends MainCheckValidatorTest {
                 .withValuedDifference(bigDecimal(100D))
                 .passIfNoRefData(false)
                 .useValidatedData(false)
-                .withNoMinThreshold(), "WARNING: Failed to validate period \"Fri, 01 Jan 2016 12:00 until Thu, 07 Jan 2016 12:00\" using method \"Main/check comparison\" on [Daily] Secondary Delta A+ (kWh) since the specified purpose doesnt exist on the Usage point name", false);
+                .withNoMinThreshold(), "WARNING: Failed to validate period \"Fri, 01 Jan 2016 12:00 until Sun, 07 Feb 2016 12:00\" using method \"Main/check comparison\" on [Daily] Secondary Delta A+ (kWh) since the specified purpose doesnt exist on the Usage point name", false);
 
 
     }
@@ -47,7 +47,7 @@ public class MainCheckValidatorMiscTest extends MainCheckValidatorTest {
                 .withValuedDifference(bigDecimal(100D))
                 .passIfNoRefData(false)
                 .useValidatedData(false)
-                .withNoMinThreshold(), "WARNING: Failed to validate period \"Fri, 01 Jan 2016 12:00 until Thu, 07 Jan 2016 12:00\" using method \"Main/check comparison\" on [Daily] Secondary Delta A+ (kWh) since check output with matching reading type on the specified purpose doesnt exist on Usage point name", false);
+                .withNoMinThreshold(), "WARNING: Failed to validate period \"Fri, 01 Jan 2016 12:00 until Sun, 07 Feb 2016 12:00\" using method \"Main/check comparison\" on [Daily] Secondary Delta A+ (kWh) since check output with matching reading type on the specified purpose doesnt exist on Usage point name", false);
     }
 
     @Test
@@ -57,7 +57,7 @@ public class MainCheckValidatorMiscTest extends MainCheckValidatorTest {
                 .withValuedDifference(bigDecimal(100D))
                 .passIfNoRefData(false)
                 .useValidatedData(false)
-                .withNoMinThreshold(), "WARNING: Failed to validate period \"Fri, 01 Jan 2016 12:00 until Thu, 07 Jan 2016 12:00\" using method \"Main/check comparison\" on Usage point name/[Daily] Secondary Delta A+ (kWh) since data from check output is missing or not validated", true);
+                .withNoMinThreshold(), "WARNING: Failed to validate period \"Fri, 01 Jan 2016 12:00 until Sun, 07 Feb 2016 12:00\" using method \"Main/check comparison\" on Usage point name/[Daily] Secondary Delta A+ (kWh) since data from check output is missing or not validated", true);
     }
 
     @Test
@@ -67,7 +67,7 @@ public class MainCheckValidatorMiscTest extends MainCheckValidatorTest {
                 .withValuedDifference(bigDecimal(100D))
                 .passIfNoRefData(true)
                 .useValidatedData(false)
-                .withNoMinThreshold(), "WARNING: Failed to validate period \"Fri, 01 Jan 2016 12:00 until Thu, 07 Jan 2016 12:00\" using method \"Main/check comparison\" on Usage point name/[Daily] Secondary Delta A+ (kWh) since data from check output is missing or not validated", true);
+                .withNoMinThreshold(), "WARNING: Failed to validate period \"Fri, 01 Jan 2016 12:00 until Sun, 07 Feb 2016 12:00\" using method \"Main/check comparison\" on Usage point name/[Daily] Secondary Delta A+ (kWh) since data from check output is missing or not validated", true);
     }
 
     private void mockLogger(MainCheckValidator validator){
@@ -121,6 +121,8 @@ public class MainCheckValidatorMiscTest extends MainCheckValidatorTest {
 
         assertEquals(0, validator.finish().size());
 
+        String actualLogs = logs.toString();
+        System.out.println(actualLogs);
         assertTrue(logs.toString().contains(warning));
     }
 }

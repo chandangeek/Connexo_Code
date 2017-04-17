@@ -66,7 +66,7 @@ abstract public class MainCheckValidatorTest {
 
     protected PropertySpecService propertySpecService = new PropertySpecServiceImpl();
 
-    protected Range<Instant> range = Range.closed(instant("20160101000000"),instant("20160107000000"));
+    protected Range<Instant> range = Range.closed(instant("20160101000000"),instant("20160207000000"));
 
     MainCheckValidator initValidator(ValidationConfiguration validationConfiguration) {
         MainCheckValidator validator = new MainCheckValidator(thesaurus, propertySpecService, validationConfiguration.rule
