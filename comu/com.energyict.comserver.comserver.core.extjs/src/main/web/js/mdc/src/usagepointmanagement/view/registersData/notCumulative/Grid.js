@@ -6,12 +6,8 @@ Ext.define('Mdc.usagepointmanagement.view.registersData.notCumulative.Grid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.register-data-noCumulative-grid',
     requires: [
-        'Uni.view.toolbar.PagingTop'
-    ],
-    plugins: [
-        {
-            ptype: 'bufferedrenderer'
-        }
+        'Uni.view.toolbar.PagingTop',
+        'Uni.view.toolbar.PagingBottom'
     ],
     register: null,
 
@@ -88,7 +84,6 @@ Ext.define('Mdc.usagepointmanagement.view.registersData.notCumulative.Grid', {
             {
                 xtype: 'pagingtoolbarbottom',
                 store: me.store,
-                deferLoading: true,
                 params: [
                     {usagePointId: me.usagePointId},
                     {registerId: me.register.get('id')}
