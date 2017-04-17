@@ -247,7 +247,7 @@ Ext.define('Imt.purpose.controller.Readings', {
     resumeEditorFieldValidation: function (editor, event) {
         var me = this;
 
-        if(me.getReadingsGraph() && me.getReadingsGraph().chart){
+        if (me.getReadingsGraph() && me.getReadingsGraph().chart) {
             var chart = me.getReadingsGraph().chart,
                 point = chart.get(event.record.get('interval').start),
                 grid = me.getReadingsList(),
@@ -402,7 +402,7 @@ Ext.define('Imt.purpose.controller.Readings', {
                 if (!canConfirm && !record.get('isConfirmed') && !record.isModified('value')) {
                     canConfirm = true;
                 }
-                if(estimationRulesCount){
+                if (estimationRulesCount) {
                     canEstimateWithRule = true;
                 }
             }
@@ -508,32 +508,35 @@ Ext.define('Imt.purpose.controller.Readings', {
         model.set('intervals', intervals);
 
         model.save({
-            failure: function(record, operation) {
-
+            failure: function (record, operation) {
+                var response = JSON.parse(operation.response.responseText);
+                form.getForm().markInvalid(response.errors);
             },
-            success: function(record) {
+            success: function (record, operation) {
                 var item = null,
-                    channelData = record.get('channelData');
+                    response = JSON.parse(operation.response.responseText);
 
-                Ext.suspendLayouts();
-                if (Array.isArray(window.records)) {
-                    _.each(window.records, function (record) {
-                        item = record.get('interval').end;
-                        item = _.find(channelData, function (rec) {
-                            return rec.interval.end === item;
+                if (response[0]) {
+                    Ext.suspendLayouts();
+                    if (Array.isArray(window.records)) {
+                        _.each(window.records, function (record) {
+                            item = record.get('interval').end;
+                            item = _.find(response, function (rec) {
+                                return rec.interval.end === item;
+                            });
+                            recordrecord.set('value', item.value);
+                            oneRecord.set('bulkValidationInfo', item.bulkValidationInfo);
                         });
-                        recordrecord.set('value', item.value);
-                        oneRecord.set('bulkValidationInfo', item.bulkValidationInfo);
-                    });
-                } else {
-                    window.records.set('value', channelData[0].value);
-                    window.records.set('bulkValidationInfo', channelData[0].bulkValidationInfo);
+                    } else {
+                        window.records.set('value', response[0].value);
+                        window.records.set('bulkValidationInfo', response[0].bulkValidationInfo);
+                    }
+                    me.showButtons();
+                    Ext.resumeLayouts(true);
                 }
-                me.showButtons();
-                Ext.resumeLayouts(true);
                 window.close();
             },
-            callback: function() {
+            callback: function () {
                 window.setLoading(false);
             }
         });
