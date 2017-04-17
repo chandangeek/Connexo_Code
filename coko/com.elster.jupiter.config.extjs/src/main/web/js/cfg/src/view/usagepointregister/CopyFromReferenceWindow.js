@@ -14,7 +14,8 @@ Ext.define('Cfg.view.usagepointregister.CopyFromReferenceWindow', {
 
     requires: [
         'Uni.util.FormErrorMessage',
-        'Uni.property.form.Property'
+        'Uni.property.form.Property',
+        'Uni.property.view.DefaultButton'
     ],
 
     initComponent: function () {
@@ -123,10 +124,30 @@ Ext.define('Cfg.view.usagepointregister.CopyFromReferenceWindow', {
                     ]
                 },
                 {
-                    xtype: 'combobox',
-                    itemId: 'estimation-comment',
+                    xtype: 'fieldcontainer',
                     fieldLabel: Uni.I18n.translate('copyFromReference.estimationComment', 'CFG', 'Estimation comment'),
-                    width: '90%'
+                    width: '90%',
+                    layout: 'hbox',
+                    items: [
+                        {
+                            xtype: 'combobox',
+                            itemId: 'estimation-comment',
+                            flex: 2
+                        },
+                        {
+                            xtype: 'uni-default-button',
+                            itemId: 'estimation-comment-default-button',
+                            flex: 1
+                            // margin: '34 0 0 5',
+                            // listeners: {
+                            //     click: {
+                            //         fn: me.onClickDefault,
+                            //         scope: me
+                            //     }
+                            // }
+                        }
+                    ]
+
                 },
                 {
                     xtype: 'fieldcontainer',
