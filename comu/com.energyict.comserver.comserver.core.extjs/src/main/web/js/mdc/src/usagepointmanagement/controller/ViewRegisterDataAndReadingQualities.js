@@ -66,7 +66,6 @@ Ext.define('Mdc.usagepointmanagement.controller.ViewRegisterDataAndReadingQualit
                         usagePointId: usagePointId,
                         filter: filter
                     }));
-                    registerDataStore.load();
                     Ext.resumeLayouts(true);
                 }
             },
