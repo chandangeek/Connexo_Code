@@ -62,6 +62,8 @@ public enum MessageSeeds implements MessageSeed {
     NO_USAGEPOINT_TRANSITION_WITH_ID(57, Keys.NO_TRANSITION_WITH_ID, "No usage point transition with id {0}"),
     NO_METROLOGYCONFIG_FOR_USAGEPOINT_IN_THIS_TIME(58, Keys.NO_METROLOGYCONFIG_FOR_USAGEPOINT_IN_THIS_TIME, "Metrology configuration is not linked to the usage point at this moment in time."),
     METROLOGYPURPOSE_IS_NOT_FOUND_ON_USAGEPOINT(59, "MetrologyPurposeNotFoundOnUsagePoint", "Metrology purpose ''{0}'' is not found on usage point {1}."),
+    READINGTYPES_DONT_MATCH(60, "ReadingTypesDontMatch", "Reading types don't match"),
+    READINGTYPE_NOT_FOUND_ON_USAGEPOINT(61, "ReadingTypeNotFoundOnUsagePoint", "Reading type not found on usage point"),
     ;
     private final int number;
     private final String key;

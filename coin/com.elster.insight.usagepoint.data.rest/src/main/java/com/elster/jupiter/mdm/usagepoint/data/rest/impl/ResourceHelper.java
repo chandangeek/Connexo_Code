@@ -103,6 +103,10 @@ public class ResourceHelper {
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_DEVICE_WITH_NAME, name));
     }
 
+    public Optional<UsagePoint> findUsagePointByName(String name) {
+        return meteringService.findUsagePointByName(name);
+    }
+
     public UsagePoint findUsagePointByNameOrThrowException(String name) {
         return meteringService.findUsagePointByName(name)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_USAGE_POINT_WITH_NAME, name));

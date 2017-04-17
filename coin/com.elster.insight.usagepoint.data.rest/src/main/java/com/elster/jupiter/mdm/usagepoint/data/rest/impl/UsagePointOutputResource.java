@@ -350,6 +350,7 @@ public class UsagePointOutputResource {
         channel.estimateReadings(QualityCodeSystem.MDM, estimatedReadings);
         channel.editReadings(QualityCodeSystem.MDM, editedReadings);
         channel.confirmReadings(QualityCodeSystem.MDM, confirmedReadings);
+        channel.createReadingQuality()
         channel.removeReadings(QualityCodeSystem.MDM, removeCandidates.stream()
                 .map(channel::getReading)
                 .flatMap(Functions.asStream())
@@ -412,8 +413,8 @@ public class UsagePointOutputResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT, Privileges.Constants.VIEW_METROLOGY_CONFIGURATION})
-    public PagedInfoList previewCopyFromReferenceChannelData(@PathParam("name") String name, @PathParam("purposeId") long contractId, @PathParam("outputId") long outputId,
-                                                                     ReferenceChannelDataInfo referenceChannelDataInfo, @BeanParam JsonQueryParameters queryParameters) {
+    public List<OutputChannelDataInfo> previewCopyFromReferenceChannelData(@PathParam("name") String name, @PathParam("purposeId") long contractId, @PathParam("outputId") long outputId,
+                                                                     ReferenceChannelDataInfo referenceChannelDataInfo) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
         MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(effectiveMetrologyConfigurationOnUsagePoint, contractId);
@@ -423,7 +424,7 @@ public class UsagePointOutputResource {
         }
         AggregatedChannel channel = effectiveMetrologyConfigurationOnUsagePoint.getAggregatedChannel(metrologyContract, readingTypeDeliverable.getReadingType()).get();
 
-        return PagedInfoList.fromCompleteList("channelData", previewCopyFromRefernce(QualityCodeSystem.MDM, channel, referenceChannelDataInfo), queryParameters);
+        return previewCopyFromRefernce(QualityCodeSystem.MDM, channel, referenceChannelDataInfo);
     }
 
     @GET
@@ -481,19 +482,27 @@ public class UsagePointOutputResource {
 
     private List<OutputChannelDataInfo> previewCopyFromRefernce(QualityCodeSystem system, AggregatedChannel channel, ReferenceChannelDataInfo referenceChannelDataInfo) {
         ReadingType readingType = meteringService.getReadingType(referenceChannelDataInfo.readingType)
-                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_READING_TYPE_FOR_MRID, referenceChannelDataInfo.readingType));
+                .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.NO_READING_TYPE_FOR_MRID, "readingType",referenceChannelDataInfo.readingType));
 
-        UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(referenceChannelDataInfo.referenceUsagePoint);
+        UsagePoint usagePoint = resourceHelper.findUsagePointByName(referenceChannelDataInfo.referenceUsagePoint)
+                .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.NO_USAGE_POINT_WITH_NAME, "usagePoint", referenceChannelDataInfo.referenceUsagePoint));
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
-        MetrologyPurpose purpose = resourceHelper.findMetrologyPurposeOrThrowException(referenceChannelDataInfo.referencePurpose);
+        MetrologyPurpose purpose = resourceHelper.findMetrologyPurpose(referenceChannelDataInfo.referencePurpose)
+                .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_METROLOGY_PURPOSE, "referencePurpose", referenceChannelDataInfo.referencePurpose));
         MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(effectiveMetrologyConfigurationOnUsagePoint, purpose);
-        ReadingTypeDeliverable readingTypeDeliverable = metrologyContract.getDeliverables().stream().filter(output -> matchReadingTypes(output.getReadingType(),readingType))
-                .findFirst().orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_OUTPUT_FOR_USAGEPOINT));
+        ReadingTypeDeliverable readingTypeDeliverable = metrologyContract.getDeliverables().stream().filter(output -> output.getReadingType().equals(readingType))
+                .findFirst()
+                .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.READINGTYPE_NOT_FOUND_ON_USAGEPOINT, "readingType", referenceChannelDataInfo.readingType));
+        AggregatedChannel referenceChannel = effectiveMetrologyConfigurationOnUsagePoint.getAggregatedChannel(metrologyContract, readingTypeDeliverable.getReadingType())
+                .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.READINGTYPE_NOT_FOUND_ON_USAGEPOINT, "readingType", referenceChannelDataInfo.readingType));
+
+        if(!matchReadingTypes(referenceChannel.getMainReadingType(), channel.getMainReadingType())){
+            throw new LocalizedFieldValidationException(MessageSeeds.READINGTYPES_DONT_MATCH, "readingType");
+        }
         if (!readingTypeDeliverable.getReadingType().isRegular()) {
-            throw exceptionFactory.newException(MessageSeeds.THIS_OUTPUT_IS_IRREGULAR, readingTypeDeliverable.getName());
+            throw new LocalizedFieldValidationException(MessageSeeds.THIS_OUTPUT_IS_IRREGULAR, "readingType", readingTypeDeliverable.getName());
         }
 
-        AggregatedChannel referenceChannel = effectiveMetrologyConfigurationOnUsagePoint.getAggregatedChannel(metrologyContract, readingTypeDeliverable.getReadingType()).get();
         List<OutputChannelDataInfo> resultReadings = new ArrayList<>();
         for (Map.Entry<Range<Instant>, Range<Instant>> range : getCorrectedTimeStampsForReference(referenceChannelDataInfo.startDate, referenceChannelDataInfo.intervals).entrySet()) {
             List<IntervalReadingRecord> referenceRecords = referenceChannel.getCalculatedIntervalReadings(range.getValue());
