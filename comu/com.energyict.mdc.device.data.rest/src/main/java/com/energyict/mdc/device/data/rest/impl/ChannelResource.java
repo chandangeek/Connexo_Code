@@ -17,6 +17,7 @@ import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.beans.BaseReadingImpl;
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
@@ -638,13 +639,12 @@ public class ChannelResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_DATA, com.elster.jupiter.estimation.security.Privileges.Constants.EDIT_WITH_ESTIMATOR})
-    public PagedInfoList previewCopyFromReferenceChannelData(@PathParam("name") String name, @PathParam("channelid") long channelId,
+    public List<ChannelDataInfo> previewCopyFromReferenceChannelData(@PathParam("name") String name, @PathParam("channelid") long channelId,
                                                              @HeaderParam(APPLICATION_HEADER_PARAM) String applicationName,
-                                                             ReferenceChannelDataInfo referenceChannelDataInfo,
-                                                             @BeanParam JsonQueryParameters queryParameters) {
+                                                             ReferenceChannelDataInfo referenceChannelDataInfo) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(device, channelId);
-        return PagedInfoList.fromCompleteList("channelData", previewCopyFromRefernce(QualityCodeSystem.MDC, channel, referenceChannelDataInfo), queryParameters);
+        return previewCopyFromRefernce(QualityCodeSystem.MDC, channel, referenceChannelDataInfo);
     }
 
     @GET
@@ -708,11 +708,15 @@ public class ChannelResource {
         DeviceValidation deviceValidation = channel.getDevice().forValidation();
         boolean isValidationActive = deviceValidation.isValidationActive();
 
-        Device referenceDevice = resourceHelper.findDeviceByNameOrThrowException(copyFromReferenceChannelDataInfo.referenceDevice);
+        Device referenceDevice = resourceHelper.findDeviceByName(copyFromReferenceChannelDataInfo.referenceDevice)
+                .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_DEVICE, "referenceDevice",  copyFromReferenceChannelDataInfo.referenceDevice));
         ReadingType readingType = meteringService.getReadingType(copyFromReferenceChannelDataInfo.readingType)
-                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_REGISTER_TYPE));
-        Channel referenceChannel = referenceDevice.getChannels().stream().filter(ch -> matchReadingTypes(ch.getReadingType(), readingType)).findFirst()
-                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CHANNEL_ON_DEVICE));
+                .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_READINGTYPE, "readingType",  copyFromReferenceChannelDataInfo.readingType));
+        Channel referenceChannel = referenceDevice.getChannels().stream().filter(ch -> ch.getReadingType().equals(readingType)).findFirst()
+                .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.READINGTYPE_NOT_FOUND_ON_DEVICE, "readingType"));
+        if(!matchReadingTypes(referenceChannel.getReadingType(), channel.getReadingType())){
+            throw new LocalizedFieldValidationException(MessageSeeds.READINGTYPES_DONT_MATCH, "readingType");
+        }
 
         List<ChannelDataInfo> resultReadings = new ArrayList<>();
 

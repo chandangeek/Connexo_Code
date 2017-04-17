@@ -112,7 +112,11 @@ public enum MessageSeeds implements MessageSeed {
     PROCESS_STATUS_ABORTED(290, "ProcessStatusAborted", "Aborted"),
     PROCESS_STATUS_SUSPENDED(291, "ProcessStatusSuspended", "Suspended"),
     OVERLAPPING_COMTASKS_IN_COMSCHEDULES(292, "OverlappingComTasks", "There are overlapping communication tasks in the schedules"),
-    NO_SUCH_PROTOCOL_PROPERTIES(293, "NoSuchProtocolDialectProperties", "\"No protocol dialect with name '{0}'");
+    NO_SUCH_PROTOCOL_PROPERTIES(293, "NoSuchProtocolDialectProperties", "\"No protocol dialect with name '{0}'"),
+    NO_SUCH_READINGTYPE(294, "noReadingType", "No reading type with MRID {0}"),
+    READINGTYPES_DONT_MATCH(295, "ReadingTypesDontMatch", "Reading types don't match"),
+    READINGTYPE_NOT_FOUND_ON_DEVICE(296, "ReadingTypeNotFoundOnDevice", "Reading type not found on device"),
+    ;
     private final int number;
     private final String key;
     private final String format;
