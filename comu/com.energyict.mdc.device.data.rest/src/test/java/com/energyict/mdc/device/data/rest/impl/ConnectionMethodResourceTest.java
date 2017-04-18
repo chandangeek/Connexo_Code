@@ -413,8 +413,10 @@ public class ConnectionMethodResourceTest extends DeviceDataRestApplicationJerse
     private ProtocolDialectConfigurationProperties mockProtocolDialectConfigurationProperties(){
         DeviceProtocolDialect protocolDialect = mock(DeviceProtocolDialect.class);
         when(protocolDialect.getDisplayName()).thenReturn("Protocol Dialect DisplayName");
+        when(protocolDialect.getDisplayName()).thenReturn("Protocol Dialect DisplayName");
         ProtocolDialectConfigurationProperties properties = mock(ProtocolDialectConfigurationProperties.class);
         when(properties.getDeviceProtocolDialectName()).thenReturn("Protocol Dialect Name");
+        when(properties.getName()).thenReturn("Protocol Dialect Name");
         when(properties.getDeviceProtocolDialect()).thenReturn(protocolDialect);
         return properties;
     }

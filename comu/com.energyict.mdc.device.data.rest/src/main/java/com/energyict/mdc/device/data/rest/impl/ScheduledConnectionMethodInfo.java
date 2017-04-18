@@ -12,6 +12,7 @@ import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.rest.DeviceConnectionTaskInfo;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -28,14 +29,11 @@ import static com.elster.jupiter.util.Checks.is;
 
 public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<ScheduledConnectionTask> {
 
-    public DeviceConnectionTaskInfo.ConnectionStrategyInfo connectionStrategyInfo;
-
     public ScheduledConnectionMethodInfo() {
     }
 
     public ScheduledConnectionMethodInfo(ScheduledConnectionTask scheduledConnectionTask, UriInfo uriInfo, MdcPropertyUtils mdcPropertyUtils, Thesaurus thesaurus) {
         super(scheduledConnectionTask, uriInfo, mdcPropertyUtils);
-        this.connectionStrategyInfo = new DeviceConnectionTaskInfo.ConnectionStrategyInfo();
         connectionStrategyInfo.connectionStrategy = scheduledConnectionTask.getConnectionStrategy().name();
         connectionStrategyInfo.localizedValue = ConnectionStrategyTranslationKeys.translationFor(scheduledConnectionTask.getConnectionStrategy(), thesaurus);
         this.numberOfSimultaneousConnections = scheduledConnectionTask.getNumberOfSimultaneousConnections();
@@ -95,6 +93,7 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<Schedule
         scheduledConnectionTaskBuilder.setNextExecutionSpecsFrom(this.nextExecutionSpecs != null ? nextExecutionSpecs.asTemporalExpression() : null);
         scheduledConnectionTaskBuilder.setConnectionTaskLifecycleStatus(this.status);
         scheduledConnectionTaskBuilder.setNumberOfSimultaneousConnections(this.numberOfSimultaneousConnections);
+        scheduledConnectionTaskBuilder.setProtocolDialectConfigurationProperties(getProtocolDialectConfigurationProperties(device));
         if (this.comWindowEnd != null && this.comWindowStart != null) {
             scheduledConnectionTaskBuilder.setCommunicationWindow(new ComWindow(this.comWindowStart, this.comWindowEnd));
         }
@@ -109,5 +108,9 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<Schedule
             }
         }
         return scheduledConnectionTaskBuilder.add();
+    }
+
+    private ProtocolDialectConfigurationProperties getProtocolDialectConfigurationProperties(Device device) {
+        return device.getDeviceConfiguration().getProtocolDialectConfigurationPropertiesList().stream().filter(protocolDialectConfigurationProperties -> protocolDialectConfigurationProperties.getName().equals(this.protocolDialect)).findFirst().orElse(null);
     }
 }
