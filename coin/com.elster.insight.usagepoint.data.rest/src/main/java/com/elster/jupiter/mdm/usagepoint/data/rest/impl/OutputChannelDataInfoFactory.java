@@ -6,6 +6,7 @@ package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.ReadingQualityRecord;
+import com.elster.jupiter.metering.aggregation.ReadingQualityComment;
 import com.elster.jupiter.rest.util.IntervalInfo;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationAction;
@@ -95,11 +96,12 @@ public class OutputChannelDataInfoFactory {
                 .collect(Collectors.toList());
     }
 
-    public OutputChannelDataInfo createEstimatedChannelDataInfo(IntervalReadingRecord readingRecord, BigDecimal estimatedValue) {
+    public OutputChannelDataInfo createEstimatedChannelDataInfo(IntervalReadingRecord readingRecord, BigDecimal estimatedValue, Optional<ReadingQualityComment> readingQualityComment) {
         OutputChannelDataInfo outputChannelDataInfo = new OutputChannelDataInfo();
         outputChannelDataInfo.reportedDateTime = readingRecord.getTimeStamp();
         outputChannelDataInfo.interval = readingRecord.getTimePeriod().map(IntervalInfo::from).orElse(null);
         outputChannelDataInfo.value = estimatedValue;
+        readingQualityComment.ifPresent(comment -> outputChannelDataInfo.commentId = comment.getId());
         return outputChannelDataInfo;
     }
 }

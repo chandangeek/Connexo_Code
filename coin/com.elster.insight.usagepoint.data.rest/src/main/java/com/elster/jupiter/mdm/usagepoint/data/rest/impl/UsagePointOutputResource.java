@@ -460,6 +460,7 @@ public class UsagePointOutputResource {
     private List<OutputChannelDataInfo> previewEstimate(QualityCodeSystem system, ChannelsContainer channelsContainer, Channel channel, EstimateChannelDataInfo estimateChannelDataInfo) {
         Estimator estimator = estimationHelper.getEstimator(estimateChannelDataInfo);
         ReadingType readingType = channel.getMainReadingType();
+        Optional<ReadingQualityComment> readingQualityComment = resourceHelper.getReadingQualityComment(estimateChannelDataInfo.commentId);
         List<Range<Instant>> ranges = estimateChannelDataInfo.intervals.stream()
                 .map(info -> Range.openClosed(Instant.ofEpochMilli(info.start), Instant.ofEpochMilli(info.end)))
                 .collect(Collectors.toList());
@@ -471,7 +472,7 @@ public class UsagePointOutputResource {
         List<EstimationResult> results = blocks.stream()
                 .map(block -> estimationHelper.previewEstimate(system, channelsContainer, readingType, block, estimator))
                 .collect(Collectors.toList());
-        return estimationHelper.getChannelDataInfoFromEstimationReports(channel, ranges, results);
+        return estimationHelper.getChannelDataInfoFromEstimationReports(channel, ranges, results, readingQualityComment);
     }
 
 
