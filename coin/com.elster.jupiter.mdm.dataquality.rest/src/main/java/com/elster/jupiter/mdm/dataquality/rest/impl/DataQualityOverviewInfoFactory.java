@@ -56,6 +56,7 @@ public class DataQualityOverviewInfoFactory {
         info.amountOfEstimates = results.getAmountOfEstimates();
         info.amountOfInformatives = results.getAmountOfInformatives();
         info.amountOfTotalEdited = results.getAmountOfAdded() + results.getAmountOfEdited() + results.getAmountOfRemoved();
+        info.amountOfProjected = results.getAmountOfProjected();
 
         info.amountOfAdded = results.getAmountOfAdded();
         info.amountOfEdited = results.getAmountOfEdited();

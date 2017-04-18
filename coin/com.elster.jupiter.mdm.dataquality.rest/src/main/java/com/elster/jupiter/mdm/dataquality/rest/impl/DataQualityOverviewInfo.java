@@ -28,6 +28,7 @@ public class DataQualityOverviewInfo {
     public long amountOfEstimates;
     public long amountOfInformatives;
     public long amountOfTotalEdited;
+    public long amountOfProjected;
 
     // Edited values
     public long amountOfAdded;

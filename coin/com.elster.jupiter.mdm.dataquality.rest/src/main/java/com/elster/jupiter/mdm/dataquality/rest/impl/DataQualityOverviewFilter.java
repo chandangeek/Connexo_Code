@@ -87,13 +87,14 @@ public enum DataQualityOverviewFilter {
         }
     },
     READING_QUALITY("readingQuality") {
-        private Map<String, ReadingQualityType> readingQualityTypes = ImmutableMap.of(
-                "suspects", ReadingQualityType.SUSPECTS,
-                "confirmed", ReadingQualityType.CONFIRMED,
-                "estimates", ReadingQualityType.ESTIMATES,
-                "informatives", ReadingQualityType.INFORMATIVES,
-                "edited", ReadingQualityType.EDITED
-        );
+        private Map<String, ReadingQualityType> readingQualityTypes = ImmutableMap.<String, ReadingQualityType>builder()
+                .put("suspects", ReadingQualityType.SUSPECTS)
+                .put("confirmed", ReadingQualityType.CONFIRMED)
+                .put("estimates", ReadingQualityType.ESTIMATES)
+                .put("informatives", ReadingQualityType.INFORMATIVES)
+                .put("edited", ReadingQualityType.EDITED)
+                .put("projected", ReadingQualityType.PROJECTED)
+                .build();
 
         @Override
         void apply(JsonQueryFilter filter, DataQualityOverviewBuilder overviewBuilder, ResourceHelper resourceHelper) {

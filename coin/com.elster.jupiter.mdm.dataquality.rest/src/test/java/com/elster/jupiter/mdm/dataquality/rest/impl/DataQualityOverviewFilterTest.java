@@ -307,7 +307,7 @@ public class DataQualityOverviewFilterTest {
 
     @Test
     public void readingQualityFilter() throws Exception {
-        String filter = ExtjsFilter.filter("readingQuality", Arrays.asList("suspects", "confirmed", "estimates", "informatives", "edited"));
+        String filter = ExtjsFilter.filter("readingQuality", Arrays.asList("suspects", "confirmed", "estimates", "informatives", "edited", "projected"));
         JsonQueryFilter jsonQueryFilter = jsonQueryFilter(filter);
 
         // Business method
@@ -321,6 +321,7 @@ public class DataQualityOverviewFilterTest {
                 UsagePointDataQualityService.ReadingQualityType.CONFIRMED,
                 UsagePointDataQualityService.ReadingQualityType.ESTIMATES,
                 UsagePointDataQualityService.ReadingQualityType.INFORMATIVES,
+                UsagePointDataQualityService.ReadingQualityType.PROJECTED,
                 UsagePointDataQualityService.ReadingQualityType.EDITED);
     }
 
@@ -330,7 +331,7 @@ public class DataQualityOverviewFilterTest {
         JsonQueryFilter jsonQueryFilter = jsonQueryFilter(filter);
 
         exception.expectMessage(MessageFormat.format(MessageSeeds.INVALID_FILTER_FORMAT.getDefaultFormat(), "readingQuality",
-                "[suspects, confirmed, estimates, informatives, edited]"));
+                "[suspects, confirmed, estimates, informatives, edited, projected]"));
 
         // Business method
         DataQualityOverviewFilter.READING_QUALITY.applyIfPresent(jsonQueryFilter, overviewBuilder, resourceHelper);
