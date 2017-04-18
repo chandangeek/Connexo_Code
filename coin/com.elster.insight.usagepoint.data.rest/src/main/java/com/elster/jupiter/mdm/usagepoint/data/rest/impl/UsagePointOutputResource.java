@@ -753,7 +753,8 @@ public class UsagePointOutputResource {
                 .flatMap(Functions.asStream())
                 .filter(validated -> validated)
                 // If at least one 'true' is found, somethingValidated = true,
-                // but short-circuit terminal operation is not acceptable here!
+                // but short-circuit terminal operation is not acceptable here,
+                // because we need to go through all data and validate it
                 .reduce((validated1, validated2) -> Boolean.TRUE)
                 .orElse(Boolean.FALSE);
         new RestValidationBuilder()
