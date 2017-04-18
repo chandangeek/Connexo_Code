@@ -101,6 +101,7 @@ public class PowerGapFillTest {
         when(meterActivation.getChannelsContainer()).thenReturn(channelsContainer);
         doReturn(channelsContainer).when(channel).getChannelsContainer();
         doReturn(Optional.empty()).when(channelsContainer).getMeter();
+        doReturn(Optional.empty()).when(channelsContainer).getUsagePoint();
         doReturn("deltaReadingType").when(deltaReadingType).getMRID();
         doReturn("bulkReadingType").when(bulkReadingType).getMRID();
         doReturn(Arrays.asList(estimatable1, estimatable2, estimatable3)).when(estimationBlock).estimatables();
