@@ -169,7 +169,7 @@ public class TrustStoreResource {
             trustStore.loadKeyStore(keyStore);
             return Response.ok().header(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_PLAIN).build();
         } catch (Exception e) {
-            throw new LocalizedFieldValidationException(MessageSeeds.COULD_NOT_READ_KEYSTORE, "file", e);
+            throw new LocalizedFieldValidationException(MessageSeeds.COULD_NOT_IMPORT_KEYSTORE, "file", e);
         }
     }
 

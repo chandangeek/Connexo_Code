@@ -15,7 +15,7 @@ public enum MessageSeeds implements MessageSeed {
     FILE_TOO_BIG(2, "fileTooBig", "File size should be less than 250 kB"),
     COULD_NOT_CREATE_CERTIFICATE_FACTORY(3, "CertificateFactoryFail", "Could not create the certificate factory: {0}"),
     COULD_NOT_CREATE_CERTIFICATE(4, "CertificateCreationFailed", "Could not create the certificate: {0}"),
-    COULD_NOT_READ_KEYSTORE(5, "KeystoreReadError", "Could not read the keystore: {0}"),
+    COULD_NOT_IMPORT_KEYSTORE(5, "KeystoreReadError", "The keystore could not be imported"),
     NO_SUCH_CERTIFICATE(6, "NoSuchCertificate", "No such certificate could be located"),
     NO_SUCH_KEY_TYPE(7, "NoSuchKeyType", "No such key type"),
     CERTIFICATE_TOO_BIG(8, "fileTooBig", "File size should be less than 2 kB"),
