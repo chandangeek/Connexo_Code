@@ -53,8 +53,8 @@ import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.rest.DataValidationTaskInfo;
 import com.elster.jupiter.validation.rest.DataValidationTaskInfoFactory;
-
 import com.google.common.collect.ImmutableRangeSet;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 import com.google.common.collect.TreeRangeSet;
@@ -457,12 +457,12 @@ public class UsagePointOutputResource {
                 .map(effectiveMC -> findMetrologyContractForPurpose(effectiveMC, metrologyContract.getMetrologyPurpose())
                         .flatMap(effectiveMC::getChannelsContainer))
                 .flatMap(Functions.asStream())
-                .flatMap(container -> estimateInChannelsContainer(container, readingType, blocks, estimator))
+                .flatMap(container -> estimateInChannelsContainer(container, readingType, blocks, estimator, estimateChannelDataInfo.markAsProjected))
                 .collect(Collectors.toList());
     }
 
     private Stream<OutputChannelDataInfo> estimateInChannelsContainer(ChannelsContainer container, ReadingType readingType,
-                                                                      ImmutableRangeSet<Instant> blocks, Estimator estimator) {
+                                                                      ImmutableRangeSet<Instant> blocks, Estimator estimator, boolean markAsProjected) {
         Range<Instant> containerRange = container.getInterval().toOpenClosedRange();
         return container.getChannel(readingType)
                 .map(channel -> {
@@ -470,7 +470,7 @@ public class UsagePointOutputResource {
                     List<EstimationResult> results = subRanges.stream()
                             .map(block -> estimationHelper.previewEstimate(QualityCodeSystem.MDM, container, readingType, block, estimator))
                             .collect(Collectors.toList());
-                    return estimationHelper.getChannelDataInfoFromEstimationReports(channel, subRanges, results);
+                    return estimationHelper.getChannelDataInfoFromEstimationReports(channel, subRanges, results, markAsProjected);
                 })
                 .map(List::stream)
                 .orElse(Stream.empty());
