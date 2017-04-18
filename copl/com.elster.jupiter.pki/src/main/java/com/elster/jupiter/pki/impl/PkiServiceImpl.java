@@ -423,7 +423,7 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
     public Finder<CertificateWrapper> findAllCertificates() {
         return DefaultFinder.of(CertificateWrapper.class,
                 where("class").in(Arrays.asList(AbstractCertificateWrapperImpl.CERTIFICATE_DISCRIMINATOR, AbstractCertificateWrapperImpl.CLIENT_CERTIFICATE_DISCRIMINATOR)),
-                getDataModel());
+                getDataModel()).sorted(AbstractCertificateWrapperImpl.Fields.ALIAS.fieldName(), true);
     }
 
     @Override

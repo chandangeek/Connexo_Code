@@ -14,8 +14,6 @@ import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.pki.TrustedCertificate;
 import com.elster.jupiter.pki.impl.wrappers.certificate.TrustedCertificateImpl;
 
-import com.google.common.collect.ImmutableList;
-
 import javax.inject.Inject;
 import javax.validation.constraints.Size;
 import java.security.KeyStore;
@@ -24,6 +22,7 @@ import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Optional;
@@ -106,7 +105,7 @@ public class TrustStoreImpl implements TrustStore {
 
     @Override
     public List<TrustedCertificate> getCertificates() {
-        return ImmutableList.copyOf(this.trustedCertificates);
+        return this.trustedCertificates.stream().sorted(Comparator.comparing(ts-> ts.getAlias().toLowerCase())).collect(toList());
     }
 
     @Override
