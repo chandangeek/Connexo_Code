@@ -7,7 +7,7 @@ package com.elster.jupiter.estimation.impl;
 import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.EstimationRuleBuilder;
 import com.elster.jupiter.metering.ReadingType;
-`import com.elster.jupiter.metering.aggregation.ReadingQualityComment;
+import com.elster.jupiter.metering.aggregation.ReadingQualityComment;
 
 import java.util.Arrays;
 import java.util.Collection;
