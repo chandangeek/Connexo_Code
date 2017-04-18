@@ -6,10 +6,13 @@ import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.protocol.MeterEvent;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.TimeZone;
 
 public class DisconnectControlLog extends AbstractEvent{
-	
+
 	// Disconnect control log
 	private static final int EVENT_EVENT_LOG_CLEARED = 255;
 	private static final int EVENT_MANUAL_DISCONNECTION = 60;
@@ -20,7 +23,7 @@ public class DisconnectControlLog extends AbstractEvent{
 	private static final int EVENT_LIMITER_THRESHOLD_EXCEEDED = 65;
 	private static final int EVENT_LIMITER_THRESHOLD_OK = 66;
 	private static final int EVENT_LIMITER_THRESHOLD_CHANGED = 67;
-	
+
 	public DisconnectControlLog(TimeZone timeZone, DataContainer dc){
         super(dc, timeZone);
 	}
@@ -35,21 +38,21 @@ public class DisconnectControlLog extends AbstractEvent{
     }
 
     @Override
-    public List<MeterEvent> getMeterEvents() throws IOException{
-		List<MeterEvent> meterEvents = new ArrayList<MeterEvent>();
+    public List<MeterEvent> getMeterEvents() throws IOException {
+		List<MeterEvent> meterEvents = new ArrayList<>();
 		int size = this.dcEvents.getRoot().getNrOfElements();
 		Date eventTimeStamp = null;
-		for(int i = 0; i <= (size-1); i++){
+		for (int i = 0; i <= (size-1); i++) {
 			int eventId = (int)this.dcEvents.getRoot().getStructure(i).getValue(1)&0xFF; // To prevent negative values
 			String threshold = "Unknown";
 			//fixed it for the Iskra 2009 meter
-			if(this.dcEvents.getRoot().getStructure(i).getElements().length == 3){
+			if (this.dcEvents.getRoot().getStructure(i).getElements().length == 3) {
 				threshold = Integer.toString(this.dcEvents.getRoot().getStructure(i).getInteger(2));
 			}
-			if(isOctetString(this.dcEvents.getRoot().getStructure(i).getElement(0))){
+			if (isOctetString(this.dcEvents.getRoot().getStructure(i).getElement(0))) {
 				eventTimeStamp = new AXDRDateTime(OctetString.fromByteArray(dcEvents.getRoot().getStructure(i).getOctetString(0).getArray())).getValue().getTime();
 			}
-			if(eventTimeStamp != null){
+			if (eventTimeStamp != null) {
 				buildMeterEvent(meterEvents, eventTimeStamp, eventId, threshold);
 			}
 		}

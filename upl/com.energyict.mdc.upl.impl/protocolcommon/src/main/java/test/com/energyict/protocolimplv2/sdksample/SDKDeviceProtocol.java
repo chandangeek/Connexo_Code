@@ -35,9 +35,12 @@ import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
+
+import com.energyict.cim.EndDeviceEventTypeMapping;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
+import com.energyict.protocol.MeterProtocolEvent;
 import com.energyict.protocolimpl.properties.Temporals;
 import com.energyict.protocolimpl.properties.TypedProperties;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
@@ -50,6 +53,7 @@ import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
 import com.energyict.protocolimplv2.security.DlmsSecuritySupport;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -74,6 +78,8 @@ import java.util.logging.Logger;
 public class SDKDeviceProtocol implements DeviceProtocol {
 
     private static final String DEFAULT_OPTIONAL_PROPERTY_NAME = "defaultOptionalProperty";
+    private static final String DELAY_AFTER_REQUEST_PROPERTY_NAME = "DelayAfterRequest";
+
     protected final CollectedDataFactory collectedDataFactory;
     protected final PropertySpecService propertySpecService;
     protected final NlsService nlsService;
@@ -141,7 +147,9 @@ public class SDKDeviceProtocol implements DeviceProtocol {
 
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
-        return Collections.singletonList(UPLPropertySpecFactory.specBuilder(DEFAULT_OPTIONAL_PROPERTY_NAME, false, PropertyTranslationKeys.SDKSAMPLE_DEFAULT_OPTIONAL_PROPERTY, this.propertySpecService::booleanSpec).finish());
+        PropertySpec defaultOptional = UPLPropertySpecFactory.specBuilder(DEFAULT_OPTIONAL_PROPERTY_NAME, false, PropertyTranslationKeys.SDKSAMPLE_DEFAULT_OPTIONAL_PROPERTY, this.propertySpecService::booleanSpec).finish();
+        PropertySpec delayAfterRequest = UPLPropertySpecFactory.specBuilder(DELAY_AFTER_REQUEST_PROPERTY_NAME, false, PropertyTranslationKeys.SDKSAMPLE_DELAY_AFTER_REQUEST_PROPERTY, this.propertySpecService::durationSpec).finish();
+        return Arrays.asList(defaultOptional, delayAfterRequest);
     }
 
     @Override
@@ -231,16 +239,67 @@ public class SDKDeviceProtocol implements DeviceProtocol {
             Calendar calendar = Calendar.getInstance();
             calendar.setTime(timeToSet);
             calendar.add(Calendar.SECOND, timeDeviationForWrite);
-            this.logger.log(Level.INFO, "Setting the time of the device to " + calendar.getTime() + ". " +
-                    "This is the time added with the deviation property value of " + timeDeviationForWrite + " seconds");
+            this.logger.log(
+                    Level.INFO,
+                    () -> "Setting the time of the device to " + calendar.getTime() + ". " + "This is the time added with the deviation property value of " + timeDeviationForWrite + " seconds");
             this.comChannel.write(calendar.getTime().toString().getBytes());
         }
     }
 
     @Override
     public List<CollectedLogBook> getLogBookData(List<LogBookReader> logBooks) {
-        //TODO
-        return Collections.emptyList();
+        List<CollectedLogBook> collectedLogBooks = new ArrayList<>();
+        simulateRealCommunicationIfApplicable();
+        logBooks.stream().forEach(logBookReader -> {
+            CollectedLogBook collectedLogBook = collectedDataFactory.createCollectedLogBook(logBookReader.getLogBookIdentifier());
+            Instant powerDownDate = Instant.now().minusSeconds(13);
+            Instant powerUpDate = powerDownDate.plusSeconds(2);
+            MeterProtocolEvent powerDown =
+                    new MeterProtocolEvent(
+                            Date.from(powerDownDate),
+                            1,
+                            13,
+                            EndDeviceEventTypeMapping.POWERDOWN.getEventType(),
+                            "The power went down for the SDK protocol",
+                            1,
+                            1);
+            powerDown.addAdditionalInformation("Voltage", "0V");
+            powerDown.addAdditionalInformation("Current", "0A");
+            powerDown.addAdditionalInformation("Max. power", "35461W");
+            powerDown.addAdditionalInformation("Reason", "Testing purpose");
+            MeterProtocolEvent powerUp =
+                    new MeterProtocolEvent(
+                            Date.from(powerUpDate),
+                            2,
+                            17,
+                            EndDeviceEventTypeMapping.POWERUP.getEventType(),
+                            "The power went back up",
+                            1,
+                            2);
+            powerUp.addAdditionalInformation("Voltage", "231V");
+            powerUp.addAdditionalInformation("Current", "2.61A");
+            powerUp.addAdditionalInformation("Max. power", "35461W");
+            powerUp.addAdditionalInformation("Reason", "Testing purpose");
+            collectedLogBook.setCollectedMeterEvents(Arrays.asList(powerDown, powerUp));
+            collectedLogBooks.add(collectedLogBook);
+        });
+        return collectedLogBooks;
+    }
+
+    private void simulateRealCommunicationIfApplicable() {
+        getDelayAfterRequest().ifPresent(delayAfterRequest -> {
+            logger.info("Simulating real communication, waiting for " + delayAfterRequest + " ...");
+            try {
+                Thread.sleep(delayAfterRequest.toMillis());
+            } catch (InterruptedException e) {
+                logger.severe("Something really horrible went wrong during the simulation of real communication ...");
+                logger.severe(e.getMessage());
+            }
+        });
+    }
+
+    private Optional<Duration> getDelayAfterRequest() {
+        return Optional.ofNullable((Duration) this.typedProperties.getProperty(DELAY_AFTER_REQUEST_PROPERTY_NAME));
     }
 
     @Override

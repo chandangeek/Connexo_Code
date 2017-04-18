@@ -127,6 +127,8 @@ public enum PropertyTranslationKeys implements TranslationKey {
     SDKSAMPLE_PASSIVE_CALENDAR_NAME_DESCRIPTION("upl.property.sdksample.passiveCalendarName.description", "Passive calendar name"),
     SDKSAMPLE_DEFAULT_OPTIONAL_PROPERTY("upl.property.sdksample.defaultOptionalProperty", "Default optional property"),
     SDKSAMPLE_DEFAULT_OPTIONAL_PROPERTY_DESCRIPTION("upl.property.sdksample.defaultOptionalProperty.description", "Default optional property"),
+    SDKSAMPLE_DELAY_AFTER_REQUEST_PROPERTY("upl.property.sdksample.delayAfterRequest", "Delay after request property"),
+    SDKSAMPLE_DELAY_AFTER_REQUEST_PROPERTY_DESCRIPTION("upl.property.sdksample.delayAfterRequest.description", "Delay after request property"),
     SDKSAMPLE_ACTIVE_METER_FIRMWARE_VERSION("upl.property.sdksample.activeMeterFirmwareVersion", "Active meter firmware version"),
     SDKSAMPLE_ACTIVE_METER_FIRMWARE_VERSION_DESCRIPTION("upl.property.sdksample.activeMeterFirmwareVersion.description", "Active meter firmware version"),
     SDKSAMPLE_PASSIVE_METER_FIRMWARE_VERSION("upl.property.sdksample.passiveMeterFirmwareVersion", "Passive meter firmware version"),
