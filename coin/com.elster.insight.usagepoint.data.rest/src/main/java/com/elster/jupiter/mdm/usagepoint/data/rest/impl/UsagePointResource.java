@@ -951,16 +951,16 @@ public class UsagePointResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public PagedInfoList getMetrologyConfigurationDeliverables(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
-
-        List<ReadingTypeDeliverablesInfo> deliverables = resourceHelper
-                .findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint)
+        EffectiveMetrologyConfigurationOnUsagePoint effectiveMC = resourceHelper
+                .findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
+        List<ReadingTypeDeliverablesInfo> deliverables = effectiveMC
                 .getMetrologyConfiguration()
                 .getContracts()
                 .stream()
-                .filter(mc -> usagePoint.getCurrentEffectiveMetrologyConfiguration().flatMap(emc -> emc.getChannelsContainer(mc, clock.instant())).isPresent())
+                .filter(mc -> effectiveMC.getChannelsContainer(mc, clock.instant()).isPresent())
                 .map(MetrologyContract::getDeliverables)
                 .flatMap(List::stream)
-                .sorted((a, b) -> a.getName().compareTo(b.getName()))
+                .sorted(Comparator.comparing(ReadingTypeDeliverable::getName))
                 .map(readingTypeDeliverableFactory::asInfo)
                 .collect(Collectors.toList());
         return PagedInfoList.fromCompleteList("deliverables", deliverables, queryParameters);

@@ -37,7 +37,7 @@ public class OutputRegisterDataInfoFactory {
     }
 
     public OutputRegisterDataInfo createRegisterDataInfo(RegisterReadingWithValidationStatus readingWithValidationStatus, ReadingTypeDeliverable deliverable) {
-        OutputRegisterDataInfo info = createRegisterDataInfo(readingWithValidationStatus, deliverable.getType(),deliverable.getReadingType());
+        OutputRegisterDataInfo info = createRegisterDataInfo(readingWithValidationStatus, deliverable.getType(), deliverable.getReadingType());
         info.timeStamp = readingWithValidationStatus.getTimeStamp();
         info.reportedDateTime = readingWithValidationStatus.getReportedDateTime();
 

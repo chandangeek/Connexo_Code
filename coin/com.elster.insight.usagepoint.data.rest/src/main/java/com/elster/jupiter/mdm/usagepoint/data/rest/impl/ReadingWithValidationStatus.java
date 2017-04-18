@@ -7,13 +7,11 @@ package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 import com.elster.jupiter.cbo.QualityCodeCategory;
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.metering.BaseReadingRecord;
-import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.validation.DataValidationStatus;
-
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -86,13 +84,9 @@ public abstract class ReadingWithValidationStatus<T extends BaseReadingRecord> {
     }
 
     public Optional<T> getReading() {
-        if (this.persistedReadingRecord != null) {
-            return Optional.of(this.persistedReadingRecord);
-        }
-        if (this.calculatedReadingRecord != null) {
-            return Optional.of(this.calculatedReadingRecord);
-        }
-        return Optional.empty();
+        return Optional.ofNullable(persistedReadingRecord)
+                .map(Optional::of)
+                .orElse(Optional.ofNullable(calculatedReadingRecord));
     }
 
     public Optional<T> getPreviousReading() {
