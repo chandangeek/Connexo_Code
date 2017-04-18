@@ -20,6 +20,7 @@ import javax.inject.Inject;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.NoSuchProviderException;
 import java.security.cert.CRL;
 import java.security.cert.CRLException;
 import java.security.cert.CertificateException;
@@ -59,12 +60,14 @@ public class TrustedCertificateImpl extends AbstractCertificateWrapperImpl imple
             return Optional.empty();
         }
         try (InputStream bytes = new ByteArrayInputStream(this.latestCrl)) {
-            CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
+            CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509", "BC");
             return Optional.of(certificateFactory.generateCRL(bytes));
         } catch (CRLException | IOException e) {
             throw new PkiLocalizedException(thesaurus, MessageSeeds.CRL_EXCEPTION, e);
         } catch (CertificateException e) {
             throw new PkiLocalizedException(thesaurus, MessageSeeds.ALGORITHM_NOT_SUPPORTED, e);
+        } catch (NoSuchProviderException e) {
+            throw new PkiLocalizedException(thesaurus, MessageSeeds.UNKNOWN_PROVIDER, e);
         }
     }
 

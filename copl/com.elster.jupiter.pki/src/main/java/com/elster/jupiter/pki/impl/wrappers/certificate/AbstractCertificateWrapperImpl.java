@@ -27,6 +27,7 @@ import javax.validation.constraints.Size;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.NoSuchProviderException;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateExpiredException;
@@ -133,12 +134,14 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
             return Optional.empty();
         }
         try (InputStream bytes = new ByteArrayInputStream(this.certificate)) {
-            CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
+            CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509", "BC");
             return Optional.of((X509Certificate) certificateFactory.generateCertificate(bytes));
         } catch (CertificateException e) {
             throw new PkiLocalizedException(thesaurus, MessageSeeds.ALGORITHM_NOT_SUPPORTED, e);
         } catch (IOException e) {
             throw new PkiLocalizedException(thesaurus, MessageSeeds.CERTIFICATE_EXCEPTION, e);
+        } catch (NoSuchProviderException e) {
+            throw new PkiLocalizedException(thesaurus, MessageSeeds.UNKNOWN_PROVIDER, e);
         }
     }
 

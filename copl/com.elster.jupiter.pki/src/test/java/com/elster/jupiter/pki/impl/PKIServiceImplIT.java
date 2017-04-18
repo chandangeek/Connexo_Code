@@ -346,8 +346,8 @@ public class PKIServiceImplIT {
         assertThat(certificates).hasSize(1);
         assertThat(certificates.get(0).getAlias()).isEqualTo("myCert");
         assertThat(certificates.get(0).getCertificate()).isPresent();
-        assertThat(certificates.get(0).getCertificate().get().getIssuerDN().getName()).isEqualTo("CN=MyRootCA, OU=SmartEnergy, O=Honeywell, L=Kortrijk, ST=Vlaanderen, C=BE");
-        assertThat(certificates.get(0).getCertificate().get().getSubjectDN().getName()).isEqualTo("CN=MyRootCA, OU=SmartEnergy, O=Honeywell, L=Kortrijk, ST=Vlaanderen, C=BE");
+        assertThat(certificates.get(0).getCertificate().get().getIssuerDN().getName()).contains("CN=MyRootCA", "OU=SmartEnergy", "O=Honeywell", "L=Kortrijk", "ST=Vlaanderen", "C=BE");
+        assertThat(certificates.get(0).getCertificate().get().getSubjectDN().getName()).contains("CN=MyRootCA", "OU=SmartEnergy", "O=Honeywell", "L=Kortrijk", "ST=Vlaanderen", "C=BE");
 
         assertThat(certificates.get(0).getStatus()).isEqualTo(TranslationKeys.AVAILABLE.getDefaultFormat());
         assertThat(certificates.get(0).getAllKeyUsages()).isPresent();
@@ -419,6 +419,19 @@ public class PKIServiceImplIT {
         assertThat(reloaded.get().getStatus()).isEqualTo("Available");
         assertThat(reloaded.get().getAllKeyUsages()).isPresent();
         assertThat(reloaded.get().getAllKeyUsages().get()).contains("digitalSignature", "keyAgreement", "tlsWebServerAuthentication", "tlsWebClientAuthentication");
+    }
+
+    @Test
+    @Transactional
+    public void testImportCertificate_CXO_6608() throws Exception {
+        X509Certificate certificate = loadCertificate("TestCSR2.cert.der");
+        CertificateWrapper certificateWrapper = inMemoryPersistence.getPkiService().newCertificateWrapper("cxo-6608");
+        certificateWrapper.setCertificate(certificate);
+
+        Optional<CertificateWrapper> reloaded = inMemoryPersistence.getPkiService().findCertificateWrapper("cxo-6608");
+        assertThat(reloaded).isPresent();
+        assertThat(reloaded.get().getCertificate()).isPresent();
+        assertThat(reloaded.get().getStatus()).isEqualTo("Available");
     }
 
     @Test
