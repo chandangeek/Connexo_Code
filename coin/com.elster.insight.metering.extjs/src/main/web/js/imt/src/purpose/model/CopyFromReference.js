@@ -12,11 +12,7 @@ Ext.define('Imt.purpose.model.CopyFromReference', {
         'startDate',
         'allowSuspectData',
         'completePeriod',
-        'intervals',
-        {
-            name: 'channelData',
-            persist: false
-        }
+        'intervals'
     ],
 
     proxy: {
