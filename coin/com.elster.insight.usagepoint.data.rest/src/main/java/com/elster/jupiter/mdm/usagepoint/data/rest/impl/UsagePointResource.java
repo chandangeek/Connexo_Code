@@ -29,6 +29,7 @@ import com.elster.jupiter.metering.UsagePointMeterActivationException;
 import com.elster.jupiter.metering.UsagePointPropertySet;
 import com.elster.jupiter.metering.UsagePointVersionedPropertySet;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
+import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
@@ -387,6 +388,34 @@ public class UsagePointResource {
         return Response.ok()
                 .entity(PagedInfoList.fromCompleteList("meterActivations", usagePointInfoFactory.getMetersOnUsagePointInfo(usagePoint), queryParameters))
                 .build();
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT})
+    @Transactional
+    @Path("/{name}/availablemeterroles/{timeStamp}")
+    public Response getAvailableMeterRolesOnUsagePoint(@PathParam("name") String name, @PathParam("timeStamp") long timeStamp, @BeanParam JsonQueryParameters queryParameters, @HeaderParam("Authorization") String auth) {
+        UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
+        Instant instant = Instant.ofEpochMilli(timeStamp);
+        List<UsagePointMetrologyConfiguration> configurations = usagePoint.getEffectiveMetrologyConfigurations().stream()
+                .filter(emc -> emc.isEffectiveAt(instant) || emc.getStart().isAfter(instant))
+                .map(EffectiveMetrologyConfigurationOnUsagePoint::getMetrologyConfiguration).collect(Collectors.toList());
+        if(!configurations.isEmpty()){
+            return Response.ok()
+                    .entity(PagedInfoList.fromCompleteList("meterRoles", configurations.stream()
+                            .flatMap(mc -> mc.getMeterRoles().stream())
+                            .distinct()
+                            .map(MeterRoleInfo::new)
+                            .collect(Collectors.toList()), queryParameters))
+                    .build();
+        } else {
+            return Response.ok()
+                    .entity(PagedInfoList.fromCompleteList("meterRoles", metrologyConfigurationService.getMeterRoles().stream()
+                            .map(MeterRoleInfo::new)
+                            .collect(Collectors.toList()), queryParameters))
+                    .build();
+        }
     }
 
     @GET
