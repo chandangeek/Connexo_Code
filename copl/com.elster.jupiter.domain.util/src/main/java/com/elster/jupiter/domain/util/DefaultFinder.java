@@ -63,7 +63,7 @@ public final class DefaultFinder<T> implements Finder<T> {
     @Override
     public DefaultFinder<T> sorted(String fieldName, boolean ascending) {
         if (fieldName != null && !fieldName.isEmpty()) {
-            this.sortingColumns.add(ascending ? Order.ascending(fieldName) : Order.descending(fieldName));
+            this.sortingColumns.add(ascending ? Order.ascending(fieldName).toLowerCase() : Order.descending(fieldName).toLowerCase());
         }
         return this;
     }
