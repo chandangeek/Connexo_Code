@@ -98,10 +98,12 @@ Ext.define('Uni.grid.plugin.CopyPasteForGrid', {
     collectGridData: function (grid, rows) {
         var me = this, data = [];
         if (grid.getSelectionModel().hasSelection()) {
-            Ext.Array.each(grid.getSelectionModel().getSelection(), function (row) {
-                    data.push(row.get(me.editColumnDataIndex));
+            var selectionModel = grid.getSelectionModel();
+            grid.getStore().each(function (record) {
+                if (selectionModel.isSelected(record)) {
+                    data.push(record.get(me.editColumnDataIndex));
                 }
-            )
+            });
         }
         ;
         return data.join('\n');
