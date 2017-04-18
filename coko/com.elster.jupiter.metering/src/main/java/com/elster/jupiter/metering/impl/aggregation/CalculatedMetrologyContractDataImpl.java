@@ -110,6 +110,7 @@ class CalculatedMetrologyContractDataImpl implements CalculatedMetrologyContract
         if (!endOfIntervalCandidate.equals(record.getTimeStamp())) {
             // Timestamp was not aligned with interval
             endOfInterval = intervalLength.addTo(endOfIntervalCandidate, zone);
+            record.setTimestamp(endOfInterval);
         } else {
             endOfInterval = endOfIntervalCandidate;
         }
