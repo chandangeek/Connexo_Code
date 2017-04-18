@@ -15,8 +15,8 @@ import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.ValueCorrection;
 import com.elster.jupiter.metering.aggregation.ReadingQualityComment;
+import com.elster.jupiter.metering.ValueCorrection;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.beans.BaseReadingImpl;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
@@ -716,6 +716,7 @@ public class ChannelResource {
     private List<ChannelDataInfo> previewEstimate(QualityCodeSystem system, Device device, Channel channel, EstimateChannelDataInfo estimateChannelDataInfo) {
         Estimator estimator = estimationHelper.getEstimator(estimateChannelDataInfo);
         ReadingType readingType = channel.getReadingType();
+        Optional<ReadingQualityComment> readingQualityComment = resourceHelper.getReadingQualityComment(estimateChannelDataInfo.commentId);
         List<Range<Instant>> ranges = estimateChannelDataInfo.intervals.stream()
                 .map(info -> Range.openClosed(Instant.ofEpochMilli(info.start), Instant.ofEpochMilli(info.end)))
                 .collect(Collectors.toList());
@@ -733,7 +734,7 @@ public class ChannelResource {
         for (Range<Instant> block : blocks) {
             results.add(estimationHelper.previewEstimate(system, device, readingType, block, estimator));
         }
-        return estimationHelper.getChannelDataInfoFromEstimationReports(channel, ranges, results);
+        return estimationHelper.getChannelDataInfoFromEstimationReports(channel, ranges, results, readingQualityComment);
     }
 
     private List<ChannelDataInfo> previewCopyFromRefernce(QualityCodeSystem system, Channel channel, ReferenceChannelDataInfo copyFromReferenceChannelDataInfo) {
