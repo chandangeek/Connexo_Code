@@ -49,6 +49,9 @@ public class ChannelDataInfo {
     @JsonProperty("bulkValidationInfo")
     public MinimalVeeReadingValueInfo bulkValidationInfo;
 
+    @JsonProperty("commentId")
+    public long commentId;
+
     public BigDecimal multiplier;
 
     public SlaveChannelInfo slaveChannel;
