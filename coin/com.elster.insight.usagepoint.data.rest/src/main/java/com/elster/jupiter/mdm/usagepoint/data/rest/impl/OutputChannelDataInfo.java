@@ -59,6 +59,8 @@ public class OutputChannelDataInfo {
 
     public long ruleId;
 
+    public long commentId;
+
     public BaseReading createNew() {
         return IntervalReadingImpl.of(Instant.ofEpochMilli(this.interval.end), this.value, Collections.emptyList());
     }

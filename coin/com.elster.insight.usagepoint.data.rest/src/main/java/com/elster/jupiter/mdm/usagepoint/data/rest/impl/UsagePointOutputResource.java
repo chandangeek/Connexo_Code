@@ -24,6 +24,7 @@ import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.ValueCorrection;
+import com.elster.jupiter.metering.aggregation.ReadingQualityComment;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
@@ -330,27 +331,8 @@ public class UsagePointOutputResource {
         List<BaseReading> confirmedReadings = new ArrayList<>();
         List<Instant> removeCandidates = new ArrayList<>();
 
-        channelDataInfos.forEach((channelDataInfo) -> {
-            if (!isToBeConfirmed(channelDataInfo) && channelDataInfo.value == null) {
-                removeCandidates.add(Instant.ofEpochMilli(channelDataInfo.interval.end));
-            } else {
-                if (channelDataInfo.value != null) {
-                    BaseReading baseReading = channelDataInfo.createNew();
-                    if (channelDataInfo.isProjected) {
-                        ((BaseReadingImpl) baseReading).addQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.PROJECTED, 0));
-                    }
-                    if (channelDataInfo.ruleId != 0) {
-                        ((BaseReadingImpl) baseReading).addQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.ESTIMATED, (int) channelDataInfo.ruleId));
-                        estimatedReadings.add(baseReading);
-                    } else {
-                        editedReadings.add(baseReading);
-                    }
-                }
-                if (isToBeConfirmed(channelDataInfo)) {
-                    confirmedReadings.add(channelDataInfo.createConfirm());
-                }
-            }
-        });
+        channelDataInfos.forEach(channelDataInfo ->
+                processInfo(channelDataInfo, removeCandidates, estimatedReadings, editedReadings, confirmedReadings));
 
         ChannelsContainer channelsContainer = effectiveMetrologyConfigurationOnUsagePoint.getChannelsContainer(metrologyContract).get();
         Channel channel = channelsContainer.getChannel(readingTypeDeliverable.getReadingType()).get();
@@ -365,8 +347,47 @@ public class UsagePointOutputResource {
         return Response.status(Response.Status.OK).build();
     }
 
+    private void processInfo(OutputChannelDataInfo channelDataInfo, List<Instant> removeCandidates, List<BaseReading> estimatedReadings, List<BaseReading> editedReadings, List<BaseReading> confirmedReadings) {
+        Optional<ReadingQualityComment> readingQualityComment = resourceHelper.getReadingQualityComment(channelDataInfo.commentId);
+        if (!isToBeConfirmed(channelDataInfo) && channelDataInfo.value == null) {
+            removeCandidates.add(Instant.ofEpochMilli(channelDataInfo.interval.end));
+        }  else {
+            processValue(channelDataInfo, readingQualityComment, estimatedReadings, editedReadings);
+            processConfirmedInfo(channelDataInfo, confirmedReadings);
+        }
+    }
+
+    private void processValue(OutputChannelDataInfo channelDataInfo, Optional<ReadingQualityComment> readingQualityComment, List<BaseReading> estimatedReadings, List<BaseReading> editedReadings) {
+        if (channelDataInfo.value != null) {
+            BaseReading baseReading = channelDataInfo.createNew();
+                    if (channelDataInfo.isProjected) {
+                        ((BaseReadingImpl) baseReading).addQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.PROJECTED, 0));
+                    }
+            if (channelDataInfo.ruleId != 0) {
+                        ((BaseReadingImpl) baseReading).addQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.ESTIMATED, (int) channelDataInfo.ruleId), this.extractComment(readingQualityComment));
+                estimatedReadings.add(baseReading);
+            } else {
+                ((BaseReadingImpl)baseReading).addQuality("3.7.0" + channelDataInfo.ruleId, this.extractComment(readingQualityComment));
+                editedReadings.add(baseReading);
+            }
+        }
+    }
+
+    private void processConfirmedInfo(OutputChannelDataInfo channelDataInfo, List<BaseReading> confirmedReadings) {
+        if (isToBeConfirmed(channelDataInfo)) {
+            confirmedReadings.add(channelDataInfo.createConfirm());
+        }
+    }
+
     private boolean isToBeConfirmed(OutputChannelDataInfo channelDataInfo) {
         return Boolean.TRUE.equals(channelDataInfo.isConfirmed);
+    }
+
+    private String extractComment(Optional<ReadingQualityComment> readingQualityComment) {
+        if (readingQualityComment.isPresent()) {
+            return readingQualityComment.get().getComment();
+        }
+        return null;
     }
 
     private Range<Instant> getRequestedInterval(UsagePoint usagePoint, JsonQueryFilter filter) {

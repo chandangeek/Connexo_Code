@@ -14,6 +14,7 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointManagementException;
 import com.elster.jupiter.metering.UsagePointMeterActivationException;
 import com.elster.jupiter.metering.UsagePointMeterActivator;
+import com.elster.jupiter.metering.aggregation.ReadingQualityComment;
 import com.elster.jupiter.metering.ami.EndDeviceCapabilities;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.Formula;
@@ -369,6 +370,10 @@ public class ResourceHelper {
 
     public List<UsagePointTransition> getAvailableTransitions(UsagePoint usagePoint) {
         return usagePointLifeCycleService.getAvailableTransitions(usagePoint.getState(), "INS");
+    }
+
+    public Optional<ReadingQualityComment> getReadingQualityComment(long id) {
+        return meteringService.findReadingQualityComment(id);
     }
 
     public List<ReadingTypeRequirement> getReadingTypeRequirements(MetrologyContract metrologyContract) {
