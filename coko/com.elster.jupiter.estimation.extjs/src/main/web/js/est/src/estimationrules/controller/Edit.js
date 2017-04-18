@@ -77,7 +77,7 @@ Ext.define('Est.estimationrules.controller.Edit', {
             },
             ruleModel = me.getModel('Est.estimationrules.model.Rule'),
             rule;
-
+        me.getStore('Est.estimationrules.store.Estimators').getProxy().extraParams = {propertyDefinitionLevel: 'ESTIMATION_RULE'};
         if (router.queryParams.previousRoute) {
             setTimeout(function () { // make redirect after executing this method
                 Uni.util.History.setParsePath(false);
