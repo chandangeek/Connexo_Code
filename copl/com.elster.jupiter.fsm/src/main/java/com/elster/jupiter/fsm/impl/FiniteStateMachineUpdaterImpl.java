@@ -208,8 +208,9 @@ public class FiniteStateMachineUpdaterImpl extends FiniteStateMachineBuilderImpl
         }
 
         @Override
-        public void stage(Stage stage) {
+        public StateUpdater stage(Stage stage) {
             this.underConstruction.setStage(stage);
+            return this;
         }
 
         @Override
