@@ -54,10 +54,6 @@ public class Dsmr50Properties extends DlmsProperties {
         return securityProvider;
     }
 
-    public boolean isIgnoreDstStatusCode() {
-        return getProperties().getTypedProperty(Dsmr50ConfigurationSupport.PROPERTY_IGNORE_DST_STATUS_CODE, false);
-    }
-
     public long getAARQTimeout() {
         return getProperties().getTypedProperty(AARQ_TIMEOUT_PROPERTY, BigDecimal.ZERO).longValue();
     }

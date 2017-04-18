@@ -447,4 +447,9 @@ public class DlmsProperties implements DlmsSessionProperties {
     public boolean validateLoadProfileChannels() {
         return this.properties.getTypedProperty(DlmsProtocolProperties.VALIDATE_LOAD_PROFILE_CHANNELS, false);
     }
+
+    @Override
+    public boolean isIgnoreDstStatusCode() {
+        return this.properties.getTypedProperty(DlmsProtocolProperties.PROPERTY_IGNORE_DST_STATUS_CODE, false);
+    }
 }

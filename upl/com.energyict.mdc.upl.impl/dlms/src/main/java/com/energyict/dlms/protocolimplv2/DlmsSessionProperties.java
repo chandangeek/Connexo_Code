@@ -227,4 +227,10 @@ public interface DlmsSessionProperties extends CommunicationSessionProperties {
      * @return
      */
     boolean validateLoadProfileChannels();
+
+    /**
+     * Indicates whether or not to ignore the DST status flag on load profile entries.
+     * This could be used to prevent that all LP intervals have a flag during the summer time.
+     */
+    boolean isIgnoreDstStatusCode();
 }

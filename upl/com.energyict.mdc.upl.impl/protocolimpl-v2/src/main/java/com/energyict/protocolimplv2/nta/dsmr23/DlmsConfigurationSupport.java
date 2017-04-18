@@ -40,7 +40,7 @@ import static com.energyict.dlms.common.DlmsProtocolProperties.VALIDATE_INVOKE_I
  * A collection of general DLMS properties.
  * These properties are not related to the security or the protocol dialects.
  * The parsing and the usage of the property values is done in implementations of {@link com.energyict.dlms.protocolimplv2.DlmsSessionProperties}
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 22/10/13
  * Time: 15:41
@@ -72,12 +72,17 @@ public class DlmsConfigurationSupport implements HasDynamicProperties {
                 this.serverUpperMacAddressPropertySpec(),
                 this.serverLowerMacAddressPropertySpec(),
                 this.deviceId(),
+                this.ignoreDstStatusCode(),
                 this.validateLoadProfileChannelsPropertySpec()));
     }
 
     @Override
     public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
         // currently no properties are set ...
+    }
+
+    protected PropertySpec ignoreDstStatusCode() {
+        return this.booleanSpecBuilder(DlmsProtocolProperties.PROPERTY_IGNORE_DST_STATUS_CODE, PropertyTranslationKeys.V2_NTA_IGNORE_DST_STATUS_CODE).setDefaultValue(false).finish();
     }
 
     protected PropertySpec serverUpperMacAddressPropertySpec() {

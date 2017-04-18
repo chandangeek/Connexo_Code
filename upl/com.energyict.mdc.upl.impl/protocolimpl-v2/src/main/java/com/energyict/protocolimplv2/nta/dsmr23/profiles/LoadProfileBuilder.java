@@ -49,7 +49,7 @@ import java.util.logging.Level;
 
 /**
  * Provides functionality to fetch and create {@link com.energyict.protocol.ProfileData} objects for a {@link com.energyict.protocol.SmartMeterProtocol}
- * <p/>
+ * <p>
  * <pre>
  * Copyrights EnergyICT
  * Date: 3-mrt-2011
@@ -492,7 +492,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
     }
 
     protected ProfileIntervalStatusBits getIntervalStatusBits() {
-        return new DSMRProfileIntervalStatusBits();
+        return new DSMRProfileIntervalStatusBits(getMeterProtocol().getDlmsSessionProperties().isIgnoreDstStatusCode());
     }
 
     /**
@@ -531,7 +531,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
         return registerUnitMap;
     }
 
-    protected boolean isCumulativeChannel(ObisCode obisCode){
+    protected boolean isCumulativeChannel(ObisCode obisCode) {
         return ParseUtils.isObisCodeCumulative(obisCode);
     }
 }

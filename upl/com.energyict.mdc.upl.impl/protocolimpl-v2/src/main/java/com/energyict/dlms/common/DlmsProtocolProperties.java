@@ -61,6 +61,7 @@ public abstract class DlmsProtocolProperties implements DlmsSessionProperties {
     public static final String GBT_WINDOW_SIZE = "GBT-windowSize";
     public static final String DEVICE_SYSTEM_TITLE = "DeviceSystemTitle";
     public static final String VALIDATE_LOAD_PROFILE_CHANNELS = "ValidateLoadProfileChannels";
+    public static final String PROPERTY_IGNORE_DST_STATUS_CODE = "IgnoreDstStatusCode";
 
     public static final BigDecimal DEFAULT_TIMEOUT = new BigDecimal(10000);
     public static final String DEFAULT_TIMEZONE = "GMT";
