@@ -15,6 +15,7 @@ import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.ValueCorrection;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.beans.BaseReadingImpl;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
@@ -26,6 +27,7 @@ import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.energyict.mdc.common.rest.IntervalInfo;
 import com.energyict.mdc.common.services.ListPager;
@@ -65,6 +67,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
@@ -77,6 +80,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -948,5 +952,49 @@ public class ChannelResource {
     public ChannelHistoryInfos getDataLoggerSlaveChannelHistory(@PathParam("name") String name, @PathParam("channelid") long channelId) {
         Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(name, channelId);
         return ChannelHistoryInfos.from(topologyService.findDataLoggerChannelUsagesForChannels(channel, Range.atMost(clock.instant())));
+    }
+
+    @PUT
+    @Transactional
+    @Path("/{channelid}/data/correctValues")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public List<ChannelDataInfo> correctValues(@PathParam("name") String name, @PathParam("channelid") long channelId, ValueCorrectionInfo valueCorrectionInfo, @BeanParam JsonQueryParameters queryParameters) {
+        Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(name, channelId);
+        List<ChannelDataInfo> result = new ArrayList<>();
+
+        Set<Instant> timestamps = valueCorrectionInfo.intervals.stream()
+                .map(intervalInfo -> Instant.ofEpochMilli(intervalInfo.end))
+                .collect(Collectors.toSet());
+
+        valueCorrectionInfo.intervals.stream()
+                .map(info -> Range.openClosed(Instant.ofEpochMilli(info.start), Instant.ofEpochMilli(info.end)))
+                .reduce(Range::span)
+                .ifPresent(intervals ->
+                    result.addAll(channel.getChannelData(intervals).stream()
+                            .flatMap(loadProfileReading -> loadProfileReading.getChannelValues().values().stream())
+                            .filter(readingRecord -> timestamps.contains(readingRecord.getTimeStamp()))
+                            .map(readingRecord -> createCorrectedChannelDataInfo(channel, ValueCorrection.valueOf(valueCorrectionInfo.type), readingRecord, valueCorrectionInfo.amount))
+                            .collect(Collectors.toList())));
+        return result;
+    }
+
+    private ChannelDataInfo createCorrectedChannelDataInfo(Channel channel, ValueCorrection type, IntervalReadingRecord record, BigDecimal correctionAmount) {
+        ChannelDataInfo channelDataInfo = new ChannelDataInfo();
+        channelDataInfo.reportedDateTime = record.getReportedDateTime();
+        record.getReadingType().getIntervalLength().ifPresent(intervalLength -> {
+            Instant readingTimeStamp = record.getTimeStamp();
+            channelDataInfo.interval = IntervalInfo.from(Range.openClosed(readingTimeStamp.minus(intervalLength), readingTimeStamp));
+        });
+        channel.getCalculatedReadingType(record.getTimeStamp()).ifPresent(readingType -> {
+            Quantity quantity = record.getQuantity(readingType);
+            BigDecimal value = getRoundedBigDecimal(quantity != null ? quantity.getValue() : null, channel);
+            channelDataInfo.value = type.correctValue(value, correctionAmount);
+        });
+        return channelDataInfo;
+    }
+
+    private static BigDecimal getRoundedBigDecimal(BigDecimal value, Channel channel) {
+        return value != null ? value.setScale(channel.getNrOfFractionDigits(), BigDecimal.ROUND_UP) : value;
     }
 }
