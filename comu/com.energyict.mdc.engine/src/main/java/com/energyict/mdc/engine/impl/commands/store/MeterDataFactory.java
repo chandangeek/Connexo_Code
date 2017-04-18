@@ -17,6 +17,7 @@ import com.elster.jupiter.util.collections.DualIterable;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
+
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.IntervalValue;
 import com.energyict.protocol.MeterProtocolEvent;
@@ -73,7 +74,7 @@ public final class MeterDataFactory {
             endDeviceEvent.setLogBookPosition(meterProtocolEvent.getDeviceEventId());
             endDeviceEvent.setType(String.valueOf(meterProtocolEvent.getProtocolCode()));
             endDeviceEvent.setDescription(meterProtocolEvent.getMessage());
-            //endDeviceEvent.setEventData(meterProtocolEvent.getAdditionalInformation());       //TODO make compatible with UPL
+            endDeviceEvent.setEventData(meterProtocolEvent.getAdditionalInformation());
             endDeviceEvents.add(endDeviceEvent);
         }
         return endDeviceEvents;
