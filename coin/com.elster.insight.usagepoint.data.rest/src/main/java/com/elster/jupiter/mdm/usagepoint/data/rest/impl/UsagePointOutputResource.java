@@ -23,8 +23,8 @@ import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.ValueCorrection;
 import com.elster.jupiter.metering.aggregation.ReadingQualityComment;
+import com.elster.jupiter.metering.ValueCorrection;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
@@ -360,14 +360,14 @@ public class UsagePointOutputResource {
     private void processValue(OutputChannelDataInfo channelDataInfo, Optional<ReadingQualityComment> readingQualityComment, List<BaseReading> estimatedReadings, List<BaseReading> editedReadings) {
         if (channelDataInfo.value != null) {
             BaseReading baseReading = channelDataInfo.createNew();
-                    if (channelDataInfo.isProjected) {
-                        ((BaseReadingImpl) baseReading).addQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.PROJECTED, 0));
-                    }
+            if (channelDataInfo.isProjected) {
+                ((BaseReadingImpl) baseReading).addQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.PROJECTED, 0));
+            }
             if (channelDataInfo.ruleId != 0) {
                         ((BaseReadingImpl) baseReading).addQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.ESTIMATED, (int) channelDataInfo.ruleId), this.extractComment(readingQualityComment));
                 estimatedReadings.add(baseReading);
             } else {
-                ((BaseReadingImpl)baseReading).addQuality("3.7.0" + channelDataInfo.ruleId, this.extractComment(readingQualityComment));
+                ((BaseReadingImpl)baseReading).addQuality("3.7.0", this.extractComment(readingQualityComment));
                 editedReadings.add(baseReading);
             }
         }
@@ -494,6 +494,7 @@ public class UsagePointOutputResource {
     private List<OutputChannelDataInfo> previewEstimate(QualityCodeSystem system, ChannelsContainer channelsContainer, Channel channel, EstimateChannelDataInfo estimateChannelDataInfo) {
         Estimator estimator = estimationHelper.getEstimator(estimateChannelDataInfo);
         ReadingType readingType = channel.getMainReadingType();
+        Optional<ReadingQualityComment> readingQualityComment = resourceHelper.getReadingQualityComment(estimateChannelDataInfo.commentId);
         List<Range<Instant>> ranges = estimateChannelDataInfo.intervals.stream()
                 .map(info -> Range.openClosed(Instant.ofEpochMilli(info.start), Instant.ofEpochMilli(info.end)))
                 .collect(Collectors.toList());
@@ -505,7 +506,7 @@ public class UsagePointOutputResource {
         List<EstimationResult> results = blocks.stream()
                 .map(block -> estimationHelper.previewEstimate(system, channelsContainer, readingType, block, estimator))
                 .collect(Collectors.toList());
-        return estimationHelper.getChannelDataInfoFromEstimationReports(channel, ranges, results, estimateChannelDataInfo.markAsProjected);
+        return estimationHelper.getChannelDataInfoFromEstimationReports(channel, ranges, results, estimateChannelDataInfo.markAsProjected, readingQualityComment);
     }
 
     private List<OutputChannelDataInfo> previewCopyFromRefernce(QualityCodeSystem system, AggregatedChannel channel, ReferenceChannelDataInfo referenceChannelDataInfo) {
@@ -932,7 +933,7 @@ public class UsagePointOutputResource {
                     List<IntervalReadingRecord> intervalReadingRecords = channel.getIntervalReadings(intervals);
                     result.addAll(intervalReadingRecords.stream()
                             .filter(record -> timestamps.contains(record.getTimeStamp()))
-                            .map(readingRecord -> createCorrectedChannelDataInfo(ValueCorrection.valueOf(info.type), readingRecord, info.amount))
+                            .map(readingRecord -> createCorrectedChannelDataInfo(ValueCorrection.valueOf(info.type), readingRecord, info.amount, info.commentId))
                             .collect(Collectors.toList()));
                 });
 
@@ -950,8 +951,8 @@ public class UsagePointOutputResource {
         return filter.hasProperty("suspect") ? hasSuspects : info -> true;
     }
 
-    private OutputChannelDataInfo createCorrectedChannelDataInfo(ValueCorrection type, IntervalReadingRecord record, BigDecimal correctionAmount) {
+    private OutputChannelDataInfo createCorrectedChannelDataInfo(ValueCorrection type, IntervalReadingRecord record, BigDecimal correctionAmount, long commentId) {
         BigDecimal newValue = type.correctValue(record.getValue(), correctionAmount);
-        return outputChannelDataInfoFactory.createUpdatedChannelDataInfo(record, newValue);
+        return outputChannelDataInfoFactory.createUpdatedChannelDataInfo(record, newValue, resourceHelper.getReadingQualityComment(commentId));
     }
 }

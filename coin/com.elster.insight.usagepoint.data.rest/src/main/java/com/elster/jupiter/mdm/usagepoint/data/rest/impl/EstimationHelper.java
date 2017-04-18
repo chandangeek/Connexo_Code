@@ -14,6 +14,7 @@ import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.aggregation.ReadingQualityComment;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
@@ -92,7 +93,7 @@ public class EstimationHelper {
         return estimationService.previewEstimate(system, channelsContainer, range, readingType, estimator);
     }
 
-    List<OutputChannelDataInfo> getChannelDataInfoFromEstimationReports(Channel channel, List<Range<Instant>> ranges, List<EstimationResult> results, boolean markAsProjected) {
+    List<OutputChannelDataInfo> getChannelDataInfoFromEstimationReports(Channel channel, List<Range<Instant>> ranges, List<EstimationResult> results, boolean markAsProjected, Optional<ReadingQualityComment> readingQualityComment) {
         List<Instant> failedTimestamps = new ArrayList<>();
         List<OutputChannelDataInfo> channelDataInfos = new ArrayList<>();
 
@@ -104,7 +105,7 @@ public class EstimationHelper {
         for (EstimationResult result : results) {
             for (EstimationBlock block : result.estimated()) {
                 for (Estimatable estimatable : block.estimatables()) {
-                    getChannelDataInfo(estimatable, channelData).ifPresent(info ->  {
+                    getChannelDataInfo(estimatable, channelData, readingQualityComment).ifPresent(info ->  {
                         info.isProjected = markAsProjected;
                         channelDataInfos.add(info);
                     });
@@ -123,14 +124,14 @@ public class EstimationHelper {
     }
 
 
-    private Optional<OutputChannelDataInfo> getChannelDataInfo(Estimatable estimatable, List<IntervalReadingRecord> channelData) {
+    private Optional<OutputChannelDataInfo> getChannelDataInfo(Estimatable estimatable, List<IntervalReadingRecord> channelData, Optional<ReadingQualityComment> readingQualityComment) {
         return channelData.stream()
                 .filter(readingRecord -> readingRecord.getTimeStamp().equals(estimatable.getTimestamp()))
-                .map(readingRecord -> getChannelDataInfo(readingRecord, estimatable))
+                .map(readingRecord -> getChannelDataInfo(readingRecord, estimatable, readingQualityComment))
                 .findFirst();
     }
 
-    private OutputChannelDataInfo getChannelDataInfo(IntervalReadingRecord reading, Estimatable estimatable) {
-        return channelDataInfoFactory.createUpdatedChannelDataInfo(reading, estimatable.getEstimation());
+    private OutputChannelDataInfo getChannelDataInfo(IntervalReadingRecord reading, Estimatable estimatable, Optional<ReadingQualityComment> readingQualityComment) {
+        return channelDataInfoFactory.createUpdatedChannelDataInfo(reading, estimatable.getEstimation(), readingQualityComment);
     }
 }
