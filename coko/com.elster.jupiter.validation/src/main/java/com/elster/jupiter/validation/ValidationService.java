@@ -124,7 +124,16 @@ public interface ValidationService {
      */
     void validate(Set<QualityCodeSystem> targetQualityCodeSystems, ChannelsContainer channelsContainer, ReadingType readingType);
 
-    void validate(ValidationContext validationContext, Instant date);
+    /**
+     * Validates the scope of data corresponding to a given {@link ValidationContext} at most starting from a given date.
+     *
+     * @param validationContext Target {@link ValidationContext}.
+     * @param validateAtMostFrom A minimum timestamp that requires (re)validation, i.e.
+     * (re)validation will be performed starting from this timestamp inclusively.
+     * However if current last checked timestamp for a part of given {@code validationContext} is before this timestamp,
+     * validation will be performed starting from last checked timestamp exclusively.
+     */
+    void validate(ValidationContext validationContext, Instant validateAtMostFrom);
 
     /**
      * Resets last checked date on {@link Channel Channels} specified in the given map before the beginning of corresponding {@link Range Ranges},

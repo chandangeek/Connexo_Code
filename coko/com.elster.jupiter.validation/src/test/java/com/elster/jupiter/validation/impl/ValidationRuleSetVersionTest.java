@@ -26,7 +26,6 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -95,9 +94,6 @@ public class ValidationRuleSetVersionTest extends EqualsContractTest {
         validationRuleSet = new ValidationRuleSetImpl(dataModel, eventService, versionProvider, clock).init(NAME, DEFAULT_QUALITY_SYSTEM, null);
         validationRuleSetVersion = new ValidationRuleSetVersionImpl(dataModel, eventService, ruleProvider, clock).init(validationRuleSet, null, null);
     }
-    @After
-    public void tearDown() {
-    }
 
     @Override
     protected Object getInstanceA() {
@@ -141,7 +137,6 @@ public class ValidationRuleSetVersionTest extends EqualsContractTest {
         assertThat(validationRuleSetVersion.getDescription()).isNullOrEmpty();
     }
 
-
     @Test
     public void testUpdate() {
         setId(validationRuleSetVersion, ID);
@@ -149,7 +144,6 @@ public class ValidationRuleSetVersionTest extends EqualsContractTest {
         validationRuleSetVersion.save();
 
         verify(dataModel).update(validationRuleSetVersion);
-
     }
 
     @Test
@@ -192,7 +186,7 @@ public class ValidationRuleSetVersionTest extends EqualsContractTest {
         validationRuleSetVersion.save();
         setId(validationRuleSetVersion, ID);
         setId(rule1, 1001L);
-        when(ruleFactory.find()).thenReturn(Arrays.asList(rule1));
+        when(ruleFactory.find()).thenReturn(Collections.singletonList(rule1));
         validationRuleSetVersion.save();
         assertThat(rule1.getAction()).isEqualTo(ValidationAction.FAIL);
 
@@ -202,7 +196,5 @@ public class ValidationRuleSetVersionTest extends EqualsContractTest {
         assertThat(validationRuleSetVersion.getRules()).hasSize(1).contains(rule1);
         assertThat(rule1.getName()).isEqualTo("rulename2");
         assertThat(rule1.getAction()).isEqualTo(ValidationAction.WARN_ONLY);
-
     }
-
 }
