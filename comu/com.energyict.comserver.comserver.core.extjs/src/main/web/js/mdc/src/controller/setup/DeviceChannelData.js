@@ -772,9 +772,11 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         model.save({
             failure: function (record, operation) {
                 var response = JSON.parse(operation.response.responseText);
+
                 _.each(response.errors, function (error) {
                     error.msg = '<span style="white-space: normal">' + error.msg + '</span>';
                 });
+                form.getForm().markInvalid(response.errors);
             },
             success: function (record, operation) {
                 var item = null,
