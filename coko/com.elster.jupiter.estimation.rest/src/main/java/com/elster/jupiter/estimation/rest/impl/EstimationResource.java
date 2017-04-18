@@ -289,6 +289,9 @@ public class EstimationResource {
         EstimationRuleInfo result =
                 transactionService.execute(() -> {
                     EstimationRuleSet set = estimationService.getEstimationRuleSet(ruleSetId).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+                    if (QualityCodeSystem.MDC.equals(set.getQualityCodeSystem()) && info.markProjected) {
+                        throw new WebApplicationException(Response.Status.BAD_REQUEST);
+                    }
                     EstimationRuleBuilder estimationRuleBuilder = set.addRule(info.implementation, info.name)
                             .withReadingType(info.readingTypes.stream().map(readingTypeInfo -> readingTypeInfo.mRID).toArray(String[]::new));
                     Estimator estimator = estimationService.getEstimator(info.implementation).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
@@ -299,6 +302,7 @@ public class EstimationResource {
                             });
                     meteringService.findReadingQualityComment(info.commentId).ifPresent(estimationRuleBuilder::withEstimationComment);
                     estimationRuleBuilder.active(false);
+                    estimationRuleBuilder.markProjected(info.markProjected);
                     EstimationRule rule = estimationRuleBuilder.create();
                     return estimationRuleInfoFactory.createEstimationRuleInfo(rule);
                 });
@@ -333,7 +337,7 @@ public class EstimationResource {
                     propertyMap.put(propertySpec.getName(), value);
                 }
             } finally {
-                rule = rule.getRuleSet().updateRule(info.id, info.name, info.active, mRIDs, propertyMap);
+                rule = rule.getRuleSet().updateRule(info.id, info.name, info.active, mRIDs, propertyMap, info.markProjected);
             }
 
             return rule;

@@ -25,6 +25,7 @@ public class EstimationRuleInfo {
     public EstimationRuleSetInfo ruleSet;
     public long version;
     public EstimationRuleSetInfo parent = new EstimationRuleSetInfo();
+    public boolean markProjected = false;
 
     public EstimationRuleInfo() {
     }
