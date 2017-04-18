@@ -12,5 +12,7 @@ public interface ReadingQualityComment {
 
     String getComment();
 
-     void setComment(String comment);
+    void setComment(String comment);
+
+    long getId();
 }

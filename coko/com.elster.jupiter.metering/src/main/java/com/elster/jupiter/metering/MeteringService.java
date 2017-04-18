@@ -221,4 +221,6 @@ public interface MeteringService {
     List<ReadingQualityComment> getAllReadingQualityComments(ReadingQualityCommentCategory category);
 
     ReadingQualityComment createReadingQualityComment(ReadingQualityCommentCategory category, String comment);
+
+    Optional<ReadingQualityComment> findReadingQualityComment(long id);
 }

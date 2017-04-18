@@ -34,4 +34,9 @@ public class ReadingQualityCommentImpl implements ReadingQualityComment {
     public ReadingQualityCommentCategory getCommentCategory() {
         return this.category;
     }
+
+    @Override
+    public long getId() {
+        return this.id;
+    }
 }

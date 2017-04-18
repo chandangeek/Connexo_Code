@@ -590,12 +590,18 @@ public class MeteringServiceImpl implements ServerMeteringService {
         return dataModel.mapper(ReadingQualityComment.class).select(Where.where("category").isEqualTo(category));
     }
 
+    @Override
     public ReadingQualityComment createReadingQualityComment(ReadingQualityCommentCategory category, String comment) {
         ReadingQualityComment readingQualityComment = dataModel.getInstance(ReadingQualityCommentImpl.class);
         readingQualityComment.setCommentCategory(category);
         readingQualityComment.setComment(comment);
         dataModel.persist(readingQualityComment);
         return readingQualityComment;
+    }
+
+    @Override
+    public Optional<ReadingQualityComment> findReadingQualityComment(long id) {
+        return this.dataModel.mapper(ReadingQualityComment.class).getOptional(id);
     }
 
     private Predicate<Vault> testRetention(Optional<Period> periodHolder) {
