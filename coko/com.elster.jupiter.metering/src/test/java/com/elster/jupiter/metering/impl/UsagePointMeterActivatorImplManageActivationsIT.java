@@ -435,4 +435,63 @@ public class UsagePointMeterActivatorImplManageActivationsIT {
                 .throwingValidation()
                 .complete();
     }
+
+    @Test(expected = UsagePointMeterActivationException.MeterCannotBeUnlinked.class)
+    @Transactional
+    public void testCanNotUnlinkFromMetrologyConfigurationWithGapsNotAllowed() {
+        ServiceCategory serviceCategory = inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
+        UsagePoint usagePoint2 = serviceCategory.newUsagePoint("UsagePoint2", THREE_DAYS_BEFORE).create();
+
+        UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = inMemoryBootstrapModule.getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("UP2", serviceCategory).withGapAllowed(false).create();
+        usagePointMetrologyConfiguration.addMeterRole(meterRole);
+        usagePoint2.apply(usagePointMetrologyConfiguration, THREE_DAYS_BEFORE);
+        usagePoint2.linkMeters().activate(meter, meterRole).complete();
+        reloadObjects();
+
+        usagePoint2.linkMeters().clear(TWO_DAYS_AFTER, meterRole).throwingValidation().complete();
+    }
+
+    @Test
+    @Transactional
+    public void testCanUnlinkAndThenLinkToMetrologyConfigurationWithGapsNotAllowed() {
+        ServiceCategory serviceCategory = inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
+        UsagePoint usagePoint2 = serviceCategory.newUsagePoint("UsagePoint2", THREE_DAYS_BEFORE).create();
+        AmrSystem system = inMemoryBootstrapModule.getMeteringService().findAmrSystem(KnownAmrSystem.MDC.getId()).get();
+        Meter meter2 = Mockito.spy(system.newMeter("Meter2", "myName2").create());
+        when(meter2.getState(any(Instant.class))).thenReturn(Optional.of(deviceState));
+        when(deviceState.getStage()).thenReturn(Optional.of(deviceStage));
+        when(deviceStage.getName()).thenReturn(operationalDeviceStageKey);
+
+        UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = inMemoryBootstrapModule.getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("UP2", serviceCategory).withGapAllowed(false).create();
+        usagePointMetrologyConfiguration.addMeterRole(meterRole);
+        usagePoint2.apply(usagePointMetrologyConfiguration, THREE_DAYS_BEFORE);
+        usagePoint2.linkMeters().activate(meter, meterRole).complete();
+        reloadObjects();
+
+        usagePoint2.linkMeters().clear(TWO_DAYS_AFTER, meterRole).activate(TWO_DAYS_AFTER, meter2, meterRole).throwingValidation().complete();
+
+        List<MeterActivation> usagePointActivations = usagePoint2.getMeterActivations();
+        assertThat(usagePointActivations).hasSize(2);
+        assertThat(usagePointActivations.get(0).getRange()).isEqualTo(Range.closedOpen(THREE_DAYS_BEFORE, TWO_DAYS_AFTER));
+        assertThat(usagePointActivations.get(0).getMeter().get().getName()).isEqualTo(meter.getName());
+        assertThat(usagePointActivations.get(1).getRange()).isEqualTo(Range.atLeast(TWO_DAYS_AFTER));
+        assertThat(usagePointActivations.get(1).getMeter().get().getName()).isEqualTo(meter2.getName());
+    }
+
+    @Test(expected = UsagePointMeterActivationException.IncorrectStartTimeOfMeterAndMetrologyConfig.class)
+    @Transactional
+    public void testCanNotLinkIntervalWithGapToMetrologyConfigurationWithGapsNotAllowed() {
+        ServiceCategory serviceCategory = inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
+        UsagePoint usagePoint2 = serviceCategory.newUsagePoint("UsagePoint2", THREE_DAYS_BEFORE).create();
+        AmrSystem system = inMemoryBootstrapModule.getMeteringService().findAmrSystem(KnownAmrSystem.MDC.getId()).get();
+        Meter meter2 = Mockito.spy(system.newMeter("Meter2", "myName2").create());
+        when(meter2.getState(any(Instant.class))).thenReturn(Optional.of(deviceState));
+        when(deviceState.getStage()).thenReturn(Optional.of(deviceStage));
+        when(deviceStage.getName()).thenReturn(operationalDeviceStageKey);
+
+        UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = inMemoryBootstrapModule.getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("UP2", serviceCategory).withGapAllowed(false).create();
+        usagePointMetrologyConfiguration.addMeterRole(meterRole);
+        usagePoint2.apply(usagePointMetrologyConfiguration, THREE_DAYS_BEFORE);
+        usagePoint2.linkMeters().activate(TWO_DAYS_AFTER, meter, meterRole).throwingValidation().complete();
+    }
 }

@@ -9,6 +9,8 @@ import com.elster.jupiter.events.EventTypeBuilder;
 import com.elster.jupiter.events.ValueType;
 import com.elster.jupiter.orm.TransactionRequired;
 
+import java.util.Collection;
+
 public enum EventType {
     SERVICELOCATION_CREATED("servicelocation/CREATED", true),
     SERVICELOCATION_UPDATED("servicelocation/UPDATED", true),
@@ -165,6 +167,18 @@ public enum EventType {
                     .create();
         }
     },
+    CHANNELS_CONTAINERS_CLIPPED("channelscontainers/CLIPPED") {
+        @Override
+        public void install(EventService eventService) {
+            eventService.buildEventTypeWithTopic(topic())
+                    .name(name())
+                    .component(MeteringService.COMPONENTNAME)
+                    .category("Crud")
+                    .scope("System")
+                    .shouldNotPublish()
+                    .create();
+        }
+    },
     METROLOGYCONFIGURATION_CREATED("metrologyconfiguration/CREATED"),
     METROLOGYCONFIGURATION_UPDATED("metrologyconfiguration/UPDATED"),
     METROLOGYCONFIGURATION_DELETED("metrologyconfiguration/DELETED"),
@@ -225,6 +239,18 @@ public enum EventType {
 
         public MeterActivation getShrunk() {
             return shrunk;
+        }
+    }
+
+    public static class ChannelsContainersClippedEvent {
+        private final Collection<ChannelsContainer> clipped;
+
+        public ChannelsContainersClippedEvent(Collection<ChannelsContainer> clipped) {
+            this.clipped = clipped;
+        }
+
+        public Collection<ChannelsContainer> getChannelsContainers() {
+            return clipped;
         }
     }
 }

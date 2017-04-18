@@ -513,7 +513,6 @@ public class UsagePointImpl implements ServerUsagePoint {
         return this.metrologyConfigurations.stream()
                 .filter(notEmpty())
                 .filter(emc -> emc.getRange().contains(when))
-                .map(EffectiveMetrologyConfigurationOnUsagePoint.class::cast)
                 .findFirst();
     }
 
@@ -522,7 +521,6 @@ public class UsagePointImpl implements ServerUsagePoint {
         return this.metrologyConfigurations.stream()
                 .filter(notEmpty())
                 .filter(emc -> emc.getStart().equals(start))
-                .map(EffectiveMetrologyConfigurationOnUsagePoint.class::cast)
                 .findFirst();
     }
 
@@ -531,7 +529,6 @@ public class UsagePointImpl implements ServerUsagePoint {
         return this.metrologyConfigurations.stream()
                 .filter(notEmpty())
                 .filter(emc -> emc.getRange().contains(clock.instant()))
-                .map(EffectiveMetrologyConfigurationOnUsagePoint.class::cast)
                 .findFirst();
     }
 
@@ -548,7 +545,6 @@ public class UsagePointImpl implements ServerUsagePoint {
                 .sorted(Comparator.comparing(EffectiveMetrologyConfigurationOnUsagePoint::getStart))
                 .collect(Collectors.toList());
     }
-
 
     @Override
     public void apply(UsagePointMetrologyConfiguration metrologyConfiguration) {
@@ -576,7 +572,7 @@ public class UsagePointImpl implements ServerUsagePoint {
         validateMetersIfGapsAreNotAllowed(metrologyConfiguration, start);
         validateEndDeviceStage(this.getMeterActivations(), start);
         validateMetrologyConfigOverlapping(metrologyConfiguration, start);
-        validateMeters(this.getMeterActivations(start), metrologyConfiguration.getContracts());
+        validateMetersForOptionalContracts(this.getMeterActivations(start), optionalContractsToActivate);
         Stage stage = this.getState(start).getStage().get();
         if (!stage.getName().equals(UsagePointStage.PRE_OPERATIONAL.getKey())) {
             throw UsagePointManagementException.incorrectStage(thesaurus);
@@ -604,7 +600,7 @@ public class UsagePointImpl implements ServerUsagePoint {
                     .findAny()
                     .isPresent();
 
-            if (!meterActivationsMatched) {
+            if (!metrologyConfigRequirements.isEmpty() && !meterActivationsMatched) {
                 throw UsagePointManagementException.incorrectMetersSpecification(thesaurus, metrologyConfiguration.getMeterRoles()
                         .stream()
                         .map(MeterRole::getDisplayName)
@@ -697,20 +693,16 @@ public class UsagePointImpl implements ServerUsagePoint {
         }
     }
 
-    private void validateMeters(List<MeterActivation> meterActivations, List<MetrologyContract> metrologyContracts) {
+    private void validateMetersForOptionalContracts(List<MeterActivation> meterActivations, Set<MetrologyContract> optionalContractsToActivate) {
         List<ReadingType> meterActivationReadingTypes = meterActivations.stream()
                 .flatMap(meterActivation -> meterActivation.getReadingTypes().stream())
                 .collect(Collectors.toList());
 
         if (!meterActivationReadingTypes.isEmpty()) {
-            List<String> metrologyPurposes = metrologyContracts.stream()
-                    .filter(MetrologyContract::isMandatory)
-                    .filter(contract -> !contract.getRequirements()
-                            .stream()
-                            .filter(requirement -> meterActivationReadingTypes.stream()
-                                    .filter(requirement::matches).findAny().isPresent())
-                            .findAny()
-                            .isPresent())
+            List<String> metrologyPurposes = optionalContractsToActivate.stream()
+                    .filter(contract -> contract.getRequirements().stream()
+                            .noneMatch(requirement -> meterActivationReadingTypes.stream()
+                                    .anyMatch(requirement::matches)))
                     .map(MetrologyContract::getMetrologyPurpose)
                     .map(MetrologyPurpose::getName)
                     .collect(Collectors.toList());
@@ -1282,6 +1274,9 @@ public class UsagePointImpl implements ServerUsagePoint {
 
     @Override
     public State getState() {
+        if (this.clock.instant().isBefore(this.installationTime)) {
+            return this.state.effective(this.installationTime).get().getState();
+        }
         return this.state.effective(this.clock.instant())
                 .map(UsagePointStateTemporalImpl::getState)
                 .orElseThrow(() -> new IllegalArgumentException("Usage point has no state at the moment."));
