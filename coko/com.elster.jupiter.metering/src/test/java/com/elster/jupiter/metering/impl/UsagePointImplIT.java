@@ -24,6 +24,7 @@ import com.elster.jupiter.metering.UsagePointManagementException;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MeterRole;
+import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.orm.DataModel;
@@ -34,6 +35,7 @@ import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -301,9 +303,9 @@ public class UsagePointImplIT {
                         .getMetrologyConfigurationService()
                         .newUsagePointMetrologyConfiguration("metrologyConfiguration1", serviceCategory)
                         .create();
-        configuration.addMandatoryMetrologyContract(getVoltageMonitoringPurpose());
+        MetrologyContract contract = configuration.addMandatoryMetrologyContract(getVoltageMonitoringPurpose());
         configuration.activate();
-        usagePoint.apply(configuration, AUG_15TH_2016);
+        usagePoint.apply(configuration, AUG_15TH_2016, Collections.singleton(contract));
     }
 
     private MetrologyPurpose getVoltageMonitoringPurpose() {

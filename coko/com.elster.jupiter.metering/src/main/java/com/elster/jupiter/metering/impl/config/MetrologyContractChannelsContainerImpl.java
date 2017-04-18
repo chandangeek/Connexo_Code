@@ -84,7 +84,7 @@ public class MetrologyContractChannelsContainerImpl extends ChannelsContainerImp
         return Interval.of(this.effectiveMetrologyContract.stream()
                 .map(Effectivity::getRange)
                 .reduce(Range::span)
-                .get());
+                .orElse(Range.closedOpen(Instant.EPOCH, Instant.EPOCH)));
     }
 
     @Override
