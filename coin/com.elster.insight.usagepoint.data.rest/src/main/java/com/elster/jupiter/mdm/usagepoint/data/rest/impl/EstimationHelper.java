@@ -93,7 +93,7 @@ public class EstimationHelper {
         return estimationService.previewEstimate(system, channelsContainer, range, readingType, estimator);
     }
 
-    List<OutputChannelDataInfo> getChannelDataInfoFromEstimationReports(Channel channel, List<Range<Instant>> ranges, List<EstimationResult> results, Optional<ReadingQualityComment> readingQualityComment) {
+    List<OutputChannelDataInfo> getChannelDataInfoFromEstimationReports(Channel channel, List<Range<Instant>> ranges, List<EstimationResult> results, boolean markAsProjected, Optional<ReadingQualityComment> readingQualityComment) {
         List<Instant> failedTimestamps = new ArrayList<>();
         List<OutputChannelDataInfo> channelDataInfos = new ArrayList<>();
 
@@ -105,7 +105,10 @@ public class EstimationHelper {
         for (EstimationResult result : results) {
             for (EstimationBlock block : result.estimated()) {
                 for (Estimatable estimatable : block.estimatables()) {
-                    getChannelDataInfo(estimatable, channelData, readingQualityComment).ifPresent(channelDataInfos::add);
+                    getChannelDataInfo(estimatable, channelData, readingQualityComment).ifPresent(info ->  {
+                        info.isProjected = markAsProjected;
+                        channelDataInfos.add(info);
+                    });
                 }
             }
             for (EstimationBlock block : result.remainingToBeEstimated()) {
@@ -129,6 +132,6 @@ public class EstimationHelper {
     }
 
     private OutputChannelDataInfo getChannelDataInfo(IntervalReadingRecord reading, Estimatable estimatable, Optional<ReadingQualityComment> readingQualityComment) {
-        return channelDataInfoFactory.createEstimatedChannelDataInfo(reading, estimatable.getEstimation(), readingQualityComment);
+        return channelDataInfoFactory.createUpdatedChannelDataInfo(reading, estimatable.getEstimation(), readingQualityComment);
     }
 }

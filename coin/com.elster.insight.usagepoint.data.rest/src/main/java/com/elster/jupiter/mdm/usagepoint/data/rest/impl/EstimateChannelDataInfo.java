@@ -27,4 +27,7 @@ public class EstimateChannelDataInfo {
 
     @JsonProperty("commentId")
     public long commentId;
+
+    @JsonProperty("markAsProjected")
+    public boolean markAsProjected;
 }

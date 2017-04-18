@@ -265,4 +265,5 @@ public class UsagePointOutputResourceTest extends UsagePointDataRestApplicationJ
         assertThat(model.<List>get("$.dataEstimationTasks")).hasSize(1);
         assertThat(model.<Integer>get("$.dataEstimationTasks[0].id")).isEqualTo(32);
     }
+
 }

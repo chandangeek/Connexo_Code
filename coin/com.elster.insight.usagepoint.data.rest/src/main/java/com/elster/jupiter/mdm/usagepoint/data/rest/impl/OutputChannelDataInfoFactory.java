@@ -12,8 +12,11 @@ import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
 
+import com.google.common.collect.Range;
+
 import javax.inject.Inject;
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -60,6 +63,14 @@ public class OutputChannelDataInfoFactory {
                     .findFirst()
                     .orElse(null);
             outputChannelDataInfo.estimatedByRule = estimationRuleInfoFactory.createEstimationRuleInfo(status.getReadingQualities());
+            if(outputChannelDataInfo.estimatedByRule != null) {
+                outputChannelDataInfo.ruleId = outputChannelDataInfo.estimatedByRule.id;
+            }
+            outputChannelDataInfo.isProjected = status.getReadingQualities()
+                    .stream()
+                    .filter(quality -> quality.getType().hasProjectedCategory())
+                    .findFirst()
+                    .isPresent();
             outputChannelDataInfo.isConfirmed = status.getReadingQualities()
                     .stream()
                     .filter(quality -> quality.getType().isConfirmed())
@@ -96,11 +107,14 @@ public class OutputChannelDataInfoFactory {
                 .collect(Collectors.toList());
     }
 
-    public OutputChannelDataInfo createEstimatedChannelDataInfo(IntervalReadingRecord readingRecord, BigDecimal estimatedValue, Optional<ReadingQualityComment> readingQualityComment) {
+    public OutputChannelDataInfo createUpdatedChannelDataInfo(IntervalReadingRecord readingRecord, BigDecimal newValue, Optional<ReadingQualityComment> readingQualityComment) {
         OutputChannelDataInfo outputChannelDataInfo = new OutputChannelDataInfo();
-        outputChannelDataInfo.reportedDateTime = readingRecord.getTimeStamp();
-        outputChannelDataInfo.interval = readingRecord.getTimePeriod().map(IntervalInfo::from).orElse(null);
-        outputChannelDataInfo.value = estimatedValue;
+        outputChannelDataInfo.reportedDateTime = readingRecord.getReportedDateTime();
+        readingRecord.getReadingType().getIntervalLength().ifPresent(intervalLength -> {
+            Instant readingTimeStamp = readingRecord.getTimeStamp();
+            outputChannelDataInfo.interval = IntervalInfo.from(Range.openClosed(readingTimeStamp.minus(intervalLength), readingTimeStamp));
+        });
+        outputChannelDataInfo.value = newValue;
         readingQualityComment.ifPresent(comment -> outputChannelDataInfo.commentId = comment.getId());
         return outputChannelDataInfo;
     }
