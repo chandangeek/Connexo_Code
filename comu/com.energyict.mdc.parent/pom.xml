@@ -36,7 +36,7 @@
              but it must be declared as a property because of the jacoco plugin (defined in jupiter parent)
              see http://docs.codehaus.org/display/SONAR/JaCoCo+Plugin
              -->
-        <argLine>-Xms512m -Xmx1024m</argLine>
+        <argLine>-Xms512m -Xmx1024m -Djava.util.logging.config.file=../copl/com.elster.jupiter.parent/junit-logging.properties</argLine>
 
         <serialio.version>10.0.4.2</serialio.version>
         <org.rxtx.version>2.2pre2</org.rxtx.version>
