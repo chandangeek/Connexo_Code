@@ -9,6 +9,7 @@ import com.elster.jupiter.estimation.EstimationRuleProperties;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.estimation.ReadingTypeInEstimationRule;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.aggregation.ReadingQualityComment;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
@@ -17,6 +18,7 @@ import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.time.RelativePeriod;
 
@@ -65,12 +67,14 @@ public enum TableSpecs {
             Column ruleSetIdColumn = table.column("RULESETID").number().notNull().conversion(NUMBER2LONG).add();
             table.column("POSITION").number().notNull().conversion(NUMBER2INT).map("position").add();
             Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
+            Column commentIdColumn = table.column("COMMENTS").number().conversion(NUMBER2LONG).installValue(null).since(Version.version(10,3)).add();
             Column obsoleteColumn = table.column("OBSOLETE_TIME").map("obsoleteTime").number().conversion(NUMBER2INSTANT).add();
             table.column("MARK_PROJECTED").map("markProjected").bool().add().since(version(10, 3));
             table.addAuditColumns();
             table.primaryKey("EST_PK_ESTIMATIONRULE").on(idColumn).add();
             table.foreignKey("EST_FK_RULE").references("EST_ESTIMATIONRULESET").on(ruleSetIdColumn).onDelete(RESTRICT)
                     .map("ruleSet").reverseMap("rules").composition().reverseMapOrder("position").add();
+            table.foreignKey("EST_FK_COMMENT").references(ReadingQualityComment.class).on(commentIdColumn).map("readingQualityComment").add();
             table.unique("EST_U_RULE_NAME").on(ruleSetIdColumn, nameColumn, obsoleteColumn).add();
         }
     },

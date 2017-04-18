@@ -5,6 +5,7 @@
 package com.elster.jupiter.estimation;
 
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.aggregation.ReadingQualityComment;
 import com.elster.jupiter.properties.PropertySpec;
 
 import aQute.bnd.annotation.ProviderType;
@@ -12,6 +13,7 @@ import aQute.bnd.annotation.ProviderType;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 @ProviderType
@@ -60,4 +62,8 @@ public interface EstimationRule {
     boolean isMarkProjected();
 
     Estimator createNewEstimator();
+
+    Optional<ReadingQualityComment> getComment();
+
+    void setComment(ReadingQualityComment comment);
 }
