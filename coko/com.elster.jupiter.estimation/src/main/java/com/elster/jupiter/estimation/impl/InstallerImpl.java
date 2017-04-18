@@ -125,12 +125,18 @@ class InstallerImpl implements FullInstaller, PrivilegesProvider {
     @Override
     public List<ResourceDefinition> getModuleResources() {
         List<ResourceDefinition> resources = new ArrayList<>();
-        resources.add(userService.createModuleResourceWithPrivileges(EstimationService.COMPONENTNAME, Privileges.RESOURCE_ESTIMATION_RULES.getKey(), Privileges.RESOURCE_ESTIMATION_RULES_DESCRIPTION.getKey(),
+        resources.add(userService.createModuleResourceWithPrivileges(EstimationService.COMPONENTNAME,
+                Privileges.RESOURCE_ESTIMATION_RULES.getKey(),
+                Privileges.RESOURCE_ESTIMATION_RULES_DESCRIPTION.getKey(),
                 Arrays.asList(
-                        Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.Constants.VIEW_ESTIMATION_CONFIGURATION,
-                        Privileges.Constants.UPDATE_ESTIMATION_CONFIGURATION,Privileges.Constants.UPDATE_SCHEDULE_ESTIMATION_TASK,
-                        Privileges.Constants.RUN_ESTIMATION_TASK, Privileges.Constants.VIEW_ESTIMATION_TASK,
-                        Privileges.Constants.ADMINISTRATE_ESTIMATION_TASK, Privileges.Constants.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE,
+                        Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION,
+                        Privileges.Constants.VIEW_ESTIMATION_CONFIGURATION,
+                        Privileges.Constants.UPDATE_ESTIMATION_CONFIGURATION,
+                        Privileges.Constants.UPDATE_SCHEDULE_ESTIMATION_TASK,
+                        Privileges.Constants.RUN_ESTIMATION_TASK,
+                        Privileges.Constants.VIEW_ESTIMATION_TASK,
+                        Privileges.Constants.ADMINISTRATE_ESTIMATION_TASK,
+                        Privileges.Constants.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE,
                         Privileges.Constants.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE_CONFIGURATION,
                         Privileges.Constants.ESTIMATE_MANUAL)));
         return resources;
