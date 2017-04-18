@@ -29,5 +29,7 @@ interface IEstimationRule extends EstimationRule {
 
     void setProperties(Map<String, Object> map);
 
+    void setMarkProjected(boolean b);
+
     boolean appliesTo(Channel channel);
 }
