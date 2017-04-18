@@ -242,7 +242,7 @@ public class CertificateWrapperResource {
             CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509", "BC");
             X509Certificate certificate = (X509Certificate) certificateFactory.generateCertificate(certificateInputStream);
             if (certificate==null) {
-                throw new LocalizedFieldValidationException(MessageSeeds.FAILED_TO_READ_CERTIFICATE, "file");
+                throw new LocalizedFieldValidationException(MessageSeeds.NOT_A_VALID_CERTIFICATE, "file");
             }
             certificateWrapper.setCertificate(certificate);
             certificateWrapper.save();

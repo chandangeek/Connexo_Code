@@ -26,7 +26,8 @@ public enum MessageSeeds implements MessageSeed {
     NO_CERTIFICATE_PRESENT(13, "NoCertificatePresent", "No certificate found"),
     FAILED_TO_READ_CERTIFICATE(14, "FailedToReadCertificate", "The certificate could not be read"),
     NO_SUCH_CERTIFICATE_IN_STORE(15, "NoSuchCertificateInStore", "No certificate wrapper with id {0} could be located in trust store with id {1}"),
-    NO_SUCH_CRYPTOGRAPHIC_TYPE(16, "NoSuchCryptographicType", "No such cryptographic type");
+    NO_SUCH_CRYPTOGRAPHIC_TYPE(16, "NoSuchCryptographicType", "No such cryptographic type"),
+    NOT_A_VALID_CERTIFICATE(17, "NotValidCertificate", "The provided file is a not a valid, DER-encoded certificate");
 
     private final int number;
     private final String key;
