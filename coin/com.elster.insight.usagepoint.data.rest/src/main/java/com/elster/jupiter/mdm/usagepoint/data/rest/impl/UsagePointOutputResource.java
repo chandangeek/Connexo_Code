@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
+import com.elster.jupiter.cbo.QualityCodeCategory;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.estimation.EstimationResult;
 import com.elster.jupiter.estimation.EstimationRule;
@@ -19,6 +20,7 @@ import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
@@ -53,6 +55,7 @@ import com.elster.jupiter.validation.rest.DataValidationTaskInfo;
 import com.elster.jupiter.validation.rest.DataValidationTaskInfoFactory;
 
 import com.google.common.collect.ImmutableRangeSet;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 import com.google.common.collect.TreeRangeSet;
@@ -289,7 +292,7 @@ public class UsagePointOutputResource {
                                                 .map(ChannelReadingWithValidationStatus::getReading)
                                                 .flatMap(Functions.asStream())
                                                 .collect(Collectors.toList()),
-                                        effectiveInterval);
+                                        requestedInterval);
                         for (DataValidationStatus dataValidationStatus : dataValidationStatuses) {
                             ChannelReadingWithValidationStatus readingWithValidationStatus = preFilledChannelDataMap.get(dataValidationStatus.getReadingTimestamp());
                             if (readingWithValidationStatus != null) {
@@ -348,11 +351,14 @@ public class UsagePointOutputResource {
         channelDataInfos.forEach((channelDataInfo) -> {
             if (!isToBeConfirmed(channelDataInfo) && channelDataInfo.value == null) {
                 removeCandidates.add(Instant.ofEpochMilli(channelDataInfo.interval.end));
-            }  else {
+            } else {
                 if (channelDataInfo.value != null) {
                     BaseReading baseReading = channelDataInfo.createNew();
+                    if (channelDataInfo.isProjected) {
+                        ((BaseReadingImpl) baseReading).addQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.PROJECTED, 0));
+                    }
                     if (channelDataInfo.ruleId != 0) {
-                        ((BaseReadingImpl)baseReading).addQuality("3.8." + channelDataInfo.ruleId);
+                        ((BaseReadingImpl) baseReading).addQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.ESTIMATED, (int) channelDataInfo.ruleId));
                         estimatedReadings.add(baseReading);
                     } else {
                         editedReadings.add(baseReading);
@@ -503,6 +509,23 @@ public class UsagePointOutputResource {
         return PagedInfoList.fromPagedList("rules", estimationRuleInfos, queryParameters);
     }
 
+    private List<OutputChannelDataInfo> previewEstimate(QualityCodeSystem system, ChannelsContainer channelsContainer, Channel channel, EstimateChannelDataInfo estimateChannelDataInfo) {
+        Estimator estimator = estimationHelper.getEstimator(estimateChannelDataInfo);
+        ReadingType readingType = channel.getMainReadingType();
+        List<Range<Instant>> ranges = estimateChannelDataInfo.intervals.stream()
+                .map(info -> Range.openClosed(Instant.ofEpochMilli(info.start), Instant.ofEpochMilli(info.end)))
+                .collect(Collectors.toList());
+        ImmutableSet<Range<Instant>> blocks = ranges.stream()
+                .collect(ImmutableRangeSet::<Instant>builder, ImmutableRangeSet.Builder::add, (b1, b2) -> b1.addAll(b2.build()))
+                .build()
+                .asRanges();
+
+        List<EstimationResult> results = blocks.stream()
+                .map(block -> estimationHelper.previewEstimate(system, channelsContainer, readingType, block, estimator))
+                .collect(Collectors.toList());
+        return estimationHelper.getChannelDataInfoFromEstimationReports(channel, ranges, results, estimateChannelDataInfo.markAsProjected);
+    }
+
     private Stream<? extends EstimationRule> streamMatchingEstimationRules(ReadingType readingType, MetrologyContract metrologyContract) {
         return usagePointConfigurationService.getEstimationRuleSets(metrologyContract).stream()
                 .filter(ruleSet -> QualityCodeSystem.MDM.equals(ruleSet.getQualityCodeSystem()))
@@ -572,17 +595,14 @@ public class UsagePointOutputResource {
                                     Instant readingTimestamp = entry.getKey();
                                     RegisterReadingWithValidationStatus readingWithValidationStatus = entry.getValue();
                                     ReadingRecord persistedReading = persistedReadings.get(readingTimestamp);
-                                    //                    ReadingRecord tempPreviousReadingRecord = null;
                                     readingWithValidationStatus.setPreviousReadingRecord(previousReadingRecord);
                                     if (persistedReading != null && (persistedReading.getValue() != null || persistedReading.getText() != null)) {
                                         readingWithValidationStatus.setPersistedReadingRecord(persistedReading);
-                                        // readingWithValidationStatus.setPreviousReadingRecord(previousReadingRecord);
                                         previousReadingRecord = persistedReading;
                                     } else {
                                         ReadingRecord calculatedReading = calculatedReadings.get(readingTimestamp);
                                         if (calculatedReading != null) {
                                             readingWithValidationStatus.setCalculatedReadingRecord(calculatedReading);
-                                            // readingWithValidationStatus.setPreviousReadingRecord(previousReadingRecord);
                                             previousReadingRecord = calculatedReading;
                                         }
                                     }
@@ -718,7 +738,7 @@ public class UsagePointOutputResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT, Privileges.Constants.VIEW_METROLOGY_CONFIGURATION})
     public Response removeRegisterDataOfOutput(@PathParam("name") String name, @PathParam("purposeId") long contractId, @PathParam("outputId") long outputId,
-                                               @PathParam("timeStamp") long timeStamp, @BeanParam JsonQueryFilter filter) {
+                                               @PathParam("timeStamp") long timeStamp, @BeanParam JsonQueryFilter filter, OutputRegisterDataInfo registerDataInfo) {
         Instant requestedTime = Instant.ofEpochMilli(timeStamp);
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
         // need to consider that effective metrology configuration has closed-open range, but contains data in open-closed range,

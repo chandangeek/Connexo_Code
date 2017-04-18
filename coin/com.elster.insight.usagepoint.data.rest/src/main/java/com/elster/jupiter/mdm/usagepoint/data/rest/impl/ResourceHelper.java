@@ -346,7 +346,7 @@ public class ResourceHelper {
     }
 
     public List<UsagePointTransition> getAvailableTransitions(UsagePoint usagePoint) {
-        return usagePointLifeCycleService.getAvailableTransitions(usagePoint.getState(), "INS");
+        return usagePointLifeCycleService.getAvailableTransitions(usagePoint, "INS");
     }
 
     public List<ReadingTypeRequirement> getReadingTypeRequirements(MetrologyContract metrologyContract) {
