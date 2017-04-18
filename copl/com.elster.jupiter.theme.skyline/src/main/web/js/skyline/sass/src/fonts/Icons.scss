@@ -38,6 +38,23 @@
   }
 }
 
+.white-circle-grid-header {
+  background:white;
+  border-radius: 20px;
+  padding: 4px;
+  font-size: 11px;
+}
+
+.white-circle-filter-btn {
+  background:white;
+  border-radius: 20px;
+  padding: 3px;
+  font-size: 9px;
+  margin-left: 4px;
+  position: relative;
+  bottom: 1px;
+}
+
 .stacked-icon-container {
   position: relative;
   display: inline-block;
