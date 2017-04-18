@@ -772,7 +772,9 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         model.save({
             failure: function (record, operation) {
                 var response = JSON.parse(operation.response.responseText);
-                form.getForm().markInvalid(response.errors);
+                _.each(response.errors, function (error) {
+                    error.msg = '<span style="white-space: normal">' + error.msg + '</span>';
+                });
             },
             success: function (record, operation) {
                 var item = null,
@@ -786,8 +788,8 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                             item = _.find(response, function (rec) {
                                 return rec.interval.end === item;
                             });
-                            recordrecord.set('value', item.value);
-                            oneRecord.set('bulkValidationInfo', item.bulkValidationInfo);
+                            record.set('value', item.value);
+                            record.set('bulkValidationInfo', item.bulkValidationInfo);
                         });
                     } else {
                         window.records.set('value', response[0].value);
