@@ -59,6 +59,8 @@ public interface EstimationRule {
 
     boolean isObsolete();
 
+    boolean isMarkProjected();
+
     Estimator createNewEstimator();
 
     Optional<ReadingQualityComment> getComment();

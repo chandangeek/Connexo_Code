@@ -22,6 +22,7 @@ class EstimationRuleBuilderImpl implements EstimationRuleBuilder {
     private final EstimationRuleSetImpl ruleSet;
     private final String implementation;
     private final String name;
+    private boolean markProjected;
     private boolean active = true;
     private Optional<ReadingQualityComment> estimationComment = Optional.empty();
     private Set<ReadingType> readingTypes = new HashSet<>();
@@ -81,8 +82,14 @@ class EstimationRuleBuilderImpl implements EstimationRuleBuilder {
     }
 
     @Override
+    public EstimationRuleBuilder markProjected(boolean markProjected) {
+        this.markProjected = markProjected;
+        return this;
+    }
+
+    @Override
     public EstimationRule create() {
-        EstimationRule rule = ruleSet.newRule(implementation, name);
+        IEstimationRule rule = ruleSet.newRule(implementation, name);
         readingTypes.forEach(rule::addReadingType);
         readingTypeMRIDs.forEach(rule::addReadingType);
         properties.forEach(rule::addProperty);
@@ -90,6 +97,9 @@ class EstimationRuleBuilderImpl implements EstimationRuleBuilder {
             rule.activate();
         }
         estimationComment.ifPresent(rule::setComment);
+        if(markProjected) {
+            rule.setMarkProjected(true);
+        }
         ruleSet.save();
         return rule;
     }

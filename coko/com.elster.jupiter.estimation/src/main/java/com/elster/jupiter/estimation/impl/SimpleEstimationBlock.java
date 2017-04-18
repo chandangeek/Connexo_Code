@@ -10,8 +10,11 @@ import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.CimChannel;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
+
 import com.google.common.collect.ImmutableList;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 class SimpleEstimationBlock implements EstimationBlock {
@@ -19,7 +22,7 @@ class SimpleEstimationBlock implements EstimationBlock {
     private final List<Estimatable> estimatables;
     private final Channel channel;
     private final ReadingType readingType;
-    private ReadingQualityType readingQualityType;
+    private List<ReadingQualityType> readingQualityTypes = new ArrayList<>();
 
     private SimpleEstimationBlock(Channel channel, ReadingType readingType, List<? extends Estimatable> estimatables) {
         this.channel = channel;
@@ -51,13 +54,12 @@ class SimpleEstimationBlock implements EstimationBlock {
         return estimatables;
     }
 
-    @Override
-    public void setReadingQualityType(ReadingQualityType readingQualityType) {
-        this.readingQualityType = readingQualityType;
+    protected void addReadingQualityType(ReadingQualityType readingQualityType) {
+        readingQualityTypes.add(readingQualityType);
     }
 
     @Override
-    public ReadingQualityType getReadingQualityType() {
-        return readingQualityType;
+    public List<ReadingQualityType> getReadingQualityTypes() {
+        return Collections.unmodifiableList(readingQualityTypes);
     }
 }
