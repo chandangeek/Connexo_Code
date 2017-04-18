@@ -15,6 +15,7 @@ import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.aggregation.ReadingQualityComment;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.beans.BaseReadingImpl;
 import com.elster.jupiter.rest.util.ExceptionFactory;
@@ -527,7 +528,7 @@ public class ChannelResource {
                                             .findFirst())
                                     .orElse(null);// There can be only one channel (or no channel at all if the channel has no dta for this interval)
                             List<ReadingQualityRecord> readingQualities = loadProfileJournalReading.get().getReadingQualities().entrySet().stream()
-                                    .map(channelListEntry -> channelListEntry.getValue())
+                                    .map(Map.Entry::getValue)
                                     .flatMap(List::stream).collect(Collectors.toList());
                             return validationInfoFactory.createVeeReadingInfoWithModificationFlags(channel, dataValidationStatus.get(), deviceValidation, channelReading, readingQualities, isValidationActive);
 
@@ -563,34 +564,10 @@ public class ChannelResource {
         List<BaseReading> estimatedReadings = new ArrayList<>();
         List<BaseReading> estimatedBulkReadings = new ArrayList<>();
         List<Instant> removeCandidates = new ArrayList<>();
-        channelDataInfos.forEach((channelDataInfo) -> {
-            validateLinkedToSlave(channel, Range.closedOpen(Instant.ofEpochMilli(channelDataInfo.interval.start), Instant.ofEpochMilli(channelDataInfo.interval.end)));
-            if (!(isToBeConfirmed(channelDataInfo)) && channelDataInfo.value == null && channelDataInfo.collectedValue == null) {
-                removeCandidates.add(Instant.ofEpochMilli(channelDataInfo.interval.end));
-            } else {
-                if (channelDataInfo.value != null) {
-                    BaseReading baseReading = channelDataInfo.createNew();
-                    if (channelDataInfo.mainValidationInfo != null &&  channelDataInfo.mainValidationInfo.ruleId!= 0) {
-                        ((BaseReadingImpl)baseReading).addQuality("2.8." + channelDataInfo.mainValidationInfo.ruleId);
-                        estimatedReadings.add(baseReading);
-                    } else {
-                        editedReadings.add(baseReading);
-                    }
-                }
-                if (channelDataInfo.collectedValue != null) {
-                    BaseReading baseReading = channelDataInfo.createNewBulk();
-                    if (channelDataInfo.bulkValidationInfo != null && channelDataInfo.bulkValidationInfo.ruleId != 0) {
-                        ((BaseReadingImpl)baseReading).addQuality("2.8." + channelDataInfo.bulkValidationInfo.ruleId);
-                        estimatedBulkReadings.add(baseReading);
-                    } else {
-                        editedBulkReadings.add(baseReading);
-                    }
-                }
-                if (isToBeConfirmed(channelDataInfo)) {
-                    confirmedReadings.add(channelDataInfo.createConfirm());
-                }
-            }
-        });
+
+        channelDataInfos.forEach(channelDataInfo ->
+                processInfo(channelDataInfo, channel, removeCandidates, estimatedReadings, editedReadings, estimatedBulkReadings, editedBulkReadings, confirmedReadings));
+
         channel.startEditingData()
                 .removeChannelData(removeCandidates)
                 .editChannelData(editedReadings)
@@ -603,6 +580,45 @@ public class ChannelResource {
         return Response.status(Response.Status.OK).build();
     }
 
+    private void processInfo(ChannelDataInfo channelDataInfo, Channel channel, List<Instant> removeCandidates, List<BaseReading> estimatedReadings, List<BaseReading> editedReadings,
+                             List<BaseReading> estimatedBulkReadings, List<BaseReading> editedBulkReadings, List<BaseReading> confirmedReadings) {
+        Optional<ReadingQualityComment> readingQualityComment = resourceHelper.getReadingQualityComment(channelDataInfo.commentId);
+        validateLinkedToSlave(channel, Range.closedOpen(Instant.ofEpochMilli(channelDataInfo.interval.start), Instant.ofEpochMilli(channelDataInfo.interval.end)));
+        if (!(isToBeConfirmed(channelDataInfo)) && channelDataInfo.value == null && channelDataInfo.collectedValue == null) {
+            removeCandidates.add(Instant.ofEpochMilli(channelDataInfo.interval.end));
+        } else {
+            processCalculatedInfo(channelDataInfo, readingQualityComment, estimatedReadings, editedReadings);
+            processBulkInfo(channelDataInfo, readingQualityComment, estimatedBulkReadings, editedBulkReadings);
+            processConfirmedInfo(channelDataInfo, confirmedReadings);
+        }
+    }
+
+    private void processCalculatedInfo(ChannelDataInfo channelDataInfo, Optional<ReadingQualityComment> readingQualityComment, List<BaseReading> estimatedReadings, List<BaseReading> editedReadings) {
+        if (channelDataInfo.value != null) {
+            BaseReading baseReading = channelDataInfo.createNew();
+            if (channelDataInfo.mainValidationInfo != null && channelDataInfo.mainValidationInfo.ruleId != 0) {
+                ((BaseReadingImpl) baseReading).addQuality("2.8." + channelDataInfo.mainValidationInfo.ruleId, this.extractComment(readingQualityComment));
+                estimatedReadings.add(baseReading);
+            } else {
+                ((BaseReadingImpl) baseReading).addQuality("2.7.0", this.extractComment(readingQualityComment));
+                editedReadings.add(baseReading);
+            }
+        }
+    }
+
+    private void processBulkInfo(ChannelDataInfo channelDataInfo, Optional<ReadingQualityComment> readingQualityComment, List<BaseReading> estimatedBulkReadings, List<BaseReading> editedBulkReadings) {
+        if (channelDataInfo.collectedValue != null) {
+            BaseReading baseReading = channelDataInfo.createNewBulk();
+            if (channelDataInfo.bulkValidationInfo != null && channelDataInfo.bulkValidationInfo.ruleId != 0) {
+                ((BaseReadingImpl) baseReading).addQuality("2.8." + channelDataInfo.bulkValidationInfo.ruleId, this.extractComment(readingQualityComment));
+                estimatedBulkReadings.add(baseReading);
+            } else {
+                ((BaseReadingImpl) baseReading).addQuality("2.7.0", this.extractComment(readingQualityComment));
+                editedBulkReadings.add(baseReading);
+            }
+        }
+    }
+
     private void validateLinkedToSlave(Channel channel, Range readingTimeStamp) {
         List<DataLoggerChannelUsage> dataLoggerChannelUsagesForChannels = topologyService.findDataLoggerChannelUsagesForChannels(channel, readingTimeStamp);
         if (!dataLoggerChannelUsagesForChannels.isEmpty()) {
@@ -610,9 +626,22 @@ public class ChannelResource {
         }
     }
 
+    private void processConfirmedInfo(ChannelDataInfo channelDataInfo, List<BaseReading> confirmedReadings) {
+        if (isToBeConfirmed(channelDataInfo)) {
+            confirmedReadings.add(channelDataInfo.createConfirm());
+        }
+    }
+
     private boolean isToBeConfirmed(ChannelDataInfo channelDataInfo) {
         return (channelDataInfo.mainValidationInfo != null && channelDataInfo.mainValidationInfo.isConfirmed ||
                 channelDataInfo.bulkValidationInfo != null && channelDataInfo.bulkValidationInfo.isConfirmed);
+    }
+
+    private String extractComment(Optional<ReadingQualityComment> readingQualityComment) {
+        if (readingQualityComment.isPresent()) {
+            return readingQualityComment.get().getComment();
+        }
+        return null;
     }
 
     @POST

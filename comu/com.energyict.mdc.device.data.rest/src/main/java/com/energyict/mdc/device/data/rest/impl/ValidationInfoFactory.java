@@ -288,13 +288,12 @@ public class ValidationInfoFactory {
         }
         return intervalReadingRecord.getReadingQualities().stream()
                 .filter(ReadingQualityRecord::isActual)
-                .map(ReadingQuality::getType)
                 .distinct()
-                .filter(type -> type.system().isPresent())
-                .filter(type -> type.category().isPresent())
-                .filter(type -> type.qualityIndex().isPresent())
-                .filter(type -> type.system().get() != QualityCodeSystem.MDM || !type.hasValidationCategory())
-                .map(type -> ReadingQualityInfo.fromReadingQualityType(meteringTranslationService, type))
+                .filter(readingQuality -> readingQuality.getType().system().isPresent())
+                .filter(readingQuality -> readingQuality.getType().category().isPresent())
+                .filter(readingQuality -> readingQuality.getType().qualityIndex().isPresent())
+                .filter(readingQuality -> readingQuality.getType().system().get() != QualityCodeSystem.MDM || !readingQuality.getType().hasValidationCategory())
+                .map(readingQuality -> ReadingQualityInfo.fromReadingQuality(meteringTranslationService, readingQuality))
                 .collect(Collectors.toList());
     }
 

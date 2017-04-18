@@ -6,6 +6,7 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.metering.ReadingQualityType;
+import com.elster.jupiter.metering.readings.ReadingQuality;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -25,6 +26,9 @@ public class ReadingQualityInfo {
     @XmlAttribute
     private String indexName;
 
+    @XmlAttribute
+    private String comment;
+
     public ReadingQualityInfo() {
     }
 
@@ -34,6 +38,12 @@ public class ReadingQualityInfo {
         result.setSystemName(type.system().map(meteringTranslationService::getDisplayName).orElse(""));
         result.setCategoryName(type.category().map(meteringTranslationService::getDisplayName).orElse(""));
         result.setIndexName(type.qualityIndex().map(meteringTranslationService::getDisplayName).orElse(""));
+        return result;
+    }
+
+    public static ReadingQualityInfo fromReadingQuality(MeteringTranslationService meteringTranslationService, ReadingQuality readingQuality) {
+        ReadingQualityInfo result = fromReadingQualityType(meteringTranslationService, readingQuality.getType());
+        result.setComment(readingQuality.getComment());
         return result;
     }
 
@@ -67,5 +77,9 @@ public class ReadingQualityInfo {
 
     public void setSystemName(String systemName) {
         this.systemName = systemName;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
     }
 }

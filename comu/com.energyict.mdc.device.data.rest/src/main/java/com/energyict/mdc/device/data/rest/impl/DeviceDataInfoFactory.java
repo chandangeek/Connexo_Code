@@ -4,7 +4,6 @@
 
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MeteringTranslationService;
@@ -23,12 +22,9 @@ import com.energyict.mdc.common.rest.IntervalInfo;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.config.RegisterSpec;
-import com.energyict.mdc.device.data.BillingReading;
-import com.energyict.mdc.device.data.BillingRegister;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceValidation;
-import com.energyict.mdc.device.data.FlagsReading;
 import com.energyict.mdc.device.data.FlagsRegister;
 import com.energyict.mdc.device.data.LoadProfileJournalReading;
 import com.energyict.mdc.device.data.LoadProfileReading;
@@ -39,13 +35,19 @@ import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.TextReading;
 import com.energyict.mdc.device.data.TextRegister;
 import com.energyict.mdc.device.topology.TopologyService;
+
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -99,7 +101,6 @@ public class DeviceDataInfoFactory {
                 .filter(record -> (record.getType().getSystemCode() == QualityCodeSystem.ENDDEVICE.ordinal()))
                 .map(rq -> getSimpleName(rq.getType()))
                 .collect(Collectors.toList());
-
 
         Optional<IntervalReadingRecord> channelReading = loadProfileReading.getChannelValues()
                 .entrySet()
