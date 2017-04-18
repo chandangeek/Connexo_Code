@@ -6,7 +6,6 @@ package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.ReadingQualityRecord;
-import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.rest.util.IntervalInfo;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationAction;
@@ -92,7 +91,6 @@ public class OutputChannelDataInfoFactory {
 
     private void setReadingQualities(ChannelReadingWithValidationStatus readingWithValidationStatus, OutputChannelDataInfo outputChannelDataInfo) {
         outputChannelDataInfo.readingQualities = readingWithValidationStatus.getReadingQualities().stream()
-                .map(ReadingQuality::getType)
                 .map(readingQualityInfoFactory::asInfo)
                 .collect(Collectors.toList());
     }

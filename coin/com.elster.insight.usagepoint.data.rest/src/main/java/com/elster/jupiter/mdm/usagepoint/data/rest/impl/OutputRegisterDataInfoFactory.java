@@ -5,11 +5,10 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.cbo.Aggregate;
-import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ReadingQualityRecord;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.DeliverableType;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
-import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.rest.util.IntervalInfo;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationAction;
@@ -129,7 +128,6 @@ public class OutputRegisterDataInfoFactory {
 
     private void setReadingQualities(RegisterReadingWithValidationStatus readingWithValidationStatus, OutputRegisterDataInfo info) {
         info.readingQualities = readingWithValidationStatus.getReadingQualities().stream()
-                .map(ReadingQuality::getType)
                 .map(readingQualityInfoFactory::asInfo)
                 .collect(Collectors.toList());
     }
