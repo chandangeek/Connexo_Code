@@ -4,7 +4,6 @@
 
 package com.energyict.mdc.device.data.impl;
 
-import com.elster.jupiter.cbo.Aggregate;
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
@@ -213,14 +212,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Deque;
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeMap;
 import java.util.UUID;
@@ -688,11 +685,11 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     private void removeDeviceFromGroup(EnumeratedEndDeviceGroup group, EndDevice endDevice) {
         group
-                .getEntries()
-                .stream()
-                .filter(each -> each.getMember().getId() == endDevice.getId())
-                .findFirst()
-                .ifPresent(group::remove);
+            .getEntries()
+            .stream()
+            .filter(each -> each.getMember().getId() == endDevice.getId())
+            .findFirst()
+            .ifPresent(group::remove);
     }
 
     private void deleteAllIssues() {
