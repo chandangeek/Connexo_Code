@@ -25,6 +25,7 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.ValueCorrection;
 import com.elster.jupiter.metering.readings.ProtocolReadingQualities;
 import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.properties.rest.PropertyValueInfo;
@@ -33,6 +34,7 @@ import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.ValidationResult;
@@ -69,6 +71,7 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -1068,4 +1071,25 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
 
+    @Test
+    public void testCorrectValuesOfChannelData() {
+        ReadingType readingType = mockReadingType("1.2.3.4.5.6.7.8.9.10.11.12.13.14.15.16.17.18");
+        Quantity quantity = Quantity.create(new BigDecimal(10), 1, com.elster.jupiter.util.units.Unit.WATT_HOUR.getSymbol());
+        TemporalAmount temporalAmount = mock(TemporalAmount.class);
+        ValueCorrectionInfo valueCorrectionInfo = new ValueCorrectionInfo();
+        valueCorrectionInfo.intervals = Collections.singletonList(IntervalInfo.from(Range.openClosed(Instant.ofEpochMilli(INTERVAL_START), Instant.ofEpochMilli(INTERVAL_END))));
+        valueCorrectionInfo.type = ValueCorrection.MULTIPLY.getType();
+        valueCorrectionInfo.amount = new BigDecimal(2);
+        when(readingRecord.getReadingType()).thenReturn(readingType);
+        when(readingRecord.getQuantity(any(ReadingType.class))).thenReturn(quantity);
+        when(readingRecord.getTimeStamp()).thenReturn(Instant.ofEpochMilli(INTERVAL_END));
+        when(channel.getChannelData(any(Range.class))).thenReturn(Collections.singletonList(loadProfileReading));
+        when(loadProfileReading.getChannelValues()).thenReturn(Collections.singletonMap(channel, readingRecord));
+        when(readingType.getIntervalLength()).thenReturn(Optional.of(temporalAmount));
+        when(temporalAmount.subtractFrom(any(Instant.class))).thenReturn(Instant.ofEpochMilli(INTERVAL_START));
+
+        JsonModel json = JsonModel.create(target("/devices" + "/1/channels/" + CHANNEL_ID1 + "/data/correctValues").request().put(Entity.json(valueCorrectionInfo), String.class));
+
+        assertThat(json.<String>get("$.[0].value")).isEqualTo("20.000");
+    }
 }
