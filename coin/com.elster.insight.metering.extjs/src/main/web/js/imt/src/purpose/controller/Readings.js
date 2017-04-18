@@ -304,15 +304,16 @@ Ext.define('Imt.purpose.controller.Readings', {
                     me.getOutputReadings().down('#output-readings-preview-container').fireEvent('rowselect', event.record);
                 }
 
+                if(!event.record.get('estimatedNotSaved')){
+                    event.record.set('modificationState', Uni.util.ReadingEditor.modificationState('EDITED'));
+                }
                 if (event.column) {
                     event.record.set('validationResult', 'validationStatus.ok');
                     event.record.set('isProjected', false);
                     event.record.set('ruleId', 0);
+
                     grid.getView().refreshNode(grid.getStore().indexOf(event.record));
                     event.record.get('confirmed') && event.record.set('confirmed', false);
-                    if(!event.record.get('estimatedNotSaved')){
-                        event.record.set('modificationState', Uni.util.ReadingEditor.modificationState('EDITED'));
-                    }
                 }
                 Ext.resumeLayouts();
             } else if (condition) {
@@ -684,7 +685,7 @@ Ext.define('Imt.purpose.controller.Readings', {
                                 listOfFailedReadings.push(Uni.I18n.translate('general.dateAtTime', 'IMT', '{0} at {1}', [Uni.DateTime.formatDateShort(new Date(readingTimestamp)), Uni.DateTime.formatTimeShort(new Date(readingTimestamp))], false));
                             });
                             var errorMessage = window.down('#estimator-field') ? Uni.I18n.translate('output.estimationErrorMessageWithIntervals', 'IMT', 'Could not estimate {0} with {1}',
-                                [listOfFailedReadings.join(', '), window.down('#estimator-field').getRawValue().toLowerCase()]) : Uni.I18n.translate('output.estimationErrorMessage', 'IMT', 'Could not estimate {0}',
+                                [listOfFailedReadings.join(', '), window.down('#estimator-field').getRawValue()]) : Uni.I18n.translate('output.estimationErrorMessage', 'IMT', 'Could not estimate {0}',
                                 listOfFailedReadings.join(', '));
                             window.down('#error-label').setText('<div style="color: #EB5642">' + errorMessage + '</div>', false);
                         } else if (responseText.errors) {
@@ -707,8 +708,8 @@ Ext.define('Imt.purpose.controller.Readings', {
         reading.set('value', estimatedReading.value);
         ruleId && reading.set('ruleId', ruleId);
         reading.set('validationResult', 'validationStatus.ok');
-        reading.set('estimatedNotSaved', true);
         if(action === 'estimate'){
+            reading.set('estimatedNotSaved', true);
             reading.set('estimatedByRule', true);
         }
         reading.set('isProjected', estimatedReading.isProjected);
@@ -725,9 +726,13 @@ Ext.define('Imt.purpose.controller.Readings', {
             grid = me.getReadingsList();
 
         reading.beginEdit();
+        if(correctedInterval.value  != reading.get('value')){
+            reading.set('modificationState', Uni.util.ReadingEditor.modificationState('EDITED'));
+            reading.set('validationResult', 'validationStatus.ok');
+        }
         reading.set('value', correctedInterval.value);
         reading.set('isProjected', model.get('projected'));
-        reading.set('modificationState', Uni.util.ReadingEditor.modificationState('EDITED'));
+
         reading.endEdit(true);
 
         grid.getView().refreshNode(grid.getStore().indexOf(reading));
