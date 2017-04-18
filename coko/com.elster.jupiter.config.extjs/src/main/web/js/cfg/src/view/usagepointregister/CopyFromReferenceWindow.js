@@ -15,7 +15,8 @@ Ext.define('Cfg.view.usagepointregister.CopyFromReferenceWindow', {
     requires: [
         'Uni.util.FormErrorMessage',
         'Uni.property.form.Property',
-        'Uni.property.view.DefaultButton'
+        'Uni.property.view.DefaultButton',
+        'Uni.property.store.EstimationComment'
     ],
 
     initComponent: function () {
@@ -26,7 +27,7 @@ Ext.define('Cfg.view.usagepointregister.CopyFromReferenceWindow', {
             itemId: 'reading-copy-window-form',
             padding: 5,
             defaults: {
-                width: 523,
+                width: 500,
                 labelWidth: 170,
                 margin: 20
             },
@@ -48,7 +49,7 @@ Ext.define('Cfg.view.usagepointregister.CopyFromReferenceWindow', {
                     name: 'referenceDevice',
                     fieldLabel: Uni.I18n.translate('copyFromReference.device', 'CFG', 'Check device'),
                     required: true,
-                    width: '90%',
+                    flex: 1,
                     store: 'Cfg.store.AllDevices',
                     valueField: 'name',
                     displayField: 'name',
@@ -67,7 +68,7 @@ Ext.define('Cfg.view.usagepointregister.CopyFromReferenceWindow', {
                     name: 'readingType',
                     fieldLabel: Uni.I18n.translate('copyFromReference.readingType', 'CFG', 'Check reading type'),
                     required: true,
-                    width: '90%',
+                    flex: 1,
                     store: 'Cfg.store.AllReadingTypes',
                     valueField: 'mRID',
                     displayField: 'fullAliasName',
@@ -103,12 +104,12 @@ Ext.define('Cfg.view.usagepointregister.CopyFromReferenceWindow', {
                     itemId: 'suspect-flag',
                     name: 'allowSuspectData',
                     fieldLabel: Uni.I18n.translate('copyFromReference.suspectFlag', 'CFG', 'Allow suspect date'),
-                    width: '100%'
+                    flex: 1
                 },
                 {
                     xtype: 'fieldcontainer',
                     fieldLabel: Uni.I18n.translate('copyFromReference.complete', 'CFG', 'Complete period'),
-                    width: '100%',
+                    flex: 1,
                     layout: 'hbox',
                     items: [
                         {
@@ -126,25 +127,43 @@ Ext.define('Cfg.view.usagepointregister.CopyFromReferenceWindow', {
                 {
                     xtype: 'fieldcontainer',
                     fieldLabel: Uni.I18n.translate('copyFromReference.estimationComment', 'CFG', 'Estimation comment'),
-                    width: '90%',
+                    flex: 1,
                     layout: 'hbox',
                     items: [
                         {
                             xtype: 'combobox',
                             itemId: 'estimation-comment',
-                            flex: 2
+                            flex: 1,
+                            // name: 'estimationComment',
+                            // store: 'Uni.property.store.EstimationComment',
+                            // valueField: 'id',
+                            // displayField: 'comment',
+                            // queryMode: 'local',
+                            minChars: 1,
+                            editable: true,
+                            typeAhead: true,
+                            listeners: {
+                                afterrender: function () {
+                                    this.button = me.down('#estimation-comment-default-button');
+                                },
+                                change: function (combobox) {
+                                    if (combobox.getValue()) {
+                                        this.button.setDisabled(false);
+                                    } else {
+                                        this.button.setDisabled(true);
+                                    }
+                                }
+                            }
                         },
                         {
                             xtype: 'uni-default-button',
                             itemId: 'estimation-comment-default-button',
-                            flex: 1
-                            // margin: '34 0 0 5',
-                            // listeners: {
-                            //     click: {
-                            //         fn: me.onClickDefault,
-                            //         scope: me
-                            //     }
-                            // }
+                            hidden: false,
+                            disabled: true,
+                            handler: function () {
+                                me.down('#estimation-comment').reset();
+                            }
+
                         }
                     ]
 
@@ -152,7 +171,7 @@ Ext.define('Cfg.view.usagepointregister.CopyFromReferenceWindow', {
                 {
                     xtype: 'fieldcontainer',
                     fieldLabel: Uni.I18n.translate('copyFromReference.projectedValue', 'CFG', 'Projected value'),
-                    width: '100%',
+                    flex: 1,
                     layout: 'hbox',
                     items: [
                         {
@@ -204,7 +223,7 @@ Ext.define('Cfg.view.usagepointregister.CopyFromReferenceWindow', {
                     name: 'referenceUsagePoint',
                     fieldLabel: Uni.I18n.translate('copyFromReference.usagePoint', 'CFG', 'Check usage point'),
                     required: true,
-                    width: '90%',
+                    flex: 1,
                     store: 'Cfg.store.AllUsagePoint',
                     valueField: 'name',
                     displayField: 'name',
@@ -223,7 +242,7 @@ Ext.define('Cfg.view.usagepointregister.CopyFromReferenceWindow', {
                     name: 'referencePurpose',
                     fieldLabel: Uni.I18n.translate('copyFromReference.purpose', 'CFG', 'Check purpose'),
                     required: true,
-                    width: '90%',
+                    flex: 1,
                     store: 'Cfg.store.AllPurpose',
                     valueField: 'id',
                     displayField: 'name',
@@ -231,7 +250,7 @@ Ext.define('Cfg.view.usagepointregister.CopyFromReferenceWindow', {
                     minChars: 1,
                     editable: true,
                     typeAhead: true,
-                    emptyText: Uni.I18n.translate('copyFromReference.selectPurpose', 'CFG', 'Select purpose'),
+                    emptyText: Uni.I18n.translate('copyFromReference.selectPurpose', 'CFG', 'Select purpose')
                 }
             );
         }
