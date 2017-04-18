@@ -24,6 +24,8 @@ public interface DataQualityKpiResults {
 
     long getAmountOfAdded();
 
+    long getAmountOfProjected();
+
     long getAmountOfEdited();
 
     long getAmountOfRemoved();

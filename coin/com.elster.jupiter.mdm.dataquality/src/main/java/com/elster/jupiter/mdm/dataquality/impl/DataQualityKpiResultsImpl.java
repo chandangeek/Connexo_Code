@@ -55,6 +55,11 @@ class DataQualityKpiResultsImpl implements DataQualityKpiResults {
     }
 
     @Override
+    public long getAmountOfProjected() {
+        return kpiTypes.get(KpiType.PROJECTED);
+    }
+
+    @Override
     public long getAmountOfEdited() {
         return kpiTypes.get(KpiType.EDITED);
     }

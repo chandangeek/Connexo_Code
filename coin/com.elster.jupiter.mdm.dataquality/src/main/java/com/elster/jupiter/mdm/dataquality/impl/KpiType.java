@@ -33,6 +33,7 @@ class KpiType {
     static final KpiType REMOVED = new KpiType("removedValues", "removedKpi", "REMOVED");
     static final KpiType ESTIMATED = new KpiType("estimatedValues", "estimatedKpi", "ESTIMATED");
     static final KpiType CONFIRMED = new KpiType("confirmedValues", "confirmedKpi", "CONFIRMED");
+    static final KpiType PROJECTED = new KpiType("projectedValues", "projectedKPI", "PROJECTED");
     static final KpiType INFORMATIVE = new KpiType("informativeValues", "informativesKpi", "INFORMATIVE");
     static final KpiType TOTAL_EDITED = new KpiType("totalEdited", "totalEdited", "totalEdited") {
 
@@ -61,7 +62,7 @@ class KpiType {
     };
 
     static final List<KpiType> predefinedKpiTypes = Arrays.asList(
-            SUSPECT, CHANNEL, REGISTER, ADDED, EDITED, REMOVED, ESTIMATED, CONFIRMED, INFORMATIVE
+            SUSPECT, CHANNEL, REGISTER, ADDED, EDITED, REMOVED, ESTIMATED, CONFIRMED, INFORMATIVE, PROJECTED
     );
 
     static class ValidatorKpiType extends KpiType {

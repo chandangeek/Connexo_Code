@@ -93,6 +93,8 @@ class DataQualityOverviewBuilderImpl implements UsagePointDataQualityService.Dat
                             return KpiType.TOTAL_EDITED;
                         case CONFIRMED:
                             return KpiType.CONFIRMED;
+                        case PROJECTED:
+                            return KpiType.PROJECTED;
                         default:
                             throw new IllegalArgumentException("Unsupported readingQualityType: " + readingQualityType.name());
                     }

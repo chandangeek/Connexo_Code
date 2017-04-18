@@ -61,7 +61,8 @@ public interface UsagePointDataQualityService {
         INFORMATIVES,
         ESTIMATES,
         EDITED,
-        CONFIRMED
+        CONFIRMED,
+        PROJECTED
     }
 
     @ProviderType
