@@ -103,11 +103,11 @@ public class UsagePointLifeCycleStatesResource {
     @RolesAllowed({Privileges.Constants.USAGE_POINT_LIFE_CYCLE_ADMINISTER})
     public UsagePointLifeCycleStateInfo editState(@PathParam("lid") long lifeCycleId, UsagePointLifeCycleStateInfo stateInfo) {
         RestValidationBuilder validationBuilder = new RestValidationBuilder();
-        UsagePointLifeCycle lifeCycle = this.resourceHelper.getLifeCycleByIdOrThrowException(lifeCycleId);
+        UsagePointLifeCycle lifeCycle = this.resourceHelper.lockLifeCycle(stateInfo.parent);
         validationBuilder.notEmpty(stateInfo.name, "name")
                 .notEmpty(stateInfo.stage, "stage")
                 .validate();
-        State state = this.resourceHelper.lockState(stateInfo);
+        State state = resourceHelper.getStateByIdOrThrowException(stateInfo.id);
         FiniteStateMachineUpdater finiteStateMachineUpdater = state.getFiniteStateMachine().startUpdate();
         FiniteStateMachineUpdater.StateUpdater builder = finiteStateMachineUpdater.state(state.getName());
         builder.setName(stateInfo.name);
@@ -130,8 +130,11 @@ public class UsagePointLifeCycleStatesResource {
     @Transactional
     @RolesAllowed({Privileges.Constants.USAGE_POINT_LIFE_CYCLE_ADMINISTER})
     public UsagePointLifeCycleStateInfo setInitialState(@PathParam("lid") long lifeCycleId, UsagePointLifeCycleStateInfo stateInfo) {
-        UsagePointLifeCycle lifeCycle = this.resourceHelper.getLifeCycleByIdOrThrowException(lifeCycleId);
-        State state = this.resourceHelper.lockState(stateInfo);
+        UsagePointLifeCycle lifeCycle = this.resourceHelper.lockLifeCycle(stateInfo.parent);
+        State state = lifeCycle.getStates().stream()
+                .filter(lcState -> lcState.getId() == stateInfo.id)
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Given state does not exist"));
         FiniteStateMachineUpdater finiteStateMachineUpdater = state.getFiniteStateMachine().startUpdate();
         finiteStateMachineUpdater.complete(state);
         return this.stateInfoFactory.fullInfo(lifeCycle, state);

@@ -192,6 +192,7 @@ public class UsagePointLifeCycleStatesResourceTest extends UsagePointLifeCycleAp
     public void testEditState() throws Exception {
         when(usagePointLifeCycleConfigurationService.findAndLockUsagePointLifeCycleByIdAndVersion(12L, 4L)).thenReturn(Optional.of(lifeCycle));
         when(usagePointLifeCycleConfigurationService.findAndLockUsagePointStateByIdAndVersion(4L, 3L)).thenReturn(Optional.of(state));
+        when(usagePointLifeCycleConfigurationService.findUsagePointState(4L)).thenReturn(Optional.of(state));
         ProcessReference onEntry = mockProcessReference(1L, "processName 1", "deploymentId 1", "processId 1");
         StateChangeBusinessProcess onEntryProcess = onEntry.getStateChangeBusinessProcess();
         when(finiteStateMachineService.findStateChangeBusinessProcessById(1L)).thenReturn(Optional.of(onEntryProcess));
@@ -250,6 +251,7 @@ public class UsagePointLifeCycleStatesResourceTest extends UsagePointLifeCycleAp
         when(usagePointLifeCycleConfigurationService.findAndLockUsagePointStateByIdAndVersion(4L, 3L)).thenReturn(Optional.of(state));
         mockStateUpdater(state);
         when(finiteStateMachineService.findStateChangeBusinessProcessById(1L)).thenReturn(Optional.empty());
+        when(usagePointLifeCycleConfigurationService.findUsagePointState(4L)).thenReturn(Optional.of(state));
 
         UsagePointLifeCycleStateInfo info = new UsagePointLifeCycleStateInfo();
         info.id = 4L;
@@ -272,7 +274,7 @@ public class UsagePointLifeCycleStatesResourceTest extends UsagePointLifeCycleAp
     public void testEditStateConcurrentParent() throws Exception {
         when(usagePointLifeCycleConfigurationService.findAndLockUsagePointLifeCycleByIdAndVersion(12L, 3L)).thenReturn(Optional.empty());
         when(usagePointLifeCycleConfigurationService.findUsagePointLifeCycle(12L)).thenReturn(Optional.of(lifeCycle));
-        when(usagePointLifeCycleConfigurationService.findUsagePointState(4L)).thenReturn(Optional.of(state));
+        when(lifeCycle.getName()).thenReturn("LF");
 
         UsagePointLifeCycleStateInfo info = new UsagePointLifeCycleStateInfo();
         info.id = 4L;
@@ -287,32 +289,11 @@ public class UsagePointLifeCycleStatesResourceTest extends UsagePointLifeCycleAp
         Response response = target("/lifecycle/12/states/4").request().put(json);
         JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
         assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
-        assertThat(model.<String>get("$.message")).isEqualTo("Failed to save 'State'");
-        assertThat(model.<String>get("$.error")).isEqualTo("State has changed since the page was last updated.");
+        assertThat(model.<String>get("$.message")).isEqualTo("Failed to save 'LF'");
+        assertThat(model.<String>get("$.error")).isEqualTo("LF has changed since the page was last updated.");
     }
 
-    @Test
-    public void testEditStateConcurrentState() throws Exception {
-        when(usagePointLifeCycleConfigurationService.findAndLockUsagePointLifeCycleByIdAndVersion(12L, 4L)).thenReturn(Optional.of(lifeCycle));
-        when(usagePointLifeCycleConfigurationService.findAndLockUsagePointStateByIdAndVersion(4L, 2L)).thenReturn(Optional.empty());
-        when(usagePointLifeCycleConfigurationService.findUsagePointState(4L)).thenReturn(Optional.of(state));
 
-        UsagePointLifeCycleStateInfo info = new UsagePointLifeCycleStateInfo();
-        info.id = 4L;
-        info.name = "State";
-        info.stage = UsagePointStage.OPERATIONAL.getKey();
-        info.onEntry = Collections.singletonList(new BusinessProcessInfo(1L, null, null, null));
-        info.onExit = Collections.singletonList(new BusinessProcessInfo(2L, null, null, null));
-        info.version = 2L;
-        info.parent = new VersionInfo<>(12L, 4L);
-        Entity<UsagePointLifeCycleStateInfo> json = Entity.json(info);
-
-        Response response = target("/lifecycle/12/states/4").request().put(json);
-        JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
-        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
-        assertThat(model.<String>get("$.message")).isEqualTo("Failed to save 'State'");
-        assertThat(model.<String>get("$.error")).isEqualTo("State has changed since the page was last updated.");
-    }
 
     @Test
     public void testSetInitialState() throws Exception {
@@ -346,9 +327,10 @@ public class UsagePointLifeCycleStatesResourceTest extends UsagePointLifeCycleAp
 
     @Test
     public void testSetInitialStateConcurrent() throws Exception {
-        when(usagePointLifeCycleConfigurationService.findAndLockUsagePointLifeCycleByIdAndVersion(12L, 4L)).thenReturn(Optional.of(lifeCycle));
-        when(usagePointLifeCycleConfigurationService.findAndLockUsagePointStateByIdAndVersion(4L, 2L)).thenReturn(Optional.empty());
-        when(usagePointLifeCycleConfigurationService.findUsagePointState(4L)).thenReturn(Optional.of(state));
+        when(usagePointLifeCycleConfigurationService.findAndLockUsagePointLifeCycleByIdAndVersion(12L, 4L)).thenReturn(Optional.empty());
+        UsagePointLifeCycle usagePointLifeCycle = mock(UsagePointLifeCycle.class);
+        when(usagePointLifeCycle.getName()).thenReturn("LF");
+        when(usagePointLifeCycleConfigurationService.findUsagePointLifeCycle(12L)).thenReturn(Optional.of(usagePointLifeCycle));
 
         UsagePointLifeCycleStateInfo info = new UsagePointLifeCycleStateInfo();
         info.id = 4L;
@@ -361,8 +343,8 @@ public class UsagePointLifeCycleStatesResourceTest extends UsagePointLifeCycleAp
         Response response = target("/lifecycle/12/states/4/status").request().put(json);
         JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
         assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
-        assertThat(model.<String>get("$.message")).isEqualTo("Failed to save 'State'");
-        assertThat(model.<String>get("$.error")).isEqualTo("State has changed since the page was last updated.");
+        assertThat(model.<String>get("$.message")).isEqualTo("Failed to save 'LF'");
+        assertThat(model.<String>get("$.error")).isEqualTo("LF has changed since the page was last updated.");
     }
 
     @Test

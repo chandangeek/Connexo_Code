@@ -4,9 +4,7 @@
 
 package com.elster.jupiter.usagepoint.lifecycle.rest;
 
-import com.elster.jupiter.fsm.Stage;
 import com.elster.jupiter.rest.util.VersionInfo;
-import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointStage;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 

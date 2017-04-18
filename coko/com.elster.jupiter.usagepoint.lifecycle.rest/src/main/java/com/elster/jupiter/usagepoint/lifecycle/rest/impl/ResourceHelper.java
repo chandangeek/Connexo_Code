@@ -60,7 +60,7 @@ public class ResourceHelper {
 
     public UsagePointLifeCycle lockLifeCycle(VersionInfo<Long> lifeCycleInfo) {
         return this.usagePointLifeCycleConfigurationService.findAndLockUsagePointLifeCycleByIdAndVersion(lifeCycleInfo.id, lifeCycleInfo.version)
-                .orElseThrow(this.conflictFactory.contextDependentConflictOn(String.valueOf(lifeCycleInfo.id))
+                .orElseThrow(this.conflictFactory.contextDependentConflictOn(usagePointLifeCycleConfigurationService.findUsagePointLifeCycle(lifeCycleInfo.id).get().getName())
                         .withActualVersion(() -> getCurrentLifeCycleVersion(lifeCycleInfo.id))
                         .supplier());
     }
