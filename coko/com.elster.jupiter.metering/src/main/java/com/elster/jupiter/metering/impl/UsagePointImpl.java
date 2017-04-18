@@ -668,7 +668,7 @@ public class UsagePointImpl implements ServerUsagePoint {
 
     private void validateUsagePointStage(Instant when) {
         Stage stage= this.getState(when).getStage().get();
-        if(!stage.getName().equals(UsagePointStage.OPERATIONAL.getKey()) && !stage.getName().equals(UsagePointStage.SUSPENDED.getKey())) {
+        if(!stage.getName().equals(UsagePointStage.PRE_OPERATIONAL.getKey()) && !stage.getName().equals(UsagePointStage.SUSPENDED.getKey())) {
             throw UsagePointManagementException.incorrectStage(thesaurus);
         }
     }
