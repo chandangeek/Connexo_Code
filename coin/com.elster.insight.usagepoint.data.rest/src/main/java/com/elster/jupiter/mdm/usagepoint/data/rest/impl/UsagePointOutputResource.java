@@ -329,7 +329,7 @@ public class UsagePointOutputResource {
         }
         List<OutputChannelDataInfo> outputChannelDataInfoList = new ArrayList<>();
         if (filter.hasProperty(INTERVAL_START) && filter.hasProperty(INTERVAL_END)) {
-            Range<Instant> requestedInterval = getRequestedInterval(usagePoint, filter);
+            Range<Instant> requestedInterval = Ranges.openClosed(filter.getInstant(INTERVAL_START), filter.getInstant(INTERVAL_END));
             if (requestedInterval != null) {
                 ChannelsContainer channelsContainer = effectiveMetrologyConfigurationOnUsagePoint.getChannelsContainer(metrologyContract).get();
                 //AggregatedChannel channel = effectiveMetrologyConfigurationOnUsagePoint.getAggregatedChannel(metrologyContract, readingTypeDeliverable.getReadingType()).get();
