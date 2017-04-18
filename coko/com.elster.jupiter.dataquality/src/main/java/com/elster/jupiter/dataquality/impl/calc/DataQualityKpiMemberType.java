@@ -22,7 +22,8 @@ public interface DataQualityKpiMemberType {
         EDITED,
         REMOVED,
         ESTIMATED,
-        CONFIRMED;
+        CONFIRMED,
+        PROJECTED;
 
         public String getName() {
             return name().toUpperCase();
