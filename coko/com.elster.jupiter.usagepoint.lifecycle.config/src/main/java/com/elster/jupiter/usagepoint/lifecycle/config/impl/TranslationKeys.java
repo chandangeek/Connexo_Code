@@ -20,7 +20,7 @@ public enum TranslationKeys implements TranslationKey {
     TRANSITION_DEMOLISH_FROM_INACTIVE("usage.point.transition.demolish.from.inactive", "Demolish"),
     USAGE_POINT_STAGE_PRE_OPERATIONAL(UsagePointStage.PRE_OPERATIONAL.getKey(), "Pre-operational"),
     USAGE_POINT_STAGE_OPERATIONAL(UsagePointStage.OPERATIONAL.getKey(), "Operational"),
-    USAGE_POINT_STAGE_POST_OPERATIONAL(UsagePointStage.POST_OPERATIONAL.getKey(), "Post operational"),
+    USAGE_POINT_STAGE_POST_OPERATIONAL(UsagePointStage.POST_OPERATIONAL.getKey(), "Post-operational"),
     USAGE_POINT_STAGE_Suspended(UsagePointStage.SUSPENDED.getKey(), "Suspended")
     ;
 

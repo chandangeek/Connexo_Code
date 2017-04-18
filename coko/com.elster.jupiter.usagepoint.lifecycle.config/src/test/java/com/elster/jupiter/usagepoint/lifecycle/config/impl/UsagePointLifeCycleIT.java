@@ -10,6 +10,7 @@ import com.elster.jupiter.fsm.FiniteStateMachineUpdater;
 import com.elster.jupiter.fsm.Stage;
 import com.elster.jupiter.fsm.StageSet;
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.usagepoint.lifecycle.config.DefaultState;
 import com.elster.jupiter.usagepoint.lifecycle.config.MicroAction;
 import com.elster.jupiter.usagepoint.lifecycle.config.MicroCheck;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
@@ -220,7 +221,7 @@ public class UsagePointLifeCycleIT extends BaseTestIT {
         assertThat(
         lifeCycle.getStates()
                 .stream()
-                .filter(usagePointState -> usagePointState.getStage().getDisplayName().equals("SUSPENDED"))
-                .map(UsagePointState::getName).findFirst().get()).isEqualTo("Inactive");
+                .filter(usagePointState -> usagePointState.getStage().get().getName().equals(UsagePointStage.SUSPENDED.getKey()))
+                .map(State::getName).findFirst().get()).isEqualTo(DefaultState.INACTIVE.getKey());
     }
 }
