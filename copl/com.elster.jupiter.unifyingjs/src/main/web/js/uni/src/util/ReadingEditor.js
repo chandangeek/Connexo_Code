@@ -20,7 +20,7 @@ Ext.define('Uni.util.ReadingEditor', {
     modificationState: function(status){
         return {
             flag: status,
-            date: new Date(),
+            date: null,
             app: null
         }
     }

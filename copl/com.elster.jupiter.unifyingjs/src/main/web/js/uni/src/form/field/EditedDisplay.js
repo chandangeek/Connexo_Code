@@ -26,23 +26,33 @@ Ext.define('Uni.form.field.EditedDisplay', {
             switch (value.flag) {
                 case 'ADDED':
                     iconClass = 'icon-pencil4';
-                    tooltipText = Uni.I18n.translate('general.addedOnX', 'UNI', 'Added on {0}', formattedDate);
+                    tooltipText = value.date === null
+                        ? Uni.I18n.translate('general.addedOnX', 'UNI', 'Added on {0}', formattedDate)
+                        : Uni.I18n.translate('general.addedOnXx', 'UNI', 'Added');
                     break;
                 case 'EDITED':
                     iconClass = 'icon-pencil4';
-                    tooltipText = Uni.I18n.translate('general.editedOnX', 'UNI', 'Edited on {0}', formattedDate);
+                    tooltipText = value.date === null
+                        ? Uni.I18n.translate('general.editedOnX', 'UNI', 'Edited on {0}', formattedDate)
+                        : Uni.I18n.translate('general.editedOnXx', 'UNI', 'Edited');
                     break;
                 case 'ESTIMATED':
                     iconClass = 'icon-pencil4';
-                    tooltipText = Uni.I18n.translate('general.estimatedOnX', 'UNI', 'Estimated on {0}', formattedDate);
+                    tooltipText = value.date === null
+                        ? Uni.I18n.translate('general.estimatedOnX', 'UNI', 'Estimated on {0}', formattedDate)
+                        : Uni.I18n.translate('general.estimatedOnXx', 'UNI', 'Estimated');
                     break;
                 case 'REMOVED':
                     iconClass = 'icon-cancel-circle';
-                    tooltipText = Uni.I18n.translate('general.removedOnX', 'UNI', 'Removed on {0}', formattedDate);
+                    tooltipText = value.date === null
+                        ? Uni.I18n.translate('general.removedOnX', 'UNI', 'Removed on {0}', formattedDate)
+                        : Uni.I18n.translate('general.removedOnXx', 'UNI', 'Removed');
                     break;
                 case 'RESET':
                     iconClass = 'icon-cancel-circle';
-                    tooltipText = Uni.I18n.translate('general.restoredOnX', 'UNI', 'Restored on {0}', formattedDate);
+                    tooltipText = value.date === null
+                        ? Uni.I18n.translate('general.restoredOnX', 'UNI', 'Restored on {0}', formattedDate)
+                        : Uni.I18n.translate('general.restoredOnXx', 'UNI', 'Restored');
                     break;
             }
             if (iconClass && tooltipText) {
