@@ -53,8 +53,13 @@ Ext.define("Ext.ux.exporter.Exporter", {
             var store = grid.getStore() || config.store;
             var columns = Ext.Array.filter(grid.getColumnManager().getColumns(), function(col) {
                 return !col.hidden && (!col.xtype || col.xtype != "uni-actioncolumn");
-                //return !col.hidden; // && (!col.xtype || col.xtype != "actioncolumn");
             });
+
+            if (grid.hasHtmlInColumnHeaders) {
+                columns.map(function (column) {
+                    column.text = column.exportText;
+                });
+            }
 
             Ext.applyIf(config, {
                 title: grid.title,

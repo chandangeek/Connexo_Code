@@ -20,6 +20,9 @@ Ext.define('Uni.grid.filtertop.Interval', {
     originalDefaultFromDate: undefined,
     originalDefaultToDate: undefined,
     originalTitle: null,
+    withoutTime: false,
+    minValue: undefined,
+
     initComponent: function () {
         var me = this;
 
@@ -83,6 +86,7 @@ Ext.define('Uni.grid.filtertop.Interval', {
                                     },
                                     {
                                         xtype: 'datefield',
+                                        minValue: me.minValue,
                                         itemId: 'fromDate',
                                         editable: false,
                                         value: me.defaultFromDate,
@@ -96,6 +100,7 @@ Ext.define('Uni.grid.filtertop.Interval', {
                             {
                                 xtype: 'fieldcontainer',
                                 margins: '0 8 0 8',
+                                hidden: me.withoutTime,
                                 layout: {
                                     type: 'column',
                                     align: 'stretch',
@@ -185,6 +190,7 @@ Ext.define('Uni.grid.filtertop.Interval', {
                                     },
                                     {
                                         xtype: 'datefield',
+                                        minValue: me.minValue,
                                         itemId: 'toDate',
                                         editable: false,
                                         value: me.defaultToDate,
@@ -198,6 +204,7 @@ Ext.define('Uni.grid.filtertop.Interval', {
                             {
                                 xtype: 'fieldcontainer',
                                 margins: '0 8 0 8',
+                                hidden: me.withoutTime,
                                 layout: {
                                     type: 'column',
                                     align: 'stretch',
@@ -392,13 +399,17 @@ Ext.define('Uni.grid.filtertop.Interval', {
         me.getIntervalForm().clearInvalid();
 
         me.getFromDateField().reset();
-        me.getFromHourField().reset();
-        me.getFromMinuteField().reset();
+        if (!me.withoutTime) {
+            me.getFromHourField().reset();
+            me.getFromMinuteField().reset();
+        }
         me.getFromDateField().setMaxValue(null);
 
         me.getToDateField().reset();
-        me.getToHourField().reset();
-        me.getToMinuteField().reset();
+        if (!me.withoutTime) {
+            me.getToHourField().reset();
+            me.getToMinuteField().reset();
+        }
         me.getToDateField().setMinValue(null);
 
         me.updateTitle();
@@ -469,8 +480,10 @@ Ext.define('Uni.grid.filtertop.Interval', {
             minutes = date.getMinutes();
 
         me.getFromDateField().setValue(date);
-        me.getFromHourField().setValue(hours);
-        me.getFromMinuteField().setValue(minutes);
+        if (!me.withoutTime) {
+            me.getFromHourField().setValue(hours);
+            me.getFromMinuteField().setValue(minutes);
+        }
     },
 
     getFromDateValue: function () {
@@ -488,8 +501,10 @@ Ext.define('Uni.grid.filtertop.Interval', {
             minutes = date.getMinutes();
 
         me.getToDateField().setValue(date);
-        me.getToHourField().setValue(hours);
-        me.getToMinuteField().setValue(minutes);
+        if (!me.withoutTime) {
+            me.getToHourField().setValue(hours);
+            me.getToMinuteField().setValue(minutes);
+        }
     },
 
     getToDateValue: function () {
@@ -574,17 +589,26 @@ Ext.define('Uni.grid.filtertop.Interval', {
         return this.down('button[action=clear]');
     },
 
-    updateTitle: function(title) {
+    updateTitle: function() {
         var me = this,
             fromValue = me.getFromDateValue(),
-            toValue = me.getToDateValue();
+            toValue = me.getToDateValue(),
+            fromDate,
+            toDate;
+
+        if (Ext.isDefined(fromValue)) {
+            fromDate = me.withoutTime ? Uni.DateTime.formatDateShort(new Date(fromValue)) : Uni.DateTime.formatDateTimeShort(new Date(fromValue));
+        }
+        if (Ext.isDefined(toValue)) {
+            toDate = me.withoutTime ? Uni.DateTime.formatDateShort(new Date(toValue)) : Uni.DateTime.formatDateTimeShort(new Date(toValue));
+        }
 
         if (Ext.isDefined(fromValue) && Ext.isDefined(toValue)) {
-            me.down('button').setText( Uni.DateTime.formatDateTimeShort(new Date(fromValue)) + ' / ' + Uni.DateTime.formatDateTimeShort(new Date(toValue)) );
+            me.down('button').setText(fromDate + ' / ' + toDate);
         } else if (Ext.isDefined(fromValue)) {
-            me.down('button').setText( Uni.DateTime.formatDateTimeShort(new Date(fromValue)) + ' / *' );
+            me.down('button').setText(fromDate + ' / *');
         } else if (Ext.isDefined(toValue)) {
-            me.down('button').setText( '* / ' + Uni.DateTime.formatDateTimeShort(new Date(toValue)) );
+            me.down('button').setText('* / ' + toDate);
         } else {
             me.down('button').setText( me.originalTitle );
         }
