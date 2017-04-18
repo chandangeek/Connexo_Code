@@ -128,9 +128,6 @@ public class SecurityPropertySetResourceTest extends DeviceDataRestApplicationJe
 
         JsonModel jsonModel = JsonModel.model(response);
 
-        System.out.println("testje");
-        System.out.println(jsonModel.toJson(true));
-
         assertThat(jsonModel.<String>get("$.name")).isEqualTo("Set 1");
         assertThat(jsonModel.<Integer>get("$.authenticationLevel.id")).isEqualTo(1);
         assertThat(jsonModel.<String>get("$.authenticationLevel.name")).isEqualTo(DefaultTranslationKey.DLMSSECURITYSUPPORTPERCLIENT_AUTHENTICATIONLEVEL_1.getDefaultFormat());
