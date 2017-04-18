@@ -578,6 +578,9 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
         if (connectionMethodToDelete.hasOwnProperty('action')) {
             connectionMethodToDelete = this.getDeviceConnectionMethodsGrid().getSelectionModel().getSelection()[0];
         }
+        if (connectionMethodToDelete.get('direction') === 'Inbound') {
+            connectionMethodToDelete.set('connectionStrategyInfo', undefined);
+        }
         Ext.create('Uni.view.window.Confirmation').show({
             msg: Uni.I18n.translate('deviceconnectionmethod.deleteConnectionMethod', 'MDC', 'This connection method will no longer be available.'),
             title: Uni.I18n.translate('deviceconnectionmethod.deleteConnectionMethod.title', 'MDC', "Remove '{0}'?", [connectionMethodToDelete.get('name')]),
