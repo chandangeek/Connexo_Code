@@ -71,6 +71,14 @@ Ext.define('Imt.purpose.view.ReadingEstimationWindow', {
                     }
                 },
                 {
+                    xtype: 'checkboxfield',
+                    fieldLabel: Uni.I18n.translate('general.projectedValue', 'IMT', 'Projected value'),
+                    boxLabel: Uni.I18n.translate('general.markValuesAsProjected', 'IMT', 'Mark value(s) as projected'),
+                    itemId: 'markProjected',
+                    checked: false,
+                    labelWidth: 200
+                },
+                {
                     xtype: 'fieldcontainer',
                     fieldLabel: '&nbsp;',
                     margin: '20 0 0 0',

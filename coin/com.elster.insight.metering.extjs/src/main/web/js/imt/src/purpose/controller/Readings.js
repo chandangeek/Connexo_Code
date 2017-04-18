@@ -105,6 +105,7 @@ Ext.define('Imt.purpose.controller.Readings', {
             }
         });
     },
+    valueBeforeEdit: 0,
 
     chooseBulkAction: function (menu, item) {
         var me = this,
@@ -122,6 +123,12 @@ Ext.define('Imt.purpose.controller.Readings', {
                 break;
             case 'resetValue':
                 me.resetReadings(records, true);
+                break;
+            case 'clearProjectedFlag':
+                me.clearProjected(records);
+                break;
+            case 'markProjected':
+                me.markProjected(records);
                 break;
         }
     },
@@ -145,12 +152,19 @@ Ext.define('Imt.purpose.controller.Readings', {
             case 'confirmValue':
                 me.confirmValue(menu.record, false);
                 break;
+            case 'clearProjectedFlag':
+                me.clearProjected(menu.record);
+                break;
+            case 'markProjected':
+                me.markProjected(menu.record);
+                break;
         }
     },
 
     beforeEditRecord: function (editor, context) {
         var intervalFlags = context.record.get('intervalFlags');
         context.column.getEditor().allowBlank = !(intervalFlags && intervalFlags.length);
+        this.valueBeforeEdit = context.record.get('value');
         this.showPreview(context.grid.getSelectionModel(), context.record);
     },
 
@@ -196,19 +210,23 @@ Ext.define('Imt.purpose.controller.Readings', {
     },
 
     showButtons: function () {
-        var me = this;
+        var me = this,
+            store = me.getStore('Imt.purpose.store.Readings'),
+            disabled;
 
-        Ext.suspendLayouts();
-        me.getReadingsList().down('#save-changes-button').enable();
-        me.getReadingsList().down('#undo-button').enable();
-        Ext.resumeLayouts();
+       disabled = store.getUpdatedRecords().length <= 0;
+
+        me.getReadingsList().down('#save-changes-button').setDisabled(disabled);
+        me.getReadingsList().down('#undo-button').setDisabled(disabled);
     },
 
     checkSuspect: function (menu) {
         var me = this,
             validationResult = menu.record.get('validationResult') === 'validationStatus.suspect' ||
                 menu.record.get('estimatedNotSaved') === true,
-            estimationRulesCount = me.getOutputChannelMainPage().controller.hasEstimationRule;
+            estimationRulesCount = me.getOutputChannelMainPage().controller.hasEstimationRule,
+            canClearProjected = menu.record.get('isProjected') === true,
+            canMarkProjected = menu.record.get('isProjected') === false && (menu.record.isModified('value') || menu.record.get('ruleId') !== 0 || !Ext.isEmpty(menu.record.get('modificationState')));
 
         Ext.suspendLayouts();
         menu.down('#estimate-value').setVisible(validationResult);
@@ -222,6 +240,12 @@ Ext.define('Imt.purpose.controller.Readings', {
         if (menu.down('#reset-value')) {
             menu.down('#reset-value').setVisible(menu.record.get('estimatedByRule') || menu.record.get('modificationFlag') == "EDITED" || menu.record.get('modificationFlag') == "ADDED");
         }
+        if (menu.down('#clear-projected')) {
+            menu.down('#clear-projected').setVisible(canClearProjected);
+        }
+        if (menu.down('#mark-projected')) {
+            menu.down('#mark-projected').setVisible(canMarkProjected);
+        }
         Ext.resumeLayouts();
     },
 
@@ -229,7 +253,7 @@ Ext.define('Imt.purpose.controller.Readings', {
     resumeEditorFieldValidation: function (editor, event) {
         var me = this;
 
-        if(me.getReadingsGraph() && me.getReadingsGraph().chart){
+        if (me.getReadingsGraph() && me.getReadingsGraph().chart) {
             var chart = me.getReadingsGraph().chart,
                 point = chart.get(event.record.get('interval').start),
                 grid = me.getReadingsList(),
@@ -240,7 +264,7 @@ Ext.define('Imt.purpose.controller.Readings', {
                 event.column.getEditor().allowBlank = true;
             }
 
-            if (event.record.isModified('value')) {
+            if (event.record.isModified('value') && this.valueBeforeEdit !== event.record.get('value')) {
                 grid.down('#save-changes-button').isDisabled() && me.showButtons();
 
                 Ext.suspendLayouts(true);
@@ -264,6 +288,8 @@ Ext.define('Imt.purpose.controller.Readings', {
 
                 if (event.column) {
                     event.record.set('validationResult', 'validationStatus.ok');
+                    event.record.set('isProjected', false);
+                    event.record.set('ruleId', 0);
                     grid.getView().refreshNode(grid.getStore().indexOf(event.record));
                     event.record.get('confirmed') && event.record.set('confirmed', false);
                 }
@@ -272,6 +298,7 @@ Ext.define('Imt.purpose.controller.Readings', {
                 me.resetChanges(event.record, point);
             }
         }
+        me.valueBeforeEdit = null;
     },
 
     resetChanges: function (record, point) {
@@ -309,9 +336,9 @@ Ext.define('Imt.purpose.controller.Readings', {
 
     undoChannelDataChanges: function () {
         var router = this.getController('Uni.controller.history.Router');
-        window.location.replace(router.getRoute().buildUrl());
-
+        router.getRoute().forward(router.arguments, Uni.util.QueryString.getQueryStringValues());
     },
+
     saveChannelDataChanges: function () {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
@@ -337,7 +364,8 @@ Ext.define('Imt.purpose.controller.Readings', {
     },
 
     getChangedData: function (store) {
-        var changedData = [],
+        var me = this,
+            changedData = [],
             confirmedObj;
 
         Ext.Array.each(store.getUpdatedRecords(), function (record) {
@@ -354,11 +382,11 @@ Ext.define('Imt.purpose.controller.Readings', {
                 };
                 changedData.push(confirmedObj);
             } else if (record.get('ruleId')) {
-                changedData.push(_.pick(record.getData(), 'interval', 'value', 'ruleId'));
-            } else if (record.isModified('value')) {
-                changedData.push(_.pick(record.getData(), 'interval', 'value'));
+                changedData.push(_.pick(record.getData(), 'interval', 'value', 'ruleId', 'isProjected'));
+            } else if (record.isModified('value') || record.isModified('isProjected')) {
+                changedData.push(_.pick(record.getData(), 'interval', 'value', 'isProjected'));
             } else if (record.isModified('collectedValue')) {
-                changedData.push(_.pick(record.getData(), 'interval', 'collectedValue'));
+                changedData.push(_.pick(record.getData(), 'interval', 'collectedValue', 'isProjected'));
             }
         });
 
@@ -371,11 +399,13 @@ Ext.define('Imt.purpose.controller.Readings', {
             canConfirm = false,
             canReset = false,
             canEstimateWithRule = false,
+            canClearProjected = false,
+            canMarkProjected = false,
             button = me.getReadingsList().down('#readings-bulk-action-button'),
             menu = button.down('menu'),
             estimationRulesCount = me.getOutputChannelMainPage().controller.hasEstimationRule;
 
-        selectedRecords.forEach(function (record) {
+        Ext.Array.each(selectedRecords, function (record) {
             if (canEstimate && canConfirm && canReset) {
                 return false;
             }
@@ -384,12 +414,18 @@ Ext.define('Imt.purpose.controller.Readings', {
                 if (!canConfirm && !record.get('isConfirmed') && !record.isModified('value')) {
                     canConfirm = true;
                 }
-                if(estimationRulesCount){
+                if (estimationRulesCount) {
                     canEstimateWithRule = true;
                 }
             }
             if (!canReset && (record.get('estimatedByRule') || record.get('modificationFlag') == "EDITED" || record.get('modificationFlag') == "ADDED")) {
                 canReset = true;
+            }
+            if (record.get('isProjected')) {
+                canClearProjected = true;
+            }
+            if(record.get('isProjected') === false && (record.isModified('value') || record.get('ruleId') !== 0 || !Ext.isEmpty(record.get('modificationState')))) {
+                canMarkProjected = true;
             }
         });
 
@@ -398,6 +434,8 @@ Ext.define('Imt.purpose.controller.Readings', {
         menu.down('#estimate-value-with-rule').setVisible(canEstimateWithRule);
         menu.down('#confirm-value').setVisible(canConfirm);
         menu.down('#reset-value').setVisible(canReset);
+        menu.down('#clear-projected').setVisible(canClearProjected);
+        menu.down('#mark-projected').setVisible(canMarkProjected);
         button.setDisabled(!menu.query('menuitem[hidden=false]').length);
         Ext.resumeLayouts();
     },
@@ -420,6 +458,10 @@ Ext.define('Imt.purpose.controller.Readings', {
             if (record.get('confirmed')) {
                 record.set('confirmed', false);
             }
+            if(record.get('isProjected')) {
+                record.set('isProjected', false);
+            }
+            record.set('ruleId', 0);
             record.set('validationResult', 'validationStatus.ok');
             record.endEdit(true);
             gridView.refreshNode(store.indexOf(record));
@@ -428,6 +470,40 @@ Ext.define('Imt.purpose.controller.Readings', {
 
         });
         chart.redraw();
+        Ext.resumeLayouts(true);
+        me.showButtons();
+    },
+
+    clearProjected: function (records) {
+        var me = this,
+            grid = me.getReadingsList();
+        Ext.suspendLayouts();
+        Ext.Array.each(records, function (record) {
+            if (record.get('isProjected') === true) {
+                record.beginEdit();
+                record.set('isProjected', false);
+                record.endEdit(true);
+                grid.getView().refreshNode(grid.getStore().indexOf(record));
+            }
+        });
+        Ext.resumeLayouts(true);
+        me.onDataGridSelectionChange(null, records);
+        me.showButtons();
+    },
+
+    markProjected: function (records) {
+        var me = this,
+            grid = me.getReadingsList();
+        Ext.suspendLayouts();
+        Ext.Array.each(records, function (record) {
+            if (record.get('isProjected') === false && (record.isModified('value') || record.get('ruleId') !== 0 || !Ext.isEmpty(record.get('modificationState')))) {
+                record.beginEdit();
+                record.set('isProjected', true);
+                record.endEdit(true);
+                grid.getView().refreshNode(grid.getStore().indexOf(record));
+            }
+        });
+        me.onDataGridSelectionChange(null, records);
         Ext.resumeLayouts(true);
         me.showButtons();
     },
@@ -460,11 +536,14 @@ Ext.define('Imt.purpose.controller.Readings', {
             propertyForm = window.down('#property-form'),
             model = Ext.create('Imt.purpose.model.ChannelDataEstimate'),
             record = window.record,
+            markAsProjected,
             intervalsArray = [];
 
 
         !window.down('#form-errors').isHidden() && window.down('#form-errors').hide();
         !window.down('#error-label').isHidden() && window.down('#error-label').hide();
+
+        markAsProjected = window.down('#markProjected').getValue();
         propertyForm.clearInvalid();
 
         if (propertyForm.getRecord()) {
@@ -486,6 +565,7 @@ Ext.define('Imt.purpose.controller.Readings', {
             });
         }
         model.set('intervals', intervalsArray);
+        model.set('markAsProjected', markAsProjected);
         me.saveChannelDataEstimateModel(model, record, window);
     },
 
@@ -496,12 +576,13 @@ Ext.define('Imt.purpose.controller.Readings', {
             propertyForm = window.down('#property-form'),
             model = Ext.create('Imt.purpose.model.ChannelDataEstimate'),
             record = window.record,
+            markAsProjected,
             intervalsArray = [];
 
 
         !window.down('#form-errors').isHidden() && window.down('#form-errors').hide();
         !window.down('#error-label').isHidden() && window.down('#error-label').hide();
-
+        markAsProjected = window.down('#reading-type-mark-projected').getRecord().get('markProjected');
         if (propertyForm.getRecord()) {
             model.set('estimatorImpl', window.getEstimator());
             model.propertiesStore = propertyForm.getRecord().properties();
@@ -520,6 +601,7 @@ Ext.define('Imt.purpose.controller.Readings', {
             });
         }
         model.set('intervals', intervalsArray);
+        model.set('markAsProjected', markAsProjected);
         me.saveChannelDataEstimateModel(model, record, window, estimationRuleId);
     },
 
@@ -545,7 +627,7 @@ Ext.define('Imt.purpose.controller.Readings', {
                     } else {
                         Ext.Array.each(responseText, function (estimatedReading) {
                             Ext.Array.findBy(readings, function (reading) {
-                                if (estimatedReading.interval.start == reading.get('interval').start) {
+                                if (reading.get('reportedDateTime').getTime() === estimatedReading.reportedDateTime) {
                                     me.updateEstimatedValues(record, reading, estimatedReading, ruleId);
                                     return true;
                                 }
@@ -589,7 +671,7 @@ Ext.define('Imt.purpose.controller.Readings', {
         ruleId && reading.set('ruleId', ruleId);
         reading.set('validationResult', 'validationStatus.ok');
         reading.set('estimatedNotSaved', true);
-
+        reading.set('isProjected', estimatedReading.isProjected);
         grid.getView().refreshNode(grid.getStore().indexOf(reading));
 
         me.resumeEditorFieldValidation(grid.editingPlugin, {
