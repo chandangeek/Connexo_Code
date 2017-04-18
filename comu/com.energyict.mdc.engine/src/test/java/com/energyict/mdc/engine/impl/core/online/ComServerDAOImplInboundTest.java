@@ -7,6 +7,7 @@ package com.energyict.mdc.engine.impl.core.online;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.User;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -17,7 +18,6 @@ import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
-import com.energyict.mdc.engine.FakeTransactionService;
 import com.energyict.mdc.engine.config.InboundComPort;
 import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.engine.exceptions.DataAccessException;
@@ -77,7 +77,7 @@ public class ComServerDAOImplInboundTest {
 
     @Before
     public void initializeMocksAndFactories() throws SQLException {
-        TransactionService transactionService = new FakeTransactionService();
+        TransactionService transactionService = TransactionModule.FakeTransactionService.INSTANCE;
         when(this.serviceProvider.transactionService()).thenReturn(transactionService);
         when(this.serviceProvider.communicationTaskService()).thenReturn(this.communicationTaskService);
         when(this.serviceProvider.deviceService()).thenReturn(this.deviceService);

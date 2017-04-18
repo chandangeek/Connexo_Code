@@ -6,12 +6,14 @@ package com.energyict.mdc.engine.impl.core.inbound;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceMessageService;
@@ -23,7 +25,6 @@ import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSessionBuilder;
 import com.energyict.mdc.engine.EngineService;
-import com.energyict.mdc.engine.FakeTransactionService;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.ComServer;
@@ -183,7 +184,7 @@ public class InboundCommunicationHandlerTest {
     @Mock
     private EncryptionDeviceAccessLevel encryptionDeviceAccessLevel;
 
-    private FakeTransactionService transactionService = new FakeTransactionService();
+    private TransactionService transactionService = TransactionModule.FakeTransactionService.INSTANCE;
     private TestInboundCommunicationHandler handler;
     private Clock clock = Clock.systemDefaultZone();
     private EventPublisherImpl eventPublisher;

@@ -6,10 +6,10 @@ package com.energyict.mdc.engine.impl.core;
 
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
-import com.energyict.mdc.engine.FakeTransactionService;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.InboundCapableComServer;
 import com.energyict.mdc.engine.config.InboundComPort;
@@ -112,7 +112,7 @@ public class MultiThreadedComPortListenerTest {
         when(this.inboundComPortExecutorServiceProvider.nlsService()).thenReturn(this.nlsService);
         when(this.inboundComPortExecutorServiceProvider.protocolPluggableService()).thenReturn(this.protocolPluggableService);
         when(this.inboundComPortExecutorServiceProvider.connectionTaskService()).thenReturn(this.connectionTaskService);
-        when(this.inboundComPortExecutorServiceProvider.transactionService()).thenReturn(new FakeTransactionService());
+        when(this.inboundComPortExecutorServiceProvider.transactionService()).thenReturn(TransactionModule.FakeTransactionService.INSTANCE);
         when(this.inboundComPortExecutorServiceProvider.issueService()).thenReturn(this.issueService);
         when(this.inboundComPortExecutorServiceProvider.clock()).thenReturn(this.clock);
         when(this.inboundComPortExecutorServiceProvider.userService()).thenReturn(this.userService);

@@ -8,6 +8,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.common.TypedProperties;
@@ -30,7 +31,6 @@ import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSessionBuilder;
 import com.energyict.mdc.engine.EngineService;
-import com.energyict.mdc.engine.FakeTransactionService;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.ComServer;
@@ -175,7 +175,7 @@ public class ScheduledJobImplTest {
     private JobExecution.ServiceProvider serviceProvider;
 
     private Clock clock = Clock.systemDefaultZone();
-    private TransactionService transactionService = new FakeTransactionService();
+    private TransactionService transactionService = TransactionModule.FakeTransactionService.INSTANCE;
 
     @Before
     public void setupServiceProvider() {

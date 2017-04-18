@@ -11,6 +11,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
@@ -29,7 +30,6 @@ import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSessionBuilder;
 import com.energyict.mdc.engine.EngineService;
-import com.energyict.mdc.engine.FakeTransactionService;
 import com.energyict.mdc.engine.GenericDeviceProtocol;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.OutboundComPort;
@@ -200,7 +200,7 @@ public class JobExecutionTest {
         when(this.serviceProvider.nlsService()).thenReturn(this.nlsService);
         when(this.serviceProvider.clock()).thenReturn(this.clock);
 
-        when(this.jobExecutionServiceProvider.transactionService()).thenReturn(new FakeTransactionService());
+        when(this.jobExecutionServiceProvider.transactionService()).thenReturn(TransactionModule.FakeTransactionService.INSTANCE);
         when(this.jobExecutionServiceProvider.clock()).thenReturn(this.clock);
         when(this.jobExecutionServiceProvider.nlsService()).thenReturn(this.nlsService);
         when(this.jobExecutionServiceProvider.connectionTaskService()).thenReturn(this.connectionTaskService);
@@ -217,7 +217,7 @@ public class JobExecutionTest {
         when(identificationService.createDeviceIdentifierForAlreadyKnownDevice(any(Device.class))).thenReturn(mock(DeviceIdentifier.class));
         when(this.jobExecutionServiceProvider.identificationService()).thenReturn(identificationService);
 
-        when(this.commandRootServiceProvider.transactionService()).thenReturn(new FakeTransactionService());
+        when(this.commandRootServiceProvider.transactionService()).thenReturn(TransactionModule.FakeTransactionService.INSTANCE);
         when(this.commandRootServiceProvider.clock()).thenReturn(this.clock);
         when(this.commandRootServiceProvider.issueService()).thenReturn(this.issueService);
         when(this.commandRootServiceProvider.deviceService()).thenReturn(this.deviceService);
