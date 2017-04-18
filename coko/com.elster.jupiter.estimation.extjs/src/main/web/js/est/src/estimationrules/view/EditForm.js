@@ -67,6 +67,28 @@ Ext.define('Est.estimationrules.view.EditForm', {
                 }
             },
             {
+                xtype: 'property-form',
+                itemId: 'property-form',
+                width: '100%',
+                defaults: {
+                    labelWidth: me.defaults.labelWidth,
+                    width: 325,
+                    resetButtonHidden: true,
+                    hasNotValueSameAsDefaultMessage: true
+                }
+            },
+
+            {
+                xtype: 'checkbox',
+                uncheckedValue: 'false',
+                name: 'markProjected',
+                itemId: 'projected-checkbox',
+                fieldLabel: 'Reading quality',
+                boxLabel: Uni.I18n.translate('general.markAsProjected', 'EST', 'Mark as projected'),
+                hidden: true,
+                margin: '0 0 14 0'
+            },
+            {
                 xtype: 'fieldcontainer',
                 itemId: 'reading-types-field-container',
                 fieldLabel: Uni.I18n.translate('general.readingTypes', 'EST', 'Reading types'),
@@ -133,19 +155,6 @@ Ext.define('Est.estimationrules.view.EditForm', {
                 itemId: 'reading-types-grid-error',
                 margin: '0 0 0 275',
                 hidden: true
-            },
-
-            {
-                xtype: 'property-form',
-                itemId: 'property-form',
-                margin: '20 0 0 0',
-                width: '100%',
-                defaults: {
-                    labelWidth: me.defaults.labelWidth,
-                    width: 325,
-                    resetButtonHidden: true,
-                    hasNotValueSameAsDefaultMessage: true
-                }
             },
             {
                 xtype: 'fieldcontainer',
