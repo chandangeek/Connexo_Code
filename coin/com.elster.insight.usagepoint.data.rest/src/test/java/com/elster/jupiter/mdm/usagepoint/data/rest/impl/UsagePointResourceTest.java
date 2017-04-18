@@ -699,7 +699,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         assertThat(model.<String>get("$.meterActivations[0].meter.mRID")).isEqualTo("00000000-0000-0000-0000-0000000000ff");
         assertThat(model.<String>get("$.meterActivations[0].meter.name")).isEqualTo("meter1");
         assertThat(model.<String>get("$.meterActivations[0].meterRole.id")).isEqualTo("key1");
-        assertThat(model.get("$.meterActivations[1].meter")).isNull();
+        assertThat(model.<Object>get("$.meterActivations[1].meter")).isNull();
         assertThat(model.<String>get("$.meterActivations[1].meterRole.id")).isEqualTo("key2");
     }
 
