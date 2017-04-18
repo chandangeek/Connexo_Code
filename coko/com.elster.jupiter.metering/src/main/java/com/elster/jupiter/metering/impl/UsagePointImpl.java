@@ -1305,6 +1305,7 @@ public class UsagePointImpl implements ServerUsagePoint {
         this.state.effective(startTime).ifPresent(activeState -> activeState.close(startTime));
         this.state.add(this.dataModel.getInstance(UsagePointStateTemporalImpl.class).init(this, state, startTime));
         touch();
+        eventService.postEvent(EventType.USAGEPOINT_UPDATED.topic(), this);
     }
 
     public void adopt(MeterActivationImpl meterActivation) {
