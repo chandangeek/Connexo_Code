@@ -150,10 +150,7 @@ public abstract class AbstractCimChannel implements CimChannel {
                 cleanObsoleteQualitiesWhenEditingOrEstimating(currentQualityRecords);
                 Optional<BaseReadingRecord> oldReading = getChannel().getReading(reading.getTimeStamp());
                 ProcessStatus processStatus = processStatusToSet.or(oldReading.map(BaseReadingRecord::getProcessStatus).orElse(ProcessStatus.of()));
-                reading.getReadingQualities().stream()
-                        .filter(readingQuality -> currentQualityRecords.stream()
-                                    .filter(record -> !record.getType().equals(readingQuality.getType()) && !matchComments(record, readingQuality)).findAny().isPresent())
-                        .forEach(readingQuality -> createReadingQuality(oldReading.isPresent() ? qualityForUpdate : qualityForCreate, reading, readingQuality.getComment()));
+                createOrUpdateReadingQualities(reading, currentQualityRecords, oldReading, qualityForUpdate, qualityForCreate);
                 storer.addReading(this, reading, processStatus);
             }
             storer.execute(system);
@@ -165,6 +162,19 @@ public abstract class AbstractCimChannel implements CimChannel {
         String readingQualityComment = readingQuality.getComment();
         return recordComment != null && readingQualityComment != null && recordComment.equals(readingQualityComment);
 
+    }
+
+    private void createOrUpdateReadingQualities(BaseReading reading, List<ReadingQualityRecord> currentQualityRecords, Optional<BaseReadingRecord> oldReading,  ReadingQualityType qualityForUpdate,  ReadingQualityType qualityForCreate) {
+        if (!reading.getReadingQualities().isEmpty()) {
+            reading.getReadingQualities().stream()
+                    .filter(readingQuality -> currentQualityRecords.stream()
+                            .filter(record -> !record.getType().equals(readingQuality.getType()) && !matchComments(record, readingQuality))
+                            .findAny()
+                            .isPresent())
+                    .forEach(readingQuality -> createReadingQuality(oldReading.isPresent() ? qualityForUpdate : qualityForCreate, reading, readingQuality.getComment()));
+        } else {
+            createReadingQuality(oldReading.isPresent() ? qualityForUpdate : qualityForCreate, reading);
+        }
     }
 
     @Override
