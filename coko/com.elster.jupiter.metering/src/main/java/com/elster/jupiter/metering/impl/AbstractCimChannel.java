@@ -26,6 +26,7 @@ import com.google.common.collect.Range;
 
 import java.time.Instant;
 import java.time.temporal.TemporalAmount;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -146,11 +147,17 @@ public abstract class AbstractCimChannel implements CimChannel {
             Map<Instant, List<ReadingQualityRecord>> readingQualitiesByTimestamp = findReadingQualitiesByTimestamp(readings, Collections.emptySet());
             ReadingStorer storer = meteringService.createUpdatingStorer(StorerProcess.EDIT);
             for (BaseReading reading : readings) {
-                List<ReadingQualityRecord> currentQualityRecords = Optional.ofNullable(readingQualitiesByTimestamp.get(reading.getTimeStamp())).orElseGet(Collections::emptyList);
+                List<ReadingQualityRecord> currentQualityRecords = Optional.ofNullable(readingQualitiesByTimestamp.get(reading.getTimeStamp())).orElse(new ArrayList<>());
                 cleanObsoleteQualitiesWhenEditingOrEstimating(currentQualityRecords);
                 Optional<BaseReadingRecord> oldReading = getChannel().getReading(reading.getTimeStamp());
                 ProcessStatus processStatus = processStatusToSet.or(oldReading.map(BaseReadingRecord::getProcessStatus).orElse(ProcessStatus.of()));
-                createOrUpdateReadingQualities(reading, currentQualityRecords, oldReading, qualityForUpdate, qualityForCreate);
+
+                List<? extends ReadingQuality> readingQualitiesFromReading = reading.getReadingQualities();
+                ReadingQualityRecord editedQualityRecord = createReadingQuality(oldReading.isPresent() ? qualityForUpdate : qualityForCreate, reading);
+                currentQualityRecords.add(editedQualityRecord);
+
+                processReadingQualities(reading, currentQualityRecords, readingQualitiesFromReading);
+
                 storer.addReading(this, reading, processStatus);
             }
             storer.execute(system);
@@ -162,19 +169,6 @@ public abstract class AbstractCimChannel implements CimChannel {
         String readingQualityComment = readingQuality.getComment();
         return recordComment != null && readingQualityComment != null && recordComment.equals(readingQualityComment);
 
-    }
-
-    private void createOrUpdateReadingQualities(BaseReading reading, List<ReadingQualityRecord> currentQualityRecords, Optional<BaseReadingRecord> oldReading,  ReadingQualityType qualityForUpdate,  ReadingQualityType qualityForCreate) {
-        if (!reading.getReadingQualities().isEmpty()) {
-            reading.getReadingQualities().stream()
-                    .filter(readingQuality -> currentQualityRecords.stream()
-                            .filter(record -> !record.getType().equals(readingQuality.getType()) && !matchComments(record, readingQuality))
-                            .findAny()
-                            .isPresent())
-                    .forEach(readingQuality -> createReadingQuality(oldReading.isPresent() ? qualityForUpdate : qualityForCreate, reading, readingQuality.getComment()));
-        } else {
-            createReadingQuality(oldReading.isPresent() ? qualityForUpdate : qualityForCreate, reading);
-        }
     }
 
     @Override
@@ -222,15 +216,14 @@ public abstract class AbstractCimChannel implements CimChannel {
             Map<Instant, List<ReadingQualityRecord>> readingQualitiesByTimestamp = findReadingQualitiesByTimestamp(readings, Collections.emptySet());
             ReadingStorer storer = meteringService.createUpdatingStorer(StorerProcess.ESTIMATION);
             for (BaseReading reading : readings) {
-                List<ReadingQualityRecord> currentQualityRecords = Optional.ofNullable(readingQualitiesByTimestamp.get(reading.getTimeStamp())).orElseGet(Collections::emptyList);
-                Set<ReadingQualityType> currentQualityTypes = currentQualityRecords.stream().map(ReadingQualityRecord::getType).collect(Collectors.toSet());
+                List<ReadingQualityRecord> currentQualityRecords = Optional.ofNullable(readingQualitiesByTimestamp.get(reading.getTimeStamp())).orElse(new ArrayList<>());
                 Optional<BaseReadingRecord> oldReading = getReading(reading.getTimeStamp());
                 ProcessStatus processStatus = ProcessStatus.of(ProcessStatus.Flag.ESTIMATED).or(oldReading.map(BaseReadingRecord::getProcessStatus).orElse(ProcessStatus.of()));
                 List<? extends ReadingQuality> readingQualitiesFromReading = reading.getReadingQualities();
                 cleanObsoleteQualitiesWhenEditingOrEstimating(currentQualityRecords);
-                readingQualitiesFromReading.stream()
-                        .filter(readingQuality -> !currentQualityTypes.contains(readingQuality.getType()))
-                        .forEach(readingQuality -> createReadingQuality(readingQuality.getType(), reading, readingQuality.getComment()));
+
+                processReadingQualities(reading, currentQualityRecords, readingQualitiesFromReading);
+
                 storer.addReading(this, reading, processStatus);
                 derivedCimChannel
                         .ifPresent(derived -> markEstimated(derived, reading.getTimeStamp(), readingQualitiesFromReading));
@@ -238,6 +231,24 @@ public abstract class AbstractCimChannel implements CimChannel {
             storer.execute(system);
         }
     }
+
+    private void processReadingQualities(BaseReading reading, List<ReadingQualityRecord> currentQualityRecords, List<? extends ReadingQuality> readingQualitiesFromReading) {
+        readingQualitiesFromReading.forEach(readingQuality -> {
+            Optional<ReadingQualityRecord> readingQualityRecord = getRecordOfType(currentQualityRecords, readingQuality.getType());
+            if(readingQualityRecord.isPresent() && !readingQualityRecord.get().isActual() && matchComments(readingQualityRecord.get(), readingQuality)) {
+                readingQualityRecord.get().makeActual();
+            } else {
+                createReadingQuality(readingQuality.getType(), reading, readingQuality.getComment());
+            }
+        });
+    }
+
+    private Optional<ReadingQualityRecord> getRecordOfType(List<ReadingQualityRecord> currentQualityRecords, ReadingQualityType readingQualityType) {
+        return currentQualityRecords.stream()
+                .filter(readingQualityRecord -> readingQualityRecord.getType().equals(readingQualityType))
+                .findAny();
+    }
+
 
     private static void cleanObsoleteQualitiesWhenEditingOrEstimating(Collection<ReadingQualityRecord> currentQualityRecords) {
         cleanObsoleteQualities(currentQualityRecords,
@@ -250,7 +261,8 @@ public abstract class AbstractCimChannel implements CimChannel {
                 either(ReadingQualityType::hasValidationCategory)
                         .or(ReadingQualityType::isMissing)
                         .or(qualityType -> qualityType.getIndexCode() == QualityCodeIndex.ADDED.index())
-                        .or(qualityType -> qualityType.getIndexCode() == QualityCodeIndex.REJECTED.index()));
+                        .or(qualityType -> qualityType.getIndexCode() == QualityCodeIndex.REJECTED.index())
+                        .or(ReadingQualityType::hasProjectedCategory));
     }
 
     private static void markEstimated(AbstractCimChannel derived, Instant timeStamp, List<? extends ReadingQuality> readingQualities) {
