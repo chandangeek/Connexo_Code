@@ -5,13 +5,7 @@
 
 Ext.define('Uni.property.view.property.CalendarWithEventCode', {
     extend: 'Uni.property.view.property.Base',
-    // listeners: {
-    //     afterrender: function () {
-    //
-    //     }
-    // },
 
-//TODO: displayCmp
     getEditCmp: function () {
         var me = this;
         me.layout = 'vbox';
