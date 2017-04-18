@@ -144,7 +144,7 @@ abstract class AbstractDataQualityKpiCalculator implements DataQualityKpiCalcula
                 .flatMap(Collection::stream)
                 .map(ValidationRuleSetVersion::getRules)
                 .flatMap(Collection::stream)
-                .collect(Collectors.toMap(this::getReadingQualityType, Function.identity()));
+                .collect(Collectors.toMap(this::getReadingQualityType, Function.identity(), (r1, r2) -> r1));
     }
 
     private Map<ReadingQualityType, EstimationRule> mapReadingQualitiesToEstimationRules() {
@@ -153,7 +153,7 @@ abstract class AbstractDataQualityKpiCalculator implements DataQualityKpiCalcula
                 .stream()
                 .map(EstimationRuleSet::getRules)
                 .flatMap(Collection::stream)
-                .collect(Collectors.toMap(this::getReadingQualityType, Function.identity()));
+                .collect(Collectors.toMap(this::getReadingQualityType, Function.identity(), (r1, r2) -> r1));
     }
 
     private ReadingQualityType getReadingQualityType(ValidationRule validationRule) {
