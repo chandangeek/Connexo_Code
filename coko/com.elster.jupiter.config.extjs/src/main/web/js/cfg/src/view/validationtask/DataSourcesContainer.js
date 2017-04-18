@@ -127,7 +127,7 @@ Ext.define('Cfg.view.validationtask.DataSourcesContainer', {
                                 xtype: 'uni-default-button',
                                 itemId: 'reset-purpose-btn',
                                 disabled: true,
-                                tooltip: Uni.I18n.translate('validationTasks.addValidationTask.reset', 'CFG', 'Reset'),
+                                tooltip: Uni.I18n.translate('validationTasks.addValidationTask.clear', 'CFG', 'Clear'),
                                 hidden: false
                             }
                         ]
