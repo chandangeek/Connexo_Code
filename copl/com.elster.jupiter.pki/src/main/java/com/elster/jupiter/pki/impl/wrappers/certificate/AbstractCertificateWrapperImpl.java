@@ -88,7 +88,7 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
     }
 
     private long id;
-    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String alias;
     private byte[] certificate;
     private Instant expirationTime;
