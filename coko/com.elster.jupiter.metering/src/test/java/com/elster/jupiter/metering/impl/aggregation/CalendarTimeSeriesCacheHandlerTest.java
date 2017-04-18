@@ -22,6 +22,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -87,7 +88,7 @@ public class CalendarTimeSeriesCacheHandlerTest {
         verify(this.meteringService).findUsagePointById(USAGEPOINT_ID);
         verify(this.dataAggregationService).introspect(this.usagePoint, Instant.ofEpochMilli(UTC_TIMESTAMP));
         verify(this.calendarUsage).getCalendar();
-        verify(this.calendarUsage).getIntervalLength();
+        verify(this.calendarUsage, atLeastOnce()).getIntervalLength();
         verify(this.calendarUsage).getZoneId();
         verify(this.calendar).toTimeSeries(IntervalLength.MINUTE15.toTemporalAmount(), ZoneOffset.UTC);
     }
@@ -113,11 +114,11 @@ public class CalendarTimeSeriesCacheHandlerTest {
         verify(this.meteringService).findUsagePointById(USAGEPOINT_ID);
         verify(this.dataAggregationService).introspect(this.usagePoint, Instant.ofEpochMilli(UTC_TIMESTAMP));
         verify(this.calendarUsage).getCalendar();
-        verify(this.calendarUsage).getIntervalLength();
+        verify(this.calendarUsage, atLeastOnce()).getIntervalLength();
         verify(this.calendarUsage).getZoneId();
         verify(this.calendar).toTimeSeries(IntervalLength.MINUTE15.toTemporalAmount(), ZoneOffset.UTC);
         verify(additionalUsage).getCalendar();
-        verify(additionalUsage).getIntervalLength();
+        verify(additionalUsage, atLeastOnce()).getIntervalLength();
         verify(additionalUsage).getZoneId();
         verify(additionalCalendar).toTimeSeries(IntervalLength.HOUR1.toTemporalAmount(), additionalZoneId);
     }

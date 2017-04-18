@@ -61,6 +61,8 @@ public class CalendarTimeSeriesCacheHandler implements MessageHandler {
     private ServerUsagePoint execute(ServerUsagePoint usagePoint, Instant instant) {
         this.dataAggregationService
                 .introspect(usagePoint, instant)
+                .stream()
+                .filter(usage -> usage.getIntervalLength() != IntervalLength.NOT_SUPPORTED) // Filter the ones that relate to registers
                 .forEach(this::execute);
         return usagePoint;
     }
