@@ -726,22 +726,14 @@ public class ChannelResource {
 
             channel.getChannelData(range.getKey()).stream().forEach(record -> {
                 referenceRecords.stream()
+                        .filter(referenceReading -> !referenceReading.getChannelValues().isEmpty())
                         .findFirst()
                         .ifPresent(referenceReading -> {
                             ChannelDataInfo channelDataInfo = deviceDataInfoFactory.createChannelDataInfo(channel, record, isValidationActive, deviceValidation, null);
                             ChannelDataInfo referenceChannelDataInfo = deviceDataInfoFactory.createChannelDataInfo(channel, referenceReading, isValidationActive, deviceValidation, null);
-                            if (!channel.getReadingType().isCumulative()) {
                                 channelDataInfo.value = referenceChannelDataInfo.value
                                         .scaleByPowerOfTen(referenceChannel.getReadingType().getMultiplier().getMultiplier()
                                                 - channel.getReadingType().getMultiplier().getMultiplier());
-                            } else {
-                                channelDataInfo.value = referenceChannelDataInfo.value
-                                        .scaleByPowerOfTen(referenceChannel.getReadingType().getMultiplier().getMultiplier()
-                                                - channel.getReadingType().getMultiplier().getMultiplier());
-                                channelDataInfo.collectedValue = referenceChannelDataInfo.collectedValue
-                                        .scaleByPowerOfTen(referenceChannel.getReadingType().getMultiplier().getMultiplier()
-                                                - channel.getReadingType().getMultiplier().getMultiplier());
-                            }
                             channelDataInfo.mainValidationInfo.validationResult = ValidationStatus.NOT_VALIDATED;
                             if (copyFromReferenceChannelDataInfo.allowSuspectData || referenceReading.getReadingQualities()
                                     .values()
