@@ -55,6 +55,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -249,10 +250,11 @@ public class UsagePointLifeCycleConfigurationServiceImpl implements UsagePointLi
         Stage postOperational = stageSet.getStageByName(UsagePointStage.POST_OPERATIONAL.getKey()).get();
         Stage operational = stageSet.getStageByName(UsagePointStage.OPERATIONAL.getKey()).get();
         Stage preOperational = stageSet.getStageByName(UsagePointStage.PRE_OPERATIONAL.getKey()).get();
+        Stage suspended = stageSet.getStageByName(UsagePointStage.SUSPENDED.getKey()).get();
         FiniteStateMachineBuilder stateMachineBuilder = this.stateMachineService.newFiniteStateMachine(FSM_NAME_PREFIX + name, stageSet);
         State stateUnderConstruction = stateMachineBuilder.newStandardState(DefaultState.UNDER_CONSTRUCTION.getKey(), preOperational).complete();
         State stateActive = stateMachineBuilder.newStandardState(DefaultState.ACTIVE.getKey(), operational).complete();
-        State stateInactive = stateMachineBuilder.newStandardState(DefaultState.INACTIVE.getKey(), operational).complete();
+        State stateInactive = stateMachineBuilder.newStandardState(DefaultState.INACTIVE.getKey(), suspended).complete();
         State stateDemolished = stateMachineBuilder.newStandardState(DefaultState.DEMOLISHED.getKey(), postOperational).complete();
         FiniteStateMachine stateMachine = stateMachineBuilder.complete(stateUnderConstruction);
 
@@ -381,5 +383,11 @@ public class UsagePointLifeCycleConfigurationServiceImpl implements UsagePointLi
 
     private Supplier<IllegalStateException> getStageSetExceptionProvider() {
         return () -> new IllegalStateException("Default usagepoint stage set not installed correctly");
+    }
+
+    public Map<Locale, String> getAllTranslationsForKey(String translationKey){
+        return userService.getUserPreferencesService().getSupportedLocales()
+                .stream()
+                .collect(Collectors.toMap(Function.identity(), locale -> thesaurus.getString(locale, translationKey, translationKey)));
     }
 }
