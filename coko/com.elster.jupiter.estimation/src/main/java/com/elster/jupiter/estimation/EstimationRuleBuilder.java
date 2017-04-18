@@ -5,6 +5,7 @@
 package com.elster.jupiter.estimation;
 
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.aggregation.ReadingQualityComment;
 
 import aQute.bnd.annotation.ProviderType;
 
@@ -23,6 +24,8 @@ public interface EstimationRuleBuilder {
     EstimationRuleBuilder withReadingTypes(Collection<ReadingType> readingTypes);
 
     EstimationRuleBuilder withProperties(Map<String, Object> properties);
+
+    EstimationRuleBuilder withEstimationComment(ReadingQualityComment estimationComment);
 
     EstimationRuleBuilder.PropertyBuilder havingProperty(String property);
 

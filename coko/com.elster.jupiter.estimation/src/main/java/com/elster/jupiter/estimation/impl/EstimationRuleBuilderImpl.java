@@ -7,12 +7,14 @@ package com.elster.jupiter.estimation.impl;
 import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.EstimationRuleBuilder;
 import com.elster.jupiter.metering.ReadingType;
+`import com.elster.jupiter.metering.aggregation.ReadingQualityComment;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 class EstimationRuleBuilderImpl implements EstimationRuleBuilder {
@@ -21,6 +23,7 @@ class EstimationRuleBuilderImpl implements EstimationRuleBuilder {
     private final String implementation;
     private final String name;
     private boolean active = true;
+    private Optional<ReadingQualityComment> estimationComment = Optional.empty();
     private Set<ReadingType> readingTypes = new HashSet<>();
     private Set<String> readingTypeMRIDs = new HashSet<>();
     private Map<String, Object> properties = new HashMap<>();
@@ -64,6 +67,12 @@ class EstimationRuleBuilderImpl implements EstimationRuleBuilder {
     }
 
     @Override
+    public EstimationRuleBuilder withEstimationComment(ReadingQualityComment estimationComment) {
+        this.estimationComment = Optional.of(estimationComment);
+        return this;
+    }
+
+    @Override
     public PropertyBuilder havingProperty(String property) {
         return value -> {
             properties.put(property, value);
@@ -80,6 +89,7 @@ class EstimationRuleBuilderImpl implements EstimationRuleBuilder {
         if (active) {
             rule.activate();
         }
+        estimationComment.ifPresent(rule::setComment);
         ruleSet.save();
         return rule;
     }

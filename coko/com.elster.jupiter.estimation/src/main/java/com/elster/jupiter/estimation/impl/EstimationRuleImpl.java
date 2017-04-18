@@ -13,6 +13,7 @@ import com.elster.jupiter.estimation.impl.MessageSeeds.Constants;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.aggregation.ReadingQualityComment;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
@@ -55,6 +56,7 @@ class EstimationRuleImpl implements IEstimationRule {
     @ExistingEstimator(groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.NO_SUCH_ESTIMATOR + "}")
     private String implementation; //estimator class name
     private Instant obsoleteTime;
+    private Reference<ReadingQualityComment> readingQualityComment = Reference.empty();
 
     private long version;
     private Instant createTime;
@@ -327,6 +329,16 @@ class EstimationRuleImpl implements IEstimationRule {
 
     private void setObsoleteTime(Instant obsoleteTime) {
         this.obsoleteTime = obsoleteTime;
+    }
+
+    @Override
+    public Optional<ReadingQualityComment> getComment() {
+        return readingQualityComment.getOptional();
+    }
+
+    @Override
+    public void setComment(ReadingQualityComment comment) {
+        readingQualityComment.set(comment);
     }
 
     @Override
