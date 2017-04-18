@@ -158,7 +158,7 @@ public abstract class ReadDataFromFileCommand {
 
     private void addBilling(String[] columns, String controlValue, String from, String to) {
         try {
-            for (int i = 3; i < columns.length && i <= this.readingTypes.size() ; i++) {
+            for (int i = 3; i < columns.length && i < 3 + this.readingTypes.size() ; i++) {
                 String stringValue = columns[i].replace(",", ".").replace(" ", "");
                 if (!is(stringValue).emptyOrOnlyWhiteSpace()) {
                     try {
