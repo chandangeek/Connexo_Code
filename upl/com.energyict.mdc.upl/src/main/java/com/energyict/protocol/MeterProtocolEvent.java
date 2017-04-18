@@ -9,7 +9,10 @@ import com.energyict.cim.EndDeviceEventType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 @XmlRootElement
 public class MeterProtocolEvent implements Serializable, Comparable<MeterEvent> {
@@ -43,6 +46,11 @@ public class MeterProtocolEvent implements Serializable, Comparable<MeterEvent> 
      * Identifies the (sequential) ID of the event in the particular logbook of the Device.
      */
     private final int deviceEventId;
+
+    /**
+     * Keeps track of additional information regarding this MeterProtocolEvent.
+     */
+    private Map<String, String> additionalInformation = new HashMap<>();
 
     /**
      * Constructor only to be used by JSON (de)marshalling
@@ -116,4 +124,25 @@ public class MeterProtocolEvent implements Serializable, Comparable<MeterEvent> 
     public int getDeviceEventId() {
         return deviceEventId;
     }
+
+    /**
+     * Provides a list of additional information regarding this meterevent.
+     * It will provide a list of key-value pairs which are provided by the meterprotocol
+     *
+     * @return list of key-value pairs, giving more information about this event.
+     */
+    public Map<String, String> getAdditionalInformation() {
+        return Collections.unmodifiableMap(this.additionalInformation);
+    }
+
+    /**
+     * Adds additional information to this event.
+     *
+     * @param key the key of the info
+     * @param value the value of the info
+     */
+    public void addAdditionalInformation(String key, String value) {
+        this.additionalInformation.put(key, value);
+    }
+
 }

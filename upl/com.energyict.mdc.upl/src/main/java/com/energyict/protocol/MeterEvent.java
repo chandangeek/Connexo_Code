@@ -6,16 +6,19 @@ package com.energyict.protocol;
 
 import com.energyict.cim.EndDeviceEventTypeMapping;
 
-import java.util.ArrayList;
+import java.io.Serializable;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Represents an event in a device.
  *
  * @author Karel
  */
-public class MeterEvent implements java.io.Serializable, Comparable<MeterEvent> {
+public class MeterEvent implements Serializable, Comparable<MeterEvent> {
 
     private static final int UNKNOWN_ID = 0;
     private static final long serialVersionUID = -6814008454883084948L;
@@ -311,6 +314,11 @@ public class MeterEvent implements java.io.Serializable, Comparable<MeterEvent> 
     private final int deviceEventId;
 
     /**
+     * Keeps track of additional information for this meterevent.
+     */
+    private Map<String, String> additionalInfo = new HashMap<>();
+
+    /**
      * String representation of this MeterEvent
      *
      * @return String
@@ -457,59 +465,22 @@ public class MeterEvent implements java.io.Serializable, Comparable<MeterEvent> 
 
     } // public String toString()
 
-
-    /**
-     * <p></p>
-     *
-     * @param time   event time
-     * @param eiCode generic event code
-     */
     public MeterEvent(Date time, int eiCode) {
         this(time, eiCode, 0);
     }
 
-    /**
-     * <p></p>
-     *
-     * @param time         event time
-     * @param eiCode       generic event code
-     * @param protocolCode protocol specific event code
-     */
     public MeterEvent(Date time, int eiCode, int protocolCode) {
         this(time, eiCode, protocolCode, null);
     }
 
-    /**
-     * <p></p>
-     *
-     * @param time    event time
-     * @param eiCode  generic event code
-     * @param message event message
-     */
     public MeterEvent(Date time, int eiCode, String message) {
         this(time, eiCode, 0, message);
     }
 
-    /**
-     * <p></p>
-     *
-     * @param time         event time
-     * @param eiCode       generic event code
-     * @param protocolCode the protocol specific event code
-     * @param message      event message
-     */
     public MeterEvent(Date time, int eiCode, int protocolCode, String message) {
         this(time, eiCode, protocolCode, message, 0, 0);
     }
 
-    /**
-     * @param time          event time
-     * @param eiCode        generic event code
-     * @param protocolCode  the protocol specific event code
-     * @param message       event message
-     * @param eventLogId    device specific event Logbook Identification
-     * @param deviceEventId device specific event ID
-     */
     public MeterEvent(Date time, int eiCode, int protocolCode, String message, int eventLogId, int deviceEventId) {
         this.time = time;
         this.eiCode = eiCode;
@@ -519,65 +490,37 @@ public class MeterEvent implements java.io.Serializable, Comparable<MeterEvent> 
         this.deviceEventId = deviceEventId;
     }
 
-
-    /**
-     * <p></p>
-     *
-     * @return the event time
-     */
     public Date getTime() {
         return time;
-    } // end getTime
-
-    /**
-     * <p></p>
-     *
-     * @return the generic event code
-     */
-    public int getEiCode() {
-        return eiCode;
-    } // end getEiCode
-
-    /**
-     * <p></p>
-     *
-     * @return the protocol specific event code
-     */
-    public int getProtocolCode() {
-        return protocolCode;
-    } // end getProtocolCode
-
-    /**
-     * <p></p>
-     *
-     * @return the event's message
-     */
-    public String getMessage() {
-        return message;
-    } // end getMessage
-
-    /**
-     * Compare another MeterEvent object to this MeterEvent object
-     *
-     * @param o Object MeterEvent
-     * @return Comparison result
-     */
-    public int compareTo(MeterEvent o) {
-        return (time.compareTo(o.getTime()));
     }
 
-    /**
-     * @return the {@link #eventLogId}
-     */
+    public int getEiCode() {
+        return eiCode;
+    }
+
+    public int getProtocolCode() {
+        return protocolCode;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
     public int getEventLogId() {
         return eventLogId;
     }
 
-    /**
-     * @return the {@link #deviceEventId}
-     */
     public int getDeviceEventId() {
         return deviceEventId;
+    }
+
+    public void addAdditionalInfo(String key, String value) {
+        this.additionalInfo.put(key, value);
+    }
+
+    @Override
+    public int compareTo(MeterEvent other) {
+        return (time.compareTo(other.getTime()));
     }
 
     public static MeterProtocolEvent mapMeterEventToMeterProtocolEvent(MeterEvent event) {
@@ -591,18 +534,24 @@ public class MeterEvent implements java.io.Serializable, Comparable<MeterEvent> 
     }
 
     public static List<MeterProtocolEvent> mapMeterEventsToMeterProtocolEvents(List<MeterEvent> meterEvents) {
-        List<MeterProtocolEvent> meterProtocolEvents = new ArrayList<>(meterEvents.size());
-        for (MeterEvent event : meterEvents) {
-            meterProtocolEvents.add(
-                    new MeterProtocolEvent(event.getTime(),
-                            event.getEiCode(),
-                            event.getProtocolCode(),
-                            EndDeviceEventTypeMapping.getEventTypeCorrespondingToEISCode(event.getEiCode()),
-                            event.getMessage(),
-                            UNKNOWN_ID,
-                            UNKNOWN_ID)
-            );
-        }
-        return meterProtocolEvents;
+        return meterEvents.stream().map(MeterEvent::toMeterProtocolEvent).collect(Collectors.toList());
     }
+
+    private static MeterProtocolEvent toMeterProtocolEvent(MeterEvent event) {
+        MeterProtocolEvent meterProtocolEvent =
+                new MeterProtocolEvent(
+                        event.getTime(),
+                        event.getEiCode(),
+                        event.getProtocolCode(),
+                        EndDeviceEventTypeMapping.getEventTypeCorrespondingToEISCode(event.getEiCode()),
+                        event.getMessage(),
+                        UNKNOWN_ID,
+                        UNKNOWN_ID);
+        event.additionalInfo
+                .entrySet()
+                .stream()
+                .forEach(keyValue -> meterProtocolEvent.addAdditionalInformation(keyValue.getKey(), keyValue.getValue()));
+        return meterProtocolEvent;
+    }
+
 }
