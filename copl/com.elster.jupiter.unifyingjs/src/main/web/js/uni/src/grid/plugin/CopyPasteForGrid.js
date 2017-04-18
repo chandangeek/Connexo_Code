@@ -48,7 +48,7 @@ Ext.define('Uni.grid.plugin.CopyPasteForGrid', {
             hiddentextarea.focus();
             hiddentextarea.dom.setSelectionRange(0, hiddentextarea.dom.value.length);
         }
-        Ext.suspendLayouts();
+        Ext.resumeLayouts();
     },
 
     pasteFromClipBoard: function (grid) {
@@ -58,7 +58,7 @@ Ext.define('Uni.grid.plugin.CopyPasteForGrid', {
         hiddentextarea = me.getHiddenTextArea(grid);
         hiddentextarea.dom.value = "";
         hiddentextarea.focus();
-        Ext.suspendLayouts();
+        Ext.resumeLayouts();
     },
 
     updateGridData: function (e, t, grid) {
@@ -105,7 +105,6 @@ Ext.define('Uni.grid.plugin.CopyPasteForGrid', {
                 }
             });
         }
-        ;
         return data.join('\n');
     },
 
