@@ -61,11 +61,19 @@ Ext.define('Imt.purpose.view.ReadingEstimationWithRuleWindow', {
                             listeners: {
                                 change: {
                                     fn: function (implementationCombo, newValue) {
-                                        var estimator = implementationCombo.getStore().getById(newValue);
+                                        var estimator = implementationCombo.getStore().getById(newValue),
+                                            hasEmptyRequiredProperties;
 
-                                        estimator && me.down('property-form').loadRecord(estimator);
+                                        if (estimator) {
+                                            me.down('property-form').loadRecord(estimator);
+                                            hasEmptyRequiredProperties = estimator.properties().getRange().find(function(property) {
+                                                return property.get('required') && Ext.isEmpty(property.get('value'));
+                                            });
+                                        }
+
                                         me.updateLayout();
                                         me.center();
+                                        me.down('#estimate-reading-button').setDisabled(!!hasEmptyRequiredProperties);
                                     }
                                 }
                             }
