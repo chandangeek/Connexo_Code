@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.kore.api.v2;
 
+import com.elster.jupiter.fsm.Stage;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.LinkInfo;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.PropertyCopier;
@@ -65,8 +66,22 @@ public class UsagePointLifeCycleStateInfoFactory extends SelectableFieldFactory<
                 usagePointLifeCycleStateInfo.link = link(usagePointLifeCycleState, Relation.REF_SELF, uriInfo)));
         map.put("name", (usagePointLifeCycleStateInfo, usagePointLifeCycleState, uriInfo) -> usagePointLifeCycleStateInfo.name = usagePointLifeCycleState.getName());
         map.put("isInitial", (usagePointLifeCycleStateInfo, usagePointLifeCycleState, uriInfo) -> usagePointLifeCycleStateInfo.isInitial = usagePointLifeCycleState.isInitial());
-        map.put("stage", (usagePointLifeCycleStateInfo, usagePointLifeCycleState, uriInfo) -> usagePointLifeCycleStateInfo.stage = usagePointLifeCycleState.getStage().get());
+        map.put("stage", (usagePointLifeCycleStateInfo, usagePointLifeCycleState, uriInfo) -> usagePointLifeCycleStateInfo.stage = usagePointLifeCycleState.getStage().orElse(stageNullObject()).getName());
         return map;
+    }
+
+    private Stage stageNullObject() {
+        return new Stage() {
+            @Override
+            public long getId() {
+                return 0;
+            }
+
+            @Override
+            public String getName() {
+                return null;
+            }
+        };
     }
 
 }
