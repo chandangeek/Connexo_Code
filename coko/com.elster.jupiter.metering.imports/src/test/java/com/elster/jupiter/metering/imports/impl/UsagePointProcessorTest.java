@@ -39,7 +39,6 @@ import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
-import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 import com.elster.jupiter.util.YesNoAnswer;
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -417,7 +416,7 @@ public class UsagePointProcessorTest {
         PropertyInfo propertyInfo = mock(PropertyInfo.class);
 
         mockMeterActivation(occurrence, csv);
-        when(usagePointLifeCycleService.getAvailableTransitions(any(UsagePointState.class), eq("INS"))).thenReturn(Collections.singletonList(usagePointTransition));
+        when(usagePointLifeCycleService.getAvailableTransitions(any(UsagePoint.class), eq("INS"))).thenReturn(Collections.singletonList(usagePointTransition));
         when(usagePointTransition.getName()).thenReturn("Install active");
         when(usagePointTransition.getChecks()).thenReturn(Collections.emptySet());
         when(usagePointTransition.getMicroActionsProperties()).thenReturn(Collections.singletonList(transitionSpec));
