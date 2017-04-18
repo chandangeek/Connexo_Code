@@ -78,6 +78,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -99,6 +101,7 @@ public class UsagePointOutputResource {
     private final OutputChannelDataInfoFactory outputChannelDataInfoFactory;
     private final OutputRegisterDataInfoFactory outputRegisterDataInfoFactory;
     private final PurposeInfoFactory purposeInfoFactory;
+    private final PurposeOutputsDataInfoFactory purposeOutputsDataInfoFactory;
     private final Clock clock;
     private final ValidationStatusFactory validationStatusFactory;
     private final TimeService timeService;
@@ -127,6 +130,7 @@ public class UsagePointOutputResource {
                              MeteringService meteringService,
                              DataValidationTaskInfoFactory dataValidationTaskInfoFactory,
                              EstimationTaskInfoFactory estimationTaskInfoFactory,
+                             PurposeOutputsDataInfoFactory purposeOutputsDataInfoFactory,
                              EstimationRuleInfoFactory estimationRuleInfoFactory, UsagePointConfigurationService usagePointConfigurationService) {
         this.resourceHelper = resourceHelper;
         this.exceptionFactory = exceptionFactory;
@@ -137,6 +141,7 @@ public class UsagePointOutputResource {
         this.outputRegisterDataInfoFactory = outputRegisterDataInfoFactory;
         this.purposeInfoFactory = purposeInfoFactory;
         this.validationStatusFactory = validationStatusFactory;
+        this.purposeOutputsDataInfoFactory = purposeOutputsDataInfoFactory;
         this.clock = clock;
         this.timeService = timeService;
         this.estimationService = estimationService;
@@ -208,7 +213,7 @@ public class UsagePointOutputResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Transactional
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT, Privileges.Constants.VIEW_METROLOGY_CONFIGURATION})
-    public OutputInfo getOutputOfPurpose(@PathParam("name") String name, @PathParam("purposeId") long contractId, @PathParam("outputId") long outputId) {
+    public OutputInfo getOutputsOfPurpose(@PathParam("name") String name, @PathParam("purposeId") long contractId, @PathParam("outputId") long outputId) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
         MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(effectiveMetrologyConfigurationOnUsagePoint, contractId);
@@ -304,7 +309,99 @@ public class UsagePointOutputResource {
         }
     }
 
-    private static Optional<IntervalReadingRecord> findRecordWithContainingRange(List<IntervalReadingRecord> records, Instant timestamp) {
+    @GET
+    @Transactional
+    @Path("/{purposeId}/outputs/{outputId}/channelData/all")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT, Privileges.Constants.VIEW_METROLOGY_CONFIGURATION})
+    public Response getChannelDataOfAllOutputs(@PathParam("name") String name, @PathParam("purposeId") long contractId, @PathParam("outputId") long outputId,
+                                                @BeanParam JsonQueryFilter filter, @BeanParam JsonQueryParameters queryParameters) {
+        UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
+        EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
+        MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(effectiveMetrologyConfigurationOnUsagePoint, contractId);
+
+        ReadingTypeDeliverable readingTypeDeliverable = resourceHelper.findReadingTypeDeliverableOrThrowException(metrologyContract, outputId, name);
+        List<ReadingTypeDeliverable> deliverables = metrologyContract.getDeliverables();
+        Map<Instant,Map<Long,OutputChannelDataInfo>> map = new HashMap<>();
+        List<PurposeOutputsDataInfo> outputsDataInfos = new ArrayList<>();
+        if (!readingTypeDeliverable.getReadingType().isRegular()) {
+            throw exceptionFactory.newException(MessageSeeds.THIS_OUTPUT_IS_IRREGULAR, outputId);
+        }
+        List<OutputChannelDataInfo> outputChannelDataInfoList = new ArrayList<>();
+        if (filter.hasProperty(INTERVAL_START) && filter.hasProperty(INTERVAL_END)) {
+            Range<Instant> requestedInterval = getRequestedInterval(usagePoint, filter);
+            if (requestedInterval != null) {
+                ChannelsContainer channelsContainer = effectiveMetrologyConfigurationOnUsagePoint.getChannelsContainer(metrologyContract).get();
+                //AggregatedChannel channel = effectiveMetrologyConfigurationOnUsagePoint.getAggregatedChannel(metrologyContract, readingTypeDeliverable.getReadingType()).get();
+                List<AggregatedChannel> channels = deliverables
+                        .stream()
+                        .map(deliverable->effectiveMetrologyConfigurationOnUsagePoint.getAggregatedChannel(metrologyContract, deliverable.getReadingType()).orElse(null))
+                        .collect(Collectors.toList());
+                ValidationEvaluator evaluator = validationService.getEvaluator();
+                for (AggregatedChannel channel:channels){
+                    ReadingWithValidationStatusFactory readingWithValidationStatusFactory = new ReadingWithValidationStatusFactory(
+                            clock, channel,
+                            validationStatusFactory.isValidationActive(metrologyContract, Collections.singletonList(channel)),
+                            validationStatusFactory.getLastCheckedForChannels(evaluator, channelsContainer, Collections.singletonList(channel)));
+
+                    Map<Instant, ChannelReadingWithValidationStatus> preFilledChannelDataMap = channel.toList(requestedInterval).stream()
+                            .collect(Collectors.toMap(Function.identity(), readingWithValidationStatusFactory::createChannelReading));
+
+                    // add readings to pre filled channel data map
+                    List<IntervalReadingRecord> calculatedReadings = channel.getCalculatedIntervalReadings(requestedInterval);
+                    Map<Instant, IntervalReadingRecord> persistedReadings = toMap(channel.getPersistedIntervalReadings(requestedInterval));
+                    for (Map.Entry<Instant, ChannelReadingWithValidationStatus> entry : preFilledChannelDataMap.entrySet()) {
+                        Instant readingTimestamp = entry.getKey();
+                        ChannelReadingWithValidationStatus readingWithValidationStatus = entry.getValue();
+                        IntervalReadingRecord persistedReading = persistedReadings.get(readingTimestamp);
+                        if (persistedReading != null && persistedReading.getValue() != null) {
+                            readingWithValidationStatus.setPersistedReadingRecord(persistedReading);
+                        }
+                        this.findRecordWithContainingRange(calculatedReadings, readingTimestamp)
+                                .ifPresent(readingWithValidationStatus::setCalculatedReadingRecord);
+                    }
+
+                    // add validation statuses to pre filled channel data map
+                    List<DataValidationStatus> dataValidationStatuses =
+                            evaluator.getValidationStatus(
+                                    EnumSet.of(QualityCodeSystem.MDM),
+                                    channel,
+                                    Stream
+                                            .concat(persistedReadings.values().stream(), calculatedReadings.stream())
+                                            .collect(Collectors.toList()),
+                                    requestedInterval);
+                    for (DataValidationStatus dataValidationStatus : dataValidationStatuses) {
+                        ChannelReadingWithValidationStatus readingWithValidationStatus = preFilledChannelDataMap.get(dataValidationStatus.getReadingTimestamp());
+                        if (readingWithValidationStatus != null) {
+                            readingWithValidationStatus.setValidationStatus(dataValidationStatus);
+                        }
+                    }
+
+                    outputChannelDataInfoList = preFilledChannelDataMap.entrySet().stream()
+                            .sorted(Collections.reverseOrder(Comparator.comparing(Map.Entry::getKey)))
+                            .map(Map.Entry::getValue)
+                            .filter(getSuspectsFilter(filter, this::hasSuspects))
+                            .map(outputChannelDataInfoFactory::createChannelDataInfo)
+                            .collect(Collectors.toList());
+
+                    preFilledChannelDataMap.entrySet().stream()
+                            .sorted(Collections.reverseOrder(Comparator.comparing(Map.Entry::getKey)))
+                            .map(Map.Entry::getValue)
+                            .filter(getSuspectsFilter(filter, this::hasSuspects))
+                            .forEach(record -> {
+                                purposeOutputsDataInfoFactory.addPurposeOutputsDataInfo(outputsDataInfos,channel.getId(),record);
+                            });
+                }
+                List<PurposeOutputsDataInfo> paginatedOutputsData = ListPager.of(outputsDataInfos).from(queryParameters).find();
+                PagedInfoList pagedInfoList = PagedInfoList.fromPagedList("data", paginatedOutputsData, queryParameters);
+                return Response.ok(pagedInfoList).build();
+                }
+        }
+        return Response.status(Response.Status.BAD_REQUEST).build();
+
+    }
+
+    private Optional<IntervalReadingRecord> findRecordWithContainingRange(List<IntervalReadingRecord> records, Instant timestamp) {
         return records
                 .stream()
                 .filter(record -> record.getTimePeriod().isPresent())
