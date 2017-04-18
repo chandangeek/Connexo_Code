@@ -237,10 +237,13 @@ public class CertificateWrapperResource {
         }
     }
 
-    private Response doImportCertificateForCertificateWrapper(@FormDataParam("file") InputStream certificateInputStream, CertificateWrapper certificateWrapper) {
+    private Response doImportCertificateForCertificateWrapper(InputStream certificateInputStream, CertificateWrapper certificateWrapper) {
         try {
             CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509", "BC");
             X509Certificate certificate = (X509Certificate) certificateFactory.generateCertificate(certificateInputStream);
+            if (certificate==null) {
+                throw new LocalizedFieldValidationException(MessageSeeds.FAILED_TO_READ_CERTIFICATE, "file");
+            }
             certificateWrapper.setCertificate(certificate);
             certificateWrapper.save();
             return Response.ok().header(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_PLAIN).build();
