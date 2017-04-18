@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.mdm.usagepoint.data.favorites.FavoriteUsagePoint;
 import com.elster.jupiter.mdm.usagepoint.data.favorites.FavoriteUsagePointGroup;
 import com.elster.jupiter.mdm.usagepoint.data.rest.impl.favorites.FavoriteUsagePointGroupDetailsInfo;
@@ -14,19 +15,16 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.rest.util.ConcurrentModificationInfo;
 import com.elster.jupiter.rest.util.VersionInfo;
-import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
-
 import com.jayway.jsonpath.JsonModel;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.Optional;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
@@ -429,7 +427,7 @@ public class FavoritesResourceTest extends UsagePointDataRestApplicationJerseyTe
         when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.empty());
         when(usagePoint.getCurrentConnectionState()).thenReturn(Optional.empty());
         when(usagePoint.getCreateDate()).thenReturn(Instant.now());
-        UsagePointState usagePointState = mock(UsagePointState.class);
+        State usagePointState = mock(State.class);
         when(usagePoint.getState()).thenReturn(usagePointState);
         when(usagePointState.getName()).thenReturn("TestState");
 
