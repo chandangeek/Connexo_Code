@@ -232,10 +232,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
             formattedDate = Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}',
                 [Uni.DateTime.formatDateLong(date), Uni.DateTime.formatTimeLong(date)]
             );
-            app = validationInfo.editedInApp ? validationInfo.editedInApp.name : null;
-            tooltipText = !Ext.isEmpty(app)
-                ? Uni.I18n.translate('general.estimatedOnXApp', 'MDC', 'Estimated in {0} on {1}', [app, formattedDate])
-                : Uni.I18n.translate('general.estimatedOnX', 'MDC', 'Estimated on {0}', formattedDate);
+            tooltipText = Uni.I18n.translate('general.estimatedOnX', 'MDC', 'Estimated on {0}', formattedDate);
             icon = '<span class="icon-flag5" style="margin-left:10px; position:absolute; color:#33CC33;" data-qtip="'
                 + tooltipText + '"></span>';
         } else if ((validationInfo.isConfirmed || validationInfo.confirmedNotSaved) && !record.isModified('value')) {

@@ -952,7 +952,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                                 listOfFailedReadings.push(Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}', [Uni.DateTime.formatDateShort(new Date(readingTimestamp)), Uni.DateTime.formatTimeShort(new Date(readingTimestamp))], false));
                             });
                             var errorMessage = window.down('#estimator-field') ? Uni.I18n.translate('devicechannels.estimationErrorMessageWithIntervals', 'MDC', 'Could not estimate {0} with {1}',
-                                [listOfFailedReadings.join(', '), window.down('#estimator-field').getRawValue().toLowerCase()]) : Uni.I18n.translate('devicechannels.estimationErrorMessage', 'MDC', 'Could not estimate {0}',
+                                [listOfFailedReadings.join(', '), window.down('#estimator-field').getRawValue()]) : Uni.I18n.translate('devicechannels.estimationErrorMessage', 'MDC', 'Could not estimate {0}',
                                 listOfFailedReadings.join(', '));
                             window.down('#error-label').setText('<div style="color: #EB5642">' + errorMessage + '</div>', false);
                         } else if (responseText.errors) {
@@ -1411,7 +1411,8 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
 
         reading.beginEdit();
         reading.set('value', correctedInterval.value);
-        reading.set('mainModificationState', Uni.util.ReadingEditor.modificationState('EDITED'))
+        reading.set('mainModificationState', Uni.util.ReadingEditor.modificationState('EDITED'));
+        reading.set('validationResult', 'validationStatus.ok');
         reading.endEdit(true);
 
         grid.getView().refreshNode(grid.getStore().indexOf(reading));
