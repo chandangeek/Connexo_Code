@@ -139,7 +139,7 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
         var icon;
 
         icon = '<span class="icon-flag5" style="margin-left:10px; color:#33CC33;" data-qtip="'
-            + Uni.I18n.translate('reading.estimated', 'IMT', 'Estimated in {0} on {1} at {2}', [
+            + Uni.I18n.translate('reading.estimatedWithTime', 'IMT', 'Estimated in {0} on {1} at {2}', [
                 estimatedByRule.application.name,
                 Uni.DateTime.formatDateLong(new Date(estimatedByRule.when)),
                 Uni.DateTime.formatTimeLong(new Date(estimatedByRule.when))
