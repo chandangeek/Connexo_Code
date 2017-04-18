@@ -350,7 +350,6 @@ public class UsagePointOutputResource {
         channel.estimateReadings(QualityCodeSystem.MDM, estimatedReadings);
         channel.editReadings(QualityCodeSystem.MDM, editedReadings);
         channel.confirmReadings(QualityCodeSystem.MDM, confirmedReadings);
-        channel.createReadingQuality()
         channel.removeReadings(QualityCodeSystem.MDM, removeCandidates.stream()
                 .map(channel::getReading)
                 .flatMap(Functions.asStream())
@@ -489,7 +488,8 @@ public class UsagePointOutputResource {
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
         MetrologyPurpose purpose = resourceHelper.findMetrologyPurpose(referenceChannelDataInfo.referencePurpose)
                 .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_METROLOGY_PURPOSE, "referencePurpose", referenceChannelDataInfo.referencePurpose));
-        MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(effectiveMetrologyConfigurationOnUsagePoint, purpose);
+        MetrologyContract metrologyContract = resourceHelper.findMetrologyContract(effectiveMetrologyConfigurationOnUsagePoint, purpose)
+                .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.METROLOGYPURPOSE_IS_NOT_FOUND_ON_USAGEPOINT, "referencePurpose", purpose.getName(), usagePoint.getName()));
         ReadingTypeDeliverable readingTypeDeliverable = metrologyContract.getDeliverables().stream().filter(output -> output.getReadingType().equals(readingType))
                 .findFirst()
                 .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.READINGTYPE_NOT_FOUND_ON_USAGEPOINT, "readingType", referenceChannelDataInfo.readingType));
