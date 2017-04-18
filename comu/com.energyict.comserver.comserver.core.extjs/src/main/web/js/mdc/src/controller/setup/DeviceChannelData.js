@@ -945,7 +945,8 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
 
     saveChannelDataEstimateModelr: function (record, readings, window, ruleId) {
         var me = this,
-            router = me.getController('Uni.controller.history.Router');
+            router = me.getController('Uni.controller.history.Router'),
+            adjustedPropertyFormErrors;
 
         record.getProxy().setParams(encodeURIComponent(router.arguments.deviceId),router.arguments.channelId);
         window.setLoading();
@@ -989,7 +990,15 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                                     [listOfFailedReadings.join(', '), window.down('#estimator-field').getRawValue().toLowerCase()]) + '</div>', false);
                         } else if (responseText.errors) {
                             window.down('#form-errors').show();
-                            window.down('#property-form').markInvalid(responseText.errors);
+                            if (Ext.isArray(responseText.errors)) {
+                                adjustedPropertyFormErrors = responseText.errors.map(function (error) {
+                                    if (error.id.startsWith('properties.')) {
+                                        error.id = error.id.slice(11);
+                                    }
+                                    return error;
+                                });
+                            }
+                            window.down('#property-form').markInvalid(adjustedPropertyFormErrors);
                         }
                     } else {
                         window.down('#error-label').show();
