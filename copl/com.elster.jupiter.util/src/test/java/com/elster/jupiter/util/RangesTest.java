@@ -17,7 +17,7 @@ public class RangesTest {
 
     @Test
     public void testMapAll() {
-        assertThat(Ranges.map(Range.<Character>all(), indexInAlphabet())).isEqualTo(Range.<Integer>all());
+        assertThat(Ranges.map(Range.all(), indexInAlphabet())).isEqualTo(Range.<Integer>all());
     }
 
     private Function<Character, Integer> indexInAlphabet() {
@@ -408,4 +408,25 @@ public class RangesTest {
         assertThat(copied.upperEndpoint()).isEqualTo('V');
     }
 
+    @Test
+    public void testOptionalIntersection() {
+        assertThat(Ranges.intersection(Range.openClosed(1, 3), Range.atLeast(3))).contains(Range.singleton(3));
+        assertThat(Ranges.intersection(Range.openClosed(1, 3), Range.greaterThan(3))).contains(Range.openClosed(3, 3));
+        assertThat(Ranges.intersection(Range.openClosed(1, 3), Range.atLeast(1))).contains(Range.openClosed(1, 3));
+        assertThat(Ranges.intersection(Range.closedOpen(1, 3), Range.lessThan(1))).contains(Range.closedOpen(1, 1));
+        assertThat(Ranges.intersection(Range.openClosed(1, 3), Range.lessThan(1))).isEmpty();
+        assertThat(Ranges.intersection(Range.open(1, 3), Range.greaterThan(3))).isEmpty();
+        assertThat(Ranges.intersection(Range.lessThan(1), Range.greaterThan(1))).isEmpty();
+    }
+
+    @Test
+    public void testOptionalNonEmptyIntersection() {
+        assertThat(Ranges.nonEmptyIntersection(Range.openClosed(1, 3), Range.atLeast(3))).contains(Range.singleton(3));
+        assertThat(Ranges.nonEmptyIntersection(Range.openClosed(1, 3), Range.greaterThan(3))).isEmpty();
+        assertThat(Ranges.nonEmptyIntersection(Range.openClosed(1, 3), Range.atLeast(1))).contains(Range.openClosed(1, 3));
+        assertThat(Ranges.nonEmptyIntersection(Range.closedOpen(1, 3), Range.lessThan(1))).isEmpty();
+        assertThat(Ranges.nonEmptyIntersection(Range.openClosed(1, 3), Range.lessThan(1))).isEmpty();
+        assertThat(Ranges.nonEmptyIntersection(Range.open(1, 3), Range.greaterThan(3))).isEmpty();
+        assertThat(Ranges.nonEmptyIntersection(Range.lessThan(1), Range.greaterThan(1))).isEmpty();
+    }
 }

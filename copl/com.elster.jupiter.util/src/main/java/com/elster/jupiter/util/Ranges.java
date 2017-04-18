@@ -4,6 +4,8 @@
 
 package com.elster.jupiter.util;
 
+import com.elster.jupiter.util.streams.Predicates;
+
 import com.google.common.collect.BoundType;
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
@@ -240,6 +242,17 @@ public class Ranges {
         TreeRangeSet<C> copy = TreeRangeSet.create(a);
         copy.removeAll(b.complement());
         return copy;
+    }
+
+    public static <C extends Comparable<? super C>> Optional<Range<C>> intersection(Range<C> a, Range<C> b) {
+        return Optional.of(a)
+                .filter(b::isConnected)
+                .map(b::intersection);
+    }
+
+    public static <C extends Comparable<? super C>> Optional<Range<C>> nonEmptyIntersection(Range<C> a, Range<C> b) {
+        return intersection(a, b)
+                .filter(Predicates.not(Range::isEmpty));
     }
 
     public static <C extends Comparable<? super C>> Optional<C> lowerBound(Range<C> range) {
