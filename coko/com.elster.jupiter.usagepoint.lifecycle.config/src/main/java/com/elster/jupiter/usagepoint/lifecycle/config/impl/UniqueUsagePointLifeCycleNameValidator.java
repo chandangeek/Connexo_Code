@@ -4,7 +4,6 @@
 
 package com.elster.jupiter.usagepoint.lifecycle.config.impl;
 
-import com.elster.jupiter.cbo.*;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
 
