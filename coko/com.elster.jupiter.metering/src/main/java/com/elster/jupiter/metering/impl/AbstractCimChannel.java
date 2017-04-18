@@ -65,6 +65,13 @@ public abstract class AbstractCimChannel implements CimChannel {
     }
 
     @Override
+    public ReadingQualityRecord createReadingQuality(ReadingQualityType type, BaseReading baseReading, String comment) {
+        ReadingQualityRecordImpl readingQualityRecord = ReadingQualityRecordImpl.from(dataModel, type, this, baseReading, comment);
+        readingQualityRecord.doSave();
+        return readingQualityRecord;
+    }
+
+    @Override
     public ReadingQualityFetcher findReadingQualities() {
         return new ReadingQualityFetcherImpl(dataModel, this);
     }
@@ -144,14 +151,24 @@ public abstract class AbstractCimChannel implements CimChannel {
                 cleanObsoleteQualitiesWhenEditingOrEstimating(currentQualityRecords);
                 Optional<BaseReadingRecord> oldReading = getChannel().getReading(reading.getTimeStamp());
                 ProcessStatus processStatus = processStatusToSet.or(oldReading.map(BaseReadingRecord::getProcessStatus).orElse(ProcessStatus.of()));
+
                 List<? extends ReadingQuality> readingQualitiesFromReading = reading.getReadingQualities();
                 ReadingQualityRecord editedQualityRecord = createReadingQuality(oldReading.isPresent() ? qualityForUpdate : qualityForCreate, reading);
                 currentQualityRecords.add(editedQualityRecord);
+
                 processReadingQualities(reading, currentQualityRecords, readingQualitiesFromReading);
+
                 storer.addReading(this, reading, processStatus);
             }
             storer.execute(system);
         }
+    }
+
+    private boolean matchComments(ReadingQualityRecord record, ReadingQuality readingQuality) {
+        String recordComment = record.getComment();
+        String readingQualityComment = readingQuality.getComment();
+        return recordComment != null && readingQualityComment != null && recordComment.equals(readingQualityComment);
+
     }
 
     @Override
@@ -204,7 +221,9 @@ public abstract class AbstractCimChannel implements CimChannel {
                 ProcessStatus processStatus = ProcessStatus.of(ProcessStatus.Flag.ESTIMATED).or(oldReading.map(BaseReadingRecord::getProcessStatus).orElse(ProcessStatus.of()));
                 List<? extends ReadingQuality> readingQualitiesFromReading = reading.getReadingQualities();
                 cleanObsoleteQualitiesWhenEditingOrEstimating(currentQualityRecords);
+
                 processReadingQualities(reading, currentQualityRecords, readingQualitiesFromReading);
+
                 storer.addReading(this, reading, processStatus);
                 derivedCimChannel
                         .ifPresent(derived -> markEstimated(derived, reading.getTimeStamp(), readingQualitiesFromReading));
@@ -214,16 +233,14 @@ public abstract class AbstractCimChannel implements CimChannel {
     }
 
     private void processReadingQualities(BaseReading reading, List<ReadingQualityRecord> currentQualityRecords, List<? extends ReadingQuality> readingQualitiesFromReading) {
-        readingQualitiesFromReading.stream()
-                .map(ReadingQuality::getType)
-                .forEach(readingQualityType -> {
-                    Optional<ReadingQualityRecord> readingQualityRecord = getRecordOfType(currentQualityRecords, readingQualityType);
-                    if(readingQualityRecord.isPresent() && !readingQualityRecord.get().isActual()) {
-                            readingQualityRecord.get().makeActual();
-                    } else {
-                        createReadingQuality(readingQualityType, reading);
-                    }
-                });
+        readingQualitiesFromReading.forEach(readingQuality -> {
+            Optional<ReadingQualityRecord> readingQualityRecord = getRecordOfType(currentQualityRecords, readingQuality.getType());
+            if(readingQualityRecord.isPresent() && !readingQualityRecord.get().isActual() && matchComments(readingQualityRecord.get(), readingQuality)) {
+                readingQualityRecord.get().makeActual();
+            } else {
+                createReadingQuality(readingQuality.getType(), reading, readingQuality.getComment());
+            }
+        });
     }
 
     private Optional<ReadingQualityRecord> getRecordOfType(List<ReadingQualityRecord> currentQualityRecords, ReadingQualityType readingQualityType) {
