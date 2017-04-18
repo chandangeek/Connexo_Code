@@ -13,7 +13,16 @@ import java.util.logging.Logger;
 
 public enum MessageSeeds implements MessageSeed {
     NO_SUCH_VALIDATOR(1001, "validator.doesnotexist", "Validator {0} does not exist."),
-    MISSING_PROPERTY(1002, "property.missing", "Required property with key ''{0}'' was not found.");
+    MISSING_PROPERTY(1002, "property.missing", "Required property with key ''{0}'' was not found."),
+
+    // Meter advance messages
+    NOT_APPLICABLE_TO_IRREGULAR_CHANNEL(2001, "UnsupportedReadingType", "Not supported reading type"),
+    NOT_SUPPORTED_READINGTYPE(2001, "UnsupportedReadingType", "Not supported reading type"),
+    REFERENCE_READINGTYPE_DOESNOT_MATCH_VALIDATED_ONE(2002, "", "reference reading type doesn't match the <reading type> reading type"),
+    NO_REFERENCE_READINGTYPE(2003, "", "no reference reading type on usage point/device"),
+    REGISTER_READINGS_ARE_MISSING(2004, "", "since register readings for the validated interval don't exist on <usage point name>/<device>"),
+    DIFFERENCE_BETWEEN_TWO_REGISTER_READINGS_LESS_THEN_MIN_THRESHOLD(2005, "DiffLessThenMin", ""),
+    ;
 
     public static final String COMPONENT_NAME = "VDR";
 

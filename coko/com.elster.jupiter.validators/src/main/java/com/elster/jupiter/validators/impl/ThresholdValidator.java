@@ -11,6 +11,7 @@ import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.util.units.Quantity;
@@ -24,6 +25,7 @@ import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -36,7 +38,30 @@ class ThresholdValidator extends AbstractValidator {
 
     static final String MIN = "minimum";
     static final String MAX = "maximum";
-    private static final Set<QualityCodeSystem> QUALITY_CODE_SYSTEMS = ImmutableSet.of(QualityCodeSystem.MDC, QualityCodeSystem.MDM);
+
+    private enum TranslationKeys implements TranslationKey {
+
+        THRESHOLD_VALIDATOR_MIN(ThresholdValidator.MIN, "Minimum"),
+        THRESHOLD_VALIDATOR_MAX(ThresholdValidator.MAX, "Maximum");
+
+        private String key;
+        private String defaultFormat;
+
+        TranslationKeys(String key, String defaultFormat) {
+            this.key = key;
+            this.defaultFormat = defaultFormat;
+        }
+
+        @Override
+        public String getDefaultFormat() {
+            return defaultFormat;
+        }
+
+        @Override
+        public String getKey() {
+            return ThresholdValidator.class.getName() + "." + key;
+        }
+    }
 
     private Quantity minimum;
     private Quantity maximum;
@@ -48,6 +73,7 @@ class ThresholdValidator extends AbstractValidator {
 
     ThresholdValidator(Thesaurus thesaurus, PropertySpecService propertySpecService, Map<String, Object> properties) {
         super(thesaurus, propertySpecService, properties);
+        checkRequiredProperties();
     }
 
     private Quantity getRequiredQuantity(Map<String, Object> properties, String key, ReadingType readingType) {
@@ -62,21 +88,21 @@ class ThresholdValidator extends AbstractValidator {
     public List<PropertySpec> getPropertySpecs() {
         ImmutableList.Builder<PropertySpec> builder = ImmutableList.builder();
         builder
-            .add(getPropertySpecService()
-                    .bigDecimalSpec()
-                    .named(MIN, TranslationKeys.THRESHOLD_VALIDATOR_MIN)
-                    .fromThesaurus(this.getThesaurus())
-                    .markRequired()
-                    .setDefaultValue(BigDecimal.ZERO)
-                    .finish());
+                .add(getPropertySpecService()
+                        .bigDecimalSpec()
+                        .named(MIN, TranslationKeys.THRESHOLD_VALIDATOR_MIN)
+                        .fromThesaurus(this.getThesaurus())
+                        .markRequired()
+                        .setDefaultValue(BigDecimal.ZERO)
+                        .finish());
         builder
-            .add(getPropertySpecService()
-                    .bigDecimalSpec()
-                    .named(MAX, TranslationKeys.THRESHOLD_VALIDATOR_MAX)
-                    .fromThesaurus(this.getThesaurus())
-                    .markRequired()
-                    .setDefaultValue(BigDecimal.ZERO)
-                    .finish());
+                .add(getPropertySpecService()
+                        .bigDecimalSpec()
+                        .named(MAX, TranslationKeys.THRESHOLD_VALIDATOR_MAX)
+                        .fromThesaurus(this.getThesaurus())
+                        .markRequired()
+                        .setDefaultValue(BigDecimal.ZERO)
+                        .finish());
         return builder.build();
     }
 
@@ -108,12 +134,12 @@ class ThresholdValidator extends AbstractValidator {
 
     @Override
     public String getDefaultFormat() {
-        return TranslationKeys.THRESHOLD_VALIDATOR.getDefaultFormat();
+        return "Threshold violation";
     }
 
     @Override
     public Set<QualityCodeSystem> getSupportedQualityCodeSystems() {
-        return QUALITY_CODE_SYSTEMS;
+        return ImmutableSet.of(QualityCodeSystem.MDC, QualityCodeSystem.MDM);
     }
 
     private ValidationResult validateQuantity(Quantity toValidate) {
@@ -125,5 +151,10 @@ class ThresholdValidator extends AbstractValidator {
 
     private boolean isWithinBounds(Quantity toValidate) {
         return minimum.compareTo(toValidate) <= 0 && maximum.compareTo(toValidate) >= 0;
+    }
+
+    @Override
+    public List<TranslationKey> getExtraTranslationKeys() {
+        return Arrays.asList(TranslationKeys.values());
     }
 }

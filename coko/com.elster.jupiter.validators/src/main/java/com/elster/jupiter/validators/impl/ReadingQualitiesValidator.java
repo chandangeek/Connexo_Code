@@ -13,12 +13,11 @@ import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityValueFactory;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.ReadingQualityPropertyValue;
-import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.validation.ValidationResult;
 
 import com.google.common.collect.ImmutableSet;
@@ -26,6 +25,7 @@ import com.google.common.collect.Range;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -36,8 +36,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 class ReadingQualitiesValidator extends AbstractValidator {
+
     static final String READING_QUALITIES = "readingQualities";
-    private static final Set<QualityCodeSystem> QUALITY_CODE_SYSTEMS = ImmutableSet.of(QualityCodeSystem.MDC, QualityCodeSystem.MDM);
 
     private List<ReadingQualityPropertyValue> selectedReadingQualities;
 
@@ -47,6 +47,7 @@ class ReadingQualitiesValidator extends AbstractValidator {
 
     ReadingQualitiesValidator(Thesaurus thesaurus, PropertySpecService propertySpecService, Map<String, Object> properties) {
         super(thesaurus, propertySpecService, properties);
+        checkRequiredProperties();
     }
 
     /**
@@ -76,9 +77,9 @@ class ReadingQualitiesValidator extends AbstractValidator {
             String cimCode = ReadingQualityPropertyValue.WILDCARD + "." + qualityCodeCategory.ordinal() + "." + ReadingQualityPropertyValue.WILDCARD;
             possibleReadingQualityPropertyValues.add(new ReadingQualityPropertyValue(
                     cimCode,
-                    getThesaurus().getString(TranslationKeys.ALL_SYSTEMS.getKey(), TranslationKeys.ALL_SYSTEMS.getDefaultFormat()),
+                    getThesaurus().getString(ReadingQualitiesTranslationKeys.ALL_SYSTEMS.getKey(), ReadingQualitiesTranslationKeys.ALL_SYSTEMS.getDefaultFormat()),
                     getThesaurus().getString(qualityCodeCategory.getTranslationKey().getKey(), qualityCodeCategory.getTranslationKey().getDefaultFormat()),
-                    getThesaurus().getString(TranslationKeys.ALL_INDEXES.getKey(), TranslationKeys.ALL_INDEXES.getDefaultFormat())
+                    getThesaurus().getString(ReadingQualitiesTranslationKeys.ALL_INDEXES.getKey(), ReadingQualitiesTranslationKeys.ALL_INDEXES.getDefaultFormat())
             ));
         }
         return possibleReadingQualityPropertyValues;
@@ -126,7 +127,7 @@ class ReadingQualitiesValidator extends AbstractValidator {
         return Collections.singletonList(
                 getPropertySpecService()
                         .specForValuesOf(new ReadingQualityValueFactory())
-                        .named(READING_QUALITIES, TranslationKeys.READING_QUALITIES_VALIDATOR)
+                        .named(READING_QUALITIES, ReadingQualitiesTranslationKeys.READING_QUALITIES)
                         .fromThesaurus(this.getThesaurus())
                         .addValues(getPossibleReadingQualityPropertyValues())
                         .markMultiValued()
@@ -136,16 +137,16 @@ class ReadingQualitiesValidator extends AbstractValidator {
 
     @Override
     public String getDefaultFormat() {
-        return TranslationKeys.READING_QUALITIES_VALIDATOR.getDefaultFormat();
-    }
-
-    @Override
-    public List<Pair<? extends NlsKey, String>> getExtraTranslations() {
-        return Collections.emptyList();
+        return "Reading qualities";
     }
 
     @Override
     public Set<QualityCodeSystem> getSupportedQualityCodeSystems() {
-        return QUALITY_CODE_SYSTEMS;
+        return ImmutableSet.of(QualityCodeSystem.MDC, QualityCodeSystem.MDM);
+    }
+
+    @Override
+    public List<TranslationKey> getExtraTranslationKeys() {
+        return Arrays.asList(ReadingQualitiesTranslationKeys.values());
     }
 }

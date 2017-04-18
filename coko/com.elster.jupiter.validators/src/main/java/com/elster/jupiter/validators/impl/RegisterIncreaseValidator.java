@@ -11,6 +11,7 @@ import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.validation.ValidationResult;
@@ -21,6 +22,7 @@ import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -32,7 +34,29 @@ import java.util.Set;
 class RegisterIncreaseValidator extends AbstractValidator {
 
     static final String FAIL_EQUAL_DATA = "failEqualData";
-    private static final Set<QualityCodeSystem> QUALITY_CODE_SYSTEMS = ImmutableSet.of(QualityCodeSystem.MDC, QualityCodeSystem.MDM);
+
+    private enum TranslationKeys implements TranslationKey {
+
+        FAIL_EQUAL_DATA(RegisterIncreaseValidator.FAIL_EQUAL_DATA, "Fail equal data");
+
+        private String key;
+        private String defaultFormat;
+
+        TranslationKeys(String key, String defaultFormat) {
+            this.key = key;
+            this.defaultFormat = defaultFormat;
+        }
+
+        @Override
+        public String getKey() {
+            return RegisterIncreaseValidator.class.getName() + "." + key;
+        }
+
+        @Override
+        public String getDefaultFormat() {
+            return defaultFormat;
+        }
+    }
 
     private Channel channel;
     private boolean failEqualData = false;
@@ -43,6 +67,7 @@ class RegisterIncreaseValidator extends AbstractValidator {
 
     RegisterIncreaseValidator(Thesaurus thesaurus, PropertySpecService propertySpecService, Map<String, Object> properties) {
         super(thesaurus, propertySpecService, properties);
+        checkRequiredProperties();
     }
 
     @Override
@@ -84,7 +109,7 @@ class RegisterIncreaseValidator extends AbstractValidator {
         builder.add(
             getPropertySpecService()
                 .booleanSpec()
-                .named(FAIL_EQUAL_DATA, TranslationKeys.REGISTER_INCREASE_VALIDATOR_FAIL_EQUAL_DATA)
+                .named(FAIL_EQUAL_DATA, TranslationKeys.FAIL_EQUAL_DATA)
                 .fromThesaurus(this.getThesaurus())
                 .markRequired()
                 .finish());
@@ -93,11 +118,16 @@ class RegisterIncreaseValidator extends AbstractValidator {
 
     @Override
     public String getDefaultFormat() {
-        return TranslationKeys.REGISTER_INCREASE_VALIDATOR.getDefaultFormat();
+        return "Register increase";
     }
 
     @Override
     public Set<QualityCodeSystem> getSupportedQualityCodeSystems() {
-        return QUALITY_CODE_SYSTEMS;
+        return ImmutableSet.of(QualityCodeSystem.MDC, QualityCodeSystem.MDM);
+    }
+
+    @Override
+    public List<TranslationKey> getExtraTranslationKeys() {
+        return Arrays.asList(TranslationKeys.values());
     }
 }

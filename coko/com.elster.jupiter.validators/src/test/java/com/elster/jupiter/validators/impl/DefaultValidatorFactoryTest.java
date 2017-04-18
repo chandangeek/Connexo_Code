@@ -114,7 +114,7 @@ public class DefaultValidatorFactoryTest {
         DefaultValidatorFactory validatorFactory = defaultValidatorFactory;
         validatorFactory.setNlsService(nlsService);
 
-        int expectedTranslations = TranslationKeys.values().length;
+        int expectedTranslations = ReadingQualitiesTranslationKeys.values().length;
         for (String implementation : validatorFactory.available()) {
             expectedTranslations++;
             Validator validator = validatorFactory.createTemplate(implementation);
