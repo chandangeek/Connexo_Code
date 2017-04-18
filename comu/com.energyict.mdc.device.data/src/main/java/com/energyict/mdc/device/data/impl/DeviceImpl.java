@@ -686,11 +686,11 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     private void removeDeviceFromGroup(EnumeratedEndDeviceGroup group, EndDevice endDevice) {
         group
-                .getEntries()
-                .stream()
-                .filter(each -> each.getMember().getId() == endDevice.getId())
-                .findFirst()
-                .ifPresent(group::remove);
+            .getEntries()
+            .stream()
+            .filter(each -> each.getMember().getId() == endDevice.getId())
+            .findFirst()
+            .ifPresent(group::remove);
     }
 
     private void deleteAllIssues() {
