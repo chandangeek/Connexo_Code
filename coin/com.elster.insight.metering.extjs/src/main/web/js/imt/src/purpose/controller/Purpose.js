@@ -475,7 +475,7 @@ Ext.define('Imt.purpose.controller.Purpose', {
                     if(formErrorsPanel){
                         var responseText = Ext.decode(response.responseText, true);
                         Ext.suspendLayouts();
-                        formErrorsPanel.setText('<div style="color: #EB5642">' + responseText.message + '</div>', false);
+                        formErrorsPanel.setText('<div style="color: #EB5642">' + responseText.errors[0].msg + '</div>', false);
                         formErrorsPanel.show();
                         Ext.resumeLayouts(true);
                     }
