@@ -4,8 +4,10 @@
 
 package com.elster.jupiter.metering.impl.config;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.AggregatedChannel;
 import com.elster.jupiter.metering.ChannelsContainer;
+import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
@@ -18,6 +20,7 @@ import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.time.Interval;
 
 import com.google.common.collect.Range;
@@ -27,9 +30,11 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.google.common.base.MoreObjects.toStringHelper;
 
@@ -39,6 +44,7 @@ import static com.google.common.base.MoreObjects.toStringHelper;
 public class EffectiveMetrologyConfigurationOnUsagePointImpl implements EffectiveMetrologyConfigurationOnUsagePoint {
 
     private final DataModel dataModel;
+    private final EventService eventService;
 
     @SuppressWarnings("unused")//Managed by ORM
     private Interval interval;
@@ -58,9 +64,10 @@ public class EffectiveMetrologyConfigurationOnUsagePointImpl implements Effectiv
     private String userName;
 
     @Inject
-    public EffectiveMetrologyConfigurationOnUsagePointImpl(DataModel dataModel) {
+    public EffectiveMetrologyConfigurationOnUsagePointImpl(DataModel dataModel, EventService eventService) {
         super();
         this.dataModel = dataModel;
+        this.eventService = eventService;
     }
 
     public EffectiveMetrologyConfigurationOnUsagePointImpl initAndSave(UsagePoint usagePoint, UsagePointMetrologyConfiguration metrologyConfiguration, Instant start) {
@@ -76,7 +83,6 @@ public class EffectiveMetrologyConfigurationOnUsagePointImpl implements Effectiv
         this.interval = interval;
         return this;
     }
-
 
     @Override
     public UsagePointMetrologyConfiguration getMetrologyConfiguration() {
@@ -99,8 +105,14 @@ public class EffectiveMetrologyConfigurationOnUsagePointImpl implements Effectiv
             throw new IllegalArgumentException();
         }
         this.interval = this.interval.withEnd(closingDate);
-        if(interval.toClosedRange().isEmpty()){
+        if (getRange().isEmpty()) {
+            Set<ChannelsContainer> channelsContainers = effectiveContracts.stream()
+                    .map(EffectiveMetrologyContractOnUsagePoint::getChannelsContainer)
+                    .collect(Collectors.toSet());
             effectiveContracts.clear();
+            eventService.postEvent(EventType.CHANNELS_CONTAINERS_CLIPPED.topic(), new EventType.ChannelsContainersClippedEvent(channelsContainers));
+        } else {
+            clip(effectiveContracts, closingDate);
         }
         this.dataModel.update(this);
     }
@@ -154,14 +166,27 @@ public class EffectiveMetrologyConfigurationOnUsagePointImpl implements Effectiv
 
     @Override
     public void deactivateOptionalMetrologyContract(MetrologyContract metrologyContract, Instant when) {
-        this.effectiveContracts
-                .stream()
+        this.effectiveContracts.stream()
                 .filter(effectiveMetrologyContract -> !effectiveMetrologyContract.getMetrologyContract().isMandatory())
-                .filter(effectiveMetrologyContract -> effectiveMetrologyContract.getMetrologyContract()
-                        .equals(metrologyContract))
-                .filter(effectiveMetrologyContract -> !effectiveMetrologyContract.getRange().hasUpperBound())
+                .filter(effectiveMetrologyContract -> effectiveMetrologyContract.getMetrologyContract().equals(metrologyContract))
                 .findFirst()
-                .ifPresent(effectiveMetrologyContract -> effectiveMetrologyContract.close(when));
+                .ifPresent(effectiveMetrologyContract -> clip(Collections.singletonList(effectiveMetrologyContract), when));
+    }
+
+    private void clip(Collection<EffectiveMetrologyContractOnUsagePoint> metrologyContracts, Instant closingTimestamp) {
+        List<EffectiveMetrologyContractOnUsagePoint> contractsToRemove = new ArrayList<>(metrologyContracts.size());
+        Set<ChannelsContainer> affectedContainers = new HashSet<>(metrologyContracts.size(), 1);
+        metrologyContracts.forEach(contract -> {
+            if (Ranges.does(contract.getRange()).startAfter(closingTimestamp.minusMillis(1))) {
+                contractsToRemove.add(contract);
+                affectedContainers.add(contract.getChannelsContainer());
+            } else if (contract.isEffectiveAt(closingTimestamp)) {
+                contract.close(closingTimestamp);
+                affectedContainers.add(contract.getChannelsContainer());
+            }
+        });
+        effectiveContracts.removeAll(contractsToRemove);
+        eventService.postEvent(EventType.CHANNELS_CONTAINERS_CLIPPED.topic(), new EventType.ChannelsContainersClippedEvent(affectedContainers));
     }
 
     @Override
