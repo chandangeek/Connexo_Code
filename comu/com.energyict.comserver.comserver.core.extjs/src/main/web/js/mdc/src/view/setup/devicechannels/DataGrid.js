@@ -227,18 +227,15 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                 + Uni.I18n.translate('general.suspect', 'MDC', 'Suspect') + '"></span>';
         }
 
-        if (validationInfo.estimatedByRule && !record.isModified('value')) {
+        if (validationInfo.estimatedByRule) {
             date = Ext.isDate(record.get('readingTime')) ? record.get('readingTime') : new Date(record.get('readingTime'));
             formattedDate = Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}',
                 [Uni.DateTime.formatDateLong(date), Uni.DateTime.formatTimeLong(date)]
             );
-            app = validationInfo.editedInApp ? validationInfo.editedInApp.name : null;
-            tooltipText = !Ext.isEmpty(app)
-                ? Uni.I18n.translate('general.estimatedOnXApp', 'MDC', 'Estimated in {0} on {1}', [app, formattedDate])
-                : Uni.I18n.translate('general.estimatedOnX', 'MDC', 'Estimated on {0}', formattedDate);
+            tooltipText = Uni.I18n.translate('general.estimatedOnX', 'MDC', 'Estimated on {0}', formattedDate);
             icon = '<span class="icon-flag5" style="margin-left:10px; position:absolute; color:#33CC33;" data-qtip="'
                 + tooltipText + '"></span>';
-        } else if (validationInfo.isConfirmed && !record.isModified('value')) {
+        } else if ((validationInfo.isConfirmed || validationInfo.confirmedNotSaved) && !record.isModified('value')) {
             icon = '<span class="icon-checkmark" style="margin-left:10px; position:absolute;" data-qtip="'
                 + Uni.I18n.translate('reading.validationResult.confirmed', 'MDC', 'Confirmed') + '"></span>';
         }
