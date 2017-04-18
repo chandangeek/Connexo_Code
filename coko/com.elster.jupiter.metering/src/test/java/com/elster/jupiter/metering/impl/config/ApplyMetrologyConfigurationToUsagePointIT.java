@@ -6,9 +6,14 @@ package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
+import com.elster.jupiter.events.LocalEvent;
+import com.elster.jupiter.events.TopicHandler;
+import com.elster.jupiter.events.impl.EventServiceImpl;
 import com.elster.jupiter.fsm.Stage;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.ChannelsContainer;
+import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
@@ -23,7 +28,6 @@ import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsage
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.FullySpecifiedReadingTypeRequirement;
 import com.elster.jupiter.metering.config.MeterRole;
-import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
@@ -33,6 +37,7 @@ import com.elster.jupiter.metering.impl.MeteringInMemoryBootstrapModule;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsKey;
+import com.elster.jupiter.util.streams.Functions;
 
 import com.google.common.collect.Range;
 
@@ -42,7 +47,12 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -73,8 +83,9 @@ public class ApplyMetrologyConfigurationToUsagePointIT {
     private static final String USAGE_POINT_NAME = "UP0001";
     private static final String METROLOGY_CONFIGURATION_NAME = "Metrology configuration";
     private static final Instant INSTALLATION_TIME = ZonedDateTime.of(LocalDate.of(2016, 1, 1), LocalTime.of(0, 0), ZoneId.systemDefault()).toInstant();
-    ReadingType fifteenMinuteskWhForward;
-    ReadingType fifteenMinuteskWhReverse;
+    private ReadingType fifteenMinuteskWhForward;
+    private ReadingType fifteenMinuteskWhReverse;
+    private static List<Collection<ChannelsContainer>> actualClippedChannelsContainerCollections = new ArrayList<>();
 
     @Rule
     public TransactionalRule transactionalRule = new TransactionalRule(inMemoryBootstrapModule.getTransactionService());
@@ -87,11 +98,31 @@ public class ApplyMetrologyConfigurationToUsagePointIT {
         when(clock.instant()).thenReturn(Instant.now());
         when(clock.getZone()).thenReturn(Clock.systemUTC().getZone());
         inMemoryBootstrapModule.activate();
+        ((EventServiceImpl)inMemoryBootstrapModule.getEventService()).addTopicHandler(new TopicHandler() {
+            @Override
+            public void handle(LocalEvent localEvent) {
+                actualClippedChannelsContainerCollections.add(((EventType.ChannelsContainersClippedEvent)localEvent.getSource()).getChannelsContainers());
+            }
+
+            @Override
+            public String getTopicMatcher() {
+                return EventType.CHANNELS_CONTAINERS_CLIPPED.topic();
+            }
+        });
     }
 
     @AfterClass
     public static void tearDown() {
         inMemoryBootstrapModule.deactivate();
+    }
+
+    private static void verifyChannelsContainersClippedEventIsPosted(Collection<ChannelsContainer> channelsContainers) {
+        assertThat(actualClippedChannelsContainerCollections)
+                .as("Expected event " + EventType.CHANNELS_CONTAINERS_CLIPPED.topic()
+                        + (actualClippedChannelsContainerCollections.isEmpty() ? " is not posted" :
+                        " is posted with unexpected collection of ChannelsContainers"))
+                .containsExactly(channelsContainers);
+        actualClippedChannelsContainerCollections.clear();
     }
 
     private MetrologyConfigurationService getMetrologyConfigurationService() {
@@ -109,11 +140,10 @@ public class ApplyMetrologyConfigurationToUsagePointIT {
         UsagePointMetrologyConfiguration mc1;
         UsagePointMetrologyConfiguration mc2;
         Instant jan1st2016 = Instant.ofEpochMilli(1451602800000L);
+        Instant jan31st2016 = Instant.ofEpochMilli(1454270400000L);
         Instant feb1st2016 = Instant.ofEpochMilli(1454281200000L);
         when(clock.instant()).thenReturn(jan1st2016, feb1st2016);
 
-        long mc1Id = 0;
-        long mc2Id = 0;
         MeteringService mtrService = getMeteringService();
         MetrologyConfigurationService service = getMetrologyConfigurationService();
         ServiceCategory serviceCategory = mtrService.getServiceCategory(ServiceKind.ELECTRICITY).get();
@@ -121,21 +151,52 @@ public class ApplyMetrologyConfigurationToUsagePointIT {
         mc1 = service.newUsagePointMetrologyConfiguration("First", serviceCategory).create();
         mc2 = service.newUsagePointMetrologyConfiguration("Second", serviceCategory).create();
 
-        mc1Id = mc1.getId();
-        mc2Id = mc2.getId();
+        long mc1Id = mc1.getId();
+        long mc2Id = mc2.getId();
 
         up.apply(mc1, jan1st2016);
-        up.getEffectiveMetrologyConfiguration(jan1st2016).get().close(feb1st2016);
+
+        Optional<EffectiveMetrologyConfigurationOnUsagePoint> optional = up.getEffectiveMetrologyConfiguration(feb1st2016);
+        assertThat(optional).isPresent();
+        EffectiveMetrologyConfigurationOnUsagePoint effectiveMC = optional.get();
+        assertThat(effectiveMC.getMetrologyConfiguration().getId()).isEqualTo(mc1Id);
+        assertThat(effectiveMC.getRange()).isEqualTo(Range.atLeast(jan1st2016));
+        for (MetrologyContract contract : mc1.getContracts()) {
+            Optional<ChannelsContainer> channelsContainer = effectiveMC.getChannelsContainer(contract);
+            assertThat(channelsContainer).isPresent();
+            assertThat(channelsContainer.get().getRange()).isEqualTo(Range.atLeast(jan1st2016));
+        }
+
+        up.getEffectiveMetrologyConfiguration(jan1st2016).get().close(jan31st2016);
         up.apply(mc2, feb1st2016);
 
-        Optional<MetrologyConfiguration> janConfiguration = up.getEffectiveMetrologyConfiguration(feb1st2016.minusSeconds(3600L))
-                .map(EffectiveMetrologyConfigurationOnUsagePoint::getMetrologyConfiguration);
-        assertThat(janConfiguration).isPresent();
-        assertThat(janConfiguration.get().getId()).isEqualTo(mc1Id);
-        Optional<MetrologyConfiguration> febConfiguration = up.getEffectiveMetrologyConfiguration(feb1st2016.plusSeconds(3600L))
-                .map(EffectiveMetrologyConfigurationOnUsagePoint::getMetrologyConfiguration);
-        assertThat(febConfiguration).isPresent();
-        assertThat(febConfiguration.get().getId()).isEqualTo(mc2Id);
+        optional = up.getEffectiveMetrologyConfiguration(jan31st2016.minusSeconds(1));
+        assertThat(optional).isPresent();
+        effectiveMC = optional.get();
+        assertThat(effectiveMC.getMetrologyConfiguration().getId()).isEqualTo(mc1Id);
+        assertThat(effectiveMC.getRange()).isEqualTo(Range.closedOpen(jan1st2016, jan31st2016));
+        Set<ChannelsContainer> channelsContainers = new HashSet<>();
+        for (MetrologyContract contract : mc1.getContracts()) {
+            assertThat(effectiveMC.getChannelsContainer(contract, feb1st2016)).isEmpty();
+            Optional<ChannelsContainer> channelsContainer = effectiveMC.getChannelsContainer(contract);
+            assertThat(channelsContainer).isPresent();
+            channelsContainers.add(channelsContainer.get());
+            assertThat(channelsContainer.get().getRange()).isEqualTo(Range.closedOpen(jan1st2016, jan31st2016));
+        }
+        verifyChannelsContainersClippedEventIsPosted(channelsContainers);
+        assertThat(up.getEffectiveMetrologyConfiguration(jan31st2016)).isEmpty();
+        assertThat(up.getEffectiveMetrologyConfiguration(feb1st2016.minusSeconds(1))).isEmpty();
+        optional = up.getEffectiveMetrologyConfiguration(feb1st2016.plusSeconds(1));
+        assertThat(optional).isPresent();
+        effectiveMC = optional.get();
+        assertThat(effectiveMC.getMetrologyConfiguration().getId()).isEqualTo(mc2Id);
+        assertThat(effectiveMC.getRange()).isEqualTo(Range.atLeast(feb1st2016));
+        for (MetrologyContract contract : mc1.getContracts()) {
+            assertThat(effectiveMC.getChannelsContainer(contract, jan1st2016.plusSeconds(1))).isEmpty();
+            Optional<ChannelsContainer> channelsContainer = effectiveMC.getChannelsContainer(contract);
+            assertThat(channelsContainer).isPresent();
+            assertThat(channelsContainer.get().getRange()).isEqualTo(Range.atLeast(feb1st2016));
+        }
     }
 
     @Test
@@ -207,8 +268,25 @@ public class ApplyMetrologyConfigurationToUsagePointIT {
                 .findFirst()
                 .get();
 
+        EffectiveMetrologyConfigurationOnUsagePoint effective = usagePoint.getEffectiveMetrologyConfiguration(INSTALLATION_TIME).get();
+        Set<ChannelsContainer> channelsContainers = effective.getMetrologyConfiguration().getContracts().stream()
+                .map(effective::getChannelsContainer)
+                .flatMap(Functions.asStream())
+                .collect(Collectors.toSet());
+
         // Business method
-        usagePoint.getEffectiveMetrologyConfiguration(INSTALLATION_TIME).get().close(INSTALLATION_TIME);
+        effective.close(INSTALLATION_TIME);
+
+        // Assert that unlinked empty-interval configuration is not found anymore, channel containers have collapsed and event is sent
+        assertThat(usagePoint.getCurrentEffectiveMetrologyConfiguration()).isEmpty();
+        assertThat(usagePoint.getEffectiveMetrologyConfigurations()).isEmpty();
+        assertThat(usagePoint.getEffectiveMetrologyConfiguration(INSTALLATION_TIME)).isEmpty();
+        assertThat(usagePoint.getEffectiveMetrologyConfigurationByStart(INSTALLATION_TIME)).isEmpty();
+        assertThat(usagePoint.getEffectiveMetrologyConfigurations(Range.singleton(INSTALLATION_TIME))).isEmpty();
+        channelsContainers.forEach(container -> assertThat(container.getRange()).isEqualTo(Range.closedOpen(Instant.EPOCH, Instant.EPOCH)));
+        verifyChannelsContainersClippedEventIsPosted(channelsContainers);
+
+        // Business method
         usagePoint.apply(metrologyConfiguration, INSTALLATION_TIME, Stream.of(contractInformation).collect(Collectors.toSet()));
 
         // Asserts that usage point is now linked to metrology configuration

@@ -5,9 +5,9 @@
 package com.elster.jupiter.metering;
 
 import aQute.bnd.annotation.ProviderType;
+import com.google.common.collect.ImmutableList;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 @ProviderType
@@ -25,10 +25,10 @@ public class MeterFilter {
     }
 
     public List<String> getExcludedStates() {
-        return excludedStates;
+        return this.excludedStates;
     }
 
     public void setExcludedStates(String... excludedStates) {
-        this.excludedStates.addAll(Arrays.asList(excludedStates));
+        this.excludedStates = ImmutableList.copyOf(excludedStates);
     }
 }
