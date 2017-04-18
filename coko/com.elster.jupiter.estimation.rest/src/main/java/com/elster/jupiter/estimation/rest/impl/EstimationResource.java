@@ -14,6 +14,8 @@ import com.elster.jupiter.estimation.EstimationTask;
 import com.elster.jupiter.estimation.EstimationTaskOccurrenceFinder;
 import com.elster.jupiter.estimation.Estimator;
 import com.elster.jupiter.estimation.security.Privileges;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.aggregation.ReadingQualityCommentCategory;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
@@ -90,6 +92,7 @@ public class EstimationResource {
     private final ConcurrentModificationExceptionFactory conflictFactory;
     private final PropertyValueInfoService propertyValueInfoService;
     private final EstimationRuleInfoFactory estimationRuleInfoFactory;
+    private final MeteringService meteringService;
 
     @Inject
     public EstimationResource(RestQueryService queryService,
@@ -100,7 +103,7 @@ public class EstimationResource {
                               MeteringGroupsService meteringGroupsService,
                               MetrologyConfigurationService metrologyConfigurationService, ConcurrentModificationExceptionFactory conflictFactory,
                               PropertyValueInfoService propertyValueInfoService,
-                              EstimationRuleInfoFactory estimationRuleInfoFactory) {
+                              EstimationRuleInfoFactory estimationRuleInfoFactory, MeteringService meteringService) {
         this.queryService = queryService;
         this.estimationService = estimationService;
         this.transactionService = transactionService;
@@ -111,6 +114,7 @@ public class EstimationResource {
         this.conflictFactory = conflictFactory;
         this.propertyValueInfoService = propertyValueInfoService;
         this.estimationRuleInfoFactory = estimationRuleInfoFactory;
+        this.meteringService = meteringService;
     }
 
     private QualityCodeSystem getQualityCodeSystemFromApplicationName(@HeaderParam(APPLICATION_HEADER_PARAM) String applicationName) {
@@ -296,12 +300,25 @@ public class EstimationResource {
                                 Object value = propertyValueInfoService.findPropertyValue(propertySpec, info.properties);
                                 estimationRuleBuilder.havingProperty(propertySpec.getName()).withValue(value);
                             });
+                    meteringService.findReadingQualityComment(info.commentId).ifPresent(estimationRuleBuilder::withEstimationComment);
                     estimationRuleBuilder.active(false);
                     estimationRuleBuilder.markProjected(info.markProjected);
                     EstimationRule rule = estimationRuleBuilder.create();
                     return estimationRuleInfoFactory.createEstimationRuleInfo(rule);
                 });
         return Response.status(Response.Status.CREATED).entity(result).build();
+    }
+
+    @GET
+    @Path("/comments")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION)
+    public PagedInfoList getEstimationComments(@BeanParam JsonQueryParameters queryParameters) {
+        List<EstimationCommentInfo> data = meteringService.getAllReadingQualityComments(ReadingQualityCommentCategory.ESTIMATION)
+                .stream()
+                .map(EstimationCommentInfo::from)
+                .collect(Collectors.toList());
+        return PagedInfoList.fromCompleteList("data", data, queryParameters);
     }
 
     @PUT

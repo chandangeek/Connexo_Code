@@ -50,6 +50,7 @@ public class EstimationApplication extends Application implements MessageSeedPro
     private volatile MetrologyConfigurationService metrologyConfigurationService;
     private volatile TimeService timeService;
     private volatile PropertyValueInfoService propertyValueInfoService;
+    private volatile MeteringService meteringService;
 
     private volatile NlsService nlsService;
     private volatile Thesaurus thesaurus;
@@ -111,6 +112,11 @@ public class EstimationApplication extends Application implements MessageSeedPro
         this.propertyValueInfoService = propertyValueInfoService;
     }
 
+    @Reference
+    public void setMeteringService(MeteringService meteringService) {
+        this.meteringService = meteringService;
+    }
+
     @Override
     public Set<Object> getSingletons() {
         Set<Object> hashSet = new HashSet<>();
@@ -154,6 +160,7 @@ public class EstimationApplication extends Application implements MessageSeedPro
             bind(propertyValueInfoService).to(PropertyValueInfoService.class);
             bind(ReadingTypeInfoFactory.class).to(ReadingTypeInfoFactory.class);
             bind(EstimationRuleInfoFactory.class).to(EstimationRuleInfoFactory.class);
+            bind(meteringService).to(MeteringService.class);
         }
     }
 }
