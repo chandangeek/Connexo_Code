@@ -165,6 +165,8 @@ Ext.define('Mdc.controller.setup.DeviceConnectionHistory', {
             store = me.getDeviceConnectionLogStore(),
             widget;
 
+
+
         deviceModel.load(deviceId, {
             success: function (device) {
                 connectionMethodModel.getProxy().setExtraParam('deviceId', deviceId);
@@ -178,14 +180,15 @@ Ext.define('Mdc.controller.setup.DeviceConnectionHistory', {
                                 store.getProxy().setExtraParam('connectionId', deviceConnectionMethodId);
                                 store.getProxy().setExtraParam('sessionId', deviceConnectionHistoryId);
 
-                                widget = Ext.widget('deviceConnectionLogMain', {device: device, deviceId: deviceId});
-                                me.getApplication().fireEvent('changecontentevent', widget);
-
-                                store.load(function () {
+                                store.on('load', function(){
                                     me.getApplication().fireEvent('loadDevice', device);
                                     me.getApplication().fireEvent('loadConnectionMethod', connectionMethod);
                                     me.getDeviceConnectionLogOverviewForm().loadRecord(deviceConnectionHistory);
                                 });
+
+                                widget = Ext.widget('deviceConnectionLogMain', {device: device, deviceId: deviceId});
+                                me.getApplication().fireEvent('changecontentevent', widget);
+
                             }
                         });
                     }
