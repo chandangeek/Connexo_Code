@@ -5,10 +5,9 @@
 package com.elster.jupiter.validators.impl;
 
 import com.elster.jupiter.validation.ValidationResult;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
 
 public class MainCheckValidatorWithThresholdTest extends MainCheckValidatorTest {
 
@@ -50,13 +49,13 @@ public class MainCheckValidatorWithThresholdTest extends MainCheckValidatorTest 
         ValidationConfiguration validationConfiguration = new ValidationConfiguration(rule, mainChannelReadings, checkReadings);
         MainCheckValidator validator = initValidator(validationConfiguration);
 
-        assertEquals(5, validationConfiguration.mainChannelReadings.readings.size());
+        assertThat(validationConfiguration.mainChannelReadings.readings.size()).isEqualTo(5);
 
-        assertEquals(5L, validationConfiguration.mainChannelReadings.readings.stream()
+        assertThat(validationConfiguration.mainChannelReadings.readings.stream()
                 .map(validator::validate)
-                .filter((c -> c.equals(ValidationResult.VALID))).count());
+                .filter((c -> c.equals(ValidationResult.VALID))).count()).isEqualTo(5L);
 
-        assertEquals(0, validator.finish().size());
+        assertThat(validator.finish().size()).isEqualTo(0);
 
     }
 }

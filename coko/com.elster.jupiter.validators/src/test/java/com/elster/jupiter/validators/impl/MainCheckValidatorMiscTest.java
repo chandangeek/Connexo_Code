@@ -12,9 +12,8 @@ import java.util.logging.Logger;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.fest.reflect.core.Reflection.field;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doAnswer;
@@ -34,9 +33,7 @@ public class MainCheckValidatorMiscTest extends MainCheckValidatorTest {
                 .withValuedDifference(bigDecimal(100D))
                 .passIfNoRefData(false)
                 .useValidatedData(false)
-                .withNoMinThreshold(), "WARNING: Failed to validate period \"Fri, 01 Jan 2016 12:00 until Sun, 07 Feb 2016 12:00\" using method \"Main/check comparison\" on [Daily] Secondary Delta A+ (kWh) since the specified purpose doesnt exist on the Usage point name", false);
-
-
+                .withNoMinThreshold(), "WARNING: Failed to validate period \"Fri, 1 Jan 2016 12:00 AM until Sun, 7 Feb 2016 12:00 AM\" using method \"Main/check comparison\" on [Daily] Secondary Delta A+ (kWh) since the specified purpose doesnt exist on the Usage point name", false);
     }
 
     @Test
@@ -47,7 +44,7 @@ public class MainCheckValidatorMiscTest extends MainCheckValidatorTest {
                 .withValuedDifference(bigDecimal(100D))
                 .passIfNoRefData(false)
                 .useValidatedData(false)
-                .withNoMinThreshold(), "WARNING: Failed to validate period \"Fri, 01 Jan 2016 12:00 until Sun, 07 Feb 2016 12:00\" using method \"Main/check comparison\" on [Daily] Secondary Delta A+ (kWh) since check output with matching reading type on the specified purpose doesnt exist on Usage point name", false);
+                .withNoMinThreshold(), "WARNING: Failed to validate period \"Fri, 1 Jan 2016 12:00 AM until Sun, 7 Feb 2016 12:00 AM\" using method \"Main/check comparison\" on [Daily] Secondary Delta A+ (kWh) since check output with matching reading type on the specified purpose doesnt exist on Usage point name", false);
     }
 
     @Test
@@ -57,7 +54,7 @@ public class MainCheckValidatorMiscTest extends MainCheckValidatorTest {
                 .withValuedDifference(bigDecimal(100D))
                 .passIfNoRefData(false)
                 .useValidatedData(false)
-                .withNoMinThreshold(), "WARNING: Failed to validate period \"Fri, 01 Jan 2016 12:00 until Sun, 07 Feb 2016 12:00\" using method \"Main/check comparison\" on Usage point name/[Daily] Secondary Delta A+ (kWh) since data from check output is missing or not validated", true);
+                .withNoMinThreshold(), "WARNING: Failed to validate period \"Fri, 1 Jan 2016 12:00 AM until Sun, 7 Feb 2016 12:00 AM\" using method \"Main/check comparison\" on Usage point name/[Daily] Secondary Delta A+ (kWh) since data from check output is missing or not validated", true);
     }
 
     @Test
@@ -67,23 +64,21 @@ public class MainCheckValidatorMiscTest extends MainCheckValidatorTest {
                 .withValuedDifference(bigDecimal(100D))
                 .passIfNoRefData(true)
                 .useValidatedData(false)
-                .withNoMinThreshold(), "WARNING: Failed to validate period \"Fri, 01 Jan 2016 12:00 until Sun, 07 Feb 2016 12:00\" using method \"Main/check comparison\" on Usage point name/[Daily] Secondary Delta A+ (kWh) since data from check output is missing or not validated", true);
+                .withNoMinThreshold(), "WARNING: Failed to validate period \"Fri, 1 Jan 2016 12:00 AM until Sun, 7 Feb 2016 12:00 AM\" using method \"Main/check comparison\" on Usage point name/[Daily] Secondary Delta A+ (kWh) since data from check output is missing or not validated", true);
     }
 
-    private void mockLogger(MainCheckValidator validator){
+    private void mockLogger(MainCheckValidator validator) {
 
         logs = new StringBuffer();
         doAnswer(invocationOnMock -> {
-            Level level = (Level)(invocationOnMock.getArguments()[0]);
+            Level level = (Level) (invocationOnMock.getArguments()[0]);
             logs.append(level).append(":").append(" ");
-            logs.append((String)(invocationOnMock.getArguments()[1]));
+            logs.append((String) (invocationOnMock.getArguments()[1]));
             return null;
-        }).when(logger).log(any(Level.class),anyString(),any(Throwable.class));
+        }).when(logger).log(any(Level.class), anyString(), any(Throwable.class));
 
         field("logger").ofType(Logger.class).in(validator).set(logger);
     }
-
-
 
     @Override
     MainCheckValidator initValidator(ValidationConfiguration validationConfiguration) {
@@ -111,18 +106,16 @@ public class MainCheckValidatorMiscTest extends MainCheckValidatorTest {
         ValidationConfiguration validationConfiguration = new ValidationConfiguration(rule, mainChannelReadings, checkReadings);
         MainCheckValidator validator = initValidator(validationConfiguration);
 
-        assertEquals(3, validationConfiguration.mainChannelReadings.readings.size());
+        assertThat(validationConfiguration.mainChannelReadings.readings.size()).isEqualTo(3);
 
-        long validReadingsCount = (rule.notExistingCheckPurpose!=null || rule.noCheckChannel)?0:(missingData?(rule.passIfNoData?3L:1L):3L);
+        long validReadingsCount = (rule.notExistingCheckPurpose != null || rule.noCheckChannel) ? 0 : (missingData ? (rule.passIfNoData ? 3L : 1L) : 3L);
 
-        assertEquals(validReadingsCount, validationConfiguration.mainChannelReadings.readings.stream()
+        assertThat(validationConfiguration.mainChannelReadings.readings.stream()
                 .map(validator::validate)
-                .filter((c -> c.equals(ValidationResult.VALID))).count());
+                .filter((c -> c.equals(ValidationResult.VALID))).count()).isEqualTo(validReadingsCount);
 
-        assertEquals(0, validator.finish().size());
+        assertThat(validator.finish().size()).isEqualTo(0);
 
-        String actualLogs = logs.toString();
-        System.out.println(actualLogs);
-        assertTrue(logs.toString().contains(warning));
+        assertThat(logs.toString()).contains(warning);
     }
 }

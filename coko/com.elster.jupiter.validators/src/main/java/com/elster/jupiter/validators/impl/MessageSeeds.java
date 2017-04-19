@@ -13,7 +13,8 @@ import java.util.logging.Logger;
 
 public enum MessageSeeds implements MessageSeed {
     NO_SUCH_VALIDATOR(1001, "validator.doesnotexist", "Validator {0} does not exist."),
-    MISSING_PROPERTY(1002, "property.missing", "Required property with key ''{0}'' was not found.");
+    MISSING_PROPERTY(1002, "property.missing", "Required property with key ''{0}'' was not found."),
+    FAILED_VALIDATION_ON_PERIOD(1003,"validation.failed.on.period","Failed to validate period {0} using method \"{1}\" on {2} since {3}");
 
     public static final String COMPONENT_NAME = "VDR";
 
