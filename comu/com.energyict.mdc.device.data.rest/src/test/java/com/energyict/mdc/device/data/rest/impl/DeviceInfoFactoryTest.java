@@ -280,6 +280,7 @@ public class DeviceInfoFactoryTest {
 
         when(slave1.getDeviceType()).thenReturn(slaveDeviceType1);
         when(slaveDeviceType1.getName()).thenReturn(SLAVE_DEVICE_TYPE_NAME_1);
+        when(slaveDeviceType1.isDataloggerSlave()).thenReturn(true);
         when(slave1.getDeviceConfiguration()).thenReturn(slaveDeviceConfiguration1);
         when(slaveDeviceConfiguration1.getName()).thenReturn(SLAVE_DEVICE_CONFIGURATION_NAME_1);
         when(slave1.getId()).thenReturn(1L);
@@ -292,6 +293,7 @@ public class DeviceInfoFactoryTest {
 
         when(slave2.getDeviceType()).thenReturn(slaveDeviceType2);
         when(slaveDeviceType2.getName()).thenReturn(SLAVE_DEVICE_TYPE_NAME_2);
+        when(slaveDeviceType2.isDataloggerSlave()).thenReturn(true);
         when(slave2.getDeviceConfiguration()).thenReturn(slaveDeviceConfiguration2);
         when(slaveDeviceConfiguration2.getName()).thenReturn(SLAVE_DEVICE_CONFIGURATION_NAME_2);
         when(slave2.getId()).thenReturn(2L);
