@@ -133,7 +133,14 @@ public class ComSessionResource {
         List<JournalEntryInfo> infos = new ArrayList<>();
         EnumSet<ComServer.LogLevel> logLevels = EnumSet.noneOf(ComServer.LogLevel.class);
         if (jsonQueryFilter.hasProperty(LOG_LEVELS_FILTER_PROPERTY)) {
-            jsonQueryFilter.getPropertyList(LOG_LEVELS_FILTER_PROPERTY, new LogLevelAdapter()).stream().forEach(logLevels::add);
+            jsonQueryFilter.getPropertyList(LOG_LEVELS_FILTER_PROPERTY, new LogLevelAdapter())
+                    .stream()
+                    .forEach(logLevels::add);
+            if(logLevels.contains(ComServer.LogLevel.DEBUG)){
+                logLevels.add(ComServer.LogLevel.ERROR);
+                logLevels.add(ComServer.LogLevel.WARN);
+                logLevels.add(ComServer.LogLevel.INFO);
+            }
         } else {
             logLevels = EnumSet.allOf(ComServer.LogLevel.class);
         }
