@@ -234,16 +234,21 @@ Ext.define('Pkj.controller.Certificates', {
             headers: {'Content-type': 'multipart/form-data'},
             isFormUpload: true,
             callback: function (config, success, response) {
-                fileField.reset();
-                if (response.responseText) {
+                if (!Ext.isEmpty(response.responseText)) {
                     var responseObject = JSON.parse(response.responseText);
                     if (!responseObject.success) {
-                        me.getApplication().getController('Uni.controller.Error')
-                            .showError(Uni.I18n.translate('general.certificateUploadFailed', 'PKJ', 'Failed to upload file'), responseObject.message);
+                        if(responseObject.errors.length !== 0){
+                            form.getForm().markInvalid(responseObject.errors);
+                        } else {
+                            me.getApplication().getController('Uni.controller.Error')
+                                .showError(Uni.I18n.translate('general.certificateUploadFailed', 'PKJ', 'Failed to upload file'), responseObject.message);
+                        }
                     }
+                } else {
+                    me.showCertificates();
                 }
                 form.setLoading(false);
-                me.showCertificates();
+
             }
         });
     },
