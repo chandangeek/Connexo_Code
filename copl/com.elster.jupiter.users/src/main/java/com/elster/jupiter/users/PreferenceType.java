@@ -12,7 +12,8 @@ public enum PreferenceType {
     //time
     SHORT_TIME("format.time.short"),
     LONG_TIME("format.time.long"),
-    
+    LONG_TIME_WITH_MILLIS("format.time.long.millis"),
+
     //date-time
     DATETIME_SEPARATOR("format.datetime.separator"),
     DATETIME_ORDER("format.datetime.order"),

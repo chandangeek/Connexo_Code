@@ -187,6 +187,7 @@ public class InstallerImpl implements FullInstaller {
         userPrefsService.createUserPreference(Locale.ENGLISH, PreferenceType.LONG_DATE, "EEE dd MMM ''yy", "D d M \'y", true);
         userPrefsService.createUserPreference(Locale.ENGLISH, PreferenceType.SHORT_TIME, "HH:mm", "H:i", true);
         userPrefsService.createUserPreference(Locale.ENGLISH, PreferenceType.LONG_TIME, "HH:mm:ss", "H:i:s", true);
+        userPrefsService.createUserPreference(Locale.ENGLISH, PreferenceType.LONG_TIME_WITH_MILLIS, "HH:mm:ss:L", "H:i:s.u", true);
         userPrefsService.createUserPreference(Locale.ENGLISH, PreferenceType.DATETIME_SEPARATOR, "SPACE", "-", true);
         userPrefsService.createUserPreference(Locale.ENGLISH, PreferenceType.DATETIME_ORDER, "TD", "DT", true);
         userPrefsService.createUserPreference(Locale.ENGLISH, PreferenceType.DECIMAL_PRECISION, "2", "2", true);
@@ -198,6 +199,7 @@ public class InstallerImpl implements FullInstaller {
         userPrefsService.createUserPreference(Locale.US, PreferenceType.LONG_DATE, "EEE, MMM-dd-''yy", "D, M-d-\'y", true);
         userPrefsService.createUserPreference(Locale.US, PreferenceType.SHORT_TIME, "hh:mm a", "h:i a", true);
         userPrefsService.createUserPreference(Locale.US, PreferenceType.LONG_TIME, "hh:mm:ss a", "h:i:s a", true);
+        userPrefsService.createUserPreference(Locale.US, PreferenceType.LONG_TIME_WITH_MILLIS, "hh:mm:ss:L a", "h:i:s.u a", true);
         userPrefsService.createUserPreference(Locale.US, PreferenceType.DATETIME_SEPARATOR, "SPACE", "-", true);
         userPrefsService.createUserPreference(Locale.US, PreferenceType.DATETIME_ORDER, "TD", "DT", true);
         userPrefsService.createUserPreference(Locale.US, PreferenceType.DECIMAL_PRECISION, "2", "2", true);
