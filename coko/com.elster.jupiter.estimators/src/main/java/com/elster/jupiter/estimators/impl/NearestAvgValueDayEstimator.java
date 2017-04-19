@@ -31,6 +31,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -173,11 +174,11 @@ public class NearestAvgValueDayEstimator extends AbstractEstimator implements Es
                     DiscardDaySettings discardDaySettings = (DiscardDaySettings)day;
                     if (discardDaySettings.isDiscardDay()){
                         if (discardDaySettings.getCalendar() == null){
-                            throw new LocalizedFieldValidationException(MessageSeeds.INVALID_CALENDAR_FIELD,
+                            throw new LocalizedFieldValidationException(MessageSeeds.INVALID_DISCARD_DAY_FIELD,
                                     "properties." + DISCARD_SPECIFIC_DAY + ".calendar");
                         }
                         if (discardDaySettings.getEvent() == null) {
-                            throw new LocalizedFieldValidationException(MessageSeeds.INVALID_EVENT_FIELD,
+                            throw new LocalizedFieldValidationException(MessageSeeds.INVALID_DISCARD_DAY_FIELD,
                                     "properties." + DISCARD_SPECIFIC_DAY + ".eventCode");
                         }
 
@@ -292,7 +293,7 @@ public class NearestAvgValueDayEstimator extends AbstractEstimator implements Es
         List<? extends Estimatable> estimatables = estimationBlock.estimatables();
         ZoneId zone = estimationBlock.getChannel().getZoneId();
         Calendar.ZonedView zonedView = null;
-        Boolean discardDay = ((DiscardDaySettings) discardSpecificDay).isDiscardDay();
+        Boolean discardDay = discardSpecificDay instanceof NoneCalendarWithEventSettings ? false : ((DiscardDaySettings) discardSpecificDay).isDiscardDay();
         if (discardDay) {
             calendar = ((DiscardDaySettings) discardSpecificDay).getCalendar();
             calendarEventCode = ((DiscardDaySettings) discardSpecificDay).getEvent().getId();
@@ -334,7 +335,6 @@ public class NearestAvgValueDayEstimator extends AbstractEstimator implements Es
                 LoggingContext.get().info(getLogger(), message, readingsBefore.size(), this.numberOfSamples.intValue());
                 return false;
             }
-            int count = 0;
             result = readingsBefore
                     .stream()
                     .limit(numberOfSamples)
@@ -342,7 +342,7 @@ public class NearestAvgValueDayEstimator extends AbstractEstimator implements Es
                     .reduce((val,val1) -> val.add(val1)).orElse(null);
 
             if (result!=null){
-                result = result.divide(BigDecimal.valueOf(count));
+                result = result.divide(BigDecimal.valueOf(numberOfSamples), RoundingMode.HALF_UP);
                 valuesForEstimatables.put(estimatable, result);
             }
         }
@@ -367,7 +367,7 @@ public class NearestAvgValueDayEstimator extends AbstractEstimator implements Es
                 .atTimestamp(readingToEvaluate.getTimeStamp())
                 .actual()
                 .ofQualitySystems(systems)
-                .ofQualityIndices(ImmutableSet.of(QualityCodeIndex.SUSPECT, QualityCodeIndex.KNOWNMISSINGREAD))///Missing ??
+                .ofQualityIndices(ImmutableSet.of(QualityCodeIndex.SUSPECT, QualityCodeIndex.KNOWNMISSINGREAD))
                 .noneMatch();
     }
 
