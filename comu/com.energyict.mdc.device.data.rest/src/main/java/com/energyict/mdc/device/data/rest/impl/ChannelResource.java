@@ -590,7 +590,11 @@ public class ChannelResource {
 
     private void processInfo(ChannelDataInfo channelDataInfo, Channel channel, List<Instant> removeCandidates, List<BaseReading> estimatedReadings, List<BaseReading> editedReadings,
                              List<BaseReading> estimatedBulkReadings, List<BaseReading> editedBulkReadings, List<BaseReading> confirmedReadings) {
-        Optional<ReadingQualityComment> readingQualityComment = resourceHelper.getReadingQualityComment(channelDataInfo.commentId);
+        Optional<ReadingQualityComment> readingQualityComment = Optional.empty();
+        if (channelDataInfo.estimationComment != null) {
+            readingQualityComment = resourceHelper.getReadingQualityComment(channelDataInfo.estimationComment.id);
+        }
+
         validateLinkedToSlave(channel, Range.closedOpen(Instant.ofEpochMilli(channelDataInfo.interval.start), Instant.ofEpochMilli(channelDataInfo.interval.end)));
         if (!(isToBeConfirmed(channelDataInfo)) && channelDataInfo.value == null && channelDataInfo.collectedValue == null) {
             removeCandidates.add(Instant.ofEpochMilli(channelDataInfo.interval.end));
@@ -694,7 +698,7 @@ public class ChannelResource {
                     .filter(estimationRule -> estimationRule.getRuleSet()
                             .getQualityCodeSystem()
                             .equals(QualityCodeSystem.MDC))
-                    .filter(estimationRule -> !deviceConfigurationService.findDeviceConfigurationsForEstimationRuleSet(estimationRule.getRuleSet()).find().isEmpty())
+                    .filter(estimationRule -> deviceConfigurationService.findDeviceConfigurationsForEstimationRuleSet(estimationRule.getRuleSet()).find().contains(device.getDeviceConfiguration()))
                     .filter(estimationRule -> estimationRule.getReadingTypes().contains(channel.getReadingType().getCalculatedReadingType().orElse(null)))
                     .map(estimationRuleInfoFactory::asInfo)
                     .collect(Collectors.toList());
@@ -716,7 +720,12 @@ public class ChannelResource {
     private List<ChannelDataInfo> previewEstimate(QualityCodeSystem system, Device device, Channel channel, EstimateChannelDataInfo estimateChannelDataInfo) {
         Estimator estimator = estimationHelper.getEstimator(estimateChannelDataInfo);
         ReadingType readingType = channel.getReadingType();
-        Optional<ReadingQualityComment> readingQualityComment = resourceHelper.getReadingQualityComment(estimateChannelDataInfo.commentId);
+
+        Optional<ReadingQualityComment> readingQualityComment = Optional.empty();
+        if (estimateChannelDataInfo.estimationComment != null) {
+            readingQualityComment = resourceHelper.getReadingQualityComment(estimateChannelDataInfo.estimationComment.id);
+        }
+
         List<Range<Instant>> ranges = estimateChannelDataInfo.intervals.stream()
                 .map(info -> Range.openClosed(Instant.ofEpochMilli(info.start), Instant.ofEpochMilli(info.end)))
                 .collect(Collectors.toList());
@@ -1016,11 +1025,11 @@ public class ChannelResource {
             Instant readingTimeStamp = record.getTimeStamp();
             channelDataInfo.interval = IntervalInfo.from(Range.openClosed(readingTimeStamp.minus(intervalLength), readingTimeStamp));
         });
-        channel.getCalculatedReadingType(record.getTimeStamp()).ifPresent(readingType -> {
-            Quantity quantity = record.getQuantity(readingType);
-            BigDecimal value = getRoundedBigDecimal(quantity != null ? quantity.getValue() : null, channel);
-            channelDataInfo.value = type.correctValue(value, correctionAmount);
-        });
+
+        Quantity quantity = record.getQuantity(channel.getReadingType());
+        BigDecimal value = getRoundedBigDecimal(quantity != null ? quantity.getValue() : null, channel);
+        channelDataInfo.value = type.correctValue(value, correctionAmount);
+
         return channelDataInfo;
     }
 

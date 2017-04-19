@@ -19,6 +19,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.rest.util.IdWithDisplayValueInfo;
 import com.elster.jupiter.util.Ranges;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
@@ -146,7 +147,7 @@ public class EstimationHelper {
     private ChannelDataInfo getChannelDataInfo(Channel channel, EstimationBlock block, LoadProfileReading reading, boolean isValidationActive, DeviceValidation deviceValidation, Estimatable estimatable, Optional<ReadingQualityComment> readingQualityComment) {
         //todo do we need to add the datalogger here?
         ChannelDataInfo channelDataInfo = deviceDataInfoFactory.createChannelDataInfo(channel, reading, isValidationActive, deviceValidation, null);
-        readingQualityComment.ifPresent(comment -> channelDataInfo.commentId = comment.getId());
+        readingQualityComment.ifPresent(comment -> channelDataInfo.estimationComment= new IdWithDisplayValueInfo<>(comment.getId(), comment.getComment()));
         if (!channel.getReadingType().isCumulative()) {
             channelDataInfo.value = estimatable.getEstimation();
             channelDataInfo.mainValidationInfo.validationResult = ValidationStatus.NOT_VALIDATED;

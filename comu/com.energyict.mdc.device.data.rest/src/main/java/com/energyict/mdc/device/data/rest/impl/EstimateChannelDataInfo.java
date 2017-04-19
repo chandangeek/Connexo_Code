@@ -6,6 +6,7 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.properties.rest.PropertyInfo;
+import com.elster.jupiter.rest.util.IdWithDisplayValueInfo;
 import com.energyict.mdc.common.rest.IntervalInfo;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -28,8 +29,8 @@ public class EstimateChannelDataInfo {
     @JsonProperty("readingType")
     public ReadingTypeInfo readingType;
 
-    @JsonProperty("commentId")
-    public long commentId;
+    @JsonProperty("estimationComment")
+    public IdWithDisplayValueInfo<Long> estimationComment;
 
     public EstimateChannelDataInfo() {
 
