@@ -83,7 +83,7 @@ Ext.define('Pkj.view.AddCSRForm', {
                     if (Ext.isEmpty(value)) {
                         return Uni.I18n.translate('general.csrAttribute.subject.emptyText', 'PKJ', 'Fill in attributes below to preview subject');
                     }
-                    return value;
+                    return Ext.String.htmlEncode(value);
                 }
             },
             {
