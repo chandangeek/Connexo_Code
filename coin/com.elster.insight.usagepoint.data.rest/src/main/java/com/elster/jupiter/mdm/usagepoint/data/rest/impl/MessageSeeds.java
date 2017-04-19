@@ -60,7 +60,7 @@ public enum MessageSeeds implements MessageSeed {
     INVALID_ACTIVATION_TIME_OF_METER_ROLE(55, "usagepoint.meterrole.activation.must.be.greater.than.up.creation.date", "Meter role activation time must be greater or equal to Created date of usage point"),
     MISSING_TRANSITION_REQUIREMENT(56, "missing.transition.requirements", "Pre-transition check failed: {0}"),
     NO_USAGEPOINT_TRANSITION_WITH_ID(57, Keys.NO_TRANSITION_WITH_ID, "No usage point transition with id {0}"),
-    NO_METROLOGYCONFIG_FOR_USAGEPOINT_IN_THIS_TIME(58, Keys.NO_METROLOGYCONFIG_FOR_USAGEPOINT_IN_THIS_TIME, "Metrology configuration is not linked to the usage point at this moment in time."),
+    NO_METROLOGYCONFIG_FOR_USAGEPOINT_AT_THE_MOMENT(58, Keys.NO_METROLOGYCONFIG_FOR_USAGEPOINT_AT_THE_MOMENT, "Metrology configuration is not linked to the usage point at this moment in time."),
     NO_SUCH_VALIDATION_RULE(59, "NoSuchValidationRule", "No validation rule with id {0}"),
     NO_SUCH_ESTIMATION_RULE(60, "NoSuchEstimationRule", "No estimation rule with id {0}"),
     VALIDATION_RULE_IS_NOT_APPLICABLE_TO_OUTPUT(61, "ValidationRuleIsNotApplicableToOutput", "Validation rule with id {0} is not applicable to output {1}"),
@@ -125,7 +125,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String CANNOT_ACTIVATE_METROLOGY_PURPOSE = "CannotActivateMetrologyPurpose";
         public static final String UNSATISFIED_READING_TYPE_REQUIREMENTS = "UnsatisfiedReadingTypeRequirements";
         public static final String NO_TRANSITION_WITH_ID = "NoTransitionWithId";
-        public static final String NO_METROLOGYCONFIG_FOR_USAGEPOINT_IN_THIS_TIME = "NoMetrologyConfigForUsagePointInThisTime";
+        public static final String NO_METROLOGYCONFIG_FOR_USAGEPOINT_AT_THE_MOMENT = "NoMetrologyConfigForUsagePointInThisTime";
     }
 
 }
