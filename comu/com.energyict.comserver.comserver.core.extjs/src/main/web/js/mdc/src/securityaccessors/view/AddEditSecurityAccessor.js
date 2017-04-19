@@ -98,6 +98,7 @@ Ext.define('Mdc.securityaccessors.view.AddEditSecurityAccessor', {
                     itemId: 'mdc-security-accessor-trust-store-container',
                     msgTarget: 'under',
                     required: true,
+                    disabled: me.isEdit,
                     layout: 'hbox',
                     items: [
                         {
