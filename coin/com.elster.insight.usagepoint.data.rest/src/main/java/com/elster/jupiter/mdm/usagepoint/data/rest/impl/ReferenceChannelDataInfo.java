@@ -17,5 +17,7 @@ public class ReferenceChannelDataInfo {
     public Instant startDate;
     public boolean allowSuspectData;
     public boolean completePeriod;
+    public Long estimationComment;
+    public boolean projectedValue;
     public List<IntervalInfo> intervals;
 }

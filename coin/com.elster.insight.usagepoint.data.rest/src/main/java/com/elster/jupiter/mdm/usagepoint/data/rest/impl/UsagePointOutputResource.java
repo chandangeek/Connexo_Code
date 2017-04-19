@@ -364,7 +364,7 @@ public class UsagePointOutputResource {
                 ((BaseReadingImpl) baseReading).addQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.PROJECTED, 0));
             }
             if (channelDataInfo.ruleId != 0) {
-                        ((BaseReadingImpl) baseReading).addQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.ESTIMATED, (int) channelDataInfo.ruleId), this.extractComment(readingQualityComment));
+                        ((BaseReadingImpl) baseReading).addQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.ESTIMATED, (int) channelDataInfo.ruleId).getCode(), this.extractComment(readingQualityComment));
                 estimatedReadings.add(baseReading);
             } else {
                 ((BaseReadingImpl)baseReading).addQuality("3.7.0", this.extractComment(readingQualityComment));
@@ -540,8 +540,10 @@ public class UsagePointOutputResource {
                 referenceRecords.stream()
                         .findFirst()
                         .ifPresent(referenceReading -> {
-                            OutputChannelDataInfo channelDataInfo = outputChannelDataInfoFactory.createEstimatedChannelDataInfo(record, referenceReading.getValue()
-                                    .scaleByPowerOfTen(referenceReading.getReadingType().getMultiplier().getMultiplier() - record.getReadingType().getMultiplier().getMultiplier()));
+                            OutputChannelDataInfo channelDataInfo = outputChannelDataInfoFactory.createUpdatedChannelDataInfo(record, referenceReading.getValue()
+                                    .scaleByPowerOfTen(referenceReading.getReadingType().getMultiplier().getMultiplier() - record.getReadingType().getMultiplier().getMultiplier()),
+                                    resourceHelper.getReadingQualityComment(referenceChannelDataInfo.estimationComment));
+                            channelDataInfo.isProjected = referenceChannelDataInfo.projectedValue;
                             if(referenceChannelDataInfo.allowSuspectData || referenceReading.getReadingQualities().stream().noneMatch(ReadingQualityRecord::isSuspect)) {
                                 resultReadings.add(channelDataInfo);
                             }
