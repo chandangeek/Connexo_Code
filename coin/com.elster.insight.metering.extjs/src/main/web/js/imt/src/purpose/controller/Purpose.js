@@ -457,7 +457,8 @@ Ext.define('Imt.purpose.controller.Purpose', {
     doOperation: function (purpose, usagePoint, confirmationWindow, successMessage, action) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
-            formErrorsPanel = confirmationWindow.down('uni-form-error-message'),
+            formErrorsPanel = confirmationWindow.down('#validate-now-window-errors'),
+            progressbar = confirmationWindow.down('progressbar'),
             purposePage = me.getPurposePage();
 
         purpose[action](usagePoint, {
@@ -477,6 +478,7 @@ Ext.define('Imt.purpose.controller.Purpose', {
                         Ext.suspendLayouts();
                         formErrorsPanel.setText('<div style="color: #EB5642">' + responseText.errors[0].msg + '</div>', false);
                         formErrorsPanel.show();
+                        progressbar.reset(true);
                         Ext.resumeLayouts(true);
                     }
                 }
