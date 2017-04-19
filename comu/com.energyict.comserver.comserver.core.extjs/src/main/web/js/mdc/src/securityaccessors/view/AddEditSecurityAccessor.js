@@ -243,6 +243,11 @@ Ext.define('Mdc.securityaccessors.view.AddEditSecurityAccessor', {
             errorMsgPnl.hide();
             trustStoreContainer.setVisible(!key);
             me.up('form').getForm().clearInvalid();
+            var proxy = trustStoreCombo.getStore().getProxy();
+            proxy.limitParam = undefined;
+            proxy.startParam = undefined;
+            proxy.pageParam = undefined;
+
             trustStoreCombo.allowBlank = key;
             typeCombo.setFieldLabel(key
                 ? Uni.I18n.translate('general.keyType', 'MDC', 'Key type')
