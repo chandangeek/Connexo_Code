@@ -7,7 +7,6 @@ package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.estimation.EstimationResult;
 import com.elster.jupiter.estimation.EstimationRule;
-import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.estimation.EstimationTask;
 import com.elster.jupiter.estimation.Estimator;
@@ -516,8 +515,8 @@ public class UsagePointOutputResource {
                 .distinct()
                 .flatMap(contract -> streamMatchingEstimationRules(readingType, contract))
                 .distinct()
-                .map(estimationRuleInfoFactory::createEstimationRuleInfo)
-                .sorted(Comparator.comparing(info -> info.name))
+                .map(estimationRule -> estimationRuleInfoFactory.createEstimationRuleInfo(estimationRule, usagePoint, readingType))
+                .sorted(Comparator.comparing(info -> info.name.toLowerCase()))
                 .collect(Collectors.toList());
 
         return PagedInfoList.fromPagedList("rules", estimationRuleInfos, queryParameters);
@@ -525,9 +524,8 @@ public class UsagePointOutputResource {
 
     private Stream<? extends EstimationRule> streamMatchingEstimationRules(ReadingType readingType, MetrologyContract metrologyContract) {
         return usagePointConfigurationService.getEstimationRuleSets(metrologyContract).stream()
-                .map(EstimationRuleSet::getRules)
-                .flatMap(List::stream)
-                .filter(estimationRule -> estimationRule.getReadingTypes().contains(readingType));
+                .map(estimationRuleSet -> estimationRuleSet.getRules(Collections.singleton(readingType)))
+                .flatMap(Collection::stream);
     }
 
     @GET
@@ -701,7 +699,8 @@ public class UsagePointOutputResource {
         registerDataInfo.timeStamp = Instant.ofEpochMilli(timeStamp);
         // need to consider that effective metrology configuration has closed-open range, but contains data in open-closed range,
         // so one time quantum (millisecond) is subtracted
-        Optional<EffectiveMetrologyConfigurationOnUsagePoint> effectiveMetrologyConfigurationOnUsagePoint = usagePoint.getEffectiveMetrologyConfiguration(registerDataInfo.timeStamp.minusMillis(1));
+        Optional<EffectiveMetrologyConfigurationOnUsagePoint> effectiveMetrologyConfigurationOnUsagePoint = usagePoint.getEffectiveMetrologyConfiguration(registerDataInfo.timeStamp
+                .minusMillis(1));
         if (!effectiveMetrologyConfigurationOnUsagePoint.isPresent()) {
             throw new LocalizedFieldValidationException(MessageSeeds.NO_METROLOGYCONFIG_FOR_USAGEPOINT_AT_THE_MOMENT, "timeStamp");
         }
