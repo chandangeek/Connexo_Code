@@ -67,6 +67,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.IntStream;
 
 import org.junit.After;
 import org.junit.Before;
@@ -419,6 +420,24 @@ public class PKIServiceImplIT {
         assertThat(reloaded.get().getStatus()).isEqualTo("Available");
         assertThat(reloaded.get().getAllKeyUsages()).isPresent();
         assertThat(reloaded.get().getAllKeyUsages().get()).contains("digitalSignature", "keyAgreement", "tlsWebServerAuthentication", "tlsWebClientAuthentication");
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{"+MessageSeeds.Keys.FIELD_TOO_LONG+"}", property="alias")
+    public void testImportCertificateWithLargeAlias() throws Exception {
+        StringBuilder alias = new StringBuilder();
+        IntStream.range(1,260).forEach(i->alias.append("A")); // max == 256
+        inMemoryPersistence.getPkiService().newCertificateWrapper(alias.toString());
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{"+MessageSeeds.Keys.FIELD_TOO_LONG+"}", property="alias")
+    public void testImportCertificateWithHugeAlias_CXO_6591() throws Exception {
+        StringBuilder alias = new StringBuilder();
+        IntStream.range(1,5000).forEach(i->alias.append("A"));
+        inMemoryPersistence.getPkiService().newCertificateWrapper(alias.toString());
     }
 
     @Test

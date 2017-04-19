@@ -5,6 +5,7 @@
 package com.elster.jupiter.pki.impl;
 
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.TrustedCertificate;
 import com.elster.jupiter.pki.impl.wrappers.certificate.AbstractCertificateWrapperImpl;
@@ -38,7 +39,7 @@ public class UniqueCertificateAliasValidator implements ConstraintValidator<Uniq
 
     @Override
     public boolean isValid(CertificateWrapper certificateWrapper, ConstraintValidatorContext constraintValidatorContext) {
-        if (Checks.is(certificateWrapper.getAlias()).emptyOrOnlyWhiteSpace()) {
+        if (Checks.is(certificateWrapper.getAlias()).emptyOrOnlyWhiteSpace() || certificateWrapper.getAlias().length()> Table.MAX_STRING_LENGTH) {
             return true;
         }
         List<CertificateWrapper> namesakes = dataModel.mapper(CertificateWrapper.class).find(AbstractCertificateWrapperImpl.Fields.ALIAS.fieldName(), certificateWrapper.getAlias());
