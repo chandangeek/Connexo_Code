@@ -224,7 +224,7 @@ public class ChannelValidationResourceTest extends DeviceDataRestApplicationJers
         assertThat(jsonModel.<Number>get("$.properties[0].propertyValueInfo.value")).isEqualTo(11);
         assertThat(jsonModel.<Number>get("$.properties[0].propertyValueInfo.inheritedValue")).isEqualTo(RULE_REQUIRED_PROP_VALUE);
         assertThat(jsonModel.<Boolean>get("$.properties[0].overridden")).isTrue();
-        assertThat(jsonModel.<Boolean>get("$.properties[0].canBeOverridden")).isEqualTo(true);
+        assertThat(jsonModel.<Boolean>get("$.properties[0].canBeOverridden")).isTrue();
         assertThat(jsonModel.<String>get("$.properties[1].key")).isEqualTo(OPTIONAL_PROPERTY);
         assertThat(jsonModel.<Number>get("$.properties[1].propertyValueInfo.value")).isNull();
         assertThat(jsonModel.<Number>get("$.properties[1].propertyValueInfo.inheritedValue")).isEqualTo(RULE_OPT_PROP_VALUE);

@@ -132,10 +132,11 @@ public class ChannelEstimationResource {
         validateRuleApplicability(estimationRule, readingType);
 
         DeviceEstimation.PropertyOverrider propertyOverrider = device.forEstimation().overridePropertiesFor(estimationRule, readingType);
+        List<PropertyInfo> propertyInfos = toPropertyInfoList(channelEstimationRuleInfo.properties);
         estimationRule.getPropertySpecs(EstimationPropertyDefinitionLevel.TARGET_OBJECT).stream()
                 .map(propertySpec -> {
                     String propertyName = propertySpec.getName();
-                    Object propertyValue = propertyValueInfoService.findPropertyValue(propertySpec, toPropertyInfoList(channelEstimationRuleInfo.properties));
+                    Object propertyValue = propertyValueInfoService.findPropertyValue(propertySpec, propertyInfos);
                     return Pair.of(propertyName, propertyValue);
                 })
                 .filter(property -> property.getLast() != null && !"".equals(property.getLast()))
@@ -169,11 +170,12 @@ public class ChannelEstimationResource {
                 .orElseThrow(concurrentModificationExceptionFactory.contextDependentConflictOn(estimationRule.getDisplayName())
                         .withActualVersion(getActualVersionOfChannelEstimationRule(deviceEstimation, estimationRule, readingType)).supplier());
 
+        List<PropertyInfo> propertyInfos = toPropertyInfoList(channelEstimationRuleInfo.properties);
         Map<String, Object> overriddenProperties = estimationRule.getPropertySpecs(EstimationPropertyDefinitionLevel.TARGET_OBJECT)
                 .stream()
                 .map(propertySpec -> {
                     String propertyName = propertySpec.getName();
-                    Object propertyValue = propertyValueInfoService.findPropertyValue(propertySpec, toPropertyInfoList(channelEstimationRuleInfo.properties));
+                    Object propertyValue = propertyValueInfoService.findPropertyValue(propertySpec, propertyInfos);
                     return Pair.of(propertyName, propertyValue);
                 })
                 .filter(property -> property.getLast() != null && !"".equals(property.getLast()))
@@ -189,7 +191,7 @@ public class ChannelEstimationResource {
     @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE})
+    @RolesAllowed({Privileges.Constants.ADMINISTER_ESTIMATION_CONFIGURATION})
     public Response restoreChannelEstimationRuleOverriddenProperties(@PathParam("name") String name, @PathParam("channelid") long channelId,
                                                                      @PathParam("ruleId") long ruleId, ChannelEstimationRuleInfo channelEstimationRuleInfo) {
         channelEstimationRuleInfo.ruleId = ruleId;

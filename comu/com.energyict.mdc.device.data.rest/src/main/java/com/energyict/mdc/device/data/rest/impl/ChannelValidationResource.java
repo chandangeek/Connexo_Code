@@ -141,10 +141,11 @@ public class ChannelValidationResource {
         validateRuleApplicability(validationRule, readingType);
 
         DeviceValidation.PropertyOverrider propertyOverrider = device.forValidation().overridePropertiesFor(validationRule, readingType);
+        List<PropertyInfo> propertyInfos = toPropertyInfoList(channelValidationRuleInfo.properties);
         validationRule.getPropertySpecs(ValidationPropertyDefinitionLevel.TARGET_OBJECT).stream()
                 .map(propertySpec -> {
                     String propertyName = propertySpec.getName();
-                    Object propertyValue = propertyValueInfoService.findPropertyValue(propertySpec, toPropertyInfoList(channelValidationRuleInfo.properties));
+                    Object propertyValue = propertyValueInfoService.findPropertyValue(propertySpec, propertyInfos);
                     return Pair.of(propertyName, propertyValue);
                 })
                 .filter(property -> property.getLast() != null && !"".equals(property.getLast()))
@@ -177,11 +178,12 @@ public class ChannelValidationResource {
                 .orElseThrow(concurrentModificationExceptionFactory.contextDependentConflictOn(validationRule.getDisplayName())
                         .withActualVersion(getActualVersionOfChannelValidationRule(deviceValidation, validationRule, readingType)).supplier());
 
+        List<PropertyInfo> propertyInfos = toPropertyInfoList(channelValidationRuleInfo.properties);
         Map<String, Object> overriddenProperties = validationRule.getPropertySpecs(ValidationPropertyDefinitionLevel.TARGET_OBJECT)
                 .stream()
                 .map(propertySpec -> {
                     String propertyName = propertySpec.getName();
-                    Object propertyValue = propertyValueInfoService.findPropertyValue(propertySpec, toPropertyInfoList(channelValidationRuleInfo.properties));
+                    Object propertyValue = propertyValueInfoService.findPropertyValue(propertySpec, propertyInfos);
                     return Pair.of(propertyName, propertyValue);
                 })
                 .filter(property -> property.getLast() != null && !"".equals(property.getLast()))
