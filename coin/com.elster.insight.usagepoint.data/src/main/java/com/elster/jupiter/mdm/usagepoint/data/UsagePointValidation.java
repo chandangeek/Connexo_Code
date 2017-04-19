@@ -21,14 +21,14 @@ import java.util.Optional;
 public interface UsagePointValidation {
 
     /**
-     * Finds all properties that are overridden on all validation rules and all usage point's channels
+     * Finds all properties that are overridden on all validation rules and all usage point's channels.
      *
      * @return a List of {@link ChannelValidationRuleOverriddenProperties}
      */
     List<? extends ChannelValidationRuleOverriddenProperties> findAllOverriddenProperties();
 
     /**
-     * Finds properties that are overridden on a specified {@link ValidationRule} and channel's {@link ReadingType}
+     * Finds properties that are overridden on a specified {@link ValidationRule} and channel's {@link ReadingType}.
      *
      * @param validationRule target {@link ValidationRule}
      * @param readingType target {@link ReadingType} of usage point's channel
@@ -52,7 +52,7 @@ public interface UsagePointValidation {
 
     /**
      * Starts the process of overriding {@link ValidationRule}'s properties on {@link ValidationPropertyDefinitionLevel#TARGET_OBJECT},
-     * which is a usage point's channel in this context identified by {@link ReadingType}
+     * which is a usage point's channel identified by {@link ReadingType} in this context.
      *
      * @param validationRule target {@link ValidationRule} for which the properties are going to be redefined
      * @param readingType target {@link ReadingType} of usage point's channel

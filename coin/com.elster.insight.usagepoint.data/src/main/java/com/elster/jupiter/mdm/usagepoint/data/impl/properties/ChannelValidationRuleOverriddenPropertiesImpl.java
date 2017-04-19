@@ -74,6 +74,7 @@ public final class ChannelValidationRuleOverriddenPropertiesImpl extends Validat
         return validationAction;
     }
 
+    @Override
     List<PropertySpec> getPropertySpecs() {
         return validationService
                 .getValidator(this.getRuleImpl())

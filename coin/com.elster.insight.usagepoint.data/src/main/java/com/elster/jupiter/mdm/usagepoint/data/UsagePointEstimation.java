@@ -21,14 +21,14 @@ import java.util.Optional;
 public interface UsagePointEstimation {
 
     /**
-     * Finds all properties that are overridden on all estimation rules and all usage point's channels
+     * Finds all properties that are overridden on all estimation rules and all usage point's channels.
      *
      * @return a List of {@link ChannelEstimationRuleOverriddenProperties}
      */
     List<? extends ChannelEstimationRuleOverriddenProperties> findAllOverriddenProperties();
 
     /**
-     * Finds properties that are overridden on a specified {@link EstimationRule} and channel's {@link ReadingType}
+     * Finds properties that are overridden on a specified {@link EstimationRule} and channel's {@link ReadingType}.
      *
      * @param estimationRule target {@link EstimationRule}
      * @param readingType target {@link ReadingType} of usage point's channel
@@ -52,7 +52,7 @@ public interface UsagePointEstimation {
 
     /**
      * Starts the process of overriding {@link EstimationRule}'s properties on {@link EstimationPropertyDefinitionLevel#TARGET_OBJECT},
-     * which is a usage point's channel in this context identified by {@link ReadingType}
+     * which is a usage point's channel identified by {@link ReadingType} in this context.
      *
      * @param estimationRule target {@link EstimationRule} for which the properties are going to be redefined
      * @param readingType target {@link ReadingType} of usage point's channel

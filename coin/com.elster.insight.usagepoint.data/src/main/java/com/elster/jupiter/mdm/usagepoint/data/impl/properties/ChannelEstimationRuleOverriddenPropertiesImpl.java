@@ -49,6 +49,7 @@ public class ChannelEstimationRuleOverriddenPropertiesImpl extends ValidationEst
         return getRuleImpl();
     }
 
+    @Override
     List<PropertySpec> getPropertySpecs() {
         return estimationService
                 .getEstimator(this.getRuleImpl())
