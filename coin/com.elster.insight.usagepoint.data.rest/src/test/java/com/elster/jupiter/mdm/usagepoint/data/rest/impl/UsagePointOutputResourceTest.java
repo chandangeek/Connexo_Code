@@ -12,6 +12,7 @@ import com.elster.jupiter.mdm.usagepoint.config.rest.ReadingTypeDeliverablesInfo
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
@@ -32,7 +33,9 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -45,9 +48,11 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.refEq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 public class UsagePointOutputResourceTest extends UsagePointDataRestApplicationJerseyTest {
@@ -58,43 +63,48 @@ public class UsagePointOutputResourceTest extends UsagePointDataRestApplicationJ
     @Mock
     private UsagePoint usagePoint;
     @Mock
-    private EffectiveMetrologyConfigurationOnUsagePoint effectiveMC;
+    private EffectiveMetrologyConfigurationOnUsagePoint effectiveMC, previousEffectiveMC, oldEffectiveMC;
     @Mock
-    private ChannelsContainer channelsContainer;
+    private ChannelsContainer channelsContainer1, channelsContainer2;
     @Mock
     private DataValidationTask validationTask;
     @Mock
     private EstimationTask estimationTask;
     @Mock
-    private MetrologyContract metrologyContract;
-    @Mock
-    private MetrologyPurpose purpose;
-    @Mock
     private UsagePointGroup usagePointGroup;
     @Mock
     private Query<UsagePoint> usagePointQuery;
+    private MetrologyContract optionalContract, mandatoryContract1, mandatoryContract2;
 
     @Before
     public void before() {
         when(meteringService.findUsagePointByName(anyString())).thenReturn(Optional.empty());
         when(meteringService.findUsagePointByName(USAGE_POINT_NAME)).thenReturn(Optional.of(usagePoint));
         when(meteringService.findAndLockUsagePointByIdAndVersion(usagePoint.getId(), usagePoint.getVersion())).thenReturn(Optional.of(usagePoint));
-        UsagePointMetrologyConfiguration metrologyConfiguration = mockMetrologyConfigurationWithContract(1, "mc");
-        when(effectiveMC.getMetrologyConfiguration()).thenReturn(metrologyConfiguration);
         when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMC));
-        when(effectiveMC.getMetrologyConfiguration()).thenReturn(metrologyConfiguration);
-        when(effectiveMC.getChannelsContainer(any())).thenReturn(Optional.of(channelsContainer));
-        when(effectiveMC.getChannelsContainer(any(), any(Instant.class))).thenReturn(Optional.empty());
+        when(usagePoint.getEffectiveMetrologyConfigurations()).thenReturn(Arrays.asList(oldEffectiveMC, previousEffectiveMC, effectiveMC));
+        MetrologyPurpose billing = mockMetrologyPurpose(DefaultMetrologyPurpose.BILLING);
+        MetrologyPurpose information = mockMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION);
+        UsagePointMetrologyConfiguration metrologyConfiguration1 = mockMetrologyConfigurationWithContract(1, "mc1", billing, information);
+        when(effectiveMC.getMetrologyConfiguration()).thenReturn(metrologyConfiguration1);
+        when(effectiveMC.getChannelsContainer(any())).thenReturn(Optional.of(channelsContainer1));
         when(effectiveMC.getUsagePoint()).thenReturn(usagePoint);
-        when(channelsContainer.getChannel(any())).thenReturn(Optional.empty());
+        UsagePointMetrologyConfiguration metrologyConfiguration2 = mockMetrologyConfigurationWithContract(2, "mc2", billing, information);
+        when(previousEffectiveMC.getMetrologyConfiguration()).thenReturn(metrologyConfiguration2);
+        when(previousEffectiveMC.getChannelsContainer(any())).thenReturn(Optional.of(channelsContainer2));
+        when(previousEffectiveMC.getUsagePoint()).thenReturn(usagePoint);
+        UsagePointMetrologyConfiguration metrologyConfiguration3 = mockMetrologyConfigurationWithContract(3, "mc3");
+        when(oldEffectiveMC.getMetrologyConfiguration()).thenReturn(metrologyConfiguration3);
+
+        when(channelsContainer1.getChannel(any())).thenReturn(Optional.empty());
         ReadingTypeDeliverablesInfo readingTypeDeliverablesInfo = new ReadingTypeDeliverablesInfo();
         readingTypeDeliverablesInfo.formula = new FormulaInfo();
         readingTypeDeliverablesInfo.formula.description = EXPECTED_FORMULA_DESCRIPTION;
         when(readingTypeDeliverableFactory.asInfo(any(ReadingTypeDeliverable.class))).thenReturn(readingTypeDeliverablesInfo);
         when(clock.instant()).thenReturn(Instant.now());
-        MetrologyPurpose metrologyPurpose = usagePoint.getCurrentEffectiveMetrologyConfiguration().get().getMetrologyConfiguration().getContracts().get(1).getMetrologyPurpose();
-        when(metrologyConfigurationService.findMetrologyPurpose(101L))
-                .thenReturn(Optional.of(metrologyPurpose));
+        mandatoryContract1 = metrologyConfiguration1.getContracts().get(0);
+        optionalContract = metrologyConfiguration1.getContracts().get(1);
+        mandatoryContract2 = metrologyConfiguration2.getContracts().get(0);
 
         when(usagePointGroup.getId()).thenReturn(51L);
         doReturn(usagePointQuery).when(meteringService).getUsagePointQuery();
@@ -104,10 +114,6 @@ public class UsagePointOutputResourceTest extends UsagePointDataRestApplicationJ
         when(estimationTask.getUsagePointGroup()).thenReturn(Optional.of(usagePointGroup));
         when(estimationTask.getId()).thenReturn(32L);
         when(estimationTask.getScheduleExpression()).thenReturn(Never.NEVER);
-        when(purpose.getId()).thenReturn(102L);
-        when(metrologyContract.getId()).thenReturn(1L);
-        when(metrologyContract.getMetrologyPurpose()).thenReturn(purpose);
-        when(metrologyConfigurationService.findMetrologyContract(1)).thenReturn(Optional.of(metrologyContract));
         when(validationService.findValidationTasks()).thenReturn(Collections.singletonList(validationTask));
         when(validationTask.getUsagePointGroup()).thenReturn(Optional.of(usagePointGroup));
         when(validationTask.getQualityCodeSystem()).thenReturn(QualityCodeSystem.MDM);
@@ -165,33 +171,38 @@ public class UsagePointOutputResourceTest extends UsagePointDataRestApplicationJ
     @Test
     public void testValidatePurposeOnRequest() {
         when(meteringService.findAndLockUsagePointByIdAndVersion(usagePoint.getId(), usagePoint.getVersion())).thenReturn(Optional.of(usagePoint));
-        MetrologyContract metrologyContract = usagePoint.getCurrentEffectiveMetrologyConfiguration().get().getMetrologyConfiguration().getContracts().get(0);
-        PurposeInfo purposeInfo = createPurposeInfo(metrologyContract);
+        PurposeInfo purposeInfo = createPurposeInfo(mandatoryContract1);
         // Business method
         Response response = target("usagepoints/" + USAGE_POINT_NAME + "/purposes/100/validate").request().put(Entity.json(purposeInfo));
 
         // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        verify(validationService).validate(any(ValidationContextImpl.class), any(Instant.class));
+        verify(validationService).validate(
+                refEq(new ValidationContextImpl(EnumSet.of(QualityCodeSystem.MDM), channelsContainer1, mandatoryContract1)),
+                eq(purposeInfo.validationInfo.lastChecked));
+        verify(validationService).validate(
+                refEq(new ValidationContextImpl(EnumSet.of(QualityCodeSystem.MDM), channelsContainer2, mandatoryContract2)),
+                eq(purposeInfo.validationInfo.lastChecked));
+        verifyNoMoreInteractions(validationService);
     }
 
     @Test
     public void testEstimatePurposeOnRequest() {
         when(meteringService.findAndLockUsagePointByIdAndVersion(usagePoint.getId(), usagePoint.getVersion())).thenReturn(Optional.of(usagePoint));
-        MetrologyContract metrologyContract = usagePoint.getCurrentEffectiveMetrologyConfiguration().get().getMetrologyConfiguration().getContracts().get(0);
-        PurposeInfo purposeInfo = createPurposeInfo(metrologyContract);
+        PurposeInfo purposeInfo = createPurposeInfo(mandatoryContract1);
         // Business method
         Response response = target("usagepoints/" + USAGE_POINT_NAME + "/purposes/100/estimate").request().put(Entity.json(purposeInfo));
 
         // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        verify(estimationService).estimate(QualityCodeSystem.MDM, channelsContainer, channelsContainer.getRange());
+        verify(estimationService).estimate(QualityCodeSystem.MDM, channelsContainer1, channelsContainer1.getRange());
+        verify(estimationService).estimate(QualityCodeSystem.MDM, channelsContainer2, channelsContainer2.getRange());
+        verifyNoMoreInteractions(estimationService);
     }
 
     @Test
     public void testValidatePurposeOnRequestConcurrencyCheck() {
-        MetrologyContract metrologyContract = usagePoint.getCurrentEffectiveMetrologyConfiguration().get().getMetrologyConfiguration().getContracts().get(0);
-        PurposeInfo purposeInfo = createPurposeInfo(metrologyContract);
+        PurposeInfo purposeInfo = createPurposeInfo(mandatoryContract1);
         when(meteringService.findAndLockUsagePointByIdAndVersion(usagePoint.getId(), usagePoint.getVersion())).thenReturn(Optional.empty());
         when(meteringService.findUsagePointById(usagePoint.getId())).thenReturn(Optional.of(usagePoint));
         // Business method
@@ -202,26 +213,37 @@ public class UsagePointOutputResourceTest extends UsagePointDataRestApplicationJ
     }
 
     @Test
+    public void testEstimatePurposeOnRequestConcurrencyCheck() {
+        PurposeInfo purposeInfo = createPurposeInfo(mandatoryContract1);
+        when(meteringService.findAndLockUsagePointByIdAndVersion(usagePoint.getId(), usagePoint.getVersion())).thenReturn(Optional.empty());
+        when(meteringService.findUsagePointById(usagePoint.getId())).thenReturn(Optional.of(usagePoint));
+        // Business method
+        Response response = target("usagepoints/" + USAGE_POINT_NAME + "/purposes/100/estimate").request().put(Entity.json(purposeInfo));
+
+        // Asserts
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
+    }
+
+    @Test
     public void testPurposeActivation(){
-        MetrologyContract metrologyContract = usagePoint.getCurrentEffectiveMetrologyConfiguration().get().getMetrologyConfiguration().getContracts().get(1);
-        PurposeInfo purposeInfo = createPurposeInfo(metrologyContract);
-        when(effectiveMC.getChannelsContainer(metrologyContract)).thenReturn(Optional.empty());
+        PurposeInfo purposeInfo = createPurposeInfo(optionalContract);
+        when(effectiveMC.getChannelsContainer(optionalContract)).thenReturn(Optional.empty());
+        when(effectiveMC.getChannelsContainer(eq(optionalContract), any(Instant.class))).thenReturn(Optional.empty());
         when(usagePoint.getMeterActivations()).thenReturn(Collections.emptyList());
         // Business method
         Response response = target("usagepoints/" + USAGE_POINT_NAME + "/purposes/101/activate").request().put(Entity.json(purposeInfo));
 
         // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        verify(effectiveMC).activateOptionalMetrologyContract(eq(metrologyContract), any(Instant.class));
+        verify(effectiveMC).activateOptionalMetrologyContract(eq(optionalContract), any(Instant.class));
     }
 
     @Test
     public void testPurposeDeactivation(){
-        MetrologyContract metrologyContract = usagePoint.getCurrentEffectiveMetrologyConfiguration().get().getMetrologyConfiguration().getContracts().get(1);
-        PurposeInfo purposeInfo = createPurposeInfo(metrologyContract);
+        PurposeInfo purposeInfo = createPurposeInfo(optionalContract);
         ChannelsContainer channelsContainer = mock(ChannelsContainer.class);
         when(channelsContainer.getChannels()).thenReturn(Collections.emptyList());
-        when(effectiveMC.getChannelsContainer(eq(metrologyContract), any(Instant.class))).thenReturn(Optional.of(channelsContainer));
+        when(effectiveMC.getChannelsContainer(eq(optionalContract), any(Instant.class))).thenReturn(Optional.of(channelsContainer));
         ValidationEvaluator validationEvaluator = mock(ValidationEvaluator.class);
         when(validationService.getEvaluator()).thenReturn(validationEvaluator);
         doReturn(Collections.emptyList()).when(validationEvaluator).getValidationStatus(any(), any(Channel.class), any());
@@ -230,7 +252,7 @@ public class UsagePointOutputResourceTest extends UsagePointDataRestApplicationJ
 
         // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        verify(effectiveMC).deactivateOptionalMetrologyContract(eq(metrologyContract), any(Instant.class));
+        verify(effectiveMC).deactivateOptionalMetrologyContract(eq(optionalContract), any(Instant.class));
     }
 
     private PurposeInfo createPurposeInfo(MetrologyContract metrologyContract) {
@@ -245,8 +267,9 @@ public class UsagePointOutputResourceTest extends UsagePointDataRestApplicationJ
 
     @Test
     public void testGetValidationTasksOnPurpose() throws Exception {
-        when(validationTask.getMetrologyPurpose()).thenReturn(Optional.of(purpose));
-        Response response = target("usagepoints/" + USAGE_POINT_NAME + "/purposes/" + metrologyContract.getId() + "/validationtasks").request().get();
+        MetrologyPurpose metrologyPurpose = optionalContract.getMetrologyPurpose();
+        when(validationTask.getMetrologyPurpose()).thenReturn(Optional.of(metrologyPurpose));
+        Response response = target("usagepoints/" + USAGE_POINT_NAME + "/purposes/" + optionalContract.getId() + "/validationtasks").request().get();
         assertThat(response.getStatus()).isEqualTo(200);
         JsonModel model = JsonModel.create((ByteArrayInputStream) response.getEntity());
         assertThat(model.<Integer>get("$.total")).isEqualTo(1);
@@ -257,8 +280,9 @@ public class UsagePointOutputResourceTest extends UsagePointDataRestApplicationJ
 
     @Test
     public void testGetEstimationTasksOnPurpose() throws Exception {
-        when(estimationTask.getMetrologyPurpose()).thenReturn(Optional.of(purpose));
-        Response response = target("usagepoints/" + USAGE_POINT_NAME + "/purposes/" + metrologyContract.getId() + "/estimationtasks").request().get();
+        MetrologyPurpose metrologyPurpose = optionalContract.getMetrologyPurpose();
+        when(estimationTask.getMetrologyPurpose()).thenReturn(Optional.of(metrologyPurpose));
+        Response response = target("usagepoints/" + USAGE_POINT_NAME + "/purposes/" + optionalContract.getId() + "/estimationtasks").request().get();
         assertThat(response.getStatus()).isEqualTo(200);
         JsonModel model = JsonModel.create((ByteArrayInputStream) response.getEntity());
         assertThat(model.<Integer>get("$.total")).isEqualTo(1);
