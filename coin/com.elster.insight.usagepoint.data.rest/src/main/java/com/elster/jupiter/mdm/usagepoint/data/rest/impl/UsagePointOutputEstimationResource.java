@@ -133,10 +133,11 @@ public class UsagePointOutputEstimationResource {
         UsagePointEstimation usagePointEstimation = usagePointDataModelService.forEstimation(usagePoint);
         UsagePointEstimation.PropertyOverrider propertyOverrider = usagePointEstimation.overridePropertiesFor(estimationRule, deliverable.getReadingType());
 
+        List<PropertyInfo> propertyInfos = toPropertyInfoList(channelEstimationRuleInfo.properties);
         estimationRule.getPropertySpecs(EstimationPropertyDefinitionLevel.TARGET_OBJECT).stream()
                 .map(propertySpec -> {
                     String propertyName = propertySpec.getName();
-                    Object propertyValue = propertyValueInfoService.findPropertyValue(propertySpec, toPropertyInfoList(channelEstimationRuleInfo.properties));
+                    Object propertyValue = propertyValueInfoService.findPropertyValue(propertySpec, propertyInfos);
                     return Pair.of(propertyName, propertyValue);
                 })
                 .filter(property -> property.getLast() != null && !"".equals(property.getLast()))
@@ -165,11 +166,12 @@ public class UsagePointOutputEstimationResource {
                 .orElseThrow(concurrentModificationExceptionFactory.contextDependentConflictOn(estimationRule.getDisplayName())
                         .withActualVersion(getActualVersionOfChannelEstimationRule(usagePointEstimation, estimationRule, deliverable.getReadingType())).supplier());
 
+        List<PropertyInfo> propertyInfos = toPropertyInfoList(channelEstimationRuleInfo.properties);
         Map<String, Object> overriddenProperties = estimationRule.getPropertySpecs(EstimationPropertyDefinitionLevel.TARGET_OBJECT)
                 .stream()
                 .map(propertySpec -> {
                     String propertyName = propertySpec.getName();
-                    Object propertyValue = propertyValueInfoService.findPropertyValue(propertySpec, toPropertyInfoList(channelEstimationRuleInfo.properties));
+                    Object propertyValue = propertyValueInfoService.findPropertyValue(propertySpec, propertyInfos);
                     return Pair.of(propertyName, propertyValue);
                 })
                 .filter(property -> property.getLast() != null && !"".equals(property.getLast()))
