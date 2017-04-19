@@ -2,8 +2,11 @@ package com.elster.jupiter.estimation;
 
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.Event;
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.properties.AbstractValueFactory;
 import com.elster.jupiter.calendar.CalendarService;
+
+import java.util.Map;
 
 /**
  * Created by aeryomin on 05.04.2017.
@@ -36,13 +39,19 @@ public class CalendarWithEventSettingsFactory extends AbstractValueFactory<Calen
             return NoneCalendarWithEventSettings.INSTANCE;
         } else {
             String[] calendarAndEvent = stringValue.split(VALUE_UNIT_SEPARATOR);
-            discardDay = Boolean.parseBoolean(calendarAndEvent[0]);
-            if (discardDay == true) {
-                Long eventId = Long.parseLong(calendarAndEvent[2]);
+            if (calendarAndEvent.length < 2){
+                discardDay = Boolean.parseBoolean(calendarAndEvent[0]);
+                return new DiscardDaySettings(discardDay, calendar, event);
+            } else if (calendarAndEvent.length < 3){
+                discardDay = Boolean.parseBoolean(calendarAndEvent[0]);
+                calendar = calendarService.findCalendar(Long.parseLong(calendarAndEvent[1])).orElse(null);
+                return new DiscardDaySettings(discardDay, calendar, event);
+            } else {
+                discardDay = Boolean.parseBoolean(calendarAndEvent[0]);
                 calendar = calendarService.findCalendar(Long.parseLong(calendarAndEvent[1])).orElse(null);
                 event = calendar.getEvents()
                         .stream()
-                        .filter(ev -> ev.getId() == eventId).findAny().orElse(null);
+                        .filter(ev -> ev.getId() == Long.parseLong(calendarAndEvent[2])).findAny().orElse(null);
             }
             return new DiscardDaySettings(discardDay, calendar, event);
         }
@@ -50,7 +59,15 @@ public class CalendarWithEventSettingsFactory extends AbstractValueFactory<Calen
 
     @Override
     public String toStringValue(CalendarWithEventSettings object) {
-        return object.toString();
+        if (object instanceof NoneCalendarWithEventSettings){
+            return NoneCalendarWithEventSettings.NONE_CALENDAR_SETTINGS;
+        }
+        DiscardDaySettings settings = (DiscardDaySettings) object;
+        String fields = "";
+            fields = settings.isDiscardDay().toString() + ":";
+            fields += settings.getCalendar() != null ? settings.getCalendar().getId() + ":" : "";
+            fields += settings.getEvent() != null ? settings.getEvent().getId() : "";
+        return fields;
     }
 
     @Override
