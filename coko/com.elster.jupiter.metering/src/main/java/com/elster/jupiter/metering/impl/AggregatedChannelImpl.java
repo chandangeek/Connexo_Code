@@ -37,7 +37,8 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -141,11 +142,11 @@ public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel
 
     @Override
     public List<IntervalReadingRecord> getIntervalReadings(Range<Instant> interval) {
-        Map<Instant, IntervalReadingRecord> calculatedReadings = getCalculatedIntervalReadings(interval, record -> new CalculatedReadingRecordImpl(this.persistedChannel, record,clock));
+        Map<Instant, IntervalReadingRecord> calculatedReadings = getCalculatedIntervalReadings(interval, record -> new CalculatedReadingRecordImpl(this.persistedChannel, record, clock));
         Map<Instant, IntervalReadingRecord> persistedReadings = getPersistedIntervalReadings(interval).stream()
                 .collect(Collectors.toMap(BaseReadingRecord::getTimeStamp, Function.identity()));
         calculatedReadings.putAll(persistedReadings);
-        return new ArrayList<>(calculatedReadings.values());
+        return calculatedReadings.values().stream().sorted(Comparator.comparing(BaseReading::getTimeStamp)).collect(Collectors.toList());
     }
 
     @Override
@@ -199,7 +200,7 @@ public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel
                     .map(mapper::apply)
                     .collect(Collectors.toMap(BaseReadingRecord::getTimeStamp, Function.identity()));
         } else {
-            return Collections.emptyMap();
+            return new HashMap<>();
         }
     }
 
@@ -210,7 +211,7 @@ public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel
                     .map(mapper::apply)
                     .collect(Collectors.toMap(BaseReadingRecord::getTimeStamp, Function.identity()));
         } else {
-            return Collections.emptyMap();
+            return new HashMap<>();
         }
     }
 
