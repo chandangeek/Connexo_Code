@@ -18,7 +18,9 @@ public enum MessageSeeds implements MessageSeed {
     INVALID_PERIOD_OF_ZERO_OR_NEGATIVE_LENGTH(1004, "property.error.invalidMaxPeriodOfConsecutiveSuspects", "The period should have positive length"),
     INVALID_ADVANCE_READINGTYPE(1005, "property.error.advanceReadingsSettings", "The reading type should be cumulative"),
     INVALID_ADVANCE_READINGTYPE_NONE_NOT_ALLOWED(1007, "property.error.advanceReadingsSettings.not.none", "None is not allowed"),
-    INVALID_NUMBER(1008,"property.error", "This value should be positive");
+    INVALID_NUMBER(1008,"property.error", "This value should be positive"),
+    INVALID_CALENDAR_FIELD(1009, "property.error.discardDaySettings.not.null", "Calendar should be provided"),
+    INVALID_EVENT_FIELD(1010, "property.error.discardDaySettings.not.null", "Event should be provided");
     public static final String COMPONENT_NAME = "ESR";
 
     private final int number;

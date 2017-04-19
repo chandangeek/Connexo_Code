@@ -170,6 +170,22 @@ public class NearestAverageValueDayEstimator extends AbstractEstimator implement
                     throw new LocalizedFieldValidationException(MessageSeeds.INVALID_NUMBER,
                             "properties." + MAXIMUM_NUMBER_OF_WEEKS);
                 }
+            } else if (property.getKey().equals(DISCARD_SPECIFIC_DAY)){
+                Object day = property.getValue();
+                if (day instanceof DiscardDaySettings){
+                    DiscardDaySettings discardDaySettings = (DiscardDaySettings)day;
+                    if (discardDaySettings.isDiscardDay()){
+                        if (discardDaySettings.getCalendar() == null){
+                            throw new LocalizedFieldValidationException(MessageSeeds.INVALID_CALENDAR_FIELD,
+                                    "properties." + DISCARD_SPECIFIC_DAY);
+                        }
+                        if (discardDaySettings.getEvent() == null) {
+                            throw new LocalizedFieldValidationException(MessageSeeds.INVALID_EVENT_FIELD,
+                                    "properties." + DISCARD_SPECIFIC_DAY);
+                        }
+
+                    }
+                }
             }
         }
     }
