@@ -14,7 +14,7 @@ Ext.define('Mdc.securityaccessors.view.SecurityAccessorsPrivilegesEditWindow', {
             editItems = [],
             value = false;
 
-        me.setTitle(Uni.I18n.translate('securityaccessors.changePrivilegesOfX', 'MDC', "Change privileges of '{0}'", me.securityAccessorRecord.get('name')));
+        me.setTitle(Uni.I18n.translate('securityaccessors.changePrivilegesOfX', 'MDC', "Change privileges of '{0}'", Ext.String.htmlDecode(me.securityAccessorRecord.get('name'))));
 
         Ext.Array.forEach(me.securityAccessorRecord.get('defaultViewLevels'), function(defaultViewLevel){
             value = false;
