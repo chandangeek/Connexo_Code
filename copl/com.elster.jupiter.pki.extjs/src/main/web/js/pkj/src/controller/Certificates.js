@@ -245,7 +245,7 @@ Ext.define('Pkj.controller.Certificates', {
                         }
                     }
                 } else {
-                    me.showCertificates();
+                    me.getController('Uni.controller.history.Router').getRoute('administration/certificates').forward();
                 }
                 form.setLoading(false);
 
