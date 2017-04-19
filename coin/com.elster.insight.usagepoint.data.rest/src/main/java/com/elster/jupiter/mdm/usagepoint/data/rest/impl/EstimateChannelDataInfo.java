@@ -6,6 +6,7 @@ package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.properties.rest.PropertyInfo;
+import com.elster.jupiter.rest.util.IdWithDisplayValueInfo;
 import com.elster.jupiter.rest.util.IntervalInfo;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -25,8 +26,8 @@ public class EstimateChannelDataInfo {
     @JsonProperty("readingType")
     public ReadingTypeInfo readingType;
 
-    @JsonProperty("commentId")
-    public long commentId;
+    @JsonProperty("estimationComment")
+    public IdWithDisplayValueInfo<Long> estimationComment;
 
     @JsonProperty("markAsProjected")
     public boolean markAsProjected;

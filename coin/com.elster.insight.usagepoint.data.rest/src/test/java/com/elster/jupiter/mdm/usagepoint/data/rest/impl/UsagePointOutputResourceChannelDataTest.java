@@ -712,7 +712,7 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         valueCorrectionInfo.intervals = Collections.singletonList(com.elster.jupiter.mdm.common.rest.IntervalInfo.from(Range.openClosed(now, now.plusSeconds(60))));
         valueCorrectionInfo.amount = new BigDecimal(10);
         valueCorrectionInfo.type = ValueCorrection.MULTIPLY.getType();
-        when(effectiveMC.getAggregatedChannel(any(MetrologyContract.class), any(ReadingType.class))).thenReturn(Optional.of(channel));
+        when(effectiveMC1.getAggregatedChannel(any(MetrologyContract.class), any(ReadingType.class))).thenReturn(Optional.of(channel));
         when(channel.getIntervalReadings(any(Range.class))).thenReturn(Collections.singletonList(readingRecord));
         when(readingRecord.getValue()).thenReturn(new BigDecimal(10));
         when(readingRecord.getTimeStamp()).thenReturn(now.plusSeconds(60));

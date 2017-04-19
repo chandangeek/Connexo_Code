@@ -374,7 +374,12 @@ public class UsagePointOutputResource {
 
 
     private void processInfo(OutputChannelDataInfo channelDataInfo, List<Instant> removeCandidates, List<BaseReading> estimatedReadings, List<BaseReading> editedReadings, List<BaseReading> confirmedReadings) {
-        Optional<ReadingQualityComment> readingQualityComment = resourceHelper.getReadingQualityComment(channelDataInfo.commentId);
+        Optional<ReadingQualityComment> readingQualityComment = Optional.empty();
+
+        if (channelDataInfo.estimationComment != null) {
+            readingQualityComment = resourceHelper.getReadingQualityComment(channelDataInfo.estimationComment.id);
+        }
+
         if (!isToBeConfirmed(channelDataInfo) && channelDataInfo.value == null) {
             removeCandidates.add(Instant.ofEpochMilli(channelDataInfo.interval.end));
         }  else {
@@ -414,11 +419,6 @@ public class UsagePointOutputResource {
             return readingQualityComment.get().getComment();
         }
         return null;
-    }
-
-    private Range<Instant> getRequestedInterval(UsagePoint usagePoint, JsonQueryFilter filter) {
-        Range<Instant> sourceRange = Ranges.openClosed(filter.getInstant(INTERVAL_START), filter.getInstant(INTERVAL_END));
-        return getUsagePointAdjustedDataRange(usagePoint, sourceRange).orElse(null);
     }
 
     private static <T, C extends Comparable<? super C>> List<T> filterInRange(Collection<T> collection, Range<C> range,
@@ -486,12 +486,18 @@ public class UsagePointOutputResource {
                 .map(effectiveMC -> findMetrologyContractForPurpose(effectiveMC, metrologyContract.getMetrologyPurpose())
                         .flatMap(effectiveMC::getChannelsContainer))
                 .flatMap(Functions.asStream())
-                .flatMap(container -> estimateInChannelsContainer(container, readingType, blocks, estimator))
+                .flatMap(container -> {
+                    Optional<ReadingQualityComment> readingQualityComment = Optional.empty();
+                    if (estimateChannelDataInfo.estimationComment != null) {
+                        readingQualityComment = resourceHelper.getReadingQualityComment(estimateChannelDataInfo.estimationComment.id);
+                    }
+                    return estimateInChannelsContainer(container, readingType, blocks, estimator, estimateChannelDataInfo.markAsProjected, readingQualityComment);
+                })
                 .collect(Collectors.toList());
     }
 
     private Stream<OutputChannelDataInfo> estimateInChannelsContainer(ChannelsContainer container, ReadingType readingType,
-                                                                      ImmutableRangeSet<Instant> blocks, Estimator estimator) {
+                                                                      ImmutableRangeSet<Instant> blocks, Estimator estimator, boolean marksAsProjected, Optional<ReadingQualityComment> readingQualityComment) {
         Range<Instant> containerRange = container.getInterval().toOpenClosedRange();
         return container.getChannel(readingType)
                 .map(channel -> {
@@ -500,7 +506,7 @@ public class UsagePointOutputResource {
                             .map(block -> estimationHelper.previewEstimate(QualityCodeSystem.MDM, container, readingType, block, estimator))
                             .collect(Collectors.toList());
                     //// TODO: 19.04.2017 change projected value boolean and reading quaility comment
-                    return estimationHelper.getChannelDataInfoFromEstimationReports(channel, subRanges, results, false, Optional.empty());
+                    return estimationHelper.getChannelDataInfoFromEstimationReports(channel, subRanges, results, marksAsProjected, readingQualityComment);
                 })
                 .map(List::stream)
                 .orElse(Stream.empty());
