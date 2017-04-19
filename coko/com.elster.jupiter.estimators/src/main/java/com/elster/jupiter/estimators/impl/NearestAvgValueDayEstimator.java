@@ -3,7 +3,6 @@ package com.elster.jupiter.estimators.impl;
 
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.CalendarService;
-import com.elster.jupiter.calendar.Event;
 import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
@@ -39,7 +38,6 @@ import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,10 +45,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static java.lang.Math.abs;
-import static java.math.RoundingMode.HALF_UP;
 
 
-public class NearestAverageValueDayEstimator extends AbstractEstimator implements Estimator {
+public class NearestAvgValueDayEstimator extends AbstractEstimator implements Estimator {
 
     public static final String DISCARD_SPECIFIC_DAY = TranslationKeys.DISCARD_SPECIFIC_DAY.getKey();
     public static final String NUMBER_OF_SAMPLES = TranslationKeys.NUMBER_OF_SAMPLES.getKey();
@@ -74,7 +71,7 @@ public class NearestAverageValueDayEstimator extends AbstractEstimator implement
 
 //Translation Keys
     public enum TranslationKeys implements TranslationKey {
-        ESTIMATOR_NAME(NearestAverageValueDayEstimator.class.getName(), "Nearest average value (Day)"),
+        ESTIMATOR_NAME(NearestAvgValueDayEstimator.class.getName(), "Nearest average value (Day)"),
         DISCARD_SPECIFIC_DAY("nearestaveragevalueday.discardSpecificDay", "Discard specific day"),
         DISCARD_SPECIFIC_DAY_DESCRIPTION("nearestaveragevalueday.discardSpecificDay.description",
                 "Estimated and sample days can be discarded if they contain a chosen event code"),
@@ -106,9 +103,9 @@ public class NearestAverageValueDayEstimator extends AbstractEstimator implement
         }
     }
 
-    NearestAverageValueDayEstimator(Thesaurus thesaurus, PropertySpecService propertySpecService,
-                                    ValidationService validationService, MeteringService meteringService,
-                                    TimeService timeService, CalendarService calendarService) {
+    NearestAvgValueDayEstimator(Thesaurus thesaurus, PropertySpecService propertySpecService,
+                                ValidationService validationService, MeteringService meteringService,
+                                TimeService timeService, CalendarService calendarService) {
         super(thesaurus,propertySpecService);
         this.validationService = validationService;
         this.meteringService = meteringService;
@@ -116,9 +113,9 @@ public class NearestAverageValueDayEstimator extends AbstractEstimator implement
         this.calendarService = calendarService;
     }
 
-    NearestAverageValueDayEstimator(Thesaurus thesaurus, PropertySpecService propertySpecService,
-                                    ValidationService validationService, MeteringService meteringService,
-                                    TimeService timeService, CalendarService calendarService, Map<String, Object> properties) {
+    NearestAvgValueDayEstimator(Thesaurus thesaurus, PropertySpecService propertySpecService,
+                                ValidationService validationService, MeteringService meteringService,
+                                TimeService timeService, CalendarService calendarService, Map<String, Object> properties) {
         super(thesaurus, propertySpecService, properties);
         this.validationService = validationService;
         this.meteringService = meteringService;

@@ -45,7 +45,7 @@ public class DefaultEstimatorFactory implements EstimatorFactory, TranslationKey
     public static final String AVG_WITH_SAMPLES_ESTIMATOR = AverageWithSamplesEstimator.class.getName();
     public static final String POWER_GAP_FILL_ESTIMATOR = PowerGapFill.class.getName();
     public static final String EQUAL_DISTRIBUTION_ESTIMATOR = EqualDistribution.class.getName();
-    public static final String NEAREST_AVERAGE_VALUE_DAY_ESTIMATOR = NearestAverageValueDayEstimator.class.getName();
+    public static final String NEAREST_AVERAGE_VALUE_DAY_ESTIMATOR = NearestAvgValueDayEstimator.class.getName();
 
     private volatile Thesaurus thesaurus;
     private volatile PropertySpecService propertySpecService;
@@ -118,7 +118,7 @@ public class DefaultEstimatorFactory implements EstimatorFactory, TranslationKey
         Collections.addAll(keys, LinearInterpolation.TranslationKeys.values());
         Collections.addAll(keys, PowerGapFill.TranslationKeys.values());
         Collections.addAll(keys, ValueFillEstimator.TranslationKeys.values());
-        Collections.addAll(keys, NearestAverageValueDayEstimator.TranslationKeys.values());
+        Collections.addAll(keys, NearestAvgValueDayEstimator.TranslationKeys.values());
         return keys;
     }
 
@@ -186,12 +186,12 @@ public class DefaultEstimatorFactory implements EstimatorFactory, TranslationKey
         NEAREST_AVERAGE_VALUE_DAY(NEAREST_AVERAGE_VALUE_DAY_ESTIMATOR) {
             @Override
             Estimator create(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService, TimeService timeService, CalendarService calendarService, Map<String, Object> props){
-                return new NearestAverageValueDayEstimator(thesaurus, propertySpecService, validationService, meteringService, timeService, calendarService, props );
+                return new NearestAvgValueDayEstimator(thesaurus, propertySpecService, validationService, meteringService, timeService, calendarService, props );
             }
 
             @Override
             AbstractEstimator createTemplate(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService, TimeService timeService, CalendarService calendarService) {
-                return new NearestAverageValueDayEstimator(thesaurus,propertySpecService,validationService,meteringService,timeService,calendarService);
+                return new NearestAvgValueDayEstimator(thesaurus,propertySpecService,validationService,meteringService,timeService,calendarService);
             }
         };
 

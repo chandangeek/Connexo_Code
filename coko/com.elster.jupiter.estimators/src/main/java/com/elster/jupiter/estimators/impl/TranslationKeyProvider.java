@@ -38,7 +38,7 @@ public class TranslationKeyProvider implements com.elster.jupiter.nls.Translatio
         Collections.addAll(keys, LinearInterpolation.TranslationKeys.values());
         Collections.addAll(keys, PowerGapFill.TranslationKeys.values());
         Collections.addAll(keys, ValueFillEstimator.TranslationKeys.values());
-        Collections.addAll(keys, NearestAverageValueDayEstimator.TranslationKeys.values());
+        Collections.addAll(keys, NearestAvgValueDayEstimator.TranslationKeys.values());
         return keys;
     }
 

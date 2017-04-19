@@ -15,8 +15,6 @@ import com.elster.jupiter.estimation.DiscardDaySettings;
 import com.elster.jupiter.estimation.Estimatable;
 import com.elster.jupiter.estimation.EstimationBlock;
 import com.elster.jupiter.estimation.EstimationResult;
-import com.elster.jupiter.estimation.EstimationRule;
-import com.elster.jupiter.estimation.EstimationRuleProperties;
 import com.elster.jupiter.estimation.Estimator;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
@@ -76,7 +74,7 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class NearestAverageValueDayTest {
     private static final Set<QualityCodeSystem> SYSTEMS = Estimator.qualityCodeSystemsToTakeIntoAccount(QualityCodeSystem.MDC);
-    private static final Logger LOGGER = Logger.getLogger(NearestAverageValueDayEstimator.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(NearestAvgValueDayEstimator.class.getName());
     private static final ZonedDateTime ESTIMABLE_TIME = ZonedDateTime.of(2004, 4, 13, 14, 15, 0, 0, TimeZoneNeutral.getMcMurdo());
     private static final ZonedDateTime START = ZonedDateTime.of(2001, 1, 1, 0, 0, 0, 0, TimeZoneNeutral.getMcMurdo());
     private static final ZonedDateTime LAST_CHECKED = ZonedDateTime.of(2004, 4, 20, 0, 0, 0, 0, TimeZoneNeutral.getMcMurdo());
@@ -241,11 +239,11 @@ public class NearestAverageValueDayTest {
         when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.DAILY);
 
         Map<String, Object> props = ImmutableMap.<String, Object>builder()
-                .put(NearestAverageValueDayEstimator.NUMBER_OF_SAMPLES, 2L)
-                .put(NearestAverageValueDayEstimator.MAXIMUM_NUMBER_OF_WEEKS, 3L)
-                .put(NearestAverageValueDayEstimator.DISCARD_SPECIFIC_DAY, new DiscardDaySettings(true, calendar, event))
+                .put(NearestAvgValueDayEstimator.NUMBER_OF_SAMPLES, 2L)
+                .put(NearestAvgValueDayEstimator.MAXIMUM_NUMBER_OF_WEEKS, 3L)
+                .put(NearestAvgValueDayEstimator.DISCARD_SPECIFIC_DAY, new DiscardDaySettings(true, calendar, event))
                 .build();
-        NearestAverageValueDayEstimator estimator = new NearestAverageValueDayEstimator(thesaurus, propertySpecService, validationService, meteringService, timeService, calendarService, props);
+        NearestAvgValueDayEstimator estimator = new NearestAvgValueDayEstimator(thesaurus, propertySpecService, validationService, meteringService, timeService, calendarService, props);
 
         estimator.init();
 
@@ -259,11 +257,11 @@ public class NearestAverageValueDayTest {
     public void testEstimatePassesWithDiscardDayFalse() {
         when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.DAILY);
         Map<String, Object> props = ImmutableMap.<String, Object>builder()
-                .put(NearestAverageValueDayEstimator.NUMBER_OF_SAMPLES, 2L)
-                .put(NearestAverageValueDayEstimator.MAXIMUM_NUMBER_OF_WEEKS, 3L)
-                .put(NearestAverageValueDayEstimator.DISCARD_SPECIFIC_DAY, new DiscardDaySettings(false, null, null))
+                .put(NearestAvgValueDayEstimator.NUMBER_OF_SAMPLES, 2L)
+                .put(NearestAvgValueDayEstimator.MAXIMUM_NUMBER_OF_WEEKS, 3L)
+                .put(NearestAvgValueDayEstimator.DISCARD_SPECIFIC_DAY, new DiscardDaySettings(false, null, null))
                 .build();
-        NearestAverageValueDayEstimator estimator = new NearestAverageValueDayEstimator(thesaurus, propertySpecService, validationService, meteringService, timeService, calendarService, props);
+        NearestAvgValueDayEstimator estimator = new NearestAvgValueDayEstimator(thesaurus, propertySpecService, validationService, meteringService, timeService, calendarService, props);
 
         estimator.init();
 
@@ -282,11 +280,11 @@ public class NearestAverageValueDayTest {
         when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.DAILY);
 
         Map<String, Object> props = ImmutableMap.<String, Object>builder()
-                .put(NearestAverageValueDayEstimator.NUMBER_OF_SAMPLES, 2L)
-                .put(NearestAverageValueDayEstimator.MAXIMUM_NUMBER_OF_WEEKS, 3L)
-                .put(NearestAverageValueDayEstimator.DISCARD_SPECIFIC_DAY, new DiscardDaySettings(true, calendar, event))
+                .put(NearestAvgValueDayEstimator.NUMBER_OF_SAMPLES, 2L)
+                .put(NearestAvgValueDayEstimator.MAXIMUM_NUMBER_OF_WEEKS, 3L)
+                .put(NearestAvgValueDayEstimator.DISCARD_SPECIFIC_DAY, new DiscardDaySettings(true, calendar, event))
                 .build();
-        NearestAverageValueDayEstimator estimator = new NearestAverageValueDayEstimator(thesaurus, propertySpecService, validationService, meteringService, timeService, calendarService, props);
+        NearestAvgValueDayEstimator estimator = new NearestAvgValueDayEstimator(thesaurus, propertySpecService, validationService, meteringService, timeService, calendarService, props);
 
         estimator.init(LOGGER);
 
@@ -304,11 +302,11 @@ public class NearestAverageValueDayTest {
         when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.DAILY);
 
         Map<String, Object> props = ImmutableMap.<String, Object>builder()
-                .put(NearestAverageValueDayEstimator.NUMBER_OF_SAMPLES, 2L)
-                .put(NearestAverageValueDayEstimator.MAXIMUM_NUMBER_OF_WEEKS, 3L)
-                .put(NearestAverageValueDayEstimator.DISCARD_SPECIFIC_DAY, new DiscardDaySettings(true, calendar, event))
+                .put(NearestAvgValueDayEstimator.NUMBER_OF_SAMPLES, 2L)
+                .put(NearestAvgValueDayEstimator.MAXIMUM_NUMBER_OF_WEEKS, 3L)
+                .put(NearestAvgValueDayEstimator.DISCARD_SPECIFIC_DAY, new DiscardDaySettings(true, calendar, event))
                 .build();
-        NearestAverageValueDayEstimator estimator = new NearestAverageValueDayEstimator(thesaurus, propertySpecService, validationService, meteringService, timeService, calendarService, props);
+        NearestAvgValueDayEstimator estimator = new NearestAvgValueDayEstimator(thesaurus, propertySpecService, validationService, meteringService, timeService, calendarService, props);
 
         estimator.init();
 
@@ -325,11 +323,11 @@ public class NearestAverageValueDayTest {
         doReturn(false).when(readingType).isRegular();
 
         Map<String, Object> props = ImmutableMap.<String, Object>builder()
-                .put(NearestAverageValueDayEstimator.NUMBER_OF_SAMPLES, 2L)
-                .put(NearestAverageValueDayEstimator.MAXIMUM_NUMBER_OF_WEEKS, 3L)
-                .put(NearestAverageValueDayEstimator.DISCARD_SPECIFIC_DAY, new DiscardDaySettings(true, calendar, event))
+                .put(NearestAvgValueDayEstimator.NUMBER_OF_SAMPLES, 2L)
+                .put(NearestAvgValueDayEstimator.MAXIMUM_NUMBER_OF_WEEKS, 3L)
+                .put(NearestAvgValueDayEstimator.DISCARD_SPECIFIC_DAY, new DiscardDaySettings(true, calendar, event))
                 .build();
-        NearestAverageValueDayEstimator estimator = new NearestAverageValueDayEstimator(thesaurus, propertySpecService, validationService, meteringService, timeService, calendarService, props);
+        NearestAvgValueDayEstimator estimator = new NearestAvgValueDayEstimator(thesaurus, propertySpecService, validationService, meteringService, timeService, calendarService, props);
 
         estimator.init(LOGGER);
 
@@ -347,11 +345,11 @@ public class NearestAverageValueDayTest {
         doReturn(true).when(readingType).isCumulative();
 
         Map<String, Object> props = ImmutableMap.<String, Object>builder()
-                .put(NearestAverageValueDayEstimator.NUMBER_OF_SAMPLES, 2L)
-                .put(NearestAverageValueDayEstimator.MAXIMUM_NUMBER_OF_WEEKS, 3L)
-                .put(NearestAverageValueDayEstimator.DISCARD_SPECIFIC_DAY, new DiscardDaySettings(true, calendar, event))
+                .put(NearestAvgValueDayEstimator.NUMBER_OF_SAMPLES, 2L)
+                .put(NearestAvgValueDayEstimator.MAXIMUM_NUMBER_OF_WEEKS, 3L)
+                .put(NearestAvgValueDayEstimator.DISCARD_SPECIFIC_DAY, new DiscardDaySettings(true, calendar, event))
                 .build();
-        NearestAverageValueDayEstimator estimator = new NearestAverageValueDayEstimator(thesaurus, propertySpecService, validationService, meteringService, timeService, calendarService, props);
+        NearestAvgValueDayEstimator estimator = new NearestAvgValueDayEstimator(thesaurus, propertySpecService, validationService, meteringService, timeService, calendarService, props);
 
         estimator.init(LOGGER);
 
@@ -368,11 +366,11 @@ public class NearestAverageValueDayTest {
         when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.MONTHLY);
 
         Map<String, Object> props = ImmutableMap.<String, Object>builder()
-                .put(NearestAverageValueDayEstimator.NUMBER_OF_SAMPLES, 2L)
-                .put(NearestAverageValueDayEstimator.MAXIMUM_NUMBER_OF_WEEKS, 3L)
-                .put(NearestAverageValueDayEstimator.DISCARD_SPECIFIC_DAY, new DiscardDaySettings(true, calendar, event))
+                .put(NearestAvgValueDayEstimator.NUMBER_OF_SAMPLES, 2L)
+                .put(NearestAvgValueDayEstimator.MAXIMUM_NUMBER_OF_WEEKS, 3L)
+                .put(NearestAvgValueDayEstimator.DISCARD_SPECIFIC_DAY, new DiscardDaySettings(true, calendar, event))
                 .build();
-        NearestAverageValueDayEstimator estimator = new NearestAverageValueDayEstimator(thesaurus, propertySpecService, validationService, meteringService, timeService, calendarService, props);
+        NearestAvgValueDayEstimator estimator = new NearestAvgValueDayEstimator(thesaurus, propertySpecService, validationService, meteringService, timeService, calendarService, props);
 
         estimator.init(LOGGER);
 
