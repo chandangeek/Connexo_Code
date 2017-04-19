@@ -27,7 +27,6 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.math.BigInteger;
 import java.net.URL;
 import java.security.Security;
 import java.security.cert.CertificateException;
@@ -163,10 +162,31 @@ public class CertificateWrapperResourceTest extends PkiApplicationTest {
         assertThat(model.<String>get("issuer")).isEqualTo("C=BE,ST=Vlaanderen,L=Kortrijk,O=Honeywell,OU=SmartEnergy,CN=MyRootCA");
         assertThat(model.<String>get("subject")).isEqualTo("C=BE,ST=Vlaanderen,L=Kortrijk,O=Honeywell,OU=SmartEnergy,CN=MyRootCA");
         assertThat(model.<Integer>get("certificateVersion")).isEqualTo(1);
-        assertThat(model.<BigInteger>get("serialNumber")).isEqualTo(new BigInteger("12550491392904217459"));
+        assertThat(model.<String>get("serialNumber")).isEqualTo("12550491392904217459");
         assertThat(model.<Instant>get("notBefore")).isNotNull();
         assertThat(model.<Instant>get("notAfter")).isNotNull();
         assertThat(model.<String>get("signatureAlgorithm")).isEqualToIgnoringCase("SHA256withECDSA");
+    }
+
+    @Test
+    public void testGetCertificateWrapperWithCertificateWithLargeSerialNumber() throws Exception {
+        Clock clock = Clock.fixed(Instant.ofEpochMilli(1488240000000L), ZoneId.systemDefault());
+
+        ClientCertificateWrapper certificateWrapper = mock(ClientCertificateWrapper.class);
+        when(pkiService.findCertificateWrapper(12345)).thenReturn(Optional.of(certificateWrapper));
+        when(certificateWrapper.getAlias()).thenReturn("root");
+        when(certificateWrapper.getVersion()).thenReturn(135L);
+        when(certificateWrapper.getCertificate()).thenReturn(Optional.of(loadCertificate("honeywell.com.cert")));
+        when(certificateWrapper.getExpirationTime()).thenReturn(Optional.of(Instant.now(clock)));
+        when(certificateWrapper.getAllKeyUsages()).thenReturn(Optional.of("A, B, C"));
+        PrivateKeyWrapper privateKeyWrapper = mock(PrivateKeyWrapper.class);
+        when(certificateWrapper.getPrivateKeyWrapper()).thenReturn(privateKeyWrapper);
+        when(privateKeyWrapper.getKeyEncryptionMethod()).thenReturn("DataVault");
+
+
+        Response response = target("/certificates/12345").request().get();
+        JsonModel model = JsonModel.model((InputStream) response.getEntity());
+        assertThat(model.<String>get("serialNumber")).isEqualTo("6585389233728085118907455613768833682118990666695162997537978648");
     }
 
     @Test

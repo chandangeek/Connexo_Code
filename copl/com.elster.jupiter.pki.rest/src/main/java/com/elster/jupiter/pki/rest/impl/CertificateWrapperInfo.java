@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.pki.rest.impl;
 
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.math.BigInteger;
 import java.time.Instant;
 
@@ -23,6 +24,7 @@ public class CertificateWrapperInfo {
     public String issuer;
     public String subject;
     public Integer certificateVersion;
+    @XmlJavaTypeAdapter(SerialNumberAdapter.class)
     public BigInteger serialNumber;
     public Instant notBefore;
     public Instant notAfter;
