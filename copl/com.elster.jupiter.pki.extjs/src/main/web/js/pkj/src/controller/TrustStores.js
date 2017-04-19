@@ -172,6 +172,7 @@ Ext.define('Pkj.controller.TrustStores', {
                         errorMessage.show();
                         form.getForm().markInvalid(responseText.errors);
                     }
+                    viewport.setLoading(false);
                 }
             }
         });
