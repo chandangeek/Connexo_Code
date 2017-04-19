@@ -34,6 +34,7 @@ import com.energyict.mdc.pluggable.rest.impl.properties.ObisCodePropertyValueCon
 import com.energyict.mdc.pluggable.rest.impl.properties.PasswordPropertyValueConverter;
 import com.energyict.mdc.pluggable.rest.impl.properties.ReadingTypePropertyValueConverter;
 import com.energyict.mdc.pluggable.rest.impl.properties.RegisterPropertyValueConverter;
+import com.energyict.mdc.pluggable.rest.impl.properties.SimplePropertyType;
 import com.energyict.mdc.pluggable.rest.impl.properties.TimeDurationPropertyValueConverter;
 import com.energyict.mdc.pluggable.rest.impl.properties.TimeOfDayPropertyValueConverter;
 import com.energyict.mdc.pluggable.rest.impl.properties.TimeZoneInUsePropertyValueConverter;
@@ -55,6 +56,7 @@ import java.util.Set;
 
 @Component(name = "com.energyict.mdc.pluggable.rest", service = {Application.class, MessageSeedProvider.class}, immediate = true, property = {"alias=/plr", "app=MDC", "name=" + MdcPluggableRestApplication.COMPONENT_NAME})
 public class MdcPluggableRestApplication extends Application implements MessageSeedProvider {
+
     public static final String APP_KEY = "MDC";
     public static final String COMPONENT_NAME = "PLR";
 
