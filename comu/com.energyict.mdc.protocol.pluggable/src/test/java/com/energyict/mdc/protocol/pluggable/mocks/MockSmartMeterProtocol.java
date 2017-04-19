@@ -4,36 +4,32 @@
 
 package com.energyict.mdc.protocol.pluggable.mocks;
 
-import com.elster.jupiter.cps.CustomPropertySet;
-import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.protocol.api.DeviceSecuritySupport;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
-import com.energyict.mdc.upl.messages.DeviceMessage;
-import com.energyict.mdc.upl.messages.DeviceMessageSpec;
-import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.meterdata.CollectedMessageList;
-import com.energyict.mdc.upl.meterdata.Device;
-import com.energyict.mdc.upl.offline.OfflineDevice;
-import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
-import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
-
+import com.energyict.mdc.upl.messages.legacy.Message;
+import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.MessageTag;
+import com.energyict.mdc.upl.messages.legacy.MessageValue;
 import com.energyict.protocol.LoadProfileConfiguration;
 import com.energyict.protocol.LoadProfileReader;
+import com.energyict.protocol.MessageProtocol;
+import com.energyict.protocol.MessageResult;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.Register;
 import com.energyict.protocol.RegisterValue;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
@@ -43,7 +39,7 @@ import java.util.logging.Logger;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-01-16 (12:12)
  */
-public class MockSmartMeterProtocol implements SmartMeterProtocol, DeviceSecuritySupport, DeviceMessageSupport {
+public class MockSmartMeterProtocol implements SmartMeterProtocol, MessageProtocol {
 
     @Override
     public List<RegisterValue> readRegisters(List<Register> registers) {
@@ -52,56 +48,6 @@ public class MockSmartMeterProtocol implements SmartMeterProtocol, DeviceSecurit
 
     @Override
     public List<PropertySpec> getOptionalProperties() {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public List<DeviceMessageSpec> getSupportedMessages() {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
-        return null;
-    }
-
-    @Override
-    public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public CollectedMessageList updateSentMessages(List<OfflineDeviceMessage> sentMessages) {
-        return null;
-    }
-
-    @Override
-    public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, com.energyict.mdc.upl.properties.PropertySpec propertySpec, Object messageAttribute) {
-        return null;
-    }
-
-    @Override
-    public Optional<String> prepareMessageContext(Device device, com.energyict.mdc.upl.offline.OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
-        return Optional.empty();
-    }
-
-    @Override
-    public void setSecurityPropertySet(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
-
-    }
-
-    @Override
-    public Optional<CustomPropertySet<Device, ? extends PersistentDomainExtension<Device>>> getCustomPropertySet() {
-        return Optional.empty();
-    }
-
-    @Override
-    public List<com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public List<com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
         return Collections.emptyList();
     }
 
@@ -160,13 +106,13 @@ public class MockSmartMeterProtocol implements SmartMeterProtocol, DeviceSecurit
     }
 
     @Override
-    public Object getCache() {
+    public Serializable getCache() {
         return null;
     }
 
     @Override
     public void setCache(Object cacheObject) {
-
+        // nothing to do
     }
 
     @Override
@@ -199,4 +145,33 @@ public class MockSmartMeterProtocol implements SmartMeterProtocol, DeviceSecurit
 
     }
 
+    @Override
+    public void applyMessages(List messageEntries) throws IOException {
+
+    }
+
+    @Override
+    public MessageResult queryMessage(MessageEntry messageEntry) throws IOException {
+        return null;
+    }
+
+    @Override
+    public List<MessageCategorySpec> getMessageCategories() {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public String writeMessage(Message msg) {
+        return "";
+    }
+
+    @Override
+    public String writeTag(MessageTag tag) {
+        return "";
+    }
+
+    @Override
+    public String writeValue(MessageValue value) {
+        return "";
+    }
 }
