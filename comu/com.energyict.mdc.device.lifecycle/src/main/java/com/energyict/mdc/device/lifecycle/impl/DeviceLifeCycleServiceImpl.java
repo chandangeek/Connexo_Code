@@ -5,12 +5,9 @@
 package com.energyict.mdc.device.lifecycle.impl;
 
 import com.elster.jupiter.fsm.CustomStateTransitionEventType;
-import com.elster.jupiter.fsm.Stage;
-import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTimeSlice;
 import com.elster.jupiter.fsm.StateTransitionEventType;
-import com.elster.jupiter.metering.EndDeviceStage;
-import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
@@ -20,6 +17,7 @@ import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
@@ -49,8 +47,10 @@ import com.energyict.mdc.device.lifecycle.config.Privileges;
 import com.energyict.mdc.device.lifecycle.impl.micro.i18n.MicroActionTranslationKey;
 import com.energyict.mdc.device.lifecycle.impl.micro.i18n.MicroCategoryTranslationKey;
 import com.energyict.mdc.device.lifecycle.impl.micro.i18n.MicroCheckTranslationKey;
+import com.energyict.mdc.pluggable.rest.MdcPropertyValueConverterFactory;
 
 import com.google.common.collect.Range;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -81,6 +81,8 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
 
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile PropertySpecService propertySpecService;
+    private volatile PropertyValueInfoService propertyValueInfoService;
+    private volatile MdcPropertyValueConverterFactory mdcPropertyValueConverterFactory;
     private volatile ServerMicroCheckFactory microCheckFactory;
     private volatile ServerMicroActionFactory microActionFactory;
     private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
@@ -98,6 +100,8 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
     public DeviceLifeCycleServiceImpl(NlsService nlsService,
                                       ThreadPrincipalService threadPrincipalService,
                                       PropertySpecService propertySpecService,
+                                      PropertyValueInfoService propertyValueInfoService,
+                                      MdcPropertyValueConverterFactory mdcPropertyValueConverterFactory,
                                       ServerMicroCheckFactory microCheckFactory,
                                       ServerMicroActionFactory microActionFactory,
                                       DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService,
@@ -107,6 +111,7 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
         this.setNlsService(nlsService);
         this.setThreadPrincipalService(threadPrincipalService);
         this.setPropertySpecService(propertySpecService);
+        this.setMdcPropertyValueConverterFactory(mdcPropertyValueConverterFactory);
         this.setMicroCheckFactory(microCheckFactory);
         this.setMicroActionFactory(microActionFactory);
         this.setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
@@ -130,6 +135,16 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
     }
 
     @Reference
+    public void setPropertyValueInfoService(PropertyValueInfoService propertyValueInfoService) {
+        this.propertyValueInfoService = propertyValueInfoService;
+    }
+
+    @Reference
+    public void setMdcPropertyValueConverterFactory(MdcPropertyValueConverterFactory mdcPropertyValueConverterFactory) {
+        this.mdcPropertyValueConverterFactory = mdcPropertyValueConverterFactory;
+    }
+
+    @Reference
     public void setDeviceLifeCycleConfigurationService(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
         this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
     }
@@ -147,6 +162,11 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
     @Reference
     public void setUserService(UserService userService) {
         this.userService = userService;
+    }
+
+    @Activate
+    public void activate() {
+        this.propertyValueInfoService.addPropertyValueInfoConverter(mdcPropertyValueConverterFactory.getConverterFor(UsagePoint.class), MicroActionTranslationKey.MICRO_ACTION_NAME_LINK_TO_USAGE_POINT.getKey());
     }
 
     @Reference
@@ -395,7 +415,7 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
                         .collect(Collectors.toList());
         microCheckFactory.from(MicroCheck.METROLOGY_CONFIGURATION_IN_CORRECT_STATE_IF_ANY)
                 .evaluate(device, effectiveTimestamp, action.getStateTransition().getTo())
-                .ifPresent(violation -> violations.add(violation));
+                .ifPresent(violations::add);
         if (!violations.isEmpty()) {
             throw new MultipleMicroCheckViolationsException(this.thesaurus, MessageSeeds.MULTIPLE_MICRO_CHECKS_FAILED, violations);
         }
