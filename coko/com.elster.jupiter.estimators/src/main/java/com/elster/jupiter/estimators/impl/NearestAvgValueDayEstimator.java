@@ -174,11 +174,11 @@ public class NearestAvgValueDayEstimator extends AbstractEstimator implements Es
                     if (discardDaySettings.isDiscardDay()){
                         if (discardDaySettings.getCalendar() == null){
                             throw new LocalizedFieldValidationException(MessageSeeds.INVALID_CALENDAR_FIELD,
-                                    "properties." + DISCARD_SPECIFIC_DAY);
+                                    "properties." + DISCARD_SPECIFIC_DAY + ".calendar");
                         }
                         if (discardDaySettings.getEvent() == null) {
                             throw new LocalizedFieldValidationException(MessageSeeds.INVALID_EVENT_FIELD,
-                                    "properties." + DISCARD_SPECIFIC_DAY);
+                                    "properties." + DISCARD_SPECIFIC_DAY + ".eventCode");
                         }
 
                     }
