@@ -28,11 +28,11 @@ public class CalendarWithEventCodeValueConverter implements PropertyValueConvert
         Map map = (Map) infoValue;
         String advanceSettings = null;
         if ((Boolean) map.get("discardDays") == false) {
-            advanceSettings = NoneCalendarWithEventSettings.NONE_CALENDAR_SETTINGS;
-        } else {
+            return NoneCalendarWithEventSettings.INSTANCE;
+        }else {
             advanceSettings = map.get("discardDays").toString() + ":";
-            advanceSettings += map.get("calendar").toString() + ":";
-            advanceSettings += map.get("eventCode").toString();
+            advanceSettings += map.get("calendar") != null ? map.get("calendar").toString() + ":" : "";
+            advanceSettings += map.get("eventCode") != null ? map.get("eventCode").toString() : "";
         }
         return propertySpec.getValueFactory().fromStringValue(advanceSettings);
     }
