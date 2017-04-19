@@ -21,6 +21,7 @@ Ext.define('Pkj.view.CertificateActionMenu', {
                 itemId: 'pkj-download-csr-menu-item',
                 privileges: Pkj.privileges.CertificateManagement.adminCertificates,
                 action: 'downloadCSR',
+                hidden: Ext.isEmpty(me.record) || !me.record.get('hasCSR'),
                 section: this.SECTION_ACTION
             },
             {
