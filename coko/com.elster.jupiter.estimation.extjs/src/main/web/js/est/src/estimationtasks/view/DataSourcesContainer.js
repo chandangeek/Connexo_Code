@@ -118,7 +118,7 @@ Ext.define('Est.estimationtasks.view.DataSourcesContainer', {
                                 xtype: 'uni-default-button',
                                 itemId: 'reset-purpose-btn',
                                 disabled: true,
-                                tooltip: Uni.I18n.translate('estimationtasks.addValidationTask.reset', 'EST', 'Reset'),
+                                tooltip: Uni.I18n.translate('estimationtasks.addValidationTask.clear', 'EST', 'Clear'),
                                 hidden: false
                             }
                         ]
