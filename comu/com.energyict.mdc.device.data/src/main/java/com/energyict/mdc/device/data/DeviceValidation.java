@@ -93,14 +93,14 @@ public interface DeviceValidation {
     void setLastChecked(Register<?, ?> c, Instant start);
 
     /**
-     * Finds all properties that are overridden on all validation rules and all device's channels
+     * Finds all properties that are overridden on all validation rules and all device's channels.
      *
      * @return a List of {@link ChannelValidationRuleOverriddenProperties}
      */
     List<? extends ChannelValidationRuleOverriddenProperties> findAllOverriddenProperties();
 
     /**
-     * Finds properties that are overridden on a specified {@link ValidationRule} and channel's {@link ReadingType}
+     * Finds properties that are overridden on a specified {@link ValidationRule} and channel's {@link ReadingType}.
      *
      * @param validationRule target {@link ValidationRule}
      * @param readingType target {@link ReadingType} of device's channel
@@ -124,7 +124,7 @@ public interface DeviceValidation {
 
     /**
      * Starts the process of overriding {@link ValidationRule}'s properties on {@link ValidationPropertyDefinitionLevel#TARGET_OBJECT},
-     * which is a device's channel in this context identified by {@link ReadingType}
+     * which is a device's channel identified by {@link ReadingType} in this context.
      *
      * @param validationRule target {@link ValidationRule} for which the properties are going to be redefined
      * @param readingType target {@link ReadingType} of device's channel
