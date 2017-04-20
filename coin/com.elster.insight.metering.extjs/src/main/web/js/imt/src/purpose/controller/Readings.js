@@ -46,7 +46,7 @@ Ext.define('Imt.purpose.controller.Readings', {
         'Imt.purpose.view.Outputs',
         'Imt.purpose.view.OutputChannelMain',
         'Imt.purpose.view.ValidationStatusForm',
-        'Cfg.view.usagepointregister.CopyFromReferenceWindow'
+        'Cfg.view.common.CopyFromReferenceWindow'
     ],
 
     refs: [
