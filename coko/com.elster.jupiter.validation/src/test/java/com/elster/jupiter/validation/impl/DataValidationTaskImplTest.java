@@ -20,7 +20,6 @@ import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.validation.DataValidationOccurrence;
-import com.elster.jupiter.validation.ValidationService;
 
 import com.google.common.collect.ImmutableList;
 
@@ -48,7 +47,6 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DataValidationTaskImplTest extends EqualsContractTest {
-
     public static final long ID = 2415151L;
     public static final long OTHER_ID = 615585L;
 
@@ -64,8 +62,6 @@ public class DataValidationTaskImplTest extends EqualsContractTest {
     private UsagePointGroup usagePointGroup;
     @Mock
     private Thesaurus thesaurus;
-    @Mock
-    private ValidationService dataValidationService;
     @Mock
     private DestinationSpec destinationSpec;
     @Mock
@@ -138,7 +134,6 @@ public class DataValidationTaskImplTest extends EqualsContractTest {
         when(dataModel.getValidatorFactory()).thenReturn(validatorFactory);
         when(validatorFactory.getValidator()).thenReturn(validator);
         when(validator.validate(any(), any())).thenReturn(Collections.emptySet());
-
     }
 
     @Test
@@ -227,6 +222,4 @@ public class DataValidationTaskImplTest extends EqualsContractTest {
         verify(recurrentTask).delete();
         verify(dataModel).remove(task);
     }
-
-
 }
