@@ -38,7 +38,6 @@ Ext.define('Uni.grid.plugin.CopyPasteForGrid', {
     copyToClipBoard: function (grid) {
         var me = this, data;
 
-        Ext.suspendLayouts();
         data = me.collectGridData(grid);
         if (window.clipboardData && clipboardData.setData) {
             clipboardData.setData("text", data);
@@ -48,23 +47,19 @@ Ext.define('Uni.grid.plugin.CopyPasteForGrid', {
             hiddentextarea.focus();
             hiddentextarea.dom.setSelectionRange(0, hiddentextarea.dom.value.length);
         }
-        Ext.resumeLayouts();
     },
 
     pasteFromClipBoard: function (grid) {
-        var me = this;
-
-        Ext.suspendLayouts();
-        hiddentextarea = me.getHiddenTextArea(grid);
+        hiddentextarea = this.getHiddenTextArea(grid);
         hiddentextarea.dom.value = "";
         hiddentextarea.focus();
-        Ext.resumeLayouts();
     },
 
     updateGridData: function (e, t, grid) {
         if (!e.ctrlKey) {
             return;
         }
+        Ext.suspendLayouts();
         var me = this,
             eventEditFired = false,
             celleditingPlugin = grid.findPlugin('cellediting'),
@@ -75,11 +70,16 @@ Ext.define('Uni.grid.plugin.CopyPasteForGrid', {
             data = me.getHiddenTextArea(grid).getValue(),
             data = data.split("\n");
 
+
         if (grid.getSelectionModel().hasSelection()) {
             var selection = grid.getSelectionModel().getSelection()[0];
             for (var pos = 0; pos < data.length; pos++) {
                 var value = data[pos].replace(RegExp('[^0-9\.]', 'g'), '');
                 if (pos == data.length - 1 && value == '') { // ignore last empty row
+                    continue;
+                }
+
+                if (data[pos] != value) { // ignore invalid values
                     continue;
                 }
 
@@ -93,6 +93,7 @@ Ext.define('Uni.grid.plugin.CopyPasteForGrid', {
                 }
             }
         }
+        Ext.resumeLayouts();
     },
 
     collectGridData: function (grid, rows) {
