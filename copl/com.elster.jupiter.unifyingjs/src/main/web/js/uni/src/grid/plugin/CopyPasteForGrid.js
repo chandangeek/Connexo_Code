@@ -79,10 +79,6 @@ Ext.define('Uni.grid.plugin.CopyPasteForGrid', {
                     continue;
                 }
 
-                if (data[pos] != value) { // ignore invalid values
-                    continue;
-                }
-
                 var rec = grid.getStore().getAt(selection.index + pos);
                 if (rec) {
                     if (rec.get(me.editColumnDataIndex) != value) {
