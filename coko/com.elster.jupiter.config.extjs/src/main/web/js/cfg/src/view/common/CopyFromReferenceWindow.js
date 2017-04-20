@@ -2,7 +2,7 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-Ext.define('Cfg.view.usagepointregister.CopyFromReferenceWindow', {
+Ext.define('Cfg.view.common.CopyFromReferenceWindow', {
     extend: 'Ext.window.Window',
     alias: 'widget.reading-copy-from-reference-window',
     modal: true,
@@ -16,7 +16,7 @@ Ext.define('Cfg.view.usagepointregister.CopyFromReferenceWindow', {
         'Uni.util.FormErrorMessage',
         'Uni.property.form.Property',
         'Uni.property.view.DefaultButton',
-        'Uni.property.store.EstimationComment'
+        'Cfg.view.common.EstimationComment'
     ],
 
     initComponent: function () {
@@ -32,17 +32,6 @@ Ext.define('Cfg.view.usagepointregister.CopyFromReferenceWindow', {
                 margin: 20
             },
             items: [
-                {
-                    xtype: 'uni-form-error-message',
-                    itemId: 'form-errors',
-                    hidden: true
-                },
-                {
-                    xtype: 'label',
-                    itemId: 'error-label',
-                    hidden: true,
-                    margin: '10 0 10 20'
-                },
                 {
                     xtype: 'combobox',
                     itemId: 'device-field',
@@ -125,47 +114,8 @@ Ext.define('Cfg.view.usagepointregister.CopyFromReferenceWindow', {
                     ]
                 },
                 {
-                    xtype: 'fieldcontainer',
-                    fieldLabel: Uni.I18n.translate('copyFromReference.estimationComment', 'CFG', 'Estimation comment'),
-                    flex: 1,
-                    layout: 'hbox',
-                    items: [
-                        {
-                            xtype: 'combobox',
-                            itemId: 'estimation-comment',
-                            flex: 1,
-                            // name: 'estimationComment',
-                            // store: 'Uni.property.store.EstimationComment',
-                            // valueField: 'id',
-                            // displayField: 'comment',
-                            // queryMode: 'local',
-                            minChars: 1,
-                            editable: true,
-                            typeAhead: true,
-                            listeners: {
-                                afterrender: function () {
-                                    this.button = me.down('#estimation-comment-default-button');
-                                },
-                                change: function (combobox) {
-                                    if (combobox.getValue()) {
-                                        this.button.setDisabled(false);
-                                    } else {
-                                        this.button.setDisabled(true);
-                                    }
-                                }
-                            }
-                        },
-                        {
-                            xtype: 'uni-default-button',
-                            itemId: 'estimation-comment-default-button',
-                            hidden: false,
-                            disabled: true,
-                            handler: function () {
-                                me.down('#estimation-comment').reset();
-                            }
-
-                        }
-                    ]
+                    xtype: 'estimation-comment',
+                    fieldLabel: Uni.I18n.translate('copyFromReference.estimationComment', 'CFG', 'Estimation comment')
 
                 },
                 {
@@ -177,7 +127,7 @@ Ext.define('Cfg.view.usagepointregister.CopyFromReferenceWindow', {
                         {
                             xtype: 'checkbox',
                             itemId: 'projected',
-                            name: 'projecterdValue'
+                            name: 'projectedValue'
                         },
                         {
                             xtype: 'label',
