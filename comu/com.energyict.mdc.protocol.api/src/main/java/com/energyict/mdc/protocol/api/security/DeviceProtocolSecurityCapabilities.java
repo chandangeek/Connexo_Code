@@ -56,7 +56,7 @@ public interface DeviceProtocolSecurityCapabilities {
      * @param name The name of the security property specification
      * @return The PropertySpec or an empty Optional if no such PropertySpec exists
      */
-    default Optional<PropertySpec> getSecurityPropertySpec (String name) {
+    default Optional<PropertySpec> getSecurityPropertySpec(String name) {
         return getSecurityPropertySpecs()
                 .stream()
                 .filter(propertySpec -> propertySpec.getName().equals(name))
@@ -85,4 +85,18 @@ public interface DeviceProtocolSecurityCapabilities {
      */
     List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels();
 
+
+    /**
+     * Returns an optional {@link PropertySpec} containing the
+     * {@link PropertySpec} to use for the 'client'. This property
+     * spec can then be used to validate the value of the client field.
+     *
+     * If 'client' should not be used(~ communication with the device doesn't
+     * need a client), then an empty Optional will be returned.
+     *
+     * @return The 'client' PropertySpec or an empty Optional in case the 'client' is not supported
+     */
+    default Optional<PropertySpec> getClientSecurityPropertySpec() {
+        return Optional.empty(); // By default, no support for client - TODO: foresee useful implementation on the protocols who need this
+    }
 }
