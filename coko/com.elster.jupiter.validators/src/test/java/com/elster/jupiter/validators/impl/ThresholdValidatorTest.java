@@ -203,11 +203,11 @@ public class ThresholdValidatorTest {
 
         NlsMessageFormat minMessageFormat = mock(NlsMessageFormat.class);
         when(minMessageFormat.format()).thenReturn("Minimal");
-        when(thesaurus.getFormat(ReadingQualitiesTranslationKeys.THRESHOLD_VALIDATOR_MIN)).thenReturn(minMessageFormat);
+        when(thesaurus.getFormat(ThresholdValidator.TranslationKeys.THRESHOLD_VALIDATOR_MIN)).thenReturn(minMessageFormat);
 
         NlsMessageFormat maxMessageFormat = mock(NlsMessageFormat.class);
         when(maxMessageFormat.format()).thenReturn("Maximal");
-        when(thesaurus.getFormat(ReadingQualitiesTranslationKeys.THRESHOLD_VALIDATOR_MAX)).thenReturn(maxMessageFormat);
+        when(thesaurus.getFormat(ThresholdValidator.TranslationKeys.THRESHOLD_VALIDATOR_MAX)).thenReturn(maxMessageFormat);
 
         thresholdValidator = new ThresholdValidator(thesaurus, propertySpecService, ImmutableMap.of(MIN, MINIMUM, MAX, MAXIMUM));
 

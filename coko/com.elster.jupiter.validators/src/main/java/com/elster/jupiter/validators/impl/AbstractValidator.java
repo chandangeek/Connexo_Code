@@ -19,19 +19,19 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 
-abstract class AbstractValidator implements IValidator {
+public abstract class AbstractValidator implements IValidator {
 
     private final Thesaurus thesaurus;
     private final PropertySpecService propertySpecService;
     protected final Map<String, Object> properties;
 
-    AbstractValidator(Thesaurus thesaurus, PropertySpecService propertySpecService) {
+    public AbstractValidator(Thesaurus thesaurus, PropertySpecService propertySpecService) {
         this.thesaurus = thesaurus;
         this.propertySpecService = propertySpecService;
         this.properties = Collections.emptyMap();
     }
 
-    AbstractValidator(Thesaurus thesaurus, PropertySpecService propertySpecService, Map<String, Object> properties) {
+    public AbstractValidator(Thesaurus thesaurus, PropertySpecService propertySpecService, Map<String, Object> properties) {
         this.thesaurus = thesaurus;
         this.propertySpecService = propertySpecService;
         this.properties = properties;
@@ -51,11 +51,11 @@ abstract class AbstractValidator implements IValidator {
         return Collections.emptyMap();
     }
 
-    final Thesaurus getThesaurus() {
+    public final Thesaurus getThesaurus() {
         return thesaurus;
     }
 
-    final PropertySpecService getPropertySpecService() {
+    public final PropertySpecService getPropertySpecService() {
         return propertySpecService;
     }
 

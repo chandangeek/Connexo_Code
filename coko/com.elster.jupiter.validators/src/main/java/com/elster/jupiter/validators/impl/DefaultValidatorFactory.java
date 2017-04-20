@@ -17,6 +17,7 @@ import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.validation.Validator;
 import com.elster.jupiter.validation.ValidatorFactory;
+import com.elster.jupiter.validators.impl.meteradvance.MeterAdvanceValidator;
 import com.elster.jupiter.validators.impl.properties.ReadingTypeValueConverter;
 
 import org.osgi.service.component.annotations.Activate;

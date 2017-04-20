@@ -10,7 +10,7 @@ public class ReadingTypeReference {
 
     private final ReadingType readingType;
 
-    ReadingTypeReference(ReadingType readingType) {
+    public ReadingTypeReference(ReadingType readingType) {
         this.readingType = readingType;
     }
 

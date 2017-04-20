@@ -14,14 +14,19 @@ import java.util.logging.Logger;
 public enum MessageSeeds implements MessageSeed {
     NO_SUCH_VALIDATOR(1001, "validator.doesnotexist", "Validator {0} does not exist."),
     MISSING_PROPERTY(1002, "property.missing", "Required property with key ''{0}'' was not found."),
+    UNSUPPORTED_IRREGULAR_CHANNEL(1003, "UnsupportedIrregularChannel", "Irregular channels can''t be validated by ''{0}'' validator"),
+    UNSUPPORTED_READINGTYPE(1004, "UnsupportedReadingType", "Channels of reading type ''{0}'' can''t be validated by ''{1}'' validator"),
 
     // Meter advance messages
-    NOT_APPLICABLE_TO_IRREGULAR_CHANNEL(2001, "UnsupportedReadingType", "Not supported reading type"),
-    NOT_SUPPORTED_READINGTYPE(2001, "UnsupportedReadingType", "Not supported reading type"),
-    REFERENCE_READINGTYPE_DOESNOT_MATCH_VALIDATED_ONE(2002, "", "reference reading type doesn't match the <reading type> reading type"),
-    NO_REFERENCE_READINGTYPE(2003, "", "no reference reading type on usage point/device"),
-    REGISTER_READINGS_ARE_MISSING(2004, "", "since register readings for the validated interval don't exist on <usage point name>/<device>"),
-    DIFFERENCE_BETWEEN_TWO_REGISTER_READINGS_LESS_THEN_MIN_THRESHOLD(2005, "DiffLessThenMin", ""),
+    // {0} - from time, {1} - to time, {2} - validator display name, {3} - reading type mrid, {4} - validate object name
+    REFERENCE_READINGTYPE_DOES_NOT_MATCH_VALIDATED_ONE(2002, "ReferenceReadingTypeDoesNotMatch",
+            "Failed to validate period ''{0} until {1}'' using method ''{2}'' on {3} since the specified reference reading type doesn''t match the reading type on the {4}"),
+    NO_REFERENCE_READINGTYPE(2003, "NoReferenceReadingType",
+            "Failed to validate period ''{0} until {1}'' using method ''{2}'' on {3} since the specified reference reading type doesn''t exist on the {4}"),
+    REGISTER_READINGS_ARE_MISSING(2004, "RegisterReadingsAreMissing",
+            "Failed to validate period ''{0} until {1}'' using method ''{2}'' on {3} since register readings for the validated interval don''t exist on the {4}"),
+    DIFFERENCE_BETWEEN_TWO_REGISTER_READINGS_LESS_THAN_MIN_THRESHOLD(2005, "DiffLessThanMinThreshold",
+            "The period ''{0} until {1}'' was marked valid using method ''{2}'' on {3} since the difference between the register readings is below the minimum threshold on {4}", Level.WARNING),
     ;
 
     public static final String COMPONENT_NAME = "VDR";

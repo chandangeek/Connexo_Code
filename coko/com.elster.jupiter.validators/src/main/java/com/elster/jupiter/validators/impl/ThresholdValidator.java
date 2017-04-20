@@ -39,7 +39,7 @@ class ThresholdValidator extends AbstractValidator {
     static final String MIN = "minimum";
     static final String MAX = "maximum";
 
-    private enum TranslationKeys implements TranslationKey {
+    enum TranslationKeys implements TranslationKey {
 
         THRESHOLD_VALIDATOR_MIN(ThresholdValidator.MIN, "Minimum"),
         THRESHOLD_VALIDATOR_MAX(ThresholdValidator.MAX, "Maximum");

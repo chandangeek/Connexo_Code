@@ -12,6 +12,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
+import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.validation.Validator;
 
@@ -42,11 +43,13 @@ public class DefaultValidatorFactoryTest {
     private NlsService nlsService;
     @Mock
     private MeteringService meteringService;
+    @Mock
+    private PropertyValueInfoService propertyValueInfoService;
 
     @Before
     public void setUp() throws Exception {
         when(nlsService.getThesaurus(any(), any())).thenReturn(NlsModule.FakeThesaurus.INSTANCE);
-        defaultValidatorFactory = new DefaultValidatorFactory(nlsService, new PropertySpecServiceImpl(), meteringService);
+        defaultValidatorFactory = new DefaultValidatorFactory(nlsService, new PropertySpecServiceImpl(), meteringService, propertyValueInfoService);
     }
 
     @Test
@@ -119,7 +122,7 @@ public class DefaultValidatorFactoryTest {
             expectedTranslations++;
             Validator validator = validatorFactory.createTemplate(implementation);
             expectedTranslations += validator.getPropertySpecs().size();
-            expectedTranslations += ((IValidator)validator).getExtraTranslations().size();
+            expectedTranslations += ((IValidator) validator).getExtraTranslationKeys().size();
         }
 
         assertThat(validatorFactory.getKeys()).hasSize(expectedTranslations);
