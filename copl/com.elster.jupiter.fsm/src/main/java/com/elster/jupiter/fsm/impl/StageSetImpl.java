@@ -12,14 +12,13 @@ import com.elster.jupiter.fsm.StageSet;
 import com.elster.jupiter.fsm.impl.constraints.AtLeastOneStage;
 import com.elster.jupiter.fsm.impl.constraints.NoDuplicateStageName;
 import com.elster.jupiter.fsm.impl.constraints.Unique;
-import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 
-import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.Size;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -44,20 +43,21 @@ public class StageSetImpl implements StageSet {
 
     }
 
+    @SuppressWarnings("unused") // Managed by ORM
     private long id;
     @NotEmpty(groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.CAN_NOT_BE_EMPTY+"}")
     @Size(max= Table.NAME_LENGTH, groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.FIELD_TOO_LONG+"}")
     private String name;
     @Valid
     private List<Stage> stages = new ArrayList<>();
-    @SuppressWarnings("unused")
+    @SuppressWarnings("unused") // Managed by ORM
     private String userName;
-    @SuppressWarnings("unused")
+    @SuppressWarnings("unused") // Managed by ORM
     private long version;
 
-    @SuppressWarnings("unused")
+    @SuppressWarnings("unused") // Managed by ORM
     private Instant createTime;
-    @SuppressWarnings("unused")
+    @SuppressWarnings("unused") // Managed by ORM
     private Instant modTime;
 
     @Override
@@ -72,7 +72,7 @@ public class StageSetImpl implements StageSet {
 
     @Override
     public List<Stage> getStages() {
-        return stages;
+        return Collections.unmodifiableList(this.stages);
     }
 
     @Override
