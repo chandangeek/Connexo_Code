@@ -1,8 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.estimators.impl;
 
 
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.CalendarService;
+import com.elster.jupiter.calendar.EventOccurrence;
 import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
@@ -18,12 +23,14 @@ import com.elster.jupiter.estimators.AbstractEstimator;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.CimChannel;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.time.TimeService;
+import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.logging.LoggingContext;
 import com.elster.jupiter.validation.ValidationService;
 import com.google.common.collect.ImmutableList;
@@ -39,6 +46,7 @@ import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -68,7 +76,8 @@ public class NearestAvgValueDayEstimator extends AbstractEstimator implements Es
     private Long maxNumberOfWeeks;
     private CalendarWithEventSettings discardSpecificDay;
     private Calendar calendar;
-    private long calendarEventCode;
+    private long calendarEventId;
+    private List<Instant> skippedDays = new ArrayList<>();
 
 //Translation Keys
     public enum TranslationKeys implements TranslationKey {
@@ -215,6 +224,15 @@ public class NearestAvgValueDayEstimator extends AbstractEstimator implements Es
                 .setDefaultValue(NUMBER_OF_SAMPLES_DEFAULT_VALUE)
                 .finish());
 
+        builder.add(
+                getPropertySpecService()
+                        .longSpec()
+                        .named(TranslationKeys.MAXIMUM_NUMBER_OF_WEEKS)
+                        .describedAs(TranslationKeys.MAXIMUM_NUMBER_OF_WEEKS_DESCRIPTION)
+                        .fromThesaurus(this.getThesaurus())
+                        .markRequired()
+                        .setDefaultValue(MAXIMUM_NUMBER_OF_WEEKS_DEFAULT_VALUE)
+                        .finish());
 
         builder.add(
                 getPropertySpecService()
@@ -226,17 +244,6 @@ public class NearestAvgValueDayEstimator extends AbstractEstimator implements Es
                         .setDefaultValue(null)
                         .finish()
         );
-
-
-        builder.add(
-                getPropertySpecService()
-                        .longSpec()
-                        .named(TranslationKeys.MAXIMUM_NUMBER_OF_WEEKS)
-                        .describedAs(TranslationKeys.MAXIMUM_NUMBER_OF_WEEKS_DESCRIPTION)
-                        .fromThesaurus(this.getThesaurus())
-                        .markRequired()
-                        .setDefaultValue(MAXIMUM_NUMBER_OF_WEEKS_DEFAULT_VALUE)
-                        .finish());
 
         return builder.build();
     }
@@ -296,11 +303,11 @@ public class NearestAvgValueDayEstimator extends AbstractEstimator implements Es
         Boolean discardDay = discardSpecificDay instanceof NoneCalendarWithEventSettings ? false : ((DiscardDaySettings) discardSpecificDay).isDiscardDay();
         if (discardDay) {
             calendar = ((DiscardDaySettings) discardSpecificDay).getCalendar();
-            calendarEventCode = ((DiscardDaySettings) discardSpecificDay).getEvent().getId();
+            calendarEventId = ((DiscardDaySettings) discardSpecificDay).getEvent().getId();
             zonedView = calendar.forZone(estimationBlock.getChannel().getZoneId(), calendar.getStartYear(), calendar.getEndYear());
         } else {
             calendar = null;
-            calendarEventCode = 0;
+            calendarEventId = 0;
         }
 
         Map<Estimatable, BigDecimal> valuesForEstimatables = new HashMap<>();
@@ -308,16 +315,25 @@ public class NearestAvgValueDayEstimator extends AbstractEstimator implements Es
             Instant estimatableTimestamp = estimatable.getTimestamp();
             BigDecimal result = new BigDecimal(0);
             List<? extends BaseReadingRecord> readingsBefore;
-            Range<Instant> beforeRange = Range.closedOpen(estimatableTimestamp.minus(maxNumberOfWeeks * ChronoUnit.WEEKS.getDuration().toDays(), ChronoUnit.DAYS), estimatableTimestamp);
+            Range<Instant> beforeRange = Range.closedOpen(estimatableTimestamp.minus(maxNumberOfWeeks * ChronoUnit.WEEKS.getDuration().toDays(), ChronoUnit.DAYS).minus(estimationBlock.getReadingType().getIntervalLength().get()), estimatableTimestamp);
+            skippedDays = skipDay(estimationBlock.getCimChannel(), beforeRange, systems);
             if (discardDay) {
                 final Calendar.ZonedView view = zonedView;
                 readingsBefore = estimationBlock.getChannel()
                         .getReadings(beforeRange)
                         .stream()
-                        .filter(brrc -> view.eventFor(brrc.getTimeStamp()).getId() != calendarEventCode)
+                        .filter(brrc -> skippedDays
+                                .stream()
+                                .noneMatch(instant -> instant.equals(brrc.getTimeStamp())))
+                        .filter(brrc -> view.dayTypeFor(brrc.getTimeStamp()).getEventOccurrences()
+                                .stream()
+                                .map(EventOccurrence::getEvent)
+                                .map(HasId::getId)
+                                .noneMatch(eventId -> eventId == calendarEventId))
                         .filter(brcc -> isValidSample(estimationBlock, estimatable.getTimestamp(), brcc, systems, zone))
                         .collect(Collectors.toList());
-                if (zonedView.eventFor(estimatable.getTimestamp()).getId() == calendarEventCode && discardDay) {
+
+                if (zonedView.eventFor(estimatable.getTimestamp()).getId() == calendarEventId && discardDay) {
                     String message = "Failed estimation with {rule}: Block {block} since the values to estimate belong to a day configured to be discarded";
                     LoggingContext.get().info(getLogger(), message);
                     return false;
@@ -369,6 +385,16 @@ public class NearestAvgValueDayEstimator extends AbstractEstimator implements Es
                 .ofQualitySystems(systems)
                 .ofQualityIndices(ImmutableSet.of(QualityCodeIndex.SUSPECT, QualityCodeIndex.KNOWNMISSINGREAD))
                 .noneMatch();
+    }
+
+    private static List<Instant> skipDay(CimChannel advanceCimChannel, Range<Instant> beforeRange,
+                                         Set<QualityCodeSystem> systems) {
+        return advanceCimChannel.findReadingQualities()
+                .inTimeInterval(beforeRange)
+                .actual()
+                .ofQualitySystems(systems)
+                .ofQualityIndex(QualityCodeIndex.SUSPECT)
+                .stream().map(rqr -> rqr.getReadingTimestamp()).distinct().collect(Collectors.toList());
     }
 
     private static boolean sameTimeOfWeek(ZonedDateTime first, ZonedDateTime second) {
