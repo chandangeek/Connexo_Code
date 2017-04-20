@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.estimation.rest.impl;
 
 import com.elster.jupiter.estimation.DiscardDaySettings;
@@ -25,11 +29,14 @@ public class CalendarWithEventCodeValueConverter implements PropertyValueConvert
 
     @Override
     public Object convertInfoToValue(PropertySpec propertySpec, Object infoValue) {
+        if (infoValue.toString().equalsIgnoreCase("INSTANCE")) {
+            return NoneCalendarWithEventSettings.INSTANCE;
+        }
         Map map = (Map) infoValue;
         String advanceSettings = null;
         if ((Boolean) map.get("discardDays") == false) {
             return NoneCalendarWithEventSettings.INSTANCE;
-        }else {
+        } else {
             advanceSettings = map.get("discardDays").toString() + ":";
             advanceSettings += map.get("calendar") != null ? map.get("calendar").toString() + ":" : "";
             advanceSettings += map.get("eventCode") != null ? map.get("eventCode").toString() : "";
