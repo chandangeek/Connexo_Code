@@ -10,8 +10,6 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.dynamic.PropertySpecService;
-import com.elster.jupiter.properties.TimeDurationValueFactory;
 import com.energyict.mdc.protocol.api.CommonDeviceProtocolDialectProperties;
 import test.com.energyict.protocolimplv2.sdksample.SDKTimeDeviceProtocolDialectProperties;
 
