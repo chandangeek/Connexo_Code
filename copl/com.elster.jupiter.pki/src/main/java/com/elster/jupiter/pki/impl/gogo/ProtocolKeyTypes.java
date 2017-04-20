@@ -50,6 +50,14 @@ public enum ProtocolKeyTypes {
             return pkiService.newSymmetricKeyType(getName(), "DES", 64).description("Created by test class").add();
         }
     },
+    TRUSTED_ROOT {
+        public String getName() {
+            return "Trusted root";
+        }
+        public KeyType createKeyType(PkiService pkiService) {
+            return pkiService.newTrustedCertificateType(getName()).description("Created by test class").add();
+        }
+    },
     TLS_CLIENT_SUITE_1 {
         @Override
         public String getName() {

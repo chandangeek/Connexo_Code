@@ -427,10 +427,19 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
     }
 
     @Override
-    public List<String> getAliasesByFilter(String searchString) {
+    public List<String> getAliasesByFilter(AliasSearchFilter searchFilter) {
+        Condition searchCondition;
+        if (searchFilter.trustStore ==null) {
+            searchCondition = Where.where(AbstractCertificateWrapperImpl.Fields.ALIAS.fieldName())
+                    .likeIgnoreCase(searchFilter.alias)
+                    .and(where("class").in(Arrays.asList(AbstractCertificateWrapperImpl.CERTIFICATE_DISCRIMINATOR, AbstractCertificateWrapperImpl.CLIENT_CERTIFICATE_DISCRIMINATOR)));
+        } else {
+            searchCondition = Where.where(AbstractCertificateWrapperImpl.Fields.ALIAS.fieldName())
+                    .likeIgnoreCase(searchFilter.alias)
+                    .and(where(AbstractCertificateWrapperImpl.Fields.TRUST_STORE.fieldName()).isEqualTo(searchFilter.trustStore));
+        }
         return DefaultFinder.of(CertificateWrapper.class,
-                Where.where(AbstractCertificateWrapperImpl.Fields.ALIAS.fieldName()).likeIgnoreCase(searchString)
-                        .and(where("class").in(Arrays.asList(AbstractCertificateWrapperImpl.CERTIFICATE_DISCRIMINATOR, AbstractCertificateWrapperImpl.CLIENT_CERTIFICATE_DISCRIMINATOR))), getDataModel())
+                searchCondition, getDataModel())
                 .paged(0,30)
                 .sorted(AbstractCertificateWrapperImpl.Fields.ALIAS.fieldName(), true)
                 .stream()

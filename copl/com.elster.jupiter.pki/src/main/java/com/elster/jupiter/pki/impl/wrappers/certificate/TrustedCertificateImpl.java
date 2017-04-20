@@ -111,7 +111,7 @@ public class TrustedCertificateImpl extends AbstractCertificateWrapperImpl imple
     public enum Properties {
         TRUSTSTORE("trustStore") {
             public PropertySpec asPropertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus) {
-                return propertySpecService.stringSpec()
+                return propertySpecService.referenceSpec(TrustStore.class)
                         .named(getPropertyName(), TranslationKeys.TRUSTSTORE).fromThesaurus(thesaurus)
                         .finish();
             }
@@ -123,7 +123,7 @@ public class TrustedCertificateImpl extends AbstractCertificateWrapperImpl imple
 
             @Override
             void copyToMap(Map<String, Object> properties, TrustedCertificate certificateWrapper) {
-                properties.put(getPropertyName(), certificateWrapper.getTrustStore().getName());
+                properties.put(getPropertyName(), certificateWrapper.getTrustStore());
             }
         },
         ;

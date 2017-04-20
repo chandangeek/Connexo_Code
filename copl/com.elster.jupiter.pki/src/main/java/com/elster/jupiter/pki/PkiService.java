@@ -202,10 +202,15 @@ public interface PkiService {
      * List all known aliases from the certificate store that match the search filter.
      * @see {https://confluence.eict.vpdc/pages/viewpage.action?spaceKey=JDG&title=Filter}
      * @see {https://confluence.eict.vpdc/pages/viewpage.action?spaceKey=JDG&title=Forms+and+form+elements}
-     * @param searchString Search filter, possibly containing wildcards
+     * @param searchFilter Search filter for alias and truststore, possibly containing wildcards for alias
      * @return List of marching aliases
      */
-    List<String> getAliasesByFilter(String searchString);
+    List<String> getAliasesByFilter(AliasSearchFilter searchFilter);
+
+    class AliasSearchFilter {
+        public String alias;
+        public TrustStore trustStore;
+    }
 
 
     public interface ClientCertificateWrapperBuilder {
