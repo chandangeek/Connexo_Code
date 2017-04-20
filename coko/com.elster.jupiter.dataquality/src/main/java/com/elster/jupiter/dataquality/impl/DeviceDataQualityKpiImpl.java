@@ -123,7 +123,7 @@ public final class DeviceDataQualityKpiImpl extends DataQualityKpiImpl implement
                 .map(Map.Entry::getValue)
                 .peek(DataQualityKpiMember::remove)
                 .collect(Collectors.toSet());
-        getKpiMembers().removeAll(obsoleteKpiMembers);
+        this.removeAll(obsoleteKpiMembers);
 
         return deviceIdsInKpiMembers();
     }
@@ -152,7 +152,7 @@ public final class DeviceDataQualityKpiImpl extends DataQualityKpiImpl implement
                 .forEach(member -> kpiBuilder.member().named(member).add());
 
         DataQualityKpiMemberImpl dataQualityKpiMember = DataQualityKpiMemberImpl.from(getDataModel(), this, kpiBuilder.create());
-        getKpiMembers().add(dataQualityKpiMember);
+        this.add(dataQualityKpiMember);
         return dataQualityKpiMember;
     }
 
