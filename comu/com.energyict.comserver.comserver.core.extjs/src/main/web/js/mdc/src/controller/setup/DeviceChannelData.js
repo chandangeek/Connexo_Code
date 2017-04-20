@@ -17,7 +17,8 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         'Mdc.view.setup.devicechannels.ReadingEstimationWindow',
         'Mdc.view.setup.devicechannels.ReadingEstimationWithRuleWindow',
         'Mdc.view.setup.devicechannels.EditCustomAttributes',
-        'Mdc.view.setup.devicechannels.History'
+        'Mdc.view.setup.devicechannels.History',
+        'Uni.view.readings.CorrectValuesWindow'
     ],
 
     models: [
@@ -104,6 +105,10 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         {
             ref: 'editCustomAttributesRestoreBtn',
             selector: '#channelCustomAttributesRestoreBtn'
+        },
+        {
+            ref: 'correctReadingWindow',
+            selector: 'correct-values-window'
         }
     ],
 
@@ -165,6 +170,9 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             },
             '#channel-reading-estimation-with-rule-window #value-to-estimate-radio-group': {
                 change: this.updateEstimateWithRuleWindow
+            },
+            'correct-values-window #correct-reading-button': {
+                click: this.correctReadings
             }
         });
     },
@@ -278,6 +286,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         channelModel.load(channelId, {
             success: function (record) {
                 me.getApplication().fireEvent('channelOfLoadProfileOfDeviceLoad', record);
+                me.currentChannel = record;
                 channel = record;
                 if (channel.get('readingType').isGasRelated) {
                     var yearStartStore = me.getStore('Uni.store.GasDayYearStart');
@@ -484,6 +493,9 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             case 'copyFromReference':
                 me.copyFromReference(menu.record);
                 break;
+            case 'correctValue':
+                me.openCorrectWindow(menu.record);
+                break;
             case 'estimateValue':
                 me.estimateValue(menu.record);
                 break;
@@ -528,6 +540,9 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
 
         if (menu.down('#remove-reading')) {
             menu.down('#remove-reading').setVisible(menu.record.get('value') || menu.record.get('collectedValue'));
+        }
+        if(menu.down('#correct-value')){
+            menu.down('#correct-value').setVisible(!Ext.isEmpty(menu.record.get('value')))
         }
     },
 
@@ -586,7 +601,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
 
     undoChannelDataChanges: function () {
         var router = this.getController('Uni.controller.history.Router');
-        router.getRoute().forward(router.arguments, router.queryParams);
+        router.getRoute().forward(router.arguments, Uni.util.QueryString.getQueryStringValues());
     },
 
     getChangedData: function (store) {
@@ -682,6 +697,9 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
 
             if (event.column) {
                 event.record.get('mainValidationInfo').validationResult = 'validationStatus.ok';
+                if(!event.record.get('estimatedNotSaved')){
+                    event.record.set('mainModificationState', Uni.util.ReadingEditor.modificationState('EDITED'));
+                }
                 grid.getView().refreshNode(grid.getStore().indexOf(event.record));
                 event.record.get('confirmed') && event.record.set('confirmed', false);
             }
@@ -943,7 +961,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         }
         model.set('estimateBulk', estimateBulk);
         model.set('intervals', intervalsArray);
-        me.saveChannelDataEstimateModelr(model, record, window);
+        me.saveChannelDataEstimateModelr(model, record, window, null, 'editWithEstimator');
     },
 
     estimateReadingWithRule: function () {
@@ -991,10 +1009,10 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         }
         model.set('estimateBulk', estimateBulk);
         model.set('intervals', intervalsArray);
-        me.saveChannelDataEstimateModelr(model, record, window, estimationRuleId);
+        me.saveChannelDataEstimateModelr(model, record, window, estimationRuleId, 'estimate');
     },
 
-    saveChannelDataEstimateModelr: function (record, readings, window, ruleId) {
+    saveChannelDataEstimateModelr: function (record, readings, window, ruleId, action) {
         var me = this,
             router = me.getController('Uni.controller.history.Router');
 
@@ -1010,12 +1028,12 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 Ext.suspendLayouts();
                 if (success && responseText[0]) {
                     if (!Ext.isArray(readings)) {
-                        me.updateEstimatedValues(record, readings, responseText[0], ruleId);
+                        me.updateEstimatedValues(record, readings, responseText[0], ruleId, action);
                     } else {
                         Ext.Array.each(responseText, function (estimatedReading) {
                             Ext.Array.findBy(readings, function (reading) {
                                 if (estimatedReading.interval.start == reading.get('interval').start) {
-                                    me.updateEstimatedValues(record, reading, estimatedReading, ruleId);
+                                    me.updateEstimatedValues(record, reading, estimatedReading, ruleId, action);
                                     return true;
                                 }
                             });
@@ -1035,9 +1053,10 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                             Ext.Array.each(responseText.readings, function (readingTimestamp) {
                                 listOfFailedReadings.push(Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}', [Uni.DateTime.formatDateShort(new Date(readingTimestamp)), Uni.DateTime.formatTimeShort(new Date(readingTimestamp))], false));
                             });
-                            window.down('#error-label').setText('<div style="color: #EB5642">' +
-                                Uni.I18n.translate('devicechannels.estimationErrorMessage', 'MDC', 'Could not estimate {0} with {1}',
-                                    [listOfFailedReadings.join(', '), window.down('#estimator-field').getRawValue().toLowerCase()]) + '</div>', false);
+                            var errorMessage = window.down('#estimator-field') ? Uni.I18n.translate('devicechannels.estimationErrorMessageWithIntervals', 'MDC', 'Could not estimate {0} with {1}',
+                                [listOfFailedReadings.join(', '), window.down('#estimator-field').getRawValue()]) : Uni.I18n.translate('devicechannels.estimationErrorMessage', 'MDC', 'Could not estimate {0}',
+                                listOfFailedReadings.join(', '));
+                            window.down('#error-label').setText('<div style="color: #EB5642">' + errorMessage + '</div>', false);
                         } else if (responseText.errors) {
                             window.down('#form-errors').show();
                             window.down('#property-form').markInvalid(responseText.errors);
@@ -1053,7 +1072,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         });
     },
 
-    updateEstimatedValues: function (record, reading, estimatedReading, ruleId) {
+    updateEstimatedValues: function (record, reading, estimatedReading, ruleId, action) {
         var me = this,
             grid = me.getPage().down('deviceLoadProfileChannelDataGrid');
 
@@ -1064,13 +1083,22 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             }
             reading.get('bulkValidationInfo').validationResult = 'validationStatus.ok';
             reading.get('bulkValidationInfo').estimatedNotSaved = true;
+            if(action === 'editWithEstimator'){
+                reading.set('bulkModificationState', Uni.util.ReadingEditor.modificationState('EDITED'));
+            } else if(action === 'estimate'){
+                reading.get('bulkValidationInfo').estimatedByRule = true;
+            }
         } else {
             reading.set('value', estimatedReading.value);
             if (ruleId) {
                 reading.get('mainValidationInfo').ruleId = ruleId;
             }
             reading.get('mainValidationInfo').validationResult = 'validationStatus.ok';
-            reading.get('mainValidationInfo').estimatedNotSaved = true;
+            if(action === 'estimate'){
+                reading.get('mainValidationInfo').estimatedByRule = true;
+                reading.get('mainValidationInfo').estimatedNotSaved = true;
+            }
+
         }
         grid.getView().refreshNode(grid.getStore().indexOf(reading));
 
@@ -1100,6 +1128,9 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 break;
             case 'confirmValue':
                 me.confirmValue(records, true);
+                break;
+            case 'correctValue':
+                me.openCorrectWindow(records);
                 break;
             case 'removeReadings':
                 me.removeReadings(records, true);
@@ -1137,6 +1168,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
 
                     if (mainStatus) {
                         rec.get('mainValidationInfo').confirmedNotSaved = true;
+                        rec.get('mainValidationInfo').isConfirmed = true;
                         chart.get(rec.get('interval').start).update({color: 'rgba(112,187,81,0.3)'});
                         chart.get(rec.get('interval').start).select(false);
                         me.getPage().down('#channel-data-preview-container').fireEvent('rowselect', record)
@@ -1144,6 +1176,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
 
                     if (bulkStatus) {
                         rec.get('bulkValidationInfo').confirmedNotSaved = true;
+                        rec.get('bulkValidationInfo').isConfirmed = true;
                     }
 
                     if (mainStatus || bulkStatus) {
@@ -1186,6 +1219,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 record.set('confirmed', false);
             }
             record.get('mainValidationInfo').validationResult = 'validationStatus.ok';
+            record.set('mainModificationState',Uni.util.ReadingEditor.modificationState('REMOVED'));
             record.endEdit(true);
             gridView.refreshNode(store.indexOf(record));
             point = chart.get(record.get('interval').start);
@@ -1218,6 +1252,10 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         menu.down('#confirm-value').setVisible(confirms.length);
         menu.down('#remove-readings').setVisible(_.find(selectedRecords, function (record) {
             return record.get('value') || record.get('collectedValue')
+        }));
+
+        menu.down('#correct-value').setVisible(_.find(selectedRecords, function (record) {
+            return record.get('value')
         }));
         button.setDisabled(!menu.query('menuitem[hidden=false]').length);
         Ext.resumeLayouts();
@@ -1372,6 +1410,120 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             failure: function () {
                 viewport.setLoading(false);
             }
+        });
+    },
+
+    openCorrectWindow: function(record){
+        var me = this;
+        if (!Ext.isArray(record)){
+            record = [record];
+        }
+        Ext.widget('correct-values-window', {
+            itemId: 'channel-reading-correct-values-window',
+            record: record,
+            showInfoMessage: true,
+            hideProjectedField: true,
+            infoMessageText: Uni.I18n.translate('correct.window.info.message', 'MDC', 'The correction will be applied to {0}', me.currentChannel.get('readingType').fullAliasName),
+        }).show();
+    },
+
+    correctReadings: function () {
+        var me = this,
+            model = Ext.create('Uni.model.readings.ReadingCorrection'),
+            window = me.getCorrectReadingWindow(),
+            records = window.record,
+            router = me.getController('Uni.controller.history.Router'),
+            intervalsArray =[];
+
+        window.updateRecord(model);
+
+        if (!Ext.isArray(records)){
+            records = [records];
+        }
+
+        Ext.Array.each(records, function (item) {
+            if(model.get('onlySuspectOrEstimated')){
+                if(Uni.util.ReadingEditor.checkReadingInfoStatus(item.get('mainValidationInfo')).isSuspectOrEstimated()){
+                    intervalsArray.push({
+                        start: item.get('interval').start,
+                        end: item.get('interval').end
+                    });
+                }
+            } else {
+                intervalsArray.push({
+                    start: item.get('interval').start,
+                    end: item.get('interval').end
+                });
+            }
+        });
+
+        model.set('intervals', intervalsArray);
+        model.getProxy().setMdcUrl(encodeURIComponent(router.arguments.deviceId),router.arguments.channelId);
+
+        window.setLoading();
+        Ext.Ajax.suspendEvent('requestexception');
+        model.phantom = false;
+        model.save({
+            callback: function (rec, operation, success) {
+                Ext.Ajax.resumeEvent('requestexception');
+                var responseText = Ext.decode(operation.response.responseText, true),
+                    chart = me.getPage().down('#deviceLoadProfileChannelGraphView').chart;
+
+                Ext.suspendLayouts();
+                if (success && responseText[0]) {
+                    Ext.Array.each(responseText, function(correctedInterval){
+                        Ext.Array.findBy(records, function (reading) {
+                            if (correctedInterval.interval.start == reading.get('interval').start) {
+                                me.updateCorrectedValues(reading, correctedInterval);
+                                return true;
+                            }
+                        });
+                    });
+                    window.destroy();
+                    me.getPage().down('#save-changes-button').isDisabled() && me.showButtons();
+                } else {
+                    window.setLoading(false);
+                    if (responseText) {
+                        if (responseText.message) {
+                            window.down('#error-label').show();
+                            window.down('#error-label').setText('<div style="color: #EB5642">' + responseText.message + '</div>', false);
+                        } else if (responseText.readings) {
+                            window.down('#error-label').show();
+                            var listOfFailedReadings = [];
+                            Ext.Array.each(responseText.readings, function (readingTimestamp) {
+                                listOfFailedReadings.push(Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}', [Uni.DateTime.formatDateShort(new Date(readingTimestamp)), Uni.DateTime.formatTimeShort(new Date(readingTimestamp))], false));
+                            });
+                            window.down('#error-label').setText('<div style="color: #EB5642">' +
+                                Uni.I18n.translate('devicechannels.correctionErrorMessage', 'MDC', 'Could not correct {0}',
+                                    listOfFailedReadings.join(', ')) + '</div>', false);
+                        } else if (responseText.errors) {
+                            window.down('#form-errors').show();
+                            window.down('#property-form').markInvalid(responseText.errors);
+                        }
+                    } else {
+                        window.destroy();
+                    }
+
+                }
+                Ext.resumeLayouts(true);
+            }
+        });
+    },
+
+    updateCorrectedValues: function (reading, correctedInterval) {
+        var me = this,
+            grid = me.getPage().down('deviceLoadProfileChannelDataGrid');
+
+        reading.beginEdit();
+        reading.set('value', correctedInterval.value);
+        reading.set('mainModificationState', Uni.util.ReadingEditor.modificationState('EDITED'));
+        reading.set('validationResult', 'validationStatus.ok');
+        reading.endEdit(true);
+
+        grid.getView().refreshNode(grid.getStore().indexOf(reading));
+
+        me.resumeEditorFieldValidation(grid.editingPlugin, {
+            record: reading
         });
     }
 });
