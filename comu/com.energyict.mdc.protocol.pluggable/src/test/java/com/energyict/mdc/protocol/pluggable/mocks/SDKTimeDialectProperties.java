@@ -7,8 +7,8 @@ package com.energyict.mdc.protocol.pluggable.mocks;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.properties.DurationValueFactory;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.TimeDurationValueFactory;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.CommonDeviceProtocolDialectProperties;
@@ -49,7 +49,7 @@ class SDKTimeDialectProperties extends CommonDeviceProtocolDialectProperties {
 
         public PropertySpec propertySpec(PropertySpecService propertySpecService) {
             return propertySpecService
-                    .specForValuesOf(new TimeDurationValueFactory())
+                    .specForValuesOf(new DurationValueFactory())
                     .named(this.propertySpecName(), this.propertySpecName())
                     .describedAs(this.propertySpecName())
                     .finish();
@@ -57,15 +57,15 @@ class SDKTimeDialectProperties extends CommonDeviceProtocolDialectProperties {
 
         public void addTo(Table table) {
             table
-                .column(this.databaseName() + "VALUE")
-                .number()
-                .map(this.javaName() + ".count")
-                .add();
+                    .column(this.databaseName() + "VALUE")
+                    .number()
+                    .map(this.javaName() + ".count")
+                    .add();
             table
-                .column(this.databaseName() + "UNIT")
-                .number()
-                .map(this.javaName() + ".timeUnitCode")
-                .add();
+                    .column(this.databaseName() + "UNIT")
+                    .number()
+                    .map(this.javaName() + ".timeUnitCode")
+                    .add();
         }
 
     }
