@@ -25,6 +25,7 @@ import com.energyict.mdc.device.config.security.Privileges;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -36,18 +37,19 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class KeyFunctionTypeResource {
+public class SecurityAccessorResource {
     private final ResourceHelper resourceHelper;
     private final PkiService pkiService;
     private final KeyFunctionTypeInfoFactory keyFunctionTypeInfoFactory;
     private final ExceptionFactory exceptionFactory;
 
     @Inject
-    public KeyFunctionTypeResource(ResourceHelper resourceHelper, PkiService pkiService, KeyFunctionTypeInfoFactory keyFunctionTypeInfoFactory, ExceptionFactory exceptionFactory) {
+    public SecurityAccessorResource(ResourceHelper resourceHelper, PkiService pkiService, KeyFunctionTypeInfoFactory keyFunctionTypeInfoFactory, ExceptionFactory exceptionFactory) {
         this.resourceHelper = resourceHelper;
         this.pkiService = pkiService;
         this.keyFunctionTypeInfoFactory = keyFunctionTypeInfoFactory;
@@ -56,21 +58,35 @@ public class KeyFunctionTypeResource {
 
     @GET
     @Transactional
-    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
-    public PagedInfoList getDeviceTypeKeyFunctionTypes(@PathParam("deviceTypeId") long id, @BeanParam JsonQueryParameters queryParameters) {
+    public PagedInfoList getDeviceTypeSecurityAccessors(@PathParam("deviceTypeId") long id, @BeanParam JsonQueryParameters queryParameters) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
         List<KeyAccessorType> keyAccessorTypes = deviceType.getKeyAccessorTypes();
-        List<KeyFunctionTypeInfo> infos = keyAccessorTypes.stream()
+        List<SecurityAccessorInfo> infos = keyAccessorTypes.stream()
                 .map(keyAccessorType -> keyFunctionTypeInfoFactory.from(keyAccessorType, deviceType))
-                .sorted((k1, k2) -> k1.name.compareTo(k2.name))
+                .sorted(Comparator.comparing(k -> k.name.toLowerCase()))
                 .collect(Collectors.toList());
         return PagedInfoList.fromCompleteList("securityaccessors", infos, queryParameters);
     }
 
     @GET
     @Transactional
-    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
+    @Path("/{securityAccessorId}")
+    public SecurityAccessorInfo getDeviceTypeSecurityAccessor(@PathParam("deviceTypeId") long id, @PathParam("securityAccessorId") long securityAccessorId, @BeanParam JsonQueryParameters queryParameters) {
+        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
+        List<KeyAccessorType> keyAccessorTypes = deviceType.getKeyAccessorTypes();
+        return keyAccessorTypes.stream().filter(kat->kat.getId() == securityAccessorId)
+                .map(keyAccessorType -> keyFunctionTypeInfoFactory.withSecurityLevels(keyAccessorType, deviceType))
+                .findAny()
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_KEY_ACCESSOR_TYPE));
+    }
+
+    @GET
+    @Transactional
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Path("/keytypes")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
     public List<KeyTypeInfo> getKeyTypes(@PathParam("deviceTypeId") long id) {
@@ -82,7 +98,7 @@ public class KeyFunctionTypeResource {
 
     @GET
     @Transactional
-    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Path("/keytypes/{id}/keyencryptionmethods")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
     public List<KeyEncryptionMethodInfo> getKeyEncryptionMethods(@PathParam("id") long id) {
@@ -101,26 +117,27 @@ public class KeyFunctionTypeResource {
 
     @POST
     @Transactional
-    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
-    public KeyFunctionTypeInfo addKeyFunctionTypeOnDeviceType(@PathParam("deviceTypeId") long id, KeyFunctionTypeInfo keyFunctionTypeInfo) {
-        DeviceType deviceType = resourceHelper.lockDeviceTypeOrThrowException(id, keyFunctionTypeInfo.parent.version, keyFunctionTypeInfo.parent.id);
-        if (keyFunctionTypeInfo.keyType == null || keyFunctionTypeInfo.keyType.name == null) {
+    public SecurityAccessorInfo addKeyFunctionTypeOnDeviceType(@PathParam("deviceTypeId") long id, SecurityAccessorInfo securityAccessorInfo) {
+        DeviceType deviceType = resourceHelper.lockDeviceTypeOrThrowException(id, securityAccessorInfo.parent.version, securityAccessorInfo.parent.id);
+        if (securityAccessorInfo.keyType == null || securityAccessorInfo.keyType.name == null) {
             throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "keyType");
         }
-        KeyType keyType = pkiService.getKeyType(keyFunctionTypeInfo.keyType.name)
-            .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_KEY_TYPE_FOUND_NAME, keyFunctionTypeInfo.keyType.name));
-        Builder keyFunctionTypeBuilder = deviceType.addKeyAccessorType(keyFunctionTypeInfo.name, keyType)
-                .keyEncryptionMethod(keyFunctionTypeInfo.storageMethod)
-                .description(keyFunctionTypeInfo.description);
+        KeyType keyType = pkiService.getKeyType(securityAccessorInfo.keyType.name)
+            .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_KEY_TYPE_FOUND_NAME, securityAccessorInfo.keyType.name));
+        Builder keyFunctionTypeBuilder = deviceType.addKeyAccessorType(securityAccessorInfo.name, keyType)
+                .keyEncryptionMethod(securityAccessorInfo.storageMethod)
+                .description(securityAccessorInfo.description);
         if (keyType.getCryptographicType()!=null && !keyType.getCryptographicType().isKey()) {
-            TrustStore trustStore = pkiService.findTrustStore(keyFunctionTypeInfo.trustStoreId)
-                    .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_TRUST_STORE_FOUND, keyFunctionTypeInfo.trustStoreId));
+            TrustStore trustStore = pkiService.findTrustStore(securityAccessorInfo.trustStoreId)
+                    .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_TRUST_STORE_FOUND, securityAccessorInfo.trustStoreId));
             keyFunctionTypeBuilder.trustStore(trustStore);
         }
-        if(keyFunctionTypeInfo.validityPeriod != null && keyType.getCryptographicType().requiresDuration()) {
-            checkValidDurationOrThrowException(keyFunctionTypeInfo.validityPeriod);
-            keyFunctionTypeBuilder.duration(keyFunctionTypeInfo.validityPeriod.asTimeDuration());
+        if(securityAccessorInfo.validityPeriod != null && keyType.getCryptographicType().requiresDuration()) {
+            checkValidDurationOrThrowException(securityAccessorInfo.validityPeriod);
+            keyFunctionTypeBuilder.duration(securityAccessorInfo.validityPeriod.asTimeDuration());
         } else {
             keyFunctionTypeBuilder.duration(null);
         }
@@ -128,46 +145,33 @@ public class KeyFunctionTypeResource {
         return keyFunctionTypeInfoFactory.from(keyFunctionType, deviceType);
     }
 
-    @GET
-    @Transactional
-    @Path("/{keyFunctionTypeId}")
-    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
-    public KeyFunctionTypeInfo getKeyFunctionType(@PathParam("deviceTypeId") long id, @PathParam("keyFunctionTypeId") long keyFunctionTypeId) {
-        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
-        KeyAccessorType keyFunctionType = deviceType.getKeyAccessorTypes().stream()
-                .filter(kFType -> kFType.getId() == keyFunctionTypeId)
-                .findAny()
-                .orElseThrow(() -> new WebApplicationException("No key function type with id " + keyFunctionTypeId, Response.Status.NOT_FOUND));
-        return keyFunctionTypeInfoFactory.from(keyFunctionType, deviceType);
-    }
-
     @PUT
     @Transactional
     @Path("/{keyFunctionTypeId}")
-    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
-    public KeyFunctionTypeInfo changeKeyFunctionType(@PathParam("deviceTypeId") long id, @PathParam("keyFunctionTypeId") long keyFunctionTypeId, KeyFunctionTypeInfo keyFunctionTypeInfo) {
-        DeviceType deviceType = resourceHelper.lockDeviceTypeOrThrowException(id, keyFunctionTypeInfo.parent.version, keyFunctionTypeInfo.parent.id);
+    public SecurityAccessorInfo changeKeyFunctionType(@PathParam("deviceTypeId") long id, @PathParam("keyFunctionTypeId") long keyFunctionTypeId, SecurityAccessorInfo securityAccessorInfo) {
+        DeviceType deviceType = resourceHelper.lockDeviceTypeOrThrowException(id, securityAccessorInfo.parent.version, securityAccessorInfo.parent.id);
         KeyAccessorType keyAccessorType = deviceType.getKeyAccessorTypes().stream()
                 .filter(kFType -> kFType.getId() == keyFunctionTypeId)
                 .findAny()
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_KEY_ACCESSOR_TYPE));
         KeyAccessorTypeUpdater updater = deviceType.getKeyAccessorTypeUpdater(keyAccessorType).get();
-        updater.name(keyFunctionTypeInfo.name);
-        updater.description(keyFunctionTypeInfo.description);
-        if(keyFunctionTypeInfo.validityPeriod != null && keyAccessorType.getKeyType().getCryptographicType().requiresDuration()) {
-            checkValidDurationOrThrowException(keyFunctionTypeInfo.validityPeriod);
-            updater.duration(keyFunctionTypeInfo.validityPeriod.asTimeDuration());
+        updater.name(securityAccessorInfo.name);
+        updater.description(securityAccessorInfo.description);
+        if(securityAccessorInfo.validityPeriod != null && keyAccessorType.getKeyType().getCryptographicType().requiresDuration()) {
+            checkValidDurationOrThrowException(securityAccessorInfo.validityPeriod);
+            updater.duration(securityAccessorInfo.validityPeriod.asTimeDuration());
         } else {
             updater.duration(null);
         }
         Set<DeviceSecurityUserAction> keyAccessorTypeUserActions = deviceType.getKeyAccessorTypeUserActions(keyAccessorType);
         keyAccessorTypeUserActions.stream()
                 .forEach(updater::removeUserAction);
-        keyFunctionTypeInfo.viewLevels.stream()
+        securityAccessorInfo.viewLevels.stream()
                 .forEach(level -> updater.addUserAction(DeviceSecurityUserAction.forPrivilege(level.id).get()));
-        keyFunctionTypeInfo.editLevels.stream()
+        securityAccessorInfo.editLevels.stream()
                 .forEach(level -> updater.addUserAction(DeviceSecurityUserAction.forPrivilege(level.id).get()));
         KeyAccessorType updated = updater.complete();
         return keyFunctionTypeInfoFactory.from(updated, deviceType);
@@ -176,10 +180,11 @@ public class KeyFunctionTypeResource {
     @DELETE
     @Transactional
     @Path("/{keyFunctionTypeId}")
-    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
-    public Response removeKeyFunctionType(@PathParam("deviceTypeId") long id, @PathParam("keyFunctionTypeId") long keyFunctionTypeId, KeyFunctionTypeInfo keyFunctionTypeInfo) {
-        DeviceType deviceType = resourceHelper.lockDeviceTypeOrThrowException(id, keyFunctionTypeInfo.parent.version, keyFunctionTypeInfo.parent.id);
+    public Response removeKeyFunctionType(@PathParam("deviceTypeId") long id, @PathParam("keyFunctionTypeId") long keyFunctionTypeId, SecurityAccessorInfo securityAccessorInfo) {
+        DeviceType deviceType = resourceHelper.lockDeviceTypeOrThrowException(id, securityAccessorInfo.parent.version, securityAccessorInfo.parent.id);
         KeyAccessorType keyFunctionType = deviceType.getKeyAccessorTypes().stream()
                 .filter(kFType -> kFType.getId() == keyFunctionTypeId)
                 .findAny()
