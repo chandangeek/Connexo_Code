@@ -9,12 +9,14 @@ Ext.define('Uni.property.store.EstimationComment', {
         'comment'
     ],
     autoLoad: true,
-
     proxy: {
         type: 'rest',
         url: 'api/est/estimation/comments',
         reader: {
             type: 'json'
-        }
+        },
+        pageParam: false,
+        startParam: false,
+        limitParam: false
     }
 });
