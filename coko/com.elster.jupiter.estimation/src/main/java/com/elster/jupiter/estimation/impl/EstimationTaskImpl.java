@@ -78,7 +78,8 @@ final class EstimationTaskImpl implements IEstimationTask {
     }
 
     static IEstimationTask from(DataModel dataModel, String name, boolean revalidate, EndDeviceGroup endDeviceGroup, UsagePointGroup usagePointGroup, ScheduleExpression scheduleExpression, Instant nextExecution, QualityCodeSystem qualityCodeSystem, int logLevel) {
-        return dataModel.getInstance(EstimationTaskImpl.class).init(name, revalidate, endDeviceGroup, usagePointGroup, scheduleExpression, nextExecution, qualityCodeSystem, logLevel);
+        return dataModel.getInstance(EstimationTaskImpl.class)
+                .init(name, revalidate, endDeviceGroup, usagePointGroup, scheduleExpression, nextExecution, qualityCodeSystem, logLevel);
     }
 
     private EstimationTaskImpl init(String name, boolean revalidate, EndDeviceGroup endDeviceGroup, UsagePointGroup usagePointGroup, ScheduleExpression scheduleExpression, Instant nextExecution, QualityCodeSystem qualityCodeSystem, int logLevel) {
@@ -142,7 +143,7 @@ final class EstimationTaskImpl implements IEstimationTask {
     private void persist() {
         //TODO: 10.3 -> make this dynamic
         String applicationName;
-        if(qualityCodeSystem.equals(QualityCodeSystem.MDC)) {
+        if (qualityCodeSystem.equals(QualityCodeSystem.MDC)) {
             applicationName = "MultiSense";
         } else if (qualityCodeSystem.equals(QualityCodeSystem.MDM)) {
             applicationName = "Insight";
