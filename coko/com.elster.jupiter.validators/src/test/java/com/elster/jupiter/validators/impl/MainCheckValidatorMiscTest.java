@@ -4,8 +4,10 @@
 
 package com.elster.jupiter.validators.impl;
 
+import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.validation.ValidationResult;
 
+import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -16,7 +18,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.fest.reflect.core.Reflection.field;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class MainCheckValidatorMiscTest extends MainCheckValidatorTest {
 
@@ -82,6 +87,10 @@ public class MainCheckValidatorMiscTest extends MainCheckValidatorTest {
 
     @Override
     MainCheckValidator initValidator(ValidationConfiguration validationConfiguration) {
+        Arrays.stream(MessageSeeds.values()).forEach(messageSeeds -> {
+            NlsMessageFormat nlsMessageFormat = createNlsMessageFormat(messageSeeds);
+            when(thesaurus.getFormat(messageSeeds)).thenReturn(nlsMessageFormat);
+        });
         MainCheckValidator validator = new MainCheckValidator(thesaurus, propertySpecService, validationConfiguration.rule
                 .createProperties(), validationConfiguration.metrologyConfigurationService, validationConfiguration.validationService);
         mockLogger(validator);

@@ -14,6 +14,7 @@ import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
+import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.NonOrBigDecimalValueProperty;
 import com.elster.jupiter.properties.PropertySpecService;
@@ -35,6 +36,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -47,7 +49,10 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyCollection;
 import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -69,11 +74,24 @@ abstract public class MainCheckValidatorTest {
     protected Range<Instant> range = Range.closed(instant("20160101000000"),instant("20160207000000"));
 
     MainCheckValidator initValidator(ValidationConfiguration validationConfiguration) {
+        Arrays.stream(MessageSeeds.values()).forEach(messageSeeds -> {
+            NlsMessageFormat nlsMessageFormat = createNlsMessageFormat(messageSeeds);
+            when(thesaurus.getFormat(messageSeeds)).thenReturn(nlsMessageFormat);
+        });
         MainCheckValidator validator = new MainCheckValidator(thesaurus, propertySpecService, validationConfiguration.rule
                 .createProperties(), validationConfiguration.metrologyConfigurationService, validationConfiguration.validationService);
         validator.init(validationConfiguration.checkChannel, validationConfiguration.readingType, range);
         return validator;
     }
+
+    NlsMessageFormat createNlsMessageFormat(MessageSeeds messageSeeds){
+        NlsMessageFormat nlsMessageFormat = mock(NlsMessageFormat.class);
+        when(nlsMessageFormat.format(anyVararg())).thenAnswer(invocationOnMock -> {
+            return String.format(messageSeeds.getDefaultFormat().replaceAll("\\{.}","%s"),invocationOnMock.getArguments());
+        });
+        return nlsMessageFormat;
+    }
+
 
     BigDecimal bigDecimal(Double value) {
         return BigDecimal.valueOf(value);

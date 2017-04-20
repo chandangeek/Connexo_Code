@@ -39,13 +39,10 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -71,8 +68,6 @@ public class MainCheckValidator extends AbstractValidator {
     static final String MIN_THRESHOLD = "minThreshold";
 
     private static final Set<QualityCodeSystem> QUALITY_CODE_SYSTEMS = ImmutableSet.of(QualityCodeSystem.MDM);
-    // {0} - period, {1} - name of the validator, {2} - reading type, {3} - failure reason
-    private static final String VALIDATOR_FAILED_MESSAGE_PATTERN = "Failed to validate period %s using method \"%s\" on %s since %s";
 
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DefaultDateTimeFormatters.mediumDate()
             .withShortTime()
@@ -114,19 +109,6 @@ public class MainCheckValidator extends AbstractValidator {
         this.metrologyConfigurationService = metrologyConfigurationService;
         this.validationService = validationService;
     }
-
-    // FIXME format messages via MessageSeeds getThesaurus().getFormat(MessageSeeds.NO_SUCH_VALIDATOR).format(args)
-
-    private String generateFailMessage(String message, Object... args) {
-        return String.format(VALIDATOR_FAILED_MESSAGE_PATTERN, rangeToString(failedValidatonInterval), TranslationKeys.MAIN_CHECK_VALIDATOR
-                .getDefaultFormat(), readingType.getFullAliasName(), String.format(message, args));
-    }
-
-    private String generateFailMessageWithUsagePoint(String message, Object... args) {
-        return String.format(VALIDATOR_FAILED_MESSAGE_PATTERN, rangeToString(failedValidatonInterval), TranslationKeys.MAIN_CHECK_VALIDATOR
-                .getDefaultFormat(), usagePointName + "/" + readingType.getFullAliasName(), String.format(message, args));
-    }
-
 
     @Override
     public List<String> getRequiredProperties() {
@@ -247,7 +229,9 @@ public class MainCheckValidator extends AbstractValidator {
 
         if (!usagePoint.isPresent()) {
             LoggingContext.get()
-                    .severe(getLogger(), generateFailMessage("main channel has no usage point"));
+                    .severe(getLogger(), getThesaurus().getFormat(MessageSeeds.MAIN_CHECK_MISC_NO_UP)
+                            .format(rangeToString(failedValidatonInterval), TranslationKeys.MAIN_CHECK_VALIDATOR
+                                    .getDefaultFormat(), readingType.getFullAliasName()));
             preparedValidationResult = ValidationResult.NOT_VALIDATED;
             return;
         }
@@ -259,8 +243,10 @@ public class MainCheckValidator extends AbstractValidator {
 
         if (effectiveMCList.size() != 1) {
             LoggingContext.get()
-                    .warning(getLogger(), generateFailMessage("usage point must have one effective metrology configuration, but has %s", effectiveMCList
-                            .size()));
+                    .warning(getLogger(), getThesaurus().getFormat(MessageSeeds.MAIN_CHECK_MISC_NOT_ONE_EMC)
+                            .format(rangeToString(failedValidatonInterval), TranslationKeys.MAIN_CHECK_VALIDATOR
+                                    .getDefaultFormat(), readingType.getFullAliasName(), effectiveMCList
+                                    .size()));
             preparedValidationResult = ValidationResult.NOT_VALIDATED;
             return;
         }
@@ -277,9 +263,11 @@ public class MainCheckValidator extends AbstractValidator {
         if (!metrologyContract.isPresent()) {
             // [RULE FLOW ACTION] Stop validation for the channel independently from Pass if no reference data field value (last check remains as before the validation), an error message appears in the log
             LoggingContext.get()
-                    .warning(getLogger(), generateFailMessage("the specified purpose doesn't exist on the %s", usagePoint
-                            .get()
-                            .getName()));
+                    .warning(getLogger(), getThesaurus().getFormat(MessageSeeds.MAIN_CHECK_MISC_NO_PURPOSE)
+                            .format(rangeToString(failedValidatonInterval), TranslationKeys.MAIN_CHECK_VALIDATOR
+                                    .getDefaultFormat(), readingType.getFullAliasName(), usagePoint
+                                    .get()
+                                    .getName()));
             preparedValidationResult = ValidationResult.NOT_VALIDATED;
             return;
         }
@@ -308,7 +296,9 @@ public class MainCheckValidator extends AbstractValidator {
         } else {
             // this means that purpose is not active on a usagepoint
             LoggingContext.get()
-                    .warning(getLogger(), generateFailMessage("the specified purpose is never activated on effective metrology configuration on %s", usagePoint
+                    .warning(getLogger(), getThesaurus().getFormat(MessageSeeds.MAIN_CHECK_MISC_PURPOSE_NEVER_ACTIVATED)
+                            .format(rangeToString(failedValidatonInterval), TranslationKeys.MAIN_CHECK_VALIDATOR
+                                    .getDefaultFormat(), readingType.getFullAliasName(), usagePoint
                             .get()
                             .getName()));
             preparedValidationResult = ValidationResult.NOT_VALIDATED;
@@ -319,9 +309,12 @@ public class MainCheckValidator extends AbstractValidator {
         if (!checkOutputExistOnPurpose) {
             // [RULE FLOW ACTION] Stop validation for the channel independently from Pass if no reference data field value (last check remains as before the validation), an error message appears in the log
             LoggingContext.get()
-                    .warning(getLogger(), generateFailMessage("'check' output with matching reading type on the specified purpose doesn't exist on %s", usagePoint
-                            .get()
-                            .getName()));
+                    .warning(getLogger(), getThesaurus().getFormat(MessageSeeds.MAIN_CHECK_MISC_NO_CHECK_OUTPUT)
+                            .format(rangeToString(failedValidatonInterval),
+                                    TranslationKeys.MAIN_CHECK_VALIDATOR
+                                    .getDefaultFormat(),
+                                    readingType.getFullAliasName(),
+                                    usagePointName));
             preparedValidationResult = ValidationResult.NOT_VALIDATED;
         }
     }
@@ -342,10 +335,9 @@ public class MainCheckValidator extends AbstractValidator {
     private void prepareValidationResult(ValidationResult validationResult, Instant timeStamp) {
         preparedValidationResult = validationResult;
 
-        Range<Instant> newFailedValidatonInterval = Range.range(timeStamp, failedValidatonInterval.lowerBoundType(), failedValidatonInterval
+        failedValidatonInterval = Range.range(timeStamp, failedValidatonInterval.lowerBoundType(), failedValidatonInterval
                 .upperEndpoint(), failedValidatonInterval.upperBoundType());
 
-        failedValidatonInterval = newFailedValidatonInterval;
     }
 
     //  "Wed, 15 Feb 2017 00:00 until Thu, 16 Feb 2017 00:00"
@@ -373,7 +365,9 @@ public class MainCheckValidator extends AbstractValidator {
         if (checkReading == null) {
             // show log
             LoggingContext.get()
-                    .warning(getLogger(), generateFailMessageWithUsagePoint("data from 'check' output is missing or not validated"));
+                    .warning(getLogger(), getThesaurus().getFormat(MessageSeeds.MAIN_CHECK_MISC_CHECK_OUTPUT_MISSING_OR_NOT_VALID)
+                            .format(rangeToString(failedValidatonInterval), TranslationKeys.MAIN_CHECK_VALIDATOR
+                                    .getDefaultFormat(),usagePointName, readingType.getFullAliasName()));
 
             if (passIfNoRefData) {
                 // [RULE ACTION] No further checks are done to the interval (marked as valid) and the rule moves to the next interval if Pass if no reference data is checked
@@ -392,7 +386,9 @@ public class MainCheckValidator extends AbstractValidator {
             // show log
             if (useValidatedData) {
                 LoggingContext.get()
-                        .warning(getLogger(), generateFailMessageWithUsagePoint("data from 'check' output is missing or not validated"));
+                        .warning(getLogger(), getThesaurus().getFormat(MessageSeeds.MAIN_CHECK_MISC_CHECK_OUTPUT_MISSING_OR_NOT_VALID)
+                                .format(rangeToString(failedValidatonInterval), TranslationKeys.MAIN_CHECK_VALIDATOR
+                                        .getDefaultFormat(), usagePointName, readingType.getFullAliasName()));
                 // [RULE ACTION] Stop the validation at the timestamp where the timestamp with the last validated reference data was found for the channel if Use validated data is checked
                 prepareValidationResult(ValidationResult.NOT_VALIDATED, timeStamp);
                 return ValidationResult.NOT_VALIDATED;
