@@ -74,7 +74,7 @@ public class PropertyValueInfoServiceImpl implements PropertyValueInfoService {
 
     @Override
     public PropertyValueConverter getConverter(PropertySpec propertySpec) {
-        return Optional.of(dedicatedConverters.get(propertySpec.getName())).orElseGet(() ->
+        return Optional.ofNullable(dedicatedConverters.get(propertySpec.getName())).orElseGet(() ->
              this.converters.stream()
                 .filter(converter -> converter.canProcess(propertySpec))
                 .findAny()
