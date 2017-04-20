@@ -7,6 +7,7 @@ package com.energyict.mdc.pluggable.rest;
 import com.elster.jupiter.properties.PropertySpec;
 
 import java.net.URI;
+import java.util.Optional;
 
 /**
  * This provider defines the REST resource where possible values for a Property can be obtained.
@@ -20,5 +21,5 @@ public interface PropertyValuesResourceProvider {
      * @param propertySpec The propertySpec for which the URI needs to be calculated
      * @return The complete URI on which possible values can be retrieved
      */
-    URI getPropertiesValuesResource(PropertySpec propertySpec);
+    Optional<URI> getPropertiesValuesResource(PropertySpec propertySpec);
 }

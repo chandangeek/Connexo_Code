@@ -98,7 +98,11 @@ public class MdcPropertyUtils {
         PropertyTypeInfo propertyTypeInfo = propertyInfo.propertyTypeInfo;
         propertyTypeInfo.propertyValidationRule = getPropertyValidationRule(propertySpec);
         propertyTypeInfo.propertyValuesResource = new PropertyValuesResourceInfo();
-        propertyTypeInfo.propertyValuesResource.possibleValuesURI = valuesProvider.getPropertiesValuesResource(propertySpec).toString();
+        if (valuesProvider.getPropertiesValuesResource(propertySpec).isPresent()) {
+            propertyTypeInfo.propertyValuesResource.possibleValuesURI = valuesProvider.getPropertiesValuesResource(propertySpec)
+                    .get()
+                    .toString();
+        }
         propertyTypeInfo.referenceUri = getReferenceUri(null, propertySpec, propertyTypeInfo.simplePropertyType);
     }
 
@@ -147,12 +151,16 @@ public class MdcPropertyUtils {
         return propertyInfoList;
     }
 
-    public List<PropertyInfo> convertPropertySpecsToPropertyInfos(Collection<PropertySpec> propertySpecs, TypedProperties properties, PropertyValuesResourceProvider valuesProvider) {
+    public List<PropertyInfo> convertPropertySpecsToPropertyInfos(Collection<PropertySpec> propertySpecs, TypedProperties properties, PropertyValuesResourceProvider valuesResourceProvider, PropertyDefaultValuesProvider valuesProvider) {
         List<PropertyInfo> propertyInfoList = new ArrayList<>();
         for (PropertySpec propertySpec : propertySpecs) {
             PropertyInfo propertyInfo = propertyValueInfoService.getPropertyInfo(propertySpec, properties.getLocalValue(propertySpec.getName()) != null ? properties::getLocalValue : null);
             modifyPropertyValueInfo(propertyInfo, propertySpec, properties, SHOW_VALUES, WITHOUT_PRIVILEGES);
-            modifyPropertyTypeInfo(propertyInfo, propertySpec, valuesProvider);
+            if (valuesResourceProvider.getPropertiesValuesResource(propertySpec).isPresent()) {
+                modifyPropertyTypeInfo(propertyInfo, propertySpec, valuesResourceProvider);
+            } else {
+                modifyPropertyTypeInfo(propertyInfo, propertySpec, null, valuesProvider);
+            }
             propertyInfoList.add(propertyInfo);
         }
         return propertyInfoList;
