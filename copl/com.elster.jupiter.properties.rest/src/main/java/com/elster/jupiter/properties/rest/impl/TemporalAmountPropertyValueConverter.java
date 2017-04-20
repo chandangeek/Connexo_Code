@@ -7,7 +7,7 @@ package com.elster.jupiter.properties.rest.impl;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.TimeDurationValueFactory;
+import com.elster.jupiter.properties.TemporalAmountValueFactory;
 import com.elster.jupiter.properties.rest.PropertyValueConverter;
 import com.elster.jupiter.properties.rest.SimplePropertyType;
 import com.elster.jupiter.time.TimeDuration;
@@ -15,24 +15,25 @@ import com.elster.jupiter.time.rest.TimeDurationInfo;
 
 import java.util.LinkedHashMap;
 
-public class TimeDurationPropertyValueConverter implements PropertyValueConverter {
-    private Thesaurus thesaurus;
+/**
+ * Created by mbarinov on 31.08.2016.
+ */
+public class TemporalAmountPropertyValueConverter implements PropertyValueConverter {
 
-    public TimeDurationPropertyValueConverter(){
-    }
+    private final Thesaurus thesaurus;
 
-    public TimeDurationPropertyValueConverter(Thesaurus thesaurus){
+    public TemporalAmountPropertyValueConverter(Thesaurus thesaurus) {
         this.thesaurus = thesaurus;
     }
 
     @Override
     public boolean canProcess(PropertySpec propertySpec) {
-        return propertySpec != null && propertySpec.getValueFactory() instanceof TimeDurationValueFactory;
+        return propertySpec != null && propertySpec.getValueFactory() instanceof TemporalAmountValueFactory;
     }
 
     @Override
     public SimplePropertyType getPropertyType(PropertySpec propertySpec) {
-        return SimplePropertyType.TIMEDURATION;
+        return SimplePropertyType.TEMPORALAMOUNT;
     }
 
     @Override
@@ -50,4 +51,5 @@ public class TimeDurationPropertyValueConverter implements PropertyValueConverte
     public Object convertValueToInfo(PropertySpec propertySpec, Object domainValue) {
         return new TimeDurationInfo((TimeDuration) domainValue, thesaurus);
     }
+
 }

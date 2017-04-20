@@ -21,7 +21,6 @@ import com.elster.jupiter.properties.rest.SimplePropertyType;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
-
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -61,7 +60,8 @@ public class PropertyValueInfoServiceImpl implements PropertyValueInfoService {
         this.addPropertyValueInfoConverter(new RelativePeriodPropertyValueConverter());
         this.addPropertyValueInfoConverter(new ListPropertyValueConverter());
         this.addPropertyValueInfoConverter(new QuantityPropertyValueConverter());
-        this.addPropertyValueInfoConverter(new TimeDurationPropertyValueConverter(thesaurus));
+        this.addPropertyValueInfoConverter(new DurationPropertyValueConverter(thesaurus));
+        this.addPropertyValueInfoConverter(new TemporalAmountPropertyValueConverter(thesaurus));
     }
 
     @Override
@@ -171,11 +171,11 @@ public class PropertyValueInfoServiceImpl implements PropertyValueInfoService {
                 if (propertyType == SimplePropertyType.SELECTIONGRID || propertyType == SimplePropertyType.LISTREADINGQUALITY || propertyType == SimplePropertyType.DEVICECONFIGURATIONLIST ||
                         propertyType == SimplePropertyType.ENDDEVICEEVENTTYPE || propertyType == SimplePropertyType.LIFECYCLESTATUSINDEVICETYPE) {
                     possibleObjects[i] = possibleValues.getAllValues().get(i);
-                } else if (propertyType == SimplePropertyType.IDWITHNAME  || propertyType == SimplePropertyType.BPM_PROCESS) {
+                } else if (propertyType == SimplePropertyType.IDWITHNAME || propertyType == SimplePropertyType.BPM_PROCESS) {
                     Object idWithName = possibleValues.getAllValues().get(i);
                     possibleObjects[i] = idWithName instanceof HasIdAndName
-                            ? asInfo(((HasIdAndName)idWithName).getId(), ((HasIdAndName)idWithName).getName())
-                            : asInfo(((HasId)idWithName).getId(), ((HasName)idWithName).getName()) ;
+                            ? asInfo(((HasIdAndName) idWithName).getId(), ((HasIdAndName) idWithName).getName())
+                            : asInfo(((HasId) idWithName).getId(), ((HasName) idWithName).getName());
                 } else {
                     possibleObjects[i] = converter.convertValueToInfo(propertySpec, possibleValues.getAllValues().get(i));
                 }

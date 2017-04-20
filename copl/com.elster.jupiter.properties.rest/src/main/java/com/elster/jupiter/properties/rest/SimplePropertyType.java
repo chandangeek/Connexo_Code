@@ -11,11 +11,12 @@ import com.elster.jupiter.properties.LongFactory;
 import com.elster.jupiter.properties.RelativePeriodFactory;
 import com.elster.jupiter.properties.ThreeStateFactory;
 import com.elster.jupiter.properties.ValueFactory;
-import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.units.Quantity;
 
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.time.Instant;
+import java.time.temporal.TemporalAmount;
 
 public enum SimplePropertyType implements PropertyType {
     UNKNOWN(Void.class),
@@ -39,7 +40,8 @@ public enum SimplePropertyType implements PropertyType {
     RAISEEVENTPROPS(HasIdAndName.class),
     RELATIVEPERIODWITHCOUNT(ListValueFactory.class),
     BPM_PROCESS(HasIdAndName.class),
-    TIMEDURATION(TimeDuration.class);
+    TEMPORALAMOUNT(TemporalAmount.class),
+    DURATION(Duration.class);
 
     private Class typeClass;
 
