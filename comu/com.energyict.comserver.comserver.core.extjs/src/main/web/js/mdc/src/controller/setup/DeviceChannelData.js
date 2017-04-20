@@ -232,6 +232,8 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                     if ((contentName === 'validation' && !hasValidationRules) || (contentName === 'estimation' && !hasEstimationRules)) {
                         window.location.replace(router.getRoute('devices/device/channels/channeldata').buildUrl());
                         return;
+                    } else if (contentName === 'estimation' && !hasValidationRules) {
+                        activeTab = 2;
                     }
                     var widget = Ext.widget('tabbedDeviceChannelsView', {
                         title: channel.get('readingType').fullAliasName,

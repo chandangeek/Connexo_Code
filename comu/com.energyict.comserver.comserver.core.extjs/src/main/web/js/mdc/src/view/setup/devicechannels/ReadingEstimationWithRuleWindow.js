@@ -87,6 +87,7 @@ Ext.define('Mdc.view.setup.devicechannels.ReadingEstimationWithRuleWindow', {
                                 change: {
                                     fn: function (implementationCombo, newValue) {
                                         var estimator = implementationCombo.getStore().getById(newValue),
+                                            errorLabel = implementationCombo.up('reading-estimation-with-rule-window').down('#error-label'),
                                             hasEmptyRequiredProperties;
 
                                         if (estimator) {
@@ -94,6 +95,12 @@ Ext.define('Mdc.view.setup.devicechannels.ReadingEstimationWithRuleWindow', {
                                             hasEmptyRequiredProperties = estimator.properties().getRange().find(function(property) {
                                                 return property.get('required') && Ext.isEmpty(property.get('value'));
                                             });
+                                            if (!!hasEmptyRequiredProperties) {
+                                                errorLabel.show();
+                                                errorLabel.setText('<div style="color: #EB5642">' + Uni.I18n.translate('estimateWithRule.emptyRequiredAttributesMsg', 'MDC', 'Mandatory attributes on the reading type level are not specified') + '</div>', false);
+                                            } else {
+                                                errorLabel.hide();
+                                            }
                                         }
 
                                         me.updateLayout();
