@@ -12,7 +12,6 @@ Ext.define('Mdc.model.CopyFromReference', {
         'allowSuspectData',
         'completePeriod',
         'estimationComment',
-        'projectedValue',
         'intervals'
     ],
 

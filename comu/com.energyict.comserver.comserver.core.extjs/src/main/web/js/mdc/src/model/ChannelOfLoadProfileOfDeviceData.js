@@ -15,6 +15,7 @@ Ext.define('Mdc.model.ChannelOfLoadProfileOfDeviceData', {
         {name: 'intervalFlags', type: 'auto'},
         {name: 'validationStatus', type: 'auto'},
         {name: 'estimatedNotSaved', type: 'auto'},
+        {name: 'estimationComment', type: 'auto'},
         {name: 'validationActive', type: 'auto'},
         {name: 'mainValidationInfo', type: 'auto'},
         {name: 'bulkValidationInfo', type: 'auto'},

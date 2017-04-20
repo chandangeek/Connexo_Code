@@ -810,10 +810,14 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                             });
                             record.set('value', item.value);
                             record.set('bulkValidationInfo', item.bulkValidationInfo);
+                            record.set('mainValidationInfo', item.mainValidationInfo);
+                            record.set('mainValidationInfo', item.estimationComment);
                         });
                     } else {
                         window.records.set('value', response[0].value);
                         window.records.set('bulkValidationInfo', response[0].bulkValidationInfo);
+                        window.records.set('mainValidationInfo', response[0].mainValidationInfo);
+                        window.records.set('estimationComment', response[0].estimationComment);
                     }
                     me.showButtons();
                     Ext.resumeLayouts(true);
