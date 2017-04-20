@@ -51,8 +51,7 @@ public class DlmsSecurityPkiCustomPropertySet extends SecurityCustomPropertySet<
         return Arrays.asList(
                 DeviceSecurityProperty.PASSWORD.getPropertySpec(this.propertySpecService, this.thesaurus),
                 DeviceSecurityProperty.ENCRYPTION_KEY_WITH_KEY_ACCESSOR.getPropertySpec(this.propertySpecService, this.thesaurus),
-                DeviceSecurityProperty.AUTHENTICATION_KEY_WITH_KEY_ACCESSOR.getPropertySpec(this.propertySpecService, this.thesaurus),
-                DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(this.propertySpecService, this.thesaurus));
+                DeviceSecurityProperty.AUTHENTICATION_KEY_WITH_KEY_ACCESSOR.getPropertySpec(this.propertySpecService, this.thesaurus));
     }
 
 }

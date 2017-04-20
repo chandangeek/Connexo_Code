@@ -8,6 +8,7 @@ import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.pki.KeyAccessorType;
 import com.energyict.mdc.protocol.api.security.CommonBaseDeviceSecurityProperties;
@@ -63,6 +64,7 @@ public class DlmsSecurityPkiProperties extends CommonBaseDeviceSecurityPropertie
                         .column(this.databaseName())
                         .number()
                         .map(this.javaName())
+                        .upTo(Version.version(10, 3))
                         .add();
             }
         },
@@ -108,15 +110,12 @@ public class DlmsSecurityPkiProperties extends CommonBaseDeviceSecurityPropertie
 
     @Size(max = Table.MAX_STRING_LENGTH)
     private String password;
-    private BigDecimal clientMacAddress;
     private Reference<KeyAccessorType> authenticationKey = Reference.empty();
     private Reference<KeyAccessorType> encryptionKey = Reference.empty();
 
     @Override
     protected void copyActualPropertiesFrom(CustomPropertySetValues propertyValues) {
         this.password = (String) getTypedPropertyValue(propertyValues, DeviceSecurityProperty.PASSWORD.javaName());
-        this.clientMacAddress = (BigDecimal) getTypedPropertyValue(propertyValues, DeviceSecurityProperty.CLIENT_MAC_ADDRESS
-                .javaName());
         this.authenticationKey.set((KeyAccessorType) propertyValues.getProperty(DeviceSecurityProperty.AUTHENTICATION_KEY_WITH_KEY_ACCESSOR.javaName()));
         this.encryptionKey.set((KeyAccessorType) propertyValues.getProperty(DeviceSecurityProperty.ENCRYPTION_KEY_WITH_KEY_ACCESSOR.javaName()));
     }
@@ -126,7 +125,6 @@ public class DlmsSecurityPkiProperties extends CommonBaseDeviceSecurityPropertie
         if (!is(this.password).empty()) {
             setTypedPropertyValueTo(propertySetValues, DeviceSecurityProperty.PASSWORD.javaName(), this.password);
         }
-        this.setPropertyIfNotNull(propertySetValues, DeviceSecurityProperty.CLIENT_MAC_ADDRESS.javaName(), this.clientMacAddress);
         this.setReferencePropertyIfNotNull(propertySetValues, DeviceSecurityProperty.AUTHENTICATION_KEY_WITH_KEY_ACCESSOR.javaName(), this.authenticationKey);
         this.setReferencePropertyIfNotNull(propertySetValues, DeviceSecurityProperty.ENCRYPTION_KEY_WITH_KEY_ACCESSOR.javaName(), this.encryptionKey);
     }

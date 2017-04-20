@@ -434,6 +434,11 @@ public class RtuPlusServer implements DeviceProtocol {
     }
 
     @Override
+    public Optional<PropertySpec> getClientSecurityPropertySpec() {
+        return getSecuritySupport().getClientSecurityPropertySpec();
+    }
+
+    @Override
     public void daisyChainedLogOn() {
         logOn();
     }

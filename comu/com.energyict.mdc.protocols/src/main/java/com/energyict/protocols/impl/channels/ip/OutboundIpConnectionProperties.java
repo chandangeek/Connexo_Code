@@ -225,7 +225,7 @@ public class OutboundIpConnectionProperties extends AbstractVersionedPersistentD
         this.copyNullablePropertyTo(propertySetValues, Fields.PORT_NUMBER, this.portNumber );
         this.copyNullablePropertyTo(propertySetValues, Fields.CONNECTION_TIMEOUT, this.connectionTimeout);
         this.copyNullablePropertyTo(propertySetValues, Fields.BUFFER_SIZE, this.bufferSize);
-        this.copyNullablePropertyTo(propertySetValues, Fields.TLS_CLIENT_CERTIFICATE, this.tlsClientCertificate.get());
+        this.copyNullablePropertyTo(propertySetValues, Fields.TLS_CLIENT_CERTIFICATE, this.tlsClientCertificate.orElse(null));
         this.copyPostDialPropertiesTo(propertySetValues);
     }
 

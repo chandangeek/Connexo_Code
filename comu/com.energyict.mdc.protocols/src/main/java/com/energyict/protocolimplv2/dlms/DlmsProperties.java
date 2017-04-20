@@ -29,6 +29,7 @@ import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.dlms.idis.IDIS;
 import com.energyict.protocolimplv2.common.BasicDynamicPropertySupport;
 import com.energyict.protocolimplv2.nta.abstractnta.NTASecurityProvider;
+import com.energyict.protocolimplv2.security.DeviceSecurityProperty;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -182,7 +183,7 @@ public class DlmsProperties extends BasicDynamicPropertySupport implements DlmsS
 
     @Override
     public int getClientMacAddress() {
-        return parseBigDecimalProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.getKey(), BigDecimal.ONE);
+        return ((BigDecimal) DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(getPropertySpecService(), getThesaurus()).getValueFactory().fromStringValue(securityPropertySet.getClient())).intValue();
     }
 
     @Override
@@ -455,6 +456,7 @@ public class DlmsProperties extends BasicDynamicPropertySupport implements DlmsS
                 .setDefaultValue(defaultValue)
                 .finish();
     }
+
     @Override
     public boolean isGeneralSigning() {
         return false;

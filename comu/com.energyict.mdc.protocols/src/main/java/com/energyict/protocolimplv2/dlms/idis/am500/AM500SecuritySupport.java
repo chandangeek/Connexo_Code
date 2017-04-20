@@ -19,11 +19,4 @@ public class AM500SecuritySupport extends DsmrSecuritySupport {
     public AM500SecuritySupport(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         super(propertySpecService, thesaurus);
     }
-
-    @Override
-    protected PropertySpec getClientMacAddressPropertySpec() {
-        return getPropertySpecService().boundedBigDecimalSpec(BigDecimal.valueOf(0), BigDecimal.valueOf(0x7F))
-                .named(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString(), SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString())
-                .describedAs(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString()).setDefaultValue(BigDecimal.valueOf(1)).finish();
-    }
 }

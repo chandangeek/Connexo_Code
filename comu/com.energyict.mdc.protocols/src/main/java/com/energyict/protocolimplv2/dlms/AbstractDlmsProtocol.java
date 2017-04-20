@@ -98,7 +98,7 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
     protected AbstractMeterTopology meterTopology;
     private Dsmr23LogBookFactory logBookFactory;
     private Dsmr23Messaging dsmr23Messaging;
-    protected DlmsSecuritySupport dlmsSecuritySupport;
+    protected DeviceProtocolSecurityCapabilities dlmsSecuritySupport;
     /**
      * Indicating if the meter has a breaker.
      * This implies whether or not we can control the breaker and read the control logbook.
@@ -228,6 +228,11 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
     @Override
     public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
         return getSecuritySupport().getEncryptionAccessLevels();
+    }
+
+    @Override
+    public Optional<PropertySpec> getClientSecurityPropertySpec() {
+        return getSecuritySupport().getClientSecurityPropertySpec();
     }
 
     public Dsmr23LogBookFactory getDeviceLogBookFactory() {
