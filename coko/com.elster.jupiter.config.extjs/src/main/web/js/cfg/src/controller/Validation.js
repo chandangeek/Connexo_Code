@@ -98,8 +98,8 @@ Ext.define('Cfg.controller.Validation', {
         {ref: 'versionOverview', selector: 'versionOverview'},
         {ref: 'versionRulePreviewContainer', selector: 'versionRulePreviewContainer'},
         {ref: 'versionsGrid', selector: 'versionsList'},
-        {ref: 'addReadingTypesBulk', selector: 'addReadingTypesBulk'}
-
+        {ref: 'addReadingTypesBulk', selector: 'addReadingTypesBulk'},
+        {ref: 'addEditRulePage', selector: 'addRule'}
 
     ],
 
@@ -291,7 +291,7 @@ Ext.define('Cfg.controller.Validation', {
 
         record.readingTypes().add(arrReadingTypes);
 
-        if (me.ruleSetInUse && (isNameChanged || isLevelChanged)) {
+        if (me.ruleSetInUse && (isNameChanged || isLevelChanged) && me.getAddEditRulePage().edit) {
             me.showRuleSetInUseWindow(record, onlyLevelChanged);
         } else {
             me.saveRule(record);
@@ -303,10 +303,11 @@ Ext.define('Cfg.controller.Validation', {
             confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
                 confirmText: Uni.I18n.translate('general.save', 'CFG', 'Save')
             }),
+            entity = me.getApplication().name === 'MdmApp' ? 'usage point' : 'device',
             title = onlyDataQualityLevelChanged ? Uni.I18n.translate('general.editDataQualityLevel.question', 'CFG', 'Edit data quality level?') :
                 Uni.I18n.translate('general.editName.question', 'CFG', 'Edit name?'),
-            message = onlyDataQualityLevelChanged ? Uni.I18n.translate('general.editDataQualityLevel.msg', 'CFG', 'Changing the data quality could potentially delete overriden attributes on device reading qualities') :
-                Uni.I18n.translate('general.editName.msg', 'CFG', 'Changing the name could potentially delete overriden attributes on device reading qualities');
+            message = onlyDataQualityLevelChanged ? Uni.I18n.translate('general.editDataQualityLevel.msg', 'CFG', 'Changing the data quality could potentially delete overriden attributes on {0} reading qualities', entity) :
+                Uni.I18n.translate('general.editName.msg', 'CFG', 'Changing the name could potentially delete overriden attributes on {0} reading qualities', entity);
 
         confirmationWindow.show({
             title: title,
