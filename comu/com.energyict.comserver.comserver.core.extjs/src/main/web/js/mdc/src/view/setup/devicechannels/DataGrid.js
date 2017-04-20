@@ -90,7 +90,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                 dataIndex: 'value',
                 align: 'right',
                 renderer: function (v, metaData, record) {
-                    return me.formatColumn(v, metaData, record, record.get('mainValidationInfo'));
+                    return me.formatColumn(v, metaData, record, record.get('mainValidationInfo'), record.get('isProjected'));
                 },
                 editor: {
                     xtype: 'textfield',
@@ -109,7 +109,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                 dataIndex: 'value',
                 align: 'right',
                 renderer: function (v, metaData, record) {
-                    return me.formatColumn(v, metaData, record, record.get('mainValidationInfo'));
+                    return me.formatColumn(v, metaData, record, record.get('mainValidationInfo'), record.get('isProjected'));
                 },
                 hidden: Mdc.dynamicprivileges.DeviceState.canEditData(),
                 width: 200
@@ -202,7 +202,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
         me.callParent(arguments);
     },
 
-    formatColumn: function (v, metaData, record, validationInfo) {
+    formatColumn: function (v, metaData, record, validationInfo, projected) {
         var me = this,
             status = validationInfo.validationResult ? validationInfo.validationResult.split('.')[1] : '',
             icon = '',
@@ -242,6 +242,11 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
             icon = '<span class="icon-checkmark" style="margin-left:10px; position:absolute;" data-qtip="'
                 + Uni.I18n.translate('reading.validationResult.confirmed', 'MDC', 'Confirmed') + '"></span>';
         }
+        if (!projected) {
+            icon = '<span data-qtip='
+                + Uni.I18n.translate('reading.validationResult.projected', 'MDC', 'Projected') + ' style="color: #686868; font-weight: bold"> P</span>' + icon;
+        }
+
         return value + icon;
     }
 });
