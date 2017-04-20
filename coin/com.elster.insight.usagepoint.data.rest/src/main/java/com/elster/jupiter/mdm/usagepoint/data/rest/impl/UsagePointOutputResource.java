@@ -601,7 +601,7 @@ public class UsagePointOutputResource {
                         .ifPresent(referenceReading -> {
                             OutputChannelDataInfo channelDataInfo = outputChannelDataInfoFactory.createUpdatedChannelDataInfo(record, referenceReading.getValue()
                                     .scaleByPowerOfTen(referenceReading.getReadingType().getMultiplier().getMultiplier() - record.getReadingType().getMultiplier().getMultiplier()),
-                                    resourceHelper.getReadingQualityComment(referenceChannelDataInfo.estimationComment));
+                                    referenceChannelDataInfo.estimationComment!=null ? resourceHelper.getReadingQualityComment(referenceChannelDataInfo.estimationComment) : Optional.empty());
                             channelDataInfo.isProjected = referenceChannelDataInfo.projectedValue;
                             if(referenceChannelDataInfo.allowSuspectData || referenceReading.getReadingQualities().stream().noneMatch(ReadingQualityRecord::isSuspect)) {
                                 resultReadings.add(channelDataInfo);
