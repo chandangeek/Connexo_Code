@@ -21,6 +21,7 @@ import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.beans.BaseReadingImpl;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.rest.util.IdWithDisplayValueInfo;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
@@ -778,6 +779,10 @@ public class ChannelResource {
                                         .scaleByPowerOfTen(referenceChannel.getReadingType().getMultiplier().getMultiplier()
                                                 - channel.getReadingType().getMultiplier().getMultiplier());
                             channelDataInfo.mainValidationInfo.validationResult = ValidationStatus.NOT_VALIDATED;
+                            if(copyFromReferenceChannelDataInfo.estimationComment != null) {
+                                channelDataInfo.estimationComment = resourceHelper.getReadingQualityComment(copyFromReferenceChannelDataInfo.estimationComment)
+                                        .map(comment -> new IdWithDisplayValueInfo<>(comment.getId(), comment.getComment())).orElse(null);
+                            }
                             if (copyFromReferenceChannelDataInfo.allowSuspectData || referenceReading.getReadingQualities()
                                     .values()
                                     .stream()

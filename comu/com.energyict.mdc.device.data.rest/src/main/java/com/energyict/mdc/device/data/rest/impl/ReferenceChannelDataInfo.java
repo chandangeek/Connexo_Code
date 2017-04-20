@@ -20,4 +20,5 @@ public class ReferenceChannelDataInfo {
     public boolean allowSuspectData;
     public boolean completePeriod;
     public List<IntervalInfo> intervals;
+    public Long estimationComment;
 }
