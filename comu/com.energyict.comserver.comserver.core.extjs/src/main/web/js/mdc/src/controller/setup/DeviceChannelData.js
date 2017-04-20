@@ -11,7 +11,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
     ],
 
     views: [
-        'Cfg.view.usagepointregister.CopyFromReferenceWindow',
+        'Cfg.view.common.CopyFromReferenceWindow',
         'Mdc.view.setup.devicechannels.TabbedDeviceChannelsView',
         'Mdc.view.setup.devicechannels.Overview',
         'Mdc.view.setup.devicechannels.ReadingEstimationWindow',
