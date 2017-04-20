@@ -10,6 +10,7 @@ Ext.define('Mdc.model.ChannelOfLoadProfileOfDeviceData', {
         {name: 'readingTime', dateFormat: 'time', type: 'date'},
         {name: 'value', type: 'float', useNull: true },
         {name: 'isBulk', type: 'boolean'},
+        {name: 'isProjected', type: 'boolean', defaultValue: false},
         {name: 'collectedValue', type: 'float', useNull: true},
         {name: 'intervalFlags', type: 'auto'},
         {name: 'validationStatus', type: 'auto'},
