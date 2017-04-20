@@ -10,6 +10,7 @@ Ext.define('Mdc.model.DeviceSecuritySetting', {
     fields: [
         {name: 'id', type: 'int', useNull: true},
         {name: 'name', type: 'string', useNull: true},
+        {name: 'client', type: 'string', useNull: true},
         {name: 'securitySuite', type: 'auto', useNull: true},
         {name: 'authenticationLevel', type: 'auto', useNull: true},
         {name: 'encryptionLevel', type: 'auto', useNull: true},

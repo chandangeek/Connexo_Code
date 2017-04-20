@@ -4,9 +4,6 @@
 
 Ext.define('Mdc.model.DeviceType', {
     extend: 'Uni.model.Version',
-    requires: [
-        'Mdc.model.DeviceProtocol'
-    ],
     fields: [
         {name: 'id',type:'number',useNull:true},
         {name: 'name', type: 'string', useNull: true},

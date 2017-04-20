@@ -84,6 +84,29 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingPreview',
                                 },
                                 {
                                     xtype: 'displayfield',
+                                    fieldLabel: Uni.I18n.translate('securitySetting.client', 'MDC', 'Client'),
+                                    labelWidth: 200,
+                                    name: 'client',
+                                    itemId: 'mdc-deviceSecuritySettingPreview-client'
+                                },
+                                {
+                                    xtype: 'displayfield',
+                                    fieldLabel: Uni.I18n.translate('securitySetting.securitySuite', 'MDC', 'Security suite'),
+                                    labelWidth: 200,
+                                    name: 'securitySuite',
+                                    itemId: 'mdc-deviceSecuritySettingPreview-securitySuite',
+                                    renderer: function (value) {
+                                        return Ext.String.htmlEncode(value.name);
+
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            columnWidth: 0.49,
+                            items: [
+                                {
+                                    xtype: 'displayfield',
                                     fieldLabel: Uni.I18n.translate('deviceSecuritySetting.authenticationLevel', 'MDC', 'Authentication level'),
                                     labelWidth: 200,
                                     name: 'authenticationLevel',
@@ -100,22 +123,6 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingPreview',
                                     itemId: 'mdc-deviceSecuritySettingPreview-encryptionLevel',
                                     renderer: function (value) {
                                         return Ext.String.htmlEncode(value.name);
-                                    }
-                                }
-                            ]
-                        },
-                        {
-                            columnWidth: 0.49,
-                            items: [
-                                {
-                                    xtype: 'displayfield',
-                                    fieldLabel: Uni.I18n.translate('securitySetting.securitySuite', 'MDC', 'Security suite'),
-                                    labelWidth: 200,
-                                    name: 'securitySuite',
-                                    itemId: 'mdc-deviceSecuritySettingPreview-securitySuite',
-                                    renderer: function (value) {
-                                        return Ext.String.htmlEncode(value.name);
-
                                     }
                                 },
                                 {
@@ -182,10 +189,11 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingPreview',
         this.callParent(arguments);
     },
 
-    updateColumns: function (securitySuite) {
-        this.down('#mdc-deviceSecuritySettingPreview-securitySuite').setVisible(securitySuite);
-        this.down('#mdc-deviceSecuritySettingPreview-requestSecurityLevel').setVisible(securitySuite);
-        this.down('#mdc-deviceSecuritySettingPreview-responseSecurityLevel').setVisible(securitySuite);
+    updateColumns: function (hasSecuritySuite, hasClient) {
+        this.down('#mdc-deviceSecuritySettingPreview-securitySuite').setVisible(hasSecuritySuite);
+        this.down('#mdc-deviceSecuritySettingPreview-requestSecurityLevel').setVisible(hasSecuritySuite);
+        this.down('#mdc-deviceSecuritySettingPreview-responseSecurityLevel').setVisible(hasSecuritySuite);
+        this.down('#mdc-deviceSecuritySettingPreview-client').setVisible(hasClient);
     }
 });
 

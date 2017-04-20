@@ -93,10 +93,7 @@ Ext.define('Mdc.controller.setup.DeviceSecuritySettings', {
                 viewport.setLoading(false);
             }
         });
-
-
     },
-
 
     previewDeviceSecuritySetting: function () {
         var me = this;
@@ -107,13 +104,9 @@ Ext.define('Mdc.controller.setup.DeviceSecuritySettings', {
             me.getDeviceSecuritySettingPreview().getLayout().setActiveItem(1);
             me.getDeviceSecuritySettingPreview().setTitle(Ext.String.htmlEncode(deviceSecuritySettingName));
             me.getDeviceSecuritySettingPreviewForm().loadRecord(deviceSecuritySetting[0]);
-            if (deviceSecuritySetting[0].propertiesStore.data.items.length > 0) {
-                me.getDeviceSecuritySettingPreview().down('property-form').readOnly = true;
-                me.getDeviceSecuritySettingPreview().down('property-form').loadRecord(deviceSecuritySetting[0]);
-                me.getDeviceSecuritySettingPreviewTitle().setVisible(true);
-            } else {
-                me.getDeviceSecuritySettingPreviewTitle().setVisible(false);
-            }
+            me.getDeviceSecuritySettingPreview().down('property-form').readOnly = true;
+            me.getDeviceSecuritySettingPreview().down('property-form').loadRecord(deviceSecuritySetting[0]);
+            me.getDeviceSecuritySettingPreviewTitle().setVisible(deviceSecuritySetting[0].propertiesStore.data.items.length > 0);
             me.getDeviceSecuritySettingPreview().setTitle(Ext.String.htmlEncode(deviceSecuritySettingName));
         } else {
             me.getDeviceSecuritySettingPreview().getLayout().setActiveItem(0);

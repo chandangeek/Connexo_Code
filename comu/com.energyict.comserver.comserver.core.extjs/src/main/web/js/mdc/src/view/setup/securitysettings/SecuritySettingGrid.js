@@ -18,7 +18,7 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingGrid', {
         enableTextSelection: true
     },
 
-    hasSecuritySuites: undefined,
+    deviceProtocolSupportSecuritySuites: undefined,
 
     initComponent: function () {
         var me = this;
@@ -31,7 +31,7 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingGrid', {
             }
         ];
 
-        if (me.hasSecuritySuites) {
+        if (me.deviceProtocolSupportSecuritySuites) {
             me.columns.push({
                 header: Uni.I18n.translate('securitySetting.securitySuite', 'MDC', 'Security suite'),
                 dataIndex: 'securitySuite',
@@ -57,7 +57,7 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingGrid', {
                 return Ext.String.htmlEncode(value.name);
             }
         });
-        if (me.hasSecuritySuites) {
+        if (me.deviceProtocolSupportSecuritySuites) {
             me.columns.push({
                 header: Uni.I18n.translate('securitySetting.requestSecurityLevel', 'MDC', 'Request security level'),
                 dataIndex: 'requestSecurityLevel',

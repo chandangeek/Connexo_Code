@@ -53,6 +53,16 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingForm', {
                             msgTarget: 'under'
                         },
                         {
+                            xtype: 'textfield',
+                            name: 'client',
+                            itemId: 'client-field',
+                            required: true,
+                            regex: /[a-zA-Z0-9]+/,
+                            allowBlank: false,
+                            fieldLabel: Uni.I18n.translate('securitySetting.client', 'MDC', 'Client'),
+                            msgTarget: 'under'
+                        },
+                        {
                             xtype: 'combobox',
                             required: true,
                             editable: false,

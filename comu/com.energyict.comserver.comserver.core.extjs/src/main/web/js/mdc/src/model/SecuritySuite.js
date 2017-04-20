@@ -4,14 +4,6 @@
 
 Ext.define('Mdc.model.SecuritySuite', {
     extend: 'Ext.data.Model',
-    statics: {
-        noSecuritySuite: function()  {
-            var level = new this();
-            level.set('id', -1);
-            level.set('name', Uni.I18n.translate('SecuritySuite.noSecuritySuite', 'MDC', 'No security suite'));
-            return level;
-        }
-    },
     fields: [
         {name: 'id',type:'number',useNull:true},
         {name: 'name', type: 'string', useNull: true}

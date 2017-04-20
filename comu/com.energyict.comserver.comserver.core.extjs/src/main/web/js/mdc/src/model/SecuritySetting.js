@@ -14,6 +14,7 @@ Ext.define('Mdc.model.SecuritySetting', {
     fields: [
         {name: 'id',type:'number',useNull:true},
         {name: 'name', type: 'string', useNull: true},
+        {name: 'client', type: 'string', useNull: true},
         {name: 'securitySuite', persist: false},
         {name: 'securitySuiteId', type: 'number', useNull: true },
         {name: 'authenticationLevelId', type: 'number', useNull: true},

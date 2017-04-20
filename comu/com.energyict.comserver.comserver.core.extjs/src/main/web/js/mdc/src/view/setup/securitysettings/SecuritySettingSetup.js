@@ -16,7 +16,7 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingSetup', {
         'Uni.view.container.PreviewContainer'
     ],
 
-    hasSecuritySuites: undefined,
+    deviceProtocolSupportSecuritySuites: undefined,
 
     initComponent: function () {
         var me = this;
@@ -49,7 +49,7 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingSetup', {
                             xtype: 'securitySettingGrid',
                             deviceTypeId: me.deviceTypeId,
                             deviceConfigId: me.deviceConfigId,
-                            hasSecuritySuites: me.hasSecuritySuites
+                            deviceProtocolSupportSecuritySuites: me.deviceProtocolSupportSecuritySuites
                         },
                         emptyComponent: {
                             xtype: 'no-items-found-panel',
@@ -68,7 +68,8 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingSetup', {
                         },
                         previewComponent: {
                             xtype: 'securitySettingPreview',
-                            hasSecuritySuites: me.hasSecuritySuites,
+                            deviceProtocolSupportSecuritySuites: me.deviceProtocolSupportSecuritySuites,
+                            deviceProtocolSupportsClient: me.deviceProtocolSupportsClient,
                             itemId: 'security-setting-preview'
                         }
                     }

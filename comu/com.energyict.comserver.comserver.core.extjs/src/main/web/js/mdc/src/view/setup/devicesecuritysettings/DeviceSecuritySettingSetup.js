@@ -15,7 +15,8 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingSetup', {
         'Uni.util.FormEmptyMessage'
     ],
 
-    hasSecuritySuites: undefined,
+    deviceProtocolSupportSecuritySuites: undefined,
+    deviceProtocolSupportsClient: undefined,
 
     initComponent: function () {
         var me = this;
@@ -55,12 +56,14 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingSetup', {
                             xtype: 'deviceSecuritySettingPreview'
                         },
                         onLoad: function (store, records, successful) {
-                            var securitySuite = false;
+                            var hasSecuritySuite = false,
+                                hasClient = false;
                             if(store.count() > 0) {
-                                securitySuite = records[0].get('securitySuite')['id'] !== -1;
+                                hasSecuritySuite = records[0].get('securitySuite')['id'] !== -1;
+                                hasClient = records[0].get('client') !== undefined && records[0].get('client') !== null && records[0].get('client') !== '';
                             }
-                            me.down('#deviceSecuritySettingSetupPanel preview-container deviceSecuritySettingGrid').updateColumns(securitySuite);
-                            me.down('#deviceSecuritySettingSetupPanel preview-container deviceSecuritySettingPreview').updateColumns(securitySuite);
+                            me.down('#deviceSecuritySettingSetupPanel preview-container deviceSecuritySettingGrid').updateColumns(hasSecuritySuite, hasClient);
+                            me.down('#deviceSecuritySettingSetupPanel preview-container deviceSecuritySettingPreview').updateColumns(hasSecuritySuite, hasClient);
                             Uni.view.container.PreviewContainer.prototype.onLoad.call(this, store, records, successful);
                         }
                     }

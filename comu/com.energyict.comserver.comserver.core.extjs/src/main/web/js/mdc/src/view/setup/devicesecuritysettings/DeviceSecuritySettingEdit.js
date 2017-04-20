@@ -164,10 +164,10 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingEdit', {
 
                         ],
                         loadRecord: function (record) {
-                            var hasSecuritySuiteSupport = record.get('securitySuite')['id'] !== -1;
-                            this.down('#mdc-deviceSecuritySettingEdit-securitySuite').setVisible(hasSecuritySuiteSupport);
-                            this.down('#mdc-deviceSecuritySettingEdit-requestSecurityLevel').setVisible(hasSecuritySuiteSupport);
-                            this.down('#mdc-deviceSecuritySettingEdit-responseSecurityLevel').setVisible(hasSecuritySuiteSupport);
+                            var deviceProtocolSupportSecuritySuites = record.get('securitySuite')['id'] !== -1;
+                            this.down('#mdc-deviceSecuritySettingEdit-securitySuite').setVisible(deviceProtocolSupportSecuritySuites);
+                            this.down('#mdc-deviceSecuritySettingEdit-requestSecurityLevel').setVisible(deviceProtocolSupportSecuritySuites);
+                            this.down('#mdc-deviceSecuritySettingEdit-responseSecurityLevel').setVisible(deviceProtocolSupportSecuritySuites);
                             this.getForm().loadRecord(record);
                         }
                     },

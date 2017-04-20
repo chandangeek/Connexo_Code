@@ -111,10 +111,10 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingGrid', {
         me.callParent();
     },
 
-    updateColumns: function (securitySuite) {
-        this.down('#mdc-deviceSecuritySettingGrid-securitySuite').setVisible(securitySuite);
-        this.down('#mdc-deviceSecuritySettingGrid-requestSecurityLevel').setVisible(securitySuite);
-        this.down('#mdc-deviceSecuritySettingGrid-responseSecurityLevel').setVisible(securitySuite);
+    updateColumns: function (hasSecuritySuite, hasClient) {
+        this.down('#mdc-deviceSecuritySettingGrid-securitySuite').setVisible(hasSecuritySuite);
+        this.down('#mdc-deviceSecuritySettingGrid-requestSecurityLevel').setVisible(hasSecuritySuite);
+        this.down('#mdc-deviceSecuritySettingGrid-responseSecurityLevel').setVisible(hasSecuritySuite);
     }
 });
 

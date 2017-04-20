@@ -18,7 +18,8 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingPreview', {
         }
     ],
 
-    hasSecuritySuites: undefined,
+    deviceProtocolSupportSecuritySuites: undefined,
+    deviceProtocolSupportsClient: undefined,
 
     initComponent: function () {
         var me = this,
@@ -30,7 +31,27 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingPreview', {
             fieldLabel: Uni.I18n.translate('general.name', 'MDC', 'Name'),
             name: 'name'
         });
-        leftItems.push({
+        if (me.deviceProtocolSupportsClient) {
+            leftItems.push({
+                xtype: 'displayfield',
+                fieldLabel: Uni.I18n.translate('securitySetting.client', 'MDC', 'Client'),
+                labelWidth: 200,
+                name: 'client'
+            });
+        }
+        if (me.deviceProtocolSupportSecuritySuites) {
+            leftItems.push({
+                xtype: 'displayfield',
+                fieldLabel: Uni.I18n.translate('securitySetting.securitySuite', 'MDC', 'Security suite'),
+                labelWidth: 200,
+                name: 'securitySuite',
+                renderer: function (value) {
+                    return Ext.String.htmlEncode(value.name);
+                }
+            });
+        }
+
+        rightItems.push({
             xtype: 'displayfield',
             fieldLabel: Uni.I18n.translate('securitySetting.authenticationLevel', 'MDC', 'Authentication level'),
             labelWidth: 200,
@@ -40,7 +61,7 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingPreview', {
             }
         });
 
-        leftItems.push({
+        rightItems.push({
             xtype: 'displayfield',
             fieldLabel: Uni.I18n.translate('securitySetting.encryptionLevel', 'MDC', 'Encryption level'),
             labelWidth: 200,
@@ -49,16 +70,7 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingPreview', {
                 return Ext.String.htmlEncode(value.name);
             }
         });
-        if (me.hasSecuritySuites) {
-            rightItems.push({
-                xtype: 'displayfield',
-                fieldLabel: Uni.I18n.translate('securitySetting.securitySuite', 'MDC', 'Security suite'),
-                labelWidth: 200,
-                name: 'securitySuite',
-                renderer: function (value) {
-                    return Ext.String.htmlEncode(value.name);
-                }
-            });
+        if (me.deviceProtocolSupportSecuritySuites) {
             rightItems.push({
                 xtype: 'displayfield',
                 fieldLabel: Uni.I18n.translate('securitySetting.requestSecurityLevel', 'MDC', 'Request security level'),
@@ -105,5 +117,3 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingPreview', {
     }
 
 });
-
-

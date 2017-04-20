@@ -29,6 +29,7 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
         {ref: 'securitySuiteCombobox', selector: '#securitySuiteCombobox'},
         {ref: 'authCombobox', selector: '#authCombobox'},
         {ref: 'encrCombobox', selector: '#encrCombobox'},
+        {ref: 'clientField', selector: '#client-field'},
         {ref: 'requestSecurityCombobox', selector: '#requestSecurityCombobox'},
         {ref: 'responseSecurityCombobox', selector: '#responseSecurityCombobox'}
     ],
@@ -40,6 +41,7 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
     secId: -1,
     currentDeviceTypeId: undefined,
     currentDeviceConfigurationId: undefined,
+    deviceProtocolSupportSecuritySuites: undefined,
 
     init: function () {
         var me = this;
@@ -131,7 +133,7 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
         });
         me.getResponseSecurityLevelsStore().on('load', function (store, records, success) {
             if (success && records && records.length === 0) {
-                store.add(Mdc.model.RequestSecurityLevel.noRequestSecurity());
+                store.add(Mdc.model.ResponseSecurityLevel.noResponseSecurity());
                 me.getResponseSecurityCombobox().setValue(-1);
                 me.getResponseSecurityCombobox().hide();
             } else if (success && records) {
@@ -250,29 +252,17 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                 model.getProxy().setExtraParam('deviceType', deviceTypeId);
                 model.load(deviceConfigurationId, {
                     success: function (deviceConfig) {
-
+                        me.deviceProtocolSupportSecuritySuites = deviceConfig.get('deviceProtocolSupportSecuritySuites');
                         securitySuitesStore.getProxy().setUrl(me.currentDeviceTypeId, me.currentDeviceConfigurationId);
                         securitySuitesStore.getProxy().setExtraParam('securitySuiteId', null);
-                        securitySuitesStore.load();
-                        securitySuitesStore.on('load', function (store, records, success) {
-                            if (success && records && records.length === 0) {
-                                widget = Ext.widget('securitySettingSetup', {
-                                    deviceTypeId: deviceTypeId,
-                                    deviceConfigId: deviceConfigurationId,
-                                    hasSecuritySuites: false
-                                });
-                                widget.down('#stepsMenu').setHeader(deviceConfig.get('name'));
-                                me.getApplication().fireEvent('changecontentevent', widget);
-                            } else if (success && records) {
-                                widget = Ext.widget('securitySettingSetup', {
-                                    deviceTypeId: deviceTypeId,
-                                    deviceConfigId: deviceConfigurationId,
-                                    hasSecuritySuites: true
-                                });
-                                widget.down('#stepsMenu').setHeader(deviceConfig.get('name'));
-                                me.getApplication().fireEvent('changecontentevent', widget);
-                            }
-                        }, me, {single: true});
+                        widget = Ext.widget('securitySettingSetup', {
+                            deviceTypeId: deviceTypeId,
+                            deviceConfigId: deviceConfigurationId,
+                            deviceProtocolSupportsClient: deviceConfig.get('deviceProtocolSupportsClient'),
+                            deviceProtocolSupportSecuritySuites: deviceConfig.get('deviceProtocolSupportSecuritySuites')
+                        });
+                        widget.down('#stepsMenu').setHeader(deviceConfig.get('name'));
+                        me.getApplication().fireEvent('changecontentevent', widget);
 
                         if (mainView) mainView.setLoading(false);
                         me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfig);
@@ -300,16 +290,20 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                         me.setDeviceTypeName(deviceType.get('name'));
                         me.setDeviceConfigName(deviceConfig.get('name'));
 
-                        var container = Ext.widget('securitySettingForm', {
-                            deviceTypeId: deviceTypeId,
-                            deviceConfigurationId: deviceConfigurationId,
-                            securityHeader: Uni.I18n.translate('securitySetting.addSecuritySetting', 'MDC', 'Add security setting'),
-                            actionButtonName: Uni.I18n.translate('general.add', 'MDC', 'Add'),
-                            securityAction: 'add'
-                        });
-                        var record = me.createSecuritySettingModel(deviceTypeId, deviceConfigurationId).create();
+                        me.deviceProtocolSupportSecuritySuites = deviceConfig.get('deviceProtocolSupportSecuritySuites');
+                        var deviceProtocolSupportsClient = deviceConfig.get('deviceProtocolSupportsClient'),
+                            deviceProtocolSupportSecuritySuites = deviceConfig.get('deviceProtocolSupportSecuritySuites'),
+                            container = Ext.widget('securitySettingForm', {
+                                deviceTypeId: deviceTypeId,
+                                deviceConfigurationId: deviceConfigurationId,
+                                securityHeader: Uni.I18n.translate('securitySetting.addSecuritySetting', 'MDC', 'Add security setting'),
+                                actionButtonName: Uni.I18n.translate('general.add', 'MDC', 'Add'),
+                                securityAction: 'add'
+                            }),
+                            record = me.createSecuritySettingModel(deviceTypeId, deviceConfigurationId).create();
                         me.configureProxyOfAllSecurityStores(null);
-                        me.loadAllSecurityStores(true);
+                        me.loadAllSecurityStores(true, deviceProtocolSupportSecuritySuites);
+                        me.hideClientFieldIfNotApplicable(deviceProtocolSupportsClient);
                         container.down('form#myForm').loadRecord(record);
                         me.getApplication().fireEvent('changecontentevent', container);
 
@@ -334,6 +328,9 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                         me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfig);
                         me.setDeviceTypeName(deviceType.get('name'));
                         me.setDeviceConfigName(deviceConfig.get('name'));
+                        me.deviceProtocolSupportSecuritySuites = deviceConfig.get('deviceProtocolSupportSecuritySuites');
+                        var deviceProtocolSupportsClient = deviceConfig.get('deviceProtocolSupportsClient'),
+                            deviceProtocolSupportSecuritySuites = deviceConfig.get('deviceProtocolSupportSecuritySuites');
                         me.createSecuritySettingModel(deviceTypeId, deviceConfigurationId).load(securitySettingId, {
                             success: function (securitySetting) {
                                 var container = Ext.widget('securitySettingForm', {
@@ -344,7 +341,8 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                                     securityAction: 'save'
                                 });
                                 me.configureProxyOfAllSecurityStores(securitySetting.get('securitySuiteId'));
-                                me.loadAllSecurityStores(false);
+                                me.loadAllSecurityStores(false, deviceProtocolSupportSecuritySuites);
+                                me.hideClientFieldIfNotApplicable(deviceProtocolSupportsClient);
                                 container.down('form#myForm').loadRecord(securitySetting);
                                 me.getApplication().fireEvent('changecontentevent', container);
                             }
@@ -353,6 +351,16 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                 });
             }
         });
+    },
+
+    hideClientFieldIfNotApplicable: function (deviceProtocolSupportsClient) {
+        var me = this,
+            clientField = me.getClientField();
+
+        if (!deviceProtocolSupportsClient) {
+            clientField.allowBlank = true;   // If the protocol doesn't support it, then don't require a values
+            clientField.hide();
+        }
     },
 
     configureProxyOfAllSecurityStores: function (securitySuiteId) {
@@ -375,7 +383,7 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
         responseSecurityLevelStore.getProxy().setExtraParam('securitySuiteId', securitySuiteId);
     },
 
-    loadAllSecurityStores: function (updateControls) {
+    loadAllSecurityStores: function (createView, deviceProtocolSupportSecuritySuites) {
         var me = this,
             authCombobox = me.getAuthCombobox(),
             encrCombobox = me.getEncrCombobox(),
@@ -385,38 +393,41 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
             authenticationLevelStore = me.getAuthenticationLevelsStore(),
             encryptionLevelStore = me.getEncryptionLevelsStore(),
             requestSecurityLevelStore = me.getRequestSecurityLevelsStore(),
-            responseSecurityLevelStore = me.getResponseSecurityLevelsStore(),
-            callBackFunction,
-            storesToLoad = 4;
-        if (updateControls) {
-            securitySuitesStore.on('load', function (store, records, success) {
-                if (success && records && records.length === 0) {
-                    requestSecurityCombobox.hide();
-                    responseSecurityCombobox.hide();
-                } else if (success && records) {
-                    authCombobox.disable();
-                    encrCombobox.disable();
-                    requestSecurityCombobox.disable();
-                    responseSecurityCombobox.disable();
-                }
-            }, me, {single: true});
-            callBackFunction = function (store, records, success) {
-                storesToLoad--;
-                if (storesToLoad <= 0) {
-                    securitySuitesStore.load(); // Little trick to ensure the security suite store is loaded as last (and thus disabling/hiding of boxes is done correct)
-                }
-            };
-            authenticationLevelStore.load({callback: callBackFunction});
-            encryptionLevelStore.load({callback: callBackFunction});
-            requestSecurityLevelStore.load({callback: callBackFunction});
-            responseSecurityLevelStore.load({callback: callBackFunction});
+            responseSecurityLevelStore = me.getResponseSecurityLevelsStore();
+
+        if (createView) {
+            if (deviceProtocolSupportSecuritySuites) {
+                authCombobox.disable(); // Disable these fields (they will become enabled again after selection of a security suite)
+                encrCombobox.disable();
+                requestSecurityCombobox.disable();
+                responseSecurityCombobox.disable();
+            } else {
+                authenticationLevelStore.load();
+                encryptionLevelStore.load();
+                me.hideSecuritySuiteFields();
+            }
         } else {
-            securitySuitesStore.load();
             authenticationLevelStore.load();
             encryptionLevelStore.load();
-            requestSecurityLevelStore.load();
-            responseSecurityLevelStore.load();
+            if (deviceProtocolSupportSecuritySuites) {
+                securitySuitesStore.load();
+                requestSecurityLevelStore.load();
+                responseSecurityLevelStore.load();
+            } else {
+                me.hideSecuritySuiteFields();
+            }
         }
+    },
+
+    hideSecuritySuiteFields: function () {
+        var me = this;
+
+        me.getSecuritySuiteCombobox().allowBlank = true;
+        me.getSecuritySuiteCombobox().hide();
+        me.getRequestSecurityCombobox().allowBlank = true;
+        me.getRequestSecurityCombobox().hide();
+        me.getResponseSecurityCombobox().allowBlank = true;
+        me.getResponseSecurityCombobox().hide();
     },
 
     updateUsedSecurityLevelPossibilitiesBasedOnSecuritySuite: function (combobox, record) {
