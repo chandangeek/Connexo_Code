@@ -16,9 +16,9 @@ import java.util.Optional;
 public class SecurityPropertySetBuilder extends NamedBuilder<SecurityPropertySet, SecurityPropertySetBuilder> {
 
     private DeviceConfiguration deviceConfiguration;
+    private String client;
     private int authLevel;
     private int encLevel;
-    private List<DeviceSecurityUserAction> userActions;
 
     @Inject
     public SecurityPropertySetBuilder() {
@@ -40,6 +40,11 @@ public class SecurityPropertySetBuilder extends NamedBuilder<SecurityPropertySet
         return this;
     }
 
+    public SecurityPropertySetBuilder withClient(String client){
+        this.client = client;
+        return this;
+    }
+
     private void check(){
         if (this.deviceConfiguration == null) {
             throw new UnableToCreate("You must set the device configuration");
@@ -54,7 +59,7 @@ public class SecurityPropertySetBuilder extends NamedBuilder<SecurityPropertySet
 
     @Override
     public SecurityPropertySet create() {
-        SecurityPropertySet securityPropertySet = deviceConfiguration.createSecurityPropertySet(getName()).authenticationLevel(authLevel).encryptionLevel(encLevel).build();
+        SecurityPropertySet securityPropertySet = deviceConfiguration.createSecurityPropertySet(getName()).client(client).authenticationLevel(authLevel).encryptionLevel(encLevel).build();
         securityPropertySet.update();
         return securityPropertySet;
     }

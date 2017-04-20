@@ -16,49 +16,36 @@ import java.util.List;
 public enum SecurityPropertySetTpl implements Template<SecurityPropertySet, SecurityPropertySetBuilder> {
     NO_SECURITY("No security",
             DlmsAuthenticationLevelMessageValues.NO_AUTHENTICATION.getValue(),
-            DlmsEncryptionLevelMessageValues.NO_ENCRYPTION.getValue()
-//            Arrays.asList(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1,
-//                          DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES2,
-//                          DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES1,
-//                          DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES2)
+            DlmsEncryptionLevelMessageValues.NO_ENCRYPTION.getValue(),
+            "1"
     ),
     HIGH_LEVEL("High level authentication (MD5) and encryption",
             DlmsAuthenticationLevelMessageValues.HIGH_LEVEL_MD5.getValue(),
-            DlmsEncryptionLevelMessageValues.DATA_AUTHENTICATION_ENCRYPTION.getValue()//,
-//            Arrays.asList(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1,
-//                          DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES2,
-//                          DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES1,
-//                          DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES2)
+            DlmsEncryptionLevelMessageValues.DATA_AUTHENTICATION_ENCRYPTION.getValue(),
+            "1"
     ),
     HIGH_LEVEL_NO_ENCRYPTION_MD5("High level authentication (MD5) - No encryption",
             DlmsAuthenticationLevelMessageValues.HIGH_LEVEL_MD5.getValue(),
-            DlmsEncryptionLevelMessageValues.NO_ENCRYPTION.getValue()
-//            Arrays.asList(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1,
-//                          DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES2,
-//                          DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES1,
-//                          DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES2)
+            DlmsEncryptionLevelMessageValues.NO_ENCRYPTION.getValue(),
+            "1"
 
     ),
     HIGH_LEVEL_NO_ENCRYPTION_GMAC("High level authentication - No encryption",
             DlmsAuthenticationLevelMessageValues.HIGH_LEVEL_GMAC.getValue(),
-            DlmsEncryptionLevelMessageValues.NO_ENCRYPTION.getValue()
-//            Arrays.asList(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1,
-//                          DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES2,
-//                          DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES1,
-//                          DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES2)
+            DlmsEncryptionLevelMessageValues.NO_ENCRYPTION.getValue(),
+            "1"
+    );
 
-
-    )
-    ;
     private String name;
     private int authLevel;
     private int encLevel;
+    private String client;
 
-    SecurityPropertySetTpl(String name, int authLevel, int encLevel /*, List<DeviceSecurityUserAction> userActions*/) {
+    SecurityPropertySetTpl(String name, int authLevel, int encLevel, String client) {
         this.name = name;
         this.authLevel = authLevel;
         this.encLevel = encLevel;
-//        this.userActions = userActions;
+        this.client = client;
     }
 
     @Override
@@ -71,8 +58,8 @@ public enum SecurityPropertySetTpl implements Template<SecurityPropertySet, Secu
         return builder
                 .withAuthLevel(authLevel)
                 .withEncLevel(encLevel)
+                .withClient(client)
                 .withName(name);
-//                .withUserActions(userActions);
     }
 
     public String getName() {

@@ -19,7 +19,6 @@ public class SecurityPropertiesDevicePostBuilder implements Consumer<Device> {
         DeviceConfiguration configuration = device.getDeviceConfiguration();
         for (SecurityPropertySet securityPropertySet : configuration.getSecurityPropertySets()) {
             TypedProperties typedProperties = TypedProperties.empty();
-            typedProperties.setProperty("ClientMacAddress", BigDecimal.ONE);
             device.setSecurityProperties(securityPropertySet, typedProperties);
             device.save();
         }

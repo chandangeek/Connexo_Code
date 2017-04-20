@@ -32,6 +32,7 @@ import java.util.function.Consumer;
 public class CreateG3SlaveCommand {
 
     private static final String SECURITY_SET_NAME = "High level MD5 authentication - No encryption";
+    private static final String CLIENT = "1";
 
     public enum SlaveDeviceConfiguration {
         AS3000 {
@@ -48,8 +49,7 @@ public class CreateG3SlaveCommand {
                         .setProperty("PSK", "00112233445566778899AABBCCDDEEFF")
                         .setProperty("HLSsecretHEX", "31323334353637383930313233343536")
                         .setProperty("HLSsecretASCII", "1234567890123456")
-                        .setProperty("TimeZone", TimeZone.getTimeZone("Europe/Brussels"))
-                        .setProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.getKey(), BigDecimal.ONE);
+                        .setProperty("TimeZone", TimeZone.getTimeZone("Europe/Brussels"));
             }
         },
         AS220 {
@@ -66,8 +66,7 @@ public class CreateG3SlaveCommand {
                         .setProperty("PSK", "92DA010836AA91222BCBEA49713DD9C1")
                         .setProperty("HLSsecretHEX", "31323334353637383930313233343536")
                         .setProperty("HLSsecretASCII", "1234567890123456")
-                        .setProperty("TimeZone", TimeZone.getTimeZone("Europe/Brussels"))
-                        .setProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.getKey(), BigDecimal.ONE);
+                        .setProperty("TimeZone", TimeZone.getTimeZone("Europe/Brussels")) ;
             }
         };
 
@@ -167,7 +166,6 @@ public class CreateG3SlaveCommand {
 
         TypedProperties getSecuritySetProperties(){
             TypedProperties securitySetProperties = TypedProperties.empty();
-            securitySetProperties.setProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.getKey(), props.getProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.getKey()));
             securitySetProperties.setProperty(SecurityPropertySpecName.PASSWORD.getKey(), new Password((String) props.getProperty("HLSsecretASCII")));
             return securitySetProperties;
         }
@@ -190,6 +188,7 @@ public class CreateG3SlaveCommand {
              configuration.createSecurityPropertySet(SECURITY_SET_NAME)
                      .authenticationLevel(DlmsAuthenticationLevelMessageValues.HIGH_LEVEL_MD5.getValue())
                      .encryptionLevel(DlmsEncryptionLevelMessageValues.NO_ENCRYPTION.getValue())
+                     .client(CLIENT)
                      .build();
         }
     }

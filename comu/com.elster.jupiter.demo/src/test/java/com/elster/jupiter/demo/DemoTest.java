@@ -102,7 +102,6 @@ import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.DeviceSecurityUserAction;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.GatewayType;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
@@ -486,6 +485,7 @@ public class DemoTest {
         String DEVICE_CONFIG_NAME = "Default";
         String SECURITY_PROPERTY_SET_NAME = "High level authentication - No encryption";
         String CONNECTION_METHOD_NAME = "Outbound TCP";
+        String CLIENT = "1";
 
         DeviceService deviceService = injector.getInstance(DeviceService.class);
         Optional<Device> gatewayOptional = deviceService.findDeviceByName(gatewayName);
@@ -504,11 +504,9 @@ public class DemoTest {
         assertThat(configuration.getSecurityPropertySets()).hasSize(1);
         SecurityPropertySet securityPropertySet = configuration.getSecurityPropertySets().get(0);
         assertThat(securityPropertySet.getName()).isEqualTo(SECURITY_PROPERTY_SET_NAME);
+        assertThat(securityPropertySet.getClient()).isEqualTo(CLIENT);
         assertThat(securityPropertySet.getAuthenticationDeviceAccessLevel().getId()).isEqualTo(DlmsAuthenticationLevelMessageValues.HIGH_LEVEL_GMAC.getValue());
         assertThat(securityPropertySet.getEncryptionDeviceAccessLevel().getId()).isEqualTo(DlmsEncryptionLevelMessageValues.NO_ENCRYPTION.getValue());
-//        assertThat(securityPropertySet.getUserActions()).containsExactly(
-//                DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES1, DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES2,
-//                DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1, DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES2);
         assertThat(configuration.getPartialOutboundConnectionTasks()).hasSize(1);
         PartialScheduledConnectionTask connectionTask = configuration.getPartialOutboundConnectionTasks().get(0);
         assertThat(connectionTask.getName()).isEqualTo(CONNECTION_METHOD_NAME);
@@ -534,11 +532,9 @@ public class DemoTest {
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             assertThat(scheduledConnectionTask.getProperty(ConnectionTypePropertySpecName.OUTBOUND_IP_HOST.propertySpecName()).getValue()).isEqualTo("10.0.0.135");
             assertThat(scheduledConnectionTask.getProperty(ConnectionTypePropertySpecName.OUTBOUND_IP_PORT_NUMBER.propertySpecName()).getValue()).isEqualTo(new BigDecimal(4059));
-            assertThat(gateway.getSecurityProperties(securityPropertySet)).hasSize(3);
+            assertThat(gateway.getSecurityProperties(securityPropertySet)).hasSize(2);
             for (SecurityProperty securityProperty : gateway.getSecurityProperties(securityPropertySet)) {
-                if (SecurityPropertySpecName.CLIENT_MAC_ADDRESS.getKey().equals(securityProperty.getName())) {
-                    assertThat(securityProperty.getValue()).isEqualTo(BigDecimal.ONE);
-                } else if (SecurityPropertySpecName.AUTHENTICATION_KEY.getKey().equals(securityProperty.getName())) {
+                if (SecurityPropertySpecName.AUTHENTICATION_KEY.getKey().equals(securityProperty.getName())) {
                     assertThat(securityProperty.getValue().toString()).isEqualTo("00112233445566778899AABBCCDDEEFF");
                 } else if (SecurityPropertySpecName.ENCRYPTION_KEY.getKey().equals(securityProperty.getName())) {
                     assertThat(securityProperty.getValue().toString()).isEqualTo("11223344556677889900AABBCCDDEEFF");
@@ -554,6 +550,7 @@ public class DemoTest {
         String SERIAL_NUMBER = "Demo board AS3000".equals(deviceName) ? "E0023000520685414" : "123457S";
         String MAC_ADDRESS = "Demo board AS3000".equals(deviceName) ? "02237EFFFEFD835B" : "02237EFFFEFD82F4";
         String SECURITY_SET_NAME = "High level MD5 authentication - No encryption";
+        String CLIENT = "1";
 
         DeviceService deviceService = injector.getInstance(DeviceService.class);
         Optional<Device> deviceOptional = deviceService.findDeviceByName(deviceName);
@@ -611,11 +608,9 @@ public class DemoTest {
         assertThat(configuration.getSecurityPropertySets()).hasSize(1);
         SecurityPropertySet securityPropertySet = configuration.getSecurityPropertySets().get(0);
         assertThat(securityPropertySet.getName()).isEqualTo(SECURITY_SET_NAME);
+        assertThat(securityPropertySet.getClient()).isEqualTo(CLIENT);
         assertThat(securityPropertySet.getAuthenticationDeviceAccessLevel().getId()).isEqualTo(DlmsAuthenticationLevelMessageValues.HIGH_LEVEL_MD5.getValue());
         assertThat(securityPropertySet.getEncryptionDeviceAccessLevel().getId()).isEqualTo(DlmsEncryptionLevelMessageValues.NO_ENCRYPTION.getValue());
-//        assertThat(securityPropertySet.getUserActions()).containsExactly(
-//                DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES1, DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES2,
-//                DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1, DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES2);
         assertThat(configuration.getPartialOutboundConnectionTasks().isEmpty()).isTrue();
         assertThat(configuration.getComTaskEnablements()).hasSize(3);
         for (ComTaskEnablement enablement : configuration.getComTaskEnablements()) {
@@ -663,9 +658,7 @@ public class DemoTest {
         }
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             for (SecurityProperty securityProperty : device.getSecurityProperties(securityPropertySet)) {
-                if ("ClientMacAddress".equals(securityProperty.getName())) {
-                    assertThat(securityProperty.getValue()).isEqualTo(BigDecimal.ONE);
-                } else if ("Password".equals(securityProperty.getName())) {
+                if ("Password".equals(securityProperty.getName())) {
                     assertThat(((Password) securityProperty.getValue()).getValue()).isEqualTo("1234567890123456");
                 }
             }
