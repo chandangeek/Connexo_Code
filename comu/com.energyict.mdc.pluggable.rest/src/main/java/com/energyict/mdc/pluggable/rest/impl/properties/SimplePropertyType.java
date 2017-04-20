@@ -21,18 +21,13 @@ import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.protocol.api.DeviceMessageFile;
 import com.energyict.mdc.protocol.api.firmware.BaseFirmwareVersion;
 import com.energyict.mdc.protocol.api.timezones.TimeZoneInUse;
-
 import com.energyict.obis.ObisCode;
 
-import java.time.Duration;
-import java.time.temporal.TemporalAmount;
 import java.util.Date;
 
 public enum SimplePropertyType implements PropertyType {
     PASSWORD(Password.class),
     HEXSTRING(HexString.class),
-    TEMPORALAMOUNT(TemporalAmount.class),
-    DURATION(Duration.class),
     TIMEOFDAY(TimeOfDay.class),
     CLOCK(DateAndTimeFactory.class),
     CODETABLE(Calendar.class, true),
