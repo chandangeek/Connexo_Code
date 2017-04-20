@@ -147,7 +147,7 @@ Ext.define('Est.estimationrules.controller.Edit', {
             record = form.getRecord();
             isNameChanged = record.get('name') !== me.initialRuleName;
             page.setLoading(true);
-            if (me.ruleSetInUse && isNameChanged) {
+            if (me.ruleSetInUse && isNameChanged && page.edit) {
                 me.showRuleSetInUseWindow(record);
             } else {
                 me.accomplishSavingRule(record);
@@ -164,8 +164,9 @@ Ext.define('Est.estimationrules.controller.Edit', {
             confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
                 confirmText: Uni.I18n.translate('general.save', 'EST', 'Save')
             }),
+            entity = me.getApplication().name === 'MdmApp' ? 'usage point' : 'device',
             title = Uni.I18n.translate('general.editName.question', 'EST', 'Edit name?'),
-            message = Uni.I18n.translate('general.editName.msg', 'EST', 'Changing the name could potentially delete overriden attributes on device reading qualities');
+            message = Uni.I18n.translate('general.editName.msg', 'EST', 'Changing the name could potentially delete overriden attributes on {0} reading qualities', entity);
 
         confirmationWindow.show({
             title: title,
