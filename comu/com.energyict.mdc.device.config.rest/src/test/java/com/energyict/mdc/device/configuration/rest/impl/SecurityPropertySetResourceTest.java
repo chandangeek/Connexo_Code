@@ -75,10 +75,10 @@ public class SecurityPropertySetResourceTest extends DeviceConfigurationApplicat
         Group group2 = mockUserGroup(67L, "A - user group 2");
         Group group3 = mockUserGroup(68L, "O - user group 1");
         when(userService.getGroups()).thenReturn(Arrays.asList(group2, group1, group3));
-        SecurityPropertySet sps1 = mockSecurityPropertySet(101L, "Primary", 1001, "Auth1", 2001, "Encrypt1", 3001, "Suite1", 4001, "RequestSec1", 5001, "ResponseSec1"
+        SecurityPropertySet sps1 = mockSecurityPropertySet(101L, "Primary", "Primary client", 1001, "Auth1", 2001, "Encrypt1", 3001, "Suite1", 4001, "RequestSec1", 5001, "ResponseSec1"
         );
         when(sps1.getDeviceConfiguration()).thenReturn(deviceConfiguration);
-        SecurityPropertySet sps2 = mockSecurityPropertySet(102L, "Secondary", 1002, "Auth2", 2002, "Encrypt2", 3002, "Suite2", 4002, "RequestSec2", 5002, "ResponseSec2"
+        SecurityPropertySet sps2 = mockSecurityPropertySet(102L, "Secondary", "Secondary client", 1002, "Auth2", 2002, "Encrypt2", 3002, "Suite2", 4002, "RequestSec2", 5002, "ResponseSec2"
         );
         when(sps2.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         when(deviceConfiguration.getSecurityPropertySets()).thenReturn(Arrays.asList(sps1, sps2));
@@ -90,6 +90,7 @@ public class SecurityPropertySetResourceTest extends DeviceConfigurationApplicat
         assertThat(jsonModel.<List>get("$.data")).hasSize(2);
         assertThat(jsonModel.<Integer>get("$.data[0].id")).isEqualTo(101);
         assertThat(jsonModel.<String>get("$.data[0].name")).isEqualTo("Primary");
+        assertThat(jsonModel.<String>get("$.data[0].client")).isEqualTo("Primary client");
         assertThat(jsonModel.<Integer>get("$.data[0].authenticationLevelId")).isEqualTo(1001);
         assertThat(jsonModel.<Integer>get("$.data[0].authenticationLevel.id")).isEqualTo(1001);
         assertThat(jsonModel.<String>get("$.data[0].authenticationLevel.name")).isEqualTo("Auth1");
@@ -118,10 +119,10 @@ public class SecurityPropertySetResourceTest extends DeviceConfigurationApplicat
         Group group2 = mockUserGroup(67L, "A - user group 2", Arrays.asList(Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_4));
         Group group3 = mockUserGroup(68L, "O - user group 3", Collections.emptyList());
         when(userService.getGroups()).thenReturn(Arrays.asList(group2, group1, group3));
-        SecurityPropertySet sps1 = mockSecurityPropertySet(101L, "Primary", 1001, "Auth1", 2001, "Encrypt1", 3001, "Suite1", 4001, "RequestSec1", 5001, "ResponseSec1"
+        SecurityPropertySet sps1 = mockSecurityPropertySet(101L, "Primary", "Primary client", 1001, "Auth1", 2001, "Encrypt1", 3001, "Suite1", 4001, "RequestSec1", 5001, "ResponseSec1"
         );
         when(sps1.getDeviceConfiguration()).thenReturn(deviceConfiguration);
-        SecurityPropertySet sps2 = mockSecurityPropertySet(102L, "Secondary", 1002, "Auth2", 2002, "Encrypt2", 3002, "Suite2", 4002, "RequestSec2", 5002, "ResponseSec2"
+        SecurityPropertySet sps2 = mockSecurityPropertySet(102L, "Secondary", "Secondary client", 1002, "Auth2", 2002, "Encrypt2", 3002, "Suite2", 4002, "RequestSec2", 5002, "ResponseSec2"
         );
         when(sps2.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         when(deviceConfiguration.getSecurityPropertySets()).thenReturn(Arrays.asList(sps1, sps2));
@@ -147,9 +148,9 @@ public class SecurityPropertySetResourceTest extends DeviceConfigurationApplicat
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         when(deviceProtocol.getAuthenticationAccessLevels()).thenReturn(Arrays.asList(DeviceProtocolAuthenticationAccessLevels.values()));
 
-        SecurityPropertySet sps1 = mockSecurityPropertySet(101L, "Primary", 1001, "Auth1", 2001, "Encrypt1", 3001, "Suite1", 4001, "RequestSec1", 5001, "ResponseSec1");
+        SecurityPropertySet sps1 = mockSecurityPropertySet(101L, "Primary", "Primary client", 1001, "Auth1", 2001, "Encrypt1", 3001, "Suite1", 4001, "RequestSec1", 5001, "ResponseSec1");
         when(sps1.getDeviceConfiguration()).thenReturn(deviceConfiguration);
-        SecurityPropertySet sps2 = mockSecurityPropertySet(102L, "Secondary", 1002, "Auth2", 2002, "Encrypt2", 3002, "Suite2", 4002, "RequestSec2", 5002, "ResponseSec2");
+        SecurityPropertySet sps2 = mockSecurityPropertySet(102L, "Secondary", "Secondary client", 1002, "Auth2", 2002, "Encrypt2", 3002, "Suite2", 4002, "RequestSec2", 5002, "ResponseSec2");
         when(sps2.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         when(deviceConfiguration.getSecurityPropertySets()).thenReturn(Arrays.asList(sps1, sps2));
         when(deviceConfigurationService.findDeviceConfiguration(456L)).thenReturn(Optional.of(deviceConfiguration));
@@ -177,9 +178,9 @@ public class SecurityPropertySetResourceTest extends DeviceConfigurationApplicat
         when(((AdvancedDeviceProtocolSecurityCapabilities) deviceProtocol).getSecuritySuites()).thenReturn(Collections.singletonList(securitySuite));
         when(deviceProtocol.getAuthenticationAccessLevels()).thenReturn(Arrays.asList(DeviceProtocolAuthenticationAccessLevels.values()));
 
-        SecurityPropertySet sps1 = mockSecurityPropertySet(101L, "Primary", 1001, "Auth1", 2001, "Encrypt1", 3001, "Suite1", 4001, "RequestSec1", 5001, "ResponseSec1");
+        SecurityPropertySet sps1 = mockSecurityPropertySet(101L, "Primary", "Primary client", 1001, "Auth1", 2001, "Encrypt1", 3001, "Suite1", 4001, "RequestSec1", 5001, "ResponseSec1");
         when(sps1.getDeviceConfiguration()).thenReturn(deviceConfiguration);
-        SecurityPropertySet sps2 = mockSecurityPropertySet(102L, "Secondary", 1002, "Auth2", 2002, "Encrypt2", 3002, "Suite2", 4002, "RequestSec2", 5002, "ResponseSec2");
+        SecurityPropertySet sps2 = mockSecurityPropertySet(102L, "Secondary", "Secondary client", 1002, "Auth2", 2002, "Encrypt2", 3002, "Suite2", 4002, "RequestSec2", 5002, "ResponseSec2");
         when(sps2.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         when(deviceConfiguration.getSecurityPropertySets()).thenReturn(Arrays.asList(sps1, sps2));
         when(deviceConfigurationService.findDeviceConfiguration(456L)).thenReturn(Optional.of(deviceConfiguration));
@@ -207,9 +208,9 @@ public class SecurityPropertySetResourceTest extends DeviceConfigurationApplicat
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         when(deviceProtocol.getEncryptionAccessLevels()).thenReturn(Arrays.asList(DeviceProtocolEncryptionAccessLevels.values()));
 
-        SecurityPropertySet sps1 = mockSecurityPropertySet(101L, "Primary", 1001, "Auth1", 2001, "Encrypt1", 3001, "Suite1", 4001, "RequestSec1", 5001, "ResponseSec1");
+        SecurityPropertySet sps1 = mockSecurityPropertySet(101L, "Primary", "Primary client", 1001, "Auth1", 2001, "Encrypt1", 3001, "Suite1", 4001, "RequestSec1", 5001, "ResponseSec1");
         when(sps1.getDeviceConfiguration()).thenReturn(deviceConfiguration);
-        SecurityPropertySet sps2 = mockSecurityPropertySet(102L, "Secondary", 1002, "Auth2", 2002, "Encrypt2", 3002, "Suite2", 4002, "RequestSec2", 5002, "ResponseSec2");
+        SecurityPropertySet sps2 = mockSecurityPropertySet(102L, "Secondary", "Secondary client", 1002, "Auth2", 2002, "Encrypt2", 3002, "Suite2", 4002, "RequestSec2", 5002, "ResponseSec2");
         when(sps2.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         when(deviceConfiguration.getSecurityPropertySets()).thenReturn(Arrays.asList(sps1, sps2));
         when(deviceConfigurationService.findDeviceConfiguration(456L)).thenReturn(Optional.of(deviceConfiguration));
@@ -238,9 +239,9 @@ public class SecurityPropertySetResourceTest extends DeviceConfigurationApplicat
         when(((AdvancedDeviceProtocolSecurityCapabilities) deviceProtocol).getSecuritySuites()).thenReturn(Collections.singletonList(securitySuite));
         when(deviceProtocol.getEncryptionAccessLevels()).thenReturn(Arrays.asList(DeviceProtocolEncryptionAccessLevels.values()));
 
-        SecurityPropertySet sps1 = mockSecurityPropertySet(101L, "Primary", 1001, "Auth1", 2001, "Encrypt1", 3001, "Suite1", 4001, "RequestSec1", 5001, "ResponseSec1");
+        SecurityPropertySet sps1 = mockSecurityPropertySet(101L, "Primary", "Primary client", 1001, "Auth1", 2001, "Encrypt1", 3001, "Suite1", 4001, "RequestSec1", 5001, "ResponseSec1");
         when(sps1.getDeviceConfiguration()).thenReturn(deviceConfiguration);
-        SecurityPropertySet sps2 = mockSecurityPropertySet(102L, "Secondary", 1002, "Auth2", 2002, "Encrypt2", 3002, "Suite2", 4002, "RequestSec2", 5002, "ResponseSec2");
+        SecurityPropertySet sps2 = mockSecurityPropertySet(102L, "Secondary", "Secondary client", 1002, "Auth2", 2002, "Encrypt2", 3002, "Suite2", 4002, "RequestSec2", 5002, "ResponseSec2");
         when(sps2.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         when(deviceConfiguration.getSecurityPropertySets()).thenReturn(Arrays.asList(sps1, sps2));
         when(deviceConfigurationService.findDeviceConfiguration(456L)).thenReturn(Optional.of(deviceConfiguration));
@@ -267,9 +268,9 @@ public class SecurityPropertySetResourceTest extends DeviceConfigurationApplicat
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
 
-        SecurityPropertySet sps1 = mockSecurityPropertySet(101L, "Primary", 1001, "Auth1", 2001, "Encrypt1", 3001, "Suite1", 4001, "RequestSec1", 5001, "ResponseSec1");
+        SecurityPropertySet sps1 = mockSecurityPropertySet(101L, "Primary", "Primary client", 1001, "Auth1", 2001, "Encrypt1", 3001, "Suite1", 4001, "RequestSec1", 5001, "ResponseSec1");
         when(sps1.getDeviceConfiguration()).thenReturn(deviceConfiguration);
-        SecurityPropertySet sps2 = mockSecurityPropertySet(102L, "Secondary", 1002, "Auth2", 2002, "Encrypt2", 3002, "Suite2", 4002, "RequestSec2", 5002, "ResponseSec2");
+        SecurityPropertySet sps2 = mockSecurityPropertySet(102L, "Secondary", "Secondary client", 1002, "Auth2", 2002, "Encrypt2", 3002, "Suite2", 4002, "RequestSec2", 5002, "ResponseSec2");
         when(sps2.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         when(deviceConfiguration.getSecurityPropertySets()).thenReturn(Arrays.asList(sps1, sps2));
         when(deviceConfigurationService.findDeviceConfiguration(456L)).thenReturn(Optional.of(deviceConfiguration));
@@ -294,9 +295,9 @@ public class SecurityPropertySetResourceTest extends DeviceConfigurationApplicat
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         when(((AdvancedDeviceProtocolSecurityCapabilities) deviceProtocol).getSecuritySuites()).thenReturn(Arrays.asList(DeviceProtocolSecuritySuite.values()));
 
-        SecurityPropertySet sps1 = mockSecurityPropertySet(101L, "Primary", 1001, "Auth1", 2001, "Encrypt1", 3001, "Suite1", 4001, "RequestSec1", 5001, "ResponseSec1");
+        SecurityPropertySet sps1 = mockSecurityPropertySet(101L, "Primary", "Primary client", 1001, "Auth1", 2001, "Encrypt1", 3001, "Suite1", 4001, "RequestSec1", 5001, "ResponseSec1");
         when(sps1.getDeviceConfiguration()).thenReturn(deviceConfiguration);
-        SecurityPropertySet sps2 = mockSecurityPropertySet(102L, "Secondary", 1002, "Auth2", 2002, "Encrypt2", 3002, "Suite2", 4002, "RequestSec2", 5002, "ResponseSec2");
+        SecurityPropertySet sps2 = mockSecurityPropertySet(102L, "Secondary", "Secondary client", 1002, "Auth2", 2002, "Encrypt2", 3002, "Suite2", 4002, "RequestSec2", 5002, "ResponseSec2");
         when(sps2.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         when(deviceConfiguration.getSecurityPropertySets()).thenReturn(Arrays.asList(sps1, sps2));
         when(deviceConfigurationService.findDeviceConfiguration(456L)).thenReturn(Optional.of(deviceConfiguration));
@@ -325,9 +326,9 @@ public class SecurityPropertySetResourceTest extends DeviceConfigurationApplicat
         when(((AdvancedDeviceProtocolSecurityCapabilities) deviceProtocol).getSecuritySuites()).thenReturn(Collections.singletonList(securitySuite));
         when(((AdvancedDeviceProtocolSecurityCapabilities) deviceProtocol).getRequestSecurityLevels()).thenReturn(Arrays.asList(DeviceProtocolRequestSecurityLevels.values()));
 
-        SecurityPropertySet sps1 = mockSecurityPropertySet(101L, "Primary", 1001, "Auth1", 2001, "Encrypt1", 3001, "Suite1", 4001, "RequestSec1", 5001, "ResponseSec1");
+        SecurityPropertySet sps1 = mockSecurityPropertySet(101L, "Primary", "Primary client", 1001, "Auth1", 2001, "Encrypt1", 3001, "Suite1", 4001, "RequestSec1", 5001, "ResponseSec1");
         when(sps1.getDeviceConfiguration()).thenReturn(deviceConfiguration);
-        SecurityPropertySet sps2 = mockSecurityPropertySet(102L, "Secondary", 1002, "Auth2", 2002, "Encrypt2", 3002, "Suite2", 4002, "RequestSec2", 5002, "ResponseSec2");
+        SecurityPropertySet sps2 = mockSecurityPropertySet(102L, "Secondary", "Secondary client", 1002, "Auth2", 2002, "Encrypt2", 3002, "Suite2", 4002, "RequestSec2", 5002, "ResponseSec2");
         when(sps2.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         when(deviceConfiguration.getSecurityPropertySets()).thenReturn(Arrays.asList(sps1, sps2));
         when(deviceConfigurationService.findDeviceConfiguration(456L)).thenReturn(Optional.of(deviceConfiguration));
@@ -359,9 +360,9 @@ public class SecurityPropertySetResourceTest extends DeviceConfigurationApplicat
         when(((AdvancedDeviceProtocolSecurityCapabilities) deviceProtocol).getSecuritySuites()).thenReturn(Collections.singletonList(securitySuite));
         when(((AdvancedDeviceProtocolSecurityCapabilities) deviceProtocol).getResponseSecurityLevels()).thenReturn(Arrays.asList(DeviceProtocolResponseSecurityLevels.values()));
 
-        SecurityPropertySet sps1 = mockSecurityPropertySet(101L, "Primary", 1001, "Auth1", 2001, "Encrypt1", 3001, "Suite1", 4001, "RequestSec1", 5001, "ResponseSec1");
+        SecurityPropertySet sps1 = mockSecurityPropertySet(101L, "Primary", "Primary client", 1001, "Auth1", 2001, "Encrypt1", 3001, "Suite1", 4001, "RequestSec1", 5001, "ResponseSec1");
         when(sps1.getDeviceConfiguration()).thenReturn(deviceConfiguration);
-        SecurityPropertySet sps2 = mockSecurityPropertySet(102L, "Secondary", 1002, "Auth2", 2002, "Encrypt2", 3002, "Suite2", 4002, "RequestSec2", 5002, "ResponseSec2");
+        SecurityPropertySet sps2 = mockSecurityPropertySet(102L, "Secondary", "Secondary client", 1002, "Auth2", 2002, "Encrypt2", 3002, "Suite2", 4002, "RequestSec2", 5002, "ResponseSec2");
         when(sps2.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         when(deviceConfiguration.getSecurityPropertySets()).thenReturn(Arrays.asList(sps1, sps2));
         when(deviceConfigurationService.findDeviceConfiguration(456L)).thenReturn(Optional.of(deviceConfiguration));
@@ -419,11 +420,12 @@ public class SecurityPropertySetResourceTest extends DeviceConfigurationApplicat
         return mock;
     }
 
-    private SecurityPropertySet mockSecurityPropertySet(Long id, String name, Integer authenticationAccessLevelId, String authenticationAccessLevelName, Integer encryptionAccessLevelId, String encryptionAccessLevelName,
+    private SecurityPropertySet mockSecurityPropertySet(Long id, String name, String client, Integer authenticationAccessLevelId, String authenticationAccessLevelName, Integer encryptionAccessLevelId, String encryptionAccessLevelName,
                                                         Integer securitySuiteId, String securitySuiteName, Integer requestSecurityLevelId, String requestSecurityLevelName, Integer responseSecurityLevelId, String responseSecurityLevelName) {
         SecurityPropertySet mock = mock(SecurityPropertySet.class);
         when(mock.getId()).thenReturn(id);
         when(mock.getName()).thenReturn(name);
+        when(mock.getClient()).thenReturn(client);
         AuthenticationDeviceAccessLevel authenticationAccessLevel = mock(AuthenticationDeviceAccessLevel.class);
         when(authenticationAccessLevel.getId()).thenReturn(authenticationAccessLevelId);
         when(authenticationAccessLevel.getTranslation()).thenReturn(authenticationAccessLevelName);

@@ -8,8 +8,6 @@ import com.elster.jupiter.rest.util.VersionInfo;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.GatewayType;
 import com.energyict.mdc.device.configuration.rest.GatewayTypeAdapter;
-import com.energyict.mdc.protocol.api.DeviceFunction;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
 
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 
@@ -36,8 +34,7 @@ public class DeviceConfigurationInfo {
     public GatewayType gatewayType;
     @JsonUnwrapped // As requested by ExtJS people
     public DeviceProtocolInfo deviceProtocolInfo;
-    @XmlJavaTypeAdapter(DeviceFunctionAdapter.class)
-    public DeviceFunction deviceFunction;
+
     public VersionInfo<Long> parent;
     public Boolean dataloggerEnabled;
 
@@ -59,14 +56,7 @@ public class DeviceConfigurationInfo {
         version = deviceConfiguration.getVersion();
         parent = new VersionInfo<>(deviceConfiguration.getDeviceType().getId(), deviceConfiguration.getDeviceType().getVersion());
         dataloggerEnabled = deviceConfiguration.isDataloggerEnabled();
-
-        deviceConfiguration.getDeviceType().getDeviceProtocolPluggableClass().ifPresent(deviceProtocolPluggableClass -> {
-            this.deviceProtocolInfo = new DeviceProtocolInfo(deviceProtocolPluggableClass);
-            DeviceProtocol deviceProtocol = deviceProtocolPluggableClass.getDeviceProtocol();
-            if (deviceProtocol != null) {
-                deviceFunction = deviceProtocol.getDeviceFunction();
-            }
-        });
+        deviceConfiguration.getDeviceType().getDeviceProtocolPluggableClass().ifPresent(deviceProtocolPluggableClass -> this.deviceProtocolInfo = new DeviceProtocolInfo(deviceProtocolPluggableClass));
     }
 
     public static List<DeviceConfigurationInfo> from(List<DeviceConfiguration> deviceConfigurations) {

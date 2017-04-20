@@ -120,6 +120,7 @@ public class SecurityPropertySetResource {
 
         SecurityPropertySetBuilder builder = deviceConfiguration
                 .createSecurityPropertySet(info.name)
+                .client(info.client)
                 .authenticationLevel(info.authenticationLevelId)
                 .encryptionLevel(info.encryptionLevelId)
                 .securitySuite(info.securitySuiteId)

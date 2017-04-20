@@ -409,6 +409,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         when(deviceProtocol.getDeviceFunction()).thenReturn(DeviceFunction.METER);
+        when(deviceProtocol.getClientSecurityPropertySpec()).thenReturn(Optional.of(mock(PropertySpec.class)));
         when(deviceConfiguration.canActAsGateway()).thenReturn(true);
         when(deviceConfiguration.getGatewayType()).thenReturn(GatewayType.HOME_AREA_NETWORK);
         when(deviceConfiguration.isDirectlyAddressable()).thenReturn(true);
@@ -427,7 +428,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         assertThat((List) map.get("deviceConfigurations")).hasSize(1)
                 .describedAs("JSon representation of a field, JavaScript impact if it changed");
         Map jsonDeviceConfiguration = (Map) ((List) map.get("deviceConfigurations")).get(0);
-        assertThat(jsonDeviceConfiguration).hasSize(16);
+        assertThat(jsonDeviceConfiguration).hasSize(18);
         assertThat(jsonDeviceConfiguration.get("id")).isEqualTo(113)
                 .describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonDeviceConfiguration.get("name")).isEqualTo("defcon")
@@ -439,6 +440,10 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         assertThat(jsonDeviceConfiguration.get("deviceProtocolPluggableClass")).isEqualTo("device protocol name")
                 .describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonDeviceConfiguration.get("deviceFunction")).isEqualTo("Meter")
+                .describedAs("JSon representation of a field, JavaScript impact if it changed");
+        assertThat(jsonDeviceConfiguration.get("deviceProtocolSupportsClient")).isEqualTo(true)
+                .describedAs("JSon representation of a field, JavaScript impact if it changed");
+        assertThat(jsonDeviceConfiguration.get("deviceProtocolSupportSecuritySuites")).isEqualTo(false)
                 .describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonDeviceConfiguration.get("registerCount")).isEqualTo(2)
                 .describedAs("JSon representation of a field, JavaScript impact if it changed");
@@ -513,6 +518,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         when(deviceProtocol.getDeviceFunction()).thenReturn(DeviceFunction.METER);
+        when(deviceProtocol.getClientSecurityPropertySpec()).thenReturn(Optional.empty());
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         when(deviceProtocolPluggableClass.getName()).thenReturn("device protocol name");
         when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(deviceProtocolPluggableClass));

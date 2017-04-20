@@ -26,6 +26,8 @@ public class SecurityPropertySetInfo {
     public Integer encryptionLevelId;
     @JsonProperty("encryptionLevel")
     public SecurityLevelInfo encryptionLevel;
+    @JsonProperty("client")
+    public String client;
     @JsonProperty("securitySuiteId")
     public Integer securitySuiteId;
     @JsonProperty("securitySuite")
@@ -39,7 +41,6 @@ public class SecurityPropertySetInfo {
     @JsonProperty("responseSecurityLevel")
     public SecurityLevelInfo responseSecurityLevel;
 
-    public List<ExecutionLevelInfo> executionLevels;
     public long version;
     public VersionInfo<Long> parent;
 
@@ -64,11 +65,12 @@ public class SecurityPropertySetInfo {
             this.responseSecurityLevelId = DeviceAccessLevel.NOT_USED_DEVICE_ACCESS_LEVEL_ID;
         }
 
+        securityPropertySet.setClient(this.client);
         securityPropertySet.setAuthenticationLevelId(this.authenticationLevelId);
         securityPropertySet.setEncryptionLevelId(this.encryptionLevelId);
         securityPropertySet.setSecuritySuiteId(this.securitySuiteId);
         securityPropertySet.setRequestSecurityLevelId(this.requestSecurityLevelId);
-        securityPropertySet.setResponseSecurityLevelId(this.responseSecurityLevelId);;
+        securityPropertySet.setResponseSecurityLevelId(this.responseSecurityLevelId);
     }
 
 }
