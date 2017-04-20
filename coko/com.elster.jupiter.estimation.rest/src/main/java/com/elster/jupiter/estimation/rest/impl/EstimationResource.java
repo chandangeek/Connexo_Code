@@ -421,9 +421,9 @@ public class EstimationResource {
                 .setScheduleExpression(getScheduleExpression(info))
                 .setNextExecution(info.nextRun == null ? null : Instant.ofEpochMilli(info.nextRun))
                 .setPeriod(getRelativePeriod(info.period))
-                .setEndDeviceGroup(info.deviceGroup!=null ? endDeviceGroup(info.deviceGroup.id) : null)
-                .setUsagePointGroup(info.usagePointGroup!=null ? usagePointGroup(info.usagePointGroup.id) : null)
-                .setMetrologyPurpose(info.metrologyPurpose!=null ? metrologyPurpose(info.metrologyPurpose.id) : null)
+                .setEndDeviceGroup(info.deviceGroup != null ? endDeviceGroup(info.deviceGroup.id) : null)
+                .setUsagePointGroup(info.usagePointGroup != null ? usagePointGroup(info.usagePointGroup.id) : null)
+                .setMetrologyPurpose(info.metrologyPurpose != null ? metrologyPurpose(info.metrologyPurpose.id) : null)
                 .create();
 
         return Response.status(Response.Status.CREATED)
@@ -473,16 +473,16 @@ public class EstimationResource {
         }
         task.setPeriod(getRelativePeriod(info.period));
 
-        if(info.deviceGroup!=null) {
+        if (info.deviceGroup != null) {
             task.setEndDeviceGroup(endDeviceGroup(info.deviceGroup.id));
         }
-        if(info.usagePointGroup!=null){
+        if (info.usagePointGroup != null) {
             task.setUsagePointGroup(usagePointGroup(info.usagePointGroup.id));
-            if(info.metrologyPurpose!=null){
+            if (info.metrologyPurpose != null) {
                 task.setMetrologyPurpose(metrologyPurpose(info.metrologyPurpose.id));
             }
         }
-        if(info.usagePointGroup==null && info.deviceGroup==null){
+        if (info.usagePointGroup == null && info.deviceGroup == null) {
             task.setEndDeviceGroup(null);
             task.setUsagePointGroup(null);
         }
@@ -506,13 +506,15 @@ public class EstimationResource {
         EstimationTaskOccurrenceFinder occurrencesFinder = task.getOccurrencesFinder().setStart(parameters.getStart().orElse(0)).setLimit(parameters.getLimit().orElse(10) + 1);
 
         if (filter.hasProperty("startedOnFrom")) {
-            occurrencesFinder.withStartDateIn(filter.hasProperty("startedOnTo") ? Range.closed(filter.getInstant("startedOnFrom"), filter.getInstant("startedOnTo")) : Range.atLeast(filter.getInstant("startedOnFrom")));
+            occurrencesFinder.withStartDateIn(filter.hasProperty("startedOnTo") ? Range.closed(filter.getInstant("startedOnFrom"), filter.getInstant("startedOnTo")) : Range.atLeast(filter
+                    .getInstant("startedOnFrom")));
         } else if (filter.hasProperty("startedOnTo")) {
             occurrencesFinder.withStartDateIn(Range.closed(Instant.EPOCH, filter.getInstant("startedOnTo")));
         }
 
         if (filter.hasProperty("finishedOnFrom")) {
-            occurrencesFinder.withEndDateIn(filter.hasProperty("finishedOnTo") ? Range.closed(filter.getInstant("finishedOnFrom"), filter.getInstant("finishedOnTo")) : Range.atLeast(filter.getInstant("finishedOnFrom")));
+            occurrencesFinder.withEndDateIn(filter.hasProperty("finishedOnTo") ? Range.closed(filter.getInstant("finishedOnFrom"), filter.getInstant("finishedOnTo")) : Range.atLeast(filter
+                    .getInstant("finishedOnFrom")));
         } else if (filter.hasProperty("finishedOnTo")) {
             occurrencesFinder.withStartDateIn(Range.closed(Instant.EPOCH, filter.getInstant("finishedOnTo")));
         }

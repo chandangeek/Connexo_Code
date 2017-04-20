@@ -22,16 +22,12 @@ import com.jayway.jsonpath.JsonModel;
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
-import java.util.function.Supplier;
 
 import org.junit.After;
 import org.junit.Before;
@@ -103,7 +99,7 @@ public class EstimationTaskResourceTest extends EstimationApplicationJerseyTest 
     }
 
     @After
-    public void after(){
+    public void after() {
         Mockito.validateMockitoUsage();
     }
 
@@ -128,7 +124,7 @@ public class EstimationTaskResourceTest extends EstimationApplicationJerseyTest 
         info.version = 1L;
         Entity<EstimationTaskInfo> json = Entity.json(info);
 
-        Response response1 = target("/estimation/tasks/"+TASK_ID+"/trigger").request().header(HEADER_NAME, MULTISENSE_KEY).put(json);
+        Response response1 = target("/estimation/tasks/" + TASK_ID + "/trigger").request().header(HEADER_NAME, MULTISENSE_KEY).put(json);
         assertThat(response1.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
 
         verify(estimationTask).triggerNow();
