@@ -210,10 +210,11 @@ class VirtualReadingTypeRequirement {
                 timeSeries.getRawValuesSql(
                     this.rawDataPeriod,
                     this.toFieldSpecAndAliasNamePair(SqlConstants.TimeSeriesColumnNames.VALUE),
-                    this.toFieldSpecAndAliasNamePair(SqlConstants.TimeSeriesColumnNames.LOCALDATE)));
+                    this.toFieldSpecAndAliasNamePair(SqlConstants.TimeSeriesColumnNames.LOCALDATE)),
+                true);
     }
 
-    private SqlBuilder timeSeriesWithReadingQualitiesSqlBuilder(TimeSeries timeSeries, SqlFragment timeSeriesSql) {
+    private SqlBuilder timeSeriesWithReadingQualitiesSqlBuilder(TimeSeries timeSeries, SqlFragment timeSeriesSql, boolean supportLocalDate) {
         SqlBuilder builder = new SqlBuilder("SELECT NVL(rawts.");
         builder.append(SqlConstants.TimeSeriesColumnNames.ID.fieldSpecName());
         builder.append(", ");
@@ -228,8 +229,10 @@ class VirtualReadingTypeRequirement {
         builder.append(SqlConstants.TimeSeriesColumnNames.VERSIONCOUNT.fieldSpecName());
         builder.append(", rawts.");
         builder.append(SqlConstants.TimeSeriesColumnNames.RECORDTIME.fieldSpecName());
-        builder.append(", rawts.");
-        builder.append(SqlConstants.TimeSeriesColumnNames.LOCALDATE.fieldSpecName());
+        if (supportLocalDate) {
+            builder.append(", rawts.");
+            builder.append(SqlConstants.TimeSeriesColumnNames.LOCALDATE.fieldSpecName());
+        }
         builder.append(", rawts.");
         builder.append(SqlConstants.TimeSeriesColumnNames.VALUE.fieldSpecName());
         builder.append(", NVL(rq.");
@@ -303,7 +306,8 @@ class VirtualReadingTypeRequirement {
                         timeSeries,
                         timeSeries.getRawValuesSql(
                                 this.rawDataPeriod,
-                                this.toFieldSpecAndAliasNamePair(SqlConstants.TimeSeriesColumnNames.VALUE))));
+                                this.toFieldSpecAndAliasNamePair(SqlConstants.TimeSeriesColumnNames.VALUE)),
+                        false));
         sqlBuilder.append(") ts");
     }
 
