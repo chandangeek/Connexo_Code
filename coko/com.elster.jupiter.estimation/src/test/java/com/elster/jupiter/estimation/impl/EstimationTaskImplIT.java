@@ -269,6 +269,7 @@ public class EstimationTaskImplIT {
         Assertions.assertThat(readingTypeDataExportTask.getEndDeviceGroup().isPresent()).isTrue();
         Assertions.assertThat(readingTypeDataExportTask.getEndDeviceGroup().get().getId()).isEqualTo(endDeviceGroup.getId());
         assertThat(readingTypeDataExportTask.getLastRun()).isEmpty();
+        assertThat(found.get().shouldRevalidate()).isEqualTo(true);
         Assertions.assertThat(readingTypeDataExportTask.getNextExecution()).isEqualTo(NOW.truncatedTo(ChronoUnit.DAYS).plusDays(1).toInstant());
     }
 
@@ -289,6 +290,7 @@ public class EstimationTaskImplIT {
             task.setScheduleExpression(Never.NEVER);
             task.setEndDeviceGroup(anotherEndDeviceGroup);
             task.setName("New name!");
+            task.setRevalidate(false);
             task.update();
             context.commit();
         }
@@ -299,6 +301,7 @@ public class EstimationTaskImplIT {
 
         Assertions.assertThat(found.get().getNextExecution()).isEqualTo(instant);
         Assertions.assertThat(found.get().getScheduleExpression()).isEqualTo(Never.NEVER);
+        Assertions.assertThat(found.get().shouldRevalidate()).isEqualTo(false);
         Assertions.assertThat(found.get().getEndDeviceGroup().isPresent()).isTrue();
         Assertions.assertThat(found.get().getEndDeviceGroup().get().getId()).isEqualTo(anotherEndDeviceGroup.getId());
         Assertions.assertThat(found.get().getName()).isEqualTo("New name!");
@@ -317,6 +320,7 @@ public class EstimationTaskImplIT {
         Assertions.assertThat(readingTypeDataExportTask.getUsagePointGroup().isPresent()).isTrue();
         Assertions.assertThat(readingTypeDataExportTask.getUsagePointGroup().get().getId()).isEqualTo(usagePointGroup.getId());
         assertThat(readingTypeDataExportTask.getLastRun()).isEmpty();
+        assertThat(found.get().shouldRevalidate()).isEqualTo(true);
         Assertions.assertThat(readingTypeDataExportTask.getNextExecution()).isEqualTo(NOW.truncatedTo(ChronoUnit.DAYS).plusDays(1).toInstant());
     }
 
@@ -335,6 +339,7 @@ public class EstimationTaskImplIT {
             EstimationTask task = found.get();
             task.setNextExecution(instant);
             task.setScheduleExpression(Never.NEVER);
+            task.setRevalidate(false);
             task.setUsagePointGroup(anotherUsagePointGroup);
             task.setName("New name!");
             task.update();
@@ -347,6 +352,7 @@ public class EstimationTaskImplIT {
 
         Assertions.assertThat(found.get().getNextExecution()).isEqualTo(instant);
         Assertions.assertThat(found.get().getScheduleExpression()).isEqualTo(Never.NEVER);
+        assertThat(found.get().shouldRevalidate()).isEqualTo(false);
         Assertions.assertThat(found.get().getUsagePointGroup().isPresent()).isTrue();
         Assertions.assertThat(found.get().getUsagePointGroup().get().getId()).isEqualTo(anotherUsagePointGroup.getId());
         Assertions.assertThat(found.get().getName()).isEqualTo("New name!");
@@ -382,7 +388,7 @@ public class EstimationTaskImplIT {
         return estimationService.newBuilder()
                 .scheduleImmediately()
                 .setName(name)
-                .setReValidate(true)
+                .setRevalidate(true)
                 .setQualityCodeSystem(QualityCodeSystem.MDC)
                 .setEndDeviceGroup(endDeviceGroup)
                 .setScheduleExpression(new TemporalExpression(TimeDuration.TimeUnit.DAYS.during(1), TimeDuration.TimeUnit.HOURS.during(0)))
@@ -393,7 +399,7 @@ public class EstimationTaskImplIT {
         return estimationService.newBuilder()
                 .scheduleImmediately()
                 .setName(name)
-                .setReValidate(true)
+                .setRevalidate(true)
                 .setQualityCodeSystem(QualityCodeSystem.MDM)
                 .setUsagePointGroup(usagePointGroup)
                 .setScheduleExpression(new TemporalExpression(TimeDuration.TimeUnit.DAYS.during(1), TimeDuration.TimeUnit.HOURS.during(0)))

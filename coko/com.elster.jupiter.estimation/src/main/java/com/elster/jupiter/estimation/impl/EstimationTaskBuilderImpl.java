@@ -25,7 +25,7 @@ class EstimationTaskBuilderImpl implements EstimationTaskBuilder {
     private Instant nextExecution;
     private boolean scheduleImmediately;
     private String name;
-    private Boolean reValidate;
+    private Boolean revalidate;
     private EndDeviceGroup endDeviceGroup;
     private UsagePointGroup usagePointGroup;
     private MetrologyPurpose metrologyPurpose;
@@ -68,7 +68,7 @@ class EstimationTaskBuilderImpl implements EstimationTaskBuilder {
 
     @Override
     public EstimationTask create() {
-        IEstimationTask task = EstimationTaskImpl.from(dataModel, name, reValidate, endDeviceGroup, usagePointGroup, scheduleExpression, nextExecution, qualityCodeSystem, logLevel);
+        IEstimationTask task = EstimationTaskImpl.from(dataModel, name, revalidate, endDeviceGroup, usagePointGroup, scheduleExpression, nextExecution, qualityCodeSystem, logLevel);
         task.setScheduleImmediately(scheduleImmediately);
         if (period != null) {
             task.setPeriod(period);
@@ -87,8 +87,8 @@ class EstimationTaskBuilderImpl implements EstimationTaskBuilder {
     }
 
     @Override
-    public EstimationTaskBuilder setReValidate(Boolean state) {
-        this.reValidate = state;
+    public EstimationTaskBuilder setRevalidate(Boolean state) {
+        this.revalidate = state;
         return this;
     }
 

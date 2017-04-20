@@ -51,7 +51,7 @@ public interface EstimationTask extends HasName, HasAuditInfo {
 
     Optional<TaskOccurrence> getLastOccurrence();
 
-    boolean isReValidate();
+    boolean shouldRevalidate();
 
     EstimationTaskOccurrenceFinder getOccurrencesFinder();
 
@@ -71,7 +71,7 @@ public interface EstimationTask extends HasName, HasAuditInfo {
 
     void setScheduleExpression(ScheduleExpression scheduleExpression);
 
-    void setReValidate(boolean reValidate);
+    void setRevalidate(boolean revalidate);
 
     void update();
 

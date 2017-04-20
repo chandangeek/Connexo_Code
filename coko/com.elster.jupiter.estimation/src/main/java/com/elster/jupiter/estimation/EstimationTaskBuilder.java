@@ -30,7 +30,7 @@ public interface EstimationTaskBuilder {
 
     EstimationTaskBuilder setName(String string);
 
-    EstimationTaskBuilder setReValidate(Boolean state);
+    EstimationTaskBuilder setRevalidate(Boolean revalidate);
 
     EstimationTaskBuilder setLogLevel(int logLevel);
 
