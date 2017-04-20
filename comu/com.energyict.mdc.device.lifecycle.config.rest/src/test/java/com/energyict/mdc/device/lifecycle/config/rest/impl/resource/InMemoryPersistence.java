@@ -5,6 +5,7 @@
 package com.energyict.mdc.device.lifecycle.config.rest.impl.resource;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
@@ -142,6 +143,7 @@ public class InMemoryPersistence {
                 new IdsModule(),
                 new PubSubModule(),
                 new UserModule(),
+                new BpmModule(),
                 new MeteringModule(),
                 new UtilModule(),
                 new DomainUtilModule(),
