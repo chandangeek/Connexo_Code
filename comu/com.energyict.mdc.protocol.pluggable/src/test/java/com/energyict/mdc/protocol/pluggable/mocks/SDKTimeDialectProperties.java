@@ -8,10 +8,9 @@ import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.TimeDurationValueFactory;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.elster.jupiter.properties.TimeDurationValueFactory;
-import com.energyict.mdc.dynamic.TemporalAmountValueFactory;
 import com.energyict.mdc.protocol.api.CommonDeviceProtocolDialectProperties;
 
 /**
