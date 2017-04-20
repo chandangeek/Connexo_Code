@@ -39,6 +39,8 @@ public interface SecurityPropertySet extends HasName, HasId, SecurityPropertySpe
 
     EncryptionDeviceAccessLevel getEncryptionDeviceAccessLevel();
 
+    String getClient();
+
     SecuritySuite getSecuritySuite();
 
     RequestSecurityLevel getRequestSecurityLevel();
@@ -59,6 +61,8 @@ public interface SecurityPropertySet extends HasName, HasId, SecurityPropertySpe
     void setAuthenticationLevelId(int authenticationLevelId);
 
     void setEncryptionLevelId(int encryptionLevelId);
+
+    void setClient(String client);
 
     void setSecuritySuiteId(int securitySuiteId);
 

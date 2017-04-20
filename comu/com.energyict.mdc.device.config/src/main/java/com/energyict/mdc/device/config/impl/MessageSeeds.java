@@ -169,6 +169,7 @@ public enum MessageSeeds implements MessageSeed {
     DEVICE_CONFIG_DIRECTLY_ADDRESSABLE_WHEN_CONNECTIONTASKS(15017, Keys.DEVICE_CONFIG_DIRECTLY_ADDRESSABLE_WHEN_CONNECTIONTASKS, "You can''t change this property because you already have connection tasks"),
     CONNECTION_TASK_USED_BY_COMTASK_ENABLEMENT(15018, Keys.CONNECTION_TASK_USED_BY_COMTASK_ENABLEMENT, "You can''t remove the connection method because it is used by a communication task"),
     TIME_OF_USE_CALENDAR_ONLY(15019, Keys.TIME_OF_USE_CALENDAR_ONLY, "You can only add Time of Use calendars to a device type"),
+    INVALID_VALUE(15020, Keys.INVALID_VALUE, "Invalid value"),
     ;
 
     private final int number;
@@ -290,6 +291,8 @@ public enum MessageSeeds implements MessageSeed {
         public static final String DEVICE_CONFIG_DIRECTLY_ADDRESSABLE_WHEN_CONNECTIONTASKS = "deviceConfig.active.directly.addressable.with.connectiontasks";
         public static final String CONNECTION_TASK_USED_BY_COMTASK_ENABLEMENT = "connection.task.used.by.comtask.enablement";
         public static final String TIME_OF_USE_CALENDAR_ONLY = "devicetype.tou.calendar.only";
+        public static final String INVALID_VALUE = "securityPropertySet.unsupportedClient";
+
     }
 
 }

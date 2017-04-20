@@ -13,9 +13,9 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.callback.PersistenceAware;
+import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.users.User;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceSecurityUserAction;
@@ -38,13 +38,12 @@ import javax.inject.Inject;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import javax.validation.constraints.Size;
-import java.security.Principal;
+import java.text.MessageFormat;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -62,6 +61,7 @@ import static java.util.stream.Collectors.toSet;
  * @since 2012-12-14 (11:09)
  */
 @LevelMustBeProvidedIfSupportedByDevice(groups = {Save.Create.class, Save.Update.class})
+@ValidClient(groups = {Save.Create.class, Save.Update.class})
 //Do not remove the public access modifier: CXO-2786
 public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPropertySet> implements ServerSecurityPropertySet, PersistenceAware {
 
@@ -74,6 +74,8 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
     private AuthenticationDeviceAccessLevel authenticationLevel;
     private int encryptionLevelId;
     private EncryptionDeviceAccessLevel encryptionLevel;
+    @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String client;
     private int securitySuiteId = -1;
     private SecuritySuite securitySuite;
     private int requestSecurityLevelId = -1;
@@ -261,6 +263,11 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
     }
 
     @Override
+    public String getClient() {
+        return client;
+    }
+
+    @Override
     public SecuritySuite getSecuritySuite() {
         if (this.securitySuite == null) {
             if (this.securitySuiteId == NOT_USED_DEVICE_ACCESS_LEVEL_ID) {
@@ -407,6 +414,11 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
     @Override
     public void setEncryptionLevelId(int encryptionLevelId) {
         this.encryptionLevelId = encryptionLevelId;
+    }
+
+    @Override
+    public void setClient(String client) {
+        this.client = client;
     }
 
     @Override
@@ -711,9 +723,51 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
         }
     }
 
+    static class ClientValidator implements ConstraintValidator<ValidClient, SecurityPropertySetImpl> {
+
+        private String message;
+
+        @Override
+        public void initialize(ValidClient constraintAnnotation) {
+            message = constraintAnnotation.message();
+        }
+
+        @Override
+        public boolean isValid(SecurityPropertySetImpl value, ConstraintValidatorContext context) {
+            Optional<PropertySpec> clientPropertySpecOptional = value.getDeviceProtocol().getClientSecurityPropertySpec();
+            if (clientPropertySpecOptional.isPresent()) {
+                PropertySpec clientPropertySpec = clientPropertySpecOptional.get();
+                try {
+                    Object actualValue = value.client;
+                    try {
+                        actualValue = clientPropertySpec.getValueFactory().fromStringValue(value.client);
+                    } catch (Exception e) {
+                        // if conversion fails, validation will fail
+                    }
+                    if (!clientPropertySpec.validateValue(actualValue)) {
+                        context.disableDefaultConstraintViolation();
+                        context.buildConstraintViolationWithTemplate(message)
+                                .addPropertyNode("client").addConstraintViolation()
+                                .disableDefaultConstraintViolation();
+                        return false;
+                    }
+                    return true;
+                } catch (InvalidValueException e) {
+                    context.disableDefaultConstraintViolation();
+                                  context.buildConstraintViolationWithTemplate(MessageFormat.format(e.getDefaultPattern(), e.getArguments()))
+                                          .addPropertyNode("client").addConstraintViolation()
+                                          .disableDefaultConstraintViolation();
+                    return false;
+                }
+            }
+            return true; // The device protocol doesn't support client, so no validation required
+        }
+    }
+
     @Override
     public SecurityPropertySet cloneForDeviceConfig(DeviceConfiguration deviceConfiguration) {
         SecurityPropertySetBuilder builder = deviceConfiguration.createSecurityPropertySet(getName());
+        builder.client(client);
         builder.authenticationLevel(authenticationLevelId);
         builder.encryptionLevel(encryptionLevelId);
         builder.securitySuite(securitySuiteId);

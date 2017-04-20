@@ -36,7 +36,9 @@ import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.pki.impl.PkiModule;
+import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.impl.SearchModule;
@@ -82,11 +84,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
-import com.energyict.mdc.protocol.api.security.DeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
-import com.energyict.mdc.protocol.api.security.RequestSecurityLevel;
-import com.energyict.mdc.protocol.api.security.ResponseSecurityLevel;
-import com.energyict.mdc.protocol.api.security.SecuritySuite;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.scheduling.SchedulingService;
@@ -100,13 +98,6 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.fest.assertions.api.Assertions;
 import org.fest.assertions.core.Condition;
-
-import org.junit.*;
-import org.junit.rules.TestRule;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
@@ -116,8 +107,6 @@ import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
 
-import static com.energyict.mdc.protocol.api.security.DeviceAccessLevel.NOT_USED_DEVICE_ACCESS_LEVEL_ID;
-
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -126,9 +115,10 @@ import org.junit.Test;
 import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static java.util.Arrays.asList;
+import static com.energyict.mdc.protocol.api.security.DeviceAccessLevel.NOT_USED_DEVICE_ACCESS_LEVEL_ID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
@@ -164,6 +154,10 @@ public class SecurityPropertySetImplCrudIT {
     private EncryptionDeviceAccessLevel encLevel;
     @Mock
     private PropertySpec spec1, spec2, spec3;
+    @Mock
+    private PropertySpec clientPropertySpec = mock(PropertySpec.class);
+    @Mock
+    private ValueFactory valueFactory = mock(ValueFactory.class);
 
     private static class MockModule extends AbstractModule {
 
@@ -291,9 +285,21 @@ public class SecurityPropertySetImplCrudIT {
     }
 
     @Before
-    public void initializeMocks() {
+    public void initializeMocks() throws InvalidValueException {
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         when(protocolPluggableService.findDeviceProtocolPluggableClass(anyLong())).thenReturn(Optional.of(deviceProtocolPluggableClass));
+        Mockito.when(valueFactory.fromStringValue(Mockito.any(String.class)))
+                .thenAnswer(invocation -> {
+                    Object[] args = invocation.getArguments();
+                    return args[0];
+                });
+        when(clientPropertySpec.getValueFactory()).thenReturn(valueFactory);
+        Mockito.when(clientPropertySpec.validateValue(Mockito.any(Object.class)))
+                .thenAnswer(invocation -> {
+                    Object[] args = invocation.getArguments();
+                    return args.length == 1 && args[0] != null;
+                });
+        when(deviceProtocol.getClientSecurityPropertySpec()).thenReturn(Optional.of(clientPropertySpec));
         when(deviceProtocol.getAuthenticationAccessLevels()).thenReturn(Arrays.asList(authLevel, authLevel2));
         when(deviceProtocol.getEncryptionAccessLevels()).thenReturn(Collections.singletonList(encLevel));
         when(spec1.getName()).thenReturn("spec1");
@@ -317,6 +323,7 @@ public class SecurityPropertySetImplCrudIT {
         deviceConfiguration.save();
 
         propertySet = deviceConfiguration.createSecurityPropertySet("Name")
+                .client("client")
                 .authenticationLevel(1)
                 .encryptionLevel(2)
                 .build();
@@ -328,6 +335,7 @@ public class SecurityPropertySetImplCrudIT {
         SecurityPropertySet reloaded = found.get();
 
         assertThat(reloaded.getName()).isEqualTo("Name");
+        assertThat(reloaded.getClient()).isEqualTo("client");
         assertThat(reloaded.getAuthenticationDeviceAccessLevel()).isEqualTo(authLevel);
         assertThat(reloaded.getEncryptionDeviceAccessLevel()).isEqualTo(encLevel);
         assertThat(reloaded.getSecuritySuite().getId()).isEqualTo(NOT_USED_DEVICE_ACCESS_LEVEL_ID);
@@ -345,6 +353,7 @@ public class SecurityPropertySetImplCrudIT {
         deviceConfiguration.save();
 
         propertySet = deviceConfiguration.createSecurityPropertySet("Name")
+                .client("client")
                 .authenticationLevel(1)
                 .encryptionLevel(2)
                 .build();
@@ -357,6 +366,7 @@ public class SecurityPropertySetImplCrudIT {
         assertThat(propertySet.getRequestSecurityLevel()).isEqualTo(clonedSecurityPropertySet.getRequestSecurityLevel());
         assertThat(propertySet.getResponseSecurityLevel()).isEqualTo(clonedSecurityPropertySet.getResponseSecurityLevel());
         assertThat(propertySet.getName()).isEqualTo(clonedSecurityPropertySet.getName());
+        assertThat(propertySet.getClient()).isEqualTo(clonedSecurityPropertySet.getClient());
         assertThat(clonedSecurityPropertySet.getDeviceConfiguration().getId()).isEqualTo(clonedDeviceConfig.getId());
     }
 
@@ -370,6 +380,7 @@ public class SecurityPropertySetImplCrudIT {
         deviceConfiguration = createNewInactiveConfiguration(deviceType, "Normal");
 
         propertySet = deviceConfiguration.createSecurityPropertySet("Name")
+                .client("client")
                 .authenticationLevel(1)
                 .encryptionLevel(2)
                 .build();
@@ -391,6 +402,7 @@ public class SecurityPropertySetImplCrudIT {
         deviceConfiguration = createNewInactiveConfiguration(deviceType, "Normal");
         ComTask testComTask = createTestComTask();
         propertySet = deviceConfiguration.createSecurityPropertySet("Name")
+                .client("client")
                 .authenticationLevel(1)
                 .encryptionLevel(2)
                 .build();
@@ -420,6 +432,7 @@ public class SecurityPropertySetImplCrudIT {
         deviceConfiguration = createNewInactiveConfiguration(deviceType, "Normal");
 
         propertySet = deviceConfiguration.createSecurityPropertySet("Name")
+                .client("client")
                 .authenticationLevel(1)
                 .encryptionLevel(2)
                 .build();
@@ -435,6 +448,7 @@ public class SecurityPropertySetImplCrudIT {
         SecurityPropertySet reloaded = found.get();
 
         assertThat(reloaded.getName()).isEqualTo("Name");
+        assertThat(reloaded.getClient()).isEqualTo("client");
         assertThat(reloaded.getAuthenticationDeviceAccessLevel()).isEqualTo(authLevel2);
         assertThat(reloaded.getEncryptionDeviceAccessLevel()).isEqualTo(encLevel);
         assertThat(reloaded.getSecuritySuite()).isEqualTo(propertySet.getSecuritySuite());
@@ -452,6 +466,7 @@ public class SecurityPropertySetImplCrudIT {
         deviceConfiguration.save();
 
         propertySet = deviceConfiguration.createSecurityPropertySet("Name")
+                .client("client")
                 .authenticationLevel(2)     // Has spec1 and spec2
                 .encryptionLevel(2)         // Has spec2 and spec3
                 .build();
@@ -470,6 +485,7 @@ public class SecurityPropertySetImplCrudIT {
         deviceConfiguration.save();
 
         deviceConfiguration.createSecurityPropertySet(null)
+                .client("client")
                 .authenticationLevel(1)
                 .encryptionLevel(2)
                 .build();
@@ -485,6 +501,7 @@ public class SecurityPropertySetImplCrudIT {
         deviceConfiguration.save();
 
         deviceConfiguration.createSecurityPropertySet("       ")
+                .client("client")
                 .authenticationLevel(1)
                 .encryptionLevel(2)
                 .build();
@@ -500,6 +517,7 @@ public class SecurityPropertySetImplCrudIT {
         deviceConfiguration.save();
 
         deviceConfiguration.createSecurityPropertySet("приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--")
+                .client("client")
                 .authenticationLevel(1)
                 .encryptionLevel(2)
                 .build();
@@ -515,10 +533,12 @@ public class SecurityPropertySetImplCrudIT {
         deviceConfiguration = createNewInactiveConfiguration(deviceType, "Normal");
 
         deviceConfiguration.createSecurityPropertySet("Name")
+                .client("client")
                 .authenticationLevel(1)
                 .encryptionLevel(2)
                 .build();
         deviceConfiguration.createSecurityPropertySet("Name")
+                .client("client")
                 .authenticationLevel(1)
                 .encryptionLevel(2)
                 .build();
@@ -534,10 +554,12 @@ public class SecurityPropertySetImplCrudIT {
         deviceConfiguration = createNewInactiveConfiguration(deviceType, "Normal");
 
         deviceConfiguration.createSecurityPropertySet("A")
+                .client("client")
                 .authenticationLevel(1)
                 .encryptionLevel(2)
                 .build();
         SecurityPropertySet securityPropertySet = deviceConfiguration.createSecurityPropertySet("B")
+                .client("client")
                 .authenticationLevel(1)
                 .encryptionLevel(2)
                 .build();
@@ -545,6 +567,39 @@ public class SecurityPropertySetImplCrudIT {
         // Business method
         securityPropertySet.setName("A");
         securityPropertySet.update();
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.INVALID_VALUE + "}")
+    public void testCreateWithoutClient() {
+        DeviceType deviceType = createDeviceType("MyType");
+
+        DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("Normal").add();
+        deviceConfiguration.save();
+
+        deviceConfiguration.createSecurityPropertySet("withoutClient")
+                .authenticationLevel(1)
+                .encryptionLevel(2)
+                .build();
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.INVALID_VALUE + "}")
+    public void testCreateWithInvalidClient() throws InvalidValueException {
+        when(clientPropertySpec.validateValue(Mockito.any())).thenReturn(false);
+
+        DeviceType deviceType = createDeviceType("MyType");
+
+        DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("Normal").add();
+        deviceConfiguration.save();
+
+        deviceConfiguration.createSecurityPropertySet("InvalidClient")
+                .client("wrong_client")
+                .authenticationLevel(1)
+                .encryptionLevel(2)
+                .build();
     }
 
     @Test
@@ -558,6 +613,7 @@ public class SecurityPropertySetImplCrudIT {
         DeviceConfiguration deviceConfiguration1 = deviceType.newConfiguration("Normal-1").add();
         deviceConfiguration1.save();
         deviceConfiguration1.createSecurityPropertySet(expectedName)
+                .client("client1")
                 .authenticationLevel(1)
                 .encryptionLevel(2)
                 .build();
@@ -566,6 +622,7 @@ public class SecurityPropertySetImplCrudIT {
 
         // Business method
         propertySet = deviceConfiguration2.createSecurityPropertySet(expectedName)
+                .client("client2")
                 .authenticationLevel(1)
                 .encryptionLevel(2)
                 .build();
@@ -576,6 +633,7 @@ public class SecurityPropertySetImplCrudIT {
         assertThat(found.isPresent()).isTrue();
         SecurityPropertySet reloaded = found.get();
         assertThat(reloaded.getName()).isEqualTo(expectedName);
+        assertThat(reloaded.getClient()).isEqualTo("client2");
     }
 
     @Test
@@ -589,6 +647,7 @@ public class SecurityPropertySetImplCrudIT {
         DeviceConfiguration deviceConfiguration1 = deviceType.newConfiguration("Normal-1").add();
         deviceConfiguration1.save();
         deviceConfiguration1.createSecurityPropertySet(expectedName)
+                .client("client1")
                 .authenticationLevel(1)
                 .encryptionLevel(2)
                 .build();
@@ -596,6 +655,7 @@ public class SecurityPropertySetImplCrudIT {
         deviceConfiguration2.save();
 
         propertySet = deviceConfiguration2.createSecurityPropertySet("Other")
+                .client("client2")
                 .authenticationLevel(1)
                 .encryptionLevel(2)
                 .build();
@@ -610,6 +670,7 @@ public class SecurityPropertySetImplCrudIT {
         assertThat(found.isPresent()).isTrue();
         SecurityPropertySet reloaded = found.get();
         assertThat(reloaded.getName()).isEqualTo(expectedName);
+        assertThat(reloaded.getClient()).isEqualTo("client2");
     }
 
     @Test
@@ -622,6 +683,7 @@ public class SecurityPropertySetImplCrudIT {
         deviceConfiguration = createNewInactiveConfiguration(deviceType, "Normal");
 
         deviceConfiguration.createSecurityPropertySet("Name")
+                .client("client")
                 .encryptionLevel(2)
                 .build();
     }
@@ -637,6 +699,7 @@ public class SecurityPropertySetImplCrudIT {
         deviceConfiguration = createNewInactiveConfiguration(deviceType, "Normal");
 
         deviceConfiguration.createSecurityPropertySet("Name")
+                .client("client")
                 .authenticationLevel(1)
                 .encryptionLevel(2)
                 .build();
@@ -652,6 +715,7 @@ public class SecurityPropertySetImplCrudIT {
         deviceConfiguration = createNewInactiveConfiguration(deviceType, "Normal");
 
         deviceConfiguration.createSecurityPropertySet("Name")
+                .client("client")
                 .authenticationLevel(1)
                 .build();
     }
@@ -667,6 +731,7 @@ public class SecurityPropertySetImplCrudIT {
         deviceConfiguration = createNewInactiveConfiguration(deviceType, "Normal");
 
         deviceConfiguration.createSecurityPropertySet("Name")
+                .client("client")
                 .authenticationLevel(1)
                 .encryptionLevel(2)
                 .build();
@@ -707,10 +772,10 @@ public class SecurityPropertySetImplCrudIT {
 
 
         DeviceConfiguration deviceConfiguration1 = createActiveConfiguration(deviceType, "FirstConfig");
-        SecurityPropertySet securityPropertySet1 = createSecurityPropertySet(deviceConfiguration1, "NoSecurity", authenticationLevel, encryptionLevel);
+        SecurityPropertySet securityPropertySet1 = createSecurityPropertySet(deviceConfiguration1, "NoSecurity", "NoSecurity client", authenticationLevel, encryptionLevel);
 
         DeviceConfiguration deviceConfiguration2 = createActiveConfiguration(deviceType, "SecondConfig");
-        SecurityPropertySet securityPropertySet2 = createSecurityPropertySet(deviceConfiguration2, "None", authenticationLevel, encryptionLevel);
+        SecurityPropertySet securityPropertySet2 = createSecurityPropertySet(deviceConfiguration2, "None", "None client", authenticationLevel, encryptionLevel);
 
         DeviceType reloadedDeviceType = deviceConfigurationService.findDeviceType(deviceType.getId()).get();
 
@@ -747,10 +812,10 @@ public class SecurityPropertySetImplCrudIT {
         DeviceType deviceType = createDeviceType("simpleConflictTest");
 
         DeviceConfiguration deviceConfiguration1 = createActiveConfiguration(deviceType, "FirstConfig");
-        SecurityPropertySet securityPropertySet1 = createSecurityPropertySet(deviceConfiguration1, "NoSecurity", authenticationLevel, encryptionLevel);
+        SecurityPropertySet securityPropertySet1 = createSecurityPropertySet(deviceConfiguration1, "NoSecurity", "NoSecurity client", authenticationLevel, encryptionLevel);
 
         DeviceConfiguration deviceConfiguration2 = createActiveConfiguration(deviceType, "SecondConfig");
-        SecurityPropertySet securityPropertySet2 = createSecurityPropertySet(deviceConfiguration2, "None", authenticationLevel, encryptionLevel);
+        SecurityPropertySet securityPropertySet2 = createSecurityPropertySet(deviceConfiguration2, "None", "None client", authenticationLevel, encryptionLevel);
 
         deviceConfiguration1.deactivate();
 
@@ -766,10 +831,10 @@ public class SecurityPropertySetImplCrudIT {
         DeviceType deviceType = createDeviceType("simpleConflictTest");
 
         DeviceConfiguration deviceConfiguration1 = createActiveConfiguration(deviceType, "FirstConfig");
-        SecurityPropertySet securityPropertySet1 = createSecurityPropertySet(deviceConfiguration1, "NoSecurity", authenticationLevel, encryptionLevel);
+        SecurityPropertySet securityPropertySet1 = createSecurityPropertySet(deviceConfiguration1, "NoSecurity", "NoSecurity client", authenticationLevel, encryptionLevel);
 
         DeviceConfiguration deviceConfiguration2 = createActiveConfiguration(deviceType, "SecondConfig");
-        SecurityPropertySet securityPropertySet2 = createSecurityPropertySet(deviceConfiguration2, "None", authenticationLevel, encryptionLevel);
+        SecurityPropertySet securityPropertySet2 = createSecurityPropertySet(deviceConfiguration2, "None", "None client", authenticationLevel, encryptionLevel);
 
         deviceConfiguration1.removeSecurityPropertySet(securityPropertySet1);
 
@@ -785,10 +850,10 @@ public class SecurityPropertySetImplCrudIT {
         DeviceType deviceType = createDeviceType("simpleConflictTest");
 
         DeviceConfiguration deviceConfiguration1 = createActiveConfiguration(deviceType, "FirstConfig");
-        SecurityPropertySet securityPropertySet1 = createSecurityPropertySet(deviceConfiguration1, "NoSecurity", authenticationLevel, encryptionLevel);
+        SecurityPropertySet securityPropertySet1 = createSecurityPropertySet(deviceConfiguration1, "NoSecurity", "NoSecurity client", authenticationLevel, encryptionLevel);
 
         DeviceConfiguration deviceConfiguration2 = createActiveConfiguration(deviceType, "SecondConfig");
-        SecurityPropertySet securityPropertySet2 = createSecurityPropertySet(deviceConfiguration2, "None", authenticationLevel, encryptionLevel);
+        SecurityPropertySet securityPropertySet2 = createSecurityPropertySet(deviceConfiguration2, "None", "None client", authenticationLevel, encryptionLevel);
 
         DeviceConfigConflictMapping deviceConfigConflictMapping1 = deviceType.getDeviceConfigConflictMappings().get(0);
         ConflictingSecuritySetSolution conflictingSecuritySetSolution1 = deviceConfigConflictMapping1.getConflictingSecuritySetSolutions().get(0);
@@ -811,7 +876,7 @@ public class SecurityPropertySetImplCrudIT {
 
         // Logic that we want to test: if new SecuritySet is added, new conflicts will be calculated. Existing solved conflicts should still remain
         DeviceConfiguration thirdConfig = createActiveConfiguration(deviceType, "ThirdConfig");
-        SecurityPropertySet securityPropertySet3 = createSecurityPropertySet(thirdConfig, "Blablabla", authenticationLevel, encryptionLevel);
+        SecurityPropertySet securityPropertySet3 = createSecurityPropertySet(thirdConfig, "Blablabla", "Blablabla client", authenticationLevel, encryptionLevel);
 
         DeviceType finalDeviceType = deviceConfigurationService.findDeviceType(deviceType.getId()).get();
         Assertions.assertThat(finalDeviceType.getDeviceConfigConflictMappings()).hasSize(6);
@@ -852,8 +917,9 @@ public class SecurityPropertySetImplCrudIT {
                 && deviceConfigConflictMapping.getDestinationDeviceConfiguration().getId() == destinationConfig.getId();
     }
 
-    private SecurityPropertySet createSecurityPropertySet(DeviceConfiguration deviceConfiguration, String setName, int authenticationLevel, int encryptionLevel) {
-        return deviceConfiguration.createSecurityPropertySet(setName)
+    private SecurityPropertySet createSecurityPropertySet(DeviceConfiguration deviceConfiguration, String name, String client, int authenticationLevel, int encryptionLevel) {
+        return deviceConfiguration.createSecurityPropertySet(name)
+                .client(client)
                 .authenticationLevel(authenticationLevel)
                 .encryptionLevel(encryptionLevel)
                 .build();
