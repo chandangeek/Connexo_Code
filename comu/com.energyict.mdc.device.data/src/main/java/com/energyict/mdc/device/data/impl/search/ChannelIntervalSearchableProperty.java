@@ -9,6 +9,7 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.properties.TemporalAmountValueFactory;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
@@ -22,8 +23,6 @@ import com.elster.jupiter.util.sql.SqlFragment;
 import com.elster.jupiter.util.streams.DecoratedStream;
 import com.energyict.mdc.common.interval.Temporals;
 import com.energyict.mdc.device.data.impl.SearchHelperValueFactory;
-import com.elster.jupiter.properties.TimeDurationValueFactory;
-import com.energyict.mdc.dynamic.TemporalAmountValueFactory;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.MasterDataService;
 
