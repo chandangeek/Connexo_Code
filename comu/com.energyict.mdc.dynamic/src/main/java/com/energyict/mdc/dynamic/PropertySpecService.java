@@ -4,16 +4,14 @@
 
 package com.energyict.mdc.dynamic;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecBuilder;
 import com.elster.jupiter.properties.PropertySpecBuilderWizard;
-import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.Password;
 import com.energyict.mdc.common.ean.Ean13;
 import com.energyict.mdc.common.ean.Ean18;
 import com.energyict.mdc.upl.properties.HexString;
-
-import aQute.bnd.annotation.ProviderType;
 import com.energyict.obis.ObisCode;
 
 /**
@@ -48,24 +46,6 @@ public interface PropertySpecService extends com.elster.jupiter.properties.Prope
      * @return The PropertySpecBuilder
      */
     PropertySpecBuilderWizard.NlsOptions<HexString> encryptedHexStringSpec();
-
-    /**
-     * Creates a new {@link PropertySpecBuilder} for building a custom
-     * {@link PropertySpec} of {@link TimeDuration} values.
-     *
-     * @return The PropertySpecBuilder
-     */
-    PropertySpecBuilderWizard.NlsOptions<TimeDuration> temporalAmountSpec();
-
-    /**
-     * Creates a new {@link PropertySpecBuilder} for building a custom
-     * {@link PropertySpec} of {@link TimeDuration} values that will
-     * use only time units smaller than a day.
-     * For clarity's sake, this means hour, minute, second and millisecond.
-     *
-     * @return The PropertySpecBuilder
-     */
-    PropertySpecBuilderWizard.NlsOptions<TimeDuration> durationSpec();
 
     /**
      * Creates a new {@link PropertySpecBuilder} for building a custom

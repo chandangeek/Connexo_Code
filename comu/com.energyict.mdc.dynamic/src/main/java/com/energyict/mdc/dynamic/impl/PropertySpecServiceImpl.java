@@ -9,9 +9,7 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.properties.DurationValueFactory;
 import com.elster.jupiter.properties.PropertySpecBuilderWizard;
-import com.elster.jupiter.properties.TemporalAmountValueFactory;
 import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeDuration;
@@ -126,12 +124,12 @@ public class PropertySpecServiceImpl implements PropertySpecService, MessageSeed
 
     @Override
     public PropertySpecBuilderWizard.NlsOptions<TimeDuration> temporalAmountSpec() {
-        return this.specForValuesOf(new TemporalAmountValueFactory());
+        return this.basicPropertySpecService.temporalAmountSpec();
     }
 
     @Override
     public PropertySpecBuilderWizard.NlsOptions<TimeDuration> durationSpec() {
-        return this.specForValuesOf(new DurationValueFactory());
+        return this.basicPropertySpecService.durationSpec();
     }
 
     @Override
