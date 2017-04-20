@@ -103,6 +103,7 @@ Ext.define('Uni.property.controller.Registry', {
         TEXT: 'Uni.property.view.property.Text',
         TEXTAREA: 'Uni.property.view.property.Textarea',
         TEMPORALAMOUNT: 'Uni.property.view.property.Period',
+        TIMEDURATION: 'Uni.property.view.property.Period',
         TIMEOFDAY: 'Uni.property.view.property.Time',
         TIMESTAMP: 'Uni.property.view.property.DateTime',
         UNKNOWN: 'Uni.property.view.property.Text'
