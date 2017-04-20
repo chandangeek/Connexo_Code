@@ -70,6 +70,7 @@ public class SecurityPropertySetInfoFactory {
         info.name = securityPropertySet.getName();
         info.authenticationLevel = SecurityLevelInfo.from(securityPropertySet.getAuthenticationDeviceAccessLevel());
         info.encryptionLevel = SecurityLevelInfo.from(securityPropertySet.getEncryptionDeviceAccessLevel());
+        info.client = securityPropertySet.getClient();
         info.securitySuite = SecurityLevelInfo.from(securityPropertySet.getSecuritySuite());
         info.requestSecurityLevel = SecurityLevelInfo.from(securityPropertySet.getRequestSecurityLevel());
         info.responseSecurityLevel = SecurityLevelInfo.from(securityPropertySet.getResponseSecurityLevel());

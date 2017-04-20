@@ -35,10 +35,6 @@ import java.util.stream.Stream;
 
 import org.junit.Test;
 
-import static com.energyict.mdc.device.data.rest.impl.SecurityPropertySetResourceTest.Editability.CAN_EDIT;
-import static com.energyict.mdc.device.data.rest.impl.SecurityPropertySetResourceTest.Editability.CAN_NOT_EDIT;
-import static com.energyict.mdc.device.data.rest.impl.SecurityPropertySetResourceTest.Visibility.CAN_NOT_VIEW;
-import static com.energyict.mdc.device.data.rest.impl.SecurityPropertySetResourceTest.Visibility.CAN_VIEW;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyVararg;
@@ -81,7 +77,7 @@ public class SecurityPropertySetResourceTest extends DeviceDataRestApplicationJe
         SecuritySuite securitySuite = mockSecuritySuite(3, "Suite1");
         RequestSecurityLevel requestSecurityLevel = mockRequestSecurityLevel(4, "RequestSec1");
         ResponseSecurityLevel responseSecurityLevel = mockResponseSecurityLevel(5, "ResponseSec1");
-        SecurityPropertySet sps1 = mockSecurityPropertySet(1001L, "Set 1", CAN_VIEW, CAN_EDIT, authenticationDeviceAccessLevel, encryptionDeviceAccessLevel, securitySuite, requestSecurityLevel, responseSecurityLevel);
+        SecurityPropertySet sps1 = mockSecurityPropertySet(1001L, "Set 1", "Client 1", authenticationDeviceAccessLevel, encryptionDeviceAccessLevel, securitySuite, requestSecurityLevel, responseSecurityLevel);
         SecurityProperty securityProperty1 = mockSecurityPropertyWithSpec(sps1, "password", "secret", new StringFactory(), authenticationDeviceAccessLevel, encryptionDeviceAccessLevel);
         when(device.getSecurityProperties(sps1)).thenReturn(Collections.singletonList(securityProperty1));
         when(device.securityPropertiesAreValid(sps1)).thenReturn(true);
@@ -93,6 +89,7 @@ public class SecurityPropertySetResourceTest extends DeviceDataRestApplicationJe
         JsonModel jsonModel = JsonModel.model(response);
         assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(1);
         assertThat(jsonModel.<String>get("$.securityPropertySets[0].name")).isEqualTo("Set 1");
+        assertThat(jsonModel.<String>get("$.securityPropertySets[0].client")).isEqualTo("Client 1");
         assertThat(jsonModel.<Integer>get("$.securityPropertySets[0].authenticationLevel.id")).isEqualTo(1);
         assertThat(jsonModel.<String>get("$.securityPropertySets[0].authenticationLevel.name")).isEqualTo(DefaultTranslationKey.DLMSSECURITYSUPPORTPERCLIENT_AUTHENTICATIONLEVEL_1.getDefaultFormat());
         assertThat(jsonModel.<Integer>get("$.securityPropertySets[0].encryptionLevel.id")).isEqualTo(2);
@@ -130,7 +127,7 @@ public class SecurityPropertySetResourceTest extends DeviceDataRestApplicationJe
         SecuritySuite securitySuite = mockSecuritySuite(3, "Suite1");
         RequestSecurityLevel requestSecurityLevel = mockRequestSecurityLevel(4, "RequestSec1");
         ResponseSecurityLevel responseSecurityLevel = mockResponseSecurityLevel(5, "ResponseSec1");
-        SecurityPropertySet sps1 = mockSecurityPropertySet(sps1Id, "Set 1", CAN_VIEW, CAN_EDIT, authenticationDeviceAccessLevel, encryptionDeviceAccessLevel, securitySuite, requestSecurityLevel, responseSecurityLevel);
+        SecurityPropertySet sps1 = mockSecurityPropertySet(sps1Id, "Set 1", "Client 1", authenticationDeviceAccessLevel, encryptionDeviceAccessLevel, securitySuite, requestSecurityLevel, responseSecurityLevel);
         when(deviceConfigurationService.findSecurityPropertySet(sps1Id)).thenReturn(Optional.of(sps1));
         SecurityProperty securityProperty1 = mockSecurityPropertyWithSpec(sps1, "password", "secret", new StringFactory(), authenticationDeviceAccessLevel, encryptionDeviceAccessLevel);
         when(device.getSecurityProperties(sps1)).thenReturn(Collections.singletonList(securityProperty1));
@@ -144,6 +141,7 @@ public class SecurityPropertySetResourceTest extends DeviceDataRestApplicationJe
         JsonModel jsonModel = JsonModel.model(response);
 
         assertThat(jsonModel.<String>get("$.name")).isEqualTo("Set 1");
+        assertThat(jsonModel.<String>get("$.client")).isEqualTo("Client 1");
         assertThat(jsonModel.<Integer>get("$.authenticationLevel.id")).isEqualTo(1);
         assertThat(jsonModel.<String>get("$.authenticationLevel.name")).isEqualTo(DefaultTranslationKey.DLMSSECURITYSUPPORTPERCLIENT_AUTHENTICATIONLEVEL_1.getDefaultFormat());
         assertThat(jsonModel.<Integer>get("$.encryptionLevel.id")).isEqualTo(2);
@@ -181,7 +179,7 @@ public class SecurityPropertySetResourceTest extends DeviceDataRestApplicationJe
         SecuritySuite securitySuite = mockSecuritySuite(3, "Suite1");
         RequestSecurityLevel requestSecurityLevel = mockRequestSecurityLevel(4, "RequestSec1");
         ResponseSecurityLevel responseSecurityLevel = mockResponseSecurityLevel(5, "ResponseSec1");
-        SecurityPropertySet sps1 = mockSecurityPropertySet(sps1Id, "Set 1", CAN_VIEW, CAN_EDIT, authenticationDeviceAccessLevel, encryptionDeviceAccessLevel, securitySuite, requestSecurityLevel, responseSecurityLevel);
+        SecurityPropertySet sps1 = mockSecurityPropertySet(sps1Id, "Set 1", "Client 1", authenticationDeviceAccessLevel, encryptionDeviceAccessLevel, securitySuite, requestSecurityLevel, responseSecurityLevel);
         when(deviceConfigurationService.findSecurityPropertySet(sps1Id)).thenReturn(Optional.of(sps1));
         SecurityProperty securityProperty1 = mockSecurityPropertyWithSpec(sps1, "password", "secret", new StringFactory(), authenticationDeviceAccessLevel, encryptionDeviceAccessLevel);
         when(device.getSecurityProperties(sps1)).thenReturn(Collections.singletonList(securityProperty1));
@@ -218,7 +216,7 @@ public class SecurityPropertySetResourceTest extends DeviceDataRestApplicationJe
         SecuritySuite securitySuite = mockSecuritySuite(3, "Suite1");
         RequestSecurityLevel requestSecurityLevel = mockRequestSecurityLevel(4, "RequestSec1");
         ResponseSecurityLevel responseSecurityLevel = mockResponseSecurityLevel(5, "ResponseSec1");
-        SecurityPropertySet sps1 = mockSecurityPropertySet(1001L, "Set 1", CAN_VIEW, CAN_EDIT, authenticationDeviceAccessLevel, encryptionDeviceAccessLevel, securitySuite, requestSecurityLevel, responseSecurityLevel);
+        SecurityPropertySet sps1 = mockSecurityPropertySet(1001L, "Set 1", "Client 1", authenticationDeviceAccessLevel, encryptionDeviceAccessLevel, securitySuite, requestSecurityLevel, responseSecurityLevel);
         SecurityProperty securityProperty1 = mockSecurityPropertyWithSpec(sps1, "field1", null, new StringFactory(), authenticationDeviceAccessLevel, encryptionDeviceAccessLevel);
         SecurityProperty securityProperty2 = mockSecurityPropertyWithSpec(sps1, "field2", "blabla", new StringFactory(), authenticationDeviceAccessLevel, encryptionDeviceAccessLevel);
         SecurityProperty securityProperty3 = mockSecurityPropertyWithSpec(sps1, "field3", "blabla", new StringFactory(), authenticationDeviceAccessLevel, encryptionDeviceAccessLevel);
@@ -244,7 +242,7 @@ public class SecurityPropertySetResourceTest extends DeviceDataRestApplicationJe
         SecuritySuite securitySuite = mockSecuritySuite(3, "Suite1");
         RequestSecurityLevel requestSecurityLevel = mockRequestSecurityLevel(4, "RequestSec1");
         ResponseSecurityLevel responseSecurityLevel = mockResponseSecurityLevel(5, "ResponseSec1");
-        SecurityPropertySet sps1 = mockSecurityPropertySet(1001L, "Set 1", CAN_NOT_VIEW, CAN_EDIT, authenticationDeviceAccessLevel, encryptionDeviceAccessLevel, securitySuite, requestSecurityLevel, responseSecurityLevel);
+        SecurityPropertySet sps1 = mockSecurityPropertySet(1001L, "Set 1", "Client 1", authenticationDeviceAccessLevel, encryptionDeviceAccessLevel, securitySuite, requestSecurityLevel, responseSecurityLevel);
         SecurityProperty securityProperty1 = mockSecurityPropertyWithSpec(sps1, "password", "secret", new StringFactory(), authenticationDeviceAccessLevel, encryptionDeviceAccessLevel);
         when(deviceConfiguration.getSecurityPropertySets()).thenReturn(Collections.singletonList(sps1));
         when(device.getSecurityProperties(sps1)).thenReturn(Collections.singletonList(securityProperty1));
@@ -256,6 +254,7 @@ public class SecurityPropertySetResourceTest extends DeviceDataRestApplicationJe
         JsonModel jsonModel = JsonModel.model(response);
         assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(1);
         assertThat(jsonModel.<String>get("$.securityPropertySets[0].name")).isEqualTo("Set 1");
+        assertThat(jsonModel.<String>get("$.securityPropertySets[0].client")).isEqualTo("Client 1");
         assertThat(jsonModel.<Integer>get("$.securityPropertySets[0].authenticationLevel.id")).isEqualTo(1);
         assertThat(jsonModel.<String>get("$.securityPropertySets[0].authenticationLevel.name")).isEqualTo(DefaultTranslationKey.DLMSSECURITYSUPPORTPERCLIENT_AUTHENTICATIONLEVEL_1.getDefaultFormat());
         assertThat(jsonModel.<Integer>get("$.securityPropertySets[0].encryptionLevel.id")).isEqualTo(2);
@@ -288,7 +287,7 @@ public class SecurityPropertySetResourceTest extends DeviceDataRestApplicationJe
         SecuritySuite securitySuite = mockSecuritySuite(3, "Suite1");
         RequestSecurityLevel requestSecurityLevel = mockRequestSecurityLevel(4, "RequestSec1");
         ResponseSecurityLevel responseSecurityLevel = mockResponseSecurityLevel(5, "ResponseSec1");
-        SecurityPropertySet sps1 = mockSecurityPropertySet(1001L, "Set 1", CAN_NOT_VIEW, CAN_NOT_EDIT, authenticationDeviceAccessLevel, encryptionDeviceAccessLevel, securitySuite, requestSecurityLevel, responseSecurityLevel);
+        SecurityPropertySet sps1 = mockSecurityPropertySet(1001L, "Set 1", "Client 1", authenticationDeviceAccessLevel, encryptionDeviceAccessLevel, securitySuite, requestSecurityLevel, responseSecurityLevel);
         SecurityProperty securityProperty1 = mockSecurityPropertyWithSpec(sps1, "password", "secret", new StringFactory(), authenticationDeviceAccessLevel, encryptionDeviceAccessLevel);
         when(device.getSecurityProperties(sps1)).thenReturn(Collections.singletonList(securityProperty1));
         when(device.securityPropertiesAreValid(sps1)).thenReturn(true);
@@ -299,6 +298,7 @@ public class SecurityPropertySetResourceTest extends DeviceDataRestApplicationJe
         JsonModel jsonModel = JsonModel.model(response);
         assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(1);
         assertThat(jsonModel.<String>get("$.securityPropertySets[0].name")).isEqualTo("Set 1");
+        assertThat(jsonModel.<String>get("$.securityPropertySets[0].client")).isEqualTo("Client 1");
         assertThat(jsonModel.<Integer>get("$.securityPropertySets[0].authenticationLevel.id")).isEqualTo(1);
         assertThat(jsonModel.<String>get("$.securityPropertySets[0].authenticationLevel.name")).isEqualTo(DefaultTranslationKey.DLMSSECURITYSUPPORTPERCLIENT_AUTHENTICATIONLEVEL_1.getDefaultFormat());
         assertThat(jsonModel.<Integer>get("$.securityPropertySets[0].encryptionLevel.id")).isEqualTo(2);
@@ -336,12 +336,14 @@ public class SecurityPropertySetResourceTest extends DeviceDataRestApplicationJe
         return securityProperty;
     }
 
-    private SecurityPropertySet mockSecurityPropertySet(long id, String name, Visibility canView, Editability canEdit,
+    private SecurityPropertySet mockSecurityPropertySet(long id, String name,
+                                                        String client,
                                                         AuthenticationDeviceAccessLevel authenticationDeviceAccessLevel, EncryptionDeviceAccessLevel encryptionDeviceAccessLevel,
                                                         SecuritySuite securitySuite, RequestSecurityLevel requestSecurityLevel, ResponseSecurityLevel responseSecurityLevel) {
         SecurityPropertySet securityPropertySet = mock(SecurityPropertySet.class);
         when(securityPropertySet.getId()).thenReturn(id);
         when(securityPropertySet.getName()).thenReturn(name);
+        when(securityPropertySet.getClient()).thenReturn(client);
         when(securityPropertySet.getAuthenticationDeviceAccessLevel()).thenReturn(authenticationDeviceAccessLevel);
         when(securityPropertySet.getEncryptionDeviceAccessLevel()).thenReturn(encryptionDeviceAccessLevel);
         when(securityPropertySet.getSecuritySuite()).thenReturn(securitySuite);
@@ -385,25 +387,4 @@ public class SecurityPropertySetResourceTest extends DeviceDataRestApplicationJe
         when(responseSecurityLevel.getTranslation()).thenReturn(name);
         return responseSecurityLevel;
     }
-
-    enum Visibility {
-        CAN_VIEW(true),
-        CAN_NOT_VIEW(false);
-        private final boolean bool;
-
-        Visibility(boolean b) {
-            this.bool = b;
-        }
-    }
-
-    enum Editability {
-        CAN_EDIT(true),
-        CAN_NOT_EDIT(false);
-        private final boolean bool;
-
-        Editability(boolean b) {
-            this.bool = b;
-        }
-    }
-
 }
