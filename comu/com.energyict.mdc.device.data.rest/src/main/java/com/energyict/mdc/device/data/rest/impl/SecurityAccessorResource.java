@@ -10,6 +10,7 @@ import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.pki.SecurityValueWrapper;
 import com.elster.jupiter.pki.SymmetricKeyWrapper;
+import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.properties.rest.PropertyType;
@@ -257,8 +258,7 @@ public class SecurityAccessorResource {
                 throw new LocalizedFieldValidationException(MessageSeeds.THIS_FIELD_IS_REQUIRED, ALIAS);
             }
             if (properties.containsKey(TRUST_STORE)) {
-                return pkiService.findTrustStore((String) properties.get(TRUST_STORE))
-                        .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_TRUST_STORE, TRUST_STORE))
+                return ((TrustStore)properties.get(TRUST_STORE))
                         .getCertificates()
                         .stream()
                         .filter(cert -> cert.getAlias().equals(alias))
