@@ -7,7 +7,7 @@ package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.StringFactory;
-import com.energyict.mdc.dynamic.TemporalAmountValueFactory;
+import com.elster.jupiter.properties.TemporalAmountValueFactory;
 import com.energyict.mdc.dynamic.impl.PasswordFactory;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.ConnexoToUPLValueFactoryAdapter;
 import com.energyict.mdc.upl.messages.DeviceMessageCategory;
