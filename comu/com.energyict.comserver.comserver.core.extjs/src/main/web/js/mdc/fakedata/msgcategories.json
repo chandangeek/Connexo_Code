@@ -69,7 +69,7 @@
                         {
                             "key":"connectionTimeout",
                             "propertyTypeInfo":{
-                                "simplePropertyType":"TIMEDURATION"
+                                "simplePropertyType":"DURATION"
                             },
                             "required":false
                         }
