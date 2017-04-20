@@ -265,14 +265,14 @@ abstract public class MainCheckValidatorTest {
             when(usagePoint.getEffectiveMetrologyConfigurations(range)).thenReturn(Collections.singletonList(effectiveMetrologyConfigurationOnUsagePoint));
             when(channelsContainer.getUsagePoint()).thenReturn(Optional.of(usagePoint));
             when(mainChannel.getChannelsContainer()).thenReturn(channelsContainer);
-            when(effectiveMetrologyConfigurationOnUsagePoint.getChannelsContainer(metrologyContract)).thenReturn(rule.noCheckChannel?Optional.empty():Optional
+            when(effectiveMetrologyConfigurationOnUsagePoint.getChannelsContainer(metrologyContract)).thenReturn(Optional
                     .of(channelsContainer));
 
             checkChannel = checkChannelReadings.mockChannel();
 
             when(checkChannel.getChannelsContainer()).thenReturn(channelsContainer);
 
-            when(channelsContainer.getChannel(readingType)).thenReturn(Optional.of(checkChannel));
+            when(channelsContainer.getChannel(readingType)).thenReturn(rule.noCheckChannel?Optional.empty():Optional.of(checkChannel));
 
             validationService = mock(ValidationService.class);
             ValidationEvaluator validationEvaluator = checkChannelReadings.mockEvaluator();
