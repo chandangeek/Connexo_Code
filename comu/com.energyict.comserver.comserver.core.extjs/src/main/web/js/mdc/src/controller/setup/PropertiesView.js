@@ -120,7 +120,8 @@ Ext.define('Mdc.controller.setup.PropertiesView', {
                             propertiesView.addDateProperty(key, null, columnNumber);
                         }
                         break;
-                    case 'DURATION':    // Intentional fall-through
+                    case 'DURATION':            // Intentional fall-through
+                    case 'TIMEDURATION':        // Intentional fall-through
                     case 'TEMPORALAMOUNT':
                         var unit;
                         var count;
