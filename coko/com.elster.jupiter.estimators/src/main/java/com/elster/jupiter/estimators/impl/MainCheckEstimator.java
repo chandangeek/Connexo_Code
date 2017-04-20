@@ -19,6 +19,7 @@ import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsage
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
+import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySelectionMode;
@@ -48,8 +49,10 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.elster.jupiter.estimators.impl.MainCheckEstimator.ReferenceReadingQuality.NO_CHECK_CHANNEL;
+import static com.elster.jupiter.estimators.impl.MainCheckEstimator.ReferenceReadingQuality.NO_MC;
 import static com.elster.jupiter.estimators.impl.MainCheckEstimator.ReferenceReadingQuality.NO_PURPOSE_ON_UP;
 import static com.elster.jupiter.estimators.impl.MainCheckEstimator.ReferenceReadingQuality.REFERENCE_DATA_MISSING;
 import static com.elster.jupiter.estimators.impl.MainCheckEstimator.ReferenceReadingQuality.REFERENCE_DATA_OK;
@@ -140,7 +143,7 @@ public class MainCheckEstimator extends AbstractEstimator implements Estimator {
             if (estimate(block)) {
                 estimated.add(block);
             } else {
-                    remain.add(block);
+                remain.add(block);
             }
         }
         return SimpleEstimationResult.of(remain, estimated);
@@ -148,13 +151,18 @@ public class MainCheckEstimator extends AbstractEstimator implements Estimator {
 
     private boolean estimate(EstimationBlock estimationBlock) {
         // find reference values for each estimatable in block
-        Map<Estimatable, ReferenceReading> referenceReadingMap = getCheckReadings(estimationBlock);
+        Map<Estimatable, ReferenceReading> referenceReadingMap = estimateBlock(estimationBlock);
         // we can estimate block only if we have reference values for each estimatable in this block
         if (referenceReadingMap.values().stream().filter(Predicates.not(ReferenceReading::isOk)).count() != 0) {
             // there are 'not ok' reference values
             // lets capture reason and log appropriate failure message
             String message;
             if (referenceReadingMap.values()
+                    .stream()
+                    .map(ReferenceReading::getQuality)
+                    .anyMatch(e -> e.equals(ReferenceReadingQuality.NO_MC))) {
+                message = FailMessages.EFFECTIVE_MC_NOT_FOUND.getMessage(estimationBlock, usagePoint.getName(), checkPurpose);
+            } else if (referenceReadingMap.values()
                     .stream()
                     .map(ReferenceReading::getQuality)
                     .anyMatch(e -> e.equals(ReferenceReadingQuality.NO_PURPOSE_ON_UP))) {
@@ -183,72 +191,93 @@ public class MainCheckEstimator extends AbstractEstimator implements Estimator {
     }
 
 
-    private Map<Estimatable, ReferenceReading> getCheckReadings(EstimationBlock estimationBlock) {
-        // find reference value for each estimatable
-        return estimationBlock.estimatables()
-                .stream()
-                .collect(Collectors.toMap(Function.identity(), (estimatable -> {
-                    Instant readingTimeStamp = estimatable.getTimestamp();
-                    Optional<EffectiveMetrologyConfigurationOnUsagePoint> effectiveMetrologyConfigurationOnUsagePoint = usagePoint
-                            .getEffectiveMetrologyConfiguration(readingTimeStamp);
-                    if (effectiveMetrologyConfigurationOnUsagePoint.isPresent()) {
-                        Optional<MetrologyContract> metrologyContract = effectiveMetrologyConfigurationOnUsagePoint.get()
-                                .getMetrologyConfiguration()
-                                .getContracts()
-                                .stream()
-                                .filter(contract -> contract.getMetrologyPurpose().getName().equals(checkPurpose))
-                                .findAny();
-                        return handleMetrologyContract(metrologyContract.orElse(null), effectiveMetrologyConfigurationOnUsagePoint
-                                .get(), estimationBlock
-                                .getReadingType(), readingTimeStamp);
-                    } else {
-                        return new ReferenceReading(NO_PURPOSE_ON_UP);
-                    }
-                })));
+    // assumption: block always belongs to one effective metrology configuration
+    private Map<Estimatable, ReferenceReading> estimateBlock(EstimationBlock estimationBlock) {
+
+        Instant startInterval = estimationBlock.estimatables().get(0).getTimestamp();
+        Instant endInterval = estimationBlock.estimatables()
+                .get(estimationBlock.estimatables().size() - 1)
+                .getTimestamp();
+
+        Range<Instant> blockRange = Range.open(startInterval, endInterval);
+
+        List<EffectiveMetrologyConfigurationOnUsagePoint> effectiveMCList = usagePoint
+                .getEffectiveMetrologyConfigurations(blockRange);
+
+        return handleEffectiveMC(effectiveMCList, estimationBlock);
     }
 
-    // get reference data from metrology contract
-    private ReferenceReading handleMetrologyContract(MetrologyContract metrologyContract, EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint, ReadingType readingType, Instant timeStamp) {
-        if (metrologyContract != null) {
-            Optional<ChannelsContainer> channelsContainerWithCheckChannel = effectiveMetrologyConfigurationOnUsagePoint
-                    .getChannelsContainer(metrologyContract);
-            if (channelsContainerWithCheckChannel.isPresent()) {
-                Optional<Channel> checkChannel = channelsContainerWithCheckChannel.get()
-                        .getChannel(readingType);
-                if (checkChannel.isPresent()) {
-                    List<IntervalReadingRecord> checkChannelBaseReadings = checkChannel.get()
-                            .getIntervalReadings(Range.closed(timeStamp.minusMillis(1), timeStamp.plusMillis(1)));
-                    if (checkChannelBaseReadings.size() == 1) {
-                        return handleIntervalReading(checkChannelBaseReadings.get(0), checkChannel.get());
-                    } else {
-                        return new ReferenceReading(REFERENCE_DATA_MISSING);
-                    }
-                }
-            }
-            return new ReferenceReading(NO_CHECK_CHANNEL);
-        } else {
-            return new ReferenceReading(NO_PURPOSE_ON_UP);
+    private Map<Estimatable, ReferenceReading> handleEffectiveMC(List<EffectiveMetrologyConfigurationOnUsagePoint> effectiveMCList, EstimationBlock estimationBlock) {
+
+        if (effectiveMCList.size() == 0) {
+            return Stream.of(new ReferenceReading(NO_MC))
+                    .collect(Collectors.toMap(c -> estimationBlock.estimatables().get(0), Function.identity()));
         }
+
+        EffectiveMetrologyConfigurationOnUsagePoint effectiveMC = effectiveMCList.get(0);
+        Optional<MetrologyContract> metrologyContract = effectiveMC
+                .getMetrologyConfiguration()
+                .getContracts()
+                .stream()
+                .filter(contract -> contract.getMetrologyPurpose().getName().equals(checkPurpose))
+                .findAny();
+        return handleMetrologyContract(effectiveMC, metrologyContract, estimationBlock);
     }
 
-    // get reference data from interval reading of check channel
-    private ReferenceReading handleIntervalReading(IntervalReadingRecord checkChannelBaseReading, Channel channel) {
-        if (checkChannelBaseReading != null) {
-            ValidationEvaluator evaluator = validationService.getEvaluator();
-            Optional<ValidationResult> checkReadingValidationResult = evaluator.getValidationStatus(QUALITY_CODE_SYSTEMS, channel,
-                    ImmutableList.of(checkChannelBaseReading))
-                    .stream()
-                    .map(DataValidationStatus::getValidationResult)
-                    .findFirst();
-            if (checkReadingValidationResult.isPresent() && !checkReadingValidationResult
-                    .get()
-                    .equals(ValidationResult.SUSPECT)) {
-                return new ReferenceReading(REFERENCE_DATA_OK).withReferenceReading(checkChannelBaseReading);
-            }
-            return new ReferenceReading(REFERENCE_DATA_SUSPECT);
-        } else {
+    private Map<Estimatable, ReferenceReading> handleMetrologyContract(EffectiveMetrologyConfigurationOnUsagePoint effectiveMC, Optional<MetrologyContract> metrologyContract, EstimationBlock estimationBlock) {
+        if (!metrologyContract.isPresent()) {
+            return Stream.of(new ReferenceReading(NO_PURPOSE_ON_UP))
+                    .collect(Collectors.toMap(c -> estimationBlock.estimatables().get(0), Function.identity()));
+        }
+
+        Optional<ChannelsContainer> channelsContainerWithCheckChannel = effectiveMC
+                .getChannelsContainer(metrologyContract.get());
+
+        return handleChannelContainer(channelsContainerWithCheckChannel, estimationBlock);
+    }
+
+    private Map<Estimatable, ReferenceReading> handleChannelContainer(Optional<ChannelsContainer> channelsContainerWithCheckChannel, EstimationBlock estimationBlock) {
+        if (!channelsContainerWithCheckChannel.isPresent()) {
+            return Stream.of(new ReferenceReading(NO_CHECK_CHANNEL))
+                    .collect(Collectors.toMap(c -> estimationBlock.estimatables().get(0), Function.identity()));
+        }
+        Optional<Channel> checkChannel = channelsContainerWithCheckChannel.get()
+                .getChannel(estimationBlock.getReadingType());
+        if (!checkChannel.isPresent()) {
+            return Stream.of(new ReferenceReading(NO_CHECK_CHANNEL))
+                    .collect(Collectors.toMap(c -> estimationBlock.estimatables().get(0), Function.identity()));
+        }
+        Instant startInterval = estimationBlock.estimatables().get(0).getTimestamp();
+        Instant endInterval = estimationBlock.estimatables()
+                .get(estimationBlock.estimatables().size() - 1)
+                .getTimestamp();
+        Map<Instant, IntervalReadingRecord> checkChannelBaseReadings = checkChannel.get()
+                .getIntervalReadings(Range.closed(startInterval, endInterval))
+                .stream()
+                .collect(Collectors.toMap(BaseReading::getTimeStamp, Function.identity()));
+
+        ValidationEvaluator evaluator = validationService.getEvaluator();
+        Map<Instant, DataValidationStatus> validationStatusMap = evaluator.getValidationStatus(QUALITY_CODE_SYSTEMS, checkChannel
+                .get(), checkChannelBaseReadings.values().stream().collect(Collectors.toList()))
+                .stream()
+                .collect(Collectors.toMap(DataValidationStatus::getReadingTimestamp, Function.identity()));
+
+        return estimationBlock.estimatables().stream().collect(Collectors.toMap(Function.identity(), e ->
+                handleCheckReading(checkChannelBaseReadings.get(e.getTimestamp()), validationStatusMap.get(e.getTimestamp()))
+        ));
+    }
+
+    private ReferenceReading handleCheckReading(IntervalReadingRecord checkReading, DataValidationStatus dataValidationStatus) {
+
+        if (checkReading == null) {
             return new ReferenceReading(REFERENCE_DATA_MISSING);
         }
+
+        if (dataValidationStatus!=null && !dataValidationStatus.getValidationResult().equals(ValidationResult.SUSPECT)){
+            return new ReferenceReading(REFERENCE_DATA_OK).withReferenceReading(checkReading);
+        }
+
+        return new ReferenceReading(REFERENCE_DATA_SUSPECT);
     }
 
     @Override
@@ -293,7 +322,14 @@ public class MainCheckEstimator extends AbstractEstimator implements Estimator {
     }
 
     private enum FailMessages {
-        PURPOSE_DOES_NOT_EXIST_ON_UP {
+        EFFECTIVE_MC_NOT_FOUND {
+            @Override
+            String getMessage(EstimationBlock block, String usagePointName, String purpose) {
+                return "Failed to estimate period \"" + blockToString(block) + "\" using method " + TranslationKeys.ESTIMATOR_NAME
+                        .getDefaultFormat() + " on " + block.getReadingType()
+                        .getFullAliasName() + " since effective metrology configuration has not been found on the " + usagePointName;
+            }
+        }, PURPOSE_DOES_NOT_EXIST_ON_UP {
             @Override
             String getMessage(EstimationBlock block, String usagePointName, String purpose) {
                 return "Failed to estimate period \"" + blockToString(block) + "\" using method " + TranslationKeys.ESTIMATOR_NAME
@@ -368,6 +404,6 @@ public class MainCheckEstimator extends AbstractEstimator implements Estimator {
     }
 
     protected enum ReferenceReadingQuality {
-        NO_PURPOSE_ON_UP, NO_CHECK_CHANNEL, REFERENCE_DATA_MISSING, REFERENCE_DATA_SUSPECT, REFERENCE_DATA_OK
+        NO_MC, NO_PURPOSE_ON_UP, NO_CHECK_CHANNEL, REFERENCE_DATA_MISSING, REFERENCE_DATA_SUSPECT, REFERENCE_DATA_OK
     }
 }

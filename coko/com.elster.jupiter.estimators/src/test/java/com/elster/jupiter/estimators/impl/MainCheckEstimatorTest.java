@@ -122,24 +122,28 @@ public abstract class MainCheckEstimatorTest {
 
             estimationBlocks = blocks.stream().map(b-> b.mockBlock(usagePoint)).collect(Collectors.toList());
 
+            when(usagePoint.getEffectiveMetrologyConfigurations(any(Range.class))).thenAnswer(invocationOnMock -> {
+                Range<Instant> range = (Range<Instant>) invocationOnMock.getArguments()[0];
+                BlockConfiguration blockConf = blocks.stream().filter(b -> b.belongs(range)).findFirst().orElse(null);
+                return Collections.singletonList(blockConf.effectiveMetrologyConfigurationOnUsagePoint);
+            });
+
             validationService = mock(ValidationService.class);
             ValidationEvaluator validationEvaluator = mock(ValidationEvaluator.class);
             when(validationService.getEvaluator()).thenReturn(validationEvaluator);
             when(validationEvaluator.getValidationStatus(any(),any(),any())).thenAnswer(invocationOnMock -> {
                 List<BaseReading> checkChannelBaseReading = (List<BaseReading>)invocationOnMock.getArguments()[2];
-                BaseReading reading = checkChannelBaseReading.get(0);
-                Instant timeStamp = reading.getTimeStamp();
-                // find reference reading for this timestamp
-                Optional<EstimatableConf> estimatableConfig =
-                blocks.stream().flatMap(block ->
-                    block.estimatables.stream()).filter(estimatableConf -> estimatableConf.timeStamp.compareTo(timeStamp)==0).findFirst();
-                if (estimatableConfig.isPresent()){
-                    DataValidationStatus dataValidationStatus = mock(DataValidationStatus.class);
-                    when(dataValidationStatus.getValidationResult()).thenReturn(estimatableConfig.get().referenceValue.validationResult);
-                    return Collections.singletonList(dataValidationStatus);
-                }else {
-                    return Collections.EMPTY_LIST;
-                }
+                return checkChannelBaseReading.stream().map(BaseReading::getTimeStamp).map(timeStamp -> blocks.stream().flatMap(block ->
+                        block.estimatables.stream()).filter(estimatableConf -> estimatableConf.timeStamp.compareTo(timeStamp)==0).findFirst()).map(estimatableConf -> {
+                   if (estimatableConf.isPresent()) {
+                       DataValidationStatus dataValidationStatus = mock(DataValidationStatus.class);
+                       when(dataValidationStatus.getValidationResult()).thenReturn(estimatableConf.get().referenceValue.validationResult);
+                       when(dataValidationStatus.getReadingTimestamp()).thenReturn(estimatableConf.get().timeStamp);
+                       return dataValidationStatus;
+                   } else {
+                       return null;
+                   }
+                }).collect(Collectors.toList());
             });
         }
     }
@@ -147,6 +151,16 @@ public abstract class MainCheckEstimatorTest {
     class BlockConfiguration {
         List<EstimatableConf> estimatables = new ArrayList<>();
         boolean noCheckChannel;
+
+        EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint;
+
+        boolean belongs(Range<Instant> range){
+            Instant startInterval = estimatables.get(0).timeStamp;
+            Instant endInterval = estimatables
+                    .get(estimatables.size() - 1)
+                    .timeStamp;
+            return range.lowerEndpoint().compareTo(startInterval)==0 && range.upperEndpoint().compareTo(endInterval)==0;
+        }
 
         BlockConfiguration withEstimatable(EstimatableConf estimatableConf) {
             estimatables.add(estimatableConf);
@@ -177,9 +191,10 @@ public abstract class MainCheckEstimatorTest {
 
             when(estimationBlock.getReadingType()).thenReturn(readingType);
 
-            EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint = mock(EffectiveMetrologyConfigurationOnUsagePoint.class);
+            effectiveMetrologyConfigurationOnUsagePoint = mock(EffectiveMetrologyConfigurationOnUsagePoint.class);
 
-            estimatables.stream().map(estimatableConf -> estimatableConf.timeStamp).forEach(i->when(usagePoint.getEffectiveMetrologyConfiguration(i)).thenReturn(Optional.of(effectiveMetrologyConfigurationOnUsagePoint)));
+            //estimatables.stream().map(estimatableConf -> estimatableConf.timeStamp).forEach(i->when(usagePoint.getEffectiveMetrologyConfiguration(i)).thenReturn(Optional.of(effectiveMetrologyConfigurationOnUsagePoint)));
+
 
             UsagePointMetrologyConfiguration metrologyConfiguration = mock(UsagePointMetrologyConfiguration.class);
             when(effectiveMetrologyConfigurationOnUsagePoint.getMetrologyConfiguration()).thenReturn(metrologyConfiguration);
@@ -198,22 +213,19 @@ public abstract class MainCheckEstimatorTest {
 
             when(checkChannel.getIntervalReadings(any())).thenAnswer(invocationOnMock -> {
                 Range<Instant> interval = (Range<Instant>)invocationOnMock.getArguments()[0];
-                Optional<EstimatableConf> estimatableConf =
+                List<EstimatableConf> estimatableConf =
                         estimatables.stream()
                                 .filter(e ->
-                                        e.timeStamp.compareTo(interval.lowerEndpoint()) > 0 && e.timeStamp.compareTo(interval
-                                                .upperEndpoint()) < 0)
-                                .findFirst();
+                                        e.timeStamp.compareTo(interval.lowerEndpoint()) >= 0 && e.timeStamp.compareTo(interval
+                                                .upperEndpoint()) <= 0)
+                                .collect(Collectors.toList());
 
-                if (estimatableConf.isPresent()){
-                    if (estimatableConf.get().referenceValue != null) {
-                        IntervalReadingRecord intervalReading = mock(IntervalReadingRecord.class);
-                        when(intervalReading.getValue()).thenReturn(estimatableConf.get().referenceValue.value);
-                        when(intervalReading.getTimeStamp()).thenReturn(estimatableConf.get().timeStamp);
-                        return Collections.singletonList(intervalReading);
-                    }
-                }
-                return Collections.EMPTY_LIST;
+                return estimatableConf.stream().filter(e -> e.referenceValue!=null).map(e->{
+                    IntervalReadingRecord intervalReading = mock(IntervalReadingRecord.class);
+                    when(intervalReading.getValue()).thenReturn(e.referenceValue.value);
+                    when(intervalReading.getTimeStamp()).thenReturn(e.timeStamp);
+                    return intervalReading;
+                }).collect(Collectors.toList());
             });
             return estimationBlock;
         }
