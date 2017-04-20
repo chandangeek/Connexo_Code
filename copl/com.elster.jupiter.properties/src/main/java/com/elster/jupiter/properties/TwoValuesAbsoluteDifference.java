@@ -6,14 +6,15 @@ package com.elster.jupiter.properties;
 
 import java.math.BigDecimal;
 
-/**
- * Created by dantonov on 28.03.2017.
- */
-
 public class TwoValuesAbsoluteDifference extends TwoValuesDifference {
 
     public TwoValuesAbsoluteDifference() {
         super(Type.absolute);
+    }
+
+    public TwoValuesAbsoluteDifference(BigDecimal value) {
+        this();
+        this.value = value;
     }
 
     public BigDecimal value;
