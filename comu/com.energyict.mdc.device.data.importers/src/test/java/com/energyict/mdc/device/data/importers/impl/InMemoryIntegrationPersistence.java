@@ -17,6 +17,7 @@ import com.elster.jupiter.fileimport.impl.FileImportModule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
+import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.kpi.impl.KpiModule;
 import com.elster.jupiter.license.LicenseService;
@@ -119,6 +120,7 @@ public class InMemoryIntegrationPersistence {
                 new TransactionModule(showSqlLogging),
                 new NlsModule(),
                 new UserModule(),
+                new BpmModule(),
                 new FileImportModule(),
                 new WebServicesModule(),
                 new AppServiceModule(),
