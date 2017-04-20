@@ -1,9 +1,13 @@
-package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 
+package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointStage;
+
 import com.google.common.collect.Range;
 
 import java.util.ArrayList;
