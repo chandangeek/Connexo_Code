@@ -997,7 +997,7 @@ public class FormulaCrudTest {
         }
     }
 
-    @Test(expected = ConstraintViolationException.class)
+    @Test
     @Transactional
     // formula = Requirement
     public void test30MinDeliverableOn15MinAndWildcardRequirement() {
@@ -1040,15 +1040,10 @@ public class FormulaCrudTest {
 
         //30 min = 15 min + *
         ReadingTypeDeliverableBuilder builder = contractInformation.newReadingTypeDeliverable("deliverable", thirtyMinTR, Formula.Mode.AUTO);
-        try {
-            builder.build(builder.plus(builder.requirement(req1), builder.requirement(req2)));
-        } catch (ConstraintViolationException e) {
-            assertThat(e.getConstraintViolations().iterator().next().getMessage()).isEqualTo("MINUTE15 values cannot be aggregated to MINUTE30 values.");
-            throw e;
-        }
+        builder.build(builder.plus(builder.requirement(req1), builder.requirement(req2)));
     }
 
-    @Test(expected = ConstraintViolationException.class)
+    @Test
     @Transactional
     // formula = Requirement
     public void test30MinDeliverableOn15MinAnd5MinRequirementWithWildcard() {
@@ -1090,14 +1085,9 @@ public class FormulaCrudTest {
         ReadingTypeRequirement req2 = service.findReadingTypeRequirement(
                 config.getRequirements().get(1).getId()).get();
 
-        try {
-            //30 min = 15 min + 5min
-            ReadingTypeDeliverableBuilder builder = contractInformation.newReadingTypeDeliverable("deliverable", thirtyMinTR, Formula.Mode.AUTO);
-            builder.build(builder.plus(builder.requirement(req1), builder.requirement(req2)));
-        } catch (ConstraintViolationException e) {
-            assertThat(e.getConstraintViolations().iterator().next().getMessage()).isEqualTo("MINUTE15 values cannot be aggregated to MINUTE30 values.");
-            throw e;
-        }
+        //30 min = 15 min + 5min
+        ReadingTypeDeliverableBuilder builder = contractInformation.newReadingTypeDeliverable("deliverable", thirtyMinTR, Formula.Mode.AUTO);
+        builder.build(builder.plus(builder.requirement(req1), builder.requirement(req2)));
     }
 
     @Test(expected = ConstraintViolationException.class)
@@ -1761,7 +1751,7 @@ public class FormulaCrudTest {
             ReadingTypeDeliverable deliverable = builder.build(builder.plus(builder.requirement(req1), builder.requirement(req2)));
             fail("InvalidNodeException expected");
         } catch (ConstraintViolationException e) {
-            assertThat(e.getConstraintViolations().iterator().next().getMessage()).isEqualTo("MINUTE5 values cannot be aggregated to MINUTE10 values.");
+            assertThat(e.getConstraintViolations().iterator().next().getMessage()).isEqualTo("MINUTE3 values cannot be aggregated to MINUTE10 values.");
         }
     }
 

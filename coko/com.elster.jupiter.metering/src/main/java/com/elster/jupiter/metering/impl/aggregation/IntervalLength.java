@@ -6,6 +6,7 @@ package com.elster.jupiter.metering.impl.aggregation;
 
 import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.TimeAttribute;
+import com.elster.jupiter.metering.GasDayOptions;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.AggregationLevel;
 import com.elster.jupiter.metering.config.PartiallySpecifiedReadingTypeRequirement;
@@ -45,7 +46,22 @@ public enum IntervalLength {
         Set<IntervalLength> multiples() {
             return EnumSet.of(
                     IntervalLength.MINUTE1,
+                    IntervalLength.MINUTE2,
+                    IntervalLength.MINUTE3,
+                    IntervalLength.MINUTE4,
+                    IntervalLength.MINUTE5,
+                    IntervalLength.MINUTE6,
+                    IntervalLength.MINUTE10,
+                    IntervalLength.MINUTE12,
+                    IntervalLength.MINUTE15,
+                    IntervalLength.MINUTE20,
+                    IntervalLength.MINUTE30,
                     IntervalLength.HOUR1,
+                    IntervalLength.HOUR2,
+                    IntervalLength.HOUR3,
+                    IntervalLength.HOUR4,
+                    IntervalLength.HOUR6,
+                    IntervalLength.HOUR12,
                     IntervalLength.DAY1,
                     IntervalLength.WEEK1,
                     IntervalLength.MONTH1,
@@ -61,13 +77,33 @@ public enum IntervalLength {
         Instant truncate(Instant instant, ZoneId zone) {
             return instant.truncatedTo(ChronoUnit.MINUTES);
         }
+
+        @Override
+        public AggregationFunction appendTruncation(SqlBuilder sqlBuilder, String expression) {
+            throw new UnsupportedOperationException("Disaggregation is not supported (yet)");
+        }
+
+        @Override
+        public void appendTruncation(GasDayOptions gasDayOptions, SqlBuilder sqlBuilder, String expression) {
+            this.appendTruncation(sqlBuilder, expression);  // Intervals < day do not need special treatment for gas
+        }
     },
     MINUTE2(Duration.ofMinutes(2)) {
         @Override
         Set<IntervalLength> multiples() {
             return EnumSet.of(
                     IntervalLength.MINUTE2,
+                    IntervalLength.MINUTE4,
+                    IntervalLength.MINUTE6,
+                    IntervalLength.MINUTE10,
+                    IntervalLength.MINUTE12,
+                    IntervalLength.MINUTE20,
+                    IntervalLength.MINUTE30,
                     IntervalLength.HOUR1,
+                    IntervalLength.HOUR2,
+                    IntervalLength.HOUR3,
+                    IntervalLength.HOUR4,
+                    IntervalLength.HOUR6,
                     IntervalLength.DAY1,
                     IntervalLength.WEEK1,
                     IntervalLength.MONTH1,
@@ -83,13 +119,31 @@ public enum IntervalLength {
         Instant truncate(Instant instant, ZoneId zone) {
             return this.truncateMinutes(instant, zone, 2);
         }
+
+        @Override
+        public AggregationFunction appendTruncation(SqlBuilder sqlBuilder, String expression) {
+            return this.appendSpecialTruncation(sqlBuilder, expression, "120000");    // 2 minutes is 120 seconds or 120000 millis
+        }
+
+        @Override
+        public void appendTruncation(GasDayOptions gasDayOptions, SqlBuilder sqlBuilder, String expression) {
+            this.appendTruncation(sqlBuilder, expression);  // Intervals < day do not need special treatment for gas
+        }
     },
     MINUTE3(Duration.ofMinutes(3)) {
         @Override
         Set<IntervalLength> multiples() {
             return EnumSet.of(
                     IntervalLength.MINUTE3,
+                    IntervalLength.MINUTE6,
+                    IntervalLength.MINUTE12,
+                    IntervalLength.MINUTE15,
+                    IntervalLength.MINUTE30,
                     IntervalLength.HOUR1,
+                    IntervalLength.HOUR2,
+                    IntervalLength.HOUR3,
+                    IntervalLength.HOUR4,
+                    IntervalLength.HOUR6,
                     IntervalLength.DAY1,
                     IntervalLength.WEEK1,
                     IntervalLength.MONTH1,
@@ -105,13 +159,29 @@ public enum IntervalLength {
         Instant truncate(Instant instant, ZoneId zone) {
             return this.truncateMinutes(instant, zone, 3);
         }
+
+        @Override
+        public AggregationFunction appendTruncation(SqlBuilder sqlBuilder, String expression) {
+            return this.appendSpecialTruncation(sqlBuilder, expression, "180000");    // 3 minutes is 180 seconds or 180000 millis
+        }
+
+        @Override
+        public void appendTruncation(GasDayOptions gasDayOptions, SqlBuilder sqlBuilder, String expression) {
+            this.appendTruncation(sqlBuilder, expression);  // Intervals < day do not need special treatment for gas
+        }
     },
     MINUTE4(Duration.ofMinutes(4)) {
         @Override
         Set<IntervalLength> multiples() {
             return EnumSet.of(
                     IntervalLength.MINUTE4,
+                    IntervalLength.MINUTE12,
+                    IntervalLength.MINUTE20,
                     IntervalLength.HOUR1,
+                    IntervalLength.HOUR2,
+                    IntervalLength.HOUR3,
+                    IntervalLength.HOUR4,
+                    IntervalLength.HOUR6,
                     IntervalLength.DAY1,
                     IntervalLength.WEEK1,
                     IntervalLength.MONTH1,
@@ -127,13 +197,31 @@ public enum IntervalLength {
         Instant truncate(Instant instant, ZoneId zone) {
             return this.truncateMinutes(instant, zone, 4);
         }
+
+        @Override
+        public AggregationFunction appendTruncation(SqlBuilder sqlBuilder, String expression) {
+            return this.appendSpecialTruncation(sqlBuilder, expression, "240000");    // 4 minutes is 240 seconds or 240000 millis
+        }
+
+        @Override
+        public void appendTruncation(GasDayOptions gasDayOptions, SqlBuilder sqlBuilder, String expression) {
+            this.appendTruncation(sqlBuilder, expression);  // Intervals < day do not need special treatment for gas
+        }
     },
     MINUTE5(Duration.ofMinutes(5)) {
         @Override
         Set<IntervalLength> multiples() {
             return EnumSet.of(
                     IntervalLength.MINUTE5,
+                    IntervalLength.MINUTE10,
+                    IntervalLength.MINUTE15,
+                    IntervalLength.MINUTE20,
+                    IntervalLength.MINUTE30,
                     IntervalLength.HOUR1,
+                    IntervalLength.HOUR2,
+                    IntervalLength.HOUR3,
+                    IntervalLength.HOUR4,
+                    IntervalLength.HOUR6,
                     IntervalLength.DAY1,
                     IntervalLength.WEEK1,
                     IntervalLength.MONTH1,
@@ -149,13 +237,29 @@ public enum IntervalLength {
         Instant truncate(Instant instant, ZoneId zone) {
             return this.truncateMinutes(instant, zone, 5);
         }
+
+        @Override
+        public AggregationFunction appendTruncation(SqlBuilder sqlBuilder, String expression) {
+            return this.appendSpecialTruncation(sqlBuilder, expression, "3000000");    // 5 minutes is 300 seconds or 300000 millis
+        }
+
+        @Override
+        public void appendTruncation(GasDayOptions gasDayOptions, SqlBuilder sqlBuilder, String expression) {
+            this.appendTruncation(sqlBuilder, expression);  // Intervals < day do not need special treatment for gas
+        }
     },
     MINUTE6(Duration.ofMinutes(6)) {
         @Override
         Set<IntervalLength> multiples() {
             return EnumSet.of(
                     IntervalLength.MINUTE6,
+                    IntervalLength.MINUTE12,
+                    IntervalLength.MINUTE30,
                     IntervalLength.HOUR1,
+                    IntervalLength.HOUR2,
+                    IntervalLength.HOUR3,
+                    IntervalLength.HOUR4,
+                    IntervalLength.HOUR6,
                     IntervalLength.DAY1,
                     IntervalLength.WEEK1,
                     IntervalLength.MONTH1,
@@ -171,13 +275,29 @@ public enum IntervalLength {
         Instant truncate(Instant instant, ZoneId zone) {
             return this.truncateMinutes(instant, zone, 6);
         }
+
+        @Override
+        public AggregationFunction appendTruncation(SqlBuilder sqlBuilder, String expression) {
+            return this.appendSpecialTruncation(sqlBuilder, expression, "3600000");    // 6 minutes is 360 seconds or 360000 millis
+        }
+
+        @Override
+        public void appendTruncation(GasDayOptions gasDayOptions, SqlBuilder sqlBuilder, String expression) {
+            this.appendTruncation(sqlBuilder, expression);  // Intervals < day do not need special treatment for gas
+        }
     },
     MINUTE10(Duration.ofMinutes(10)) {
         @Override
         Set<IntervalLength> multiples() {
             return EnumSet.of(
                     IntervalLength.MINUTE10,
+                    IntervalLength.MINUTE20,
+                    IntervalLength.MINUTE30,
                     IntervalLength.HOUR1,
+                    IntervalLength.HOUR2,
+                    IntervalLength.HOUR3,
+                    IntervalLength.HOUR4,
+                    IntervalLength.HOUR6,
                     IntervalLength.DAY1,
                     IntervalLength.WEEK1,
                     IntervalLength.MONTH1,
@@ -193,6 +313,16 @@ public enum IntervalLength {
         Instant truncate(Instant instant, ZoneId zone) {
             return this.truncateMinutes(instant, zone, 10);
         }
+
+        @Override
+        public AggregationFunction appendTruncation(SqlBuilder sqlBuilder, String expression) {
+            return this.appendSpecialTruncation(sqlBuilder, expression, "600000");    // 10 minutes is 600 seconds or 600000 millis
+        }
+
+        @Override
+        public void appendTruncation(GasDayOptions gasDayOptions, SqlBuilder sqlBuilder, String expression) {
+            this.appendTruncation(sqlBuilder, expression);  // Intervals < day do not need special treatment for gas
+        }
     },
     MINUTE12(Duration.ofMinutes(12)) {
         @Override
@@ -200,6 +330,10 @@ public enum IntervalLength {
             return EnumSet.of(
                     IntervalLength.MINUTE12,
                     IntervalLength.HOUR1,
+                    IntervalLength.HOUR2,
+                    IntervalLength.HOUR3,
+                    IntervalLength.HOUR4,
+                    IntervalLength.HOUR6,
                     IntervalLength.DAY1,
                     IntervalLength.WEEK1,
                     IntervalLength.MONTH1,
@@ -215,13 +349,28 @@ public enum IntervalLength {
         Instant truncate(Instant instant, ZoneId zone) {
             return this.truncateMinutes(instant, zone, 12);
         }
+
+        @Override
+        public AggregationFunction appendTruncation(SqlBuilder sqlBuilder, String expression) {
+            return this.appendSpecialTruncation(sqlBuilder, expression, "720000");    // 12 minutes is 720 seconds or 720000 millis
+        }
+
+        @Override
+        public void appendTruncation(GasDayOptions gasDayOptions, SqlBuilder sqlBuilder, String expression) {
+            this.appendTruncation(sqlBuilder, expression);  // Intervals < day do not need special treatment for gas
+        }
     },
     MINUTE15(Duration.ofMinutes(15)) {
         @Override
         Set<IntervalLength> multiples() {
             return EnumSet.of(
                     IntervalLength.MINUTE15,
+                    IntervalLength.MINUTE30,
                     IntervalLength.HOUR1,
+                    IntervalLength.HOUR2,
+                    IntervalLength.HOUR3,
+                    IntervalLength.HOUR4,
+                    IntervalLength.HOUR6,
                     IntervalLength.DAY1,
                     IntervalLength.WEEK1,
                     IntervalLength.MONTH1,
@@ -237,6 +386,16 @@ public enum IntervalLength {
         Instant truncate(Instant instant, ZoneId zone) {
             return this.truncateMinutes(instant, zone, 15);
         }
+
+        @Override
+        public AggregationFunction appendTruncation(SqlBuilder sqlBuilder, String expression) {
+            return this.appendSpecialTruncation(sqlBuilder, expression, "900000");    // 15 minutes is 900 seconds or 900000 millis
+        }
+
+        @Override
+        public void appendTruncation(GasDayOptions gasDayOptions, SqlBuilder sqlBuilder, String expression) {
+            this.appendTruncation(sqlBuilder, expression);  // Intervals < day do not need special treatment for gas
+        }
     },
     MINUTE20(Duration.ofMinutes(20)) {
         @Override
@@ -244,6 +403,10 @@ public enum IntervalLength {
             return EnumSet.of(
                     IntervalLength.MINUTE20,
                     IntervalLength.HOUR1,
+                    IntervalLength.HOUR2,
+                    IntervalLength.HOUR3,
+                    IntervalLength.HOUR4,
+                    IntervalLength.HOUR6,
                     IntervalLength.DAY1,
                     IntervalLength.WEEK1,
                     IntervalLength.MONTH1,
@@ -259,6 +422,16 @@ public enum IntervalLength {
         Instant truncate(Instant instant, ZoneId zone) {
             return this.truncateMinutes(instant, zone, 20);
         }
+
+        @Override
+        public AggregationFunction appendTruncation(SqlBuilder sqlBuilder, String expression) {
+            return this.appendSpecialTruncation(sqlBuilder, expression, "1200000");    // 20 minutes is 1200 seconds or 1200000 millis
+        }
+
+        @Override
+        public void appendTruncation(GasDayOptions gasDayOptions, SqlBuilder sqlBuilder, String expression) {
+            this.appendTruncation(sqlBuilder, expression);  // Intervals < day do not need special treatment for gas
+        }
     },
     MINUTE30(Duration.ofMinutes(30)) {
         @Override
@@ -266,6 +439,10 @@ public enum IntervalLength {
             return EnumSet.of(
                     IntervalLength.MINUTE30,
                     IntervalLength.HOUR1,
+                    IntervalLength.HOUR2,
+                    IntervalLength.HOUR3,
+                    IntervalLength.HOUR4,
+                    IntervalLength.HOUR6,
                     IntervalLength.DAY1,
                     IntervalLength.WEEK1,
                     IntervalLength.MONTH1,
@@ -281,12 +458,26 @@ public enum IntervalLength {
         Instant truncate(Instant instant, ZoneId zone) {
             return this.truncateMinutes(instant, zone, 30);
         }
+
+        @Override
+        public AggregationFunction appendTruncation(SqlBuilder sqlBuilder, String expression) {
+            return this.appendSpecialTruncation(sqlBuilder, expression, "1800000");    // 30 minutes is 1800 seconds or 1800000 millis
+        }
+
+        @Override
+        public void appendTruncation(GasDayOptions gasDayOptions, SqlBuilder sqlBuilder, String expression) {
+            this.appendTruncation(sqlBuilder, expression);  // Intervals < day do not need special treatment for gas
+        }
     },
     HOUR1(Duration.ofHours(1)) {
         @Override
         Set<IntervalLength> multiples() {
             return EnumSet.of(
                     IntervalLength.HOUR1,
+                    IntervalLength.HOUR2,
+                    IntervalLength.HOUR3,
+                    IntervalLength.HOUR4,
+                    IntervalLength.HOUR6,
                     IntervalLength.DAY1,
                     IntervalLength.WEEK1,
                     IntervalLength.MONTH1,
@@ -294,10 +485,15 @@ public enum IntervalLength {
         }
 
         @Override
-        String toOracleTruncFormatModel() {
-            return TruncFormatModels.HOUR;
+        public AggregationFunction appendTruncation(SqlBuilder sqlBuilder, String expression) {
+            return this.appendSimpleOracleTruncation(sqlBuilder, expression, TruncFormatModels.HOUR);
         }
 
+
+        @Override
+        public void appendTruncation(GasDayOptions gasDayOptions, SqlBuilder sqlBuilder, String expression) {
+            this.appendTruncation(sqlBuilder, expression);  // Intervals < day do not need special treatment for gas
+        }
         @Override
         public BigDecimal getVolumeFlowConversionFactor() {
             return BigDecimal.ONE;
@@ -313,6 +509,8 @@ public enum IntervalLength {
         Set<IntervalLength> multiples() {
             return EnumSet.of(
                     IntervalLength.HOUR2,
+                    IntervalLength.HOUR4,
+                    IntervalLength.HOUR6,
                     IntervalLength.DAY1,
                     IntervalLength.WEEK1,
                     IntervalLength.MONTH1,
@@ -328,12 +526,23 @@ public enum IntervalLength {
         Instant truncate(Instant instant, ZoneId zone) {
             return this.truncateHours(instant, zone, 2);
         }
+
+        @Override
+        public AggregationFunction appendTruncation(SqlBuilder sqlBuilder, String expression) {
+            return this.appendSpecialTruncation(sqlBuilder, expression, "7200000");    // 2 hours is 7200 seconds or 7200000 millis
+        }
+
+        @Override
+        public void appendTruncation(GasDayOptions gasDayOptions, SqlBuilder sqlBuilder, String expression) {
+            this.appendTruncation(sqlBuilder, expression);  // Intervals < day do not need special treatment for gas
+        }
     },
     HOUR3(Duration.ofHours(3)) {
         @Override
         Set<IntervalLength> multiples() {
             return EnumSet.of(
                     IntervalLength.HOUR3,
+                    IntervalLength.HOUR6,
                     IntervalLength.DAY1,
                     IntervalLength.WEEK1,
                     IntervalLength.MONTH1,
@@ -348,6 +557,16 @@ public enum IntervalLength {
         @Override
         Instant truncate(Instant instant, ZoneId zone) {
             return this.truncateHours(instant, zone, 3);
+        }
+
+        @Override
+        public AggregationFunction appendTruncation(SqlBuilder sqlBuilder, String expression) {
+            return this.appendSpecialTruncation(sqlBuilder, expression, "10800000");    // 3 hours is 10800 seconds or 10800000 millis
+        }
+
+        @Override
+        public void appendTruncation(GasDayOptions gasDayOptions, SqlBuilder sqlBuilder, String expression) {
+            this.appendTruncation(sqlBuilder, expression);  // Intervals < day do not need special treatment for gas
         }
     },
     HOUR4(Duration.ofHours(4)) {
@@ -370,6 +589,16 @@ public enum IntervalLength {
         Instant truncate(Instant instant, ZoneId zone) {
             return this.truncateHours(instant, zone, 4);
         }
+
+        @Override
+        public AggregationFunction appendTruncation(SqlBuilder sqlBuilder, String expression) {
+            return this.appendSpecialTruncation(sqlBuilder, expression, "14400000");    // 4 hours is 14400 seconds or 14400000 millis
+        }
+
+        @Override
+        public void appendTruncation(GasDayOptions gasDayOptions, SqlBuilder sqlBuilder, String expression) {
+            this.appendTruncation(sqlBuilder, expression);  // Intervals < day do not need special treatment for gas
+        }
     },
     HOUR6(Duration.ofHours(6)) {
         @Override
@@ -390,6 +619,16 @@ public enum IntervalLength {
         @Override
         Instant truncate(Instant instant, ZoneId zone) {
             return this.truncateHours(instant, zone, 6);
+        }
+
+        @Override
+        public AggregationFunction appendTruncation(SqlBuilder sqlBuilder, String expression) {
+            return this.appendSpecialTruncation(sqlBuilder, expression, "21600000");    // 6 hours is 21600 seconds or 21600000 millis
+        }
+
+        @Override
+        public void appendTruncation(GasDayOptions gasDayOptions, SqlBuilder sqlBuilder, String expression) {
+            this.appendTruncation(sqlBuilder, expression);  // Intervals < day do not need special treatment for gas
         }
     },
     HOUR12(Duration.ofHours(12)) {
@@ -412,6 +651,16 @@ public enum IntervalLength {
         Instant truncate(Instant instant, ZoneId zone) {
             return this.truncateHours(instant, zone, 12);
         }
+
+        @Override
+        public AggregationFunction appendTruncation(SqlBuilder sqlBuilder, String expression) {
+            return this.appendSpecialTruncation(sqlBuilder, expression, "43200000");    // 12 hours is 43200 seconds or 43200000 millis
+        }
+
+        @Override
+        public void appendTruncation(GasDayOptions gasDayOptions, SqlBuilder sqlBuilder, String expression) {
+            this.appendTruncation(sqlBuilder, expression);  // Intervals < day do not need special treatment for gas
+        }
     },
     DAY1(Period.ofDays(1)) {
         @Override
@@ -424,8 +673,13 @@ public enum IntervalLength {
         }
 
         @Override
-        String toOracleTruncFormatModel() {
-            return TruncFormatModels.DAY;
+        public AggregationFunction appendTruncation(SqlBuilder sqlBuilder, String expression) {
+            return this.appendSimpleOracleTruncation(sqlBuilder, expression, TruncFormatModels.DAY);
+        }
+
+        @Override
+        public void appendTruncation(GasDayOptions gasDayOptions, SqlBuilder sqlBuilder, String expression) {
+            this.appendSimpleOracleTruncation(gasDayOptions, sqlBuilder, expression, TruncFormatModels.DAY);
         }
 
         @Override
@@ -443,8 +697,13 @@ public enum IntervalLength {
         }
 
         @Override
-        String toOracleTruncFormatModel() {
-            return TruncFormatModels.WEEK;
+        public AggregationFunction appendTruncation(SqlBuilder sqlBuilder, String expression) {
+            return this.appendSimpleOracleTruncation(sqlBuilder, expression, TruncFormatModels.WEEK);
+        }
+
+        @Override
+        public void appendTruncation(GasDayOptions gasDayOptions, SqlBuilder sqlBuilder, String expression) {
+            this.appendSimpleOracleTruncation(gasDayOptions, sqlBuilder, expression, TruncFormatModels.WEEK);
         }
 
         @Override
@@ -469,8 +728,13 @@ public enum IntervalLength {
         }
 
         @Override
-        String toOracleTruncFormatModel() {
-            return TruncFormatModels.MONTH;
+        public AggregationFunction appendTruncation(SqlBuilder sqlBuilder, String expression) {
+            return this.appendSimpleOracleTruncation(sqlBuilder, expression, TruncFormatModels.MONTH);
+        }
+
+        @Override
+        public void appendTruncation(GasDayOptions gasDayOptions, SqlBuilder sqlBuilder, String expression) {
+            this.appendSimpleOracleTruncation(gasDayOptions, sqlBuilder, expression, TruncFormatModels.MONTH);
         }
 
         @Override
@@ -497,8 +761,26 @@ public enum IntervalLength {
         }
 
         @Override
-        String toOracleTruncFormatModel() {
-            return TruncFormatModels.YEAR;
+        public AggregationFunction appendTruncation(SqlBuilder sqlBuilder, String expression) {
+            return this.appendSimpleOracleTruncation(sqlBuilder, expression, TruncFormatModels.YEAR);
+        }
+
+        @Override
+        public void appendTruncation(GasDayOptions gasDayOptions, SqlBuilder sqlBuilder, String expression) {
+            sqlBuilder.append("((TRUNC((");
+            sqlBuilder.append(expression);
+            sqlBuilder.append(".");
+            sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.LOCALDATE.sqlName());
+            this.appendOracleIntervalExpression(MathematicalOperation.MINUS, GasStartField.HOUR, sqlBuilder, gasDayOptions);
+            sqlBuilder.append(")");
+            this.appendOracleIntervalExpression(MathematicalOperation.MINUS, GasStartField.MONTH, sqlBuilder, gasDayOptions);
+            sqlBuilder.append(", '");
+            sqlBuilder.append(TruncFormatModels.YEAR);
+            sqlBuilder.append("')");
+            this.appendOracleIntervalExpression(MathematicalOperation.PLUS, GasStartField.HOUR, sqlBuilder, gasDayOptions);
+            sqlBuilder.append(")");
+            this.appendOracleIntervalExpression(MathematicalOperation.PLUS, GasStartField.MONTH, sqlBuilder, gasDayOptions);
+            sqlBuilder.append(")");
         }
 
         @Override
@@ -527,6 +809,16 @@ public enum IntervalLength {
         @Override
         Instant truncate(Instant instant, ZoneId zone) {
             return instant;
+        }
+
+        @Override
+        public AggregationFunction appendTruncation(SqlBuilder sqlBuilder, String expression) {
+            throw new UnsupportedOperationException("Unsupported interval length does not support oracle date time truncation");
+        }
+
+        @Override
+        public void appendTruncation(GasDayOptions gasDayOptions, SqlBuilder sqlBuilder, String expression) {
+            throw new UnsupportedOperationException("Unsupported interval length does not support oracle date time truncation");
         }
     };
 
@@ -649,22 +941,51 @@ public enum IntervalLength {
         }
     }
 
-    /**
-     * Returns the format model for the oracle trunc function
-     * that is appropriate for this IntervalLength,
-     * i.e. the formal model that will trunc localdate
-     * values to this IntervalLength.
-     *
-     * @return The format model
-     */
-    String toOracleTruncFormatModel() {
-        throw new UnsupportedOperationException(this.name() + " is not supported by the oracle trunc function");
+    public abstract AggregationFunction appendTruncation(SqlBuilder sqlBuilder, String expression);
+
+    public abstract void appendTruncation(GasDayOptions gasDayOptions, SqlBuilder sqlBuilder, String expression);
+
+    protected AggregationFunction appendSimpleOracleTruncation(SqlBuilder sqlBuilder, String expression, String oracleTruncFormat) {
+        sqlBuilder.append("TRUNC(");
+        sqlBuilder.append(expression);
+        sqlBuilder.append(".");
+        sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.LOCALDATE.sqlName());
+        sqlBuilder.append(", '");
+        sqlBuilder.append(oracleTruncFormat);
+        sqlBuilder.append("')");
+        return AggregationFunction.TRUNC;
     }
 
-    void appendOracleFormatModelTo(SqlBuilder sqlBuilder) {
-        sqlBuilder.append("'");
-        sqlBuilder.append(this.toOracleTruncFormatModel());
-        sqlBuilder.append("'");
+    protected void appendSimpleOracleTruncation(GasDayOptions gasDayOptions, SqlBuilder sqlBuilder, String expression, String oracleTruncFormat) {
+        sqlBuilder.append("(TRUNC(");
+        sqlBuilder.append(expression);
+        sqlBuilder.append(".");
+        sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.LOCALDATE.sqlName());
+        this.appendOracleIntervalExpression(MathematicalOperation.MINUS, GasStartField.HOUR, sqlBuilder, gasDayOptions);
+        sqlBuilder.append(", '");
+        sqlBuilder.append(oracleTruncFormat);
+        sqlBuilder.append("')");
+        this.appendOracleIntervalExpression(MathematicalOperation.PLUS, GasStartField.HOUR, sqlBuilder, gasDayOptions);
+        sqlBuilder.append(")");
+    }
+
+    void appendOracleIntervalExpression(MathematicalOperation operation, GasStartField field, SqlBuilder sqlBuilder, GasDayOptions gasDayOptions) {
+        operation.appendTo(sqlBuilder);
+        sqlBuilder.append("INTERVAL '");
+        field.appendValueTo(operation, gasDayOptions, sqlBuilder);
+        sqlBuilder.append("' ");
+        field.appendUnitTo(sqlBuilder);
+    }
+
+    protected AggregationFunction appendSpecialTruncation(SqlBuilder sqlBuilder, String expression, String truncationMillis) {
+        sqlBuilder.append("FLOOR(");
+        sqlBuilder.append(expression);
+        sqlBuilder.append(".");
+        sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.TIMESTAMP.fieldSpecName());
+        sqlBuilder.append("/");
+        sqlBuilder.append(truncationMillis);
+        sqlBuilder.append(")");
+        return AggregationFunction.FLOOR;
     }
 
     public BigDecimal getVolumeFlowConversionFactor() {

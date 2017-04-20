@@ -335,33 +335,33 @@ class VirtualReadingType implements Comparable<VirtualReadingType> {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) {
+    public boolean equals(Object other) {
+        if (this == other) {
             return true;
         }
-        if (o == null || getClass() != o.getClass()) {
+        if (other == null || getClass() != other.getClass()) {
             return false;
         }
-        VirtualReadingType that = (VirtualReadingType) o;
-        return intervalLength == that.intervalLength &&
-                unitMultiplier == that.unitMultiplier &&
-                unit == that.unit &&
-                commodity == that.commodity &&
-                marker == that.marker;
+        VirtualReadingType that = (VirtualReadingType) other;
+        return intervalLength == that.intervalLength
+            && unitMultiplier == that.unitMultiplier
+            && unit == that.unit
+            && commodity == that.commodity
+            && marker == that.marker;
     }
 
-    boolean equalsIgnoreCommodity(Object o) {
-        if (this == o) {
+    boolean equalsIgnoreCommodity(Object other) {
+        if (this == other) {
             return true;
         }
-        if (o == null || getClass() != o.getClass()) {
+        if (other == null || getClass() != other.getClass()) {
             return false;
         }
-        VirtualReadingType that = (VirtualReadingType) o;
-        return intervalLength == that.intervalLength &&
-                unitMultiplier == that.unitMultiplier &&
-                unit == that.unit &&
-                marker == that.marker;
+        VirtualReadingType that = (VirtualReadingType) other;
+        return intervalLength == that.intervalLength
+                && unitMultiplier == that.unitMultiplier
+                && unit == that.unit
+                && marker == that.marker;
     }
 
     @Override

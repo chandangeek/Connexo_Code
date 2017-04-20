@@ -574,9 +574,10 @@ public class DataAggregationServiceImplCalculateWithVolumeToFlowConversionIT {
      * Jan 1st 2016 -> forever
      * A- -> 15 min kWh
      * A+ -> 60 min kW
-     * In other words, A+ and A- need aggregation to monthly values
-     * before summing up but that achieves the requested monthly level.
-     * A- must be converted to kW while aggregating it to monthly level.
+     * In other words, A- need aggregation to 60 min values
+     * to be able to sum them with the A+ values.
+     * The summed up values can then be aggregated to the requested monthly level.
+     * A- must be converted to kW while aggregating it to 60 min level.
      *
      * @see #monthlyNetConsumptionBasedOn15MinValuesOfProsumer()
      */
@@ -652,7 +653,7 @@ public class DataAggregationServiceImplCalculateWithVolumeToFlowConversionIT {
             assertThat(productionWithSelectClause).doesNotMatch(".*TRUNC.*");
             String consumptionWithSelectClause = this.consumptionWithClauseBuilder.getText();
             // Assert that the with clause for the the consumption requirement contains aggregation constructs for hourly level
-            assertThat(consumptionWithSelectClause).matches(".*[trunc|TRUNC]\\(localdate, 'HH'\\).*");
+            assertThat(consumptionWithSelectClause).matches(".*[trunc|TRUNC]\\(rawdata\\.localdate, 'HH'\\).*");
             // Assert that one of the requirements is used as source for the timeline
             assertThat(this.netConsumptionWithClauseBuilder.getText())
                     .matches("SELECT.*FROM.*\\(SELECT -1 as id, rid" + consumptionRequirementId + "_" + netConsumptionDeliverableId + "_1\\.timestamp as timestamp.*\\) realrod" + netConsumptionDeliverableId + "_1.*");

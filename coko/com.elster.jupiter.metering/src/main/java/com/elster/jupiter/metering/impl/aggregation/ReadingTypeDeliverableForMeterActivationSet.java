@@ -308,7 +308,7 @@ class ReadingTypeDeliverableForMeterActivationSet {
                 break;
             }
             case LOCALDATE: {
-                this.appendTruncatedTimeline(sqlBuilder, this.nestedSqlName() + "." + SqlConstants.TimeSeriesColumnNames.LOCALDATE.sqlName());
+                this.appendTruncatedTimeline(sqlBuilder, this.nestedSqlName());
                 break;
             }
             default: {
@@ -353,7 +353,7 @@ class ReadingTypeDeliverableForMeterActivationSet {
 
     private void appendWithGroupByClause(SqlBuilder sqlBuilder) {
         sqlBuilder.append(" GROUP BY ");
-        String sqlName = this.expressionNode.accept(new LocalDateFromExpressionNode());
+        String sqlName = this.expressionNode.accept(new TimeLineSqlNameFromExpressionNode());
         this.appendTruncatedTimeline(sqlBuilder, sqlName);
     }
 
@@ -448,14 +448,14 @@ class ReadingTypeDeliverableForMeterActivationSet {
 
     private void appendGroupByClause(SqlBuilder sqlBuilder) {
         sqlBuilder.append(" GROUP BY ");
-        this.appendTruncatedTimeline(sqlBuilder, this.nestedSqlName() + "." + SqlConstants.TimeSeriesColumnNames.LOCALDATE.sqlName());
+        this.appendTruncatedTimeline(sqlBuilder, this.nestedSqlName());
     }
 
     private boolean resultValueNeedsTimeBasedAggregation() {
         return !this.expressionReadingType.isDontCare()
             && Formula.Mode.AUTO.equals(this.mode)
-            && (this.expressionReadingType.getIntervalLength() != this.targetReadingType.getIntervalLength()
-            || this.unitConversionNodeRequiresTimeBasedAggregation());
+            && (   this.expressionReadingType.getIntervalLength() != this.targetReadingType.getIntervalLength()
+                || this.unitConversionNodeRequiresTimeBasedAggregation());
     }
 
     private boolean unitConversionNodeRequiresTimeBasedAggregation() {

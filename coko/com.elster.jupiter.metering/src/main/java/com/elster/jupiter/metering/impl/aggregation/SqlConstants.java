@@ -67,7 +67,7 @@ final class SqlConstants {
             }
 
             @Override
-            String aggregatedValue(VirtualReadingType sourceReadingType, VirtualReadingType readingType) {
+            String aggregatedValue() {
                 return this.fieldSpecName();
             }
         },
@@ -100,7 +100,7 @@ final class SqlConstants {
             }
 
             @Override
-            String aggregatedValue(VirtualReadingType sourceReadingType, VirtualReadingType readingType) {
+            String aggregatedValue() {
                 return this.fieldSpecName();
             }
         },
@@ -121,7 +121,7 @@ final class SqlConstants {
             }
 
             @Override
-            String aggregatedValue(VirtualReadingType sourceReadingType, VirtualReadingType readingType) {
+            String aggregatedValue() {
                 return this.fieldSpecName();
             }
         },
@@ -154,7 +154,7 @@ final class SqlConstants {
             }
 
             @Override
-            String aggregatedValue(VirtualReadingType sourceReadingType, VirtualReadingType readingType) {
+            String aggregatedValue() {
                 return this.fieldSpecName();
             }
         },
@@ -211,30 +211,26 @@ final class SqlConstants {
         LOCALDATE("localdate", "LOCALDATE") {
             @Override
             void appendAsDeliverableSelectValue(Formula.Mode mode, ServerExpressionNode expressionNode, Optional<IntervalLength> expertIntervalLength, VirtualReadingType targetReadingType, SqlBuilder sqlBuilder) {
-                String value = expressionNode.accept(new LocalDateFromExpressionNode());
+                String value = expressionNode.accept(new TimeLineSqlNameFromExpressionNode());
                 if (value == null) {
                     sqlBuilder.append("sysdate");
                 } else if (expertIntervalLength.isPresent()) {
-                    sqlBuilder.append(AggregationFunction.TRUNC.sqlName());
-                    sqlBuilder.append("(");
-                    sqlBuilder.append(value);
-                    sqlBuilder.append(", '");
-                    sqlBuilder.append(expertIntervalLength.get().toOracleTruncFormatModel());
-                    sqlBuilder.append("'");
-                    sqlBuilder.append(")");
+                    expertIntervalLength.get().appendTruncation(sqlBuilder, value);
                 } else {
                     sqlBuilder.append(value);
+                    sqlBuilder.append(".");
+                    sqlBuilder.append(this.sqlName());
                 }
             }
 
             @Override
-            AggregationFunction aggregationFunctionFor(VirtualReadingType readingType) {
-                return AggregationFunction.TRUNC;
+            String aggregatedValue() {
+                return this.fieldSpecName();
             }
 
             @Override
-            String aggregatedValue(VirtualReadingType sourceReadingType, VirtualReadingType readingType) {
-                return this.sqlName() + ", '" + readingType.getIntervalLength().toOracleTruncFormatModel() + "'";
+            AggregationFunction aggregationFunctionFor(VirtualReadingType readingType) {
+                return AggregationFunction.MAX;
             }
         };
 
@@ -281,30 +277,29 @@ final class SqlConstants {
          * Append the appropriate select value to (if necessary) convert values
          * from the specified {@link VirtualReadingType source reading type} to the
          * target reading type for all TimeSeriesColumnNames to the specified SqlBuilder.
-         *
-         * @param sourceReadingType The source ReadingType
+         *  @param sourceReadingType The source ReadingType
          * @param targetReadingType The target ReadingType
          * @param sqlBuilder The SqlBuilder
          */
         static void appendAllAggregatedSelectValues(VirtualReadingType sourceReadingType, VirtualReadingType targetReadingType, SqlBuilder sqlBuilder) {
             for (TimeSeriesColumnNames columnName : values()) {
-                columnName.appendAsAggregatedSelectValue(sourceReadingType, targetReadingType, sqlBuilder);
+                columnName.appendAsAggregatedSelectValue(targetReadingType, sqlBuilder);
                 if (columnName != LOCALDATE) {
                     sqlBuilder.append(", ");
                 }
             }
         }
 
-        void appendAsAggregatedSelectValue(VirtualReadingType sourceReadingType, VirtualReadingType targetReadingType, SqlBuilder sqlBuilder) {
+        void appendAsAggregatedSelectValue(VirtualReadingType targetReadingType, SqlBuilder sqlBuilder) {
             this.aggregationFunctionFor(targetReadingType)
                     .appendTo(
                             sqlBuilder,
-                            Collections.singletonList(new TextFragment(this.aggregatedValue(sourceReadingType, targetReadingType))));
+                            Collections.singletonList(new TextFragment(this.aggregatedValue())));
         }
 
         abstract AggregationFunction aggregationFunctionFor(VirtualReadingType readingType);
 
-        String aggregatedValue(VirtualReadingType sourceReadingType, VirtualReadingType readingType) {
+        String aggregatedValue() {
             return this.sqlName();
         }
 

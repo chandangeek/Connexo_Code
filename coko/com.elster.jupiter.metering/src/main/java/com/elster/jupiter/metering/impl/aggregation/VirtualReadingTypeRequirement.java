@@ -147,11 +147,8 @@ class VirtualReadingTypeRequirement {
         sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.LOCALDATE.fieldSpecName());
         sqlBuilder.append(" FROM (");
         this.appendPreferredChannel(sqlBuilder);
-        sqlBuilder.append(") rawdata) GROUP BY TRUNC(");
-        sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.LOCALDATE.fieldSpecName());
-        sqlBuilder.append(", ");
-        this.targetReadingType.getIntervalLength().appendOracleFormatModelTo(sqlBuilder);
-        sqlBuilder.append(")");
+        sqlBuilder.append(") rawdata) GROUP BY ");
+        this.targetReadingType.getIntervalLength().appendTruncation(sqlBuilder, "rawdata");
     }
 
     @SuppressWarnings("unchecked")
@@ -329,7 +326,7 @@ class VirtualReadingTypeRequirement {
 
     private boolean aggregationIsRequired() {
         return Formula.Mode.AUTO.equals(this.mode)
-                && IntervalLength.from(this.getPreferredChannel().getMainReadingType()) != this.targetReadingType.getIntervalLength();
+            && IntervalLength.from(this.getPreferredChannel().getMainReadingType()) != this.targetReadingType.getIntervalLength();
     }
 
     void appendSimpleReferenceTo(SqlBuilder sqlBuilder) {

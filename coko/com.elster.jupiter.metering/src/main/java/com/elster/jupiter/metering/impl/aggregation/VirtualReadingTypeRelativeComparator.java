@@ -67,8 +67,8 @@ class VirtualReadingTypeRelativeComparator implements Comparator<VirtualReadingT
             if (this.target.isFlowRelated()) {
                 if (x.isFlowRelated()) {
                     if (y.isFlowRelated()) {
-                        // Both are flow related, consider them equal
-                        return 0;
+                        // Both are flow related, favour smaller intervals over bigger intervals
+                        return x.getIntervalLength().compareTo(y.getIntervalLength());
                     } else {
                         return -1;
                     }
@@ -80,15 +80,15 @@ class VirtualReadingTypeRelativeComparator implements Comparator<VirtualReadingT
                 } else {
                     /* Neither of the two are flow related but they are somehow
                      * combined in a formula that may end up being flow related.
-                     * No preference in sorting. */
-                    return 0;
+                     * Smaller intervals are preferred over larger intervals. */
+                    return x.getIntervalLength().compareTo(y.getIntervalLength());
                 }
             } else if (this.target.isVolumeRelated()) {
                 // Remember that flow to volume conversion requires division
                 if (x.isVolumeRelated()) {
                     if (y.isVolumeRelated()) {
-                        // Both are volume related, consider them equal
-                        return 0;
+                        // Both are volume related, favour smaller intervals over bigger intervals
+                        return x.getIntervalLength().compareTo(y.getIntervalLength());
                     } else {
                         return -1;
                     }
@@ -99,9 +99,9 @@ class VirtualReadingTypeRelativeComparator implements Comparator<VirtualReadingT
                     return 1;
                 } else {
                     /* Neither of the two are flow related but they are somehow
-                     * combined in a formula that may end up being volumne related.
-                     * No preference in sorting. */
-                    return 0;
+                     * combined in a formula that may end up being volume related.
+                     * Smaller intervals are preferred over larger intervals. */
+                    return x.getIntervalLength().compareTo(y.getIntervalLength());
                 }
             } else {
                 /* Target is neither flow nor volume related
