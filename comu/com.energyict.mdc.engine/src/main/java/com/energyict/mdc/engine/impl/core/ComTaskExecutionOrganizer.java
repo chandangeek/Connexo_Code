@@ -99,11 +99,12 @@ public final class ComTaskExecutionOrganizer {
             securityProperties.setProperty(protocolSecurityProperty.getName(), protocolSecurityProperty.getValue());
         }
         return new DeviceProtocolSecurityPropertySetImpl(
+                securityPropertySet.getClient(),
                 securityPropertySet.getAuthenticationDeviceAccessLevel().getId(),
                 securityPropertySet.getEncryptionDeviceAccessLevel().getId(),
-                securityPropertySet.getSecuritySuite().getId(),
-                securityPropertySet.getRequestSecurityLevel().getId(),
-                securityPropertySet.getResponseSecurityLevel().getId(),
+                securityPropertySet.getSecuritySuite() != null ? securityPropertySet.getSecuritySuite().getId() : -1,   // Safety measure, should in fact never be 'null' (except for tests)
+                securityPropertySet.getRequestSecurityLevel() != null ? securityPropertySet.getRequestSecurityLevel().getId() : -1,
+                securityPropertySet.getResponseSecurityLevel() != null ? securityPropertySet.getResponseSecurityLevel().getId() : -1,
                 securityProperties);
     }
 

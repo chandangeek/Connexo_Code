@@ -12,6 +12,7 @@ import com.energyict.mdc.protocol.api.security.AdvancedDeviceProtocolSecurityPro
  */
 public class DeviceProtocolSecurityPropertySetImpl implements AdvancedDeviceProtocolSecurityPropertySet {
 
+    private final String client;
     private final int securitySuite;
     private final int requestSecurityLevel;
     private final int responseSecurityLevel;
@@ -19,13 +20,18 @@ public class DeviceProtocolSecurityPropertySetImpl implements AdvancedDeviceProt
     private final int encryptionDeviceAccessLevel;
     private final TypedProperties securityProperties;
 
-    public DeviceProtocolSecurityPropertySetImpl(int authenticationDeviceAccessLevel, int encryptionDeviceAccessLevel, int securitySuite, int requestSecurityLevel, int responseSecurityLevel, TypedProperties securityProperties) {
+    public DeviceProtocolSecurityPropertySetImpl(String client, int authenticationDeviceAccessLevel, int encryptionDeviceAccessLevel, int securitySuite, int requestSecurityLevel, int responseSecurityLevel, TypedProperties securityProperties) {
+        this.client = client;
         this.authenticationDeviceAccessLevel = authenticationDeviceAccessLevel;
         this.encryptionDeviceAccessLevel = encryptionDeviceAccessLevel;
         this.securityProperties = securityProperties;
         this.securitySuite = securitySuite;
         this.requestSecurityLevel = requestSecurityLevel;
         this.responseSecurityLevel = responseSecurityLevel;
+    }
+
+    public String getClient() {
+        return client;
     }
 
     @Override
