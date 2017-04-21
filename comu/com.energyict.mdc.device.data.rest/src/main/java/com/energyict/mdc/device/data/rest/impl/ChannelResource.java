@@ -930,10 +930,11 @@ public class ChannelResource {
             channelDataInfo.interval = IntervalInfo.from(Range.openClosed(readingTimeStamp.minus(intervalLength), readingTimeStamp));
         });
 
-        Quantity quantity = record.getQuantity(channel.getReadingType());
-        BigDecimal value = getRoundedBigDecimal(quantity != null ? quantity.getValue() : null, channel);
-        channelDataInfo.value = type.correctValue(value, correctionAmount);
-
+        channel.getCalculatedReadingType(record.getTimeStamp()).ifPresent(readingType -> {
+            Quantity quantity = record.getQuantity(readingType);
+            BigDecimal value = getRoundedBigDecimal(quantity != null ? quantity.getValue() : null, channel);
+            channelDataInfo.value = type.correctValue(value, correctionAmount);
+        });
         return channelDataInfo;
     }
 
