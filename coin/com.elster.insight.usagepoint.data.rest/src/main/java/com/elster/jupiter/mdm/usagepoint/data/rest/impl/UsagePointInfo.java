@@ -36,6 +36,7 @@ public class UsagePointInfo {
     public String name;
     public Boolean isSdp;
     public Boolean isVirtual;
+    public Boolean isReadyForLinkingMC;
     public String outageRegion;
     public String readRoute;
     public String serviceDeliveryRemark;
@@ -49,6 +50,7 @@ public class UsagePointInfo {
     public UsagePointLifeCycleInfo lifeCycle;
     public UsagePointTransitionInfo transitionToPerform;
     public Long lastTransitionTime;
+    public boolean hasEffectiveMCs;
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.CUSTOM, include = JsonTypeInfo.As.EXTERNAL_PROPERTY, property = "serviceCategory")
     @JsonTypeIdResolver(BaseUsagePointDetailsInfo.UsagePointDetailsTypeResolver.class)
@@ -60,6 +62,7 @@ public class UsagePointInfo {
     public long createTime;
     public long modTime;
     public MetrologyConfigurationInfo metrologyConfiguration;
+    public MetrologyConfigurationInfo effectiveMetrologyConfiguration;
     public List<MeterActivationInfo> meterActivations;
 
     public UsagePointInfo() {

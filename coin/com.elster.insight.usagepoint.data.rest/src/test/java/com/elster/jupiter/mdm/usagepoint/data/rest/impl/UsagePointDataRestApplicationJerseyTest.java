@@ -60,6 +60,7 @@ import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.validation.impl.ValidationServiceImpl;
 
@@ -159,10 +160,10 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
     UpgradeService upgradeService;
     @Mock
     OrmService ormService;
+    ReadingType regularReadingType = mockReadingType("0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0");
+    ReadingType irregularReadingType = mockReadingType("0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0");
     @Mock
-    ReadingType regularReadingType;
-    @Mock
-    ReadingType irregularReadingType;
+    UserService userService;
 
     @Override
     protected Application getApplication() {
@@ -210,10 +211,11 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
         application.setUsagePointLifeCycleService(usagePointLifeCycleService);
         application.setUsagePointLifeCycleConfigurationService(usagePointLifeCycleConfigurationService);
         application.setPropertySpecService(propertySpecService);
+        application.setUserService(userService);
         return application;
     }
 
-    ReadingType mockReadingType(String mrid) {
+    static ReadingType mockReadingType(String mrid) {
         ReadingType readingType = mock(ReadingType.class);
         when(readingType.getMRID()).thenReturn(mrid);
         when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.DAILY);
@@ -245,26 +247,27 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
     }
 
     UsagePointMetrologyConfiguration mockMetrologyConfigurationWithContract(long id, String name) {
+        return mockMetrologyConfigurationWithContract(id, name, mockMetrologyPurpose(DefaultMetrologyPurpose.BILLING),
+                mockMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION));
+    }
+
+    UsagePointMetrologyConfiguration mockMetrologyConfigurationWithContract(long id, String name, MetrologyPurpose mandatory, MetrologyPurpose optional) {
         UsagePointMetrologyConfiguration metrologyConfiguration = mock(UsagePointMetrologyConfiguration.class);
         when(metrologyConfiguration.getId()).thenReturn(id);
         when(metrologyConfiguration.getName()).thenReturn(name);
         MeterRole meterRole = mockMeterRole(DefaultMeterRole.DEFAULT);
         when(metrologyConfiguration.getMeterRoles()).thenReturn(Collections.singletonList(meterRole));
 
-        MetrologyContract contract = mockMetrologyContract(100L, DefaultMetrologyPurpose.BILLING, metrologyConfiguration);
-        MetrologyContract contractOptional = mockMetrologyContract(101L, DefaultMetrologyPurpose.INFORMATION, metrologyConfiguration);
+        MetrologyContract contract = mockMetrologyContract(100L, mandatory, metrologyConfiguration);
+        MetrologyContract contractOptional = mockMetrologyContract(101L, optional, metrologyConfiguration);
 
         when(contractOptional.isMandatory()).thenReturn(false);
-        MetrologyPurpose purpose = mockMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION);
-        when(contractOptional.getMetrologyPurpose()).thenReturn(purpose);
 
         when(metrologyConfiguration.getContracts()).thenReturn(Arrays.asList(contract, contractOptional));
 
-        regularReadingType = this.mockReadingType("0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0");
         when(regularReadingType.isRegular()).thenReturn(true);
         ReadingTypeDeliverable channelDeliverable = mockReadingTypeDeliverable(1L, "1 regular RT", metrologyConfiguration, regularReadingType);
 
-        irregularReadingType = this.mockReadingType("0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0");
         when(irregularReadingType.isRegular()).thenReturn(false);
         ReadingTypeDeliverable registerTypeDeliverable = mockReadingTypeDeliverable(2L, "2 irregular RT", metrologyConfiguration, irregularReadingType);
 
@@ -281,20 +284,19 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
         return meterRole;
     }
 
-    private MetrologyContract mockMetrologyContract(long id, DefaultMetrologyPurpose metrologyPurpose, UsagePointMetrologyConfiguration metrologyConfiguration) {
+    private MetrologyContract mockMetrologyContract(long id, MetrologyPurpose metrologyPurpose, UsagePointMetrologyConfiguration metrologyConfiguration) {
         MetrologyContract contract = mock(MetrologyContract.class);
         when(contract.getId()).thenReturn(id);
         when(contract.getVersion()).thenReturn(1L);
         when(contract.isMandatory()).thenReturn(true);
-        MetrologyPurpose purpose = mockMetrologyPurpose(metrologyPurpose);
-        when(contract.getMetrologyPurpose()).thenReturn(purpose);
+        when(contract.getMetrologyPurpose()).thenReturn(metrologyPurpose);
         when(contract.getMetrologyConfiguration()).thenReturn(metrologyConfiguration);
         MetrologyContract.Status status = mockMetrologyContractStatus();
         when(contract.getStatus(any())).thenReturn(status);
         return contract;
     }
 
-    private MetrologyPurpose mockMetrologyPurpose(DefaultMetrologyPurpose metrologyPurpose) {
+    MetrologyPurpose mockMetrologyPurpose(DefaultMetrologyPurpose metrologyPurpose) {
         MetrologyPurpose purpose = mock(MetrologyPurpose.class);
         when(purpose.getId()).thenReturn(1L);
         when(purpose.getName()).thenReturn(metrologyPurpose.getName().getDefaultMessage());

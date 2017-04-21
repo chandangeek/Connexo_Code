@@ -45,6 +45,8 @@ import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointStage;
 import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCycleInfoFactory;
 import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCycleStateInfoFactory;
 import com.elster.jupiter.util.geo.SpatialCoordinates;
@@ -164,7 +166,8 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
     @Reference
     public void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(UsagePointApplication.COMPONENT_NAME, Layer.REST)
-                .join(nlsService.getThesaurus(MeteringService.COMPONENTNAME, Layer.DOMAIN));
+                .join(nlsService.getThesaurus(MeteringService.COMPONENTNAME, Layer.DOMAIN))
+                .join(nlsService.getThesaurus(UsagePointLifeCycleConfigurationService.COMPONENT_NAME, Layer.DOMAIN));
     }
 
     @Reference
@@ -197,7 +200,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         );
         info.location = usagePoint.getLocation().map(Location::toString).orElse(
                 usagePoint.getSpatialCoordinates().map(SpatialCoordinates::toString).orElse(null));
-        info.state = usagePoint.getState().getName();
+        info.state = thesaurus.getString(usagePoint.getState().getName(), usagePoint.getState().getName());
         return info;
     }
 
@@ -245,20 +248,43 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         );
         info.displayServiceCategory = usagePoint.getServiceCategory().getDisplayName();
         info.displayType = this.getUsagePointDisplayType(usagePoint);
+        info.hasEffectiveMCs = usagePoint.getEffectiveMetrologyConfiguration(clock.instant()).isPresent()
+                || usagePoint.getEffectiveMetrologyConfigurations().stream()
+                .anyMatch(mc -> mc.getStart().isAfter(clock.instant()));
 
-        usagePoint.getCurrentEffectiveMetrologyConfiguration()
-                .map(EffectiveMetrologyConfigurationOnUsagePoint::getMetrologyConfiguration)
-                .ifPresent(mc -> {
-                    info.metrologyConfiguration = new MetrologyConfigurationInfo(mc, usagePoint, this.thesaurus, this.clock, readingTypeDeliverableFactory);
-                    info.displayMetrologyConfiguration = mc.getName();
-                });
+        usagePoint.getEffectiveMetrologyConfigurations().forEach(mc -> {
+            if (mc.isEffectiveAt(clock.instant())) {
+                info.metrologyConfiguration = new MetrologyConfigurationInfo(mc, usagePoint, this.thesaurus, this.clock, readingTypeDeliverableFactory);
+                info.displayMetrologyConfiguration = mc.getMetrologyConfiguration().getName();
+            } else {
+                info.effectiveMetrologyConfiguration = new MetrologyConfigurationInfo(mc, usagePoint, this.thesaurus, this.clock, readingTypeDeliverableFactory);
+            }
+        });
 
         addDetailsInfo(info, usagePoint);
         addCustomPropertySetInfo(info, usagePoint);
         addLocationInfo(info, usagePoint);
-        info.state = this.stateInfoFactory.from(usagePoint.getState());
-        info.lifeCycle = this.lifeCycleInfoFactory.shortInfo(usagePoint.getState().getLifeCycle());
+        info.state = this.stateInfoFactory.from(usagePoint.getLifeCycle(), usagePoint.getState());
+        info.lifeCycle = this.lifeCycleInfoFactory.shortInfo(usagePoint.getLifeCycle());
         info.lastTransitionTime = usagePointLifeCycleService.getLastUsagePointStateChangeRequest(usagePoint).map(cr -> cr.getTransitionTime().toEpochMilli()).orElse(null);
+
+        String temp = usagePoint.getState().getStage().get().getName();
+        List temp2 = usagePoint.getEffectiveMetrologyConfigurations().stream().map(EffectiveMetrologyConfigurationOnUsagePoint::getId).sorted().collect(Collectors.toList());
+        Long temp3 =usagePoint.getEffectiveMetrologyConfigurations().stream().collect(Collectors.counting());
+        if(usagePoint.getState().getStage().get().getName().equals(UsagePointStage.SUSPENDED.getKey()) || usagePoint.getState().getStage().get().getName().equals(UsagePointStage.PRE_OPERATIONAL.getKey()) ){
+            if(!usagePoint.getEffectiveMetrologyConfigurations()
+                    .stream()
+                    .anyMatch(effectiveMetrologyConfigurationOnUsagePoint -> effectiveMetrologyConfigurationOnUsagePoint.getEnd()==null)){
+                info.isReadyForLinkingMC=true;
+            }
+            else if (usagePoint.getEffectiveMetrologyConfigurations().size()==0){
+                info.isReadyForLinkingMC=true;
+            }
+            else
+                info.isReadyForLinkingMC=false;
+        }
+        else
+            info.isReadyForLinkingMC=false;
         return info;
     }
 

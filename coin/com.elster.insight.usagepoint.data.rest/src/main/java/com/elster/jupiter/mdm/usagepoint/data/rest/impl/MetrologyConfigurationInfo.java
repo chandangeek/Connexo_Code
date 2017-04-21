@@ -9,6 +9,7 @@ import com.elster.jupiter.mdm.usagepoint.config.rest.ReadingTypeDeliverableFacto
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.ConstantNode;
 import com.elster.jupiter.metering.config.CustomPropertyNode;
+import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.FunctionCallNode;
 import com.elster.jupiter.metering.config.MeterRole;
@@ -38,6 +39,7 @@ public class MetrologyConfigurationInfo {
     public String name;
     public Long version;
     public Instant activationTime;
+    public Instant endDate;
     public List<CustomPropertySetInfo> customPropertySets = new ArrayList<>();
     public IdWithNameInfo status;
     public List<MeterRoleInfo> meterRoles;
@@ -51,13 +53,15 @@ public class MetrologyConfigurationInfo {
     public MetrologyConfigurationInfo() {
     }
 
-    public MetrologyConfigurationInfo(UsagePointMetrologyConfiguration metrologyConfiguration, UsagePoint usagePoint, Thesaurus thesaurus, Clock clock, ReadingTypeDeliverableFactory readingTypeDeliverableFactory) {
+    public MetrologyConfigurationInfo(EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint, UsagePoint usagePoint, Thesaurus thesaurus, Clock clock, ReadingTypeDeliverableFactory readingTypeDeliverableFactory) {
+        UsagePointMetrologyConfiguration metrologyConfiguration = effectiveMetrologyConfigurationOnUsagePoint.getMetrologyConfiguration();
         this.thesaurus = thesaurus;
         this.clock = clock;
         this.id = metrologyConfiguration.getId();
         this.name = metrologyConfiguration.getName();
         this.version = metrologyConfiguration.getVersion();
-        this.activationTime = usagePoint.getInstallationTime();
+        this.activationTime = effectiveMetrologyConfigurationOnUsagePoint.getStart();
+        this.endDate = effectiveMetrologyConfigurationOnUsagePoint.getEnd();
         this.meterRoles = metrologyConfiguration.getMeterRoles()
                 .stream()
                 .map(mr -> asDetailedMeterRoleInfo(mr, metrologyConfiguration, usagePoint))
@@ -124,7 +128,7 @@ public class MetrologyConfigurationInfo {
         info.status = metrologyContractStatus;
         info.readingTypeDeliverables = metrologyContract.getDeliverables()
                 .stream()
-                .sorted((a, b) -> a.getName().compareTo(b.getName()))
+                .sorted(Comparator.comparing(ReadingTypeDeliverable::getName))
                 .map(readingTypeDeliverableFactory::asInfo)
                 .collect(Collectors.toList());
         return info;
@@ -143,7 +147,7 @@ public class MetrologyConfigurationInfo {
         info.name = meterRole.getDisplayName();
         usagePoint.getMeterActivations(meterRole)
                 .stream()
-                .filter(meterActivationToCheck -> meterActivationToCheck.getEnd() == null)
+                .filter(meterActivationToCheck -> meterActivationToCheck.isEffectiveAt(clock.instant()))
                 .findFirst()
                 .ifPresent(meterActivation -> {
                     meterActivation.getMeter().ifPresent(meter -> {
@@ -152,8 +156,8 @@ public class MetrologyConfigurationInfo {
                                 .flatMap(he -> he.getURLForEndDevice(meter))
                                 .map(URL::toString)
                                 .orElse(null);
+                        info.activationTime = meterActivation.getStart();
                     });
-                    info.activationTime = this.activationTime;
                 });
         return info;
     }

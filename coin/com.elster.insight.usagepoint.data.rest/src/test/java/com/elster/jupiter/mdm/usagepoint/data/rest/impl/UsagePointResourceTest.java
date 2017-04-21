@@ -6,7 +6,18 @@ package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.bpm.ProcessInstanceInfo;
 import com.elster.jupiter.bpm.ProcessInstanceInfos;
+import com.elster.jupiter.cbo.Accumulation;
+import com.elster.jupiter.cbo.Aggregate;
+import com.elster.jupiter.cbo.Commodity;
+import com.elster.jupiter.cbo.FlowDirection;
+import com.elster.jupiter.cbo.MacroPeriod;
+import com.elster.jupiter.cbo.MeasurementKind;
+import com.elster.jupiter.cbo.MetricMultiplier;
+import com.elster.jupiter.cbo.Phase;
 import com.elster.jupiter.cbo.QualityCodeSystem;
+import com.elster.jupiter.cbo.RationalNumber;
+import com.elster.jupiter.cbo.ReadingTypeUnit;
+import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
@@ -16,14 +27,17 @@ import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
 import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.fsm.Stage;
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.issue.share.IssueFilter;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.ElectricityDetailBuilder;
 import com.elster.jupiter.metering.LocationTemplate;
+import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.MessageSeeds;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
@@ -37,6 +51,8 @@ import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyContract;
+import com.elster.jupiter.metering.config.MetrologyPurpose;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationCustomPropertySetUsage;
@@ -48,7 +64,6 @@ import com.elster.jupiter.time.PeriodicalScheduleExpression;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointStateChangeRequest;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointStage;
-import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointTransitionInfo;
 import com.elster.jupiter.users.User;
@@ -58,12 +73,15 @@ import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.validation.DataValidationTask;
 
+import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
+import org.joda.time.DateMidnight;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -71,6 +89,7 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Currency;
 import java.util.List;
 import java.util.Optional;
 
@@ -128,11 +147,11 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
     @Mock
     private Query<UsagePoint> usagePointQuery;
     @Mock
-    private UsagePointState usagePointState;
+    private State usagePointState;
     @Mock
     private UsagePointLifeCycle usagePointLifeCycle;
     @Mock
-    private UsagePointStage usagePointStage;
+    private Stage usagePointStage;
     @Mock
     private EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint;
     @Mock
@@ -175,9 +194,8 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         when(clock.instant()).thenReturn(NOW);
         when(clock.getZone()).thenReturn(ZoneId.systemDefault());
 
-        when(usagePointStage.getKey()).thenReturn(UsagePointStage.Key.OPERATIONAL);
-        when(usagePointStage.getDisplayName()).thenReturn(UsagePointStage.Key.OPERATIONAL.name());
-        when(usagePointState.getStage()).thenReturn(usagePointStage);
+        when(usagePointStage.getName()).thenReturn(UsagePointStage.OPERATIONAL.getKey());
+        when(usagePointState.getStage()).thenReturn(Optional.of(usagePointStage));
         when(usagePoint.getServiceCategory()).thenReturn(serviceCategory);
         when(usagePoint.getCreateDate()).thenReturn(Instant.now().minusSeconds(60 * 60 * 24));
         when(usagePoint.getModificationDate()).thenReturn(Instant.now().minusSeconds(60 * 60 * 5));
@@ -228,7 +246,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         when(usagePointLifeCycle.getId()).thenReturn(1L);
         when(usagePointLifeCycle.getVersion()).thenReturn(1L);
 
-        when(usagePointState.getLifeCycle()).thenReturn(usagePointLifeCycle);
+        when(usagePoint.getLifeCycle()).thenReturn(usagePointLifeCycle);
         when(usagePointState.getId()).thenReturn(1L);
         when(usagePointState.getName()).thenReturn("State");
         when(usagePointState.getVersion()).thenReturn(1L);
@@ -260,6 +278,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
     public void testGetUsagePointInfo() {
         when(securityContext.getUserPrincipal()).thenReturn(principal);
         when(principal.hasPrivilege(any(String.class), any(String.class))).thenReturn(true);
+        when(usagePoint.getEffectiveMetrologyConfiguration(any(Instant.class))).thenReturn(Optional.empty());
         UsagePointInfo response = target("usagepoints/" + USAGE_POINT_NAME).request().get(UsagePointInfo.class);
 
         assertThat(response.mRID).isEqualTo("MRID");
@@ -270,6 +289,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         assertThat(response.state.name).isEqualTo("State");
         assertThat(response.lifeCycle.id).isEqualTo(1L);
         assertThat(response.lifeCycle.name).isEqualTo("Life cycle");
+        assertThat(response.isReadyForLinkingMC).isEqualTo(false);
     }
 
     @Test
@@ -334,6 +354,8 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
     public void testUpdateUsagePoint() {
         when(meteringService.findUsagePointById(1L)).thenReturn(Optional.of(usagePoint));
         when(meteringService.findAndLockUsagePointByIdAndVersion(1L, 1L)).thenReturn(Optional.of(usagePoint));
+        when(usagePoint.getEffectiveMetrologyConfiguration(any(Instant.class))).thenReturn(Optional.empty());
+
         UsagePointInfo info = new UsagePointInfo();
         info.id = 1L;
         info.mRID = "upd";
@@ -368,6 +390,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         when(meteringService.findAndLockUsagePointByIdAndVersion(1L, 1L)).thenReturn(Optional.of(usagePoint));
         when(customPropertySet.getPropertySpecs()).thenReturn(Collections.singletonList(propertySpec));
         when(usagePointPropertySet.getValues()).thenReturn(CustomPropertySetValues.empty());
+        when(usagePoint.getEffectiveMetrologyConfiguration(any(Instant.class))).thenReturn(Optional.empty());
 
         CustomPropertySetAttributeInfo attributeInfo = new CustomPropertySetAttributeInfo();
         attributeInfo.key = propertySpec.getName();
@@ -407,6 +430,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         CustomPropertySetValues values = CustomPropertySetValues.empty();
         values.setProperty(propertySpec.getName(), "Poor");
         when(usagePointPropertySet.getValues()).thenReturn(values);
+        when(usagePoint.getEffectiveMetrologyConfiguration(any(Instant.class))).thenReturn(Optional.empty());
 
         CustomPropertySetAttributeInfo attributeInfo = new CustomPropertySetAttributeInfo();
         attributeInfo.key = propertySpec.getName();
@@ -450,6 +474,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         when(meteringService.findAndLockUsagePointByIdAndVersion(1L, 1L)).thenReturn(Optional.of(usagePoint));
         when(customPropertySet.getPropertySpecs()).thenReturn(Collections.singletonList(propertySpec));
         when(usagePointPropertySet.getValues()).thenReturn(CustomPropertySetValues.empty());
+        when(usagePoint.getEffectiveMetrologyConfiguration(any(Instant.class))).thenReturn(Optional.empty());
 
         CustomPropertySetAttributeInfo attributeInfo = new CustomPropertySetAttributeInfo();
         attributeInfo.key = propertySpec.getName();
@@ -520,6 +545,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         info.name = "Test";
         info.version = 1L;
         info.customPropertySets = Collections.singletonList(casInfo);
+        info.activationTime = Instant.now();
         Response response = target("usagepoints/" + USAGE_POINT_NAME + "/metrologyconfiguration").queryParam("validate", "true")
                 .queryParam("customPropertySetId", 1L)
                 .request()
@@ -532,7 +558,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         response = target("usagepoints/" + USAGE_POINT_NAME + "/metrologyconfiguration").queryParam("validate", "false").request().put(Entity.json(info));
 
         assertThat(response.getStatus()).isEqualTo(200);
-        verify(usagePoint).apply(usagePointMetrologyConfiguration, now);
+        verify(usagePoint).apply(eq(usagePointMetrologyConfiguration), any(Instant.class));
 
         //unlink usage point
 
@@ -552,6 +578,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
 
     @Test
     public void testCanActivateAndClearMetersOnUsagePoint() {
+        Instant activationDate = Instant.now();
         when(usagePointStage.getKey()).thenReturn(UsagePointStage.Key.PRE_OPERATIONAL);
 
         Meter meter1 = mock(Meter.class);
@@ -582,28 +609,31 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         meterActivation1.meter.name = meter1.getName();
         meterActivation1.meterRole = new MeterRoleInfo();
         meterActivation1.meterRole.id = meterRole1.getKey();
+        meterActivation1.meterRole.activationTime = activationDate;
 
         MeterActivationInfo meterActivation2 = new MeterActivationInfo();
         meterActivation2.meter = new MeterInfo();
         meterActivation2.meter.name = meter2.getName();
         meterActivation2.meterRole = new MeterRoleInfo();
         meterActivation2.meterRole.id = meterRole2.getKey();
+        meterActivation2.meterRole.activationTime = activationDate;
 
         MeterActivationInfo meterActivation3 = new MeterActivationInfo();
         meterActivation3.meterRole = new MeterRoleInfo();
         meterActivation3.meterRole.id = meterRole3.getKey();
+        meterActivation3.meterRole.activationTime = activationDate;
 
         UsagePointInfo info = new UsagePointInfo();
         info.version = usagePoint.getVersion();
         info.meterActivations = Arrays.asList(meterActivation1, meterActivation2, meterActivation3);
+        when(usagePoint.getEffectiveMetrologyConfiguration(any(Instant.class))).thenReturn(Optional.empty());
 
         Response response = target("usagepoints/" + USAGE_POINT_NAME + "/activatemeters").request()
                 .put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(200);
 
-        verify(linker).activate(eq(meter1), eq(meterRole1));
-        verify(linker).activate(eq(meter2), eq(meterRole2));
-        verify(linker).clear(eq(meterRole3));
+        verify(linker).activate(eq(activationDate), eq(meter1), eq(meterRole1));
+        verify(linker).activate(eq(activationDate), eq(meter2), eq(meterRole2));
         verify(linker).complete();
     }
 
@@ -684,6 +714,9 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         when(metrologyContract.getStatus(usagePoint)).thenReturn(status);
         when(metrologyContract.getStatus(usagePoint).getKey()).thenReturn("INCOMPLETE");
         when(metrologyContract.getStatus(usagePoint).getName()).thenReturn("Incomplete");
+        when(usagePoint.getEffectiveMetrologyConfigurations()).thenReturn(Collections.singletonList(effectiveMetrologyConfigurationOnUsagePoint));
+        when(usagePoint.getEffectiveMetrologyConfiguration(any(Instant.class))).thenReturn(Optional.of(effectiveMetrologyConfigurationOnUsagePoint));
+        when(effectiveMetrologyConfigurationOnUsagePoint.isEffectiveAt(any(Instant.class))).thenReturn(true);
 
         when(effectiveMetrologyConfigurationOnUsagePoint.getMetrologyConfiguration()).thenReturn(usagePointMetrologyConfiguration);
         when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMetrologyConfigurationOnUsagePoint));
@@ -772,7 +805,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         assertThat(jsonModel.<List>get("$.meters")).hasSize(1);
         assertThat(jsonModel.<Integer>get("$.meters[0].id")).isEqualTo(1);
         assertThat(jsonModel.<Long>get("$.meters[0].start")).isEqualTo(1486466700000L);
-        assertThat(jsonModel.<Boolean>get("$.meters[0].current")).isEqualTo(true);
+        assertThat(jsonModel.<Boolean>get("$.meters[0].current")).isEqualTo(false);
         assertThat(jsonModel.<String>get("$.meters[0].meter")).isEqualTo("Meter");
         assertThat(jsonModel.<String>get("$.meters[0].url")).isEqualTo("http://localhost:8989/apps/multisense/index.html#/devices/D1");
         assertThat(jsonModel.<String>get("$.meters[0].meterRole")).isEqualTo("Meter role");
@@ -801,7 +834,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
         verify(usagePointBuilder).create();
         verify(transactionService).getContext();
-        verify(usagePoint).apply(any());
+        verify(usagePoint).apply(any(), any(Instant.class));
     }
 
     @Test
@@ -824,8 +857,131 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         verify(usagePointLifeCycleService).scheduleTransition(usagePoint, transition, transitionToPerform.effectiveTimestamp, "INS", Collections.emptyMap());
         verify(usagePointBuilder).create();
         verify(transactionService).getContext();
-        verify(usagePoint).apply(any());
+        verify(usagePoint).apply(any(), any(Instant.class));
         verify(usagePointLifeCycleService).scheduleTransition(any(), any(), any(), any(),any());
+    }
+
+    @Test
+    public void testGetUsagePointPrivileges() throws Exception {
+        EffectiveMetrologyConfigurationOnUsagePoint metrologyConfigurationOnUsagePoint = mock(EffectiveMetrologyConfigurationOnUsagePoint.class);
+        UsagePointStage  stage = mock(UsagePointStage.class);
+        UsagePointState state = mock(UsagePointState.class);
+        List<EffectiveMetrologyConfigurationOnUsagePoint> configurationOnUsagePointList = Arrays.asList(metrologyConfigurationOnUsagePoint);
+        Range<Instant> range = Range.open(new DateMidnight(2014, 1, 1).toDate().toInstant(), new DateMidnight(2014, 2, 1).toDate().toInstant());
+
+        when(usagePoint.getState()).thenReturn(state);
+        when(state.getStage()).thenReturn(stage);
+        when(stage.getKey()).thenReturn(UsagePointStage.Key.SUSPENDED);
+        when(usagePoint.getEffectiveMetrologyConfigurations()).thenReturn(configurationOnUsagePointList);
+        when(metrologyConfigurationOnUsagePoint.getRange()).thenReturn(range);
+
+        Response response = target("usagepoints/" + USAGE_POINT_NAME + "/metrologyconfiguration/privileges").request().get();
+        JsonModel model = JsonModel.create((ByteArrayInputStream) response.getEntity());
+        assertThat(model.<Integer>get("$.total")).isEqualTo(1);
+        assertThat(model.<List>get("$.privileges")).hasSize(1);
+        assertThat(model.<String>get("$.privileges[0].name")).isEqualTo("usagepoint.action.link.metrology.configuration");
+    }
+
+    @Test
+    public void testGetUsagePointPrivilegesWithOpenMC() throws Exception {
+        EffectiveMetrologyConfigurationOnUsagePoint metrologyConfigurationOnUsagePoint = mock(EffectiveMetrologyConfigurationOnUsagePoint.class);
+        EffectiveMetrologyConfigurationOnUsagePoint metrologyConfigurationOnUsagePoint1 = mock(EffectiveMetrologyConfigurationOnUsagePoint.class);
+        UsagePointStage  stage = mock(UsagePointStage.class);
+        UsagePointState state = mock(UsagePointState.class);
+        List<EffectiveMetrologyConfigurationOnUsagePoint> configurationOnUsagePointList =  Arrays.asList(metrologyConfigurationOnUsagePoint,metrologyConfigurationOnUsagePoint1);
+        Range<Instant> range = Range.closed(new DateMidnight(2014, 1, 1).toDate().toInstant(), new DateMidnight(2014, 2, 1).toDate().toInstant());
+        Range<Instant> range1 = Range.atLeast(Instant.from(NOW));
+        when(usagePoint.getState()).thenReturn(state);
+        when(state.getStage()).thenReturn(stage);
+        when(stage.getKey()).thenReturn(UsagePointStage.Key.SUSPENDED);
+        when(usagePoint.getEffectiveMetrologyConfigurations()).thenReturn(configurationOnUsagePointList);
+        when(metrologyConfigurationOnUsagePoint1.getRange()).thenReturn(range1);
+        when(metrologyConfigurationOnUsagePoint.getRange()).thenReturn(range);
+
+        Response response = target("usagepoints/" + USAGE_POINT_NAME + "/metrologyconfiguration/privileges").request().get();
+        JsonModel model = JsonModel.create((ByteArrayInputStream) response.getEntity());
+        assertThat(model.<Integer>get("$.total")).isEqualTo(0);
+        assertThat(model.<List>get("$.privileges")).hasSize(0);
+    }
+
+    @Test
+    public void testGetUsagePointPrivilegesWithNoMC() throws Exception {
+        UsagePointStage  stage = mock(UsagePointStage.class);
+        UsagePointState state = mock(UsagePointState.class);
+        List<EffectiveMetrologyConfigurationOnUsagePoint> configurationOnUsagePointList = Collections.emptyList();
+        when(usagePoint.getState()).thenReturn(state);
+        when(state.getStage()).thenReturn(stage);
+        when(stage.getKey()).thenReturn(UsagePointStage.Key.SUSPENDED);
+        when(usagePoint.getEffectiveMetrologyConfigurations()).thenReturn(configurationOnUsagePointList);
+        Response response = target("usagepoints/" + USAGE_POINT_NAME + "/metrologyconfiguration/privileges").request().get();
+        JsonModel model = JsonModel.create((ByteArrayInputStream) response.getEntity());
+        assertThat(model.<Integer>get("$.total")).isEqualTo(1);
+        assertThat(model.<List>get("$.privileges")).hasSize(1);
+        assertThat(model.<String>get("$.privileges[0].name")).isEqualTo("usagepoint.action.link.metrology.configuration");
+    }
+
+    @Test
+    public void testGetMetrologyConfigurationsHistory() throws IOException {
+        Instant effectiveTime = Instant.now();
+        Instant closedTime = Instant.ofEpochMilli(effectiveTime.toEpochMilli() / 2);
+        ReadingType readingType = mockReadingType();
+
+        MetrologyContract metrologyContract = mock(MetrologyContract.class);
+        MetrologyPurpose metrologyPurpose = mock(MetrologyPurpose.class);
+        ReadingTypeDeliverable deliverable = mock(ReadingTypeDeliverable.class);
+        when(metrologyContract.getDeliverables()).thenReturn(Collections.singletonList(deliverable));
+        when(metrologyContract.getMetrologyPurpose()).thenReturn(metrologyPurpose);
+        when(metrologyPurpose.getName()).thenReturn("Billing");
+        when(deliverable.getName()).thenReturn("Secondary Sum A+ (Wh)");
+        when(deliverable.getReadingType()).thenReturn(readingType);
+
+        UsagePointMetrologyConfiguration currentMetrologyConfiguration = mock(UsagePointMetrologyConfiguration.class);
+        UsagePointMetrologyConfiguration closedMetrologyConfiguration = mock(UsagePointMetrologyConfiguration.class);
+        EffectiveMetrologyConfigurationOnUsagePoint currentEffective = mock(EffectiveMetrologyConfigurationOnUsagePoint.class);
+        EffectiveMetrologyConfigurationOnUsagePoint closedEffective = mock(EffectiveMetrologyConfigurationOnUsagePoint.class);
+
+        when(currentEffective.getStart()).thenReturn(effectiveTime);
+        when(currentEffective.getId()).thenReturn(555L);
+        when(currentEffective.getMetrologyConfiguration()).thenReturn(currentMetrologyConfiguration);
+        when(currentMetrologyConfiguration.getName()).thenReturn("Current effective");
+        when(currentEffective.isEffectiveAt(any(Instant.class))).thenReturn(true);
+        when(currentMetrologyConfiguration.getContracts()).thenReturn(Collections.singletonList(metrologyContract));
+
+        when(closedEffective.getStart()).thenReturn(closedTime);
+        when(closedEffective.getId()).thenReturn(666L);
+        when(closedEffective.getMetrologyConfiguration()).thenReturn(closedMetrologyConfiguration);
+        when(closedEffective.isEffectiveAt(any(Instant.class))).thenReturn(false);
+        when(closedMetrologyConfiguration.getName()).thenReturn("Closed effective");
+        when(closedMetrologyConfiguration.getContracts()).thenReturn(Collections.singletonList(metrologyContract));
+        when(closedEffective.getUsagePoint()).thenReturn(usagePoint);
+        when(currentEffective.getUsagePoint()).thenReturn(usagePoint);
+        when(closedMetrologyConfiguration.getId()).thenReturn(666L);
+        when(currentMetrologyConfiguration.getId()).thenReturn(555L);
+        when(usagePoint.getMRID()).thenReturn("MRID");
+
+        when(usagePoint.getEffectiveMetrologyConfigurations()).thenReturn(Arrays.asList(currentEffective, closedEffective));
+        when(bpmService.getRunningProcesses(anyString(), anyString())).thenReturn(new ProcessInstanceInfos());
+
+        when(currentEffective.getUsagePoint()).thenReturn(usagePoint);
+        when(closedEffective.getUsagePoint()).thenReturn(usagePoint);
+        when(currentMetrologyConfiguration.getId()).thenReturn(555L);
+        when(closedMetrologyConfiguration.getId()).thenReturn(666L);
+        when(usagePoint.getMRID()).thenReturn("MRID");
+        Response response = target("/usagepoints/" + USAGE_POINT_NAME + "/history/metrologyConfigurations").request().get();
+        JsonModel jsonModel = JsonModel.model((InputStream)response.getEntity());
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        assertThat(jsonModel.<Boolean>get("$.data[0]current")).isEqualTo(true);
+        assertThat(jsonModel.<Long>get("$.data[0].start")).isEqualTo(effectiveTime.toEpochMilli());
+        assertThat(jsonModel.<String>get("$.data[0].purposesWithReadingTypes.Billing[0].name")).isEqualTo("readingTypeName");
+        assertThat(jsonModel.<String>get("$.data[0].metrologyConfiguration.name")).isEqualTo("Current effective");
+        assertThat(jsonModel.<Integer>get("$.data[0].metrologyConfiguration.id")).isEqualTo(555);
+
+        assertThat(jsonModel.<Boolean>get("$.data[1]current")).isEqualTo(false);
+        assertThat(jsonModel.<Long>get("$.data[1].start")).isEqualTo(closedTime.toEpochMilli());
+        assertThat(jsonModel.<String>get("$.data[1].purposesWithReadingTypes.Billing[0].name")).isEqualTo("readingTypeName");
+        assertThat(jsonModel.<String>get("$.data[1].metrologyConfiguration.name")).isEqualTo("Closed effective");
+        assertThat(jsonModel.<Integer>get("$.data[1].metrologyConfiguration.id")).isEqualTo(666);
     }
 
     private UsagePointInfo getInfoWithMetrologyConfigurationAndMeters() {
@@ -837,6 +993,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         configurationInfo.id = 1L;
         configurationInfo.name = "Test";
         configurationInfo.version = 1L;
+        configurationInfo.activationTime = Instant.now();
         configurationInfo.customPropertySets = Collections.singletonList(casInfo);
         Meter meter1 = mock(Meter.class);
         when(meter1.getName()).thenReturn("meter1");
@@ -863,6 +1020,32 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
 
         return usagePointInfo;
     }
+
+    private ReadingType mockReadingType() {
+        ReadingType readingType = mock(ReadingType.class);
+
+        when(readingType.getMRID()).thenReturn("readingTypeMRID");
+        when(readingType.getAliasName()).thenReturn("readingTypeAliasName");
+        when(readingType.getName()).thenReturn("readingTypeName");
+        when(readingType.isActive()).thenReturn(true);
+        when(readingType.isCumulative()).thenReturn(true);
+        when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.BILLINGPERIOD);
+        when(readingType.getAccumulation()).thenReturn(Accumulation.CUMULATIVE);
+        when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.FIXEDBLOCK5MIN);
+        when(readingType.getFlowDirection()).thenReturn(FlowDirection.FORWARD);
+        when(readingType.getCommodity()).thenReturn(Commodity.AIR);
+        when(readingType.getMeasurementKind()).thenReturn(MeasurementKind.ACVOLTAGEPEAK);
+        when(readingType.getInterharmonic()).thenReturn(RationalNumber.NOTAPPLICABLE);
+        when(readingType.getArgument()).thenReturn(RationalNumber.NOTAPPLICABLE);
+        when(readingType.getPhases()).thenReturn(Phase.NOTAPPLICABLE);
+        when(readingType.getMultiplier()).thenReturn(MetricMultiplier.CENTI);
+        when(readingType.getUnit()).thenReturn(ReadingTypeUnit.ACRE);
+        when(readingType.getAggregate()).thenReturn(Aggregate.AVERAGE);
+        when(readingType.getCurrency()).thenReturn(Currency.getInstance("USD"));
+
+        return readingType;
+    }
+
     private UsagePointInfo getBasicUsagePointInfo() {
         UsagePointInfo info = new UsagePointInfo();
         info.name = "test";

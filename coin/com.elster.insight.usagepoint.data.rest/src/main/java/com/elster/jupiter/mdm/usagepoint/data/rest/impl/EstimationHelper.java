@@ -27,6 +27,8 @@ import javax.inject.Inject;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -92,7 +94,7 @@ public class EstimationHelper {
         return estimationService.previewEstimate(system, channelsContainer, range, readingType, estimator);
     }
 
-    List<OutputChannelDataInfo> getChannelDataInfoFromEstimationReports(Channel channel, List<Range<Instant>> ranges, List<EstimationResult> results) {
+    List<OutputChannelDataInfo> getChannelDataInfoFromEstimationReports(Channel channel, Collection<Range<Instant>> ranges, List<EstimationResult> results, boolean markAsProjected) {
         List<Instant> failedTimestamps = new ArrayList<>();
         List<OutputChannelDataInfo> channelDataInfos = new ArrayList<>();
 
@@ -104,7 +106,10 @@ public class EstimationHelper {
         for (EstimationResult result : results) {
             for (EstimationBlock block : result.estimated()) {
                 for (Estimatable estimatable : block.estimatables()) {
-                    getChannelDataInfo(estimatable, channelData).ifPresent(channelDataInfos::add);
+                    getChannelDataInfo(estimatable, channelData).ifPresent(info ->  {
+                        info.isProjected = markAsProjected;
+                        channelDataInfos.add(info);
+                    });
                 }
             }
             for (EstimationBlock block : result.remainingToBeEstimated()) {

@@ -24,4 +24,7 @@ public class EstimateChannelDataInfo {
 
     @JsonProperty("readingType")
     public ReadingTypeInfo readingType;
+
+    @JsonProperty("markAsProjected")
+    public boolean markAsProjected;
 }
