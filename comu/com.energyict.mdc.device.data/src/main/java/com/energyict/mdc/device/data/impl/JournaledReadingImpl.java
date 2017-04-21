@@ -7,7 +7,7 @@ package com.energyict.mdc.device.data.impl;
 import com.elster.jupiter.metering.JournaledRegisterReadingRecord;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.validation.DataValidationStatus;
-import com.energyict.mdc.device.JournaledReading;
+import com.energyict.mdc.device.data.JournaledReading;
 import com.energyict.mdc.device.data.Register;
 
 public class JournaledReadingImpl extends ReadingImpl implements JournaledReading {
@@ -21,6 +21,6 @@ public class JournaledReadingImpl extends ReadingImpl implements JournaledReadin
 
     @Override
     public String getUserName() {
-        return getActualReading() instanceof JournaledRegisterReadingRecord ? ((JournaledRegisterReadingRecord)getActualReading()).getUserName() : "";
+        return getActualReading() instanceof JournaledRegisterReadingRecord ? ((JournaledRegisterReadingRecord) getActualReading()).getUserName() : "";
     }
 }
