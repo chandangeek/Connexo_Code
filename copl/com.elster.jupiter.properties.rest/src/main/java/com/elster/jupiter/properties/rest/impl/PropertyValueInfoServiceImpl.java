@@ -4,6 +4,9 @@
 
 package com.elster.jupiter.properties.rest.impl;
 
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecPossibleValues;
@@ -15,11 +18,13 @@ import com.elster.jupiter.properties.rest.PropertyValueConverter;
 import com.elster.jupiter.properties.rest.PropertyValueInfo;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.properties.rest.SimplePropertyType;
+import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -30,9 +35,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-/**
- * Created by mbarinov on 17.08.2016.
- */
 @Component(name = "com.elster.jupiter.properties.rest.propertyvalueinfoservice", immediate = true, service = PropertyValueInfoService.class)
 public class PropertyValueInfoServiceImpl implements PropertyValueInfoService {
 
@@ -40,8 +42,15 @@ public class PropertyValueInfoServiceImpl implements PropertyValueInfoService {
     private final List<PropertyValueConverter> converters = new CopyOnWriteArrayList<>();
     private final Map<String, PropertyValueConverter> dedicatedConverters = new HashMap<>();
 
+    private volatile Thesaurus thesaurus;
+
     public PropertyValueInfoServiceImpl() {
 
+    }
+
+    @Reference
+    public void setNlsService(NlsService nlsService) {
+        this.thesaurus = nlsService.getThesaurus(TimeService.COMPONENT_NAME, Layer.DOMAIN);
     }
 
     @Activate
@@ -55,6 +64,7 @@ public class PropertyValueInfoServiceImpl implements PropertyValueInfoService {
         this.addPropertyValueInfoConverter(new RelativePeriodPropertyValueConverter());
         this.addPropertyValueInfoConverter(new ListPropertyValueConverter());
         this.addPropertyValueInfoConverter(new QuantityPropertyValueConverter());
+        this.addPropertyValueInfoConverter(new TimeDurationPropertyValueConverter(thesaurus));
     }
 
     @Override
