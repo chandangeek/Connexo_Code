@@ -4,7 +4,6 @@
 
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
-import com.elster.jupiter.cbo.QualityCodeCategory;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.estimation.EstimationResult;
 import com.elster.jupiter.estimation.EstimationRule;
@@ -20,12 +19,11 @@ import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.aggregation.ReadingQualityComment;
 import com.elster.jupiter.metering.ValueCorrection;
+import com.elster.jupiter.metering.aggregation.ReadingQualityComment;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyContract;
@@ -392,9 +390,9 @@ public class UsagePointOutputResource {
         if (channelDataInfo.value != null) {
             BaseReading baseReading = channelDataInfo.createNew();
             if (channelDataInfo.isProjected) {
-                ((BaseReadingImpl) baseReading).addQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.PROJECTED, 0));
-            }
-            if (channelDataInfo.ruleId != 0) {
+                ((BaseReadingImpl) baseReading).addQuality("3.12.0", this.extractComment(readingQualityComment));
+                editedReadings.add(baseReading);
+            } else if (channelDataInfo.ruleId != 0) {
                 ((BaseReadingImpl)baseReading).addQuality("3.8." + channelDataInfo.ruleId, this.extractComment(readingQualityComment));
                 estimatedReadings.add(baseReading);
             } else {
@@ -505,7 +503,6 @@ public class UsagePointOutputResource {
                     List<EstimationResult> results = subRanges.stream()
                             .map(block -> estimationHelper.previewEstimate(QualityCodeSystem.MDM, container, readingType, block, estimator))
                             .collect(Collectors.toList());
-                    //// TODO: 19.04.2017 change projected value boolean and reading quaility comment
                     return estimationHelper.getChannelDataInfoFromEstimationReports(channel, subRanges, results, marksAsProjected, readingQualityComment);
                 })
                 .map(List::stream)
@@ -935,7 +932,7 @@ public class UsagePointOutputResource {
                     List<IntervalReadingRecord> intervalReadingRecords = channel.getIntervalReadings(intervals);
                     result.addAll(intervalReadingRecords.stream()
                             .filter(record -> timestamps.contains(record.getTimeStamp()))
-                            .map(readingRecord -> createCorrectedChannelDataInfo(ValueCorrection.valueOf(info.type), readingRecord, info.amount, info.commentId))
+                            .map(readingRecord -> createCorrectedChannelDataInfo(info, readingRecord))
                             .collect(Collectors.toList()));
                 });
 
@@ -953,8 +950,12 @@ public class UsagePointOutputResource {
         return filter.hasProperty("suspect") ? hasSuspects : info -> true;
     }
 
-    private OutputChannelDataInfo createCorrectedChannelDataInfo(ValueCorrection type, IntervalReadingRecord record, BigDecimal correctionAmount, long commentId) {
-        BigDecimal newValue = type.correctValue(record.getValue(), correctionAmount);
-        return outputChannelDataInfoFactory.createUpdatedChannelDataInfo(record, newValue, resourceHelper.getReadingQualityComment(commentId));
+    private OutputChannelDataInfo createCorrectedChannelDataInfo(ValueCorrectionInfo info, IntervalReadingRecord record) {
+        BigDecimal newValue = ValueCorrection.valueOf(info.type).correctValue(record.getValue(), info.amount);
+        Optional<ReadingQualityComment> readingQualityComment = Optional.empty();
+//        if (info.estimationComment != null) {
+//            readingQualityComment = resourceHelper.getReadingQualityComment(info.estimationComment.id);
+//        }
+        return outputChannelDataInfoFactory.createUpdatedChannelDataInfo(record, newValue, info.projected, readingQualityComment);
     }
 }

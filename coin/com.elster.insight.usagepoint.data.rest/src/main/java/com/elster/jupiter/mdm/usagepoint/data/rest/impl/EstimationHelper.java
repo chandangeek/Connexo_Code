@@ -106,7 +106,7 @@ public class EstimationHelper {
         for (EstimationResult result : results) {
             for (EstimationBlock block : result.estimated()) {
                 for (Estimatable estimatable : block.estimatables()) {
-                    getChannelDataInfo(estimatable, channelData, readingQualityComment).ifPresent(info ->  {
+                    getChannelDataInfo(estimatable, channelData, markAsProjected, readingQualityComment).ifPresent(info ->  {
                         info.isProjected = markAsProjected;
                         channelDataInfos.add(info);
                     });
@@ -125,14 +125,14 @@ public class EstimationHelper {
     }
 
 
-    private Optional<OutputChannelDataInfo> getChannelDataInfo(Estimatable estimatable, List<IntervalReadingRecord> channelData, Optional<ReadingQualityComment> readingQualityComment) {
+    private Optional<OutputChannelDataInfo> getChannelDataInfo(Estimatable estimatable, List<IntervalReadingRecord> channelData, boolean markAsProjected, Optional<ReadingQualityComment> readingQualityComment) {
         return channelData.stream()
                 .filter(readingRecord -> readingRecord.getTimeStamp().equals(estimatable.getTimestamp()))
-                .map(readingRecord -> getChannelDataInfo(readingRecord, estimatable, readingQualityComment))
+                .map(readingRecord -> getChannelDataInfo(readingRecord, estimatable, markAsProjected, readingQualityComment))
                 .findFirst();
     }
 
-    private OutputChannelDataInfo getChannelDataInfo(IntervalReadingRecord reading, Estimatable estimatable, Optional<ReadingQualityComment> readingQualityComment) {
-        return channelDataInfoFactory.createUpdatedChannelDataInfo(reading, estimatable.getEstimation(), readingQualityComment);
+    private OutputChannelDataInfo getChannelDataInfo(IntervalReadingRecord reading, Estimatable estimatable, boolean markAsProjected, Optional<ReadingQualityComment> readingQualityComment) {
+        return channelDataInfoFactory.createUpdatedChannelDataInfo(reading, estimatable.getEstimation(), markAsProjected, readingQualityComment);
     }
 }

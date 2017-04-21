@@ -108,7 +108,7 @@ public class OutputChannelDataInfoFactory {
                 .collect(Collectors.toList());
     }
 
-    public OutputChannelDataInfo createUpdatedChannelDataInfo(IntervalReadingRecord readingRecord, BigDecimal newValue, Optional<ReadingQualityComment> readingQualityComment) {
+    public OutputChannelDataInfo createUpdatedChannelDataInfo(IntervalReadingRecord readingRecord, BigDecimal newValue, boolean isProjected, Optional<ReadingQualityComment> readingQualityComment) {
         OutputChannelDataInfo outputChannelDataInfo = new OutputChannelDataInfo();
         outputChannelDataInfo.reportedDateTime = readingRecord.getReportedDateTime();
         readingRecord.getReadingType().getIntervalLength().ifPresent(intervalLength -> {
@@ -116,6 +116,7 @@ public class OutputChannelDataInfoFactory {
             outputChannelDataInfo.interval = IntervalInfo.from(Range.openClosed(readingTimeStamp.minus(intervalLength), readingTimeStamp));
         });
         outputChannelDataInfo.value = newValue;
+        outputChannelDataInfo.isProjected = isProjected;
         readingQualityComment.ifPresent(comment -> outputChannelDataInfo.estimationComment = new IdWithDisplayValueInfo<>(comment.getId(), comment.getComment()));
         return outputChannelDataInfo;
     }
