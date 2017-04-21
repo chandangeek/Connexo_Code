@@ -7,7 +7,7 @@ package com.energyict.mdc.device.data.impl;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.transaction.TransactionContext;
-import com.energyict.mdc.common.ObisCode;
+import com.energyict.obis.ObisCode;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;

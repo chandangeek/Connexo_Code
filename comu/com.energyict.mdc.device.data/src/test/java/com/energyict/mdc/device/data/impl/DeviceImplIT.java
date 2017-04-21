@@ -50,7 +50,6 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
-import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.GatewayType;
@@ -74,19 +73,30 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.RegisterType;
-import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
-import com.energyict.mdc.protocol.api.tasks.TopologyAction;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.ConnexoToUPLPropertSpecAdapter;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.scheduling.model.ComScheduleBuilder;
 import com.energyict.mdc.tasks.ClockTask;
 import com.energyict.mdc.tasks.ClockTaskType;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.ProtocolTask;
-
+import com.energyict.mdc.upl.DeviceProtocolCapabilities;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.tasks.TopologyAction;
+import com.energyict.obis.ObisCode;
 import com.google.common.collect.Range;
+import org.assertj.core.api.Condition;
 import org.joda.time.DateTimeConstants;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Ignore;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.junit.rules.TestRule;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -98,21 +108,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TimeZone;
 import java.util.UUID;
-
-import org.assertj.core.api.Condition;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.rules.TestRule;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.fest.reflect.core.Reflection.field;
@@ -128,7 +130,10 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     private static final BigDecimal overflowValue = BigDecimal.valueOf(1234567);
     private static final int numberOfFractionDigits = 2;
     private static MeterRole defaultMeterRole;
-
+    @Rule
+    public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
+    @Rule
+    public ExpectedException expectedEx = ExpectedException.none();
     private ReadingType forwardBulkSecondaryEnergyReadingType;
     private ReadingType forwardDeltaSecondaryEnergyReadingType;
     private ReadingType reverseDeltaSecondaryMonthlyEnergyReadingType;
@@ -140,12 +145,6 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     private ObisCode averageForwardEnergyObisCode;
     private ObisCode forwardEnergyObisCode;
     private ObisCode reverseEnergyObisCode;
-
-    @Rule
-    public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
-
-    @Rule
-    public ExpectedException expectedEx = ExpectedException.none();
 
     @BeforeClass
     public static void setup() {
@@ -535,7 +534,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     public void getRegisterWithDeviceObisCodeForConfigWithoutRegistersTest() {
         Device simpleDevice = createSimpleDeviceWithName(DEVICE_NAME);
 
-        assertThat(simpleDevice.getRegisterWithDeviceObisCode(ObisCode.fromString("1.0.1.8.0.255"))).isNull();
+        assertThat(simpleDevice.getRegisterWithDeviceObisCode(ObisCode.fromString("1.0.1.8.0.255"))).isEmpty();
     }
 
     @Test
@@ -556,7 +555,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICE_NAME, Instant.now());
 
         Device reloadedDevice = getReloadedDevice(device);
-        assertThat(reloadedDevice.getRegisterWithDeviceObisCode(forwardEnergyObisCode).getReadings(Interval.sinceEpoch())).isEmpty();
+        assertThat(reloadedDevice.getRegisterWithDeviceObisCode(forwardEnergyObisCode).get().getReadings(Interval.sinceEpoch())).isEmpty();
     }
 
     @Test
@@ -572,7 +571,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         device.store(meterReading);
 
         Device reloadedDevice = getReloadedDevice(device);
-        List<Reading> readings = reloadedDevice.getRegisterWithDeviceObisCode(forwardEnergyObisCode).getReadings(Interval.sinceEpoch());
+        List<Reading> readings = reloadedDevice.getRegisterWithDeviceObisCode(forwardEnergyObisCode).get().getReadings(Interval.sinceEpoch());
         assertThat(readings).isNotEmpty();
         assertThat(readings).hasSize(1);
         assertThat(readings.get(0)).isInstanceOf(NumericalReading.class);
@@ -601,7 +600,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         device.store(meterReading);
 
         Device reloadedDevice = getReloadedDevice(device);
-        List<Reading> readings = reloadedDevice.getRegisterWithDeviceObisCode(this.averageForwardEnergyObisCode).getReadings(Interval.sinceEpoch());
+        List<Reading> readings = reloadedDevice.getRegisterWithDeviceObisCode(this.averageForwardEnergyObisCode).get().getReadings(Interval.sinceEpoch());
         assertThat(readings).isNotEmpty();
         assertThat(readings).hasSize(1);
         assertThat(readings.get(0)).isInstanceOf(BillingReading.class);
@@ -621,8 +620,8 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
 
         Device reloadedDevice = getReloadedDevice(device);
 
-        assertThat(reloadedDevice.getRegisterWithDeviceObisCode(forwardEnergyObisCode)).isNotNull();
-        assertThat(reloadedDevice.getRegisterWithDeviceObisCode(reverseEnergyObisCode)).isNotNull();
+        assertThat(reloadedDevice.getRegisterWithDeviceObisCode(forwardEnergyObisCode)).isPresent();
+        assertThat(reloadedDevice.getRegisterWithDeviceObisCode(reverseEnergyObisCode)).isPresent();
     }
 
     @Test
@@ -1019,7 +1018,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         device.getLoadProfileUpdaterFor(device.getLoadProfiles().get(0)).setLastReading(lastReading).update();
 
         Device reloadedDevice = getReloadedDevice(device);
-        assertThat(device.getLoadProfiles().get(0).getLastReading().get()).isEqualTo(lastReading);
+        assertThat(device.getLoadProfiles().get(0).getLastReading().toString()).isEqualTo(Date.from(lastReading).toString());
         List<LoadProfileReading> readings = reloadedDevice.getLoadProfiles().get(0).getChannelData(Ranges.openClosed(requestIntervalStart, requestIntervalEnd));
         assertThat(readings.size()).isEqualTo(13);
         assertThat(readings.get(12).getRange().upperEndpoint()).isEqualTo(Instant.ofEpochMilli(1385852400000L)); // Sat, 31 Dec 2014 23:00:00 GMT
@@ -2705,7 +2704,12 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         }
 
         @Override
-        public String getDisplayName() {
+        public List<PropertySpec> getUPLPropertySpecs() {
+            return getPropertySpecs().stream().map(ConnexoToUPLPropertSpecAdapter::new).collect(Collectors.toList());
+        }
+
+        @Override
+        public String getDeviceProtocolDialectDisplayName() {
             return "It's a Dell Display";
         }
 

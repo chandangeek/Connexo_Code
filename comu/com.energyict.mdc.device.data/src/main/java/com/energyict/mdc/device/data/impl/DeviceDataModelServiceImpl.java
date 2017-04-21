@@ -45,6 +45,7 @@ import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LoadProfileService;
 import com.energyict.mdc.device.data.LogBookService;
+import com.energyict.mdc.device.data.RegisterService;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertySet;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CompletionOptionsCustomPropertySet;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CustomPropertySetsTranslationKeys;
@@ -154,6 +155,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
     private ServerCommunicationTaskService communicationTaskService;
     private CommunicationTaskReportService communicationTaskReportService;
     private ServerDeviceService deviceService;
+    private RegisterService registerService;
     private ServerLoadProfileService loadProfileService;
     private ServerLogBookService logBookService;
     private DataCollectionKpiService dataCollectionKpiService;
@@ -223,8 +225,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
 
     @Reference
     public void setOrmService(OrmService ormService) {
-        DataModel dataModel = ormService.newDataModel(DeviceDataServices.COMPONENT_NAME, "Device data");
-        this.dataModel = dataModel;
+        this.dataModel = ormService.newDataModel(DeviceDataServices.COMPONENT_NAME, "Device data");
     }
 
     @Reference
@@ -611,6 +612,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
         this.communicationTaskService = new CommunicationTaskServiceImpl(this);
         this.communicationTaskReportService = new CommunicationTaskReportServiceImpl(this, meteringService);
         this.deviceService = new DeviceServiceImpl(this, meteringService, queryService, thesaurus, clock);
+        this.registerService = new RegisterServiceImpl(this);
         this.loadProfileService = new LoadProfileServiceImpl(this);
         this.logBookService = new LogBookServiceImpl(this);
         this.dataCollectionKpiService = new DataCollectionKpiServiceImpl(this);
@@ -624,6 +626,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
         this.registerCommunicationTaskService(bundleContext);
         this.registerCommunicationTaskReportService(bundleContext);
         this.registerDeviceService(bundleContext);
+        this.registerRegisterService(bundleContext);
         this.registerLoadProfileService(bundleContext);
         this.registerLogBookService(bundleContext);
         this.registerDataCollectionKpiService(bundleContext);
@@ -652,6 +655,10 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
     private void registerDeviceService(BundleContext bundleContext) {
         this.serviceRegistrations.add(bundleContext.registerService(DeviceService.class, deviceService, null));
         this.serviceRegistrations.add(bundleContext.registerService(ServerDeviceService.class, deviceService, null));
+    }
+
+    private void registerRegisterService(BundleContext bundleContext) {
+        this.serviceRegistrations.add(bundleContext.registerService(RegisterService.class, registerService, null));
     }
 
     private void registerLogBookService(BundleContext bundleContext) {

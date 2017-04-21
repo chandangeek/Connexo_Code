@@ -24,7 +24,12 @@ import com.energyict.mdc.device.data.impl.ami.servicecall.CommandServiceCallDoma
 import com.energyict.mdc.device.data.impl.ami.servicecall.CompletionOptionsCustomPropertySet;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CompletionOptionsServiceCallDomainExtension;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
+import com.energyict.mdc.upl.messages.DeviceMessageStatus;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
@@ -34,12 +39,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Locale;
 import java.util.Optional;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
@@ -181,9 +180,9 @@ public class AbstractOperationServiceCallHandlerTest {
     @Test
     public void testStateChangeFromWaitingToCancelled() throws Exception {
         Device device = mock(Device.class);
-        DeviceMessage<Device> deviceMessage1 = mock(DeviceMessage.class);
-        DeviceMessage<Device> deviceMessage2 = mock(DeviceMessage.class);
-        DeviceMessage<Device> deviceMessage3 = mock(DeviceMessage.class);
+        DeviceMessage deviceMessage1 = mock(DeviceMessage.class);
+        DeviceMessage deviceMessage2 = mock(DeviceMessage.class);
+        DeviceMessage deviceMessage3 = mock(DeviceMessage.class);
         when(deviceMessage1.getId()).thenReturn(DEVICE_MESSAGE_ID_1);
         when(deviceMessage2.getId()).thenReturn(DEVICE_MESSAGE_ID_2);
         when(deviceMessage3.getId()).thenReturn(DEVICE_MESSAGE_ID_3);
@@ -214,9 +213,9 @@ public class AbstractOperationServiceCallHandlerTest {
     @Test
     public void testStateChangeFromWaitingToCancelledRevokeOfDeviceMessageFailed() throws Exception {
         Device device = mock(Device.class);
-        DeviceMessage<Device> deviceMessage1 = mock(DeviceMessage.class);
-        DeviceMessage<Device> deviceMessage2 = mock(DeviceMessage.class);
-        DeviceMessage<Device> deviceMessage3 = mock(DeviceMessage.class);
+        DeviceMessage deviceMessage1 = mock(DeviceMessage.class);
+        DeviceMessage deviceMessage2 = mock(DeviceMessage.class);
+        DeviceMessage deviceMessage3 = mock(DeviceMessage.class);
         when(deviceMessage1.getId()).thenReturn(DEVICE_MESSAGE_ID_1);
         when(deviceMessage2.getId()).thenReturn(DEVICE_MESSAGE_ID_2);
         when(deviceMessage3.getId()).thenReturn(DEVICE_MESSAGE_ID_3);

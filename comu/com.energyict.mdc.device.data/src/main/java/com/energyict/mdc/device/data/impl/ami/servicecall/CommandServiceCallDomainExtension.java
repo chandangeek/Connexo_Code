@@ -12,7 +12,6 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.servicecall.ServiceCall;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 
@@ -88,7 +87,7 @@ public class CommandServiceCallDomainExtension extends AbstractPersistentDomainE
         this.deviceMessages = deviceMessages;
     }
 
-    public void setDeviceMessages(List<DeviceMessage<Device>> deviceMessages) {
+    public void setDeviceMessages(List<DeviceMessage> deviceMessages) {
         this.deviceMessages = Arrays.toString(deviceMessages.stream().map(deviceMessage -> Long.toString(deviceMessage.getId())).toArray());
     }
 

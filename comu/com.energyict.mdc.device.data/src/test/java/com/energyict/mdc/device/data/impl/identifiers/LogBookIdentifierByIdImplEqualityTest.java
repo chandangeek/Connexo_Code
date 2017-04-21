@@ -5,8 +5,10 @@
 package com.energyict.mdc.device.data.impl.identifiers;
 
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
-import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.data.LogBookService;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.obis.ObisCode;
+import org.junit.BeforeClass;
 
 import java.util.Arrays;
 
@@ -31,7 +33,7 @@ public class LogBookIdentifierByIdImplEqualityTest extends EqualsContractTest {
     @BeforeClass
     public static void setup() {
         logBookService = mock(LogBookService.class);
-        instanceA = new LogBookIdentifierById(LOGBOOK_ID_A, logBookService, ObisCode.fromString("1.1.1.1.1.1"));
+        instanceA = new LogBookIdentifierById(LOGBOOK_ID_A, ObisCode.fromString("1.1.1.1.1.1"), mock(DeviceIdentifier.class));
     }
 
     @Override
@@ -41,12 +43,12 @@ public class LogBookIdentifierByIdImplEqualityTest extends EqualsContractTest {
 
     @Override
     protected Object getInstanceEqualToA() {
-        return new LogBookIdentifierById(LOGBOOK_ID_A, logBookService, ObisCode.fromString("1.1.1.1.1.1"));
+        return new LogBookIdentifierById(LOGBOOK_ID_A, ObisCode.fromString("1.1.1.1.1.1"), mock(DeviceIdentifier.class));
     }
 
     @Override
     protected Iterable<?> getInstancesNotEqualToA() {
-        return Arrays.asList(new LogBookIdentifierById(LOGBOOK_ID_B, logBookService, ObisCode.fromString("1.1.1.1.1.1")));
+        return Arrays.asList(new LogBookIdentifierById(LOGBOOK_ID_B, ObisCode.fromString("1.1.1.1.1.1"), mock(DeviceIdentifier.class)));
     }
 
     @Override

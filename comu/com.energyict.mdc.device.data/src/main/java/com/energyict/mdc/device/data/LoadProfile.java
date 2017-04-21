@@ -7,28 +7,48 @@ package com.energyict.mdc.device.data;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.device.config.LoadProfileSpec;
-import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
-
+import com.energyict.obis.ObisCode;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.Optional;
 
-public interface LoadProfile extends BaseLoadProfile<Channel>, HasId {
+/**
+ * Models a LoadProfile on a Device. It <i>bundles</i> channels
+ * with the same interval.
+ * <p>
+ *
+ * Date: 3/17/14
+ * Time: 3:30 PM
+ */
+public interface LoadProfile extends com.energyict.mdc.upl.meterdata.LoadProfile, HasId {
 
-    @Override
     Device getDevice();
 
     /**
-     * return the end time of the last interval read from the device.
+     * Gets the ID of the LoadProfileType
      *
-     * @return end time of the last interval.
+     * @return the ID of the LoadProfileType
      */
-    Optional<Instant> getLastReading();
+    long getLoadProfileTypeId();
 
     /**
-     * Returns the receiver's {@link com.energyict.mdc.protocol.api.device.BaseChannel}s.
+     * Gets the ObisCode which is configured for the LoadProfileType of this LoadProfile
+     *
+     * @return the ObisCode which is configured on the LoadProfileType
+     */
+    ObisCode getLoadProfileTypeObisCode();
+
+    /**
+     * Returns the Overruled ObisCode of the LoadProfileSpec.</br>
+     * (this is the ObisCode of the LoadProfile that is know to the Device)
+     *
+     * @return the obisCode of the LoadProfile which is know to the Device
+     */
+    ObisCode getDeviceObisCode();
+
+    /**
+     * Returns the receiver's {@link Channel}s.
      *
      * @return a <CODE>List</CODE> of <CODE>Channel</CODE> objects
      */
