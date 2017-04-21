@@ -247,7 +247,7 @@ Ext.define('Imt.purpose.controller.Readings', {
             store = me.getStore('Imt.purpose.store.Readings'),
             disabled;
 
-       disabled = store.getUpdatedRecords().length <= 0;
+        disabled = store.getUpdatedRecords().length <= 0;
 
         me.getReadingsList().down('#save-changes-button').setDisabled(disabled);
         me.getReadingsList().down('#undo-button').setDisabled(disabled);
@@ -279,7 +279,7 @@ Ext.define('Imt.purpose.controller.Readings', {
         if (menu.down('#mark-projected')) {
             menu.down('#mark-projected').setVisible(canMarkProjected);
         }
-        if(menu.down('#correct-value')){
+        if (menu.down('#correct-value')) {
             menu.down('#correct-value').setVisible(!Ext.isEmpty(menu.record.get('value')))
         }
         Ext.resumeLayouts();
@@ -322,7 +322,7 @@ Ext.define('Imt.purpose.controller.Readings', {
                     me.getOutputReadings().down('#output-readings-preview-container').fireEvent('rowselect', event.record);
                 }
 
-                if(!event.record.get('estimatedNotSaved')){
+                if (!event.record.get('estimatedNotSaved')) {
                     event.record.set('modificationState', Uni.util.ReadingEditor.modificationState('EDITED'));
                 }
                 if (event.column) {
@@ -465,7 +465,7 @@ Ext.define('Imt.purpose.controller.Readings', {
             if (record.get('isProjected')) {
                 canClearProjected = true;
             }
-            if(record.get('isProjected') === false && (record.isModified('value') || record.get('ruleId') !== 0 || !Ext.isEmpty(record.get('modificationState')))) {
+            if (record.get('isProjected') === false && (record.isModified('value') || record.get('ruleId') !== 0 || !Ext.isEmpty(record.get('modificationState')))) {
                 canMarkProjected = true;
             }
             if (!canCorrect && !Ext.isEmpty(record.get('value'))) {
@@ -505,7 +505,7 @@ Ext.define('Imt.purpose.controller.Readings', {
             if (record.get('confirmed')) {
                 record.set('confirmed', false);
             }
-            if(record.get('isProjected')) {
+            if (record.get('isProjected')) {
                 record.set('isProjected', false);
             }
             record.set('ruleId', 0);
@@ -522,36 +522,32 @@ Ext.define('Imt.purpose.controller.Readings', {
     },
 
     copyFromReference: function (records) {
-        var me = this,
-            usagePointStore = me.getStore('Cfg.store.AllUsagePoint'),
-            purposeStore = me.getStore('Cfg.store.AllPurpose'),
-            readingTypeStore = me.getStore('Cfg.store.AllReadingTypes');
+        var window = Ext.widget('reading-copy-from-reference-window',
+                {
+                    itemId: 'channel-reading-copy-from-reference-window',
+                    records: records,
+                    usagePoint: true
+                }).show();
 
-        usagePointStore.getProxy().extraParams = {
+        window.down('#usage-point-field').getStore().getProxy().extraParams = {
             page: 1,
             start: 0,
             limit: 50,
             nameOnly: true
         };
 
-        purposeStore.getProxy().extraParams = {
+        window.down('#purpose-field').getStore().getProxy().extraParams = {
             page: 1,
             start: 0,
             limit: 50
         };
 
-        readingTypeStore.getProxy().extraParams = {
+        window.down('#readingType-field').getStore().getProxy().extraParams = {
             page: 1,
             start: 0,
             limit: 50,
             property: 'fullAliasName'
         };
-
-        Ext.widget('reading-copy-from-reference-window', {
-            itemId: 'channel-reading-copy-from-reference-window',
-            records: records,
-            usagePoint: true
-        }).show();
     },
 
     copyFromReferenceUpdateGrid: function () {
@@ -826,7 +822,7 @@ Ext.define('Imt.purpose.controller.Readings', {
         reading.set('value', estimatedReading.value);
         ruleId && reading.set('ruleId', ruleId);
         reading.set('validationResult', 'validationStatus.ok');
-        if(action === 'estimate'){
+        if (action === 'estimate') {
             reading.set('estimatedNotSaved', true);
             reading.set('estimatedByRule', true);
         }
@@ -844,7 +840,7 @@ Ext.define('Imt.purpose.controller.Readings', {
             grid = me.getReadingsList();
 
         reading.beginEdit();
-        if(correctedInterval.value  != reading.get('value')){
+        if (correctedInterval.value != reading.get('value')) {
             reading.set('modificationState', Uni.util.ReadingEditor.modificationState('EDITED'));
             reading.set('validationResult', 'validationStatus.ok');
         }
@@ -860,24 +856,24 @@ Ext.define('Imt.purpose.controller.Readings', {
         });
     },
 
-    correctReadings: function(){
+    correctReadings: function () {
         var me = this,
             model = Ext.create('Uni.model.readings.ReadingCorrection'),
             window = me.getCorrectReadingWindow(),
             records = window.record,
             router = me.getController('Uni.controller.history.Router'),
             grid = me.getReadingsList(),
-            intervalsArray =[];
+            intervalsArray = [];
 
         window.updateRecord(model);
 
-        if (!Ext.isArray(records)){
+        if (!Ext.isArray(records)) {
             records = [records];
         }
 
         Ext.Array.each(records, function (item) {
-            if(model.get('onlySuspectOrEstimated')){
-                if(Uni.util.ReadingEditor.checkReadingInfoStatus(item.get('mainValidationInfo')).isSuspectOrEstimated()){
+            if (model.get('onlySuspectOrEstimated')) {
+                if (Uni.util.ReadingEditor.checkReadingInfoStatus(item.get('mainValidationInfo')).isSuspectOrEstimated()) {
                     intervalsArray.push({
                         start: item.get('interval').start,
                         end: item.get('interval').end
@@ -905,7 +901,7 @@ Ext.define('Imt.purpose.controller.Readings', {
 
                 Ext.suspendLayouts();
                 if (success && responseText[0]) {
-                    Ext.Array.each(responseText, function(correctedInterval){
+                    Ext.Array.each(responseText, function (correctedInterval) {
                         Ext.Array.findBy(records, function (reading) {
                             if (correctedInterval.interval.start == reading.get('interval').start) {
                                 me.updateCorrectedValues(reading, correctedInterval, model);
