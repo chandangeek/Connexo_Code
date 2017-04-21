@@ -107,7 +107,6 @@ public class MdcPluggableRestApplication extends Application implements MessageS
         propertyValueInfoService.addPropertyValueInfoConverter(new PasswordPropertyValueConverter());
         propertyValueInfoService.addPropertyValueInfoConverter(new ReadingTypePropertyValueConverter());
         propertyValueInfoService.addPropertyValueInfoConverter(new RegisterPropertyValueConverter());
-        propertyValueInfoService.addPropertyValueInfoConverter(new TimeDurationPropertyValueConverter(thesaurus));
         propertyValueInfoService.addPropertyValueInfoConverter(new TimeOfDayPropertyValueConverter());
         propertyValueInfoService.addPropertyValueInfoConverter(new TimeZoneInUsePropertyValueConverter());
         propertyValueInfoService.addPropertyValueInfoConverter(new UsagePointPropertyValueConverter());
