@@ -2,7 +2,7 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-Ext.define('Uni.property.view.property.ReadingType', {
+Ext.define('Uni.property.view.property.IrregularReadingType', {
     extend: 'Uni.property.view.property.BaseCombo',
 
     getEditCmp: function () {
@@ -89,12 +89,35 @@ Ext.define('Uni.property.view.property.ReadingType', {
     },
 
     setValue: function (value) {
-        var me = this;
-        if (me.isEdit) {
-            me.getField().setValue(value.mRID);
-            me.getField().setRawValue(value.fullAliasName);
+        var me = this,
+            combo = me.getField();
+
+        if (me.isEdit && value) {
+            combo.suspendEvent('change');
+            combo.setValue(value.mRID);
+            combo.setRawValue(value.fullAliasName);
+            combo.resumeEvent('change');
         } else {
             me.callParent([value.fullAliasName]);
         }
+    },
+
+    setDefaultFilter: function (value) {
+        var me = this,
+            combo = me.getField(),
+            filter = [
+                {
+                    property: 'fullAliasName',
+                    value: '*' + value.fullAliasName + '*'
+                },
+                {
+                    property: 'equidistant',
+                    value: false
+                }
+            ];
+
+        combo.getStore().getProxy().setExtraParam('filter', Ext.encode(filter));
+        combo.readingTypeData = value;
+        combo.getStore().load();
     }
 });
