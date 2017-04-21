@@ -5,19 +5,18 @@
 package com.elster.jupiter.validators.impl;
 
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
-import com.elster.jupiter.metering.impl.config.MetrologyConfigurationServiceImpl;
 import com.elster.jupiter.metering.impl.config.MetrologyPurposeImpl;
-import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.properties.NonOrBigDecimalValueProperty;
 import com.elster.jupiter.properties.TwoValuesAbsoluteDifference;
-import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
 import com.elster.jupiter.util.units.Quantity;
+import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.Validator;
 
 import com.google.common.collect.ImmutableMap;
@@ -47,14 +46,14 @@ public class DefaultValidatorFactoryTest {
     @Mock
     private NlsService nlsService;
     @Mock
-    private MeteringService meteringService;
+    private ValidationService validationService;
     @Mock
     private MetrologyConfigurationService metrologyConfigurationService;
 
     @Before
     public void setUp() throws Exception {
         when(nlsService.getThesaurus(any(), any())).thenReturn(NlsModule.FakeThesaurus.INSTANCE);
-        defaultValidatorFactory = new DefaultValidatorFactory(nlsService, new PropertySpecServiceImpl(), meteringService);
+        defaultValidatorFactory = new DefaultValidatorFactory(nlsService, new PropertySpecServiceImpl() ,metrologyConfigurationService, validationService);
 
         MetrologyPurposeImpl metrologyPurpose = mock(MetrologyPurposeImpl.class);
         when(metrologyPurpose.getName()).thenReturn("purpose");
