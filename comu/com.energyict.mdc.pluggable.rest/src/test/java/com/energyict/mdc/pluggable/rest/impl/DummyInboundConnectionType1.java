@@ -11,8 +11,9 @@ package com.energyict.mdc.pluggable.rest.impl;
  * @since 2014-12-09 (15:17)
  */
 public class DummyInboundConnectionType1 extends DummyConnectionType {
+
     @Override
-    public Direction getDirection() {
-        return Direction.INBOUND;
+    public ConnectionTypeDirection getDirection() {
+        return ConnectionTypeDirection.INBOUND;
     }
 }
