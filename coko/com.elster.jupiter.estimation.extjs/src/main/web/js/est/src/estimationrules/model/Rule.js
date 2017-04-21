@@ -18,7 +18,8 @@ Ext.define('Est.estimationrules.model.Rule', {
         {name: 'name', type: 'string', defaultValue: null, useNull: true, convert: function (value) {return value === '' ? null : value}},
         {name: 'properties', type: 'auto', defaultValue: null},
         {name: 'readingTypes', type: 'auto', defaultValue: null},
-        {name: 'ruleSet', type: 'auto', defaultValue: null}
+        {name: 'ruleSet', type: 'auto', defaultValue: null},
+        {name: 'markProjected', type: 'boolean', defaultValue: false}
     ],
 
     associations: [
