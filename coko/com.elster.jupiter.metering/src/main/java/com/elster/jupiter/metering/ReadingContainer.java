@@ -23,7 +23,7 @@ public interface ReadingContainer {
 
     List<? extends BaseReadingRecord> getReadings(Range<Instant> range, ReadingType readingType);
 
-    List<? extends BaseReadingRecord> getJournalReadings(Range<Instant> range, ReadingType readingType);
+    List<? extends BaseReadingRecord> getJournaledReadings(Range<Instant> range, ReadingType readingType);
 
     List<? extends BaseReadingRecord> getReadingsUpdatedSince(Range<Instant> range, ReadingType readingType, Instant since);
 

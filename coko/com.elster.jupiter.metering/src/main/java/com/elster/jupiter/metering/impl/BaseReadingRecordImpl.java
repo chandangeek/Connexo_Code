@@ -36,7 +36,7 @@ public abstract class BaseReadingRecordImpl implements BaseReadingRecord {
         return entry;
     }
 
-    public Channel getChannel() {
+    Channel getChannel() {
         return channel;
     }
 
@@ -144,15 +144,4 @@ public abstract class BaseReadingRecordImpl implements BaseReadingRecord {
     public List<? extends ReadingQualityRecord> getReadingQualities() {
         return getChannel().findReadingQualities().atTimestamp(getTimeStamp()).sorted().collect();
     }
-
-    @Override
-    public Instant getJournalTime() {
-        return getEntry() instanceof TimeSeriesJournalEntry ? ((TimeSeriesJournalEntry) getEntry()).getJournalTime() : Instant.EPOCH;
-    }
-
-    @Override
-    public String getUserName() {
-        return getEntry() instanceof TimeSeriesJournalEntry ? ((TimeSeriesJournalEntry) getEntry()).getUserName() : "";
-    }
-
 }

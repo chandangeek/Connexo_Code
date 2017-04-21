@@ -555,8 +555,8 @@ public final class MeterActivationImpl implements IMeterActivation {
     }
 
     @Override
-    public List<? extends BaseReadingRecord> getJournalReadings(Range<Instant> range, ReadingType readingType) {
-        return this.getChannelsContainer().getJournalReadings(range, readingType).stream()
+    public List<? extends BaseReadingRecord> getJournaledReadings(Range<Instant> range, ReadingType readingType) {
+        return this.getChannelsContainer().getJournaledReadings(range, readingType).stream()
                 .collect(Collectors.toList());
     }
 

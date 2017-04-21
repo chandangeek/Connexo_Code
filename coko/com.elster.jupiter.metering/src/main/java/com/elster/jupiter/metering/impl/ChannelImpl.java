@@ -20,6 +20,7 @@ import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.CimChannel;
 import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.JournaledChannelReadingRecord;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterConfiguration;
 import com.elster.jupiter.metering.MeterReadingTypeConfiguration;
@@ -364,7 +365,7 @@ public final class ChannelImpl implements ChannelContract {
             return mainDerivationRule.isMultiplied() ? RecordSpecs.VALUE_MULTIPLIED_INTERVAL : RecordSpecs.SINGLEINTERVAL;
         } else {
             if (hasMacroPeriod()) {
-                if(hasMultiplier()) {
+                if (hasMultiplier()) {
                     return RecordSpecs.BILLINGREGISTER_WITH_MULTIPLIED_REGISTER;
                 }
                 return RecordSpecs.BILLINGPERIOD;
@@ -481,12 +482,12 @@ public final class ChannelImpl implements ChannelContract {
     }
 
     @Override
-    public List<IntervalReadingRecord> getIntervalJournalReadings(ReadingType readingType, Range<Instant> interval) {
+    public List<? extends BaseReadingRecord> getJournaledChannelReadings(ReadingType readingType, Range<Instant> interval) {
         if (!isRegular()) {
             return Collections.emptyList();
         }
         return getTimeSeries().getJournalEntries(interval).stream()
-                .map(entry -> new IntervalReadingRecordImpl(this, entry))
+                .map(entry -> new JournaledChannelReadingRecordImpl(this, entry))
                 .map(reading -> reading.filter(readingType))
                 .collect(ExtraCollectors.toImmutableList());
     }
@@ -503,12 +504,12 @@ public final class ChannelImpl implements ChannelContract {
     }
 
     @Override
-    public List<ReadingRecord> getRegisterJournalReadings(ReadingType readingType, Range<Instant> interval) {
+    public List<? extends ReadingRecord> getJournaledRegisterReadings(ReadingType readingType, Range<Instant> interval) {
         if (isRegular()) {
             return Collections.emptyList();
         }
         return getTimeSeries().getJournalEntries(interval).stream()
-                .map(entry -> new ReadingRecordImpl(this, entry))
+                .map(entry -> new JournaledRegisterReadingRecordImpl(this, entry))
                 .map(reading -> reading.filter(readingType))
                 .collect(ExtraCollectors.toImmutableList());
     }
