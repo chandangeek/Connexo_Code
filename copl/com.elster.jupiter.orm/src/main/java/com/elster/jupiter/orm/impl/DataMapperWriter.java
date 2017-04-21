@@ -197,7 +197,7 @@ public class DataMapperWriter<T> {
             try (PreparedStatement statement = connection.prepareStatement(sql)) {
                 int index = 1;
                 statement.setLong(index++, now.toEpochMilli());
-                index = bindPrimaryKey(statement, index, object);
+                bindPrimaryKey(statement, index, object);
                 statement.executeUpdate();
             }
         }
@@ -210,7 +210,7 @@ public class DataMapperWriter<T> {
                 for (T tuple : objects) {
                     int index = 1;
                     statement.setLong(index++, now.toEpochMilli());
-                    index = bindPrimaryKey(statement, index, tuple);
+                    bindPrimaryKey(statement, index, tuple);
                     statement.addBatch();
                 }
                 statement.executeBatch();
@@ -300,7 +300,7 @@ public class DataMapperWriter<T> {
                     for (ColumnImpl column : getTable().getAutoUpdateColumns()) {
                         column.setObject(statement, index++, tuple).ifPresent(resources::add);
                     }
-                    index = bindPrimaryKey(statement, index, tuple);
+                    bindPrimaryKey(statement, index, tuple);
                     statement.addBatch();
                 }
                 statement.executeBatch();
@@ -320,9 +320,7 @@ public class DataMapperWriter<T> {
                 DataMapperWriter<?> writer = null;
                 Field field = constraint.reverseField(object.getClass());
                 if (field != null) {
-                    if (writer == null) {
-                        writer = constraint.reverseMapper(field).getWriter();
-                    }
+                    writer = constraint.reverseMapper(field).getWriter();
                     List parts = constraint.added(object, writer.needsRefreshAfterBatchInsert());
                     allParts.addAll(parts);
                 }
@@ -333,8 +331,7 @@ public class DataMapperWriter<T> {
         }
         try (Connection connection = getConnection(true)) {
             try (PreparedStatement statement = connection.prepareStatement(getSqlGenerator().deleteSql())) {
-                int index = 1;
-                index = bindPrimaryKey(statement, index, object);
+                bindPrimaryKey(statement, 1, object);
                 int result = statement.executeUpdate();
                 if (result != 1) {
                     throw new UnexpectedNumberOfUpdatesException(1, result, UnexpectedNumberOfUpdatesException.Operation.DELETE);
@@ -373,8 +370,7 @@ public class DataMapperWriter<T> {
         try (Connection connection = getConnection(true)) {
             try (PreparedStatement statement = connection.prepareStatement(getSqlGenerator().deleteSql())) {
                 for (T tuple : objects) {
-                    int index = 1;
-                    index = bindPrimaryKey(statement, index, tuple);
+                    bindPrimaryKey(statement, 1, tuple);
                     statement.addBatch();
                 }
                 statement.executeBatch();
@@ -395,8 +391,7 @@ public class DataMapperWriter<T> {
         try (Connection connection = getConnection(false)) {
             String sql = getSqlGenerator().refreshSql(columns);
             try (PreparedStatement statement = connection.prepareStatement(sql)) {
-                int index = 1;
-                index = bindPrimaryKey(statement, index, object);
+                bindPrimaryKey(statement, 1, object);
                 try (ResultSet resultSet = statement.executeQuery()) {
                     resultSet.next();
                     int columnIndex = 1;
