@@ -13,6 +13,7 @@ import com.elster.jupiter.pki.ExtendedKeyUsage;
 import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.KeyUsage;
+import com.elster.jupiter.pki.PlaintextPassphrase;
 import com.elster.jupiter.pki.PlaintextPrivateKeyWrapper;
 import com.elster.jupiter.pki.PlaintextSymmetricKey;
 import com.elster.jupiter.pki.PrivateKeyWrapper;
@@ -21,6 +22,7 @@ import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.pki.TrustedCertificate;
 import com.elster.jupiter.pki.impl.wrappers.PkiLocalizedException;
 import com.elster.jupiter.pki.impl.wrappers.asymmetric.DataVaultPrivateKeyFactory;
+import com.elster.jupiter.pki.impl.wrappers.symmetric.DataVaultPassphraseFactory;
 import com.elster.jupiter.pki.impl.wrappers.symmetric.DataVaultSymmetricKeyFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TimeDuration;
@@ -67,6 +69,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 
 import org.junit.After;
@@ -105,6 +108,7 @@ public class PKIServiceImplIT {
     public void setUp() throws Exception {
         ((PkiServiceImpl) inMemoryPersistence.getPkiService()).addPrivateKeyFactory(inMemoryPersistence.getDataVaultPrivateKeyFactory());
         ((PkiServiceImpl) inMemoryPersistence.getPkiService()).addSymmetricKeyFactory(inMemoryPersistence.getDataVaultSymmetricKeyFactory());
+        ((PkiServiceImpl) inMemoryPersistence.getPkiService()).addPassphraseFactory(inMemoryPersistence.getDataVaultPassphraseFactory());
         Security.addProvider(new BouncyCastleProvider());
         certificateFactory = CertificateFactory.getInstance("X.509", "BC");
     }
@@ -592,6 +596,29 @@ public class PKIServiceImplIT {
 
     @Test
     @Transactional
+    public void testCreatePasswordWrapper() throws Exception {
+        KeyType passwordType = inMemoryPersistence.getPkiService()
+                .newPassphraseType("Setec Astronomy")
+                .withUpperCaseCharacters()
+                .withLowerCaseCharacters()
+                .length(120)
+                .add();
+        KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
+        when(keyAccessorType.getKeyType()).thenReturn(passwordType);
+        when(keyAccessorType.getDuration()).thenReturn(Optional.of(TimeDuration.years(1)));
+        when(keyAccessorType.getKeyEncryptionMethod()).thenReturn(DataVaultPassphraseFactory.KEY_ENCRYPTION_METHOD);
+
+        PlaintextPassphrase passphraseWrapper = (PlaintextPassphrase) inMemoryPersistence.getPkiService().newPassphraseWrapper(keyAccessorType);
+        passphraseWrapper.generateValue(keyAccessorType);
+
+        assertThat(passphraseWrapper.getPassphrase()).isPresent();
+        String password = passphraseWrapper.getPassphrase().get();
+        assertThat(password).hasSize(120);
+        assertThat(password).matches(Pattern.compile("[a-zA-Z]{120}"));
+    }
+
+    @Test
+    @Transactional
     public void testExtensionsOnCSR() throws Exception {
         KeyType certificateType = inMemoryPersistence.getPkiService()
                 .newClientCertificateType("TLS-EC-2", "SHA256withECDSA")
@@ -923,8 +950,8 @@ public class PKIServiceImplIT {
         assertThat(propertySpecs.get(1).getDisplayName()).isEqualTo("Trust store");
 
         Map<String, Object> properties = certificate.getProperties();
-        assertThat(properties).containsEntry("alias", "myCert");
-        assertThat(properties).containsEntry("trustStore", "daverit");
+        assertThat(((TrustStore)properties.get("trustStore")).getName()).isEqualTo(main.getName());
+        assertThat(((TrustStore)properties.get("trustStore")).getId()).isEqualTo(main.getId());
     }
 
     @Test

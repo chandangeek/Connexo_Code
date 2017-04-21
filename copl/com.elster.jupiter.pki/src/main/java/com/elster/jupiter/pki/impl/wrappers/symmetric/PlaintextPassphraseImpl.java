@@ -12,24 +12,20 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.pki.KeyType;
-import com.elster.jupiter.pki.PlaintextSymmetricKey;
+import com.elster.jupiter.pki.PlaintextPassphrase;
 import com.elster.jupiter.pki.impl.MessageSeeds;
 import com.elster.jupiter.pki.impl.wrappers.PkiLocalizedException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
-import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.Checks;
 
-import javax.crypto.KeyGenerator;
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
 import javax.inject.Inject;
 import javax.validation.constraints.Size;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZonedDateTime;
-import java.util.Base64;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
@@ -39,11 +35,11 @@ import java.util.Optional;
 import static java.util.stream.Collectors.toList;
 
 /**
- * A Plaintext symmetric key is stored encrypted in the DB (using DataVaultService), however, the secret value can be shown
- * in plaintext to the user (base64 encoded).
+ * A Plaintext passphrase is stored encrypted in the DB (using DataVaultService), however, the passphrase can be shown
+ * in plaintext to the user.
  * This type is provides security through implementation of a software security model, without use of an HSM
- **/
-public final class PlaintextSymmetricKeyImpl implements PlaintextSymmetricKey {
+ */
+public final class PlaintextPassphraseImpl implements PlaintextPassphrase {
 
     protected final DataVaultService dataVaultService;
     protected final PropertySpecService propertySpecService;
@@ -52,7 +48,7 @@ public final class PlaintextSymmetricKeyImpl implements PlaintextSymmetricKey {
     private final Clock clock;
 
     public enum Fields {
-        ENCRYPTED_KEY("encryptedKey"),
+        PASSPHRASE("encryptedPassphrase"),
         KEY_TYPE("keyTypeReference"),
         EXPIRATION("expirationTime"),
         ;
@@ -70,43 +66,46 @@ public final class PlaintextSymmetricKeyImpl implements PlaintextSymmetricKey {
 
     private long id;
     @Size(max = Table.MAX_STRING_LENGTH, message = "{"+ MessageSeeds.Keys.FIELD_TOO_LONG+"}")
-    private String encryptedKey;
+    private String encryptedPassphrase;
     private Reference<KeyType> keyTypeReference = Reference.empty();
     private Instant expirationTime;
 
     @Inject
-    PlaintextSymmetricKeyImpl(DataVaultService dataVaultService, PropertySpecService propertySpecService, DataModel dataModel, Thesaurus thesaurus, Clock clock) {
+    PlaintextPassphraseImpl(DataVaultService dataVaultService, PropertySpecService propertySpecService, DataModel dataModel, Thesaurus thesaurus, Clock clock) {
         this.dataVaultService = dataVaultService;
         this.propertySpecService = propertySpecService;
         this.dataModel = dataModel;
         this.thesaurus = thesaurus;
         this.clock = clock;
+
     }
 
-    PlaintextSymmetricKeyImpl init(KeyType keyType) {
+    PlaintextPassphraseImpl init(KeyType keyType) {
         this.keyTypeReference.set(keyType);
         return this;
     }
 
     @Override
     public String getKeyEncryptionMethod() {
-        return DataVaultSymmetricKeyFactory.KEY_ENCRYPTION_METHOD;
+        return DataVaultPassphraseFactory.KEY_ENCRYPTION_METHOD;
     }
 
-    public Optional<SecretKey> getKey() {
-        if (Checks.is(this.encryptedKey).emptyOrOnlyWhiteSpace()) {
+    @Override
+    public Optional<String> getPassphrase() {
+        if (Checks.is(this.encryptedPassphrase).emptyOrOnlyWhiteSpace()) {
             return Optional.empty();
         }
-        byte[] decrypt = dataVaultService.decrypt(this.encryptedKey);
-        return Optional.of(new SecretKeySpec(decrypt, getKeyType().getKeyAlgorithm()));
+        byte[] decrypt = dataVaultService.decrypt(this.encryptedPassphrase);
+        return Optional.of(new String(decrypt));
     }
 
     private KeyType getKeyType() {
         return keyTypeReference.get();
     }
 
-    public void setKey(SecretKey key) {
-        this.encryptedKey=dataVaultService.encrypt(key.getEncoded());
+    @Override
+    public void setPassphrase(String passphrase) {
+        this.encryptedPassphrase=dataVaultService.encrypt(passphrase.getBytes());
         this.save();
     }
 
@@ -122,32 +121,55 @@ public final class PlaintextSymmetricKeyImpl implements PlaintextSymmetricKey {
     @Override
     public void generateValue(KeyAccessorType keyAccessorType) {
         try {
-            doRenewValue(keyAccessorType.getDuration());
+            doRenewValue(keyAccessorType.getKeyType());
+            keyAccessorType.getDuration().ifPresent(td -> setExpirationTime(ZonedDateTime.now(clock).plus(td.asTemporalAmount()).toInstant()));
         } catch (NoSuchAlgorithmException e) {
             throw new PkiLocalizedException(thesaurus, MessageSeeds.ALGORITHM_NOT_SUPPORTED, e);
         }
     }
 
-    private void doRenewValue(Optional<TimeDuration> duration) throws NoSuchAlgorithmException {
-        KeyGenerator keyGenerator = KeyGenerator.getInstance(getKeyType().getKeyAlgorithm());
-        keyGenerator.init(getKeyType().getKeySize());
-        setKey(keyGenerator.generateKey());
-        duration.ifPresent(td -> setExpirationTime(ZonedDateTime.now(clock).plus(td.asTemporalAmount()).toInstant()));
+    private void doRenewValue(KeyType keyType) throws NoSuchAlgorithmException {
+        String possibleChars = getPossiblePasswordChars(keyType);
+        SecureRandom random = new SecureRandom();
+        String password = "";
+        for (int i=0; i<keyType.getPasswordLength(); i++) {
+            password+=possibleChars.charAt((int) (random.nextDouble()*possibleChars.length()));
+        }
+        setPassphrase(password);
         this.save();
+    }
+
+    private String getPossiblePasswordChars(KeyType keyType) {
+        String upperCaseChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        String lowerCaseChars = "abcdefghijklmnopqrstuvwxyz";
+        String numbers = "0123456789";
+        String specialChars = "!@#$%^&*_=+-/.?<>)";
+        String possibleChars = "";
+        if (keyType.useUpperCaseCharacters()) {
+            possibleChars+=upperCaseChars;
+        }
+        if (keyType.useLowerCaseCharacters()) {
+            possibleChars+=lowerCaseChars;
+        }
+        if (keyType.useNumbers()) {
+            possibleChars+=numbers;
+        }
+        if (keyType.useSpecialCharacters()) {
+            possibleChars+=specialChars;
+        }
+        return possibleChars;
     }
 
     @Override
     public void setProperties(Map<String, Object> properties) {
-        PropertySetter propertySetter = new PropertySetter(this);
-        EnumSet.allOf(Properties.class).forEach(p -> p.copyFromMap(properties, propertySetter));
-        Save.UPDATE.validate(dataModel, propertySetter);
-        propertySetter.applyProperties();
+        EnumSet.allOf(Properties.class).forEach(p -> p.copyFromMap(properties, this));
+        this.save();
     }
 
     @Override
     public Map<String, Object> getProperties() {
         Map<String, Object> properties = new HashMap<>();
-        EnumSet.allOf(Properties.class).forEach(p -> p.copyToMap(properties, new PropertySetter(this)));
+        EnumSet.allOf(Properties.class).forEach(p -> p.copyToMap(properties, this));
         return properties;
     }
 
@@ -167,24 +189,24 @@ public final class PlaintextSymmetricKeyImpl implements PlaintextSymmetricKey {
     }
 
     public enum Properties {
-        DECRYPTED_KEY("key") {
+        DECRYPTED_PASSPHRASE("passphrase") {
             public PropertySpec asPropertySpec(PropertySpecService propertySpecService) {
-                return propertySpecService.base64StringSpec()
-                        .named(getPropertyName(), "Key")
-                        .describedAs("Base64 encoded key")
+                return propertySpecService.stringSpec()
+                        .named(getPropertyName(), "Passphrase")
+                        .describedAs("plainttext passphrase")
                         .finish();
             }
 
             @Override
-            void copyFromMap(Map<String, Object> properties, PropertySetter propertySetter) {
+            void copyFromMap(Map<String, Object> properties, PlaintextPassphraseImpl plaintextPassphrase) {
                 if (properties.containsKey(getPropertyName())) {
-                    propertySetter.key = (String) properties.get(getPropertyName());
+                    plaintextPassphrase.setPassphrase((String) properties.get(getPropertyName()));
                 }
             }
 
             @Override
-            void copyToMap(Map<String, Object> properties, PropertySetter propertySetter) {
-                properties.put(getPropertyName(), propertySetter.key);
+            void copyToMap(Map<String, Object> properties, PlaintextPassphraseImpl plaintextPassphrase) {
+                properties.put(getPropertyName(), plaintextPassphrase.getPassphrase());
             }
         },
         ;
@@ -196,33 +218,12 @@ public final class PlaintextSymmetricKeyImpl implements PlaintextSymmetricKey {
         }
 
         abstract PropertySpec asPropertySpec(PropertySpecService propertySpecService);
-        abstract void copyFromMap(Map<String, Object> properties, PropertySetter key);
-        abstract void copyToMap(Map<String, Object> properties, PropertySetter key);
+        abstract void copyFromMap(Map<String, Object> properties, PlaintextPassphraseImpl plaintextPassphrase);
+        abstract void copyToMap(Map<String, Object> properties, PlaintextPassphraseImpl plaintextPassphrase);
 
         String getPropertyName() {
             return propertyName;
         }
     }
-
-    /**
-     * Intermediate class: properties are gotten and set by this class, allowing intermediate validation
-     */
-    class PropertySetter  {
-        @Base64EncodedKey(groups = {Save.Create.class, Save.Update.class}, message = "{"+MessageSeeds.Keys.INVALID_VALUE+"}")
-        private String key; // field name must match property name
-
-        PropertySetter(PlaintextSymmetricKeyImpl source) {
-            byte[] decrypt = dataVaultService.decrypt(source.encryptedKey);
-            this.key = Base64.getEncoder().encodeToString(decrypt);
-        }
-
-        void applyProperties() {
-            byte[] decode = Base64.getDecoder().decode(key);
-            PlaintextSymmetricKeyImpl.this.encryptedKey = dataVaultService.encrypt(decode);
-
-            PlaintextSymmetricKeyImpl.this.save();
-        }
-    }
-
 
 }

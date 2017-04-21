@@ -9,10 +9,12 @@ import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
+import com.elster.jupiter.pki.PassphraseFactory;
 import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.pki.PrivateKeyFactory;
 import com.elster.jupiter.pki.SymmetricKeyFactory;
 import com.elster.jupiter.pki.impl.wrappers.asymmetric.DataVaultPrivateKeyFactory;
+import com.elster.jupiter.pki.impl.wrappers.symmetric.DataVaultPassphraseFactory;
 import com.elster.jupiter.pki.impl.wrappers.symmetric.DataVaultSymmetricKeyFactory;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
@@ -108,6 +110,10 @@ public class PkiInMemoryPersistence {
 
     public SymmetricKeyFactory getDataVaultSymmetricKeyFactory() {
         return injector.getInstance(DataVaultSymmetricKeyFactory.class);
+    }
+
+    public PassphraseFactory getDataVaultPassphraseFactory() {
+        return injector.getInstance(DataVaultPassphraseFactory.class);
     }
 
     public Clock getClock() {

@@ -19,6 +19,8 @@ import com.elster.jupiter.pki.ExtendedKeyUsage;
 import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.KeyUsage;
+import com.elster.jupiter.pki.PassphraseFactory;
+import com.elster.jupiter.pki.PassphraseWrapper;
 import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.pki.PrivateKeyFactory;
 import com.elster.jupiter.pki.PrivateKeyWrapper;
@@ -76,6 +78,7 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
 
     private final Map<String, PrivateKeyFactory> privateKeyFactories = new ConcurrentHashMap<>();
     private final Map<String, SymmetricKeyFactory> symmetricKeyFactories = new ConcurrentHashMap<>();
+    private final Map<String, PassphraseFactory> passphraseFactories = new ConcurrentHashMap<>();
 
     private volatile DataModel dataModel;
     private volatile UpgradeService upgradeService;
@@ -138,6 +141,18 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
 
     public void removeSymmetricKeyFactory(SymmetricKeyFactory symmetricKeyFactory) {
         this.symmetricKeyFactories.remove(symmetricKeyFactory.getKeyEncryptionMethod());
+    }
+
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    public void addPassphraseFactory(PassphraseFactory passphraseFactory) {
+        if (this.passphraseFactories.containsKey(passphraseFactory.getKeyEncryptionMethod())) {
+            throw new DuplicateKeyEncryptionRegistration(thesaurus);
+        }
+        this.passphraseFactories.put(passphraseFactory.getKeyEncryptionMethod(), passphraseFactory);
+    }
+
+    public void removePassphraseFactory(PassphraseFactory passphraseFactory) {
+        this.passphraseFactories.remove(passphraseFactory.getKeyEncryptionMethod());
     }
 
     @Reference
@@ -334,6 +349,19 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
         }
         return symmetricKeyFactories.get(keyEncryptionMethod);
     }
+
+    @Override
+    public PassphraseWrapper newPassphraseWrapper(KeyAccessorType keyAccessorType) {
+        return getPassphraseFactoryOrThrowException(keyAccessorType.getKeyEncryptionMethod()).newPassphraseWrapper(keyAccessorType);
+    }
+
+    private PassphraseFactory getPassphraseFactoryOrThrowException(String keyEncryptionMethod) {
+        if (!passphraseFactories.containsKey(keyEncryptionMethod)) {
+            throw new NoSuchKeyEncryptionMethod(thesaurus);
+        }
+        return passphraseFactories.get(keyEncryptionMethod);
+    }
+
 
     @Override
     public CertificateWrapper newCertificateWrapper(String alias) {
