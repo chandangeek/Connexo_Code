@@ -3,14 +3,13 @@
  */
 
 Ext.define('Cfg.view.common.EstimationComment', {
+    alias: 'widget.estimation-comments',
+    extend: 'Ext.form.FieldContainer',
 
-    alias: 'widget.estimation-comment',
     requires: [
         'Uni.property.store.EstimationComment'
     ],
 
-
-    xtype: 'fieldcontainer',
     layout: 'hbox',
     flex: 1,
     items: [
@@ -19,13 +18,11 @@ Ext.define('Cfg.view.common.EstimationComment', {
             itemId: 'estimation-comment',
             flex: 1,
             name: 'estimationComment',
-            store: Ext.create('Uni.property.store.EstimationComment'),
+            store: 'Uni.property.store.EstimationComment',
             valueField: 'id',
             displayField: 'comment',
             queryMode: 'local',
-            minChars: 1,
-            editable: true,
-            typeAhead: true,
+            editable: false,
             listeners: {
                 afterrender: function (combobox) {
                     this.button = this.nextSibling('#estimation-comment-default-button');

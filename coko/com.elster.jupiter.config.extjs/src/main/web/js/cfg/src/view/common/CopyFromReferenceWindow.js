@@ -16,7 +16,11 @@ Ext.define('Cfg.view.common.CopyFromReferenceWindow', {
         'Uni.util.FormErrorMessage',
         'Uni.property.form.Property',
         'Uni.property.view.DefaultButton',
-        'Cfg.view.common.EstimationComment'
+        'Cfg.view.common.EstimationComment',
+        'Cfg.store.AllDevices',
+        'Cfg.store.AllDevices',
+        'Cfg.store.AllDevices',
+        'Cfg.store.AllDevices'
     ],
 
     initComponent: function () {
@@ -114,7 +118,7 @@ Ext.define('Cfg.view.common.CopyFromReferenceWindow', {
                     ]
                 },
                 {
-                    xtype: 'estimation-comment',
+                    xtype: 'estimation-comments',
                     fieldLabel: Uni.I18n.translate('copyFromReference.estimationComment', 'CFG', 'Estimation comment')
 
                 },
