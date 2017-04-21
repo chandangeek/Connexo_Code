@@ -6,14 +6,16 @@ import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
 import com.energyict.mdc.upl.properties.DeviceMessageFile;
 import com.energyict.mdc.upl.properties.PropertySpec;
+
 import com.energyict.protocolimpl.iec1107.abba1350.ABBA1350;
 import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
+
+import java.nio.charset.Charset;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.nio.charset.Charset;
 
 import static junit.framework.Assert.assertEquals;
 import static org.mockito.Matchers.any;
@@ -52,7 +54,7 @@ public class ABBA1350MessageConverterTest extends AbstractV2MessageConverterTest
 
     @Override
     LegacyMessageConverter doGetMessageConverter() {
-        return new ABBA1350MessageConverter(propertySpecService, nlsService, converter, deviceMessageFileExtractor);
+        return  new ABBA1350MessageConverter(propertySpecService, nlsService, converter, deviceMessageFileExtractor);
     }
 
     @Override

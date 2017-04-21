@@ -1,6 +1,5 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
-import com.energyict.cbo.Unit;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessageAttribute;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
@@ -17,6 +16,8 @@ import com.energyict.mdc.upl.properties.NumberLookup;
 import com.energyict.mdc.upl.properties.Password;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.TariffCalendar;
+
+import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
 import com.energyict.protocolimplv2.messages.AdvancedTestMessage;
@@ -31,17 +32,18 @@ import com.energyict.protocolimplv2.messages.MBusSetupDeviceMessage;
 import com.energyict.protocolimplv2.messages.NetworkConnectivityMessage;
 import com.energyict.protocolimplv2.messages.SecurityMessage;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eict.WebRTUKP;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Period;
 import java.util.Arrays;
 import java.util.Date;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarActivationDateAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarAttributeName;
@@ -115,6 +117,7 @@ public class Dsmr23MessageConverterTest extends AbstractMessageConverterTest {
     public void beforeEachTest() {
         Messaging smartMeterProtocol = new WebRTUKP(propertySpecService, tariffCalendarFinder, calendarExtractor, messageFileExtractor, deviceMessageFileFinder, numberLookupExtractor, numberLookupFinder);
         dsmr23MessageConverter = new Dsmr23MessageConverter(propertySpecService, this.nlsService, this.converter, this.loadProfileExtractor, this.numberLookupExtractor, this.calendarExtractor);
+        dsmr23MessageConverter.setMessagingProtocol(smartMeterProtocol);
     }
 
     @Test

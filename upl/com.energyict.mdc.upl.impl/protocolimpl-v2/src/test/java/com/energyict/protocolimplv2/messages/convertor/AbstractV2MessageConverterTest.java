@@ -20,15 +20,17 @@ import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.propertyspec.MockPropertySpecService;
 import com.energyict.protocolimplv2.messages.DeviceMessageSpecSupplier;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -117,6 +119,7 @@ public abstract class AbstractV2MessageConverterTest {
     protected LegacyMessageConverter getMessageConverter() {
         if (legacyMessageConverter == null) {
             legacyMessageConverter = doGetMessageConverter();
+            legacyMessageConverter.setMessagingProtocol(this.getMessagingProtocol());
         }
         return legacyMessageConverter;
     }
