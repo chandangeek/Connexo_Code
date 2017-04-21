@@ -5,6 +5,8 @@
 package com.elster.jupiter.estimators.impl;
 
 import com.elster.jupiter.estimation.EstimationService;
+import com.elster.jupiter.calendar.CalendarService;
+import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.nls.Layer;
@@ -38,6 +40,8 @@ public class DefaultEstimatorFactoryTest {
     private MetrologyConfigurationService metrologyConfigurationService;
     @Mock
     private TimeService timeService;
+    @Mock
+    private CalendarService calendarService;
 
     @Before
     public void setUp() {
@@ -47,7 +51,9 @@ public class DefaultEstimatorFactoryTest {
 
     @Test
     public void testCreatePowerGapFill() {
-        DefaultEstimatorFactory defaultEstimatorFactory = new DefaultEstimatorFactory(nlsService, propertySpecService, validationService, meteringService, metrologyConfigurationService, timeService);
+        DefaultEstimatorFactory defaultEstimatorFactory = new DefaultEstimatorFactory(nlsService, propertySpecService, validationService, meteringService, metrologyConfigurationService, timeService, calendarService);
+
+        DefaultEstimatorFactory defaultEstimatorFactory = new DefaultEstimatorFactory(nlsService, propertySpecService, validationService, meteringService, timeService, calendarService);
 
         assertThat(defaultEstimatorFactory.available()).containsOnly(
                 DefaultEstimatorFactory.POWER_GAP_FILL_ESTIMATOR,
@@ -55,6 +61,7 @@ public class DefaultEstimatorFactoryTest {
                 DefaultEstimatorFactory.EQUAL_DISTRIBUTION_ESTIMATOR,
                 DefaultEstimatorFactory.LINEAR_INTERPOLATION_ESTIMATOR,
                 DefaultEstimatorFactory.VALUE_FILL_ESTIMATOR,
+                DefaultEstimatorFactory.NEAREST_AVERAGE_VALUE_DAY_ESTIMATOR,
                 DefaultEstimatorFactory.MAIN_CHECK_ESTIMATOR);
 
         assertThat(defaultEstimatorFactory.createTemplate(DefaultEstimatorFactory.POWER_GAP_FILL_ESTIMATOR)).isInstanceOf(PowerGapFill.class);
@@ -62,6 +69,7 @@ public class DefaultEstimatorFactoryTest {
         assertThat(defaultEstimatorFactory.createTemplate(DefaultEstimatorFactory.EQUAL_DISTRIBUTION_ESTIMATOR)).isInstanceOf(EqualDistribution.class);
         assertThat(defaultEstimatorFactory.createTemplate(DefaultEstimatorFactory.LINEAR_INTERPOLATION_ESTIMATOR)).isInstanceOf(LinearInterpolation.class);
         assertThat(defaultEstimatorFactory.createTemplate(DefaultEstimatorFactory.VALUE_FILL_ESTIMATOR)).isInstanceOf(ValueFillEstimator.class);
+        assertThat(defaultEstimatorFactory.createTemplate(DefaultEstimatorFactory.NEAREST_AVERAGE_VALUE_DAY_ESTIMATOR)).isInstanceOf(NearestAvgValueDayEstimator.class);
         assertThat(defaultEstimatorFactory.createTemplate(DefaultEstimatorFactory.MAIN_CHECK_ESTIMATOR)).isInstanceOf(MainCheckEstimator.class);
     }
 }

@@ -5,6 +5,7 @@
 package com.elster.jupiter.estimators.impl;
 
 import com.elster.jupiter.estimation.EstimationService;
+import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.estimation.Estimator;
 import com.elster.jupiter.estimation.EstimatorFactory;
 import com.elster.jupiter.estimators.AbstractEstimator;
@@ -46,6 +47,7 @@ public class DefaultEstimatorFactory implements EstimatorFactory, TranslationKey
     public static final String POWER_GAP_FILL_ESTIMATOR = PowerGapFill.class.getName();
     public static final String EQUAL_DISTRIBUTION_ESTIMATOR = EqualDistribution.class.getName();
     public static final String MAIN_CHECK_ESTIMATOR = MainCheckEstimator.class.getName();
+    public static final String NEAREST_AVERAGE_VALUE_DAY_ESTIMATOR = NearestAvgValueDayEstimator.class.getName();
 
     private volatile Thesaurus thesaurus;
     private volatile PropertySpecService propertySpecService;
@@ -53,12 +55,13 @@ public class DefaultEstimatorFactory implements EstimatorFactory, TranslationKey
     private volatile MetrologyConfigurationService metrologyConfigurationService;
     private volatile MeteringService meteringService;
     private volatile TimeService timeService;
+    private volatile CalendarService calendarService;
 
     public DefaultEstimatorFactory() {
     }
 
     @Inject
-    public DefaultEstimatorFactory(NlsService nlsService, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService, MetrologyConfigurationService metrologyConfigurationService, TimeService timeService) {
+    public DefaultEstimatorFactory(NlsService nlsService, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService, MetrologyConfigurationService metrologyConfigurationService, TimeService timeService, CalendarService calendarService) {
         this();
         setNlsService(nlsService);
         setPropertySpecService(propertySpecService);
@@ -66,6 +69,7 @@ public class DefaultEstimatorFactory implements EstimatorFactory, TranslationKey
         setMeteringService(meteringService);
         setTimeService(timeService);
         setMetrologyConfigurationService(metrologyConfigurationService);
+        setCalendarService(calendarService);
     }
 
     @Reference
@@ -99,6 +103,9 @@ public class DefaultEstimatorFactory implements EstimatorFactory, TranslationKey
         this.timeService = timeService;
     }
 
+    @Reference
+    public void setCalendarService(CalendarService calendarService) {this.calendarService = calendarService; }
+
     @Override
     public String getComponentName() {
         // Translation keys from estimators are historically shared with estimation bundle, most likely due to the fact
@@ -121,6 +128,7 @@ public class DefaultEstimatorFactory implements EstimatorFactory, TranslationKey
         Collections.addAll(keys, PowerGapFill.TranslationKeys.values());
         Collections.addAll(keys, ValueFillEstimator.TranslationKeys.values());
         Collections.addAll(keys, MainCheckEstimator.TranslationKeys.values());
+        Collections.addAll(keys, NearestAvgValueDayEstimator.TranslationKeys.values());
         return keys;
     }
 
@@ -195,6 +203,17 @@ public class DefaultEstimatorFactory implements EstimatorFactory, TranslationKey
             AbstractEstimator createTemplate(EstimatorParameters estimatorParameters) {
                 return new MainCheckEstimator(estimatorParameters.thesaurus, estimatorParameters.metrologyConfigurationService, estimatorParameters.validationService, estimatorParameters.propertySpecService);
             }
+        },
+        NEAREST_AVERAGE_VALUE_DAY(NEAREST_AVERAGE_VALUE_DAY_ESTIMATOR) {
+            @Override
+            Estimator create(EstimatorParameters estimatorParameters){
+                return new NearestAvgValueDayEstimator(thesaurus, propertySpecService, validationService, meteringService, timeService, calendarService, props );
+            }
+
+            @Override
+            AbstractEstimator createTemplate(EstimatorParameters estimatorParameters) {
+                return new NearestAvgValueDayEstimator(thesaurus,propertySpecService,validationService,meteringService,timeService,calendarService);
+            }
         };
 
         private final String implementation;
@@ -233,7 +252,7 @@ public class DefaultEstimatorFactory implements EstimatorFactory, TranslationKey
         return estimatorDefinitions()
                 .filter(estimatorDefinition -> estimatorDefinition.matches(implementation))
                 .findFirst()
-                .map(estimatorDefinition -> estimatorDefinition.create(new EstimatorParameters(thesaurus, propertySpecService, validationService, meteringService, metrologyConfigurationService, timeService, props)))
+                .map(estimatorDefinition -> estimatorDefinition.create(new EstimatorParameters(thesaurus, propertySpecService, validationService, meteringService, metrologyConfigurationService, timeService, calendarService, props)))
                 .orElseThrow(() -> new IllegalArgumentException("Unsupported implementation " + implementation));
     }
 
@@ -242,7 +261,7 @@ public class DefaultEstimatorFactory implements EstimatorFactory, TranslationKey
         return estimatorDefinitions()
                 .filter(estimatorDefinition -> estimatorDefinition.matches(implementation))
                 .findFirst()
-                .map(estimatorDefinition -> estimatorDefinition.createTemplate(new EstimatorParameters(thesaurus, propertySpecService, validationService, meteringService, metrologyConfigurationService, timeService)))
+                .map(estimatorDefinition -> estimatorDefinition.createTemplate(new EstimatorParameters(thesaurus, propertySpecService, validationService, meteringService, metrologyConfigurationService, timeService, calendarService)))
                 .orElseThrow(() -> new IllegalArgumentException("Unsupported implementation " + implementation));
     }
 
@@ -253,25 +272,28 @@ public class DefaultEstimatorFactory implements EstimatorFactory, TranslationKey
         private ValidationService validationService;
         private TimeService timeService;
         private MeteringService meteringService;
+        private CalendarService calendarService;
         private Map<String, Object> props;
 
-        public EstimatorParameters(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService, MetrologyConfigurationService metrologyConfigurationService, TimeService timeService, Map<String, Object> props) {
+        public EstimatorParameters(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService, MetrologyConfigurationService metrologyConfigurationService, TimeService timeService,CalendarService calendarService, Map<String, Object> props) {
             this.thesaurus = thesaurus;
             this.propertySpecService = propertySpecService;
             this.metrologyConfigurationService = metrologyConfigurationService;
             this.validationService = validationService;
             this.meteringService = meteringService;
             this.timeService = timeService;
+            this.calendarService = calendarService;
             this.props = props;
         }
 
-        public EstimatorParameters(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService, MetrologyConfigurationService metrologyConfigurationService, TimeService timeService) {
+        public EstimatorParameters(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService, MetrologyConfigurationService metrologyConfigurationService, TimeService timeService, CalendarService calendarService) {
             this.thesaurus = thesaurus;
             this.propertySpecService = propertySpecService;
             this.metrologyConfigurationService = metrologyConfigurationService;
             this.validationService = validationService;
             this.meteringService = meteringService;
             this.timeService = timeService;
+            this.calendarService = calendarService;
         }
     }
 }
