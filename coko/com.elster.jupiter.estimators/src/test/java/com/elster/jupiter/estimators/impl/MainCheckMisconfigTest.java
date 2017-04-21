@@ -23,6 +23,11 @@ import static org.junit.Assert.assertEquals;
 
 public class MainCheckMisconfigTest extends MainCheckEstimatorTest {
 
+    private static final String READING_TIME_1 = "20160101000000";
+    private static final String READING_TIME_2 = "20160102000000";
+
+    private static final Double BIG_DECIMAL_100 = 100D;
+
     private static final Logger LOGGER = Logger.getLogger(MainCheckMisconfigTest.class.getName());
     private LogRecorder logRecorder;
 
@@ -46,14 +51,14 @@ public class MainCheckMisconfigTest extends MainCheckEstimatorTest {
                 .withLogger(LOGGER)
                 .withBlock(new BlockConfiguration()
                         .withEstimatable(new EstimatableConf()
-                                .of(instant("20160101000000"))
+                                .of(instant(READING_TIME_1))
                                 .withReferenceValue(new ReferenceValue()
-                                        .withValue(bigDecimal(100D))
+                                        .withValue(bigDecimal(BIG_DECIMAL_100))
                                         .withValidationResult(ValidationResult.VALID)))
                         .withEstimatable(new EstimatableConf()
-                                .of(instant("20160102000000"))
+                                .of(instant(READING_TIME_2))
                                 .withReferenceValue(new ReferenceValue()
-                                        .withValue(bigDecimal(100D))
+                                        .withValue(bigDecimal(BIG_DECIMAL_100))
                                         .withValidationResult(ValidationResult.VALID))));
 
         estimationConfiguration.mockAll();
@@ -75,14 +80,14 @@ public class MainCheckMisconfigTest extends MainCheckEstimatorTest {
                 .withBlock(new BlockConfiguration()
                         .withNoCheckChannel()
                         .withEstimatable(new EstimatableConf()
-                                .of(instant("20160101000000"))
+                                .of(instant(READING_TIME_1))
                                 .withReferenceValue(new ReferenceValue()
-                                        .withValue(bigDecimal(100D))
+                                        .withValue(bigDecimal(BIG_DECIMAL_100))
                                         .withValidationResult(ValidationResult.VALID)))
                         .withEstimatable(new EstimatableConf()
-                                .of(instant("20160102000000"))
+                                .of(instant(READING_TIME_2))
                                 .withReferenceValue(new ReferenceValue()
-                                        .withValue(bigDecimal(100D))
+                                        .withValue(bigDecimal(BIG_DECIMAL_100))
                                         .withValidationResult(ValidationResult.VALID))));
 
         estimationConfiguration.mockAll();
@@ -103,14 +108,14 @@ public class MainCheckMisconfigTest extends MainCheckEstimatorTest {
                 .withLogger(LOGGER)
                 .withBlock(new BlockConfiguration()
                         .withEstimatable(new EstimatableConf()
-                                .of(instant("20160101000000"))
+                                .of(instant(READING_TIME_1))
                                 .withReferenceValue(new ReferenceValue()
-                                        .withValue(bigDecimal(100D))
+                                        .withValue(bigDecimal(BIG_DECIMAL_100))
                                         .withValidationResult(ValidationResult.SUSPECT)))
                         .withEstimatable(new EstimatableConf()
-                                .of(instant("20160102000000"))
+                                .of(instant(READING_TIME_2))
                                 .withReferenceValue(new ReferenceValue()
-                                        .withValue(bigDecimal(100D))
+                                        .withValue(bigDecimal(BIG_DECIMAL_100))
                                         .withValidationResult(ValidationResult.VALID))));
 
         estimationConfiguration.mockAll();
@@ -131,12 +136,12 @@ public class MainCheckMisconfigTest extends MainCheckEstimatorTest {
                 .withLogger(LOGGER)
                 .withBlock(new BlockConfiguration()
                         .withEstimatable(new EstimatableConf()
-                                .of(instant("20160101000000"))
+                                .of(instant(READING_TIME_1))
                                 .withNoReferenceValue())
                         .withEstimatable(new EstimatableConf()
-                                .of(instant("20160102000000"))
+                                .of(instant(READING_TIME_2))
                                 .withReferenceValue(new ReferenceValue()
-                                        .withValue(bigDecimal(100D))
+                                        .withValue(bigDecimal(BIG_DECIMAL_100))
                                         .withValidationResult(ValidationResult.VALID))));
 
         estimationConfiguration.mockAll();
