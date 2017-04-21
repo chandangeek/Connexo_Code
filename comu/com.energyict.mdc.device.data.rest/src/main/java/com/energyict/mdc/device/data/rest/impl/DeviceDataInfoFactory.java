@@ -26,7 +26,6 @@ import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceValidation;
 import com.energyict.mdc.device.data.FlagsRegister;
-import com.energyict.mdc.device.data.JournaledReading;
 import com.energyict.mdc.device.data.LoadProfileJournalReading;
 import com.energyict.mdc.device.data.LoadProfileReading;
 import com.energyict.mdc.device.data.NumericalReading;
@@ -261,7 +260,7 @@ public class DeviceDataInfoFactory {
     private void setCommonReadingInfo(Reading reading, ReadingInfo readingInfo, Register<?, ?> register) {
         readingInfo.id = "" + reading.getTimeStamp().toEpochMilli() + register.getRegisterSpecId();
         readingInfo.timeStamp = reading.getTimeStamp();
-        readingInfo.userName = reading instanceof JournaledReading ? ((JournaledReading) reading).getUserName() : "";
+        readingInfo.userName = reading.getUserName();
         readingInfo.reportedDateTime = reading.getReportedDateTime();
         readingInfo.readingQualities = createReadingQualitiesInfo(reading);
         Pair<ReadingModificationFlag, QualityCodeSystem> modificationFlag = ReadingModificationFlag.getModificationFlag(reading);
