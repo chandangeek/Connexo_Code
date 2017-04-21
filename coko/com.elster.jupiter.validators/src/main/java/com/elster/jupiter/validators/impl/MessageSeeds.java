@@ -21,7 +21,9 @@ public enum MessageSeeds implements MessageSeed {
     MAIN_CHECK_MISC_NO_PURPOSE(1006, "maincheck.validator.misc.no.purpose", "Failed to validate period {0} using method \"{1}\" on {2} since the specified purpose doesn't exist on the {4}"),
     MAIN_CHECK_MISC_PURPOSE_NEVER_ACTIVATED(1007, "maincheck.validator.misc.purpose.never.activated", "Failed to validate period {0} using method \"{1}\" on {2} since the specified purpose is never activated on effective metrology configuration on the {4}"),
     MAIN_CHECK_MISC_NO_CHECK_OUTPUT(1008, "maincheck.validator.misc.no.check.output", "Failed to validate period {0} using method \"{1}\" on {2} since 'check' output with matching reading type on the specified purpose doesn't exist on {3}"),
-    MAIN_CHECK_MISC_CHECK_OUTPUT_MISSING_OR_NOT_VALID(1003, "maincheck.validator.misc.check.output.missing.or.not.valid", "Failed to validate period {0} using method \"{1}\" on {2}/{3} since data from 'check' output is missing or not validated");
+    MAIN_CHECK_MISC_CHECK_OUTPUT_MISSING_OR_NOT_VALID(1009, "maincheck.validator.misc.check.output.missing.or.not.valid", "Failed to validate period {0} using method \"{1}\" on {2}/{3} since data from 'check' output is missing or not validated"),
+
+    MAX_PERIOD_SHORTER_THEN_MIN_PERIOD(1010, "maximum.period.less.minimum", "Maximum period less than minimum");
 
     public static final String COMPONENT_NAME = "VDR";
 
