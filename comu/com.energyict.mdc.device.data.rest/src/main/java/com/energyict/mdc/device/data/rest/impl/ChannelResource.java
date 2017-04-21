@@ -28,6 +28,7 @@ import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.energyict.mdc.common.rest.IntervalInfo;
 import com.energyict.mdc.common.services.ListPager;
+import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
@@ -643,7 +644,12 @@ public class ChannelResource {
                     .filter(estimationRule -> estimationRule.getRuleSet()
                             .getQualityCodeSystem()
                             .equals(QualityCodeSystem.MDC))
-                    .filter(estimationRule -> deviceConfigurationService.findDeviceConfigurationsForEstimationRuleSet(estimationRule.getRuleSet()).find().contains(device.getDeviceConfiguration()))
+                    .filter(estimationRule -> deviceConfigurationService.findDeviceConfigurationsForEstimationRuleSet(estimationRule.getRuleSet()).find()
+                                .stream()
+                                .map(DeviceConfiguration::getId)
+                                .filter(id -> device.getDeviceConfiguration().getId() == id)
+                                .findFirst()
+                                .isPresent())
                     .filter(estimationRule -> estimationRule.getReadingTypes().contains(channel.getReadingType().getCalculatedReadingType().orElse(null)))
                     .map(estimationRuleInfoFactory::asInfo)
                     .collect(Collectors.toList());
@@ -653,7 +659,12 @@ public class ChannelResource {
                     .filter(estimationRule -> estimationRule.getRuleSet()
                             .getQualityCodeSystem()
                             .equals(QualityCodeSystem.MDC))
-                    .filter(estimationRule -> !deviceConfigurationService.findDeviceConfigurationsForEstimationRuleSet(estimationRule.getRuleSet()).find().isEmpty())
+                    .filter(estimationRule -> deviceConfigurationService.findDeviceConfigurationsForEstimationRuleSet(estimationRule.getRuleSet()).find()
+                            .stream()
+                            .map(DeviceConfiguration::getId)
+                            .filter(id -> device.getDeviceConfiguration().getId() == id)
+                            .findFirst()
+                            .isPresent())
                     .filter(estimationRule -> estimationRule.getReadingTypes().contains(channel.getReadingType()))
                     .map(estimationRuleInfoFactory::asInfo)
                     .collect(Collectors.toList());

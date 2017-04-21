@@ -1061,7 +1061,8 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         doReturn(Collections.singletonList(estimationRule)).when(estimationRuleSet).getRules();
         doReturn(Collections.singleton(readingType)).when(estimationRule).getReadingTypes();
         when(deviceConfigurationService.findDeviceConfigurationsForEstimationRuleSet(estimationRuleSet)).thenReturn(finder);
-        when(finder.find()).thenReturn(Collections.singletonList(estimationRuleSet));
+        when(finder.find()).thenReturn(Collections.singletonList(deviceConfiguration));
+        when(deviceConfiguration.getId()).thenReturn(15L);
 
         Response response = target("devices/" + "1/channels/" + CHANNEL_ID1 + "/data/estimateWithRule").request().get();
 
