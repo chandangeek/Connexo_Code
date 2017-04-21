@@ -539,7 +539,7 @@ public final class VaultImpl implements IVault {
             try (PreparedStatement statement = rangeJournalSql(timeSeries, interval).prepare(connection)) {
                 try (ResultSet rs = statement.executeQuery()) {
                     while (rs.next()) {
-                        result.add(new TimeSeriesJournalEntryImpl(timeSeries, rs, true));
+                        result.add(new TimeSeriesJournalEntryImpl(timeSeries, rs));
                     }
                 }
             }

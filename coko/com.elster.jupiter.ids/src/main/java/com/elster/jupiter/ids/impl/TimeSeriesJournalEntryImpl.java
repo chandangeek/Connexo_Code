@@ -15,11 +15,10 @@ public class TimeSeriesJournalEntryImpl extends TimeSeriesEntryImpl implements T
     private final String userName;
 
 
-    TimeSeriesJournalEntryImpl(TimeSeriesImpl timeSeries, ResultSet resultSet, Boolean isJournal) throws SQLException {
+    TimeSeriesJournalEntryImpl(TimeSeriesImpl timeSeries, ResultSet resultSet) throws SQLException {
         super(timeSeries, resultSet);
-
-        this.journalTime = isJournal ? resultSet.getLong("JOURNALTIME") : 0;
-        this.userName = isJournal ? resultSet.getString("USERNAME") : "";
+        this.journalTime = resultSet.getLong("JOURNALTIME");
+        this.userName = resultSet.getString("USERNAME");
     }
 
     TimeSeriesJournalEntryImpl(TimeSeriesImpl timeSeries, Instant timeStamp, Object[] values) {
