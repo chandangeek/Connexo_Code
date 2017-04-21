@@ -32,6 +32,7 @@ import com.elster.jupiter.metering.MetrologyContractChannelsContainer;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.MetrologyContract;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
@@ -112,6 +113,7 @@ public class EstimationServiceImpl implements IEstimationService, TranslationKey
     private volatile DataModel dataModel;
     private volatile QueryService queryService;
     private volatile MeteringService meteringService;
+    private volatile MetrologyConfigurationService metrologyConfigurationService;
     private volatile Thesaurus thesaurus;
     private volatile EventService eventService;
     private volatile TaskService taskService;
@@ -129,12 +131,13 @@ public class EstimationServiceImpl implements IEstimationService, TranslationKey
     }
 
     @Inject
-    EstimationServiceImpl(MeteringService meteringService, OrmService ormService, QueryService queryService,
+    EstimationServiceImpl(MeteringService meteringService, MetrologyConfigurationService metrologyConfigurationService, OrmService ormService, QueryService queryService,
                           NlsService nlsService, EventService eventService, TaskService taskService,
                           MeteringGroupsService meteringGroupsService, MessageService messageService,
                           TimeService timeService, UserService userService, UpgradeService upgradeService, Clock clock) {
         this();
         setMeteringService(meteringService);
+        setMetrologyConfigurationService(metrologyConfigurationService);
         setOrmService(ormService);
         setQueryService(queryService);
         setNlsService(nlsService);
@@ -157,6 +160,7 @@ public class EstimationServiceImpl implements IEstimationService, TranslationKey
                 protected void configure() {
                     bind(DataModel.class).toInstance(dataModel);
                     bind(MeteringService.class).toInstance(meteringService);
+                    bind(MetrologyConfigurationService.class).toInstance(metrologyConfigurationService);
                     bind(Thesaurus.class).toInstance(thesaurus);
                     bind(MessageInterpolator.class).toInstance(thesaurus);
                     bind(EventService.class).toInstance(eventService);
@@ -202,6 +206,11 @@ public class EstimationServiceImpl implements IEstimationService, TranslationKey
     @Reference
     public void setMeteringService(MeteringService meteringService) {
         this.meteringService = meteringService;
+    }
+
+    @Reference
+    public void setMetrologyConfigurationService(MetrologyConfigurationService metrologyConfigurationService) {
+        this.metrologyConfigurationService = metrologyConfigurationService;
     }
 
     @Reference
@@ -674,7 +683,6 @@ public class EstimationServiceImpl implements IEstimationService, TranslationKey
         private Predicate<EstimatorFactory> hasImplementation(String implementation) {
             return f -> f.available().contains(implementation);
         }
-
     }
 
 }

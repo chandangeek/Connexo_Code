@@ -41,6 +41,7 @@ import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
@@ -102,6 +103,8 @@ public class EstimationServiceImplTest {
     private TimeService timeService;
     @Mock
     private MeteringService meteringService;
+    @Mock
+    private MetrologyConfigurationService metrologyConfigurationService;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private OrmService ormService;
     @Mock
@@ -201,7 +204,7 @@ public class EstimationServiceImplTest {
         when(userService.findGroup(any(String.class))).thenReturn(Optional.of(group));
         when(userService.createUser(any(String.class), any(String.class))).thenReturn(user);
 
-        this.estimationService = new EstimationServiceImpl(meteringService, ormService, queryService, nlsService, eventService, taskService, meteringGroupService, messageService, timeService, userService, upgradeService, Clock
+        this.estimationService = new EstimationServiceImpl(meteringService,metrologyConfigurationService,ormService, queryService, nlsService, eventService, taskService, meteringGroupService, messageService, timeService, userService, upgradeService, Clock
                 .systemDefaultZone());
 
         estimationService.addEstimationResolver(resolver);
