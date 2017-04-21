@@ -23,6 +23,7 @@ import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.ValueCorrection;
+import com.elster.jupiter.metering.aggregation.ReadingQualityComment;
 import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyContract;
@@ -304,6 +305,7 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         assertThat(jsonModel.<Boolean>get("$.channelData[0].dataValidated")).isEqualTo(true);
         assertThat(jsonModel.<Number>get("$.channelData[0].estimatedByRule.id")).isEqualTo(3);
         assertThat(jsonModel.<String>get("$.channelData[0].estimatedByRule.name")).isEqualTo("Estimation");
+        assertThat(jsonModel.<String>get("$.channelData[0].readingQualities[0].comment")).isEqualTo("Estimated by market rule 11");
 
         assertThat(jsonModel.<Long>get("$.channelData[1].interval.start")).isEqualTo(INTERVAL_3.lowerEndpoint().toEpochMilli());
         assertThat(jsonModel.<Long>get("$.channelData[1].interval.end")).isEqualTo(INTERVAL_3.upperEndpoint().toEpochMilli());
@@ -315,6 +317,7 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         assertThat(jsonModel.<Number>get("$.channelData[1].validationRules[0].id")).isEqualTo(1);
         assertThat(jsonModel.<String>get("$.channelData[1].validationRules[0].name")).isEqualTo("MinMax");
 
+
         assertThat(jsonModel.<Long>get("$.channelData[2].interval.start")).isEqualTo(INTERVAL_2.lowerEndpoint().toEpochMilli());
         assertThat(jsonModel.<Long>get("$.channelData[2].interval.end")).isEqualTo(INTERVAL_2.upperEndpoint().toEpochMilli());
         assertThat(jsonModel.<Long>get("$.channelData[2].reportedDateTime")).isEqualTo(INTERVAL_2.upperEndpoint().toEpochMilli());
@@ -323,6 +326,7 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         assertThat(jsonModel.<String>get("$.channelData[2].action")).isEqualTo("FAIL");
         assertThat(jsonModel.<Number>get("$.channelData[2].validationRules[0].id")).isEqualTo(2);
         assertThat(jsonModel.<String>get("$.channelData[2].validationRules[0].name")).isEqualTo("Missing");
+
 
         assertThat(jsonModel.<Long>get("$.channelData[3].interval.start")).isEqualTo(INTERVAL_1.lowerEndpoint().toEpochMilli());
         assertThat(jsonModel.<Long>get("$.channelData[3].interval.end")).isEqualTo(INTERVAL_1.upperEndpoint().toEpochMilli());
@@ -333,6 +337,7 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         assertThat(jsonModel.<String>get("$.channelData[3].action")).isEqualTo("FAIL");
         assertThat(jsonModel.<Number>get("$.channelData[3].validationRules[0].id")).isEqualTo(1);
         assertThat(jsonModel.<String>get("$.channelData[3].validationRules[0].name")).isEqualTo("MinMax");
+
     }
 
     @Test
@@ -741,10 +746,14 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
     private EstimationRule mockEstimationRule(long id, String name) {
         EstimationRule estimationRule = mock(EstimationRule.class);
         EstimationRuleSet estimationRuleSet = mock(EstimationRuleSet.class);
+        ReadingQualityComment readingQualityComment = mock(ReadingQualityComment.class);
+        when(readingQualityComment.getId()).thenReturn(555L);
+        when(readingQualityComment.getComment()).thenReturn("Estimated by market rule 11");
         when(estimationRule.getId()).thenReturn(id);
         when(estimationRule.getName()).thenReturn(name);
         when(estimationRule.getDisplayName()).thenReturn(name);
         when(estimationRule.getRuleSet()).thenReturn(estimationRuleSet);
+        when(estimationRule.getComment()).thenReturn(Optional.of(readingQualityComment));
         when(estimationRuleSet.getQualityCodeSystem()).thenReturn(QualityCodeSystem.MDM);
         return estimationRule;
     }
@@ -778,6 +787,8 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         ReadingQualityRecord quality = mock(ReadingQualityRecord.class);
         when(quality.hasEstimatedCategory()).thenReturn(true);
         when(quality.getType()).thenReturn(qualityType);
+        when(quality.getId()).thenReturn(555L);
+        when(quality.getComment()).thenReturn("Estimated by market rule 11");
         doReturn(Optional.of(estimationRule)).when(estimationService).findEstimationRuleByQualityType(qualityType);
         doReturn(Collections.singletonList(quality)).when(validationStatus).getReadingQualities();
         when(validationStatus.getReadingTimestamp()).thenReturn(timeStamp);
