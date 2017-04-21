@@ -47,8 +47,8 @@ public class ActarisSL7000MessageConverter extends AbstractMessageConverter {
 
     private TariffCalendarExtractor tariffCalendarExtractor;
 
-    public ActarisSL7000MessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, TariffCalendarExtractor tariffCalendarExtractor) {
-        super(messagingProtocol, propertySpecService, nlsService, converter);
+    public ActarisSL7000MessageConverter(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, TariffCalendarExtractor tariffCalendarExtractor) {
+        super(propertySpecService, nlsService, converter);
         this.tariffCalendarExtractor = tariffCalendarExtractor;
     }
 

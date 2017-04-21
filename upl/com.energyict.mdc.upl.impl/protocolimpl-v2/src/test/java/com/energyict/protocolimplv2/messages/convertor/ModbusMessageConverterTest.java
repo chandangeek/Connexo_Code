@@ -44,7 +44,7 @@ public class ModbusMessageConverterTest extends AbstractV2MessageConverterTest {
     }
 
     protected LegacyMessageConverter doGetMessageConverter() {
-        return new ModbusMessageConverter(getMessagingProtocol(), propertySpecService, nlsService, converter);
+        return new ModbusMessageConverter(propertySpecService, nlsService, converter);
     }
 
     /**

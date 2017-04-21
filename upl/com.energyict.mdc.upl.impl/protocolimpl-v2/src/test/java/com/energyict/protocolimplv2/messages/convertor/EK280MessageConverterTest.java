@@ -124,7 +124,7 @@ public class EK280MessageConverterTest extends AbstractV2MessageConverterTest {
 
     @Override
     LegacyMessageConverter doGetMessageConverter() {
-        return new EK280MessageConverter(getMessagingProtocol(), propertySpecService, this.nlsService, this.converter, calendarFinder, this.calendarExtractor, this.deviceMessageFileExtractor, deviceMessageFileFinder);
+        return new EK280MessageConverter(propertySpecService, this.nlsService, this.converter, calendarFinder, this.calendarExtractor, this.deviceMessageFileExtractor, deviceMessageFileFinder);
     }
 
     @Override

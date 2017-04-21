@@ -26,8 +26,8 @@ import java.util.Map;
  */
 public class XemexWatchTalkMessageConverter extends Dsmr23MessageConverter {
 
-    public XemexWatchTalkMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, LoadProfileExtractor loadProfileExtractor, NumberLookupExtractor numberLookupExtractor, TariffCalendarExtractor calendarExtractor) {
-        super(messagingProtocol, propertySpecService, nlsService, converter, loadProfileExtractor, numberLookupExtractor, calendarExtractor);
+    public XemexWatchTalkMessageConverter(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, LoadProfileExtractor loadProfileExtractor, NumberLookupExtractor numberLookupExtractor, TariffCalendarExtractor calendarExtractor) {
+        super(propertySpecService, nlsService, converter, loadProfileExtractor, numberLookupExtractor, calendarExtractor);
     }
 
     @Override

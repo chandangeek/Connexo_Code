@@ -108,8 +108,8 @@ public class SDKSmartMeterProtocolMessageConverter extends AbstractMessageConver
     private final NumberLookupExtractor numberLookupExtractor;
     private final LoadProfileExtractor loadProfileExtractor;
 
-    protected SDKSmartMeterProtocolMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, TariffCalendarExtractor tariffCalendarExtractor, NumberLookupExtractor numberLookupExtractor, LoadProfileExtractor loadProfileExtractor) {
-        super(messagingProtocol, propertySpecService, nlsService, converter);
+    public SDKSmartMeterProtocolMessageConverter(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, TariffCalendarExtractor tariffCalendarExtractor, NumberLookupExtractor numberLookupExtractor, LoadProfileExtractor loadProfileExtractor) {
+        super(propertySpecService, nlsService, converter);
         this.tariffCalendarExtractor = tariffCalendarExtractor;
         this.numberLookupExtractor = numberLookupExtractor;
         this.loadProfileExtractor = loadProfileExtractor;

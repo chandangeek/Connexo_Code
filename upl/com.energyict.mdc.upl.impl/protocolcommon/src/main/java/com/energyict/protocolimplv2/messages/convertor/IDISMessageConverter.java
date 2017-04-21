@@ -78,8 +78,8 @@ public class IDISMessageConverter extends AbstractMessageConverter {
     private final DeviceMessageFileExtractor deviceMessageFileExtractor;
     private final TariffCalendarExtractor calendarExtractor;
 
-    protected IDISMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMessageFileExtractor deviceMessageFileExtractor, TariffCalendarExtractor calendarExtractor) {
-        super(messagingProtocol, propertySpecService, nlsService, converter);
+    public IDISMessageConverter(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMessageFileExtractor deviceMessageFileExtractor, TariffCalendarExtractor calendarExtractor) {
+        super(propertySpecService, nlsService, converter);
         this.deviceMessageFileExtractor = deviceMessageFileExtractor;
         this.calendarExtractor = calendarExtractor;
     }

@@ -84,8 +84,8 @@ public class AS220DLMSMessageConverter extends AbstractMessageConverter {
 
     private final TariffCalendarExtractor tariffCalendarExtractor;
 
-    public AS220DLMSMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, TariffCalendarExtractor tariffCalendarExtractor) {
-        super(messagingProtocol, propertySpecService, nlsService, converter);
+    public AS220DLMSMessageConverter(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, TariffCalendarExtractor tariffCalendarExtractor) {
+        super(propertySpecService, nlsService, converter);
         this.tariffCalendarExtractor = tariffCalendarExtractor;
     }
 

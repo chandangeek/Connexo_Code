@@ -76,8 +76,8 @@ public class WebRTUZ3MessageConverter extends AbstractMessageConverter {
 
     private final TariffCalendarExtractor tariffCalendarExtractor;
 
-    protected WebRTUZ3MessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, TariffCalendarExtractor tariffCalendarExtractor) {
-        super(messagingProtocol, propertySpecService, nlsService, converter);
+    public WebRTUZ3MessageConverter(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, TariffCalendarExtractor tariffCalendarExtractor) {
+        super(propertySpecService, nlsService, converter);
         this.tariffCalendarExtractor = tariffCalendarExtractor;
     }
 

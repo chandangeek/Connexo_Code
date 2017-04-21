@@ -4,6 +4,7 @@ import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.legacy.LegacyMessageConverter;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.Messaging;
 import com.energyict.mdc.upl.properties.PropertySpec;
 
 import java.util.Collections;
@@ -17,10 +18,6 @@ import java.util.List;
  * Time: 14:07
  */
 public class NoMessageSupportConverter implements LegacyMessageConverter {
-
-    public NoMessageSupportConverter() {
-        super();
-    }
 
     @Override
     public List<DeviceMessageSpec> getSupportedMessages() {
@@ -37,4 +34,8 @@ public class NoMessageSupportConverter implements LegacyMessageConverter {
         return messageAttribute.toString();
     }
 
+    @Override
+    public void setMessagingProtocol(Messaging messagingProtocol) {
+        // No implementation required
+    }
 }

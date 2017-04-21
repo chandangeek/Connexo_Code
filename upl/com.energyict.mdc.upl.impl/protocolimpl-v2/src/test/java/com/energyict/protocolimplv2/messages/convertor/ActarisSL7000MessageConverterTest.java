@@ -82,7 +82,7 @@ public class ActarisSL7000MessageConverterTest extends AbstractV2MessageConverte
     }
 
     protected LegacyMessageConverter doGetMessageConverter() {
-        ActarisSL7000MessageConverter messageConverter = spy(new ActarisSL7000MessageConverter(getMessagingProtocol(), propertySpecService, this.nlsService, this.converter, this.calendarExtractor));
+        ActarisSL7000MessageConverter messageConverter = spy(new ActarisSL7000MessageConverter(propertySpecService, this.nlsService, this.converter, this.calendarExtractor));
         // We stub the encode method, cause CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable() is not subject of this test
         doReturn(XMLEncodedActivityCalendar).when(messageConverter).encode(any(TariffCalendar.class));
         return messageConverter;

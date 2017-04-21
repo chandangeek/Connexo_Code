@@ -95,7 +95,7 @@ public class G3MeterMessageConverterTest extends AbstractV2MessageConverterTest 
     }
 
     protected LegacyMessageConverter doGetMessageConverter() {
-        return new TestG3MeterMessageConverter(getMessagingProtocol(), propertySpecService, this.nlsService, this.converter, this.calendarExtractor);
+        return new TestG3MeterMessageConverter(propertySpecService, this.nlsService, this.converter, this.calendarExtractor);
     }
 
     /**
@@ -143,8 +143,8 @@ public class G3MeterMessageConverterTest extends AbstractV2MessageConverterTest 
      */
     public class TestG3MeterMessageConverter extends G3MeterMessageConverter {
 
-        public TestG3MeterMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, TariffCalendarExtractor tariffCalendarExtractor) {
-            super(messagingProtocol, propertySpecService, nlsService, converter, tariffCalendarExtractor);
+        public TestG3MeterMessageConverter(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, TariffCalendarExtractor tariffCalendarExtractor) {
+            super(propertySpecService, nlsService, converter, tariffCalendarExtractor);
         }
 
         @Override

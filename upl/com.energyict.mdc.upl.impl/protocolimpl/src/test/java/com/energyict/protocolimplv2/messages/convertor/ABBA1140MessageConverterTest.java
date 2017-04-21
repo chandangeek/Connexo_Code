@@ -27,7 +27,7 @@ public class ABBA1140MessageConverterTest extends AbstractMessageConverterTest {
     @Test
     public void testBillingResetMessage() {
         Messaging meterProtocol = new ABBA1140(propertySpecService);
-        final ABBA1140MessageConverter messageConverter = new ABBA1140MessageConverter(meterProtocol, propertySpecService, nlsService, converter);
+        final ABBA1140MessageConverter messageConverter = new ABBA1140MessageConverter(propertySpecService, nlsService, converter);
         OfflineDeviceMessage contactorOpen = mock(OfflineDeviceMessage.class);
         when(contactorOpen.getDeviceMessageId()).thenReturn(DeviceActionMessage.BILLING_RESET.id());
         when(contactorOpen.getSpecification()).thenReturn(DeviceActionMessage.BILLING_RESET.get(propertySpecService, nlsService, converter));

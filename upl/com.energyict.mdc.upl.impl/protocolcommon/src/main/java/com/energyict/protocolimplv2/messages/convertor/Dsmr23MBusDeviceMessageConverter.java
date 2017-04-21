@@ -49,8 +49,8 @@ public class Dsmr23MBusDeviceMessageConverter extends AbstractMessageConverter {
 
     private final LoadProfileExtractor loadProfileExtractor;
 
-    public Dsmr23MBusDeviceMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, LoadProfileExtractor loadProfileExtractor) {
-        super(messagingProtocol, propertySpecService, nlsService, converter);
+    public Dsmr23MBusDeviceMessageConverter(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, LoadProfileExtractor loadProfileExtractor) {
+        super(propertySpecService, nlsService, converter);
         this.loadProfileExtractor = loadProfileExtractor;
     }
 

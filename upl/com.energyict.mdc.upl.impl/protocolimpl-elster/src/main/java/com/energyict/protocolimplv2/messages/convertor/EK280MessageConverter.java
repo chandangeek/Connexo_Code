@@ -53,8 +53,8 @@ public class EK280MessageConverter extends AbstractMessageConverter {
     private final DeviceMessageFileExtractor messageFileExtractor;
     private final DeviceMessageFileFinder deviceMessageFileFinder;
 
-    public EK280MessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileExtractor messageFileExtractor, DeviceMessageFileFinder deviceMessageFileFinder) {
-        super(messagingProtocol, propertySpecService, nlsService, converter);
+    public EK280MessageConverter(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileExtractor messageFileExtractor, DeviceMessageFileFinder deviceMessageFileFinder) {
+        super(propertySpecService, nlsService, converter);
         this.calendarFinder = calendarFinder;
         this.calendarExtractor = calendarExtractor;
         this.messageFileExtractor = messageFileExtractor;

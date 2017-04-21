@@ -122,7 +122,7 @@ public class EIWebPlusMessageConverterTest extends AbstractV2MessageConverterTes
 
     private ExtendedEIWebPlusMessageConverter getConverter() {
         if (converter == null) {
-            converter = new ExtendedEIWebPlusMessageConverter(null, propertySpecService, this.nlsService, super.converter, this.deviceMessageFileConverter);
+            converter = new ExtendedEIWebPlusMessageConverter(propertySpecService, this.nlsService, super.converter, this.deviceMessageFileConverter);
         }
         return converter;
     }
@@ -150,6 +150,11 @@ public class EIWebPlusMessageConverterTest extends AbstractV2MessageConverterTes
             public MessageEntry toMessageEntry(OfflineDeviceMessage offlineDeviceMessage) {
                 return null;
             }
+
+            @Override
+            public void setMessagingProtocol(Messaging messagingProtocol) {
+                // No implementation required
+            }
         };
     }
 
@@ -161,9 +166,9 @@ public class EIWebPlusMessageConverterTest extends AbstractV2MessageConverterTes
     /**
      * Make the registry of this converter public, only for test usage
      */
-    private class ExtendedEIWebPlusMessageConverter extends EIWebPlusMessageConverter {
-        protected ExtendedEIWebPlusMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMessageFileExtractor deviceMessageFileExtractor) {
-            super(messagingProtocol, propertySpecService, nlsService, converter, deviceMessageFileExtractor);
+    public class ExtendedEIWebPlusMessageConverter extends EIWebPlusMessageConverter {
+        public ExtendedEIWebPlusMessageConverter(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMessageFileExtractor deviceMessageFileExtractor) {
+            super(propertySpecService, nlsService, converter, deviceMessageFileExtractor);
         }
 
         @Override

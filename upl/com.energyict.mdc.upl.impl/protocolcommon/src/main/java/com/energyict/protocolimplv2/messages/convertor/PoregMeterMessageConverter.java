@@ -28,8 +28,8 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.dstSt
  */
 public class PoregMeterMessageConverter extends AbstractMessageConverter {
 
-    protected PoregMeterMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
-        super(messagingProtocol, propertySpecService, nlsService, converter);
+    public PoregMeterMessageConverter(PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
+        super(propertySpecService, nlsService, converter);
     }
 
     @Override

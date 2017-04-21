@@ -34,8 +34,8 @@ public class XemexMBusDeviceMessageConverter extends AbstractMessageConverter {
 
     private final LoadProfileExtractor loadProfileExtractor;
 
-    protected XemexMBusDeviceMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, LoadProfileExtractor loadProfileExtractor) {
-        super(messagingProtocol, propertySpecService, nlsService, converter);
+    public XemexMBusDeviceMessageConverter(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, LoadProfileExtractor loadProfileExtractor) {
+        super(propertySpecService, nlsService, converter);
         this.loadProfileExtractor = loadProfileExtractor;
     }
 

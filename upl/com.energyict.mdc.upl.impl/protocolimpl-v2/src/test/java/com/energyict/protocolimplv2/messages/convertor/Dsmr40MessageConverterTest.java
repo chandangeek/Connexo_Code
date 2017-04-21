@@ -69,7 +69,7 @@ public class Dsmr40MessageConverterTest extends AbstractV2MessageConverterTest {
 
     @Override
     LegacyMessageConverter doGetMessageConverter() {
-        return new Dsmr40MessageConverter(getMessagingProtocol(), propertySpecService, this.nlsService, this.converter, this.loadProfileExtractor, numberLookupExtractor, calendarExtractor);
+        return new Dsmr40MessageConverter(propertySpecService, this.nlsService, this.converter, this.loadProfileExtractor, numberLookupExtractor, calendarExtractor);
     }
 
     @Override

@@ -206,7 +206,7 @@ public class RtuServer implements DeviceProtocol, SerialNumberSupport {
 
     private LegacyMessageConverter getMessageConverter() {
         if (messageConverter == null) {
-            messageConverter = new EIWebPlusMessageConverter(new Dummy(), this.propertySpecService, this.nlsService, this.converter, this.messageFileExtractor);
+            messageConverter = new EIWebPlusMessageConverter(this.propertySpecService, this.nlsService, this.converter, this.messageFileExtractor);
         }
         return messageConverter;
     }

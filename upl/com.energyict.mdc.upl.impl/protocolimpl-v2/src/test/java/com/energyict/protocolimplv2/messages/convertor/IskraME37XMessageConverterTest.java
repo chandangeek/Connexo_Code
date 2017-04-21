@@ -46,7 +46,7 @@ public class IskraME37XMessageConverterTest extends AbstractV2MessageConverterTe
     }
 
     protected LegacyMessageConverter doGetMessageConverter() {
-        return new IskraME37XMessageConverter(getMessagingProtocol(), propertySpecService, nlsService, converter);
+        return new IskraME37XMessageConverter(propertySpecService, nlsService, converter);
     }
 
     /**

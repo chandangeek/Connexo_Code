@@ -135,7 +135,7 @@ public class AM110RMessageConverterTest extends AbstractV2MessageConverterTest {
 
     @Override
     LegacyMessageConverter doGetMessageConverter() {
-        return new AM110RMessageConverter(getMessagingProtocol(), propertySpecService, nlsService, converter, deviceMessageFileExtractor);
+        return new AM110RMessageConverter(propertySpecService, nlsService, converter, deviceMessageFileExtractor);
     }
 
     @Override

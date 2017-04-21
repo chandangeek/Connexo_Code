@@ -52,8 +52,8 @@ public class ZigbeeGasMessageConverter extends AbstractMessageConverter {
     private final DeviceMessageFileExtractor deviceMessageFileExtractor;
     private final TariffCalendarExtractor tariffCalendarExtractor;
 
-    public ZigbeeGasMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMessageFileExtractor deviceMessageFileExtractor, TariffCalendarExtractor tariffCalendarExtractor) {
-        super(messagingProtocol, propertySpecService, nlsService, converter);
+    public ZigbeeGasMessageConverter(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMessageFileExtractor deviceMessageFileExtractor, TariffCalendarExtractor tariffCalendarExtractor) {
+        super(propertySpecService, nlsService, converter);
         this.deviceMessageFileExtractor = deviceMessageFileExtractor;
         this.tariffCalendarExtractor = tariffCalendarExtractor;
     }

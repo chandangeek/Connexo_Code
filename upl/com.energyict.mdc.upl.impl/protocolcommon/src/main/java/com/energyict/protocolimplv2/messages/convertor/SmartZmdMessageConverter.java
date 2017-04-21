@@ -49,8 +49,8 @@ public class SmartZmdMessageConverter extends AbstractMessageConverter {
     /**
      * Default constructor for at-runtime instantiation
      */
-    public SmartZmdMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, TariffCalendarExtractor tariffCalendarExtractor) {
-        super(messagingProtocol, propertySpecService, nlsService, converter);
+    public SmartZmdMessageConverter(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, TariffCalendarExtractor tariffCalendarExtractor) {
+        super(propertySpecService, nlsService, converter);
         this.tariffCalendarExtractor = tariffCalendarExtractor;
     }
 

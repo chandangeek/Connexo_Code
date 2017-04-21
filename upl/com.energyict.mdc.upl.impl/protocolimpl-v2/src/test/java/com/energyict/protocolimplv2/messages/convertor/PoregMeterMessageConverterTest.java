@@ -50,7 +50,7 @@ public class PoregMeterMessageConverterTest extends AbstractV2MessageConverterTe
     }
 
     protected LegacyMessageConverter doGetMessageConverter() {
-        return new PoregMeterMessageConverter(getMessagingProtocol(), propertySpecService, nlsService, converter);
+        return new PoregMeterMessageConverter(propertySpecService, nlsService, converter);
     }
 
     /**

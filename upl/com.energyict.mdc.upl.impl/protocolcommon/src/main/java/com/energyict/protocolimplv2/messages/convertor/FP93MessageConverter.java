@@ -24,8 +24,8 @@ import java.util.Map;
  */
 public class FP93MessageConverter extends AbstractMessageConverter {
 
-    protected FP93MessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
-        super(messagingProtocol, propertySpecService, nlsService, converter);
+    public FP93MessageConverter(PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
+        super(propertySpecService, nlsService, converter);
     }
 
     @Override

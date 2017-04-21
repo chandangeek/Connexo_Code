@@ -40,8 +40,8 @@ public class IskraMx372MBusDeviceMessageConverter extends AbstractMessageConvert
     private static final String MBUS_SET_VIF = "Mbus_Set_VIF";
     private final LoadProfileExtractor extractor;
 
-    protected IskraMx372MBusDeviceMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, LoadProfileExtractor loadProfileExtractor) {
-        super(messagingProtocol, propertySpecService, nlsService, converter);
+    public IskraMx372MBusDeviceMessageConverter(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, LoadProfileExtractor loadProfileExtractor) {
+        super(propertySpecService, nlsService, converter);
         this.extractor = loadProfileExtractor;
     }
 

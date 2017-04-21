@@ -24,8 +24,8 @@ import java.util.Map;
  */
 public class IHDMessageConverter extends AbstractMessageConverter {
 
-    protected IHDMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
-        super(messagingProtocol, propertySpecService, nlsService, converter);
+    public IHDMessageConverter(PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
+        super(propertySpecService, nlsService, converter);
     }
 
     @Override

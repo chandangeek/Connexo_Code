@@ -28,8 +28,8 @@ public class ZigbeeGasAM110RMessageConverter extends AbstractMessageConverter {
 
     private final DeviceMessageFileExtractor extractor;
 
-    public ZigbeeGasAM110RMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMessageFileExtractor extractor) {
-        super(messagingProtocol, propertySpecService, nlsService, converter);
+    public ZigbeeGasAM110RMessageConverter(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMessageFileExtractor extractor) {
+        super(propertySpecService, nlsService, converter);
         this.extractor = extractor;
     }
 

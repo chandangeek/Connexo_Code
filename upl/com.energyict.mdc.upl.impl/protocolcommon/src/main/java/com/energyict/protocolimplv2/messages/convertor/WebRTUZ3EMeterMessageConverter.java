@@ -31,8 +31,8 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.conta
  */
 public class WebRTUZ3EMeterMessageConverter extends AbstractMessageConverter {
 
-    public WebRTUZ3EMeterMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
-        super(messagingProtocol, propertySpecService, nlsService, converter);
+    public WebRTUZ3EMeterMessageConverter(PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
+        super(propertySpecService, nlsService, converter);
     }
 
     @Override

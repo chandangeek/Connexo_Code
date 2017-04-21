@@ -40,7 +40,7 @@ public class IHDAM110RMessageConverterTest extends AbstractV2MessageConverterTes
 
     @Override
     LegacyMessageConverter doGetMessageConverter() {
-        return new IHDAM110RMessageConverter(getMessagingProtocol(), propertySpecService, nlsService, converter);
+        return new IHDAM110RMessageConverter(propertySpecService, nlsService, converter);
     }
 
     @Override

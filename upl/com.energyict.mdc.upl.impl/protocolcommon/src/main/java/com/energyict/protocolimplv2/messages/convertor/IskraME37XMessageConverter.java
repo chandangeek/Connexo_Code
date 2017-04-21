@@ -24,8 +24,8 @@ import java.util.Map;
  */
 public class IskraME37XMessageConverter extends AbstractMessageConverter {
 
-    protected IskraME37XMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
-        super(messagingProtocol, propertySpecService, nlsService, converter);
+    public IskraME37XMessageConverter(PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
+        super(propertySpecService, nlsService, converter);
     }
 
     @Override

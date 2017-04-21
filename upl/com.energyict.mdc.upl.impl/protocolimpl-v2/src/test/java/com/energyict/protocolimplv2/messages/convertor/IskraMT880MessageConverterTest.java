@@ -40,7 +40,7 @@ public class IskraMT880MessageConverterTest extends AbstractV2MessageConverterTe
 
     @Override
     LegacyMessageConverter doGetMessageConverter() {
-        return new IskraMT880MessageConverter(getMessagingProtocol(), propertySpecService, nlsService, converter);
+        return new IskraMT880MessageConverter(propertySpecService, nlsService, converter);
     }
 
     @Override

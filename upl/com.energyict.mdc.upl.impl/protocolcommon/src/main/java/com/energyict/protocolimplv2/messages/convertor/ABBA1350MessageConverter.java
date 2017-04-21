@@ -32,8 +32,8 @@ public class ABBA1350MessageConverter extends AbstractMessageConverter {
     private static final String UploadSwitchPointClockUpdate = "SPCU_DATA";
     private final DeviceMessageFileExtractor extractor;
 
-    public ABBA1350MessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMessageFileExtractor deviceMessageFileExtractor) {
-        super(messagingProtocol, propertySpecService, nlsService, converter);
+    public ABBA1350MessageConverter(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMessageFileExtractor deviceMessageFileExtractor) {
+        super(propertySpecService, nlsService, converter);
         this.extractor = deviceMessageFileExtractor;
     }
 

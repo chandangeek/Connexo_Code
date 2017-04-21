@@ -114,7 +114,7 @@ public class IskraMx372MessageConverterTest extends AbstractV2MessageConverterTe
 
     @Override
     LegacyMessageConverter doGetMessageConverter() {
-        return new IskraMx372MessageConverter(getMessagingProtocol(), propertySpecService, this.nlsService, this.converter, this.loadProfileExtractor);
+        return new IskraMx372MessageConverter(propertySpecService, this.nlsService, this.converter, this.loadProfileExtractor);
     }
 
     @Override

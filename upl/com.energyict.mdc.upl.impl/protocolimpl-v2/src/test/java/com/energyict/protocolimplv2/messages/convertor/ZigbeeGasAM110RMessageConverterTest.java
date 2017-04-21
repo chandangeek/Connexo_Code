@@ -106,7 +106,7 @@ public class ZigbeeGasAM110RMessageConverterTest extends AbstractV2MessageConver
 
     @Override
     LegacyMessageConverter doGetMessageConverter() {
-        return new ZigbeeGasAM110RMessageConverter(getMessagingProtocol(), propertySpecService, nlsService, converter, deviceMessageFileExtractor);
+        return new ZigbeeGasAM110RMessageConverter(propertySpecService, nlsService, converter, deviceMessageFileExtractor);
     }
 
     @Override

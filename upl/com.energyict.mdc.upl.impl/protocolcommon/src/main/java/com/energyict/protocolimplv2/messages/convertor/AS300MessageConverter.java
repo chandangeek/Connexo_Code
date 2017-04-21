@@ -51,8 +51,8 @@ public class AS300MessageConverter extends AbstractMessageConverter {
     private final DeviceMessageFileExtractor deviceMessageFileExtractor;
     private final TariffCalendarExtractor tariffCalendarExtractor;
 
-    protected AS300MessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMessageFileExtractor deviceMessageFileExtractor, TariffCalendarExtractor tariffCalendarExtractor) {
-        super(messagingProtocol, propertySpecService, nlsService, converter);
+    public AS300MessageConverter(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMessageFileExtractor deviceMessageFileExtractor, TariffCalendarExtractor tariffCalendarExtractor) {
+        super(propertySpecService, nlsService, converter);
         this.deviceMessageFileExtractor = deviceMessageFileExtractor;
         this.tariffCalendarExtractor = tariffCalendarExtractor;
     }

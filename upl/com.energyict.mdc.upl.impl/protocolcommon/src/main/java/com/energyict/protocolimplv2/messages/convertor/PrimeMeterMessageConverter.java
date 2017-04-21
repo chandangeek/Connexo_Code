@@ -47,8 +47,8 @@ public class PrimeMeterMessageConverter extends AbstractMessageConverter {
 
     private final DeviceMessageFileExtractor deviceMessageFileExtractor;
 
-    protected PrimeMeterMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMessageFileExtractor deviceMessageFileExtractor) {
-        super(messagingProtocol, propertySpecService, nlsService, converter);
+    public PrimeMeterMessageConverter(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMessageFileExtractor deviceMessageFileExtractor) {
+        super(propertySpecService, nlsService, converter);
         this.deviceMessageFileExtractor = deviceMessageFileExtractor;
     }
 

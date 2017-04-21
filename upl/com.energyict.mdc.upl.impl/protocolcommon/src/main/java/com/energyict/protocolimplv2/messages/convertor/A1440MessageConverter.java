@@ -38,8 +38,8 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.power
  */
 public class A1440MessageConverter extends AbstractMessageConverter {
 
-    public A1440MessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
-        super(messagingProtocol, propertySpecService, nlsService, converter);
+    public A1440MessageConverter(PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
+        super(propertySpecService, nlsService, converter);
     }
 
     @Override

@@ -22,8 +22,8 @@ import java.util.Map;
  */
 public class ModbusMessageConverter extends AbstractMessageConverter {
 
-    public ModbusMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
-        super(messagingProtocol, propertySpecService, nlsService, converter);
+    public ModbusMessageConverter(PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
+        super(propertySpecService, nlsService, converter);
     }
 
     @Override

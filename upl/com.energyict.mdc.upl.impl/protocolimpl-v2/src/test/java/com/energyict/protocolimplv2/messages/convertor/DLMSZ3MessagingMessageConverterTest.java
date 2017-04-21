@@ -53,7 +53,7 @@ public class DLMSZ3MessagingMessageConverterTest extends AbstractV2MessageConver
     }
 
     protected LegacyMessageConverter doGetMessageConverter() {
-        return new DLMSZ3MessagingMessageConverter(getMessagingProtocol(), propertySpecService, nlsService, converter);
+        return new DLMSZ3MessagingMessageConverter(propertySpecService, nlsService, converter);
     }
 
     /**

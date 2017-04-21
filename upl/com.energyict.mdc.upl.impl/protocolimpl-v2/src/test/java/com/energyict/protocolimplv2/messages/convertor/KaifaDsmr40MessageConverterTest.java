@@ -39,7 +39,7 @@ public class KaifaDsmr40MessageConverterTest extends AbstractV2MessageConverterT
 
     @Override
     LegacyMessageConverter doGetMessageConverter() {
-        return new KaifaDsmr40MessageConverter(getMessagingProtocol(), propertySpecService, this.nlsService, this.converter, this.loadProfileExtractor, numberLookupExtractor, calendarExtractor);
+        return new KaifaDsmr40MessageConverter(propertySpecService, this.nlsService, this.converter, this.loadProfileExtractor, numberLookupExtractor, calendarExtractor);
     }
 
     @Override

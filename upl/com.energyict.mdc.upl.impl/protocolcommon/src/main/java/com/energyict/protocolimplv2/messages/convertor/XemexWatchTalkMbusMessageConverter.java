@@ -19,8 +19,8 @@ import java.util.Map;
  */
 public class XemexWatchTalkMbusMessageConverter extends Dsmr23MBusDeviceMessageConverter{
 
-    public XemexWatchTalkMbusMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, LoadProfileExtractor loadProfileExtractor) {
-        super(messagingProtocol, propertySpecService, nlsService, converter, loadProfileExtractor);
+    public XemexWatchTalkMbusMessageConverter(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, LoadProfileExtractor loadProfileExtractor) {
+        super(propertySpecService, nlsService, converter, loadProfileExtractor);
     }
 
     @Override

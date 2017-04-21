@@ -40,7 +40,7 @@ public class NXT4MessageConverterTest extends AbstractV2MessageConverterTest {
 
     @Override
     LegacyMessageConverter doGetMessageConverter() {
-        return new IskraMT880MessageConverter(getMessagingProtocol(), propertySpecService, nlsService, converter);
+        return new IskraMT880MessageConverter(propertySpecService, nlsService, converter);
     }
 
     @Override

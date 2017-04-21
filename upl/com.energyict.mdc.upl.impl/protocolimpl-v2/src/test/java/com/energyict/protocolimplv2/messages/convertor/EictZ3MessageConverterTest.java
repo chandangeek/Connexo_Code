@@ -67,7 +67,7 @@ public class EictZ3MessageConverterTest extends AbstractV2MessageConverterTest {
     }
 
     protected LegacyMessageConverter doGetMessageConverter() {
-        return new EictZ3MessageConverter(getMessagingProtocol(), propertySpecService, nlsService, converter);
+        return new EictZ3MessageConverter(propertySpecService, nlsService, converter);
     }
 
     /**

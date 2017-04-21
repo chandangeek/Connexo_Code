@@ -52,7 +52,7 @@ public class ABBA1350MessageConverterTest extends AbstractV2MessageConverterTest
 
     @Override
     LegacyMessageConverter doGetMessageConverter() {
-        return new ABBA1350MessageConverter(getMessagingProtocol(), propertySpecService, nlsService, converter, deviceMessageFileExtractor);
+        return new ABBA1350MessageConverter(propertySpecService, nlsService, converter, deviceMessageFileExtractor);
     }
 
     @Override

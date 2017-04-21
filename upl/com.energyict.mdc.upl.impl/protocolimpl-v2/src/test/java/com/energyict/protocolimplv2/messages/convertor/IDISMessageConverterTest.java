@@ -88,7 +88,7 @@ public class IDISMessageConverterTest extends AbstractV2MessageConverterTest {
     }
 
     protected LegacyMessageConverter doGetMessageConverter() {
-        return new TestIDISMessageConverter(getMessagingProtocol(), propertySpecService, nlsService, converter, deviceMessageFileExtractor, calendarExtractor);
+        return new TestIDISMessageConverter(propertySpecService, nlsService, converter, deviceMessageFileExtractor, calendarExtractor);
     }
 
     /**
@@ -97,8 +97,8 @@ public class IDISMessageConverterTest extends AbstractV2MessageConverterTest {
      */
     public class TestIDISMessageConverter extends IDISMessageConverter {
 
-        protected TestIDISMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMessageFileExtractor deviceMessageFileExtractor, TariffCalendarExtractor calendarExtractor) {
-            super(messagingProtocol, propertySpecService, nlsService, converter, deviceMessageFileExtractor, calendarExtractor);
+        protected TestIDISMessageConverter(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMessageFileExtractor deviceMessageFileExtractor, TariffCalendarExtractor calendarExtractor) {
+            super(propertySpecService, nlsService, converter, deviceMessageFileExtractor, calendarExtractor);
         }
 
         @Override

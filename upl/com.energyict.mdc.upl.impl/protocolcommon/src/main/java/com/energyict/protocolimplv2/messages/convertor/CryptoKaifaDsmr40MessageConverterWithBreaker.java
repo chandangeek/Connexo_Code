@@ -29,8 +29,8 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.conta
  */
 public class CryptoKaifaDsmr40MessageConverterWithBreaker extends CryptoKaifaDsmr40MessageConverter {
 
-    public CryptoKaifaDsmr40MessageConverterWithBreaker(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, LoadProfileExtractor loadProfileExtractor, NumberLookupExtractor numberLookupExtractor, TariffCalendarExtractor calendarExtractor) {
-        super(messagingProtocol, propertySpecService, nlsService, converter, loadProfileExtractor, numberLookupExtractor, calendarExtractor);
+    public CryptoKaifaDsmr40MessageConverterWithBreaker(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, LoadProfileExtractor loadProfileExtractor, NumberLookupExtractor numberLookupExtractor, TariffCalendarExtractor calendarExtractor) {
+        super(propertySpecService, nlsService, converter, loadProfileExtractor, numberLookupExtractor, calendarExtractor);
     }
 
     @Override

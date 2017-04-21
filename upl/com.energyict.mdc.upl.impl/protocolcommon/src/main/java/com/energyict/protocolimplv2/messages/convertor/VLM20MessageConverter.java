@@ -19,8 +19,8 @@ import java.util.Map;
  */
 public class VLM20MessageConverter extends AbstractMessageConverter{
 
-    protected VLM20MessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
-        super(messagingProtocol, propertySpecService, nlsService, converter);
+    public VLM20MessageConverter(PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
+        super(propertySpecService, nlsService, converter);
     }
 
     @Override

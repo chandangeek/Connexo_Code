@@ -47,7 +47,7 @@ public class IHDMessageConverterTest extends AbstractV2MessageConverterTest {
 
     @Override
     LegacyMessageConverter doGetMessageConverter() {
-        return new IHDMessageConverter(getMessagingProtocol(), propertySpecService, this.nlsService, this.converter);
+        return new IHDMessageConverter(propertySpecService, this.nlsService, this.converter);
     }
 
     @Override

@@ -28,8 +28,8 @@ import java.util.Map;
  */
 public class CryptoDsmr23MBusMessageConverter extends Dsmr23MBusDeviceMessageConverter {
 
-    public CryptoDsmr23MBusMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, LoadProfileExtractor loadProfileExtractor) {
-        super(messagingProtocol, propertySpecService, nlsService, converter, loadProfileExtractor);
+    public CryptoDsmr23MBusMessageConverter(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, LoadProfileExtractor loadProfileExtractor) {
+        super(propertySpecService, nlsService, converter, loadProfileExtractor);
     }
 
     @Override

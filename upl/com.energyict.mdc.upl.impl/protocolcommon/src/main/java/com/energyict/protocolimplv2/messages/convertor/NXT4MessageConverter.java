@@ -22,8 +22,8 @@ import java.util.Map;
  */
 public class NXT4MessageConverter extends AbstractMessageConverter {
 
-    protected NXT4MessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
-        super(messagingProtocol, propertySpecService, nlsService, converter);
+    public NXT4MessageConverter(PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
+        super(propertySpecService, nlsService, converter);
     }
 
     @Override

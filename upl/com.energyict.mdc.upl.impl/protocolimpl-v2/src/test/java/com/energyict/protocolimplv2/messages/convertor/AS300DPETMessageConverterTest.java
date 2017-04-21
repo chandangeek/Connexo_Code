@@ -63,7 +63,7 @@ public class AS300DPETMessageConverterTest extends AS300MessageConverterTest {
 
     @Override
     LegacyMessageConverter doGetMessageConverter() {
-        AS300DPETMessageConverter messageConverter = spy(new AS300DPETMessageConverter(getMessagingProtocol(), propertySpecService, nlsService, converter, deviceMessageFileExtractor, calendarExtractor, deviceExtractor, registerExtractor, deviceGroupExtractor));
+        AS300DPETMessageConverter messageConverter = spy(new AS300DPETMessageConverter(propertySpecService, nlsService, converter, deviceMessageFileExtractor, calendarExtractor, deviceExtractor, registerExtractor, deviceGroupExtractor));
         // We stub the encode method, cause CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable() is not subject of this test
         doReturn(XMLEncodedActivityCalendar).when(messageConverter).encode(any(TariffCalendar.class));
         return messageConverter;

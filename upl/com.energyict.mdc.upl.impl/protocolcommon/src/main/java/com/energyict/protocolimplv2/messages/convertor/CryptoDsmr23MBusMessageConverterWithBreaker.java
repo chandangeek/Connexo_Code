@@ -27,8 +27,8 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.conta
  */
 public class CryptoDsmr23MBusMessageConverterWithBreaker extends CryptoDsmr23MBusMessageConverter {
 
-    public CryptoDsmr23MBusMessageConverterWithBreaker(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, LoadProfileExtractor loadProfileExtractor) {
-        super(messagingProtocol, propertySpecService, nlsService, converter, loadProfileExtractor);
+    public CryptoDsmr23MBusMessageConverterWithBreaker(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, LoadProfileExtractor loadProfileExtractor) {
+        super(propertySpecService, nlsService, converter, loadProfileExtractor);
     }
 
     @Override

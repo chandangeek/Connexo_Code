@@ -19,8 +19,8 @@ import java.util.Map;
  */
 public class FP93BMessageConverter extends ModbusMessageConverter {
 
-    public FP93BMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
-        super(messagingProtocol, propertySpecService, nlsService, converter);
+    public FP93BMessageConverter(PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
+        super(propertySpecService, nlsService, converter);
     }
 
     @Override

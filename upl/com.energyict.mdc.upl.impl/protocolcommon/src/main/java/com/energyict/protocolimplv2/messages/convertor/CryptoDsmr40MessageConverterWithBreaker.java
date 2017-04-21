@@ -29,8 +29,8 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.conta
  */
 public class CryptoDsmr40MessageConverterWithBreaker extends CryptoDsmr40MessageConverter {
 
-    public CryptoDsmr40MessageConverterWithBreaker(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, LoadProfileExtractor loadProfileExtractor, NumberLookupExtractor numberLookupExtractor, TariffCalendarExtractor calendarExtractor) {
-        super(messagingProtocol, propertySpecService, nlsService, converter, loadProfileExtractor, numberLookupExtractor, calendarExtractor);
+    public CryptoDsmr40MessageConverterWithBreaker(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, LoadProfileExtractor loadProfileExtractor, NumberLookupExtractor numberLookupExtractor, TariffCalendarExtractor calendarExtractor) {
+        super(propertySpecService, nlsService, converter, loadProfileExtractor, numberLookupExtractor, calendarExtractor);
     }
 
     @Override

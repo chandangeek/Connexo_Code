@@ -23,8 +23,8 @@ import java.util.Map;
  */
 public class ABBA1140MessageConverter extends AbstractMessageConverter {
 
-    protected ABBA1140MessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
-        super(messagingProtocol, propertySpecService, nlsService, converter);
+    public ABBA1140MessageConverter(PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
+        super(propertySpecService, nlsService, converter);
     }
 
     @Override

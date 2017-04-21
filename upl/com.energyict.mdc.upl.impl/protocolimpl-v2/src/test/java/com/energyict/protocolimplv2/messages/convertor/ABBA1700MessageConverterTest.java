@@ -40,7 +40,7 @@ public class ABBA1700MessageConverterTest extends AbstractV2MessageConverterTest
 
     @Override
     LegacyMessageConverter doGetMessageConverter() {
-        return new ABBA1700MessageConverter(getMessagingProtocol(), propertySpecService, nlsService, converter);
+        return new ABBA1700MessageConverter(propertySpecService, nlsService, converter);
     }
 
     @Override

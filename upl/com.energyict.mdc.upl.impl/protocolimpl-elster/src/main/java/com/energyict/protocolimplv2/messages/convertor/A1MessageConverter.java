@@ -57,8 +57,8 @@ public class A1MessageConverter extends AbstractMessageConverter {
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private final DeviceMessageFileExtractor messageFileExtractor;
 
-    protected A1MessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMessageFileExtractor messageFileExtractor) {
-        super(messagingProtocol, propertySpecService, nlsService, converter);
+    public A1MessageConverter(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMessageFileExtractor messageFileExtractor) {
+        super(propertySpecService, nlsService, converter);
         this.messageFileExtractor = messageFileExtractor;
     }
 

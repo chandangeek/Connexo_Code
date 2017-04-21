@@ -32,8 +32,8 @@ public class AM110RMessageConverter extends AbstractMessageConverter {
 
     private final DeviceMessageFileExtractor deviceMessageFileExtractor;
 
-    public AM110RMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMessageFileExtractor deviceMessageFileExtractor) {
-        super(messagingProtocol, propertySpecService, nlsService, converter);
+    public AM110RMessageConverter(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMessageFileExtractor deviceMessageFileExtractor) {
+        super(propertySpecService, nlsService, converter);
         this.deviceMessageFileExtractor = deviceMessageFileExtractor;
     }
 

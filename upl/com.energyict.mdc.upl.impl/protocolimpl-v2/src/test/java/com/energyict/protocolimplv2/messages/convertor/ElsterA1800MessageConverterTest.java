@@ -41,7 +41,7 @@ public class ElsterA1800MessageConverterTest extends AbstractV2MessageConverterT
 
     @Override
     LegacyMessageConverter doGetMessageConverter() {
-        return new ElsterA1800MessageConverter(getMessagingProtocol(), propertySpecService, nlsService, converter);
+        return new ElsterA1800MessageConverter(propertySpecService, nlsService, converter);
     }
 
     @Override

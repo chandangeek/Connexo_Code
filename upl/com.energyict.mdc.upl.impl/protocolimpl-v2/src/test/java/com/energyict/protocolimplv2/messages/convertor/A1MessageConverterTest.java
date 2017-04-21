@@ -187,7 +187,7 @@ public class A1MessageConverterTest extends AbstractV2MessageConverterTest {
 
     @Override
     LegacyMessageConverter doGetMessageConverter() {
-        return new A1MessageConverter(getMessagingProtocol(), propertySpecService, this.nlsService, this.converter, this.deviceMessageFileExtractor);
+        return new A1MessageConverter(propertySpecService, this.nlsService, this.converter, this.deviceMessageFileExtractor);
     }
 
     @Override

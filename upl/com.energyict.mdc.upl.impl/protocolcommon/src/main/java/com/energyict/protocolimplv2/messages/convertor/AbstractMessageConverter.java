@@ -34,16 +34,20 @@ public abstract class AbstractMessageConverter implements LegacyMessageConverter
     public static final SimpleDateFormat dateTimeFormatWithTimeZone = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss z");
     protected final SimpleDateFormat europeanDateTimeFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 
-    private final Messaging messagingProtocol;
+    private Messaging messagingProtocol;
     private final PropertySpecService propertySpecService;
     private final NlsService nlsService;
     private final Converter converter;
 
-    protected AbstractMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
-        this.messagingProtocol = messagingProtocol;
+    protected AbstractMessageConverter(PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
         this.propertySpecService = propertySpecService;
         this.nlsService = nlsService;
         this.converter = converter;
+    }
+
+    @Override
+    public void setMessagingProtocol(Messaging messagingProtocol) {
+        this.messagingProtocol = messagingProtocol;
     }
 
     /**

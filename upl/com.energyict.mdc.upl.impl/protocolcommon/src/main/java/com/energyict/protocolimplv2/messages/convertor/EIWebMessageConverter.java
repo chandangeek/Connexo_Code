@@ -51,8 +51,8 @@ import java.util.Map;
  */
 public class EIWebMessageConverter extends AbstractMessageConverter {
 
-    public EIWebMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
-        super(messagingProtocol, propertySpecService, nlsService, converter);
+    public EIWebMessageConverter(PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
+        super(propertySpecService, nlsService, converter);
     }
 
     @Override

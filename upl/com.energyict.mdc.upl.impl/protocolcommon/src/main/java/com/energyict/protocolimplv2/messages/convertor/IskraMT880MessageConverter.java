@@ -22,8 +22,8 @@ import java.util.Map;
  */
 public class IskraMT880MessageConverter extends AbstractMessageConverter {
 
-    protected IskraMT880MessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
-        super(messagingProtocol, propertySpecService, nlsService, converter);
+    public IskraMT880MessageConverter(PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
+        super(propertySpecService, nlsService, converter);
     }
 
     @Override

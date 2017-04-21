@@ -32,8 +32,8 @@ public class AS300PMessageConverter extends AbstractMessageConverter {
 
     private final DeviceMessageFileExtractor deviceMessageFileExtractor;
 
-    public AS300PMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMessageFileExtractor deviceMessageFileExtractor) {
-        super(messagingProtocol, propertySpecService, nlsService, converter);
+    public AS300PMessageConverter(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMessageFileExtractor deviceMessageFileExtractor) {
+        super(propertySpecService, nlsService, converter);
         this.deviceMessageFileExtractor = deviceMessageFileExtractor;
     }
 

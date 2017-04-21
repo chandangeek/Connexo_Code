@@ -42,8 +42,8 @@ public class AS300DPETMessageConverter extends AS300MessageConverter {
     private final RegisterExtractor registerExtractor;
     private final DeviceGroupExtractor deviceGroupExtractor;
 
-    protected AS300DPETMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMessageFileExtractor deviceMessageFileExtractor, TariffCalendarExtractor tariffCalendarExtractor, DeviceExtractor deviceExtractor, RegisterExtractor registerExtractor, DeviceGroupExtractor deviceGroupExtractor) {
-        super(messagingProtocol, propertySpecService, nlsService, converter, deviceMessageFileExtractor, tariffCalendarExtractor);
+    public AS300DPETMessageConverter(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMessageFileExtractor deviceMessageFileExtractor, TariffCalendarExtractor tariffCalendarExtractor, DeviceExtractor deviceExtractor, RegisterExtractor registerExtractor, DeviceGroupExtractor deviceGroupExtractor) {
+        super(propertySpecService, nlsService, converter, deviceMessageFileExtractor, tariffCalendarExtractor);
         this.deviceExtractor = deviceExtractor;
         this.registerExtractor = registerExtractor;
         this.deviceGroupExtractor = deviceGroupExtractor;

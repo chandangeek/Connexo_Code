@@ -127,7 +127,7 @@ public class ZigbeeGasMessageConverterTest extends AbstractV2MessageConverterTes
 
     @Override
     LegacyMessageConverter doGetMessageConverter() {
-        ZigbeeGasMessageConverter messageConverter = spy(new ZigbeeGasMessageConverter(getMessagingProtocol(), propertySpecService, this.nlsService, this.converter, this.deviceMessageFileExtractor, this.calendarExtractor));
+        ZigbeeGasMessageConverter messageConverter = spy(new ZigbeeGasMessageConverter(propertySpecService, this.nlsService, this.converter, this.deviceMessageFileExtractor, this.calendarExtractor));
         // We stub the encode method, cause CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable() is not subject of this test
         doReturn(XMLEncodedActivityCalendar).when(messageConverter).encode(any(TariffCalendar.class));
         return messageConverter;

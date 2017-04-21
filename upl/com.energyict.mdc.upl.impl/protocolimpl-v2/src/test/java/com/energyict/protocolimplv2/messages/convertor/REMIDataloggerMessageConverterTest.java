@@ -65,7 +65,7 @@ public class REMIDataloggerMessageConverterTest extends AbstractV2MessageConvert
 
     @Override
     LegacyMessageConverter doGetMessageConverter() {
-        return new REMIDataloggerMessageConverter(getMessagingProtocol(), propertySpecService, nlsService, converter, loadProfileExtractor);
+        return new REMIDataloggerMessageConverter(propertySpecService, nlsService, converter, loadProfileExtractor);
     }
 
     @Override

@@ -37,8 +37,8 @@ public class UkHubMessageConverter extends AbstractMessageConverter {
 
     private final DeviceMessageFileExtractor deviceMessageFileExtractor;
 
-    protected UkHubMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMessageFileExtractor deviceMessageFileExtractor) {
-        super(messagingProtocol, propertySpecService, nlsService, converter);
+    public UkHubMessageConverter(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMessageFileExtractor deviceMessageFileExtractor) {
+        super(propertySpecService, nlsService, converter);
         this.deviceMessageFileExtractor = deviceMessageFileExtractor;
     }
 

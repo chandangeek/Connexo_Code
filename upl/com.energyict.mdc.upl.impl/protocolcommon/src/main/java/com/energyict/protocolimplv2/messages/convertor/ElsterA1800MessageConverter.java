@@ -26,8 +26,8 @@ public class ElsterA1800MessageConverter extends AbstractMessageConverter {
     private static final String CHANNEL = "Channel";
     private static final String DIVISOR = "Divisor";
 
-    protected ElsterA1800MessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
-        super(messagingProtocol, propertySpecService, nlsService, converter);
+    public ElsterA1800MessageConverter(PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
+        super(propertySpecService, nlsService, converter);
     }
 
     @Override

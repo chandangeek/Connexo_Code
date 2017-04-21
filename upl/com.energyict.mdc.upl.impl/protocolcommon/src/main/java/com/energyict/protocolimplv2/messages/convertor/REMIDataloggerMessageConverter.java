@@ -48,8 +48,8 @@ public class REMIDataloggerMessageConverter extends AbstractMessageConverter {
 
     private final LoadProfileExtractor loadProfileExtractor;
 
-    protected REMIDataloggerMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, LoadProfileExtractor loadProfileExtractor) {
-        super(messagingProtocol, propertySpecService, nlsService, converter);
+    public REMIDataloggerMessageConverter(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, LoadProfileExtractor loadProfileExtractor) {
+        super(propertySpecService, nlsService, converter);
         this.loadProfileExtractor = loadProfileExtractor;
     }
 

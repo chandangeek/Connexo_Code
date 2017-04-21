@@ -50,7 +50,7 @@ public class CryptoDsmr23MessageConverterTest extends AbstractV2MessageConverter
 
     @Override
     LegacyMessageConverter doGetMessageConverter() {
-        return new CryptoDsmr23MessageConverter(getMessagingProtocol(), propertySpecService, nlsService, converter, loadProfileExtractor, numberLookupExtractor, calendarExtractor);
+        return new CryptoDsmr23MessageConverter(propertySpecService, nlsService, converter, loadProfileExtractor, numberLookupExtractor, calendarExtractor);
     }
 
     @Override

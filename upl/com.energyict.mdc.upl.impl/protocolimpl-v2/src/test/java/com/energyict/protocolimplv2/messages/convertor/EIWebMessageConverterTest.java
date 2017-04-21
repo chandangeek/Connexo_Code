@@ -344,7 +344,7 @@ public class EIWebMessageConverterTest extends AbstractV2MessageConverterTest {
 
     @Override
     LegacyMessageConverter doGetMessageConverter() {
-        return new EIWebMessageConverter(null, propertySpecService, nlsService, converter);
+        return new EIWebMessageConverter(propertySpecService, nlsService, converter);
     }
 
     @Override

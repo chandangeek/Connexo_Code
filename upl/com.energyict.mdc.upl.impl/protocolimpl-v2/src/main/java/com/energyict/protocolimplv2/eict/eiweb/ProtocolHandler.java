@@ -211,7 +211,7 @@ public class ProtocolHandler {
 
     private LegacyMessageConverter getMessageConverter() {
         if (messageConverter == null) {
-            messageConverter = new EIWebMessageConverter(null, this.propertySpecService, this.nlsService, this.converter);
+            messageConverter = new EIWebMessageConverter(this.propertySpecService, this.nlsService, this.converter);
         }
         return messageConverter;
     }

@@ -198,7 +198,7 @@ public class EIWeb implements DeviceProtocol, SerialNumberSupport {
 
     private LegacyMessageConverter getMessageConverter() {
         if (messageConverter == null) {
-            messageConverter = new EIWebMessageConverter(null, propertySpecService, nlsService, converter);
+            messageConverter = new EIWebMessageConverter(propertySpecService, nlsService, converter);
         }
         return messageConverter;
     }

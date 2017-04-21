@@ -83,7 +83,7 @@ public class PrimeMeterMessageConverterTest extends AbstractV2MessageConverterTe
     }
 
     protected LegacyMessageConverter doGetMessageConverter() {
-        return new PrimeMeterMessageConverter(getMessagingProtocol(), propertySpecService, nlsService, converter, deviceMessageFileExtractor);
+        return new PrimeMeterMessageConverter(propertySpecService, nlsService, converter, deviceMessageFileExtractor);
     }
 
     /**

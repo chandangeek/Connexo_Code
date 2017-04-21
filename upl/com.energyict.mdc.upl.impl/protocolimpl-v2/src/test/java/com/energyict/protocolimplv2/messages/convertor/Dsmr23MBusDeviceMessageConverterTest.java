@@ -85,7 +85,7 @@ public class Dsmr23MBusDeviceMessageConverterTest extends AbstractV2MessageConve
 
     @Override
     LegacyMessageConverter doGetMessageConverter() {
-        return new Dsmr23MBusDeviceMessageConverter(getMessagingProtocol(), propertySpecService, nlsService, converter, loadProfileExtractor);
+        return new Dsmr23MBusDeviceMessageConverter(propertySpecService, nlsService, converter, loadProfileExtractor);
     }
 
     @Override

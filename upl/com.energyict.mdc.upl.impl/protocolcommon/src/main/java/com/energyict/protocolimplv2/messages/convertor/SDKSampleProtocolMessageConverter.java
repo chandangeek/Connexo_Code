@@ -29,8 +29,8 @@ import java.util.Map;
  */
 public class SDKSampleProtocolMessageConverter extends AbstractMessageConverter {
 
-    public SDKSampleProtocolMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
-        super(messagingProtocol, propertySpecService, nlsService, converter);
+    public SDKSampleProtocolMessageConverter(PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
+        super(propertySpecService, nlsService, converter);
     }
 
     @Override

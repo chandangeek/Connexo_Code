@@ -50,7 +50,7 @@ public class IskraMx372MBusDeviceMessageConverterTest extends AbstractV2MessageC
 
     @Override
     LegacyMessageConverter doGetMessageConverter() {
-        return new IskraMx372MBusDeviceMessageConverter(getMessagingProtocol(), propertySpecService, nlsService, converter, loadProfileExtractor);
+        return new IskraMx372MBusDeviceMessageConverter(propertySpecService, nlsService, converter, loadProfileExtractor);
     }
 
     @Override

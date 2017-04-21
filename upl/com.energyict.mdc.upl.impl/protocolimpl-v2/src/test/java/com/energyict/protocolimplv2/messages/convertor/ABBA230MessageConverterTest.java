@@ -71,7 +71,7 @@ public class ABBA230MessageConverterTest extends AbstractV2MessageConverterTest 
 
     @Override
     LegacyMessageConverter doGetMessageConverter() {
-        return new ABBA230MessageConverter(getMessagingProtocol(), propertySpecService, nlsService, converter, deviceMessageFileExtractor);
+        return new ABBA230MessageConverter(propertySpecService, nlsService, converter, deviceMessageFileExtractor);
     }
 
     @Override

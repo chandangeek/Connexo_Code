@@ -121,8 +121,8 @@ public class Dsmr23MessageConverter extends AbstractMessageConverter {
     private final NumberLookupExtractor numberLookupExtractor;
     private final TariffCalendarExtractor calendarExtractor;
 
-    public Dsmr23MessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, LoadProfileExtractor loadProfileExtractor, NumberLookupExtractor numberLookupExtractor, TariffCalendarExtractor calendarExtractor) {
-        super(messagingProtocol, propertySpecService, nlsService, converter);
+    public Dsmr23MessageConverter(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, LoadProfileExtractor loadProfileExtractor, NumberLookupExtractor numberLookupExtractor, TariffCalendarExtractor calendarExtractor) {
+        super(propertySpecService, nlsService, converter);
         this.loadProfileExtractor = loadProfileExtractor;
         this.numberLookupExtractor = numberLookupExtractor;
         this.calendarExtractor = calendarExtractor;

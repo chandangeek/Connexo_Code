@@ -121,7 +121,7 @@ public class AS300MessageConverterTest extends AbstractV2MessageConverterTest {
 
     @Override
     LegacyMessageConverter doGetMessageConverter() {
-        AS300MessageConverter messageConverter = spy(new AS300MessageConverter(getMessagingProtocol(), propertySpecService, this.nlsService, this.converter, deviceMessageFileExtractor, this.calendarExtractor));
+        AS300MessageConverter messageConverter = spy(new AS300MessageConverter(propertySpecService, this.nlsService, this.converter, deviceMessageFileExtractor, this.calendarExtractor));
         // We stub the encode method, cause CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable() is not subject of this test
         doReturn(XMLEncodedActivityCalendar).when(messageConverter).encode(any(TariffCalendar.class));
         return messageConverter;

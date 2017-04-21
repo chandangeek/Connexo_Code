@@ -136,7 +136,7 @@ public class UkHubMessageConverterTest extends AbstractV2MessageConverterTest {
 
     @Override
     LegacyMessageConverter doGetMessageConverter() {
-        return new UkHubMessageConverter(getMessagingProtocol(), propertySpecService, this.nlsService, this.converter, this.deviceMessageFileExtractor);
+        return new UkHubMessageConverter(propertySpecService, this.nlsService, this.converter, this.deviceMessageFileExtractor);
     }
 
     @Override

@@ -76,7 +76,7 @@ public class AS220DLMSMessageConverterTest extends AbstractV2MessageConverterTes
     }
 
     protected LegacyMessageConverter doGetMessageConverter() {
-        return new TestAS220DLMSMessageConverter(getMessagingProtocol(), propertySpecService, this.nlsService, this.converter, this.calendarExtractor, this.deviceMessageFileExtractor);
+        return new TestAS220DLMSMessageConverter(propertySpecService, this.nlsService, this.converter, this.calendarExtractor, this.deviceMessageFileExtractor);
     }
 
     /**
@@ -104,8 +104,8 @@ public class AS220DLMSMessageConverterTest extends AbstractV2MessageConverterTes
      * This class overrides the convertCodeTableToXML method, this way we don't have to mock an entire codetable in order to get a decent XML description.
      */
     public class TestAS220DLMSMessageConverter extends AS220DLMSMessageConverter {
-        public TestAS220DLMSMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, TariffCalendarExtractor tariffCalendarExtractor, DeviceMessageFileExtractor deviceMessageFileExtractor) {
-            super(messagingProtocol, propertySpecService, nlsService, converter, tariffCalendarExtractor);
+        public TestAS220DLMSMessageConverter(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, TariffCalendarExtractor tariffCalendarExtractor, DeviceMessageFileExtractor deviceMessageFileExtractor) {
+            super(propertySpecService, nlsService, converter, tariffCalendarExtractor);
         }
 
         @Override

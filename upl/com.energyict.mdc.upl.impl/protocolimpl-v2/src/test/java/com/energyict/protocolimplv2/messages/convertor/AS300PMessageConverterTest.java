@@ -123,7 +123,7 @@ public class AS300PMessageConverterTest extends AbstractV2MessageConverterTest {
 
     @Override
     LegacyMessageConverter doGetMessageConverter() {
-        return new AS300PMessageConverter(getMessagingProtocol(), propertySpecService, this.nlsService, this.converter, this.deviceMessageFileExtractor);
+        return new AS300PMessageConverter(propertySpecService, this.nlsService, this.converter, this.deviceMessageFileExtractor);
     }
 
     @Override
