@@ -106,11 +106,6 @@ class MissingValuesValidator extends AbstractValidator {
     }
 
     @Override
-    public List<String> getRequiredProperties() {
-        return Collections.emptyList();
-    }
-
-    @Override
     public Set<QualityCodeSystem> getSupportedQualityCodeSystems() {
         return QUALITY_CODE_SYSTEMS;
     }
