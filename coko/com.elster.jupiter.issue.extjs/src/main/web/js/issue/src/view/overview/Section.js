@@ -25,7 +25,7 @@ Ext.define('Isu.view.overview.Section', {
             }
         }
     ],
-    barCls: [{id: 'status.open', cls: 'bar-failed'}, {id: 'status.in.progress', cls: ''}, {id: 'status.resolved', cls: 'bar-success'}],
+    barCls: [{id: 'status.open', cls: 'bar-failed'}, {id: 'status.in.progress', cls: 'bar-ongoing'}, {id: 'status.resolved', cls: 'bar-success'}, {id: 'status.wont.fix', cls: ''}],
     fillSection: function (store, section) {
         var me = this;
 
@@ -86,7 +86,7 @@ Ext.define('Isu.view.overview.Section', {
                                 cls = _.find(me.barCls, function (c) {
                                     return c.id == record.get('id');
                                 }),
-                                cls = cls == undefined ? 'bar-ongoing' : cls.cls;
+                                cls = (cls == undefined) ? 'bar-ongoing' : cls.cls;
 
                             var bar = Ext.widget('bar', {
                                 limit: record.get('number'),
