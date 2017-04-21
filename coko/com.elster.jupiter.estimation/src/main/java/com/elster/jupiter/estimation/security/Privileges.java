@@ -72,7 +72,5 @@ public enum Privileges implements TranslationKey {
         String FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE = "privilege.view.fineTuneEstimationConfiguration.onDevice";
         String FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE_CONFIGURATION = "privilege.view.fineTuneEstimationConfiguration.onDeviceConfiguration";
     }
-
-
 }
 

@@ -10,6 +10,7 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.estimation.EstimationBlock;
 import com.elster.jupiter.estimation.EstimationBlockFormatter;
+import com.elster.jupiter.estimation.EstimationPropertyResolver;
 import com.elster.jupiter.estimation.EstimationReport;
 import com.elster.jupiter.estimation.EstimationResolver;
 import com.elster.jupiter.estimation.EstimationResult;
@@ -31,6 +32,7 @@ import com.elster.jupiter.metering.MetrologyContractChannelsContainer;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.MetrologyContract;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
@@ -105,11 +107,13 @@ public class EstimationServiceImpl implements IEstimationService, TranslationKey
     public static final Logger LOGGER = Logger.getLogger(EstimationService.class.getName());
     private final List<EstimatorFactory> estimatorFactories = new CopyOnWriteArrayList<>();
     private final List<EstimationResolver> resolvers = new CopyOnWriteArrayList<>();
+    private final List<EstimationPropertyResolver> estimationPropertyResolvers = new CopyOnWriteArrayList<>();
     private final EstimationEngine estimationEngine = new EstimationEngine();
 
     private volatile DataModel dataModel;
     private volatile QueryService queryService;
     private volatile MeteringService meteringService;
+    private volatile MetrologyConfigurationService metrologyConfigurationService;
     private volatile Thesaurus thesaurus;
     private volatile EventService eventService;
     private volatile TaskService taskService;
@@ -127,12 +131,13 @@ public class EstimationServiceImpl implements IEstimationService, TranslationKey
     }
 
     @Inject
-    EstimationServiceImpl(MeteringService meteringService, OrmService ormService, QueryService queryService,
+    EstimationServiceImpl(MeteringService meteringService, MetrologyConfigurationService metrologyConfigurationService, OrmService ormService, QueryService queryService,
                           NlsService nlsService, EventService eventService, TaskService taskService,
                           MeteringGroupsService meteringGroupsService, MessageService messageService,
                           TimeService timeService, UserService userService, UpgradeService upgradeService, Clock clock) {
         this();
         setMeteringService(meteringService);
+        setMetrologyConfigurationService(metrologyConfigurationService);
         setOrmService(ormService);
         setQueryService(queryService);
         setNlsService(nlsService);
@@ -155,6 +160,7 @@ public class EstimationServiceImpl implements IEstimationService, TranslationKey
                 protected void configure() {
                     bind(DataModel.class).toInstance(dataModel);
                     bind(MeteringService.class).toInstance(meteringService);
+                    bind(MetrologyConfigurationService.class).toInstance(metrologyConfigurationService);
                     bind(Thesaurus.class).toInstance(thesaurus);
                     bind(MessageInterpolator.class).toInstance(thesaurus);
                     bind(EventService.class).toInstance(eventService);
@@ -200,6 +206,11 @@ public class EstimationServiceImpl implements IEstimationService, TranslationKey
     @Reference
     public void setMeteringService(MeteringService meteringService) {
         this.meteringService = meteringService;
+    }
+
+    @Reference
+    public void setMetrologyConfigurationService(MetrologyConfigurationService metrologyConfigurationService) {
+        this.metrologyConfigurationService = metrologyConfigurationService;
     }
 
     @Reference
@@ -398,7 +409,7 @@ public class EstimationServiceImpl implements IEstimationService, TranslationKey
                     try (LoggingContext parentContext = LoggingContext.getCloseableContext();
                          LoggingContext loggingContext = parentContext.with("rule", rule.getName())) {
                         loggingContext.info(logger, "Attempting rule {rule}");
-                        Estimator estimator = rule.createNewEstimator();
+                        Estimator estimator = rule.createNewEstimator(channelsContainer, readingType);
                         estimator.init(logger);
                         EstimationResult estimationResult = result.get();
                         estimationResult.estimated().forEach(block -> report.reportEstimated(readingType, block));
@@ -471,8 +482,6 @@ public class EstimationServiceImpl implements IEstimationService, TranslationKey
     private Condition isNotObsolete() {
         return where(EstimationRuleSetImpl.OBSOLETE_TIME_FIELD).isNull();
     }
-
-
 
     @Override
     public boolean isEstimationRuleSetInUse(EstimationRuleSet estimationRuleSet) {
@@ -558,6 +567,20 @@ public class EstimationServiceImpl implements IEstimationService, TranslationKey
     @Override
     public List<EstimationResolver> getEstimationResolvers() {
         return Collections.unmodifiableList(resolvers);
+    }
+
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    public void addEstimationPropertyResolver(EstimationPropertyResolver resolver) {
+        estimationPropertyResolvers.add(resolver);
+    }
+
+    public void removeEstimationPropertyResolver(EstimationPropertyResolver resolver) {
+        estimationPropertyResolvers.remove(resolver);
+    }
+
+    @Override
+    public List<EstimationPropertyResolver> getEstimationPropertyResolvers() {
+        return Collections.unmodifiableList(estimationPropertyResolvers);
     }
 
     private EstimationResult getInitialBlocksToEstimateAsResult(QualityCodeSystem system, ChannelsContainer channelsContainer,
@@ -660,7 +683,6 @@ public class EstimationServiceImpl implements IEstimationService, TranslationKey
         private Predicate<EstimatorFactory> hasImplementation(String implementation) {
             return f -> f.available().contains(implementation);
         }
-
     }
 
 }

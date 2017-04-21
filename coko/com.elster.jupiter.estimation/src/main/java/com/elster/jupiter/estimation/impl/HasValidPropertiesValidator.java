@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.estimation.impl;
 
+import com.elster.jupiter.estimation.EstimationPropertyDefinitionLevel;
 import com.elster.jupiter.estimation.EstimatorNotFoundException;
 import com.elster.jupiter.estimation.ReadingTypeAdvanceReadingsSettings;
 import com.elster.jupiter.properties.InvalidValueException;
@@ -28,7 +29,7 @@ public class HasValidPropertiesValidator implements ConstraintValidator<HasValid
     public boolean isValid(EstimationRuleImpl estimationRule, ConstraintValidatorContext context) {
         try {
             Map<String, Object> properties = estimationRule.getProps();
-            List<PropertySpec> propertySpecs = estimationRule.getPropertySpecs();
+            List<PropertySpec> propertySpecs = estimationRule.getPropertySpecs(EstimationPropertyDefinitionLevel.ESTIMATION_RULE);
             this.validatePropertiesAreLinkedToAttributeSpecs(properties, propertySpecs, context);
             this.validateRequiredPropertiesArePresent(properties, propertySpecs, context);
             this.validatePropertyValues(properties, propertySpecs, context);

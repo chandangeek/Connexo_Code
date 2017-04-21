@@ -11,6 +11,7 @@ import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
+import com.elster.jupiter.estimation.EstimationPropertyDefinitionLevel;
 import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.estimation.EstimationService;
@@ -156,6 +157,7 @@ public class EstimationRuleSetIT {
         when(estimatorFactory.createTemplate(eq(ZERO_FILL))).thenReturn(zeroFill);
         when(minMax.getPropertySpecs()).thenReturn(Collections.emptyList());
         when(zeroFill.getPropertySpecs()).thenReturn(Arrays.asList(maxConsecutive));
+        when(zeroFill.getPropertySpecs(EstimationPropertyDefinitionLevel.ESTIMATION_RULE)).thenReturn(Arrays.asList(maxConsecutive));
         when(maxConsecutive.getName()).thenReturn(MAX_NUMBER_IN_SEQUENCE);
         when(maxConsecutive.getValueFactory()).thenReturn(valueFactory);
         transactionService = injector.getInstance(TransactionService.class);

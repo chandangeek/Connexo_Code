@@ -7,7 +7,6 @@ package com.elster.jupiter.estimation;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.metering.ChannelsContainer;
-import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 
@@ -62,7 +61,7 @@ public interface EstimationService {
 
     Optional<? extends EstimationRuleSet> getEstimationRuleSet(String name);
 
-    boolean isEstimationRuleSetInUse(EstimationRuleSet validationRuleSet);
+    boolean isEstimationRuleSetInUse(EstimationRuleSet estimationRuleSet);
 
     Optional<? extends EstimationRule> getEstimationRule(long id);
 
