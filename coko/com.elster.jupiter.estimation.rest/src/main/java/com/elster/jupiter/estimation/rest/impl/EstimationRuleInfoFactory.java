@@ -6,10 +6,13 @@ package com.elster.jupiter.estimation.rest.impl;
 
 import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.EstimationRuleSet;
+import com.elster.jupiter.metering.aggregation.ReadingQualityComment;
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
+import com.elster.jupiter.rest.util.IdWithDisplayValueInfo;
 
 import javax.inject.Inject;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class EstimationRuleInfoFactory {
@@ -41,6 +44,10 @@ public class EstimationRuleInfoFactory {
         estimationRuleInfo.parent.id = ruleSet.getId();
         estimationRuleInfo.parent.version = ruleSet.getVersion();
         estimationRuleInfo.markProjected = estimationRule.isMarkProjected();
+
+        Optional<ReadingQualityComment> readingQualityComment = estimationRule.getComment();
+        estimationRuleInfo.estimationComment = readingQualityComment.isPresent() ?
+                new IdWithDisplayValueInfo<>(readingQualityComment.get().getId(), readingQualityComment.get().getComment()) : null;
 
         return estimationRuleInfo;
     }

@@ -6,6 +6,7 @@ package com.elster.jupiter.estimation.rest.impl;
 
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.properties.rest.PropertyInfo;
+import com.elster.jupiter.rest.util.IdWithDisplayValueInfo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +20,7 @@ public class EstimationRuleInfo {
     public String implementation; //estimator classname
     public String displayName; // readable name
     public String name;
-    public long commentId;
+    public IdWithDisplayValueInfo<Long> estimationComment;
     public List<PropertyInfo> properties = new ArrayList<>();
     public List<ReadingTypeInfo> readingTypes = new ArrayList<>();
     public EstimationRuleSetInfo ruleSet;

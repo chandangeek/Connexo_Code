@@ -300,7 +300,9 @@ public class EstimationResource {
                                 Object value = propertyValueInfoService.findPropertyValue(propertySpec, info.properties);
                                 estimationRuleBuilder.havingProperty(propertySpec.getName()).withValue(value);
                             });
-                    meteringService.findReadingQualityComment(info.commentId).ifPresent(estimationRuleBuilder::withEstimationComment);
+                    if (info.estimationComment != null) {
+                        meteringService.findReadingQualityComment(info.estimationComment.id).ifPresent(estimationRuleBuilder::withEstimationComment);
+                    }
                     estimationRuleBuilder.active(false);
                     estimationRuleBuilder.markProjected(info.markProjected);
                     EstimationRule rule = estimationRuleBuilder.create();
