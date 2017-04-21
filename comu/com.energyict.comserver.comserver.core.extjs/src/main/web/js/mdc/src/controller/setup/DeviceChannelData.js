@@ -541,7 +541,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         if (menu.down('#remove-reading')) {
             menu.down('#remove-reading').setVisible(menu.record.get('value') || menu.record.get('collectedValue'));
         }
-        if (menu.down('#correct-value')) {
+        if(menu.down('#correct-value')){
             menu.down('#correct-value').setVisible(!Ext.isEmpty(menu.record.get('value')))
         }
     },
@@ -697,7 +697,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
 
             if (event.column) {
                 event.record.get('mainValidationInfo').validationResult = 'validationStatus.ok';
-                if (!event.record.get('estimatedNotSaved')) {
+                if(!event.record.get('estimatedNotSaved')){
                     event.record.set('mainModificationState', Uni.util.ReadingEditor.modificationState('EDITED'));
                 }
                 grid.getView().refreshNode(grid.getStore().indexOf(event.record));
@@ -741,27 +741,27 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
     },
 
     copyFromReference: function (records) {
-        var window = Ext.widget('reading-copy-from-reference-window',
-                {
-                    itemId: 'channel-reading-copy-from-reference-window',
-                    records: records
-                }).show();
+        var me = this,
+            deviceStore = me.getStore('Cfg.store.AllDevices'),
+            readingTypeStore = me.getStore('Cfg.store.AllReadingTypes');
 
-        window.down('#device-field').getStore().getProxy().extraParams = {
+        deviceStore.getProxy().extraParams = {
             page: 1,
             start: 0,
             limit: 50,
             nameOnly: true
         };
-
-        window.down('#readingType-field').getStore().getProxy().extraParams = {
+        readingTypeStore.getProxy().extraParams = {
             page: 1,
             start: 0,
             limit: 50,
             property: 'fullAliasName'
         };
 
-        window.down('#estimation-comments').getStore().load();
+        Ext.widget('reading-copy-from-reference-window', {
+            itemId: 'channel-reading-copy-from-reference-window',
+            records: records
+        }).show();
     },
 
     copyFromReferenceUpdateGrid: function () {
@@ -1087,9 +1087,9 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             }
             reading.get('bulkValidationInfo').validationResult = 'validationStatus.ok';
             reading.get('bulkValidationInfo').estimatedNotSaved = true;
-            if (action === 'editWithEstimator') {
+            if(action === 'editWithEstimator'){
                 reading.set('bulkModificationState', Uni.util.ReadingEditor.modificationState('EDITED'));
-            } else if (action === 'estimate') {
+            } else if(action === 'estimate'){
                 reading.get('bulkValidationInfo').estimatedByRule = true;
             }
         } else {
@@ -1098,7 +1098,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 reading.get('mainValidationInfo').ruleId = ruleId;
             }
             reading.get('mainValidationInfo').validationResult = 'validationStatus.ok';
-            if (action === 'estimate') {
+            if(action === 'estimate'){
                 reading.get('mainValidationInfo').estimatedByRule = true;
                 reading.get('mainValidationInfo').estimatedNotSaved = true;
             }
@@ -1223,7 +1223,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 record.set('confirmed', false);
             }
             record.get('mainValidationInfo').validationResult = 'validationStatus.ok';
-            record.set('mainModificationState', Uni.util.ReadingEditor.modificationState('REMOVED'));
+            record.set('mainModificationState',Uni.util.ReadingEditor.modificationState('REMOVED'));
             record.endEdit(true);
             gridView.refreshNode(store.indexOf(record));
             point = chart.get(record.get('interval').start);
@@ -1417,9 +1417,9 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         });
     },
 
-    openCorrectWindow: function (record) {
+    openCorrectWindow: function(record){
         var me = this;
-        if (!Ext.isArray(record)) {
+        if (!Ext.isArray(record)){
             record = [record];
         }
         Ext.widget('correct-values-window', {
@@ -1437,17 +1437,17 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             window = me.getCorrectReadingWindow(),
             records = window.record,
             router = me.getController('Uni.controller.history.Router'),
-            intervalsArray = [];
+            intervalsArray =[];
 
         window.updateRecord(model);
 
-        if (!Ext.isArray(records)) {
+        if (!Ext.isArray(records)){
             records = [records];
         }
 
         Ext.Array.each(records, function (item) {
-            if (model.get('onlySuspectOrEstimated')) {
-                if (Uni.util.ReadingEditor.checkReadingInfoStatus(item.get('mainValidationInfo')).isSuspectOrEstimated()) {
+            if(model.get('onlySuspectOrEstimated')){
+                if(Uni.util.ReadingEditor.checkReadingInfoStatus(item.get('mainValidationInfo')).isSuspectOrEstimated()){
                     intervalsArray.push({
                         start: item.get('interval').start,
                         end: item.get('interval').end
@@ -1462,7 +1462,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         });
 
         model.set('intervals', intervalsArray);
-        model.getProxy().setMdcUrl(encodeURIComponent(router.arguments.deviceId), router.arguments.channelId);
+        model.getProxy().setMdcUrl(encodeURIComponent(router.arguments.deviceId),router.arguments.channelId);
 
         window.setLoading();
         Ext.Ajax.suspendEvent('requestexception');
@@ -1475,7 +1475,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
 
                 Ext.suspendLayouts();
                 if (success && responseText[0]) {
-                    Ext.Array.each(responseText, function (correctedInterval) {
+                    Ext.Array.each(responseText, function(correctedInterval){
                         Ext.Array.findBy(records, function (reading) {
                             if (correctedInterval.interval.start == reading.get('interval').start) {
                                 me.updateCorrectedValues(reading, correctedInterval);
