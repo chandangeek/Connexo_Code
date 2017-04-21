@@ -4,11 +4,13 @@
 
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.devtools.ExtjsFilter;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.ClientCertificateWrapper;
 import com.elster.jupiter.pki.CryptographicType;
 import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.pki.KeyType;
+import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.pki.SecurityValueWrapper;
 import com.elster.jupiter.pki.SymmetricKeyWrapper;
 import com.elster.jupiter.properties.PropertySpec;
@@ -144,10 +146,13 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
         SecurityAccessorInfo response = target("/devices/BVN001/securityaccessors/certificates/222").request().get(SecurityAccessorInfo.class);
         URI uri = new URI(response.currentProperties.get(0).propertyTypeInfo.propertyValuesResource.possibleValuesURI);
         Response response1 = target(uri.getPath())
-                .queryParam("searchField", "com")
+                .queryParam("filter", ExtjsFilter.filter("alias", "com"))
                 .request()
                 .get();
-        verify(pkiService, times(1)).getAliasesByFilter("*com*");
+        ArgumentCaptor<PkiService.AliasSearchFilter> captor = ArgumentCaptor.forClass(PkiService.AliasSearchFilter.class);
+        verify(pkiService, times(1)).getAliasesByFilter(captor.capture());
+        assertThat(captor.getValue().alias).isEqualTo("*com*");
+        assertThat(captor.getValue().trustStore).isNull();
     }
 
     @Test
@@ -155,10 +160,41 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
         SecurityAccessorInfo response = target("/devices/BVN001/securityaccessors/certificates/222").request().get(SecurityAccessorInfo.class);
         URI uri = new URI(response.currentProperties.get(0).propertyTypeInfo.propertyValuesResource.possibleValuesURI);
         Response response1 = target(uri.getPath())
-                .queryParam("searchField", "com*")
+                .queryParam("filter", ExtjsFilter.filter("alias", "com*"))
                 .request()
                 .get();
-        verify(pkiService, times(1)).getAliasesByFilter("com*");
+        ArgumentCaptor<PkiService.AliasSearchFilter> captor = ArgumentCaptor.forClass(PkiService.AliasSearchFilter.class);
+        verify(pkiService, times(1)).getAliasesByFilter(captor.capture());
+        assertThat(captor.getValue().alias).isEqualTo("com*");
+        assertThat(captor.getValue().trustStore).isNull();
+    }
+
+    @Test
+    public void testAliasPropertyTypeAheadFilteringWithAliasAndTrustStore() throws Exception {
+        SecurityAccessorInfo response = target("/devices/BVN001/securityaccessors/certificates/222").request().get(SecurityAccessorInfo.class);
+        URI uri = new URI(response.currentProperties.get(0).propertyTypeInfo.propertyValuesResource.possibleValuesURI);
+        Response response1 = target(uri.getPath())
+                .queryParam("filter", ExtjsFilter.filter().property("alias", "com*").property("trustStore", 14L).create())
+                .request()
+                .get();
+        ArgumentCaptor<PkiService.AliasSearchFilter> captor = ArgumentCaptor.forClass(PkiService.AliasSearchFilter.class);
+        verify(pkiService, times(1)).getAliasesByFilter(captor.capture());
+        assertThat(captor.getValue().alias).isEqualTo("com*");
+        assertThat(captor.getValue().trustStore).isEqualTo(14);
+    }
+
+    @Test
+    public void testAliasPropertyTypeAheadFilteringEmptyAlias() throws Exception {
+        SecurityAccessorInfo response = target("/devices/BVN001/securityaccessors/certificates/222").request().get(SecurityAccessorInfo.class);
+        URI uri = new URI(response.currentProperties.get(0).propertyTypeInfo.propertyValuesResource.possibleValuesURI);
+        Response response1 = target(uri.getPath())
+                .queryParam("filter", ExtjsFilter.filter().property("alias", "").property("trustStore", 16L).create())
+                .request()
+                .get();
+        ArgumentCaptor<PkiService.AliasSearchFilter> captor = ArgumentCaptor.forClass(PkiService.AliasSearchFilter.class);
+        verify(pkiService, times(1)).getAliasesByFilter(captor.capture());
+        assertThat(captor.getValue().alias).isEqualTo("*");
+        assertThat(captor.getValue().trustStore).isEqualTo(16);
     }
 
     /**

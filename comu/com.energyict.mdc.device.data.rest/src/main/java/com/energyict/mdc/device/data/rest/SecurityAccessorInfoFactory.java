@@ -11,6 +11,7 @@ import com.energyict.mdc.device.data.CertificateAccessor;
 import com.energyict.mdc.device.data.KeyAccessor;
 import com.energyict.mdc.device.data.rest.impl.SecurityAccessorInfo;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
+import com.energyict.mdc.pluggable.rest.PropertyDefaultValuesProvider;
 import com.energyict.mdc.pluggable.rest.PropertyValuesResourceProvider;
 
 import javax.inject.Inject;
@@ -53,14 +54,15 @@ public class SecurityAccessorInfoFactory {
         return info;
     }
 
-    public SecurityAccessorInfo asCertificate(KeyAccessor<?> keyAccessor, PropertyValuesResourceProvider aliasTypeAheadPropertyValueProvider) {
+    public SecurityAccessorInfo asCertificate(KeyAccessor<?> keyAccessor, PropertyValuesResourceProvider aliasTypeAheadPropertyValueProvider, PropertyDefaultValuesProvider trustStoreValuesProvider) {
         List<PropertySpec> propertySpecs = keyAccessor.getPropertySpecs();
         SecurityAccessorInfo info = from(keyAccessor);
         TypedProperties actualTypedProperties = getPropertiesActualValue(keyAccessor);
-        info.currentProperties = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(propertySpecs, actualTypedProperties, aliasTypeAheadPropertyValueProvider);
+
+        info.currentProperties = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(propertySpecs, actualTypedProperties, aliasTypeAheadPropertyValueProvider, trustStoreValuesProvider);
 
         TypedProperties tempTypedProperties = getPropertiesTempValue(keyAccessor);
-        info.tempProperties = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(propertySpecs, tempTypedProperties, aliasTypeAheadPropertyValueProvider);
+        info.tempProperties = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(propertySpecs, tempTypedProperties, aliasTypeAheadPropertyValueProvider, trustStoreValuesProvider);
 
         if (keyAccessor instanceof CertificateAccessor) {
             ((CertificateAccessor)keyAccessor).getActualValue().getLastReadDate().ifPresent(date -> info.lastReadDate = date);

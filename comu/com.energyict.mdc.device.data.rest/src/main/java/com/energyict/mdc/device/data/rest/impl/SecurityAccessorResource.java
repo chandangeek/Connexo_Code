@@ -10,9 +10,12 @@ import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.pki.SecurityValueWrapper;
 import com.elster.jupiter.pki.SymmetricKeyWrapper;
+import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyInfo;
+import com.elster.jupiter.properties.rest.PropertyType;
 import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.PathPrependingConstraintViolationException;
@@ -22,6 +25,7 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.KeyAccessor;
 import com.energyict.mdc.device.data.rest.SecurityAccessorInfoFactory;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
+import com.energyict.mdc.pluggable.rest.PropertyDefaultValuesProvider;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -34,7 +38,6 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.Collection;
@@ -69,6 +72,7 @@ public class SecurityAccessorResource {
     private final ExceptionFactory exceptionFactory;
     private final MdcPropertyUtils mdcPropertyUtils;
     private final DeviceService deviceService;
+    private final TrustStoreValuesProvider trustStoreValuesProvider;
 
     @Inject
     public SecurityAccessorResource(ResourceHelper resourceHelper,
@@ -84,6 +88,7 @@ public class SecurityAccessorResource {
         this.exceptionFactory = exceptionFactory;
         this.mdcPropertyUtils = mdcPropertyUtils;
         this.deviceService = deviceService;
+        this.trustStoreValuesProvider =  new TrustStoreValuesProvider();
     }
 
     @GET
@@ -121,7 +126,7 @@ public class SecurityAccessorResource {
         KeyAccessor keyAccessor = device.getKeyAccessor(keyAccessorType)
                 .orElseGet(() -> keyAccessorPlaceHolderProvider.get().init(keyAccessorType, device));
 
-        return Response.ok(securityAccessorInfoFactory.asCertificate(keyAccessor, aliasTypeAheadPropertyValueProvider)).build();
+        return Response.ok(securityAccessorInfoFactory.asCertificate(keyAccessor, aliasTypeAheadPropertyValueProvider, trustStoreValuesProvider)).build();
     }
 
     @GET
@@ -134,7 +139,7 @@ public class SecurityAccessorResource {
     public PagedInfoList getCertificates(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters, @BeanParam AliasTypeAheadPropertyValueProvider aliasTypeAheadPropertyValueProvider) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         List<SecurityAccessorInfo> collect = getSecurityAccessorInfos(device, kat -> CERTIFICATES.contains(kat.getKeyType().getCryptographicType()), (keyAccessor) -> securityAccessorInfoFactory
-                .asCertificate(keyAccessor, aliasTypeAheadPropertyValueProvider));
+                .asCertificate(keyAccessor, aliasTypeAheadPropertyValueProvider, trustStoreValuesProvider));
         return PagedInfoList.fromCompleteList("certificates", collect, queryParameters);
     }
 
@@ -188,7 +193,7 @@ public class SecurityAccessorResource {
         KeyAccessor<SecurityValueWrapper> keyAccessor = deviceService.findAndLockKeyAccessorByIdAndVersion(device, keyAccessorType, securityAccessorInfo.version)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_KEY_ACCESSOR));
         keyAccessor.swapValues();
-        return Response.ok(securityAccessorInfoFactory.asCertificate(keyAccessor, aliasTypeAheadPropertyValueProvider)).build();
+        return Response.ok(securityAccessorInfoFactory.asCertificate(keyAccessor, aliasTypeAheadPropertyValueProvider, trustStoreValuesProvider)).build();
     }
 
     @PUT
@@ -253,8 +258,7 @@ public class SecurityAccessorResource {
                 throw new LocalizedFieldValidationException(MessageSeeds.THIS_FIELD_IS_REQUIRED, ALIAS);
             }
             if (properties.containsKey(TRUST_STORE)) {
-                return pkiService.findTrustStore((String) properties.get(TRUST_STORE))
-                        .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_TRUST_STORE, TRUST_STORE))
+                return ((TrustStore)properties.get(TRUST_STORE))
                         .getCertificates()
                         .stream()
                         .filter(cert -> cert.getAlias().equals(alias))
@@ -281,21 +285,32 @@ public class SecurityAccessorResource {
 
         KeyAccessor result = keyAccessor.map(ka -> updateKeyAccessor(device, ka, securityAccessorInfo, certificateReferenceGetter, actualValueUpdater, tempValueUpdater))
                 .orElseGet(() -> createKeyAccessor(device, keyAccessorType, securityAccessorInfo, certificateReferenceGetter));
-        return Response.ok().entity(securityAccessorInfoFactory.asCertificate(result, aliasTypeAheadPropertyValueProvider)).build();
+        return Response.ok().entity(securityAccessorInfoFactory.asCertificate(result, aliasTypeAheadPropertyValueProvider, trustStoreValuesProvider)).build();
     }
 
     @GET
     @Path("/certificates/aliases")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    public List<String> aliasSource(@BeanParam JsonQueryParameters queryParameters, @QueryParam("searchField") String searchString) {
-        if (searchString!=null && !searchString.isEmpty()) {
-            if (!searchString.contains("*") && !searchString.contains("?")) {
-                searchString="*"+searchString+"*";
-            }
-            return pkiService.getAliasesByFilter(searchString);
-        } else {
-            return pkiService.getAliasesByFilter("*");
+    public List<String> aliasSource(@BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter jsonQueryFilter) {
+        PkiService.AliasSearchFilter aliasSearchFilter = new PkiService.AliasSearchFilter();
+        String alias = jsonQueryFilter.getString("alias");
+
+        Long trustStoreId = jsonQueryFilter.getLong("trustStore");
+        if (trustStoreId!=null) {
+            aliasSearchFilter.trustStore = pkiService.findTrustStore(trustStoreId)
+                    .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_TRUST_STORE, "trustStore"));
         }
+        if (!jsonQueryFilter.hasFilters() || alias ==null || alias.isEmpty() ) {
+            aliasSearchFilter.alias="*";
+        }
+        if (alias!=null && !alias.isEmpty()) {
+            if (!alias.contains("*") && !alias.contains("?")) {
+                aliasSearchFilter.alias="*"+alias+"*";
+            } else {
+                aliasSearchFilter.alias=alias;
+            }
+        }
+        return pkiService.getAliasesByFilter(aliasSearchFilter);
     }
 
     private KeyAccessorType findKeyAccessorTypeOrThrowException(@PathParam("id") long keyAccessorTypeId, Device device) {
@@ -445,5 +460,16 @@ public class SecurityAccessorResource {
                 .sorted(Comparator.comparing(ka -> ka.name.toLowerCase()))
                 .collect(toList());
     }
+
+    class TrustStoreValuesProvider implements PropertyDefaultValuesProvider {
+        @Override
+        public List<?> getPropertyPossibleValues(PropertySpec propertySpec, PropertyType propertyType) {
+            if (propertySpec.getName().equals("trustStore")) {
+                return pkiService.getAllTrustStores();
+            }
+            return Collections.emptyList();
+        }
+    };
+
 
 }
