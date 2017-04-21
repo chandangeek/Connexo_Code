@@ -34,8 +34,6 @@ import com.energyict.mdc.pluggable.rest.impl.properties.ObisCodePropertyValueCon
 import com.energyict.mdc.pluggable.rest.impl.properties.PasswordPropertyValueConverter;
 import com.energyict.mdc.pluggable.rest.impl.properties.ReadingTypePropertyValueConverter;
 import com.energyict.mdc.pluggable.rest.impl.properties.RegisterPropertyValueConverter;
-import com.energyict.mdc.pluggable.rest.impl.properties.SimplePropertyType;
-import com.energyict.mdc.pluggable.rest.impl.properties.TimeDurationPropertyValueConverter;
 import com.energyict.mdc.pluggable.rest.impl.properties.TimeOfDayPropertyValueConverter;
 import com.energyict.mdc.pluggable.rest.impl.properties.TimeZoneInUsePropertyValueConverter;
 import com.energyict.mdc.pluggable.rest.impl.properties.UsagePointPropertyValueConverter;
