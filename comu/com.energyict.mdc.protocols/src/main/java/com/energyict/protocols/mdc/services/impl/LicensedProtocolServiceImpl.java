@@ -6,12 +6,13 @@ package com.energyict.protocols.mdc.services.impl;
 
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.util.Checks;
-import com.energyict.license.FamilyRule;
-import com.energyict.license.LicensedProtocolRule;
 import com.energyict.mdc.protocol.LicensedProtocol;
 import com.energyict.mdc.protocol.ProtocolFamily;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
+
+import com.energyict.license.FamilyRule;
+import com.energyict.license.LicensedProtocolRule;
 import org.osgi.service.component.annotations.Component;
 
 import java.util.ArrayList;
@@ -26,7 +27,7 @@ import java.util.stream.Collectors;
 @Component(name = "com.energyict.mdc.service.licensedprotocols", service = LicensedProtocolService.class, immediate = true)
 public class LicensedProtocolServiceImpl implements LicensedProtocolService {
 
-    private final static List<String> EXCLUDED = Arrays.asList(
+    private static final List<String> EXCLUDED = Arrays.asList(
             "com.energyict.rtuprotocol.EIWeb",               //This old version of the EIWeb protocol is in mdwutil.jar, not available in Connexo
             "com.energyict.rtuprotocol.Echelon",
             "com.energyict.rtuprotocol.RtuServer"
