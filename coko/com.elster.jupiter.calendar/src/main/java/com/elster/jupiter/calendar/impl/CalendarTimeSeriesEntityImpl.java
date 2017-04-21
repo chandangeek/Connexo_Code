@@ -155,7 +155,6 @@ class CalendarTimeSeriesEntityImpl implements CalendarTimeSeriesEntity, Persiste
         timeSeries
             .toList(this.extensionGenerationRange(nextYear))
             .forEach(instant -> storer.add(timeSeries, instant, zonedView.eventFor(instant).getCode()));
-        LOGGER.log(Level.INFO, () -> "Extended timeseries for calendar(id=" + this.calendar().getId() + ", name=" + this.calendar().getName() + ")");
         this.log(storer.execute());
     }
 
@@ -185,6 +184,7 @@ class CalendarTimeSeriesEntityImpl implements CalendarTimeSeriesEntity, Persiste
     }
 
     private void log(StorerStats stats) {
+        LOGGER.log(Level.INFO, () -> "Extended timeseries for calendar(id=" + this.calendar().getId() + ", name=" + this.calendar().getName() + ")");
         LOGGER.log(Level.INFO, () -> "Inserted " + stats.getEntryCount() + " entries in " + stats.getExecuteTime() + " millis");
     }
 
