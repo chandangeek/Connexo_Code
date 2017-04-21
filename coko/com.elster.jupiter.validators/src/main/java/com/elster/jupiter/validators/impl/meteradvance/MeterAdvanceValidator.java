@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.validators.impl.meteradvance;
 
+import com.elster.jupiter.cbo.MetricMultiplier;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
@@ -95,64 +96,36 @@ public class MeterAdvanceValidator extends AbstractValidator {
     public void init(Channel channel, ReadingType readingType, Range<Instant> interval) {
         try {
             validateThatReadingTypeCanBeValidated(readingType);
-            this.channel = channel;
-            this.channelZoneId = channel.getZoneId();
-            this.channelIntervalLength = channel.getIntervalLength().get();
-            this.targetObject = fetchTargetObject(channel.getChannelsContainer());
-            this.validatedReadingType = readingType;
-            this.validatedInterval = interval;
+            initFields(channel, readingType, interval);
 
             ReadingType referenceReadingType = getReferenceReadingTypeProperty().getReadingType();
             validateReferenceReadingType(referenceReadingType);
 
+            // find first and last reference readings
             Channel referenceRegister = findReferenceRegisterOrThrowException(referenceReadingType);
             Range<Instant> referenceInterval = computeReferenceInterval(interval);
             NavigableMap<Instant, ReadingRecord> registerReadings = referenceRegister.getRegisterReadings(referenceReadingType, referenceInterval)
                     .stream().collect(Collectors.toMap(ReadingRecord::getTimeStamp, Function.identity(), (u1, u2) -> u1, TreeMap::new));
-
-            // TODO validate that interval contains something
-
             Range<Instant> firstChannelInterval = getFirstInterval(interval);
             ReadingRecord firstReferenceReading = findFirstReferenceReading(firstChannelInterval, registerReadings)
-                    .orElseThrow(handleNoRegisterReadings(interval));
+                    .orElseThrow(() -> handleNoRegisterReadings(interval));
             Range<Instant> lastChannelInterval = getLastInterval(interval);
             ReadingRecord lastReferenceReading = findLastReferenceReading(lastChannelInterval, registerReadings)
-                    .orElseThrow(handleNoRegisterReadings(interval));
+                    .orElseThrow(() -> handleNoRegisterReadings(interval));
             if (firstReferenceReading.getTimeStamp().equals(lastReferenceReading.getTimeStamp())) {
                 this.validationStrategy = ValidationStrategy.markValid(Range.atMost(firstReferenceReading.getTimeStamp()));
                 return;
             }
 
             // compute register readings delta
-            BigDecimal first = firstReferenceReading.getValue();
-            BigDecimal last = lastReferenceReading.getValue();
-            BigDecimal deltaOfRegisterReadings = last.subtract(first);
-
-            NonOrBigDecimalValueProperty minimumThreshold = getMinimumThresholdProperty();
-            if (!minimumThreshold.isNone && deltaOfRegisterReadings.compareTo(minimumThreshold.value) < 0) {
-                throw skipValidationException(SkipValidationOption.MARK_ALL_VALID,
-                        MessageSeeds.DIFFERENCE_BETWEEN_TWO_REGISTER_READINGS_LESS_THAN_MIN_THRESHOLD, getDefaultMessageSeedArgs()).get();
-            }
+            BigDecimal deltaOfRegisterReadings = lastReferenceReading.getValue().subtract(firstReferenceReading.getValue());
+            validateDeltaOfRegisterReadings(deltaOfRegisterReadings);
 
             // compute channel readings sum
             Range<Instant> intervalToSummarize = Range.openClosed(firstReferenceReading.getTimeStamp(), lastReferenceReading.getTimeStamp());
-            BigDecimal sumOfChannelReadings = channel.getIntervalReadings(readingType, intervalToSummarize)
-                    .stream()
-                    .map(IntervalReadingRecord::getValue)
-                    .filter(value -> value != null)
-                    .reduce(BigDecimal::add).orElse(BigDecimal.ZERO)
-                    .scaleByPowerOfTen(readingType.getMultiplier().getMultiplier())
-                    .scaleByPowerOfTen(-referenceReadingType.getMultiplier().getMultiplier());
+            BigDecimal sumOfChannelReadings = getSumOfIntervalReadingsScaled(intervalToSummarize, referenceReadingType.getMultiplier());
 
-            TwoValuesAbsoluteDifference maxDifference = getMaximumDifferenceProperty();
-            boolean differenceValid = isDifferenceValid(deltaOfRegisterReadings, sumOfChannelReadings, maxDifference);
-            if (firstReferenceReading.getTimeStamp().isAfter(firstChannelInterval.upperEndpoint()) && !differenceValid) {
-                this.validationStrategy = ValidationStrategy.markValidAndSuspect(Range.openClosed(interval.lowerEndpoint(), firstReferenceReading.getTimeStamp()), intervalToSummarize);
-            } else if (differenceValid) {
-                this.validationStrategy = ValidationStrategy.markValid(intervalToSummarize);
-            } else {
-                this.validationStrategy = ValidationStrategy.markSuspect(intervalToSummarize);
-            }
+            this.validationStrategy = computeValidationStrategy(deltaOfRegisterReadings, sumOfChannelReadings, firstChannelInterval, intervalToSummarize);
         } catch (SkipValidationException e) {
             this.logger.log(e.getMessageSeed().getLevel(), e.getLocalizedMessage());
             this.validationStrategy = ValidationStrategy.skipValidation(e.getSkipValidationOption());
@@ -166,6 +139,15 @@ public class MeterAdvanceValidator extends AbstractValidator {
         readingType.getIntervalLength().orElseThrow(skipValidationException(
                 SkipValidationOption.MARK_ALL_NOT_VALIDATED,
                 MessageSeeds.UNSUPPORTED_READINGTYPE, readingType.getMRID(), getDisplayName()));
+    }
+
+    private void initFields(Channel channel, ReadingType readingType, Range<Instant> interval) {
+        this.channel = channel;
+        this.channelZoneId = channel.getZoneId();
+        this.channelIntervalLength = channel.getIntervalLength().get();
+        this.targetObject = fetchTargetObject(channel.getChannelsContainer());
+        this.validatedReadingType = readingType;
+        this.validatedInterval = interval;
     }
 
     private HasName fetchTargetObject(ChannelsContainer channelsContainer) {
@@ -312,16 +294,16 @@ public class MeterAdvanceValidator extends AbstractValidator {
         return registerReadings.ceilingEntry(singleChannelInterval.upperEndpoint()).getValue();
     }
 
-    private Supplier<SkipValidationException> handleNoRegisterReadings(Range<Instant> validatedInterval) {
+    private SkipValidationException handleNoRegisterReadings(Range<Instant> validatedInterval) {
         TimeDuration referencePeriodProp = (TimeDuration) super.properties.get(REFERENCE_PERIOD); // TODO handle none reference period
         if (referencePeriodProp != null) {
             long referencePeriodLength = referencePeriodProp.getMilliSeconds();
             long validatedPeriodLength = validatedInterval.upperEndpoint().toEpochMilli() - validatedInterval.lowerEndpoint().toEpochMilli();
             if (validatedPeriodLength > referencePeriodLength) {
-                return skipValidationException(SkipValidationOption.MARK_ALL_VALID, MessageSeeds.REGISTER_READINGS_ARE_MISSING, getDefaultMessageSeedArgs());
+                return skipValidationException(SkipValidationOption.MARK_ALL_VALID, MessageSeeds.REGISTER_READINGS_ARE_MISSING, getDefaultMessageSeedArgs()).get();
             }
         }
-        return skipValidationException(SkipValidationOption.MARK_ALL_NOT_VALIDATED, MessageSeeds.REGISTER_READINGS_ARE_MISSING, getDefaultMessageSeedArgs());
+        return skipValidationException(SkipValidationOption.MARK_ALL_NOT_VALIDATED, MessageSeeds.REGISTER_READINGS_ARE_MISSING, getDefaultMessageSeedArgs()).get();
     }
 
     private Optional<ReadingRecord> findLastReferenceReading(Range<Instant> lastInterval, NavigableMap<Instant, ReadingRecord> registerReadings) {
@@ -336,6 +318,40 @@ public class MeterAdvanceValidator extends AbstractValidator {
             return Optional.of(getRegisterReadingClosestToStartOfInterval(registerReadings, closestFromLeftReading.getKey()));
         }
         return Optional.empty();
+    }
+
+    private void validateDeltaOfRegisterReadings(BigDecimal deltaOfRegisterReadings) {
+        NonOrBigDecimalValueProperty minimumThreshold = getMinimumThresholdProperty();
+        if (!minimumThreshold.isNone && deltaOfRegisterReadings.compareTo(minimumThreshold.value) < 0) {
+            throw skipValidationException(SkipValidationOption.MARK_ALL_VALID,
+                    MessageSeeds.DIFFERENCE_BETWEEN_TWO_REGISTER_READINGS_LESS_THAN_MIN_THRESHOLD, getDefaultMessageSeedArgs()).get();
+        }
+    }
+
+    private BigDecimal getSumOfIntervalReadingsScaled(Range<Instant> intervalToSummarize, MetricMultiplier targetMultiplier) {
+        return this.channel.getIntervalReadings(this.validatedReadingType, intervalToSummarize)
+                .stream()
+                .map(IntervalReadingRecord::getValue)
+                .filter(value -> value != null)
+                .reduce(BigDecimal::add)
+                .orElse(BigDecimal.ZERO)
+                .scaleByPowerOfTen(this.validatedReadingType.getMultiplier().getMultiplier())
+                .scaleByPowerOfTen(-targetMultiplier.getMultiplier());
+    }
+
+    private ValidationStrategy computeValidationStrategy(BigDecimal deltaOfRegisterReadings, BigDecimal sumOfChannelReadings,
+                                                         Range<Instant> firstChannelInterval, Range<Instant> intervalToSummarize) {
+        TwoValuesAbsoluteDifference maxDifference = getMaximumDifferenceProperty();
+        boolean isDifferenceValid = isDifferenceValid(deltaOfRegisterReadings, sumOfChannelReadings, maxDifference);
+        if (firstChannelInterval.upperEndpoint().isBefore(intervalToSummarize.lowerEndpoint())) {
+            return isDifferenceValid ?
+                    ValidationStrategy.markValid(Range.openClosed(firstChannelInterval.lowerEndpoint(), intervalToSummarize.upperEndpoint())) :
+                    ValidationStrategy.markValidAndSuspect(Range.openClosed(firstChannelInterval.lowerEndpoint(), intervalToSummarize.lowerEndpoint()), intervalToSummarize);
+        } else {
+            return isDifferenceValid ?
+                    ValidationStrategy.markValid(intervalToSummarize) :
+                    ValidationStrategy.markSuspect(intervalToSummarize);
+        }
     }
 
     private boolean isDifferenceValid(BigDecimal deltaOfRegisterReadings, BigDecimal sumOfChannelReadings, TwoValuesAbsoluteDifference maxDifference) {

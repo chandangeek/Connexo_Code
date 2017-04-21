@@ -5,11 +5,7 @@
 package com.elster.jupiter.validators.impl;
 
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
@@ -29,7 +25,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -105,27 +100,4 @@ public class DefaultValidatorFactoryTest {
 
         assertThat(validator).isNotNull().isInstanceOf(ThresholdValidator.class);
     }
-
-    @Test
-    public void testInstall() {
-        NlsService nlsService = mock(NlsService.class);
-        Thesaurus thesaurus = mock(Thesaurus.class);
-        NlsMessageFormat nlsMessageFormat = mock(NlsMessageFormat.class);
-        when(nlsMessageFormat.format()).thenReturn("This unit test does not care about translations");
-        when(thesaurus.getFormat(any(TranslationKey.class))).thenReturn(nlsMessageFormat);
-        when(nlsService.getThesaurus(MessageSeeds.COMPONENT_NAME, Layer.DOMAIN)).thenReturn(thesaurus);
-        DefaultValidatorFactory validatorFactory = defaultValidatorFactory;
-        validatorFactory.setNlsService(nlsService);
-
-        int expectedTranslations = ReadingQualitiesTranslationKeys.values().length;
-        for (String implementation : validatorFactory.available()) {
-            expectedTranslations++;
-            Validator validator = validatorFactory.createTemplate(implementation);
-            expectedTranslations += validator.getPropertySpecs().size();
-            expectedTranslations += ((IValidator) validator).getExtraTranslationKeys().size();
-        }
-
-        assertThat(validatorFactory.getKeys()).hasSize(expectedTranslations);
-    }
-
 }

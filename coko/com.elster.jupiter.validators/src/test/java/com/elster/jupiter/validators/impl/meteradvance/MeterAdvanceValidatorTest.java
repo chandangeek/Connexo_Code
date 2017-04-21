@@ -12,6 +12,7 @@ import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.MeasurementKind;
 import com.elster.jupiter.cbo.MetricMultiplier;
 import com.elster.jupiter.cbo.Phase;
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cbo.RationalNumber;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
@@ -34,7 +35,6 @@ import com.elster.jupiter.properties.TwoValuesDifferenceValueFactory;
 import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.HasName;
-import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.ValidationPropertyDefinitionLevel;
 import com.elster.jupiter.validators.impl.MessageSeeds;
 import com.elster.jupiter.validators.impl.properties.ReadingTypeReference;
@@ -52,11 +52,11 @@ import java.time.Period;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.TemporalAmount;
-import java.util.Collections;
 import java.util.Currency;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -191,19 +191,6 @@ public class MeterAdvanceValidatorTest {
     }
 
     @Test
-    public void testNominalCase() {
-        Interval channelContainerInterval = Interval.of(Range.greaterThan(START.minus(Period.ofDays(10))));
-        when(channelsContainer.getInterval()).thenReturn(channelContainerInterval);
-        when(channel.toList(Range.openClosed(START, START.plus(CHANNEL_INTERVAL_LENGTH)))).thenReturn(Collections.singletonList(START.plus(CHANNEL_INTERVAL_LENGTH)));
-
-        // Business method
-        this.meterAdvanceValidator.init(channel, readingType, validatedInterval);
-
-        // Asserts
-
-    }
-
-    @Test
     public void getPropertySpecsForRuleLevel() {
         // Business method
         List<PropertySpec> propertySpecs = this.meterAdvanceValidator.getPropertySpecs(ValidationPropertyDefinitionLevel.VALIDATION_RULE);
@@ -257,6 +244,15 @@ public class MeterAdvanceValidatorTest {
         assertThat(propertySpec_4.getName()).isEqualTo(MeterAdvanceValidator.MIN_THRESHOLD);
         assertThat(propertySpec_4.getValueFactory()).isInstanceOf(NonOrBigDecimalValueFactory.class);
         assertThat(propertySpec_4.isRequired()).isTrue();
+    }
+
+    @Test
+    public void getSupportedQualityCodeSystems() {
+        // Business method
+        Set<QualityCodeSystem> supportedQualityCodeSystems = this.meterAdvanceValidator.getSupportedQualityCodeSystems();
+
+        // Asserts
+        assertThat(supportedQualityCodeSystems).containsOnly(QualityCodeSystem.MDC, QualityCodeSystem.MDM);
     }
 
     private ReadingType mockRegularReadingType(MacroPeriod macroPeriod, Accumulation accumulation, MetricMultiplier multiplier) {
