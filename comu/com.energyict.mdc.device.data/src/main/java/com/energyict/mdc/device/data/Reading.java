@@ -39,4 +39,6 @@ public interface Reading {
 
     Optional<DataValidationStatus> getValidationStatus();
 
+    String getUserName();
+
 }
