@@ -18,9 +18,9 @@ Ext.define('Cfg.view.common.CopyFromReferenceWindow', {
         'Uni.property.view.DefaultButton',
         'Cfg.view.common.EstimationComment',
         'Cfg.store.AllDevices',
-        'Cfg.store.AllDevices',
-        'Cfg.store.AllDevices',
-        'Cfg.store.AllDevices'
+        'Cfg.store.AllPurpose',
+        'Cfg.store.AllReadingTypes',
+        'Cfg.store.AllUsagePoint'
     ],
 
     initComponent: function () {

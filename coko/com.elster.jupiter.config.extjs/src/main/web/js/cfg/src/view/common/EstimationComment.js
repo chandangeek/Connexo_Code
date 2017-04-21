@@ -18,7 +18,7 @@ Ext.define('Cfg.view.common.EstimationComment', {
             itemId: 'estimation-comment',
             flex: 1,
             name: 'estimationComment',
-            store: 'Uni.property.store.EstimationComment',
+            store: Ext.create('Uni.property.store.EstimationComment').load(),
             valueField: 'id',
             displayField: 'comment',
             queryMode: 'local',
