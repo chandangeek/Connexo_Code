@@ -140,6 +140,10 @@ public class ResourceHelper {
         return deviceService.findDeviceByName(deviceName).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_DEVICE, deviceName));
     }
 
+    public Optional<Device> findDeviceByName(String deviceName) {
+        return deviceService.findDeviceByName(deviceName);
+    }
+
     public Long getCurrentDeviceVersion(String deviceName) {
         return deviceService.findDeviceByName(deviceName).map(Device::getVersion).orElse(null);
     }
