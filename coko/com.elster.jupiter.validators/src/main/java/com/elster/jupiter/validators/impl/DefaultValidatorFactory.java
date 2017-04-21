@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.validators.impl;
 
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
@@ -51,6 +52,7 @@ public class DefaultValidatorFactory implements ValidatorFactory, MessageSeedPro
     private volatile PropertyValueInfoService propertyValueInfoService;
     private volatile MetrologyConfigurationService metrologyConfigurationService;
     private volatile ValidationService validationService;
+    private volatile MeteringService meteringService;
 
     public DefaultValidatorFactory() {
     }
@@ -58,13 +60,14 @@ public class DefaultValidatorFactory implements ValidatorFactory, MessageSeedPro
     @Inject
     public DefaultValidatorFactory(NlsService nlsService, PropertySpecService propertySpecService,
                                    MetrologyConfigurationService metrologyConfigurationService,
-                                   ValidationService validationService, PropertyValueInfoService propertyValueInfoService) {
+                                   ValidationService validationService, PropertyValueInfoService propertyValueInfoService, MeteringService meteringService) {
         this();
         setNlsService(nlsService);
         setPropertySpecService(propertySpecService);
         setMetrologyConfigurationService(metrologyConfigurationService);
         setValidationService(validationService);
         setPropertyValueInfoService(propertyValueInfoService);
+        setMeteringService(meteringService);
         activate();
     }
 
@@ -76,6 +79,12 @@ public class DefaultValidatorFactory implements ValidatorFactory, MessageSeedPro
     @Deactivate
     public void deactivate() {
         propertyValueInfoService.removePropertyValueInfoConverter(ReadingTypeValueConverter.INSTANCE);
+    }
+
+
+    @Reference
+    public void setMeteringService(MeteringService validationService) {
+        this.meteringService = meteringService;
     }
 
     @Reference
@@ -122,7 +131,7 @@ public class DefaultValidatorFactory implements ValidatorFactory, MessageSeedPro
     public List<TranslationKey> getKeys() {
         List<TranslationKey> translationKeys = new ArrayList<>();
         for (ValidatorDefinition validatorDefinition : ValidatorDefinition.values()) {
-            IValidator validator = validatorDefinition.createTemplate(new ValidatorParameters(thesaurus, propertySpecService, metrologyConfigurationService, validationService));
+            IValidator validator = validatorDefinition.createTemplate(new ValidatorParameters(thesaurus, propertySpecService, metrologyConfigurationService, validationService, meteringService));
             translationKeys.add(new SimpleTranslationKey(validator.getNlsKey().getKey(), validator.getDefaultFormat()));
             translationKeys.addAll(validator.getExtraTranslationKeys());
         }
@@ -225,7 +234,7 @@ public class DefaultValidatorFactory implements ValidatorFactory, MessageSeedPro
     public Validator create(String implementation, Map<String, Object> props) {
         for (ValidatorDefinition definition : ValidatorDefinition.values()) {
             if (definition.getImplementation().equals(implementation)) {
-                return definition.create(new ValidatorParameters(thesaurus, propertySpecService, metrologyConfigurationService, validationService, props));
+                return definition.create(new ValidatorParameters(thesaurus, propertySpecService, metrologyConfigurationService, validationService, meteringService, props));
             }
         }
         throw new IllegalArgumentException("Unsupported implementation " + implementation);
@@ -235,7 +244,7 @@ public class DefaultValidatorFactory implements ValidatorFactory, MessageSeedPro
     public Validator createTemplate(String implementation) {
         for (ValidatorDefinition definition : ValidatorDefinition.values()) {
             if (definition.getImplementation().equals(implementation)) {
-                return definition.createTemplate(new ValidatorParameters(thesaurus, propertySpecService, metrologyConfigurationService, validationService));
+                return definition.createTemplate(new ValidatorParameters(thesaurus, propertySpecService, metrologyConfigurationService, validationService, meteringService));
             }
         }
         throw new IllegalArgumentException("Unsupported implementation " + implementation);
@@ -247,18 +256,20 @@ public class DefaultValidatorFactory implements ValidatorFactory, MessageSeedPro
         private PropertySpecService propertySpecService;
         private MetrologyConfigurationService metrologyConfigurationService;
         private ValidationService validationService;
+        private MeteringService meteringService;
         private Map<String, Object> props;
 
-        public ValidatorParameters(Thesaurus thesaurus, PropertySpecService propertySpecService, MetrologyConfigurationService metrologyConfigurationService, ValidationService validationService, Map<String, Object> props) {
+        public ValidatorParameters(Thesaurus thesaurus, PropertySpecService propertySpecService, MetrologyConfigurationService metrologyConfigurationService, ValidationService validationService, MeteringService meteringService, Map<String, Object> props) {
             this.thesaurus = thesaurus;
             this.propertySpecService = propertySpecService;
             this.metrologyConfigurationService = metrologyConfigurationService;
             this.validationService = validationService;
+            this.meteringService = meteringService;
             this.props = props;
         }
 
-        public ValidatorParameters(Thesaurus thesaurus, PropertySpecService propertySpecService, MetrologyConfigurationService metrologyConfigurationService, ValidationService validationService) {
-            this(thesaurus, propertySpecService, metrologyConfigurationService, validationService, null);
+        public ValidatorParameters(Thesaurus thesaurus, PropertySpecService propertySpecService, MetrologyConfigurationService metrologyConfigurationService, ValidationService validationService, MeteringService meteringService) {
+            this(thesaurus, propertySpecService, metrologyConfigurationService, validationService, meteringService, null);
         }
     }
 }

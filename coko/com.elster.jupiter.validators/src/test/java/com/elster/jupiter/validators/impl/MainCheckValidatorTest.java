@@ -16,6 +16,7 @@ import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.properties.NonOrBigDecimalValueProperty;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.TwoValuesAbsoluteDifference;
@@ -52,6 +53,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyCollection;
 import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -62,8 +64,11 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 abstract public class MainCheckValidatorTest {
 
+    /*
     @Mock
     protected Thesaurus thesaurus;
+    */
+    Thesaurus thesaurus = NlsModule.FakeThesaurus.INSTANCE;
 
     private static DateTimeFormatter dateTimeFormat = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
 
@@ -75,10 +80,13 @@ abstract public class MainCheckValidatorTest {
     protected Range<Instant> range = Range.closed(instant("20160101000000"),instant("20160207000000"));
 
     MainCheckValidator initValidator(ValidationConfiguration validationConfiguration) {
+        /*
+        when(thesaurus.getString(anyString(),anyString())).thenReturn("Main/check comparison");
         Arrays.stream(MessageSeeds.values()).forEach(messageSeeds -> {
             NlsMessageFormat nlsMessageFormat = createNlsMessageFormat(messageSeeds);
             when(thesaurus.getFormat(messageSeeds)).thenReturn(nlsMessageFormat);
         });
+        */
         MainCheckValidator validator = new MainCheckValidator(thesaurus, propertySpecService, validationConfiguration.rule
                 .createProperties(), validationConfiguration.metrologyConfigurationService, validationConfiguration.validationService);
         validator.init(validationConfiguration.checkChannel, validationConfiguration.readingType, range);

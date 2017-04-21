@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.validators.impl;
 
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.impl.config.MetrologyPurposeImpl;
 import com.elster.jupiter.nls.Layer;
@@ -34,6 +35,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -51,11 +53,13 @@ public class DefaultValidatorFactoryTest {
     private MetrologyConfigurationService metrologyConfigurationService;
     @Mock
     private PropertyValueInfoService propertyValueInfoService;
+    @Mock
+    private MeteringService meteringService;
 
     @Before
     public void setUp() throws Exception {
         when(nlsService.getThesaurus(any(), any())).thenReturn(NlsModule.FakeThesaurus.INSTANCE);
-        defaultValidatorFactory = new DefaultValidatorFactory(nlsService, new PropertySpecServiceImpl() ,metrologyConfigurationService, validationService, propertyValueInfoService);
+        defaultValidatorFactory = new DefaultValidatorFactory(nlsService, new PropertySpecServiceImpl() ,metrologyConfigurationService, validationService, propertyValueInfoService, meteringService);
 
         MetrologyPurposeImpl metrologyPurpose = mock(MetrologyPurposeImpl.class);
         when(metrologyPurpose.getName()).thenReturn("purpose");
@@ -136,28 +140,6 @@ public class DefaultValidatorFactoryTest {
         Validator validator = defaultValidatorFactory.createTemplate("unavailable");
 
         assertThat(validator).isNotNull().isInstanceOf(ThresholdValidator.class);
-    }
-
-    @Test
-    public void testInstall() {
-        NlsService nlsService = mock(NlsService.class);
-        Thesaurus thesaurus = mock(Thesaurus.class);
-        NlsMessageFormat nlsMessageFormat = mock(NlsMessageFormat.class);
-        when(nlsMessageFormat.format()).thenReturn("This unit test does not care about translations");
-        when(thesaurus.getFormat(any(TranslationKey.class))).thenReturn(nlsMessageFormat);
-        when(nlsService.getThesaurus(MessageSeeds.COMPONENT_NAME, Layer.DOMAIN)).thenReturn(thesaurus);
-        DefaultValidatorFactory validatorFactory = defaultValidatorFactory;
-        validatorFactory.setNlsService(nlsService);
-
-        int expectedTranslations = TranslationKeys.values().length;
-        for (String implementation : validatorFactory.available()) {
-            expectedTranslations++;
-            Validator validator = validatorFactory.createTemplate(implementation);
-            expectedTranslations += validator.getPropertySpecs().size();
-            expectedTranslations += ((IValidator) validator).getExtraTranslations().size();
-        }
-
-        assertThat(validatorFactory.getKeys()).hasSize(expectedTranslations);
     }
 
 }

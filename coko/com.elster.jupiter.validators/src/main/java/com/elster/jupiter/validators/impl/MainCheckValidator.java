@@ -44,7 +44,6 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -126,7 +125,7 @@ public class MainCheckValidator extends AbstractValidator {
         builder
                 .add(getPropertySpecService()
                         .referenceSpec(MetrologyPurpose.class)
-                        .named(CHECK_PURPOSE, ReadingQualitiesTranslationKeys.MAIN_CHECK_VALIDATOR_CHECK_PURPOSE)
+                        .named(CHECK_PURPOSE, TranslationKeys.CHECK_PURPOSE)
                         .fromThesaurus(this.getThesaurus())
                         .markRequired()
                         .setDefaultValue(metrologyPurposes.get(0))
@@ -137,13 +136,13 @@ public class MainCheckValidator extends AbstractValidator {
         builder
                 .add(getPropertySpecService()
                         .booleanSpec()
-                        .named(PASS_IF_NO_REF_DATA, ReadingQualitiesTranslationKeys.MAIN_CHECK_VALIDATOR_PASS_IF_NO_REF_DATA)
+                        .named(PASS_IF_NO_REF_DATA, TranslationKeys.PASS_IF_NO_REF_DATA)
                         .fromThesaurus(this.getThesaurus())
                         .finish());
         builder
                 .add(getPropertySpecService()
                         .booleanSpec()
-                        .named(USE_VALIDATED_DATA, ReadingQualitiesTranslationKeys.MAIN_CHECK_VALIDATOR_USE_VALIDATED_DATA)
+                        .named(USE_VALIDATED_DATA, TranslationKeys.USE_VALIDATED_DATA)
                         .fromThesaurus(this.getThesaurus())
                         .finish());
         addMinThresholdPropertySpec(builder);
@@ -170,7 +169,7 @@ public class MainCheckValidator extends AbstractValidator {
         builder
                 .add(getPropertySpecService()
                         .specForValuesOf(new TwoValuesDifferenceValueFactory())
-                        .named(MAX_ABSOLUTE_DIFF, ReadingQualitiesTranslationKeys.MAIN_CHECK_VALIDATOR_MAX_ABSOLUTE_DIFF)
+                        .named(MAX_ABSOLUTE_DIFF, TranslationKeys.MAX_ABSOLUTE_DIFF)
                         .fromThesaurus(this.getThesaurus())
                         .markRequired()
                         .setDefaultValue(new TwoValuesAbsoluteDifference() {{
@@ -183,7 +182,7 @@ public class MainCheckValidator extends AbstractValidator {
         builder
                 .add(getPropertySpecService()
                         .specForValuesOf(new NonOrBigDecimalValueFactory())
-                        .named(MIN_THRESHOLD, ReadingQualitiesTranslationKeys.MAIN_CHECK_VALIDATOR_MIN_THRESHOLD)
+                        .named(MIN_THRESHOLD, TranslationKeys.MIN_THRESHOLD)
                         .fromThesaurus(this.getThesaurus())
                         .markRequired()
                         .setDefaultValue(new NonOrBigDecimalValueProperty())
@@ -229,8 +228,7 @@ public class MainCheckValidator extends AbstractValidator {
         if (!usagePoint.isPresent()) {
             LoggingContext.get()
                     .severe(getLogger(), getThesaurus().getFormat(MessageSeeds.MAIN_CHECK_MISC_NO_UP)
-                            .format(rangeToString(failedValidatonInterval), ReadingQualitiesTranslationKeys.MAIN_CHECK_VALIDATOR
-                                    .getDefaultFormat(), readingType.getFullAliasName()));
+                            .format(rangeToString(failedValidatonInterval), getDisplayName(), readingType.getFullAliasName()));
             preparedValidationResult = ValidationResult.NOT_VALIDATED;
             return;
         }
@@ -243,8 +241,7 @@ public class MainCheckValidator extends AbstractValidator {
         if (effectiveMCList.size() != 1) {
             LoggingContext.get()
                     .warning(getLogger(), getThesaurus().getFormat(MessageSeeds.MAIN_CHECK_MISC_NOT_ONE_EMC)
-                            .format(rangeToString(failedValidatonInterval), ReadingQualitiesTranslationKeys.MAIN_CHECK_VALIDATOR
-                                    .getDefaultFormat(), readingType.getFullAliasName(), effectiveMCList
+                            .format(rangeToString(failedValidatonInterval), getDisplayName(), readingType.getFullAliasName(), effectiveMCList
                                     .size()));
             preparedValidationResult = ValidationResult.NOT_VALIDATED;
             return;
@@ -263,10 +260,7 @@ public class MainCheckValidator extends AbstractValidator {
             // [RULE FLOW ACTION] Stop validation for the channel independently from Pass if no reference data field value (last check remains as before the validation), an error message appears in the log
             LoggingContext.get()
                     .warning(getLogger(), getThesaurus().getFormat(MessageSeeds.MAIN_CHECK_MISC_NO_PURPOSE)
-                            .format(rangeToString(failedValidatonInterval), ReadingQualitiesTranslationKeys.MAIN_CHECK_VALIDATOR
-                                    .getDefaultFormat(), readingType.getFullAliasName(), usagePoint
-                                    .get()
-                                    .getName()));
+                            .format(rangeToString(failedValidatonInterval), getDisplayName(), readingType.getFullAliasName(), usagePointName));
             preparedValidationResult = ValidationResult.NOT_VALIDATED;
             return;
         }
@@ -296,10 +290,9 @@ public class MainCheckValidator extends AbstractValidator {
             // this means that purpose is not active on a usagepoint
             LoggingContext.get()
                     .warning(getLogger(), getThesaurus().getFormat(MessageSeeds.MAIN_CHECK_MISC_PURPOSE_NEVER_ACTIVATED)
-                            .format(rangeToString(failedValidatonInterval), ReadingQualitiesTranslationKeys.MAIN_CHECK_VALIDATOR
-                                    .getDefaultFormat(), readingType.getFullAliasName(), usagePoint
-                            .get()
-                            .getName()));
+                            .format(rangeToString(failedValidatonInterval), getDisplayName(), readingType.getFullAliasName(), usagePoint
+                                    .get()
+                                    .getName()));
             preparedValidationResult = ValidationResult.NOT_VALIDATED;
             return;
         }
@@ -310,8 +303,7 @@ public class MainCheckValidator extends AbstractValidator {
             LoggingContext.get()
                     .warning(getLogger(), getThesaurus().getFormat(MessageSeeds.MAIN_CHECK_MISC_NO_CHECK_OUTPUT)
                             .format(rangeToString(failedValidatonInterval),
-                                    ReadingQualitiesTranslationKeys.MAIN_CHECK_VALIDATOR
-                                    .getDefaultFormat(),
+                                    getDisplayName(),
                                     readingType.getFullAliasName(),
                                     usagePointName));
             preparedValidationResult = ValidationResult.NOT_VALIDATED;
@@ -365,8 +357,7 @@ public class MainCheckValidator extends AbstractValidator {
             // show log
             LoggingContext.get()
                     .warning(getLogger(), getThesaurus().getFormat(MessageSeeds.MAIN_CHECK_MISC_CHECK_OUTPUT_MISSING_OR_NOT_VALID)
-                            .format(rangeToString(failedValidatonInterval), ReadingQualitiesTranslationKeys.MAIN_CHECK_VALIDATOR
-                                    .getDefaultFormat(),usagePointName, readingType.getFullAliasName()));
+                            .format(rangeToString(failedValidatonInterval), getDisplayName(), usagePointName, readingType.getFullAliasName()));
 
             if (passIfNoRefData) {
                 // [RULE ACTION] No further checks are done to the interval (marked as valid) and the rule moves to the next interval if Pass if no reference data is checked
@@ -386,8 +377,7 @@ public class MainCheckValidator extends AbstractValidator {
             if (useValidatedData) {
                 LoggingContext.get()
                         .warning(getLogger(), getThesaurus().getFormat(MessageSeeds.MAIN_CHECK_MISC_CHECK_OUTPUT_MISSING_OR_NOT_VALID)
-                                .format(rangeToString(failedValidatonInterval), ReadingQualitiesTranslationKeys.MAIN_CHECK_VALIDATOR
-                                        .getDefaultFormat(), usagePointName, readingType.getFullAliasName()));
+                                .format(rangeToString(failedValidatonInterval), getDisplayName(), usagePointName, readingType.getFullAliasName()));
                 // [RULE ACTION] Stop the validation at the timestamp where the timestamp with the last validated reference data was found for the channel if Use validated data is checked
                 prepareValidationResult(ValidationResult.NOT_VALIDATED, timeStamp);
                 return ValidationResult.NOT_VALIDATED;
@@ -433,7 +423,7 @@ public class MainCheckValidator extends AbstractValidator {
 
     @Override
     public String getDefaultFormat() {
-        return ReadingQualitiesTranslationKeys.MAIN_CHECK_VALIDATOR.getDefaultFormat();
+        return "Main/check comparison";
     }
 
     @Override
@@ -450,6 +440,32 @@ public class MainCheckValidator extends AbstractValidator {
 
     @Override
     public List<TranslationKey> getExtraTranslationKeys() {
-        return Collections.emptyList();
+        return Arrays.asList(TranslationKeys.values());
+    }
+
+    enum TranslationKeys implements TranslationKey {
+        CHECK_PURPOSE(MainCheckValidator.CHECK_PURPOSE, "Check purpose"),
+        MAX_ABSOLUTE_DIFF(MainCheckValidator.MAX_ABSOLUTE_DIFF, "Maximum absolute difference"),
+        PASS_IF_NO_REF_DATA(MainCheckValidator.PASS_IF_NO_REF_DATA, "Pass if no reference data"),
+        USE_VALIDATED_DATA(MainCheckValidator.USE_VALIDATED_DATA, "Use validated data"),
+        MIN_THRESHOLD(MainCheckValidator.MIN_THRESHOLD, "Minimum threshold");
+
+        private final String key;
+        private final String defaultFormat;
+
+        TranslationKeys(String key, String defaultFormat) {
+            this.key = key;
+            this.defaultFormat = defaultFormat;
+        }
+
+        @Override
+        public String getKey() {
+            return MainCheckValidator.class.getName() + "." + key;
+        }
+
+        @Override
+        public String getDefaultFormat() {
+            return this.defaultFormat;
+        }
     }
 }

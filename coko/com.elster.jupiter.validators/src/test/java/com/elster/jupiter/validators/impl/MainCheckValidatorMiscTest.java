@@ -91,10 +91,13 @@ public class MainCheckValidatorMiscTest extends MainCheckValidatorTest {
 
     @Override
     MainCheckValidator initValidator(ValidationConfiguration validationConfiguration) {
+        /*
+        when(thesaurus.getString(anyString(),anyString())).thenReturn("Main/check comparison");
         Arrays.stream(MessageSeeds.values()).forEach(messageSeeds -> {
             NlsMessageFormat nlsMessageFormat = createNlsMessageFormat(messageSeeds);
             when(thesaurus.getFormat(messageSeeds)).thenReturn(nlsMessageFormat);
         });
+        */
         MainCheckValidator validator = new MainCheckValidator(thesaurus, propertySpecService, validationConfiguration.rule
                 .createProperties(), validationConfiguration.metrologyConfigurationService, validationConfiguration.validationService);
         mockLogger(validator);
