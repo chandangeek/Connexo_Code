@@ -4,7 +4,6 @@
 
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MeteringTranslationService;
@@ -20,17 +19,14 @@ import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
 import com.energyict.mdc.common.rest.IntervalInfo;
-import com.energyict.mdc.device.JournaledReading;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.config.RegisterSpec;
-import com.energyict.mdc.device.data.BillingReading;
-import com.energyict.mdc.device.data.BillingRegister;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceValidation;
-import com.energyict.mdc.device.data.FlagsReading;
 import com.energyict.mdc.device.data.FlagsRegister;
+import com.energyict.mdc.device.data.JournaledReading;
 import com.energyict.mdc.device.data.LoadProfileJournalReading;
 import com.energyict.mdc.device.data.LoadProfileReading;
 import com.energyict.mdc.device.data.NumericalReading;
@@ -40,13 +36,19 @@ import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.TextReading;
 import com.energyict.mdc.device.data.TextRegister;
 import com.energyict.mdc.device.topology.TopologyService;
+
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -290,7 +292,7 @@ public class DeviceDataInfoFactory {
         setMultiplier(register, numericalReadingInfo, reading);
         setInterval(reading, numericalReadingInfo);
         setCollectedValue(reading, register, numericalReadingInfo, numberOfFractionDigits);
-        setDeltaValue(reading,register, numericalReadingInfo);
+        setDeltaValue(reading, register, numericalReadingInfo);
         setCalculatedValueIfApplicable(reading, register, numericalReadingInfo, numberOfFractionDigits);
         addValidationInfo(reading, numericalReadingInfo, isValidationStatusActive);
         setSlaveInformation(register, dataLoggerSlave, numericalReadingInfo);
@@ -299,7 +301,7 @@ public class DeviceDataInfoFactory {
     }
 
     private void setDeltaValue(NumericalReading reading, Register<?, ?> register, NumericalReadingInfo numericalReadingInfo) {
-        if(register.getReadingType().isCumulative()) {
+        if (register.getReadingType().isCumulative()) {
             reading.getDelta().ifPresent(deltaValue -> numericalReadingInfo.deltaValue = deltaValue);
         }
     }
@@ -373,8 +375,8 @@ public class DeviceDataInfoFactory {
             return info;
         } else if (register instanceof TextRegister) {
             return createTextRegisterInfo((TextRegister) register, topologyService);
-        } else if (register instanceof FlagsRegister){
-            RegisterInfo info = createFlagsRegisterInfo((FlagsRegister) register,topologyService);
+        } else if (register instanceof FlagsRegister) {
+            RegisterInfo info = createFlagsRegisterInfo((FlagsRegister) register, topologyService);
             info.detailedValidationInfo = registerValidationInfo;
             return info;
         }
