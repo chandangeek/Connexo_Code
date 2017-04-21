@@ -13,7 +13,8 @@ import com.elster.jupiter.nls.TranslationKey;
 public enum DefaultMetrologyPurpose {
     BILLING(Translation.BILLING_NAME, Translation.BILLING_DESCRIPTION),
     INFORMATION(Translation.INFORMATION_NAME, Translation.INFORMATION_DESCRIPTION),
-    VOLTAGE_MONITORING(Translation.VOLTAGE_MONITORING_NAME, Translation.VOLTAGE_MONITORING_DESCRIPTION),;
+    VOLTAGE_MONITORING(Translation.VOLTAGE_MONITORING_NAME, Translation.VOLTAGE_MONITORING_DESCRIPTION),
+    CHECK(Translation.CHECK_NAME, Translation.CHECK_DESCRIPTION);
 
     private TranslationKey name;
     private TranslationKey description;
@@ -36,9 +37,11 @@ public enum DefaultMetrologyPurpose {
     public enum Translation implements TranslationKey {
         BILLING_NAME("metrology.purpose.billing.name", "Billing"),
         INFORMATION_NAME("metrology.purpose.information.name", "Information"),
+        CHECK_NAME("metrology.purpose.check.name", "Check"),
         VOLTAGE_MONITORING_NAME("metrology.purpose.voltage.monitoring.name", "Voltage monitoring"),
         BILLING_DESCRIPTION("metrology.purpose.billing.description", "The calculation of data based on data from meters for further export to the external billing system"),
         INFORMATION_DESCRIPTION("metrology.purpose.information.description", "Information metrology purpose"),
+        CHECK_DESCRIPTION("metrology.purpose.check.description", "Check metrology purpose"),
         VOLTAGE_MONITORING_DESCRIPTION("metrology.purpose.voltage.monitoring.description", "Voltage monitoring metrology purpose"),
 
         METROLOGY_CONTRACT_STATUS_COMPLETE("metrology.contract.status.complete", "Complete"),
