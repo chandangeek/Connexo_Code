@@ -4,17 +4,26 @@
 
 package com.elster.jupiter.validators.impl;
 
-import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
+import com.elster.jupiter.metering.impl.config.MetrologyPurposeImpl;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.impl.NlsModule;
+import com.elster.jupiter.properties.NonOrBigDecimalValueProperty;
+import com.elster.jupiter.properties.TwoValuesAbsoluteDifference;
 import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.util.units.Quantity;
+import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.Validator;
 
 import com.google.common.collect.ImmutableMap;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Before;
@@ -37,14 +46,21 @@ public class DefaultValidatorFactoryTest {
     @Mock
     private NlsService nlsService;
     @Mock
-    private MeteringService meteringService;
+    private ValidationService validationService;
+    @Mock
+    private MetrologyConfigurationService metrologyConfigurationService;
     @Mock
     private PropertyValueInfoService propertyValueInfoService;
 
     @Before
     public void setUp() throws Exception {
         when(nlsService.getThesaurus(any(), any())).thenReturn(NlsModule.FakeThesaurus.INSTANCE);
-        defaultValidatorFactory = new DefaultValidatorFactory(nlsService, new PropertySpecServiceImpl(), meteringService, propertyValueInfoService);
+        defaultValidatorFactory = new DefaultValidatorFactory(nlsService, new PropertySpecServiceImpl() ,metrologyConfigurationService, validationService, propertyValueInfoService);
+
+        MetrologyPurposeImpl metrologyPurpose = mock(MetrologyPurposeImpl.class);
+        when(metrologyPurpose.getName()).thenReturn("purpose");
+        when(metrologyConfigurationService.getMetrologyPurposes()).thenReturn(Arrays.asList(metrologyPurpose));
+        defaultValidatorFactory.setMetrologyConfigurationService(metrologyConfigurationService);
     }
 
     @Test
@@ -67,6 +83,27 @@ public class DefaultValidatorFactoryTest {
         Validator validator = defaultValidatorFactory.createTemplate(ThresholdValidator.class.getName());
 
         assertThat(validator).isNotNull().isInstanceOf(ThresholdValidator.class);
+    }
+
+    @Test
+    public void testMainCheckValidator() {
+        ImmutableMap<String, Object> properties = ImmutableMap.of(MainCheckValidator.CHECK_PURPOSE, "purpose",
+                MainCheckValidator.MAX_ABSOLUTE_DIFF, new TwoValuesAbsoluteDifference(),
+                MainCheckValidator.MIN_THRESHOLD, new NonOrBigDecimalValueProperty(),
+                MainCheckValidator.PASS_IF_NO_REF_DATA, false,
+                MainCheckValidator.USE_VALIDATED_DATA, false);
+
+        Validator validator = defaultValidatorFactory.create(MainCheckValidator.class.getName(), properties);
+
+        assertThat(validator).isNotNull().isInstanceOf(MainCheckValidator.class);
+    }
+
+    @Test
+    public void testMainCheckValidatorTemplate() {
+
+        Validator validator = defaultValidatorFactory.createTemplate(MainCheckValidator.class.getName());
+
+        assertThat(validator).isNotNull().isInstanceOf(MainCheckValidator.class);
     }
 
     @Test
@@ -100,4 +137,27 @@ public class DefaultValidatorFactoryTest {
 
         assertThat(validator).isNotNull().isInstanceOf(ThresholdValidator.class);
     }
+
+    @Test
+    public void testInstall() {
+        NlsService nlsService = mock(NlsService.class);
+        Thesaurus thesaurus = mock(Thesaurus.class);
+        NlsMessageFormat nlsMessageFormat = mock(NlsMessageFormat.class);
+        when(nlsMessageFormat.format()).thenReturn("This unit test does not care about translations");
+        when(thesaurus.getFormat(any(TranslationKey.class))).thenReturn(nlsMessageFormat);
+        when(nlsService.getThesaurus(MessageSeeds.COMPONENT_NAME, Layer.DOMAIN)).thenReturn(thesaurus);
+        DefaultValidatorFactory validatorFactory = defaultValidatorFactory;
+        validatorFactory.setNlsService(nlsService);
+
+        int expectedTranslations = TranslationKeys.values().length;
+        for (String implementation : validatorFactory.available()) {
+            expectedTranslations++;
+            Validator validator = validatorFactory.createTemplate(implementation);
+            expectedTranslations += validator.getPropertySpecs().size();
+            expectedTranslations += ((IValidator) validator).getExtraTranslations().size();
+        }
+
+        assertThat(validatorFactory.getKeys()).hasSize(expectedTranslations);
+    }
+
 }

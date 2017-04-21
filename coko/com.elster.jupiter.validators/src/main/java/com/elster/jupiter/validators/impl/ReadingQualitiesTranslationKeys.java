@@ -10,6 +10,14 @@ public enum ReadingQualitiesTranslationKeys implements TranslationKey {
 
     READING_QUALITIES(ReadingQualitiesValidator.class.getName() + "." + ReadingQualitiesValidator.READING_QUALITIES, "Reading qualities"),
 
+    // section for Main/Check validator
+    MAIN_CHECK_VALIDATOR(MainCheckValidator.class.getName(), "Main/check comparison"),
+    MAIN_CHECK_VALIDATOR_CHECK_PURPOSE(MainCheckValidator.class.getName()+ "." + MainCheckValidator.CHECK_PURPOSE, "Check purpose"),
+    MAIN_CHECK_VALIDATOR_MAX_ABSOLUTE_DIFF(MainCheckValidator.class.getName()+ "." + MainCheckValidator.MAX_ABSOLUTE_DIFF, "Maximum absolute difference"),
+    MAIN_CHECK_VALIDATOR_PASS_IF_NO_REF_DATA(MainCheckValidator.class.getName()+ "." + MainCheckValidator.PASS_IF_NO_REF_DATA, "Pass if no reference data"),
+    MAIN_CHECK_VALIDATOR_USE_VALIDATED_DATA(MainCheckValidator.class.getName()+ "." + MainCheckValidator.USE_VALIDATED_DATA, "Use validated data"),
+    MAIN_CHECK_VALIDATOR_MIN_THRESHOLD(MainCheckValidator.class.getName()+ "." + MainCheckValidator.MIN_THRESHOLD, "Minimum threshold"),
+
     ALL_INDEXES("ReadingQualityAllIndexes", "All indexes"),
     ALL_SYSTEMS("ReadingQualityAllSystems", "All systems"),
     VALIDATED("ReadingQualityValidated", "Validated"),
