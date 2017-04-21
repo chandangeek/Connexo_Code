@@ -25,22 +25,27 @@ public class KeyFunctionTypeInfoFactory {
         this.userService = userService;
     }
 
-    public KeyFunctionTypeInfo from(KeyAccessorType keyFunctionType, DeviceType deviceType) {
-        KeyFunctionTypeInfo info = new KeyFunctionTypeInfo();
-        info.id = keyFunctionType.getId();
-        info.name = keyFunctionType.getName();
-        info.description = keyFunctionType.getDescription();
-        info.keyType = new KeyTypeInfo(keyFunctionType.getKeyType());
-        info.storageMethod = info.keyType.isKey ? keyFunctionType.getKeyEncryptionMethod() : null;
-        info.trustStoreId = !info.keyType.isKey && keyFunctionType.getTrustStore().isPresent() ? keyFunctionType.getTrustStore().get().getId() : 0;
-        if (keyFunctionType.getKeyType().getCryptographicType().requiresDuration() && keyFunctionType.getDuration().isPresent()) {
-            info.validityPeriod = new TimeDurationInfo(keyFunctionType.getDuration().get());
+    public SecurityAccessorInfo from(KeyAccessorType keyAccessorType, DeviceType deviceType) {
+        SecurityAccessorInfo info = new SecurityAccessorInfo();
+        info.id = keyAccessorType.getId();
+        info.name = keyAccessorType.getName();
+        info.description = keyAccessorType.getDescription();
+        info.keyType = new KeyTypeInfo(keyAccessorType.getKeyType());
+        info.storageMethod = info.keyType.isKey ? keyAccessorType.getKeyEncryptionMethod() : null;
+        info.trustStoreId = !info.keyType.isKey && keyAccessorType.getTrustStore().isPresent() ? keyAccessorType.getTrustStore().get().getId() : 0;
+        if (keyAccessorType.getKeyType().getCryptographicType().requiresDuration() && keyAccessorType.getDuration().isPresent()) {
+            info.validityPeriod = new TimeDurationInfo(keyAccessorType.getDuration().get());
         }
         info.parent = new VersionInfo<>(deviceType.getName(), deviceType.getVersion());
+        return info;
+    }
+
+    public SecurityAccessorInfo withSecurityLevels(KeyAccessorType keyAccessorType, DeviceType deviceType) {
+        SecurityAccessorInfo info = from(keyAccessorType, deviceType);
         Set<DeviceSecurityUserAction> allUserActions = EnumSet.allOf(DeviceSecurityUserAction.class);
-        info.editLevels = executionLevelInfoFactory.getEditPrivileges(deviceType.getKeyAccessorTypeUserActions(keyFunctionType), userService.getGroups());
+        info.editLevels = executionLevelInfoFactory.getEditPrivileges(deviceType.getKeyAccessorTypeUserActions(keyAccessorType), userService.getGroups());
         info.defaultEditLevels = executionLevelInfoFactory.getEditPrivileges(allUserActions, userService.getGroups());
-        info.viewLevels = executionLevelInfoFactory.getViewPrivileges(deviceType.getKeyAccessorTypeUserActions(keyFunctionType), userService.getGroups());
+        info.viewLevels = executionLevelInfoFactory.getViewPrivileges(deviceType.getKeyAccessorTypeUserActions(keyAccessorType), userService.getGroups());
         info.defaultViewLevels = executionLevelInfoFactory.getViewPrivileges(allUserActions, userService.getGroups());
         return info;
     }

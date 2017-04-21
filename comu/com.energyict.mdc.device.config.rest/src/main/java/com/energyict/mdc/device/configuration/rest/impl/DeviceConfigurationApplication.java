@@ -104,7 +104,7 @@ public class DeviceConfigurationApplication extends Application implements Messa
                 DeviceConfigurationResource.class,
                 DeviceConfigConflictMappingResource.class,
                 RegisterConfigurationResource.class,
-                KeyFunctionTypeResource.class,
+                SecurityAccessorResource.class,
                 ReadingTypeResource.class,
                 ProtocolDialectResource.class,
                 ConnectionMethodResource.class,

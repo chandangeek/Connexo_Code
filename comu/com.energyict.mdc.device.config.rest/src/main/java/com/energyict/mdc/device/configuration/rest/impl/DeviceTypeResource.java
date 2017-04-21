@@ -103,7 +103,7 @@ public class DeviceTypeResource {
     private final Provider<DeviceConfigurationResource> deviceConfigurationResourceProvider;
     private final Provider<DeviceConfigConflictMappingResource> deviceConflictMappingResourceProvider;
     private final Provider<LoadProfileTypeResource> loadProfileTypeResourceProvider;
-    private final Provider<KeyFunctionTypeResource> keyFunctionTypeResourceProvider;
+    private final Provider<SecurityAccessorResource> keyFunctionTypeResourceProvider;
     private final ProtocolPluggableService protocolPluggableService;
     private final ConcurrentModificationExceptionFactory conflictFactory;
     private final CalendarInfoFactory calendarInfoFactory;
@@ -126,7 +126,7 @@ public class DeviceTypeResource {
             CalendarService calendarService,
             ExceptionFactory exceptionFactory,
             Thesaurus thesaurus,
-            RegisterTypeOnDeviceTypeInfoFactory registerTypeOnDeviceTypeInfoFactory, RegisterTypeInfoFactory registerTypeInfoFactory, Provider<KeyFunctionTypeResource> keyFunctionTypeResourceProvider) {
+            RegisterTypeOnDeviceTypeInfoFactory registerTypeOnDeviceTypeInfoFactory, RegisterTypeInfoFactory registerTypeInfoFactory, Provider<SecurityAccessorResource> keyFunctionTypeResourceProvider) {
         this.resourceHelper = resourceHelper;
         this.masterDataService = masterDataService;
         this.deviceConfigurationService = deviceConfigurationService;
@@ -440,7 +440,7 @@ public class DeviceTypeResource {
     }
 
     @Path("/{deviceTypeId}/securityaccessors")
-    public KeyFunctionTypeResource getKeyFunctionTypeResource() {
+    public SecurityAccessorResource getKeyFunctionTypeResource() {
         return keyFunctionTypeResourceProvider.get();
     }
 

@@ -5,11 +5,9 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.users.Group;
-import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.device.config.DeviceSecurityUserAction;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.configuration.rest.KeyFunctionTypePrivilegeTranslationKeys;
@@ -29,7 +27,7 @@ public class ExecutionLevelInfoFactory {
     private final Thesaurus thesaurus;
 
     @Inject
-    public ExecutionLevelInfoFactory(Thesaurus thesaurus, UserService userService) {
+    public ExecutionLevelInfoFactory(Thesaurus thesaurus) {
         this.thesaurus = thesaurus;
     }
 

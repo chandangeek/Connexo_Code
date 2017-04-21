@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class KeyFunctionTypeInfo {
+public class SecurityAccessorInfo {
     public long id;
     public String name;
     public String description;

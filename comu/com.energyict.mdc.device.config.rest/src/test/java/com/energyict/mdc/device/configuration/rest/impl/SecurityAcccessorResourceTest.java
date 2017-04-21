@@ -18,7 +18,6 @@ import com.jayway.jsonpath.JsonModel;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.MediaType;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -34,7 +33,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class KeyFunctionTypeResourceTest extends DeviceConfigurationApplicationJerseyTest {
+public class SecurityAcccessorResourceTest extends DeviceConfigurationApplicationJerseyTest {
 
 
     private static final String DESCRIPTION = "NEW DESCRIPTION";
@@ -86,7 +85,7 @@ public class KeyFunctionTypeResourceTest extends DeviceConfigurationApplicationJ
     @Test
     public void addKeyFunctionTypeOnDeviceType() throws Exception {
         DeviceType deviceType = mockDeviceType("device type 1", 66);
-        KeyFunctionTypeInfo info = new KeyFunctionTypeInfo();
+        SecurityAccessorInfo info = new SecurityAccessorInfo();
         when(deviceConfigurationService.findAndLockDeviceType(66, 1)).thenReturn(Optional.of(deviceType));
         info.id = 1;
         info.description = DESCRIPTION;
@@ -97,7 +96,7 @@ public class KeyFunctionTypeResourceTest extends DeviceConfigurationApplicationJ
         KeyType keyType = mock(KeyType.class);
         when(keyType.getId()).thenReturn(1L);
         when(keyType.getName()).thenReturn("AES 128");
-        when(keyType.getCryptographicType()).thenReturn(CryptographicType.AsymmetricKey);
+        when(keyType.getCryptographicType()).thenReturn(CryptographicType.SymmetricKey);
 
         when(pkiService.getKeyType("AES 128")).thenReturn(Optional.of(keyType));
 
@@ -113,7 +112,7 @@ public class KeyFunctionTypeResourceTest extends DeviceConfigurationApplicationJ
         info.keyType.name = "AES 128";
         info.keyType.requiresDuration = true;
 
-        target("/devicetypes/66/securityaccessors").request().post(Entity.entity(info, MediaType.APPLICATION_JSON));
+        target("/devicetypes/66/securityaccessors").request().post(Entity.json(info));
         verify(deviceType).addKeyAccessorType(NAME, keyType);
         verify(builder).description(DESCRIPTION);
         verify(builder).duration(info.validityPeriod.asTimeDuration());
@@ -126,7 +125,7 @@ public class KeyFunctionTypeResourceTest extends DeviceConfigurationApplicationJ
         KeyAccessorType keyFunctionType = mockKeyFunctionType(1, "Name", "Epic description");
         when(deviceType.getKeyAccessorTypes()).thenReturn(Collections.singletonList(keyFunctionType));
         when(deviceConfigurationService.findAndLockDeviceType(66, 1)).thenReturn(Optional.of(deviceType));
-        KeyFunctionTypeInfo info = new KeyFunctionTypeInfo();
+        SecurityAccessorInfo info = new SecurityAccessorInfo();
         info.id = 1;
         info.description = "New Description";
         info.name = "New name";
@@ -139,7 +138,7 @@ public class KeyFunctionTypeResourceTest extends DeviceConfigurationApplicationJ
         when(deviceType.getKeyAccessorTypeUpdater(keyFunctionType)).thenReturn(Optional.of(updater));
         when(updater.complete()).thenReturn(keyFunctionType);
 
-        target("/devicetypes/66/securityaccessors/1").request().put(Entity.entity(info, MediaType.APPLICATION_JSON));
+        target("/devicetypes/66/securityaccessors/1").request().put(Entity.json(info));
         verify(deviceType).getKeyAccessorTypeUpdater(keyFunctionType);
         verify(updater).description(info.description);
         verify(updater).name(info.name);
@@ -153,7 +152,7 @@ public class KeyFunctionTypeResourceTest extends DeviceConfigurationApplicationJ
         KeyAccessorType keyFunctionType = mockKeyFunctionType(1, "Name", "Epic description");
         when(deviceType.getKeyAccessorTypes()).thenReturn(Collections.singletonList(keyFunctionType));
         when(deviceConfigurationService.findAndLockDeviceType(66, 1)).thenReturn(Optional.of(deviceType));
-        KeyFunctionTypeInfo info = new KeyFunctionTypeInfo();
+        SecurityAccessorInfo info = new SecurityAccessorInfo();
         info.parent = new VersionInfo<>("device type 1", 1L);
 
         target("/devicetypes/66/securityaccessors/1").request().method("DELETE", Entity.json(info));
