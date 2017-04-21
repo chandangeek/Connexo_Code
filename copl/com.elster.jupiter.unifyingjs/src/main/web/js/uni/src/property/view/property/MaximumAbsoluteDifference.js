@@ -110,7 +110,7 @@ Ext.define('Uni.property.view.property.MaximumAbsoluteDifference', {
             if(value.type === 'absolute'){
                 me.getValueRadioField().setValue(true);
                 me.getValueNumberField().setValue(value.value);
-            } else if(value.type === 'percent') {
+            } else if(value.type === 'relative') {
                 me.getPercentRadioField().setValue(true);
                 me.getPercentNumberField().setValue(value.value);
             }
@@ -123,7 +123,7 @@ Ext.define('Uni.property.view.property.MaximumAbsoluteDifference', {
 
         if (value.type === 'absolute') {
             return value.value;
-        } else if (value.type === 'percent') {
+        } else if (value.type === 'relative') {
             return value.value + '%';
         } else {
             return arguments;
@@ -139,7 +139,7 @@ Ext.define('Uni.property.view.property.MaximumAbsoluteDifference', {
             }
         } else {
             return {
-                type: 'percent',
+                type: 'relative',
                 value: me.getPercentNumberField().getValue()
             }
         }
