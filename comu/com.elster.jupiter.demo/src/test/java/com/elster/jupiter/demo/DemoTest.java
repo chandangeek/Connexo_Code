@@ -7,6 +7,7 @@ package com.elster.jupiter.demo;
 import com.elster.jupiter.appserver.impl.AppServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
+import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.calendar.impl.importers.CalendarImporterFactory;
 import com.elster.jupiter.cps.CustomPropertySetService;
@@ -218,6 +219,7 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.in;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -864,7 +866,7 @@ public class DemoTest {
                         propertySpecService,
                         injector.getInstance(ValidationService.class),
                         injector.getInstance(MeteringService.class),
-                        timeService);
+                        timeService, injector.getInstance(CalendarService.class));
         estimationService.addEstimatorFactory(estimatorFactory);
 
     }
