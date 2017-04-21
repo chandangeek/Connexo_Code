@@ -10,6 +10,8 @@ import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.LocationBuilder;
 import com.elster.jupiter.metering.LocationBuilder.LocationMemberBuilder;
@@ -48,6 +50,7 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.geo.SpatialCoordinates;
 import com.elster.jupiter.util.geo.SpatialCoordinatesFactory;
 
+import com.google.common.base.MoreObjects;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -65,6 +68,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Scanner;
 import java.util.stream.Collectors;
@@ -367,6 +371,40 @@ public class MeteringConsoleCommands {
         meteringService.getAvailableReadingTypes().stream()
                 .map(ReadingType::getMRID)
                 .forEach(System.out::println);
+        System.out.println("Note that you can also list the available reading types on a meter by specifying the meter database id, mRID or name as a parameter to this command");
+    }
+
+    public void readingTypes(String meterIdentifier) {
+        try {
+            Optional<Meter> candidate = this.meteringService.findMeterById(Long.parseLong(meterIdentifier));
+            if (candidate.isPresent()) {
+                this.readingTypes(candidate.get());
+            } else {
+                this.readingTypesByNameOrmRID(meterIdentifier);
+            }
+        } catch (NumberFormatException e) {
+            // Maybe the meter identifier was not the database id
+            this.readingTypesByNameOrmRID(meterIdentifier);
+        }
+    }
+
+    private void readingTypesByNameOrmRID(String meterIdentifier) {
+        this.readingTypes(
+                this.meteringService
+                        .findMeterByName(meterIdentifier)
+                        .orElseGet(() -> this.meteringService
+                                .findMeterByMRID(meterIdentifier)
+                                .orElseThrow(() -> new IllegalArgumentException("Unable to find meter with database that id, mRID or name "))));
+    }
+
+    private void readingTypes(Meter meter) {
+        meter
+            .getChannelsContainers()
+            .stream()
+            .map(ChannelsContainer::getChannels)
+            .flatMap(Collection::stream)
+            .map(ChannelInfo::from)
+            .forEach(System.out::println);
     }
 
     public void addEvents(String name, String dataFile) {
@@ -917,6 +955,28 @@ public class MeteringConsoleCommands {
                     .orElseThrow(() -> new IllegalArgumentException("Usage point "+usagePointName + " does not have open metrology configuration"));
             usagePoint.getCurrentEffectiveMetrologyConfiguration().get().close(endDate);
             context.commit();
+        }
+    }
+
+    private static class ChannelInfo {
+        private final Channel channel;
+
+        static ChannelInfo from(Channel channel) {
+            return new ChannelInfo(channel);
+        }
+
+        private ChannelInfo(Channel channel) {
+            this.channel = channel;
+        }
+
+        @Override
+        public String toString() {
+            return MoreObjects
+                    .toStringHelper(this.channel)
+                    .add("ID", this.channel.getId())
+                    .add("main reading type mRID", this.channel.getMainReadingType().getMRID())
+                    .add("main reading type", this.channel.getMainReadingType().getFullAliasName())
+                    .toString();
         }
     }
 
