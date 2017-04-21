@@ -302,7 +302,6 @@ public class MeteringCommands {
                                         .flatMap(cc -> cc.map(ccc -> ccc.getChannels().stream())).map(s -> s.collect(Collectors.toList())).orElse(Collections.emptyList());
                                 channels.stream()
                                         .filter(channel -> channel.getMainReadingType().equals(readingTypeOptional.get()))
-                                        .filter(channel -> !channel.getLastDateTime().isAfter(startFinalInstant))
                                         .forEach(channel -> {
                                             CimChannel cimChannel = channel.getCimChannel(channel.getMainReadingType()).orElseThrow(IllegalArgumentException::new);
                                             BigDecimal givenValue = BigDecimal.valueOf(value);
