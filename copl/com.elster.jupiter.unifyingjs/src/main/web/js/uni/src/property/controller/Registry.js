@@ -57,7 +57,9 @@ Ext.define('Uni.property.controller.Registry', {
         'Uni.property.view.property.RaisedEventProps',
         'Uni.property.view.property.EventTime',
         'Uni.property.view.property.StartAlarmProcess',
-        'Uni.property.view.property.CalendarWithEventCode'
+        'Uni.property.view.property.CalendarWithEventCode',
+        'Uni.property.view.property.MaximumAbsoluteDifference',
+        'Uni.property.view.property.NoneOrBigDecimal'
     ],
 
     /**
@@ -107,7 +109,8 @@ Ext.define('Uni.property.controller.Registry', {
         TIMESTAMP: 'Uni.property.view.property.DateTime',
         UNKNOWN: 'Uni.property.view.property.Text',
         CALENDARWITHEVENTCODE: 'Uni.property.view.property.CalendarWithEventCode',
-
+        TWO_VALUES_DIFFERENCE: 'Uni.property.view.property.MaximumAbsoluteDifference',
+        NON_OR_BIG_DECIMAL: 'Uni.property.view.property.NoneOrBigDecimal'
     },
 
 // store must be registered on some ctrl (not in the responsibility of this class: move later?)
