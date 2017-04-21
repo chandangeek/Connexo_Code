@@ -111,11 +111,11 @@ public class ReadingEstimateIT {
 
         //step 3
         ReadingImpl reading1 = ReadingImpl.of(readingTypeCode, BigDecimal.valueOf(2), existDate);
-        reading1.addQuality("2.8.1"); // estimated by rule 1
+        reading1.addQuality("2.8.1", "Estimated by market rule 11"); // estimated by rule 1
         ReadingImpl reading2 = ReadingImpl.of(readingTypeCode, BigDecimal.valueOf(2), newDate);
-        reading2.addQuality("2.8.2"); // estimated by rule 2
+        reading2.addQuality("2.8.2", "Estimated by market rule 12"); // estimated by rule 2
         ReadingImpl reading3 = ReadingImpl.of(readingTypeCode, BigDecimal.valueOf(2), otherDate);
-        reading3.addQuality("2.8.3"); // estimated by rule 3
+        reading3.addQuality("2.8.3", "Estimated by market rule 13"); // estimated by rule 3
         cimChannel.estimateReadings(QualityCodeSystem.MDC, ImmutableList.of(reading1, reading2, reading3));
         // existDate qualities
         assertQualities(cimChannel, existDate, new ReadingQualityType[]{
@@ -142,6 +142,8 @@ public class ReadingEstimateIT {
         });
         Optional<BaseReadingRecord> channelReading = channel.getReading(existDate);
         assertThat(channelReading).isPresent();
+        assertThat(channelReading.get().getReadingQualities().stream()
+                .filter(readingQuality -> "Estimated by market rule 11".equals(readingQuality.getComment())).findFirst()).isPresent();
         assertThat(channelReading.get().getQuantity(readingType)).isEqualTo(quantity(BigDecimal.valueOf(2), KILO, WATTHOUR));
     }
 

@@ -236,22 +236,29 @@ public abstract class AbstractCimChannel implements CimChannel {
     }
 
     private void processReadingQualities(BaseReading reading, List<ReadingQualityRecord> currentQualityRecords) {
-        reading.getReadingQualities().stream()
-                .filter(readingQuality -> currentQualityRecords.stream()
-                        .filter(record -> !record.getType().equals(readingQuality.getType()) || !matchComments(record, readingQuality))
-                        .findAny()
-                        .isPresent())
-                .forEach(readingQuality -> {
-                    Optional<ReadingQualityRecord> record = currentQualityRecords.stream().filter(rec -> rec.getType().equals(readingQuality.getType())).findFirst();
-                    if (record.isPresent()) {
-                        ReadingQualityRecord toBeActualRecord = record.get();
-                        if (toBeActualRecord.getType().hasProjectedCategory()) {
-                            toBeActualRecord.makeActual();
+        if (currentQualityRecords.isEmpty()) {
+            reading.getReadingQualities().forEach(readingQuality -> createReadingQuality(readingQuality.getType(), reading, readingQuality.getComment()));
+        } else {
+            reading.getReadingQualities().stream()
+                    .filter(readingQuality -> currentQualityRecords.stream()
+                            .filter(record -> !record.getType()
+                                    .equals(readingQuality.getType()) || !matchComments(record, readingQuality))
+                            .findAny()
+                            .isPresent())
+                    .forEach(readingQuality -> {
+                        Optional<ReadingQualityRecord> record = currentQualityRecords.stream()
+                                .filter(rec -> rec.getType().equals(readingQuality.getType()))
+                                .findFirst();
+                        if (record.isPresent()) {
+                            ReadingQualityRecord toBeActualRecord = record.get();
+                            if (toBeActualRecord.getType().hasProjectedCategory()) {
+                                toBeActualRecord.makeActual();
+                            }
+                        } else {
+                            createReadingQuality(readingQuality.getType(), reading, readingQuality.getComment());
                         }
-                    } else {
-                        createReadingQuality(readingQuality.getType(), reading, readingQuality.getComment());
-                    }
-                });
+                    });
+        }
     }
 
     private static void cleanObsoleteQualitiesWhenEditingOrEstimating(Collection<ReadingQualityRecord> currentQualityRecords) {
