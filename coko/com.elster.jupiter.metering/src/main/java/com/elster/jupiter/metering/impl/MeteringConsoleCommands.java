@@ -106,6 +106,7 @@ import java.util.stream.Stream;
         "osgi.command.function=updateDeliverableReadingType",
         "osgi.command.function=updateDeliverableFormula",
         "osgi.command.function=deleteDeliverable",
+        "osgi.command.function=addMetrologyContract",
         "osgi.command.function=getDeliverablesOnContract",
         "osgi.command.function=addDeliverableToContract",
         "osgi.command.function=removeDeliverableFromContract",
@@ -718,8 +719,31 @@ public class MeteringConsoleCommands {
         return (ServerExpressionNode) formula.getExpressionNode();
     }
 
+    public void addMetrologyContract() {
+        System.out.println("Usage: addMetrologyContract <metrology configuration id> <" + Stream.of(DefaultMetrologyPurpose.values()).map(DefaultMetrologyPurpose::name).collect(Collectors.joining(" | ")) + ">");
+    }
+
+    public void addMetrologyContract(long metrologyConfigurationId, String metrologyPurpose) {
+        this.threadPrincipalService.set(() -> "Console");
+        this.addMetrologyContract(
+                this.metrologyConfigurationService
+                        .findMetrologyConfiguration(metrologyConfigurationId)
+                        .orElseThrow(() -> new IllegalArgumentException("No such metrology configuration")),
+                this.metrologyConfigurationService
+                        .findMetrologyPurpose(DefaultMetrologyPurpose.valueOf(metrologyPurpose))
+                        .orElseThrow(() -> new IllegalArgumentException("No such metrology purpose")));
+    }
+
+    private void addMetrologyContract(MetrologyConfiguration metrologyConfiguration, MetrologyPurpose metrologyPurpose) {
+        try (TransactionContext context = this.transactionService.getContext()) {
+            MetrologyContract metrologyContract = metrologyConfiguration.addMetrologyContract(metrologyPurpose);
+            System.out.println("Metrology contract created: " + metrologyContract.getId());
+            context.commit();
+        }
+    }
+
     public void addDeliverable() {
-        System.out.println("Usage: addDeliverable  <metrology configuration id> <name> <reading type> <formula string>");
+        System.out.println("Usage: addDeliverable  <metrology contract id> <name> <reading type> <formula string>");
     }
 
     public void addDeliverable(long metrologyContractId, String name, String readingTypeString, String formulaString) {
@@ -841,7 +865,7 @@ public class MeteringConsoleCommands {
     }
 
     public void addDeliverableToContract() {
-        System.out.println("Usage: addDeliverableToContract <metrology configuration id> <deliverable id> (" + Stream.of(DefaultMetrologyPurpose.values()).map(DefaultMetrologyPurpose::name).collect(Collectors.joining(" | ")) + ")");
+        System.out.println("Usage: addDeliverableToContract <metrology contract id> <deliverable id> (" + Stream.of(DefaultMetrologyPurpose.values()).map(DefaultMetrologyPurpose::name).collect(Collectors.joining(" | ")) + ")");
     }
 
     public void removeDeliverableFromContract() {
