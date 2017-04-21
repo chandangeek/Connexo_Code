@@ -51,6 +51,6 @@ public interface LegacyMessageConverter {
      * Sets the used MessagingProtocol so the converter can make proper use
      * of the original functionality which created the xml formatted messages
      */
-    void setMessagingProtocol(Messaging messagingProtocol);
+    void setMessagingProtocol(com.energyict.mdc.upl.messages.legacy.Messaging messagingProtocol);
 
 }
