@@ -99,7 +99,7 @@ Ext.define('Imt.dataquality.view.Grid', {
             },
             {
                 header: '<span class="white-circle-grid-header" style="font-weight:bold; cursor: default" data-qtip="' + Uni.I18n.translate('general.projected', 'IMT', 'Projected') + '">P</span>',
-                exportText: Uni.I18n.translate('general.edited', 'IMT', 'Projected'),
+                exportText: Uni.I18n.translate('general.projected', 'IMT', 'Projected'),
                 dataIndex: 'amountOfProjected',
                 align: 'right',
                 flex: 1
