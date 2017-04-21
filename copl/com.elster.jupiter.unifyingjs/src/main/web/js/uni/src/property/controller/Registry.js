@@ -59,7 +59,8 @@ Ext.define('Uni.property.controller.Registry', {
         'Uni.property.view.property.StartAlarmProcess',
         'Uni.property.view.property.MaximumAbsoluteDifference',
         'Uni.property.view.property.NoneOrBigDecimal',
-        'Uni.property.view.property.ReadingType'
+        'Uni.property.view.property.IrregularReadingType',
+        'Uni.property.view.property.NoneOrTimeDuration'
     ],
 
     /**
@@ -83,7 +84,7 @@ Ext.define('Uni.property.controller.Registry', {
         FIRMWAREVERSION: 'Uni.property.view.property.Reference',
         HEXSTRING: 'Uni.property.view.property.Hexstring',
         IDWITHNAME: 'Uni.property.view.property.Reference',
-        IRREGULAR_READINGTYPE: 'Uni.property.view.property.ReadingType',
+        IRREGULAR_READINGTYPE: 'Uni.property.view.property.IrregularReadingType',
         LIFECYCLESTATUSINDEVICETYPE: 'Uni.property.view.property.LifeCycleStatusInDeviceType',
         LISTREADINGQUALITY: 'Uni.property.view.property.ReadingQualities',
         LISTVALUE: 'Uni.property.view.property.Multiselect',
@@ -91,6 +92,7 @@ Ext.define('Uni.property.controller.Registry', {
         LOADPROFILETYPE: 'Uni.property.view.property.Reference',
         LOGBOOK: 'Uni.property.view.property.Reference',
         LONG: 'Uni.property.view.property.Number',
+        NONE_OR_TIME_DURATION: 'Uni.property.view.property.NoneOrTimeDuration',
         NULLABLE_BOOLEAN: 'Uni.property.view.property.NullableBoolean',
         NUMBER: 'Uni.property.view.property.DecimalNumber',
         OBISCODE: 'Uni.property.view.property.ObisCode',
