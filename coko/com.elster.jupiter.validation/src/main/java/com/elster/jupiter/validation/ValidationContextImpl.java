@@ -7,6 +7,7 @@ package com.elster.jupiter.validation;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MetrologyContractChannelsContainer;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.MetrologyContract;
@@ -29,6 +30,9 @@ public class ValidationContextImpl implements ValidationContext {
     public ValidationContextImpl(Set<QualityCodeSystem> qualityCodeSystems, ChannelsContainer channelsContainer) {
         setChannelsContainer(channelsContainer);
         setQualityCodeSystems(qualityCodeSystems);
+        if (channelsContainer instanceof MetrologyContractChannelsContainer) {
+            setMetrologyContract(((MetrologyContractChannelsContainer) channelsContainer).getMetrologyContract());
+        }
     }
 
     public ValidationContextImpl(Set<QualityCodeSystem> qualityCodeSystems, ChannelsContainer channelsContainer, ReadingType readingType) {
