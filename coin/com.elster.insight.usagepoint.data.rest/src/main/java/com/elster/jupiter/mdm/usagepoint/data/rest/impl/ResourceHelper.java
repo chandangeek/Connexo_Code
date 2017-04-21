@@ -320,6 +320,7 @@ public class ResourceHelper {
                     });
             linker.complete();
         }
+
     }
 
     private void replaceOrActivateMeter(UsagePointMeterActivator linker, UsagePoint usagePoint, Instant activationTime, String meterName, MeterRole meterRole) {
