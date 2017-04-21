@@ -32,7 +32,6 @@ public enum MessageSeeds implements MessageSeed {
     // {0} - period, {1} - estimator name, {2} - usage point, {3} - purpose, {4} - reading type
     MAINCHECK_ESTIMATOR_FAIL_INTERNAL_ERROR(1013,"maincheck.estimator.fail.internal","Failed to estimate period \"{0}\" using method {1} on {2}/{3}/{4} due to internal error"),
 
-    INVALID_ADVANCE_READINGTYPE_NONE_NOT_ALLOWED(1014, "property.error.advanceReadingsSettings.not.none", "None is not allowed"),
     INVALID_NUMBER(1015,"property.error", "This value should be positive"),
     INVALID_DISCARD_DAY_FIELD(1016, "property.error.discardDaySettings.not.null", "This field is required");
     public static final String COMPONENT_NAME = "ESR";

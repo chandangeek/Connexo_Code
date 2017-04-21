@@ -207,12 +207,12 @@ public class DefaultEstimatorFactory implements EstimatorFactory, TranslationKey
         NEAREST_AVERAGE_VALUE_DAY(NEAREST_AVERAGE_VALUE_DAY_ESTIMATOR) {
             @Override
             Estimator create(EstimatorParameters estimatorParameters){
-                return new NearestAvgValueDayEstimator(thesaurus, propertySpecService, validationService, meteringService, timeService, calendarService, props );
+                return new NearestAvgValueDayEstimator(estimatorParameters.thesaurus, estimatorParameters.propertySpecService, estimatorParameters.validationService, estimatorParameters.meteringService, estimatorParameters.timeService, estimatorParameters.calendarService, estimatorParameters.props );
             }
 
             @Override
             AbstractEstimator createTemplate(EstimatorParameters estimatorParameters) {
-                return new NearestAvgValueDayEstimator(thesaurus,propertySpecService,validationService,meteringService,timeService,calendarService);
+                return new NearestAvgValueDayEstimator(estimatorParameters.thesaurus,estimatorParameters.propertySpecService,estimatorParameters.validationService,estimatorParameters.meteringService,estimatorParameters.timeService,estimatorParameters.calendarService);
             }
         };
 

@@ -53,8 +53,6 @@ public class DefaultEstimatorFactoryTest {
     public void testCreatePowerGapFill() {
         DefaultEstimatorFactory defaultEstimatorFactory = new DefaultEstimatorFactory(nlsService, propertySpecService, validationService, meteringService, metrologyConfigurationService, timeService, calendarService);
 
-        DefaultEstimatorFactory defaultEstimatorFactory = new DefaultEstimatorFactory(nlsService, propertySpecService, validationService, meteringService, timeService, calendarService);
-
         assertThat(defaultEstimatorFactory.available()).containsOnly(
                 DefaultEstimatorFactory.POWER_GAP_FILL_ESTIMATOR,
                 DefaultEstimatorFactory.AVG_WITH_SAMPLES_ESTIMATOR,
