@@ -17,7 +17,7 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * Provides functionality to send {@link com.energyict.mdw.core.OldDeviceMessage}s to a device.
+ * Provides functionality to send old-style device messages to a device.
  *
  * @author kvds
  */

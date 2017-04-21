@@ -8,7 +8,6 @@ import java.util.List;
 
 /**
  * Provides functionality to do conversion between the new and old-style device message specs.
- * <p/>
  *
  * Date: 8/03/13
  * Time: 16:15
@@ -39,5 +38,11 @@ public interface LegacyMessageConverter {
      * @return the converted legacy MessageEntry
      */
     MessageEntry toMessageEntry(OfflineDeviceMessage offlineDeviceMessage);
+
+    /**
+     * Sets the used MessagingProtocol so the converter can make proper use
+     * of the original functionality which created the xml formatted messages
+     */
+    void setMessagingProtocol(Messaging messagingProtocol);
 
 }

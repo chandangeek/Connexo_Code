@@ -111,6 +111,8 @@ public class Services {
             return x509Service();
         } else if (KeyStoreService.class.equals(serviceType)) {
             return keyStoreService();
+        } else if (RegisterExtractor.class.equals(serviceType)) {
+            return registerExtractor();
         } else {
             throw new UnknownServiceType(serviceType);
         }
