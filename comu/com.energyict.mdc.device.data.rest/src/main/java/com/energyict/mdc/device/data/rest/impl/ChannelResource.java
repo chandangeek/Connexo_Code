@@ -643,7 +643,7 @@ public class ChannelResource {
                     .filter(estimationRule -> estimationRule.getRuleSet()
                             .getQualityCodeSystem()
                             .equals(QualityCodeSystem.MDC))
-                    .filter(estimationRule -> !deviceConfigurationService.findDeviceConfigurationsForEstimationRuleSet(estimationRule.getRuleSet()).find().isEmpty())
+                    .filter(estimationRule -> deviceConfigurationService.findDeviceConfigurationsForEstimationRuleSet(estimationRule.getRuleSet()).find().contains(device.getDeviceConfiguration()))
                     .filter(estimationRule -> estimationRule.getReadingTypes().contains(channel.getReadingType().getCalculatedReadingType().orElse(null)))
                     .map(estimationRuleInfoFactory::asInfo)
                     .collect(Collectors.toList());
