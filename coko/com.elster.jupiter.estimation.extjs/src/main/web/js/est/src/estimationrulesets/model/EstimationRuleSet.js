@@ -40,7 +40,8 @@ Ext.define('Est.estimationrulesets.model.EstimationRuleSet', {
             persist: false,
             name: 'implementation',
             type: 'string'
-        }
+        },
+        { name: 'isInUse', persist: false }
     ],
 
     associations: [
