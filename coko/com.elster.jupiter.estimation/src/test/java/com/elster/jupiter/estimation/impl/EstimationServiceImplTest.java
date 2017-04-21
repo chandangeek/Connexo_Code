@@ -41,6 +41,7 @@ import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
@@ -70,7 +71,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Stream;
 
 import org.junit.After;
 import org.junit.Before;
@@ -103,6 +103,8 @@ public class EstimationServiceImplTest {
     private TimeService timeService;
     @Mock
     private MeteringService meteringService;
+    @Mock
+    private MetrologyConfigurationService metrologyConfigurationService;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private OrmService ormService;
     @Mock
@@ -177,8 +179,7 @@ public class EstimationServiceImplTest {
     ReadingType readingType;
     @Mock
     ReadingTypeDeliverable readingTypeDeliverable;
-    @Mock
-    Stream<String> stringStream;
+
     private LogRecorder logRecorder;
 
     @Before
@@ -203,7 +204,7 @@ public class EstimationServiceImplTest {
         when(userService.findGroup(any(String.class))).thenReturn(Optional.of(group));
         when(userService.createUser(any(String.class), any(String.class))).thenReturn(user);
 
-        this.estimationService = new EstimationServiceImpl(meteringService, ormService, queryService, nlsService, eventService, taskService, meteringGroupService, messageService, timeService, userService, upgradeService, Clock
+        this.estimationService = new EstimationServiceImpl(meteringService,metrologyConfigurationService,ormService, queryService, nlsService, eventService, taskService, meteringGroupService, messageService, timeService, userService, upgradeService, Clock
                 .systemDefaultZone());
 
         estimationService.addEstimationResolver(resolver);
@@ -244,8 +245,8 @@ public class EstimationServiceImplTest {
         doReturn(fetcher).when(cimChannel1).findReadingQualities();
         doReturn(fetcher).when(cimChannel2).findReadingQualities();
         doAnswer(invocation -> ((Instant) invocation.getArguments()[0]).plus(Duration.ofMinutes(15))).when(channel).getNextDateTime(any());
-        doReturn(estimator1).when(rule1).createNewEstimator();
-        doReturn(estimator2).when(rule2).createNewEstimator();
+        doReturn(estimator1).when(rule1).createNewEstimator(any(), any());
+        doReturn(estimator2).when(rule2).createNewEstimator(any(), any());
         doReturn(true).when(rule1).isActive();
         doReturn(true).when(rule2).isActive();
         doReturn(channelsContainer).when(channel).getChannelsContainer();
