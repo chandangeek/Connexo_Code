@@ -117,6 +117,7 @@ public class PKIServiceImplIT {
     public void tearDown() throws Exception {
         ((PkiServiceImpl) inMemoryPersistence.getPkiService()).removePrivateKeyFactory(inMemoryPersistence.getDataVaultPrivateKeyFactory());
         ((PkiServiceImpl) inMemoryPersistence.getPkiService()).removeSymmetricKeyFactory(inMemoryPersistence.getDataVaultSymmetricKeyFactory());
+        ((PkiServiceImpl) inMemoryPersistence.getPkiService()).removePassphraseFactory(inMemoryPersistence.getDataVaultPassphraseFactory());
     }
 
     @Test
