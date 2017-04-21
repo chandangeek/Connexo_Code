@@ -15,7 +15,9 @@ import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.units.Quantity;
 
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.time.Instant;
+import java.time.temporal.TemporalAmount;
 
 public enum SimplePropertyType implements PropertyType {
     UNKNOWN(Void.class),
@@ -39,7 +41,9 @@ public enum SimplePropertyType implements PropertyType {
     RAISEEVENTPROPS(HasIdAndName.class),
     RELATIVEPERIODWITHCOUNT(ListValueFactory.class),
     BPM_PROCESS(HasIdAndName.class),
-    TIMEDURATION(TimeDuration.class);
+    TEMPORALAMOUNT(TemporalAmount.class),   //Property indicating a long period (See java.time.Period)
+    DURATION(Duration.class),               //Property indicating a short duration (See java.time.Duration)
+    TIMEDURATION(TimeDuration.class);       //Property that can indicate any kind of duration/period
 
     private Class typeClass;
 
