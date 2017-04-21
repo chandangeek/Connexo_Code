@@ -56,6 +56,7 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public abstract class MainCheckEstimatorTest {
 
+
     private static final Logger LOGGER = Logger.getLogger(MainCheckEstimatorTest.class.getName());
     @Mock
     private MetrologyPurpose PURPOSE;
