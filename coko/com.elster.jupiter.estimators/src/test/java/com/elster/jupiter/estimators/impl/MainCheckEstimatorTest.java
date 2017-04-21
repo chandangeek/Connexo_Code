@@ -17,6 +17,7 @@ import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.readings.BaseReading;
+import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.validation.DataValidationStatus;
@@ -32,6 +33,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -41,9 +43,11 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -53,8 +57,11 @@ import static org.mockito.Mockito.when;
 public abstract class MainCheckEstimatorTest {
 
     private static final Logger LOGGER = Logger.getLogger(MainCheckEstimatorTest.class.getName());
-    private static final String PURPOSE = "Purpose";
-    private static final String NOT_EXISTING_PURPOSE = "Not existing purpose";
+    @Mock
+    private MetrologyPurpose PURPOSE;
+    private static final String PURPOSE_NAME = "Purpose";
+    @Mock
+    private MetrologyPurpose NOT_EXISTING_PURPOSE;
     private static DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
 
     MainCheckEstimator mockEstimator(EstimationConfiguration estimationConfiguration) {
@@ -112,7 +119,28 @@ public abstract class MainCheckEstimatorTest {
             return estimationBlocks;
         }
 
+        NlsMessageFormat createNlsMessageFormat(MessageSeeds messageSeeds){
+            NlsMessageFormat nlsMessageFormat = mock(NlsMessageFormat.class);
+            when(nlsMessageFormat.format(anyVararg())).thenAnswer(invocationOnMock -> {
+                return String.format(messageSeeds.getDefaultFormat().replaceAll("\\{.}","%s"),invocationOnMock.getArguments());
+            });
+            return nlsMessageFormat;
+        }
+
+
         void mockAll() {
+
+            thesaurus = mock(Thesaurus.class);
+
+            NlsMessageFormat nameFormat = mock(NlsMessageFormat.class);
+            when(nameFormat.format()).thenReturn(MainCheckEstimator.TranslationKeys.ESTIMATOR_NAME.getDefaultFormat());
+            when(thesaurus.getFormat(MainCheckEstimator.TranslationKeys.ESTIMATOR_NAME)).thenReturn(nameFormat);
+
+            Arrays.stream(MessageSeeds.values()).forEach(messageSeeds -> {
+                NlsMessageFormat nlsMessageFormat = createNlsMessageFormat(messageSeeds);
+                when(thesaurus.getFormat(messageSeeds)).thenReturn(nlsMessageFormat);
+            });
+
             properties = new HashMap<String, Object>() {{
                 put(MainCheckEstimator.CHECK_PURPOSE, notAvailablePurpose?NOT_EXISTING_PURPOSE:PURPOSE);
             }};
@@ -200,9 +228,8 @@ public abstract class MainCheckEstimatorTest {
             when(effectiveMetrologyConfigurationOnUsagePoint.getMetrologyConfiguration()).thenReturn(metrologyConfiguration);
             MetrologyContract metrologyContract = mock(MetrologyContract.class);
             when(metrologyConfiguration.getContracts()).thenReturn(Collections.singletonList(metrologyContract));
-            MetrologyPurpose metrologyPurpose = mock(MetrologyPurpose.class);
-            when(metrologyContract.getMetrologyPurpose()).thenReturn(metrologyPurpose);
-            when(metrologyPurpose.getName()).thenReturn(PURPOSE);
+            when(metrologyContract.getMetrologyPurpose()).thenReturn(PURPOSE);
+            when(PURPOSE.getName()).thenReturn(PURPOSE_NAME);
 
             when(effectiveMetrologyConfigurationOnUsagePoint.getChannelsContainer(metrologyContract)).thenReturn(Optional
                     .of(channelsContainer));

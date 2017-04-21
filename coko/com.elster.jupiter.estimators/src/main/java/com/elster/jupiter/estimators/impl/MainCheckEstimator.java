@@ -13,7 +13,6 @@ import com.elster.jupiter.estimators.AbstractEstimator;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.IntervalReadingRecord;
-import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
@@ -27,6 +26,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.util.logging.LoggingContext;
 import com.elster.jupiter.util.streams.Predicates;
+import com.elster.jupiter.util.time.DefaultDateTimeFormatters;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.ValidationResult;
@@ -37,9 +37,9 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -65,13 +65,19 @@ import static com.elster.jupiter.estimators.impl.MainCheckEstimator.ReferenceRea
 public class MainCheckEstimator extends AbstractEstimator implements Estimator {
 
     private static final Set<QualityCodeSystem> QUALITY_CODE_SYSTEMS = ImmutableSet.of(QualityCodeSystem.MDM);
+    private static final DateTimeFormatter DATE_TIME_FORMATTER = DefaultDateTimeFormatters.mediumDate()
+            .withShortTime()
+            .build()
+            .withZone(ZoneId
+                    .systemDefault())
+            .withLocale(Locale.ENGLISH);
 
     static final String CHECK_PURPOSE = TranslationKeys.CHECK_PURPOSE.getKey();
 
     private ValidationService validationService;
     private MetrologyConfigurationService metrologyConfigurationService;
 
-    private String checkPurpose;
+    private MetrologyPurpose checkPurpose;
 
     private UsagePoint usagePoint;
 
@@ -95,20 +101,17 @@ public class MainCheckEstimator extends AbstractEstimator implements Estimator {
     @Override
     public List<PropertySpec> getPropertySpecs() {
 
-        List<String> metrologyPurposes = metrologyConfigurationService.getMetrologyPurposes()
-                .stream()
-                .map(MetrologyPurpose::getName)
-                .collect(Collectors.toList());
+        List<MetrologyPurpose> metrologyPurposes = metrologyConfigurationService.getMetrologyPurposes();
 
         ImmutableList.Builder<PropertySpec> builder = ImmutableList.builder();
         builder
                 .add(getPropertySpecService()
-                        .stringSpec()
+                        .referenceSpec(MetrologyPurpose.class)
                         .named(TranslationKeys.CHECK_PURPOSE)
                         .describedAs(TranslationKeys.CHECK_PURPOSE_DESCRIPTION)
                         .fromThesaurus(this.getThesaurus())
                         .markRequired()
-                        .setDefaultValue(metrologyPurposes.size() != 0 ? metrologyPurposes.get(0) : "")
+                        .setDefaultValue(metrologyPurposes.get(0))
                         .addValues(metrologyPurposes)
                         .markExhaustive(PropertySelectionMode.COMBOBOX)
                         .finish());
@@ -130,7 +133,8 @@ public class MainCheckEstimator extends AbstractEstimator implements Estimator {
         if (!usagePoint.isPresent()) {
             // no usage point found
             LoggingContext.get()
-                    .warning(getLogger(), "Failed to perform estimation using method " + TranslationKeys.ESTIMATOR_NAME.getDefaultFormat() + " since usage point had not been found.");
+                    .warning(getLogger(), getThesaurus().getFormat(MessageSeeds.MAINCHECK_ESTIMATOR_FAIL_NO_UP)
+                            .format(getThesaurus().getFormat(TranslationKeys.ESTIMATOR_NAME).format()));
             return SimpleEstimationResult.of(estimationBlocks, Collections.emptyList());
         } else {
             this.usagePoint = usagePoint.get();
@@ -161,25 +165,40 @@ public class MainCheckEstimator extends AbstractEstimator implements Estimator {
                     .stream()
                     .map(ReferenceReading::getQuality)
                     .anyMatch(e -> e.equals(ReferenceReadingQuality.NO_MC))) {
-                message = FailMessages.EFFECTIVE_MC_NOT_FOUND.getMessage(estimationBlock, usagePoint.getName(), checkPurpose);
+                message = getThesaurus().getFormat(MessageSeeds.MAINCHECK_ESTIMATOR_FAIL_EFFECTIVE_MC_NOT_FOUND)
+                        .format(blockToString(estimationBlock), getThesaurus().getFormat(TranslationKeys.ESTIMATOR_NAME)
+                                .format(), estimationBlock.getReadingType()
+                                .getFullAliasName(), usagePoint.getName());
             } else if (referenceReadingMap.values()
                     .stream()
                     .map(ReferenceReading::getQuality)
                     .anyMatch(e -> e.equals(ReferenceReadingQuality.NO_PURPOSE_ON_UP))) {
-                message = FailMessages.PURPOSE_DOES_NOT_EXIST_ON_UP.getMessage(estimationBlock, usagePoint.getName(), checkPurpose);
+                message = getThesaurus().getFormat(MessageSeeds.MAINCHECK_ESTIMATOR_FAIL_PURPOSE_DOES_NOT_EXIST_ON_UP)
+                        .format(blockToString(estimationBlock), getThesaurus().getFormat(TranslationKeys.ESTIMATOR_NAME)
+                                .format(), estimationBlock.getReadingType()
+                                .getFullAliasName(), usagePoint.getName());
             } else if (referenceReadingMap.values()
                     .stream()
                     .map(ReferenceReading::getQuality)
                     .anyMatch(e -> e.equals(ReferenceReadingQuality.NO_CHECK_CHANNEL))) {
-                message = FailMessages.NO_OUTPUTS_ON_PURPOSE_WITH_READING_TYPE.getMessage(estimationBlock, usagePoint.getName(), checkPurpose);
+                message = getThesaurus().getFormat(MessageSeeds.MAINCHECK_ESTIMATOR_FAIL_NO_OUTPUTS_ON_PURPOSE_WITH_READING_TYPE)
+                        .format(blockToString(estimationBlock), getThesaurus().getFormat(TranslationKeys.ESTIMATOR_NAME)
+                                .format(), estimationBlock.getReadingType()
+                                .getFullAliasName(), usagePoint.getName());
             } else if (referenceReadingMap.values()
                     .stream()
                     .map(ReferenceReading::getQuality)
                     .anyMatch(e -> e.equals(ReferenceReadingQuality.REFERENCE_DATA_MISSING) || e.equals(ReferenceReadingQuality.REFERENCE_DATA_SUSPECT))) {
-                message = FailMessages.DATA_SUSPECT_OR_MISSING.getMessage(estimationBlock, usagePoint.getName(), checkPurpose);
+                message = getThesaurus().getFormat(MessageSeeds.MAINCHECK_ESTIMATOR_FAIL_DATA_SUSPECT_OR_MISSING)
+                        .format(blockToString(estimationBlock), getThesaurus().getFormat(TranslationKeys.ESTIMATOR_NAME)
+                                .format(), usagePoint.getName(), checkPurpose.getName(), estimationBlock.getReadingType()
+                                .getFullAliasName());
             } else {
                 // should not happens
-                message = FailMessages.INTERNAL_ERROR.getMessage(estimationBlock, usagePoint.getName(), checkPurpose);
+                message = getThesaurus().getFormat(MessageSeeds.MAINCHECK_ESTIMATOR_FAIL_INTERNAL_ERROR)
+                        .format(blockToString(estimationBlock), getThesaurus().getFormat(TranslationKeys.ESTIMATOR_NAME)
+                                .format(), usagePoint.getName(), checkPurpose.getName(), estimationBlock.getReadingType()
+                                .getFullAliasName());
             }
             LoggingContext.get().warning(getLogger(), message);
             return false;
@@ -219,7 +238,7 @@ public class MainCheckEstimator extends AbstractEstimator implements Estimator {
                 .getMetrologyConfiguration()
                 .getContracts()
                 .stream()
-                .filter(contract -> contract.getMetrologyPurpose().getName().equals(checkPurpose))
+                .filter(contract -> contract.getMetrologyPurpose().equals(checkPurpose))
                 .findAny();
         return handleMetrologyContract(effectiveMC, metrologyContract, estimationBlock);
     }
@@ -273,7 +292,8 @@ public class MainCheckEstimator extends AbstractEstimator implements Estimator {
             return new ReferenceReading(REFERENCE_DATA_MISSING);
         }
 
-        if (dataValidationStatus!=null && !dataValidationStatus.getValidationResult().equals(ValidationResult.SUSPECT)){
+        if (dataValidationStatus != null && !dataValidationStatus.getValidationResult()
+                .equals(ValidationResult.SUSPECT)) {
             return new ReferenceReading(REFERENCE_DATA_OK).withReferenceReading(checkReading);
         }
 
@@ -292,7 +312,16 @@ public class MainCheckEstimator extends AbstractEstimator implements Estimator {
 
     @Override
     protected void init() {
-        checkPurpose = (String) getProperty(CHECK_PURPOSE);
+        checkPurpose = (MetrologyPurpose) getProperty(CHECK_PURPOSE);
+    }
+
+    private String blockToString(EstimationBlock block) {
+        return DATE_TIME_FORMATTER.format(block.estimatables()
+                .get(0)
+                .getTimestamp()) + " until " + DATE_TIME_FORMATTER.format(block
+                .estimatables()
+                .get(block.estimatables().size() - 1)
+                .getTimestamp());
     }
 
     public enum TranslationKeys implements TranslationKey {
@@ -318,60 +347,6 @@ public class MainCheckEstimator extends AbstractEstimator implements Estimator {
         public String getDefaultFormat() {
             return this.defaultFormat;
         }
-
-    }
-
-    private enum FailMessages {
-        EFFECTIVE_MC_NOT_FOUND {
-            @Override
-            String getMessage(EstimationBlock block, String usagePointName, String purpose) {
-                return "Failed to estimate period \"" + blockToString(block) + "\" using method " + TranslationKeys.ESTIMATOR_NAME
-                        .getDefaultFormat() + " on " + block.getReadingType()
-                        .getFullAliasName() + " since effective metrology configuration has not been found on the " + usagePointName;
-            }
-        }, PURPOSE_DOES_NOT_EXIST_ON_UP {
-            @Override
-            String getMessage(EstimationBlock block, String usagePointName, String purpose) {
-                return "Failed to estimate period \"" + blockToString(block) + "\" using method " + TranslationKeys.ESTIMATOR_NAME
-                        .getDefaultFormat() + " on " + block.getReadingType()
-                        .getFullAliasName() + " since the specified purpose doesn'\''t exist on the " + usagePointName;
-            }
-        }, NO_OUTPUTS_ON_PURPOSE_WITH_READING_TYPE {
-            @Override
-            String getMessage(EstimationBlock block, String usagePointName, String purpose) {
-                return "Failed to estimate period \"" + blockToString(block) + "\" using method " + TranslationKeys.ESTIMATOR_NAME
-                        .getDefaultFormat() + " on " + block.getReadingType()
-                        .getFullAliasName() + " since '\''check'\'' output with matching reading type on the specified purpose doesn'\''t exist on " + usagePointName;
-            }
-        }, DATA_SUSPECT_OR_MISSING {
-            @Override
-            String getMessage(EstimationBlock block, String usagePointName, String purpose) {
-                return "Failed to estimate period \"" + blockToString(block) + "\" using method " + TranslationKeys.ESTIMATOR_NAME
-                        .getDefaultFormat() + " on " + usagePointName + "/" + purpose + "/" + block.getReadingType()
-                        .getFullAliasName() + " since data from 'check' output is suspect or missing";
-            }
-        }, INTERNAL_ERROR {
-            @Override
-            String getMessage(EstimationBlock block, String usagePointName, String purpose) {
-                return "Failed to estimate period \"" + blockToString(block) + "\" using method " + TranslationKeys.ESTIMATOR_NAME
-                        .getDefaultFormat() + " on " + usagePointName + "/" + purpose + "/" + block.getReadingType()
-                        .getFullAliasName() + " due to internal error";
-            }
-        };
-
-        abstract String getMessage(EstimationBlock block, String usagePointName, String purpose);
-
-        static String blockToString(EstimationBlock block) {
-            return DATA_FORMAT.format(block.estimatables()
-                    .get(0)
-                    .getTimestamp()
-                    .toEpochMilli()) + " until " + DATA_FORMAT.format(block
-                    .estimatables()
-                    .get(block.estimatables().size() - 1)
-                    .getTimestamp().toEpochMilli());
-        }
-
-        static DateFormat DATA_FORMAT = new SimpleDateFormat("E, dd MMM yyyy hh:mm", Locale.US);
 
     }
 

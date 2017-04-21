@@ -114,7 +114,7 @@ public class MainCheckBasicTest extends MainCheckEstimatorTest {
         assertEquals(bigDecimal(100D), findEstimatedValue(estimationConfiguration, instant("20160101000000")));
         assertEquals(bigDecimal(200D), findEstimatedValue(estimationConfiguration, instant("20160102000000")));
 
-        JupiterAssertions.assertThat(logRecorder).hasRecordWithMessage(message -> message.contains("Failed to estimate period \"Sun, 03 Jan 2016 12:00 until Tue, 05 Jan 2016 12:00\" using method Main/Check substitution on usage point name/Purpose/[Daily] Secondary Delta A+ (kWh) since data from check output is suspect or missing")).atLevel(Level.WARNING);
+        JupiterAssertions.assertThat(logRecorder).hasRecordWithMessage(message -> message.contains("Failed to estimate period \"Sun, 3 Jan 2016 12:00 AM until Tue, 5 Jan 2016 12:00 AM\" using method Main/Check substitution on usage point name/Purpose/[Daily] Secondary Delta A+ (kWh) since data from check output is suspect or missing")).atLevel(Level.WARNING);
 
     }
 
