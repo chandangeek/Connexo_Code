@@ -27,7 +27,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -35,6 +37,7 @@ import java.util.stream.Collectors;
 
 public class DataMapperReader<T> implements TupleParser<T> {
     private final DataMapperImpl<T> dataMapper;
+    private final int SQL_IN_CLAUSE_MAX_PARTITION_SIZE = 999;
 
     enum MACEnforcementMode {
         Secure,
@@ -158,6 +161,7 @@ public class DataMapperReader<T> implements TupleParser<T> {
     List<T> find(String[] fieldNames, Object[] values, Order... orders) throws SQLException {
         return find(fieldNames, values, MACEnforcementMode.Secure, orders);
     }
+
     List<T> find(String[] fieldNames, Object[] values, MACEnforcementMode macEnforcementMode, Order... orders) throws SQLException {
         if (fieldNames != null && fieldNames.length == 1 && (orders == null || orders.length == 0)) {
             Order listOrder = getListOrder(fieldNames[0]);
@@ -177,7 +181,7 @@ public class DataMapperReader<T> implements TupleParser<T> {
 
 
     List<T> findWithoutMacCheck() throws SQLException {
-        return find((String[])null, (Object[])null, MACEnforcementMode.Unsecure, Order.NOORDER);
+        return find((String[]) null, (Object[]) null, MACEnforcementMode.Unsecure, Order.NOORDER);
     }
 
     List<T> find(Instant instant, Map<String, Object> valueMap, Order[] noorder) throws SQLException {
@@ -222,14 +226,37 @@ public class DataMapperReader<T> implements TupleParser<T> {
         List<SqlFragment> fragments = new ArrayList<>();
         comparisons.stream().forEach(comparison -> {
             fragments.add(new SqlFragment() {
+                String statement = "";
+
                 @Override
                 public String getText() {
+                    String[] values = new String[comparison.getValues().length];
                     if (comparison.getOperator() == Operator.IN) {
-                        String values = new String(new char[comparison.getValues().length]).replace("\0", "?,");
-                        return comparison.getFieldName() + " " + comparison.getOperator().getSymbol() + " (" + values.substring(0, values.length() - 1) + ")";
+                        Arrays.fill(values, "?");
+                        if (values.length > SQL_IN_CLAUSE_MAX_PARTITION_SIZE) {
+                            List<List<String>> partitions = new ArrayList<>();
+                            for (int i = 0; i < values.length; i += SQL_IN_CLAUSE_MAX_PARTITION_SIZE) {
+                                partitions.add(Arrays.asList(values).subList(i,
+                                        Math.min(i + SQL_IN_CLAUSE_MAX_PARTITION_SIZE, values.length)));
+                            }
+                            Iterator partitionIterator = partitions.iterator();
+                            while (partitionIterator.hasNext()) {
+                                List<String> nextPartition = (List<String>) partitionIterator.next();
+                                if (statement.isEmpty()) {
+                                    statement += buildInCondition(nextPartition, comparison.getFieldName(), comparison.getOperator().getSymbol());
+                                } else {
+                                    statement += nextPartition.size() > 1 ?
+                                            " OR " + buildInCondition((List<String>) partitionIterator.next(), comparison.getFieldName(), comparison.getOperator().getSymbol()) :
+                                            " OR " + comparison.getFieldName() + " " + comparison.getOperator().getSymbol() + " " + " ? ";
+                                }
+                            }
+                        } else {
+                            return statement += buildInCondition(Arrays.asList(values), comparison.getFieldName(), comparison.getOperator().getSymbol());
+                        }
                     } else {
                         return comparison.getFieldName() + " " + comparison.getOperator().getSymbol() + " " + " ? ";
                     }
+                    return statement;
                 }
 
                 @Override
@@ -253,6 +280,14 @@ public class DataMapperReader<T> implements TupleParser<T> {
 
         });
         return findJournal(fragments, orders, lockMode);
+    }
+
+    private String buildInCondition(List<String> partition, String fieldName, String operator) {
+        String statement = fieldName + " " + operator;
+        statement += " ( ";
+        statement += partition.stream().collect(Collectors.joining(", "));
+        statement += " ) ";
+        return statement;
     }
 
     private List<JournalEntry<T>> findJournal(List<SqlFragment> fragments, Order[] orders, LockMode lockMode) throws SQLException {
