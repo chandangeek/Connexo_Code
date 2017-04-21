@@ -192,7 +192,6 @@
             <groupId>com.energyict</groupId>
             <artifactId>mdc.device.lifecycle.config.rest</artifactId>
         </dependency>
-
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.device.topology</artifactId>
