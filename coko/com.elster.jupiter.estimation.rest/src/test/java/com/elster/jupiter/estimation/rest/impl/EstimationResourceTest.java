@@ -23,6 +23,7 @@ import com.elster.jupiter.estimation.EstimationRuleBuilder;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.estimation.Estimator;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.aggregation.ReadingQualityComment;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.BooleanFactory;
@@ -537,7 +538,10 @@ public class EstimationResourceTest extends EstimationApplicationJerseyTest {
         when(rule.isActive()).thenReturn(true);
         when(rule.getRuleSet()).thenReturn(ruleSet);
         when(estimationService.getEstimator("com.blablabla.Estimator")).thenReturn(Optional.of(estimator));
-
+        ReadingQualityComment readingQualityComment = mock(ReadingQualityComment.class);
+        when(readingQualityComment.getId()).thenReturn(555L);
+        when(readingQualityComment.getComment()).thenReturn("Estimated by marked rule 11");
+        when(rule.getComment()).thenReturn(Optional.of(readingQualityComment));
         ReadingType readingType = mockReadingType();
         Set<ReadingType> readingTypes = new HashSet<>();
         readingTypes.add(readingType);

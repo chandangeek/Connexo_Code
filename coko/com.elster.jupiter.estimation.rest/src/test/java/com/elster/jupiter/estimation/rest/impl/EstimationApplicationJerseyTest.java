@@ -49,6 +49,7 @@ public class EstimationApplicationJerseyTest extends FelixRestApplicationJerseyT
         estimationApplication.setMeteringGroupsService(meteringGroupsService);
         estimationApplication.setPropertyValueInfoService(propertyValueInfoService);
         estimationApplication.setMetrologyConfigurationService(metrologyConfigurationService);
+        estimationApplication.setMeteringService(meteringService);
         return estimationApplication;
     }
 
