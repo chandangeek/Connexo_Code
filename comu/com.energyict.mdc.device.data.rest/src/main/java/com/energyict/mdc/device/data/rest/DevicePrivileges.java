@@ -13,7 +13,7 @@ import com.energyict.mdc.device.config.TimeOfUseOptions;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
-import com.energyict.mdc.protocol.api.calendars.ProtocolSupportedCalendarOptions;
+import com.energyict.mdc.upl.messages.ProtocolSupportedCalendarOptions;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,6 +27,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public final class DevicePrivileges {
+    public static final String DEVICES_WIDGET_ISSUES = "devices.widget.issues";
     private DevicePrivileges() {
     }
 
@@ -51,7 +52,6 @@ public final class DevicePrivileges {
     public static final String DEVICES_ACTIONS_CHANGE_DEVICE_CONFIGURATION = "devices.actions.change.device.configuration";
     public static final String DEVICES_PAGES_COMMUNICATION_PLANNING = "devices.pages.communication.planning";
     public static final String DEVICES_TIME_OF_USE_ALLOWED = "devices.pages.timeofuseallowed";
-
     private static Map<ProtocolSupportedCalendarOptions, String> option2Privilege = createAllPrivilegesMap();
 
     public static List<String> getPrivilegesFor(Device device, User user) {
@@ -81,7 +81,7 @@ public final class DevicePrivileges {
             privileges.addAll(getTimeOfUsePrivileges(allowedOptions));
             return privileges;
         } else {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
     }
 

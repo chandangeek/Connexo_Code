@@ -21,7 +21,6 @@ import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -74,7 +73,7 @@ public abstract class ConnectionMethodInfo<T extends ConnectionTask<? extends Co
         this.protocolDialect = dialectConfigurationProperties.getDeviceProtocolDialectName();
         DeviceProtocolDialect protocolDialect =  dialectConfigurationProperties.getDeviceProtocolDialect();
         if (protocolDialect != null)
-            this.protocolDialectDisplayName = protocolDialect.getDisplayName();
+            this.protocolDialectDisplayName = protocolDialect.getDeviceProtocolDialectDisplayName();
         mdcPropertyUtils.convertPropertySpecsToPropertyInfos(uriInfo, propertySpecs, typedProperties, this.properties);
         this.version = connectionTask.getVersion();
         Device device = connectionTask.getDevice();
