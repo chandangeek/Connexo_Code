@@ -8,7 +8,6 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
     requires: ['Mdc.util.LinkPurpose'],
     uniqueMenuId: 'device-side-menu',
     device: null,
-
     objectType: Uni.I18n.translate('devicemenu.title', 'MDC', 'Device'),
 
     initComponent: function () {

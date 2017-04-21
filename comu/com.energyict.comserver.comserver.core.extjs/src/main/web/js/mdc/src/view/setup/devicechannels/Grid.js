@@ -31,7 +31,7 @@ Ext.define('Mdc.view.setup.devicechannels.Grid', {
                 showTimeAttribute: false,
                 makeLink: function (record) {
                     return me.router.getRoute('devices/device/channels/channeldata').buildUrl({
-                        deviceId: encodeURIComponent(me.device.get('id')),
+                        deviceId: encodeURIComponent(me.device.get('name')),
                         channelId: record.getId()
                     });
                 }

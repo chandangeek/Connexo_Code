@@ -6,7 +6,6 @@ Ext.define('Mdc.view.setup.devicechannels.Setup', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.deviceLoadProfileChannelsSetup',
     itemId: 'deviceLoadProfileChannelsSetup',
-    deviceId: null,
     router: null,
     device: null,
 
@@ -29,8 +28,7 @@ Ext.define('Mdc.view.setup.devicechannels.Setup', {
                         xtype: 'deviceMenu',
                         itemId: 'stepsMenu',
                         device: me.device,
-                        toggleId: 'channelsLink',
-                        deviceId: me.deviceId
+                        toggleId: 'channelsLink'
                     }
                 ]
             }
