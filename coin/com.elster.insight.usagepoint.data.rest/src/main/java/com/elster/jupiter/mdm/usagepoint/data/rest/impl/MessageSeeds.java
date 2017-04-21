@@ -60,8 +60,11 @@ public enum MessageSeeds implements MessageSeed {
     INVALID_ACTIVATION_TIME_OF_METER_ROLE(55, "usagepoint.meterrole.activation.must.be.greater.than.up.creation.date", "Meter role activation time must be greater or equal to Created date of usage point"),
     MISSING_TRANSITION_REQUIREMENT(56, "missing.transition.requirements", "Pre-transition check failed: {0}"),
     NO_USAGEPOINT_TRANSITION_WITH_ID(57, Keys.NO_TRANSITION_WITH_ID, "No usage point transition with id {0}"),
-    NO_METROLOGYCONFIG_FOR_USAGEPOINT_AT_THE_MOMENT(58, Keys.NO_METROLOGYCONFIG_FOR_USAGEPOINT_AT_THE_MOMENT, "Metrology configuration is not linked to the usage point at this moment in time.");
-
+    NO_METROLOGYCONFIG_FOR_USAGEPOINT_AT_THE_MOMENT(58, Keys.NO_METROLOGYCONFIG_FOR_USAGEPOINT_AT_THE_MOMENT, "Metrology configuration is not linked to the usage point at this moment in time."),
+    METROLOGYPURPOSE_IS_NOT_FOUND_ON_USAGEPOINT(59, "MetrologyPurposeNotFoundOnUsagePoint", "Metrology purpose ''{0}'' is not found on usage point {1}."),
+    READINGTYPES_DONT_MATCH(60, "ReadingTypesDontMatch", "Reading types don't match"),
+    READINGTYPE_NOT_FOUND_ON_USAGEPOINT(61, "ReadingTypeNotFoundOnUsagePoint", "Reading type not found on usage point"),
+    ;
     private final int number;
     private final String key;
     private final String format;

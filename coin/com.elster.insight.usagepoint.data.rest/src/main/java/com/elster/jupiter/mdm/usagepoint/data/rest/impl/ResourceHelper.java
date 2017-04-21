@@ -104,6 +104,10 @@ public class ResourceHelper {
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_DEVICE_WITH_NAME, name));
     }
 
+    public Optional<UsagePoint> findUsagePointByName(String name) {
+        return meteringService.findUsagePointByName(name);
+    }
+
     public UsagePoint findUsagePointByNameOrThrowException(String name) {
         return meteringService.findUsagePointByName(name)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_USAGE_POINT_WITH_NAME, name));
@@ -172,6 +176,19 @@ public class ResourceHelper {
                 .filter(contract -> contract.getId() == contractId)
                 .findAny()
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.METROLOGYCONTRACT_IS_NOT_LINKED_TO_USAGEPOINT, contractId, effectiveMC.getUsagePoint().getName()));
+    }
+
+    public MetrologyContract findMetrologyContractOrThrowException(EffectiveMetrologyConfigurationOnUsagePoint effectiveMC, MetrologyPurpose purpose) {
+        return effectiveMC.getMetrologyConfiguration().getContracts().stream()
+                .filter(contract -> contract.getMetrologyPurpose().equals(purpose))
+                .findAny()
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.METROLOGYPURPOSE_IS_NOT_FOUND_ON_USAGEPOINT, purpose.getName(), effectiveMC.getUsagePoint().getName()));
+    }
+
+    public Optional<MetrologyContract> findMetrologyContract(EffectiveMetrologyConfigurationOnUsagePoint effectiveMC, MetrologyPurpose purpose) {
+        return effectiveMC.getMetrologyConfiguration().getContracts().stream()
+                .filter(contract -> contract.getMetrologyPurpose().equals(purpose))
+                .findAny();
     }
 
     public MetrologyContract findInactiveMetrologyContractOrThrowException(EffectiveMetrologyConfigurationOnUsagePoint effectiveMC, long contractId) {
