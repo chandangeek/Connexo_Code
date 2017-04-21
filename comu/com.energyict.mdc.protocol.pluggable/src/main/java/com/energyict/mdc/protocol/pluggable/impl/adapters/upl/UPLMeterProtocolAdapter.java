@@ -9,7 +9,14 @@ import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.TypedPropertiesValueAdapter;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLToConnexoPropertySpecAdapter;
 import com.energyict.mdc.upl.cache.CachingProtocol;
+import com.energyict.mdc.upl.messages.DeviceMessage;
+import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.meterdata.CollectedMessageList;
+import com.energyict.mdc.upl.meterdata.Device;
+import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.protocol.ProfileData;
@@ -18,8 +25,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Logger;
@@ -31,10 +40,11 @@ import java.util.stream.Collectors;
  * @author khe
  * @since 10/02/2017 - 16:08
  */
-public class UPLMeterProtocolAdapter implements MeterProtocol, UPLProtocolAdapter {
+public class UPLMeterProtocolAdapter implements MeterProtocol, UPLProtocolAdapter, DeviceMessageSupport {
 
     private final com.energyict.mdc.upl.MeterProtocol actual;
     private final CachingProtocol cachingProtocol;
+    private final DeviceMessageSupport messageSupport;
 
     public UPLMeterProtocolAdapter(com.energyict.mdc.upl.MeterProtocol actual) {
         this.actual = actual;
@@ -43,8 +53,37 @@ public class UPLMeterProtocolAdapter implements MeterProtocol, UPLProtocolAdapte
         } else {
             this.cachingProtocol = new NoCacheSupport();
         }
+        if (actual instanceof DeviceMessageSupport) {
+            this.messageSupport = new DelegatingDeviceMessageSupport((DeviceMessageSupport) actual);
+        } else {
+            this.messageSupport = new NoMessageSupport();
+        }
     }
 
+    @Override
+    public List<DeviceMessageSpec> getSupportedMessages() {
+        return messageSupport.getSupportedMessages();
+    }
+
+    @Override
+    public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
+        return messageSupport.executePendingMessages(pendingMessages);
+    }
+
+    @Override
+    public CollectedMessageList updateSentMessages(List<OfflineDeviceMessage> sentMessages) {
+        return messageSupport.updateSentMessages(sentMessages);
+    }
+
+    @Override
+    public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, com.energyict.mdc.upl.properties.PropertySpec propertySpec, Object messageAttribute) {
+        return messageSupport.format(offlineDevice, offlineDeviceMessage, propertySpec, messageAttribute);
+    }
+
+    @Override
+    public Optional<String> prepareMessageContext(Device device, OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
+        return messageSupport.prepareMessageContext(device, offlineDevice, deviceMessage);
+    }
 
     CachingProtocol getCachingProtocol() {
         return cachingProtocol;
@@ -252,4 +291,62 @@ public class UPLMeterProtocolAdapter implements MeterProtocol, UPLProtocolAdapte
         }
     }
 
+    private static class DelegatingDeviceMessageSupport implements DeviceMessageSupport {
+        private final DeviceMessageSupport actual;
+
+        private DelegatingDeviceMessageSupport(DeviceMessageSupport actual) {
+            this.actual = actual;
+        }
+
+        @Override
+        public List<DeviceMessageSpec> getSupportedMessages() {
+            return actual.getSupportedMessages();
+        }
+
+        @Override
+        public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
+            return actual.executePendingMessages(pendingMessages);
+        }
+
+        @Override
+        public CollectedMessageList updateSentMessages(List<OfflineDeviceMessage> sentMessages) {
+            return actual.updateSentMessages(sentMessages);
+        }
+
+        @Override
+        public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, com.energyict.mdc.upl.properties.PropertySpec propertySpec, Object messageAttribute) {
+            return actual.format(offlineDevice, offlineDeviceMessage, propertySpec, messageAttribute);
+        }
+
+        @Override
+        public Optional<String> prepareMessageContext(Device device, OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
+            return actual.prepareMessageContext(device, offlineDevice, deviceMessage);
+        }
+    }
+    private static class NoMessageSupport implements DeviceMessageSupport {
+        @Override
+        public List<DeviceMessageSpec> getSupportedMessages() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
+            return null;
+        }
+
+        @Override
+        public CollectedMessageList updateSentMessages(List<OfflineDeviceMessage> sentMessages) {
+            return null;
+        }
+
+        @Override
+        public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, com.energyict.mdc.upl.properties.PropertySpec propertySpec, Object messageAttribute) {
+            return String.valueOf(messageAttribute);
+        }
+
+        @Override
+        public Optional<String> prepareMessageContext(Device device, OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
+            return Optional.empty();
+        }
+    }
 }

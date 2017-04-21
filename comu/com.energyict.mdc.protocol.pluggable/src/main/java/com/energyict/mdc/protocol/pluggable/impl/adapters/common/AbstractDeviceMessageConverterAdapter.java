@@ -6,17 +6,11 @@ package com.energyict.mdc.protocol.pluggable.impl.adapters.common;
 
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.protocol.api.MessageProtocol;
-import com.energyict.mdc.protocol.api.device.data.MessageResult;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.exceptions.DeviceProtocolAdapterCodingExceptions;
-import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-import com.energyict.mdc.protocol.api.messaging.LegacyMessageConverter;
 import com.energyict.mdc.protocol.api.tasks.support.UsesLegacyMessageConverter;
 import com.energyict.mdc.protocol.pluggable.MessageSeeds;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLToConnexoPropertySpecAdapter;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.ConnexoDeviceMessageSpecAdapter;
 import com.energyict.mdc.upl.DeviceProtocol;
 import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.issue.Issue;
@@ -24,6 +18,7 @@ import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.messages.legacy.LegacyMessageConverter;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
@@ -33,14 +28,15 @@ import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
 
+import com.energyict.protocol.MessageProtocol;
+import com.energyict.protocol.MessageResult;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Abstract class for implementing the {@link DeviceMessageSupport}
@@ -217,13 +213,7 @@ public abstract class AbstractDeviceMessageConverterAdapter implements DeviceMes
      */
     @Override
     public List<DeviceMessageSpec> getSupportedMessages() {
-        Set<DeviceMessageId> deviceMessageIds = getLegacyMessageConverter().getSupportedMessages();
-        return deviceMessageIds.stream()
-                .map(id -> deviceMessageSpecificationService.findMessageSpecById(id.dbValue()))     //Find the spec for the given ID
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .map(ConnexoDeviceMessageSpecAdapter::new)                                          //Adapt the CXO spec to an UPL spec
-                .collect(Collectors.toList());
+        return getLegacyMessageConverter().getSupportedMessages();
     }
 
     /**
@@ -271,7 +261,7 @@ public abstract class AbstractDeviceMessageConverterAdapter implements DeviceMes
         Services.tariffCalendarExtractor().threadContext().setDevice(offlineDevice);
         Services.tariffCalendarExtractor().threadContext().setMessage(offlineDeviceMessage);
         if (messagesAreSupported()) {
-            return getLegacyMessageConverter().format(new UPLToConnexoPropertySpecAdapter(propertySpec), messageAttribute);
+            return getLegacyMessageConverter().format(propertySpec, messageAttribute);
         } else {
             return "";
         }

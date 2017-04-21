@@ -4,8 +4,9 @@
 
 package com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol.mock;
 
-import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
+
+import com.energyict.protocol.MessageProtocol;
 
 /**
  * Unimplemented interface of {@link MeterProtocol} and {@link MessageProtocol} to allow mocking

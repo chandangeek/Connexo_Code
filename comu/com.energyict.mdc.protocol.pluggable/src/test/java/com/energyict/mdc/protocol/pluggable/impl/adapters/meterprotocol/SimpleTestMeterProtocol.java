@@ -5,25 +5,26 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.cbo.Quantity;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
-import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
-import com.energyict.mdc.protocol.api.device.data.MessageResult;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
-import com.energyict.mdc.protocol.api.messaging.Message;
-import com.energyict.mdc.protocol.api.messaging.MessageTag;
-import com.energyict.mdc.protocol.api.messaging.MessageValue;
 import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.messages.legacy.Message;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.MessageTag;
+import com.energyict.mdc.upl.messages.legacy.MessageValue;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
+
+import com.energyict.cbo.Quantity;
+import com.energyict.protocol.MessageProtocol;
+import com.energyict.protocol.MessageResult;
 import com.energyict.protocol.ProfileData;
 
 import java.io.IOException;
@@ -200,22 +201,22 @@ public class SimpleTestMeterProtocol implements MeterProtocol, MessageProtocol, 
 
     @Override
     public List getMessageCategories() {
-        return null;          // nothing to set
+        return Collections.emptyList();
     }
 
     @Override
     public String writeMessage(Message msg) {
-        return null;          // nothing to set
+        return null;          // nothing to write
     }
 
     @Override
     public String writeTag(MessageTag tag) {
-        return null;          // nothing to set
+        return null;          // nothing to write
     }
 
     @Override
     public String writeValue(MessageValue value) {
-        return null;          // nothing to set
+        return null;          // nothing to write
     }
 
     @Override

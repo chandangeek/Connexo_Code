@@ -9,11 +9,19 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
+import com.energyict.mdc.upl.messages.DeviceMessage;
+import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.legacy.Message;
 import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
+import com.energyict.mdc.upl.meterdata.CollectedMessageList;
+import com.energyict.mdc.upl.meterdata.Device;
+import com.energyict.mdc.upl.offline.OfflineDevice;
+import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
+
 import com.energyict.protocol.LoadProfileConfiguration;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.MessageProtocol;
@@ -30,6 +38,7 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
@@ -39,7 +48,7 @@ import java.util.logging.Logger;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-01-16 (12:12)
  */
-public class MockSmartMeterProtocol implements SmartMeterProtocol, MessageProtocol {
+public class MockSmartMeterProtocol implements SmartMeterProtocol, MessageProtocol, DeviceMessageSupport {
 
     @Override
     public List<RegisterValue> readRegisters(List<Register> registers) {
@@ -173,5 +182,30 @@ public class MockSmartMeterProtocol implements SmartMeterProtocol, MessageProtoc
     @Override
     public String writeValue(MessageValue value) {
         return "";
+    }
+
+    @Override
+    public List<DeviceMessageSpec> getSupportedMessages() {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
+        return null;
+    }
+
+    @Override
+    public CollectedMessageList updateSentMessages(List<OfflineDeviceMessage> sentMessages) {
+        return null;
+    }
+
+    @Override
+    public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, com.energyict.mdc.upl.properties.PropertySpec propertySpec, Object messageAttribute) {
+        return String.valueOf(messageAttribute);
+    }
+
+    @Override
+    public Optional<String> prepareMessageContext(Device device, OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
+        return Optional.empty();
     }
 }
