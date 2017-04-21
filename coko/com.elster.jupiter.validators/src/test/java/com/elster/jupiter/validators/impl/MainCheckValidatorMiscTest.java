@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.validators.impl;
 
+import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.validation.ValidationResult;
 
@@ -30,11 +31,14 @@ public class MainCheckValidatorMiscTest extends MainCheckValidatorTest {
 
     private StringBuffer logs;
 
+    @Mock
+    private MetrologyPurpose notEsistingPurpose;
+
     @Test
     public void testNoPuprose() {
         validateWithReadings(new MainCheckValidatorTest.MainCheckValidatorRule()
                 .withCheckPurpose(CHECK_PURPOSE)
-                .withNotExistingCheckPurpose("Fake purpose")
+                .withNotExistingCheckPurpose(notEsistingPurpose)
                 .withValuedDifference(bigDecimal(100D))
                 .passIfNoRefData(false)
                 .useValidatedData(false)

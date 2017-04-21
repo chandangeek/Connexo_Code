@@ -67,7 +67,8 @@ abstract public class MainCheckValidatorTest {
 
     private static DateTimeFormatter dateTimeFormat = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
 
-    static final String CHECK_PURPOSE = "Purpose";
+    @Mock
+    MetrologyPurpose CHECK_PURPOSE;
 
     protected PropertySpecService propertySpecService = new PropertySpecServiceImpl();
 
@@ -105,20 +106,20 @@ abstract public class MainCheckValidatorTest {
      * Describes validation rule
      */
     class MainCheckValidatorRule {
-        String checkPurpose;
-        String notExistingCheckPurpose;
+        MetrologyPurpose checkPurpose;
+        MetrologyPurpose notExistingCheckPurpose;
         TwoValuesDifference twoValuesDifference;
         NonOrBigDecimalValueProperty minThreshold;
         boolean passIfNoData;
         boolean useValidatedData;
         boolean noCheckChannel;
 
-        MainCheckValidatorRule withCheckPurpose(String checkPurpose) {
+        MainCheckValidatorRule withCheckPurpose(MetrologyPurpose checkPurpose) {
             this.checkPurpose = checkPurpose;
             return this;
         }
 
-        MainCheckValidatorRule withNotExistingCheckPurpose(String notExistingCheckPurpose) {
+        MainCheckValidatorRule withNotExistingCheckPurpose(MetrologyPurpose notExistingCheckPurpose) {
             this.notExistingCheckPurpose = notExistingCheckPurpose;
             return this;
         }
@@ -274,10 +275,8 @@ abstract public class MainCheckValidatorTest {
             EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint = mock(EffectiveMetrologyConfigurationOnUsagePoint.class);
             UsagePointMetrologyConfiguration metrologyConfiguration = mock(UsagePointMetrologyConfiguration.class);
             MetrologyContract metrologyContract = mock(MetrologyContract.class);
-            MetrologyPurpose metrologyPurpose = mock(MetrologyPurpose.class);
 
-            when(metrologyPurpose.getName()).thenReturn(rule.checkPurpose);
-            when(metrologyContract.getMetrologyPurpose()).thenReturn(metrologyPurpose);
+            when(metrologyContract.getMetrologyPurpose()).thenReturn(rule.checkPurpose);
             when(metrologyConfiguration.getContracts()).thenReturn(Collections.singletonList(metrologyContract));
             when(effectiveMetrologyConfigurationOnUsagePoint.getMetrologyConfiguration()).thenReturn(metrologyConfiguration);
             when(usagePoint.getEffectiveMetrologyConfigurations(range)).thenReturn(Collections.singletonList(effectiveMetrologyConfigurationOnUsagePoint));
@@ -297,7 +296,7 @@ abstract public class MainCheckValidatorTest {
             when(validationService.getEvaluator()).thenReturn(validationEvaluator);
 
             metrologyConfigurationService = mock(MetrologyConfigurationService.class);
-            when(metrologyConfigurationService.getMetrologyPurposes()).thenReturn(Collections.singletonList(metrologyPurpose));
+            when(metrologyConfigurationService.getMetrologyPurposes()).thenReturn(Collections.singletonList(rule.checkPurpose));
 
         }
     }

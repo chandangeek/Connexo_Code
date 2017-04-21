@@ -83,7 +83,7 @@ public class MainCheckValidator extends AbstractValidator {
     private Map<Instant, ValidationResult> checkReadingRecordValidations;
 
     // validator parameters
-    private String checkChannelPurpose;
+    private MetrologyPurpose checkChannelPurpose;
     private TwoValuesDifference maxAbsoluteDifference;
     private Boolean passIfNoRefData;
     private Boolean useValidatedData;
@@ -118,19 +118,16 @@ public class MainCheckValidator extends AbstractValidator {
     @Override
     public List<PropertySpec> getPropertySpecs() {
 
-        List<String> metrologyPurposes = metrologyConfigurationService.getMetrologyPurposes()
-                .stream()
-                .map(MetrologyPurpose::getName)
-                .collect(Collectors.toList());
+        List<MetrologyPurpose> metrologyPurposes = metrologyConfigurationService.getMetrologyPurposes();
 
         ImmutableList.Builder<PropertySpec> builder = ImmutableList.builder();
         builder
                 .add(getPropertySpecService()
-                        .stringSpec()
+                        .referenceSpec(MetrologyPurpose.class)
                         .named(CHECK_PURPOSE, TranslationKeys.MAIN_CHECK_VALIDATOR_CHECK_PURPOSE)
                         .fromThesaurus(this.getThesaurus())
                         .markRequired()
-                        .setDefaultValue(metrologyPurposes.size() != 0 ? metrologyPurposes.get(0) : "")
+                        .setDefaultValue(metrologyPurposes.get(0))
                         .addValues(metrologyPurposes)
                         .markExhaustive(PropertySelectionMode.COMBOBOX)
                         .finish());
@@ -200,7 +197,7 @@ public class MainCheckValidator extends AbstractValidator {
         //LoggingContext.get().info(getLogger(), "init main check");
 
         // 1. parse validator parameters
-        checkChannelPurpose = (String) properties.get(CHECK_PURPOSE);
+        checkChannelPurpose = (MetrologyPurpose) properties.get(CHECK_PURPOSE);
         if (checkChannelPurpose == null) {
             throw new MissingRequiredProperty(getThesaurus(), CHECK_PURPOSE);
         }
@@ -256,7 +253,7 @@ public class MainCheckValidator extends AbstractValidator {
         Optional<MetrologyContract> metrologyContract = effectiveMC.getMetrologyConfiguration()
                 .getContracts()
                 .stream()
-                .filter(contract -> contract.getMetrologyPurpose().getName().equals(checkChannelPurpose))
+                .filter(contract -> contract.getMetrologyPurpose().equals(checkChannelPurpose))
                 .findAny();
 
         // {RULE FLOW CHECK] specified purpose is not found on the usage point
