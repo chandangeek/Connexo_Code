@@ -32,7 +32,7 @@ Ext.define('Uni.property.view.property.ReadingType', {
                             filter = [
                                 {
                                     property: 'fullAliasName',
-                                    value: '*' + newValue + '*'
+                                    value: '*' + combo.getRawValue() + '*'
                                 },
                                 {
                                     property: 'equidistant',
@@ -78,5 +78,23 @@ Ext.define('Uni.property.view.property.ReadingType', {
         picker.on('beforehide', function () {
             picker.un('refresh', fn);
         }, combo, {single: true});
+    },
+
+    getValue: function () {
+        var me = this;
+        return {
+            mRID: me.getField().getValue(),
+            fullAliasName: me.getField().getRawValue()
+        };
+    },
+
+    setValue: function (value) {
+        var me = this;
+        if (me.isEdit) {
+            me.getField().setValue(value.mRID);
+            me.getField().setRawValue(value.fullAliasName);
+        } else {
+            me.callParent([value.fullAliasName]);
+        }
     }
 });
