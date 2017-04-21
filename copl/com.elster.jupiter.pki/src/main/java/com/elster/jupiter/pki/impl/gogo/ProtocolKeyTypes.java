@@ -58,6 +58,14 @@ public enum ProtocolKeyTypes {
             return pkiService.newTrustedCertificateType(getName()).description("Created by test class").add();
         }
     },
+    PASSWORD {
+        public String getName() {
+            return "Password";
+        }
+        public KeyType createKeyType(PkiService pkiService) {
+            return pkiService.newPassphraseType(getName()).length(20).withLowerCaseCharacters().withUpperCaseCharacters().add();
+        }
+    },
     TLS_CLIENT_SUITE_1 {
         @Override
         public String getName() {

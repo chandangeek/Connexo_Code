@@ -86,4 +86,34 @@ public interface KeyType extends HasName, HasId {
      * @return
      */
     String getCurve();
+
+    /**
+     * Returns the length in characters this password will have
+     * @return
+     */
+    Integer getPasswordLength();
+
+    /**
+     * Specify use of lower case characters
+     * @return true is lower case characters can be used, false otherwise
+     */
+    Boolean useLowerCaseCharacters();
+
+    /**
+     * Specify use of upper case characters
+     * @return true is upper case characters can be used, false otherwise
+     */
+    Boolean useUpperCaseCharacters();
+
+    /**
+     * Specify use of numbers
+     * @return true is numbers can be used, false otherwise
+     */
+    Boolean useNumbers();
+
+    /**
+     * Specify use of special characters
+     * @return true is special characters can be used, false otherwise
+     */
+    Boolean useSpecialCharacters();
 }

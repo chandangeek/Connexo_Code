@@ -34,6 +34,11 @@ public enum TableSpecs {
             table.column("CRYPTOTYPE").number().map(KeyTypeImpl.Fields.CRYPTOGRAPHIC_TYPE.fieldName()).conversion(NUMBER2ENUM).add();
             table.column("KEYUSAGES").number().map(KeyTypeImpl.Fields.KEY_USAGES.fieldName()).conversion(NUMBER2LONG).add();
             table.column("EXTKEYUSAGES").number().map(KeyTypeImpl.Fields.EXTENDED_KEY_USAGES.fieldName()).conversion(NUMBER2LONG).add();
+            table.column("PASSWORDLENGTH").number().conversion(NUMBER2INT).map(KeyTypeImpl.Fields.LENGTH.fieldName()).add();
+            table.column("LOWERCASES").type("CHAR(1)").conversion(ColumnConversion.CHAR2BOOLEAN).map(KeyTypeImpl.Fields.LOWERCASE.fieldName()).add();
+            table.column("UPPERCASES").type("CHAR(1)").conversion(ColumnConversion.CHAR2BOOLEAN).map(KeyTypeImpl.Fields.UPPERCASE.fieldName()).add();
+            table.column("NUMBERS").type("CHAR(1)").conversion(ColumnConversion.CHAR2BOOLEAN).map(KeyTypeImpl.Fields.NUMBERS.fieldName()).add();
+            table.column("SPECIALCHARS").type("CHAR(1)").conversion(ColumnConversion.CHAR2BOOLEAN).map(KeyTypeImpl.Fields.SPECIAL_CHARS.fieldName()).add();
             table.primaryKey("PK_PKI_KEYTYPE").on(id).add();
             table.unique("UK_PKI_KEYTYPE").on(name).add();
         }

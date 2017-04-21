@@ -99,6 +99,14 @@ public interface PkiService {
     CertificateTypeBuilder newTrustedCertificateType(String name);
 
     /**
+     * Creates a KeyType for a password. A password has a few parameters: length and possible characters in it.
+     * @param name The type's name
+     * @return a password key type builder, allowing you to set properties as length and character sets
+     */
+    PasswordTypeBuilder newPassphraseType(String name);
+
+
+    /**
      * List the PropertySpecs that can be expected for the described Wrapper type
      * @param keyAccessorType The key accessor describing the KeyEncryptionMethod and {@link CryptographicType}
      * @return List of to-be-expected property specs
@@ -212,6 +220,15 @@ public interface PkiService {
         public TrustStore trustStore;
     }
 
+    public interface PasswordTypeBuilder {
+        PasswordTypeBuilder description(String description);
+        PasswordTypeBuilder length(int length);
+        PasswordTypeBuilder withLowerCaseCharacters();
+        PasswordTypeBuilder withUpperCaseCharacters();
+        PasswordTypeBuilder withNumbers();
+        PasswordTypeBuilder withSpecialCharacters();
+        KeyType add();
+    }
 
     public interface ClientCertificateWrapperBuilder {
         ClientCertificateWrapperBuilder alias(String alias);

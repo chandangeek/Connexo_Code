@@ -14,9 +14,6 @@ import org.osgi.service.component.annotations.Reference;
 
 import java.util.stream.Stream;
 
-/**
- * Created by bvn on 1/31/17.
- */
 @Component(name = "ProtocolsKeyTypeInitializer", immediate = true)
 public class ProtocolsKeyTypeInitializer {
     private PkiService pkiService;

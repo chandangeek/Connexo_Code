@@ -12,9 +12,12 @@ import com.elster.jupiter.pki.KeyUsage;
 import org.bouncycastle.asn1.x509.KeyPurposeId;
 
 import javax.inject.Inject;
+import javax.validation.constraints.Max;
 import javax.validation.constraints.Size;
 import java.util.EnumSet;
 
+// TODO split up in sub classes...
+@ValidatePassphraseType(groups = {Save.Create.class, Save.Update.class})
 public class KeyTypeImpl implements KeyType {
     private final DataModel dataModel;
 
@@ -32,9 +35,14 @@ public class KeyTypeImpl implements KeyType {
     private Integer keySize;
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String curve;
-
     private long keyUsages;
     private long extendedKeyUsages;
+    @Max(value = Table.MAX_STRING_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private Integer passwordLength;
+    private Boolean useLowerCaseCharacters;
+    private Boolean useUpperCaseCharacters;
+    private Boolean useNumbers;
+    private Boolean useSpecialCharacters;
 
     enum Fields {
         NAME("name"),
@@ -47,6 +55,11 @@ public class KeyTypeImpl implements KeyType {
         KEY_USAGES("keyUsages"),
         EXTENDED_KEY_USAGES("extendedKeyUsages"),
         ID("id"),
+        LENGTH("passwordLength"),
+        LOWERCASE("useLowerCaseCharacters"),
+        UPPERCASE("useUpperCaseCharacters"),
+        NUMBERS("useNumbers"),
+        SPECIAL_CHARS("useSpecialCharacters")
         ;
 
         private final String javaFieldName;
@@ -158,6 +171,51 @@ public class KeyTypeImpl implements KeyType {
     @Override
     public String getCurve() {
         return curve;
+    }
+
+    @Override
+    public Integer getPasswordLength() {
+        return passwordLength;
+    }
+
+    @Override
+    public Boolean useLowerCaseCharacters() {
+        return useLowerCaseCharacters;
+    }
+
+    @Override
+    public Boolean useUpperCaseCharacters() {
+        return useUpperCaseCharacters;
+    }
+
+    @Override
+    public Boolean useNumbers() {
+        return useNumbers;
+    }
+
+    @Override
+    public Boolean useSpecialCharacters() {
+        return useSpecialCharacters;
+    }
+
+    public void setPasswordLength(int passwordLength) {
+        this.passwordLength = passwordLength;
+    }
+
+    public void setUseLowerCaseCharacters(boolean useLowerCaseCharacters) {
+        this.useLowerCaseCharacters = useLowerCaseCharacters;
+    }
+
+    public void setUseUpperCaseCharacters(boolean useUpperCaseCharacters) {
+        this.useUpperCaseCharacters = useUpperCaseCharacters;
+    }
+
+    public void setUseNumbers(boolean useNumbers) {
+        this.useNumbers = useNumbers;
+    }
+
+    public void setUseSpecialCharacters(boolean useSpecialCharacters) {
+        this.useSpecialCharacters = useSpecialCharacters;
     }
 
     public void setCurve(String curve) {

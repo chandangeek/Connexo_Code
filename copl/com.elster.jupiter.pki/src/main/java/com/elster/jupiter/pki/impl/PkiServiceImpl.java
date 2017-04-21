@@ -268,6 +268,14 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
     }
 
     @Override
+    public PasswordTypeBuilder newPassphraseType(String name) {
+        KeyTypeImpl keyType = new KeyTypeImpl(dataModel);
+        keyType.setCryptographicType(CryptographicType.Passphrase);
+        keyType.setName(name);
+        return new PasswordTypeBuilderImpl(keyType);
+    }
+
+    @Override
     public List<PropertySpec> getPropertySpecs(KeyAccessorType keyAccessorType) {
         switch (keyAccessorType.getKeyType().getCryptographicType()) {
             case Certificate:
@@ -503,7 +511,6 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
                 underConstruction.save();
                 return underConstruction;
             }
-
         }
 
         private class AsyncCurveBuilderImpl implements AsyncCurveBuilder {
@@ -518,9 +525,7 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
                 underConstruction.save();
                 return underConstruction;
             }
-
         }
-
     }
 
     private class CertificateTypeBuilderImpl implements CertificateTypeBuilder {
@@ -580,6 +585,60 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
 
         @Override
         public TrustStore add() {
+            this.underConstruction.save();
+            return underConstruction;
+        }
+    }
+
+    private class PasswordTypeBuilderImpl implements PasswordTypeBuilder {
+        private final KeyTypeImpl underConstruction;
+
+        public PasswordTypeBuilderImpl(KeyTypeImpl keyType) {
+            this.underConstruction = keyType;
+            this.underConstruction.setUseLowerCaseCharacters(false);
+            this.underConstruction.setUseUpperCaseCharacters(false);
+            this.underConstruction.setUseNumbers(false);
+            this.underConstruction.setUseSpecialCharacters(false);
+        }
+
+        @Override
+        public PasswordTypeBuilder description(String description) {
+            this.underConstruction.setDescription(description);
+            return this;
+        }
+
+        @Override
+        public PasswordTypeBuilder length(int length) {
+            this.underConstruction.setPasswordLength(length);
+            return this;
+        }
+
+        @Override
+        public PasswordTypeBuilder withLowerCaseCharacters() {
+            this.underConstruction.setUseLowerCaseCharacters(true);
+            return this;
+        }
+
+        @Override
+        public PasswordTypeBuilder withUpperCaseCharacters() {
+            this.underConstruction.setUseUpperCaseCharacters(true);
+            return this;
+        }
+
+        @Override
+        public PasswordTypeBuilder withNumbers() {
+            this.underConstruction.setUseNumbers(true);
+            return this;
+        }
+
+        @Override
+        public PasswordTypeBuilder withSpecialCharacters() {
+            this.underConstruction.setUseSpecialCharacters(true);
+            return this;
+        }
+
+        @Override
+        public KeyType add() {
             this.underConstruction.save();
             return underConstruction;
         }

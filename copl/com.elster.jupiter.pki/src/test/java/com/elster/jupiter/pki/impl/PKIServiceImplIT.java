@@ -134,6 +134,56 @@ public class PKIServiceImplIT {
 
     @Test
     @Transactional
+    public void testCreatePassphraseKeyType() {
+        KeyType created = inMemoryPersistence.getPkiService()
+                .newPassphraseType("Basic")
+                .withUpperCaseCharacters()
+                .withLowerCaseCharacters()
+                .withNumbers()
+                .withSpecialCharacters()
+                .length(20)
+                .description("hello")
+                .add();
+        Optional<KeyType> keyType = inMemoryPersistence.getPkiService().getKeyType("Basic");
+        assertThat(keyType).isPresent();
+        assertThat(keyType.get().getName()).isEqualTo("Basic");
+        assertThat(keyType.get().getCryptographicType()).isEqualTo(CryptographicType.Passphrase);
+        assertThat(keyType.get().getPasswordLength()).isEqualTo(20);
+        assertThat(keyType.get().getDescription()).isEqualTo("hello");
+        assertThat(keyType.get().useLowerCaseCharacters()).isEqualTo(true);
+        assertThat(keyType.get().useUpperCaseCharacters()).isEqualTo(true);
+        assertThat(keyType.get().useNumbers()).isEqualTo(true);
+        assertThat(keyType.get().useSpecialCharacters()).isEqualTo(true);
+        assertThat(keyType.get().getCurve()).isNull();
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{"+MessageSeeds.Keys.INVALIDPASSPHRASELENGTH+"}")
+    public void testCreatePassphraseKeyTypeWithInvalidLength() {
+        KeyType created = inMemoryPersistence.getPkiService()
+                .newPassphraseType("Basic")
+                .withUpperCaseCharacters()
+                .withLowerCaseCharacters()
+                .withNumbers()
+                .withSpecialCharacters()
+                .description("hello")
+                .add();
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{"+MessageSeeds.Keys.NOVALIDCHARACTERS+"}")
+    public void testCreatePassphraseKeyTypeNoChars() {
+        KeyType created = inMemoryPersistence.getPkiService()
+                .newPassphraseType("Basic")
+                .length(100)
+                .description("hello")
+                .add();
+    }
+
+    @Test
+    @Transactional
     public void testCreateCertificateWithRSAKeyType() {
         KeyType created = inMemoryPersistence.getPkiService()
                 .newClientCertificateType("RSA2048", "SHA256withRSA")
