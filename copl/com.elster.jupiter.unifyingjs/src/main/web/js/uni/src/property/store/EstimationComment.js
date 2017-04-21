@@ -8,10 +8,10 @@ Ext.define('Uni.property.store.EstimationComment', {
         'id',
         'comment'
     ],
-    autoLoad: true,
+    // autoLoad: true,
     proxy: {
         type: 'rest',
-        url: 'api/est/estimation/comments',
+        url: '/api/est/estimation/comments',
         reader: {
             type: 'json'
         },
