@@ -402,7 +402,11 @@ Ext.define('Uni.property.view.property.Base', {
         }
 
         if (!me.isEdit && (me.property.get('overridden') || me.property.get('canBeOverridden'))) {
-            cfg.items.push(me.getOverriddenComp());
+            if (me.property.get('canBeOverridden') && me.property.get('required') && Ext.isEmpty(me.property.get('value'))) {
+                cfg.items.push(me.getUnspecifiedAttributeComp());
+            } else {
+                cfg.items.push(me.getOverriddenComp());
+            }
         }
 
         Ext.apply(me, cfg);
@@ -475,6 +479,17 @@ Ext.define('Uni.property.view.property.Base', {
             xtype: 'component',
             itemId: me.property.get('key') + '-overridden',
             html: me.property.get('overridden') ? overridden : canBeOverridden
+        }
+    },
+
+    getUnspecifiedAttributeComp: function() {
+        var me = this;
+
+        return {
+            xtype: 'component',
+            itemId: me.property.get('key') + '-unspecified',
+            html: '<span class="icon-warning" style="margin-left: 10px; position: relative; top: 7px; color: #eb5642;" data-qtip="' +
+            Uni.I18n.translate('general.unspecifiedParameter', 'UNI', 'Unspecified parameter') + '"></span>'
         }
     },
 
