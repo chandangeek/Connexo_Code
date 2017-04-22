@@ -22,13 +22,14 @@ import com.elster.jupiter.estimation.Estimator;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.ReadingQualityComment;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.ValueCorrection;
 import com.elster.jupiter.metering.readings.ProtocolReadingQualities;
 import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.properties.rest.PropertyValueInfo;
+import com.elster.jupiter.rest.util.BigDecimalFunction;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.Pair;
@@ -512,6 +513,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         com.elster.jupiter.metering.Channel meteringChannel = mock(com.elster.jupiter.metering.Channel.class);
         ReadingType readingType = mock(ReadingType.class);
         List list = mock(List.class);
+        ReadingQualityComment readingQualityComment = mock(ReadingQualityComment.class);
         when(channel.getReadingType()).thenReturn(readingType);
         ChannelDataUpdater channelDataUpdater = mock(ChannelDataUpdater.class);
         when(channelDataUpdater.editChannelData(anyList())).thenReturn(channelDataUpdater);
@@ -525,6 +527,9 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(channelsContainer.getChannels()).thenReturn(Arrays.asList(meteringChannel));
         doReturn(Arrays.asList(readingType)).when(meteringChannel).getReadingTypes();
         when(list.contains(readingType)).thenReturn(true);
+        when(meteringService.findReadingQualityComment(any(Long.class))).thenReturn(Optional.of(readingQualityComment));
+        when(readingQualityComment.getId()).thenReturn(555L);
+        when(readingQualityComment.getComment()).thenReturn("Estimated by market rule 11");
 
         ChannelDataInfo channelDataInfo = new ChannelDataInfo();
         channelDataInfo.value = BigDecimal.TEN;
@@ -1066,7 +1071,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(deviceConfigurationService.findDeviceConfigurationsForEstimationRuleSet(estimationRuleSet)).thenReturn(finder);
         when(finder.find()).thenReturn(Collections.singletonList(estimationRuleSet));
 
-        Response response = target("devices/" + "1/channels/" + CHANNEL_ID1 + "/data/estimateWithRule").request().get();
+        Response response = target("devices/1/channels/" + CHANNEL_ID1 + "/data/estimateWithRule").request().get();
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
@@ -1078,7 +1083,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         TemporalAmount temporalAmount = mock(TemporalAmount.class);
         ValueCorrectionInfo valueCorrectionInfo = new ValueCorrectionInfo();
         valueCorrectionInfo.intervals = Collections.singletonList(IntervalInfo.from(Range.openClosed(Instant.ofEpochMilli(INTERVAL_START), Instant.ofEpochMilli(INTERVAL_END))));
-        valueCorrectionInfo.type = ValueCorrection.MULTIPLY.getType();
+        valueCorrectionInfo.type = BigDecimalFunction.MULTIPLY;
         valueCorrectionInfo.amount = new BigDecimal(2);
         when(readingRecord.getReadingType()).thenReturn(readingType);
         when(readingRecord.getQuantity(any(ReadingType.class))).thenReturn(quantity);
@@ -1088,7 +1093,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(readingType.getIntervalLength()).thenReturn(Optional.of(temporalAmount));
         when(temporalAmount.subtractFrom(any(Instant.class))).thenReturn(Instant.ofEpochMilli(INTERVAL_START));
 
-        JsonModel json = JsonModel.create(target("/devices" + "/1/channels/" + CHANNEL_ID1 + "/data/correctValues").request().put(Entity.json(valueCorrectionInfo), String.class));
+        JsonModel json = JsonModel.create(target("/devices/1/channels/" + CHANNEL_ID1 + "/data/correctValues").request().put(Entity.json(valueCorrectionInfo), String.class));
 
         assertThat(json.<String>get("$.[0].value")).isEqualTo("20.000");
     }

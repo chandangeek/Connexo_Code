@@ -6,7 +6,6 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
-import com.elster.jupiter.rest.util.IdWithDisplayValueInfo;
 import com.energyict.mdc.common.rest.IntervalInfo;
 import com.energyict.mdc.device.data.rest.BigDecimalAsStringAdapter;
 
@@ -50,8 +49,11 @@ public class ChannelDataInfo {
     @JsonProperty("bulkValidationInfo")
     public MinimalVeeReadingValueInfo bulkValidationInfo;
 
-    @JsonProperty("estimationComment")
-    public IdWithDisplayValueInfo<Long> estimationComment;
+    @JsonProperty("commentId")
+    public long commentId;
+
+    @JsonProperty("commentValue")
+    public String commentValue;
 
     public BigDecimal multiplier;
 

@@ -13,15 +13,14 @@ import com.elster.jupiter.estimation.Estimator;
 import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingQualityComment;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.aggregation.ReadingQualityComment;
-import com.elster.jupiter.metering.ValueCorrection;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.beans.BaseReadingImpl;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
+import com.elster.jupiter.rest.util.BigDecimalFunction;
 import com.elster.jupiter.rest.util.ExceptionFactory;
-import com.elster.jupiter.rest.util.IdWithDisplayValueInfo;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
@@ -81,8 +80,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Function;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -591,10 +590,7 @@ public class ChannelResource {
 
     private void processInfo(ChannelDataInfo channelDataInfo, Channel channel, List<Instant> removeCandidates, List<BaseReading> estimatedReadings, List<BaseReading> editedReadings,
                              List<BaseReading> estimatedBulkReadings, List<BaseReading> editedBulkReadings, List<BaseReading> confirmedReadings) {
-        Optional<ReadingQualityComment> readingQualityComment = Optional.empty();
-        if (channelDataInfo.estimationComment != null) {
-            readingQualityComment = resourceHelper.getReadingQualityComment(channelDataInfo.estimationComment.id);
-        }
+        Optional<ReadingQualityComment> readingQualityComment = resourceHelper.getReadingQualityComment(channelDataInfo.commentId);
 
         validateLinkedToSlave(channel, Range.closedOpen(Instant.ofEpochMilli(channelDataInfo.interval.start), Instant.ofEpochMilli(channelDataInfo.interval.end)));
         if (!(isToBeConfirmed(channelDataInfo)) && channelDataInfo.value == null && channelDataInfo.collectedValue == null) {
@@ -682,7 +678,7 @@ public class ChannelResource {
                                                              ReferenceChannelDataInfo referenceChannelDataInfo) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(device, channelId);
-        return previewCopyFromRefernce(QualityCodeSystem.MDC, channel, referenceChannelDataInfo);
+        return previewCopyFromReference(channel, referenceChannelDataInfo);
     }
 
     @GET
@@ -722,10 +718,7 @@ public class ChannelResource {
         Estimator estimator = estimationHelper.getEstimator(estimateChannelDataInfo);
         ReadingType readingType = channel.getReadingType();
 
-        Optional<ReadingQualityComment> readingQualityComment = Optional.empty();
-        if (estimateChannelDataInfo.estimationComment != null) {
-            readingQualityComment = resourceHelper.getReadingQualityComment(estimateChannelDataInfo.estimationComment.id);
-        }
+        Optional<ReadingQualityComment> readingQualityComment = resourceHelper.getReadingQualityComment(estimateChannelDataInfo.commentId);
 
         List<Range<Instant>> ranges = estimateChannelDataInfo.intervals.stream()
                 .map(info -> Range.openClosed(Instant.ofEpochMilli(info.start), Instant.ofEpochMilli(info.end)))
@@ -747,7 +740,7 @@ public class ChannelResource {
         return estimationHelper.getChannelDataInfoFromEstimationReports(channel, ranges, results, readingQualityComment);
     }
 
-    private List<ChannelDataInfo> previewCopyFromRefernce(QualityCodeSystem system, Channel channel, ReferenceChannelDataInfo copyFromReferenceChannelDataInfo) {
+    private List<ChannelDataInfo> previewCopyFromReference(Channel channel, ReferenceChannelDataInfo copyFromReferenceChannelDataInfo) {
 
         DeviceValidation deviceValidation = channel.getDevice().forValidation();
         boolean isValidationActive = deviceValidation.isValidationActive();
@@ -779,10 +772,7 @@ public class ChannelResource {
                                         .scaleByPowerOfTen(referenceChannel.getReadingType().getMultiplier().getMultiplier()
                                                 - channel.getReadingType().getMultiplier().getMultiplier());
                             channelDataInfo.mainValidationInfo.validationResult = ValidationStatus.NOT_VALIDATED;
-                            if(copyFromReferenceChannelDataInfo.estimationComment != null) {
-                                channelDataInfo.estimationComment = resourceHelper.getReadingQualityComment(copyFromReferenceChannelDataInfo.estimationComment)
-                                        .map(comment -> new IdWithDisplayValueInfo<>(comment.getId(), comment.getComment())).orElse(null);
-                            }
+                            channelDataInfo.commentId = copyFromReferenceChannelDataInfo.commentId;
                             if (copyFromReferenceChannelDataInfo.allowSuspectData || referenceReading.getReadingQualities()
                                     .values()
                                     .stream()
@@ -1003,6 +993,7 @@ public class ChannelResource {
     @Path("/{channelid}/data/correctValues")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
     public List<ChannelDataInfo> correctValues(@PathParam("name") String name, @PathParam("channelid") long channelId, ValueCorrectionInfo valueCorrectionInfo, @BeanParam JsonQueryParameters queryParameters) {
         Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(name, channelId);
         List<ChannelDataInfo> result = new ArrayList<>();
@@ -1018,12 +1009,12 @@ public class ChannelResource {
                     result.addAll(channel.getChannelData(intervals).stream()
                             .flatMap(loadProfileReading -> loadProfileReading.getChannelValues().values().stream())
                             .filter(readingRecord -> timestamps.contains(readingRecord.getTimeStamp()))
-                            .map(readingRecord -> createCorrectedChannelDataInfo(channel, ValueCorrection.valueOf(valueCorrectionInfo.type), readingRecord, valueCorrectionInfo.amount))
+                            .map(readingRecord -> createCorrectedChannelDataInfo(channel, valueCorrectionInfo.type, readingRecord, valueCorrectionInfo.amount))
                             .collect(Collectors.toList())));
         return result;
     }
 
-    private ChannelDataInfo createCorrectedChannelDataInfo(Channel channel, ValueCorrection type, IntervalReadingRecord record, BigDecimal correctionAmount) {
+    private ChannelDataInfo createCorrectedChannelDataInfo(Channel channel, BigDecimalFunction type, IntervalReadingRecord record, BigDecimal correctionAmount) {
         ChannelDataInfo channelDataInfo = new ChannelDataInfo();
         channelDataInfo.reportedDateTime = record.getReportedDateTime();
         record.getReadingType().getIntervalLength().ifPresent(intervalLength -> {
@@ -1034,7 +1025,7 @@ public class ChannelResource {
         channel.getCalculatedReadingType(record.getTimeStamp()).ifPresent(readingType -> {
             Quantity quantity = record.getQuantity(readingType);
             BigDecimal value = getRoundedBigDecimal(quantity != null ? quantity.getValue() : null, channel);
-            channelDataInfo.value = type.correctValue(value, correctionAmount);
+            channelDataInfo.value = type.apply(value, correctionAmount);
         });
         return channelDataInfo;
     }
