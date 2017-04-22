@@ -64,7 +64,8 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_VALIDATION_RULE(59, "NoSuchValidationRule", "No validation rule with id {0}"),
     NO_SUCH_ESTIMATION_RULE(60, "NoSuchEstimationRule", "No estimation rule with id {0}"),
     VALIDATION_RULE_IS_NOT_APPLICABLE_TO_OUTPUT(61, "ValidationRuleIsNotApplicableToOutput", "Validation rule with id {0} is not applicable to output {1}"),
-    ESTIMATION_RULE_IS_NOT_APPLICABLE_TO_OUTPUT(62, "EstimationRuleIsNotApplicableToOutput", "Estimation rule with id {0} is not applicable to output {1}");
+    ESTIMATION_RULE_IS_NOT_APPLICABLE_TO_OUTPUT(62, "EstimationRuleIsNotApplicableToOutput", "Estimation rule with id {0} is not applicable to output {1}"),
+    NOTHING_TO_VALIDATE(63, "nothing.is.validated", "Validation is not configured on this purpose of this usage point starting from the specified date.");
 
     private final int number;
     private final String key;

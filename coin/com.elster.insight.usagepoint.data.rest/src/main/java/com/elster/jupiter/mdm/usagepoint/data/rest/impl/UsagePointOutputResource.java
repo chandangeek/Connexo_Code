@@ -36,6 +36,7 @@ import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.ListPager;
 import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.rest.util.RestValidationBuilder;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.util.Pair;
@@ -47,6 +48,8 @@ import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.DataValidationTask;
 import com.elster.jupiter.validation.ValidationContextImpl;
 import com.elster.jupiter.validation.ValidationEvaluator;
+import com.elster.jupiter.validation.ValidationRule;
+import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.rest.DataValidationTaskInfo;
 import com.elster.jupiter.validation.rest.DataValidationTaskInfoFactory;
@@ -760,15 +763,63 @@ public class UsagePointOutputResource {
     public Response validateMetrologyContract(@PathParam("name") String name, @PathParam("purposeId") long contractId, PurposeInfo purposeInfo) {
         UsagePoint usagePoint = resourceHelper.findAndLockUsagePointByNameOrThrowException(name, purposeInfo.parent.version);
         EffectiveMetrologyConfigurationOnUsagePoint currentEffectiveMC = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
-        MetrologyPurpose metrologyPurpose = resourceHelper.findMetrologyContractOrThrowException(currentEffectiveMC, contractId)
-                .getMetrologyPurpose();
-        usagePoint.getEffectiveMetrologyConfigurations().forEach(effectiveMC -> findMetrologyContractForPurpose(effectiveMC, metrologyPurpose)
-                .ifPresent(contract -> effectiveMC.getChannelsContainer(contract)
-                        .ifPresent(channelsContainer -> validationService.validate(
-                                new ValidationContextImpl(EnumSet.of(QualityCodeSystem.MDM), channelsContainer, contract),
-                                purposeInfo.validationInfo.lastChecked))));
+        MetrologyPurpose metrologyPurpose = resourceHelper.findMetrologyContractOrThrowException(currentEffectiveMC, contractId).getMetrologyPurpose();
+        Boolean somethingValidated = usagePoint.getEffectiveMetrologyConfigurations().stream()
+                .map(effectiveMC -> findMetrologyContractForPurpose(effectiveMC, metrologyPurpose)
+                        .flatMap(contract -> effectiveMC.getChannelsContainer(contract)
+                                .map(channelsContainer -> validateIfPossible(channelsContainer, contract, purposeInfo.validationInfo.lastChecked))))
+                .flatMap(Functions.asStream())
+                .filter(validated -> validated)
+                // If at least one 'true' is found, somethingValidated = true,
+                // but short-circuit terminal operation is not acceptable here,
+                // because we need to go through all data and validate it
+                .reduce((validated1, validated2) -> Boolean.TRUE)
+                .orElse(Boolean.FALSE);
+        new RestValidationBuilder()
+                .on(somethingValidated)
+                .check(Boolean::booleanValue)
+                .field("validationInfo.lastChecked")
+                .message(MessageSeeds.NOTHING_TO_VALIDATE)
+                .test()
+                .validate();
         usagePoint.update();
         return Response.status(Response.Status.OK).build();
+    }
+
+    /**
+     * @return {@code true} if validated, {@code false} otherwise.
+     */
+    private boolean validateIfPossible(ChannelsContainer channelsContainer, MetrologyContract contract, Instant lastCheckedCandidate) {
+        Instant actuallyValidateFrom = resolveTimestampToValidateFrom(channelsContainer, lastCheckedCandidate);
+        return Ranges.nonEmptyIntersection(channelsContainer.getInterval().toOpenClosedRange(), Range.atLeast(actuallyValidateFrom))
+                .filter(rangeToValidate -> canValidateSomething(contract, rangeToValidate))
+                .map(rangeToValidate -> {
+                    validationService.validate(
+                            new ValidationContextImpl(EnumSet.of(QualityCodeSystem.MDM), channelsContainer, contract),
+                            actuallyValidateFrom);
+                    return true;
+                })
+                .orElse(false);
+    }
+
+    private Instant resolveTimestampToValidateFrom(ChannelsContainer channelsContainer, Instant candidate) {
+        Instant lastChecked = validationService.getLastChecked(channelsContainer)
+                .orElseGet(channelsContainer::getStart);
+        return (lastChecked.isBefore(candidate) ? lastChecked : candidate)
+                .plusMillis(1); // need to exclude lastChecked timestamp itself from validation
+    }
+
+    private boolean canValidateSomething(MetrologyContract contract, Range<Instant> rangeToValidate) {
+        Set<ReadingType> readingTypes = contract.getDeliverables().stream()
+                .map(ReadingTypeDeliverable::getReadingType)
+                .collect(Collectors.toSet());
+        return usagePointConfigurationService.getValidationRuleSets(contract).stream()
+                .map(ValidationRuleSet::getRuleSetVersions)
+                .flatMap(List::stream)
+                .filter(version -> Ranges.nonEmptyIntersection(version.getRange(), rangeToValidate).isPresent())
+                .map(version -> version.getRules(readingTypes))
+                .flatMap(List::stream)
+                .anyMatch(ValidationRule::isActive);
     }
 
     @PUT
