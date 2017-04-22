@@ -4,8 +4,8 @@
 
 package com.elster.jupiter.properties.rest.impl;
 
-import com.elster.jupiter.properties.NonOrBigDecimalValueFactory;
-import com.elster.jupiter.properties.NonOrBigDecimalValueProperty;
+import com.elster.jupiter.properties.NoneOrBigDecimal;
+import com.elster.jupiter.properties.NoneOrBigDecimalValueFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyType;
 import com.elster.jupiter.properties.rest.PropertyValueConverter;
@@ -13,20 +13,17 @@ import com.elster.jupiter.properties.rest.SimplePropertyType;
 
 import java.math.BigDecimal;
 import java.util.Map;
-import java.util.SimpleTimeZone;
 
-/**
- * Created by dantonov on 29.03.2017.
- */
-public class NonOrBigDecimalValueConverter implements PropertyValueConverter {
+public class NoneOrBigDecimalValueConverter implements PropertyValueConverter {
+
     @Override
     public boolean canProcess(PropertySpec propertySpec) {
-        return propertySpec != null && propertySpec.getValueFactory() instanceof NonOrBigDecimalValueFactory;
+        return propertySpec != null && propertySpec.getValueFactory() instanceof NoneOrBigDecimalValueFactory;
     }
 
     @Override
     public PropertyType getPropertyType(PropertySpec propertySpec) {
-        return SimplePropertyType.NON_OR_BIG_DECIMAL;
+        return SimplePropertyType.NONE_OR_BIGDECIMAL;
     }
 
     @Override
@@ -34,7 +31,7 @@ public class NonOrBigDecimalValueConverter implements PropertyValueConverter {
         if (infoValue instanceof Map<?, ?>) {
             Boolean isNone = (Boolean) ((Map) infoValue).get("isNone");
             if (isNone) {
-                return new NonOrBigDecimalValueProperty();
+                return NoneOrBigDecimal.none();
             } else {
                 Double value = null;
                 Object valueObj = ((Map) infoValue).get("value");
@@ -43,17 +40,18 @@ public class NonOrBigDecimalValueConverter implements PropertyValueConverter {
                 } else if (valueObj instanceof Double) {
                     value = (Double) valueObj;
                 }
-                return new NonOrBigDecimalValueProperty(BigDecimal.valueOf(value));
+                if (value != null) {
+                    return NoneOrBigDecimal.of(BigDecimal.valueOf(value));
+                }
             }
-        } else {
-            return null;
         }
+        return null;
     }
 
     @Override
     public Object convertValueToInfo(PropertySpec propertySpec, Object domainValue) {
         if (domainValue != null) {
-            if (domainValue instanceof NonOrBigDecimalValueProperty) {
+            if (domainValue instanceof NoneOrBigDecimal) {
                 return domainValue;
             }
         }

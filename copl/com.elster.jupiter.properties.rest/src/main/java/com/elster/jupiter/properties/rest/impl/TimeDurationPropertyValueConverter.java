@@ -13,15 +13,13 @@ import com.elster.jupiter.properties.rest.SimplePropertyType;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.time.rest.TimeDurationInfo;
 
-import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class TimeDurationPropertyValueConverter implements PropertyValueConverter {
+
     private Thesaurus thesaurus;
 
-    public TimeDurationPropertyValueConverter(){
-    }
-
-    public TimeDurationPropertyValueConverter(Thesaurus thesaurus){
+    public TimeDurationPropertyValueConverter(Thesaurus thesaurus) {
         this.thesaurus = thesaurus;
     }
 
@@ -37,8 +35,8 @@ public class TimeDurationPropertyValueConverter implements PropertyValueConverte
 
     @Override
     public Object convertInfoToValue(PropertySpec propertySpec, Object infoValue) {
-        Integer count = (Integer) ((LinkedHashMap<String, Object>) infoValue).get("count");
-        String timeUnit = (String) ((LinkedHashMap<String, Object>) infoValue).get("timeUnit");
+        Integer count = (Integer) ((Map) infoValue).get("count");
+        String timeUnit = (String) ((Map) infoValue).get("timeUnit");
         try {
             return new TimeDuration("" + count + " " + timeUnit);
         } catch (LocalizedFieldValidationException e) {

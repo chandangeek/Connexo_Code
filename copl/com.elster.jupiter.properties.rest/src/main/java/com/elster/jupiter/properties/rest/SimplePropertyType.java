@@ -8,7 +8,8 @@ import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.ListReadingQualityFactory;
 import com.elster.jupiter.properties.ListValueFactory;
 import com.elster.jupiter.properties.LongFactory;
-import com.elster.jupiter.properties.NonOrBigDecimalValueFactory;
+import com.elster.jupiter.properties.NoneOrBigDecimalValueFactory;
+import com.elster.jupiter.properties.NoneOrTimeDurationValueFactory;
 import com.elster.jupiter.properties.RelativePeriodFactory;
 import com.elster.jupiter.properties.ThreeStateFactory;
 import com.elster.jupiter.properties.TwoValuesDifferenceValueFactory;
@@ -43,8 +44,8 @@ public enum SimplePropertyType implements PropertyType {
     BPM_PROCESS(HasIdAndName.class),
     TIMEDURATION(TimeDuration.class),
     TWO_VALUES_DIFFERENCE(TwoValuesDifferenceValueFactory.class),
-    NON_OR_BIG_DECIMAL(NonOrBigDecimalValueFactory.class);
-
+    NONE_OR_BIGDECIMAL(NoneOrBigDecimalValueFactory.class),
+    NONE_OR_TIMEDURATION(NoneOrTimeDurationValueFactory.class);
 
     private Class typeClass;
 
