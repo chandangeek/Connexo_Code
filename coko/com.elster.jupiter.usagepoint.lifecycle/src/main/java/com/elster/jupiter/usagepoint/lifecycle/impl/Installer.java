@@ -82,15 +82,14 @@ public class Installer implements FullInstaller {
     }
 
     private void createChangeRequestRecurrentTask() {
-        Optional<DestinationSpec> destinationSpec = this.messageService.getDestinationSpec(ServerUsagePointLifeCycleService.DESTINATION_NAME);
-        if (destinationSpec.isPresent()) {
-            this.taskService.newBuilder().setApplication("Pulse")
-                    .setName(ServerUsagePointLifeCycleService.EXECUTOR_TASK)
-                    .setScheduleExpression(Never.NEVER)
-                    .setDestination(destinationSpec.get())
-                    .setPayLoad(TranslationKeys.QUEUE_SUBSCRIBER.getDefaultFormat())
-                    .build();
-        }
+        this.messageService.getDestinationSpec(ServerUsagePointLifeCycleService.DESTINATION_NAME)
+                .ifPresent(destinationSpec -> this.taskService.newBuilder()
+                        .setApplication("Pulse")
+                        .setName(ServerUsagePointLifeCycleService.EXECUTOR_TASK)
+                        .setScheduleExpression(Never.NEVER)
+                        .setDestination(destinationSpec)
+                        .setPayLoad(TranslationKeys.QUEUE_SUBSCRIBER.getDefaultFormat())
+                        .build());
     }
 
     private void createMessageHandler(QueueTableSpec defaultQueueTableSpec, String destinationName, TranslationKey subscriberName) {
@@ -100,7 +99,7 @@ public class Installer implements FullInstaller {
             queue.activate();
             queue.subscribe(subscriberName, UsagePointLifeCycleService.COMPONENT_NAME, Layer.DOMAIN);
         } else {
-            boolean notSubscribedYet = !destinationSpecOptional.get().getSubscribers().stream().anyMatch(spec -> spec.getName().equals(subscriberName.getKey()));
+            boolean notSubscribedYet = destinationSpecOptional.get().getSubscribers().stream().noneMatch(spec -> spec.getName().equals(subscriberName.getKey()));
             if (notSubscribedYet) {
                 destinationSpecOptional.get().activate();
                 destinationSpecOptional.get().subscribe(subscriberName, UsagePointLifeCycleService.COMPONENT_NAME, Layer.DOMAIN);
@@ -115,7 +114,7 @@ public class Installer implements FullInstaller {
 
     private void setInitialStateForInstalledUsagePoints() {
         meteringService.getUsagePointQuery()
-                .select(Condition.TRUE).stream()
+                .select(Condition.TRUE)
                 .forEach(UsagePoint::setInitialState);
     }
 }

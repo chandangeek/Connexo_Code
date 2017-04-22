@@ -21,6 +21,10 @@
 
     <dependencies>
         <dependency>
+            <groupId>com.google.inject</groupId>
+            <artifactId>guice</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>orm</artifactId>
         </dependency>
@@ -77,8 +81,8 @@
             <artifactId>tasks</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.google.inject</groupId>
-            <artifactId>guice</artifactId>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>validation</artifactId>
         </dependency>
 
         <!-- TESTS -->
@@ -165,6 +169,16 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>servicecall</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>metering.groups</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>kpi</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

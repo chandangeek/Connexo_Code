@@ -43,7 +43,9 @@ public class AllTranslationKeysTest {
                     .isNotEmpty();
             assertThat(defaultFormat.length())
                     .as(translation + " default format should not start or end with a non-printable character")
-                    .isEqualTo(defaultFormat.trim().length());
+                    .isEqualTo(defaultFormat.trim().length())
+                    .as(translation + " default format is longer than max of 256")
+                    .isLessThanOrEqualTo(256);
         }
     }
 }
