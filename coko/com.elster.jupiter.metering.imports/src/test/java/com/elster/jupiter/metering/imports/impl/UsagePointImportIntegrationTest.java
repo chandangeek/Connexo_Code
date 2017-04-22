@@ -12,7 +12,6 @@ import com.elster.jupiter.fileimport.FileImporter;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.FiniteStateMachineBuilder;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
-import com.elster.jupiter.fsm.Stage;
 import com.elster.jupiter.fsm.StageSet;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.metering.AmrSystem;
