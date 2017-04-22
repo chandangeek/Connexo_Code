@@ -37,6 +37,24 @@ Ext.define('Est.estimationrules.view.DetailForm', {
             }
         },
         {
+            xtype: 'property-form',
+            itemId: 'estimation-rule-properties',
+            isEdit: false,
+            defaults: {
+                labelWidth: 250
+            },
+            margin: '0 0 -5 0'
+        },
+        {
+            fieldLabel: Uni.I18n.translate('general.markAsProjected', 'EST', 'Mark as projected'),
+            itemId: 'mark-projected-field',
+            name: 'markProjected',
+            hidden: true,
+            renderer: function (value) {
+                return value ? Uni.I18n.translate('general.yes', 'EST', 'Yes') : Uni.I18n.translate('general.no', 'EST', 'No');
+            }
+        },
+        {
             xtype: 'fieldcontainer',
             itemId: 'reading-types-field',
             fieldLabel: Uni.I18n.translate('general.readingTypes', 'EST', 'Reading types'),
@@ -44,20 +62,22 @@ Ext.define('Est.estimationrules.view.DetailForm', {
                 xtype: 'reading-type-displayfield',
                 fieldLabel: undefined
             }
-        },
-        {
-            xtype: 'property-form',
-            itemId: 'estimation-rule-properties',
-            isEdit: false,
-            defaults: {
-                labelWidth: 250
-            }
         }
     ],
+
+    MULTISENSE_KEY: 'MultiSense',
+    INSIGHT_KEY: 'MdmApp',
+
     updateForm: function (record) {
         var me = this,
-            readingTypesField = me.down('#reading-types-field');
+            readingTypesField = me.down('#reading-types-field'),
+            appName = Uni.util.Application.getAppName();
 
+        if(appName === me.MULTISENSE_KEY) {
+            me.down('#mark-projected-field').hide();
+        } else if (appName === me.INSIGHT_KEY) {
+            me.down('#mark-projected-field').show();
+        }
         Ext.suspendLayouts();
         if (!me.staticTitle) {
             me.setTitle(Ext.String.htmlEncode(record.get('name')));

@@ -38,6 +38,8 @@ Ext.define('Est.estimationrules.controller.Edit', {
             selector: 'estimation-rule-edit estimation-rule-edit-form #form-errors'
         }
     ],
+    MULTISENSE_KEY: 'MultiSense',
+    INSIGHT_KEY: 'MdmApp',
     initialRuleName: undefined,
     ruleSetInUse: false,
 
@@ -63,6 +65,7 @@ Ext.define('Est.estimationrules.controller.Edit', {
                     ? router.queryParams.previousRoute
                     : router.getRoute('administration/estimationrulesets/estimationruleset/rules').buildUrl()
             }),
+            appName = Uni.util.Application.getAppName(),
             waitBeforeLoadingTheRule = 2,
             // the following function loads the estimation rule into the form the 2nd time this method is called
             checkFlagAndEventuallyLoadTheRuleIntoTheForm = function () {
@@ -84,6 +87,12 @@ Ext.define('Est.estimationrules.controller.Edit', {
                 Uni.util.History.suspendEventsForNextCall();
                 window.location.replace(router.getRoute().buildUrl(router.arguments, null));
             }, 0);
+        }
+
+        if(appName === me.MULTISENSE_KEY) {
+            widget.down('#projected-checkbox').hide();
+        } else if (appName === me.INSIGHT_KEY) {
+            widget.down('#projected-checkbox').show();
         }
 
         me.getApplication().fireEvent('changecontentevent', widget);
