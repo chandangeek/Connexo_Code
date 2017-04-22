@@ -542,7 +542,6 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                     hidden: true
                 }
             );
-
             qualityItems.push(
                 {
                     xtype: 'uni-form-info-message',
@@ -580,6 +579,17 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                 }
             );
         }
+
+        valuesItems.push(
+            {
+                itemId: 'estimation-comment-field',
+                name: 'commentValue',
+                fieldLabel: Uni.I18n.translate('general.estimationComment', 'MDC', 'Estimation comment'),
+                renderer: function (string) {
+                    return string ? string : '-';
+                }
+            }
+        );
 
         me.items = [
             {
