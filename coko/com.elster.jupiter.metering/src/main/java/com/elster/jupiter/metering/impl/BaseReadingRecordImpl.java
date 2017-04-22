@@ -32,7 +32,7 @@ public abstract class BaseReadingRecordImpl implements BaseReadingRecord {
         this.entry = entry;
     }
 
-    TimeSeriesEntry getEntry() {
+    public TimeSeriesEntry getEntry() {
         return entry;
     }
 

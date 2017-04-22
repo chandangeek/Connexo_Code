@@ -31,7 +31,8 @@ public class JournaledChannelReadingRecordImpl extends IntervalReadingRecordImpl
 
     @Override
     public String getUserName() {
-        return getEntry() instanceof TimeSeriesJournalEntry ? ((TimeSeriesJournalEntry) getEntry()).getUserName() : "";
+        return getEntry() instanceof TimeSeriesJournalEntry && ((TimeSeriesJournalEntry) getEntry()).getUserName() != null ?
+                ((TimeSeriesJournalEntry) getEntry()).getUserName() : "";
     }
 
     @Override
