@@ -16,7 +16,7 @@ Ext.define('Imt.purpose.view.SingleReadingActionMenu', {
             },
             {
                 itemId: 'copy-form-value',
-                text: Uni.I18n.translate('general.copyFromReference', 'MDC', 'Copy from reference'),
+                text: Uni.I18n.translate('general.copyFromReference', 'IMT', 'Copy from reference'),
                 action: 'copyFromReference',
                 section: this.SECTION_ACTION
             },
