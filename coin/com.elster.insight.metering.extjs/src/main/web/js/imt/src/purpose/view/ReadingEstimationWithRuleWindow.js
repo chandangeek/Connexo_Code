@@ -77,7 +77,8 @@ Ext.define('Imt.purpose.view.ReadingEstimationWithRuleWindow', {
                                                 errorLabel.hide();
                                             }
                                         }
-
+                                        estimator && me.down('#reading-type-mark-projected').loadRecord(estimator);
+                                        estimator && me.down('#reading-type-mark-projected').show();
                                         me.updateLayout();
                                         me.center();
                                         me.down('#estimate-reading-button').setDisabled(!!hasEmptyRequiredProperties);
@@ -97,6 +98,7 @@ Ext.define('Imt.purpose.view.ReadingEstimationWithRuleWindow', {
                         }
                     ]
                 },
+
                 {
                     xtype: 'property-form',
                     itemId: 'property-form',
@@ -105,6 +107,25 @@ Ext.define('Imt.purpose.view.ReadingEstimationWithRuleWindow', {
                     defaults: {
                         labelWidth: 200
                     }
+                },
+                {
+                    xtype: 'form',
+                    itemId: 'reading-type-mark-projected',
+                    hidden: true,
+                    defaults: {
+                        width: 503,
+                        labelWidth: 200
+                    },
+                    items: [
+                        {
+                            xtype: 'displayfield',
+                            fieldLabel: Uni.I18n.translate('general.markAsProjected', 'IMT', 'Mark as projected'),
+                            name: 'markProjected',
+                            renderer: function (value) {
+                                return value ? Uni.I18n.translate('general.yes', 'IMT', 'Yes') : Uni.I18n.translate('general.no', 'IMT', 'No');
+                            }
+                        }
+                    ]
                 },
                 {
                     xtype: 'fieldcontainer',
