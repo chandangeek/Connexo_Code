@@ -4,18 +4,54 @@
 
 package com.elster.jupiter.properties;
 
-/**
- * Created by dantonov on 28.03.2017.
- */
-public abstract class TwoValuesDifference {
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 
-    public TwoValuesDifference(Type type) {
-        this.type = type;
-    }
+import java.math.BigDecimal;
+import java.util.stream.Stream;
 
-    public Type type;
+public class TwoValuesDifference {
 
     public enum Type {
-        absolute, percent
+        ABSOLUTE("absolute"),
+        RELATIVE("relative");
+
+        private final String name;
+
+        Type(String name) {
+            this.name = name;
+        }
+
+        @JsonValue
+        String getName() {
+            return name;
+        }
+
+        @JsonCreator
+        public static Type fromString(String name) {
+            return Stream.of(values())
+                    .filter(type -> type.name.equals(name))
+                    .findAny()
+                    .orElse(null);
+        }
+    }
+
+    private Type type;
+    private BigDecimal value;
+
+    public TwoValuesDifference(Type type, BigDecimal value) {
+        this.type = type;
+        this.value = value;
+    }
+
+    @JsonProperty
+    public Type getType() {
+        return type;
+    }
+
+    @JsonProperty
+    public BigDecimal getValue() {
+        return value;
     }
 }

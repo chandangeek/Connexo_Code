@@ -6,13 +6,10 @@ package com.elster.jupiter.properties;
 
 import java.math.BigDecimal;
 
-/**
- * Created by dantonov on 28.03.2017.
- */
 public class TwoValuesDifferenceValueFactory extends AbstractValueFactory<TwoValuesDifference> {
 
-    private static final String ABSOLUTE_VALUE_TAG = "Absolute:";
-    private static final String PERCENT_VALUE_TAG = "Percent:";
+    private static final String ABSOLUTE_VALUE_TAG = "absolute:";
+    private static final String RELATIVE_VALUE_TAG = "relative:";
 
     @Override
     protected int getJdbcType() {
@@ -21,27 +18,25 @@ public class TwoValuesDifferenceValueFactory extends AbstractValueFactory<TwoVal
 
     @Override
     public TwoValuesDifference fromStringValue(String stringValue) {
-        if (stringValue.contains(ABSOLUTE_VALUE_TAG)) {
-            TwoValuesAbsoluteDifference diffValue = new TwoValuesAbsoluteDifference();
-            diffValue.value = new BigDecimal(stringValue.replaceAll(ABSOLUTE_VALUE_TAG, ""));
-            return diffValue;
-        } else if (stringValue.contains(PERCENT_VALUE_TAG)) {
-            TwoValuesPercentDifference diffValue = new TwoValuesPercentDifference();
-            diffValue.percent = Double.valueOf(stringValue.replaceAll(PERCENT_VALUE_TAG, ""));
-            return diffValue;
-        } else {
-            return null;
+        if (stringValue.startsWith(ABSOLUTE_VALUE_TAG)) {
+            return new TwoValuesDifference(TwoValuesDifference.Type.ABSOLUTE, new BigDecimal(stringValue.replaceAll(ABSOLUTE_VALUE_TAG, "")));
         }
+        if (stringValue.startsWith(RELATIVE_VALUE_TAG)) {
+            return new TwoValuesDifference(TwoValuesDifference.Type.RELATIVE, new BigDecimal(stringValue.replaceAll(RELATIVE_VALUE_TAG, "")));
+        }
+        return null;
     }
 
     @Override
     public String toStringValue(TwoValuesDifference object) {
-        if (object instanceof TwoValuesAbsoluteDifference) {
-            return ABSOLUTE_VALUE_TAG + ((TwoValuesAbsoluteDifference) object).value;
-        } else if (object instanceof TwoValuesPercentDifference) {
-            return PERCENT_VALUE_TAG + ((TwoValuesPercentDifference) object).percent;
+        switch (object.getType()) {
+            case ABSOLUTE:
+                return ABSOLUTE_VALUE_TAG + object.getValue();
+            case RELATIVE:
+                return RELATIVE_VALUE_TAG + object.getValue();
+            default:
+                throw new IllegalArgumentException("Unsupported type of difference:" + object.getType().name());
         }
-        return null;
     }
 
     @Override
