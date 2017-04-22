@@ -18,8 +18,8 @@ import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.api.TrackingCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 
 import javax.inject.Inject;
 import javax.ws.rs.core.UriInfo;
@@ -48,7 +48,7 @@ public class DeviceMessageInfoFactory {
         this.deviceMessageService = deviceMessageService;
     }
 
-    public DeviceMessageInfo asInfo(DeviceMessage<?> deviceMessage, UriInfo uriInfo) {
+    public DeviceMessageInfo asInfo(DeviceMessage deviceMessage, UriInfo uriInfo) {
         DeviceMessageInfo info = new DeviceMessageInfo();
         info.id = deviceMessage.getId();
         info.trackingIdAndName = new IdWithNameInfo(deviceMessage.getTrackingId(), "");
@@ -93,7 +93,9 @@ public class DeviceMessageInfoFactory {
         TypedProperties typedProperties = TypedProperties.empty();
         deviceMessage.getAttributes().stream().forEach(attribute->typedProperties.setProperty(attribute.getName(), attribute.getValue()));
         mdcPropertyUtils.convertPropertySpecsToPropertyInfos(uriInfo,
-                deviceMessage.getAttributes().stream().map(DeviceMessageAttribute::getSpecification).collect(toList()),
+                deviceMessage.getAttributes().stream()
+                        .map(DeviceMessageAttribute.class::cast)        //Downcast to Connexo DeviceMessageAttribute
+                        .map(DeviceMessageAttribute::getSpecification).collect(toList()),
                 typedProperties,
                 info.properties
         );

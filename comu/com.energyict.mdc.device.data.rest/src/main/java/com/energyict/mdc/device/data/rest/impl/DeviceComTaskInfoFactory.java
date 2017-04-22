@@ -75,7 +75,7 @@ public class DeviceComTaskInfoFactory {
     private void setFieldsForIndividualScheduleExecution(DeviceComTaskInfo deviceComTasksInfo, ComTaskExecution comTaskExecution, ComTaskEnablement comTaskEnablement) {
         deviceComTasksInfo.scheduleTypeKey = ScheduleTypeKey.INDIVIDUAL.name();
         deviceComTasksInfo.scheduleType = thesaurus.getFormat(DefaultTranslationKey.INDIVIDUAL_SCHEDULE).format();
-//        deviceComTasksInfo.protocolDialect = comTaskExecution.getProtocolDialectConfigurationProperties().getDeviceProtocolDialect().getDisplayName();
+//        deviceComTasksInfo.protocolDialect = comTaskExecution.getProtocolDialectConfigurationProperties().getDeviceProtocolDialect().getDeviceProtocolDialectDisplayName();
         if (comTaskExecution.getNextExecutionSpecs().isPresent()) {
             deviceComTasksInfo.temporalExpression = TemporalExpressionInfo.from(comTaskExecution.getNextExecutionSpecs().get().getTemporalExpression());
         }
@@ -133,7 +133,7 @@ public class DeviceComTaskInfoFactory {
         deviceComTasksInfo.scheduleTypeKey = ScheduleTypeKey.SHARED.name();
         deviceComTasksInfo.scheduleType = thesaurus.getFormat(DefaultTranslationKey.SHARED_SCHEDULE).format();
         deviceComTasksInfo.lastCommunicationStart = comTaskExecution.getLastExecutionStartTimestamp();
-//        deviceComTasksInfo.protocolDialect = comTaskExecution.getProtocolDialectConfigurationProperties().getDeviceProtocolDialect().getDisplayName();
+//        deviceComTasksInfo.protocolDialect = comTaskExecution.getProtocolDialectConfigurationProperties().getDeviceProtocolDialect().getDeviceProtocolDialectDisplayName();
         deviceComTasksInfo.latestResult =
                 comTaskExecution
                         .getLastSession()
@@ -236,11 +236,14 @@ public class DeviceComTaskInfoFactory {
     private void setConnectionTaskInfo(DeviceComTaskInfo deviceComTasksInfo, PartialConnectionTask partialConnectionTask, Optional<ConnectionTask> deviceConnectionTaskOptional) {
         if(partialConnectionTask instanceof PartialScheduledConnectionTask) {
             boolean connectionMethodDefined = deviceConnectionTaskOptional.isPresent();
-            ConnectionStrategy strategy = connectionMethodDefined ? ((ScheduledConnectionTask) deviceConnectionTaskOptional.get()).getConnectionStrategy()
-                    : ((PartialScheduledConnectionTask) partialConnectionTask).getConnectionStrategy();
+            ConnectionStrategy strategy;
+            if (connectionMethodDefined) {
+                strategy = ((ScheduledConnectionTask) deviceConnectionTaskOptional.get()).getConnectionStrategy();
+            } else {
+                strategy = ((PartialScheduledConnectionTask) partialConnectionTask).getConnectionStrategy();
+            }
             deviceComTasksInfo.connectionStrategy = ConnectionStrategyTranslationKeys.translationFor(strategy, thesaurus);
             deviceComTasksInfo.connectionStrategyKey = strategy.name();
-
         }
     }
 
