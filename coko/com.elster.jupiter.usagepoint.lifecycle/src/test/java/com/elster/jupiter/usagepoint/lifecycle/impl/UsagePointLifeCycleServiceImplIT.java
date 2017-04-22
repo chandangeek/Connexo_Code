@@ -31,7 +31,6 @@ import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleBuilder;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointStage;
-import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 import com.elster.jupiter.usagepoint.lifecycle.impl.actions.ResetValidationResultsAction;
 import com.elster.jupiter.usagepoint.lifecycle.impl.actions.SetConnectionStateAction;
@@ -42,9 +41,6 @@ import com.elster.jupiter.usagepoint.lifecycle.impl.checks.UsagePointMicroCheckF
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 
 import com.google.common.collect.ImmutableSet;
 
@@ -66,7 +62,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
@@ -86,12 +84,7 @@ public class UsagePointLifeCycleServiceImplIT extends BaseTestIT {
     public void initializeCommonUsagePointStateChangeFields() {
         UserService userService = get(UserService.class);
         //to overcome granting privilege issues we need to let the system think we are not a normal user
-        Principal principal = new Principal() {
-            @Override
-            public String getName() {
-                return "console";
-            }
-        };
+        Principal principal = () -> "console";
         get(ThreadPrincipalService.class).set(principal);
         group = userService.findOrCreateGroup("Test");
         userService.grantGroupWithPrivilege(group.getName(), APPLICATION, new String[]{UsagePointTransition.Level.FOUR.getPrivilege()});
@@ -315,12 +308,12 @@ public class UsagePointLifeCycleServiceImplIT extends BaseTestIT {
     public void testDefaultLifeCycleExists() {
         UsagePointLifeCycle lifeCycle = get(UsagePointLifeCycleConfigurationService.class).getDefaultLifeCycle();
         assertThat(lifeCycle.isDefault()).isEqualTo(true);
-        assertThat(lifeCycle.getName()).isEqualTo(TranslationKeys.LIFE_CYCLE_NAME.getDefaultFormat());
+        assertThat(lifeCycle.getName()).isEqualTo("usage.point.life.cycle.standard.name");
 
-        State underConstruction = lifeCycle.getStates().stream().filter(state -> state.getName().equals(DefaultState.UNDER_CONSTRUCTION.getKey())).findFirst();
-        State active = lifeCycle.getStates().stream().filter(state -> state.getName().equals(DefaultState.ACTIVE.getKey())).findFirst();
-        State inactive = lifeCycle.getStates().stream().filter(state -> state.getName().equals(DefaultState.INACTIVE.getKey())).findFirst();
-        State demolished = lifeCycle.getStates().stream().filter(state -> state.getName().equals(DefaultState.DEMOLISHED.getKey())).findFirst();
+        State underConstruction = findStateOrFail(lifeCycle, DefaultState.UNDER_CONSTRUCTION);
+        State active = findStateOrFail(lifeCycle, DefaultState.ACTIVE);
+        State inactive = findStateOrFail(lifeCycle, DefaultState.INACTIVE);
+        State demolished = findStateOrFail(lifeCycle, DefaultState.DEMOLISHED);
         assertThat(underConstruction.isInitial()).isTrue();
 
         UsagePointTransition transition = findTransitionOrFail(lifeCycle,
@@ -364,9 +357,9 @@ public class UsagePointLifeCycleServiceImplIT extends BaseTestIT {
     @Transactional
     public void testAcceptDefaultLifeCycle() {
         UsagePointLifeCycle lifeCycle = get(UsagePointLifeCycleConfigurationService.class).getDefaultLifeCycle();
-        UsagePointState active = findStateOrFail(lifeCycle, DefaultState.ACTIVE);
-        UsagePointState inactive = findStateOrFail(lifeCycle, DefaultState.INACTIVE);
-        UsagePointState demolished = findStateOrFail(lifeCycle, DefaultState.DEMOLISHED);
+        State active = findStateOrFail(lifeCycle, DefaultState.ACTIVE);
+        State inactive = findStateOrFail(lifeCycle, DefaultState.INACTIVE);
+        State demolished = findStateOrFail(lifeCycle, DefaultState.DEMOLISHED);
         final String RESURRECTION = "Resurrection";
         lifeCycle.newTransition(RESURRECTION, demolished, active).complete();
 
@@ -404,9 +397,9 @@ public class UsagePointLifeCycleServiceImplIT extends BaseTestIT {
         assertContainsOnlyClasses(transition.getChecks());
     }
 
-    private static UsagePointState findStateOrFail(UsagePointLifeCycle lifeCycle, DefaultState defaultState) {
+    private static State findStateOrFail(UsagePointLifeCycle lifeCycle, DefaultState defaultState) {
         return lifeCycle.getStates().stream()
-                .filter(state -> state.isDefault(defaultState))
+                .filter(state -> state.getName().equals(defaultState.getKey()))
                 .findFirst()
                 .orElseThrow(() -> Failures.instance().failure("State " + defaultState.getTranslation().getDefaultFormat() + " is not found."));
     }
@@ -415,7 +408,7 @@ public class UsagePointLifeCycleServiceImplIT extends BaseTestIT {
         return findTransitionOrFail(lifeCycle, name, state -> true);
     }
 
-    private static UsagePointTransition findTransitionOrFail(UsagePointLifeCycle lifeCycle, String name, Predicate<UsagePointState> fromPredicate) {
+    private static UsagePointTransition findTransitionOrFail(UsagePointLifeCycle lifeCycle, String name, Predicate<State> fromPredicate) {
         return lifeCycle.getTransitions().stream()
                 .filter(tr -> tr.getName().equals(name))
                 .filter(tr -> fromPredicate.test(tr.getFrom()))

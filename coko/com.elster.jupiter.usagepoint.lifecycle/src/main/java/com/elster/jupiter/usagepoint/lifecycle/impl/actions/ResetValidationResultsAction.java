@@ -4,9 +4,9 @@
 
 package com.elster.jupiter.usagepoint.lifecycle.impl.actions;
 
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 import com.elster.jupiter.usagepoint.lifecycle.impl.MicroCategory;
 import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.validation.ValidationService;
@@ -31,7 +31,7 @@ public class ResetValidationResultsAction extends TranslatableAction {
     }
 
     @Override
-    public boolean isMandatoryForTransition(UsagePointState fromState, UsagePointState toState) {
+    public boolean isMandatoryForTransition(State fromState, State toState) {
         return false;
     }
 

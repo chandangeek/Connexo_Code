@@ -4,13 +4,13 @@
 
 package com.elster.jupiter.usagepoint.lifecycle.impl.actions;
 
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.nls.impl.NlsModule;
-import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 import com.elster.jupiter.usagepoint.lifecycle.impl.MicroCategory;
 import com.elster.jupiter.usagepoint.lifecycle.impl.MicroCategoryTranslationKeys;
 import com.elster.jupiter.usagepoint.lifecycle.impl.UsagePointLifeCycleServiceImpl;
@@ -39,7 +39,7 @@ public class ResetValidationResultsActionTest {
     @Mock
     private UsagePoint usagePoint;
     @Mock
-    private UsagePointState state;
+    private State state;
     @Mock
     private EffectiveMetrologyConfigurationOnUsagePoint effectiveMC1, effectiveMC2;
     @Mock
