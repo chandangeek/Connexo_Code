@@ -37,6 +37,13 @@ import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.ByteArrayInputStream;
 import java.time.Instant;
@@ -146,8 +153,8 @@ public class UsagePointImportIntegrationTest {
         UsagePointLifeCycleService usagePointLifeCycleService = inMemoryPersistence.getService(UsagePointLifeCycleService.class);
         assertThat(usagePointLifeCycleService.getHistory(usagePoint)).hasSize(1);
         UsagePointStateChangeRequest history = usagePointLifeCycleService.getHistory(usagePoint).get(0);
-        assertThat(history.getFromStateName()).isEqualTo("Under construction");
-        assertThat(history.getToStateName()).isEqualTo("Active");
+        assertThat(history.getFromStateName()).isEqualTo("usage.point.state.under.construction");
+        assertThat(history.getToStateName()).isEqualTo("usage.point.state.active");
         assertThat(history.getStatus()).isEqualTo(UsagePointStateChangeRequest.Status.SCHEDULED);
     }
 
