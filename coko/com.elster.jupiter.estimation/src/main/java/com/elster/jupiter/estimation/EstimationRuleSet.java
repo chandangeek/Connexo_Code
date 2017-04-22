@@ -6,6 +6,7 @@ package com.elster.jupiter.estimation;
 
 import com.elster.jupiter.cbo.IdentifiedObject;
 import com.elster.jupiter.cbo.QualityCodeSystem;
+import com.elster.jupiter.metering.ReadingQualityComment;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.util.collections.KPermutation;
 
@@ -14,6 +15,7 @@ import aQute.bnd.annotation.ProviderType;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 @ProviderType
@@ -43,7 +45,7 @@ public interface EstimationRuleSet extends IdentifiedObject {
 
     EstimationRuleBuilder addRule(String implementation, String name);
 
-    EstimationRule updateRule(long id, String name, boolean active, List<String> mRIDs, Map<String, Object> properties, boolean markProjected);
+    EstimationRule updateRule(long id, String name, boolean active, List<String> mRIDs, Map<String, Object> properties, boolean markProjected, Optional<ReadingQualityComment> readingQualityComment);
 
     void deleteRule(EstimationRule rule);
 

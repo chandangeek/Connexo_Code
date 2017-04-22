@@ -12,6 +12,7 @@ import com.elster.jupiter.estimation.EstimationRuleProperties;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.estimation.impl.MessageSeeds.Constants;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.ReadingQualityComment;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
@@ -34,6 +35,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -251,9 +253,9 @@ class EstimationRuleSetImpl implements IEstimationRuleSet {
     }
 
     @Override
-    public IEstimationRule updateRule(long id, String name, boolean activeStatus, List<String> mRIDs, Map<String, Object> properties, boolean markProjected) {
+    public IEstimationRule updateRule(long id, String name, boolean activeStatus, List<String> mRIDs, Map<String, Object> properties, boolean markProjected, Optional<ReadingQualityComment> readingQualityComment) {
         IEstimationRule rule = getExistingRule(id);
-        return doUpdateRule(rule, name, activeStatus, mRIDs, properties, markProjected);
+        return doUpdateRule(rule, name, activeStatus, mRIDs, properties, markProjected, readingQualityComment);
     }
 
     @Override
@@ -273,7 +275,7 @@ class EstimationRuleSetImpl implements IEstimationRuleSet {
                 .collect(Collectors.toList());
     }
 
-    private IEstimationRule doUpdateRule(IEstimationRule rule, String name, boolean activeStatus, List<String> mRIDs, Map<String, Object> properties, boolean markProjected) {
+    private IEstimationRule doUpdateRule(IEstimationRule rule, String name, boolean activeStatus, List<String> mRIDs, Map<String, Object> properties, boolean markProjected, Optional<ReadingQualityComment> readingQualityComment) {
         rule.rename(name);
 
         if (activeStatus != rule.isActive()) {
@@ -282,6 +284,7 @@ class EstimationRuleSetImpl implements IEstimationRuleSet {
         updateReadingTypes(rule, mRIDs);
         rule.setProperties(properties);
         rule.setMarkProjected(markProjected);
+        readingQualityComment.ifPresent(rule::setComment);
         rule.save();
         dataModel.touch(this);
 

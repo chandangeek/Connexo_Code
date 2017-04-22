@@ -5,7 +5,7 @@
 package com.elster.jupiter.estimation;
 
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.aggregation.ReadingQualityComment;
+import com.elster.jupiter.metering.ReadingQualityComment;
 
 import aQute.bnd.annotation.ProviderType;
 
