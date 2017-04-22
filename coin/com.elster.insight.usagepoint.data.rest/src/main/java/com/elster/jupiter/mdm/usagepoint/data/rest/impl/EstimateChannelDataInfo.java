@@ -19,4 +19,7 @@ public class EstimateChannelDataInfo {
     public List<IntervalInfo> intervals;
 
     public ReadingTypeInfo readingType;
+
+    @JsonProperty("markAsProjected")
+    public boolean markAsProjected;
 }

@@ -55,6 +55,7 @@ public class EstimationRuleInfoFactory {
         info.properties = propertyValueInfoService.getPropertyInfos(estimationRule.getPropertySpecs(EstimationPropertyDefinitionLevel.ESTIMATION_RULE), estimationRule.getProps());
         info.application = resourceHelper.getApplicationInfo(estimationRule.getRuleSet().getQualityCodeSystem());
         info.when = readingQualityRecord.getTimestamp();
+        info.markProjected = estimationRule.isMarkProjected();
         return info;
     }
 
@@ -67,6 +68,7 @@ public class EstimationRuleInfoFactory {
         info.name = estimationRule.getName();
         info.estimatorName = estimationRule.getDisplayName();
         info.application = resourceHelper.getApplicationInfo(estimationRule.getRuleSet().getQualityCodeSystem());
+        info.markProjected = estimationRule.isMarkProjected();
         Map<String, Object> overriddenProperties = this.usagePointDataModelService.forEstimation(usagePoint)
                 .findOverriddenProperties(estimationRule, readingType)
                 .map(ChannelEstimationRuleOverriddenProperties::getProperties)

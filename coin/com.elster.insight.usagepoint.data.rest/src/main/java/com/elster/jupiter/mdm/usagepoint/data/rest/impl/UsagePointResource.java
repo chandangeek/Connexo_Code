@@ -11,6 +11,7 @@ import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
 import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.fsm.Stage;
 import com.elster.jupiter.mdm.usagepoint.config.rest.ReadingTypeDeliverableFactory;
 import com.elster.jupiter.mdm.usagepoint.config.rest.ReadingTypeDeliverablesInfo;
 import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataCompletionService;
@@ -413,8 +414,8 @@ public class UsagePointResource {
     @Path("/{name}/activatemeters")
     public Response activateMeters(@PathParam("name") String name, UsagePointInfo info) {
         UsagePoint usagePoint = resourceHelper.findAndLockUsagePointByNameOrThrowException(name, info.version);
-        UsagePointStage.Key usagePointStage = usagePoint.getState().getStage().getKey();
-        if(!UsagePointStage.Key.PRE_OPERATIONAL.equals(usagePointStage) && !UsagePointStage.Key.SUSPENDED.equals(usagePointStage)){
+        Stage stage = usagePoint.getState().getStage().get();
+        if(!stage.getName().equals(UsagePointStage.PRE_OPERATIONAL.getKey())  && !stage.getName().equals(UsagePointStage.SUSPENDED.getKey())){
             throw UsagePointMeterActivationException.usagePointIncorrectStage(thesaurus);
         }
         try {
