@@ -54,7 +54,7 @@ public class DefaultValidatorFactoryTest {
     @Before
     public void setUp() throws Exception {
         when(nlsService.getThesaurus(any(), any())).thenReturn(NlsModule.FakeThesaurus.INSTANCE);
-        defaultValidatorFactory = new DefaultValidatorFactory(nlsService, new PropertySpecServiceImpl() ,metrologyConfigurationService, validationService);
+        defaultValidatorFactory = new DefaultValidatorFactory(nlsService, new PropertySpecServiceImpl(), metrologyConfigurationService, validationService);
 
         MetrologyPurposeImpl metrologyPurpose = mock(MetrologyPurposeImpl.class);
         when(metrologyPurpose.getName()).thenReturn("purpose");
@@ -123,9 +123,12 @@ public class DefaultValidatorFactoryTest {
 
     @Test
     public void testCreateConsecutiveValidator() {
-        ImmutableMap<String, Object> properties = ImmutableMap.of(ConsecutiveValidator.MINIMUM_PERIOD, TimeDuration.hours(2),
+        ImmutableMap<String, Object> properties = ImmutableMap.of(
+                ConsecutiveValidator.MINIMUM_PERIOD, TimeDuration.hours(2),
                 ConsecutiveValidator.MAXIMUM_PERIOD, TimeDuration.days(1),
-                ConsecutiveValidator.MINIMUM_THRESHOLD, BigDecimal.ZERO);
+                ConsecutiveValidator.MINIMUM_THRESHOLD, BigDecimal.ZERO,
+                ConsecutiveValidator.CHECK_RETROACTIVELY, true
+        );
 
         Validator validator = defaultValidatorFactory.create(ConsecutiveValidator.class.getName(), properties);
 
