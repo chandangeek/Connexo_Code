@@ -154,7 +154,7 @@ public class UsagePointDataCompletionServiceImplTest {
                 .ofQualitySystem(QualityCodeSystem.MDM)
                 .ofQualityIndices(ImmutableSet.of(QualityCodeIndex.SUSPECT, QualityCodeIndex.KNOWNMISSINGREAD, QualityCodeIndex.ERRORCODE, QualityCodeIndex.ACCEPTED))
                 .orOfAnotherTypeInSameSystems()
-                .ofAnyQualityIndexInCategories(ImmutableSet.of(QualityCodeCategory.EDITED, QualityCodeCategory.ESTIMATED, QualityCodeCategory.VALIDATION))
+                .ofAnyQualityIndexInCategories(ImmutableSet.of(QualityCodeCategory.EDITED, QualityCodeCategory.ESTIMATED, QualityCodeCategory.VALIDATION, QualityCodeCategory.PROJECTED))
                 .stream())
                 .thenAnswer(invocation -> Stream.of(error, suspect, added, edited, removed, estimated, informative, confirmed)
                         .filter(record -> captor.getValue().contains(record.getReadingTimestamp())));

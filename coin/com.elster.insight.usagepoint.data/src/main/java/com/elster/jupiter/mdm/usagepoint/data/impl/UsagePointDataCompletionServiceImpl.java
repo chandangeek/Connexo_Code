@@ -43,6 +43,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 class UsagePointDataCompletionServiceImpl implements UsagePointDataCompletionService {
     private final Thesaurus thesaurus;
@@ -86,7 +87,7 @@ class UsagePointDataCompletionServiceImpl implements UsagePointDataCompletionSer
                 .ofQualitySystem(QualityCodeSystem.MDM)
                 .ofQualityIndices(ImmutableSet.of(QualityCodeIndex.SUSPECT, QualityCodeIndex.KNOWNMISSINGREAD, QualityCodeIndex.ERRORCODE, QualityCodeIndex.ACCEPTED))
                 .orOfAnotherTypeInSameSystems()
-                .ofAnyQualityIndexInCategories(ImmutableSet.of(QualityCodeCategory.EDITED, QualityCodeCategory.ESTIMATED, QualityCodeCategory.VALIDATION))
+                .ofAnyQualityIndexInCategories(ImmutableSet.of(QualityCodeCategory.EDITED, QualityCodeCategory.ESTIMATED, QualityCodeCategory.VALIDATION, QualityCodeCategory.PROJECTED))
                 .stream()
                 .collect(Collectors.toMap(
                         ReadingQualityRecord::getReadingTimestamp,
@@ -124,23 +125,41 @@ class UsagePointDataCompletionServiceImpl implements UsagePointDataCompletionSer
 
     private static void gatherEdited(Map<Instant, Set<ReadingQualityType>> qualityTypesByAllTimings,
                                      ChannelDataCompletionSummaryImpl summary) {
-        Arrays.stream(ChannelDataModificationSummaryFlags.values()).forEach(flag ->
-                accountFlagValue(summary, flag, (int) qualityTypesByAllTimings.entrySet().stream()
-                        .filter(entry -> entry.getValue().stream().anyMatch(flag.getQualityTypePredicate()))
-                        .map(Map.Entry::getKey)
-                        .count()));
+        int projectedCount = 0;
+        for(ChannelDataModificationSummaryFlags flag: ChannelDataModificationSummaryFlags.values()) {
+            List<Instant> modificationKeys = qualityTypesByAllTimings.entrySet().stream()
+                    .filter(entry -> entry.getValue().stream().anyMatch(flag.getQualityTypePredicate()))
+                    .map(Map.Entry::getKey)
+                    .collect(Collectors.toList());
+
+            int tempProjectedCount = (int) modificationKeys.stream()
+                    .filter(key -> qualityTypesByAllTimings.get(key).stream().anyMatch(ReadingQualityType::hasProjectedCategory))
+                    .count();
+            int modificationCount = modificationKeys.size() - tempProjectedCount;
+            accountFlagValue(summary, flag, modificationCount);
+            projectedCount += tempProjectedCount;
+        }
+        accountFlagValue(summary, ValidChannelDataSummaryFlags.PROJECTED, projectedCount);
     }
 
     private static void gatherEstimated(Map<Instant, Set<ReadingQualityType>> qualityTypesByAllTimings,
-                                     ChannelDataCompletionSummaryImpl summary) {
-        accountFlagValue(summary, ChannelDataCompletionSummaryType.ESTIMATED, (int) qualityTypesByAllTimings.entrySet().stream()
+                                        ChannelDataCompletionSummaryImpl summary) {
+        List<Instant> keysWithEstimatedCategory = qualityTypesByAllTimings.entrySet().stream()
                 .filter(entry -> entry.getValue().stream().anyMatch(ReadingQualityType::hasEstimatedCategory))
                 .map(Map.Entry::getKey)
-                .count());
+                .collect(Collectors.toList());
+
+        int projectedCount = (int) keysWithEstimatedCategory.stream()
+                .filter(key -> qualityTypesByAllTimings.get(key).stream().anyMatch(ReadingQualityType::hasProjectedCategory))
+                .count();
+        int estimatedCount = keysWithEstimatedCategory.size() - projectedCount;
+
+        accountFlagValue(summary, ChannelDataCompletionSummaryType.ESTIMATED, estimatedCount);
+        accountFlagValue(summary, ValidChannelDataSummaryFlags.PROJECTED, projectedCount);
     }
 
     private static void gatherStatistics(Map<Instant, Set<ReadingQualityType>> qualityTypesByAllTimings,
-                                       ChannelDataCompletionSummaryImpl summary) {
+                                         ChannelDataCompletionSummaryImpl summary) {
         accountFlagValue(summary, ChannelDataCompletionSummaryFlag.SUSPECT, (int) qualityTypesByAllTimings.entrySet().stream()
                 .filter(entry -> entry.getValue().stream().anyMatch(ChannelDataCompletionSummaryFlag.SUSPECT.getQualityTypePredicate()))
                 .map(Map.Entry::getKey)
@@ -200,7 +219,7 @@ class UsagePointDataCompletionServiceImpl implements UsagePointDataCompletionSer
     }
 
     @Override
-    public IChannelDataCompletionSummary getGeneralUsagePointDataCompletionSummary (Range<Instant> interval) {
+    public IChannelDataCompletionSummary getGeneralUsagePointDataCompletionSummary(Range<Instant> interval) {
         return new ChannelDataCompletionSummaryImpl(interval, ChannelDataCompletionSummaryType.GENERAL);
     }
 }
