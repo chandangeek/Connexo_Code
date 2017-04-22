@@ -13,6 +13,7 @@ import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.validation.EventType;
@@ -24,6 +25,8 @@ import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationRuleSetVersion;
 import com.elster.jupiter.validation.ValidationVersionStatus;
 import com.elster.jupiter.validation.impl.MessageSeeds.Constants;
+
+import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -104,6 +107,11 @@ public final class ValidationRuleSetVersionImpl implements IValidationRuleSetVer
     @Override
     public Instant getEndDate() {
         return endDate;
+    }
+
+    @Override
+    public Range<Instant> getRange() {
+        return Ranges.openClosed(startDate, endDate);
     }
 
     @Override

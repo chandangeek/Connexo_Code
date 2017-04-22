@@ -466,9 +466,9 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
     }
 
     @Override
-    public void validate(ValidationContext validationContext, Instant date) {
+    public void validate(ValidationContext validationContext, Instant validateAtMostFrom) {
         ChannelsContainerValidationList container = updatedChannelsContainerValidationsFor(validationContext);
-        container.moveLastCheckedBefore(date);
+        container.moveLastCheckedBefore(validateAtMostFrom);
         container.validate();
     }
 

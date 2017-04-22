@@ -16,12 +16,14 @@ import com.elster.jupiter.validation.ReadingTypeInValidationRule;
 import com.elster.jupiter.validation.ValidationRuleProperties;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Range;
 
 import javax.inject.Provider;
 import javax.validation.ValidatorFactory;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.junit.After;
@@ -228,15 +230,38 @@ public class ValidationRuleSetTest extends EqualsContractTest {
         validationRuleSet.save();
         setId(validationRuleSet, ID);
         setId(version1, 1001L);
-        when(ruleSetVersionFactory.find()).thenReturn(Arrays.asList(version1));
+        when(ruleSetVersionFactory.find()).thenReturn(Collections.singletonList(version1));
         validationRuleSet.save();
         assertThat(version1.getStartDate()).isEqualTo(Instant.EPOCH);
+        assertThat(version1.getRange()).isEqualTo(Range.greaterThan(Instant.EPOCH));
 
-        version1 = validationRuleSet.updateRuleSetVersion(1001L, "description2", Instant.now());
+        Instant now = Instant.now();
+        version1 = validationRuleSet.updateRuleSetVersion(1001L, "description2", now);
         validationRuleSet.save();
 
         assertThat(validationRuleSet.getRuleSetVersions()).hasSize(1).contains(version1);
         assertThat(version1.getDescription()).isEqualTo("description2");
+        assertThat(version1.getStartDate()).isEqualTo(now);
+        assertThat(version1.getRange()).isEqualTo(Range.greaterThan(now));
+    }
+
+    @Test
+    public void testAddSecondRuleSetVersion() {
+        Instant now = Instant.now();
+        validationRuleSet.addRuleSetVersion("Before now", Instant.EPOCH);
+        validationRuleSet.addRuleSetVersion("From now", now);
+
+        List<IValidationRuleSetVersion> ruleSetVersions = validationRuleSet.getRuleSetVersions();
+
+        assertThat(ruleSetVersions).hasSize(2);
+        assertThat(ruleSetVersions.get(0).getNotNullStartDate()).isEqualTo(Instant.EPOCH);
+        assertThat(ruleSetVersions.get(0).getNotNullEndDate()).isEqualTo(now);
+        assertThat(ruleSetVersions.get(0).getDescription()).isEqualTo("Before now");
+        assertThat(ruleSetVersions.get(0).getRange()).isEqualTo(Range.openClosed(Instant.EPOCH, now));
+        assertThat(ruleSetVersions.get(1).getNotNullStartDate()).isEqualTo(now);
+        assertThat(ruleSetVersions.get(1).getNotNullEndDate()).isEqualTo(Instant.MAX);
+        assertThat(ruleSetVersions.get(1).getDescription()).isEqualTo("From now");
+        assertThat(ruleSetVersions.get(1).getRange()).isEqualTo(Range.greaterThan(now));
     }
 
     @Test
@@ -252,8 +277,10 @@ public class ValidationRuleSetTest extends EqualsContractTest {
         assertThat(ruleSetVersions.get(0).getNotNullStartDate()).isEqualTo(Instant.EPOCH);
         assertThat(ruleSetVersions.get(0).getNotNullEndDate()).isEqualTo(now);
         assertThat(ruleSetVersions.get(0).getDescription()).isEqualTo("Before now");
+        assertThat(ruleSetVersions.get(0).getRange()).isEqualTo(Range.atMost(now));
         assertThat(ruleSetVersions.get(1).getNotNullStartDate()).isEqualTo(now);
         assertThat(ruleSetVersions.get(1).getNotNullEndDate()).isEqualTo(Instant.MAX);
         assertThat(ruleSetVersions.get(1).getDescription()).isEqualTo("From now");
+        assertThat(ruleSetVersions.get(1).getRange()).isEqualTo(Range.greaterThan(now));
     }
 }
