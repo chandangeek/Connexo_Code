@@ -87,8 +87,8 @@ class EstimationTaskBuilderImpl implements EstimationTaskBuilder {
     }
 
     @Override
-    public EstimationTaskBuilder setRevalidate(Boolean state) {
-        this.revalidate = state;
+    public EstimationTaskBuilder setRevalidate(boolean revalidate) {
+        this.revalidate = revalidate;
         return this;
     }
 
