@@ -11,7 +11,7 @@ Ext.define('Uni.form.field.EditedDisplay', {
     name: 'editedDate',
     emptyText: '',
 
-    renderer: function (value) {
+    renderer: function (value, cell, record) {
         var result,
             date,
             formattedDate,
@@ -35,6 +35,9 @@ Ext.define('Uni.form.field.EditedDisplay', {
                     tooltipText = value.date === null
                         ? Uni.I18n.translate('general.editedOnX', 'UNI', 'Edited on {0}', formattedDate)
                         : Uni.I18n.translate('general.editedOnXx', 'UNI', 'Edited');
+                    tooltipText += record.get('commentValue')
+                        ? Uni.I18n.translate('general.estimationCommentWithComment', 'UNI', 'Estimation comment: {0}', record.get('commentValue'))
+                        : '';
                     break;
                 case 'ESTIMATED':
                     iconClass = 'icon-pencil4';

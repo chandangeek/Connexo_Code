@@ -11,7 +11,7 @@ Ext.define('Uni.model.readings.ReadingCorrection', {
         'type',
         'onlySuspectOrEstimated',
         'projected',
-        'estimationComment',
+        'commentId',
         'amount',
         'intervals'
     ],

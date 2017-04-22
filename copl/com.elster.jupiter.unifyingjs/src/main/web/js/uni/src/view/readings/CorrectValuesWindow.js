@@ -33,7 +33,8 @@ Ext.define('Uni.view.readings.CorrectValuesWindow', {
         'Uni.util.FormEmptyMessage',
         'Uni.model.readings.ReadingCorrection',
         'Uni.util.FormErrorMessage',
-        'Uni.util.ReadingEditor'
+        'Uni.util.ReadingEditor',
+        'Cfg.view.common.EstimationComment'
     ],
 
 
@@ -142,10 +143,7 @@ Ext.define('Uni.view.readings.CorrectValuesWindow', {
                     hidden: me.hideProjectedField
                 },
                 {
-                    xtype: 'combobox',
-                    fieldLabel: Uni.I18n.translate('correct.window.ectimationComment', 'UNI', 'Estimation comment'),
-                    name: 'estimationComment',
-                    disabled: true
+                    xtype: 'estimation-comments'
                 },
                 {
                     xtype: 'fieldcontainer',
