@@ -478,8 +478,6 @@ public class EstimationResourceTest extends EstimationApplicationJerseyTest {
                 Matchers.eq("MyRuleUpdated"),
                 Matchers.eq(false),
                 Matchers.eq(new ArrayList<>()),
-                Matchers.eq(props))).
-                thenReturn(rule);
                 Matchers.eq(props),
                 anyBoolean())).
                 thenReturn(rule);
