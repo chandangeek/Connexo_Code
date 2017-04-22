@@ -13,11 +13,11 @@ Ext.define('Cfg.view.common.CopyFromReferenceWindow', {
     monitorResize: false,
 
     requires: [
+        'Uni.view.readings.EstimationComment',
         'Cfg.store.AllDevices',
         'Cfg.store.AllPurpose',
         'Cfg.store.AllReadingTypes',
-        'Cfg.store.AllUsagePoint',
-        'Cfg.store.AllEstimationComment'
+        'Cfg.store.AllUsagePoint'
     ],
 
     initComponent: function () {
@@ -115,51 +115,7 @@ Ext.define('Cfg.view.common.CopyFromReferenceWindow', {
                     ]
                 },
                 {
-                    fieldLabel: Uni.I18n.translate('copyFromReference.estimationComment', 'CFG', 'Estimation comment'),
-                    layout: 'hbox',
-                    flex: 1,
-                    items: [
-                        {
-                            xtype: 'combobox',
-                            itemId: 'estimation-comment',
-                            flex: 1,
-                            name: 'commentId',
-                            store: Ext.create('Uni.property.store.EstimationComment').load(),
-                            valueField: 'id',
-                            displayField: 'comment',
-                            queryMode: 'local',
-                            editable: false,
-                            listeners: {
-                                afterrender: function () {
-                                    var keepComment = {
-                                        comment: Uni.I18n.translate('copyFromReference.keepComment', 'CFG', 'Keep original comment'),
-                                        id: -1
-                                    };
-                                    this.getStore().add(keepComment);
-                                    this.resetButton = this.nextSibling('#estimation-comment-default-button');
-
-                                },
-                                change: function (combobox) {
-                                    if (combobox.getValue()) {
-                                        this.resetButton.setDisabled(false);
-                                    } else {
-                                        this.resetButton.setDisabled(true);
-                                    }
-                                }
-                            }
-                        },
-                        {
-                            xtype: 'uni-default-button',
-                            itemId: 'estimation-comment-default-button',
-                            hidden: false,
-                            disabled: true,
-                            tooltip: Uni.I18n.translate('general.clear', 'CFG', 'Clear'),
-                            handler: function () {
-                                this.previousSibling('#estimation-comment').reset();
-                            }
-
-                        }
-                    ]
+                    xtype: 'estimation-comments'
                 },
                 {
                     xtype: 'fieldcontainer',
