@@ -18,12 +18,11 @@ import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.ReadingQualityComment;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.ValueCorrection;
-import com.elster.jupiter.metering.aggregation.ReadingQualityComment;
 import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyContract;
@@ -31,6 +30,7 @@ import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
+import com.elster.jupiter.rest.util.BigDecimalFunction;
 import com.elster.jupiter.rest.util.IntervalInfo;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
@@ -429,6 +429,9 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
     @Test
     public void testEditChannelData() throws Exception {
         mockIntervalReadingsWithValidationResult();
+        ReadingQualityComment readingQualityComment = mock(ReadingQualityComment.class);
+        when(readingQualityComment.getId()).thenReturn(555L);
+        when(readingQualityComment.getComment()).thenReturn("Estimated by market rule 11");
 
         OutputChannelDataInfo info1 = new OutputChannelDataInfo();
         info1.value = BigDecimal.valueOf(101L);
@@ -438,6 +441,7 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         info2.value = BigDecimal.valueOf(102L);
         info2.reportedDateTime = INTERVAL_4.upperEndpoint();
         info2.interval = IntervalInfo.from(INTERVAL_4);
+        when(meteringService.findReadingQualityComment(any(Long.class))).thenReturn(Optional.of(readingQualityComment));
 
         // Business method
         Response response = target("usagepoints/" + USAGE_POINT_NAME + "/purposes/100/outputs/1/channelData")
@@ -713,10 +717,14 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         AggregatedChannel channel = mock(AggregatedChannel.class);
         IntervalReadingRecord readingRecord = mock(IntervalReadingRecord.class);
         TemporalAmount temporalAmount = mock(TemporalAmount.class);
+        ReadingQualityComment readingQualityComment = mock(ReadingQualityComment.class);
         ValueCorrectionInfo valueCorrectionInfo = new ValueCorrectionInfo();
         valueCorrectionInfo.intervals = Collections.singletonList(com.elster.jupiter.mdm.common.rest.IntervalInfo.from(Range.openClosed(now, now.plusSeconds(60))));
         valueCorrectionInfo.amount = new BigDecimal(10);
-        valueCorrectionInfo.type = ValueCorrection.MULTIPLY.getType();
+        valueCorrectionInfo.type = BigDecimalFunction.MULTIPLY;
+        when(meteringService.findReadingQualityComment(any(Long.class))).thenReturn(Optional.of(readingQualityComment));
+        when(readingQualityComment.getId()).thenReturn(555L);
+        when(readingQualityComment.getComment()).thenReturn("Estimated by market rule 11");
         when(effectiveMC1.getAggregatedChannel(any(MetrologyContract.class), any(ReadingType.class))).thenReturn(Optional.of(channel));
         when(channel.getIntervalReadings(any(Range.class))).thenReturn(Collections.singletonList(readingRecord));
         when(readingRecord.getValue()).thenReturn(new BigDecimal(10));

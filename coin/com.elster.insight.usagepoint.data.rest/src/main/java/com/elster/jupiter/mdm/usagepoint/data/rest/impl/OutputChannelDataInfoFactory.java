@@ -5,9 +5,8 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.ReadingQualityComment;
 import com.elster.jupiter.metering.ReadingQualityRecord;
-import com.elster.jupiter.metering.aggregation.ReadingQualityComment;
-import com.elster.jupiter.rest.util.IdWithDisplayValueInfo;
 import com.elster.jupiter.rest.util.IntervalInfo;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationAction;
@@ -117,7 +116,10 @@ public class OutputChannelDataInfoFactory {
         });
         outputChannelDataInfo.value = newValue;
         outputChannelDataInfo.isProjected = isProjected;
-        readingQualityComment.ifPresent(comment -> outputChannelDataInfo.estimationComment = new IdWithDisplayValueInfo<>(comment.getId(), comment.getComment()));
+        readingQualityComment.ifPresent(comment -> {
+            outputChannelDataInfo.commentId = comment.getId();
+            outputChannelDataInfo.commentValue = comment.getComment();
+        });
         return outputChannelDataInfo;
     }
 }

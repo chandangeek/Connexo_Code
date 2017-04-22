@@ -5,7 +5,7 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.mdm.common.rest.IntervalInfo;
-import com.elster.jupiter.rest.util.IdWithDisplayValueInfo;
+import com.elster.jupiter.rest.util.BigDecimalFunction;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -17,7 +17,7 @@ public class ValueCorrectionInfo {
     @JsonProperty("amount")
     public BigDecimal amount;
     @JsonIgnore(true)
-    public IdWithDisplayValueInfo<Long> estimationComment;
+    public long commentId;
     @JsonProperty("intervals")
     public List<IntervalInfo> intervals;
     @JsonProperty("onlySuspectOrEstimated")
@@ -25,5 +25,5 @@ public class ValueCorrectionInfo {
     @JsonProperty("projected")
     public boolean projected;
     @JsonProperty("type")
-    public String type;
+    public BigDecimalFunction type;
 }
