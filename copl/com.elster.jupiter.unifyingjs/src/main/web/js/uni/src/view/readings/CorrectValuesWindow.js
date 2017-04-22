@@ -30,11 +30,11 @@ Ext.define('Uni.view.readings.CorrectValuesWindow', {
     hideProjectedField: false,
 
     requires: [
+        // 'Est.estimationrules.view.EstimationComment',
         'Uni.util.FormEmptyMessage',
         'Uni.model.readings.ReadingCorrection',
         'Uni.util.FormErrorMessage',
-        'Uni.util.ReadingEditor',
-        'Cfg.view.common.EstimationComment'
+        'Uni.util.ReadingEditor'
     ],
 
 
@@ -142,9 +142,9 @@ Ext.define('Uni.view.readings.CorrectValuesWindow', {
                     name: 'projected',
                     hidden: me.hideProjectedField
                 },
-                {
-                    xtype: 'estimation-comments'
-                },
+                // {
+                //     xtype: 'estimation-comments'
+                // },
                 {
                     xtype: 'fieldcontainer',
                     fieldLabel: '&nbsp;',
