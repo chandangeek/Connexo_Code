@@ -92,7 +92,7 @@ Ext.define('Uni.property.controller.Registry', {
         LOADPROFILETYPE: 'Uni.property.view.property.Reference',
         LOGBOOK: 'Uni.property.view.property.Reference',
         LONG: 'Uni.property.view.property.Number',
-        NONE_OR_TIME_DURATION: 'Uni.property.view.property.NoneOrTimeDuration',
+        NONE_OR_TIMEDURATION: 'Uni.property.view.property.NoneOrTimeDuration',
         NULLABLE_BOOLEAN: 'Uni.property.view.property.NullableBoolean',
         NUMBER: 'Uni.property.view.property.DecimalNumber',
         OBISCODE: 'Uni.property.view.property.ObisCode',
