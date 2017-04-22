@@ -14,6 +14,7 @@ import com.elster.jupiter.estimation.EstimationPropertyResolver;
 import com.elster.jupiter.estimation.EstimationReport;
 import com.elster.jupiter.estimation.EstimationResolver;
 import com.elster.jupiter.estimation.EstimationResult;
+import com.elster.jupiter.estimation.EstimationResultBuilder;
 import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.estimation.EstimationService;
@@ -659,6 +660,11 @@ public class EstimationServiceImpl implements IEstimationService, TranslationKey
     @Override
     public Optional<? extends EstimationRule> findEstimationRuleByQualityType(ReadingQualityType readingQualityType) {
         return getEstimationRule(readingQualityType.getIndexCode());
+    }
+
+    @Override
+    public EstimationResultBuilder getEstimationResultBuilder() {
+        return SimpleEstimationResult.builder();
     }
 
     class DefaultEstimatorCreator implements EstimatorCreator {

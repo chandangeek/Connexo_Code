@@ -31,6 +31,8 @@ interface IEstimationRule extends EstimationRule {
 
     void setProperties(Map<String, Object> map);
 
+    void setMarkProjected(boolean b);
+
     boolean appliesTo(Channel channel);
 
     Estimator createNewEstimator(ChannelsContainer channelsContainer, ReadingType readingType);

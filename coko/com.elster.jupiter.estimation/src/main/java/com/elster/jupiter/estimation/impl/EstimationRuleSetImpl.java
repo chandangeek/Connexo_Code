@@ -251,9 +251,9 @@ class EstimationRuleSetImpl implements IEstimationRuleSet {
     }
 
     @Override
-    public IEstimationRule updateRule(long id, String name, boolean activeStatus, List<String> mRIDs, Map<String, Object> properties) {
+    public IEstimationRule updateRule(long id, String name, boolean activeStatus, List<String> mRIDs, Map<String, Object> properties, boolean markProjected) {
         IEstimationRule rule = getExistingRule(id);
-        return doUpdateRule(rule, name, activeStatus, mRIDs, properties);
+        return doUpdateRule(rule, name, activeStatus, mRIDs, properties, markProjected);
     }
 
     @Override
@@ -273,7 +273,7 @@ class EstimationRuleSetImpl implements IEstimationRuleSet {
                 .collect(Collectors.toList());
     }
 
-    private IEstimationRule doUpdateRule(IEstimationRule rule, String name, boolean activeStatus, List<String> mRIDs, Map<String, Object> properties) {
+    private IEstimationRule doUpdateRule(IEstimationRule rule, String name, boolean activeStatus, List<String> mRIDs, Map<String, Object> properties, boolean markProjected) {
         rule.rename(name);
 
         if (activeStatus != rule.isActive()) {
@@ -281,6 +281,7 @@ class EstimationRuleSetImpl implements IEstimationRuleSet {
         }
         updateReadingTypes(rule, mRIDs);
         rule.setProperties(properties);
+        rule.setMarkProjected(markProjected);
         rule.save();
         dataModel.touch(this);
 

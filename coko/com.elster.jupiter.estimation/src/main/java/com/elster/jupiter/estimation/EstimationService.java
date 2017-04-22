@@ -80,4 +80,6 @@ public interface EstimationService {
     Query<? extends EstimationTask> getEstimationTaskQuery();
 
     Optional<? extends  EstimationRule> findEstimationRuleByQualityType(ReadingQualityType readingQualityType);
+
+    EstimationResultBuilder getEstimationResultBuilder();
 }

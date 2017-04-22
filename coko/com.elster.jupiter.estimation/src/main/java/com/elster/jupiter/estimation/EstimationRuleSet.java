@@ -43,7 +43,7 @@ public interface EstimationRuleSet extends IdentifiedObject {
 
     EstimationRuleBuilder addRule(String implementation, String name);
 
-    EstimationRule updateRule(long id, String name, boolean active, List<String> mRIDs, Map<String, Object> properties);
+    EstimationRule updateRule(long id, String name, boolean active, List<String> mRIDs, Map<String, Object> properties, boolean markProjected);
 
     void deleteRule(EstimationRule rule);
 

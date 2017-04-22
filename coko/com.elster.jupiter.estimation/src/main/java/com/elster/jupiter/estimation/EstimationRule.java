@@ -60,6 +60,8 @@ public interface EstimationRule {
 
     boolean isObsolete();
 
+    boolean isMarkProjected();
+
     /**
      * Creates new {@link Estimator} instance which is configured in this rule.
      * Created estimator is initialized only using the properties from the {@link EstimationPropertyDefinitionLevel#ESTIMATION_RULE} level,

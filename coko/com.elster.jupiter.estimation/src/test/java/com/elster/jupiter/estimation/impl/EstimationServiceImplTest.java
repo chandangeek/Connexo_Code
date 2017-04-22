@@ -14,6 +14,7 @@ import com.elster.jupiter.estimation.EstimationBlock;
 import com.elster.jupiter.estimation.EstimationReport;
 import com.elster.jupiter.estimation.EstimationResolver;
 import com.elster.jupiter.estimation.EstimationResult;
+import com.elster.jupiter.estimation.EstimationResultBuilder;
 import com.elster.jupiter.estimation.Estimator;
 import com.elster.jupiter.estimation.EstimatorFactory;
 import com.elster.jupiter.estimation.Priority;
@@ -254,20 +255,20 @@ public class EstimationServiceImplTest {
         when(channelsContainer.getReadingTypes(any())).thenReturn(new HashSet<>(Arrays.asList(readingType1, readingType2)));
         doAnswer(invocation -> {
             List<EstimationBlock> estimationBlocks = (List<EstimationBlock>) invocation.getArguments()[0];
-            SimpleEstimationResult.EstimationResultBuilder builder = SimpleEstimationResult.builder();
+            EstimationResultBuilder builder = SimpleEstimationResult.builder();
             estimationBlocks.stream().findFirst().ifPresent((block) -> {
                 builder.addEstimated(block);
-                block.setReadingQualityType(readingQualityType1);
+                ((SimpleEstimationBlock) block).addReadingQualityType(readingQualityType1);
             });
             estimationBlocks.stream().skip(1).forEach(builder::addRemaining);
             return builder.build();
         }).when(estimator1).estimate(anyListOf(EstimationBlock.class), eq(QualityCodeSystem.MDC));
         doAnswer(invocation -> {
             List<EstimationBlock> estimationBlocks = (List<EstimationBlock>) invocation.getArguments()[0];
-            SimpleEstimationResult.EstimationResultBuilder builder = SimpleEstimationResult.builder();
+            EstimationResultBuilder builder = SimpleEstimationResult.builder();
             estimationBlocks.stream().reduce((a, b) -> b).ifPresent((block) -> {
                 builder.addEstimated(block);
-                block.setReadingQualityType(readingQualityType2);
+                ((SimpleEstimationBlock) block).addReadingQualityType(readingQualityType2);
             });
             estimationBlocks.subList(0, Math.max(0, estimationBlocks.size() - 1)).stream().forEach(builder::addRemaining);
             return builder.build();
@@ -330,8 +331,8 @@ public class EstimationServiceImplTest {
         EstimationResult estimationResult = report.getResults().get(readingType1);
 
         assertThat(estimationResult.estimated()).hasSize(2);
-        assertThat(estimationResult.estimated().get(0).getReadingQualityType()).isEqualTo(readingQualityType1);
-        assertThat(estimationResult.estimated().get(1).getReadingQualityType()).isEqualTo(readingQualityType2);
+        assertThat(estimationResult.estimated().get(0).getReadingQualityTypes()).contains(readingQualityType1);
+        assertThat(estimationResult.estimated().get(1).getReadingQualityTypes()).contains(readingQualityType2);
         assertThat(estimationResult.remainingToBeEstimated()).hasSize(1);
         assertThat(logRecorder).hasRecordWithMessage(message -> message.startsWith("Successful estimation "));
     }
