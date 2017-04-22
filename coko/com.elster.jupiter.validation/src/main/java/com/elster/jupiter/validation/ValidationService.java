@@ -95,7 +95,13 @@ public interface ValidationService {
 
     Optional<Instant> getLastValidationRun(ChannelsContainer channelsContainer);
 
+    /**
+     * Please consider {@link #moveLastCheckedBefore(ChannelsContainer, Instant)} instead.
+     */
+    @Deprecated
     void updateLastChecked(ChannelsContainer channelsContainer, Instant date);
+
+    void moveLastCheckedBefore(ChannelsContainer channelsContainer, Instant date);
 
     /**
      * Please consider {@link #moveLastCheckedBefore(Channel, Instant)} instead.
