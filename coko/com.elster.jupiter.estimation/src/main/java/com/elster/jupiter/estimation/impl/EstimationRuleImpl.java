@@ -378,7 +378,7 @@ class EstimationRuleImpl implements IEstimationRule {
     public Estimator createNewEstimator(ChannelsContainer channelsContainer, ReadingType readingType) {
         Map<String, Object> properties = getPropsWithOverriddenValues(channelsContainer, readingType);
         Estimator createdEstimator = createBaseEstimator(properties);
-        return new RuleTypedEstimator(createdEstimator, (int) getId());
+        return new RuleTypedEstimator(createdEstimator, (int) getId(), markProjected);
     }
 
     private Map<String, Object> getPropsWithOverriddenValues(ChannelsContainer channelsContainer, ReadingType readingType) {
