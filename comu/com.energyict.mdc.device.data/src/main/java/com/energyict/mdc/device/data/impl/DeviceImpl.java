@@ -1578,9 +1578,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             List<? extends ReadingQualityRecord> readingQualities = meter.getReadingQualities(meterActivationInterval);
             List<JournalEntry<? extends ReadingQualityRecord>> readingQualitiesJournal = new ArrayList<>();
             if (readingQualities.size() > 0) {
-                meterActivation.getChannelsContainer().getChannels();
                 readingQualitiesJournal = meter.getReadingQualitiesJournal(meterActivationInterval, Collections.EMPTY_LIST,
-                        meterReadings.stream().map(r -> ((JournaledChannelReadingRecord)r).getChannel()).distinct().collect(Collectors.toList()));
+                        meterReadings.stream().map(JournaledChannelReadingRecord::getChannel).distinct().collect(Collectors.toList()));
             }
 
             for ( JournaledChannelReadingRecord meterReading : meterReadings) {

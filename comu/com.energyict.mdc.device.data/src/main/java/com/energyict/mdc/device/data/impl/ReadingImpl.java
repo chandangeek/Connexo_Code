@@ -4,7 +4,6 @@
 
 package com.energyict.mdc.device.data.impl;
 
-import com.elster.jupiter.metering.JournaledRegisterReadingRecord;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.validation.DataValidationStatus;
@@ -98,11 +97,6 @@ public abstract class ReadingImpl implements Reading {
     @Override
     public Optional<Instant> getEventDate() {
         return getRegister().hasEventDate() ? Optional.of(getTimeStamp()) : Optional.empty();
-    }
-
-    @Override
-    public String getUserName() {
-       return actualReading instanceof JournaledRegisterReadingRecord ? ((JournaledRegisterReadingRecord) actualReading).getUserName() : "";
     }
 
     Register<?, ?> getRegister() {
