@@ -74,7 +74,6 @@ import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.DateTimeFormatGenerator;
-import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
@@ -163,7 +162,6 @@ import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.TrackingCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.scheduling.model.ComSchedule;
@@ -178,7 +176,9 @@ import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.tasks.RegistersTask;
 import com.energyict.mdc.tasks.StatusInformationTask;
 import com.energyict.mdc.tasks.TopologyTask;
+import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 
+import com.energyict.obis.ObisCode;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Range;
@@ -983,13 +983,13 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     @Override
-    public Register getRegisterWithDeviceObisCode(ObisCode code) {
+    public Optional<Register> getRegisterWithDeviceObisCode(ObisCode code) {
         for (RegisterSpec registerSpec : getDeviceConfiguration().getRegisterSpecs()) {
             if (registerSpec.getDeviceObisCode().equals(code)) {
-                return this.newRegisterFor(registerSpec);
+                return Optional.of(this.newRegisterFor(registerSpec));
             }
         }
-        return null;
+        return Optional.empty();
     }
 
     private RegisterImpl newRegisterFor(RegisterSpec registerSpec) {
@@ -1012,12 +1012,12 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     @Override
-    public List<DeviceMessage<Device>> getMessages() {
+    public List<DeviceMessage> getMessages() {
         return Collections.unmodifiableList(this.deviceMessages);
     }
 
     @Override
-    public List<DeviceMessage<Device>> getMessagesByState(DeviceMessageStatus status) {
+    public List<DeviceMessage> getMessagesByState(DeviceMessageStatus status) {
         return this.deviceMessages.stream()
                 .filter(deviceMessage -> deviceMessage.getStatus().equals(status))
                 .collect(toList());
@@ -1266,6 +1266,24 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     @Override
+    public void setSecurityProperty(String propertyName, Object propertyValue) {
+        this.getDeviceConfiguration()
+                .getSecurityPropertySets()
+                .stream()
+                .filter(securityPropertySet -> securityPropertySet.getPropertySpecs().stream().anyMatch(propertySpec -> propertyName.equals(propertySpec.getName())))
+                .forEach(securityPropertySet -> this.updateSecurityProperty(securityPropertySet, propertyName, propertyValue));
+    }
+
+    private void updateSecurityProperty(SecurityPropertySet securityPropertySet, String propertyName, Object propertyValue) {
+        TypedProperties typedProperties = TypedProperties.empty();
+        for (SecurityProperty securityProperty : this.getSecurityProperties(securityPropertySet)) {
+            typedProperties.setProperty(securityProperty.getName(), securityProperty.getValue());
+        }
+        typedProperties.setProperty(propertyName, propertyValue);
+        this.setSecurityProperties(securityPropertySet, typedProperties);
+    }
+
+    @Override
     public List<ProtocolDialectProperties> getProtocolDialectPropertiesList() {
         List<ProtocolDialectProperties> all = new ArrayList<>(this.dialectPropertiesList.size() + this.newDialectProperties
                 .size());
@@ -1452,8 +1470,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                             channel.getLoadProfile(),
                             interval,
                             meter.get());
-            Range<Instant> clipped = Ranges.openClosed(interval.lowerEndpoint(), lastReadingClipped(channel.getLoadProfile(), interval));
-            meterHasData = this.addChannelDataToMap(clipped, meter.get(), channel, sortedLoadProfileReadingMap);
+            meterHasData = this.addChannelDataToMap(interval, meter.get(), channel, sortedLoadProfileReadingMap);
             if (meterHasData) {
                 loadProfileReadings = new ArrayList<>(sortedLoadProfileReadingMap.values());
             }
@@ -1687,7 +1704,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     private List<ReadingType> getChannelReadingTypes(Channel channel, Instant instant) {
         ArrayList<ReadingType> readingTypes = new ArrayList<>();
         readingTypes.add(channel.getReadingType());
-        channel.getCalculatedReadingType(instant).ifPresent(calculatedReadingType -> readingTypes.add(calculatedReadingType));
+        channel.getCalculatedReadingType(instant).ifPresent(readingTypes::add);
         return readingTypes;
     }
 
@@ -2292,8 +2309,11 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     @Override
     public void removeComSchedule(ComSchedule comSchedule) {
-        List<ComTaskExecutionImpl> comTasksWithSchedule = getComTaskExecutionImpls().filter(cte -> cte.getComSchedule().isPresent() && cte.getComSchedule().get().getId() == comSchedule.getId())
-                .collect(Collectors.toList());
+        List<ComTaskExecutionImpl> comTasksWithSchedule =
+                getComTaskExecutionImpls()
+                        .filter(cte -> cte.getComSchedule().isPresent())
+                        .filter(cte -> cte.getComSchedule().get().getId() == comSchedule.getId())
+                        .collect(Collectors.toList());
 
         if (comTasksWithSchedule.size() == 0) {
             throw new CannotDeleteComScheduleFromDevice(comSchedule, this, this.thesaurus, MessageSeeds.COM_SCHEDULE_CANNOT_DELETE_IF_NOT_FROM_DEVICE);
@@ -2779,7 +2799,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         }
 
         @Override
-        public DeviceMessage<Device> add() {
+        public DeviceMessage add() {
             this.deviceMessage.save();
             DeviceImpl.this.deviceMessages.add(this.deviceMessage);
             return this.deviceMessage;

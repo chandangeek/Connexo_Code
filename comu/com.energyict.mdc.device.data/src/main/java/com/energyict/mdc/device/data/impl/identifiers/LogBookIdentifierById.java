@@ -4,41 +4,35 @@
 
 package com.energyict.mdc.device.data.impl.identifiers;
 
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.device.data.LogBook;
-import com.energyict.mdc.device.data.LogBookService;
-import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
-import com.energyict.mdc.device.data.impl.MessageSeeds;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
 
-import javax.xml.bind.annotation.XmlElement;
+import com.energyict.obis.ObisCode;
+
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Provides an implementation for the {@link LogBookIdentifier} interface
- * that uses an {@link com.energyict.mdc.protocol.api.device.BaseLogBook}'s database ID to uniquely identify it.
+ * that uses an {@link com.energyict.mdc.upl.meterdata.LogBook}'s database ID to uniquely identify it.
  *
  * @author sva
  * @since 10/12/12 - 16:01
  */
 @XmlRootElement
-public final class LogBookIdentifierById implements LogBookIdentifier<LogBook> {
+public final class LogBookIdentifierById implements LogBookIdentifier {
 
     private final long logBookId;
-    private final LogBookService logBookService;
     private final ObisCode obisCode;
+    private final DeviceIdentifier deviceIdentifier;
 
-    public LogBookIdentifierById(long logBookId, LogBookService logBookService, ObisCode obisCode) {
+    public LogBookIdentifierById(long logBookId, ObisCode obisCode, DeviceIdentifier deviceIdentifier) {
         super();
         this.logBookId = logBookId;
-        this.logBookService = logBookService;
         this.obisCode = obisCode;
-    }
-
-    @Override
-    public LogBook getLogBook() {
-        return this.logBookService.findById(this.logBookId).orElseThrow(() -> CanNotFindForIdentifier.logBook(this, MessageSeeds.CAN_NOT_FIND_FOR_LOGBOOK_IDENTIFIER));
+        this.deviceIdentifier = deviceIdentifier;
     }
 
     @Override
@@ -47,23 +41,17 @@ public final class LogBookIdentifierById implements LogBookIdentifier<LogBook> {
     }
 
     @Override
-    @XmlElement(name = "type")
-    public String getXmlType() {
-        return this.getClass().getName();
+    public DeviceIdentifier getDeviceIdentifier() {
+        return deviceIdentifier;
     }
 
     @Override
-    public void setXmlType(String ignore) {
-
-    }
-
-    @Override
-    public DeviceIdentifier<?> getDeviceIdentifier() {
-        return new DeviceIdentifierByLogBook(this);
+    public com.energyict.mdc.upl.meterdata.identifiers.Introspector forIntrospection() {
+        return new Introspector();
     }
 
     /**
-     * Getter for the Id of the {@link com.energyict.mdc.protocol.api.device.BaseLogBook}
+     * Getter for the Id of the {@link com.energyict.mdc.upl.meterdata.LogBook}
      *
      * @return the Id
      */
@@ -71,11 +59,7 @@ public final class LogBookIdentifierById implements LogBookIdentifier<LogBook> {
         return logBookId;
     }
 
-    /**
-     * Check if the given {@link Object} is equal to this {@link LogBookIdentifierById}. <BR>
-     * WARNING: if comparing with an {@link LogBookIdentifier} of another type (not of type {@link LogBookIdentifierById}),
-     * this check will always return false, regardless of the fact they can both point to the same {@link com.energyict.mdc.protocol.api.device.BaseLogBook}!
-     */
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -83,17 +67,39 @@ public final class LogBookIdentifierById implements LogBookIdentifier<LogBook> {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        LogBookIdentifierById otherIdentifier = (LogBookIdentifierById) o;
-        return (this.logBookId == otherIdentifier.logBookId);
+        LogBookIdentifierById that = (LogBookIdentifierById) o;
+        return logBookId == that.logBookId;
     }
 
     @Override
     public int hashCode() {
-        return Long.valueOf(this.logBookId).hashCode();
+        return Long.hashCode(this.logBookId);
     }
 
     @Override
     public String toString() {
         return "logbook having id " + this.logBookId;
     }
+
+    private class Introspector implements com.energyict.mdc.upl.meterdata.identifiers.Introspector {
+        @Override
+        public String getTypeName() {
+            return "DatabaseId";
+        }
+
+        @Override
+        public Set<String> getRoles() {
+            return new HashSet<>(Collections.singletonList("databaseValue"));
+        }
+
+        @Override
+        public Object getValue(String role) {
+            if ("databaseValue".equals(role)) {
+                return getLogBookId();
+            } else {
+                throw new IllegalArgumentException("Role '" + role + "' is not supported by identifier of type " + getTypeName());
+            }
+        }
+    }
+
 }

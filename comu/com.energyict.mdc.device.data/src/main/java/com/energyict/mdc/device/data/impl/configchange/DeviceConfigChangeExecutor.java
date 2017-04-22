@@ -4,9 +4,11 @@
 
 package com.energyict.mdc.device.data.impl.configchange;
 
+import com.elster.jupiter.events.EventService;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.impl.EventType;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -20,10 +22,12 @@ public final class DeviceConfigChangeExecutor {
 
     private final DeviceService deviceService;
     private final Clock clock;
+    private final EventService eventService;
 
-    public DeviceConfigChangeExecutor(DeviceService deviceService, Clock clock) {
+    public DeviceConfigChangeExecutor(DeviceService deviceService, Clock clock, EventService eventService) {
         this.deviceService = deviceService;
         this.clock = clock;
+        this.eventService = eventService;
     }
 
     public Device execute(ServerDeviceForConfigChange device, DeviceConfiguration destinationDeviceConfiguration) {
@@ -40,6 +44,7 @@ public final class DeviceConfigChangeExecutor {
                 ProtocolDialectPropertyChangeItem.getInstance())
                 .forEach(performDataSourceChanges(device, destinationDeviceConfiguration, originDeviceConfiguration));
         device.save();
+        this.eventService.postEvent(EventType.DEVICE_CONFIGURATION_CHANGED.topic(), device);
         return device;
     }
 

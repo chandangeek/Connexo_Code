@@ -33,19 +33,6 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-
-import java.sql.Date;
-import java.text.MessageFormat;
-import java.time.Instant;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -54,6 +41,19 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import java.sql.Date;
+import java.text.MessageFormat;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static junit.framework.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -81,12 +81,10 @@ public class EndDeviceCommandImplTest {
         }
     };
 
-    @Rule
-    public TestRule expectedRule = new ExpectedExceptionRule();
-
     private static final long DEVICE_ID = 13L;
     private static final long SERVICE_CALL_ID = 1;
-
+    @Rule
+    public TestRule expectedRule = new ExpectedExceptionRule();
     @Mock
     private EndDevice endDevice;
     @Mock
@@ -144,7 +142,13 @@ public class EndDeviceCommandImplTest {
         when(endDevice.getAmrId()).thenReturn(String.valueOf(DEVICE_ID));
         when(deviceService.findDeviceById(DEVICE_ID)).thenReturn(Optional.of(device));
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
-        when(deviceProtocol.getSupportedMessages()).thenReturn(Collections.singleton(DeviceMessageId.CONTACTOR_OPEN_WITH_ACTIVATION_DATE));
+
+        List<com.energyict.mdc.upl.messages.DeviceMessageSpec> deviceMessageIds = new ArrayList<>();
+        com.energyict.mdc.upl.messages.DeviceMessageSpec deviceMessageSpec1 = mock(com.energyict.mdc.upl.messages.DeviceMessageSpec.class);
+        when(deviceMessageSpec1.getId()).thenReturn(DeviceMessageId.CONTACTOR_OPEN_WITH_ACTIVATION_DATE.dbValue());
+        deviceMessageIds.add(deviceMessageSpec1);
+
+        when(deviceProtocol.getSupportedMessages()).thenReturn(deviceMessageIds);
         DeviceProtocolPluggableClass protocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
         when(protocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         when(device.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(protocolPluggableClass));
@@ -165,7 +169,7 @@ public class EndDeviceCommandImplTest {
                 .setDefaultValue("Value2")
                 .finish();
         when(message.getPropertySpecs()).thenReturn(propertySpecs = Arrays.asList(string1, string2));
-        endDeviceCommand = new OpenRemoteSwitchCommand(endDevice, endDeviceControlType, deviceMessageIds, deviceService, deviceMessageSpecificationService, thesaurus);
+        endDeviceCommand = new OpenRemoteSwitchCommand(endDevice, endDeviceControlType, Arrays.asList(DeviceMessageId.CONTACTOR_OPEN_WITH_ACTIVATION_DATE), deviceService, deviceMessageSpecificationService, thesaurus);
     }
 
     @Test
@@ -272,7 +276,7 @@ public class EndDeviceCommandImplTest {
         Instant releaseDate = Instant.ofEpochSecond(1465941600);    // 15/06/20165 00:00:00
         endDeviceCommand.setPropertyValue(dateTimeSpec, Date.from(releaseDate));
 
-        DeviceMessage<Device> deviceMessage = mock(DeviceMessage.class);
+        DeviceMessage deviceMessage = mock(DeviceMessage.class);
         Device.DeviceMessageBuilder deviceMessageBuilder = mock(Device.DeviceMessageBuilder.class);
         when(deviceMessageBuilder.setTrackingId(anyString())).thenReturn(deviceMessageBuilder);
         when(deviceMessageBuilder.setReleaseDate(anyObject())).thenReturn(deviceMessageBuilder);
@@ -281,7 +285,7 @@ public class EndDeviceCommandImplTest {
         when(device.newDeviceMessage(any(DeviceMessageId.class), any(TrackingCategory.class))).thenReturn(deviceMessageBuilder);
 
         // Business method
-        List<DeviceMessage<Device>> deviceMessages = endDeviceCommand.createCorrespondingMultiSenseDeviceMessages(serviceCall, releaseDate);
+        List<DeviceMessage> deviceMessages = endDeviceCommand.createCorrespondingMultiSenseDeviceMessages(serviceCall, releaseDate);
 
         // Asserts
         assertEquals(1, deviceMessages.size());
@@ -319,7 +323,7 @@ public class EndDeviceCommandImplTest {
         Instant releaseDate = Instant.ofEpochSecond(1465941600);    // 15/06/20165 00:00:00
         endDeviceCommand.setPropertyValue(dateTimeSpec, Date.from(releaseDate));
 
-        DeviceMessage<Device> deviceMessage = mock(DeviceMessage.class);
+        DeviceMessage deviceMessage = mock(DeviceMessage.class);
         Device.DeviceMessageBuilder deviceMessageBuilder = mock(Device.DeviceMessageBuilder.class);
         when(deviceMessageBuilder.setTrackingId(anyString())).thenReturn(deviceMessageBuilder);
         when(deviceMessageBuilder.setReleaseDate(anyObject())).thenReturn(deviceMessageBuilder);
@@ -328,7 +332,7 @@ public class EndDeviceCommandImplTest {
         when(device.newDeviceMessage(any(DeviceMessageId.class), any(TrackingCategory.class))).thenReturn(deviceMessageBuilder);
 
         // Business method
-        List<DeviceMessage<Device>> deviceMessages = endDeviceCommand.createCorrespondingMultiSenseDeviceMessages(serviceCall, releaseDate);
+        List<DeviceMessage> deviceMessages = endDeviceCommand.createCorrespondingMultiSenseDeviceMessages(serviceCall, releaseDate);
 
         // Asserts
         assertEquals(2, deviceMessages.size());
@@ -362,7 +366,7 @@ public class EndDeviceCommandImplTest {
         when(serviceCall.getId()).thenReturn(SERVICE_CALL_ID);
         Instant releaseDate = Instant.now();
 
-        DeviceMessage<Device> deviceMessage = mock(DeviceMessage.class);
+        DeviceMessage deviceMessage = mock(DeviceMessage.class);
         Device.DeviceMessageBuilder deviceMessageBuilder = mock(Device.DeviceMessageBuilder.class);
         when(deviceMessageBuilder.setTrackingId(anyString())).thenReturn(deviceMessageBuilder);
         when(deviceMessageBuilder.setReleaseDate(anyObject())).thenReturn(deviceMessageBuilder);
@@ -371,7 +375,7 @@ public class EndDeviceCommandImplTest {
         when(device.newDeviceMessage(any(DeviceMessageId.class), any(TrackingCategory.class))).thenReturn(deviceMessageBuilder);
 
         // Business method
-        List<DeviceMessage<Device>> deviceMessages = endDeviceCommand.createCorrespondingMultiSenseDeviceMessages(serviceCall, releaseDate);
+        List<DeviceMessage> deviceMessages = endDeviceCommand.createCorrespondingMultiSenseDeviceMessages(serviceCall, releaseDate);
 
         // Asserts
         assertEquals(1, deviceMessages.size());
@@ -398,7 +402,7 @@ public class EndDeviceCommandImplTest {
         when(serviceCall.getId()).thenReturn(SERVICE_CALL_ID);
         Instant releaseDate = Instant.now();
 
-        DeviceMessage<Device> deviceMessage = mock(DeviceMessage.class);
+        DeviceMessage deviceMessage = mock(DeviceMessage.class);
         Device.DeviceMessageBuilder deviceMessageBuilder = mock(Device.DeviceMessageBuilder.class);
         when(deviceMessageBuilder.setTrackingId(anyString())).thenReturn(deviceMessageBuilder);
         when(deviceMessageBuilder.setReleaseDate(anyObject())).thenReturn(deviceMessageBuilder);
@@ -407,7 +411,7 @@ public class EndDeviceCommandImplTest {
         when(device.newDeviceMessage(any(DeviceMessageId.class), any(TrackingCategory.class))).thenReturn(deviceMessageBuilder);
 
         // Business method
-        List<DeviceMessage<Device>> deviceMessages = endDeviceCommand.createCorrespondingMultiSenseDeviceMessages(serviceCall, releaseDate);
+        List<DeviceMessage> deviceMessages = endDeviceCommand.createCorrespondingMultiSenseDeviceMessages(serviceCall, releaseDate);
 
         // Asserts
         assertEquals(2, deviceMessages.size());

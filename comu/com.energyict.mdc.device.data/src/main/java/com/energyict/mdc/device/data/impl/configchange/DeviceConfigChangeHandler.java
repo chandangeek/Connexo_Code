@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.data.impl.configchange;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.MessageService;
@@ -151,7 +152,7 @@ public class DeviceConfigChangeHandler implements MessageHandler {
                 SingleConfigChangeQueueMessage queueMessage = configChangeContext.jsonService.deserialize(((String) properties.get(ServerDeviceForConfigChange.CONFIG_CHANGE_MESSAGE_VALUE)), SingleConfigChangeQueueMessage.class);
                 Device device = configChangeContext.deviceService.findDeviceById(queueMessage.deviceId)
                         .orElseThrow(DeviceConfigurationChangeException.noDeviceFoundForConfigChange(configChangeContext.thesaurus, queueMessage.deviceId));
-                Device deviceWithNewConfig = new DeviceConfigChangeExecutor(configChangeContext.deviceService, configChangeContext.deviceDataModelService.clock()).execute((DeviceImpl) device, configChangeContext.deviceDataModelService.deviceConfigurationService().findDeviceConfiguration(queueMessage.destinationDeviceConfigurationId).get());
+                Device deviceWithNewConfig = new DeviceConfigChangeExecutor(configChangeContext.deviceService, configChangeContext.deviceDataModelService.clock(), configChangeContext.eventService).execute((DeviceImpl) device, configChangeContext.deviceDataModelService.deviceConfigurationService().findDeviceConfiguration(queueMessage.destinationDeviceConfigurationId).get());
                 DeviceConfigChangeInAction deviceConfigInAction = getDeviceConfigInAction(configChangeContext, queueMessage.deviceConfigChangeInActionId);
                 deviceConfigInAction.remove();
                 sendMessageOnConfigQueue(configChangeContext, String.valueOf(queueMessage.deviceConfigChangeRequestId), ServerDeviceForConfigChange.DEVICE_CONFIG_CHANGE_SINGLE_COMPLETED_ACTION);
@@ -220,8 +221,9 @@ public class DeviceConfigChangeHandler implements MessageHandler {
         final DeviceDataModelService deviceDataModelService;
         final DeviceConfigurationService deviceConfigurationService;
         final DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
+        final EventService eventService;
 
-        public ConfigChangeContext(MessageService messageService, JsonService jsonService, SearchService searchService, Thesaurus thesaurus, ServerDeviceService deviceService, DeviceDataModelService deviceDataModelService, DeviceConfigurationService deviceConfigurationService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+        public ConfigChangeContext(MessageService messageService, JsonService jsonService, SearchService searchService, Thesaurus thesaurus, ServerDeviceService deviceService, DeviceDataModelService deviceDataModelService, DeviceConfigurationService deviceConfigurationService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, EventService eventService) {
             this.messageService = messageService;
             this.jsonService = jsonService;
             this.searchService = searchService;
@@ -230,6 +232,7 @@ public class DeviceConfigChangeHandler implements MessageHandler {
             this.deviceDataModelService = deviceDataModelService;
             this.deviceConfigurationService = deviceConfigurationService;
             this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
+            this.eventService = eventService;
         }
     }
 }

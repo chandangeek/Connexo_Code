@@ -40,9 +40,20 @@ class UpgraderV10_3 implements Upgrader {
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
         upgradeExistingScheduledComTaskExecutions();
+        upgradeDeviceMessageAttributesForUPL();
         dataModelUpgrader.upgrade(dataModel, Version.version(10,3));
         moveProtocolDialectProperties();
         userService.addModulePrivileges(privilegesProviderV10_3);
+    }
+
+    private void upgradeDeviceMessageAttributesForUPL() {
+        String sql = "UPDATE DDC_DEVICEMESSAGEATTR SET NAME = 'FirmwareDeviceMessage.upgrade.userfile' WHERE NAME = 'FirmwareDeviceMessage.upgrade.firmwareversion'";
+
+        dataModel.useConnectionRequiringTransaction(connection -> {
+            try (Statement statement = connection.createStatement()) {
+                execute(statement, sql);
+            }
+        });
     }
 
     private void upgradeExistingScheduledComTaskExecutions() {

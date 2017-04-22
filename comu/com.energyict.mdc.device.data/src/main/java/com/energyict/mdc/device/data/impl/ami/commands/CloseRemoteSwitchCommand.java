@@ -8,7 +8,6 @@ import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.EndDeviceControlType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.servicecall.ServiceCall;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.ami.EndDeviceCommandImpl;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
@@ -31,7 +30,7 @@ public class CloseRemoteSwitchCommand extends EndDeviceCommandImpl {
     }
 
     @Override
-    public List<DeviceMessage<Device>> createCorrespondingMultiSenseDeviceMessages(ServiceCall serviceCall, Instant releaseDate) {
+    public List<DeviceMessage> createCorrespondingMultiSenseDeviceMessages(ServiceCall serviceCall, Instant releaseDate) {
         List<DeviceMessageId> deviceMessageIds = new ArrayList<>();
         boolean useReleaseDate = false;
 

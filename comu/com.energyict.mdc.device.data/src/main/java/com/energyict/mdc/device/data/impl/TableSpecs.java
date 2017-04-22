@@ -68,8 +68,6 @@ import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.protocol.api.ConnectionProvider;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
-import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
@@ -116,7 +114,7 @@ public enum TableSpecs {
     DDC_DEVICE {
         @Override
         public void addTo(DataModel dataModel, Encrypter encrypter) {
-            Table<Device> table = dataModel.addTable(name(), Device.class).alsoReferredToAs(BaseDevice.class);
+            Table<Device> table = dataModel.addTable(name(), Device.class).alsoReferredToAs(com.energyict.mdc.upl.meterdata.Device.class);
             table.map(DeviceImpl.class);
             Column id = table.addAutoIdColumn();
             table.addAuditColumns();
@@ -185,7 +183,7 @@ public enum TableSpecs {
     DDC_LOADPROFILE {
         @Override
         public void addTo(DataModel dataModel, Encrypter encrypter) {
-            Table<LoadProfile> table = dataModel.addTable(name(), LoadProfile.class).alsoReferredToAs(BaseLoadProfile.class);
+            Table<LoadProfile> table = dataModel.addTable(name(), LoadProfile.class).alsoReferredToAs(com.energyict.mdc.upl.meterdata.LoadProfile.class);
             table.map(LoadProfileImpl.class);
             Column id = table.addAutoIdColumn();
             table.addAuditColumns();
@@ -703,7 +701,7 @@ public enum TableSpecs {
             table.primaryKey("PK_DDC_DEVICEMESSAGE").on(id).add();
             table.foreignKey("FK_DDC_DEVMESSAGE_DEV")
                     .on(device).references(DDC_DEVICE.name())
-                    .map("device").reverseMap("deviceMessages")
+                    .map(DeviceMessageImpl.Fields.DEVICE.fieldName()).reverseMap("deviceMessages")
                     .add();
         }
     },

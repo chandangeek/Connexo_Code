@@ -14,7 +14,6 @@ import com.energyict.mdc.device.data.ProtocolDialectProperties;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
-
 import org.osgi.service.component.annotations.Component;
 
 import java.util.EnumSet;
@@ -86,7 +85,7 @@ public class DeviceLifeCycleEventSupport implements StandardEventPredicate, Curr
         DEVICEMESSAGE_CRUD(EnumSet.of(EventType.DEVICEMESSAGE_CREATED, EventType.DEVICEMESSAGE_UPDATED, EventType.DEVICEMESSAGE_DELETED)) {
             @Override
             public Optional<CurrentState> extractFrom(LocalEvent event, FiniteStateMachine finiteStateMachine) {
-                return this.extractFrom((DeviceMessage<Device>) event.getSource(), finiteStateMachine);
+                return this.extractFrom((DeviceMessage) event.getSource(), finiteStateMachine);
             }
         },
 
@@ -132,8 +131,8 @@ public class DeviceLifeCycleEventSupport implements StandardEventPredicate, Curr
             return this.extractFrom(protocolDialectProperties.getDevice(), finiteStateMachine);
         }
 
-        protected Optional<CurrentState> extractFrom(DeviceMessage<Device> deviceMessage, FiniteStateMachine finiteStateMachine) {
-            return this.extractFrom(deviceMessage.getDevice(), finiteStateMachine);
+        protected Optional<CurrentState> extractFrom(DeviceMessage deviceMessage, FiniteStateMachine finiteStateMachine) {
+            return this.extractFrom((Device) deviceMessage.getDevice(), finiteStateMachine);        //Downcast to Connexo Device
         }
 
         protected Optional<CurrentState> extractFrom(Device device, FiniteStateMachine finiteStateMachine) {

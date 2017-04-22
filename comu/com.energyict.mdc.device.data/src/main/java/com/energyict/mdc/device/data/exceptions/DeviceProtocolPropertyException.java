@@ -22,7 +22,7 @@ public class DeviceProtocolPropertyException extends LocalizedException {
      *
      * @param propertyValue the value of the property
      * @param thesaurus     the used thesaurus
-     * @param messageSeed The MessageSeed
+     * @param messageSeed   The MessageSeed
      * @return the newly created DeviceProtocolException
      */
     public static DeviceProtocolPropertyException propertySpecTypeDoesNotExist(String propertyValue, Thesaurus thesaurus, MessageSeed messageSeed) {
@@ -37,7 +37,7 @@ public class DeviceProtocolPropertyException extends LocalizedException {
      * @param deviceProtocol the DeviceProtocol of the Device
      * @param device         the device which doesn't have the property
      * @param thesaurus      the used thesaurus
-     * @param messageSeed The MessageSeed
+     * @param messageSeed    The MessageSeed
      * @return the newly created DeviceProtocolException
      */
     public static DeviceProtocolPropertyException propertyDoesNotExistForDeviceProtocol(String name, DeviceProtocol deviceProtocol, Device device, Thesaurus thesaurus, MessageSeed messageSeed) {

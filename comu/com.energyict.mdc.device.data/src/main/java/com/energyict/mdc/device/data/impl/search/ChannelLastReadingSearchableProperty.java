@@ -17,7 +17,7 @@ import java.time.Instant;
 /**
  * For now the same logic as for {@link LoadProfileLastReadingSearchableProperty}, due to: <br />
  *      1) Java doc of {@link com.energyict.mdc.device.data.impl.LoadProfileImpl.ChannelImpl}<br />
- *      2) field initialization logic in {@link com.energyict.mdc.protocol.api.device.data.ChannelInfo}
+ *      2) field initialization logic in {@link com.energyict.protocol.ChannelInfo}
  */
 public class ChannelLastReadingSearchableProperty extends AbstractDateSearchableProperty<ChannelLastReadingSearchableProperty> {
 
