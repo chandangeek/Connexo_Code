@@ -29,7 +29,6 @@ import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.protocols.naming.ConnectionTypePropertySpecName;
-import com.energyict.protocols.naming.SecurityPropertySpecName;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -44,7 +43,7 @@ public class CreateG3GatewayCommand {
     static final String GATEWAY_NAME = "Demo board RTU+Server G3";
     static final String GATEWAY_SERIAL = "660-05A043-1428";
     static final String SECURITY_PROPERTY_SET_NAME = "High level authentication - No encryption";
-    static final String REQUIRED_PLUGGABLE_CLASS_NAME = "OutboundTcpIp";
+    static final String REQUIRED_PLUGGABLE_CLASS_NAME = "OutboundTcpIpConnectionType";
 
     private final DeviceService deviceService;
     private final ProtocolPluggableService protocolPluggableService;
@@ -139,7 +138,7 @@ public class CreateG3GatewayCommand {
         addConnectionTasksToDevice(device);
         addSecurityPropertiesToDevice(device);
         addComTaskToDevice(device, ComTaskTpl.TOPOLOGY_UPDATE);
-        device.setProtocolProperty("Short_MAC_address", BigDecimal.ZERO);
+        device.setProtocolProperty("ValidateInvokeId", Boolean.TRUE);
         device.save();
         return device;
     }
@@ -176,17 +175,17 @@ public class CreateG3GatewayCommand {
                         .findFirst()
                         .orElseThrow(() -> new UnableToCreate("No securityPropertySet with name" + SECURITY_PROPERTY_SET_NAME + "."));
         TypedProperties typedProperties = TypedProperties.empty();
-        typedProperties.setProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.getKey(), BigDecimal.ONE);
+        typedProperties.setProperty("ClientMacAddress", BigDecimal.ONE);
         securityPropertySet
                 .getPropertySpecs()
                 .stream()
-                .filter(ps -> SecurityPropertySpecName.AUTHENTICATION_KEY.getKey().equals(ps.getName()))
+                .filter(ps -> "AuthenticationKey".equals(ps.getName()))
                 .findFirst()
                 .ifPresent(ps -> typedProperties.setProperty(ps.getName(), ps.getValueFactory().fromStringValue("00112233445566778899AABBCCDDEEFF")));
         securityPropertySet
                 .getPropertySpecs()
                 .stream()
-                .filter(ps -> SecurityPropertySpecName.ENCRYPTION_KEY.getKey().equals(ps.getName()))
+                .filter(ps -> "EncryptionKey".equals(ps.getName()))
                 .findFirst()
                 .ifPresent(ps -> typedProperties.setProperty(ps.getName(), ps.getValueFactory().fromStringValue("11223344556677889900AABBCCDDEEFF")));
         device.setSecurityProperties(securityPropertySet, typedProperties);
