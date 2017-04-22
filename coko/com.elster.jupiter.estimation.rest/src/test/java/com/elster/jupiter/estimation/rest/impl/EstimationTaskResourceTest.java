@@ -112,7 +112,7 @@ public class EstimationTaskResourceTest extends EstimationApplicationJerseyTest 
         assertThat(jsonModelFromMultisense.<Number>get("$.total")).isEqualTo(1);
         assertThat(jsonModelFromMultisense.<Number>get("$.estimationTasks[0].id")).isEqualTo(TASK_ID);
         assertThat(jsonModelFromMultisense.<String>get("$.estimationTasks[0].name")).isEqualTo("Name");
-        assertThat(jsonModelFromMultisense.<Boolean>get("$.estimationTasks[0].revalidate")).isEqualTo(false);
+        assertThat(jsonModelFromMultisense.<Boolean>get("$.estimationTasks[0].revalidate")).isTrue();
     }
 
     @Test
@@ -129,7 +129,6 @@ public class EstimationTaskResourceTest extends EstimationApplicationJerseyTest 
 
         verify(estimationTask).triggerNow();
     }
-
 
     @Test
     public void getCreateTasksTest() {
@@ -154,11 +153,12 @@ public class EstimationTaskResourceTest extends EstimationApplicationJerseyTest 
         info.deviceGroup = new MeterGroupInfo();
         info.deviceGroup.id = 5;
         info.version = 1L;
+        info.revalidate = true;
         Entity<EstimationTaskInfo> json = Entity.json(info);
 
         Response response = target("/estimation/tasks/" + TASK_ID).request().header(HEADER_NAME, MULTISENSE_KEY).put(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        verify(estimationTask).shouldRevalidate();
+        verify(estimationTask).setRevalidate(true);
     }
 
     @Test
