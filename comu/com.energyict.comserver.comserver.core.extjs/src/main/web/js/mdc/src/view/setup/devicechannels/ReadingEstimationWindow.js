@@ -12,7 +12,8 @@ Ext.define('Mdc.view.setup.devicechannels.ReadingEstimationWindow', {
 
     requires: [
         'Uni.util.FormErrorMessage',
-        'Uni.property.form.Property'
+        'Uni.property.form.Property',
+        'Cfg.view.common.EstimationComment'
     ],
 
     initComponent: function () {
@@ -81,12 +82,19 @@ Ext.define('Mdc.view.setup.devicechannels.ReadingEstimationWindow', {
                             fn: function (implementationCombo, newValue) {
                                 var estimator = implementationCombo.getStore().getById(newValue);
 
+                                if (newValue) {
+                                    this.nextSibling('estimation-comments').show();
+                                }
                                 estimator && me.down('property-form').loadRecord(estimator);
                                 me.updateLayout();
                                 me.center();
                             }
                         }
                     }
+                },
+                {
+                    xtype: 'estimation-comments',
+                    hidden: true
                 },
                 {
                     xtype: 'property-form',

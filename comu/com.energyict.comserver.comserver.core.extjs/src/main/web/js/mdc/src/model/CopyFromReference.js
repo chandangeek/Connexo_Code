@@ -11,7 +11,7 @@ Ext.define('Mdc.model.CopyFromReference', {
         'startDate',
         'allowSuspectData',
         'completePeriod',
-        'estimationComment',
+        'commentId',
         'intervals'
     ],
 
