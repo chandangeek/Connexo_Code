@@ -34,7 +34,6 @@ Ext.define('Uni.property.controller.Registry', {
         'Uni.property.view.property.Boolean',
         'Uni.property.view.property.Number',
         'Uni.property.view.property.DecimalNumber',
-        'Uni.property.view.property.EstimationComment',
         'Uni.property.view.property.NullableBoolean',
         'Uni.property.view.property.Date',
         'Uni.property.view.property.DateTime',
@@ -66,7 +65,6 @@ Ext.define('Uni.property.controller.Registry', {
     propertiesMap: {
         ADVANCEREADINGSSETTINGS: 'Uni.property.view.property.AdvanceReadingsSettings',
         ADVANCEREADINGSSETTINGSWITHOUTNONE: 'Uni.property.view.property.AdvanceReadingsSettingsWithoutNone',
-        ESTIMATIONCOMMENT: 'Uni.property.view.property.EstimationComment',
         ASSIGN: 'Uni.property.view.property.Assign',
         BOOLEAN: 'Uni.property.view.property.Boolean',
         BPM_PROCESS: 'Uni.property.view.property.StartAlarmProcess',
