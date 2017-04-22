@@ -795,8 +795,6 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         model.set('intervals', intervals);
         model.save({
             failure: function (record, operation) {
-                debugger;
-                console.log(model);
                 var response = JSON.parse(operation.response.responseText);
 
                 _.each(response.errors, function (error) {
