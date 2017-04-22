@@ -5,10 +5,13 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.cbo.QualityCodeSystem;
+import com.elster.jupiter.ids.TimeSeriesEntry;
+import com.elster.jupiter.ids.TimeSeriesJournalEntry;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
+import com.elster.jupiter.metering.impl.ReadingRecordImpl;
 import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
 import com.elster.jupiter.rest.util.VersionInfo;
@@ -258,9 +261,11 @@ public class DeviceDataInfoFactory {
     }
 
     private void setCommonReadingInfo(Reading reading, ReadingInfo readingInfo, Register<?, ?> register) {
+        TimeSeriesEntry entry = ((ReadingRecordImpl) reading.getActualReading()).getEntry();
         readingInfo.id = "" + reading.getTimeStamp().toEpochMilli() + register.getRegisterSpecId();
         readingInfo.timeStamp = reading.getTimeStamp();
-        readingInfo.userName = reading.getUserName();
+        readingInfo.userName = entry instanceof TimeSeriesJournalEntry && ((TimeSeriesJournalEntry) entry).getUserName() != null ?
+                ((TimeSeriesJournalEntry) entry).getUserName() : "";
         readingInfo.reportedDateTime = reading.getReportedDateTime();
         readingInfo.readingQualities = createReadingQualitiesInfo(reading);
         Pair<ReadingModificationFlag, QualityCodeSystem> modificationFlag = ReadingModificationFlag.getModificationFlag(reading);

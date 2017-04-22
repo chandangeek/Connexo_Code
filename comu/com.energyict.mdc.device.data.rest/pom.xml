@@ -308,6 +308,10 @@
             <groupId>com.energyict</groupId>
             <artifactId>mdc.issue.datacollection</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>ids</artifactId>
+        </dependency>
 
         <!--INTEGRATION TESTS-->
         <dependency>
@@ -406,11 +410,6 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>datavault</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>ids</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
