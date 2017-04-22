@@ -47,6 +47,8 @@ class EstimationRuleInfoFactory {
         EstimationRuleSet ruleSet = estimationRule.getRuleSet();
         estimationRuleInfo.parent.id = ruleSet.getId();
         estimationRuleInfo.parent.version = ruleSet.getVersion();
+        estimationRuleInfo.markProjected = estimationRule.isMarkProjected();
+
         estimationRuleInfo.ruleSet = estimationRuleSetInfoFactoryProvider.get().asInfo(estimationRule.getRuleSet());
         return estimationRuleInfo;
     }

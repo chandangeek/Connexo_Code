@@ -71,6 +71,7 @@ import org.mockito.Matchers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.isA;
@@ -478,6 +479,9 @@ public class EstimationResourceTest extends EstimationApplicationJerseyTest {
                 Matchers.eq(false),
                 Matchers.eq(new ArrayList<>()),
                 Matchers.eq(props))).
+                thenReturn(rule);
+                Matchers.eq(props),
+                anyBoolean())).
                 thenReturn(rule);
 
         Entity<EstimationRuleInfo> entity = Entity.json(info);

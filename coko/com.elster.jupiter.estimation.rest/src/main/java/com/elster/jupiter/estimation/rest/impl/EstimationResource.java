@@ -264,6 +264,9 @@ public class EstimationResource {
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION)
     public Response addRule(@PathParam("ruleSetId") long ruleSetId, EstimationRuleInfo info, @Context SecurityContext securityContext) {
         EstimationRuleSet ruleSet = resourceHelper.findEstimationRuleSetOrThrowException(ruleSetId);
+        if (QualityCodeSystem.MDC.equals(ruleSet.getQualityCodeSystem()) && info.markProjected) {
+            throw new WebApplicationException(Response.Status.BAD_REQUEST);
+        }
         String[] readingTypes = info.readingTypes.stream().map(readingTypeInfo -> readingTypeInfo.mRID).toArray(String[]::new);
         Estimator estimator = resourceHelper.findEstimatorOrThrowException(info.implementation);
         EstimationRuleBuilder estimationRuleBuilder = ruleSet.addRule(info.implementation, info.name).withReadingType(readingTypes);
@@ -273,6 +276,7 @@ public class EstimationResource {
                     estimationRuleBuilder.havingProperty(propertySpec.getName()).withValue(value);
                 });
         estimationRuleBuilder.active(false);
+        estimationRuleBuilder.markProjected(info.markProjected);
         EstimationRule rule = estimationRuleBuilder.create();
         return Response.status(Response.Status.CREATED).entity(estimationRuleInfoFactory.asInfo(rule)).build();
     }
@@ -294,7 +298,7 @@ public class EstimationResource {
                 propertyMap.put(propertySpec.getName(), value);
             }
         } finally {
-            rule = rule.getRuleSet().updateRule(info.id, info.name, info.active, mRIDs, propertyMap);
+            rule = rule.getRuleSet().updateRule(info.id, info.name, info.active, mRIDs, propertyMap, info.markProjected);
         }
         return estimationRuleInfoFactory.asInfo(rule);
     }
