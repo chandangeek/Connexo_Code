@@ -8,7 +8,8 @@ Ext.define('Est.estimationrules.view.EditForm', {
         'Uni.util.FormErrorMessage',
         'Uni.property.form.Property',
         'Uni.grid.column.ReadingType',
-        'Uni.grid.column.RemoveAction'
+        'Uni.grid.column.RemoveAction',
+        'Cfg.view.common.EstimationComment'
     ],
     alias: 'widget.estimation-rule-edit-form',
     ui: 'large',
@@ -147,8 +148,9 @@ Ext.define('Est.estimationrules.view.EditForm', {
                     }
                 ]
             },
-
-
+            {
+                xtype: 'estimation-comments'
+            },
             {
                 xtype: 'label',
                 cls: 'x-form-invalid-under',

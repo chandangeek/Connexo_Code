@@ -62,6 +62,14 @@ Ext.define('Est.estimationrules.view.DetailForm', {
                 xtype: 'reading-type-displayfield',
                 fieldLabel: undefined
             }
+        },
+        {
+            itemId: 'estimation-comment-field',
+            name: 'commentValue',
+            fieldLabel: Uni.I18n.translate('general.estimationComment', 'EST', 'Estimation comment'),
+            renderer: function (string) {
+                return string ? string : '-';
+            }
         }
     ],
 
