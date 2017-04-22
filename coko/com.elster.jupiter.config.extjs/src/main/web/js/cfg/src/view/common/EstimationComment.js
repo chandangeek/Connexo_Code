@@ -5,10 +5,10 @@
 Ext.define('Cfg.view.common.EstimationComment', {
     alias: 'widget.estimation-comments',
     extend: 'Ext.form.FieldContainer',
-
     requires: [
         'Uni.property.store.EstimationComment'
     ],
+
     fieldLabel: Uni.I18n.translate('copyFromReference.estimationComment', 'CFG', 'Estimation comment'),
     layout: 'hbox',
     flex: 1,
@@ -25,7 +25,13 @@ Ext.define('Cfg.view.common.EstimationComment', {
             editable: false,
             listeners: {
                 afterrender: function () {
+                    var keepComment = {
+                        comment: Uni.I18n.translate('copyFromReference.keepComment', 'CFG', 'Keep original comment'),
+                        id: -1
+                    };
+                    this.getStore().add(keepComment);
                     this.resetButton = this.nextSibling('#estimation-comment-default-button');
+
                 },
                 change: function (combobox) {
                     if (combobox.getValue()) {
@@ -41,7 +47,7 @@ Ext.define('Cfg.view.common.EstimationComment', {
             itemId: 'estimation-comment-default-button',
             hidden: false,
             disabled: true,
-            tooltip: Uni.I18n.translate('general.clear', 'UNI', 'Clear'),
+            tooltip: Uni.I18n.translate('general.clear', 'CFG', 'Clear'),
             handler: function () {
                 this.previousSibling('#estimation-comment').reset();
             }
