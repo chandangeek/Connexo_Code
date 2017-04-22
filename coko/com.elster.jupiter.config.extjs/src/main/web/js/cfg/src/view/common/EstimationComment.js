@@ -9,7 +9,7 @@ Ext.define('Cfg.view.common.EstimationComment', {
     requires: [
         'Uni.property.store.EstimationComment'
     ],
-
+    fieldLabel: Uni.I18n.translate('copyFromReference.estimationComment', 'CFG', 'Estimation comment'),
     layout: 'hbox',
     flex: 1,
     items: [
@@ -17,21 +17,21 @@ Ext.define('Cfg.view.common.EstimationComment', {
             xtype: 'combobox',
             itemId: 'estimation-comment',
             flex: 1,
-            name: 'estimationComment',
+            name: 'commentId',
             store: Ext.create('Uni.property.store.EstimationComment').load(),
             valueField: 'id',
             displayField: 'comment',
             queryMode: 'local',
             editable: false,
             listeners: {
-                afterrender: function (combobox) {
-                    this.button = this.nextSibling('#estimation-comment-default-button');
+                afterrender: function () {
+                    this.resetButton = this.nextSibling('#estimation-comment-default-button');
                 },
                 change: function (combobox) {
                     if (combobox.getValue()) {
-                        this.button.setDisabled(false);
+                        this.resetButton.setDisabled(false);
                     } else {
-                        this.button.setDisabled(true);
+                        this.resetButton.setDisabled(true);
                     }
                 }
             }
@@ -48,5 +48,4 @@ Ext.define('Cfg.view.common.EstimationComment', {
 
         }
     ]
-
 });

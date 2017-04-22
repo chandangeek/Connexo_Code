@@ -13,9 +13,6 @@ Ext.define('Cfg.view.common.CopyFromReferenceWindow', {
     monitorResize: false,
 
     requires: [
-        'Uni.util.FormErrorMessage',
-        'Uni.property.form.Property',
-        'Uni.property.view.DefaultButton',
         'Cfg.view.common.EstimationComment',
         'Cfg.store.AllDevices',
         'Cfg.store.AllPurpose',
@@ -118,14 +115,13 @@ Ext.define('Cfg.view.common.CopyFromReferenceWindow', {
                     ]
                 },
                 {
-                    xtype: 'estimation-comments',
-                    fieldLabel: Uni.I18n.translate('copyFromReference.estimationComment', 'CFG', 'Estimation comment')
-
+                    xtype: 'estimation-comments'
                 },
                 {
                     xtype: 'fieldcontainer',
                     fieldLabel: Uni.I18n.translate('copyFromReference.projectedValue', 'CFG', 'Projected value'),
                     flex: 1,
+                    hidden: !me.usagePoint,
                     layout: 'hbox',
                     items: [
                         {
@@ -170,7 +166,7 @@ Ext.define('Cfg.view.common.CopyFromReferenceWindow', {
         };
 
         if (me.usagePoint) {
-            me.items.items.splice(2, 1,
+            me.items.items.splice(0, 1,
                 {
                     xtype: 'combobox',
                     itemId: 'usage-point-field',
@@ -208,6 +204,7 @@ Ext.define('Cfg.view.common.CopyFromReferenceWindow', {
                 }
             );
         }
+
         me.callParent(arguments);
     }
 });
