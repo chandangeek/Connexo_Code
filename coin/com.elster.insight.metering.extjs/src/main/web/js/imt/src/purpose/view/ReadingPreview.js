@@ -378,6 +378,17 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
             }
         );
 
+        valuesItems.push(
+            {
+                itemId: 'estimation-comment-field',
+                name: 'commentValue',
+                fieldLabel: Uni.I18n.translate('general.estimationComment', 'IMT', 'Estimation comment'),
+                renderer: function (string) {
+                    return string ? string : '-';
+                }
+            }
+        );
+
         qualityItems.push(
             {
                 xtype: 'uni-form-info-message',
