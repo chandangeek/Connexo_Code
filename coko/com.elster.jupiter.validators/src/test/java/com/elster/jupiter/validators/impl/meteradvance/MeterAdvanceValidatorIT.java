@@ -21,8 +21,9 @@ import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.metering.readings.beans.ReadingImpl;
 import com.elster.jupiter.nls.impl.NlsModule;
-import com.elster.jupiter.properties.NonOrBigDecimalValueProperty;
-import com.elster.jupiter.properties.TwoValuesAbsoluteDifference;
+import com.elster.jupiter.properties.NoneOrBigDecimal;
+import com.elster.jupiter.properties.NoneOrTimeDurationValue;
+import com.elster.jupiter.properties.TwoValuesDifference;
 import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.validation.ValidationResult;
@@ -582,7 +583,6 @@ public class MeterAdvanceValidatorIT {
      * <tr><td>2017-04-02 00:00</td><td>-</td><td>100</td><td>-</td></tr>
      * <tr><td>2017-04-03 00:00</td><td>200</td><td>300</td><td>-</td></tr>
      * <tr><td>2017-04-04 00:00</td><td>200</td><td>500</td><td>-</td></tr>
-     * <tr><td>2017-04-05 00:00</td><td>200</td><td>700</td><td>-</td></tr>
      * </table>
      */
     @Test
@@ -597,15 +597,14 @@ public class MeterAdvanceValidatorIT {
         intervalBlock.addAllIntervalReadings(Arrays.asList(
                 IntervalReadingImpl.of(startTime.plus(1, ChronoUnit.DAYS), new BigDecimal(100)),
                 IntervalReadingImpl.of(startTime.plus(2, ChronoUnit.DAYS), new BigDecimal(300)),
-                IntervalReadingImpl.of(startTime.plus(3, ChronoUnit.DAYS), new BigDecimal(500)),
-                IntervalReadingImpl.of(startTime.plus(4, ChronoUnit.DAYS), new BigDecimal(700))
+                IntervalReadingImpl.of(startTime.plus(3, ChronoUnit.DAYS), new BigDecimal(500))
         ));
         meterReading.addIntervalBlock(intervalBlock);
         meter.store(QualityCodeSystem.MDC, meterReading);
 
         // Initialize validator
         Validator validator = createValidatorWithDefaultProperties();
-        Range<Instant> interval = Range.openClosed(startTime, startTime.plus(4, ChronoUnit.DAYS));
+        Range<Instant> interval = Range.openClosed(startTime, startTime.plus(3, ChronoUnit.DAYS));
         ReadingType validatedReadingType = getReadingType(DAILY_DELTA_A_PLUS_KWH);
         Channel channel = meter.getChannelsContainers().get(0).getChannel(validatedReadingType).get();
 
@@ -619,8 +618,7 @@ public class MeterAdvanceValidatorIT {
         assertThat(validationResults).containsExactly(
                 MapEntry.entry(startTime.plus(1, ChronoUnit.DAYS), ValidationResult.NOT_VALIDATED),
                 MapEntry.entry(startTime.plus(2, ChronoUnit.DAYS), ValidationResult.NOT_VALIDATED),
-                MapEntry.entry(startTime.plus(3, ChronoUnit.DAYS), ValidationResult.NOT_VALIDATED),
-                MapEntry.entry(startTime.plus(4, ChronoUnit.DAYS), ValidationResult.NOT_VALIDATED)
+                MapEntry.entry(startTime.plus(3, ChronoUnit.DAYS), ValidationResult.NOT_VALIDATED)
         );
     }
 
@@ -633,6 +631,8 @@ public class MeterAdvanceValidatorIT {
      * <tr><td>2017-04-04 00:00</td><td>200</td><td>500</td><td>-</td></tr>
      * <tr><td>2017-04-05 00:00</td><td>200</td><td>700</td><td>-</td></tr>
      * <tr><td>2017-04-06 00:00</td><td>200</td><td>900</td><td>-</td></tr>
+     * <tr><td>2017-04-07 00:00</td><td>0</td><td>900</td><td>-</td></tr>
+     * <tr><td>2017-04-08 00:00</td><td>0</td><td>900</td><td>-</td></tr>
      * </table>
      */
     @Test
@@ -649,14 +649,17 @@ public class MeterAdvanceValidatorIT {
                 IntervalReadingImpl.of(startTime.plus(2, ChronoUnit.DAYS), new BigDecimal(300)),
                 IntervalReadingImpl.of(startTime.plus(3, ChronoUnit.DAYS), new BigDecimal(500)),
                 IntervalReadingImpl.of(startTime.plus(4, ChronoUnit.DAYS), new BigDecimal(700)),
-                IntervalReadingImpl.of(startTime.plus(5, ChronoUnit.DAYS), new BigDecimal(900))
+                IntervalReadingImpl.of(startTime.plus(5, ChronoUnit.DAYS), new BigDecimal(900)),
+                IntervalReadingImpl.of(startTime.plus(6, ChronoUnit.DAYS), new BigDecimal(900)),
+                IntervalReadingImpl.of(startTime.plus(7, ChronoUnit.DAYS), new BigDecimal(900)),
+                IntervalReadingImpl.of(startTime.plus(8, ChronoUnit.DAYS), new BigDecimal(900))
         ));
         meterReading.addIntervalBlock(intervalBlock);
         meter.store(QualityCodeSystem.MDC, meterReading);
 
         // Initialize validator
         Validator validator = createValidatorWithDefaultProperties();
-        Range<Instant> interval = Range.openClosed(startTime, startTime.plus(5, ChronoUnit.DAYS));
+        Range<Instant> interval = Range.openClosed(startTime, startTime.plus(8, ChronoUnit.DAYS));
         ReadingType validatedReadingType = getReadingType(DAILY_DELTA_A_PLUS_KWH);
         Channel channel = meter.getChannelsContainers().get(0).getChannel(validatedReadingType).get();
 
@@ -672,7 +675,10 @@ public class MeterAdvanceValidatorIT {
                 MapEntry.entry(startTime.plus(2, ChronoUnit.DAYS), ValidationResult.VALID),
                 MapEntry.entry(startTime.plus(3, ChronoUnit.DAYS), ValidationResult.VALID),
                 MapEntry.entry(startTime.plus(4, ChronoUnit.DAYS), ValidationResult.VALID),
-                MapEntry.entry(startTime.plus(5, ChronoUnit.DAYS), ValidationResult.VALID)
+                MapEntry.entry(startTime.plus(5, ChronoUnit.DAYS), ValidationResult.VALID),
+                MapEntry.entry(startTime.plus(6, ChronoUnit.DAYS), ValidationResult.VALID),
+                MapEntry.entry(startTime.plus(7, ChronoUnit.DAYS), ValidationResult.VALID),
+                MapEntry.entry(startTime.plus(8, ChronoUnit.DAYS), ValidationResult.VALID)
         );
     }
 
@@ -731,9 +737,9 @@ public class MeterAdvanceValidatorIT {
     private Validator createValidatorWithDefaultProperties() {
         Map<String, Object> properties = ImmutableMap.of(
                 MeterAdvanceValidator.REFERENCE_READING_TYPE, new ReadingTypeReference(getReadingType(BULK_A_PLUS_MWH)),
-                MeterAdvanceValidator.MAX_ABSOLUTE_DIFFERENCE, new TwoValuesAbsoluteDifference(new BigDecimal(0.001)),
-                MeterAdvanceValidator.REFERENCE_PERIOD, new TimeDuration(4, TimeDuration.TimeUnit.DAYS),
-                MeterAdvanceValidator.MIN_THRESHOLD, new NonOrBigDecimalValueProperty(new BigDecimal(0.001))
+                MeterAdvanceValidator.MAX_ABSOLUTE_DIFFERENCE, new TwoValuesDifference(TwoValuesDifference.Type.ABSOLUTE, new BigDecimal(0.001)),
+                MeterAdvanceValidator.REFERENCE_PERIOD, NoneOrTimeDurationValue.of(new TimeDuration(7, TimeDuration.TimeUnit.DAYS)),
+                MeterAdvanceValidator.MIN_THRESHOLD, NoneOrBigDecimal.of(new BigDecimal(0.001))
         );
         return new MeterAdvanceValidator(NlsModule.FakeThesaurus.INSTANCE, new PropertySpecServiceImpl(), inMemoryBootstrapModule.getMeteringService(), properties);
     }
