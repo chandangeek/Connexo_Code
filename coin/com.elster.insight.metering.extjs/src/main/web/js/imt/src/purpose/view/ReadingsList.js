@@ -152,7 +152,6 @@ Ext.define('Imt.purpose.view.ReadingsList', {
         if (record.get('confirmedNotSaved') || record.isModified('isProjected')) {
             metaData.tdCls = 'x-grid-dirty-cell';
         }
-
         if (status === 'notValidated') {
             icon = '<span class="icon-flag6" style="margin-left:10px; position:absolute;" data-qtip="'
                 + Uni.I18n.translate('reading.validationResult.notvalidated', 'IMT', 'Not validated') + '"></span>';
@@ -170,7 +169,7 @@ Ext.define('Imt.purpose.view.ReadingsList', {
                     Uni.DateTime.formatTimeLong(new Date(estimatedByRule.when))
                 ], false) +
             record.get('estimationValue')
-                ? Uni.I18n.translate('general.estimationCommentWithComment', 'UNI', 'Estimation comment: {0}', record.get('estimationValue'))
+                ? Uni.I18n.translate('general.estimationCommentWithComment', 'IMT', 'Estimation comment: {0}', record.get('estimationValue'))
                 : ''
             + '"></span>';
             if (record.get('isProjected') === true) {
@@ -179,7 +178,7 @@ Ext.define('Imt.purpose.view.ReadingsList', {
         } else if (record.get('estimatedNotSaved') && record.get('ruleId') > 0) {
             icon = '<span class="icon-flag5" style="margin-left:10px; position:absolute; data-qtip="' +
             record.get('estimationValue')
-                ? Uni.I18n.translate('general.estimationCommentWithComment', 'UNI', 'Estimation comment: {0}', record.get('estimationValue'))
+                ? Uni.I18n.translate('general.estimationCommentWithComment', 'IMT', 'Estimation comment: {0}', record.get('estimationValue'))
                 : ''
                 + '" color:#33CC33;"></span>';
             if (record.get('isProjected') === true) {

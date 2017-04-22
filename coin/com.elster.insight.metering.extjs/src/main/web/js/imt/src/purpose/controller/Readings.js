@@ -26,10 +26,7 @@ Ext.define('Imt.purpose.controller.Readings', {
         'Imt.purpose.store.RegisterReadings',
         'Imt.usagepointmanagement.store.UsagePointTypes',
         'Imt.purpose.store.Estimators',
-        'Imt.purpose.store.EstimationRules',
-        'Cfg.store.AllUsagePoint',
-        'Cfg.store.AllPurpose',
-        'Cfg.store.AllReadingTypes'
+        'Imt.purpose.store.EstimationRules'
     ],
 
     models: [
@@ -403,12 +400,52 @@ Ext.define('Imt.purpose.controller.Readings', {
         }
     },
 
+    // getChangedData: function (store) {
+    //     var me = this,
+    //         changedData = [],
+    //         confirmedObj;
+    //
+    //     Ext.Array.each(store.getUpdatedRecords(), function (record) {
+    //         if (record.get('removedNotSaved')) {
+    //             confirmedObj = {
+    //                 interval: record.get('interval'),
+    //                 value: null
+    //             };
+    //             changedData.push(confirmedObj);
+    //         } else if (record.get('confirmed')) {
+    //             confirmedObj = {
+    //                 interval: record.get('interval'),
+    //                 isConfirmed: record.get('confirmedNotSaved') || false
+    //             };
+    //             changedData.push(confirmedObj);
+    //         } else if (record.get('ruleId')) {
+    //             changedData.push(_.pick(record.getData(), 'interval', 'value', 'ruleId', 'isProjected'));
+    //         } else if (record.isModified('value') || record.isModified('isProjected')) {
+    //             changedData.push(_.pick(record.getData(), 'interval', 'value', 'isProjected'));
+    //         } else if (record.isModified('collectedValue')) {
+    //             changedData.push(_.pick(record.getData(), 'interval', 'collectedValue', 'isProjected'));
+    //         }
+    //     });
+    //
+    //     return changedData;
+    // },
+
     getChangedData: function (store) {
         var me = this,
             changedData = [],
+            changedRecord = {},
             confirmedObj;
 
         Ext.Array.each(store.getUpdatedRecords(), function (record) {
+            if (record.get('ruleId')) {
+                changedRecord = _.pick(record.getData(), 'interval', 'value', 'ruleId', 'isProjected');
+            }
+            if (record.isModified('value') || record.isModified('isProjected')) {
+                Ext.merge(changedRecord, _.pick(record.getData(), 'interval', 'value', 'isProjected'));
+            }
+            if (record.isModified('collectedValue')) {
+                Ext.merge(changedRecord, _.pick(record.getData(), 'interval', 'collectedValue', 'isProjected'));
+            }
             if (record.get('removedNotSaved')) {
                 confirmedObj = {
                     interval: record.get('interval'),
@@ -421,12 +458,8 @@ Ext.define('Imt.purpose.controller.Readings', {
                     isConfirmed: record.get('confirmedNotSaved') || false
                 };
                 changedData.push(confirmedObj);
-            } else if (record.get('ruleId')) {
-                changedData.push(_.pick(record.getData(), 'interval', 'value', 'ruleId', 'isProjected'));
-            } else if (record.isModified('value') || record.isModified('isProjected')) {
-                changedData.push(_.pick(record.getData(), 'interval', 'value', 'isProjected'));
-            } else if (record.isModified('collectedValue')) {
-                changedData.push(_.pick(record.getData(), 'interval', 'collectedValue', 'isProjected'));
+            } else {
+                changedData.push(changedRecord);
             }
         });
 
