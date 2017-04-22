@@ -8,6 +8,7 @@ import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.Category;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
 
 import com.google.common.collect.Range;
 
@@ -123,5 +124,4 @@ public class UsedCalendarsImpl implements UsagePoint.UsedCalendars {
                 .stream()
                 .collect(Collectors.groupingBy(map(UsagePoint.CalendarUsage::getCalendar).andThen(Calendar::getCategory)));
     }
-
 }

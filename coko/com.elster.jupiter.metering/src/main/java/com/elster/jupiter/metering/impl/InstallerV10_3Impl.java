@@ -18,6 +18,8 @@ import com.elster.jupiter.metering.slp.SyntheticLoadProfileService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.upgrade.FullInstaller;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointStage;
 
 import javax.inject.Inject;
 import java.time.Instant;
@@ -82,7 +84,11 @@ public class InstallerV10_3Impl implements FullInstaller {
         vault.extendTo(start.plus(360, ChronoUnit.DAYS), Logger.getLogger(getClass().getPackage().getName()));
     }
 
-    public void installEndDeviceStageSet() {
+    public void installDefaultStageSets() {
+        installEndDeviceStageSet();
+    }
+
+    private void installEndDeviceStageSet() {
         StageSetBuilder stageSetBuilder = stateMachineService.newStageSet(MeteringService.END_DEVICE_STAGE_SET_NAME);
         Stream.of(EndDeviceStage.values())
                 .forEach(endDeviceStage -> stageSetBuilder.stage(endDeviceStage.getKey()));
