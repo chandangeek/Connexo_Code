@@ -4,10 +4,9 @@
 
 package com.elster.jupiter.properties;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeDuration;
-
-import aQute.bnd.annotation.ProviderType;
 
 import java.math.BigDecimal;
 import java.util.TimeZone;
@@ -103,6 +102,24 @@ public interface PropertySpecService {
      * @return The PropertySpecBuilder
      */
     PropertySpecBuilderWizard.NlsOptions<TimeDuration> timeDurationSpec();
+
+    /**
+     * Creates a new {@link PropertySpecBuilder} for building a custom
+     * {@link PropertySpec} of {@link TimeDuration} values.
+     *
+     * @return The PropertySpecBuilder
+     */
+    PropertySpecBuilderWizard.NlsOptions<TimeDuration> temporalAmountSpec();
+
+    /**
+     * Creates a new {@link PropertySpecBuilder} for building a custom
+     * {@link PropertySpec} of {@link TimeDuration} values that will
+     * use only time units smaller than a day.
+     * For clarity's sake, this means hour, minute, second and millisecond.
+     *
+     * @return The PropertySpecBuilder
+     */
+    PropertySpecBuilderWizard.NlsOptions<TimeDuration> durationSpec();
 
     /**
      * Creates a new {@link PropertySpecBuilder} for building a custom
