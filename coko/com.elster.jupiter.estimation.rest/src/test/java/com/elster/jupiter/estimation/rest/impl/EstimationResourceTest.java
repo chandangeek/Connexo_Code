@@ -23,7 +23,7 @@ import com.elster.jupiter.estimation.EstimationRuleBuilder;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.estimation.Estimator;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.aggregation.ReadingQualityComment;
+import com.elster.jupiter.metering.ReadingQualityComment;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.BooleanFactory;
@@ -455,7 +455,8 @@ public class EstimationResourceTest extends EstimationApplicationJerseyTest {
                 Matchers.eq(false),
                 Matchers.eq(new ArrayList<>()),
                 Matchers.eq(props),
-                anyBoolean())).
+                anyBoolean(),
+                Optional.empty())).
         thenReturn(rule);
 
         Entity<EstimationRuleInfo> entity = Entity.json(info);

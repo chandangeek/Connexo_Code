@@ -4,7 +4,7 @@
 
 package com.elster.jupiter.estimation.rest.impl;
 
-import com.elster.jupiter.metering.aggregation.ReadingQualityComment;
+import com.elster.jupiter.metering.ReadingQualityComment;
 import com.elster.jupiter.metering.aggregation.ReadingQualityCommentCategory;
 
 public class EstimationCommentInfo {
