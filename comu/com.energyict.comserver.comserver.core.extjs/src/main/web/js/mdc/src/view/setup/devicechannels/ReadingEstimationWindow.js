@@ -13,7 +13,7 @@ Ext.define('Mdc.view.setup.devicechannels.ReadingEstimationWindow', {
     requires: [
         'Uni.util.FormErrorMessage',
         'Uni.property.form.Property',
-        // 'Est.estimationrules.view.EstimationComment'
+        'Uni.view.readings.EstimationComment'
     ],
 
     initComponent: function () {
@@ -92,10 +92,10 @@ Ext.define('Mdc.view.setup.devicechannels.ReadingEstimationWindow', {
                         }
                     }
                 },
-                // {
-                //     xtype: 'estimation-comments',
-                //     hidden: true
-                // },
+                {
+                    xtype: 'estimation-comments',
+                    hidden: true
+                },
                 {
                     xtype: 'property-form',
                     itemId: 'property-form',

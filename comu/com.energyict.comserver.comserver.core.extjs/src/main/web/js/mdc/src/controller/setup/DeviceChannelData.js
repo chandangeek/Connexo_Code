@@ -1480,6 +1480,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         });
 
         model.set('intervals', intervalsArray);
+        model.set('projected', undefined);
         model.getProxy().setMdcUrl(decodeURIComponent(router.arguments.deviceId), router.arguments.channelId);
 
         window.setLoading();
