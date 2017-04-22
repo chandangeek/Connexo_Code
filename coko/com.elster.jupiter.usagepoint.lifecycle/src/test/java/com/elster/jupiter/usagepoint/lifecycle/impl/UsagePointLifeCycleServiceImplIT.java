@@ -7,6 +7,10 @@ package com.elster.jupiter.usagepoint.lifecycle.impl;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.impl.EventServiceImpl;
+import com.elster.jupiter.fsm.FiniteStateMachineUpdater;
+import com.elster.jupiter.fsm.Stage;
+import com.elster.jupiter.fsm.StageSet;
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
@@ -38,6 +42,9 @@ import com.elster.jupiter.usagepoint.lifecycle.impl.checks.UsagePointMicroCheckF
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 import com.google.common.collect.ImmutableSet;
 
@@ -59,9 +66,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
@@ -71,8 +76,8 @@ public class UsagePointLifeCycleServiceImplIT extends BaseTestIT {
     private TestMicroAction.Factory actionFactory;
     private TestMicroCheck.Factory checkFactory;
 
-    private UsagePointState state1;
-    private UsagePointState state2;
+    private State state1;
+    private State state2;
     private UsagePointTransition transition;
     private UsagePoint usagePoint;
     private Group group;
@@ -93,10 +98,13 @@ public class UsagePointLifeCycleServiceImplIT extends BaseTestIT {
         user = userService.findOrCreateUser("TestUser", "domain", "directoryType");
         user.join(group);
         get(ThreadPrincipalService.class).set(user);
-
+        StageSet defaultStageSet = get(UsagePointLifeCycleConfigurationService.class).getDefaultStageSet();
+        Stage stage = defaultStageSet.getStageByName(UsagePointStage.OPERATIONAL.getKey()).get();
         UsagePointLifeCycle lifeCycle = get(UsagePointLifeCycleConfigurationService.class).newUsagePointLifeCycle("Life cycle");
-        state1 = lifeCycle.newState("State 1").setInitial().setStage(UsagePointStage.Key.OPERATIONAL).complete();
-        state2 = lifeCycle.newState("State 2").setStage(UsagePointStage.Key.OPERATIONAL).complete();
+        FiniteStateMachineUpdater updater = lifeCycle.getUpdater();
+        state1 = updater.newCustomState("State", stage).complete();
+        state2 = updater.newCustomState("State 2", stage).complete();
+        updater.complete(state1);
         transition = lifeCycle.newTransition("Transition", state1, state2).withLevels(EnumSet.of(UsagePointTransition.Level.FOUR)).complete();
         lifeCycle.markAsDefault();
         usagePoint = get(MeteringService.class).getServiceCategory(ServiceKind.ELECTRICITY).get().newUsagePoint("Usage point", now().minus(2, ChronoUnit.HOURS)).create();
@@ -294,15 +302,12 @@ public class UsagePointLifeCycleServiceImplIT extends BaseTestIT {
     public void testCanGetTransitionsAvailableForCurrentUser() {
         initializeCommonUsagePointStateChangeFields();
 
-        List<UsagePointTransition> transitions = get(ServerUsagePointLifeCycleService.class).getAvailableTransitions(state1, APPLICATION);
+        List<UsagePointTransition> transitions = get(ServerUsagePointLifeCycleService.class).getAvailableTransitions(usagePoint, APPLICATION);
         assertThat(transitions.size()).isEqualTo(1);
         assertThat(transitions).containsExactly(transition);
 
-        transitions = get(ServerUsagePointLifeCycleService.class).getAvailableTransitions(state2, APPLICATION);
-        assertThat(transitions).isEmpty();
-
         user.leave(group);
-        transitions = get(ServerUsagePointLifeCycleService.class).getAvailableTransitions(state1, APPLICATION);
+        transitions = get(ServerUsagePointLifeCycleService.class).getAvailableTransitions(usagePoint, APPLICATION);
         assertThat(transitions).isEmpty();
     }
 
@@ -312,10 +317,10 @@ public class UsagePointLifeCycleServiceImplIT extends BaseTestIT {
         assertThat(lifeCycle.isDefault()).isEqualTo(true);
         assertThat(lifeCycle.getName()).isEqualTo(TranslationKeys.LIFE_CYCLE_NAME.getDefaultFormat());
 
-        UsagePointState underConstruction = findStateOrFail(lifeCycle, DefaultState.UNDER_CONSTRUCTION);
-        UsagePointState active = findStateOrFail(lifeCycle, DefaultState.ACTIVE);
-        UsagePointState inactive = findStateOrFail(lifeCycle, DefaultState.INACTIVE);
-        UsagePointState demolished = findStateOrFail(lifeCycle, DefaultState.DEMOLISHED);
+        State underConstruction = lifeCycle.getStates().stream().filter(state -> state.getName().equals(DefaultState.UNDER_CONSTRUCTION.getKey())).findFirst();
+        State active = lifeCycle.getStates().stream().filter(state -> state.getName().equals(DefaultState.ACTIVE.getKey())).findFirst();
+        State inactive = lifeCycle.getStates().stream().filter(state -> state.getName().equals(DefaultState.INACTIVE.getKey())).findFirst();
+        State demolished = lifeCycle.getStates().stream().filter(state -> state.getName().equals(DefaultState.DEMOLISHED.getKey())).findFirst();
         assertThat(underConstruction.isInitial()).isTrue();
 
         UsagePointTransition transition = findTransitionOrFail(lifeCycle,

@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.usagepoint.lifecycle.impl;
 
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
@@ -32,7 +33,6 @@ import com.elster.jupiter.usagepoint.lifecycle.config.MicroCheck;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleBuilder;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
-import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 import com.elster.jupiter.usagepoint.lifecycle.impl.actions.MicroActionTranslationKeys;
 import com.elster.jupiter.usagepoint.lifecycle.impl.actions.ResetValidationResultsAction;
@@ -279,15 +279,15 @@ public class UsagePointLifeCycleServiceImpl implements ServerUsagePointLifeCycle
     }
 
     @Override
-    public List<UsagePointTransition> getAvailableTransitions(UsagePointState usagePointState, String application) {
+    public List<UsagePointTransition> getAvailableTransitions(UsagePoint usagePoint, String application) {
         Principal principal = this.threadPrincipalService.getPrincipal();
         if (!(principal instanceof User)) {
             return Collections.emptyList();
         }
         User user = (User) principal;
-        return usagePointState.getLifeCycle().getTransitions()
+        return usagePoint.getLifeCycle().getTransitions()
                 .stream()
-                .filter(transition -> transition.getFrom().equals(usagePointState))
+                .filter(transition -> transition.getFrom().equals(usagePoint.getState()))
                 .filter(transition -> transition.getLevels().isEmpty() || transition.getLevels()
                         .stream()
                         .map(UsagePointTransition.Level::getPrivilege)

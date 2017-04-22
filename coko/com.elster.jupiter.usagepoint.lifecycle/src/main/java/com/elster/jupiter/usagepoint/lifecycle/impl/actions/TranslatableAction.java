@@ -4,12 +4,12 @@
 
 package com.elster.jupiter.usagepoint.lifecycle.impl.actions;
 
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.usagepoint.lifecycle.ExecutableMicroAction;
 import com.elster.jupiter.usagepoint.lifecycle.ExecutableMicroActionException;
 import com.elster.jupiter.usagepoint.lifecycle.config.DefaultTransition;
-import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 import com.elster.jupiter.usagepoint.lifecycle.impl.MicroCategoryTranslationKeys;
 
 import javax.inject.Inject;
@@ -62,7 +62,7 @@ public abstract class TranslatableAction implements ExecutableMicroAction {
     protected abstract void doExecute(UsagePoint usagePoint, Instant transitionTime, Map<String, Object> properties);
 
     @Override
-    public boolean isMandatoryForTransition(UsagePointState fromState, UsagePointState toState) {
+    public boolean isMandatoryForTransition(State fromState, State toState) {
         Set<DefaultTransition> candidates = getTransitionCandidates();
         return candidates != null
                 && !candidates.isEmpty()
