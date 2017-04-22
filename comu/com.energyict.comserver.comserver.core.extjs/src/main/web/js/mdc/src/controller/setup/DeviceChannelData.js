@@ -44,9 +44,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         'Mdc.store.DataLoggerSlaveChannelHistory',
         'Mdc.store.EstimationRulesOnChannelMainValue',
         'Mdc.store.DataLoggerSlaveChannelHistory',
-        'Mdc.store.HistoryChannels',
-        'Cfg.store.AllDevices',
-        'Cfg.store.AllReadingTypes'
+        'Mdc.store.HistoryChannels'
     ],
 
     refs: [
