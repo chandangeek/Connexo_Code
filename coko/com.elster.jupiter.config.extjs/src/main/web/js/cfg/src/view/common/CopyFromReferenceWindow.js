@@ -17,7 +17,7 @@ Ext.define('Cfg.view.common.CopyFromReferenceWindow', {
         'Cfg.store.AllPurpose',
         'Cfg.store.AllReadingTypes',
         'Cfg.store.AllUsagePoint',
-        'Cfg.store.EstimationComment'
+        'Cfg.store.AllEstimationComment'
     ],
 
     initComponent: function () {
