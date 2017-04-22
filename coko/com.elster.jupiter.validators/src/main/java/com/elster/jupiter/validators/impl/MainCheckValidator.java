@@ -17,15 +17,13 @@ import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.properties.NonOrBigDecimalValueFactory;
-import com.elster.jupiter.properties.NonOrBigDecimalValueProperty;
+import com.elster.jupiter.properties.NoneOrBigDecimal;
+import com.elster.jupiter.properties.NoneOrBigDecimalValueFactory;
 import com.elster.jupiter.properties.PropertySelectionMode;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
-import com.elster.jupiter.properties.TwoValuesAbsoluteDifference;
 import com.elster.jupiter.properties.TwoValuesDifference;
 import com.elster.jupiter.properties.TwoValuesDifferenceValueFactory;
-import com.elster.jupiter.properties.TwoValuesPercentDifference;
 import com.elster.jupiter.util.logging.LoggingContext;
 import com.elster.jupiter.util.time.DefaultDateTimeFormatters;
 import com.elster.jupiter.validation.DataValidationStatus;
@@ -88,7 +86,7 @@ public class MainCheckValidator extends AbstractValidator {
     private TwoValuesDifference maxAbsoluteDifference;
     private Boolean passIfNoRefData;
     private Boolean useValidatedData;
-    private NonOrBigDecimalValueProperty minThreshold;
+    private NoneOrBigDecimal minThreshold;
     private ReadingType readingType;
     // interval to log failed validation
     private Range<Instant> failedValidatonInterval;
@@ -172,20 +170,18 @@ public class MainCheckValidator extends AbstractValidator {
                         .named(MAX_ABSOLUTE_DIFF, TranslationKeys.MAX_ABSOLUTE_DIFF)
                         .fromThesaurus(this.getThesaurus())
                         .markRequired()
-                        .setDefaultValue(new TwoValuesAbsoluteDifference() {{
-                            value = new BigDecimal(0);
-                        }})
+                        .setDefaultValue(new TwoValuesDifference(TwoValuesDifference.Type.ABSOLUTE, new BigDecimal(0)))
                         .finish());
     }
 
     private void addMinThresholdPropertySpec(ImmutableList.Builder<PropertySpec> builder) {
         builder
                 .add(getPropertySpecService()
-                        .specForValuesOf(new NonOrBigDecimalValueFactory())
+                        .specForValuesOf(new NoneOrBigDecimalValueFactory())
                         .named(MIN_THRESHOLD, TranslationKeys.MIN_THRESHOLD)
                         .fromThesaurus(this.getThesaurus())
                         .markRequired()
-                        .setDefaultValue(new NonOrBigDecimalValueProperty())
+                        .setDefaultValue(NoneOrBigDecimal.none())
                         .finish());
     }
 
@@ -206,7 +202,7 @@ public class MainCheckValidator extends AbstractValidator {
         if (maxAbsoluteDifference == null) {
             throw new MissingRequiredProperty(getThesaurus(), MAX_ABSOLUTE_DIFF);
         }
-        minThreshold = (NonOrBigDecimalValueProperty) properties.get(MIN_THRESHOLD);
+        minThreshold = (NoneOrBigDecimal) properties.get(MIN_THRESHOLD);
         if (minThreshold == null) {
             throw new MissingRequiredProperty(getThesaurus(), MIN_THRESHOLD);
         }
@@ -390,8 +386,8 @@ public class MainCheckValidator extends AbstractValidator {
         BigDecimal mainValue = mainReading.getValue();
         BigDecimal checkValue = checkReading.getValue();
 
-        if (!minThreshold.isNone) {
-            if (mainValue.compareTo(minThreshold.value) <= 0 && checkValue.compareTo(minThreshold.value) <= 0) {
+        if (!minThreshold.isNone()) {
+            if (mainValue.compareTo(minThreshold.getValue()) <= 0 && checkValue.compareTo(minThreshold.getValue()) <= 0) {
                 // [RULE FLOW ACTION] the check for the interval is marked valid and the validation moves to the next interval.
                 return ValidationResult.VALID;
             }
@@ -399,10 +395,11 @@ public class MainCheckValidator extends AbstractValidator {
 
         BigDecimal differenceValue;
 
-        if (maxAbsoluteDifference instanceof TwoValuesAbsoluteDifference) {
-            differenceValue = ((TwoValuesAbsoluteDifference) maxAbsoluteDifference).value;
-        } else if (maxAbsoluteDifference instanceof TwoValuesPercentDifference) {
-            differenceValue = mainValue.multiply(BigDecimal.valueOf(((TwoValuesPercentDifference) maxAbsoluteDifference).percent * 0.01D));
+
+        if (TwoValuesDifference.Type.ABSOLUTE == maxAbsoluteDifference.getType()) {
+            differenceValue = maxAbsoluteDifference.getValue();
+        } else if (TwoValuesDifference.Type.RELATIVE == maxAbsoluteDifference.getType()) {
+            differenceValue = mainValue.multiply(maxAbsoluteDifference.getValue()).multiply(new BigDecimal(0.01));
         } else {
             return ValidationResult.NOT_VALIDATED;
         }

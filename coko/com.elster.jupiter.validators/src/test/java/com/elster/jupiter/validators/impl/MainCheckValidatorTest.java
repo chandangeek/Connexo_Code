@@ -17,11 +17,9 @@ import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
-import com.elster.jupiter.properties.NonOrBigDecimalValueProperty;
+import com.elster.jupiter.properties.NoneOrBigDecimal;
 import com.elster.jupiter.properties.PropertySpecService;
-import com.elster.jupiter.properties.TwoValuesAbsoluteDifference;
 import com.elster.jupiter.properties.TwoValuesDifference;
-import com.elster.jupiter.properties.TwoValuesPercentDifference;
 import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationEvaluator;
@@ -37,7 +35,6 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -50,10 +47,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyCollection;
 import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -117,7 +111,7 @@ abstract public class MainCheckValidatorTest {
         MetrologyPurpose checkPurpose;
         MetrologyPurpose notExistingCheckPurpose;
         TwoValuesDifference twoValuesDifference;
-        NonOrBigDecimalValueProperty minThreshold;
+        NoneOrBigDecimal minThreshold;
         boolean passIfNoData;
         boolean useValidatedData;
         boolean noCheckChannel;
@@ -137,19 +131,13 @@ abstract public class MainCheckValidatorTest {
             return this;
         }
 
-
-
         MainCheckValidatorRule withValuedDifference(BigDecimal value) {
-            TwoValuesAbsoluteDifference twoValuesAbsoluteDifference = new TwoValuesAbsoluteDifference();
-            twoValuesAbsoluteDifference.value = value;
-            this.twoValuesDifference = twoValuesAbsoluteDifference;
+            this.twoValuesDifference = new TwoValuesDifference(TwoValuesDifference.Type.ABSOLUTE, value);
             return this;
         }
 
-        MainCheckValidatorRule withPerentDifference(Double percent) {
-            TwoValuesPercentDifference twoValuesPercentDifference = new TwoValuesPercentDifference();
-            twoValuesPercentDifference.percent = percent;
-            this.twoValuesDifference = twoValuesPercentDifference;
+        MainCheckValidatorRule withPercentDifference(Double percent) {
+            this.twoValuesDifference = new TwoValuesDifference(TwoValuesDifference.Type.RELATIVE, new BigDecimal(percent));
             return this;
         }
 
@@ -164,17 +152,12 @@ abstract public class MainCheckValidatorTest {
         }
 
         MainCheckValidatorRule withNoMinThreshold() {
-            NonOrBigDecimalValueProperty noThreshold = new NonOrBigDecimalValueProperty();
-            noThreshold.isNone = true;
-            this.minThreshold = noThreshold;
+            this.minThreshold = NoneOrBigDecimal.none();
             return this;
         }
 
         MainCheckValidatorRule withMinThreshold(BigDecimal minThreshold) {
-            NonOrBigDecimalValueProperty threshold = new NonOrBigDecimalValueProperty();
-            threshold.isNone = false;
-            threshold.value = minThreshold;
-            this.minThreshold = threshold;
+            this.minThreshold = NoneOrBigDecimal.of(minThreshold);
             return this;
         }
 

@@ -16,7 +16,7 @@ public class MainCheckValidatorPercentDiffTest extends MainCheckValidatorTest {
 
         validateWithReadings(new MainCheckValidatorRule()
                 .withCheckPurpose(CHECK_PURPOSE)
-                .withPerentDifference(50D)
+                .withPercentDifference(50D)
                 .passIfNoRefData(false)
                 .useValidatedData(false)
                 .withNoMinThreshold());
