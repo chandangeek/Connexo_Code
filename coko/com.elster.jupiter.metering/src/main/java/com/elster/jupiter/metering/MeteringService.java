@@ -7,7 +7,6 @@ package com.elster.jupiter.metering;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.fsm.FiniteStateMachine;
-import com.elster.jupiter.metering.aggregation.ReadingQualityComment;
 import com.elster.jupiter.metering.aggregation.ReadingQualityCommentCategory;
 import com.elster.jupiter.metering.ami.HeadEndInterface;
 import com.elster.jupiter.metering.events.EndDeviceEventType;

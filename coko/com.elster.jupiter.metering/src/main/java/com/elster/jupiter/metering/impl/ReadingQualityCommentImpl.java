@@ -2,9 +2,9 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.elster.jupiter.metering.impl.aggregation;
+package com.elster.jupiter.metering.impl;
 
-import com.elster.jupiter.metering.aggregation.ReadingQualityComment;
+import com.elster.jupiter.metering.ReadingQualityComment;
 import com.elster.jupiter.metering.aggregation.ReadingQualityCommentCategory;
 
 public class ReadingQualityCommentImpl implements ReadingQualityComment {

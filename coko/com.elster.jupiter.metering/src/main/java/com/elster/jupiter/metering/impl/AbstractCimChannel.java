@@ -252,7 +252,10 @@ public abstract class AbstractCimChannel implements CimChannel {
                         if (record.isPresent()) {
                             ReadingQualityRecord toBeActualRecord = record.get();
                             if (toBeActualRecord.getType().hasProjectedCategory()) {
+                                toBeActualRecord.setComment(readingQuality.getComment());
                                 toBeActualRecord.makeActual();
+                            } else {
+                                createReadingQuality(readingQuality.getType(), reading, readingQuality.getComment());
                             }
                         } else {
                             createReadingQuality(readingQuality.getType(), reading, readingQuality.getComment());
