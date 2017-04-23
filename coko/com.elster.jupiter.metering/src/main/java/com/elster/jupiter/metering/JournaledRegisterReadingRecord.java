@@ -6,7 +6,7 @@ package com.elster.jupiter.metering;
 
 import java.time.Instant;
 
-public interface JournaledRegisterReadingRecord<R extends ReadingRecord> extends ReadingRecord {
+public interface JournaledRegisterReadingRecord extends ReadingRecord {
     @Override
     JournaledRegisterReadingRecord filter(ReadingType readingType);
 
