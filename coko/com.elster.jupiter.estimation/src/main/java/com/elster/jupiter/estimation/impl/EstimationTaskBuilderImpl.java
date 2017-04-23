@@ -25,7 +25,7 @@ class EstimationTaskBuilderImpl implements EstimationTaskBuilder {
     private Instant nextExecution;
     private boolean scheduleImmediately;
     private String name;
-    private Boolean revalidate;
+    private boolean revalidate;
     private EndDeviceGroup endDeviceGroup;
     private UsagePointGroup usagePointGroup;
     private MetrologyPurpose metrologyPurpose;
