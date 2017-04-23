@@ -182,27 +182,29 @@ Ext.define('Uni.controller.Error', {
                 }
                 break;
             case 400: // Bad request.
-                code = decoded.errorCode ? decoded.errorCode : code;
-                message = decoded.message ? decoded.message : message;
-                if (code.indexOf('-') > 0) {
-                    title = Uni.I18n.translate(
-                        'error.requestFailed',
-                        'UNI',
-                        'Your action can\'t be successfully executed'
-                    );
-                    message = Uni.I18n.translate(
-                        'error.internalServerErrorMessage',
-                        'UNI',
-                        'Connexo has encountered an error, please contact your system administrator'
-                    );
-                } else {
-                    title = Uni.I18n.translate(
-                        'error.requestFailedConnexoKnownError',
-                        'UNI',
-                        'Couldn\'t perform your action'
-                    );
+                if (decoded && decoded.message && decoded.errorCode) {
+                    code = decoded.errorCode;
+                    message = decoded.message;
+                    if (code.indexOf('-') > 0) {
+                        title = Uni.I18n.translate(
+                            'error.requestFailed',
+                            'UNI',
+                            'Your action can\'t be successfully executed'
+                        );
+                        message = Uni.I18n.translate(
+                            'error.internalServerErrorMessage',
+                            'UNI',
+                            'Connexo has encountered an error, please contact your system administrator'
+                        );
+                    } else {
+                        title = Uni.I18n.translate(
+                            'error.requestFailedConnexoKnownError',
+                            'UNI',
+                            'Couldn\'t perform your action'
+                        );
+                    }
+                    me.showError(title, message, code);
                 }
-                me.showError(title, message, code);
                 break;
             case 500: // Internal server error.
                 title = Uni.I18n.translate(
@@ -241,7 +243,7 @@ Ext.define('Uni.controller.Error', {
                     'UNI',
                     'Connexo has encountered an error, please contact your system administrator'
                 );
-                options.method !== 'HEAD'  && me.showError(title, message, decoded.errorCode ? decoded.errorCode : code);
+                options.method !== 'HEAD' && me.showError(title, message, decoded.errorCode ? decoded.errorCode : code);
                 break;
             case 401: // Unauthorized.
                 me.getApplication().fireEvent('sessionexpired');
