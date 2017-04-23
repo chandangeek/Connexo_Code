@@ -21,7 +21,6 @@ import com.elster.jupiter.properties.rest.SimplePropertyType;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
-
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -62,6 +61,8 @@ public class PropertyValueInfoServiceImpl implements PropertyValueInfoService {
         this.addPropertyValueInfoConverter(new RelativePeriodPropertyValueConverter());
         this.addPropertyValueInfoConverter(new ListPropertyValueConverter());
         this.addPropertyValueInfoConverter(new QuantityPropertyValueConverter());
+        this.addPropertyValueInfoConverter(new DurationPropertyValueConverter(thesaurus));
+        this.addPropertyValueInfoConverter(new TemporalAmountPropertyValueConverter(thesaurus));
         this.addPropertyValueInfoConverter(new TimeDurationPropertyValueConverter(thesaurus));
         this.addPropertyValueInfoConverter(new NoneOrBigDecimalValueConverter());
         this.addPropertyValueInfoConverter(new TwoValuesDifferenceValueConverter());
