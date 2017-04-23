@@ -45,15 +45,15 @@ import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.TrackingCategory;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
-import com.energyict.mdc.protocol.api.device.data.CollectedCalendarInformation;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.scheduling.model.ComSchedule;
+import com.energyict.mdc.upl.messages.DeviceMessageStatus;
+import com.energyict.mdc.upl.meterdata.CollectedCalendarInformation;
 
 import aQute.bnd.annotation.ProviderType;
+import com.energyict.obis.ObisCode;
 import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
@@ -65,7 +65,50 @@ import java.util.TimeZone;
 import java.util.function.Consumer;
 
 @ProviderType
-public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasId, HasName {
+public interface Device extends com.energyict.mdc.upl.meterdata.Device, HasId, HasName {
+
+    /**
+     * Gets the receiver's Channels.
+     *
+     * @return a <CODE>List</CODE> of <CODE>Channel</CODE> objects in ordinal order
+     */
+    List<Channel> getChannels();
+
+    /**
+     * Gets the device serial number.
+     *
+     * @return the serial number.
+     */
+    String getSerialNumber();
+
+    /**
+     * Gets the {@link Register}s defined for this device.
+     *
+     * @return a List of Register objects
+     */
+    List<Register> getRegisters();
+
+    /**
+     * Gets the {@link Register} with the given obis code which is known by the Device.
+     *
+     * @param code Obis code to match
+     * @return the register or null.
+     */
+    Optional<Register> getRegisterWithDeviceObisCode(ObisCode code);
+
+    /**
+     * Gets the {@link LoadProfile}s defined for this device.
+     *
+     * @return the LoadProfiles
+     */
+    List<LoadProfile> getLoadProfiles();
+
+    /**
+     * Checks if this device is a logical Slave (depends on settings in its device type).
+     *
+     * @return A flag that indicates if this Device is a logical slave
+     */
+    boolean isLogicalSlave();
 
     void save();
 
@@ -95,14 +138,14 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
      */
     DeviceType getDeviceType();
 
-    List<DeviceMessage<Device>> getMessages();
+    List<DeviceMessage> getMessages();
 
     /**
      * Gets the released pending messages for this device.
      *
      * @return a List of all messages of this device
      */
-    List<DeviceMessage<Device>> getMessagesByState(DeviceMessageStatus status);
+    List<DeviceMessage> getMessagesByState(DeviceMessageStatus status);
 
 
     /**
@@ -165,7 +208,6 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
      */
     Instant getModificationDate();
 
-    @Override
     List<LogBook> getLogBooks();
 
     LogBook.LogBookUpdater getLogBookUpdaterFor(LogBook logBook);
@@ -226,6 +268,8 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
      * This is done in the save method of this device.
      */
     void setSecurityProperties(SecurityPropertySet securityPropertySet, TypedProperties properties);
+
+    void setSecurityProperty(String propertyName, Object propertyValue);
 
     List<ProtocolDialectProperties> getProtocolDialectPropertiesList();
 
@@ -610,7 +654,7 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
          *
          * @return the newly created DeviceMessage
          */
-        DeviceMessage<Device> add();
+        DeviceMessage add();
     }
 
     @ProviderType

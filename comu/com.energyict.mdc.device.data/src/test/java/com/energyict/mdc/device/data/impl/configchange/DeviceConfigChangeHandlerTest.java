@@ -8,6 +8,7 @@ import com.elster.jupiter.devtools.tests.FakeBuilder;
 import com.elster.jupiter.devtools.tests.rules.Expected;
 import com.elster.jupiter.devtools.tests.rules.ExpectedExceptionRule;
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.Message;
@@ -105,6 +106,8 @@ public class DeviceConfigChangeHandlerTest {
     private DeviceConfigurationService deviceConfigurationService;
     @Mock
     private DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
+    @Mock
+    private EventService eventService;
     @Mock(extraInterfaces = HasId.class)
     private DeviceType deviceType;
     @Mock(extraInterfaces = HasId.class)
@@ -338,7 +341,7 @@ public class DeviceConfigChangeHandlerTest {
     }
 
     private DeviceConfigChangeHandler.ConfigChangeContext getConfigChangeContext() {
-        return new DeviceConfigChangeHandler.ConfigChangeContext(messageService, jsonService, searchService, thesaurus, deviceService, deviceDataModelService, deviceConfigurationService, deviceLifeCycleConfigurationService);
+        return new DeviceConfigChangeHandler.ConfigChangeContext(messageService, jsonService, searchService, thesaurus, deviceService, deviceDataModelService, deviceConfigurationService, deviceLifeCycleConfigurationService, eventService);
     }
 
 

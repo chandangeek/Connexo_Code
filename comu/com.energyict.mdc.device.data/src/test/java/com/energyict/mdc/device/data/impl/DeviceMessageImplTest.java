@@ -19,41 +19,42 @@ import com.energyict.mdc.device.config.security.Privileges;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.io.ComChannel;
+import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.protocol.api.DeviceFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.DeviceProtocolCache;
-import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.api.LoadProfileReader;
-import com.energyict.mdc.protocol.api.LogBookReader;
-import com.energyict.mdc.protocol.api.ManufacturerInformation;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
-import com.energyict.mdc.protocol.api.device.data.CollectedBreakerStatus;
-import com.energyict.mdc.protocol.api.device.data.CollectedCalendar;
-import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
-import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
-import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
-import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
-import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
-import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
-import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
-import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
-import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.tasks.MessagesTask;
+import com.energyict.mdc.upl.DeviceFunction;
+import com.energyict.mdc.upl.DeviceProtocolCapabilities;
+import com.energyict.mdc.upl.ManufacturerInformation;
+import com.energyict.mdc.upl.cache.DeviceProtocolCache;
+import com.energyict.mdc.upl.messages.DeviceMessageStatus;
+import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
+import com.energyict.mdc.upl.meterdata.CollectedCalendar;
+import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.upl.meterdata.CollectedLogBook;
+import com.energyict.mdc.upl.meterdata.CollectedMessageList;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.meterdata.CollectedTopology;
+import com.energyict.mdc.upl.offline.OfflineRegister;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
+import com.energyict.protocol.LoadProfileReader;
+import com.energyict.protocol.LogBookReader;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -64,17 +65,13 @@ import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
+import java.util.stream.Collectors;
 
 import static junit.framework.Assert.assertTrue;
 import static junit.framework.TestCase.assertEquals;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
@@ -99,7 +96,7 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
         deviceProtocolPluggableClass.save();
 
         if (principal == null) {
-            this.principal = (User) inMemoryPersistence.getThreadPrincipalService().getPrincipal();
+            principal = (User) inMemoryPersistence.getThreadPrincipalService().getPrincipal();
         }
         inMemoryPersistence.getThreadPrincipalService().set(principal);
         Group group = inMemoryPersistence.getUserService().createGroup("MyDefaultGroup", "just for testing");
@@ -121,7 +118,7 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
         deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType("MyTestDeviceType", deviceProtocolPluggableClass);
         DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration("ConfigForMessaging");
         deviceConfiguration = deviceConfigurationBuilder.add();
-        deviceMessageIds.forEach(deviceConfiguration::createDeviceMessageEnablement);
+        deviceMessageIds.stream().map(com.energyict.mdc.upl.messages.DeviceMessageSpec::getId).map(DeviceMessageId::havingId).forEach(deviceConfiguration::createDeviceMessageEnablement);
         deviceConfiguration.activate();
         resetClock();
     }
@@ -158,11 +155,11 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
 
         Device reloadedDevice = getReloadedDevice(device);
 
-        List<DeviceMessage<Device>> messages = reloadedDevice.getMessages();
+        List<DeviceMessage> messages = reloadedDevice.getMessages();
         assertThat(messages).hasSize(1);
-        DeviceMessage<Device> deviceMessage1 = messages.get(0);
+        DeviceMessage deviceMessage1 = messages.get(0);
         assertThat(deviceMessage1.getDeviceMessageId()).isEqualTo(contactorClose);
-        assertThat(deviceMessage1.getDevice().getId()).isEqualTo(device.getId());
+        assertThat(((Device) deviceMessage1.getDevice()).getId()).isEqualTo(device.getId());    //Downcast to Connexo Device
         assertThat(deviceMessage1.getStatus()).isEqualTo(DeviceMessageStatus.WAITING);
         assertThat(deviceMessage1.getUser()).isEqualTo(TEST_USER_NAME);
         assertThat(deviceMessage1.getSentDate()).isEqualTo(Optional.empty());
@@ -189,17 +186,17 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
         device.newDeviceMessage(contactorClose).setReleaseDate(myReleaseInstant).add();
 
         Device reloadedDevice = getReloadedDevice(device);
-        List<DeviceMessage<Device>> messages = reloadedDevice.getMessages();
-        DeviceMessage<Device> deviceMessage = messages.get(0);
+        List<DeviceMessage> messages = reloadedDevice.getMessages();
+        DeviceMessage deviceMessage = messages.get(0);
         Instant sentDate = myReleaseInstant.plusSeconds(1000L);
         deviceMessage.setSentDate(sentDate);
         deviceMessage.save();
 
         Device finalReloadedDevice = getReloadedDevice(device);
-        DeviceMessage<Device> deviceMessage1 = finalReloadedDevice.getMessages().get(0);
+        DeviceMessage deviceMessage1 = finalReloadedDevice.getMessages().get(0);
 
         assertThat(deviceMessage1.getDeviceMessageId()).isEqualTo(contactorClose);
-        assertThat(deviceMessage1.getDevice().getId()).isEqualTo(device.getId());
+        assertThat(((Device) deviceMessage1.getDevice()).getId()).isEqualTo(device.getId());    //Downcast to Connexo Device
         assertThat(deviceMessage1.getStatus()).isEqualTo(DeviceMessageStatus.WAITING);
         assertTrue(deviceMessage1.getSentDate().isPresent());
         assertThat(deviceMessage1.getSentDate().get()).isEqualTo(sentDate);
@@ -215,17 +212,17 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
         device.newDeviceMessage(contactorClose).setReleaseDate(myReleaseInstant).add();
 
         Device reloadedDevice = getReloadedDevice(device);
-        List<DeviceMessage<Device>> messages = reloadedDevice.getMessages();
-        DeviceMessage<Device> deviceMessage = messages.get(0);
+        List<DeviceMessage> messages = reloadedDevice.getMessages();
+        DeviceMessage deviceMessage = messages.get(0);
         Instant newReleaseDate = myReleaseInstant.plusSeconds(1000L);
         deviceMessage.setReleaseDate(newReleaseDate);
         deviceMessage.save();
 
         Device finalReloadedDevice = getReloadedDevice(device);
-        DeviceMessage<Device> deviceMessage1 = finalReloadedDevice.getMessages().get(0);
+        DeviceMessage deviceMessage1 = finalReloadedDevice.getMessages().get(0);
 
         assertThat(deviceMessage1.getDeviceMessageId()).isEqualTo(contactorClose);
-        assertThat(deviceMessage1.getDevice().getId()).isEqualTo(device.getId());
+        assertThat(((Device) deviceMessage1.getDevice()).getId()).isEqualTo(device.getId());    //Downcast to Connexo Device
         assertThat(deviceMessage1.getStatus()).isEqualTo(DeviceMessageStatus.WAITING);
         assertThat(deviceMessage1.getUser()).isEqualTo(TEST_USER_NAME);
         assertThat(deviceMessage1.getReleaseDate()).isEqualTo(newReleaseDate);
@@ -241,16 +238,16 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
         device.newDeviceMessage(contactorClose).setReleaseDate(myReleaseInstant).add();
 
         Device reloadedDevice = getReloadedDevice(device);
-        List<DeviceMessage<Device>> messages = reloadedDevice.getMessages();
-        DeviceMessage<Device> deviceMessage = messages.get(0);
+        List<DeviceMessage> messages = reloadedDevice.getMessages();
+        DeviceMessage deviceMessage = messages.get(0);
         deviceMessage.revoke();
 
         Device finalReloadedDevice = getReloadedDevice(device);
-        DeviceMessage<Device> deviceMessage1 = finalReloadedDevice.getMessages().get(0);
+        DeviceMessage deviceMessage1 = finalReloadedDevice.getMessages().get(0);
 
         assertThat(deviceMessage1.getDeviceMessageId()).isEqualTo(contactorClose);
-        assertThat(deviceMessage1.getDevice().getId()).isEqualTo(device.getId());
-        assertThat(deviceMessage1.getStatus()).isEqualTo(DeviceMessageStatus.REVOKED);
+        assertThat(((Device) deviceMessage1.getDevice()).getId()).isEqualTo(device.getId());    //Downcast to Connexo Device
+        assertThat(deviceMessage1.getStatus()).isEqualTo(DeviceMessageStatus.CANCELED);
     }
 
     @Test
@@ -263,17 +260,17 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
         device.newDeviceMessage(contactorClose).setReleaseDate(myReleaseInstant).add();
 
         Device reloadedDevice = getReloadedDevice(device);
-        List<DeviceMessage<Device>> messages = reloadedDevice.getMessages();
-        DeviceMessage<Device> deviceMessage = messages.get(0);
+        List<DeviceMessage> messages = reloadedDevice.getMessages();
+        DeviceMessage deviceMessage = messages.get(0);
         Instant newReleaseDate = myReleaseInstant.plusSeconds(2L);
         deviceMessage.setReleaseDate(newReleaseDate);
         deviceMessage.save();
 
         Device finalReloadedDevice = getReloadedDevice(device);
-        DeviceMessage<Device> deviceMessage1 = finalReloadedDevice.getMessages().get(0);
+        DeviceMessage deviceMessage1 = finalReloadedDevice.getMessages().get(0);
 
         assertThat(deviceMessage1.getDeviceMessageId()).isEqualTo(contactorClose);
-        assertThat(deviceMessage1.getDevice().getId()).isEqualTo(device.getId());
+        assertThat(((Device) deviceMessage1.getDevice()).getId()).isEqualTo(device.getId());    //Downcast to Connexo Device
         assertThat(deviceMessage1.getStatus()).isEqualTo(DeviceMessageStatus.PENDING);
         assertThat(deviceMessage1.getReleaseDate()).isEqualTo(newReleaseDate);
     }
@@ -288,16 +285,16 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
         device.newDeviceMessage(contactorClose).setReleaseDate(myReleaseInstant).add();
 
         Device reloadedDevice = getReloadedDevice(device);
-        List<DeviceMessage<Device>> messages = reloadedDevice.getMessages();
-        DeviceMessage<Device> deviceMessage = messages.get(0);
+        List<DeviceMessage> messages = reloadedDevice.getMessages();
+        DeviceMessage deviceMessage = messages.get(0);
         deviceMessage.revoke();
 
         Device finalReloadedDevice = getReloadedDevice(device);
-        DeviceMessage<Device> deviceMessage1 = finalReloadedDevice.getMessages().get(0);
+        DeviceMessage deviceMessage1 = finalReloadedDevice.getMessages().get(0);
 
         assertThat(deviceMessage1.getDeviceMessageId()).isEqualTo(contactorClose);
-        assertThat(deviceMessage1.getDevice().getId()).isEqualTo(device.getId());
-        assertThat(deviceMessage1.getStatus()).isEqualTo(DeviceMessageStatus.REVOKED);
+        assertThat(((Device) deviceMessage1.getDevice()).getId()).isEqualTo(device.getId());    //Downcast to Connexo Device
+        assertThat(deviceMessage1.getStatus()).isEqualTo(DeviceMessageStatus.CANCELED);
     }
 
     @Test
@@ -309,13 +306,13 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
 
         Device device = createSimpleDeviceWithName("updateReleaseDateWithStatusConfirmedTest", "updateReleaseDateWithStatusConfirmedTest");
         DeviceMessageId contactorClose = DeviceMessageId.CONTACTOR_CLOSE;
-        DeviceMessage<Device> deviceMessage = device.newDeviceMessage(contactorClose).setReleaseDate(myReleaseInstant).add();
+        DeviceMessage deviceMessage = device.newDeviceMessage(contactorClose).setReleaseDate(myReleaseInstant).add();
         ((ServerDeviceMessage) deviceMessage).moveTo(DeviceMessageStatus.CONFIRMED);
         deviceMessage.save();
 
         Device reloadedDevice = getReloadedDevice(device);
-        List<DeviceMessage<Device>> messages = reloadedDevice.getMessages();
-        DeviceMessage<Device> reloadedDeviceMessage = messages.get(0);
+        List<DeviceMessage> messages = reloadedDevice.getMessages();
+        DeviceMessage reloadedDeviceMessage = messages.get(0);
         reloadedDeviceMessage.setReleaseDate(updatedReleaseDate);
         reloadedDeviceMessage.save();
     }
@@ -328,13 +325,13 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
 
         Device device = createSimpleDeviceWithName("revokeWithStatusConfirmedTest", "revokeWithStatusConfirmedTest");
         DeviceMessageId contactorClose = DeviceMessageId.CONTACTOR_CLOSE;
-        DeviceMessage<Device> deviceMessage = device.newDeviceMessage(contactorClose).setReleaseDate(myReleaseInstant).add();
+        DeviceMessage deviceMessage = device.newDeviceMessage(contactorClose).setReleaseDate(myReleaseInstant).add();
         ((ServerDeviceMessage) deviceMessage).moveTo(DeviceMessageStatus.CONFIRMED);
         deviceMessage.save();
 
         Device reloadedDevice = getReloadedDevice(device);
-        List<DeviceMessage<Device>> messages = reloadedDevice.getMessages();
-        DeviceMessage<Device> reloadedDeviceMessage = messages.get(0);
+        List<DeviceMessage> messages = reloadedDevice.getMessages();
+        DeviceMessage reloadedDeviceMessage = messages.get(0);
         reloadedDeviceMessage.revoke();
     }
 
@@ -347,13 +344,13 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
 
         Device device = createSimpleDeviceWithName("updateReleaseDateWithStatusCanceledTest", "updateReleaseDateWithStatusCanceledTest");
         DeviceMessageId contactorClose = DeviceMessageId.CONTACTOR_CLOSE;
-        DeviceMessage<Device> deviceMessage = device.newDeviceMessage(contactorClose).setReleaseDate(myReleaseInstant).add();
-        ((ServerDeviceMessage) deviceMessage).moveTo(DeviceMessageStatus.REVOKED);
+        DeviceMessage deviceMessage = device.newDeviceMessage(contactorClose).setReleaseDate(myReleaseInstant).add();
+        ((ServerDeviceMessage) deviceMessage).moveTo(DeviceMessageStatus.CANCELED);
         deviceMessage.save();
 
         Device reloadedDevice = getReloadedDevice(device);
-        List<DeviceMessage<Device>> messages = reloadedDevice.getMessages();
-        DeviceMessage<Device> reloadedDeviceMessage = messages.get(0);
+        List<DeviceMessage> messages = reloadedDevice.getMessages();
+        DeviceMessage reloadedDeviceMessage = messages.get(0);
         reloadedDeviceMessage.setReleaseDate(updatedReleaseDate);
         reloadedDeviceMessage.save();
     }
@@ -366,13 +363,13 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
 
         Device device = createSimpleDeviceWithName("revokeWithStatusConfirmedTest", "revokeWithStatusConfirmedTest");
         DeviceMessageId contactorClose = DeviceMessageId.CONTACTOR_CLOSE;
-        DeviceMessage<Device> deviceMessage = device.newDeviceMessage(contactorClose).setReleaseDate(myReleaseInstant).add();
-        ((ServerDeviceMessage) deviceMessage).moveTo(DeviceMessageStatus.REVOKED);
+        DeviceMessage deviceMessage = device.newDeviceMessage(contactorClose).setReleaseDate(myReleaseInstant).add();
+        ((ServerDeviceMessage) deviceMessage).moveTo(DeviceMessageStatus.CANCELED);
         deviceMessage.save();
 
         Device reloadedDevice = getReloadedDevice(device);
-        List<DeviceMessage<Device>> messages = reloadedDevice.getMessages();
-        DeviceMessage<Device> reloadedDeviceMessage = messages.get(0);
+        List<DeviceMessage> messages = reloadedDevice.getMessages();
+        DeviceMessage reloadedDeviceMessage = messages.get(0);
         reloadedDeviceMessage.revoke();
     }
 
@@ -385,13 +382,13 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
 
         Device device = createSimpleDeviceWithName("updateReleaseDateWithStatusFailedTest", "updateReleaseDateWithStatusFailedTest");
         DeviceMessageId contactorClose = DeviceMessageId.CONTACTOR_CLOSE;
-        DeviceMessage<Device> deviceMessage = device.newDeviceMessage(contactorClose).setReleaseDate(myReleaseInstant).add();
+        DeviceMessage deviceMessage = device.newDeviceMessage(contactorClose).setReleaseDate(myReleaseInstant).add();
         ((ServerDeviceMessage) deviceMessage).moveTo(DeviceMessageStatus.FAILED);
         deviceMessage.save();
 
         Device reloadedDevice = getReloadedDevice(device);
-        List<DeviceMessage<Device>> messages = reloadedDevice.getMessages();
-        DeviceMessage<Device> reloadedDeviceMessage = messages.get(0);
+        List<DeviceMessage> messages = reloadedDevice.getMessages();
+        DeviceMessage reloadedDeviceMessage = messages.get(0);
         reloadedDeviceMessage.setReleaseDate(updatedReleaseDate);
         reloadedDeviceMessage.save();
     }
@@ -404,13 +401,13 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
 
         Device device = createSimpleDeviceWithName("revokeWithStatusConfirmedTest", "revokeWithStatusConfirmedTest");
         DeviceMessageId contactorClose = DeviceMessageId.CONTACTOR_CLOSE;
-        DeviceMessage<Device> deviceMessage = device.newDeviceMessage(contactorClose).setReleaseDate(myReleaseInstant).add();
+        DeviceMessage deviceMessage = device.newDeviceMessage(contactorClose).setReleaseDate(myReleaseInstant).add();
         ((ServerDeviceMessage) deviceMessage).moveTo(DeviceMessageStatus.FAILED);
         deviceMessage.save();
 
         Device reloadedDevice = getReloadedDevice(device);
-        List<DeviceMessage<Device>> messages = reloadedDevice.getMessages();
-        DeviceMessage<Device> reloadedDeviceMessage = messages.get(0);
+        List<DeviceMessage> messages = reloadedDevice.getMessages();
+        DeviceMessage reloadedDeviceMessage = messages.get(0);
         reloadedDeviceMessage.revoke();
     }
 
@@ -423,13 +420,13 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
 
         Device device = createSimpleDeviceWithName("updateReleaseDateWithStatusIndoubtTest", "updateReleaseDateWithStatusIndoubtTest");
         DeviceMessageId contactorClose = DeviceMessageId.CONTACTOR_CLOSE;
-        DeviceMessage<Device> deviceMessage = device.newDeviceMessage(contactorClose).setReleaseDate(myReleaseInstant).add();
+        DeviceMessage deviceMessage = device.newDeviceMessage(contactorClose).setReleaseDate(myReleaseInstant).add();
         ((ServerDeviceMessage) deviceMessage).moveTo(DeviceMessageStatus.INDOUBT);
         deviceMessage.save();
 
         Device reloadedDevice = getReloadedDevice(device);
-        List<DeviceMessage<Device>> messages = reloadedDevice.getMessages();
-        DeviceMessage<Device> reloadedDeviceMessage = messages.get(0);
+        List<DeviceMessage> messages = reloadedDevice.getMessages();
+        DeviceMessage reloadedDeviceMessage = messages.get(0);
         reloadedDeviceMessage.setReleaseDate(updatedReleaseDate);
         reloadedDeviceMessage.save();
     }
@@ -442,13 +439,13 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
 
         Device device = createSimpleDeviceWithName("revokeWithStatusConfirmedTest", "revokeWithStatusConfirmedTest");
         DeviceMessageId contactorClose = DeviceMessageId.CONTACTOR_CLOSE;
-        DeviceMessage<Device> deviceMessage = device.newDeviceMessage(contactorClose).setReleaseDate(myReleaseInstant).add();
+        DeviceMessage deviceMessage = device.newDeviceMessage(contactorClose).setReleaseDate(myReleaseInstant).add();
         ((ServerDeviceMessage) deviceMessage).moveTo(DeviceMessageStatus.INDOUBT);
         deviceMessage.save();
 
         Device reloadedDevice = getReloadedDevice(device);
-        List<DeviceMessage<Device>> messages = reloadedDevice.getMessages();
-        DeviceMessage<Device> reloadedDeviceMessage = messages.get(0);
+        List<DeviceMessage> messages = reloadedDevice.getMessages();
+        DeviceMessage reloadedDeviceMessage = messages.get(0);
         reloadedDeviceMessage.revoke();
     }
 
@@ -461,13 +458,13 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
 
         Device device = createSimpleDeviceWithName("updateReleaseDateWithStatusSentTest", "updateReleaseDateWithStatusSentTest");
         DeviceMessageId contactorClose = DeviceMessageId.CONTACTOR_CLOSE;
-        DeviceMessage<Device> deviceMessage = device.newDeviceMessage(contactorClose).setReleaseDate(myReleaseInstant).add();
+        DeviceMessage deviceMessage = device.newDeviceMessage(contactorClose).setReleaseDate(myReleaseInstant).add();
         ((ServerDeviceMessage) deviceMessage).moveTo(DeviceMessageStatus.SENT);
         deviceMessage.save();
 
         Device reloadedDevice = getReloadedDevice(device);
-        List<DeviceMessage<Device>> messages = reloadedDevice.getMessages();
-        DeviceMessage<Device> reloadedDeviceMessage = messages.get(0);
+        List<DeviceMessage> messages = reloadedDevice.getMessages();
+        DeviceMessage reloadedDeviceMessage = messages.get(0);
         reloadedDeviceMessage.setReleaseDate(updatedReleaseDate);
         reloadedDeviceMessage.save();
     }
@@ -480,13 +477,13 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
 
         Device device = createSimpleDeviceWithName("revokeWithStatusConfirmedTest", "revokeWithStatusConfirmedTest");
         DeviceMessageId contactorClose = DeviceMessageId.CONTACTOR_CLOSE;
-        DeviceMessage<Device> deviceMessage = device.newDeviceMessage(contactorClose).setReleaseDate(myReleaseInstant).add();
+        DeviceMessage deviceMessage = device.newDeviceMessage(contactorClose).setReleaseDate(myReleaseInstant).add();
         ((ServerDeviceMessage) deviceMessage).moveTo(DeviceMessageStatus.SENT);
         deviceMessage.save();
 
         Device reloadedDevice = getReloadedDevice(device);
-        List<DeviceMessage<Device>> messages = reloadedDevice.getMessages();
-        DeviceMessage<Device> reloadedDeviceMessage = messages.get(0);
+        List<DeviceMessage> messages = reloadedDevice.getMessages();
+        DeviceMessage reloadedDeviceMessage = messages.get(0);
         reloadedDeviceMessage.revoke();
     }
 
@@ -503,8 +500,8 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
         createAndSetPrincipleForUserWithLimitedPrivileges();
 
         Device reloadedDevice = getReloadedDevice(device);
-        List<DeviceMessage<Device>> messages = reloadedDevice.getMessages();
-        DeviceMessage<Device> deviceMessage = messages.get(0);
+        List<DeviceMessage> messages = reloadedDevice.getMessages();
+        DeviceMessage deviceMessage = messages.get(0);
         deviceMessage.setReleaseDate(initialReleaseDate.plusSeconds(1230L));
         deviceMessage.save();
     }
@@ -536,14 +533,14 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
 
         Device reloadedDevice = getReloadedDevice(device);
 
-        List<DeviceMessage<Device>> messages = reloadedDevice.getMessages();
+        List<DeviceMessage> messages = reloadedDevice.getMessages();
         assertThat(messages).hasSize(1);
-        DeviceMessage<Device> deviceMessage1 = messages.get(0);
+        DeviceMessage deviceMessage1 = messages.get(0);
         assertThat(deviceMessage1.getDeviceMessageId()).isEqualTo(contactorOpenWithOutput);
-        assertThat(deviceMessage1.getDevice().getId()).isEqualTo(device.getId());
+        assertThat(((Device) deviceMessage1.getDevice()).getId()).isEqualTo(device.getId());    //Downcast to Connexo Device
         assertThat(deviceMessage1.getStatus()).isEqualTo(DeviceMessageStatus.WAITING);
         assertThat(deviceMessage1.getAttributes()).hasSize(1);
-        List<DeviceMessageAttribute> attributes = deviceMessage1.getAttributes();
+        List<? extends com.energyict.mdc.upl.messages.DeviceMessageAttribute> attributes = deviceMessage1.getAttributes();
         assertThat(attributes.get(0).getName()).isEqualTo(DeviceMessageConstants.digitalOutputAttributeName);
         assertThat(attributes.get(0).getValue()).isEqualTo(value);
     }
@@ -561,36 +558,39 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
 
         device.newDeviceMessage(contactorClose)
                 .setReleaseDate(myReleaseInstant)
-                .addProperty(DeviceMessageConstants.DisplayMessageAttributeName, displayMessageAttributeName)
-                .addProperty(DeviceMessageConstants.DisplayMessageTimeDurationAttributeName, displayMessageTimeDurationAttributeName)
-                .addProperty(DeviceMessageConstants.DisplayMessageActivationDate, displayMessageActivationDate)
+                .addProperty("DisplayDeviceMessage.displaymessage", displayMessageAttributeName)
+                .addProperty("DisplayMessage.timeduration", displayMessageTimeDurationAttributeName)
+                .addProperty("DisplayMessage.activationdate", displayMessageActivationDate)
                 .add();
 
         Device reloadedDevice = getReloadedDevice(device);
 
-        List<DeviceMessage<Device>> messages = reloadedDevice.getMessages();
+        List<DeviceMessage> messages = reloadedDevice.getMessages();
         assertThat(messages).hasSize(1);
-        DeviceMessage<Device> deviceMessage1 = messages.get(0);
+        DeviceMessage deviceMessage1 = messages.get(0);
         assertThat(deviceMessage1.getAttributes()).hasSize(3);
-        List<DeviceMessageAttribute> attributes = deviceMessage1.getAttributes();
+        List<? extends com.energyict.mdc.upl.messages.DeviceMessageAttribute> attributes = deviceMessage1.getAttributes();
 
         Optional<DeviceMessageAttribute> deviceMessageAttributeOptional1 =
                 attributes.stream()
-                        .filter(attribute -> attribute.getName().equals(DeviceMessageConstants.DisplayMessageAttributeName))
+                        .map(DeviceMessageAttribute.class::cast)        //Downcast to Connexo DeviceMessageAttribute
+                        .filter(attribute -> attribute.getName().equals("DisplayDeviceMessage.displaymessage"))
                         .findFirst();
         assertThat(deviceMessageAttributeOptional1.isPresent()).isTrue();
         assertThat(deviceMessageAttributeOptional1.get().getValue()).isEqualTo(displayMessageAttributeName);
 
         Optional<DeviceMessageAttribute> deviceMessageAttributeOptional2 =
                 attributes.stream()
-                        .filter(attribute -> attribute.getName().equals(DeviceMessageConstants.DisplayMessageTimeDurationAttributeName))
+                        .map(DeviceMessageAttribute.class::cast)        //Downcast to Connexo DeviceMessageAttribute
+                        .filter(attribute -> attribute.getName().equals("DisplayMessage.timeduration"))
                         .findFirst();
         assertThat(deviceMessageAttributeOptional2.isPresent()).isTrue();
         assertThat(deviceMessageAttributeOptional2.get().getValue()).isEqualTo(displayMessageTimeDurationAttributeName);
 
         Optional<DeviceMessageAttribute> deviceMessageAttributeOptional3 =
                 attributes.stream()
-                        .filter(attribute -> attribute.getName().equals(DeviceMessageConstants.DisplayMessageActivationDate))
+                        .map(DeviceMessageAttribute.class::cast)        //Downcast to Connexo DeviceMessageAttribute
+                        .filter(attribute -> attribute.getName().equals("DisplayMessage.activationdate"))
                         .findFirst();
         assertThat(deviceMessageAttributeOptional3.isPresent()).isTrue();
         assertThat(deviceMessageAttributeOptional3.get().getValue()).isEqualTo(displayMessageActivationDate);
@@ -680,7 +680,7 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
         Instant myReleaseInstant = initializeClockWithCurrentBeforeReleaseInstant();
         Device device = createSimpleDeviceWithName("updateReleaseDateWithStatusConfirmedTest", "updateReleaseDateWithStatusConfirmedTest");
         DeviceMessageId contactorClose = DeviceMessageId.CONTACTOR_CLOSE;
-        DeviceMessage<Device> deviceMessage = device.newDeviceMessage(contactorClose).setReleaseDate(initializeClockWithCurrentAfterReleaseInstant()).add();
+        DeviceMessage deviceMessage = device.newDeviceMessage(contactorClose).setReleaseDate(initializeClockWithCurrentAfterReleaseInstant()).add();
         ((ServerDeviceMessage) deviceMessage).moveTo(DeviceMessageStatus.CONFIRMED);
         deviceMessage.save();
 
@@ -695,7 +695,7 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
 
         Device device = createSimpleDeviceWithName("revokeWithStatusConfirmedTest", "deviceMessage.revoke.picked.up.by.comserver");
         DeviceMessageId contactorClose = DeviceMessageId.CONTACTOR_CLOSE;
-        DeviceMessage<Device> deviceMessage = device.newDeviceMessage(contactorClose).setReleaseDate(myReleaseInstant).add();
+        DeviceMessage deviceMessage = device.newDeviceMessage(contactorClose).setReleaseDate(myReleaseInstant).add();
         deviceMessage.save();
 
         DeviceMessage messageSpy = spy(deviceMessage);
@@ -707,7 +707,7 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
         MessagesTask messagesTask = mock(MessagesTask.class);
         DeviceMessageCategory deviceMessageCategory = mock(DeviceMessageCategory.class);
         DeviceMessageSpec deviceMessageSpec = mock(DeviceMessageSpec.class);
-        when(deviceMessageCategory.getMessageSpecifications()).thenReturn(Collections.singletonList(deviceMessageSpec));
+        doReturn(Collections.singletonList(deviceMessageSpec)).when(deviceMessageCategory).getMessageSpecifications();
         when(deviceMessageSpec.getId()).thenReturn(DeviceMessageId.CONTACTOR_CLOSE);
         when(messagesTask.getDeviceMessageCategories()).thenReturn(Collections.singletonList(deviceMessageCategory));
         when(comTaskExecution.getProtocolTasks()).thenReturn(Collections.singletonList(messagesTask));
@@ -727,7 +727,7 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
 
         Device device = createSimpleDeviceWithName("revokeWithStatusConfirmedTest", "deviceMessage.revoke.picked.up.by.comserver");
         DeviceMessageId contactorClose = DeviceMessageId.CONTACTOR_CLOSE;
-        DeviceMessage<Device> deviceMessage = device.newDeviceMessage(contactorClose).setReleaseDate(myReleaseInstant).add();
+        DeviceMessage deviceMessage = device.newDeviceMessage(contactorClose).setReleaseDate(myReleaseInstant).add();
         deviceMessage.save();
 
         DeviceMessage messageSpy = spy(deviceMessage);
@@ -739,7 +739,7 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
         MessagesTask messagesTask = mock(MessagesTask.class);
         DeviceMessageCategory deviceMessageCategory = mock(DeviceMessageCategory.class);
         DeviceMessageSpec deviceMessageSpec = mock(DeviceMessageSpec.class);
-        when(deviceMessageCategory.getMessageSpecifications()).thenReturn(Collections.singletonList(deviceMessageSpec));
+        doReturn(Collections.singletonList(deviceMessageSpec)).when(deviceMessageCategory).getMessageSpecifications();
         when(deviceMessageSpec.getId()).thenReturn(DeviceMessageId.CLOCK_SET_DST);
         when(messagesTask.getDeviceMessageCategories()).thenReturn(Collections.singletonList(deviceMessageCategory));
         when(comTaskExecution.getProtocolTasks()).thenReturn(Collections.singletonList(messagesTask));
@@ -777,22 +777,37 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
         }
 
         @Override
-        public Optional<CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>>> getCustomPropertySet() {
+        public Optional<CustomPropertySet<com.energyict.mdc.upl.meterdata.Device, ? extends PersistentDomainExtension<com.energyict.mdc.upl.meterdata.Device>>> getCustomPropertySet() {
             return Optional.empty();
         }
 
         @Override
-        public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
+        public List<com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
             return Collections.emptyList();
         }
 
         @Override
-        public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
+        public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
             return Collections.emptyList();
         }
 
         @Override
-        public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
+        public List<com.energyict.mdc.upl.properties.PropertySpec> getUPLPropertySpecs() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public void setUPLProperties(com.energyict.mdc.upl.properties.TypedProperties properties) throws PropertyValidationException {
+
+        }
+
+        @Override
+        public List<com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public void init(com.energyict.mdc.upl.offline.OfflineDevice offlineDevice, ComChannel comChannel) {
 
         }
 
@@ -852,17 +867,12 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
         }
 
         @Override
-        public void setDeviceCache(DeviceProtocolCache deviceProtocolCache) {
-
-        }
-
-        @Override
         public DeviceProtocolCache getDeviceCache() {
             return null;
         }
 
         @Override
-        public void setTime(Date timeToSet) {
+        public void setDeviceCache(DeviceProtocolCache deviceProtocolCache) {
 
         }
 
@@ -882,13 +892,18 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
         }
 
         @Override
+        public void setTime(Date timeToSet) {
+
+        }
+
+        @Override
         public List<CollectedLogBook> getLogBookData(List<LogBookReader> logBooks) {
             return null;
         }
 
         @Override
-        public Set<DeviceMessageId> getSupportedMessages() {
-            return deviceMessageIds;
+        public List<com.energyict.mdc.upl.messages.DeviceMessageSpec> getSupportedMessages() {
+            return deviceMessageIds.stream().map(deviceMessageId -> new TestDeviceMessageSpecImpl(deviceMessageId.dbValue())).collect(Collectors.toList());
         }
 
         @Override
@@ -902,7 +917,12 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
         }
 
         @Override
-        public String format(PropertySpec propertySpec, Object messageAttribute) {
+        public String format(com.energyict.mdc.upl.offline.OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, com.energyict.mdc.upl.properties.PropertySpec propertySpec, Object messageAttribute) {
+            return null;
+        }
+
+        @Override
+        public Optional<String> prepareMessageContext(com.energyict.mdc.upl.meterdata.Device device, com.energyict.mdc.upl.offline.OfflineDevice offlineDevice, com.energyict.mdc.upl.messages.DeviceMessage deviceMessage) {
             return null;
         }
 
@@ -912,7 +932,7 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
         }
 
         @Override
-        public void addDeviceProtocolDialectProperties(TypedProperties dialectProperties) {
+        public void addDeviceProtocolDialectProperties(com.energyict.mdc.upl.properties.TypedProperties dialectProperties) {
 
         }
 

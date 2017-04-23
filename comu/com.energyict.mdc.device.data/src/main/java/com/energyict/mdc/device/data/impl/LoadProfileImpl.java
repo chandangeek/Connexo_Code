@@ -13,8 +13,6 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.Pair;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.data.Channel;
@@ -25,7 +23,11 @@ import com.energyict.mdc.device.data.LoadProfileJournalReading;
 import com.energyict.mdc.device.data.LoadProfileReading;
 import com.energyict.mdc.device.data.ReadingTypeObisCodeUsage;
 import com.energyict.mdc.device.data.impl.configchange.ServerLoadProfileForConfigChange;
+import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierForAlreadyKnownDeviceByMrID;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 
+import com.energyict.cbo.Unit;
+import com.energyict.obis.ObisCode;
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
@@ -33,6 +35,7 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -73,8 +76,8 @@ public class LoadProfileImpl implements ServerLoadProfileForConfigChange {
     }
 
     @Override
-    public Optional<Instant> getLastReading() {
-        return Optional.ofNullable(this.lastReading);
+    public Date getLastReading() {
+        return this.lastReading == null ? null : Date.from(this.lastReading);
     }
 
     @Override
@@ -113,8 +116,18 @@ public class LoadProfileImpl implements ServerLoadProfileForConfigChange {
     }
 
     @Override
+    public ObisCode getObisCode() {
+        return this.getDeviceObisCode();
+    }
+
+    @Override
     public ObisCode getDeviceObisCode() {
         return getLoadProfileSpec().getDeviceObisCode();
+    }
+
+    @Override
+    public DeviceIdentifier getDeviceIdentifier() {
+        return new DeviceIdentifierForAlreadyKnownDeviceByMrID(this.getDevice());
     }
 
     @Override
@@ -187,7 +200,7 @@ public class LoadProfileImpl implements ServerLoadProfileForConfigChange {
      * of the {@link com.energyict.mdc.device.config.DeviceConfiguration}.
      * <i>Currently a {@link Device} can only have Channel if it is owned by a LoadProfile</i>
      * <p>
-     * Copyrights EnergyICT
+     *
      * Date: 3/17/14
      * Time: 2:17 PM
      */
@@ -250,7 +263,8 @@ public class LoadProfileImpl implements ServerLoadProfileForConfigChange {
 
         @Override
         public Optional<Instant> getLastReading() {
-            return getLoadProfile().getLastReading();
+            Date lastReading = getLoadProfile().getLastReading();
+            return lastReading == null ? Optional.empty() : Optional.of(lastReading.toInstant());
         }
 
         @Override

@@ -18,14 +18,16 @@ import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.collections.DualIterable;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
-import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.Reading;
 import com.energyict.mdc.device.data.ReadingTypeObisCodeUsage;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.RegisterDataUpdater;
+import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierForAlreadyKnownDeviceByMrID;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 
+import com.energyict.obis.ObisCode;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Range;
@@ -60,6 +62,11 @@ public abstract class RegisterImpl<R extends Reading, RS extends RegisterSpec> i
     public RegisterImpl(DeviceImpl device, RS registerSpec) {
         this.registerSpec = registerSpec;
         this.device = device;
+    }
+
+    @Override
+    public DeviceIdentifier getDeviceIdentifier() {
+        return new DeviceIdentifierForAlreadyKnownDeviceByMrID(this.getDevice());
     }
 
     @Override
@@ -185,6 +192,7 @@ public abstract class RegisterImpl<R extends Reading, RS extends RegisterSpec> i
 
     private List<R> toReadings(List<ReadingRecord> koreReadings) {
         List<R> readings = new ArrayList<>(koreReadings.size());
+
         ReadingRecord previous = null;
         for (ReadingRecord current : koreReadings) {
             List<DataValidationStatus> validationStatus = this.getValidationStatus(Collections.singletonList(current), Range.closed(current.getTimeStamp(), current.getTimeStamp()));
@@ -254,6 +262,11 @@ public abstract class RegisterImpl<R extends Reading, RS extends RegisterSpec> i
     @Override
     public ObisCode getRegisterSpecObisCode() {
         return getRegisterSpec().getObisCode();
+    }
+
+    @Override
+    public ObisCode getObisCode() {
+        return this.getDeviceObisCode();
     }
 
     @Override

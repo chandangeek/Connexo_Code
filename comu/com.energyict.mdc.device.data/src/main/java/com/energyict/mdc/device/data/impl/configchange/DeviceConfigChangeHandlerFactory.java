@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.data.impl.configchange;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
@@ -36,6 +37,7 @@ public class DeviceConfigChangeHandlerFactory implements MessageHandlerFactory {
     private volatile DeviceDataModelService deviceDataModelService;
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
+    private EventService eventService;
 
     /*OSGI*/
     @SuppressWarnings("unused")
@@ -44,7 +46,7 @@ public class DeviceConfigChangeHandlerFactory implements MessageHandlerFactory {
 
     @Override
     public MessageHandler newMessageHandler() {
-        DeviceConfigChangeHandler.ConfigChangeContext configChangeContext = new DeviceConfigChangeHandler.ConfigChangeContext(messageService, jsonService, searchService, thesaurus, ((ServerDeviceService) deviceService), deviceDataModelService, deviceConfigurationService, deviceLifeCycleConfigurationService);
+        DeviceConfigChangeHandler.ConfigChangeContext configChangeContext = new DeviceConfigChangeHandler.ConfigChangeContext(messageService, jsonService, searchService, thesaurus, ((ServerDeviceService) deviceService), deviceDataModelService, deviceConfigurationService, deviceLifeCycleConfigurationService, eventService);
         return new DeviceConfigChangeHandler(jsonService, configChangeContext);
     }
 
@@ -82,6 +84,11 @@ public class DeviceConfigChangeHandlerFactory implements MessageHandlerFactory {
     @Reference
     public void setDeviceLifeCycleConfigurationService(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
         this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
+    }
+
+    @Reference
+    public void setEventService(EventService eventService) {
+        this.eventService = eventService;
     }
 
 }

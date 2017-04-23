@@ -7,7 +7,7 @@ package com.energyict.mdc.device.data.exceptions;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
+import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 
 public class InvalidDeviceMessageStatusMove extends LocalizedException {
 

@@ -13,15 +13,14 @@ import com.energyict.mdc.device.data.ProtocolDialectProperties;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
-
-import java.util.Arrays;
-import java.util.Optional;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import java.util.Arrays;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
@@ -60,7 +59,7 @@ public class DeviceLifeCycleEventSupportTest {
     @Mock
     private ProtocolDialectProperties protocolDialectProperties;
     @Mock
-    private DeviceMessage<Device> deviceMessage;
+    private DeviceMessage deviceMessage;
 
     @Before
     public void initializeMocks() {
