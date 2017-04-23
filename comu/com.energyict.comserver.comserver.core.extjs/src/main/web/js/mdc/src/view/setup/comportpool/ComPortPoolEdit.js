@@ -94,6 +94,7 @@ Ext.define('Mdc.view.setup.comportpool.ComPortPoolEdit', {
                     hidden: true,
                     itemId: 'protocolDetectionDetails',
                     fieldLabel: Uni.I18n.translate('comportPool.protocolDetectionDetails', 'MDC', 'Protocol detection details'),
+                    margin: '0 0 0 50',
                     labelAlign: 'top',
                     layout: 'vbox'
                 },

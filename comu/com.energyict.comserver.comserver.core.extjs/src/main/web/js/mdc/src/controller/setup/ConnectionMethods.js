@@ -430,7 +430,9 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
         if (connectionMethodToDelete.hasOwnProperty('action')) {
             connectionMethodToDelete = this.getConnectionmethodsgrid().getSelectionModel().getSelection()[0];
         }
-
+        if (connectionMethodToDelete.get('direction') === 'Inbound') {
+            connectionMethodToDelete.set('connectionStrategyInfo', undefined);
+        }
         if (connectionMethodToDelete.get('rescheduleRetryDelay')) {
             delete connectionMethodToDelete.get('rescheduleRetryDelay').translatedTimeUnit;
         }
@@ -612,6 +614,9 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
         }
         if (connectionMethod.get('connectionStrategy') === 'AS_SOON_AS_POSSIBLE' || connectionMethod.get('direction') === 'Inbound') {
             connectionMethod.set('temporalExpression', null);
+        }
+        if (connectionMethod.get('direction') === 'Inbound') {
+            connectionMethod.set('connectionStrategyInfo', undefined);
         }
 
         if (connectionMethod.get('rescheduleRetryDelay')) {
