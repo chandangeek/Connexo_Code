@@ -13,7 +13,7 @@ import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.PassiveCalendar;
-import com.energyict.mdc.protocol.api.device.data.CollectedCalendarInformation;
+import com.energyict.mdc.upl.meterdata.CollectedCalendarInformation;
 
 import java.time.LocalDate;
 import java.time.LocalTime;

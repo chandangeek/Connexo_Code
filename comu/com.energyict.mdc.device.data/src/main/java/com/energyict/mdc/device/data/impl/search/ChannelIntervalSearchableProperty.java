@@ -9,6 +9,7 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.properties.TemporalAmountValueFactory;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
@@ -20,8 +21,8 @@ import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
 import com.elster.jupiter.util.streams.DecoratedStream;
+import com.energyict.mdc.common.interval.Temporals;
 import com.energyict.mdc.device.data.impl.SearchHelperValueFactory;
-import com.elster.jupiter.properties.TimeDurationValueFactory;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.MasterDataService;
 
@@ -35,7 +36,7 @@ import java.util.stream.Stream;
 
 public class ChannelIntervalSearchableProperty extends AbstractSearchableDeviceProperty {
 
-    static final TimeDurationValueFactory TIME_DURATION_VALUE_FACTORY = new TimeDurationValueFactory();
+    static final TemporalAmountValueFactory TIME_DURATION_VALUE_FACTORY = new TemporalAmountValueFactory();
     static final String PROPERTY_NAME = "device.channel.interval";
 
     private final PropertySpecService propertySpecService;
@@ -111,7 +112,8 @@ public class ChannelIntervalSearchableProperty extends AbstractSearchableDeviceP
     @Override
     public PropertySpec getSpecification() {
         Stream<TimeDurationWrapper> defaultValues = DecoratedStream.decorate(this.masterDataService.findAllLoadProfileTypes().stream())
-                .map(LoadProfileType::getInterval)
+                .map(LoadProfileType::interval)
+                .map(Temporals::toTimeDuration)
                 .map(TimeDurationWrapper::new)
                 .distinct(TimeDurationWrapper::getId);
         return this.propertySpecService
@@ -148,22 +150,6 @@ public class ChannelIntervalSearchableProperty extends AbstractSearchableDeviceP
         //nothing to refresh
     }
 
-    class TimeDurationWrapperValueFactory extends SearchHelperValueFactory<TimeDurationWrapper> {
-        private TimeDurationWrapperValueFactory() {
-            super(TimeDurationWrapper.class);
-        }
-
-        @Override
-        public TimeDurationWrapper fromStringValue(String stringValue) {
-            return new TimeDurationWrapper(TIME_DURATION_VALUE_FACTORY.fromStringValue(stringValue));
-        }
-
-        @Override
-        public String toStringValue(TimeDurationWrapper object) {
-            return object.getId();
-        }
-    }
-
     static class TimeDurationWrapper extends HasIdAndName {
         private TimeDuration timeDuration;
 
@@ -181,17 +167,33 @@ public class ChannelIntervalSearchableProperty extends AbstractSearchableDeviceP
             return this.timeDuration.toString();
         }
 
-        public int getCount(){
+        public int getCount() {
             return this.timeDuration.getCount();
         }
 
-        public int getUnitCode(){
+        public int getUnitCode() {
             return this.timeDuration.getTimeUnitCode();
         }
 
         @Override
         public String toString() {
             return this.timeDuration.toString();
+        }
+    }
+
+    class TimeDurationWrapperValueFactory extends SearchHelperValueFactory<TimeDurationWrapper> {
+        private TimeDurationWrapperValueFactory() {
+            super(TimeDurationWrapper.class);
+        }
+
+        @Override
+        public TimeDurationWrapper fromStringValue(String stringValue) {
+            return new TimeDurationWrapper(TIME_DURATION_VALUE_FACTORY.fromStringValue(stringValue));
+        }
+
+        @Override
+        public String toStringValue(TimeDurationWrapper object) {
+            return object.getId();
         }
     }
 

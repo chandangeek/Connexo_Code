@@ -11,7 +11,7 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.ActiveEffectiveCalendar;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.PassiveCalendar;
-import com.energyict.mdc.protocol.api.device.data.CollectedCalendarInformation;
+import com.energyict.mdc.upl.meterdata.CollectedCalendarInformation;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 
 import com.google.common.collect.Range;

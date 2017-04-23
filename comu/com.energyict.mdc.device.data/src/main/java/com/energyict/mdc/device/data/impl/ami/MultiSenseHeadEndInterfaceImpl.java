@@ -50,7 +50,6 @@ import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.tasks.LoadProfilesTask;
 import com.energyict.mdc.tasks.MessagesTask;
 import com.energyict.mdc.tasks.RegistersTask;
-
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -188,10 +187,13 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
     @Override
     public EndDeviceCapabilities getCapabilities(EndDevice endDevice) {
         List<ReadingType> readingTypes = deviceConfigurationService.getReadingTypesRelatedToConfiguration(findDeviceForEndDevice(endDevice).getDeviceConfiguration());
-        Set<DeviceMessageId> supportedMessages = findDeviceForEndDevice(endDevice).getDeviceProtocolPluggableClass()
-                .map(deviceProtocolPluggableClass -> deviceProtocolPluggableClass.getDeviceProtocol()
-                        .getSupportedMessages())
-                .orElse(Collections.emptySet());
+
+        List<DeviceMessageId> supportedMessages = findDeviceForEndDevice(endDevice).getDeviceProtocolPluggableClass()
+                .map(deviceProtocolPluggableClass -> deviceProtocolPluggableClass.getDeviceProtocol().getSupportedMessages().stream()
+                        .map(com.energyict.mdc.upl.messages.DeviceMessageSpec::getId)
+                        .map(DeviceMessageId::havingId)
+                        .collect(Collectors.toList())).orElse(Collections.emptyList());
+
         List<EndDeviceControlType> controlTypes = Arrays.asList(EndDeviceControlTypeMapping.values()).stream()
                 .filter(mapping -> mapping.getPossibleDeviceMessageIdGroups().stream().anyMatch(supportedMessages::containsAll))
                 .map(this::findEndDeviceControlType)
@@ -348,7 +350,7 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
         serviceCall.log(LogLevel.INFO, "Handling command " + endDeviceCommand.getEndDeviceControlType());
 
         try {
-            List<DeviceMessage<Device>> deviceMessages = ((EndDeviceCommandImpl) endDeviceCommand).createCorrespondingMultiSenseDeviceMessages(serviceCall, releaseDate);
+            List<DeviceMessage> deviceMessages = ((EndDeviceCommandImpl) endDeviceCommand).createCorrespondingMultiSenseDeviceMessages(serviceCall, releaseDate);
             scheduleDeviceCommandsComTaskEnablement(findDeviceForEndDevice(endDeviceCommand.getEndDevice()), deviceMessages);  // Intentionally reload the device here
             updateCommandServiceCallDomainExtension(serviceCall, deviceMessages);
             serviceCall.log(LogLevel.INFO, MessageFormat.format("Scheduled {0} device command(s).", deviceMessages.size()));
@@ -361,7 +363,7 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
         }
     }
 
-    private void scheduleDeviceCommandsComTaskEnablement(Device device, List<DeviceMessage<Device>> deviceMessages) {
+    private void scheduleDeviceCommandsComTaskEnablement(Device device, List<DeviceMessage> deviceMessages) {
         List<DeviceMessageId> deviceMessageIds = new ArrayList<>();
         deviceMessages.forEach(msg -> deviceMessageIds.add(msg.getDeviceMessageId()));
         getComTaskEnablementsForDeviceMessages(device, deviceMessageIds).forEach(comTaskEnablement -> {
@@ -407,7 +409,7 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
         return comTaskEnablements.stream().distinct();
     }
 
-    private void updateCommandServiceCallDomainExtension(ServiceCall serviceCall, List<DeviceMessage<Device>> deviceMessages) {
+    private void updateCommandServiceCallDomainExtension(ServiceCall serviceCall, List<DeviceMessage> deviceMessages) {
         CommandServiceCallDomainExtension domainExtension = serviceCall.getExtensionFor(new CommandCustomPropertySet()).get();
         domainExtension.setDeviceMessages(deviceMessages);
         domainExtension.setNrOfUnconfirmedDeviceCommands(deviceMessages.size());

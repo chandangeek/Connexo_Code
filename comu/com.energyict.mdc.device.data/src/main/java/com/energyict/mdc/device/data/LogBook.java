@@ -4,14 +4,13 @@
 
 package com.energyict.mdc.device.data;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.masterdata.LogBookType;
-import com.energyict.mdc.protocol.api.device.BaseLogBook;
-
-import aQute.bnd.annotation.ProviderType;
+import com.energyict.obis.ObisCode;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
@@ -19,7 +18,9 @@ import java.util.List;
 import java.util.Optional;
 
 @ProviderType
-public interface LogBook extends BaseLogBook, HasId {
+public interface LogBook extends com.energyict.mdc.upl.meterdata.LogBook, HasId {
+
+    ObisCode getDeviceObisCode();
 
     Device getDevice();
 
