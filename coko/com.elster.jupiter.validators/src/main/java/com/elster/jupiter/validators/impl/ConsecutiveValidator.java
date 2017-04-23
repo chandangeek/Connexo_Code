@@ -12,6 +12,7 @@ import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.time.TimeDuration;
@@ -53,6 +54,31 @@ public class ConsecutiveValidator extends AbstractValidator{
 
     private final Logger logger = Logger.getLogger(ConsecutiveValidator.class.getName());
 
+    private enum TranslationKeys implements TranslationKey {
+        CHECK_RETROACTIVELY(ConsecutiveValidator.CHECK_RETROACTIVELY, "Check retroactively"),
+        MIN_PERIOD(ConsecutiveValidator.MINIMUM_PERIOD, "Minimum period"),
+        MAX_PERIOD(ConsecutiveValidator.MAXIMUM_PERIOD, "Maximum period"),
+        MIN_THRESHOLD(ConsecutiveValidator.MINIMUM_THRESHOLD, "Minimum threshold");
+
+        private final String key;
+        private final String defaultFormat;
+
+        TranslationKeys(String key, String defaultFormat) {
+            this.key = key;
+            this.defaultFormat = defaultFormat;
+        }
+
+        @Override
+        public String getKey() {
+            return ConsecutiveValidator.class.getName() + "." + key;
+        }
+
+        @Override
+        public String getDefaultFormat() {
+            return this.defaultFormat;
+        }
+    }
+
     private ReadingType readingType;
     private TimeDuration maxPeriod;
     private TimeDuration minPeriod;
@@ -68,6 +94,7 @@ public class ConsecutiveValidator extends AbstractValidator{
 
     ConsecutiveValidator(Thesaurus thesaurus, PropertySpecService propertySpecService, Map<String, Object> properties) {
         super(thesaurus, propertySpecService, properties);
+        checkRequiredProperties();
     }
 
     @Override
@@ -80,28 +107,28 @@ public class ConsecutiveValidator extends AbstractValidator{
         ImmutableList.Builder<PropertySpec> builder = ImmutableList.builder();
         builder.add(getPropertySpecService()
                 .timeDurationSpec()
-                .named(MINIMUM_PERIOD, TranslationKeys.CONSECUTIVE_VALIDATOR_MIN_PERIOD)
+                .named(MINIMUM_PERIOD, TranslationKeys.MIN_PERIOD)
                 .fromThesaurus(this.getThesaurus())
                 .markRequired()
                 .setDefaultValue(TimeDuration.hours(2))
                 .finish());
         builder.add(getPropertySpecService()
                 .timeDurationSpec()
-                .named(MAXIMUM_PERIOD, TranslationKeys.CONSECUTIVE_VALIDATOR_MAX_PERIOD)
+                .named(MAXIMUM_PERIOD, TranslationKeys.MAX_PERIOD)
                 .fromThesaurus(this.getThesaurus())
                 .markRequired()
                 .setDefaultValue(TimeDuration.days(1))
                 .finish());
         builder.add(getPropertySpecService()
                 .bigDecimalSpec()
-                .named(MINIMUM_THRESHOLD, TranslationKeys.CONSECUTIVE_VALIDATOR_MIN_THRESHOLD)
+                .named(MINIMUM_THRESHOLD, TranslationKeys.MIN_THRESHOLD)
                 .fromThesaurus(this.getThesaurus())
                 .markRequired()
                 .setDefaultValue(BigDecimal.ZERO)
                 .finish());
         builder.add(getPropertySpecService()
                 .booleanSpec()
-                .named(CHECK_RETROACTIVELY, TranslationKeys.CONSECUTIVE_VALIDATOR_CHECK_RETROACTIVELY)
+                .named(CHECK_RETROACTIVELY, TranslationKeys.CHECK_RETROACTIVELY)
                 .fromThesaurus(this.getThesaurus())
                 .setDefaultValue(false)
                 .finish());
@@ -137,7 +164,7 @@ public class ConsecutiveValidator extends AbstractValidator{
 
     @Override
     public String getDefaultFormat() {
-        return TranslationKeys.CONSECUTIVE_VALIDATOR.getDefaultFormat();
+        return "Consecutive zero's";
     }
 
     @Override
@@ -249,5 +276,10 @@ public class ConsecutiveValidator extends AbstractValidator{
             return channel.getIntervalReadings(Range.openClosed(lastCheck.minus(maxPeriod.asTemporalAmount()), lastCheck));
         }
         return Collections.emptyList();
+    }
+
+    @Override
+    public List<TranslationKey> getExtraTranslationKeys() {
+        return Arrays.asList(TranslationKeys.values());
     }
 }

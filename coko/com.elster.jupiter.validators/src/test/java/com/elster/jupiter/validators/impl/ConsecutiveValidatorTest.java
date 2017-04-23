@@ -11,9 +11,9 @@ import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.SimpleNlsKey;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
 import com.elster.jupiter.time.TimeDuration;
@@ -26,7 +26,6 @@ import com.google.common.collect.Range;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -56,8 +55,7 @@ public class ConsecutiveValidatorTest {
     public static final long RECORD_INTERVAL = 900L;
     public static final String CONSECUTIVE_ZERO = "Consecutive zero's";
 
-    @Mock
-    private Thesaurus thesaurus;
+    private Thesaurus thesaurus = NlsModule.FakeThesaurus.INSTANCE;
 
     private PropertySpecService propertySpecService = new PropertySpecServiceImpl();
     @Mock
@@ -181,8 +179,10 @@ public class ConsecutiveValidatorTest {
 
     @Test(expected = MissingRequiredProperty.class)
     public void testConstructionWithoutRequiredProperty() {
-        ImmutableMap<String, Object> properties = ImmutableMap.of(ConsecutiveValidator.MAXIMUM_PERIOD, MAXIMUM_PERIOD,
-                ConsecutiveValidator.MINIMUM_THRESHOLD, MINIMUM_THRESHOLD);
+        ImmutableMap<String, Object> properties = ImmutableMap.of(
+                ConsecutiveValidator.MAXIMUM_PERIOD, MAXIMUM_PERIOD,
+                ConsecutiveValidator.MINIMUM_THRESHOLD, MINIMUM_THRESHOLD
+        );
         consecutiveValidator = new ConsecutiveValidator(thesaurus, propertySpecService, properties);
     }
 
@@ -197,27 +197,7 @@ public class ConsecutiveValidatorTest {
     }
 
     @Test
-    public void testDisplayName() {
-        when(thesaurus.getString(ConsecutiveValidator.class.getName(), CONSECUTIVE_ZERO)).thenReturn(CONSECUTIVE_ZERO + " en français");
-
-        assertThat(consecutiveValidator.getDisplayName()).isEqualTo(CONSECUTIVE_ZERO + " en français");
-    }
-
-    @Test
     public void testPropertyDisplayName() {
-        NlsMessageFormat minPeriodMessageFormat = mock(NlsMessageFormat.class);
-        when(minPeriodMessageFormat.format()).thenReturn("Minimum period");
-        when(thesaurus.getFormat(TranslationKeys.CONSECUTIVE_VALIDATOR_MIN_PERIOD)).thenReturn(minPeriodMessageFormat);
-        NlsMessageFormat maxPeriodMessageFormat = mock(NlsMessageFormat.class);
-        when(maxPeriodMessageFormat.format()).thenReturn("Maximum period");
-        when(thesaurus.getFormat(TranslationKeys.CONSECUTIVE_VALIDATOR_MAX_PERIOD)).thenReturn(maxPeriodMessageFormat);
-        NlsMessageFormat minThresholdMessageFormat = mock(NlsMessageFormat.class);
-        when(minThresholdMessageFormat.format()).thenReturn("Minimum threshold");
-        when(thesaurus.getFormat(TranslationKeys.CONSECUTIVE_VALIDATOR_MIN_THRESHOLD)).thenReturn(minThresholdMessageFormat);
-        NlsMessageFormat checkRetroactivelyMessageFormat = mock(NlsMessageFormat.class);
-        when(checkRetroactivelyMessageFormat.format()).thenReturn("Check retroactively");
-        when(thesaurus.getFormat(TranslationKeys.CONSECUTIVE_VALIDATOR_CHECK_RETROACTIVELY)).thenReturn(checkRetroactivelyMessageFormat);
-
         // Business method
         String minPeriodDisplayName = consecutiveValidator.getDisplayName(ConsecutiveValidator.MINIMUM_PERIOD);
         String maxPeriodDisplayName = consecutiveValidator.getDisplayName(ConsecutiveValidator.MAXIMUM_PERIOD);
