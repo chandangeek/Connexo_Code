@@ -31,11 +31,12 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.time.rest.TimeDurationInfo;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.yellowfin.groups.YellowfinGroupsService;
-import com.elster.jupiter.time.rest.TimeDurationInfo;
+import com.energyict.mdc.common.services.ObisCodeDescriptor;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -57,19 +58,20 @@ import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.favorites.FavoritesService;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
-import com.energyict.mdc.protocol.api.ComPortType;
+import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
-import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
+import com.energyict.mdc.upl.DeviceProtocolCapabilities;
+import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+import com.energyict.mdc.upl.properties.PropertySpec;
 
+import com.energyict.obis.ObisCode;
 import com.jayway.jsonpath.JsonModel;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.client.ClientConfig;
@@ -92,8 +94,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
@@ -106,6 +108,7 @@ import org.junit.rules.TestRule;
 import org.mockito.MockitoAnnotations;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -129,7 +132,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
     private static DeviceProtocolPluggableClass deviceProtocolPluggableClass;
     private static ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties;
     private static ConnectionTypePluggableClass outboundIpConnectionTypePluggableClass;
-    private static EnumSet<DeviceMessageId> deviceMessageIds;
+    private static List<DeviceMessageSpec> deviceMessageIds;
     private static PartialScheduledConnectionTaskImpl as1440WithoutProperties;
     private static PartialScheduledConnectionTaskImpl as1440WithProperties;
     private static OutboundComPortPool whirlpool;
@@ -158,6 +161,8 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
     @Rule
     public TestRule transactionalRule = new TransactionalRule(inMemoryPersistence.getTransactionService());
 
+    static ObisCodeDescriptor obisCodeDescriptor;
+
     @BeforeClass
     public static void initialize() throws SQLException {
         yellowfinGroupsService = mock(YellowfinGroupsService.class);
@@ -177,6 +182,8 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         bpmService = mock(BpmService.class);
         threadPrincipalService = mock(ThreadPrincipalService.class);
         userService = mock(UserService.class);
+        obisCodeDescriptor = mock(ObisCodeDescriptor.class);
+        when(obisCodeDescriptor.describe(any(ObisCode.class))).thenReturn("obisCodeDescription");
 
         inMemoryPersistence = new InMemoryIntegrationPersistence();
         initializeClock();
@@ -211,18 +218,35 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         try (TransactionContext context = inMemoryPersistence.getTransactionService().getContext()) {
             PartialConnectionTaskProtocolDialect protocolDialect = new PartialConnectionTaskProtocolDialect();
             when(deviceProtocol.getDeviceProtocolDialects()).thenReturn(Collections.singletonList(protocolDialect));
-            deviceMessageIds = EnumSet.of(DeviceMessageId.CONTACTOR_CLOSE,
-                    DeviceMessageId.CONTACTOR_OPEN,
-                    DeviceMessageId.CONTACTOR_ARM,
-                    DeviceMessageId.CONTACTOR_OPEN_WITH_OUTPUT,
-                    DeviceMessageId.CONTACTOR_OPEN_WITH_ACTIVATION_DATE,
-                    DeviceMessageId.DISPLAY_SET_MESSAGE_WITH_OPTIONS);
+
+
+            deviceMessageIds = new ArrayList<>();
+            com.energyict.mdc.upl.messages.DeviceMessageSpec deviceMessageSpec0 = mock(com.energyict.mdc.upl.messages.DeviceMessageSpec.class);
+            when(deviceMessageSpec0.getId()).thenReturn(DeviceMessageId.CONTACTOR_CLOSE.dbValue());
+            deviceMessageIds.add(deviceMessageSpec0);
+            com.energyict.mdc.upl.messages.DeviceMessageSpec deviceMessageSpec1 = mock(com.energyict.mdc.upl.messages.DeviceMessageSpec.class);
+            when(deviceMessageSpec1.getId()).thenReturn(DeviceMessageId.CONTACTOR_OPEN.dbValue());
+            deviceMessageIds.add(deviceMessageSpec1);
+            com.energyict.mdc.upl.messages.DeviceMessageSpec deviceMessageSpec2 = mock(com.energyict.mdc.upl.messages.DeviceMessageSpec.class);
+            when(deviceMessageSpec2.getId()).thenReturn(DeviceMessageId.CONTACTOR_ARM.dbValue());
+            deviceMessageIds.add(deviceMessageSpec2);
+            com.energyict.mdc.upl.messages.DeviceMessageSpec deviceMessageSpec3 = mock(com.energyict.mdc.upl.messages.DeviceMessageSpec.class);
+            when(deviceMessageSpec3.getId()).thenReturn(DeviceMessageId.CONTACTOR_OPEN_WITH_OUTPUT.dbValue());
+            deviceMessageIds.add(deviceMessageSpec3);
+            com.energyict.mdc.upl.messages.DeviceMessageSpec deviceMessageSpec4 = mock(com.energyict.mdc.upl.messages.DeviceMessageSpec.class);
+            when(deviceMessageSpec4.getId()).thenReturn(DeviceMessageId.CONTACTOR_OPEN_WITH_ACTIVATION_DATE.dbValue());
+            deviceMessageIds.add(deviceMessageSpec4);
+            com.energyict.mdc.upl.messages.DeviceMessageSpec deviceMessageSpec5 = mock(com.energyict.mdc.upl.messages.DeviceMessageSpec.class);
+            when(deviceMessageSpec5.getId()).thenReturn(DeviceMessageId.DISPLAY_SET_MESSAGE_WITH_OPTIONS.dbValue());
+            deviceMessageIds.add(deviceMessageSpec5);
+
+
             when(deviceProtocol.getSupportedMessages()).thenReturn(deviceMessageIds);
-            AuthenticationDeviceAccessLevel authenticationAccessLevel = mock(AuthenticationDeviceAccessLevel.class);
+            com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel authenticationAccessLevel = mock(com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel.class);
             int anySecurityLevel = 0;
             when(authenticationAccessLevel.getId()).thenReturn(anySecurityLevel);
             when(deviceProtocol.getAuthenticationAccessLevels()).thenReturn(Collections.singletonList(authenticationAccessLevel));
-            EncryptionDeviceAccessLevel encryptionAccessLevel = mock(EncryptionDeviceAccessLevel.class);
+            com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel encryptionAccessLevel = mock(com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel.class);
             when(encryptionAccessLevel.getId()).thenReturn(anySecurityLevel);
             when(deviceProtocol.getEncryptionAccessLevels()).thenReturn(Collections.singletonList(encryptionAccessLevel));
             when(deviceProtocol.getDeviceProtocolCapabilities()).thenReturn(Arrays.asList(DeviceProtocolCapabilities.values()));
@@ -235,16 +259,12 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
 
             protocolDialectConfigurationProperties = deviceConfiguration.findOrCreateProtocolDialectConfigurationProperties(protocolDialect);
 
-            as1440WithoutProperties = deviceConfiguration.newPartialScheduledConnectionTask(AS_1440_INCOMPLETE, outboundIpConnectionTypePluggableClass, TimeDuration.hours(1), ConnectionStrategy.AS_SOON_AS_POSSIBLE, protocolDialectConfigurationProperties)
-                    .build();
-            as1440WithProperties = deviceConfiguration.newPartialScheduledConnectionTask(AS_1440_COMPLETED, outboundIpConnectionTypePluggableClass, TimeDuration.hours(1), ConnectionStrategy.AS_SOON_AS_POSSIBLE, protocolDialectConfigurationProperties)
-                    .
-                            addProperty("ipAddress", IP_ADDRESS_FROM_PARTIAL)
-                    .
-                            addProperty("port", PORT_FROM_PARTIAL)
-                    .
-                            build();
-            deviceMessageIds.stream().forEach(deviceConfiguration::createDeviceMessageEnablement);
+            as1440WithoutProperties = deviceConfiguration.newPartialScheduledConnectionTask(AS_1440_INCOMPLETE, outboundIpConnectionTypePluggableClass, TimeDuration.hours(1), ConnectionStrategy.AS_SOON_AS_POSSIBLE, protocolDialectConfigurationProperties).build();
+            as1440WithProperties = deviceConfiguration.newPartialScheduledConnectionTask(AS_1440_COMPLETED, outboundIpConnectionTypePluggableClass, TimeDuration.hours(1), ConnectionStrategy.AS_SOON_AS_POSSIBLE, protocolDialectConfigurationProperties).
+                    addProperty("ipAddress", IP_ADDRESS_FROM_PARTIAL).
+                    addProperty("port", PORT_FROM_PARTIAL).
+                    build();
+            deviceMessageIds.stream().map(DeviceMessageSpec::getId).map(DeviceMessageId::havingId).forEach(deviceConfiguration::createDeviceMessageEnablement);
             deviceConfiguration.activate();
             whirlpool = inMemoryPersistence.getEngineConfigurationService().newOutboundComPortPool("Whirlpool", ComPortType.TCP, TimeDuration.minutes(1));
             resetClock();
@@ -381,6 +401,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         application.setPropertyValueInfoService(inMemoryPersistence.getPropertyValueInfoService());
         application.setMeteringTranslationService(inMemoryPersistence.getMeteringTranslationService());
         application.setDeviceLifeCycleConfigurationService(inMemoryPersistence.getDeviceLifeCycleConfigurationService());
+        application.setObisCodeDescriptor(obisCodeDescriptor);
         return application;
     }
 
@@ -680,11 +701,11 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         info.connectionStrategyInfo = strategyInfo;
         info.comPortPool = "Whirlpool";
         info.protocolDialect = protocolDialectConfigurationProperties.getDeviceProtocolDialectName();
-        info.protocolDialectDisplayName = protocolDialectConfigurationProperties.getDeviceProtocolDialect().getDisplayName();
+        info.protocolDialectDisplayName = protocolDialectConfigurationProperties.getDeviceProtocolDialect().getDeviceProtocolDialectDisplayName();
         info.parent = new VersionInfo<>(device.getName(), device.getVersion());
         info.properties = new ArrayList<>();
         info.properties.add(new PropertyInfo("ipAddress", "ipAddress", new PropertyValueInfo<Object>("10.10.10.1", null, null), new PropertyTypeInfo(com.elster.jupiter.properties.rest.SimplePropertyType.TEXT, null, null, null), true));
-        info.properties.add(new PropertyInfo("port", "port", new PropertyValueInfo<Object>(null, null, null), new PropertyTypeInfo(com.elster.jupiter.properties.rest.SimplePropertyType.NUMBER, null, null, null), true));
+        info.properties.add(new PropertyInfo("port", "port", new PropertyValueInfo<>(null, null, null), new PropertyTypeInfo(com.elster.jupiter.properties.rest.SimplePropertyType.NUMBER, null, null, null), true));
 
         Response response = target("/devices/AGENT019/connectionmethods/" + scheduledConnectionTask.getId()).request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -716,7 +737,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         info.connectionStrategyInfo = strategyInfo;
         info.comPortPool = "Whirlpool";
         info.protocolDialect = protocolDialectConfigurationProperties.getDeviceProtocolDialectName();
-        info.protocolDialectDisplayName = protocolDialectConfigurationProperties.getDeviceProtocolDialect().getDisplayName();
+        info.protocolDialectDisplayName = protocolDialectConfigurationProperties.getDeviceProtocolDialect().getDeviceProtocolDialectDisplayName();
         if (task != null) {
             info.parent = new VersionInfo<>(task.getDevice().getName(), task.getDevice().getVersion());
         }
@@ -744,12 +765,17 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
     private static class PartialConnectionTaskProtocolDialect implements DeviceProtocolDialect {
 
         @Override
+        public List<PropertySpec> getUPLPropertySpecs() {
+            return Collections.emptyList();
+        }
+
+        @Override
         public String getDeviceProtocolDialectName() {
             return "dialect";
         }
 
         @Override
-        public String getDisplayName() {
+        public String getDeviceProtocolDialectDisplayName() {
             return "It's a Dell Display";
         }
 

@@ -22,8 +22,9 @@ import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
-
 import com.jayway.jsonpath.JsonModel;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -36,9 +37,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
-
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyInt;
@@ -80,7 +78,7 @@ public class ComSessionResourceTest extends DeviceDataRestApplicationJerseyTest 
         when(connectionTask.getDevice()).thenReturn(device);
         PartialConnectionTask partialConnectionTask = mock(PartialConnectionTask.class);
         ConnectionType connectionType = mock(ConnectionType.class);
-        when(connectionType.getDirection()).thenReturn(ConnectionType.Direction.INBOUND);
+        when(connectionType.getDirection()).thenReturn(ConnectionType.ConnectionTypeDirection.INBOUND);
         when(partialConnectionTask.getConnectionType()).thenReturn(connectionType);
         ConnectionTypePluggableClass pluggeableClass = mock(ConnectionTypePluggableClass.class);
         when(pluggeableClass.getName()).thenReturn("IPDIALER");
@@ -140,7 +138,7 @@ public class ComSessionResourceTest extends DeviceDataRestApplicationJerseyTest 
         when(connectionTask.getDevice()).thenReturn(device);
         PartialConnectionTask partialConnectionTask = mock(PartialConnectionTask.class);
         ConnectionType connectionType = mock(ConnectionType.class);
-        when(connectionType.getDirection()).thenReturn(ConnectionType.Direction.INBOUND);
+        when(connectionType.getDirection()).thenReturn(ConnectionType.ConnectionTypeDirection.INBOUND);
         when(partialConnectionTask.getConnectionType()).thenReturn(connectionType);
         ConnectionTypePluggableClass pluggeableClass = mock(ConnectionTypePluggableClass.class);
         when(pluggeableClass.getName()).thenReturn("IPDIALER");
@@ -184,7 +182,7 @@ public class ComSessionResourceTest extends DeviceDataRestApplicationJerseyTest 
         when(connectionTask.getDevice()).thenReturn(device);
         PartialConnectionTask partialConnectionTask = mock(PartialConnectionTask.class);
         ConnectionType connectionType = mock(ConnectionType.class);
-        when(connectionType.getDirection()).thenReturn(ConnectionType.Direction.INBOUND);
+        when(connectionType.getDirection()).thenReturn(ConnectionType.ConnectionTypeDirection.INBOUND);
         when(partialConnectionTask.getConnectionType()).thenReturn(connectionType);
         ConnectionTypePluggableClass pluggeableClass = mock(ConnectionTypePluggableClass.class);
         when(pluggeableClass.getName()).thenReturn("IPDIALER");
@@ -238,7 +236,7 @@ public class ComSessionResourceTest extends DeviceDataRestApplicationJerseyTest 
         when(connectionTask.getDevice()).thenReturn(device);
         PartialConnectionTask partialConnectionTask = mock(PartialConnectionTask.class);
         ConnectionType connectionType = mock(ConnectionType.class);
-        when(connectionType.getDirection()).thenReturn(ConnectionType.Direction.INBOUND);
+        when(connectionType.getDirection()).thenReturn(ConnectionType.ConnectionTypeDirection.INBOUND);
         when(partialConnectionTask.getConnectionType()).thenReturn(connectionType);
         ConnectionTypePluggableClass pluggeableClass = mock(ConnectionTypePluggableClass.class);
         when(pluggeableClass.getName()).thenReturn("IPDIALER");

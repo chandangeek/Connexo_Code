@@ -26,11 +26,13 @@ import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.protocol.api.ConnectionType.Direction;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
-
 import com.jayway.jsonpath.JsonModel;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.internal.verification.VerificationModeFactory;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
@@ -44,11 +46,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.internal.verification.VerificationModeFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyVararg;
@@ -102,8 +99,8 @@ public class ConnectionResourceTest extends DeviceDataRestApplicationJerseyTest 
         String response = target("/devices/ZABF0000000/connections").request().get(String.class);
 
         JsonModel jsonModel = JsonModel.model(response);
-        assertThat(jsonModel.<Integer> get("$.total")).isEqualTo(1);
-        assertThat(jsonModel.<List<?>> get("$.connections")).hasSize(1);
+        assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(1);
+        assertThat(jsonModel.<List<?>>get("$.connections")).hasSize(1);
         assertThat(jsonModel.<Integer>get("$.connections[0].id")).isEqualTo(13);
         assertThat(jsonModel.<String>get("$.connections[0].currentState.id")).isEqualTo("Pending");
         assertThat(jsonModel.<String>get("$.connections[0].currentState.displayValue")).isEqualTo("Pending");
@@ -115,8 +112,8 @@ public class ConnectionResourceTest extends DeviceDataRestApplicationJerseyTest 
         assertThat(jsonModel.<Integer>get("$.connections[0].taskCount.numberOfSuccessfulTasks")).isEqualTo(12);
         assertThat(jsonModel.<Integer>get("$.connections[0].taskCount.numberOfFailedTasks")).isEqualTo(401);
         assertThat(jsonModel.<Integer>get("$.connections[0].taskCount.numberOfIncompleteTasks")).isEqualTo(3);
-        assertThat(jsonModel.<Long>get("$.connections[0].startDateTime")).isEqualTo(Date.from(comSessionStart.with(ChronoField.MILLI_OF_SECOND,0)).getTime());
-        assertThat(jsonModel.<Long>get("$.connections[0].endDateTime")).isEqualTo(Date.from(comSessionEnd.with(ChronoField.MILLI_OF_SECOND,0)).getTime());
+        assertThat(jsonModel.<Long>get("$.connections[0].startDateTime")).isEqualTo(Date.from(comSessionStart.with(ChronoField.MILLI_OF_SECOND, 0)).getTime());
+        assertThat(jsonModel.<Long>get("$.connections[0].endDateTime")).isEqualTo(Date.from(comSessionEnd.with(ChronoField.MILLI_OF_SECOND, 0)).getTime());
         assertThat(jsonModel.<Integer>get("$.connections[0].duration.count")).isEqualTo(60);
         assertThat(jsonModel.<String>get("$.connections[0].duration.timeUnit")).isEqualTo("seconds");
         assertThat(jsonModel.<Integer>get("$.connections[0].comPort.id")).isEqualTo(1);
@@ -246,7 +243,7 @@ public class ConnectionResourceTest extends DeviceDataRestApplicationJerseyTest 
         when(connectionTask.getSuccessIndicator()).thenReturn(SuccessIndicator.FAILURE);
         ConnectionType connectionType = mock(ConnectionType.class);
         when(connectionTask.getConnectionType()).thenReturn(connectionType);
-        when(connectionType.getDirection()).thenReturn(Direction.OUTBOUND);
+        when(connectionType.getDirection()).thenReturn(com.energyict.mdc.upl.io.ConnectionType.ConnectionTypeDirection.OUTBOUND);
         ConnectionTypePluggableClass pluggableClass = mockPluggableClass();
         when(connectionTask.getPluggableClass()).thenReturn(pluggableClass);
         doReturn(mockPartialScheduledConnectionTask()).when(connectionTask).getPartialConnectionTask();
@@ -267,7 +264,7 @@ public class ConnectionResourceTest extends DeviceDataRestApplicationJerseyTest 
         ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = mock(ProtocolDialectConfigurationProperties.class);
         DeviceProtocolDialect deviceProtocolDialect = mock(DeviceProtocolDialect.class);
         when(deviceProtocolDialect.getDeviceProtocolDialectName()).thenReturn("Protocol Dialect Name");
-        when(deviceProtocolDialect.getDisplayName()).thenReturn("Display Name of Protocol Dialect");
+        when(deviceProtocolDialect.getDeviceProtocolDialectDisplayName()).thenReturn("Display Name of Protocol Dialect");
         when(protocolDialectConfigurationProperties.getDeviceProtocolDialect()).thenReturn(deviceProtocolDialect);
         when(protocolDialectConfigurationProperties.getDeviceProtocolDialectName()).thenReturn("Protocol Dialect Name");
         when(connectionTask.getProtocolDialectConfigurationProperties()).thenReturn(protocolDialectConfigurationProperties);

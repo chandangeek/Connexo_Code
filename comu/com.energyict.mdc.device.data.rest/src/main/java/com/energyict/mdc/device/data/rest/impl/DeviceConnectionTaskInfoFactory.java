@@ -80,7 +80,7 @@ public class DeviceConnectionTaskInfoFactory {
         info.protocolDialect = dialectConfigurationProperties.getDeviceProtocolDialectName();
         DeviceProtocolDialect dialect = dialectConfigurationProperties.getDeviceProtocolDialect();
         if (dialect != null)
-            info.protocolDialectDisplayName = dialect.getDisplayName();
+            info.protocolDialectDisplayName = dialect.getDeviceProtocolDialectDisplayName();
         if (connectionTask instanceof ScheduledConnectionTask) {
             ScheduledConnectionTask scheduledConnectionTask = (ScheduledConnectionTask) connectionTask;
             if (scheduledConnectionTask.getTaskStatus()!=null) {
