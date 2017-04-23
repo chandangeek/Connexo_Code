@@ -16,9 +16,9 @@ public enum MessageSeeds implements MessageSeed {
     OPTIMISTIC_LOCK_FAILED(4, "OptimisticLockFailed", "Another user or process modified this resource at the same time, please try again later", Level.SEVERE),
     INVALID_RANGE_FROM_AFTER_TO(5, "FromAfterTo", "Invalid range: from-date should be before to-date", Level.SEVERE),
     CONCURRENT_EDIT_TITLE(5, "ConcurrentModificationEditTitle", "Failed to save ''{0}''", Level.SEVERE),
-    CONCURRENT_EDIT_BODY(6, "ConcurrentModificationEditMessage", "{0} has changed since the page was last updated", Level.SEVERE),
+    CONCURRENT_EDIT_BODY(6, "ConcurrentModificationEditMessage", "{0} has changed since the page was last updated.", Level.SEVERE),
     CONCURRENT_DELETE_TITLE(7, "ConcurrentModificationRemoveTitle", "Failed to remove ''{0}''", Level.SEVERE),
-    CONCURRENT_DELETE_BODY(8, "ConcurrentModificationRemoveMessage", "{0} has changed since the page was last updated", Level.SEVERE),
+    CONCURRENT_DELETE_BODY(8, "ConcurrentModificationRemoveMessage", "{0} has changed since the page was last updated.", Level.SEVERE),
     INVALID_RANGE(9, "InvalidRange", "Invalid range", Level.SEVERE),
     INTERNAL_CONNEXO_ERROR(10, "internalConnexoError", "Connexo has encountered an error, please contact your system administrator", Level.SEVERE)
     ;
