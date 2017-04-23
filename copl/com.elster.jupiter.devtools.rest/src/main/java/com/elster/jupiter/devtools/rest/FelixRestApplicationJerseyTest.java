@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.devtools.rest;
 
+import aQute.lib.strings.Strings;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -24,8 +25,6 @@ import com.elster.jupiter.rest.util.TransactionWrapper;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.exception.MessageSeed;
-
-import aQute.lib.strings.Strings;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.ClientProperties;
@@ -34,6 +33,9 @@ import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import org.glassfish.jersey.test.TestProperties;
+import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 import javax.validation.MessageInterpolator;
 import javax.ws.rs.DELETE;
@@ -45,10 +47,6 @@ import javax.ws.rs.core.Application;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
-
-import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 
 import static java.util.stream.Collectors.toList;
 import static junit.framework.Assert.fail;
