@@ -339,6 +339,7 @@ Ext.define('Fwc.controller.Firmware', {
     },
 
     getOnSaveOptionsCallbackFunction: function(form, backUrl, acknowledgementMessage) {
+        var me = this;
         return function (options, success, response) {
             var responseObject = Ext.decode(response.responseText, true);
             form.setLoading(false);
