@@ -819,6 +819,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                                 record.set('mainValidationInfo', item.mainValidationInfo);
                                 if (model.get('commentId') !== -1) {
                                     record.set('commentId', item.commentId);
+                                    record.set('commentValue', item.commentValue);
                                 }
                             }
                         });
@@ -830,6 +831,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                             window.records.set('mainValidationInfo', response[0].mainValidationInfo);
                             if (model.get('commentId') !== -1) {
                                 window.records.set('commentId', response[0].commentId);
+                                window.records.set('commentValue', response[0].commentValue);
                             }
                         }
                     }
@@ -988,7 +990,8 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         var me = this,
             window = me.getReadingEstimationWithRuleWindow(),
             propertyForm = window.down('#property-form'),
-            commentId = window.down('#estimation-comment').getValue(),
+            // commentId = window.down('#estimation-comment').getValue(),
+            commentId = 0,
             estimationRuleId = window.down('#estimator-field').getValue(),
             model = Ext.create('Mdc.model.DeviceChannelDataEstimate'),
             estimateBulk = false,

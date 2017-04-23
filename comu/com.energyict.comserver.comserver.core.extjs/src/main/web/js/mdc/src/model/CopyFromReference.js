@@ -12,6 +12,10 @@ Ext.define('Mdc.model.CopyFromReference', {
         'allowSuspectData',
         'completePeriod',
         'commentId',
+        {
+            name:'commentValue',
+            persist: false
+        },
         'intervals'
     ],
 

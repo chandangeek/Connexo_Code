@@ -19,7 +19,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
     frame: false,
     mentionDataLoggerSlave: false,
 
-    updateForm: function(record) {
+    updateForm: function (record) {
         var me = this,
             intervalEnd = record.get('interval_end'),
             title = Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}',
@@ -28,7 +28,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
             mainValidationInfo,
             bulkValidationInfo,
             dataQualities,
-            dataQualitiesForChannels = false,            
+            dataQualitiesForChannels = false,
             router = me.router;
 
         me.setLoading();
@@ -118,11 +118,11 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
         if (type === 'main') {
             unitOfMeasure = me.channelRecord
                 ? (me.channelRecord.get('calculatedReadingType')
-                    ? me.channelRecord.get('calculatedReadingType').names.unitOfMeasure
-                    : me.channelRecord.get('readingType').names.unitOfMeasure)
+                ? me.channelRecord.get('calculatedReadingType').names.unitOfMeasure
+                : me.channelRecord.get('readingType').names.unitOfMeasure)
                 : (channel.calculatedReadingType
-                    ? channel.calculatedReadingType.names.unitOfMeasure
-                    : channel.readingType.names.unitOfMeasure);
+                ? channel.calculatedReadingType.names.unitOfMeasure
+                : channel.readingType.names.unitOfMeasure);
         } else { // 'bulk'
             unitOfMeasure = me.channelRecord
                 ? me.channelRecord.get('readingType').names.unitOfMeasure
@@ -141,7 +141,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
         }
 
         if (validationInfo && validationInfo.validationResult) {
-            if(validationInfo.isConfirmed) {
+            if (validationInfo.isConfirmed) {
                 validationResultText = '(' + Uni.I18n.translate('devicechannelsreadings.validationResult.notsuspect', 'MDC', 'Not suspect') + ')';
                 if (!me.channels) {
                     validationResultText += '<span class="icon-checkmark" style="margin-left:5px; vertical-align:top;"></span>';
@@ -174,15 +174,15 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
             );
             return !Ext.isEmpty(formatValue) ? formatValue + ' ' + unitOfMeasure + ' ' + validationResultText : '';
         } else {
-            if(type === 'main'){
-                return Uni.I18n.translate('general.missingx', 'MDC', 'Missing {0}',[validationResultText], false);
+            if (type === 'main') {
+                return Uni.I18n.translate('general.missingx', 'MDC', 'Missing {0}', [validationResultText], false);
             } else {
-                return Uni.I18n.translate('general.missingx', 'MDC', 'Missing {0}',[validationResultText], false);
+                return Uni.I18n.translate('general.missingx', 'MDC', 'Missing {0}', [validationResultText], false);
             }
         }
     },
 
-    setDataQuality: function(dataQualities) {
+    setDataQuality: function (dataQualities) {
         var me = this,
             deviceQualityField = me.down('#mdc-device-quality'),
             multiSenseQualityField = me.down('#mdc-multiSense-quality'),
@@ -197,7 +197,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
         me.setDataQualityFields(deviceQualityField, multiSenseQualityField, insightQualityField, thirdPartyQualityField, dataQualities);
     },
 
-    setDataQualityForChannel: function(channelId, dataQualities) {
+    setDataQualityForChannel: function (channelId, dataQualities) {
         var me = this,
             channelQualityContainer = me.down('#channelQualityContainer' + channelId);
 
@@ -216,7 +216,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
         me.setDataQualityFields(deviceQualityField, multiSenseQualityField, insightQualityField, thirdPartyQualityField, dataQualities);
     },
 
-    setDataQualityFields: function(deviceQualityField, multiSenseQualityField, insightQualityField, thirdPartyQualityField, dataQualities) {
+    setDataQualityFields: function (deviceQualityField, multiSenseQualityField, insightQualityField, thirdPartyQualityField, dataQualities) {
         var me = this,
             showDeviceQuality = false,
             showMultiSenseQuality = false,
@@ -261,7 +261,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
         show3rdPartyQuality ? thirdPartyQualityField.show() : thirdPartyQualityField.hide();
     },
 
-    getTooltip: function(systemName, categoryName, indexName) {
+    getTooltip: function (systemName, categoryName, indexName) {
         var me = this,
             tooltip = '<table><tr><td>';
 
@@ -287,10 +287,10 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                 renderer: function (value) {
                     return value
                         ? Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}',
-                            [Uni.DateTime.formatDateLong(new Date(value.start)),Uni.DateTime.formatTimeLong(new Date(value.start))])
-                          + ' - ' +
-                          Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}',
-                            [Uni.DateTime.formatDateLong(new Date(value.end)),Uni.DateTime.formatTimeLong(new Date(value.end))])
+                        [Uni.DateTime.formatDateLong(new Date(value.start)), Uni.DateTime.formatTimeLong(new Date(value.start))])
+                    + ' - ' +
+                    Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}',
+                        [Uni.DateTime.formatDateLong(new Date(value.end)), Uni.DateTime.formatTimeLong(new Date(value.end))])
                         : '';
                 },
                 htmlEncode: false
@@ -302,7 +302,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                 {
                     fieldLabel: Uni.I18n.translate('general.dataLoggerSlave', 'MDC', 'Data logger slave'),
                     itemId: 'mdc-channel-data-preview-data-logger-slave',
-                    renderer: function(slaveChannel) {
+                    renderer: function (slaveChannel) {
                         if (Ext.isEmpty(slaveChannel)) {
                             return '-';
                         }
@@ -326,9 +326,9 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
             {
                 fieldLabel: Uni.I18n.translate('device.channelData.lastUpdate', 'MDC', 'Last update'),
                 name: 'reportedDateTime',
-                renderer: function(value){
+                renderer: function (value) {
                     var date = new Date(value);
-                    return value?Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}', [Uni.DateTime.formatDateLong(date), Uni.DateTime.formatTimeLong(date)]):'-';
+                    return value ? Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}', [Uni.DateTime.formatDateLong(date), Uni.DateTime.formatTimeLong(date)]) : '-';
                 }
             },
             {
@@ -496,6 +496,22 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                     itemId: 'mainValidationInfo',
                     name: 'mainValidationInfo',
                     htmlEncode: false
+                },
+                {
+                    xtype: 'fieldcontainer',
+                    labelWidth: 200,
+                    fieldLabel: Uni.I18n.translate('general.estimationComment', 'MDC', 'Estimation comment'),
+                    layout: 'hbox',
+                    hidden: !me.channelRecord.get('commentValue'),
+                    items: [
+                        {
+                            xtype: 'displayfield',
+                            name: 'commentValue',
+                            renderer: function (string) {
+                                return string ? string : '-';
+                            }
+                        }
+                    ]
                 }
             );
             var calculatedReadingType = me.channelRecord.get('calculatedReadingType');
@@ -579,17 +595,6 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                 }
             );
         }
-
-        valuesItems.push(
-            {
-                itemId: 'estimation-comment-field',
-                name: 'commentValue',
-                fieldLabel: Uni.I18n.translate('general.estimationComment', 'MDC', 'Estimation comment'),
-                renderer: function (string) {
-                    return string ? string : '-';
-                }
-            }
-        );
 
         me.items = [
             {

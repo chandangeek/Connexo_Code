@@ -233,6 +233,9 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                 [Uni.DateTime.formatDateLong(date), Uni.DateTime.formatTimeLong(date)]
             );
             tooltipText = Uni.I18n.translate('general.estimatedOnX', 'MDC', 'Estimated on {0}', formattedDate);
+            if (record.get('commitValue')) {
+                tooltipText += Uni.I18n.translate('general.estimationCommentWithComment', 'MDC', 'Estimated comment: {0}', record.get('commitValue'));
+            }
             icon = '<span class="icon-flag5" style="margin-left:10px; position:absolute; color:#33CC33;" data-qtip="'
                 + tooltipText + '"></span>';
         } else if ((validationInfo.isConfirmed || validationInfo.confirmedNotSaved) && !record.isModified('value')) {
