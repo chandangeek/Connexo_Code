@@ -4,8 +4,6 @@
 
 package com.energyict.mdc.device.data.impl;
 
-import com.elster.jupiter.metering.JournaledChannelReadingRecord;
-import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.LoadProfileJournalReading;
 
 import java.time.Instant;
@@ -52,9 +50,5 @@ public class LoadProfileJournalReadingImpl extends LoadProfileReadingImpl implem
 
     public void setVersion(long version) {
         this.version = version;
-    }
-
-    public void setChannelData(Channel channel, JournaledChannelReadingRecord readingRecord) {
-        super.setChannelData(channel, null);
     }
 }
