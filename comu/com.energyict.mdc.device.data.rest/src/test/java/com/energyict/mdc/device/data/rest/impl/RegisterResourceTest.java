@@ -15,7 +15,7 @@ import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.properties.rest.PropertyValueInfo;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.ValidationResult;
-import com.energyict.mdc.common.ObisCode;
+import com.energyict.obis.ObisCode;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;

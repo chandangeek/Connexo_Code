@@ -53,12 +53,12 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.device.topology.TopologyTimeline;
-import com.energyict.mdc.protocol.api.calendars.ProtocolSupportedCalendarOptions;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+import com.energyict.mdc.upl.messages.ProtocolSupportedCalendarOptions;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -976,7 +976,7 @@ public class DeviceResource {
                 .findFirst().orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.UNABLE_TO_FIND_CALENDAR));
         DeviceMessageId deviceMessageId = getDeviceMessageId(sendCalendarInfo, allowedOptions)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_ALLOWED_CALENDAR_DEVICE_MESSAGE));
-        DeviceMessage<Device> deviceMessage = sendNewMessage(device, deviceMessageId, sendCalendarInfo, calendar);
+        DeviceMessage deviceMessage = sendNewMessage(device, deviceMessageId, sendCalendarInfo, calendar);
         device.calendars().setPassive(calendar, sendCalendarInfo.activationDate, deviceMessage);
         return Response.ok().build();
     }
@@ -1056,7 +1056,7 @@ public class DeviceResource {
         if (!allowedOptions.contains(ProtocolSupportedCalendarOptions.CLEAR_AND_DISABLE_PASSIVE_TARIFF)) {
             throw exceptionFactory.newException(MessageSeeds.COMMAND_NOT_ALLOWED_OR_SUPPORTED);
         }
-        DeviceMessage<Device> deviceMessage = device.newDeviceMessage(DeviceMessageId.ACTIVITY_CALENDAR_CLEAR_AND_DISABLE_PASSIVE_TARIFF).setReleaseDate(Instant.now(clock)).add();
+        DeviceMessage deviceMessage = device.newDeviceMessage(DeviceMessageId.ACTIVITY_CALENDAR_CLEAR_AND_DISABLE_PASSIVE_TARIFF).setReleaseDate(Instant.now(clock)).add();
         boolean willBePickedUpByPlannedComtask = deviceMessageService.willDeviceMessageBePickedUpByPlannedComTask(device, deviceMessage);
         boolean willBePickedUpByComtask = willBePickedUpByPlannedComtask || deviceMessageService.willDeviceMessageBePickedUpByComTask(device, deviceMessage);
         return Response.accepted(new PlannedDeviceMessageInfo(willBePickedUpByPlannedComtask, willBePickedUpByComtask)).build();
@@ -1076,7 +1076,7 @@ public class DeviceResource {
         if (!allowedOptions.contains(ProtocolSupportedCalendarOptions.ACTIVATE_PASSIVE_CALENDAR)) {
             throw exceptionFactory.newException(MessageSeeds.COMMAND_NOT_ALLOWED_OR_SUPPORTED);
         }
-        DeviceMessage<Device> deviceMessage = device.newDeviceMessage(DeviceMessageId.ACTIVATE_CALENDAR_PASSIVE)
+        DeviceMessage deviceMessage = device.newDeviceMessage(DeviceMessageId.ACTIVATE_CALENDAR_PASSIVE)
                 .setReleaseDate(Instant.now(clock))
                 .addProperty(DeviceMessageConstants.activityCalendarActivationDateAttributeName, Date.from(Instant.ofEpochMilli(activationDate)))
                 .add();
@@ -1138,7 +1138,7 @@ public class DeviceResource {
 
     }
 
-    private DeviceMessage<Device> sendNewMessage(Device device, DeviceMessageId deviceMessageId, SendCalendarInfo sendCalendarInfo, AllowedCalendar calendar) {
+    private DeviceMessage sendNewMessage(Device device, DeviceMessageId deviceMessageId, SendCalendarInfo sendCalendarInfo, AllowedCalendar calendar) {
         Device.DeviceMessageBuilder messageBuilder = device.newDeviceMessage(deviceMessageId);
 
         if (isSpecialDays(deviceMessageId)) {
