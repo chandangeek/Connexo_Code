@@ -25,7 +25,8 @@ import com.energyict.mdc.common.rest.MetricMultiplierAdapter;
 import com.energyict.mdc.common.rest.PhaseAdapter;
 import com.energyict.mdc.common.rest.ReadingTypeUnitAdapter;
 import com.energyict.mdc.common.rest.TimeAttributeAdapter;
-import com.energyict.mdc.protocol.api.DeviceFunction;
+import com.energyict.mdc.upl.DeviceFunction;
+import org.junit.Test;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 
