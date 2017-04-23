@@ -115,6 +115,10 @@ public final class ReadingQualityType {
         return hasQualityCodeCategory(QualityCodeCategory.VALIDATION);
     }
 
+    public boolean hasProjectedCategory() {
+        return hasQualityCodeCategory(QualityCodeCategory.PROJECTED);
+    }
+
     public boolean isSuspect() {
         return hasQualityIndex(QualityCodeIndex.SUSPECT);
     }

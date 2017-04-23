@@ -27,7 +27,7 @@ public enum EndDeviceStage {
         return key;
     }
 
-    public static EndDeviceStage fromKey(String key) throws IllegalArgumentException {
+    public static EndDeviceStage fromKey(String key) {
         return Arrays.stream(values())
                 .filter(stage -> stage.getKey().equals(key))
                 .findFirst()
