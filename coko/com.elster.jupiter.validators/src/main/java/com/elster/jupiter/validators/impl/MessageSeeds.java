@@ -25,6 +25,9 @@ public enum MessageSeeds implements MessageSeed {
     MAIN_CHECK_MISC_NO_CHECK_OUTPUT(1010, "maincheck.validator.misc.no.check.output", "Failed to validate period {0} using method \"{1}\" on {2} since 'check' output with matching reading type on the specified purpose doesn''t exist on {3}"),
     MAIN_CHECK_MISC_CHECK_OUTPUT_MISSING_OR_NOT_VALID(1011, "maincheck.validator.misc.check.output.missing.or.not.valid", "Failed to validate period {0} using method \"{1}\" on {2}/{3} since data from 'check' output is missing or not validated"),
 
+    // Consecutive zeros messages
+    MAX_PERIOD_SHORTER_THEN_MIN_PERIOD(1012, "maximum.period.less.minimum", "Maximum period less than minimum"),
+
     // Meter advance messages
     // {0} - from time, {1} - to time, {2} - validator display name, {3} - reading type name, {4} - validate object name
     REFERENCE_READINGTYPE_DOES_NOT_MATCH_VALIDATED_ONE(2001, "ReferenceReadingTypeDoesNotMatch",

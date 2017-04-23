@@ -46,6 +46,7 @@ public class DefaultValidatorFactory implements ValidatorFactory, MessageSeedPro
     public static final String READING_QUALITIES_VALIDATOR = ReadingQualitiesValidator.class.getName();
     public static final String METER_ADVANCE_VALIDATOR = MeterAdvanceValidator.class.getName();
     public static final String MAIN_CHECK_VALIDATOR = MainCheckValidator.class.getName();
+    public static final String CONSECUTIVE_ZEROS_VALIDATOR = ConsecutiveValidator.class.getName();
 
     private volatile Thesaurus thesaurus;
     private volatile PropertySpecService propertySpecService;
@@ -192,6 +193,17 @@ public class DefaultValidatorFactory implements ValidatorFactory, MessageSeedPro
             @Override
             IValidator createTemplate(ValidatorParameters parameters) {
                 return new MainCheckValidator(parameters.thesaurus, parameters.propertySpecService, parameters.metrologyConfigurationService, parameters.validationService);
+            }
+        },
+        CONSECUTIVE_ZEROS(CONSECUTIVE_ZEROS_VALIDATOR){
+            @Override
+            Validator create(ValidatorParameters parameters) {
+                return new ConsecutiveValidator(parameters.thesaurus, parameters.propertySpecService, parameters.props);
+            }
+
+            @Override
+            IValidator createTemplate(ValidatorParameters parameters) {
+                return new ConsecutiveValidator(parameters.thesaurus, parameters.propertySpecService);
             }
         },
         METER_ADVANCE(METER_ADVANCE_VALIDATOR) {
