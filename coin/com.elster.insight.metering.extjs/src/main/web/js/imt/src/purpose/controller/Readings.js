@@ -16,7 +16,8 @@ Ext.define('Imt.purpose.controller.Readings', {
         'Imt.purpose.view.MultipleReadingsActionMenu',
         'Imt.purpose.view.ReadingEstimationWindow',
         'Imt.purpose.view.ReadingEstimationWithRuleWindow',
-        'Uni.view.readings.CorrectValuesWindow'
+        'Uni.view.readings.CorrectValuesWindow',
+
     ],
 
     stores: [
@@ -43,8 +44,7 @@ Ext.define('Imt.purpose.controller.Readings', {
     views: [
         'Imt.purpose.view.Outputs',
         'Imt.purpose.view.OutputChannelMain',
-        'Imt.purpose.view.ValidationStatusForm',
-        'Cfg.view.common.CopyFromReferenceWindow'
+        'Imt.purpose.view.ValidationStatusForm'
     ],
 
     refs: [
@@ -127,8 +127,11 @@ Ext.define('Imt.purpose.controller.Readings', {
     chooseBulkAction: function (menu, item) {
         var me = this,
             records = me.getReadingsList().getSelectionModel().getSelection();
-
+debugger;
         switch (item.action) {
+            case 'editEstimationComment':
+                me.editEstimationComment(records);
+                break;
             case 'estimateValue':
                 me.estimateValue(records);
                 break;
@@ -168,6 +171,9 @@ Ext.define('Imt.purpose.controller.Readings', {
                 break;
             case 'copyFromReference':
                 me.copyFromReference(menu.record);
+                break;
+            case 'editEstimationComment':
+                me.editEstimationComment(menu.record);
                 break;
             case 'estimateValue':
                 me.estimateValue(menu.record);
@@ -552,6 +558,15 @@ Ext.define('Imt.purpose.controller.Readings', {
         chart.redraw();
         Ext.resumeLayouts(true);
         me.showButtons();
+    },
+
+    editEstimationComment: function (records) {
+        debugger;
+        Ext.widget('reading-edit-estimation-comment-window',
+            {
+                itemId: 'channel-edit-estimation-comment-window',
+                records: records
+            }).show();
     },
 
     copyFromReference: function (records) {

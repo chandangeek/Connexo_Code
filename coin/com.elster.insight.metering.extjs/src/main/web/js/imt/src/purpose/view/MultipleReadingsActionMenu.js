@@ -30,6 +30,14 @@ Ext.define('Imt.purpose.view.MultipleReadingsActionMenu', {
                 section: this.SECTION_ACTION
             },
             {
+                itemId: 'edit-estimation-comment-value',
+                privileges: Imt.privileges.UsagePoint.admin,
+                // hidden: true,
+                text: Uni.I18n.translate('general.editEstimationComment', 'IMT', 'Edit estimation comment'),
+                action: 'editEstimationComment',
+                section: this.SECTION_ACTION
+            },
+            {
                 itemId: 'estimate-value',
                 privileges: Imt.privileges.UsagePoint.admin,
                 hidden: true,
