@@ -183,19 +183,17 @@ import com.energyict.mdc.tasks.impl.TasksModule;
 import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.io.SerialComponentService;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
+import com.energyict.protocols.naming.ConnectionTypePropertySpecName;
+
 import com.energyict.protocolimpl.elster.a3.AlphaA3;
 import com.energyict.protocolimplv2.nta.dsmr23.eict.WebRTUKP;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
-import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
-import com.energyict.protocols.naming.ConnectionTypePropertySpecName;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Scopes;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 import org.kie.api.io.KieResources;
 import org.kie.internal.KnowledgeBaseFactoryService;
 import org.kie.internal.builder.KnowledgeBuilderFactoryService;
@@ -214,9 +212,12 @@ import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
-import static org.assertj.core.api.Assertions.in;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -865,8 +866,8 @@ public class DemoTest {
                         injector.getInstance(ValidationService.class),
                         injector.getInstance(MeteringService.class),
                         injector.getInstance(MetrologyConfigurationService.class),
-                        injector.getInstance(CalendarService.class),
-                        timeService);
+                        timeService,
+                        injector.getInstance(CalendarService.class));
         estimationService.addEstimatorFactory(estimatorFactory);
 
     }
