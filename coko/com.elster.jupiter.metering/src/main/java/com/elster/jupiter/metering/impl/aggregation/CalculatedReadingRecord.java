@@ -303,6 +303,10 @@ class CalculatedReadingRecord implements BaseReadingRecord, Comparable<Calculate
         return this.timestamp;
     }
 
+    void setTimestamp(Instant timestamp) {
+        this.timestamp = timestamp;
+    }
+
     @Override
     public Instant getReportedDateTime() {
         return null;
