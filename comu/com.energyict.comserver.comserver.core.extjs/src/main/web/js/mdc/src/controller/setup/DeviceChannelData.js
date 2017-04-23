@@ -12,6 +12,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
 
     views: [
         'Cfg.view.common.CopyFromReferenceWindow',
+        'Cfg.view.common.EditEstimationComment',
         'Mdc.view.setup.devicechannels.TabbedDeviceChannelsView',
         'Mdc.view.setup.devicechannels.Overview',
         'Mdc.view.setup.devicechannels.ReadingEstimationWindow',
@@ -494,6 +495,9 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             case 'correctValue':
                 me.openCorrectWindow(menu.record);
                 break;
+            case 'editEstimationComment':
+                me.editEstimationComment(menu.record);
+                break;
             case 'estimateValue':
                 me.estimateValue(menu.record);
                 break;
@@ -746,10 +750,19 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         }
     },
 
+    editEstimationComment: function (records) {
+        debugger;
+        Ext.widget('reading-edit-estimation-comment-window',
+            {
+                itemId: 'channel-edit-estimation-comment-window',
+                records: records
+            }).show();
+    },
+
     copyFromReference: function (records) {
         var window = Ext.widget('reading-copy-from-reference-window',
             {
-                itemId: 'channel-reading-copy-from-reference-window',
+                itemId: 'channel-copy-from-reference-window',
                 records: records
             }).show();
 
@@ -1142,6 +1155,9 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             filterParams = {};
 
         switch (item.action) {
+            case 'editEstimationComment':
+                me.editEstimationComment(records);
+                break;
             case 'estimateValue':
                 me.estimateValue(records);
                 break;
