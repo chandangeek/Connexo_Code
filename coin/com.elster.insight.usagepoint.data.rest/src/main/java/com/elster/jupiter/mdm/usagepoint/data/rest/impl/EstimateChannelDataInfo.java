@@ -8,6 +8,8 @@ import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.rest.util.IntervalInfo;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.List;
 
 public class EstimateChannelDataInfo {
@@ -19,4 +21,7 @@ public class EstimateChannelDataInfo {
     public List<IntervalInfo> intervals;
 
     public ReadingTypeInfo readingType;
+
+    @JsonProperty("markAsProjected")
+    public boolean markAsProjected;
 }
