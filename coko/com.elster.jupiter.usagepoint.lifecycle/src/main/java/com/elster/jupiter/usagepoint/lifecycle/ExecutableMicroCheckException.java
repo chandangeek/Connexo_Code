@@ -9,7 +9,8 @@ import com.elster.jupiter.usagepoint.lifecycle.config.MicroCheck;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 import com.elster.jupiter.util.exception.MessageSeed;
 
-import java.util.Collections;
+import com.google.common.collect.ImmutableList;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,7 +28,7 @@ public class ExecutableMicroCheckException extends UsagePointStateChangeExceptio
         super(messageSeed.getKey());
         this.thesaurus = thesaurus;
         this.messageSeed = messageSeed;
-        this.violations = violations;
+        this.violations = ImmutableList.copyOf(violations);
     }
 
     @Override
@@ -36,7 +37,7 @@ public class ExecutableMicroCheckException extends UsagePointStateChangeExceptio
     }
 
     public List<ExecutableMicroCheckViolation> getViolations() {
-        return Collections.unmodifiableList(this.violations);
+        return this.violations;
     }
 
     private String violationMessagesAsCommaSeparatedList() {

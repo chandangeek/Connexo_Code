@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.usagepoint.lifecycle.impl;
 
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
@@ -17,7 +18,6 @@ import com.elster.jupiter.usagepoint.lifecycle.UsagePointStateChangeException;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointStateChangeFail;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointStateChangeRequest;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
-import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 import com.elster.jupiter.users.User;
 
@@ -303,7 +303,7 @@ public class UsagePointStateChangeRequestImpl implements UsagePointStateChangeRe
     }
 
     private boolean transitionIsActualForUsagePoint() {
-        UsagePointState currentUsagePointState = this.usagePoint.get().getState(this.transitionTime);
+        State currentUsagePointState = this.usagePoint.get().getState(this.transitionTime);
         if (currentUsagePointState.getId() != this.transition.getFrom().getId()) {
             this.generalFailReason = this.thesaurus.getFormat(MessageSeeds.USAGE_POINT_STATE_DOES_NOT_SUPPORT_TRANSITION).format(currentUsagePointState.getName(), this.toStateName);
             return false;

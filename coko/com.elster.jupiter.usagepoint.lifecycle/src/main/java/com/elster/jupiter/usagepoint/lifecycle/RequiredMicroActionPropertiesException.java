@@ -7,7 +7,8 @@ package com.elster.jupiter.usagepoint.lifecycle;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
 
-import java.util.Collections;
+import com.google.common.collect.ImmutableSet;
+
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -21,7 +22,7 @@ public class RequiredMicroActionPropertiesException extends UsagePointLifeCycleA
         super();
         this.thesaurus = thesaurus;
         this.messageSeed = messageSeed;
-        this.propertySpecNames = propertySpecNames;
+        this.propertySpecNames = ImmutableSet.copyOf(propertySpecNames);
     }
 
     @Override
@@ -30,7 +31,7 @@ public class RequiredMicroActionPropertiesException extends UsagePointLifeCycleA
     }
 
     public Set<String> getViolatedPropertySpecNames(){
-        return Collections.unmodifiableSet(this.propertySpecNames);
+        return this.propertySpecNames;
     }
 
     private String propertySpecNamesAsCommaSeparatedList() {
