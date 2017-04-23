@@ -16,18 +16,18 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolation;
 import com.energyict.mdc.device.lifecycle.config.MicroCheck;
-
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Optional;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyLong;
@@ -97,9 +97,9 @@ public class AllLoadProfileDataCollectedTest {
     public void deviceWithLoadProfilesButNoLastReadings() {
         AllLoadProfileDataCollected microCheck = this.getTestInstance();
         LoadProfile lp1 = mock(LoadProfile.class);
-        when(lp1.getLastReading()).thenReturn(Optional.<Instant>empty());
+        when(lp1.getLastReading()).thenReturn(null);
         LoadProfile lp2 = mock(LoadProfile.class);
-        when(lp2.getLastReading()).thenReturn(Optional.<Instant>empty());
+        when(lp2.getLastReading()).thenReturn(null);
         when(this.device.getLoadProfiles()).thenReturn(Arrays.asList(lp1, lp2));
 
         // Business method
@@ -133,7 +133,7 @@ public class AllLoadProfileDataCollectedTest {
     private LoadProfile getMockedLoadProfile(Device device, Instant lastReadingTimestamp) {
         LoadProfile lp1 = mock(LoadProfile.class);
         when(lp1.getDevice()).thenReturn(device);
-        when(lp1.getLastReading()).thenReturn(Optional.of(lastReadingTimestamp));
+        when(lp1.getLastReading()).thenReturn(Date.from(lastReadingTimestamp));
         mockChannelsOnLoadProfile(lp1);
         return lp1;
     }
@@ -208,7 +208,8 @@ public class AllLoadProfileDataCollectedTest {
         Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, effectiveTimestamp, null);
 
         // Asserts
-        assertThat(violation).isEmpty();    }
+        assertThat(violation).isEmpty();
+    }
 
     private AllLoadProfileDataCollected getTestInstance() {
         return new AllLoadProfileDataCollected(this.thesaurus, meteringService);
