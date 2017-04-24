@@ -24,6 +24,7 @@ import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.estimation.Estimator;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ReadingQualityComment;
+import com.elster.jupiter.metering.aggregation.ReadingQualityCommentCategory;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.BooleanFactory;
@@ -288,8 +289,12 @@ public class EstimationResourceTest extends EstimationApplicationJerseyTest {
 
         EstimationRuleSet ruleSet = mockDefaultRuleSet();
         EstimationRule rule = mockEstimationRuleInRuleSet(RULE_ID, ruleSet);
+        ReadingQualityComment readingQualityComment = mock(ReadingQualityComment.class);
         EstimationRuleBuilder estimationRuleBuilder = FakeBuilder.initBuilderStub(rule, EstimationRuleBuilder.class, EstimationRuleBuilder.PropertyBuilder.class);
         when(ruleSet.addRule(Matchers.eq(info.implementation), Matchers.eq(info.name))).thenReturn(estimationRuleBuilder);
+        when(readingQualityComment.getId()).thenReturn(555L);
+        when(readingQualityComment.getComment()).thenReturn("Estimated by market rule 11");
+        when(meteringService.findReadingQualityComment(any(Long.class))).thenReturn(Optional.of(readingQualityComment));
         estimationService.getEstimator(info.implementation).get().getPropertySpecs()
                 .forEach(propertySpec -> {
                     switch (propertySpec.getName()) {
@@ -440,6 +445,10 @@ public class EstimationResourceTest extends EstimationApplicationJerseyTest {
 
         EstimationRuleSet ruleSet = mockDefaultRuleSet();
         EstimationRule rule = mockEstimationRuleInRuleSet(RULE_ID, ruleSet);
+        ReadingQualityComment readingQualityComment = mock(ReadingQualityComment.class);
+        when(readingQualityComment.getId()).thenReturn(555L);
+        when(readingQualityComment.getComment()).thenReturn("Estimated by market rule 11");
+        when(meteringService.findReadingQualityComment(any(Long.class))).thenReturn(Optional.of(readingQualityComment));
         when(rule.getName()).thenReturn("MyRuleUpdated");
 
         Map<String, Object> props = new HashMap<>();
@@ -456,11 +465,11 @@ public class EstimationResourceTest extends EstimationApplicationJerseyTest {
                 Matchers.eq(new ArrayList<>()),
                 Matchers.eq(props),
                 anyBoolean(),
-                Optional.empty())).
+                Matchers.eq(Optional.of(readingQualityComment)))).
         thenReturn(rule);
 
         Entity<EstimationRuleInfo> entity = Entity.json(info);
-        Response response = target("/estimation/"+RULE_SET_ID+"/rules/"+RULE_ID).request().put(entity);
+        Response response = target("/estimation/"+ RULE_SET_ID+ "/rules/" + RULE_ID).request().put(entity);
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
 
@@ -500,6 +509,21 @@ public class EstimationResourceTest extends EstimationApplicationJerseyTest {
         ConcurrentModificationInfo errorInfo = response.readEntity(ConcurrentModificationInfo.class);
         assertThat(errorInfo.version).isNull();
         assertThat(errorInfo.parent.version).isEqualTo(RULE_SET_SUCCESS_VERSION);
+    }
+
+    @Test
+    public void testGetEstimationComments() {
+        String estimationComment = "Estimated by market rule 11";
+        ReadingQualityComment readingQualityComment = mock(ReadingQualityComment.class);
+        when(meteringService.getAllReadingQualityComments(ReadingQualityCommentCategory.ESTIMATION)).thenReturn(Collections.singletonList(readingQualityComment));
+        when(readingQualityComment.getComment()).thenReturn(estimationComment);
+        when(readingQualityComment.getId()).thenReturn(555L);
+        when(readingQualityComment.getCommentCategory()).thenReturn(ReadingQualityCommentCategory.ESTIMATION);
+
+        JsonModel response = JsonModel.create(target("/field/comments").request().get(String.class));
+
+        assertThat(response.<Integer>get("$.estimationComments[0].id")).isEqualTo(555);
+        assertThat(response.<String>get("$.estimationComments[0].comment")).isEqualTo(estimationComment);
     }
 
     private void mockRuleSetQuery(EstimationRuleSet... ruleSets) {

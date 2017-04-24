@@ -62,7 +62,7 @@ public class EstimationApplication extends Application implements MessageSeedPro
         return ImmutableSet.of(
                 EstimationResource.class,
                 MeterGroupsResource.class,
-                FieldResouce.class);
+                FieldResource.class);
     }
 
     @Activate

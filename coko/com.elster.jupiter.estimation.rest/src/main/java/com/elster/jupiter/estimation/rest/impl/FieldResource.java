@@ -5,6 +5,8 @@
 package com.elster.jupiter.estimation.rest.impl;
 
 import com.elster.jupiter.estimation.security.Privileges;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.aggregation.ReadingQualityCommentCategory;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.rest.util.IdWithDisplayValueInfo;
@@ -19,19 +21,22 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Path("/field")
-public class FieldResouce {
+public class FieldResource {
 
     private final MeteringGroupsService meteringGroupsService;
     private final MetrologyConfigurationService metrologyConfigurationService;
+    private final MeteringService meteringService;
 
     @Inject
-    public FieldResouce(MeteringGroupsService meteringGroupsService, MetrologyConfigurationService metrologyConfigurationService) {
+    public FieldResource(MeteringGroupsService meteringGroupsService, MetrologyConfigurationService metrologyConfigurationService, MeteringService meteringService) {
         this.meteringGroupsService = meteringGroupsService;
         this.metrologyConfigurationService = metrologyConfigurationService;
+        this.meteringService = meteringService;
     }
 
     @GET
@@ -61,4 +66,18 @@ public class FieldResouce {
 
         return PagedInfoList.fromCompleteList("metrologyPurposes", infos, queryParameters);
     }
+
+    @GET
+    @Path("/comments")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION)
+    public PagedInfoList getEstimationComments(@BeanParam JsonQueryParameters queryParameters) {
+        List<EstimationCommentInfo> data = meteringService.getAllReadingQualityComments(ReadingQualityCommentCategory.ESTIMATION)
+                .stream()
+                .map(EstimationCommentInfo::from)
+                .sorted(Comparator.comparing(estimationCommentInfo -> estimationCommentInfo.comment))
+                .collect(Collectors.toList());
+        return PagedInfoList.fromCompleteList("estimationComments", data, queryParameters);
+    }
+
 }

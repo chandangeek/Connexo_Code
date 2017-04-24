@@ -15,7 +15,6 @@ import com.elster.jupiter.estimation.EstimationTaskOccurrenceFinder;
 import com.elster.jupiter.estimation.Estimator;
 import com.elster.jupiter.estimation.security.Privileges;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.aggregation.ReadingQualityCommentCategory;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
@@ -307,18 +306,6 @@ public class EstimationResource {
                     return estimationRuleInfoFactory.createEstimationRuleInfo(rule);
                 });
         return Response.status(Response.Status.CREATED).entity(result).build();
-    }
-
-    @GET
-    @Path("/comments")
-    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed(Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION)
-    public PagedInfoList getEstimationComments(@BeanParam JsonQueryParameters queryParameters) {
-        List<EstimationCommentInfo> data = meteringService.getAllReadingQualityComments(ReadingQualityCommentCategory.ESTIMATION)
-                .stream()
-                .map(EstimationCommentInfo::from)
-                .collect(Collectors.toList());
-        return PagedInfoList.fromCompleteList("data", data, queryParameters);
     }
 
     @PUT
