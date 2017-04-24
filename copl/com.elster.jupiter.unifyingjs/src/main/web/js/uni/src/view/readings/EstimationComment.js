@@ -4,7 +4,7 @@
 
 Ext.define('Uni.view.readings.EstimationComment', {
     extend: 'Ext.form.FieldContainer',
-    alias: 'widget.estimation-comments',
+    alias: 'widget.estimation-comment',
     requires: [
         'Uni.store.EstimationComment'
     ],
@@ -15,7 +15,7 @@ Ext.define('Uni.view.readings.EstimationComment', {
     items: [
         {
             xtype: 'combobox',
-            itemId: 'estimation-comment',
+            itemId: 'estimation-comment-box',
             flex: 1,
             name: 'commentId',
             store: Ext.create('Uni.store.EstimationComment').load(),
@@ -23,14 +23,16 @@ Ext.define('Uni.view.readings.EstimationComment', {
             displayField: 'comment',
             queryMode: 'local',
             editable: false,
+            emptyText: Uni.I18n.translate('estimationComment.selectComment', 'CFG', 'Select a comment..'),
             listeners: {
                 afterrender: function () {
                     var keepComment = {
-                        comment: Uni.I18n.translate('copyFromReference.keepComment', 'UNI', 'Keep original comment'),
+                        comment: Uni.I18n.translate('estimationComment.keepComment', 'UNI', 'Keep original comment'),
                         id: -1
                     };
-                    this.getStore().add(keepComment);
                     this.resetButton = this.nextSibling('#estimation-comment-default-button');
+                    this.getStore().add(keepComment);
+                    this.setValue(-1);
 
                 },
                 change: function (combobox) {
@@ -49,7 +51,7 @@ Ext.define('Uni.view.readings.EstimationComment', {
             disabled: true,
             tooltip: Uni.I18n.translate('general.clear', 'UNI', 'Clear'),
             handler: function () {
-                this.previousSibling('#estimation-comment').reset();
+                this.previousSibling('#estimation-comment-box').reset();
             }
 
         }

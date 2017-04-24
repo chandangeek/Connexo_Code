@@ -143,7 +143,7 @@ Ext.define('Uni.view.readings.CorrectValuesWindow', {
                     hidden: me.hideProjectedField
                 },
                 {
-                    xtype: 'estimation-comments'
+                    xtype: 'estimation-comment'
                 },
                 {
                     xtype: 'fieldcontainer',
