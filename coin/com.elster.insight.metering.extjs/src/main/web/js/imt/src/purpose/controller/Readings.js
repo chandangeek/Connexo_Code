@@ -415,36 +415,6 @@ Ext.define('Imt.purpose.controller.Readings', {
         }
     },
 
-    // getChangedData: function (store) {
-    //     var me = this,
-    //         changedData = [],
-    //         confirmedObj;
-    //
-    //     Ext.Array.each(store.getUpdatedRecords(), function (record) {
-    //         if (record.get('removedNotSaved')) {
-    //             confirmedObj = {
-    //                 interval: record.get('interval'),
-    //                 value: null
-    //             };
-    //             changedData.push(confirmedObj);
-    //         } else if (record.get('confirmed')) {
-    //             confirmedObj = {
-    //                 interval: record.get('interval'),
-    //                 isConfirmed: record.get('confirmedNotSaved') || false
-    //             };
-    //             changedData.push(confirmedObj);
-    //         } else if (record.get('ruleId')) {
-    //             changedData.push(_.pick(record.getData(), 'interval', 'value', 'ruleId', 'isProjected'));
-    //         } else if (record.isModified('value') || record.isModified('isProjected')) {
-    //             changedData.push(_.pick(record.getData(), 'interval', 'value', 'isProjected'));
-    //         } else if (record.isModified('collectedValue')) {
-    //             changedData.push(_.pick(record.getData(), 'interval', 'collectedValue', 'isProjected'));
-    //         }
-    //     });
-    //
-    //     return changedData;
-    // },
-
     getChangedData: function (store) {
         var me = this,
             changedData = [],
@@ -460,6 +430,9 @@ Ext.define('Imt.purpose.controller.Readings', {
             }
             if (record.isModified('collectedValue')) {
                 Ext.merge(changedRecord, _.pick(record.getData(), 'interval', 'collectedValue', 'isProjected'));
+            }
+            if (record.isModified('commentId')) {
+                Ext.merge(changedRecord, _.pick(record.getData(), 'interval', 'commentId'));
             }
             if (record.get('removedNotSaved')) {
                 confirmedObj = {
@@ -603,6 +576,7 @@ Ext.define('Imt.purpose.controller.Readings', {
                 }
             });
         }
+        me.showButtons();
         window.close();
     },
 
