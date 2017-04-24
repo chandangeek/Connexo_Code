@@ -186,32 +186,25 @@ public class UsagePointOutputResource {
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
         MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(effectiveMetrologyConfigurationOnUsagePoint, contractId);
+        Range<Instant> interval = null;
         if (filter.hasFilters()) {
             Instant now = clock.instant();
             int periodId = filter.getInteger("periodId");
-            Range<Instant> interval = timeService.findRelativePeriod(periodId)
+            Range<Instant> relativePeriodInterval = timeService.findRelativePeriod(periodId)
                     .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_RELATIVEPERIOD_FOR_ID, periodId))
                     .getOpenClosedInterval(ZonedDateTime.ofInstant(now, clock.getZone()));
             Range<Instant> upToNow = Range.atMost(now);
-            if (!interval.isConnected(upToNow)) {
+            if (!relativePeriodInterval.isConnected(upToNow)) {
                 throw exceptionFactory.newException(MessageSeeds.RELATIVEPERIOD_IS_IN_THE_FUTURE, periodId);
-            } else if (!interval.intersection(upToNow).isEmpty()) {
-                Range<Instant> adjustedInterval = getUsagePointAdjustedDataRange(usagePoint, interval.intersection(upToNow)).orElse(Range.openClosed(now, now));
-                outputInfoList = metrologyContract.getDeliverables()
-                        .stream()
-                        .map(deliverable -> outputInfoFactory.asInfo(deliverable, effectiveMetrologyConfigurationOnUsagePoint, metrologyContract, adjustedInterval))
-                        .sorted(Comparator.comparing(info -> info.name))
-                        .collect(Collectors.toList());
+            } else if (!relativePeriodInterval.intersection(upToNow).isEmpty()) {
+                interval = getUsagePointAdjustedDataRange(usagePoint, relativePeriodInterval.intersection(upToNow)).orElse(Range.openClosed(now, now));
             }
-            return PagedInfoList.fromCompleteList("outputs", outputInfoList, queryParameters);
-        } else {
-            outputInfoList = metrologyContract.getDeliverables()
-                    .stream()
-                    .map(deliverable -> outputInfoFactory.asInfo(deliverable, effectiveMetrologyConfigurationOnUsagePoint, metrologyContract, null))
-                    .sorted(Comparator.comparing(info -> info.name))
-                    .collect(Collectors.toList());
-            return PagedInfoList.fromCompleteList("outputs", outputInfoList, queryParameters);
         }
+        outputInfoList = outputInfoFactory.deliverablesAsOutputInfo(effectiveMetrologyConfigurationOnUsagePoint, metrologyContract, interval)
+                .stream()
+                .sorted(Comparator.comparing(info -> info.name))
+                .collect(Collectors.toList());
+        return PagedInfoList.fromCompleteList("outputs", outputInfoList, queryParameters);
     }
 
     @GET

@@ -49,7 +49,7 @@ public class PurposeInfoFactory {
         status.name = metrologyContractStatus.getName();
         purposeInfo.status = status;
         effectiveMetrologyConfiguration.getChannelsContainer(metrologyContract).ifPresent(channelsContainer ->
-                purposeInfo.validationInfo = validationStatusFactory.getValidationStatusInfo(effectiveMetrologyConfiguration, metrologyContract, channelsContainer.getChannels(), null));
+                purposeInfo.validationInfo = validationStatusFactory.getValidationStatusInfo(effectiveMetrologyConfiguration, metrologyContract, channelsContainer));
         if (withValidationTasks) {
             purposeInfo.dataValidationTasks = validationService.findValidationTasksQuery()
                     .select(where("metrologyContract").isEqualTo(metrologyContract))

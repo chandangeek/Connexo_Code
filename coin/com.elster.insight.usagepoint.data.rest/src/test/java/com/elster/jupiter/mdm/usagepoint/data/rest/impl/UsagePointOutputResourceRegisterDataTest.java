@@ -182,6 +182,7 @@ public class UsagePointOutputResourceRegisterDataTest extends UsagePointDataRest
         when(evaluator.getValidationStatus(eq(EnumSet.of(QualityCodeSystem.MDM)), any(Channel.class), any(),
                 eq(Range.openClosed(TIME_STAMP_BEFORE_1, READING_TIME_STAMP_3))))
                 .thenReturn(Collections.emptyList());
+        when(evaluator.getLastChecked(eq(channelsContainer), any(ReadingType.class))).thenReturn(Optional.of(readingTimeStamp1));
     }
 
     private String defaultFilter() throws UnsupportedEncodingException {

@@ -178,6 +178,7 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         when(meterActivation.getRange()).thenReturn(Range.atLeast(INTERVAL_1.lowerEndpoint()));
 
         when(validationService.getEvaluator()).thenReturn(evaluator);
+        when(evaluator.getLastChecked(eq(channelsContainer), any(ReadingType.class))).thenReturn(Optional.of(INTERVAL_1.lowerEndpoint()));
 
         Estimator estimator = mock(Estimator.class);
         EstimationResult estimationResult = mock(EstimationResult.class);
