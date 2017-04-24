@@ -161,7 +161,7 @@ Ext.define('Uni.property.model.Property', {
         var values = this.getPredefinedPropertyValues();
         return values
             ? values.get('possibleValues')
-            : null
+            : []
             ;
     },
 
