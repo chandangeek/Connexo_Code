@@ -46,6 +46,7 @@ public class DefaultValidatorFactory implements ValidatorFactory, MessageSeedPro
     public static final String READING_QUALITIES_VALIDATOR = ReadingQualitiesValidator.class.getName();
     public static final String METER_ADVANCE_VALIDATOR = MeterAdvanceValidator.class.getName();
     public static final String MAIN_CHECK_VALIDATOR = MainCheckValidator.class.getName();
+    public static final String REFERENCE_COMPARISON_VALIDATOR = ReferenceComparisonValidator.class.getName();
 
     private volatile Thesaurus thesaurus;
     private volatile PropertySpecService propertySpecService;
@@ -83,7 +84,7 @@ public class DefaultValidatorFactory implements ValidatorFactory, MessageSeedPro
 
 
     @Reference
-    public void setMeteringService(MeteringService validationService) {
+    public void setMeteringService(MeteringService meteringService) {
         this.meteringService = meteringService;
     }
 
@@ -203,6 +204,17 @@ public class DefaultValidatorFactory implements ValidatorFactory, MessageSeedPro
             @Override
             IValidator createTemplate(ValidatorParameters parameters) {
                 return new MeterAdvanceValidator(parameters.thesaurus, parameters.propertySpecService, parameters.meteringService);
+            }
+        },
+        REFERENCE_COMPARISON(REFERENCE_COMPARISON_VALIDATOR) {
+            @Override
+            Validator create(ValidatorParameters parameters) {
+                return new ReferenceComparisonValidator(parameters.thesaurus, parameters.propertySpecService, parameters.metrologyConfigurationService, parameters.validationService, parameters.meteringService, parameters.props);
+            }
+
+            @Override
+            IValidator createTemplate(ValidatorParameters parameters) {
+                return new ReferenceComparisonValidator(parameters.thesaurus, parameters.propertySpecService, parameters.metrologyConfigurationService, parameters.validationService, parameters.meteringService);
             }
         };
 
