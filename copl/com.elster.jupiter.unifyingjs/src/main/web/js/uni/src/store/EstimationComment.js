@@ -11,10 +11,10 @@ Ext.define('Uni.store.EstimationComment', {
 
     proxy: {
         type: 'rest',
-        url: '/api/est/estimation/comments',
+        url: '/api/est/field/comments',
         reader: {
             type: 'json',
-            root: 'data'
+            root: 'estimationComments'
         },
         pageParam: false,
         startParam: false,
