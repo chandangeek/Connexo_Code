@@ -813,6 +813,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 }
             });
         }
+        me.showButtons();
         window.close();
     },
 
