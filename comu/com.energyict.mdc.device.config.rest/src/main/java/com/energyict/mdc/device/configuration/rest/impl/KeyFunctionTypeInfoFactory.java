@@ -7,12 +7,14 @@ package com.energyict.mdc.device.configuration.rest.impl;
 import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.time.rest.TimeDurationInfo;
+import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.device.config.DeviceSecurityUserAction;
 import com.energyict.mdc.device.config.DeviceType;
 
 import javax.inject.Inject;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Set;
 
 public class KeyFunctionTypeInfoFactory {
@@ -43,10 +45,12 @@ public class KeyFunctionTypeInfoFactory {
     public SecurityAccessorInfo withSecurityLevels(KeyAccessorType keyAccessorType, DeviceType deviceType) {
         SecurityAccessorInfo info = from(keyAccessorType, deviceType);
         Set<DeviceSecurityUserAction> allUserActions = EnumSet.allOf(DeviceSecurityUserAction.class);
-        info.editLevels = executionLevelInfoFactory.getEditPrivileges(deviceType.getKeyAccessorTypeUserActions(keyAccessorType), userService.getGroups());
-        info.defaultEditLevels = executionLevelInfoFactory.getEditPrivileges(allUserActions, userService.getGroups());
-        info.viewLevels = executionLevelInfoFactory.getViewPrivileges(deviceType.getKeyAccessorTypeUserActions(keyAccessorType), userService.getGroups());
-        info.defaultViewLevels = executionLevelInfoFactory.getViewPrivileges(allUserActions, userService.getGroups());
+        List<Group> groups = userService.getGroups();
+        Set<DeviceSecurityUserAction> keyAccessorTypeUserActions = deviceType.getKeyAccessorTypeUserActions(keyAccessorType);
+        info.editLevels = executionLevelInfoFactory.getEditPrivileges(keyAccessorTypeUserActions, groups);
+        info.defaultEditLevels = executionLevelInfoFactory.getEditPrivileges(allUserActions, groups);
+        info.viewLevels = executionLevelInfoFactory.getViewPrivileges(keyAccessorTypeUserActions, groups);
+        info.defaultViewLevels = executionLevelInfoFactory.getViewPrivileges(allUserActions, groups);
         return info;
     }
 }
