@@ -20,6 +20,7 @@ import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
+import com.energyict.cim.EndDeviceEventTypeMapping;
 import com.energyict.mdc.device.alarms.impl.templates.BasicDeviceAlarmRuleTemplate;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -27,8 +28,6 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.issue.datacollection.impl.templates.BasicDataCollectionRuleTemplate;
-import com.energyict.mdc.protocol.api.cim.EndDeviceEventTypeMapping;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -221,9 +220,9 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
                         return collected.stream();
                     }))
                     .limit(10)
-                    .map(EndDeviceEventTypeMapping::getEndDeviceEventTypeMRID)
+                    .map((endDeviceEventTypeMapping) -> endDeviceEventTypeMapping.getEventType().getCode())
                     .map(type -> {
-                        if (type.equals(EndDeviceEventTypeMapping.OTHER.getEndDeviceEventTypeMRID())) {
+                        if (type.equals(EndDeviceEventTypeMapping.OTHER.getEventType().getCode())) {
                             return type.concat(SEPARATOR).concat(String.valueOf(new Random().nextInt(65)));
                         } else {
                             return type.concat(SEPARATOR).concat(WILDCARD);
@@ -251,9 +250,9 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
                         return collected.stream();
                     }))
                     .limit(10)
-                    .map(EndDeviceEventTypeMapping::getEndDeviceEventTypeMRID)
+                    .map((endDeviceEventTypeMapping) -> endDeviceEventTypeMapping.getEventType().getCode())
                     .map(type -> {
-                        if (type.equals(EndDeviceEventTypeMapping.OTHER.getEndDeviceEventTypeMRID())) {
+                        if (type.equals(EndDeviceEventTypeMapping.OTHER.getEventType().getCode())) {
                             return type.concat(SEPARATOR).concat(String.valueOf(new Random().nextInt(65)));
                         } else {
                             return type.concat(SEPARATOR).concat(WILDCARD);

@@ -26,6 +26,7 @@ import com.elster.jupiter.demo.impl.commands.CreateImporterDirectoriesCommand;
 import com.elster.jupiter.demo.impl.commands.CreateImportersCommand;
 import com.elster.jupiter.demo.impl.commands.CreateNtaConfigCommand;
 import com.elster.jupiter.demo.impl.commands.CreatePowerUserCommand;
+import com.elster.jupiter.demo.impl.commands.CreateRegisterDeviceCommand;
 import com.elster.jupiter.demo.impl.commands.CreateUserManagementCommand;
 import com.elster.jupiter.demo.impl.commands.CreateValidationSetupCommand;
 import com.elster.jupiter.demo.impl.commands.DemoDataUpgrade10_1_Command;
@@ -130,7 +131,8 @@ import java.time.Clock;
         "osgi.command.function=createSPEDevice",
         "osgi.command.function=createAlarmCreationRule",
         "osgi.command.function=upgradeDemoData",
-        "osgi.command.function=createPowerUser"
+        "osgi.command.function=createPowerUser",
+        "osgi.command.function=createRegisterDevice"
 }, immediate = true)
 public class DemoServiceImpl {
     private volatile EngineConfigurationService engineConfigurationService;
@@ -958,6 +960,19 @@ public class DemoServiceImpl {
             }
         });
     }
+
+    @SuppressWarnings("unused")
+    public void createRegisterDevice() {
+        System.err.println("Usage: createRegisterDevice <name>");
+    }
+
+    @SuppressWarnings("unused")
+    public void createRegisterDevice(String name) {
+        CreateRegisterDeviceCommand command = injector.getInstance(CreateRegisterDeviceCommand.class);
+        command.setDeviceName(name);
+        command.run();
+    }
+
 
     @SuppressWarnings("unused")
     public void setDeviceLocations() {
