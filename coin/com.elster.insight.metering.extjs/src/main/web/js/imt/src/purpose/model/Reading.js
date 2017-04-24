@@ -20,6 +20,7 @@ Ext.define('Imt.purpose.model.Reading', {
         {name: 'estimatedByRule', type: 'auto'},
         {name: 'calculatedValue', type: 'auto'},
         {name: 'isConfirmed', type: 'auto'},
+        {name: 'isProjected', type: 'auto'},
         {name: 'ruleId', type: 'auto'},
         {name: 'estimatedByRule', type: 'auto'},
         {name: 'readingQualities', type: 'auto', defaultValue: null},
