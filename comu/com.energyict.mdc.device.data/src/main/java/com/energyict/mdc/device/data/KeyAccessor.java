@@ -10,13 +10,15 @@ import com.elster.jupiter.properties.PropertySpec;
 
 import aQute.bnd.annotation.ProviderType;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
 /**
  * Represents access to a wrapper object. This security object can be a certificate, symmetric key or password.
- * The Security accessor stores the actual value for a KeyAccessorType
- * An accessor stores two values: one for current use, and one value that is stored during the renew process.
+ * The Security accessor stores the real value(s) for a KeyAccessorType
+ * An accessor stores two values: one for current use (ActualValue), and one value that is stored during the renew
+ * process (TempValue).
  */
 @ProviderType
 public interface KeyAccessor<T extends SecurityValueWrapper> {
@@ -51,6 +53,12 @@ public interface KeyAccessor<T extends SecurityValueWrapper> {
     Optional<T> getTempValue();
 
     /**
+     * Sets the temp value on this KeyAccessor. Existing tempValue will be overwritten.
+     * @param newValueWrapper The value to set as temp value.
+     */
+    void setTempValue(T newValueWrapper);
+
+    /**
      * Create a new value for the KeyAccessor. The new value will be stored in the temp value holder.
      * If there is already a temp value, it will be overwritten!
      */
@@ -76,4 +84,37 @@ public interface KeyAccessor<T extends SecurityValueWrapper> {
      * @return PropertySpecs as reported by the wrapper.
      */
     List<PropertySpec> getPropertySpecs();
+
+    /**
+     * Deletes this KeyAccessor and actual and temp value, if present.
+     * If deletion of actual and temp values fail (veto exception), they will be left as they are, but the KeyAccessor
+     * will be deleted regardless
+     */
+    void delete();
+
+    /**
+     * Returns the current version of this KeyAccessor. Version is used to prevent concurrent modification.
+     * @return version of this object
+     */
+    long getVersion();
+
+    /**
+     * Indicates if the values are in their original place or swapped. After clearing the temp value of a KeyAccessor,
+     * the actual value is always considered in his original place.
+     * @return
+     */
+    boolean isSwapped();
+
+    /**
+     * Returns the Instant of this KeyAccessor's latest modification. This information is part of the general audit-information
+     * @return Time of latest modification
+     */
+    Instant getModTime();
+
+    /**
+     * Status indicates if this KeyAccessor is ready for use or not. A KeyAccessor is considered complete/ready for use
+     * if it has an actual value and all properties of this actual value have been filled id
+     * @return Complete if ready for use, Incomplete otherwise.
+     */
+    KeyAccessorStatus getStatus();
 }

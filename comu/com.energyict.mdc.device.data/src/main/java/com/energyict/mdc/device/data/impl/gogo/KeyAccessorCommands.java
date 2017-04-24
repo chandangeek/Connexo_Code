@@ -17,7 +17,6 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.gogo.MysqlPrint;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.CertificateAccessor;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
@@ -74,7 +73,6 @@ import static java.util.stream.Collectors.toList;
 public class KeyAccessorCommands {
     public static final MysqlPrint MYSQL_PRINT = new MysqlPrint();
 
-    private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile DeviceService deviceService;
     private volatile PkiService pkiService;
     private volatile TransactionService transactionService;
@@ -84,11 +82,6 @@ public class KeyAccessorCommands {
     @Reference
     public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
         this.threadPrincipalService = threadPrincipalService;
-    }
-
-    @Reference
-    public void setDeviceConfigurationService(DeviceConfigurationService deviceConfigurationService) {
-        this.deviceConfigurationService = deviceConfigurationService;
     }
 
     @Reference
@@ -113,8 +106,8 @@ public class KeyAccessorCommands {
 
     public void keyAccessors() {
         System.out.println("Usage: keyAccessors <device name>");
-        System.out.println("       List all known key accessors for a certain device");
-        System.out.println("e.g. : keyAccessors ABCD");
+        System.out.println("       List all known key accessors for a certain device with information about their values");
+        System.out.println("e.g. : keyAccessors ABCD0001");
     }
 
     public void keyAccessors(String deviceName) throws InvalidKeyException {
@@ -154,8 +147,8 @@ public class KeyAccessorCommands {
             }
             collection.add(Arrays.asList(keyAccessorType.getName(),
                     keyAccessorType.getKeyType().getName(),
-                    keyAccessor.isPresent() && keyAccessor.get().getActualValue()!=null ? (actualExtraValue.isEmpty()?"Present":actualExtraValue):"",
-                    keyAccessor.isPresent() && keyAccessor.get().getTempValue().isPresent() ? (tempExtraValue.isEmpty()?"Present":tempExtraValue):""
+                    keyAccessor.isPresent() && keyAccessor.get().getActualValue()!=null ? (actualExtraValue.isEmpty()?"Accessor present":actualExtraValue):"",
+                    keyAccessor.isPresent() && keyAccessor.get().getTempValue().isPresent() ? (tempExtraValue.isEmpty()?"Accessor present":tempExtraValue):""
             ));
         }
 

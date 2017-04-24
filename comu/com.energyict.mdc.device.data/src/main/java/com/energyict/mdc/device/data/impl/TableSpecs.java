@@ -974,7 +974,11 @@ public enum TableSpecs {
 
             Column actualCertificate = table.column("ACTUAL_CERT").number().add();
             Column tempCertificate = table.column("TEMP_CERT").number().add();
-
+            table.column("SWAPPED")
+                    .bool()
+                    .map(AbstractKeyAccessorImpl.Fields.SWAPPED.fieldName())
+                    .add();
+            table.addAuditColumns();
 
             table.primaryKey("PK_DCC_KEYACCESSOR").on(device, keyAccessorType).add();
             table.foreignKey("FK_KA_DEVICE")

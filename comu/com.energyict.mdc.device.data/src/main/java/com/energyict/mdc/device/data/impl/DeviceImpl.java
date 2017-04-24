@@ -694,11 +694,11 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     private void removeDeviceFromGroup(EnumeratedEndDeviceGroup group, EndDevice endDevice) {
         group
-                .getEntries()
-                .stream()
-                .filter(each -> each.getMember().getId() == endDevice.getId())
-                .findFirst()
-                .ifPresent(group::remove);
+            .getEntries()
+            .stream()
+            .filter(each -> each.getMember().getId() == endDevice.getId())
+            .findFirst()
+            .ifPresent(group::remove);
     }
 
     private void deleteAllIssues() {
@@ -3329,14 +3329,12 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     public KeyAccessor newKeyAccessor(KeyAccessorType keyAccessorType) {
         switch (keyAccessorType.getKeyType().getCryptographicType()) {
             case Certificate:
-                break; // TODO implement
             case ClientCertificate:
+            case TrustedCertificate:
                 CertificateAccessorImpl certificateAccessor = dataModel.getInstance(CertificateAccessorImpl.class);
                 certificateAccessor.init(keyAccessorType, this);
                 this.keyAccessors.add(certificateAccessor);
                 return certificateAccessor;
-            case TrustedCertificate:
-                break; // TODO implement
             case SymmetricKey:
                 SymmetricKeyAccessorImpl symmetricKeyAccessor = dataModel.getInstance(SymmetricKeyAccessorImpl.class);
                 symmetricKeyAccessor.init(keyAccessorType, this);
@@ -3348,6 +3346,11 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                 break; // TODO implement? will this occur?
         }
         return null; // TODO throw exception
+    }
+
+    @Override
+    public void removeKeyAccessor(KeyAccessor keyAccessor) {
+        this.getKeyAccessor(keyAccessor.getKeyAccessorType()).ifPresent(keyAccessors::remove);
     }
 
     static class DeviceEstimationImpl implements DeviceEstimation {

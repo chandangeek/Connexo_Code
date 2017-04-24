@@ -27,7 +27,7 @@ import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
 import com.energyict.mdc.device.data.impl.search.sqlbuilder.ValueBinder;
-import com.energyict.mdc.dynamic.TimeDurationValueFactory;
+import com.elster.jupiter.properties.TimeDurationValueFactory;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
