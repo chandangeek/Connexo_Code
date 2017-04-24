@@ -84,7 +84,7 @@ public class DefaultValidatorFactory implements ValidatorFactory, MessageSeedPro
 
 
     @Reference
-    public void setMeteringService(MeteringService validationService) {
+    public void setMeteringService(MeteringService meteringService) {
         this.meteringService = meteringService;
     }
 
