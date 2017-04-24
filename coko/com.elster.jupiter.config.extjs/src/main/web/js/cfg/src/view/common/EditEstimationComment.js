@@ -7,6 +7,7 @@ Ext.define('Cfg.view.common.EditEstimationComment', {
     alias: 'widget.reading-edit-estimation-comment-window',
     title: Uni.I18n.translate('general.editEstimationComment', 'CFG', 'Edit estimation comment'),
     records: null,
+    usagePoint: null,
 
     requires: [
         'Uni.view.readings.EstimationComment'
@@ -26,26 +27,7 @@ Ext.define('Cfg.view.common.EditEstimationComment', {
             },
             items: [
                 {
-                    xtype: 'radiogroup',
-                    fieldLabel: Uni.I18n.translate('editComment.valueToEditComment', 'CFG', 'Value to edit comment'),
-                    name: 'valueEdit',
-                    columns: 1,
-                    items: [
-                        {
-                            boxLabel: Uni.I18n.translate('editComment.value', 'CFG', 'Value (kWh)'),
-                            inputValue: true,
-                            name: 'valueEdit',
-                            checked: true
-                        },
-                        {
-                            boxLabel: Uni.I18n.translate('editComment.bulkValue', 'CFG', 'Bulk value (kWh)'),
-                            inputValue: false,
-                            name: 'valueEdit'
-                        }
-                    ]
-                },
-                {
-                    xtype: 'estimation-comments'
+                    xtype: 'estimation-comment'
                 },
                 {
                     xtype: 'fieldcontainer',
@@ -57,7 +39,8 @@ Ext.define('Cfg.view.common.EditEstimationComment', {
                     items: [
                         {
                             xtype: 'button',
-                            itemId: 'edit-reading-button',
+                            itemId: 'edit-comment-button',
+                            readings: me.records,
                             margin: '0 0 0 40',
                             text: Uni.I18n.translate('general.edit', 'CFG', 'Edit'),
                             ui: 'action'
@@ -75,6 +58,29 @@ Ext.define('Cfg.view.common.EditEstimationComment', {
                 }
             ]
         };
+        if (!me.usagePoint) {
+            me.items.items.unshift(
+                {
+                    xtype: 'radiogroup',
+                    fieldLabel: Uni.I18n.translate('editComment.valueToEditComment', 'CFG', 'Value to edit comment'),
+                    itemId: 'value-edit',
+                    columns: 1,
+                    items: [
+                        {
+                            boxLabel: Uni.I18n.translate('editComment.value', 'CFG', 'Value (kWh)'),
+                            inputValue: true,
+                            name: 'valueEdit',
+                            checked: true
+                        },
+                        {
+                            boxLabel: Uni.I18n.translate('editComment.bulkValue', 'CFG', 'Bulk value (kWh)'),
+                            inputValue: false,
+                            name: 'valueEdit'
+                        }
+                    ]
+                }
+            );
+        }
 
         me.callParent(arguments);
     }
