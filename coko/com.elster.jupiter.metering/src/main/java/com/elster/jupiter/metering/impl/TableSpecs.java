@@ -840,7 +840,7 @@ public enum TableSpecs {
                     .on(usagePoint)
                     .references(UsagePoint.class)
                     .map("usagePoint")
-                    .reverseMap("metrologyConfigurations")
+                    .reverseMap("metrologyConfigurations", EffectiveMetrologyContractOnUsagePoint.class, MetrologyContract.class, ChannelsContainer.class, Channel.class)
                     .composition()
                     .add();
             table.foreignKey("FK_MTR_UPMTRCONFIG_MC")
@@ -1709,7 +1709,7 @@ public enum TableSpecs {
                     .on(effectiveConfColumn)
                     .references(EffectiveMetrologyConfigurationOnUsagePoint.class)
                     .map(EffectiveMetrologyContractOnUsagePointImpl.Fields.EFFECTIVE_CONF.fieldName())
-                    .reverseMap("effectiveContracts")
+                    .reverseMap("effectiveContracts", MetrologyContract.class, ReadingTypeDeliverable.class)
                     .composition()
                     .add();
             table.foreignKey("MTR_EF_CONTRACT_2_CONTRACT")
