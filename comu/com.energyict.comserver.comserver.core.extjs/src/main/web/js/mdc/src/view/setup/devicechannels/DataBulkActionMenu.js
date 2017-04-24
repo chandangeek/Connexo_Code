@@ -35,6 +35,13 @@ Ext.define('Mdc.view.setup.devicechannels.DataBulkActionMenu', {
                 section: this.SECTION_ACTION
             },
             {
+                itemId: 'edit-estimation-comment',
+                // hidden: true,
+                text: Uni.I18n.translate('general.editEstimationComment', 'MDC', 'Edit estimation comment'),
+                action: 'editEstimationComment',
+                section: this.SECTION_ACTION
+            },
+            {
                 itemId: 'estimate-value-with-rule',
                 hidden: true,
                 text: Uni.I18n.translate('general.estimateValueWithRule', 'MDC', 'Estimate with rule'),

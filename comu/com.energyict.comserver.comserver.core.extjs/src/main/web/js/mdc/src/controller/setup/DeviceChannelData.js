@@ -82,6 +82,10 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             selector: '#deviceLoadProfileChannelData #mdc-device-channels-topfilter'
         },
         {
+            ref: 'editEstimationComment',
+            selector: 'reading-edit-estimation-comment-window'
+        },
+        {
             ref: 'readingCopyFromReferenceWindow',
             selector: 'reading-copy-from-reference-window'
         },
@@ -145,6 +149,9 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             },
             'reading-copy-from-reference-window #copy-reading-button': {
                 click: this.copyFromReferenceUpdateGrid
+            },
+            'reading-edit-estimation-comment-window #edit-comment-button': {
+                click: this.saveEstimationComment
             },
             '#channel-reading-estimation-window #estimate-reading-button': {
                 click: this.estimateReading
@@ -751,12 +758,41 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
     },
 
     editEstimationComment: function (records) {
-        debugger;
         Ext.widget('reading-edit-estimation-comment-window',
             {
                 itemId: 'channel-edit-estimation-comment-window',
                 records: records
             }).show();
+    },
+
+    saveEstimationComment: function (button) {
+        debugger;
+        var me = this,
+            window = me.getEditEstimationComment(),
+            commentCombo = window.down('#estimation-comment-box'),
+            commentValue = commentCombo.getRawValue(),
+            commentId = commentCombo.getValue(),
+            radioValue = window.down('#value-edit').getValue(),
+            readings = button.readings;
+
+        if (!Array.isArray(readings)) {
+            if (!commentValue) {
+                readings.set('commentId', 0);
+            } else if (commentId !== -1) {
+                readings.set('commentId', commentId);
+                readings.set('commentValue', commentValue);
+            }
+        } else {
+            _.each(readings, function (reading) {
+                if (!commentValue) {
+                    reading.set('commentId', 0);
+                } else if (commentId !== -1) {
+                    reading.set('commentId', commentId);
+                    reading.set('commentValue', commentValue);
+                }
+            });
+        }
+        window.close();
     },
 
     copyFromReference: function (records) {
@@ -787,7 +823,10 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             window = me.getReadingCopyFromReferenceWindow(),
             form = window.down('#reading-copy-window-form'),
             model = Ext.create('Mdc.model.CopyFromReference'),
-            router = me.getController('Uni.controller.history.Router');
+            router = me.getController('Uni.controller.history.Router'),
+            commentCombo = window.down('#estimation-comment-box'),
+            commentValue = commentCombo.getRawValue(),
+            commentId = commentCombo.getValue();
 
         window.setLoading(true);
         form.updateRecord(model);
@@ -830,9 +869,11 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                                 record.set('isProjected', model.get('projectedValue'));
                                 record.set('bulkValidationInfo', item.bulkValidationInfo);
                                 record.set('mainValidationInfo', item.mainValidationInfo);
-                                if (model.get('commentId') !== -1) {
-                                    record.set('commentId', item.commentId);
-                                    record.set('commentValue', item.commentValue);
+                                if (!commentValue) {
+                                    record.set('commentId', 0);
+                                } else if (commentId !== -1) {
+                                    record.set('commentId', commentId);
+                                    record.set('commentValue', commentValue);
                                 }
                             }
                         });
@@ -842,9 +883,11 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                             window.records.set('isProjected', model.get('projectedValue'));
                             window.records.set('bulkValidationInfo', response[0].bulkValidationInfo);
                             window.records.set('mainValidationInfo', response[0].mainValidationInfo);
-                            if (model.get('commentId') !== -1) {
-                                window.records.set('commentId', response[0].commentId);
-                                window.records.set('commentValue', response[0].commentValue);
+                            if (!commentValue) {
+                                record.set('commentId', 0);
+                            } else if (commentId !== -1) {
+                                record.set('commentId', commentId);
+                                record.set('commentValue', commentValue);
                             }
                         }
                     }
@@ -953,7 +996,6 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         var me = this,
             window = me.getReadingEstimationWindow(),
             propertyForm = window.down('#property-form'),
-            commentId = window.down('#estimation-comment').getValue(),
             model = Ext.create('Mdc.model.DeviceChannelDataEstimate'),
             estimateBulk = false,
             record = window.record,
@@ -994,7 +1036,6 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             });
         }
         model.set('estimateBulk', estimateBulk);
-        model.set('commentId', commentId);
         model.set('intervals', intervalsArray);
         me.saveChannelDataEstimateModelr(model, record, window, null, 'editWithEstimator');
     },
@@ -1003,8 +1044,6 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         var me = this,
             window = me.getReadingEstimationWithRuleWindow(),
             propertyForm = window.down('#property-form'),
-            // commentId = window.down('#estimation-comment').getValue(),
-            commentId = 0,
             estimationRuleId = window.down('#estimator-field').getValue(),
             model = Ext.create('Mdc.model.DeviceChannelDataEstimate'),
             estimateBulk = false,
@@ -1046,13 +1085,15 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         }
         model.set('estimateBulk', estimateBulk);
         model.set('intervals', intervalsArray);
-        model.set('commentId', commentId);
         me.saveChannelDataEstimateModelr(model, record, window, estimationRuleId, 'estimate');
     },
 
     saveChannelDataEstimateModelr: function (record, readings, window, ruleId, action) {
         var me = this,
-            router = me.getController('Uni.controller.history.Router');
+            router = me.getController('Uni.controller.history.Router'),
+            commentCombo = window.down('#estimation-comment-box'),
+            commentValue = commentCombo ? commentCombo.getRawValue() : null,
+            commentId = commentCombo ? commentCombo.getValue() : null;
 
         record.getProxy().setParams(decodeURIComponent(router.arguments.deviceId), router.arguments.channelId);
         window.setLoading();
@@ -1066,11 +1107,23 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 Ext.suspendLayouts();
                 if (success && responseText[0]) {
                     if (!Ext.isArray(readings)) {
+                        if (!commentValue) {
+                            readings.set('commentId', 0);
+                        } else if (commentId !== -1) {
+                            readings.set('commentId', commentId);
+                            readings.set('commentValue', commentValue);
+                        }
                         me.updateEstimatedValues(record, readings, responseText[0], ruleId, action);
                     } else {
                         Ext.Array.each(responseText, function (estimatedReading) {
                             Ext.Array.findBy(readings, function (reading) {
                                 if (estimatedReading.interval.start == reading.get('interval').start) {
+                                    if (!commentValue) {
+                                        readings.set('commentId', 0);
+                                    } else if (commentId !== -1) {
+                                        readings.set('commentId', commentId);
+                                        readings.set('commentValue', commentValue);
+                                    }
                                     me.updateEstimatedValues(record, reading, estimatedReading, ruleId, action);
                                     return true;
                                 }
@@ -1474,6 +1527,9 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             window = me.getCorrectReadingWindow(),
             records = window.record,
             router = me.getController('Uni.controller.history.Router'),
+            commentCombo = window.down('#estimation-comment-box'),
+            commentValue = commentCombo.getRawValue(),
+            commentId = commentCombo.getValue(),
             intervalsArray = [];
 
         window.updateRecord(model);
@@ -1516,6 +1572,12 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                     Ext.Array.each(responseText, function (correctedInterval) {
                         Ext.Array.findBy(records, function (reading) {
                             if (correctedInterval.interval.start == reading.get('interval').start) {
+                                if (!commentValue) {
+                                    reading.set('commentId', 0);
+                                } else if (commentId !== -1) {
+                                    reading.set('commentId', commentId);
+                                    reading.set('commentValue', commentValue);
+                                }
                                 me.updateCorrectedValues(reading, correctedInterval);
                                 return true;
                             }

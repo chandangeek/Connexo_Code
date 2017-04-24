@@ -83,7 +83,7 @@ Ext.define('Mdc.view.setup.devicechannels.ReadingEstimationWindow', {
                                 var estimator = implementationCombo.getStore().getById(newValue);
 
                                 if (newValue) {
-                                    this.nextSibling('estimation-comments').show();
+                                    this.nextSibling('estimation-comment').show();
                                 }
                                 estimator && me.down('property-form').loadRecord(estimator);
                                 me.updateLayout();
@@ -93,15 +93,15 @@ Ext.define('Mdc.view.setup.devicechannels.ReadingEstimationWindow', {
                     }
                 },
                 {
-                    xtype: 'estimation-comments',
-                    hidden: true
-                },
-                {
                     xtype: 'property-form',
                     itemId: 'property-form',
                     defaults: {
                         labelWidth: 200
                     }
+                },
+                {
+                    xtype: 'estimation-comment',
+                    hidden: true
                 },
                 {
                     xtype: 'fieldcontainer',
