@@ -55,7 +55,7 @@ Ext.define('Uni.property.view.property.NoneOrTimeDuration', {
                             width: me.width ? me.width - me.unitComboWidth - me.gapWidth : undefined,
                             allowBlank: false,
                             disabled: true,
-                            minValue: 0,
+                            minValue: 1,
                             value: 1,
                             listeners: {
                                 blur: me.recurrenceNumberFieldValidation
