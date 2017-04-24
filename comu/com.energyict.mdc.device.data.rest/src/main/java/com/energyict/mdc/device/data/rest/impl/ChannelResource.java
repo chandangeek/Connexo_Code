@@ -45,7 +45,6 @@ import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidation;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
 import com.energyict.mdc.issue.datavalidation.NotEstimatedBlock;
-
 import com.google.common.collect.ImmutableRangeSet;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
