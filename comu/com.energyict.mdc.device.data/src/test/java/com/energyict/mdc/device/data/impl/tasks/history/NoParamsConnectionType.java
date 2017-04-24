@@ -7,17 +7,20 @@ package com.energyict.mdc.device.data.impl.tasks.history;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.io.ComChannel;
-import com.energyict.mdc.protocol.api.ComPortType;
-import com.energyict.mdc.protocol.api.ConnectionException;
+import com.energyict.mdc.ports.ComPortType;
+import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionProvider;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.ConnexoToUPLPropertSpecAdapter;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.protocol.exceptions.ConnectionException;
 
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
 * Insert your comments here.
@@ -37,6 +40,21 @@ public class NoParamsConnectionType implements ConnectionType {
     @Override
     public boolean supportsComWindow () {
         return false;
+    }
+
+    @Override
+    public ComChannel connect() throws ConnectionException {
+        return null;
+    }
+
+    @Override
+    public List<com.energyict.mdc.upl.properties.PropertySpec> getUPLPropertySpecs() {
+        return getPropertySpecs().stream().map(ConnexoToUPLPropertSpecAdapter::new).collect(Collectors.toList());
+    }
+
+    @Override
+    public void setUPLProperties(com.energyict.mdc.upl.properties.TypedProperties properties) throws PropertyValidationException {
+
     }
 
     @Override
@@ -64,8 +82,8 @@ public class NoParamsConnectionType implements ConnectionType {
     }
 
     @Override
-    public Direction getDirection() {
-        return Direction.OUTBOUND;
+    public ConnectionTypeDirection getDirection() {
+        return ConnectionTypeDirection.OUTBOUND;
     }
 
     @Override

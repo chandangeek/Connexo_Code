@@ -4,17 +4,17 @@
 
 package com.energyict.mdc.device.data.impl.identifiers;
 
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.LogBook;
-import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
-import com.energyict.mdc.device.data.impl.MessageSeeds;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
 
-import javax.xml.bind.annotation.XmlElement;
+import com.energyict.obis.ObisCode;
+
 import javax.xml.bind.annotation.XmlRootElement;
 import java.text.MessageFormat;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 
 /**
  * Provides an implementation for the {@link LogBookIdentifier} interface
@@ -25,7 +25,7 @@ import java.text.MessageFormat;
  * @since 2014-11-05 (13:24)
  */
 @XmlRootElement
-public class LogBookIdentifierByDeviceAndObisCode implements LogBookIdentifier<LogBook> {
+public class LogBookIdentifierByDeviceAndObisCode implements LogBookIdentifier {
 
     private final DeviceIdentifier deviceIdentifier;
     private final ObisCode logBookObisCode;
@@ -37,13 +37,8 @@ public class LogBookIdentifierByDeviceAndObisCode implements LogBookIdentifier<L
     }
 
     @Override
-    public LogBook getLogBook() {
-        Device device = (Device) this.deviceIdentifier.findDevice();
-        return device.getLogBooks()
-                .stream()
-                .filter(lb -> lb.getDeviceObisCode().equals(this.logBookObisCode))
-                .findFirst()
-                .orElseThrow(() -> CanNotFindForIdentifier.logBook(this, MessageSeeds.CAN_NOT_FIND_FOR_LOGBOOK_IDENTIFIER));
+    public com.energyict.mdc.upl.meterdata.identifiers.Introspector forIntrospection() {
+        return new Introspector();
     }
 
     @Override
@@ -52,21 +47,11 @@ public class LogBookIdentifierByDeviceAndObisCode implements LogBookIdentifier<L
     }
 
     @Override
-    @XmlElement(name = "type")
-    public String getXmlType() {
-        return this.getClass().getName();
-    }
-
-    @Override
-    public void setXmlType(String ignore) {
-
-    }
-
-    @Override
-    public DeviceIdentifier<?> getDeviceIdentifier() {
+    public DeviceIdentifier getDeviceIdentifier() {
         return deviceIdentifier;
     }
 
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -74,21 +59,46 @@ public class LogBookIdentifierByDeviceAndObisCode implements LogBookIdentifier<L
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        LogBookIdentifierByDeviceAndObisCode otherIdentifier = (LogBookIdentifierByDeviceAndObisCode) o;
-        return (this.deviceIdentifier.toString().equals(otherIdentifier.deviceIdentifier.toString())
-                && this.logBookObisCode.equals(otherIdentifier.logBookObisCode));
+        LogBookIdentifierByDeviceAndObisCode that = (LogBookIdentifierByDeviceAndObisCode) o;
+        return Objects.equals(deviceIdentifier, that.deviceIdentifier) &&
+                Objects.equals(logBookObisCode, that.logBookObisCode);
     }
 
     @Override
     public int hashCode() {
-        int result = this.deviceIdentifier.hashCode();
-        result = 31 * result + this.logBookObisCode.hashCode();
-        return result;
+        return Objects.hash(this.deviceIdentifier, this.logBookObisCode);
     }
 
     @Override
     public String toString() {
         return MessageFormat.format("logbook having OBIS code {0} on device with deviceIdentifier ''{1}''", logBookObisCode, deviceIdentifier);
+    }
+
+    private class Introspector implements com.energyict.mdc.upl.meterdata.identifiers.Introspector {
+        @Override
+        public String getTypeName() {
+            return "DeviceIdentifierAndObisCode";
+        }
+
+        @Override
+        public Set<String> getRoles() {
+            return new HashSet<>(Arrays.asList("device", "obisCode"));
+        }
+
+        @Override
+        public Object getValue(String role) {
+            switch (role) {
+                case "device": {
+                    return deviceIdentifier;
+                }
+                case "obisCode": {
+                    return getLogBookObisCode();
+                }
+                default: {
+                    throw new IllegalArgumentException("Role '" + role + "' is not supported by identifier of type " + getTypeName());
+                }
+            }
+        }
     }
 
 }

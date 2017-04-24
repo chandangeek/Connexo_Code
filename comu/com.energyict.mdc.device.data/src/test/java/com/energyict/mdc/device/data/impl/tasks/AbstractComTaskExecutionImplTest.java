@@ -26,21 +26,24 @@ import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.engine.config.OnlineComServer;
 import com.energyict.mdc.engine.config.OutboundComPort;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
-import com.energyict.mdc.protocol.api.ComPortType;
+import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.ConnexoToUPLPropertSpecAdapter;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import org.junit.Before;
 
 import java.time.Instant;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.TimeZone;
-
-import org.junit.Before;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Fail.fail;
 import static org.mockito.Mockito.mock;
@@ -59,8 +62,24 @@ public abstract class AbstractComTaskExecutionImplTest extends PersistenceIntegr
     protected int comTaskEnablementPriority = 213;
     private ConnectionTask.ConnectionTaskLifecycleStatus status = ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE;
 
+    protected static OutboundComPortPool createOutboundIpComPortPool(String name) {
+        OutboundComPortPool ipComPortPool = inMemoryPersistence.getEngineConfigurationService().newOutboundComPortPool(name, ComPortType.TCP, new TimeDuration(1, TimeDuration.TimeUnit.MINUTES));
+        ipComPortPool.setActive(true);
+        ipComPortPool.update();
+        return ipComPortPool;
+    }
+
+    protected static InboundComPortPool createInboundComPortPool(String name) {
+        InboundDeviceProtocolPluggableClass inboundDeviceProtocolPluggableClass = mock(InboundDeviceProtocolPluggableClass.class);
+        when(inboundDeviceProtocolPluggableClass.getId()).thenReturn(1L);
+        InboundComPortPool inboundComPortPool = inMemoryPersistence.getEngineConfigurationService().newInboundComPortPool(name, ComPortType.TCP, inboundDeviceProtocolPluggableClass, Collections.emptyMap());
+        inboundComPortPool.setActive(true);
+        inboundComPortPool.update();
+        return inboundComPortPool;
+    }
+
     @Before
-    public void getFirstProtocolDialectConfigurationPropertiesFromDeviceConfiguration () {
+    public void getFirstProtocolDialectConfigurationPropertiesFromDeviceConfiguration() {
         IssueStatus wontFix = mock(IssueStatus.class);
         when(inMemoryPersistence.getIssueService().findStatus(IssueStatus.WONT_FIX)).thenReturn(Optional.of(wontFix));
     }
@@ -75,10 +94,10 @@ public abstract class AbstractComTaskExecutionImplTest extends PersistenceIntegr
     }
 
     protected ComTaskEnablement enableComTask(boolean useDefault) {
-        return enableComTask(useDefault,COM_TASK_NAME);
+        return enableComTask(useDefault, COM_TASK_NAME);
     }
 
-    protected ComTaskEnablement enableComTask(boolean useDefault,String comTaskName) {
+    protected ComTaskEnablement enableComTask(boolean useDefault, String comTaskName) {
         ComTask comTaskWithBasicCheck = createComTaskWithBasicCheck(comTaskName);
         ComTaskEnablementBuilder builder = this.deviceConfiguration.enableComTask(comTaskWithBasicCheck, this.securityPropertySet);
         builder.useDefaultConnectionTask(useDefault);
@@ -95,22 +114,6 @@ public abstract class AbstractComTaskExecutionImplTest extends PersistenceIntegr
         }
         fail("ComTaskExecution with id " + comTaskExecution.getId() + " not found after reloading device " + device.getName());
         return null;
-    }
-
-    protected static OutboundComPortPool createOutboundIpComPortPool(String name) {
-        OutboundComPortPool ipComPortPool = inMemoryPersistence.getEngineConfigurationService().newOutboundComPortPool(name, ComPortType.TCP, new TimeDuration(1, TimeDuration.TimeUnit.MINUTES));
-        ipComPortPool.setActive(true);
-        ipComPortPool.update();
-        return ipComPortPool;
-    }
-
-    protected static InboundComPortPool createInboundComPortPool(String name) {
-        InboundDeviceProtocolPluggableClass inboundDeviceProtocolPluggableClass = mock(InboundDeviceProtocolPluggableClass.class);
-        when(inboundDeviceProtocolPluggableClass.getId()).thenReturn(1L);
-        InboundComPortPool inboundComPortPool = inMemoryPersistence.getEngineConfigurationService().newInboundComPortPool(name, ComPortType.TCP, inboundDeviceProtocolPluggableClass, Collections.emptyMap());
-        inboundComPortPool.setActive(true);
-        inboundComPortPool.update();
-        return inboundComPortPool;
     }
 
     protected ScheduledConnectionTaskImpl createAsapWithNoPropertiesWithoutViolations(String name, Device device, PartialScheduledConnectionTask partialConnectionTask, OutboundComPortPool outboundTcpipComPortPool) {
@@ -141,9 +144,9 @@ public abstract class AbstractComTaskExecutionImplTest extends PersistenceIntegr
         deviceConfiguration.save();
         ConnectionTypePluggableClass connectionTypePluggableClass =
                 inMemoryPersistence.getProtocolPluggableService()
-                    .newConnectionTypePluggableClass(
-                            OutboundNoParamsConnectionTypeImpl.class.getSimpleName(),
-                            OutboundNoParamsConnectionTypeImpl.class.getName());
+                        .newConnectionTypePluggableClass(
+                                OutboundNoParamsConnectionTypeImpl.class.getSimpleName(),
+                                OutboundNoParamsConnectionTypeImpl.class.getName());
         connectionTypePluggableClass.save();
         return deviceConfiguration.
                 newPartialScheduledConnectionTask(
@@ -189,9 +192,9 @@ public abstract class AbstractComTaskExecutionImplTest extends PersistenceIntegr
         deviceConfiguration.save();
         ConnectionTypePluggableClass connectionTypePluggableClass =
                 inMemoryPersistence.getProtocolPluggableService()
-                    .newConnectionTypePluggableClass(
-                            InboundNoParamsConnectionTypeImpl.class.getSimpleName(),
-                            InboundNoParamsConnectionTypeImpl.class.getName());
+                        .newConnectionTypePluggableClass(
+                                InboundNoParamsConnectionTypeImpl.class.getSimpleName(),
+                                InboundNoParamsConnectionTypeImpl.class.getName());
         connectionTypePluggableClass.save();
         return deviceConfiguration.
                 newPartialInboundConnectionTask(
@@ -272,11 +275,16 @@ public abstract class AbstractComTaskExecutionImplTest extends PersistenceIntegr
 
         @Override
         public String getDeviceProtocolDialectName() {
-            return DEVICE_PROTOCOL_DIALECT_NAME;
+            return Property.DEVICE_PROTOCOL_DIALECT.getName();
         }
 
         @Override
-        public String getDisplayName() {
+        public List<PropertySpec> getUPLPropertySpecs() {
+            return getPropertySpecs().stream().map(ConnexoToUPLPropertSpecAdapter::new).collect(Collectors.toList());
+        }
+
+        @Override
+        public String getDeviceProtocolDialectDisplayName() {
             return "It's a Dell Display";
         }
 
@@ -285,6 +293,4 @@ public abstract class AbstractComTaskExecutionImplTest extends PersistenceIntegr
             return Optional.empty();
         }
     }
-
-
 }

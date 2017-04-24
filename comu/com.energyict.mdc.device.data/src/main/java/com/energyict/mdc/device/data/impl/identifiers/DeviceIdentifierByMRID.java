@@ -4,29 +4,24 @@
 
 package com.energyict.mdc.device.data.impl.identifiers;
 
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
-import com.energyict.mdc.device.data.impl.MessageSeeds;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifierType;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 
-import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
- * Provides an implementation for the {@link com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier} interface
+ * Provides an implementation for the {@link com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier} interface
  * that uses the unique MRID of the device
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-10-16 (15:10)
  */
 @XmlRootElement
-public final class DeviceIdentifierByMRID implements DeviceIdentifier<Device> {
+public final class DeviceIdentifierByMRID implements DeviceIdentifier {
 
     private String mrid;
-    private DeviceService deviceService;
-    private Device device;
 
     /**
      * Constructor only to be used by JSON (de)marshalling
@@ -34,19 +29,9 @@ public final class DeviceIdentifierByMRID implements DeviceIdentifier<Device> {
     public DeviceIdentifierByMRID() {
     }
 
-    public DeviceIdentifierByMRID(String mrid, DeviceService deviceService) {
-        super();
+    public DeviceIdentifierByMRID(String mrid) {
+        this();
         this.mrid = mrid;
-        this.deviceService = deviceService;
-    }
-
-    @Override
-    public Device findDevice() {
-        // lazyload the device
-        if (this.device == null) {
-            this.device = this.deviceService.findDeviceByMrid(this.mrid).orElseThrow(() -> CanNotFindForIdentifier.device(this, MessageSeeds.CAN_NOT_FIND_FOR_DEVICE_IDENTIFIER));
-        }
-        return this.device;
     }
 
     @Override
@@ -55,24 +40,8 @@ public final class DeviceIdentifierByMRID implements DeviceIdentifier<Device> {
     }
 
     @Override
-    public String getIdentifier() {
-        return this.mrid;
-    }
-
-    @Override
-    public DeviceIdentifierType getDeviceIdentifierType() {
-        return DeviceIdentifierType.Other;
-    }
-
-    @Override
-    @XmlElement(name = "type")
-    public String getXmlType() {
-        return this.getClass().getName();
-    }
-
-    @Override
-    public void setXmlType(String ignore) {
-
+    public com.energyict.mdc.upl.meterdata.identifiers.Introspector forIntrospection() {
+        return new Introspector();
     }
 
     @Override
@@ -93,5 +62,29 @@ public final class DeviceIdentifierByMRID implements DeviceIdentifier<Device> {
     @Override
     public int hashCode() {
         return mrid != null ? mrid.hashCode() : 0;
+    }
+
+    private class Introspector implements com.energyict.mdc.upl.meterdata.identifiers.Introspector {
+        @Override
+        public String getTypeName() {
+            return "mRID";
+        }
+
+        @Override
+        public Set<String> getRoles() {
+            return new HashSet<>(Collections.singletonList("databaseValue"));
+        }
+
+        @Override
+        public Object getValue(String role) {
+            switch (role) {
+                case "databaseValue": {
+                    return mrid;
+                }
+                default: {
+                    throw new IllegalArgumentException("Role '" + role + "' is not supported by identifier of type " + getTypeName());
+                }
+            }
+        }
     }
 }

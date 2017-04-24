@@ -6,6 +6,7 @@ package com.energyict.mdc.device.data.impl.identifiers;
 
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import com.energyict.mdc.device.data.DeviceService;
+import org.junit.BeforeClass;
 
 import java.util.Arrays;
 
@@ -30,7 +31,7 @@ public class DeviceIdentifierByIdEqualityTest extends EqualsContractTest {
     @BeforeClass
     public static void setup() {
         deviceService = mock(DeviceService.class);
-        instanceA = new DeviceIdentifierById(DEVICE_ID_A, deviceService);
+        instanceA = new DeviceIdentifierById(DEVICE_ID_A);
     }
 
     @Override
@@ -40,12 +41,12 @@ public class DeviceIdentifierByIdEqualityTest extends EqualsContractTest {
 
     @Override
     protected Object getInstanceEqualToA() {
-        return new DeviceIdentifierById(DEVICE_ID_A, deviceService);
+        return new DeviceIdentifierById(DEVICE_ID_A);
     }
 
     @Override
     protected Iterable<?> getInstancesNotEqualToA() {
-        return Arrays.asList(new DeviceIdentifierById(DEVICE_ID_B, deviceService));
+        return Arrays.asList(new DeviceIdentifierById(DEVICE_ID_B));
     }
 
     @Override

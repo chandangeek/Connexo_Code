@@ -16,8 +16,7 @@ import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Unit;
+import com.energyict.cbo.Unit;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
@@ -27,17 +26,17 @@ import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.RegisterType;
+import com.energyict.obis.ObisCode;
+import org.assertj.core.api.Condition;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-
-import org.assertj.core.api.Condition;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -231,7 +230,7 @@ public class LoadProfileImplTest extends PersistenceTestWithMockedDeviceProtocol
         Device device = createSimpleDeviceWithLoadProfiles();
 
         LoadProfile loadProfile = getReloadedLoadProfile(device);
-        assertThat(loadProfile.getLastReading().isPresent()).isFalse();
+        assertThat(loadProfile.getLastReading() == null).isTrue();
     }
 
     @Test
@@ -244,8 +243,8 @@ public class LoadProfileImplTest extends PersistenceTestWithMockedDeviceProtocol
         loadProfileUpdater.setLastReading(newLastReading);
         loadProfileUpdater.update();
         LoadProfile reloadedLoadProfile = getReloadedLoadProfile(device);
-        assertThat(reloadedLoadProfile.getLastReading().isPresent()).isTrue();
-        assertThat(reloadedLoadProfile.getLastReading().get()).isEqualTo(newLastReading);
+        assertThat(reloadedLoadProfile.getLastReading() != null).isTrue();
+        assertThat(reloadedLoadProfile.getLastReading().toInstant()).isEqualTo(newLastReading);
     }
 
     @Test
@@ -263,8 +262,8 @@ public class LoadProfileImplTest extends PersistenceTestWithMockedDeviceProtocol
         loadProfileUpdater2.setLastReadingIfLater(newLastReading);
         loadProfileUpdater2.update();
         LoadProfile finalReloadedLoadProfile = getReloadedLoadProfile(device);
-        assertThat(finalReloadedLoadProfile.getLastReading().isPresent()).isTrue();
-        assertThat(finalReloadedLoadProfile.getLastReading().get()).isEqualTo(newLastReading);
+        assertThat(finalReloadedLoadProfile.getLastReading() != null).isTrue();
+        assertThat(finalReloadedLoadProfile.getLastReading().toInstant()).isEqualTo(newLastReading);
     }
 
     @Test
@@ -282,8 +281,8 @@ public class LoadProfileImplTest extends PersistenceTestWithMockedDeviceProtocol
         loadProfileUpdater2.setLastReadingIfLater(newLastReading);
         loadProfileUpdater2.update();
         LoadProfile finalReloadedLoadProfile = getReloadedLoadProfile(device);
-        assertThat(finalReloadedLoadProfile.getLastReading().isPresent()).isTrue();
-        assertThat(finalReloadedLoadProfile.getLastReading().get()).isEqualTo(oldLastReading);
+        assertThat(finalReloadedLoadProfile.getLastReading() != null).isTrue();
+        assertThat(finalReloadedLoadProfile.getLastReading().toInstant()).isEqualTo(oldLastReading);
     }
 
     @Test
