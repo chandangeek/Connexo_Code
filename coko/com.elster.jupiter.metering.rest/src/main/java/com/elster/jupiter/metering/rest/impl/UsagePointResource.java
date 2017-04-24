@@ -245,10 +245,10 @@ public class UsagePointResource {
             throw new WebApplicationException(Response.Status.BAD_REQUEST);
         }
         Range<Instant> range = Range.openClosed(Instant.ofEpochMilli(from), Instant.ofEpochMilli(to));
-        return doGetIntervalreadings(name, activationId, channelId, range);
+        return doGetIntervalReadings(name, activationId, channelId, range);
     }
 
-    private ReadingInfos doGetIntervalreadings(String name, long activationId, long channelId, Range<Instant> range) {
+    private ReadingInfos doGetIntervalReadings(String name, long activationId, long channelId, Range<Instant> range) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
         MeterActivation meterActivation = fetchMeterActivation(usagePoint, activationId);
         for (Channel channel : meterActivation.getChannelsContainer().getChannels()) {
