@@ -852,12 +852,12 @@ class MetrologyConfigurationsInstaller {
         ReadingType readingTypeYearlyVolume = meteringService.findReadingTypes(Collections.singletonList("1001.0.0.4.1.9.58.0.0.0.0.0.0.0.0.0.42.0"))
                 .stream()
                 .findFirst()
-                .orElseGet(() -> meteringService.createReadingType("1001.0.0.4.1.9.58.0.0.0.0.0.0.0.0.0.42.0", "Yearly volume m³"));
+                .orElseGet(() -> meteringService.createReadingType("1001.0.0.4.1.9.58.0.0.0.0.0.0.0.0.0.42.0", "Water volume"));
 
         ReadingType readingTypeDailyVolume = meteringService.findReadingTypes(Collections.singletonList("11.0.0.4.1.9.58.0.0.0.0.0.0.0.0.0.42.0"))
                 .stream()
                 .findFirst()
-                .orElseGet(() -> meteringService.createReadingType("11.0.0.4.1.9.58.0.0.0.0.0.0.0.0.0.42.0", "Daily volume m³"));
+                .orElseGet(() -> meteringService.createReadingType("11.0.0.4.1.9.58.0.0.0.0.0.0.0.0.0.42.0", "Water volume"));
 
         MetrologyPurpose purposeBilling = findPurposeOrThrowException(DefaultMetrologyPurpose.BILLING);
         MetrologyContract contractBilling = config.addMandatoryMetrologyContract(purposeBilling);
