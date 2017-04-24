@@ -59,6 +59,12 @@ public class EstimationRuleInfoFactory {
         info.properties = propertyValueInfoService.getPropertyInfos(estimationRule.getPropertySpecs(), estimationRule.getProps());
         info.application = resourceHelper.getApplicationInfo(estimationRule.getRuleSet().getQualityCodeSystem());
         info.markProjected = estimationRule.isMarkProjected();
+
+        estimationRule.getComment().ifPresent(comment -> {
+            info.commentId = comment.getId();
+            info.commentValue = comment.getComment();
+        });
+
         return info;
     }
 }

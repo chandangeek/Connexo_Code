@@ -32,4 +32,8 @@ public class EstimationRuleInfo {
     public IdWithNameInfo application;
 
     public boolean markProjected;
+
+    public long commentId;
+
+    public String commentValue;
 }

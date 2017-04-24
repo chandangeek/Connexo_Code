@@ -18,6 +18,7 @@ public class ReferenceChannelDataInfo {
     public boolean allowSuspectData;
     public boolean completePeriod;
     public Long commentId;
+    public String commentValue;
     public boolean projectedValue;
     public List<IntervalInfo> intervals;
 }
