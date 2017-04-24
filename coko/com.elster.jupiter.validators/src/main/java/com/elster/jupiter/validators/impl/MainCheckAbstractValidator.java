@@ -13,12 +13,11 @@ import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.properties.NonOrBigDecimalValueFactory;
-import com.elster.jupiter.properties.NonOrBigDecimalValueProperty;
+import com.elster.jupiter.properties.NoneOrBigDecimal;
+import com.elster.jupiter.properties.NoneOrBigDecimalValueFactory;
 import com.elster.jupiter.properties.PropertySelectionMode;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
-import com.elster.jupiter.properties.TwoValuesAbsoluteDifference;
 import com.elster.jupiter.properties.TwoValuesDifference;
 import com.elster.jupiter.properties.TwoValuesDifferenceValueFactory;
 import com.elster.jupiter.util.logging.LoggingContext;
@@ -71,7 +70,7 @@ public abstract class MainCheckAbstractValidator extends AbstractValidator {
     protected TwoValuesDifference maxAbsoluteDifference;
     protected Boolean passIfNoRefData;
     protected Boolean useValidatedData;
-    protected NonOrBigDecimalValueProperty minThreshold;
+    protected NoneOrBigDecimal minThreshold;
 
     protected ReadingType readingType;
     // interval to log failed validation
@@ -129,7 +128,7 @@ public abstract class MainCheckAbstractValidator extends AbstractValidator {
 
 
 
-    private String rangeToString(Range<Instant> range) {
+    protected String rangeToString(Range<Instant> range) {
         Instant lowerBound = null;
         if (range.hasLowerBound()) {
             lowerBound = range.lowerEndpoint();
@@ -151,9 +150,7 @@ public abstract class MainCheckAbstractValidator extends AbstractValidator {
                 .named(MAX_ABSOLUTE_DIFF, MainCheckValidator.TranslationKeys.MAX_ABSOLUTE_DIFF)
                 .fromThesaurus(this.getThesaurus())
                 .markRequired()
-                .setDefaultValue(new TwoValuesAbsoluteDifference() {{
-                    value = new BigDecimal(0);
-                }})
+                .setDefaultValue(new TwoValuesDifference(TwoValuesDifference.Type.ABSOLUTE,new BigDecimal(0)))
                 .finish();
     }
 
@@ -167,16 +164,16 @@ public abstract class MainCheckAbstractValidator extends AbstractValidator {
 
     PropertySpec buildMinThresholdPropertySpec() {
         return getPropertySpecService()
-                .specForValuesOf(new NonOrBigDecimalValueFactory())
+                .specForValuesOf(new NoneOrBigDecimalValueFactory())
                 .named(MIN_THRESHOLD, MainCheckValidator.TranslationKeys.MIN_THRESHOLD)
                 .fromThesaurus(this.getThesaurus())
                 .markRequired()
-                .setDefaultValue(new NonOrBigDecimalValueProperty())
+                .setDefaultValue(NoneOrBigDecimal.none())
                 .finish();
     }
 
-    NonOrBigDecimalValueProperty getMinThresholdProperty() {
-        NonOrBigDecimalValueProperty value = (NonOrBigDecimalValueProperty) properties.get(MIN_THRESHOLD);
+    NoneOrBigDecimal getMinThresholdProperty() {
+        NoneOrBigDecimal value = (NoneOrBigDecimal) properties.get(MIN_THRESHOLD);
         if (value == null) {
             throw new MissingRequiredProperty(getThesaurus(), MIN_THRESHOLD);
         }

@@ -14,8 +14,7 @@ import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
-import com.elster.jupiter.properties.TwoValuesAbsoluteDifference;
-import com.elster.jupiter.properties.TwoValuesPercentDifference;
+import com.elster.jupiter.properties.TwoValuesDifference;
 import com.elster.jupiter.util.logging.LoggingContext;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationEvaluator;
@@ -92,7 +91,11 @@ public class MainCheckValidator extends MainCheckAbstractValidator {
         // find 'check' channel and save readings + prepare mapping with readings from 'main' channel
 
         // 2. find 'check' channel
-        initUsagePointName(channel);
+        try {
+            initUsagePointName(channel);
+        }catch (InitCancelException e){
+
+        }
 
         List<EffectiveMetrologyConfigurationOnUsagePoint> effectiveMCList = validatedUsagePoint
                 .getEffectiveMetrologyConfigurations(interval);
@@ -150,9 +153,7 @@ public class MainCheckValidator extends MainCheckAbstractValidator {
             // this means that purpose is not active on a usagepoint
             LoggingContext.get()
                     .warning(getLogger(), getThesaurus().getFormat(MessageSeeds.MAIN_CHECK_MISC_PURPOSE_NEVER_ACTIVATED)
-                            .format(rangeToString(failedValidatonInterval), getDisplayName(), readingType.getFullAliasName(), usagePoint
-                                    .get()
-                                    .getName()));
+                            .format(rangeToString(failedValidatonInterval), getDisplayName(), readingType.getFullAliasName(), validatedUsagePointName));
             preparedValidationResult = ValidationResult.NOT_VALIDATED;
             return;
         }
@@ -236,8 +237,8 @@ public class MainCheckValidator extends MainCheckAbstractValidator {
         BigDecimal mainValue = mainReading.getValue();
         BigDecimal checkValue = checkReading.getValue();
 
-        if (!minThreshold.isNone) {
-            if (mainValue.compareTo(minThreshold.value) <= 0 && checkValue.compareTo(minThreshold.value) <= 0) {
+        if (!minThreshold.isNone()) {
+            if (mainValue.compareTo(minThreshold.getValue()) <= 0 && checkValue.compareTo(minThreshold.getValue()) <= 0) {
                 // [RULE FLOW ACTION] the check for the interval is marked valid and the validation moves to the next interval.
                 return ValidationResult.VALID;
             }
@@ -245,10 +246,11 @@ public class MainCheckValidator extends MainCheckAbstractValidator {
 
         BigDecimal differenceValue;
 
-        if (maxAbsoluteDifference instanceof TwoValuesAbsoluteDifference) {
-            differenceValue = ((TwoValuesAbsoluteDifference) maxAbsoluteDifference).value;
-        } else if (maxAbsoluteDifference instanceof TwoValuesPercentDifference) {
-            differenceValue = mainValue.multiply(BigDecimal.valueOf(((TwoValuesPercentDifference) maxAbsoluteDifference).percent * 0.01D));
+
+        if (TwoValuesDifference.Type.ABSOLUTE == maxAbsoluteDifference.getType()) {
+            differenceValue = maxAbsoluteDifference.getValue();
+        } else if (TwoValuesDifference.Type.RELATIVE == maxAbsoluteDifference.getType()) {
+            differenceValue = mainValue.multiply(maxAbsoluteDifference.getValue()).multiply(new BigDecimal(0.01));
         } else {
             return ValidationResult.NOT_VALIDATED;
         }
