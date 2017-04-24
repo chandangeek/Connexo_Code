@@ -151,7 +151,10 @@ Ext.define('Mdc.controller.setup.ComPortPoolEdit', {
                     form.down('[name=comPortType]').setDisabled(true);
                     form.loadRecord(record);
                     if (record.properties().count() > 0) {
+                        form.down('#protocolDetectionDetails').setVisible(true);
                         form.down('property-form').loadRecord(record);
+                    } else {
+                        form.down('#protocolDetectionDetails').setVisible(false);
                     }
                     form.down('[name=comPortType]').setValue(record.get('comPortType').id);
                 },

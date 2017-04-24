@@ -7,7 +7,8 @@ Ext.define('Mdc.model.DeviceProtocolDialect', {
     fields: [
         {name: 'device', defaultValue: null},
         {name: 'version', defaultValue: undefined},
-        {name: 'parent', defaultValue: undefined}
+        {name: 'parent', defaultValue: undefined},
+        {name: 'displayName', type: 'string'}
     ],
     proxy: {
         type: 'rest',
