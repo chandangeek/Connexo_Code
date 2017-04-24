@@ -69,7 +69,7 @@ public enum TableSpecs {
             Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
             Column commentIdColumn = table.column("COMMENTS").number().conversion(NUMBER2LONG).since(Version.version(10,3)).add();
             Column obsoleteColumn = table.column("OBSOLETE_TIME").map("obsoleteTime").number().conversion(NUMBER2INSTANT).add();
-            table.column("MARK_PROJECTED").map("markProjected").bool().add().since(version(10, 3));
+            table.column("MARK_PROJECTED").map("markProjected").bool().installValue("'N'").add().since(version(10, 3));
             table.addAuditColumns();
             table.primaryKey("EST_PK_ESTIMATIONRULE").on(idColumn).add();
             table.foreignKey("EST_FK_RULE").references("EST_ESTIMATIONRULESET").on(ruleSetIdColumn).onDelete(RESTRICT)
