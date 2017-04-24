@@ -47,6 +47,7 @@ import javax.ws.rs.core.UriInfo;
 import java.net.URI;
 import java.time.Clock;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -173,12 +174,16 @@ public class DeviceResource {
         if(info.deviceConfiguration.deviceType!=null && info.usagePoint!=null && info.meterRole!=null){
             DeviceType deviceType = deviceConfigurationService.findDeviceTypeByName(String.valueOf(info.deviceConfiguration.deviceType.id))
                     .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_DEVICE_TYPE));
-            UsagePointMetrologyConfiguration metrologyConfiguration = meteringService.findUsagePointByMRID(info.usagePoint)
-                    .flatMap(usagePoint -> usagePoint.getCurrentEffectiveMetrologyConfiguration().map(EffectiveMetrologyConfigurationOnUsagePoint::getMetrologyConfiguration))
-                    .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_METROLOGY_CONFIGURATION));
+            Optional<UsagePointMetrologyConfiguration> metrologyConfiguration = meteringService.findUsagePointByMRID(info.usagePoint)
+                    .flatMap(usagePoint -> usagePoint.getCurrentEffectiveMetrologyConfiguration().map(EffectiveMetrologyConfigurationOnUsagePoint::getMetrologyConfiguration));
             MeterRole meterRole = metrologyConfigurationService.findMeterRole(info.meterRole)
                     .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_METER_ROLE));
-            List<DeviceConfiguration> applicableConfigurations = resourceHelper.findDeviceConfigurationsApplicableToMetrologyConfig(deviceType, metrologyConfiguration, meterRole);
+            List<DeviceConfiguration> applicableConfigurations;
+            if(metrologyConfiguration.isPresent()) {
+                applicableConfigurations = resourceHelper.findDeviceConfigurationsApplicableToMetrologyConfig(deviceType, metrologyConfiguration.get(), meterRole);
+            } else {
+                applicableConfigurations = deviceType.getConfigurations();
+            }
             if(applicableConfigurations.size()!=1){
                 throw exceptionFactory.newException(MessageSeeds.CANNOT_FIND_APPROPRIATE_DEVICE_CONFIGURATION);
             } else {
