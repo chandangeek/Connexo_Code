@@ -42,7 +42,6 @@ import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidation;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
 import com.energyict.mdc.issue.datavalidation.NotEstimatedBlock;
-
 import com.google.common.collect.ImmutableRangeSet;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
@@ -643,7 +642,7 @@ public class ChannelResource {
                     .filter(estimationRule -> estimationRule.getRuleSet()
                             .getQualityCodeSystem()
                             .equals(QualityCodeSystem.MDC))
-                    .filter(estimationRule -> !deviceConfigurationService.findDeviceConfigurationsForEstimationRuleSet(estimationRule.getRuleSet()).find().isEmpty())
+                    .filter(estimationRule -> deviceConfigurationService.findDeviceConfigurationsForEstimationRuleSet(estimationRule.getRuleSet()).find().contains(device.getDeviceConfiguration()))
                     .filter(estimationRule -> estimationRule.getReadingTypes().contains(channel.getReadingType().getCalculatedReadingType().orElse(null)))
                     .map(estimationRuleInfoFactory::asInfo)
                     .collect(Collectors.toList());

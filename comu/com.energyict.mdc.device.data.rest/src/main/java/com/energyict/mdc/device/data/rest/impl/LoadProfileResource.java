@@ -42,6 +42,7 @@ import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -131,7 +132,7 @@ public class LoadProfileResource {
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
     public Response updateLoadProfile(LoadProfileInfo info, @PathParam("name") String name, @PathParam("lpid") long loadProfileId) {
         LoadProfile loadProfile = doGetLoadProfile(name, loadProfileId);
-        Optional<Instant> lastReading = loadProfile.getLastReading();
+        Optional<Instant> lastReading = Optional.ofNullable(loadProfile.getLastReading()).map(Date::toInstant);
         if (!lastReading.isPresent() || lastReading.get().compareTo(info.lastReading) != 0) {
             loadProfile.getDevice().getLoadProfileUpdaterFor(loadProfile).setLastReading(info.lastReading).update();
         }
