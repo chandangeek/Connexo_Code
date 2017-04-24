@@ -23,50 +23,20 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.users.PreferenceType;
-import com.elster.jupiter.users.User;
-import com.elster.jupiter.users.UserPreference;
-import com.elster.jupiter.users.UserPreferencesService;
-import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.users.*;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.time.DefaultDateTimeFormatters;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
-import com.energyict.mdc.device.data.BatchService;
-import com.energyict.mdc.device.data.Channel;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.LoadProfile;
-import com.energyict.mdc.device.data.Register;
-import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterContext;
-import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty;
+import com.energyict.mdc.device.data.*;
+import com.energyict.mdc.device.data.importers.impl.*;
 import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
-import com.energyict.mdc.device.data.importers.impl.SimpleNlsMessageFormat;
-import com.energyict.mdc.device.data.importers.impl.TranslationKeys;
-import com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat.SupportedNumberFormatInfo;
+import com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat.*;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
-
 import com.google.common.collect.Range;
-
-import java.io.ByteArrayInputStream;
-import java.math.BigDecimal;
-import java.time.Clock;
-import java.time.Instant;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.logging.Logger;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -75,26 +45,22 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.DATE_FORMAT;
-import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.DELIMITER;
-import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.NUMBER_FORMAT;
-import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.TIME_ZONE;
-import static com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat.FORMAT1;
-import static com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat.FORMAT2;
-import static com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat.FORMAT3;
-import static com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat.FORMAT4;
+import java.io.ByteArrayInputStream;
+import java.math.BigDecimal;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.util.*;
+import java.util.logging.Logger;
+
+import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.*;
+import static com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DeviceReadingsImporterFactoryTest {
@@ -118,6 +84,8 @@ public class DeviceReadingsImporterFactoryTest {
     private UserService userService;
     @Mock
     private UserPreferencesService userPreferencesService;
+
+    private TimeZone timeZone = TimeZone.getTimeZone("GMT");
 
     @Before
     public void beforeTest() {
@@ -151,7 +119,7 @@ public class DeviceReadingsImporterFactoryTest {
         Map<String, Object> properties = new HashMap<>();
         properties.put(DELIMITER.getPropertyKey(), ";");
         properties.put(DATE_FORMAT.getPropertyKey(), "dd/MM/yyyy HH:mm");
-        properties.put(TIME_ZONE.getPropertyKey(), "GMT+00:00");
+        properties.put(TIME_ZONE.getPropertyKey(), timeZone.getID());
         properties.put(NUMBER_FORMAT.getPropertyKey(), new SupportedNumberFormatInfo(FORMAT3));
         return factory.createImporter(properties);
     }
@@ -462,7 +430,7 @@ public class DeviceReadingsImporterFactoryTest {
         importer.process(importOccurrence);
 
         verify(logger, never()).info(Matchers.anyString());
-        verify(logger).warning(thesaurus.getFormat(MessageSeeds.READING_DATE_INCORRECT_FOR_DAILY_CHANNEL).format(3, "11.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", context.getClock().getZone()));
+        verify(logger).warning(thesaurus.getFormat(MessageSeeds.READING_DATE_INCORRECT_FOR_DAILY_CHANNEL).format(3, "11.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", timeZone.toZoneId()));
         verify(logger, never()).severe(Matchers.anyString());
         verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.READINGS_IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(1, 1, 1, 1));
     }
@@ -481,7 +449,7 @@ public class DeviceReadingsImporterFactoryTest {
         importer.process(importOccurrence);
 
         verify(logger, never()).info(Matchers.anyString());
-        verify(logger).warning(thesaurus.getFormat(MessageSeeds.READING_DATE_INCORRECT_FOR_MONTHLY_CHANNEL).format(3, "13.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", context.getClock().getZone()));
+        verify(logger).warning(thesaurus.getFormat(MessageSeeds.READING_DATE_INCORRECT_FOR_MONTHLY_CHANNEL).format(3, "13.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", timeZone.toZoneId()));
         verify(logger, never()).severe(Matchers.anyString());
         verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.READINGS_IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(1, 1, 1, 1));
     }
@@ -500,7 +468,7 @@ public class DeviceReadingsImporterFactoryTest {
         importer.process(importOccurrence);
 
         verify(logger, never()).info(Matchers.anyString());
-        verify(logger).warning(thesaurus.getFormat(MessageSeeds.READING_DATE_INCORRECT_FOR_YEARLY_CHANNEL).format(2, "1001.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", context.getClock().getZone()));
+        verify(logger).warning(thesaurus.getFormat(MessageSeeds.READING_DATE_INCORRECT_FOR_YEARLY_CHANNEL).format(2, "1001.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", timeZone.toZoneId()));
         verify(logger, never()).severe(Matchers.anyString());
         verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.READINGS_IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(1, 1, 1, 1));
     }

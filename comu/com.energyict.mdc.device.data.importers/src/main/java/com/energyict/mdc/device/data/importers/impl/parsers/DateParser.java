@@ -6,12 +6,12 @@ package com.energyict.mdc.device.data.importers.impl.parsers;
 
 import com.elster.jupiter.fileimport.csvimport.FieldParser;
 import com.elster.jupiter.fileimport.csvimport.exceptions.ValueParserException;
-import com.energyict.mdc.device.data.importers.impl.properties.TimeZonePropertySpec;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.TimeZone;
 
 import static com.elster.jupiter.util.Checks.is;
 
@@ -41,7 +41,7 @@ public class DateParser implements FieldParser<ZonedDateTime> {
         try {
             DateTimeFormatter dataTimeFormatter = DateTimeFormatter.ofPattern(format);
             LocalDateTime localDateTime = LocalDateTime.parse(value, dataTimeFormatter);
-            ZoneId zoneId = ZoneId.from(TimeZonePropertySpec.format.parse(timeZone));
+            ZoneId zoneId = TimeZone.getTimeZone(timeZone).toZoneId();
             return ZonedDateTime.of(localDateTime, zoneId);
         } catch (Exception e) {
             throw new ValueParserException(value, format);
