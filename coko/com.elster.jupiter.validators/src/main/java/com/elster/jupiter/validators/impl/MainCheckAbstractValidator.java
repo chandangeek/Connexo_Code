@@ -8,6 +8,7 @@ import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.MetrologyContractChannelsContainer;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
@@ -127,23 +128,11 @@ public abstract class MainCheckAbstractValidator extends AbstractValidator {
 
     protected void initValidatingPurpose() throws InitCancelException {
         // find validating purpose
-        try {
-            EffectiveMetrologyConfigurationOnUsagePoint effectiveMC = validatingUsagePoint.getEffectiveMetrologyConfigurations(failedValidatonInterval)
-                    .get(0);
-            validatingPurpose = effectiveMC.getMetrologyConfiguration()
-                    .getContracts()
-                    .stream()
-                    .filter(metrologyContract ->
-                            effectiveMC.getChannelsContainer(metrologyContract)
-                                    .map(c -> c.getChannels().contains(validatingChannel))
-                                    .orElse(false))
-                    .map(MetrologyContract::getMetrologyPurpose)
-                    .findFirst()
-                    .orElseThrow(InitCancelException::new);
-        } catch (Exception e) {
-            // FIXME find better handling
-            throw new InitCancelException();
-        }
+            if (validatingChannel.getChannelsContainer() instanceof MetrologyContractChannelsContainer){
+                validatingPurpose = ((MetrologyContractChannelsContainer)validatingChannel.getChannelsContainer()).getMetrologyContract().getMetrologyPurpose();
+            } else {
+                // TODO: illigal state
+            }
     }
 
     protected void initCheckData(UsagePoint referenceUsagePoint, ReadingType referenceReadingType) throws
