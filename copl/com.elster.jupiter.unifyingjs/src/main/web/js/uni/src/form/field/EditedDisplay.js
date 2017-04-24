@@ -27,14 +27,14 @@ Ext.define('Uni.form.field.EditedDisplay', {
                 case 'ADDED':
                     iconClass = 'icon-pencil4';
                     tooltipText = value.date === null
-                        ? Uni.I18n.translate('general.addedOnX', 'UNI', 'Added on {0}', formattedDate)
-                        : Uni.I18n.translate('general.addedOnXx', 'UNI', 'Added');
+                        ? Uni.I18n.translate('general.addedOnXx', 'UNI', 'Added')
+                        : Uni.I18n.translate('general.addedOnX', 'UNI', 'Added on {0}', formattedDate);
                     break;
                 case 'EDITED':
                     iconClass = 'icon-pencil4';
                     tooltipText = value.date === null
-                        ? Uni.I18n.translate('general.editedOnX', 'UNI', 'Edited on {0}', formattedDate)
-                        : Uni.I18n.translate('general.editedOnXx', 'UNI', 'Edited');
+                        ? Uni.I18n.translate('general.editedOnXx', 'UNI', 'Edited')
+                        : Uni.I18n.translate('general.editedOnX', 'UNI', 'Edited on {0}', formattedDate);
                     tooltipText += record.get('commentValue')
                         ? Uni.I18n.translate('general.estimationCommentWithComment', 'UNI', 'Estimation comment: {0}', record.get('commentValue'))
                         : '';
@@ -42,20 +42,20 @@ Ext.define('Uni.form.field.EditedDisplay', {
                 case 'ESTIMATED':
                     iconClass = 'icon-pencil4';
                     tooltipText = value.date === null
-                        ? Uni.I18n.translate('general.estimatedOnX', 'UNI', 'Estimated on {0}', formattedDate)
-                        : Uni.I18n.translate('general.estimatedOnXx', 'UNI', 'Estimated');
+                        ? Uni.I18n.translate('general.estimatedOnXx', 'UNI', 'Estimated')
+                        : Uni.I18n.translate('general.estimatedOnX', 'UNI', 'Estimated on {0}', formattedDate);
                     break;
                 case 'REMOVED':
                     iconClass = 'icon-cancel-circle';
                     tooltipText = value.date === null
-                        ? Uni.I18n.translate('general.removedOnX', 'UNI', 'Removed on {0}', formattedDate)
-                        : Uni.I18n.translate('general.removedOnXx', 'UNI', 'Removed');
+                        ? Uni.I18n.translate('general.removedOnXx', 'UNI', 'Removed')
+                        : Uni.I18n.translate('general.removedOnX', 'UNI', 'Removed on {0}', formattedDate);
                     break;
                 case 'RESET':
                     iconClass = 'icon-cancel-circle';
                     tooltipText = value.date === null
-                        ? Uni.I18n.translate('general.restoredOnX', 'UNI', 'Restored on {0}', formattedDate)
-                        : Uni.I18n.translate('general.restoredOnXx', 'UNI', 'Restored');
+                        ? Uni.I18n.translate('general.restoredOnXx', 'UNI', 'Restored')
+                        : Uni.I18n.translate('general.restoredOnX', 'UNI', 'Restored on {0}', formattedDate);
                     break;
             }
             if (iconClass && tooltipText) {
