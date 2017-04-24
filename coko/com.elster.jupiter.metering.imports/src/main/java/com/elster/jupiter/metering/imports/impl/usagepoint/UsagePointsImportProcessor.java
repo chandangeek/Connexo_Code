@@ -35,9 +35,9 @@ import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.usagepoint.lifecycle.ExecutableMicroCheck;
 import com.elster.jupiter.usagepoint.lifecycle.ExecutableMicroCheckViolation;
-import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 
+import javax.swing.plaf.nimbus.State;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import java.time.Instant;
@@ -290,7 +290,7 @@ public class UsagePointsImportProcessor extends AbstractImportProcessor<UsagePoi
     private void performUsagePointTransition(UsagePointImportRecord record, UsagePoint usagePoint) {
         if (record.getTransition().isPresent()) {
             PropertyValueInfoService propertyValueInfoService = getContext().getPropertyValueInfoService();
-            UsagePointTransition usagePointTransition = getOptionalTransition(usagePoint.getState(record.getTransitionDate()), record.getTransition()
+            UsagePointTransition usagePointTransition = getOptionalTransition(usagePoint, record.getTransition()
                     .get()).get();
 
             List<PropertySpec> transitionAttributes = usagePointTransition.getMicroActionsProperties();
@@ -324,9 +324,9 @@ public class UsagePointsImportProcessor extends AbstractImportProcessor<UsagePoi
         }
     }
 
-    private Optional<UsagePointTransition> getOptionalTransition(UsagePointState usagePointState, String transitionName) {
+    private Optional<UsagePointTransition> getOptionalTransition(UsagePoint usagePoint, String transitionName) {
         return getContext().getUsagePointLifeCycleService()
-                .getAvailableTransitions(usagePointState, "INS")
+                .getAvailableTransitions(usagePoint, "INS")
                 .stream()
                 .filter(usagePointTransition -> usagePointTransition.getName().equals(transitionName))
                 .findAny();
@@ -354,7 +354,7 @@ public class UsagePointsImportProcessor extends AbstractImportProcessor<UsagePoi
 
     private void validateUsagePointTransitionValues(UsagePoint usagePoint, UsagePointImportRecord data) {
         if (data.getTransition().isPresent()) {
-            Optional<UsagePointTransition> optionalTransition = getOptionalTransition(usagePoint.getState(), data.getTransition().get());
+            Optional<UsagePointTransition> optionalTransition = getOptionalTransition(usagePoint, data.getTransition().get());
             if (!optionalTransition.isPresent()) {
                 throw new ProcessorException(MessageSeeds.NO_SUCH_TRANSITION_FOUND, data.getTransition().get());
             }

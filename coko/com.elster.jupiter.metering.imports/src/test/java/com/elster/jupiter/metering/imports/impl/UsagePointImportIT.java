@@ -14,7 +14,6 @@ import com.elster.jupiter.fsm.FiniteStateMachineBuilder;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.Stage;
 import com.elster.jupiter.fsm.StageSet;
-import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.ElectricityDetail;
@@ -39,6 +38,13 @@ import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.ByteArrayInputStream;
 import java.time.Instant;
@@ -55,7 +61,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -66,11 +71,6 @@ import static org.mockito.Mockito.when;
 public class UsagePointImportIT {
     @Rule
     public TestRule transactionalRule = new TransactionalRule(inMemoryPersistence.getTransactionService());
-
-    @Mock
-    private State deviceState;
-    @Mock
-    private Stage deviceStage;
 
     private static InMemoryIntegrationPersistence inMemoryPersistence;
     private static final TimeZone utcTimeZone = TimeZone.getTimeZone("UTC");
@@ -154,8 +154,8 @@ public class UsagePointImportIT {
         UsagePointLifeCycleService usagePointLifeCycleService = inMemoryPersistence.getService(UsagePointLifeCycleService.class);
         assertThat(usagePointLifeCycleService.getHistory(usagePoint)).hasSize(1);
         UsagePointStateChangeRequest history = usagePointLifeCycleService.getHistory(usagePoint).get(0);
-        assertThat(history.getFromStateName()).isEqualTo("Under construction");
-        assertThat(history.getToStateName()).isEqualTo("Active");
+        assertThat(history.getFromStateName()).isEqualTo("usage.point.state.under.construction");
+        assertThat(history.getToStateName()).isEqualTo("usage.point.state.active");
         assertThat(history.getStatus()).isEqualTo(UsagePointStateChangeRequest.Status.SCHEDULED);
     }
 
@@ -165,9 +165,13 @@ public class UsagePointImportIT {
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
         metrologyConfigurationService.newUsagePointMetrologyConfiguration("Residential net metering (consumption)", serviceCategory).create();
         FiniteStateMachineService finiteStateMachineService = inMemoryPersistence.getService(FiniteStateMachineService.class);
-        StageSet operational = finiteStateMachineService.newStageSet("operational").stage(EndDeviceStage.OPERATIONAL.getKey()).add();
-        FiniteStateMachineBuilder builder = finiteStateMachineService.newFiniteStateMachine("finiteStateMachine", operational);
-        FiniteStateMachine machine = builder.complete(builder.newCustomState("custom", operational.getStageByName(EndDeviceStage.OPERATIONAL.getKey()).get()).complete());
+        StageSet stageSet = finiteStateMachineService.newStageSet("StageSet")
+                .stage(EndDeviceStage.OPERATIONAL.getKey())
+                .add();
+        Stage operational = stageSet.getStageByName(EndDeviceStage.OPERATIONAL.getKey())
+                .orElseThrow(() -> new IllegalStateException("Stage " + EndDeviceStage.OPERATIONAL.getKey() + " is not created."));
+        FiniteStateMachineBuilder builder = finiteStateMachineService.newFiniteStateMachine("FiniteStateMachine", stageSet);
+        FiniteStateMachine machine = builder.complete(builder.newCustomState("Custom", operational).complete());
         AmrSystem system = meteringService.findAmrSystem(1).get();
         Meter meter = system.newMeter("DEVICE", "DEVICE").setStateMachine(machine).create();
         meter.activate(Instant.ofEpochMilli(1477872000000L));

@@ -5,9 +5,9 @@
 package com.elster.jupiter.metering.imports.impl.usagepoint;
 
 import com.elster.jupiter.cbo.PhaseCode;
+import com.elster.jupiter.fileimport.csvimport.FileImportRecord;
 import com.elster.jupiter.metering.BypassStatus;
 import com.elster.jupiter.metering.imports.impl.CustomPropertySetRecord;
-import com.elster.jupiter.fileimport.csvimport.FileImportRecord;
 import com.elster.jupiter.util.YesNoAnswer;
 import com.elster.jupiter.util.units.Quantity;
 
@@ -15,6 +15,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -398,11 +399,11 @@ public class UsagePointImportRecord extends FileImportRecord {
     }
 
     public List<MeterRoleWithMeterAndActivationDate> getMeterRoles() {
-        return meterRoles;
+        return Collections.unmodifiableList(meterRoles);
     }
 
     public void setMeterRoles(List<MeterRoleWithMeterAndActivationDate> meterRoles) {
-        this.meterRoles = meterRoles;
+        this.meterRoles = new ArrayList<>(meterRoles);
     }
 
     public Optional<String> getTransition() {
@@ -422,10 +423,11 @@ public class UsagePointImportRecord extends FileImportRecord {
     }
 
     public Map<String, String> getTransitionAttributes() {
-        return transitionAttributes;
+        return Collections.unmodifiableMap(transitionAttributes);
     }
 
     public void setTransitionAttributes(Map<String, String> transitionAttributes) {
-        this.transitionAttributes = transitionAttributes;
+        this.transitionAttributes = new HashMap<>(transitionAttributes);
     }
+
 }
