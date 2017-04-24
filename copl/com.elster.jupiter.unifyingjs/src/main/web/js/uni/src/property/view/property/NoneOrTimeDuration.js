@@ -56,7 +56,10 @@ Ext.define('Uni.property.view.property.NoneOrTimeDuration', {
                             allowBlank: false,
                             disabled: true,
                             minValue: 0,
-                            value: 1
+                            value: 1,
+                            listeners: {
+                                blur: me.recurrenceNumberFieldValidation
+                            }
                         },
                         {
                             xtype: 'combobox',
