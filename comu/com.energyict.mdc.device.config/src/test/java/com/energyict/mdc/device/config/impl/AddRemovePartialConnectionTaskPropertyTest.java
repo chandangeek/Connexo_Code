@@ -39,7 +39,7 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.events.EventType;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
+import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;

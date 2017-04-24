@@ -11,7 +11,7 @@ import com.energyict.mdc.masterdata.LoadProfileType;
 
 /**
  * Models the exceptional situation that occurs when an attempt
- * is made to update the {@link com.energyict.mdc.common.ObisCode}
+ * is made to update the {@link com.energyict.obis.ObisCode}
  * of a {@link LoadProfileType} that is in use.
  *
  * @author Rudi Vankeirsbilck (rudi)

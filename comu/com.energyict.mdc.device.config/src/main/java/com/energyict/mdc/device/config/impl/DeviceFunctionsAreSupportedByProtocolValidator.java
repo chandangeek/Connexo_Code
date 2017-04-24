@@ -5,7 +5,7 @@
 package com.energyict.mdc.device.config.impl;
 
 import com.energyict.mdc.device.config.DeviceCommunicationFunction;
-import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
+import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 
 import javax.validation.ConstraintValidator;

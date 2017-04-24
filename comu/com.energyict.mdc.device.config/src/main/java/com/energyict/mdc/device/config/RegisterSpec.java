@@ -4,13 +4,12 @@
 
 package com.energyict.mdc.device.config;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.validation.ValidationRule;
-import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.masterdata.RegisterType;
-
-import aQute.bnd.annotation.ProviderType;
+import com.energyict.obis.ObisCode;
 
 import java.time.Instant;
 import java.util.List;
@@ -28,7 +27,7 @@ public interface RegisterSpec extends HasId {
      *
      * @return the DeviceConfiguration
      */
-    public DeviceConfiguration getDeviceConfiguration();
+    DeviceConfiguration getDeviceConfiguration();
 
 
     /**
@@ -36,7 +35,7 @@ public interface RegisterSpec extends HasId {
      *
      * @return the register mapping
      */
-    public RegisterType getRegisterType();
+    RegisterType getRegisterType();
 
     /**
      * Tests if this RegisterSpec was marked by the user to contain textual data.
@@ -48,28 +47,28 @@ public interface RegisterSpec extends HasId {
      *
      * @return <code>true</code> iff the user indicates registers of this specification will contain textual data
      */
-    public boolean isTextual();
+    boolean isTextual();
 
     /**
      * Returns the spec's obis code
      *
      * @return the obis code
      */
-    public ObisCode getObisCode();
+    ObisCode getObisCode();
 
     /**
      * Returns the obis code of the device.
      *
      * @return the obis code of the device
      */
-    public ObisCode getDeviceObisCode();
+    ObisCode getDeviceObisCode();
 
     /**
      * Returns the receiver's last modification date
      *
      * @return the last modification date
      */
-    public Instant getModificationDate();
+    Instant getModificationDate();
 
     void validateDelete();
 
@@ -77,7 +76,7 @@ public interface RegisterSpec extends HasId {
 
     void save();
 
-    public List<ValidationRule> getValidationRules();
+    List<ValidationRule> getValidationRules();
 
     ReadingType getReadingType();
 

@@ -12,7 +12,7 @@ import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViol
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.common.ObisCode;
+import com.energyict.obis.ObisCode;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
