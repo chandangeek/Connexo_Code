@@ -766,7 +766,6 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
     },
 
     saveEstimationComment: function (button) {
-        debugger;
         var me = this,
             window = me.getEditEstimationComment(),
             commentCombo = window.down('#estimation-comment-box'),
@@ -777,18 +776,40 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
 
         if (!Array.isArray(readings)) {
             if (!commentValue) {
-                readings.set('commentId', 0);
+                readings.set('bulkValidationInfo', {
+                    commentId: 0
+                });
             } else if (commentId !== -1) {
-                readings.set('commentId', commentId);
-                readings.set('commentValue', commentValue);
+                if (radioValue) {
+                    readings.set('bulkValidationInfo', {
+                        commentId: commentId,
+                        commentValue: commentValue
+                    });
+                } else {
+                    readings.set('mainValidationInfo', {
+                        commentId: commentId,
+                        commentValue: commentValue
+                    });
+                }
             }
         } else {
             _.each(readings, function (reading) {
                 if (!commentValue) {
-                    reading.set('commentId', 0);
+                    reading.set('bulkValidationInfo', {
+                        commentId: 0
+                    });
                 } else if (commentId !== -1) {
-                    reading.set('commentId', commentId);
-                    reading.set('commentValue', commentValue);
+                    if (radioValue) {
+                        reading.set('bulkValidationInfo', {
+                            commentId: commentId,
+                            commentValue: commentValue
+                        });
+                    } else {
+                        reading.set('mainValidationInfo', {
+                            commentId: commentId,
+                            commentValue: commentValue
+                        });
+                    }
                 }
             });
         }
