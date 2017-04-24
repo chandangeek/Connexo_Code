@@ -67,7 +67,7 @@ public enum TableSpecs {
             Column ruleSetIdColumn = table.column("RULESETID").number().notNull().conversion(NUMBER2LONG).add();
             table.column("POSITION").number().notNull().conversion(NUMBER2INT).map("position").add();
             Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
-            Column commentIdColumn = table.column("COMMENTS").number().conversion(NUMBER2LONG).installValue(null).since(Version.version(10,3)).add();
+            Column commentIdColumn = table.column("COMMENTS").number().conversion(NUMBER2LONG).since(Version.version(10,3)).add();
             Column obsoleteColumn = table.column("OBSOLETE_TIME").map("obsoleteTime").number().conversion(NUMBER2INSTANT).add();
             table.column("MARK_PROJECTED").map("markProjected").bool().add().since(version(10, 3));
             table.addAuditColumns();
