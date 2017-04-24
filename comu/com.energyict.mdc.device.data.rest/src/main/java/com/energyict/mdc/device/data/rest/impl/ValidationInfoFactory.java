@@ -13,7 +13,6 @@ import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.streams.Functions;
@@ -56,21 +55,23 @@ public class ValidationInfoFactory {
     private final PropertyValueInfoService propertyValueInfoService;
     private final ResourceHelper resourceHelper;
     private final ReadingTypeInfoFactory readingTypeInfoFactory;
+    private final ReadingQualityInfoFactory readingQualityInfoFactory;
 
     @Inject
     public ValidationInfoFactory(MeteringTranslationService meteringTranslationService,
                                  ValidationRuleInfoFactory validationRuleInfoFactory,
                                  EstimationRuleInfoFactory estimationRuleInfoFactory,
                                  PropertyValueInfoService propertyValueInfoService,
-                                 Thesaurus thesaurus,
                                  ResourceHelper resourceHelper,
-                                 ReadingTypeInfoFactory readingTypeInfoFactory) {
+                                 ReadingTypeInfoFactory readingTypeInfoFactory,
+                                 ReadingQualityInfoFactory readingQualityInfoFactory) {
         this.meteringTranslationService = meteringTranslationService;
         this.validationRuleInfoFactory = validationRuleInfoFactory;
         this.estimationRuleInfoFactory = estimationRuleInfoFactory;
         this.propertyValueInfoService = propertyValueInfoService;
         this.resourceHelper = resourceHelper;
         this.readingTypeInfoFactory = readingTypeInfoFactory;
+        this.readingQualityInfoFactory = readingQualityInfoFactory;
     }
 
     DetailedValidationRuleInfo createDetailedValidationRuleInfo(ValidationRule validationRule, Long total) {
@@ -278,7 +279,7 @@ public class ValidationInfoFactory {
                 .filter(type -> type.category().isPresent())
                 .filter(type -> type.qualityIndex().isPresent())
                 .filter(type -> type.system().get() != QualityCodeSystem.MDM || !type.hasValidationCategory())
-                .map(type -> ReadingQualityInfo.fromReadingQualityType(meteringTranslationService, type))
+                .map(readingQualityInfoFactory::fromReadingQualityType)
                 .collect(Collectors.toList());
     }
 
@@ -293,7 +294,7 @@ public class ValidationInfoFactory {
                 .filter(readingQuality -> readingQuality.getType().category().isPresent())
                 .filter(readingQuality -> readingQuality.getType().qualityIndex().isPresent())
                 .filter(readingQuality -> readingQuality.getType().system().get() != QualityCodeSystem.MDM || !readingQuality.getType().hasValidationCategory())
-                .map(readingQuality -> ReadingQualityInfo.fromReadingQuality(meteringTranslationService, readingQuality))
+                .map(readingQualityInfoFactory::fromReadingQuality)
                 .collect(Collectors.toList());
     }
 

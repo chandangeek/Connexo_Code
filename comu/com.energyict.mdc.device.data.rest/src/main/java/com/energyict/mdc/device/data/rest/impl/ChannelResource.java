@@ -19,7 +19,6 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.beans.BaseReadingImpl;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
-import com.elster.jupiter.rest.util.BigDecimalFunction;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
@@ -773,6 +772,7 @@ public class ChannelResource {
                                                 - channel.getReadingType().getMultiplier().getMultiplier());
                             channelDataInfo.mainValidationInfo.validationResult = ValidationStatus.NOT_VALIDATED;
                             channelDataInfo.commentId = copyFromReferenceChannelDataInfo.commentId;
+                            channelDataInfo.commentValue = copyFromReferenceChannelDataInfo.commentValue;
                             if (copyFromReferenceChannelDataInfo.allowSuspectData || referenceReading.getReadingQualities()
                                     .values()
                                     .stream()
@@ -1009,12 +1009,12 @@ public class ChannelResource {
                     result.addAll(channel.getChannelData(intervals).stream()
                             .flatMap(loadProfileReading -> loadProfileReading.getChannelValues().values().stream())
                             .filter(readingRecord -> timestamps.contains(readingRecord.getTimeStamp()))
-                            .map(readingRecord -> createCorrectedChannelDataInfo(channel, valueCorrectionInfo.type, readingRecord, valueCorrectionInfo.amount))
+                            .map(readingRecord -> createCorrectedChannelDataInfo(channel, valueCorrectionInfo, readingRecord))
                             .collect(Collectors.toList())));
         return result;
     }
 
-    private ChannelDataInfo createCorrectedChannelDataInfo(Channel channel, BigDecimalFunction type, IntervalReadingRecord record, BigDecimal correctionAmount) {
+    private ChannelDataInfo createCorrectedChannelDataInfo(Channel channel, ValueCorrectionInfo info, IntervalReadingRecord record) {
         ChannelDataInfo channelDataInfo = new ChannelDataInfo();
         channelDataInfo.reportedDateTime = record.getReportedDateTime();
         record.getReadingType().getIntervalLength().ifPresent(intervalLength -> {
@@ -1025,8 +1025,9 @@ public class ChannelResource {
         channel.getCalculatedReadingType(record.getTimeStamp()).ifPresent(readingType -> {
             Quantity quantity = record.getQuantity(readingType);
             BigDecimal value = getRoundedBigDecimal(quantity != null ? quantity.getValue() : null, channel);
-            channelDataInfo.value = type.apply(value, correctionAmount);
+            channelDataInfo.value = info.type.apply(value, info.amount);
         });
+        channelDataInfo.commentId = info.commentId;
         return channelDataInfo;
     }
 

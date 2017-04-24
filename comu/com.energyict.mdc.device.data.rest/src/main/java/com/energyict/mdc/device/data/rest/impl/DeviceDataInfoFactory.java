@@ -62,6 +62,7 @@ public class DeviceDataInfoFactory {
     private final Clock clock;
     private final ResourceHelper resourceHelper;
     private final ReadingTypeInfoFactory readingTypeInfoFactory;
+    private final ReadingQualityInfoFactory readingQualityInfoFactory;
 
     @Inject
     public DeviceDataInfoFactory(MeteringTranslationService meteringTranslationService,
@@ -70,7 +71,7 @@ public class DeviceDataInfoFactory {
                                  ValidationRuleInfoFactory validationRuleInfoFactory,
                                  Clock clock,
                                  ResourceHelper resourceHelper,
-                                 ReadingTypeInfoFactory readingTypeInfoFactory) {
+                                 ReadingTypeInfoFactory readingTypeInfoFactory, ReadingQualityInfoFactory readingQualityInfoFactory) {
         this.meteringTranslationService = meteringTranslationService;
         this.validationInfoFactory = validationInfoFactory;
         this.estimationRuleInfoFactory = estimationRuleInfoFactory;
@@ -78,6 +79,7 @@ public class DeviceDataInfoFactory {
         this.clock = clock;
         this.resourceHelper = resourceHelper;
         this.readingTypeInfoFactory = readingTypeInfoFactory;
+        this.readingQualityInfoFactory = readingQualityInfoFactory;
     }
 
     ChannelDataInfo createChannelDataInfo(Channel channel, LoadProfileReading loadProfileReading, boolean isValidationActive, DeviceValidation deviceValidation, Device dataLoggerSlave) {
@@ -279,7 +281,7 @@ public class DeviceDataInfoFactory {
                 .filter(type -> type.system().isPresent())
                 .filter(type -> type.category().isPresent())
                 .filter(type -> type.qualityIndex().isPresent())
-                .map(type -> ReadingQualityInfo.fromReadingQualityType(meteringTranslationService, type))
+                .map(readingQualityInfoFactory::fromReadingQualityType)
                 .collect(Collectors.toList());
     }
 

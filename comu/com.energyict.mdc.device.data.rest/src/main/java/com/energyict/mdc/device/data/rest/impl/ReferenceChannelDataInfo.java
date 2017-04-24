@@ -17,4 +17,5 @@ public class ReferenceChannelDataInfo {
     public boolean completePeriod;
     public List<IntervalInfo> intervals;
     public Long commentId;
+    public String commentValue;
 }
