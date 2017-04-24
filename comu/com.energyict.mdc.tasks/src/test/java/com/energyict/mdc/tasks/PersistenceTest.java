@@ -46,17 +46,15 @@ import com.energyict.mdc.pluggable.impl.PluggableModule;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
 import com.energyict.mdc.tasks.impl.TasksModule;
-
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.osgi.framework.BundleContext;
-
-import java.util.List;
-
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.rules.TestRule;
+import org.osgi.framework.BundleContext;
+
+import java.util.List;
 
 import static org.mockito.Mockito.mock;
 
