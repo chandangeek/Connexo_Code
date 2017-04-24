@@ -5,19 +5,14 @@
 package com.elster.jupiter.validators.impl;
 
 import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
-import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.TwoValuesDifference;
 import com.elster.jupiter.util.logging.LoggingContext;
-import com.elster.jupiter.validation.DataValidationStatus;
-import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.ValidationPropertyDefinitionLevel;
 import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validation.ValidationService;
@@ -29,9 +24,6 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 
 /**
@@ -41,9 +33,6 @@ import java.util.stream.Collectors;
  * If the minimum threshold is configured the check for the interval is skipped and the validation moves to the next interval.
  */
 public class MainCheckValidator extends MainCheckAbstractValidator {
-
-    private Map<Instant, IntervalReadingRecord> checkReadingRecords;
-    private Map<Instant, ValidationResult> checkReadingRecordValidations;
 
     // validator parameters
 
@@ -86,88 +75,17 @@ public class MainCheckValidator extends MainCheckAbstractValidator {
 
     @Override
     public void init(Channel channel, ReadingType readingType, Range<Instant> interval) {
-        super.init(channel,readingType,interval);
+        super.init(channel, readingType, interval);
 
         // find 'check' channel and save readings + prepare mapping with readings from 'main' channel
 
         // 2. find 'check' channel
         try {
+            initValidatingPurpose();
             initUsagePointName(channel);
-        }catch (InitCancelException e){
+            initCheckData(validatingUsagePoint, readingType);
+        } catch (InitCancelException e) {
 
-        }
-
-        List<EffectiveMetrologyConfigurationOnUsagePoint> effectiveMCList = validatedUsagePoint
-                .getEffectiveMetrologyConfigurations(interval);
-
-        if (effectiveMCList.size() != 1) {
-            LoggingContext.get()
-                    .warning(getLogger(), getThesaurus().getFormat(MessageSeeds.MAIN_CHECK_MISC_NOT_ONE_EMC)
-                            .format(rangeToString(failedValidatonInterval), getDisplayName(), readingType.getFullAliasName(), effectiveMCList
-                                    .size()));
-            preparedValidationResult = ValidationResult.NOT_VALIDATED;
-            return;
-        }
-
-        EffectiveMetrologyConfigurationOnUsagePoint effectiveMC = effectiveMCList.get(0);
-
-        Optional<MetrologyContract> metrologyContract = effectiveMC.getMetrologyConfiguration()
-                .getContracts()
-                .stream()
-                .filter(contract -> contract.getMetrologyPurpose().equals(checkChannelPurpose))
-                .findAny();
-
-        // {RULE FLOW CHECK] specified purpose is not found on the usage point
-        if (!metrologyContract.isPresent()) {
-            // [RULE FLOW ACTION] Stop validation for the channel independently from Pass if no reference data field value (last check remains as before the validation), an error message appears in the log
-            LoggingContext.get()
-                    .warning(getLogger(), getThesaurus().getFormat(MessageSeeds.MAIN_CHECK_MISC_NO_PURPOSE)
-                            .format(rangeToString(failedValidatonInterval), getDisplayName(), readingType.getFullAliasName(), validatedUsagePointName));
-            preparedValidationResult = ValidationResult.NOT_VALIDATED;
-            return;
-        }
-
-        boolean checkOutputExistOnPurpose = false;
-
-        Optional<ChannelsContainer> channelsContainerWithCheckChannel = effectiveMC.getChannelsContainer(metrologyContract
-                .get());
-        if (channelsContainerWithCheckChannel.isPresent()) {
-            Optional<Channel> checkChannel = channelsContainerWithCheckChannel.get().getChannel(readingType);
-            if (checkChannel.isPresent()) {
-                checkOutputExistOnPurpose = true;
-                // 3. prepare map of interval readings from check channel
-                List<IntervalReadingRecord> checkChannelIntervalReadings = checkChannel.get()
-                        .getIntervalReadings(interval);
-                checkReadingRecords = checkChannelIntervalReadings.stream()
-                        .collect(Collectors.toMap(IntervalReadingRecord::getTimeStamp, Function.identity()));
-
-                // 4. get validation statuses for check channel
-
-                ValidationEvaluator evaluator = validationService.getEvaluator();
-                checkReadingRecordValidations = evaluator.getValidationStatus(getSupportedQualityCodeSystems(), checkChannel
-                        .get(), checkChannelIntervalReadings)
-                        .stream()
-                        .collect(Collectors.toMap(DataValidationStatus::getReadingTimestamp, DataValidationStatus::getValidationResult));
-            }
-        } else {
-            // this means that purpose is not active on a usagepoint
-            LoggingContext.get()
-                    .warning(getLogger(), getThesaurus().getFormat(MessageSeeds.MAIN_CHECK_MISC_PURPOSE_NEVER_ACTIVATED)
-                            .format(rangeToString(failedValidatonInterval), getDisplayName(), readingType.getFullAliasName(), validatedUsagePointName));
-            preparedValidationResult = ValidationResult.NOT_VALIDATED;
-            return;
-        }
-
-        // {RULE FLOW CHECK] no 'check' output with matching reading type exists on the chosen purpose
-        if (!checkOutputExistOnPurpose) {
-            // [RULE FLOW ACTION] Stop validation for the channel independently from Pass if no reference data field value (last check remains as before the validation), an error message appears in the log
-            LoggingContext.get()
-                    .warning(getLogger(), getThesaurus().getFormat(MessageSeeds.MAIN_CHECK_MISC_NO_CHECK_OUTPUT)
-                            .format(rangeToString(failedValidatonInterval),
-                                    getDisplayName(),
-                                    readingType.getFullAliasName(),
-                                    validatedUsagePointName));
-            preparedValidationResult = ValidationResult.NOT_VALIDATED;
         }
     }
 
@@ -202,7 +120,7 @@ public class MainCheckValidator extends MainCheckAbstractValidator {
             // show log
             LoggingContext.get()
                     .warning(getLogger(), getThesaurus().getFormat(MessageSeeds.MAIN_CHECK_MISC_CHECK_OUTPUT_MISSING_OR_NOT_VALID)
-                            .format(rangeToString(failedValidatonInterval), getDisplayName(), validatedUsagePointName, readingType
+                            .format(rangeToString(failedValidatonInterval), getDisplayName(), validatingUsagePointName, readingType
                                     .getFullAliasName()));
 
             if (passIfNoRefData) {
@@ -223,7 +141,7 @@ public class MainCheckValidator extends MainCheckAbstractValidator {
             if (useValidatedData) {
                 LoggingContext.get()
                         .warning(getLogger(), getThesaurus().getFormat(MessageSeeds.MAIN_CHECK_MISC_CHECK_OUTPUT_MISSING_OR_NOT_VALID)
-                                .format(rangeToString(failedValidatonInterval), getDisplayName(), validatedUsagePointName, readingType
+                                .format(rangeToString(failedValidatonInterval), getDisplayName(), validatingUsagePointName, readingType
                                         .getFullAliasName()));
                 // [RULE ACTION] Stop the validation at the timestamp where the timestamp with the last validated reference data was found for the channel if Use validated data is checked
                 prepareValidationResult(ValidationResult.NOT_VALIDATED, timeStamp);
@@ -270,5 +188,32 @@ public class MainCheckValidator extends MainCheckAbstractValidator {
     @Override
     String getClassName() {
         return MainCheckValidator.class.getName();
+    }
+
+    @Override
+    void logInitCancelFailure(InitCancelProps props) {
+        // FIXME: verify messages
+        InitCancelReason reason = props.reason;
+        switch (reason) {
+            case NO_REFERENCE_PURPOSE_FOUND_ON_REFERENCE_USAGE_POINT:
+                LoggingContext.get()
+                        .warning(getLogger(), getThesaurus().getFormat(MessageSeeds.MAIN_CHECK_MISC_NO_PURPOSE)
+                                .format(rangeToString(failedValidatonInterval), getDisplayName(), props.readingType, validatingUsagePointName));
+                break;
+            case REFERENCE_PURPOSE_HAS_NOT_BEEN_EVER_ACTIVATED:
+                LoggingContext.get()
+                        .warning(getLogger(), getThesaurus().getFormat(MessageSeeds.MAIN_CHECK_MISC_PURPOSE_NEVER_ACTIVATED)
+                                .format(rangeToString(failedValidatonInterval), getDisplayName(), props.readingType, validatingUsagePointName));
+
+                break;
+            case REFERENCE_OUTPUT_DOES_NOT_EXIST:
+                LoggingContext.get()
+                        .warning(getLogger(), getThesaurus().getFormat(MessageSeeds.MAIN_CHECK_MISC_NO_CHECK_OUTPUT)
+                                .format(rangeToString(failedValidatonInterval),
+                                        getDisplayName(),
+                                        props.readingType,
+                                        validatingUsagePointName));
+                break;
+        }
     }
 }

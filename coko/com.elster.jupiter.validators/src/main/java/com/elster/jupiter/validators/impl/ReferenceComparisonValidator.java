@@ -15,6 +15,7 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySelectionMode;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.util.logging.LoggingContext;
 import com.elster.jupiter.validation.ValidationPropertyDefinitionLevel;
 import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validation.ValidationService;
@@ -42,8 +43,8 @@ public class ReferenceComparisonValidator extends MainCheckAbstractValidator {
 
     private MeteringService meteringService;
 
-    private UsagePoint checkUsagePoint;
-    private ReadingType checkReadinType;
+    private UsagePoint referenceUsagePoint;
+    private ReadingType referenceReadinType;
 
     public ReferenceComparisonValidator(Thesaurus thesaurus, PropertySpecService propertySpecService, MetrologyConfigurationService metrologyConfigurationService, ValidationService validationService, MeteringService meteringService) {
         super(thesaurus, propertySpecService, metrologyConfigurationService, validationService);
@@ -127,25 +128,26 @@ public class ReferenceComparisonValidator extends MainCheckAbstractValidator {
     public void init(Channel channel, ReadingType readingType, Range<Instant> interval) {
         super.init(channel,readingType,interval);
 
-        checkUsagePoint = getCheckUsagePointProperty();
-        checkReadinType = getReferenceReadingTypeProperty().getReadingType();
+        referenceUsagePoint = getCheckUsagePointProperty();
+        referenceReadinType = getReferenceReadingTypeProperty().getReadingType();
 
         try {
+            initValidatingPurpose();
             initUsagePointName(channel);
-            validateCheckUsagePoint();
+            validateReferenceUsagePoint();
+            initCheckData(referenceUsagePoint, referenceReadinType);
         }catch (InitCancelException e){
             // do nothing. already handled
         }
-
     }
 
-    private void validateCheckUsagePoint() throws InitCancelException{
-        // verify check usage point exists
+    private void validateReferenceUsagePoint() throws InitCancelException{
+        // TODO: verify check usage point exists
     }
 
     @Override
     public ValidationResult validate(IntervalReadingRecord intervalReadingRecord) {
-        // FIXME: add code from main check validator
+        // TODO: add code from main check validator
 
 
 
@@ -187,6 +189,33 @@ public class ReferenceComparisonValidator extends MainCheckAbstractValidator {
         @Override
         public String getDefaultFormat() {
             return this.defaultFormat;
+        }
+    }
+
+    @Override
+    void logInitCancelFailure(InitCancelProps props) {
+        // FIXME: verify messages
+        InitCancelReason reason = props.reason;
+        switch (reason) {
+            case NO_REFERENCE_PURPOSE_FOUND_ON_REFERENCE_USAGE_POINT:
+                LoggingContext.get()
+                        .warning(getLogger(), getThesaurus().getFormat(MessageSeeds.REFERENCE_MISC_NO_PURPOSE)
+                                .format(rangeToString(failedValidatonInterval), getDisplayName(), props.readingType, validatingUsagePointName));
+                break;
+            case REFERENCE_PURPOSE_HAS_NOT_BEEN_EVER_ACTIVATED:
+                LoggingContext.get()
+                        .warning(getLogger(), getThesaurus().getFormat(MessageSeeds.REFERENCE_MISC_PURPOSE_NEVER_ACTIVATED)
+                                .format(rangeToString(failedValidatonInterval), getDisplayName(), props.readingType, validatingUsagePointName));
+
+                break;
+            case REFERENCE_OUTPUT_DOES_NOT_EXIST:
+                LoggingContext.get()
+                        .warning(getLogger(), getThesaurus().getFormat(MessageSeeds.REFERENCE_MISC_NO_CHECK_OUTPUT)
+                                .format(rangeToString(failedValidatonInterval),
+                                        getDisplayName(),
+                                        props.readingType,
+                                        validatingUsagePointName));
+                break;
         }
     }
 }
