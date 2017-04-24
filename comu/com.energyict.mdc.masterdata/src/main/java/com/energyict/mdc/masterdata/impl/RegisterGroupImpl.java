@@ -20,6 +20,7 @@ import com.energyict.mdc.masterdata.exceptions.RegisterTypesRequiredException;
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import javax.xml.bind.annotation.XmlElement;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -29,13 +30,13 @@ import java.util.stream.Collectors;
 public class RegisterGroupImpl extends PersistentNamedObject<RegisterGroup> implements RegisterGroup {
 
     private final Publisher publisher;
-    @Size(min= 1, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.AT_LEAST_ONE_REGISTER_TYPE_REQUIRED + "}")
+    @Size(min = 1, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.AT_LEAST_ONE_REGISTER_TYPE_REQUIRED + "}")
     private List<RegisterTypeInGroup> registerTypeInGroups = new ArrayList<>();
     private ChangeNotifier changeNotifier = new NotNotifiedYet();
 
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
-    @Size(max= 256, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    @Size(max = 256, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String name;
 
     @Inject
@@ -44,11 +45,11 @@ public class RegisterGroupImpl extends PersistentNamedObject<RegisterGroup> impl
         this.publisher = publisher;
     }
 
-    static RegisterGroupImpl from (DataModel dataModel, String name) {
+    static RegisterGroupImpl from(DataModel dataModel, String name) {
         return dataModel.getInstance(RegisterGroupImpl.class).initialize(name);
     }
 
-    RegisterGroupImpl initialize (String name) {
+    RegisterGroupImpl initialize(String name) {
         this.setName(name);
         return this;
     }
@@ -88,7 +89,7 @@ public class RegisterGroupImpl extends PersistentNamedObject<RegisterGroup> impl
     }
 
     @Override
-    public String toString () {
+    public String toString() {
         return this.getName();
     }
 
@@ -145,7 +146,7 @@ public class RegisterGroupImpl extends PersistentNamedObject<RegisterGroup> impl
     private void addNewRegisterTypes(List<RegisterType> registerTypes) {
         Set<Long> knownRegisterTypeIds =
                 this.registerTypeInGroups
-                    .stream()
+                        .stream()
                         .map(RegisterTypeInGroup::getRegisterType)
                         .map(RegisterType::getId)
                         .collect(Collectors.toSet());
@@ -198,6 +199,15 @@ public class RegisterGroupImpl extends PersistentNamedObject<RegisterGroup> impl
 
     private void alreadyNotified() {
         this.changeNotifier = new AlreadyNotified();
+    }
+
+    @XmlElement(name = "type")
+    public String getXmlType() {
+        return this.getClass().getName();
+    }
+
+    public void setXmlType(String ignore) {
+        // For xml unmarshalling purposes only
     }
 
     /**
