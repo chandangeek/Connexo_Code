@@ -23,7 +23,6 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
@@ -467,7 +466,7 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
             this.allProperties = TypedProperties.empty();
         }
         // adding the SerialNumber as a property value because legacy protocols check the serialNumber based on the property value
-        this.allProperties.setProperty(MeterProtocol.SERIALNUMBER, getSerialNumber());
+        this.allProperties.setProperty(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName(), getSerialNumber());
         if (properties.getInheritedProperties() != null) {
             this.allProperties.setAllProperties(properties.getInheritedProperties());
         }
