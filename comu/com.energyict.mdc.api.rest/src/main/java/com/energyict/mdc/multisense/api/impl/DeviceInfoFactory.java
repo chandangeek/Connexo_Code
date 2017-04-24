@@ -182,7 +182,7 @@ public class DeviceInfoFactory extends SelectableFieldFactory<DeviceInfo, Device
                         UriBuilder uriBuilder = uriInfo.getBaseUriBuilder()
                                 .path(DeviceMessageResource.class)
                                 .path(DeviceMessageResource.class, "getDeviceMessage")
-                                .resolveTemplate("mrid", msg.getDevice().getmRID());
+                                .resolveTemplate("mrid", ((Device) msg.getDevice()).getmRID());     //Downcast to Connexo Device
                         LinkInfo linkInfo = new LinkInfo();
                         linkInfo.id = msg.getId();
                         linkInfo.link = Link.fromUriBuilder(uriBuilder).rel(Relation.REF_RELATION.rel()).title("Device message").build(msg.getId());

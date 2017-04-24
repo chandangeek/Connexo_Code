@@ -141,7 +141,7 @@ public class DeviceContactorResource {
         if (contactorInfo.activationDate!=null) {
             deviceMessageBuilder.addProperty(DeviceMessageConstants.contactorActivationDateAttributeName,Date.from(contactorInfo.activationDate));
         }
-        DeviceMessage<Device> deviceMessage = deviceMessageBuilder.add();
+        DeviceMessage deviceMessage = deviceMessageBuilder.add();
         return deviceMessage.getId();
     }
 

@@ -13,10 +13,11 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-
+import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.jayway.jsonpath.JsonModel;
+import org.junit.Before;
+import org.junit.Test;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
@@ -25,9 +26,6 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-
-import org.junit.Before;
-import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -177,7 +175,7 @@ public class DeviceMessageResourceTest extends MultisensePublicApiJerseyTest {
         info.messageSpecification = new LinkInfo();
         info.messageSpecification.id = 15009L;
 
-        DeviceMessage<Device> deviceMessage = mockDeviceMessage(100L, mockDevice, messageSpec, 2233L);
+        DeviceMessage deviceMessage = mockDeviceMessage(100L, mockDevice, messageSpec, 2233L);
         Device.DeviceMessageBuilder builder = FakeBuilder.initBuilderStub(deviceMessage, Device.DeviceMessageBuilder.class);
         when(mockDevice.newDeviceMessage(any(DeviceMessageId.class))).thenReturn(builder);
 
@@ -196,7 +194,7 @@ public class DeviceMessageResourceTest extends MultisensePublicApiJerseyTest {
         info.messageSpecification = new LinkInfo();
         info.messageSpecification.id = 15009L;
 
-        DeviceMessage<Device> deviceMessage = mockDeviceMessage(100L, mockDevice, messageSpec, 2233L);
+        DeviceMessage deviceMessage = mockDeviceMessage(100L, mockDevice, messageSpec, 2233L);
         Device.DeviceMessageBuilder builder = FakeBuilder.initBuilderStub(deviceMessage, Device.DeviceMessageBuilder.class);
         when(mockDevice.newDeviceMessage(any(DeviceMessageId.class))).thenReturn(builder);
 
@@ -213,7 +211,7 @@ public class DeviceMessageResourceTest extends MultisensePublicApiJerseyTest {
         info.releaseDate = now;
         info.messageSpecification = null;
 
-        DeviceMessage<Device> deviceMessage = mockDeviceMessage(100L, mockDevice, messageSpec, 2233L);
+        DeviceMessage deviceMessage = mockDeviceMessage(100L, mockDevice, messageSpec, 2233L);
         Device.DeviceMessageBuilder builder = FakeBuilder.initBuilderStub(deviceMessage, Device.DeviceMessageBuilder.class);
         when(mockDevice.newDeviceMessage(any(DeviceMessageId.class))).thenReturn(builder);
 

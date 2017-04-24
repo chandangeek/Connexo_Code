@@ -106,12 +106,15 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel.CXOAuthenticationLevelAdapter;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel.CXOEncryptionLevelAdapter;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel.UPLAuthenticationLevelAdapter;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel.UPLEncryptionLevelAdapter;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ClockTask;
@@ -120,6 +123,9 @@ import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.MessagesTask;
 import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.tasks.TaskService;
+import com.energyict.mdc.upl.messages.DeviceMessageStatus;
+import org.junit.BeforeClass;
+import org.mockito.Mock;
 
 import javax.ws.rs.core.Application;
 import java.math.BigDecimal;
@@ -134,8 +140,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
-
-import org.mockito.Mock;
+import java.util.stream.Collectors;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
@@ -176,8 +181,8 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
     DeviceMessageSpecificationService deviceMessageSpecificationService;
     @Mock
     Clock clock;
-    @Mock
-    ProtocolPluggableService protocolPluggableService;
+
+    static ProtocolPluggableService protocolPluggableService;
     @Mock
     SchedulingService schedulingService;
     @Mock
@@ -197,6 +202,19 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
     @Mock
     ThreadPrincipalService threadPrincipalService;
 
+
+    @BeforeClass
+    public static void before() {
+        protocolPluggableService = mock(ProtocolPluggableService.class);
+        when(protocolPluggableService.adapt(any(com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel.class))).thenAnswer(invocation -> {
+            Object[] args = invocation.getArguments();
+            return new UPLAuthenticationLevelAdapter((com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel) args[0]);
+        });
+        when(protocolPluggableService.adapt(any(com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel.class))).thenAnswer(invocation -> {
+            Object[] args = invocation.getArguments();
+            return new UPLEncryptionLevelAdapter((com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel) args[0]);
+        })        ;
+    }
 
     @Override
     protected Application getApplication() {
@@ -510,7 +528,7 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         when(mock.getName()).thenReturn(name);
         when(mock.getDescription()).thenReturn("Description of " + name);
         if (specs != null && specs.length > 0) {
-            when(mock.getMessageSpecifications()).thenReturn(Arrays.asList(specs));
+            doReturn(Arrays.asList(specs)).when(mock).getMessageSpecifications();
         }
         when(deviceMessageSpecificationService.findCategoryById(id)).thenReturn(Optional.of(mock));
 
@@ -559,8 +577,11 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         when(mock.getVersion()).thenReturn(version);
         when(protocolPluggableService.findDeviceProtocolPluggableClass(id)).thenReturn(Optional.of(mock));
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
-        when(deviceProtocol.getAuthenticationAccessLevels()).thenReturn(authAccessLvls);
-        when(deviceProtocol.getEncryptionAccessLevels()).thenReturn(encAccessLvls);
+        List<com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel> adaptedAuthLevels = authAccessLvls.stream().map(CXOAuthenticationLevelAdapter::new).collect(Collectors.toList());
+        List<com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel> adaptedEncrLevels = encAccessLvls.stream().map(CXOEncryptionLevelAdapter::new).collect(Collectors.toList());
+
+        when(deviceProtocol.getAuthenticationAccessLevels()).thenReturn(adaptedAuthLevels);
+        when(deviceProtocol.getEncryptionAccessLevels()).thenReturn(adaptedEncrLevels);
         when(mock.getDeviceProtocol()).thenReturn(deviceProtocol);
 
         return mock;

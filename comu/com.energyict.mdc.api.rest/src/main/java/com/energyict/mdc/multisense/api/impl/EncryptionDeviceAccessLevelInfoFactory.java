@@ -18,8 +18,8 @@ import javax.inject.Inject;
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,15 +30,19 @@ public class EncryptionDeviceAccessLevelInfoFactory extends SelectableFieldFacto
 
     private final MdcPropertyUtils mdcPropertyUtils;
 
+    @Inject
+    public EncryptionDeviceAccessLevelInfoFactory(MdcPropertyUtils mdcPropertyUtils) {
+        this.mdcPropertyUtils = mdcPropertyUtils;
+    }
+
     public LinkInfo asLink(DeviceProtocolPluggableClass protocolPluggableClass, DeviceAccessLevel deviceAccessLevel, Relation relation, UriInfo uriInfo) {
         DeviceAccessLevelInfo info = new DeviceAccessLevelInfo();
-        copySelectedFields(info, Pair.of(protocolPluggableClass, deviceAccessLevel), uriInfo, Arrays.asList("id"));
+        copySelectedFields(info, Pair.of(protocolPluggableClass, deviceAccessLevel), uriInfo, Collections.singletonList("id"));
         info.link = link(protocolPluggableClass, deviceAccessLevel, relation, uriInfo);
         return info;
     }
 
     public List<LinkInfo> asLink(Collection<Pair<DeviceProtocolPluggableClass, DeviceAccessLevel>> pairs, Relation relation, UriInfo uriInfo) {
-        UriBuilder uriBuilder = getUriBuilder(uriInfo);
         return pairs.stream().map(i-> asLink(i.getFirst(), i.getLast(), relation, uriInfo)).collect(toList());
     }
 
@@ -55,13 +59,7 @@ public class EncryptionDeviceAccessLevelInfoFactory extends SelectableFieldFacto
                 .path(EncryptionDeviceAccessLevelResource.class, "getEncryptionDeviceAccessLevel");
     }
 
-
-    @Inject
-    public EncryptionDeviceAccessLevelInfoFactory(MdcPropertyUtils mdcPropertyUtils) {
-        this.mdcPropertyUtils = mdcPropertyUtils;
-    }
-
-    public DeviceAccessLevelInfo from(DeviceProtocolPluggableClass pluggableClass, DeviceAccessLevel authenticationDeviceAccessLevel, UriInfo uriInfo, Collection<String> fields) {
+    public DeviceAccessLevelInfo from(DeviceProtocolPluggableClass pluggableClass, DeviceAccessLevel authenticationDeviceAccessLevel, UriInfo uriInfo, List<String> fields) {
         DeviceAccessLevelInfo info = new DeviceAccessLevelInfo();
         copySelectedFields(info, Pair.of(pluggableClass,authenticationDeviceAccessLevel), uriInfo, fields);
         return info;

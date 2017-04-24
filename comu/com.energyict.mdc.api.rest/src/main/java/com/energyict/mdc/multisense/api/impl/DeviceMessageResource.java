@@ -102,7 +102,7 @@ public class DeviceMessageResource {
                                               @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
         Device device = deviceService.findDeviceByMrid(mRID).orElseThrow(exceptionFactory
                 .newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE));
-        DeviceMessage<Device> deviceMessage = device.getMessages().stream().filter(msg -> msg.getId() == messageId).findFirst()
+        DeviceMessage deviceMessage = device.getMessages().stream().filter(msg -> msg.getId() == messageId).findFirst()
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_DEVICE_MESSAGE));
 
         return deviceMessageInfoFactory.from(deviceMessage, uriInfo, fieldSelection.getFields());
@@ -202,7 +202,7 @@ public class DeviceMessageResource {
                 throw new LocalizedFieldValidationException(e.getMessageSeed(), "properties."+e.getViolatingProperty());
             }
         }
-        DeviceMessage<Device> deviceDeviceMessage = deviceMessageBuilder.add();
+        DeviceMessage deviceDeviceMessage = deviceMessageBuilder.add();
         URI uri = uriInfo.getBaseUriBuilder()
                 .path(DeviceMessageResource.class)
                 .path(DeviceMessageResource.class, "getDeviceMessage")
@@ -247,7 +247,7 @@ public class DeviceMessageResource {
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.CONFLICT, MessageSeeds.NO_SUCH_DEVICE));
         DeviceMessage deviceMessage = deviceMessageService.findAndLockDeviceMessageByIdAndVersion(messageId, deviceMessageInfo.version)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.CONFLICT, MessageSeeds.NO_SUCH_DEVICE_MESSAGE));
-        if (deviceMessage.getDevice().getId()!=device.getId()) {
+        if (((Device) deviceMessage.getDevice()).getId()!=device.getId()) {     //Downcast to Connexo Device
             throw exceptionFactory.newException(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE_MESSAGE);
         }
 
@@ -281,7 +281,7 @@ public class DeviceMessageResource {
                                                  @Context UriInfo uriInfo) {
         Device device = deviceService.findDeviceByMrid(mRID)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE));
-        DeviceMessage<Device> deviceMessage = device.getMessages().stream().filter(msg -> msg.getId() == messageId).findFirst()
+        DeviceMessage deviceMessage = device.getMessages().stream().filter(msg -> msg.getId() == messageId).findFirst()
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_DEVICE_MESSAGE));
         deviceMessage.revoke();
         DeviceMessage reloadedDeviceMessage = deviceMessageService.findDeviceMessageById(deviceMessage.getId()).get();

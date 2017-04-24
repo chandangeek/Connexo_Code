@@ -30,7 +30,7 @@ import java.util.Map;
 import static java.util.stream.Collectors.toList;
 
 
-public class DeviceMessageInfoFactory extends SelectableFieldFactory<DeviceMessageInfo, DeviceMessage<?>> {
+public class DeviceMessageInfoFactory extends SelectableFieldFactory<DeviceMessageInfo, DeviceMessage> {
 
     private final MdcPropertyUtils mdcPropertyUtils;
     private final Provider<DeviceInfoFactory> deviceInfoFactoryProvider;
@@ -76,21 +76,21 @@ public class DeviceMessageInfoFactory extends SelectableFieldFactory<DeviceMessa
     }
 
     @Override
-    protected Map<String, PropertyCopier<DeviceMessageInfo, DeviceMessage<?>>> buildFieldMap() {
-        Map<String, PropertyCopier<DeviceMessageInfo, DeviceMessage<?>>> map = new HashMap<>();
+    protected Map<String, PropertyCopier<DeviceMessageInfo, DeviceMessage>> buildFieldMap() {
+        Map<String, PropertyCopier<DeviceMessageInfo, DeviceMessage>> map = new HashMap<>();
         map.put("id", (deviceMessageInfo, deviceMessage, uriInfo) -> {
             deviceMessageInfo.id = deviceMessage.getId();
             if (deviceMessageInfo.device==null) {
                 deviceMessageInfo.device = new LinkInfo();
             }
-            deviceMessageInfo.device.id = deviceMessage.getDevice().getId();
+            deviceMessageInfo.device.id = ((Device) deviceMessage.getDevice()).getId();     //Downcast to Connexo Device
         });
         map.put("version", (deviceMessageInfo, deviceMessage, uriInfo) -> {
             deviceMessageInfo.version = deviceMessage.getVersion();
             if (deviceMessageInfo.device==null) {
                 deviceMessageInfo.device = new LinkInfo();
             }
-            deviceMessageInfo.device.version = deviceMessage.getDevice().getId();
+            deviceMessageInfo.device.version = ((Device) deviceMessage.getDevice()).getId();        //Downcast to Connexo Device
 
         });
         map.put("link", ((deviceMessageInfo, deviceMessage, uriInfo) ->
@@ -108,8 +108,10 @@ public class DeviceMessageInfoFactory extends SelectableFieldFactory<DeviceMessa
         map.put("deviceMessageAttributes", (deviceMessageInfo, deviceMessage, uriInfo) -> {
             deviceMessageInfo.deviceMessageAttributes = new ArrayList<>();
             TypedProperties typedProperties = TypedProperties.empty();
-            deviceMessage.getAttributes().stream().forEach(attribute->typedProperties.setProperty(attribute.getName(), attribute.getValue()));
-            List<PropertySpec> propertySpecs = deviceMessage.getAttributes().stream().map(DeviceMessageAttribute::getSpecification).collect(toList());
+            deviceMessage.getAttributes().stream().forEach(attribute -> typedProperties.setProperty(attribute.getName(), attribute.getValue()));
+            List<PropertySpec> propertySpecs = deviceMessage.getAttributes().stream()
+                    .map(DeviceMessageAttribute.class::cast)        //Downcast to Connexo DeviceMessageAttribute
+                    .map(DeviceMessageAttribute::getSpecification).collect(toList());
             mdcPropertyUtils.convertPropertySpecsToPropertyInfos(null, propertySpecs, typedProperties, deviceMessageInfo.deviceMessageAttributes);
         });
         map.put("sentDate", (deviceMessageInfo, deviceMessage, uriInfo) -> deviceMessageInfo.sentDate = deviceMessage.getSentDate().orElse(null));

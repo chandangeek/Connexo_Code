@@ -72,6 +72,7 @@ public class AuthenticationDeviceAccessLevelResource {
                 .stream()
                 .filter(lvl -> lvl.getId() == authenticationDeviceAccessLevelId)
                 .findFirst()
+                .map(this.protocolPluggableService::adapt)
                 .map(lvl -> authenticationDeviceAccessLevelInfoFactory.from(pluggableClass, lvl, uriInfo, fieldSelection.getFields()))
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_AUTH_DEVICE_ACCESS_LEVEL));
     }
@@ -100,6 +101,7 @@ public class AuthenticationDeviceAccessLevelResource {
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE_PROTOCOL));
         List<DeviceAccessLevelInfo> infos = ListPager.of(pluggableClass.getDeviceProtocol().getAuthenticationAccessLevels()).from(queryParameters)
                 .stream()
+                .map(this.protocolPluggableService::adapt)
                 .map(lvl -> authenticationDeviceAccessLevelInfoFactory.from(pluggableClass, lvl, uriInfo, fieldSelection.getFields()))
                 .collect(toList());
 
