@@ -40,6 +40,8 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.collections.KPermutation;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.elster.jupiter.validation.ReadingTypeInValidationRule;
+import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationRuleSetVersion;
 import com.elster.jupiter.validation.ValidationService;
@@ -252,7 +254,7 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
     @Override
     public List<ValidationRuleSet> getValidationRuleSets(MetrologyContract metrologyContract) {
         return this.dataModel
-                .query(MetrologyContractValidationRuleSetUsage.class)
+                .query(MetrologyContractValidationRuleSetUsage.class, ValidationRuleSet.class, ValidationRuleSetVersion.class, ValidationRule.class, ReadingTypeInValidationRule.class)
                 .select(where(MetrologyContractValidationRuleSetUsageImpl.Fields.METROLOGY_CONTRACT.fieldName())
                         .isEqualTo(metrologyContract))
                 .stream()
