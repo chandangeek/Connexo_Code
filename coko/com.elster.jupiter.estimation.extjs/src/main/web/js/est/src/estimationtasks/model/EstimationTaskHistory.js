@@ -15,6 +15,7 @@ Ext.define('Est.estimationtasks.model.EstimationTaskHistory', {
         {name: 'reason', type: 'string'},
         {name: 'statusDate', type: 'number'},
         {name: 'statusPrefix', type: 'string'},
+        {name: 'revalidate', type: 'boolean', defaultValue: false},
         {
             name: 'deviceGroup',
             persist: false,

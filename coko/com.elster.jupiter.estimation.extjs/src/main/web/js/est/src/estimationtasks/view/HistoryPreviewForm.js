@@ -26,6 +26,15 @@ Ext.define('Est.estimationtasks.view.HistoryPreviewForm', {
                 labelWidth: 250
             },
             {
+                xtype: 'displayfield',
+                fieldLabel: Uni.I18n.translate('general.reValidate', 'EST', 'Re-validate estimated data'),
+                name: 'revalidate',
+                labelWidth: 250,
+                renderer: function (value) {
+                    return value ? 'Yes' : 'No';
+                }
+            },
+            {
                 xtype: 'fieldcontainer',
                 fieldLabel: Uni.I18n.translate('estimationtasks.general.dataSources', 'EST', 'Data sources'),
                 labelAlign: 'top',
