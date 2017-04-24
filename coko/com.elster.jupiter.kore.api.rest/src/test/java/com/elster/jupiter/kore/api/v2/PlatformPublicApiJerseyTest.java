@@ -23,6 +23,8 @@ import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.elster.jupiter.devtools.tests.Matcher;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.QueryParameters;
+import com.elster.jupiter.fsm.Stage;
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.issue.share.entity.HistoricalIssue;
 import com.elster.jupiter.issue.share.entity.IssueAssignee;
 import com.elster.jupiter.issue.share.entity.IssueComment;
@@ -71,11 +73,10 @@ import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointStage;
-import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.WorkGroup;
-
 import com.google.common.collect.Range;
+import org.mockito.Mock;
 
 import javax.ws.rs.core.Application;
 import java.math.BigDecimal;
@@ -88,8 +89,6 @@ import java.util.Collections;
 import java.util.Currency;
 import java.util.List;
 import java.util.Optional;
-
-import org.mockito.Mock;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
@@ -240,7 +239,7 @@ public class PlatformPublicApiJerseyTest extends FelixRestApplicationJerseyTest 
         when(meteringService.findAndLockUsagePointByMRIDAndVersion(mRID, version)).thenReturn(Optional.of(usagePoint));
         when(detail.getUsagePoint()).thenReturn(usagePoint);
 
-        UsagePointState state = mockUsagePointLifeCycleState(1L, UsagePointStage.Key.PRE_OPERATIONAL);
+        State state = mockUsagePointLifeCycleState(1L, UsagePointStage.PRE_OPERATIONAL);
         when(usagePoint.getState()).thenReturn(state);
         return usagePoint;
     }
@@ -309,14 +308,14 @@ public class PlatformPublicApiJerseyTest extends FelixRestApplicationJerseyTest 
         return finder;
     }
 
-    UsagePointState mockUsagePointLifeCycleState(long id, UsagePointStage.Key stageKey){
-        UsagePointState state = mock(UsagePointState.class);
+    State mockUsagePointLifeCycleState(long id, UsagePointStage usagePointStage) {
+        State state = mock(State.class);
         when(state.getId()).thenReturn(id);
         when(state.getName()).thenReturn("testState");
         when(state.isInitial()).thenReturn(true);
-        UsagePointStage stage = mock(UsagePointStage.class);
-        when(stage.getKey()).thenReturn(stageKey);
-        when(state.getStage()).thenReturn(stage);
+        Stage stage = mock(Stage.class);
+        when(stage.getName()).thenReturn(usagePointStage.getKey());
+        when(state.getStage()).thenReturn(Optional.of(stage));
         when(usagePointLifeCycleConfigurationService.findUsagePointState(id)).thenReturn(Optional.of(state));
         return state;
     }

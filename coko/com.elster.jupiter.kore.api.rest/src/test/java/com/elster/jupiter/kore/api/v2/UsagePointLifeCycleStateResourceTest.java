@@ -4,39 +4,29 @@
 
 package com.elster.jupiter.kore.api.v2;
 
-import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.fsm.Stage;
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
-import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
-import com.elster.jupiter.rest.api.util.v1.hypermedia.LinkInfo;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.Relation;
-import com.elster.jupiter.rest.util.IntervalInfo;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointStateChangeRequest;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointStage;
-import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
-import com.elster.jupiter.util.time.Interval;
-
-import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
-
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Response;
-import java.io.InputStream;
-import java.net.URI;
-import java.time.Instant;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Stream;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Response;
+import java.io.InputStream;
+import java.time.Instant;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -47,11 +37,9 @@ public class UsagePointLifeCycleStateResourceTest extends PlatformPublicApiJerse
 
     UsagePoint usagePoint;
     @Mock
-    UsagePointState state;
+    State state;
     @Mock
-    UsagePointStage stageUnderConstruction;
-    @Mock
-    UsagePointStage stageActive;
+    Stage  stageUnderConstruction;
     @Mock
     UsagePointTransition usagePointTransition;
 
@@ -64,14 +52,11 @@ public class UsagePointLifeCycleStateResourceTest extends PlatformPublicApiJerse
         when(meteringService.findAndLockUsagePointByIdAndVersion(41,1)).thenReturn(Optional.of(usagePoint));
 
         when(state.getId()).thenReturn(1L);
-        when(state.getStage()).thenReturn(stageUnderConstruction);
+        when(state.getStage()).thenReturn(Optional.of(stageUnderConstruction));
         when(state.getVersion()).thenReturn(1L);
-        when(stageUnderConstruction.getKey()).thenReturn(UsagePointStage.Key.PRE_OPERATIONAL);
+        when(stageUnderConstruction.getName()).thenReturn(UsagePointStage.PRE_OPERATIONAL.getKey());
         when(usagePointLifeCycleConfigurationService.findUsagePointState(1L)).thenReturn(Optional.of(state));
-        Finder finder = mock(Finder.class);
-        when(usagePointLifeCycleConfigurationService.getUsagePointStates()).thenReturn(finder);
-        when(finder.from(any())).thenReturn(finder);
-        when(finder.stream()).thenReturn(Stream.of(state));
+        when(usagePointLifeCycleConfigurationService.getUsagePointStates()).thenReturn(Arrays.asList(state));
         when(usagePointLifeCycleConfigurationService.findUsagePointTransition(1L)).thenReturn(Optional.of(usagePointTransition));
         UsagePointStateChangeRequest usagePointStateChangeRequest = mock(UsagePointStateChangeRequest.class);
         when(usagePointStateChangeRequest.getStatus()).thenReturn(UsagePointStateChangeRequest.Status.COMPLETED);
@@ -81,6 +66,7 @@ public class UsagePointLifeCycleStateResourceTest extends PlatformPublicApiJerse
 
     @Test
     public void testGetUsagePointLifeCycleState() throws Exception {
+
         // Business method
         Response response = target("/usagepointlifecyclestate/1").request().get();
 
@@ -90,7 +76,7 @@ public class UsagePointLifeCycleStateResourceTest extends PlatformPublicApiJerse
         assertThat(model.<Integer>get("$.id")).isEqualTo(1);
         assertThat(model.<String>get("$.link.params.rel")).isEqualTo(Relation.REF_SELF.rel());
         assertThat(model.<String>get("$.link.href")).isEqualTo("http://localhost:9998/usagepointlifecyclestate/1");
-        assertThat(model.<String>get("$.stage")).isEqualTo("PRE_OPERATIONAL");
+        assertThat(model.<String>get("$.stage")).isEqualTo("mtr.usagepointstage.preoperational");
     }
 
     @Test
