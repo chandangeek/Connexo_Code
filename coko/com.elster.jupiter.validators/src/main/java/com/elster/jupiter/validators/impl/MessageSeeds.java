@@ -25,16 +25,21 @@ public enum MessageSeeds implements MessageSeed {
     MAIN_CHECK_MISC_NO_CHECK_OUTPUT(1010, "maincheck.validator.misc.no.check.output", "Failed to validate period {0} using method \"{1}\" on {2} since 'check' output with matching reading type on the specified purpose doesn''t exist on {3}"),
     MAIN_CHECK_MISC_CHECK_OUTPUT_MISSING_OR_NOT_VALID(1011, "maincheck.validator.misc.check.output.missing.or.not.valid", "Failed to validate period {0} using method \"{1}\" on {2}/{3} since data from 'check' output is missing or not validated"),
 
+    // Consecutive zeros messages
+    MAX_PERIOD_SHORTER_THEN_MIN_PERIOD(1012, "maximum.period.less.minimum", "Maximum period less than minimum"),
+
     // Meter advance messages
-    // {0} - from time, {1} - to time, {2} - validator display name, {3} - reading type mrid, {4} - validate object name
-    REFERENCE_READINGTYPE_DOES_NOT_MATCH_VALIDATED_ONE(2002, "ReferenceReadingTypeDoesNotMatch",
-            "Failed to validate period ''{0} until {1}'' using method ''{2}'' on {3} since the specified reference reading type doesn''t match the reading type on the {4}"),
-    NO_REFERENCE_READINGTYPE(2003, "NoReferenceReadingType",
-            "Failed to validate period ''{0} until {1}'' using method ''{2}'' on {3} since the specified reference reading type doesn''t exist on the {4}"),
-    REGISTER_READINGS_ARE_MISSING(2004, "RegisterReadingsAreMissing",
-            "Failed to validate period ''{0} until {1}'' using method ''{2}'' on {3} since register readings for the validated interval don''t exist on the {4}"),
+    // {0} - from time, {1} - to time, {2} - validator display name, {3} - reading type name, {4} - validate object name
+    REFERENCE_READINGTYPE_DOES_NOT_MATCH_VALIDATED_ONE(2001, "ReferenceReadingTypeDoesNotMatch",
+            "Failed to validate period ''{0} until {1}'' using method ''{2}'' on ''{3}'' since the specified reference reading type doesn''t match the reading type on the {4}", Level.WARNING),
+    NO_REFERENCE_READINGTYPE(2002, "NoReferenceReadingType",
+            "Failed to validate period ''{0} until {1}'' using method ''{2}'' on ''{3}'' since the specified reference reading type doesn''t exist on the {4}", Level.WARNING),
+    REGISTER_READINGS_ARE_MISSING(2003, "RegisterReadingsAreMissing",
+            "Failed to validate period ''{0} until {1}'' using method ''{2}'' on ''{3}'' since register readings for the validated interval don''t exist on the {4}", Level.WARNING),
+    VALIDATED_PERIOD_IS_GREATER_THAN_REFERENCE_PERIOD(2004, "ValidatedPeriodIsGreaterThanReferencePeriod",
+            "The period ''{0} until {1}'' was marked valid using method ''{2}'' on ''{3}'' since the validated period length is greater than configured reference period", Level.INFO),
     DIFFERENCE_BETWEEN_TWO_REGISTER_READINGS_LESS_THAN_MIN_THRESHOLD(2005, "DiffLessThanMinThreshold",
-            "The period ''{0} until {1}'' was marked valid using method ''{2}'' on {3} since the difference between the register readings is below the minimum threshold on {4}", Level.WARNING),
+            "The period ''{0} until {1}'' was marked valid using method ''{2}'' on ''{3}'' since the difference between the register readings is below the minimum threshold on {4}", Level.INFO),
     ;
 
     public static final String COMPONENT_NAME = "VDR";

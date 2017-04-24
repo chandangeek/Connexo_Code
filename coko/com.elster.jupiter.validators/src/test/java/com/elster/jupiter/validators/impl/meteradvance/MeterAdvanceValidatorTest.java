@@ -25,12 +25,12 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
-import com.elster.jupiter.properties.NonOrBigDecimalValueFactory;
-import com.elster.jupiter.properties.NonOrBigDecimalValueProperty;
+import com.elster.jupiter.properties.NoneOrBigDecimal;
+import com.elster.jupiter.properties.NoneOrBigDecimalValueFactory;
+import com.elster.jupiter.properties.NoneOrTimeDurationValueFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
-import com.elster.jupiter.properties.TimeDurationValueFactory;
-import com.elster.jupiter.properties.TwoValuesAbsoluteDifference;
+import com.elster.jupiter.properties.TwoValuesDifference;
 import com.elster.jupiter.properties.TwoValuesDifferenceValueFactory;
 import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
 import com.elster.jupiter.time.TimeDuration;
@@ -132,9 +132,9 @@ public class MeterAdvanceValidatorTest {
 
         Map<String, Object> properties = ImmutableMap.of(
                 MeterAdvanceValidator.REFERENCE_READING_TYPE, new ReadingTypeReference(this.readingType),
-                MeterAdvanceValidator.MAX_ABSOLUTE_DIFFERENCE, new TwoValuesAbsoluteDifference(MAX_DIFFERENCE),
+                MeterAdvanceValidator.MAX_ABSOLUTE_DIFFERENCE, new TwoValuesDifference(TwoValuesDifference.Type.ABSOLUTE, MAX_DIFFERENCE),
                 MeterAdvanceValidator.REFERENCE_PERIOD, new TimeDuration(10, TimeDuration.TimeUnit.DAYS),
-                MeterAdvanceValidator.MIN_THRESHOLD, new NonOrBigDecimalValueProperty(MIN_THRESHOLD)
+                MeterAdvanceValidator.MIN_THRESHOLD, NoneOrBigDecimal.of(MIN_THRESHOLD)
         );
         this.meterAdvanceValidator = new MeterAdvanceValidator(this.thesaurus, this.propertySpecService, this.meteringService, properties);
         field("logger").ofType(Logger.class).in(this.meterAdvanceValidator).set(this.logger);
@@ -187,7 +187,7 @@ public class MeterAdvanceValidatorTest {
         SkipValidationOption skipValidationOption = validationStrategy.getSkipValidationOption();
         assertThat(skipValidationOption).isEqualTo(SkipValidationOption.MARK_ALL_NOT_VALIDATED);
 
-        verify(this.logger).log(Level.SEVERE, thesaurus.getFormat(MessageSeeds.REFERENCE_READINGTYPE_DOES_NOT_MATCH_VALIDATED_ONE).format(getDefaultMessageSeedArgs()));
+        verify(this.logger).log(Level.WARNING, thesaurus.getFormat(MessageSeeds.REFERENCE_READINGTYPE_DOES_NOT_MATCH_VALIDATED_ONE).format(getDefaultMessageSeedArgs()));
     }
 
     @Test
@@ -237,12 +237,12 @@ public class MeterAdvanceValidatorTest {
 
         PropertySpec propertySpec_3 = propertySpecs.get(2);
         assertThat(propertySpec_3.getName()).isEqualTo(MeterAdvanceValidator.REFERENCE_PERIOD);
-        assertThat(propertySpec_3.getValueFactory()).isInstanceOf(TimeDurationValueFactory.class);
+        assertThat(propertySpec_3.getValueFactory()).isInstanceOf(NoneOrTimeDurationValueFactory.class);
         assertThat(propertySpec_3.isRequired()).isTrue();
 
         PropertySpec propertySpec_4 = propertySpecs.get(3);
         assertThat(propertySpec_4.getName()).isEqualTo(MeterAdvanceValidator.MIN_THRESHOLD);
-        assertThat(propertySpec_4.getValueFactory()).isInstanceOf(NonOrBigDecimalValueFactory.class);
+        assertThat(propertySpec_4.getValueFactory()).isInstanceOf(NoneOrBigDecimalValueFactory.class);
         assertThat(propertySpec_4.isRequired()).isTrue();
     }
 
@@ -259,10 +259,6 @@ public class MeterAdvanceValidatorTest {
         return mockReadingType(macroPeriod, TimeAttribute.NOTAPPLICABLE, accumulation, Commodity.ELECTRICITY_SECONDARY_METERED, multiplier);
     }
 
-    private ReadingType mockRegularReadingType(TimeAttribute timeAttribute, Accumulation accumulation, MetricMultiplier multiplier) {
-        return mockReadingType(MacroPeriod.NOTAPPLICABLE, timeAttribute, accumulation, Commodity.ELECTRICITY_SECONDARY_METERED, multiplier);
-    }
-
     private ReadingType mockIrregularReadingType(Accumulation accumulation, MetricMultiplier multiplier) {
         return mockReadingType(MacroPeriod.NOTAPPLICABLE, TimeAttribute.NOTAPPLICABLE, accumulation, Commodity.ELECTRICITY_SECONDARY_METERED, multiplier);
     }
@@ -275,7 +271,7 @@ public class MeterAdvanceValidatorTest {
         when(readingType.getAccumulation()).thenReturn(accumulation);
         when(readingType.getFlowDirection()).thenReturn(FlowDirection.FORWARD);
         when(readingType.getCommodity()).thenReturn(commodity);
-        when(readingType.getMeasurementKind()).thenReturn(MeasurementKind.NOTAPPLICABLE);
+        when(readingType.getMeasurementKind()).thenReturn(MeasurementKind.ENERGY);
         when(readingType.getInterharmonic()).thenReturn(new RationalNumber(0, 1));
         when(readingType.getArgument()).thenReturn(new RationalNumber(0, 1));
         when(readingType.getTou()).thenReturn(0);
@@ -296,7 +292,7 @@ public class MeterAdvanceValidatorTest {
                 this.meterAdvanceValidator.instantToString(this.validatedInterval.lowerEndpoint()),
                 this.meterAdvanceValidator.instantToString(this.validatedInterval.upperEndpoint()),
                 this.meterAdvanceValidator.getDisplayName(),
-                this.readingType.getMRID(),
+                this.readingType.getFullAliasName(),
                 this.usagePoint.getName()
         };
     }

@@ -7,16 +7,13 @@ package com.elster.jupiter.validators.impl;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.impl.config.MetrologyPurposeImpl;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.impl.NlsModule;
-import com.elster.jupiter.properties.NonOrBigDecimalValueProperty;
-import com.elster.jupiter.properties.TwoValuesAbsoluteDifference;
+import com.elster.jupiter.properties.NoneOrBigDecimal;
+import com.elster.jupiter.properties.TwoValuesDifference;
 import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
+import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.Validator;
@@ -59,7 +56,7 @@ public class DefaultValidatorFactoryTest {
     @Before
     public void setUp() throws Exception {
         when(nlsService.getThesaurus(any(), any())).thenReturn(NlsModule.FakeThesaurus.INSTANCE);
-        defaultValidatorFactory = new DefaultValidatorFactory(nlsService, new PropertySpecServiceImpl() ,metrologyConfigurationService, validationService, propertyValueInfoService, meteringService);
+        defaultValidatorFactory = new DefaultValidatorFactory(nlsService, new PropertySpecServiceImpl(), metrologyConfigurationService, validationService, propertyValueInfoService, meteringService);
 
         MetrologyPurposeImpl metrologyPurpose = mock(MetrologyPurposeImpl.class);
         when(metrologyPurpose.getName()).thenReturn("purpose");
@@ -92,8 +89,8 @@ public class DefaultValidatorFactoryTest {
     @Test
     public void testMainCheckValidator() {
         ImmutableMap<String, Object> properties = ImmutableMap.of(MainCheckValidator.CHECK_PURPOSE, "purpose",
-                MainCheckValidator.MAX_ABSOLUTE_DIFF, new TwoValuesAbsoluteDifference(),
-                MainCheckValidator.MIN_THRESHOLD, new NonOrBigDecimalValueProperty(),
+                MainCheckValidator.MAX_ABSOLUTE_DIFF, new TwoValuesDifference(TwoValuesDifference.Type.ABSOLUTE, BigDecimal.ZERO),
+                MainCheckValidator.MIN_THRESHOLD, NoneOrBigDecimal.none(),
                 MainCheckValidator.PASS_IF_NO_REF_DATA, false,
                 MainCheckValidator.USE_VALIDATED_DATA, false);
 
@@ -124,6 +121,27 @@ public class DefaultValidatorFactoryTest {
         Validator validator = defaultValidatorFactory.createTemplate(RegisterIncreaseValidator.class.getName());
 
         assertThat(validator).isNotNull().isInstanceOf(RegisterIncreaseValidator.class);
+    }
+
+    @Test
+    public void testCreateConsecutiveValidator() {
+        ImmutableMap<String, Object> properties = ImmutableMap.of(
+                ConsecutiveValidator.MINIMUM_PERIOD, TimeDuration.hours(2),
+                ConsecutiveValidator.MAXIMUM_PERIOD, TimeDuration.days(1),
+                ConsecutiveValidator.MINIMUM_THRESHOLD, BigDecimal.ZERO,
+                ConsecutiveValidator.CHECK_RETROACTIVELY, true
+        );
+
+        Validator validator = defaultValidatorFactory.create(ConsecutiveValidator.class.getName(), properties);
+
+        assertThat(validator).isNotNull().isInstanceOf(ConsecutiveValidator.class);
+    }
+
+    @Test
+    public void testCreateConsecutiveValidatorTemplate() {
+        Validator validator = defaultValidatorFactory.createTemplate(ConsecutiveValidator.class.getName());
+
+        assertThat(validator).isNotNull().isInstanceOf(ConsecutiveValidator.class);
     }
 
     @Test(expected = IllegalArgumentException.class)
