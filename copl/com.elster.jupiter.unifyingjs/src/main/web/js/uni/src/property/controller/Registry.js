@@ -92,7 +92,7 @@ Ext.define('Uni.property.controller.Registry', {
         LOADPROFILETYPE: 'Uni.property.view.property.Reference',
         LOGBOOK: 'Uni.property.view.property.Reference',
         LONG: 'Uni.property.view.property.Number',
-        NONE_OR_TIME_DURATION: 'Uni.property.view.property.NoneOrTimeDuration',
+        NONE_OR_TIMEDURATION: 'Uni.property.view.property.NoneOrTimeDuration',
         NULLABLE_BOOLEAN: 'Uni.property.view.property.NullableBoolean',
         NUMBER: 'Uni.property.view.property.DecimalNumber',
         OBISCODE: 'Uni.property.view.property.ObisCode',
@@ -112,7 +112,7 @@ Ext.define('Uni.property.controller.Registry', {
         TIMESTAMP: 'Uni.property.view.property.DateTime',
         UNKNOWN: 'Uni.property.view.property.Text',
         TWO_VALUES_DIFFERENCE: 'Uni.property.view.property.MaximumAbsoluteDifference',
-        NON_OR_BIG_DECIMAL: 'Uni.property.view.property.NoneOrBigDecimal'
+        NONE_OR_BIGDECIMAL: 'Uni.property.view.property.NoneOrBigDecimal'
     },
 
 // store must be registered on some ctrl (not in the responsibility of this class: move later?)

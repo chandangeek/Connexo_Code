@@ -97,6 +97,7 @@ Ext.define('Uni.property.view.property.IrregularReadingType', {
             combo.setValue(value.mRID);
             combo.setRawValue(value.fullAliasName);
             combo.resumeEvent('change');
+            me.setDefaultFilter(value);
         } else {
             me.callParent([value.fullAliasName]);
         }

@@ -6,13 +6,6 @@ Ext.define('Uni.property.view.property.NoneOrTimeDuration', {
     extend: 'Uni.property.view.property.Base',
     unitComboWidth: 128,
     gapWidth: 6,
-    listeners: {
-        afterrender: function () {
-            if (this.isEdit) {
-                this.getTimeDurationComboField().getStore().load();
-            }
-        }
-    },
 
     getEditCmp: function () {
         var me = this;
@@ -21,11 +14,8 @@ Ext.define('Uni.property.view.property.NoneOrTimeDuration', {
             xtype: 'radiogroup',
             itemId: me.key + 'radiogroup',
             name: this.getName(),
-            allowBlank: me.allowBlank,
-            blankText: me.blankText,
             vertical: true,
             columns: 1,
-            readOnly: me.isReadOnly,
             items: [
                 {
                     xtype: 'fieldcontainer',
@@ -35,7 +25,7 @@ Ext.define('Uni.property.view.property.NoneOrTimeDuration', {
                         {
                             xtype: 'radiofield',
                             boxLabel: Uni.I18n.translate('general.none', 'UNI', 'None'),
-                            name: 'isNone',
+                            name: 'noneOrTimeDuration',
                             margin: '0 10 0 0',
                             checked: true,
                             itemId: 'none-' + me.key,
@@ -54,7 +44,7 @@ Ext.define('Uni.property.view.property.NoneOrTimeDuration', {
                     items: [
                         {
                             xtype: 'radiofield',
-                            name: 'isNone',
+                            name: 'noneOrTimeDuration',
                             margin: '0 10 0 0',
                             itemId: 'time-duration-' + me.key
                         },
@@ -63,11 +53,10 @@ Ext.define('Uni.property.view.property.NoneOrTimeDuration', {
                             itemId: me.key + 'numberfield',
                             name: me.getName() + '.numberfield',
                             width: me.width ? me.width - me.unitComboWidth - me.gapWidth : undefined,
-                            required: me.required,
-                            readOnly: me.isReadOnly,
-                            allowBlank: me.allowBlank,
-                            blankText: me.blankText,
-                            minValue: 0
+                            allowBlank: false,
+                            disabled: true,
+                            minValue: 0,
+                            value: 1
                         },
                         {
                             xtype: 'combobox',
@@ -77,13 +66,28 @@ Ext.define('Uni.property.view.property.NoneOrTimeDuration', {
                             store: 'Uni.property.store.TimeUnits',
                             displayField: 'localizedValue',
                             valueField: 'timeUnit',
+                            queryMode: 'local',
                             width: me.unitComboWidth,
-                            forceSelection: false,
                             editable: false,
-                            required: me.required,
-                            readOnly: me.isReadOnly,
-                            allowBlank: me.allowBlank,
-                            blankText: me.blankText
+                            allowBlank: false,
+                            disabled: true,
+                            listeners: {
+                                afterrender: function (combo) {
+                                    var store = combo.getStore();
+
+                                    if (me.isEdit && me.property.get('value').isNone) {
+                                        if (!store.getRange().length) {
+                                            store.load(function() {
+                                                if (combo.getStore()) {
+                                                    combo.setValue('days');
+                                                }
+                                            });
+                                        } else {
+                                            combo.setValue('days');
+                                        }
+                                    }
+                                }
+                            }
                         }
                     ]
                 }
@@ -113,14 +117,22 @@ Ext.define('Uni.property.view.property.NoneOrTimeDuration', {
     },
 
     setValue: function (value) {
-        var me = this;
+        var me = this,
+            setTimeDurationValues = function () {
+                me.getTimeDurationNumberField().setValue(value.count);
+                me.getTimeDurationComboField().setValue(value.timeUnit);
+            };
+
         if (me.isEdit) {
             if (value.isNone) {
                 me.getNoneRadioField().setValue(true);
             } else {
                 me.getTimeDurationRadioField().setValue(true);
-                me.getTimeDurationNumberField().setValue(value.count);
-                me.getTimeDurationNumberField().setValue(value.timeUnit);
+                if (!me.getTimeDurationComboField().getStore().getRange().length) {
+                    me.getTimeDurationComboField().getStore().load(setTimeDurationValues);
+                } else {
+                    setTimeDurationValues();
+                }
             }
         } else {
             me.callParent([me.getValueAsDisplayString(value)]);
@@ -139,10 +151,8 @@ Ext.define('Uni.property.view.property.NoneOrTimeDuration', {
         var me = this;
         return {
             isNone: me.getNoneRadioField().getValue(),
-            value: {
-                count: me.getTimeDurationNumberField().getValue(),
-                timeUnit: me.getTimeDurationComboField().getValue()
-            }
+            count: me.getTimeDurationNumberField().getValue(),
+            timeUnit: me.getTimeDurationComboField().getValue()
         };
     },
 
