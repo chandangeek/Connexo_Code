@@ -1,6 +1,7 @@
 package com.elster.jupiter.mdm.usagepoint.config.rest.impl;
 
 import com.elster.jupiter.rest.util.IdWithNameInfo;
+import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCycleStateInfo;
 
 import java.util.List;
 
@@ -12,6 +13,7 @@ public class LinkableMetrologyContractInfo {
     private long id;
     private long version;
     private String name;
+    private List<UsagePointLifeCycleStateInfo> lifeCycleStates;
 
     public void setMetrologyConfigurationInfo(IdWithNameInfo metrologyConfigurationInfo) {
         this.metrologyConfigurationInfo = metrologyConfigurationInfo;
@@ -59,5 +61,13 @@ public class LinkableMetrologyContractInfo {
 
     public IdWithNameInfo getMetrologyConfigurationInfo() {
         return metrologyConfigurationInfo;
+    }
+
+    public List<UsagePointLifeCycleStateInfo> getLifeCycleStates() {
+        return lifeCycleStates;
+    }
+
+    public void setLifeCycleStates(List<UsagePointLifeCycleStateInfo> lifeCycleStates) {
+        this.lifeCycleStates = lifeCycleStates;
     }
 }

@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.mdm.usagepoint.config.rest.impl;
 
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.mdm.usagepoint.config.security.Privileges;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
@@ -12,6 +13,9 @@ import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
+import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCycleStateInfo;
+import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCycleStateInfoFactory;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationService;
 
@@ -30,7 +34,9 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Path("/validationrulesets")
 public class MetrologyConfigValidationRuleSetResource {
@@ -38,13 +44,17 @@ public class MetrologyConfigValidationRuleSetResource {
     private final ValidationService validationService;
     private final UsagePointConfigurationService usagePointConfigurationService;
     private final MetrologyConfigurationService metrologyConfigurationService;
+    private final UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService;
+    private final UsagePointLifeCycleStateInfoFactory usagePointLifeCycleStateInfoFactory;
     private final ResourceHelper resourceHelper;
 
     @Inject
-    public MetrologyConfigValidationRuleSetResource(ValidationService validationService, UsagePointConfigurationService usagePointConfigurationService, MetrologyConfigurationService metrologyConfigurationService, ResourceHelper resourceHelper) {
+    public MetrologyConfigValidationRuleSetResource(ValidationService validationService, UsagePointConfigurationService usagePointConfigurationService, MetrologyConfigurationService metrologyConfigurationService, UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService, UsagePointLifeCycleStateInfoFactory usagePointLifeCycleStateInfoFactory, ResourceHelper resourceHelper) {
         this.validationService = validationService;
         this.usagePointConfigurationService = usagePointConfigurationService;
         this.metrologyConfigurationService = metrologyConfigurationService;
+        this.usagePointLifeCycleConfigurationService = usagePointLifeCycleConfigurationService;
+        this.usagePointLifeCycleStateInfoFactory = usagePointLifeCycleStateInfoFactory;
         this.resourceHelper = resourceHelper;
     }
 
@@ -64,7 +74,13 @@ public class MetrologyConfigValidationRuleSetResource {
                             .map(deliverable -> new OutputMatchesInfo(deliverable.getName(), matchedDeliverables.contains(deliverable)))
                             .sorted(Comparator.comparing(outputMatchesInfo -> outputMatchesInfo.outputName))
                             .sorted(Comparator.comparing(outputMatchesInfo -> !outputMatchesInfo.isMatched))
-                            .collect(Collectors.toList()));
+                            .collect(Collectors.toList()),
+                            usagePointConfigurationService.getStatesLinkedToValidationRuleSetAndMetrologyContract(foundValidationRuleSet, metrologyContract).stream()
+                    .flatMap(state -> usagePointLifeCycleConfigurationService.getUsagePointLifeCycles().stream()
+                            .filter(usagePointLifeCycle -> usagePointLifeCycle.getStates().contains(state))
+                            .map(usagePointLifeCycle -> usagePointLifeCycleStateInfoFactory.from(usagePointLifeCycle, state))
+                            .findAny().map(Stream::of).orElse(Stream.empty()))
+                                    .collect(Collectors.toList()));
                 }).collect(Collectors.toList());
 
         return PagedInfoList.fromPagedList("purposes", infos, queryParameters);
@@ -107,7 +123,13 @@ public class MetrologyConfigValidationRuleSetResource {
                             .sorted(Comparator.comparing(outputMatchesInfo -> outputMatchesInfo.outputName))
                             .sorted(Comparator.comparing(outputMatchesInfo -> !outputMatchesInfo.isMatched))
                             .collect(Collectors.toList());
-                    return resourceHelper.getLinkableMetrologyContractInfo(metrologyContract, outputMatchesInfos);
+                    List<UsagePointLifeCycleStateInfo> usagePointLifeCycleStateInfos = usagePointConfigurationService.getStatesLinkedToValidationRuleSetAndMetrologyContract(validationRuleSet, metrologyContract).stream()
+                            .flatMap(state -> usagePointLifeCycleConfigurationService.getUsagePointLifeCycles().stream()
+                                    .filter(usagePointLifeCycle -> usagePointLifeCycle.getStates().contains(state))
+                                    .map(usagePointLifeCycle -> usagePointLifeCycleStateInfoFactory.from(usagePointLifeCycle, state))
+                                    .findAny().map(Stream::of).orElse(Stream.empty()))
+                            .collect(Collectors.toList());
+                    return resourceHelper.getLinkableMetrologyContractInfo(metrologyContract, outputMatchesInfos, usagePointLifeCycleStateInfos);
                 }).collect(Collectors.toList());
 
         return PagedInfoList.fromPagedList("purposes", linkablePurposes, queryParameters);
@@ -119,12 +141,17 @@ public class MetrologyConfigValidationRuleSetResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_VALIDATION_ON_METROLOGY_CONFIGURATION, Privileges.Constants.ADMINISTER_VALIDATION_ON_METROLOGY_CONFIGURATION, com.elster.jupiter.metering.security.Privileges.Constants.VIEW_METROLOGY_CONFIGURATION, com.elster.jupiter.metering.security.Privileges.Constants.ADMINISTER_METROLOGY_CONFIGURATION})
     @Transactional
-    public Response linkMetrologyPurposeToValidationRuleSet(@PathParam("validationRuleSetId") long validationRuleSetId, MetrologyContractInfos metrologyContractInfos, @BeanParam JsonQueryParameters queryParameters) {
+    public Response linkMetrologyPurposeToValidationRuleSet(@PathParam("validationRuleSetId") long validationRuleSetId, MetrologyContractRuleSetUsageInfo metrologyContractRuleSetUsageInfo, @BeanParam JsonQueryParameters queryParameters) {
         ValidationRuleSet validationRuleSet = validationService.getValidationRuleSet(validationRuleSetId)
                 .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
-        metrologyContractInfos.contracts.forEach(metrologyContractInfo -> {
+        metrologyContractRuleSetUsageInfo.contracts.forEach(metrologyContractInfo -> {
             MetrologyContract metrologyContract = resourceHelper.findAndLockContractOnMetrologyConfiguration(metrologyContractInfo);
-            usagePointConfigurationService.addValidationRuleSet(metrologyContract, validationRuleSet);
+            List<State> states = metrologyContractInfo.getLifeCycleStates().stream()
+                    .map(usagePointLifeCycleStateInfo -> usagePointLifeCycleConfigurationService.findUsagePointState(usagePointLifeCycleStateInfo.id))
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .collect(Collectors.toList());
+            usagePointConfigurationService.addValidationRuleSet(metrologyContract, validationRuleSet, states);
         });
 
         return Response.status(Response.Status.OK).build();

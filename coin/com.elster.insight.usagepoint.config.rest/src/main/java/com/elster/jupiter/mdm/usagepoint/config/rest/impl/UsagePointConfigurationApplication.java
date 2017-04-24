@@ -7,6 +7,7 @@ package com.elster.jupiter.mdm.usagepoint.config.rest.impl;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
 import com.elster.jupiter.estimation.EstimationService;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.mdm.usagepoint.config.rest.ReadingTypeDeliverableFactory;
 import com.elster.jupiter.metering.MeteringService;
@@ -22,6 +23,9 @@ import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
+import com.elster.jupiter.usagepoint.lifecycle.rest.BusinessProcessInfoFactory;
+import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCycleStateInfoFactory;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.rest.DataValidationTaskInfoFactory;
@@ -58,6 +62,8 @@ public class UsagePointConfigurationApplication extends Application implements T
     private volatile CustomPropertySetService customPropertySetService;
     private volatile MetrologyConfigurationService metrologyConfigurationService;
     private volatile PropertyValueInfoService propertyValueInfoService;
+    private volatile UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService;
+    private volatile FiniteStateMachineService finiteStateMachineService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -80,7 +86,8 @@ public class UsagePointConfigurationApplication extends Application implements T
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
         this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST)
-                .join(nlsService.getThesaurus(MeteringService.COMPONENTNAME, Layer.DOMAIN));
+                .join(nlsService.getThesaurus(MeteringService.COMPONENTNAME, Layer.DOMAIN))
+                .join(nlsService.getThesaurus(UsagePointLifeCycleConfigurationService.COMPONENT_NAME, Layer.DOMAIN));
     }
 
     @Override
@@ -153,6 +160,16 @@ public class UsagePointConfigurationApplication extends Application implements T
         this.propertyValueInfoService = propertyValueInfoService;
     }
 
+    @Reference
+    public void setUsagePointLifeCycleConfigurationService(UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
+        this.usagePointLifeCycleConfigurationService = usagePointLifeCycleConfigurationService;
+    }
+
+    @Reference
+    public void setFiniteStateMachineService(FiniteStateMachineService finiteStateMachineService) {
+        this.finiteStateMachineService = finiteStateMachineService;
+    }
+
     class HK2Binder extends AbstractBinder {
         @Override
         protected void configure() {
@@ -171,6 +188,8 @@ public class UsagePointConfigurationApplication extends Application implements T
             bind(timeService).to(TimeService.class);
             bind(customPropertySetService).to(CustomPropertySetService.class);
             bind(metrologyConfigurationService).to(MetrologyConfigurationService.class);
+            bind(usagePointLifeCycleConfigurationService).to(UsagePointLifeCycleConfigurationService.class);
+            bind(finiteStateMachineService).to(FiniteStateMachineService.class);
             bind(ResourceHelper.class).to(ResourceHelper.class);
             bind(CustomPropertySetInfoFactory.class).to(CustomPropertySetInfoFactory.class);
             bind(MetrologyConfigurationInfoFactory.class).to(MetrologyConfigurationInfoFactory.class);
@@ -179,6 +198,8 @@ public class UsagePointConfigurationApplication extends Application implements T
             bind(ValidationRuleInfoFactory.class).to(ValidationRuleInfoFactory.class);
             bind(DataValidationTaskInfoFactory.class).to(DataValidationTaskInfoFactory.class);
             bind(propertyValueInfoService).to(PropertyValueInfoService.class);
+            bind(UsagePointLifeCycleStateInfoFactory.class).to(UsagePointLifeCycleStateInfoFactory.class);
+            bind(BusinessProcessInfoFactory.class).to(BusinessProcessInfoFactory.class);
         }
     }
 }

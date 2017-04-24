@@ -7,12 +7,15 @@ package com.elster.jupiter.mdm.usagepoint.config.rest.impl;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
+import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCycleStateInfo;
+import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCycleStateInfoFactory;
 
 import javax.inject.Inject;
 import javax.ws.rs.WebApplicationException;
@@ -81,6 +84,10 @@ public class ResourceHelper {
         return findAndLockContractOnMetrologyConfiguration(metrologyContractInfo.id, metrologyContractInfo.version, metrologyContractInfo.name);
     }
 
+    MetrologyContract findAndLockContractOnMetrologyConfiguration(LinkableMetrologyContractInfo metrologyContractInfo) {
+        return findAndLockContractOnMetrologyConfiguration(metrologyContractInfo.getId(), metrologyContractInfo.getVersion(), metrologyContractInfo.getName());
+    }
+
     MetrologyContract findAndLockContractOnMetrologyConfiguration(long id, long version, String name) {
         return metrologyConfigurationService.findAndLockMetrologyContract(id, version)
                 .orElseThrow(conflictFactory.contextDependentConflictOn(name)
@@ -94,6 +101,10 @@ public class ResourceHelper {
     }
 
     LinkableMetrologyContractInfo getLinkableMetrologyContractInfo(MetrologyContract contract, List<OutputMatchesInfo> matchedOutputs) {
+        return getLinkableMetrologyContractInfo(contract, matchedOutputs, null);
+    }
+
+    LinkableMetrologyContractInfo getLinkableMetrologyContractInfo(MetrologyContract contract, List<OutputMatchesInfo> matchedOutputs, List<UsagePointLifeCycleStateInfo> states) {
         LinkableMetrologyContractInfo info = new LinkableMetrologyContractInfo();
         info.setMetrologyConfigurationInfo(new IdWithNameInfo(contract.getMetrologyConfiguration().getId(),
                 contract.getMetrologyConfiguration().getName()));
@@ -102,6 +113,7 @@ public class ResourceHelper {
         info.setVersion(contract.getVersion());
         info.setId(contract.getId());
         info.setName(contract.getMetrologyPurpose().getName());
+        info.setLifeCycleStates(states);
 
         return info;
     }
