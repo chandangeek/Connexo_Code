@@ -17,6 +17,7 @@ import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
 import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.fsm.Stage;
 import com.elster.jupiter.mdm.usagepoint.config.rest.ReadingTypeDeliverableFactory;
 import com.elster.jupiter.mdm.usagepoint.config.rest.ReadingTypeDeliverablesInfo;
 import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataCompletionService;
@@ -425,8 +426,8 @@ public class UsagePointResource {
     @Path("/{name}/activatemeters")
     public Response activateMeters(@PathParam("name") String name, UsagePointInfo info) {
         UsagePoint usagePoint = resourceHelper.findAndLockUsagePointByNameOrThrowException(name, info.version);
-        UsagePointStage.Key usagePointStage = usagePoint.getState().getStage().getKey();
-        if (!UsagePointStage.Key.PRE_OPERATIONAL.equals(usagePointStage) && !UsagePointStage.Key.SUSPENDED.equals(usagePointStage)) {
+        Stage stage = usagePoint.getState().getStage().get();
+        if (!stage.getName().equals(UsagePointStage.PRE_OPERATIONAL.getKey())  && !stage.getName().equals(UsagePointStage.SUSPENDED.getKey())) {
             throw UsagePointMeterActivationException.usagePointIncorrectStage(thesaurus);
         }
         try {
@@ -952,16 +953,16 @@ public class UsagePointResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public PagedInfoList getMetrologyConfigurationDeliverables(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
-
-        List<ReadingTypeDeliverablesInfo> deliverables = resourceHelper
-                .findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint)
+        EffectiveMetrologyConfigurationOnUsagePoint effectiveMC = resourceHelper
+                .findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
+        List<ReadingTypeDeliverablesInfo> deliverables = effectiveMC
                 .getMetrologyConfiguration()
                 .getContracts()
                 .stream()
-                .filter(mc -> usagePoint.getCurrentEffectiveMetrologyConfiguration().flatMap(emc -> emc.getChannelsContainer(mc, clock.instant())).isPresent())
+                .filter(mc -> effectiveMC.getChannelsContainer(mc, clock.instant()).isPresent())
                 .map(MetrologyContract::getDeliverables)
                 .flatMap(List::stream)
-                .sorted((a, b) -> a.getName().compareTo(b.getName()))
+                .sorted(Comparator.comparing(ReadingTypeDeliverable::getName))
                 .map(readingTypeDeliverableFactory::asInfo)
                 .collect(Collectors.toList());
         return PagedInfoList.fromCompleteList("deliverables", deliverables, queryParameters);

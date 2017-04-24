@@ -133,7 +133,7 @@ public class MetrologyConfigurationInfo {
         info.status = metrologyContractStatus;
         info.readingTypeDeliverables = metrologyContract.getDeliverables()
                 .stream()
-                .sorted((a, b) -> a.getName().compareTo(b.getName()))
+                .sorted(Comparator.comparing(ReadingTypeDeliverable::getName))
                 .map(readingTypeDeliverableFactory::asInfo)
                 .collect(Collectors.toList());
         info.eventNames = new ArrayList<>();

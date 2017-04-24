@@ -25,9 +25,11 @@ public class EstimationRuleInfo {
 
     public String name;
 
-    public List<PropertyInfo> properties = new ArrayList<PropertyInfo>();
+    public List<PropertyInfo> properties = new ArrayList<>();
 
     public Boolean deleted;
 
     public IdWithNameInfo application;
+
+    public boolean markProjected;
 }

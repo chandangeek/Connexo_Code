@@ -6,7 +6,6 @@ package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCycleInfo;
 import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCycleStateInfo;

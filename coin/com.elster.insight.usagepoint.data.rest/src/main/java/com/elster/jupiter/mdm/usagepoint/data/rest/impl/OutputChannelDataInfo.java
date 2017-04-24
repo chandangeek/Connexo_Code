@@ -58,6 +58,8 @@ public class OutputChannelDataInfo {
 
     public EstimationQuantityInfo estimatedByRule;
 
+    public boolean isProjected;
+
     public long ruleId;
 
     public IntervalReadingImpl createNew() {

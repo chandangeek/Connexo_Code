@@ -62,13 +62,9 @@ public abstract class ReadingWithValidationStatus<T extends BaseReadingRecord> {
     }
 
     public Optional<T> getReading() {
-        if (this.persistedReadingRecord != null) {
-            return Optional.of(this.persistedReadingRecord);
-        }
-        if (this.calculatedReadingRecord != null) {
-            return Optional.of(this.calculatedReadingRecord);
-        }
-        return Optional.empty();
+        return Optional.ofNullable(persistedReadingRecord)
+                .map(Optional::of)
+                .orElse(Optional.ofNullable(calculatedReadingRecord));
     }
 
     public Optional<BigDecimal> getCalculatedValue() {

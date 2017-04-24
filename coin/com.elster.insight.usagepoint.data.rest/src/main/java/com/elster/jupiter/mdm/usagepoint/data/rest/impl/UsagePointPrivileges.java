@@ -7,6 +7,7 @@ import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointStage;
 import com.google.common.collect.Range;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 
@@ -18,7 +19,7 @@ public final class UsagePointPrivileges {
 
     public static List<String> getUsagePointPrivilegesBasedOnStage(UsagePoint usagePoint) {
         List<String> privileges = new ArrayList<>();
-        if(EnumSet.of(UsagePointStage.Key.PRE_OPERATIONAL, UsagePointStage.Key.SUSPENDED).contains(usagePoint.getState().getStage().getKey())) {
+        if(Arrays.asList(UsagePointStage.PRE_OPERATIONAL.getKey(), UsagePointStage.SUSPENDED.getKey()).contains(usagePoint.getState().getStage().get().getName())) {
             if(usagePoint.getEffectiveMetrologyConfigurations().stream()
                     .map(EffectiveMetrologyConfigurationOnUsagePoint::getRange)
                     .allMatch(Range::hasUpperBound)){
