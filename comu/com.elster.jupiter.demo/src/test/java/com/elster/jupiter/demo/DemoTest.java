@@ -162,8 +162,6 @@ import com.energyict.mdc.masterdata.impl.MasterDataModule;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
 import com.energyict.mdc.protocol.api.DeviceMessageFileService;
-import com.energyict.mdc.protocol.api.device.messages.DlmsAuthenticationLevelMessageValues;
-import com.energyict.mdc.protocol.api.device.messages.DlmsEncryptionLevelMessageValues;
 import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
@@ -496,8 +494,8 @@ public class DemoTest {
         assertThat(configuration.getSecurityPropertySets()).hasSize(1);
         SecurityPropertySet securityPropertySet = configuration.getSecurityPropertySets().get(0);
         assertThat(securityPropertySet.getName()).isEqualTo(SECURITY_PROPERTY_SET_NAME);
-        assertThat(securityPropertySet.getAuthenticationDeviceAccessLevel().getId()).isEqualTo(DlmsAuthenticationLevelMessageValues.HIGH_LEVEL_GMAC.getValue());
-        assertThat(securityPropertySet.getEncryptionDeviceAccessLevel().getId()).isEqualTo(DlmsEncryptionLevelMessageValues.NO_ENCRYPTION.getValue());
+        assertThat(securityPropertySet.getAuthenticationDeviceAccessLevel().getId()).isEqualTo(5);      //HIGH_LEVEL_GMAC
+        assertThat(securityPropertySet.getEncryptionDeviceAccessLevel().getId()).isEqualTo(0);          //NO_ENCRYPTION
         assertThat(securityPropertySet.getUserActions()).containsExactly(
                 DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES1, DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES2,
                 DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1, DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES2);
@@ -603,8 +601,8 @@ public class DemoTest {
         assertThat(configuration.getSecurityPropertySets()).hasSize(1);
         SecurityPropertySet securityPropertySet = configuration.getSecurityPropertySets().get(0);
         assertThat(securityPropertySet.getName()).isEqualTo(SECURITY_SET_NAME);
-        assertThat(securityPropertySet.getAuthenticationDeviceAccessLevel().getId()).isEqualTo(DlmsAuthenticationLevelMessageValues.HIGH_LEVEL_MD5.getValue());
-        assertThat(securityPropertySet.getEncryptionDeviceAccessLevel().getId()).isEqualTo(DlmsEncryptionLevelMessageValues.NO_ENCRYPTION.getValue());
+        assertThat(securityPropertySet.getAuthenticationDeviceAccessLevel().getId()).isEqualTo(3);      //HIGH_LEVEL_MD5
+        assertThat(securityPropertySet.getEncryptionDeviceAccessLevel().getId()).isEqualTo(0);          //NO_ENCRYPTION
         assertThat(securityPropertySet.getUserActions()).containsExactly(
                 DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES1, DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES2,
                 DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1, DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES2);

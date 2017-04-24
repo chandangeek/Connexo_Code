@@ -16,8 +16,6 @@ import com.energyict.mdc.device.config.DeviceSecurityUserAction;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.protocol.api.device.messages.DlmsAuthenticationLevelMessageValues;
-import com.energyict.mdc.protocol.api.device.messages.DlmsEncryptionLevelMessageValues;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -185,8 +183,8 @@ public class CreateG3SlaveCommand {
         @Override
         public void accept(DeviceConfiguration configuration) {
              configuration.createSecurityPropertySet(SECURITY_SET_NAME)
-                     .authenticationLevel(DlmsAuthenticationLevelMessageValues.HIGH_LEVEL_MD5.getValue())
-                     .encryptionLevel(DlmsEncryptionLevelMessageValues.NO_ENCRYPTION.getValue())
+                     .authenticationLevel(3)    //HIGH_LEVEL_MD5
+                     .encryptionLevel(0)        //NO_ENCRYPTION
                      .addUserAction(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES1)
                      .addUserAction(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES2)
                      .addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1)
