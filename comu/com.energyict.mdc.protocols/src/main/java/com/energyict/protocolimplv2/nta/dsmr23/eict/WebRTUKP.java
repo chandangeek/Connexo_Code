@@ -33,6 +33,7 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
 import com.energyict.mdc.protocol.api.dialer.core.HHUSignOnV2;
+import com.energyict.mdc.protocol.api.legacy.dynamic.ConfigurationSupport;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
@@ -125,6 +126,11 @@ public class WebRTUKP extends AbstractDlmsProtocol {
             dlmsProperties = new WebRTUKPProperties(this.propertySpecService, this.thesaurus);
         }
         return dlmsProperties;
+    }
+
+    @Override
+    protected ConfigurationSupport getDlmsConfigurationSupport() {
+        return new WebRTUKPConfigurationSupport(getPropertySpecService(), getThesaurus());
     }
 
     @Override
