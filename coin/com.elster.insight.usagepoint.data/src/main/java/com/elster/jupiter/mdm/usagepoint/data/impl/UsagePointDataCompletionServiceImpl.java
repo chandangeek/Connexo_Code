@@ -71,9 +71,7 @@ class UsagePointDataCompletionServiceImpl implements UsagePointDataCompletionSer
     public List<IChannelDataCompletionSummary> getDataCompletionStatistics(Channel channel, Range<Instant> interval) {
         List<IChannelDataCompletionSummary> summaryList = new LinkedList<>();
         TreeMap<Instant, Set<ReadingQualityType>> qualityTypesByAllTimings =
-                (channel.isRegular() ? channel.toList(interval).stream() : channel.getReadings(interval)
-                        .stream()
-                        .map(BaseReading::getTimeStamp))
+                (channel.isRegular() ? channel.toList(interval).stream() : channel.getReadings(interval).stream().map(BaseReading::getTimeStamp))
                         .collect(Collectors.toMap(
                                 Function.identity(),
                                 time -> Sets.newHashSet(),
@@ -162,8 +160,7 @@ class UsagePointDataCompletionServiceImpl implements UsagePointDataCompletionSer
         accountFlagValue(summary, ValidChannelDataSummaryFlags.PROJECTED, projectedCount);
     }
 
-    private static void gatherStatistics(Map<Instant, Set<ReadingQualityType>> qualityTypesByAllTimings,
-                                         ChannelDataCompletionSummaryImpl summary) {
+    private static void gatherStatistics(Map<Instant, Set<ReadingQualityType>> qualityTypesByAllTimings, ChannelDataCompletionSummaryImpl summary) {
         accountFlagValue(summary, ChannelDataCompletionSummaryFlag.SUSPECT, (int) qualityTypesByAllTimings.entrySet().stream()
                 .filter(entry -> entry.getValue().stream().anyMatch(ChannelDataCompletionSummaryFlag.SUSPECT.getQualityTypePredicate()))
                 .map(Map.Entry::getKey)
@@ -175,8 +172,7 @@ class UsagePointDataCompletionServiceImpl implements UsagePointDataCompletionSer
         accountFlagValue(summary, ChannelDataCompletionSummaryFlag.VALID, qualityTypesByAllTimings.size());
     }
 
-    private static void gatherValidated(Map<Instant, Set<ReadingQualityType>> qualityTypesByAllTimings,
-                                        ChannelDataCompletionSummaryImpl summary) {
+    private static void gatherValidated(Map<Instant, Set<ReadingQualityType>> qualityTypesByAllTimings, ChannelDataCompletionSummaryImpl summary) {
         Arrays.stream(ValidChannelDataSummaryFlags.values()).forEach(flag ->
                 accountFlagValue(summary, flag, (int) qualityTypesByAllTimings.entrySet().stream()
                         .filter(entry -> entry.getValue().stream().anyMatch(flag.getQualityTypePredicate()))
@@ -189,8 +185,7 @@ class UsagePointDataCompletionServiceImpl implements UsagePointDataCompletionSer
         accountFlagValue(summary, ValidChannelDataSummaryFlags.VALID, qualityTypesByAllTimings.size());
     }
 
-    private static void accountFlagValue(ChannelDataCompletionSummaryImpl summary,
-                                         IChannelDataCompletionSummaryFlag flag, int value) {
+    private static void accountFlagValue(ChannelDataCompletionSummaryImpl summary, IChannelDataCompletionSummaryFlag flag, int value) {
         if (value > 0) {
             summary.incrementFlag(flag, value);
             summary.incrementOverallValue(value);
