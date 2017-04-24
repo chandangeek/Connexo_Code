@@ -5,13 +5,17 @@
 package com.elster.jupiter.export;
 
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.util.time.ScheduleExpression;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.time.Instant;
 
+@ProviderType
 public interface DataExportTaskBuilder {
 
     DataExportTaskBuilder setScheduleExpression(ScheduleExpression scheduleExpression);
@@ -46,6 +50,7 @@ public interface DataExportTaskBuilder {
 
     }
 
+    @ProviderType
     interface CustomSelectorBuilder {
 
         PropertyBuilder<CustomSelectorBuilder> addProperty(String name);
@@ -53,6 +58,7 @@ public interface DataExportTaskBuilder {
         DataExportTaskBuilder endSelection();
     }
 
+    @ProviderType
     interface MeterReadingSelectorBuilder {
 
         MeterReadingSelectorBuilder fromExportPeriod(RelativePeriod relativePeriod);
@@ -76,6 +82,7 @@ public interface DataExportTaskBuilder {
         DataExportTaskBuilder endSelection();
     }
 
+    @ProviderType
     interface EventSelectorBuilder {
 
         EventSelectorBuilder fromExportPeriod(RelativePeriod relativePeriod);
@@ -88,11 +95,14 @@ public interface DataExportTaskBuilder {
 
     }
 
+    @ProviderType
     interface UsagePointReadingSelectorBuilder {
 
         UsagePointReadingSelectorBuilder fromExportPeriod(RelativePeriod relativePeriod);
 
         UsagePointReadingSelectorBuilder fromUsagePointGroup(UsagePointGroup usagePointGroup);
+
+        UsagePointReadingSelectorBuilder fromMetrologyPurpose(MetrologyPurpose metrologyPurpose);
 
         UsagePointReadingSelectorBuilder fromReadingType(ReadingType readingType);
 

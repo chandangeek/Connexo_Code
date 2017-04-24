@@ -4,7 +4,6 @@
 
 package com.elster.jupiter.export.impl;
 
-
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportOccurrenceFinder;
 import com.elster.jupiter.export.DataExportStatus;
@@ -18,7 +17,6 @@ import com.elster.jupiter.util.conditions.Order;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -27,14 +25,14 @@ class DataExportOccurrenceFinderImpl implements DataExportOccurrenceFinder {
     private DataModel dataModel;
     private Condition condition;
     private Order defaultOrder;
-    private List<Order> sortingColumns = new ArrayList<>();
+    private Order[] sortingColumns = new Order[0];
     private Integer start;
     private Integer limit;
 
-    public DataExportOccurrenceFinderImpl() {
-    }
+    DataExportOccurrenceFinderImpl() {}
 
-    public DataExportOccurrenceFinderImpl(DataModel dataModel, Condition condition, Order order) {
+    DataExportOccurrenceFinderImpl(DataModel dataModel, Condition condition, Order order) {
+        this();
         this.dataModel = dataModel;
         this.condition = condition;
         this.defaultOrder = order;
@@ -55,7 +53,7 @@ class DataExportOccurrenceFinderImpl implements DataExportOccurrenceFinder {
 
     @Override
     public DataExportOccurrenceFinder setOrder(List<Order> sortingColumns) {
-        this.sortingColumns = sortingColumns;
+        this.sortingColumns = sortingColumns.toArray(new Order[sortingColumns.size()]);
         return this;
     }
 
@@ -102,7 +100,7 @@ class DataExportOccurrenceFinderImpl implements DataExportOccurrenceFinder {
                 .join(TaskOccurrence.class)
                 .join(RecurrentTask.class)
                 .filter(condition)
-                .sorted(defaultOrder, sortingColumns.toArray(new Order[sortingColumns.size()]));
+                .sorted(defaultOrder, sortingColumns);
         if (start != null) {
             queryStream.skip(start);
         }
@@ -110,12 +108,6 @@ class DataExportOccurrenceFinderImpl implements DataExportOccurrenceFinder {
             queryStream.limit(limit);
         }
         return queryStream;
-    }
-
-    // documentation only
-    public List<? extends DataExportOccurrence> findOldSyntax() {
-        return dataModel.query(DataExportOccurrence.class, TaskOccurrence.class)
-                .select(condition, new Order[]{defaultOrder}, true, null, start + 1, start + limit);
     }
 
 }
