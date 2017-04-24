@@ -12,16 +12,17 @@ Ext.define('Mdc.securityaccessors.view.DeviceSecurityAccessorsActionMenu', {
         me.items = [
             {
                 text: Uni.I18n.translate('general.Edit', 'MDC', 'Edit'),
-                privileges: Mdc.privileges.Device.administrateDevice,
+                privileges: Mdc.privileges.Device.canAdministrateDevice(),
                 itemId: 'mdc-device-security-accessors-action-menu-edit',
                 action: me.keyMode ? 'editDeviceKey' : 'editDeviceCertificate',
+                invisibleWhenSwapped: true,
                 section: me.SECTION_EDIT
             },
             {
                 text: me.keyMode
                     ? Uni.I18n.translate('general.activatePassiveKey', 'MDC', 'Activate passive key')
                     : Uni.I18n.translate('general.activatePassiveCertificate', 'MDC', 'Activate passive certificate'),
-                //privileges: Mdc.privileges.DeviceType.canAdministrate(),
+                privileges: Mdc.privileges.Device.canAdministrateDevice(),
                 action: me.keyMode ? 'activatePassiveKey' : 'activatePassiveCertificate',
                 section: me.SECTION_EDIT
             },
@@ -29,22 +30,23 @@ Ext.define('Mdc.securityaccessors.view.DeviceSecurityAccessorsActionMenu', {
                 text: me.keyMode
                     ? Uni.I18n.translate('general.clearPassiveKey', 'MDC', 'Clear passive key')
                     : Uni.I18n.translate('general.clearPassiveCertificate', 'MDC', 'Clear passive certificate'),
-                //privileges: Mdc.privileges.DeviceType.canAdministrate(),
+                privileges: Mdc.privileges.Device.canAdministrateDevice(),
                 action: me.keyMode ? 'clearPassiveKey' : 'clearPassiveCertificate',
                 section: me.SECTION_EDIT
             },
             {
                 text: Uni.I18n.translate('general.generatePassiveKey', 'MDC', 'Generate passive key'),
-                //privileges: Mdc.privileges.DeviceType.canAdministrate(),
+                privileges: Mdc.privileges.Device.canAdministrateDevice(),
                 visible: function () {
                     return !Ext.isEmpty(this.keyMode) && this.keyMode;
                 },
+                invisibleWhenSwapped: true,
                 action: 'generatePassiveKey',
                 section: me.SECTION_EDIT
             },
             {
                 text: Uni.I18n.translate('general.showValues', 'MDC', 'Show values'),
-                //privileges: Mdc.privileges.DeviceType.canAdministrate(),
+                privileges: Mdc.privileges.Device.canAdministrateDevice(),
                 visible: function () {
                     return !Ext.isEmpty(this.keyMode) && this.keyMode;
                 },
@@ -56,13 +58,17 @@ Ext.define('Mdc.securityaccessors.view.DeviceSecurityAccessorsActionMenu', {
     },
 
     listeners: {
-        beforeshow: function() {
-            var me = this;
-            me.items.each(function(item){
-                if (item.visible === undefined) {
+        beforeshow: function(menu) {
+            var me = this,
+                swapped = menu.record.get('swapped');
+
+            me.items.each(function(item) {
+                if (Ext.isDefined(item.invisibleWhenSwapped)) {
+                    item.setVisible(!swapped);
+                } else if (item.visible === undefined) {
                     item.show();
                 } else {
-                    item.visible.call(me) /*&& Mdc.privileges.DeviceType.canAdministrate()*/ ?  item.show() : item.hide();
+                    item.visible.call(me) && Mdc.privileges.Device.canAdministrateDevice() ?  item.show() : item.hide();
                 }
             })
         }

@@ -256,6 +256,12 @@ Ext.define('Mdc.securityaccessors.controller.DeviceSecurityAccessors', {
             case 'clearPassiveCertificate':
                 me.clearPassive(menu.record, false);
                 break;
+            case 'generatePassiveKey':
+                me.generatePassiveKey(menu.record);
+                break;
+            case 'activatePassiveKey':
+                me.activatePassiveKey(menu.record);
+                break;
         }
     },
 
@@ -402,10 +408,6 @@ Ext.define('Mdc.securityaccessors.controller.DeviceSecurityAccessors', {
         });
         me.deviceKeyRecord.endEdit();
 
-        if (Ext.isEmpty(me.deviceKeyRecord.get('expirationTime'))) { // Don't know why this is not filled (for keys) in when I get it from the BE
-            // but when you send it back without an expirationTime field, the BE complains
-            me.deviceKeyRecord.set('expirationTime', new Date().getTime());
-        }
         me.deviceKeyRecord.save({
             success: function () {
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.key.saved', 'MDC', 'Key saved'));
@@ -520,10 +522,6 @@ Ext.define('Mdc.securityaccessors.controller.DeviceSecurityAccessors', {
             clearedMessage;
 
         if (keyMode) {
-            if (Ext.isEmpty(keyOrCertificateRecord.get('expirationTime'))) { // Don't know why this is not filled (for keys) in when I get it from the BE
-                // but when you send it back without an expirationTime field, the BE complains
-                keyOrCertificateRecord.set('expirationTime', new Date().getTime());
-            }
             title = Uni.I18n.translate('general.clearPassiveKey.title', 'MDC', "Clear passive key of '{0}'?", keyOrCertificateRecord.get('name'));
             confirmMessage = Uni.I18n.translate('general.clearPassiveKey.msg', 'MDC', 'The passive key will no longer be available.');
             clearedMessage = Uni.I18n.translate('general.passiveKey.cleared', 'MDC', 'Passive key cleared');
@@ -552,6 +550,46 @@ Ext.define('Mdc.securityaccessors.controller.DeviceSecurityAccessors', {
                         }
                     });
                 }
+            }
+        });
+    },
+
+    generatePassiveKey: function(keyRecord) {
+        var me = this,
+            url = '/api/ddr/devices/{deviceId}/securityaccessors/keys/{keyId}/temp';
+
+        url = url.replace('{deviceId}', me.deviceId).replace('{keyId}', keyRecord.get('id'));
+
+        Ext.Ajax.request({
+            url: url,
+            method: 'POST',
+            jsonData: Ext.encode(keyRecord.getData()),
+            success: function () {
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.passiveKey.generated', 'MDC', 'Passive key generated'));
+                var router = me.getController('Uni.controller.history.Router'),
+                    splittedPath = router.currentRoute.split('/');
+                splittedPath.pop();
+                router.getRoute(splittedPath.join('/') + '/' + 'keys').forward(router.arguments);
+            }
+        });
+    },
+
+    activatePassiveKey: function(keyRecord) {
+        var me = this,
+            url = '/api/ddr/devices/{deviceId}/securityaccessors/keys/{keyId}/swap';
+
+        url = url.replace('{deviceId}', me.deviceId).replace('{keyId}', keyRecord.get('id'));
+
+        Ext.Ajax.request({
+            url: url,
+            method: 'PUT',
+            jsonData: Ext.encode(keyRecord.getData()),
+            success: function () {
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.passiveKey.activated', 'MDC', 'Passive key activated'));
+                var router = me.getController('Uni.controller.history.Router'),
+                    splittedPath = router.currentRoute.split('/');
+                splittedPath.pop();
+                router.getRoute(splittedPath.join('/') + '/' + 'keys').forward(router.arguments);
             }
         });
     }

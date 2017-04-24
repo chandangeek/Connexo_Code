@@ -12,8 +12,8 @@ Ext.define('Mdc.securityaccessors.model.DeviceSecurityKey', {
         {name: 'id', type: 'int', useNull: true},
         {name: 'name', type: 'string'},
         {name: 'description', type: 'string'},
-        'expirationTime',
-        'modificationDate',
+        {name: 'expirationTime', type: 'int'},
+        {name: 'modificationDate', type: 'int'},
         'status',
         'swapped'
     ],

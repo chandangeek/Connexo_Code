@@ -61,6 +61,9 @@ Ext.define('Mdc.privileges.Device', {
     canAddDevice: function(){
         return Uni.Auth.checkPrivileges(Mdc.privileges.Device.administrateDevice );
     },
+    canAdministrateDevice: function(){
+        return Uni.Auth.checkPrivileges(Mdc.privileges.Device.administrateDevice );
+    },
     canSearchDevices : function(){
         return Uni.Auth.checkPrivileges(Mdc.privileges.Device.viewDeviceCommunication );
     },
