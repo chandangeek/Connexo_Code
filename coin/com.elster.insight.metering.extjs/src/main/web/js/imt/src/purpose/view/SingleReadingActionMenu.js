@@ -48,6 +48,13 @@ Ext.define('Imt.purpose.view.SingleReadingActionMenu', {
                 section: this.SECTION_ACTION
             },
             {
+                itemId: 'edit-estimation-comment',
+                // hidden: true,
+                text: Uni.I18n.translate('general.editEstimationComment', 'IMT', 'Edit estimation comment'),
+                action: 'editEstimationComment',
+                section: this.SECTION_ACTION
+            },
+            {
                 itemId: 'estimate-value',
                 hidden: true,
                 text: Uni.I18n.translate('general.editWithEstimator', 'IMT', 'Edit with estimator'),

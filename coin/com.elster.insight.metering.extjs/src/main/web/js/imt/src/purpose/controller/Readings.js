@@ -16,7 +16,9 @@ Ext.define('Imt.purpose.controller.Readings', {
         'Imt.purpose.view.MultipleReadingsActionMenu',
         'Imt.purpose.view.ReadingEstimationWindow',
         'Imt.purpose.view.ReadingEstimationWithRuleWindow',
-        'Uni.view.readings.CorrectValuesWindow',
+        'Cfg.view.common.CopyFromReferenceWindow',
+        'Cfg.view.common.EditEstimationComment',
+        'Uni.view.readings.CorrectValuesWindow'
 
     ],
 
@@ -69,6 +71,10 @@ Ext.define('Imt.purpose.controller.Readings', {
             selector: 'output-channel-main reading-preview'
         },
         {
+            ref: 'editEstimationComment',
+            selector: 'reading-edit-estimation-comment-window'
+        },
+        {
             ref: 'copyFromReferenceWindow',
             selector: 'reading-copy-from-reference-window'
         },
@@ -111,6 +117,9 @@ Ext.define('Imt.purpose.controller.Readings', {
             'reading-copy-from-reference-window #copy-reading-button': {
                 click: this.copyFromReferenceUpdateGrid
             },
+            'reading-edit-estimation-comment-window #edit-comment-button': {
+                click: this.saveEstimationComment
+            },
             'reading-estimation-window #estimate-reading-button': {
                 click: this.estimateReadingWithEstimator
             },
@@ -127,7 +136,7 @@ Ext.define('Imt.purpose.controller.Readings', {
     chooseBulkAction: function (menu, item) {
         var me = this,
             records = me.getReadingsList().getSelectionModel().getSelection();
-debugger;
+
         switch (item.action) {
             case 'editEstimationComment':
                 me.editEstimationComment(records);
@@ -561,18 +570,46 @@ debugger;
     },
 
     editEstimationComment: function (records) {
-        debugger;
         Ext.widget('reading-edit-estimation-comment-window',
             {
                 itemId: 'channel-edit-estimation-comment-window',
-                records: records
+                records: records,
+                usagePoint: true
             }).show();
+    },
+
+    saveEstimationComment: function (button) {
+        var me = this,
+            window = me.getEditEstimationComment(),
+            commentCombo = window.down('#estimation-comment-box'),
+            commentValue = commentCombo.getRawValue(),
+            commentId = commentCombo.getValue(),
+            readings = button.readings;
+
+        if (!Array.isArray(readings)) {
+            if (!commentValue) {
+                readings.set('commentId', 0);
+            } else if (commentId !== -1) {
+                readings.set('commentId', commentId);
+                readings.set('commentValue', commentValue);
+            }
+        } else {
+            _.each(readings, function (reading) {
+                if (!commentValue) {
+                    reading.set('commentId', 0);
+                } else if (commentId !== -1) {
+                    reading.set('commentId', commentId);
+                    reading.set('commentValue', commentValue);
+                }
+            });
+        }
+        window.close();
     },
 
     copyFromReference: function (records) {
         var window = Ext.widget('reading-copy-from-reference-window',
             {
-                itemId: 'channel-reading-copy-from-reference-window',
+                itemId: 'channel-copy-from-reference-window',
                 records: records,
                 usagePoint: true
             }).show();
@@ -606,7 +643,10 @@ debugger;
             window = me.getCopyFromReferenceWindow(),
             form = window.down('#reading-copy-window-form'),
             model = Ext.create('Imt.purpose.model.CopyFromReference'),
-            router = me.getController('Uni.controller.history.Router');
+            router = me.getController('Uni.controller.history.Router'),
+            commentCombo = window.down('#estimation-comment-box'),
+            commentId = commentCombo.getValue(),
+            commentValue = commentCombo.getRawValue();
 
         form.updateRecord(model);
         model.getProxy().extraParams = {
@@ -650,8 +690,11 @@ debugger;
                                 record.set('isProjected', model.get('projectedValue'));
                                 record.set('bulkValidationInfo', item.bulkValidationInfo);
                                 record.set('mainValidationInfo', item.mainValidationInfo);
-                                if (model.get('commentId') !== -1) {
-                                    record.set('commentId', item.commentId);
+                                if (!commentValue) {
+                                    record.set('commentId', 0);
+                                } else if (commentId !== -1) {
+                                    record.set('commentId', commentId);
+                                    record.set('commentValue', commentValue);
                                 }
                             }
                         });
@@ -661,8 +704,11 @@ debugger;
                             window.records.set('isProjected', model.get('projectedValue'));
                             window.records.set('bulkValidationInfo', response[0].bulkValidationInfo);
                             window.records.set('mainValidationInfo', response[0].mainValidationInfo);
-                            if (model.get('commentId') !== -1) {
-                                window.records.set('commentId', response[0].commentId);
+                            if (!commentValue) {
+                                record.set('commentId', 0);
+                            } else if (commentId !== -1) {
+                                record.set('commentId', commentId);
+                                record.set('commentValue', commentValue);
                             }
                         }
                     }
@@ -822,7 +868,10 @@ debugger;
     saveChannelDataEstimateModel: function (record, readings, window, ruleId, action) {
         var me = this,
             grid = me.getReadingsList(),
-            router = me.getController('Uni.controller.history.Router');
+            router = me.getController('Uni.controller.history.Router'),
+            commentCombo = window.down('#estimation-comment-box'),
+            commentId = commentCombo ? commentCombo.getValue() : null,
+            commentValue = commentCombo ? commentCombo.getRawValue() : null;
 
         record.getProxy().setParams(decodeURIComponent(router.arguments.usagePointId), router.arguments.purposeId, router.arguments.outputId);
         window.setLoading();
@@ -836,11 +885,23 @@ debugger;
                 Ext.suspendLayouts();
                 if (success && responseText[0]) {
                     if (!Ext.isArray(readings)) {
+                        if (!commentValue) {
+                            readings.set('commentId', 0);
+                        } else if (commentId !== -1) {
+                            readings.set('commentId', commentId);
+                            readings.set('commentValue', commentValue);
+                        }
                         me.updateEstimatedValues(record, readings, responseText[0], ruleId, action);
                     } else {
                         Ext.Array.each(responseText, function (estimatedReading) {
                             Ext.Array.findBy(readings, function (reading) {
                                 if (estimatedReading.interval.start == reading.get('interval').start) {
+                                    if (!commentValue) {
+                                        readings.set('commentId', 0);
+                                    } else if (commentId !== -1) {
+                                        readings.set('commentId', commentId);
+                                        readings.set('commentValue', commentValue);
+                                    }
                                     me.updateEstimatedValues(record, reading, estimatedReading, ruleId, action);
                                     return true;
                                 }
@@ -925,6 +986,9 @@ debugger;
             window = me.getCorrectReadingWindow(),
             records = window.record,
             router = me.getController('Uni.controller.history.Router'),
+            commentCombo = window.down('#estimation-comment-box'),
+            commentValue = commentCombo.getRawValue(),
+            commentId = commentCombo.getValue(),
             grid = me.getReadingsList(),
             intervalsArray = [];
 
@@ -967,6 +1031,12 @@ debugger;
                     Ext.Array.each(responseText, function (correctedInterval) {
                         Ext.Array.findBy(records, function (reading) {
                             if (correctedInterval.interval.start == reading.get('interval').start) {
+                                if (!commentValue) {
+                                    reading.set('commentId', 0);
+                                } else if (commentId !== -1) {
+                                    reading.set('commentId', commentId);
+                                    reading.set('commentValue', commentValue);
+                                }
                                 me.updateCorrectedValues(reading, correctedInterval, model);
                                 return true;
                             }

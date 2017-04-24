@@ -12,11 +12,6 @@ Ext.define('Imt.purpose.model.CopyFromReference', {
         'startDate',
         'allowSuspectData',
         'completePeriod',
-        'commentId',
-        {
-            name:'commentValue',
-            persist: false
-        },
         'intervals'
     ],
 
