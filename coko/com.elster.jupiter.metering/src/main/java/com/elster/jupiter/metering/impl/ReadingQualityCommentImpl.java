@@ -15,19 +15,15 @@ public class ReadingQualityCommentImpl implements ReadingQualityComment {
     private ReadingQualityCommentCategory category;
     private String comment;
 
-    @Override
-    public void setComment(String comment) {
+    public ReadingQualityComment init(String comment, ReadingQualityCommentCategory category) {
+        this.category = category;
         this.comment = comment;
+        return this;
     }
 
     @Override
     public String getComment() {
         return this.comment;
-    }
-
-    @Override
-    public void setCommentCategory(ReadingQualityCommentCategory category) {
-        this.category = category;
     }
 
     @Override

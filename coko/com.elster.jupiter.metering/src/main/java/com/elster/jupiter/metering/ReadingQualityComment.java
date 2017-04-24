@@ -6,15 +6,14 @@ package com.elster.jupiter.metering;
 
 import com.elster.jupiter.metering.aggregation.ReadingQualityCommentCategory;
 
+import aQute.bnd.annotation.ProviderType;
+
+@ProviderType
 public interface ReadingQualityComment {
 
     ReadingQualityCommentCategory getCommentCategory();
 
-    void setCommentCategory(ReadingQualityCommentCategory commentCategory);
-
     String getComment();
-
-    void setComment(String comment);
 
     long getId();
 }

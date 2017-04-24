@@ -591,9 +591,8 @@ public class MeteringServiceImpl implements ServerMeteringService {
 
     @Override
     public ReadingQualityComment createReadingQualityComment(ReadingQualityCommentCategory category, String comment) {
-        ReadingQualityComment readingQualityComment = dataModel.getInstance(ReadingQualityCommentImpl.class);
-        readingQualityComment.setCommentCategory(category);
-        readingQualityComment.setComment(comment);
+        ReadingQualityCommentImpl readingQualityComment = dataModel.getInstance(ReadingQualityCommentImpl.class);
+        readingQualityComment.init(comment, category);
         dataModel.persist(readingQualityComment);
         return readingQualityComment;
     }
