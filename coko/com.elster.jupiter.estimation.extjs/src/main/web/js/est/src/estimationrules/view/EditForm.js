@@ -149,7 +149,7 @@ Ext.define('Est.estimationrules.view.EditForm', {
                 ]
             },
             {
-                xtype: 'estimation-comments'
+                xtype: 'estimation-comment'
             },
             {
                 xtype: 'label',
