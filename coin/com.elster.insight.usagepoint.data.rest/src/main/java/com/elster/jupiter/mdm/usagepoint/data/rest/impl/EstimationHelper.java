@@ -13,8 +13,8 @@ import com.elster.jupiter.estimation.Estimator;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.IntervalReadingRecord;
-import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ReadingQualityComment;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
@@ -28,11 +28,11 @@ import javax.inject.Inject;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -94,7 +94,7 @@ public class EstimationHelper {
         return estimationService.previewEstimate(system, channelsContainer, range, readingType, estimator);
     }
 
-    List<OutputChannelDataInfo> getChannelDataInfoFromEstimationReports(Channel channel, Set<Range<Instant>> ranges, List<EstimationResult> results, boolean markAsProjected, Optional<ReadingQualityComment> readingQualityComment) {
+    List<OutputChannelDataInfo> getChannelDataInfoFromEstimationReports(Channel channel, Collection<Range<Instant>> ranges, List<EstimationResult> results, boolean markAsProjected, Optional<ReadingQualityComment> readingQualityComment) {
         List<Instant> failedTimestamps = new ArrayList<>();
         List<OutputChannelDataInfo> channelDataInfos = new ArrayList<>();
 

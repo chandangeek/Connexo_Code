@@ -54,8 +54,8 @@ import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.rest.DataValidationTaskInfo;
 import com.elster.jupiter.validation.rest.DataValidationTaskInfoFactory;
-
 import com.google.common.collect.ImmutableRangeSet;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 import com.google.common.collect.TreeRangeSet;
@@ -295,7 +295,7 @@ public class UsagePointOutputResource {
                                                 .map(ChannelReadingWithValidationStatus::getReading)
                                                 .flatMap(Functions.asStream())
                                                 .collect(Collectors.toList()),
-                                        effectiveInterval);
+                                        requestedInterval);
                         for (DataValidationStatus dataValidationStatus : dataValidationStatuses) {
                             ChannelReadingWithValidationStatus readingWithValidationStatus = preFilledChannelDataMap.get(dataValidationStatus.getReadingTimestamp());
                             if (readingWithValidationStatus != null) {
@@ -484,16 +484,14 @@ public class UsagePointOutputResource {
                 .flatMap(Functions.asStream())
                 .flatMap(container -> {
                     Optional<ReadingQualityComment> readingQualityComment = Optional.empty();
-                    if (estimateChannelDataInfo.estimationComment != null) {
-                        readingQualityComment = resourceHelper.getReadingQualityComment(estimateChannelDataInfo.estimationComment.id);
-                    }
+                    readingQualityComment = resourceHelper.getReadingQualityComment(estimateChannelDataInfo.commentId);
                     return estimateInChannelsContainer(container, readingType, blocks, estimator, estimateChannelDataInfo.markAsProjected, readingQualityComment);
                 })
                 .collect(Collectors.toList());
     }
 
-    private Stream<OutputChannelDataInfo> estimateInChannelsContainer(ChannelsContainer container, ReadingType readingType,
-                                                                      ImmutableRangeSet<Instant> blocks, Estimator estimator, boolean marksAsProjected, Optional<ReadingQualityComment> readingQualityComment) {
+    private Stream<OutputChannelDataInfo> estimateInChannelsContainer(ChannelsContainer container, ReadingType readingType, ImmutableRangeSet<Instant> blocks, Estimator estimator,
+                                                                      boolean marksAsProjected, Optional<ReadingQualityComment> readingQualityComment) {
         Range<Instant> containerRange = container.getInterval().toOpenClosedRange();
         return container.getChannel(readingType)
                 .map(channel -> {
@@ -619,7 +617,7 @@ public class UsagePointOutputResource {
         }
     }
 
-    private boolean matchReadingTypes(ReadingType first, ReadingType second){
+    private boolean matchReadingTypes(ReadingType first, ReadingType second) {
         return first.equals(second)
                 || (first.getMacroPeriod().equals(second.getMacroPeriod())
                 && first.getAggregate().equals(second.getAggregate())
@@ -635,6 +633,23 @@ public class UsagePointOutputResource {
                 && first.getPhases().equals(second.getPhases())
                 && first.getUnit().equals(second.getUnit())
                 && first.getCurrency().equals(second.getCurrency()));
+    }
+
+    private List<OutputChannelDataInfo> previewEstimate(QualityCodeSystem system, ChannelsContainer channelsContainer, Channel channel, EstimateChannelDataInfo estimateChannelDataInfo) {
+        Estimator estimator = estimationHelper.getEstimator(estimateChannelDataInfo);
+        ReadingType readingType = channel.getMainReadingType();
+        List<Range<Instant>> ranges = estimateChannelDataInfo.intervals.stream()
+                .map(info -> Range.openClosed(Instant.ofEpochMilli(info.start), Instant.ofEpochMilli(info.end)))
+                .collect(Collectors.toList());
+        ImmutableSet<Range<Instant>> blocks = ranges.stream()
+                .collect(ImmutableRangeSet::<Instant>builder, ImmutableRangeSet.Builder::add, (b1, b2) -> b1.addAll(b2.build()))
+                .build()
+                .asRanges();
+
+        List<EstimationResult> results = blocks.stream()
+                .map(block -> estimationHelper.previewEstimate(system, channelsContainer, readingType, block, estimator))
+                .collect(Collectors.toList());
+        return estimationHelper.getChannelDataInfoFromEstimationReports(channel, ranges, results, estimateChannelDataInfo.markAsProjected, resourceHelper.getReadingQualityComment(estimateChannelDataInfo.commentId));
     }
 
     private Stream<? extends EstimationRule> streamMatchingEstimationRules(ReadingType readingType, MetrologyContract metrologyContract) {
