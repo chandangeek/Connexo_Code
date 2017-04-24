@@ -11,7 +11,6 @@ import com.energyict.mdc.protocol.api.CommonDeviceProtocolDialectProperties;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.protocols.naming.CustomPropertySetComponentName;
-
 import com.google.inject.Module;
 
 import java.util.Collections;
@@ -20,7 +19,7 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
- * Provides an implementation for the {@link PersistenceSupport} interface for {@link SDKCalendarProtocolDialect}.
+ * Provides an implementation for the {@link PersistenceSupport} interface for {@link test.com.energyict.protocolimplv2.sdksample.SDKCalendarTaskProtocolDialectProperties}.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-06-17 (12:45)
@@ -76,8 +75,8 @@ class SDKCalendarDialectPropertyPersistenceSupport implements PersistenceSupport
     @Override
     public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
         Stream
-            .of(SDKCalendarDialectProperties.ActualFields.values())
-            .forEach(field -> field.addTo(table));
+                .of(SDKCalendarDialectProperties.ActualFields.values())
+                .forEach(field -> field.addTo(table));
     }
 
 }

@@ -6,12 +6,12 @@ package com.energyict.protocols.mdc.services.impl;
 
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.util.Checks;
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.api.LicensedProtocol;
-import com.energyict.mdc.protocol.api.ProtocolFamily;
-import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
-
+import com.energyict.license.FamilyRule;
 import com.energyict.license.LicensedProtocolRule;
+import com.energyict.mdc.protocol.LicensedProtocol;
+import com.energyict.mdc.protocol.ProtocolFamily;
+import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
 import org.osgi.service.component.annotations.Component;
 
 import java.util.ArrayList;
@@ -21,15 +21,35 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.stream.Collectors;
 
 @Component(name = "com.energyict.mdc.service.licensedprotocols", service = LicensedProtocolService.class, immediate = true)
 public class LicensedProtocolServiceImpl implements LicensedProtocolService {
+
+    private final static List<String> EXCLUDED = Arrays.asList(
+            "com.energyict.rtuprotocol.EIWeb",               //This old version of the EIWeb protocol is in mdwutil.jar, not available in Connexo
+            "com.energyict.rtuprotocol.Echelon",
+            "com.energyict.rtuprotocol.RtuServer"
+    );
+
+    /**
+     * Every protocol, except the ones from the TEST family
+     */
+    private static final List<LicensedProtocol> ALL_PROTOCOLS;
+
+    static {
+        ALL_PROTOCOLS = Arrays.stream(LicensedProtocolRule.values())
+                .filter(licensedProtocolRule -> !licensedProtocolRule.getFamilies().contains(FamilyRule.TEST))
+                .filter(licensedProtocolRule -> licensedProtocolRule.getCode() < 10000)     //Entries above 10000 ar deprecated
+                .filter(licensedProtocolRule -> !EXCLUDED.contains(licensedProtocolRule.getClassName()))
+                .collect(Collectors.toList());
+    }
 
     @Override
     public List<LicensedProtocol> getAllLicensedProtocols(License license) {
         List<LicensedProtocol> allLicensedProtocols = new ArrayList<>();
         MdcProtocolLicense mdcProtocolLicense = new MdcProtocolLicense(license);
-        for (LicensedProtocolRule licensedProtocolRule : LicensedProtocolRule.values()) {
+        for (LicensedProtocol licensedProtocolRule : ALL_PROTOCOLS) {
             if (mdcProtocolLicense.hasProtocol(licensedProtocolRule.getClassName())) {
                 allLicensedProtocols.add(licensedProtocolRule);
             }
@@ -39,8 +59,8 @@ public class LicensedProtocolServiceImpl implements LicensedProtocolService {
 
     @Override
     public LicensedProtocol findLicensedProtocolFor(DeviceProtocolPluggableClass deviceProtocolPluggableClass) {
-        for (LicensedProtocolRule licensedProtocolRule : LicensedProtocolRule.values()) {
-            if(licensedProtocolRule.getClassName().equals(deviceProtocolPluggableClass.getJavaClassName())){
+        for (LicensedProtocol licensedProtocolRule : ALL_PROTOCOLS) {
+            if (licensedProtocolRule.getClassName().equals(deviceProtocolPluggableClass.getJavaClassName())) {
                 return licensedProtocolRule;
             }
         }
@@ -52,6 +72,23 @@ public class LicensedProtocolServiceImpl implements LicensedProtocolService {
         MdcProtocolLicense mdcProtocolLicense = new MdcProtocolLicense(license);
         LicensedProtocol licensedProtocol = mdcProtocolLicense.getLicensedProtocol(javaClassName);
         return licensedProtocol != null && licensedProtocol.getCode() != 0;
+    }
+
+    /**
+     * Models the behavior of a component that will check if the protocol
+     * with a certain class name is covered by this license or not.
+     */
+    private interface ProtocolCheck {
+
+        /**
+         * Checks if the protocol class with the specified name
+         * is covered by the license.
+         *
+         * @param className The name of the protocol class
+         * @return A flag that indicates of the protocol class is covered by the license
+         */
+        boolean isCovered(String className);
+
     }
 
     private class MdcProtocolLicense {
@@ -160,7 +197,6 @@ public class LicensedProtocolServiceImpl implements LicensedProtocolService {
         }
 
         private class AllProtocolsAreCoveredChecker implements ProtocolCheck {
-
             @Override
             public boolean isCovered(String className) {
                 return allProtocols;
@@ -168,7 +204,6 @@ public class LicensedProtocolServiceImpl implements LicensedProtocolService {
         }
 
         private class FamilyChecker implements ProtocolCheck {
-
             @Override
             public boolean isCovered(String className) {
                 Set<Integer> protocolFamilies = getProtocolFamilies(className);
@@ -178,60 +213,12 @@ public class LicensedProtocolServiceImpl implements LicensedProtocolService {
         }
 
         private class ProtocolClassChecker implements ProtocolCheck {
-
             @Override
             public boolean isCovered(String className) {
                 LicensedProtocol licensedProtocol = getLicensedProtocol(className);
                 return licensedProtocol != null && protocols.contains(licensedProtocol.getCode());
             }
         }
-
-        private class NotAvailableLicensedProtocol implements LicensedProtocol {
-
-            private String className;
-
-            private NotAvailableLicensedProtocol(String className) {
-                super();
-                this.className = className;
-            }
-
-            @Override
-            public int getCode() {
-                return 0;
-            }
-
-            @Override
-            public String getClassName() {
-                return this.className;
-            }
-
-            @Override
-            public Set<ProtocolFamily> getFamilies() {
-                return new HashSet<>(0);
-            }
-
-            @Override
-            public String getName() {
-                return this.className;
-            }
-        }
-    }
-
-
-    /**
-     * Models the behavior of a component that will check if the protocol
-     * with a certain class name is covered by this license or not.
-     */
-    private interface ProtocolCheck {
-
-        /**
-         * Checks if the protocol class with the specified name
-         * is covered by the license.
-         *
-         * @param className The name of the protocol class
-         * @return A flag that indicates of the protocol class is covered by the license
-         */
-        public boolean isCovered(String className);
 
     }
 }

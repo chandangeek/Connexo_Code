@@ -5,46 +5,26 @@
 package com.energyict.protocols.mdc.protocoltasks;
 
 import com.elster.jupiter.cps.CustomPropertySet;
-import com.elster.jupiter.cps.EditPrivilege;
 import com.elster.jupiter.cps.PersistenceSupport;
-import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
+import com.energyict.mdc.tasks.MirrorTcpDeviceProtocolDialect;
+import com.energyict.mdc.upl.DeviceProtocolDialect;
+import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.protocolimplv2.common.AbstractDialectCustomPropertySet;
 
-import com.energyict.protocolimplv2.DeviceProtocolDialectName;
+import javax.inject.Inject;
 
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+/**
+ *
+ * Date: 17/10/16
+ * Time: 14:47
+ */
+public class MirrorTcpDeviceProtocolDialectCustomPropertySet extends AbstractDialectCustomPropertySet implements CustomPropertySet<DeviceProtocolDialectPropertyProvider, MirrorTcpDeviceProtocolDialectProperties> {
 
-public class MirrorTcpDeviceProtocolDialectCustomPropertySet implements CustomPropertySet<DeviceProtocolDialectPropertyProvider, MirrorTcpDeviceProtocolDialectProperties> {
-
-    private final Thesaurus thesaurus;
-    private final PropertySpecService propertySpecService;
-
+    @Inject
     public MirrorTcpDeviceProtocolDialectCustomPropertySet(Thesaurus thesaurus, PropertySpecService propertySpecService) {
-        super();
-        this.thesaurus = thesaurus;
-        this.propertySpecService = propertySpecService;
-    }
-
-    @Override
-    public String getId() {
-        return MirrorTcpDeviceProtocolDialect.class.getName();
-    }
-
-    @Override
-    public String getName() {
-        return this.thesaurus.getFormat(DeviceProtocolDialectName.BEACON_MIRROR_TCP_DLMS_PROTOCOL).format();
-    }
-
-    @Override
-    public Class<DeviceProtocolDialectPropertyProvider> getDomainClass() {
-        return DeviceProtocolDialectPropertyProvider.class;
+        super(thesaurus, propertySpecService);
     }
 
     @Override
@@ -53,29 +33,7 @@ public class MirrorTcpDeviceProtocolDialectCustomPropertySet implements CustomPr
     }
 
     @Override
-    public boolean isRequired() {
-        return false;
+    protected DeviceProtocolDialect getDeviceProtocolDialect() {
+        return new MirrorTcpDeviceProtocolDialect(propertySpecService);
     }
-
-    @Override
-    public boolean isVersioned() {
-        return true;
-    }
-
-    @Override
-    public Set<ViewPrivilege> defaultViewPrivileges() {
-        return EnumSet.noneOf(ViewPrivilege.class);
-    }
-
-    @Override
-    public Set<EditPrivilege> defaultEditPrivileges() {
-        return EnumSet.noneOf(EditPrivilege.class);
-    }
-
-    @Override
-    public List<PropertySpec> getPropertySpecs() {
-        return Stream
-                .of(MirrorTcpDeviceProtocolDialectProperties.ActualFields.values())
-                .map(field -> field.propertySpec(this.propertySpecService, this.thesaurus))
-                .collect(Collectors.toList());    }
 }

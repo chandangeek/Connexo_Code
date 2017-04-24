@@ -10,7 +10,6 @@ import com.elster.jupiter.orm.Table;
 import com.energyict.mdc.protocol.api.security.CommonBaseDeviceSecuritySupport;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.protocols.naming.CustomPropertySetComponentName;
-
 import com.google.inject.Module;
 
 import java.util.List;
@@ -18,7 +17,7 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
- * Provides an implementation for the {@link PersistenceSupport} interface for {@link SecuritySupport}.
+ * Provides an implementation for the {@link PersistenceSupport} interface for {@link GarnetSecuritySupport}.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-11-19 (16:32)
@@ -62,8 +61,8 @@ public class GarnetSecuritySupportPersistenceSupport extends CommonBaseDeviceSec
     @Override
     public void addCustomPropertyColumnsTo(Table table, Column completeColumn, List<Column> customPrimaryKeyColumns) {
         Stream
-            .of(GarnetSecurityProperties.ActualFields.values())
-            .forEach(field -> field.addTo(table));
+                .of(GarnetSecurityProperties.ActualFields.values())
+                .forEach(field -> field.addTo(table));
     }
 
 }
