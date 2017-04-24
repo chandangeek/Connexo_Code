@@ -61,13 +61,25 @@ public class ReferenceComparisonValidator extends MainCheckAbstractValidator {
                 buildMaxAbsoluteDiffPropertySpec(),
                 buildPassIfNoRefDataPropertySpec(),
                 buildUseValidatedDataPropertySpec(),
-                buildMinThresholdPropertySpec()
+                buildMinThresholdPropertySpec(),
+                buildReferenceUsagePointPropertySpec(),
+                buildCheckPurposePropertySpec(),
+                buildReferenceReadingTypePropertySpec()
         );
     }
 
     @Override
     public List<PropertySpec> getPropertySpecs(ValidationPropertyDefinitionLevel level) {
-        return ValidationPropertyDefinitionLevel.VALIDATION_RULE == level ? getPropertySpecs() : getOverridenPropertySpecs();
+        return ValidationPropertyDefinitionLevel.VALIDATION_RULE == level ? getConfigurationPropertySpecs() : getOverridenPropertySpecs();
+    }
+
+    private List<PropertySpec> getConfigurationPropertySpecs() {
+        return Arrays.asList(
+                buildMaxAbsoluteDiffPropertySpec(),
+                buildPassIfNoRefDataPropertySpec(),
+                buildUseValidatedDataPropertySpec(),
+                buildMinThresholdPropertySpec()
+        );
     }
 
     private List<PropertySpec> getOverridenPropertySpecs() {
@@ -156,7 +168,7 @@ public class ReferenceComparisonValidator extends MainCheckAbstractValidator {
     }
 
     enum TranslationKeys implements TranslationKey {
-        CHECK_USAGE_POINT(ReferenceComparisonValidator.CHECK_USAGE_POINT, "Check usage purpose"),
+        CHECK_USAGE_POINT(ReferenceComparisonValidator.CHECK_USAGE_POINT, "Check usage point"),
         CHECK_READING_TYPE(ReferenceComparisonValidator.CHECK_READING_TYPE, "Check reading type");
 
         private final String key;
