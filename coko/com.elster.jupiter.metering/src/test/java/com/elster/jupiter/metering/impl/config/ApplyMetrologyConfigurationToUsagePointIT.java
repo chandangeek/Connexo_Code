@@ -6,6 +6,8 @@ package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
+import com.elster.jupiter.fsm.Stage;
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.Meter;
@@ -25,7 +27,6 @@ import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
-import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverableBuilder;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.impl.MeteringInMemoryBootstrapModule;
@@ -51,7 +52,9 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 /**
@@ -122,6 +125,7 @@ public class ApplyMetrologyConfigurationToUsagePointIT {
         mc2Id = mc2.getId();
 
         up.apply(mc1, jan1st2016);
+        up.getEffectiveMetrologyConfiguration(jan1st2016).get().close(feb1st2016);
         up.apply(mc2, feb1st2016);
 
         Optional<MetrologyConfiguration> janConfiguration = up.getEffectiveMetrologyConfiguration(feb1st2016.minusSeconds(3600L))
@@ -168,6 +172,9 @@ public class ApplyMetrologyConfigurationToUsagePointIT {
     @Test
     @Transactional
     public void applyFirstMetrologyConfigurationToUsagePointWithLinkedMeters() {
+        State deviceState = mock(State.class);
+        Stage deviceStage = mock(Stage.class);
+        String operationalDeviceStageKey = "mtr.enddevicestage.operational";
         fifteenMinuteskWhForward = getMeteringService().getReadingType("0.0.2.4.1.2.12.0.0.0.0.0.0.0.0.3.72.0")
                 .orElseGet(() -> getMeteringService().createReadingType("0.0.2.4.1.2.12.0.0.0.0.0.0.0.0.3.72.0", "A-"));
         fifteenMinuteskWhReverse = getMeteringService().getReadingType("0.0.2.4.19.2.12.0.0.0.0.0.0.0.0.3.72.0")
@@ -184,10 +191,14 @@ public class ApplyMetrologyConfigurationToUsagePointIT {
         ServiceCategory serviceCategory = getElectricityServiceCategory();
         UsagePoint usagePoint = serviceCategory.newUsagePoint(USAGE_POINT_NAME, INSTALLATION_TIME).create();
         usagePoint.apply(metrologyConfiguration, INSTALLATION_TIME);
-        Meter meterConsunption = setupMeter("meterConsunption");
-        activateMeter(meterConsunption, usagePoint, findMeterRole(DefaultMeterRole.CONSUMPTION), fifteenMinuteskWhForward);
+        Meter meterConsumption = spy(setupMeter("meterConsumption"));
+        activateMeter(meterConsumption, usagePoint, findMeterRole(DefaultMeterRole.CONSUMPTION), fifteenMinuteskWhForward);
 
-        Meter meterProduction = setupMeter("meterProduction");
+        Meter meterProduction = spy(setupMeter("meterProduction"));
+        when(meterConsumption.getState(any(Instant.class))).thenReturn(Optional.of(deviceState));
+        when(meterProduction.getState(any(Instant.class))).thenReturn(Optional.of(deviceState));
+        when(deviceState.getStage()).thenReturn(Optional.of(deviceStage));
+        when(deviceStage.getName()).thenReturn(operationalDeviceStageKey);
         activateMeter(meterProduction, usagePoint, findMeterRole(DefaultMeterRole.PRODUCTION), fifteenMinuteskWhReverse);
 
         MetrologyContract contractInformation = metrologyConfiguration.getContracts()
@@ -197,13 +208,14 @@ public class ApplyMetrologyConfigurationToUsagePointIT {
                 .get();
 
         // Business method
-        usagePoint.apply(metrologyConfiguration, INSTALLATION_TIME.plusSeconds(20), Stream.of(contractInformation).collect(Collectors.toSet()));
+        usagePoint.getEffectiveMetrologyConfiguration(INSTALLATION_TIME).get().close(INSTALLATION_TIME);
+        usagePoint.apply(metrologyConfiguration, INSTALLATION_TIME, Stream.of(contractInformation).collect(Collectors.toSet()));
 
         // Asserts that usage point is now linked to metrology configuration
         Optional<EffectiveMetrologyConfigurationOnUsagePoint> currentEffectiveMetrologyConfiguration = usagePoint.getCurrentEffectiveMetrologyConfiguration();
         assertThat(currentEffectiveMetrologyConfiguration).isPresent();
         assertThat(currentEffectiveMetrologyConfiguration.get().getMetrologyConfiguration()).isEqualTo(metrologyConfiguration);
-        assertThat(currentEffectiveMetrologyConfiguration.get().getRange()).isEqualTo(Range.atLeast(INSTALLATION_TIME.plusSeconds(20)));
+        assertThat(currentEffectiveMetrologyConfiguration.get().getRange()).isEqualTo(Range.atLeast(INSTALLATION_TIME));
 
         Optional<EffectiveMetrologyConfigurationOnUsagePoint> effectiveMetrologyConfiguration;
 
@@ -211,7 +223,7 @@ public class ApplyMetrologyConfigurationToUsagePointIT {
         effectiveMetrologyConfiguration = usagePoint.getEffectiveMetrologyConfiguration(INSTALLATION_TIME.plusMillis(1));
         assertThat(effectiveMetrologyConfiguration).isPresent();
         assertThat(currentEffectiveMetrologyConfiguration.get().getMetrologyConfiguration()).isEqualTo(metrologyConfiguration);
-        assertThat(currentEffectiveMetrologyConfiguration.get().getRange()).isEqualTo(Range.atLeast(INSTALLATION_TIME.plusSeconds(20)));
+        assertThat(currentEffectiveMetrologyConfiguration.get().getRange()).isEqualTo(Range.atLeast(INSTALLATION_TIME));
         assertThat(currentEffectiveMetrologyConfiguration.get().getMetrologyConfiguration().getContracts().get(0).getStatus(usagePoint).isComplete()).isTrue();
 
         MetrologyContract contract1 = metrologyConfiguration.getContracts()

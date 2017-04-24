@@ -5,10 +5,10 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.util.streams.Functions;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -21,11 +21,11 @@ public class SourceChannelSet {
 
     SourceChannelSet(MeteringService meteringService, Set<Long> sourceChannelIds) {
         this.meteringService = meteringService;
-        this.sourceChannelIds = sourceChannelIds;
+        this.sourceChannelIds = ImmutableSet.copyOf(sourceChannelIds);
     }
 
     Set<Long> getSourceChannelIds() {
-        return Collections.unmodifiableSet(this.sourceChannelIds);
+        return this.sourceChannelIds;
     }
 
     public Stream<ReadingQualityRecord> fetchReadingQualities(Range<Instant> timePeriod) {
