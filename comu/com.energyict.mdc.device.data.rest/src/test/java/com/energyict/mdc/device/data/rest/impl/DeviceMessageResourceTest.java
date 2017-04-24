@@ -43,7 +43,6 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
-import com.energyict.mdc.protocol.api.impl.device.messages.ContactorDeviceMessage;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.MessagesTask;
@@ -116,7 +115,6 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         super.setupTranslations();
         Stream.of(TrackingCategory.values()).forEach(this::mockTranslation);
         Stream.of(DeviceMessageStatusTranslationKeys.values()).forEach(this::mockTranslation);
-        Stream.of(ContactorDeviceMessage.values()).forEach(this::mockTranslation);
     }
 
     private void mockTranslation(TranslationKey translationKey) {
