@@ -322,6 +322,18 @@ public enum RecordSpecs {
         }
 
         @Override
+        public Optional<Range<Instant>> getTimePeriod(BaseReading reading, Object[] values) {
+            if (values != null && values.length == 6) {
+                Instant start = (Instant) values[4];
+                Instant end = (Instant) values[5];
+                if (start != null && end != null) {
+                    return Optional.of(Range.openClosed(start, end));
+                }
+            }
+            return Optional.empty();
+        }
+
+        @Override
         int slotOffset() {
             return 1;
         }

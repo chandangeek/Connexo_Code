@@ -46,6 +46,7 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.geo.SpatialCoordinates;
 import com.elster.jupiter.util.geo.SpatialCoordinatesFactory;
@@ -64,6 +65,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -100,15 +102,15 @@ import java.util.stream.Stream;
         "osgi.command.function=addRequirement",
         "osgi.command.function=addRequirementWithTemplateReadingType",
         "osgi.command.function=deliverables",
+        "osgi.command.function=contracts",
         "osgi.command.function=addDeliverable",
         "osgi.command.function=addDeliverableExpert",
+        "osgi.command.function=addContract",
         "osgi.command.function=updateDeliverable",
         "osgi.command.function=updateDeliverableReadingType",
         "osgi.command.function=updateDeliverableFormula",
         "osgi.command.function=deleteDeliverable",
-        "osgi.command.function=addMetrologyContract",
         "osgi.command.function=getDeliverablesOnContract",
-        "osgi.command.function=addDeliverableToContract",
         "osgi.command.function=removeDeliverableFromContract",
         "osgi.command.function=metrologyConfigs",
         "osgi.command.function=addDeviceLocation",
@@ -119,6 +121,7 @@ import java.util.stream.Stream;
         "osgi.command.function=deactivateMetrologyConfig",
         "osgi.command.function=addCustomPropertySet",
         "osgi.command.function=unlinkMetrologyConfiguration",
+        "osgi.command.function=linkMetrologyConfiguration",
 }, immediate = true)
 @SuppressWarnings("unused")
 public class MeteringConsoleCommands {
@@ -711,6 +714,20 @@ public class MeteringConsoleCommands {
                 .forEach(System.out::println);
     }
 
+    public void contracts(){System.out.println("Usage: contracts <metrology configuration id>");}
+
+    public void contracts(long id) {
+        printContracts(metrologyConfigurationService.findMetrologyConfiguration(id)
+                .orElseThrow(() -> new IllegalArgumentException("No such metrology configuration"))
+                .getContracts());
+    }
+
+    private void printContracts(List<MetrologyContract> contracts) {
+        contracts.stream()
+                .map(contract -> "Id : " + contract.getId() + " metrology purpose: " + contract.getMetrologyPurpose().getName())
+                .forEach(System.out::println);
+    }
+
     private ServerExpressionNode getExpressionNode(ReadingTypeDeliverable deliverable) {
         return this.getExpressionNode(deliverable.getFormula());
     }
@@ -719,11 +736,11 @@ public class MeteringConsoleCommands {
         return (ServerExpressionNode) formula.getExpressionNode();
     }
 
-    public void addMetrologyContract() {
-        System.out.println("Usage: addMetrologyContract <metrology configuration id> <" + Stream.of(DefaultMetrologyPurpose.values()).map(DefaultMetrologyPurpose::name).collect(Collectors.joining(" | ")) + ">");
+    public void addContract() {
+        System.out.println("Usage: addContract <metrology configuration id> <" + Stream.of(DefaultMetrologyPurpose.values()).map(DefaultMetrologyPurpose::name).collect(Collectors.joining(" | ")) + ">");
     }
 
-    public void addMetrologyContract(long metrologyConfigurationId, String metrologyPurpose) {
+    public void addContract(long metrologyConfigurationId, String metrologyPurpose) {
         this.threadPrincipalService.set(() -> "Console");
         this.addMetrologyContract(
                 this.metrologyConfigurationService
@@ -734,7 +751,7 @@ public class MeteringConsoleCommands {
                         .orElseThrow(() -> new IllegalArgumentException("No such metrology purpose")));
     }
 
-    private void addMetrologyContract(MetrologyConfiguration metrologyConfiguration, MetrologyPurpose metrologyPurpose) {
+    private void addContract(MetrologyConfiguration metrologyConfiguration, MetrologyPurpose metrologyPurpose) {
         try (TransactionContext context = this.transactionService.getContext()) {
             MetrologyContract metrologyContract = metrologyConfiguration.addMetrologyContract(metrologyPurpose);
             System.out.println("Metrology contract created: " + metrologyContract.getId());
@@ -864,10 +881,6 @@ public class MeteringConsoleCommands {
         }
     }
 
-    public void addDeliverableToContract() {
-        System.out.println("Usage: addDeliverableToContract <metrology contract id> <deliverable id> (" + Stream.of(DefaultMetrologyPurpose.values()).map(DefaultMetrologyPurpose::name).collect(Collectors.joining(" | ")) + ")");
-    }
-
     public void removeDeliverableFromContract() {
         System.out.println("Usage: removeDeliverableFromContract <metrology configuration id> <deliverable id> <default purpose>");
     }
@@ -965,19 +978,45 @@ public class MeteringConsoleCommands {
         }
     }
 
-    public void unlinkMetrologyConfiguration(){
+    public void unlinkMetrologyConfiguration() {
         System.out.println("Usage: unlinkMetrologyConfiguration <usage point name>  <timestamp string>");
     }
 
-    public void unlinkMetrologyConfiguration(String usagePointName ,String timestamp){
+    public void unlinkMetrologyConfiguration(String usagePointName, String timestamp) {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
             UsagePoint usagePoint = this.meteringService.findUsagePointByName(usagePointName)
                     .orElseThrow(() -> new IllegalArgumentException("Usage point " + usagePointName + " does not exist"));
             Instant endDate = LocalDateTime.from(dateTimeFormat.parse(timestamp)).atZone(ZoneId.systemDefault()).toInstant();
             EffectiveMetrologyConfigurationOnUsagePoint configurationOnUsagePoint = usagePoint.getCurrentEffectiveMetrologyConfiguration()
-                    .orElseThrow(() -> new IllegalArgumentException("Usage point "+usagePointName + " does not have open metrology configuration"));
-            usagePoint.getCurrentEffectiveMetrologyConfiguration().get().close(endDate);
+                    .orElseThrow(() -> new IllegalArgumentException("Usage point " + usagePointName + " does not have open metrology configuration"));
+            if (endDate.isBefore(configurationOnUsagePoint.getStart())) {
+                throw new IllegalArgumentException("Specified end date is before the start of current effective metrology configuration");
+            }
+            configurationOnUsagePoint.close(endDate);
+            context.commit();
+        }
+    }
+
+    public void linkMetrologyConfiguration() {
+        System.out.println("Usage: linkMetrologyConfiguration <usage point name> <metrology configuration id> <timestamp string>");
+    }
+
+    public void linkMetrologyConfiguration(String usagePointName, long metrologyConfigurationId, String timestamp) {
+        threadPrincipalService.set(() -> "Console");
+        try (TransactionContext context = transactionService.getContext()) {
+            UsagePoint usagePoint = this.meteringService.findUsagePointByName(usagePointName)
+                    .orElseThrow(() -> new IllegalArgumentException("Usage point " + usagePointName + " does not exist"));
+            Instant startDate = LocalDateTime.from(dateTimeFormat.parse(timestamp)).atZone(ZoneId.systemDefault()).toInstant();
+            if (usagePoint.getEffectiveMetrologyConfigurations().stream()
+                    .anyMatch(effective -> Ranges.does(effective.getRange()).endAfter(startDate))) {
+                throw new IllegalArgumentException("Usage point " + usagePointName + " has an overlapping effective metrology configuration");
+            }
+            UsagePointMetrologyConfiguration metrologyConfiguration = metrologyConfigurationService.findMetrologyConfiguration(metrologyConfigurationId)
+                    .filter(mc -> mc instanceof UsagePointMetrologyConfiguration)
+                    .map(UsagePointMetrologyConfiguration.class::cast)
+                    .orElseThrow(() -> new IllegalArgumentException("Metrology configuration with id " + metrologyConfigurationId + " does not exist"));
+            usagePoint.apply(metrologyConfiguration, startDate);
             context.commit();
         }
     }

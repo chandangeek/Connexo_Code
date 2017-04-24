@@ -195,7 +195,7 @@ public class InstallerImpl implements FullInstaller {
         );
         doTry(
                 "Create default stages",
-                installerV10_3::installEndDeviceStageSet,
+                installerV10_3::installDefaultStageSets,
                 logger
         );
         installerV10_3.install(dataModelUpgrader, logger);

@@ -181,6 +181,10 @@ public class MeteringInMemoryBootstrapModule {
         return injector.getInstance(TransactionService.class);
     }
 
+    public EventService getEventService() {
+        return injector.getInstance(EventService.class);
+    }
+
     public ServerMeteringService getMeteringService() {
         return injector.getInstance(ServerMeteringService.class);
     }

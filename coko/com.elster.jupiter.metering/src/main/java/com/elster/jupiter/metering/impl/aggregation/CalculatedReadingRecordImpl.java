@@ -362,6 +362,10 @@ class CalculatedReadingRecordImpl implements CalculatedReadingRecord {
         return this.timestamp;
     }
 
+    void setTimestamp(Instant timestamp) {
+        this.timestamp = timestamp;
+    }
+
     @Override
     public Instant getReportedDateTime() {
         return this.recordTime;

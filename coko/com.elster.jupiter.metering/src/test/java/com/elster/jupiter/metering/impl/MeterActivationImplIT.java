@@ -10,12 +10,17 @@ import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViol
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
+import com.elster.jupiter.fsm.FiniteStateMachine;
+import com.elster.jupiter.fsm.FiniteStateMachineBuilder;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.Stage;
-import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.fsm.StageSet;
+import com.elster.jupiter.fsm.StageSetBuilder;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
+import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
@@ -51,6 +56,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -61,14 +67,11 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -82,18 +85,17 @@ public class MeterActivationImplIT {
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
-    @Mock
-    private static State deviceState;
-    @Mock
-    private static Stage deviceStage;
-
-    private static final String OPERATIONAL_DEVICE_STAGE_KEY = "mtr.enddevicestage.operational";
-    private static final String PRE_OPERATIONAL = "mtr.enddevicestage.preoperational";
-    private static final String POST_OPERATIONAL = "mtr.enddevicestage.postoperational";
+    private static StageSet stageSet;
+    private static FiniteStateMachine finiteStateMachine;
 
     @BeforeClass
     public static void setUp() {
         inMemoryBootstrapModule.activate();
+        try (TransactionContext context = inMemoryBootstrapModule.getTransactionService().getContext()) {
+            stageSet = createStageSet();
+            finiteStateMachine = createFiniteStateMachine(stageSet, EndDeviceStage.OPERATIONAL);
+            context.commit();
+        }
     }
 
     @AfterClass
@@ -106,8 +108,9 @@ public class MeterActivationImplIT {
     public void testPersistence() {
         MeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
         AmrSystem system = meteringService.findAmrSystem(1).get();
-        Meter meter = spy(system.newMeter("testPersistence", "myName").create());
-        when(meter.getState(any(Instant.class))).thenReturn(Optional.of(deviceState));
+        Meter meter = system.newMeter("testPersistence", "myName")
+                .setStateMachine(finiteStateMachine)
+                .create();
         MeterActivation meterActivation = meter.activate(ZonedDateTime.of(2012, 12, 19, 14, 15, 54, 0, ZoneId.systemDefault())
                 .toInstant());
         ReadingType readingType = meteringService.getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
@@ -463,12 +466,12 @@ public class MeterActivationImplIT {
     public void testMeterCanNotBeAssignedTwiceForTheSameUsagePoint() {
         ServerMeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
         AmrSystem system = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
-        Meter meter = spy(system.newMeter("meterForActivation", "myName").create());
-        when(meter.getState(any(Instant.class))).thenReturn(Optional.of(deviceState));
-        when(deviceState.getStage()).thenReturn(Optional.of(deviceStage));
-        when(deviceStage.getName()).thenReturn(OPERATIONAL_DEVICE_STAGE_KEY);
-        ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
         Instant now = inMemoryBootstrapModule.getClock().instant();
+        Meter meter = system.newMeter("meterForActivation", "myName")
+                .setReceivedDate(now.minus(1, ChronoUnit.MINUTES))
+                .setStateMachine(finiteStateMachine)
+                .create();
+        ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
         UsagePoint usagePoint = serviceCategory.newUsagePoint("usagePointForActivation", now).create();
 
         usagePoint.linkMeters()
@@ -484,12 +487,12 @@ public class MeterActivationImplIT {
     public void testMeterCanNotBeAssignedTwiceForTheSameUsagePointCase2() {
         ServerMeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
         AmrSystem system = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
-        Meter meter = spy(system.newMeter("meterForActivation", "myName").create());
-        when(meter.getState(any(Instant.class))).thenReturn(Optional.of(deviceState));
-        when(deviceState.getStage()).thenReturn(Optional.of(deviceStage));
-        when(deviceStage.getName()).thenReturn(OPERATIONAL_DEVICE_STAGE_KEY);
-        ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
         Instant now = inMemoryBootstrapModule.getClock().instant();
+        Meter meter = system.newMeter("meterForActivation", "myName")
+                .setReceivedDate(now.minus(1, ChronoUnit.MINUTES))
+                .setStateMachine(finiteStateMachine)
+                .create();
+        ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
         UsagePoint usagePoint = serviceCategory.newUsagePoint("usagePointForActivation", now).create();
         usagePoint.apply(getUsagePointMetrologyConfigurationWithDefaultRole("testMeterCanNotBeAssignedTwiceForTheSameUsagePointCase2"), now);
         usagePoint.linkMeters()
@@ -513,12 +516,12 @@ public class MeterActivationImplIT {
         ServerMeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
         ServerMetrologyConfigurationService metrologyConfigurationService = inMemoryBootstrapModule.getMetrologyConfigurationService();
         AmrSystem system = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
-        Meter meter = spy(system.newMeter("meterForActivation", "myName").create());
-        when(meter.getState(any(Instant.class))).thenReturn(Optional.of(deviceState));
-        when(deviceState.getStage()).thenReturn(Optional.of(deviceStage));
-        when(deviceStage.getName()).thenReturn(OPERATIONAL_DEVICE_STAGE_KEY);
-        ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
         Instant now = inMemoryBootstrapModule.getClock().instant().truncatedTo(ChronoUnit.MINUTES);
+        Meter meter = system.newMeter("meterForActivation", "myName")
+                .setReceivedDate(now.minus(1, ChronoUnit.MINUTES))
+                .setStateMachine(finiteStateMachine)
+                .create();
+        ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
         UsagePoint usagePoint = serviceCategory.newUsagePoint("usagePointForActivation", now).create();
         MeterRole meterRole = metrologyConfigurationService.findDefaultMeterRole(DefaultMeterRole.DEFAULT);
         serviceCategory.addMeterRole(meterRole);
@@ -546,12 +549,12 @@ public class MeterActivationImplIT {
     public void testActivateAlreadyActiveMeter() {
         ServerMeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
         AmrSystem system = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
-        Meter meter = spy(system.newMeter("meterForActivation", "myName").create());
-        when(meter.getState(any(Instant.class))).thenReturn(Optional.of(deviceState));
-        when(deviceState.getStage()).thenReturn(Optional.of(deviceStage));
-        when(deviceStage.getName()).thenReturn(OPERATIONAL_DEVICE_STAGE_KEY);
-        ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
         Instant now = inMemoryBootstrapModule.getClock().instant();
+        Meter meter = system.newMeter("meterForActivation", "myName")
+                .setReceivedDate(now.minus(1, ChronoUnit.MINUTES))
+                .setStateMachine(finiteStateMachine)
+                .create();
+        ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
         UsagePoint usagePoint = serviceCategory.newUsagePoint("usagePointForActivation", now).create();
         usagePoint.apply(getUsagePointMetrologyConfigurationWithDefaultRole("testActivateAlreadyActiveMeter"), now);
         meter.activate(now);
@@ -574,12 +577,12 @@ public class MeterActivationImplIT {
     public void testMeterCanBeLinkedToUsagePoint() {
         ServerMeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
         AmrSystem system = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
-        Meter meter = spy(system.newMeter("meterForActivation", "myName").create());
-        when(meter.getState(any(Instant.class))).thenReturn(Optional.of(deviceState));
-        when(deviceState.getStage()).thenReturn(Optional.of(deviceStage));
-        when(deviceStage.getName()).thenReturn(OPERATIONAL_DEVICE_STAGE_KEY);
-        ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
         Instant now = inMemoryBootstrapModule.getClock().instant();
+        Meter meter = system.newMeter("meterForActivation", "myName")
+                .setReceivedDate(now.minus(1, ChronoUnit.MINUTES))
+                .setStateMachine(finiteStateMachine)
+                .create();
+        ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
         UsagePoint usagePoint = serviceCategory.newUsagePoint("usagePointForActivation", now).create();
         usagePoint.apply(getUsagePointMetrologyConfigurationWithDefaultRole("testMeterCanBeLinkedToUsagePoint"), now);
 
@@ -596,20 +599,18 @@ public class MeterActivationImplIT {
     @Test
     @Transactional
     public void testTwoMetersCanBeLinkedToUsagePoint() {
-        String operationalDeviceStageKey = "mtr.enddevicestage.operational";
-        State deviceState = mock(State.class);
-        Stage deviceStage = mock(Stage.class);
         ServerMeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
         AmrSystem system = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
-        Meter meter1 = Mockito.spy(system.newMeter("meterForActivation1", "myName").create());
-        Meter meter2 =  Mockito.spy(system.newMeter("meterForActivation2", "myName").create());
-        when(meter1.getState(any(Instant.class))).thenReturn(Optional.of(deviceState));
-        when(meter2.getState(any(Instant.class))).thenReturn(Optional.of(deviceState));
-        when(meter2.getState(any(Instant.class))).thenReturn(Optional.of(deviceState));
-        when(deviceState.getStage()).thenReturn(Optional.of(deviceStage));
-        when(deviceStage.getName()).thenReturn(operationalDeviceStageKey);
-        ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
         Instant now = inMemoryBootstrapModule.getClock().instant();
+        Meter meter1 = system.newMeter("meterForActivation1", "myName1")
+                .setReceivedDate(now.minus(1, ChronoUnit.MINUTES))
+                .setStateMachine(finiteStateMachine)
+                .create();
+        Meter meter2 = system.newMeter("meterForActivation2", "myName2")
+                .setReceivedDate(now.minus(1, ChronoUnit.MINUTES))
+                .setStateMachine(finiteStateMachine)
+                .create();
+        ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
         UsagePoint usagePoint = serviceCategory.newUsagePoint("usagePointForActivation", now).create();
         usagePoint.apply(getUsagePointMetrologyConfigurationWithDefaultRole("testTwoMetersCanBeLinkedToUsagePoint"), inMemoryBootstrapModule.getClock().instant());
         usagePoint.linkMeters()
@@ -633,12 +634,12 @@ public class MeterActivationImplIT {
     public void testMeterCanBeRemovedFromMeterRoleOnUsagePoint() {
         ServerMeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
         AmrSystem system = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
-        Meter meter = spy(system.newMeter("meterForActivation", "myName").create());
-        when(meter.getState(any(Instant.class))).thenReturn(Optional.of(deviceState));
-        when(deviceState.getStage()).thenReturn(Optional.of(deviceStage));
-        when(deviceStage.getName()).thenReturn(OPERATIONAL_DEVICE_STAGE_KEY);
-        ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
         Instant now = inMemoryBootstrapModule.getClock().instant();
+        Meter meter = system.newMeter("meterForActivation", "myName")
+                .setReceivedDate(now.minus(1, ChronoUnit.MINUTES))
+                .setStateMachine(finiteStateMachine)
+                .create();
+        ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
         UsagePoint usagePoint = serviceCategory.newUsagePoint("usagePointForActivation", now).create();
         usagePoint.apply(getUsagePointMetrologyConfigurationWithDefaultRole("testMeterCanBeRemovedFromMeterRoleOnUsagePoint"), now);
         usagePoint.linkMeters()
@@ -661,20 +662,21 @@ public class MeterActivationImplIT {
     @Test
     @Transactional
     public void testOperationalStageOfMeter() {
-        expectedException.expect(UsagePointMeterActivationException.IncorrectMeterActivationDateWhenGapsAreAllowed.class);
-        expectedException.expectMessage("Meter linking error. Meter testMeter cannot be linked to usage point usagePointForActivation, as the linking would occur after the metrology configuration's activation and before the meter's activation.");
         ServerMeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
         AmrSystem system = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
-        Meter meter = spy(system.newMeter("meterForActivation", "testMeter").create());
-
-        when(meter.getState(any(Instant.class))).thenReturn(Optional.of(deviceState));
-        when(deviceState.getStage()).thenReturn(Optional.of(deviceStage));
-        when(deviceStage.getName()).thenReturn(PRE_OPERATIONAL);
+        Meter meter = system.newMeter("meterForActivation", "testMeter")
+                .setStateMachine(createFiniteStateMachine(stageSet, EndDeviceStage.PRE_OPERATIONAL))
+                .create();
 
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
         Instant now = inMemoryBootstrapModule.getClock().instant();
         UsagePoint usagePoint = serviceCategory.newUsagePoint("usagePointForActivation", now).create();
         usagePoint.apply(getUsagePointMetrologyConfigurationWithDefaultRole("testMeterCanBeRemovedFromMeterRoleOnUsagePoint"), now);
+
+        expectedException.expect(UsagePointMeterActivationException.IncorrectMeterActivationDateWhenGapsAreAllowed.class);
+        expectedException.expectMessage("Meter linking error. Meter testMeter cannot be linked to usage point usagePointForActivation," +
+                " as the linking would occur after the metrology configuration's activation and before the meter's activation.");
+
         usagePoint.linkMeters()
                 .activate(now.plusSeconds(60), meter, inMemoryBootstrapModule.getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT))
                 .complete();
@@ -686,14 +688,13 @@ public class MeterActivationImplIT {
         expectedException.expect(UsagePointMeterActivationException.IncorrectDeviceStageWithoutMetrologyConfig.class);
         ServerMeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
         AmrSystem system = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
-        Meter meter = spy(system.newMeter("meterForActivation", "testMeter").create());
-
-        when(meter.getState(any(Instant.class))).thenReturn(Optional.of(deviceState));
-        when(deviceState.getStage()).thenReturn(Optional.of(deviceStage));
-        when(deviceStage.getName()).thenReturn(POST_OPERATIONAL);
+        Instant now = inMemoryBootstrapModule.getClock().instant();
+        Meter meter = system.newMeter("meterForActivation", "testMeter")
+                .setReceivedDate(now.minus(1, ChronoUnit.MINUTES))
+                .setStateMachine(createFiniteStateMachine(stageSet, EndDeviceStage.POST_OPERATIONAL))
+                .create();
 
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
-        Instant now = inMemoryBootstrapModule.getClock().instant();
         UsagePoint usagePoint = serviceCategory.newUsagePoint("usagePointForActivation", now).create();
         usagePoint.linkMeters()
                 .activate(meter, inMemoryBootstrapModule.getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT))
@@ -707,24 +708,33 @@ public class MeterActivationImplIT {
 
         ServerMeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
         AmrSystem system = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
-        Meter meter = spy(system.newMeter("meterForActivation", "testMeter").create());
-
-        when(meter.getState(any(Instant.class))).thenReturn(Optional.of(deviceState));
-        when(deviceState.getStage()).thenReturn(Optional.of(deviceStage));
-        when(deviceStage.getName()).thenReturn(OPERATIONAL_DEVICE_STAGE_KEY);
+        Instant now = inMemoryBootstrapModule.getClock().instant();
+        Meter meter = system.newMeter("meterForActivation", "testMeter")
+                .setReceivedDate(now.minus(1, ChronoUnit.MINUTES))
+                .setStateMachine(finiteStateMachine)
+                .create();
 
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
-        Instant now = inMemoryBootstrapModule.getClock().instant();
         UsagePoint usagePoint = serviceCategory.newUsagePoint("usagePointForActivation", now).create();
         ServerMetrologyConfigurationService metrologyConfigurationService = inMemoryBootstrapModule.getMetrologyConfigurationService();
-        UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = spy(metrologyConfigurationService
-                .newUsagePointMetrologyConfiguration("testConfiguration", meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get()).create());
+        UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = metrologyConfigurationService
+                .newUsagePointMetrologyConfiguration("testConfiguration", meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get())
+                .withGapAllowed(false)
+                .create();
         usagePointMetrologyConfiguration.addMeterRole(metrologyConfigurationService.findDefaultMeterRole(DefaultMeterRole.DEFAULT));
         when(usagePointMetrologyConfiguration.areGapsAllowed()).thenReturn(false);
+        ReadingType readingType = meteringService.getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
+        FullySpecifiedReadingTypeRequirement readingTypeRequirement =
+                usagePointMetrologyConfiguration
+                        .newReadingTypeRequirement("Requirement", metrologyConfigurationService.findDefaultMeterRole(DefaultMeterRole.DEFAULT))
+                        .withReadingType(readingType);
+        MetrologyContract metrologyContract = usagePointMetrologyConfiguration.addMandatoryMetrologyContract(metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.BILLING).get());
+        ReadingTypeDeliverableBuilder builder = metrologyContract.newReadingTypeDeliverable("Deliverable", readingType, Formula.Mode.AUTO);
+        builder.build(builder.requirement(readingTypeRequirement));
         usagePoint.linkMeters()
-                .activate(now, meter, inMemoryBootstrapModule.getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT))
+                .activate(now.plusSeconds(600), meter, inMemoryBootstrapModule.getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT))
                 .complete();
-        usagePoint.apply(usagePointMetrologyConfiguration, now.plusSeconds(60));
+        usagePoint.apply(usagePointMetrologyConfiguration, now);
     }
 
     @Test
@@ -733,11 +743,9 @@ public class MeterActivationImplIT {
         expectedException.expect(com.elster.jupiter.metering.impl.UsagePointMeterActivationException.ActivationTimeBeforeUsagePointInstallationDate.class);
         ServerMeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
         AmrSystem system = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
-        Meter meter = spy(system.newMeter("meterForActivation", "testMeter").create());
-
-        when(meter.getState(any(Instant.class))).thenReturn(Optional.of(deviceState));
-        when(deviceState.getStage()).thenReturn(Optional.of(deviceStage));
-        when(deviceStage.getName()).thenReturn(OPERATIONAL_DEVICE_STAGE_KEY);
+        Meter meter = system.newMeter("meterForActivation", "testMeter")
+                .setStateMachine(finiteStateMachine)
+                .create();
 
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
         Instant now = inMemoryBootstrapModule.getClock().instant();
@@ -745,5 +753,22 @@ public class MeterActivationImplIT {
         usagePoint.linkMeters()
                 .activate(now.minusSeconds(60), meter, inMemoryBootstrapModule.getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT))
                 .complete();
+    }
+
+    private static StageSet createStageSet() {
+        FiniteStateMachineService finiteStateMachineService = inMemoryBootstrapModule.getFiniteStateMachineService();
+        StageSetBuilder stageSetBuilder = finiteStateMachineService.newStageSet("StageSet");
+        Arrays.stream(EndDeviceStage.values())
+                .map(EndDeviceStage::getKey)
+                .forEach(stageSetBuilder::stage);
+        return stageSetBuilder.add();
+    }
+
+    private static FiniteStateMachine createFiniteStateMachine(StageSet stageSet, EndDeviceStage defaultDeviceStage) {
+        FiniteStateMachineService finiteStateMachineService = inMemoryBootstrapModule.getFiniteStateMachineService();
+        Stage defaultStage = stageSet.getStageByName(defaultDeviceStage.getKey())
+                .orElseThrow(() -> new IllegalStateException("Stage " + defaultDeviceStage.getKey() + " is not created."));
+        FiniteStateMachineBuilder builder = finiteStateMachineService.newFiniteStateMachine("FiniteStateMachine_" + defaultDeviceStage.getKey(), stageSet);
+        return builder.complete(builder.newCustomState("Custom", defaultStage).complete());
     }
 }

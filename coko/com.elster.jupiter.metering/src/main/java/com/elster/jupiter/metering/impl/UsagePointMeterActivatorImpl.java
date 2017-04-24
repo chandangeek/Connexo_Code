@@ -6,6 +6,7 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.fsm.Stage;
 import com.elster.jupiter.metering.CustomUsagePointMeterActivationValidationException;
 import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.metering.EventType;
@@ -138,8 +139,6 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
         EffectiveMetrologyConfigurationOnUsagePoint metrologyConfiguration = this.usagePoint.getEffectiveMetrologyConfiguration(start).get();
         if (metrologyConfiguration.getMetrologyConfiguration().areGapsAllowed()) {
             validateOperationalStageWithGaps(meter, start);
-        } else {
-            validateMetrologyConfigStartAndMeterActivationDate(meter, start);
         }
     }
 
@@ -151,14 +150,6 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
                 throw new UsagePointMeterActivationException.IncorrectDeviceStageWithoutMetrologyConfig(metrologyConfigurationService.getThesaurus(), meter.getName(), this.usagePoint.getName(), formatDate(meterStartDate));
             }
         });
-    }
-
-    private void validateMetrologyConfigStartAndMeterActivationDate(Meter meter, Instant meterStartDate) {
-        EffectiveMetrologyConfigurationOnUsagePoint metrologyConfiguration = this.usagePoint.getEffectiveMetrologyConfiguration(meterStartDate).get();
-        Instant metrologyConfigStartDate = metrologyConfiguration.getStart();
-        if (meterStartDate.isAfter(metrologyConfigStartDate) || !meterStartDate.equals(metrologyConfigStartDate)) {
-            throw new UsagePointMeterActivationException.IncorrectStartTimeOfMeterAndMetrologyConfig(metrologyConfigurationService.getThesaurus(), meter.getName(), formatDate(metrologyConfigStartDate));
-        }
     }
 
     private void validateOperationalStageWithGaps(Meter meter, Instant meterStartDate) {
@@ -305,11 +296,7 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
 
     private void validate(ValidationReport validationReport) {
         // check that we can manage meter activations
-        UsagePointStage.Key usagePointStage = this.usagePoint.getState().getStage().getKey();
-        if (usagePointStage != UsagePointStage.Key.PRE_OPERATIONAL) {
-            validationReport.usagePointIncorrectStage();
-            return;
-        }
+        Stage usagePointStage = this.usagePoint.getState().getStage().get();
         // prepare time lines and virtualize all meter activations, so our changes will not have permanent effect
         Map<Meter, TimeLine<Activation, Instant>> validationTimeLines = new HashMap<>();
         this.meterTimeLines.entrySet().forEach(entry -> {
@@ -317,6 +304,7 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
             timeLine.addAll(entry.getValue().getElements(VirtualActivation::new));
             validationTimeLines.put(entry.getKey(), timeLine);
         });
+        validateActivationGaps(validationReport);
         // check resulting meter activations for affected meters
         ValidateActivationsForSingleMeterVisitor meterActivationVisitor = new ValidateActivationsForSingleMeterVisitor(validationReport);
         this.activationChanges.forEach(activation ->
@@ -329,6 +317,40 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
                         .forEach(activation -> entry.getValue().adjust(activation, usagePointActivationVisitor)));
         validateMetersCapabilities(validationReport);
         validateByCustomValidators(validationReport);
+    }
+
+    private void validateActivationGaps(ValidationReport validationReport) {
+        for (Activation deactivation : deactivationChanges) {
+            if (deactivation.getUsagePoint().getEffectiveMetrologyConfiguration(deactivation.getStart())
+                    .map(EffectiveMetrologyConfigurationOnUsagePoint::getMetrologyConfiguration)
+                    .filter(mc -> !mc.isGapAllowed())
+                    .isPresent()
+                    && !activationChanges.stream()
+                    .filter(activation -> deactivation.getMeterRole().equals(activation.getMeterRole())
+                            && activation.getStart().equals(deactivation.getStart()))
+                    .findAny()
+                    .isPresent()){
+                Meter meter = usagePoint.getMeterActivations(deactivation.getMeterRole()).stream()
+                        .filter(meterActivation -> meterActivation.isEffectiveAt(deactivation.getStart()))
+                        .findAny()
+                        .flatMap(MeterActivation::getMeter)
+                        .get();
+                validationReport.meterCannotBeUnlinked(meter, deactivation.getMeterRole(), deactivation.getUsagePoint(), formatDate(deactivation.getStart()));
+            }
+        }
+        for (Activation activation : activationChanges) {
+            Optional<EffectiveMetrologyConfigurationOnUsagePoint> configurationOnUsagePoint = activation.getUsagePoint().getEffectiveMetrologyConfiguration(activation.getStart());
+            if (configurationOnUsagePoint.isPresent()
+                    && !configurationOnUsagePoint.get().getMetrologyConfiguration().isGapAllowed()
+                    && configurationOnUsagePoint.get().getStart().isBefore(activation.getStart())
+                    && !deactivationChanges.stream()
+                    .filter(deactivation -> activation.getMeterRole().equals(deactivation.getMeterRole())
+                            && deactivation.getStart().equals(activation.getStart()))
+                    .findAny()
+                    .isPresent()){
+                validationReport.incorrectStartTimeOfMeterAndMetrologyConfig(activation.getMeter(), activation.getMeterRole(), formatDate(activation.getStart()));
+            }
+        }
     }
 
     private void validateMetersCapabilities(ValidationReport validationReport) {
@@ -874,6 +896,10 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
 
         void usagePointHasMeterOnThisRole(Meter meterActiveOnRole, MeterRole meterRole, Range<Instant> conflictActivationRange);
 
+        void meterCannotBeUnlinked(Meter meter, MeterRole meterRole, UsagePoint usagePoint, String date);
+
+        void incorrectStartTimeOfMeterAndMetrologyConfig(Meter meter, MeterRole meterRole, String date);
+
         void meterHasUnsatisfiedRequirements(Meter meter, UsagePoint usagePoint, MeterRole meterRole, Map<UsagePointMetrologyConfiguration, List<ReadingTypeRequirement>> unsatisfiedRequirements);
 
         void activationFailedByCustomValidator(Meter meter, MeterRole meterRole, UsagePoint usagePoint, CustomUsagePointMeterActivationValidationException ex);
@@ -894,6 +920,22 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
         @Override
         public boolean isValid() {
             return this.valid;
+        }
+
+        @Override
+        public void meterCannotBeUnlinked(Meter meter, MeterRole meterRole, UsagePoint usagePoint, String date) {
+            this.valid = false;
+            String errorMessage = this.thesaurus.getFormat(MessageSeeds.METER_CANNOT_BE_UNLINKED)
+                    .format(meter.getName(), usagePoint.getName(), date);
+            this.context.buildConstraintViolationWithTemplate(errorMessage).addPropertyNode(meterRole.getKey()).addConstraintViolation();
+        }
+
+        @Override
+        public void incorrectStartTimeOfMeterAndMetrologyConfig(Meter meter, MeterRole meterRole, String date) {
+            this.valid = false;
+            String errorMessage = this.thesaurus.getFormat(MessageSeeds.METER_ACTIVATION_INVALID_DATE)
+                    .format(meter.getName(), date);
+            this.context.buildConstraintViolationWithTemplate(errorMessage).addPropertyNode(meterRole.getKey()).addConstraintViolation();
         }
 
         @Override
@@ -1022,6 +1064,16 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
         @Override
         public void meterActiveWithDifferentMeterRole(Meter meter, MeterRole currentRole, MeterRole desiredRole, Range<Instant> conflictActivationRange) {
             throw UsagePointMeterActivationException.meterActiveWithDifferentMeterRole(this.thesaurus, meter, currentRole, desiredRole, conflictActivationRange);
+        }
+
+        @Override
+        public void meterCannotBeUnlinked(Meter meter, MeterRole meterRole, UsagePoint usagePoint, String date) {
+            throw UsagePointMeterActivationException.meterCannotBeUnlinked(this.thesaurus, meter, meterRole, usagePoint, date);
+        }
+
+        @Override
+        public void incorrectStartTimeOfMeterAndMetrologyConfig(Meter meter, MeterRole meterRole, String date) {
+            throw UsagePointMeterActivationException.incorrectStartTimeOfMeterAndMetrologyConfig(this.thesaurus, meter, meterRole, date);
         }
 
         @Override

@@ -7,11 +7,11 @@ package com.elster.jupiter.metering.impl;
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransitionChangeEvent;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
-import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -84,7 +84,7 @@ public class UsagePointStateChangeEventHandler implements TopicHandler {
         String usagePointRef = event.getSourceId();
         Optional<UsagePoint> usagePoint = this.meteringService.findUsagePointById(Long.parseLong(usagePointRef));
         if (usagePoint.isPresent()) {
-            UsagePointState targetState = this.lifeCycleConfService.findUsagePointState(event.getNewState().getId()).get();
+            State targetState = this.lifeCycleConfService.findUsagePointState(event.getNewState().getId()).get();
             ((UsagePointImpl) usagePoint.get()).setState(targetState, getTransitionTime(event));
         } else {
             this.logger.warning("No usage point with id = " + usagePointRef);

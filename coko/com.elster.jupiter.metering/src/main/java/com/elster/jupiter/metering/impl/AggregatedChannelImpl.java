@@ -39,6 +39,9 @@ import java.time.ZoneId;
 import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -150,7 +153,7 @@ public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel
                                 IntervalReadingRecord::getTimeStamp,
                                 Function.identity()));
         calculatedReadings.putAll(persistedReadings);
-        return new ArrayList<>(calculatedReadings.values());
+        return calculatedReadings.values().stream().sorted(Comparator.comparing(BaseReading::getTimeStamp)).collect(Collectors.toList());
     }
 
     @Override
@@ -226,7 +229,7 @@ public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel
                             AggregatedIntervalReadingRecord::getTimeStamp,
                             Function.identity()));
         } else {
-            return Collections.emptyMap();
+            return new HashMap<>();
         }
     }
 
@@ -242,7 +245,7 @@ public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel
                                 BaseReading::getTimeStamp,
                                 Function.identity()));
         } else {
-            return Collections.emptyMap();
+            return new HashMap<>();
         }
     }
 

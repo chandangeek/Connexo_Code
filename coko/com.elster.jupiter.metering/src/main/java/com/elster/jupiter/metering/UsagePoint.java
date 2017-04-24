@@ -8,6 +8,7 @@ import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.Category;
 import com.elster.jupiter.cbo.IdentifiedObject;
 import com.elster.jupiter.cbo.MarketRoleKind;
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.ami.CompletionOptions;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MeterRole;
@@ -17,7 +18,7 @@ import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.servicecall.ServiceCall;
-import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.geo.SpatialCoordinates;
@@ -277,9 +278,9 @@ public interface UsagePoint extends HasId, IdentifiedObject {
 
     UsagePointMeterActivator linkMeters();
 
-    UsagePointState getState();
+    State getState();
 
-    UsagePointState getState(Instant instant);
+    State getState(Instant instant);
 
     /**
      * Sets initial state of default usage point life cycle if and only if the usage point
@@ -305,13 +306,15 @@ public interface UsagePoint extends HasId, IdentifiedObject {
 
     UsedCalendars getUsedCalendars();
 
+    UsagePointLifeCycle getLifeCycle();
+
     interface UsagePointConfigurationBuilder {
 
         UsagePointConfigurationBuilder endingAt(Instant endTime);
 
         UsagePointReadingTypeConfigurationBuilder configureReadingType(ReadingType readingType);
-
         UsagePointConfiguration create();
+
     }
 
     interface UsagePointReadingTypeConfigurationBuilder {
@@ -323,8 +326,8 @@ public interface UsagePoint extends HasId, IdentifiedObject {
     }
 
     interface UsagePointReadingTypeMultiplierConfigurationBuilder {
-
         UsagePointConfigurationBuilder calculating(ReadingType readingType);
+
     }
 
     /**
@@ -340,6 +343,7 @@ public interface UsagePoint extends HasId, IdentifiedObject {
     interface CalendarUsage {
         Range<Instant> getRange();
         Calendar getCalendar();
+        void end(Instant endAt);
     }
 
     interface UsedCalendars {
@@ -448,6 +452,9 @@ public interface UsagePoint extends HasId, IdentifiedObject {
          * @return The Calendar or <code>Optional.empty()</code> if no such Calendar exists
          */
         Optional<Calendar> getCalendar(Instant instant, Category category);
+
+        Map<Category, List<CalendarUsage>> getCalendars();
+
     }
 
 }
