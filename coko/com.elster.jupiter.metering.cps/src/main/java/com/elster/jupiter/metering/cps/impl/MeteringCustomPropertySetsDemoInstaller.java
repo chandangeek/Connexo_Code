@@ -78,9 +78,11 @@ import java.time.Instant;
 import java.time.Period;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Set;
 import java.util.TimeZone;
 
 import static com.elster.jupiter.orm.Version.version;
@@ -435,17 +437,23 @@ public class MeteringCustomPropertySetsDemoInstaller implements TranslationKeyPr
     }
 
     void createDemoEstimationComments() {
-        meteringService.createReadingQualityComment(ReadingQualityCommentCategory.ESTIMATION, "Estimated by market rule 11");
-        meteringService.createReadingQualityComment(ReadingQualityCommentCategory.ESTIMATION, "Estimated by market rule 12");
-        meteringService.createReadingQualityComment(ReadingQualityCommentCategory.ESTIMATION, "Estimated by market rule 13");
-        meteringService.createReadingQualityComment(ReadingQualityCommentCategory.ESTIMATION, "Estimated by market rule 14");
-        meteringService.createReadingQualityComment(ReadingQualityCommentCategory.ESTIMATION, "Estimated by market rule 15");
-        meteringService.createReadingQualityComment(ReadingQualityCommentCategory.ESTIMATION, "Estimated by market rule 16");
-        meteringService.createReadingQualityComment(ReadingQualityCommentCategory.ESTIMATION, "Estimated by market rule 17");
-        meteringService.createReadingQualityComment(ReadingQualityCommentCategory.ESTIMATION, "Estimated by market rule 18");
-        meteringService.createReadingQualityComment(ReadingQualityCommentCategory.ESTIMATION, "Estimated by market rule 19");
+        getEstimationComments().forEach(comment -> meteringService.createReadingQualityComment(ReadingQualityCommentCategory.ESTIMATION, comment));
+    }
 
+    private Set<String> getEstimationComments() {
+        Set<String> comments = new HashSet<>();
 
+        comments.add("Estimated by market rule 11");
+        comments.add("Estimated by market rule 12");
+        comments.add("Estimated by market rule 13");
+        comments.add("Estimated by market rule 14");
+        comments.add("Estimated by market rule 15");
+        comments.add("Estimated by market rule 16");
+        comments.add("Estimated by market rule 17");
+        comments.add("Estimated by market rule 18");
+        comments.add("Estimated by market rule 19");
+
+        return comments;
     }
 
     private SearchablePropertyValue.ValueBean getUsagePointRequirement(String property, SearchablePropertyOperator operator, String... values) {
