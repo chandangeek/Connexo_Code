@@ -1,9 +1,8 @@
 package com.energyict.mdc.upl;
 
-import com.energyict.mdc.upl.properties.HasDynamicProperties;
-
 import aQute.bnd.annotation.ConsumerType;
 import com.energyict.cbo.Quantity;
+import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.protocol.ProfileData;
 
 import java.io.IOException;
@@ -48,13 +47,28 @@ public interface MeterProtocol extends HasDynamicProperties, DeviceDescriptionSu
      * by the actual MeterProtocol implementation classes.
      */
     enum Property {
+        /**
+         * The string typically used for the device address property
+         */
         ADDRESS("DeviceId"),
+        /**
+         * The string used for the protocol password property
+         */
         PASSWORD("Password"),
         RETRIES("Retries"),
         TIMEOUT("Timeout"),
         SECURITYLEVEL("SecurityLevel"),
+        /**
+         * The string used for the protocol ProfileInterval property
+         */
         PROFILEINTERVAL("ProfileInterval"),
+        /**
+         * The string used for the serialNumber property
+         */
         SERIALNUMBER("SerialNumber"),
+        /**
+         * The string used for the nodeId property
+         */
         NODEID("NodeAddress"),
         MAXTIMEDIFF("MaximumTimeDiff"),
         MINTIMEDIFF("MinimumTimeDiff"),
