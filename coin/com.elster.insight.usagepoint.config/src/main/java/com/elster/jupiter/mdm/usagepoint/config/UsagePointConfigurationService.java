@@ -5,6 +5,7 @@
 package com.elster.jupiter.mdm.usagepoint.config;
 
 import com.elster.jupiter.estimation.EstimationRuleSet;
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyContract;
@@ -39,12 +40,28 @@ public interface UsagePointConfigurationService {
     List<ValidationRuleSet> getValidationRuleSets(MetrologyContract metrologyContract);
 
     /**
+     * Gets the {@link ValidationRuleSet}s that are being used by the specified {@link MetrologyContract} and {@link State}.
+     *
+     * @param metrologyContract The MetrologyContract
+     * @return The List of ValidationRuleSet
+     */
+    List<ValidationRuleSet> getValidationRuleSets(MetrologyContract metrologyContract, State state);
+
+    /**
      * Adds the specified {@link ValidationRuleSet} to the specified {@link MetrologyContract}.
      *
      * @param metrologyContract The MetrologyContract
      * @param validationRuleSet The ValidationRuleSet
      */
     void addValidationRuleSet(MetrologyContract metrologyContract, ValidationRuleSet validationRuleSet);
+
+    /**
+     * Adds the specified {@link ValidationRuleSet} to the specified {@link MetrologyContract}.
+     *
+     * @param metrologyContract The MetrologyContract
+     * @param validationRuleSet The ValidationRuleSet
+     */
+    void addValidationRuleSet(MetrologyContract metrologyContract, ValidationRuleSet validationRuleSet, List<State> states);
 
     /**
      * Removes the specified {@link ValidationRuleSet} from the specified {@link MetrologyConfiguration}.
@@ -114,6 +131,12 @@ public interface UsagePointConfigurationService {
      * @param validationRuleSet Validation rule set
      */
     List<MetrologyContract> getMetrologyContractsLinkedToValidationRuleSet(ValidationRuleSet validationRuleSet);
+
+    /**
+     * @return list of {@link State} linked to specified validation rule set and metrology contract
+     * @param validationRuleSet Validation rule set
+     */
+    List<State> getStatesLinkedToValidationRuleSetAndMetrologyContract(ValidationRuleSet validationRuleSet, MetrologyContract metrologyContract);
 
     /**
      * @return list of {@link MetrologyContract} linked to specified estimation rule set

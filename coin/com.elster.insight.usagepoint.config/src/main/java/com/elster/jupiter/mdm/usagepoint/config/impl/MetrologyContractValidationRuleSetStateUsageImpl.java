@@ -16,20 +16,15 @@ import com.elster.jupiter.validation.ValidationRuleSet;
 
 import javax.inject.Inject;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Provides an implementation for the {@link MetrologyContractValidationRuleSetUsage} interface.
  */
-class MetrologyContractValidationRuleSetUsageImpl implements MetrologyContractValidationRuleSetUsage {
+class MetrologyContractValidationRuleSetStateUsageImpl implements MetrologyContractValidationRuleSetStateUsage {
 
     enum Fields {
-        METROLOGY_CONTRACT("metrologyContract"),
-        VALIDATION_RULE_SET("validationRuleSet"),
-        STATES("states");
+        MC_VALRULESETUSAGE("metrologyContractValidationRuleSetUsage"),
+        STATE("state");
 
         private final String javaFieldName;
 
@@ -44,11 +39,10 @@ class MetrologyContractValidationRuleSetUsageImpl implements MetrologyContractVa
 
     @NotEmpty(message = MessageSeeds.Constants.REQUIRED)
     @IsPresent
-    private Reference<ValidationRuleSet> validationRuleSet = ValueReference.absent();
+    private Reference<MetrologyContractValidationRuleSetUsage> metrologyContractValidationRuleSetUsage = ValueReference.absent();
     @NotEmpty(message = MessageSeeds.Constants.REQUIRED)
     @IsPresent
-    private Reference<MetrologyContract> metrologyContract = ValueReference.absent();
-    private List<MetrologyContractValidationRuleSetStateUsage> states = new ArrayList<>();
+    private Reference<State> state = ValueReference.absent();
     @SuppressWarnings("unused") // Managed by ORM
     private long version;
     @SuppressWarnings("unused") // Managed by ORM
@@ -61,33 +55,25 @@ class MetrologyContractValidationRuleSetUsageImpl implements MetrologyContractVa
     private final DataModel dataModel;
 
     @Inject
-    MetrologyContractValidationRuleSetUsageImpl(DataModel dataModel) {
+    MetrologyContractValidationRuleSetStateUsageImpl(DataModel dataModel) {
         this.dataModel = dataModel;
     }
 
-    MetrologyContractValidationRuleSetUsageImpl initAndSave(MetrologyContract metrologyContract, ValidationRuleSet validationRuleSet, List<State> states) {
-        this.validationRuleSet.set(validationRuleSet);
-        this.metrologyContract.set(metrologyContract);
+    MetrologyContractValidationRuleSetStateUsageImpl initAndSave(MetrologyContractValidationRuleSetUsage metrologyContractValidationRuleSetUsage, State state) {
+        this.metrologyContractValidationRuleSetUsage.set(metrologyContractValidationRuleSetUsage);
+        this.state.set(state);
         this.dataModel.persist(this);
-        states.stream().forEach(state -> this.states.add(this.dataModel
-                .getInstance(MetrologyContractValidationRuleSetStateUsageImpl.class)
-                .initAndSave(this, state)));
         return this;
     }
 
     @Override
-    public ValidationRuleSet getValidationRuleSet() {
-        return validationRuleSet.get();
+    public MetrologyContractValidationRuleSetUsage getMetrologyContractValidationRuleSetUsage() {
+        return metrologyContractValidationRuleSetUsage.get();
     }
 
     @Override
-    public MetrologyContract getMetrologyContract() {
-        return metrologyContract.get();
-    }
-
-    @Override
-    public List<State> getStates(){
-        return states.stream().map(MetrologyContractValidationRuleSetStateUsage::getState).collect(Collectors.toList());
+    public State getState() {
+        return state.get();
     }
 
 }

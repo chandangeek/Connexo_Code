@@ -10,6 +10,7 @@ import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.validation.ValidationRuleSet;
+import com.elster.jupiter.fsm.State;
 
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 import static com.elster.jupiter.orm.DeleteRule.RESTRICT;
@@ -50,6 +51,51 @@ public enum TableSpecs {
                     .references(MetrologyContract.class)
                     .map(MetrologyContractValidationRuleSetUsageImpl.Fields.METROLOGY_CONTRACT.fieldName())
                     .on(metrologyContract)
+                    .add();
+        }
+    },
+
+    UPC_MC_VALRULESET_STATE {
+        void addTo(DataModel dataModel) {
+            Table<MetrologyContractValidationRuleSetStateUsage> table = dataModel
+                    .addTable(name(), MetrologyContractValidationRuleSetStateUsage.class);
+            table.since(version(10, 3));
+            table.map(MetrologyContractValidationRuleSetStateUsageImpl.class);
+            Column validationRuleSet = table
+                    .column("VALIDATIONRULESETID")
+                    .type("number")
+                    .notNull()
+                    .conversion(NUMBER2LONG)
+                    .add();
+            Column metrologyContract = table
+                    .column("METROLOGYCONTRACTID")
+                    .type("number")
+                    .notNull()
+                    .conversion(NUMBER2LONG)
+                    .add();
+            Column state = table
+                    .column("STATE")
+                    .type("number")
+                    .notNull()
+                    .conversion(NUMBER2LONG)
+                    .add();
+            table.setJournalTableName("UPC_MC_VALRULESETSTATEJRNL");
+            table.addAuditColumns();
+
+            table.primaryKey("UPC_PK_ST_RULESETCONTRACT")
+                    .on(validationRuleSet, metrologyContract, state)
+                    .add();
+            table.foreignKey("UPC_FK_ST_RULESET_USAGE")
+                    .references(MetrologyContractValidationRuleSetUsageImpl.class)
+                    .onDelete(RESTRICT)
+                    .map(MetrologyContractValidationRuleSetStateUsageImpl.Fields.MC_VALRULESETUSAGE.fieldName())
+                    .reverseMap(MetrologyContractValidationRuleSetUsageImpl.Fields.STATES.fieldName())
+                    .on(validationRuleSet, metrologyContract)
+                    .add();
+            table.foreignKey("UPC_FK_STATE")
+                    .references(State.class)
+                    .map(MetrologyContractValidationRuleSetStateUsageImpl.Fields.STATE.fieldName())
+                    .on(state)
                     .add();
         }
     },

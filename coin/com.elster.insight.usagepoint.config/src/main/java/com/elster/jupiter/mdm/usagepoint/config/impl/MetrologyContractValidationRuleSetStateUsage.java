@@ -8,16 +8,12 @@ import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.validation.ValidationRuleSet;
 
-import java.util.List;
-
 /**
- * Models the link between {@link MetrologyContract} and {@link ValidationRuleSet}.
+ * Models the link between {@link MetrologyContractValidationRuleSetUsage} and {@link com.elster.jupiter.fsm.State}.
  */
-public interface MetrologyContractValidationRuleSetUsage {
+public interface MetrologyContractValidationRuleSetStateUsage {
 
-    MetrologyContract getMetrologyContract();
+    MetrologyContractValidationRuleSetUsage getMetrologyContractValidationRuleSetUsage();
 
-    ValidationRuleSet getValidationRuleSet();
-
-    List<State> getStates();
+    State getState();
 }
