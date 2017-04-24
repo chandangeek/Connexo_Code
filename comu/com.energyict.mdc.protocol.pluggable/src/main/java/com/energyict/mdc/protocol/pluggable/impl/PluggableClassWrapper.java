@@ -11,7 +11,7 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.pluggable.Pluggable;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.pluggable.PluggableClassType;
-import com.energyict.mdc.protocol.api.services.UnableToCreateConnectionType;
+import com.energyict.mdc.protocol.api.services.UnableToCreateProtocolInstance;
 import com.energyict.mdc.protocol.pluggable.PluggableClassCreationException;
 import com.energyict.mdc.protocol.pluggable.UnknownPluggableClassPropertiesException;
 
@@ -160,7 +160,7 @@ public abstract class PluggableClassWrapper<T extends Pluggable> {
             T pluggable = this.newInstance();
             this.discriminator().checkInterfaceCompatibility(pluggable, this.getThesaurus());
         }
-        catch (UnableToCreateConnectionType e) {
+        catch (UnableToCreateProtocolInstance e) {
             throw new PluggableClassCreationException(this.getThesaurus(), this.getJavaClassName(), e.getCause());
         }
     }
@@ -191,7 +191,7 @@ public abstract class PluggableClassWrapper<T extends Pluggable> {
                 }
             }
         }
-        catch (UnableToCreateConnectionType e) {
+        catch (UnableToCreateProtocolInstance e) {
             return null;
         }
     }

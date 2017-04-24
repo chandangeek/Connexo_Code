@@ -4,39 +4,32 @@
 
 package com.energyict.mdc.protocol.pluggable.mocks;
 
-import com.elster.jupiter.cps.CustomPropertySet;
-import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.protocol.api.DeviceSecuritySupport;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
-import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
-import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
-import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
-import com.energyict.mdc.protocol.api.device.data.ProfileData;
-import com.energyict.mdc.protocol.api.device.data.Register;
-import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
-import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.mdc.protocol.api.device.events.MeterEvent;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
-import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
-import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
-import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
-import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
+import com.energyict.mdc.upl.messages.legacy.Message;
+import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.MessageTag;
+import com.energyict.mdc.upl.messages.legacy.MessageValue;
+import com.energyict.protocol.LoadProfileConfiguration;
+import com.energyict.protocol.LoadProfileReader;
+import com.energyict.protocol.MessageProtocol;
+import com.energyict.protocol.MessageResult;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.Register;
+import com.energyict.protocol.RegisterValue;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.sql.SQLException;
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.Date;
-import java.util.EnumSet;
 import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
@@ -46,12 +39,7 @@ import java.util.logging.Logger;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-01-16 (12:12)
  */
-public class MockSmartMeterProtocol implements SmartMeterProtocol, DeviceSecuritySupport, DeviceMessageSupport {
-
-    @Override
-    public RegisterInfo translateRegister(Register register) {
-        return null;
-    }
+public class MockSmartMeterProtocol implements SmartMeterProtocol, MessageProtocol {
 
     @Override
     public List<RegisterValue> readRegisters(List<Register> registers) {
@@ -60,46 +48,6 @@ public class MockSmartMeterProtocol implements SmartMeterProtocol, DeviceSecurit
 
     @Override
     public List<PropertySpec> getOptionalProperties() {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public Set<DeviceMessageId> getSupportedMessages() {
-        return EnumSet.noneOf(DeviceMessageId.class);
-    }
-
-    @Override
-    public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
-        return null;
-    }
-
-    @Override
-    public CollectedMessageList updateSentMessages(List<OfflineDeviceMessage> sentMessages) {
-        return null;
-    }
-
-    @Override
-    public String format(com.elster.jupiter.properties.PropertySpec propertySpec, Object messageAttribute) {
-        return null;
-    }
-
-    @Override
-    public void setSecurityPropertySet(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
-
-    }
-
-    @Override
-    public Optional<CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>>> getCustomPropertySet() {
-        return Optional.empty();
-    }
-
-    @Override
-    public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
         return Collections.emptyList();
     }
 
@@ -158,22 +106,13 @@ public class MockSmartMeterProtocol implements SmartMeterProtocol, DeviceSecurit
     }
 
     @Override
+    public Serializable getCache() {
+        return null;
+    }
+
+    @Override
     public void setCache(Object cacheObject) {
-
-    }
-
-    @Override
-    public Object getCache() {
-        return null;
-    }
-
-    @Override
-    public Object fetchCache(int rtuId) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public void updateCache(int rtuId, Object cacheObject) throws SQLException {
+        // nothing to do
     }
 
     @Override
@@ -206,4 +145,33 @@ public class MockSmartMeterProtocol implements SmartMeterProtocol, DeviceSecurit
 
     }
 
+    @Override
+    public void applyMessages(List messageEntries) throws IOException {
+
+    }
+
+    @Override
+    public MessageResult queryMessage(MessageEntry messageEntry) throws IOException {
+        return null;
+    }
+
+    @Override
+    public List<MessageCategorySpec> getMessageCategories() {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public String writeMessage(Message msg) {
+        return "";
+    }
+
+    @Override
+    public String writeTag(MessageTag tag) {
+        return "";
+    }
+
+    @Override
+    public String writeValue(MessageValue value) {
+        return "";
+    }
 }

@@ -43,9 +43,11 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.streams.Predicates;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
-import com.energyict.mdc.io.impl.MdcIOModule;
 import com.energyict.mdc.issues.impl.IssuesModule;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
+import com.energyict.mdc.protocol.api.services.CustomPropertySetInstantiatorService;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableServiceImpl;
@@ -127,7 +129,6 @@ public class AdapterDeviceProtocolDialectTest {
                 new DataVaultModule(),
                 new IssuesModule(),
                 new PluggableModule(),
-                new MdcIOModule(),
                 new BasicPropertiesModule(),
                 new MdcDynamicModule(),
                 new ProtocolPluggableModule(),
@@ -207,6 +208,9 @@ public class AdapterDeviceProtocolDialectTest {
             bind(DataModel.class).toProvider(() -> dataModel);
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
             bind(SearchService.class).toProvider(() -> searchService);
+            bind(DeviceMessageSpecificationService.class).toInstance(mock(DeviceMessageSpecificationService.class));
+            bind(CustomPropertySetInstantiatorService.class).toInstance(mock(CustomPropertySetInstantiatorService.class));
+            bind(IdentificationService.class).toInstance(mock(IdentificationService.class));
         }
     }
 

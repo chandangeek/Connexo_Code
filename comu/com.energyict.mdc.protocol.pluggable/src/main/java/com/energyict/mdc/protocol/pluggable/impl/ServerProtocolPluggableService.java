@@ -5,6 +5,7 @@
 package com.energyict.mdc.protocol.pluggable.impl;
 
 import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 /**
@@ -31,5 +32,13 @@ public interface ServerProtocolPluggableService extends ProtocolPluggableService
      * @param javaClassName The fully qualified class name
      */
     void registerDeviceProtocolPluggableClassAsCustomPropertySet(String javaClassName);
+
+    /**
+     * Returns the {@link Thesaurus} that contains all the information
+     * that was provided by all of the registered protocols.
+     *
+     * @return The Thesaurus
+     */
+    Thesaurus protocolsThesaurus();
 
 }

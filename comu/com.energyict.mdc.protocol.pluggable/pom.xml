@@ -14,7 +14,7 @@
     </parent>
 
     <artifactId>mdc.protocol.pluggable</artifactId>
-    <version>3.1.0${revision}</version>
+    <version>4.0.0${revision}</version>
     <packaging>bundle</packaging>
     <name>[MDC] mdc.protocol.pluggable [init PPC]</name>
     <description>
@@ -28,6 +28,10 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
+            <artifactId>time</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
             <artifactId>cps</artifactId>
         </dependency>
         <dependency>
@@ -37,6 +41,10 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>security.thread</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.upl</artifactId>
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
@@ -85,6 +93,10 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>metering</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>metering.groups</artifactId>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
@@ -162,11 +174,6 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>ids</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>time</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

@@ -26,7 +26,7 @@ public class SDKLoadProfileProtocolDialect extends AbstractDeviceProtocolDialect
     }
 
     @Override
-    public String getDisplayName() {
+    public String getDeviceProtocolDialectDisplayName() {
         return "SDK dialect for loadProfile testing";
     }
 

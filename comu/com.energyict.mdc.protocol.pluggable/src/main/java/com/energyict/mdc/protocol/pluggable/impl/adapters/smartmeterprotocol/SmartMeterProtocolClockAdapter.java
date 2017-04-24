@@ -6,14 +6,14 @@ package com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol;
 
 import com.energyict.mdc.protocol.api.exceptions.LegacyProtocolException;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
-import com.energyict.mdc.protocol.api.tasks.support.DeviceClockSupport;
 import com.energyict.mdc.protocol.pluggable.MessageSeeds;
+import com.energyict.mdc.upl.tasks.support.DeviceClockSupport;
 
 import java.io.IOException;
 import java.util.Date;
 
 /**
- * Adapter between a {@link SmartMeterProtocol} and a {@link DeviceClockSupport}
+ * Adapter between a {@link SmartMeterProtocol} and a {@link com.energyict.mdc.upl.tasks.support.DeviceClockSupport}
  *
  * @author gna
  * @since 5/04/12 - 13:27

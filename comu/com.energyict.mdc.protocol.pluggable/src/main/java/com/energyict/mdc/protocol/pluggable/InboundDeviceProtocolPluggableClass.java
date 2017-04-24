@@ -15,8 +15,8 @@ public interface InboundDeviceProtocolPluggableClass extends PluggableClass {
      *
      * @return The DeviceProtocol version
      */
-    public String getVersion ();
+    String getVersion();
 
-    public InboundDeviceProtocol getInboundDeviceProtocol ();
+    InboundDeviceProtocol getInboundDeviceProtocol();
 
 }

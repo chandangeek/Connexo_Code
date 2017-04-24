@@ -4,12 +4,12 @@
 
 package com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.mocks;
 
-import com.energyict.mdc.issues.Issue;
-import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
-import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
-import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
-import com.energyict.mdc.protocol.api.device.data.ResultType;
-import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
+import com.energyict.mdc.upl.issue.Issue;
+import com.energyict.mdc.upl.meterdata.CollectedMessage;
+import com.energyict.mdc.upl.meterdata.CollectedMessageList;
+import com.energyict.mdc.upl.meterdata.ResultType;
+import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
+import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,13 +48,24 @@ public class MockCollectedMessageList implements CollectedMessageList {
     }
 
     @Override
+    public void setFailureInformation(ResultType resultType, List<Issue> issues) {
+        this.setResultType(resultType);
+        this.issues.addAll(issues);
+    }
+
+    @Override
     public boolean isConfiguredIn(DataCollectionConfiguration configuration) {
         return false;
     }
 
     @Override
-    public void addCollectedMessages(CollectedMessage collectedMessage) {
+    public void addCollectedMessage(CollectedMessage collectedMessage) {
         this.collectedMessages.add(collectedMessage);
+    }
+
+    @Override
+    public void addCollectedMessages(CollectedMessageList collectedMessages) {
+        collectedMessages.getCollectedMessages().stream().forEach(this.collectedMessages::add);
     }
 
     @Override
@@ -64,7 +75,10 @@ public class MockCollectedMessageList implements CollectedMessageList {
 
     @Override
     public List<CollectedMessage> getCollectedMessages(MessageIdentifier messageIdentifier) {
-        return this.getCollectedMessages().stream().filter(x -> x.getMessageIdentifier().equals(messageIdentifier)).collect(Collectors.toList());
-
+        return this.getCollectedMessages()
+                .stream()
+                .filter(x -> MessageIdentifier.is(x.getMessageIdentifier()).equalTo(messageIdentifier))
+                .collect(Collectors.toList());
     }
+
 }
