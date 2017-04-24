@@ -68,13 +68,13 @@ Ext.define('Cfg.view.common.EditEstimationComment', {
                     items: [
                         {
                             boxLabel: Uni.I18n.translate('editComment.value', 'CFG', 'Value (kWh)'),
-                            inputValue: true,
+                            inputValue: false,
                             name: 'valueEdit',
                             checked: true
                         },
                         {
                             boxLabel: Uni.I18n.translate('editComment.bulkValue', 'CFG', 'Bulk value (kWh)'),
-                            inputValue: false,
+                            inputValue: true,
                             name: 'valueEdit'
                         }
                     ]
