@@ -2,7 +2,9 @@ package com.elster.jupiter.estimators.impl;
 
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.CalendarService;
+import com.elster.jupiter.calendar.DayType;
 import com.elster.jupiter.calendar.Event;
+import com.elster.jupiter.calendar.EventOccurrence;
 import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
@@ -25,6 +27,7 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingQualityWithTypeFetcher;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.impl.aggregation.IntervalLength;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.time.TimeService;
@@ -39,9 +42,11 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -75,7 +80,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-@Ignore
 public class NearestAverageValueDayTest {
     private static final Set<QualityCodeSystem> SYSTEMS = Estimator.qualityCodeSystemsToTakeIntoAccount(QualityCodeSystem.MDC);
     private static final Logger LOGGER = Logger.getLogger(NearestAvgValueDayEstimator.class.getName());
@@ -141,6 +145,8 @@ public class NearestAverageValueDayTest {
         doReturn(channel).when(block).getChannel();
         doReturn(deltaCimChannel).when(block).getCimChannel();
         doReturn(channelsContainer).when(channel).getChannelsContainer();
+        doReturn(Optional.empty()).when(channelsContainer).getUsagePoint();
+        doReturn(Optional.of(Duration.ofMinutes(15))).when(readingType).getIntervalLength();
 
         doReturn(Optional.of(meter)).when(channelsContainer).getMeter();
         doReturn(asList(channel, otherChannel)).when(channelsContainer).getChannels();
@@ -152,7 +158,7 @@ public class NearestAverageValueDayTest {
 
         doReturn(START.toInstant()).when(channelsContainer).getStart();
         doReturn(Optional.of(LAST_CHECKED.toInstant())).when(validationService).getLastChecked(channel);
-        doReturn(buildReadings()).when(channel).getReadings(Range.closedOpen(ESTIMABLE_TIME.toInstant().minus(3 * ChronoUnit.WEEKS.getDuration().toDays(), ChronoUnit.DAYS), ESTIMABLE_TIME.toInstant()));
+        doReturn(buildReadings()).when(channel).getReadings(any(Range.class));
         doReturn(TimeZoneNeutral.getMcMurdo()).when(channel).getZoneId();
         doReturn(Optional.of(bulkReadingType)).when(readingType).getBulkReadingType();
         doReturn(TimeAttribute.FIXEDBLOCK15MIN).when(readingType).getMeasuringPeriod();
@@ -241,7 +247,11 @@ public class NearestAverageValueDayTest {
     public void testEstimatePasses() {
         when(zonedView.eventFor(any())).thenReturn(falseEvent);
         when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.DAILY);
-
+        DayType dayType = mock(DayType.class);
+        EventOccurrence occurrence = mock(EventOccurrence.class);
+        when(zonedView.dayTypeFor(any(Instant.class))).thenReturn(dayType);
+        when(dayType.getEventOccurrences()).thenReturn(Collections.singletonList(occurrence));
+        when(occurrence.getEvent()).thenReturn(falseEvent);
         Map<String, Object> props = ImmutableMap.<String, Object>builder()
                 .put(NearestAvgValueDayEstimator.NUMBER_OF_SAMPLES, 2L)
                 .put(NearestAvgValueDayEstimator.MAXIMUM_NUMBER_OF_WEEKS, 3L)
@@ -254,7 +264,7 @@ public class NearestAverageValueDayTest {
         EstimationResult result = estimator.estimate(singletonList(block), QualityCodeSystem.MDC);
 
         assertThat(result.estimated()).contains(block);
-        assertThat(estimable.getEstimation()).isEqualTo(BigDecimal.valueOf(50050));
+        assertThat(estimable.getEstimation()).isEqualTo(BigDecimal.valueOf(502));
     }
 
     @Test
@@ -272,15 +282,19 @@ public class NearestAverageValueDayTest {
         EstimationResult result = estimator.estimate(singletonList(block), QualityCodeSystem.MDC);
 
         assertThat(result.estimated()).contains(block);
-        assertThat(estimable.getEstimation()).isEqualTo(BigDecimal.valueOf(50050));
+        assertThat(estimable.getEstimation()).isEqualTo(BigDecimal.valueOf(502));
     }
 
     @Test
     public void testEstimateFailsIfNotEnoughSamples() {
+        DayType dayType = mock(DayType.class);
+        EventOccurrence occurrence = mock(EventOccurrence.class);
+        when(zonedView.dayTypeFor(any(Instant.class))).thenReturn(dayType);
+        when(dayType.getEventOccurrences()).thenReturn(Collections.singletonList(occurrence));
+        when(occurrence.getEvent()).thenReturn(falseEvent);
         List<BaseReadingRecord> readingRecords = buildReadings();
         readingRecords = readingRecords.subList(0, readingRecords.size() - 10);
-        doReturn(readingRecords).when(channel).getReadings(Range.closedOpen(ESTIMABLE_TIME.toInstant().minus(3 * ChronoUnit.WEEKS.getDuration().toDays(), ChronoUnit.DAYS), ESTIMABLE_TIME.toInstant()));
-        when(zonedView.eventFor(any())).thenReturn(falseEvent);
+        doReturn(readingRecords).when(channel).getReadings(any(Range.class));
         when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.DAILY);
 
         Map<String, Object> props = ImmutableMap.<String, Object>builder()
@@ -303,6 +317,12 @@ public class NearestAverageValueDayTest {
     @Test
     public void testEstimateFailsIfEstimableDayIsDiscarded() {
         when(zonedView.eventFor(any())).thenReturn(event);
+        when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.DAILY);
+        DayType dayType = mock(DayType.class);
+        EventOccurrence occurrence = mock(EventOccurrence.class);
+        when(zonedView.dayTypeFor(any(Instant.class))).thenReturn(dayType);
+        when(dayType.getEventOccurrences()).thenReturn(Collections.singletonList(occurrence));
+        when(occurrence.getEvent()).thenReturn(event);
         when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.DAILY);
 
         Map<String, Object> props = ImmutableMap.<String, Object>builder()

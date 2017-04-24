@@ -33,7 +33,7 @@ public enum MessageSeeds implements MessageSeed {
     MAINCHECK_ESTIMATOR_FAIL_INTERNAL_ERROR(1013,"maincheck.estimator.fail.internal","Failed to estimate period \"{0}\" using method {1} on {2}/{3}/{4} due to internal error"),
 
     INVALID_NUMBER(1015,"property.error", "This value should be positive"),
-    INVALID_DISCARD_DAY_FIELD(1016, "property.error.discardDaySettings.not.null", "This field is required");
+    REQUIRED_FIELD(1016, "property.error", "This field is required");
     public static final String COMPONENT_NAME = "ESR";
 
     private final int number;
