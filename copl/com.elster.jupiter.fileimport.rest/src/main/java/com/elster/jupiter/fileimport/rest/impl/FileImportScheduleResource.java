@@ -164,7 +164,7 @@ public class FileImportScheduleResource {
         AppServer appServer = findAppServerWithImportSchedule(importSchedule);
 
         String importFolder = String.valueOf(appServer.getImportDirectory().get().toAbsolutePath()
-                .resolve(importSchedule.getImportDirectory())).replace('\\','/');
+                .resolve(importSchedule.getImportDirectory()));
         String fileName = contentDispositionHeader.getFileName();
 
         if (fileName == null || fileName.isEmpty()) {
@@ -414,7 +414,7 @@ public class FileImportScheduleResource {
     }
 
     private void loadFile(InputStream inputStream, String fileName, String importFolder, String appServerName) {
-        File copiedFile = new File(importFolder + "/" + FilenameUtils.getBaseName(fileName) + ".tmp");
+        File copiedFile = new File(importFolder + File.separator + FilenameUtils.getBaseName(fileName) + ".tmp");
         try(FileOutputStream outputStream = new FileOutputStream(copiedFile.getPath()); InputStream ins = inputStream ) {
             byte[] buffer = new byte[1024];
             int length;
@@ -431,7 +431,7 @@ public class FileImportScheduleResource {
             throw new WebApplicationException(Response.status(UNPROCESSIBLE_ENTITY).entity(jsonService
                     .serialize(new ConstraintViolationInfo(thesaurus).from(exceptionFactory.newException(MessageSeeds.FAILED_TO_UPLOAD_TO_SERVER, fileName, appServerName)))).build());
         }
-        copiedFile.renameTo(new File(importFolder + "\\" + fileName));
+        copiedFile.renameTo(new File(importFolder + File.separator + fileName));
     }
 
     private long parseScheduleId(InputStream inputStream) {
