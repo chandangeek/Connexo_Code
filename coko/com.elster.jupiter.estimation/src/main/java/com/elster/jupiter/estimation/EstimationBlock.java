@@ -9,11 +9,11 @@ import com.elster.jupiter.metering.CimChannel;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 
-import aQute.bnd.annotation.ConsumerType;
+import aQute.bnd.annotation.ProviderType;
 
 import java.util.List;
 
-@ConsumerType
+@ProviderType
 public interface EstimationBlock {
 
     Channel getChannel();
@@ -24,7 +24,5 @@ public interface EstimationBlock {
 
     List<? extends Estimatable> estimatables();
 
-    void setReadingQualityType(ReadingQualityType readingQualityType);
-
-    ReadingQualityType getReadingQualityType();
+    List<ReadingQualityType> getReadingQualityTypes();
 }

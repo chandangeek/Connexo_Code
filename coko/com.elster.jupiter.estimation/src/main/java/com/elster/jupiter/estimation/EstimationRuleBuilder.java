@@ -26,6 +26,8 @@ public interface EstimationRuleBuilder {
 
     EstimationRuleBuilder.PropertyBuilder havingProperty(String property);
 
+    EstimationRuleBuilder markProjected(boolean markProjected);
+
     interface PropertyBuilder {
         EstimationRuleBuilder withValue(Object value);
     }

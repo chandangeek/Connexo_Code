@@ -6,6 +6,7 @@ package com.elster.jupiter.estimation.impl;
 
 import com.elster.jupiter.estimation.EstimationBlock;
 import com.elster.jupiter.estimation.EstimationResult;
+import com.elster.jupiter.estimation.EstimationResultBuilder;
 
 import com.google.common.collect.ImmutableList;
 
@@ -36,24 +37,27 @@ class SimpleEstimationResult implements EstimationResult {
     }
 
     public static EstimationResultBuilder builder() {
-        return new EstimationResultBuilder();
+        return new EstimationResultBuilderImpl();
     }
 
-    static final class EstimationResultBuilder {
+    static final class EstimationResultBuilderImpl implements EstimationResultBuilder {
         private ImmutableList.Builder<EstimationBlock> remain = ImmutableList.builder();
         private ImmutableList.Builder<EstimationBlock> estimated = ImmutableList.builder();
 
-        private EstimationResultBuilder() {
+        private EstimationResultBuilderImpl() {
         }
 
-        void addRemaining(EstimationBlock block) {
+        @Override
+        public void addRemaining(EstimationBlock block) {
             remain.add(block);
         }
 
-        void addEstimated(EstimationBlock block) {
+        @Override
+        public void addEstimated(EstimationBlock block) {
             estimated.add(block);
         }
 
+        @Override
         public EstimationResult build() {
             return new SimpleEstimationResult(remain.build(), estimated.build());
         }

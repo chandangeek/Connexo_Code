@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.estimation.impl;
 
+import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.estimation.security.Privileges;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
@@ -27,6 +28,17 @@ public class UpgraderV10_3 implements Upgrader {
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
         dataModelUpgrader.upgrade(dataModel, version(10, 3));
-        userService.findResource(Privileges.RESOURCE_ESTIMATION_RULES.getKey()).orElseThrow(IllegalArgumentException::new).createPrivilege(Privileges.Constants.ESTIMATE_MANUAL);
+        createNewPrivileges();
+    }
+
+    private void createNewPrivileges() {
+        userService.saveResourceWithPrivileges(EstimationService.COMPONENTNAME,
+                Privileges.RESOURCE_ESTIMATION_RULES.getKey(),
+                Privileges.RESOURCE_ESTIMATION_RULES_DESCRIPTION.getKey(),
+                new String[]{
+                        Privileges.Constants.ESTIMATE_MANUAL,
+                        Privileges.Constants.ESTIMATE_WITH_RULE,
+                        Privileges.Constants.EDIT_WITH_ESTIMATOR
+                });
     }
 }

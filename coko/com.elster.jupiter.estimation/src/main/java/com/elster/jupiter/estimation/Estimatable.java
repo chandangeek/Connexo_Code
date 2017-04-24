@@ -5,11 +5,12 @@
 package com.elster.jupiter.estimation;
 
 import aQute.bnd.annotation.ConsumerType;
+import aQute.bnd.annotation.ProviderType;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 
-@ConsumerType
+@ProviderType
 public interface Estimatable {
 
     Instant getTimestamp();
