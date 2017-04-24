@@ -5,7 +5,7 @@ import com.elster.jupiter.transaction.VoidTransaction;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;

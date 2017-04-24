@@ -4,7 +4,7 @@
 
 package com.energyict.encryption;
 
-import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.mdc.protocol.api.exceptions.DeviceConfigurationException;
 import com.energyict.protocols.naming.SecurityPropertySpecName;
 import com.energyict.protocols.util.ProtocolUtils;

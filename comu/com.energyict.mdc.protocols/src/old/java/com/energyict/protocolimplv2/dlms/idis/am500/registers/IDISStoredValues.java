@@ -2,7 +2,7 @@ package com.energyict.protocolimplv2.dlms.idis.am500.registers;
 
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.protocol.api.NotInObjectListException;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.protocol.api.device.data.IntervalValue;

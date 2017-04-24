@@ -1,6 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.actaris.sl7000;
 
-import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+import com.energyict.mdc.upl.NoSuchRegisterException;
 
 import com.energyict.obis.ObisCode;
 

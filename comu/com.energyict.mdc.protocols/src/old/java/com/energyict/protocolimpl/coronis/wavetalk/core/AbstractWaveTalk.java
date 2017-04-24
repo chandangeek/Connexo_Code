@@ -1,8 +1,8 @@
 package com.energyict.protocolimpl.coronis.wavetalk.core;
 
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.protocol.api.InvalidPropertyException;
-import com.energyict.mdc.protocol.api.MissingPropertyException;
+import com.energyict.mdc.upl.properties.InvalidPropertyException;
+import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 
 import com.energyict.dialer.core.HalfDuplexController;

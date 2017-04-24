@@ -4,7 +4,7 @@
 
 package com.energyict.protocolimpl.utils;
 
-import com.energyict.mdc.protocol.api.UnsupportedException;
+import com.energyict.mdc.upl.UnsupportedException;
 
 import com.energyict.protocolimpl.utils.communicationdump.CommunicationDumpEntry;
 import com.energyict.protocolimpl.utils.communicationdump.CommunicationDumpFile;

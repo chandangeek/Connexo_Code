@@ -14,7 +14,7 @@
 
 package com.energyict.protocolimpl.edf.trimarandlms.protocol;
 
-import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.ByteArrayInputStream;

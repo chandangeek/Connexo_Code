@@ -5,8 +5,8 @@
 package com.energyict.protocolimpl.iec1107.indigo.pxar;
 
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.protocol.api.InvalidPropertyException;
-import com.energyict.mdc.protocol.api.MissingPropertyException;
+import com.energyict.mdc.upl.properties.InvalidPropertyException;
+import com.energyict.mdc.upl.properties.MissingPropertyException;
 
 import com.energyict.protocolimpl.iec1107.AbstractIEC1107Protocol;
 

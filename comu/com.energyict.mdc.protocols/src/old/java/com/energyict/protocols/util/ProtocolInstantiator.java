@@ -12,9 +12,9 @@ package com.energyict.protocols.util;
 
 import com.energyict.mdc.protocol.api.DemandResetProtocol;
 import com.energyict.mdc.protocol.api.DialinScheduleProtocol;
-import com.energyict.mdc.protocol.api.HHUEnabler;
+import com.energyict.protocol.HHUEnabler;
 import com.energyict.mdc.protocol.api.SerialNumber;
-import com.energyict.mdc.protocol.api.device.data.RegisterProtocol;
+import com.energyict.protocol.RegisterProtocol;
 import com.energyict.mdc.protocol.api.legacy.BulkRegisterProtocol;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.legacy.MultipleLoadProfileSupport;

@@ -4,7 +4,7 @@
 
 package com.energyict.protocolimpl.coronis.wavetherm.core.parameter;
 
-import com.energyict.mdc.protocol.api.UnsupportedException;
+import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.protocols.util.ProtocolUtils;
 
 import com.energyict.protocolimpl.coronis.core.TimeDateRTCParser;

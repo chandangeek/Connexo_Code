@@ -4,7 +4,7 @@
 
 package com.energyict.protocolimpl.dlms.common;
 
-import com.energyict.mdc.protocol.api.UnsupportedException;
+import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 
 import com.energyict.dlms.DLMSUtils;

@@ -4,7 +4,7 @@
 
 package com.energyict.protocolimpl.modbus.socomec.a40;
 
-import com.energyict.mdc.protocol.api.UnsupportedException;
+import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.protocol.api.device.data.IntervalValue;
 

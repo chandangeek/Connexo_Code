@@ -15,9 +15,9 @@
 package com.energyict.protocolimpl.modbus.socomec.a40;
 
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.protocol.api.InvalidPropertyException;
-import com.energyict.mdc.protocol.api.MissingPropertyException;
-import com.energyict.mdc.protocol.api.UnsupportedException;
+import com.energyict.mdc.upl.properties.InvalidPropertyException;
+import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.protocols.mdc.inbound.rtuplusserver.DiscoverResult;
 import com.energyict.protocols.mdc.inbound.rtuplusserver.DiscoverTools;

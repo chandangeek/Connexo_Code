@@ -4,7 +4,7 @@
 
 package com.energyict.protocols.mdc.inbound.dlms.aso;
 
-import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.protocols.util.ProtocolUtils;
 
 import com.energyict.dlms.DLMSCOSEMGlobals;

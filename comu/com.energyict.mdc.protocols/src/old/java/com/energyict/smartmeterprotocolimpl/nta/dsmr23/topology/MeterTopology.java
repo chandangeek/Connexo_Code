@@ -1,7 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.topology;
 
 import com.energyict.mdc.device.topology.TopologyService;
-import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+import com.energyict.dialer.connection.ConnectionException;
 
 import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.DLMSUtils;

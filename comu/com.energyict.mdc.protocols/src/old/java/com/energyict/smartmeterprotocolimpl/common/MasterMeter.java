@@ -4,7 +4,7 @@
 
 package com.energyict.smartmeterprotocolimpl.common;
 
-import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+import com.energyict.dialer.connection.ConnectionException;
 
 public interface MasterMeter {
 

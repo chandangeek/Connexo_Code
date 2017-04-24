@@ -6,7 +6,7 @@
 
 package com.energyict.protocolimpl.emon.ez7.core.command;
 
-import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.protocols.util.ProtocolUtils;
 
 import com.energyict.cbo.Quantity;

@@ -1,7 +1,7 @@
 package com.energyict.protocolimpl.kenda.medo;
 
-import com.energyict.mdc.protocol.api.NoSuchRegisterException;
-import com.energyict.mdc.protocol.api.UnsupportedException;
+import com.energyict.mdc.upl.NoSuchRegisterException;
+import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 
 import com.energyict.cbo.BaseUnit;

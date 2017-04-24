@@ -4,7 +4,7 @@
 
 package com.energyict.protocolimpl.coronis.waveflow100mwencoder.core;
 
-import com.energyict.mdc.protocol.api.UnsupportedException;
+import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.IOException;

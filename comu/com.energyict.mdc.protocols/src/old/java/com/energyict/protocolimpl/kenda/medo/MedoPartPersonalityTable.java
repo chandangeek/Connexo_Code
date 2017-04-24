@@ -4,7 +4,7 @@
 
 package com.energyict.protocolimpl.kenda.medo;
 
-import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.upl.properties.InvalidPropertyException;
 
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
 

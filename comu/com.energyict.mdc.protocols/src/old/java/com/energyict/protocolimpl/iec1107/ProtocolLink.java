@@ -10,7 +10,7 @@
 
 package com.energyict.protocolimpl.iec1107;
 
-import com.energyict.mdc.protocol.api.UnsupportedException;
+import com.energyict.mdc.upl.UnsupportedException;
 
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
 

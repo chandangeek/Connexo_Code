@@ -4,7 +4,7 @@
 
 package com.energyict.protocolimpl.landisgyr.us.maxsys2510;
 
-import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+import com.energyict.dialer.connection.ConnectionException;
 
 import com.energyict.dialer.connection.Connection;
 

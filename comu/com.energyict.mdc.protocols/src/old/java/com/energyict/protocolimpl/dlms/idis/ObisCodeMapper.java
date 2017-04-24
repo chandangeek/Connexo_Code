@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.dlms.idis;
 
-import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 
 import com.energyict.cbo.Quantity;

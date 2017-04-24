@@ -7,7 +7,7 @@
 
 package com.energyict.protocolimpl.modbus.flonidan.uniflo1200.register;
 
-import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 
 import com.energyict.cbo.Quantity;

@@ -4,8 +4,8 @@
 
 package com.energyict.protocolimpl.dlms.g3;
 
-import com.energyict.mdc.protocol.api.InvalidPropertyException;
-import com.energyict.mdc.protocol.api.MissingPropertyException;
+import com.energyict.mdc.upl.properties.InvalidPropertyException;
+import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 
 import com.energyict.dlms.DLMSReference;

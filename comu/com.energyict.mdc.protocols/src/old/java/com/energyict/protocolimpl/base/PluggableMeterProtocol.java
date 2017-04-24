@@ -6,8 +6,8 @@ package com.energyict.protocolimpl.base;
 
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.protocol.api.InvalidPropertyException;
-import com.energyict.mdc.protocol.api.MissingPropertyException;
+import com.energyict.mdc.upl.properties.InvalidPropertyException;
+import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 
 public abstract class PluggableMeterProtocol implements MeterProtocol {

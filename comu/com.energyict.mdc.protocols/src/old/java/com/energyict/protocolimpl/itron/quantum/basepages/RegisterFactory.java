@@ -10,7 +10,7 @@
 
 package com.energyict.protocolimpl.itron.quantum.basepages;
 
-import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+import com.energyict.mdc.upl.NoSuchRegisterException;
 
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.itron.quantum.Quantum;

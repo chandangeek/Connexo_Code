@@ -1,7 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.common.profiles;
 
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-import com.energyict.mdc.protocol.api.LoadProfileConfigurationException;
+import com.energyict.mdc.upl.LoadProfileConfigurationException;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 

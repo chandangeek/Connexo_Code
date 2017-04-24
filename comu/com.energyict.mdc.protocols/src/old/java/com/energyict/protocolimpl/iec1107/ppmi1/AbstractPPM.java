@@ -2,13 +2,13 @@ package com.energyict.protocolimpl.iec1107.ppmi1;
 
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.protocol.api.HHUEnabler;
+import com.energyict.protocol.HHUEnabler;
 import com.energyict.mdc.protocol.api.MeterExceptionInfo;
 import com.energyict.mdc.protocol.api.SerialNumber;
-import com.energyict.mdc.protocol.api.UnsupportedException;
+import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
-import com.energyict.mdc.protocol.api.device.data.RegisterProtocol;
-import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+import com.energyict.protocol.RegisterProtocol;
+import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.iec1107.ChannelMap;
 

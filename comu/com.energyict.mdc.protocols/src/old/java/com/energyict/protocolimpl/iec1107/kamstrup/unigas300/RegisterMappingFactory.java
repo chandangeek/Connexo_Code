@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.iec1107.kamstrup.unigas300;
 
-import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+import com.energyict.mdc.upl.NoSuchRegisterException;
 
 import com.energyict.obis.ObisCode;
 

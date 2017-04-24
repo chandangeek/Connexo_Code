@@ -2,8 +2,8 @@ package com.energyict.protocolimpl.dlms.as220;
 
 import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dialer.core.SerialCommunicationChannel;
-import com.energyict.mdc.protocol.api.HHUEnabler;
-import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+import com.energyict.protocol.HHUEnabler;
+import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
 import com.energyict.mdc.protocol.api.inbound.MeterType;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;

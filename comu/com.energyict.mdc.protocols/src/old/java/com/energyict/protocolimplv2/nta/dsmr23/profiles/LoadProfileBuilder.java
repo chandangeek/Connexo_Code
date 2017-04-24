@@ -4,7 +4,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-import com.energyict.mdc.protocol.api.LoadProfileConfigurationException;
+import com.energyict.mdc.upl.LoadProfileConfigurationException;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.MessageSeeds;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;

@@ -1,7 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.elster.apollo;
 
 import com.energyict.mdc.common.ApplicationException;
-import com.energyict.mdc.protocol.api.UnsupportedException;
+import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.protocol.api.device.data.Register;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 

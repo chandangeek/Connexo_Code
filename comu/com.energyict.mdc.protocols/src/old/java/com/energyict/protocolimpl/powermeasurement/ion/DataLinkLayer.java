@@ -4,7 +4,7 @@
 
 package com.energyict.protocolimpl.powermeasurement.ion;
 
-import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+import com.energyict.dialer.connection.ConnectionException;
 
 import com.energyict.dialer.connection.Connection;
 import com.energyict.protocolimpl.base.CRCGenerator;

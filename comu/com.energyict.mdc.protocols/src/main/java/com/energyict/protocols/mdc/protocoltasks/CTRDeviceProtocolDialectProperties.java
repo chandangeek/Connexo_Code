@@ -12,7 +12,6 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.mdc.protocol.api.CommonDeviceProtocolDialectProperties;
-import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.tasks.CTRDeviceProtocolDialect;
 
 import java.math.BigDecimal;
@@ -85,7 +84,7 @@ class CTRDeviceProtocolDialectProperties extends CommonDeviceProtocolDialectProp
                 this.addAsTimeDurationColumnTo(table);
             }
         },
-        ADDRESS("address", MeterProtocol.NODEID, CTRTranslationKeys.ADDRESS, "ADDRESS") {
+        ADDRESS("address", com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), CTRTranslationKeys.ADDRESS, "ADDRESS") {
             @Override
             public void addTo(Table table) {
                 this.addAsBigDecimalColumnTo(table);

@@ -4,7 +4,7 @@
 
 package com.energyict.protocolimpl.coronis.waveflow.hydreka.parameter;
 
-import com.energyict.mdc.protocol.api.UnsupportedException;
+import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.protocols.util.ProtocolUtils;
 
 import com.energyict.protocolimpl.coronis.waveflow.core.ParameterType;

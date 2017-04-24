@@ -11,7 +11,7 @@
 package com.energyict.protocolimpl.iec1107.enermete70x;
 
 import com.energyict.mdc.protocol.api.MeterExceptionInfo;
-import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+import com.energyict.mdc.upl.NoSuchRegisterException;
 
 import java.io.IOException;
 import java.util.Date;

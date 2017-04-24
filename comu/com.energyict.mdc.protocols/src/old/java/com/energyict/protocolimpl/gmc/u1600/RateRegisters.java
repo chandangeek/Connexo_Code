@@ -6,7 +6,7 @@
 
 package com.energyict.protocolimpl.gmc.u1600;
 
-import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.protocols.util.ProtocolUtils;
 
 import com.energyict.cbo.Quantity;

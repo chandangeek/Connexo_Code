@@ -2,7 +2,7 @@ package com.energyict.protocolimpl.dlms.idis;
 
 import com.elster.jupiter.calendar.CalendarService;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 

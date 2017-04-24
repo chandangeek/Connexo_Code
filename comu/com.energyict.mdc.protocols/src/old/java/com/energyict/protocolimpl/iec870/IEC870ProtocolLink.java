@@ -10,7 +10,7 @@
 
 package com.energyict.protocolimpl.iec870;
 
-import com.energyict.mdc.protocol.api.UnsupportedException;
+import com.energyict.mdc.upl.UnsupportedException;
 
 import java.io.IOException;
 import java.util.TimeZone;

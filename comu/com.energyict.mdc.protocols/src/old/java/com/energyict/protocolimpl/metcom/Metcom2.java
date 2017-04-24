@@ -7,7 +7,7 @@
 package com.energyict.protocolimpl.metcom;
 
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.protocol.api.UnsupportedException;
+import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.protocols.util.ProtocolUtils;
 

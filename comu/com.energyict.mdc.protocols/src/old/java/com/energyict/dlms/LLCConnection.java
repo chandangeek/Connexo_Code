@@ -6,7 +6,7 @@ package com.energyict.dlms;
 
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.protocol.api.ProtocolException;
-import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+import com.energyict.dialer.connection.ConnectionException;
 
 import java.io.IOException;
 import java.io.InputStream;

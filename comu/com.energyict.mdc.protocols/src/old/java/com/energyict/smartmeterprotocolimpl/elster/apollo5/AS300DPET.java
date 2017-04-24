@@ -7,7 +7,7 @@ import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.DeviceMessageFileService;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
-import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
 import com.energyict.protocolimpl.generic.ParseUtils;
 import com.energyict.smartmeterprotocolimpl.elster.apollo.AS300;

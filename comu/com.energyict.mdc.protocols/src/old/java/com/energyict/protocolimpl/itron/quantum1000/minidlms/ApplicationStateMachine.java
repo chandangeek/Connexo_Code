@@ -14,7 +14,7 @@
 
 package com.energyict.protocolimpl.itron.quantum1000.minidlms;
 
-import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+import com.energyict.dialer.connection.ConnectionException;
 
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
 

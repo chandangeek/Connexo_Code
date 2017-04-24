@@ -10,7 +10,7 @@
 
 package com.energyict.protocolimpl.base;
 
-import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+import com.energyict.dialer.connection.ConnectionException;
 
 /**
  *

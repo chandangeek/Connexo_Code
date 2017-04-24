@@ -2,14 +2,14 @@ package com.energyict.protocolimpl.iec1107.unilog;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MeterExceptionInfo;
-import com.energyict.mdc.protocol.api.MissingPropertyException;
-import com.energyict.mdc.protocol.api.NoSuchRegisterException;
-import com.energyict.mdc.protocol.api.UnsupportedException;
+import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.NoSuchRegisterException;
+import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
-import com.energyict.mdc.protocol.api.device.data.RegisterProtocol;
+import com.energyict.protocol.RegisterProtocol;
 import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpecFactory;
 import com.energyict.protocols.util.ProtocolUtils;
 

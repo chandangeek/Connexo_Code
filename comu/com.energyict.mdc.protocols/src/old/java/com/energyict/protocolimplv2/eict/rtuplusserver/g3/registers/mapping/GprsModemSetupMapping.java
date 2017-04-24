@@ -1,6 +1,6 @@
 package com.energyict.protocolimplv2.eict.rtuplusserver.g3.registers.mapping;
 
-import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 
 import com.energyict.dlms.axrdencoding.AbstractDataType;

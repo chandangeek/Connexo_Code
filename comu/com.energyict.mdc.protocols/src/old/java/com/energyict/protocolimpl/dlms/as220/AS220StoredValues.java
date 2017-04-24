@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.dlms.as220;
 
-import com.energyict.mdc.protocol.api.UnsupportedException;
+import com.energyict.mdc.upl.UnsupportedException;
 
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.ScalerUnit;

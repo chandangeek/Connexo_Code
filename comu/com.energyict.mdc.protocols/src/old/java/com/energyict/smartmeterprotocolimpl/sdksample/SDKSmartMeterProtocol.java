@@ -2,9 +2,9 @@ package com.energyict.smartmeterprotocolimpl.sdksample;
 
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
-import com.energyict.mdc.protocol.api.LoadProfileConfigurationException;
+import com.energyict.mdc.upl.LoadProfileConfigurationException;
 import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;

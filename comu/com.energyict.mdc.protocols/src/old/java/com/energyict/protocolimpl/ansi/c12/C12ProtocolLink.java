@@ -14,7 +14,7 @@
 
 package com.energyict.protocolimpl.ansi.c12;
 
-import com.energyict.mdc.protocol.api.UnsupportedException;
+import com.energyict.mdc.upl.UnsupportedException;
 
 import com.energyict.protocolimpl.ansi.c12.tables.StandardTableFactory;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;

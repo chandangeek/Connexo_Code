@@ -8,7 +8,7 @@ package com.energyict.protocolimpl.sctm.enermete70x;
 
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
-import com.energyict.mdc.protocol.api.device.data.RegisterProtocol;
+import com.energyict.protocol.RegisterProtocol;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 
 import com.energyict.obis.ObisCode;

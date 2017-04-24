@@ -1,8 +1,8 @@
 
 package com.energyict.protocolimpl.dlms.a1800;
 
-import com.energyict.mdc.protocol.api.InvalidPropertyException;
-import com.energyict.mdc.protocol.api.MissingPropertyException;
+import com.energyict.mdc.upl.properties.InvalidPropertyException;
+import com.energyict.mdc.upl.properties.MissingPropertyException;
 
 import com.energyict.dlms.ConnectionMode;
 import com.energyict.dlms.DLMSReference;

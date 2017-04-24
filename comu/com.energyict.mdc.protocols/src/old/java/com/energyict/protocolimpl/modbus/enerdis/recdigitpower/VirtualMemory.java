@@ -7,7 +7,7 @@
  */
 package com.energyict.protocolimpl.modbus.enerdis.recdigitpower;
 
-import com.energyict.mdc.protocol.api.UnsupportedException;
+import com.energyict.mdc.upl.UnsupportedException;
 
 import java.io.IOException;
 import java.util.ArrayList;

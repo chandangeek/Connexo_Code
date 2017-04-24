@@ -3,7 +3,7 @@ package com.energyict.protocolimplv2.nta.dsmr40.common.profiles;
 import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-import com.energyict.mdc.protocol.api.LoadProfileConfigurationException;
+import com.energyict.mdc.upl.LoadProfileConfigurationException;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 

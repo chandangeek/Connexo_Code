@@ -4,7 +4,7 @@
 
 package com.energyict.protocolimpl.coronis.waveflow.core.parameter;
 
-import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+import com.energyict.mdc.upl.NoSuchRegisterException;
 
 import com.energyict.protocolimpl.coronis.core.WaveFlowException;
 import com.energyict.protocolimpl.coronis.waveflow.core.WaveFlow;

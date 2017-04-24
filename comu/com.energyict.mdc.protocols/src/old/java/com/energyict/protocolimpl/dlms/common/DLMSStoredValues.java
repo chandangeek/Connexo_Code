@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.dlms.common;
 
-import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+import com.energyict.mdc.upl.NoSuchRegisterException;
 
 import com.energyict.dlms.DataStructure;
 import com.energyict.dlms.DlmsSession;

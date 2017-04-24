@@ -1,7 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.eict;
 
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-import com.energyict.mdc.protocol.api.LoadProfileConfigurationException;
+import com.energyict.mdc.upl.LoadProfileConfigurationException;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 
 import com.energyict.dlms.DLMSAttribute;

@@ -4,9 +4,9 @@
 package com.energyict.protocolimpl.modbus.schneider.compactnsx;
 
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.protocol.api.InvalidPropertyException;
-import com.energyict.mdc.protocol.api.MissingPropertyException;
-import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+import com.energyict.mdc.upl.properties.InvalidPropertyException;
+import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.protocols.mdc.inbound.rtuplusserver.DiscoverResult;
 import com.energyict.protocols.mdc.inbound.rtuplusserver.DiscoverTools;

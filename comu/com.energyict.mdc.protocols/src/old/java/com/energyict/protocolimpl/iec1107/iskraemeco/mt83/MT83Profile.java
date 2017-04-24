@@ -5,7 +5,7 @@
 
 package com.energyict.protocolimpl.iec1107.iskraemeco.mt83;
 
-import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MeterExceptionInfo;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;

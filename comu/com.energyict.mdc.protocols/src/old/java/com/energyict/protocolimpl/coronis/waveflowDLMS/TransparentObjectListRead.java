@@ -1,7 +1,7 @@
 package com.energyict.protocolimpl.coronis.waveflowDLMS;
 
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.protocols.util.ProtocolUtils;
 
 import com.energyict.cbo.Quantity;

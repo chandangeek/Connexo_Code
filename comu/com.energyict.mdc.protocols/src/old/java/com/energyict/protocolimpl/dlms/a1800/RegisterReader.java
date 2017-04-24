@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.dlms.a1800;
 
-import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 
 import com.energyict.cbo.BaseUnit;

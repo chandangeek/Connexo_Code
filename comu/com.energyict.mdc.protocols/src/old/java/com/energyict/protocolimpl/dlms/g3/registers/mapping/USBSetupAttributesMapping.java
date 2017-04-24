@@ -5,7 +5,7 @@
 package com.energyict.protocolimpl.dlms.g3.registers.mapping;
 
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.protocol.api.ProtocolException;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.exceptions.DataParseException;

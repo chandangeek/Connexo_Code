@@ -5,7 +5,7 @@ import com.elster.jupiter.calendar.CalendarService;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
-import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 
 import com.energyict.dlms.axrdencoding.AbstractDataType;

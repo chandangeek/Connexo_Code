@@ -1,8 +1,8 @@
 package com.energyict.dlms.aso;
 
 import com.energyict.mdc.protocol.api.ProtocolException;
-import com.energyict.mdc.protocol.api.UnsupportedException;
-import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.mdc.protocol.api.exceptions.DataEncryptionException;
 import com.energyict.mdc.protocol.api.exceptions.DeviceConfigurationException;
 import com.energyict.mdc.upl.io.ConnectionCommunicationException;

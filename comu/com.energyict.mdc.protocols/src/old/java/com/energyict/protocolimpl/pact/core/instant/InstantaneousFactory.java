@@ -6,7 +6,7 @@
 
 package com.energyict.protocolimpl.pact.core.instant;
 
-import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+import com.energyict.mdc.upl.NoSuchRegisterException;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;

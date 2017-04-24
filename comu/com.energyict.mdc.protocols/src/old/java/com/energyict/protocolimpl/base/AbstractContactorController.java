@@ -4,7 +4,7 @@
 
 package com.energyict.protocolimpl.base;
 
-import com.energyict.mdc.protocol.api.UnsupportedException;
+import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.protocol.api.device.data.BreakerStatus;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 

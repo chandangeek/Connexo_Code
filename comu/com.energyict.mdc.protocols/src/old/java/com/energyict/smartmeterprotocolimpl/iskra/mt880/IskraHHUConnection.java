@@ -3,7 +3,7 @@ package com.energyict.smartmeterprotocolimpl.iskra.mt880;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.common.NestedIOException;
-import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.mdc.protocol.api.inbound.MeterType;
 import com.energyict.protocols.mdc.inbound.general.MeterTypeImpl;
 import com.energyict.protocols.util.ProtocolUtils;

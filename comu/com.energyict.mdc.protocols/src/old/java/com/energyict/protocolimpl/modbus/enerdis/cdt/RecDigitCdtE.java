@@ -5,7 +5,7 @@
 package com.energyict.protocolimpl.modbus.enerdis.cdt;
 
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.protocol.api.UnsupportedException;
+import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.protocols.mdc.inbound.rtuplusserver.DiscoverResult;
 import com.energyict.protocols.mdc.inbound.rtuplusserver.DiscoverTools;
 

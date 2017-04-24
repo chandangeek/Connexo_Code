@@ -4,8 +4,8 @@
 
 package com.energyict.smartmeterprotocolimpl.iskra.mt880;
 
-import com.energyict.mdc.protocol.api.InvalidPropertyException;
-import com.energyict.mdc.protocol.api.MissingPropertyException;
+import com.energyict.mdc.upl.properties.InvalidPropertyException;
+import com.energyict.mdc.upl.properties.MissingPropertyException;
 
 import com.energyict.dlms.ConnectionMode;
 import com.energyict.dlms.DLMSReference;

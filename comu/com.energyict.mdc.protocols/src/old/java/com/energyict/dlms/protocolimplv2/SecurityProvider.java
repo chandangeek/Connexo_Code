@@ -4,7 +4,7 @@
 
 package com.energyict.dlms.protocolimplv2;
 
-import com.energyict.mdc.protocol.api.UnsupportedException;
+import com.energyict.mdc.upl.UnsupportedException;
 
 import com.energyict.dlms.aso.framecounter.RespondingFrameCounterHandler;
 

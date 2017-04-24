@@ -10,7 +10,7 @@
 
 package com.energyict.protocolimpl.iec1107;
 
-import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.upl.properties.InvalidPropertyException;
 
 import java.math.BigDecimal;
 /**

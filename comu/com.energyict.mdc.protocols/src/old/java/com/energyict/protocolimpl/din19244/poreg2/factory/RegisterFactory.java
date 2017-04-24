@@ -5,7 +5,7 @@
 package com.energyict.protocolimpl.din19244.poreg2.factory;
 
 
-import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 
 import com.energyict.protocolimpl.din19244.poreg2.Poreg;

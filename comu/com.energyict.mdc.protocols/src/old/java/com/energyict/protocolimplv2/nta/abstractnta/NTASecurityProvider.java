@@ -7,7 +7,7 @@ import com.energyict.dlms.protocolimplv2.SecurityProvider;
 import com.energyict.mdc.common.HexString;
 import com.energyict.mdc.common.Password;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.protocol.api.UnsupportedException;
+import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
 
 import java.io.IOException;

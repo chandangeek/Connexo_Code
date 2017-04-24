@@ -1,7 +1,7 @@
 package com.energyict.protocolimpl.iec1107.cewe.ceweprometer.register;
 
 import com.energyict.mdc.common.ApplicationException;
-import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 

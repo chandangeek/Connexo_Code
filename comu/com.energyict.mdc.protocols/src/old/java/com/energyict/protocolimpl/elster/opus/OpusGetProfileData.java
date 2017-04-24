@@ -1,7 +1,7 @@
 package com.energyict.protocolimpl.elster.opus;
 
 import com.energyict.mdc.common.interval.IntervalStateBits;
-import com.energyict.mdc.protocol.api.UnsupportedException;
+import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;

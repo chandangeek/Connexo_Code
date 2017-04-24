@@ -6,7 +6,7 @@
 
 package com.energyict.protocolimpl.dlms.iskrame37x;
 
-import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+import com.energyict.mdc.upl.NoSuchRegisterException;
 
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.DataStructure;

@@ -6,7 +6,7 @@
 
 package com.energyict.protocolimpl.dlms.flex;
 
-import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+import com.energyict.mdc.upl.NoSuchRegisterException;
 
 import com.energyict.obis.ObisCode;
 

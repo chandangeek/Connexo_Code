@@ -1,14 +1,14 @@
 package com.energyict.protocolimpl.dlms.JanzC280;
 
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.protocol.api.InvalidPropertyException;
-import com.energyict.mdc.protocol.api.MissingPropertyException;
-import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+import com.energyict.mdc.upl.properties.InvalidPropertyException;
+import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.protocol.api.NotInObjectListException;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.protocols.util.CacheMechanism;
@@ -201,7 +201,7 @@ public class JanzC280 extends AbstractDLMSProtocol implements CacheMechanism {
      *
      * @return String with firmware version. This can also contain other important info of the meter.
      * @throws java.io.IOException thrown when something goes wrong
-     * @throws com.energyict.mdc.protocol.api.UnsupportedException
+     * @throws com.energyict.mdc.upl.UnsupportedException
      *                             Thrown when that method is not supported
      */
     @Override
@@ -344,7 +344,7 @@ public class JanzC280 extends AbstractDLMSProtocol implements CacheMechanism {
      * Override this method to requesting the load profile integration time
      *
      * @return integration time in seconds
-     * @throws com.energyict.mdc.protocol.api.UnsupportedException
+     * @throws com.energyict.mdc.upl.UnsupportedException
      *                             thrown when not supported
      * @throws java.io.IOException Thrown when something goes wrong
      */
@@ -359,7 +359,7 @@ public class JanzC280 extends AbstractDLMSProtocol implements CacheMechanism {
      * Override this method to requesting the nr of load profile channels from the meter. If not overridden, the default implementation uses the ChannelMap object to get the nr of channels. The ChannelMap object is constructed from the ChannelMap custom property containing a comma separated string. The nr of comma separated tokens is the nr of channels.
      *
      * @return nr of load profile channels
-     * @throws com.energyict.mdc.protocol.api.UnsupportedException
+     * @throws com.energyict.mdc.upl.UnsupportedException
      *                             thrown when not supported
      * @throws java.io.IOException thrown when something goes wrong
      */
@@ -403,7 +403,7 @@ public class JanzC280 extends AbstractDLMSProtocol implements CacheMechanism {
      * @param includeEvents eneble or disable requesting of meterevents
      * @return ProfileData object
      * @throws java.io.IOException Thrown when something goes wrong
-     * @throws com.energyict.mdc.protocol.api.UnsupportedException
+     * @throws com.energyict.mdc.upl.UnsupportedException
      *                             Thrown when not supported
      */
     @Override

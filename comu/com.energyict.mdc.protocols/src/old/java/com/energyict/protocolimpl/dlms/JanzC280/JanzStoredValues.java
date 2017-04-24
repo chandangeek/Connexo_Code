@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.dlms.JanzC280;
 
-import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.protocols.util.ProtocolUtils;
 
 import com.energyict.cbo.Unit;

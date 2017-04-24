@@ -1,6 +1,6 @@
 package com.energyict.dlms;
 
-import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.protocol.api.ProtocolException;
 
 import com.energyict.dlms.cosem.DLMSClassId;

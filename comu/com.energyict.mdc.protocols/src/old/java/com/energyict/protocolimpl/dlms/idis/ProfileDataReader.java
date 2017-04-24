@@ -1,7 +1,7 @@
 package com.energyict.protocolimpl.dlms.idis;
 
 import com.energyict.mdc.common.interval.IntervalStateBits;
-import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.protocol.api.device.data.IntervalValue;
