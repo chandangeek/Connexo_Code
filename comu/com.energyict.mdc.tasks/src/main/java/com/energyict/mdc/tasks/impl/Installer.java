@@ -43,11 +43,6 @@ class Installer implements FullInstaller {
                 this::createFirmwareComTaskIfNotPresentYet,
                 logger
         );
-        doTry(
-                "Create Status Information Com Task",
-                this::createStatusInformationComTaskIfNotPresentYet,
-                logger
-        );
     }
 
     private void createEventTypes() {
@@ -67,25 +62,6 @@ class Installer implements FullInstaller {
         systemComTask.setName(ServerTaskService.FIRMWARE_COMTASK_NAME);
         systemComTask.createFirmwareUpgradeTask();
         systemComTask.save();
-    }
-
-    private void createStatusInformationComTaskIfNotPresentYet() {
-        if (!findStatusInformationComTask().isPresent()) {
-            createStatusInformationComTask();
-        }
-    }
-
-    private Optional<ComTask> findStatusInformationComTask() {
-        List<ComTask> comTasks = dataModel.mapper(ComTask.class)
-                .find("name", ServerTaskService.STATUS_INFORMATION_COMTASK_NAME);
-        return comTasks.size() == 1 ? Optional.of(comTasks.get(0)) : Optional.empty();
-    }
-
-    private void createStatusInformationComTask() {
-        ComTask comTask = dataModel.getInstance(ComTask.class);
-        comTask.setName(ServerTaskService.STATUS_INFORMATION_COMTASK_NAME);
-        comTask.createStatusInformationTask();
-        comTask.save();
     }
 
 }

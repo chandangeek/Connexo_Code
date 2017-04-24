@@ -24,7 +24,6 @@ import java.util.List;
 public interface ServerTaskService extends TaskService {
 
     String FIRMWARE_COMTASK_NAME = "Firmware management";
-    String STATUS_INFORMATION_COMTASK_NAME = "Verify status information";
 
     Thesaurus getThesaurus();
 
