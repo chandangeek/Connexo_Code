@@ -16,6 +16,8 @@ import com.elster.jupiter.properties.PropertySpecBuilder;
 import com.elster.jupiter.properties.PropertySpecBuilderWizard;
 import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.CommunicationException;
@@ -25,9 +27,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocolProperty;
 import com.energyict.mdc.protocol.api.DeviceSecuritySupport;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.protocol.api.exceptions.LegacyProtocolException;
-import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolSecurityService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
@@ -58,22 +58,20 @@ import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
-
-import com.energyict.dialer.core.SerialCommunicationChannel;
-
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import java.io.IOException;
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Fail.fail;
@@ -165,8 +163,8 @@ public class SmartMeterProtocolAdapterImplTest {
     }
 
     private void mockPropertySpecs() {
-        this.propertySpecMockSupport.mockStringPropertySpec(MeterProtocol.NODEID, inMemoryPersistence.getPropertySpecService());
-        this.propertySpecMockSupport.mockStringPropertySpec(MeterProtocol.ADDRESS, inMemoryPersistence.getPropertySpecService());
+        this.propertySpecMockSupport.mockStringPropertySpec(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), inMemoryPersistence.getPropertySpecService());
+        this.propertySpecMockSupport.mockStringPropertySpec(com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS.getName(), inMemoryPersistence.getPropertySpecService());
         this.propertySpecMockSupport.mockStringPropertySpec(DeviceProtocolProperty.CALL_HOME_ID.javaFieldName(), inMemoryPersistence.getPropertySpecService());
         this.propertySpecMockSupport.mockStringPropertySpec(DeviceProtocolProperty.DEVICE_TIME_ZONE.javaFieldName(), inMemoryPersistence.getPropertySpecService());
     }
@@ -321,11 +319,11 @@ public class SmartMeterProtocolAdapterImplTest {
         SmartMeterProtocolAdapterImpl smartMeterProtocolAdapter = newSmartMeterProtocolAdapter(smartMeterProtocol);
 
         // Calling all business method on CachingProtocol
-        smartMeterProtocolAdapter.setCache(cacheObject);
+        smartMeterProtocolAdapter.setCache((Serializable) cacheObject);
         smartMeterProtocolAdapter.getCache();
 
         // Verify that the adapter properly forwarded the method calls to the smartMeterProtocol
-        verify(smartMeterProtocol).setCache(cacheObject);
+        verify(smartMeterProtocol).setCache((Serializable) cacheObject);
         verify(smartMeterProtocol).getCache();
     }
 

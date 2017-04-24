@@ -1,9 +1,8 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.upl;
 
 import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.cbo.Quantity;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.protocol.api.InvalidPropertyException;
-import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.mdc.protocol.api.exceptions.NestedPropertyValidationException;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.TypedPropertiesValueAdapter;
@@ -15,10 +14,10 @@ import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.offline.OfflineDevice;
+import com.energyict.mdc.upl.properties.InvalidPropertyException;
+import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
-
-import com.energyict.cbo.Quantity;
 import com.energyict.protocol.ProfileData;
 
 import java.io.IOException;
@@ -185,13 +184,13 @@ public class UPLMeterProtocolAdapter implements MeterProtocol, UPLProtocolAdapte
     }
 
     @Override
-    public Object getCache() {
+    public Serializable getCache() {
         return this.getCachingProtocol().getCache();
     }
 
     @Override
-    public void setCache(Object cacheObject) {
-        this.getCachingProtocol().setCache((Serializable) cacheObject);
+    public void setCache(Serializable cacheObject) {
+        this.getCachingProtocol().setCache(cacheObject);
     }
 
     @Override
@@ -323,6 +322,7 @@ public class UPLMeterProtocolAdapter implements MeterProtocol, UPLProtocolAdapte
             return actual.prepareMessageContext(device, offlineDevice, deviceMessage);
         }
     }
+
     private static class NoMessageSupport implements DeviceMessageSupport {
         @Override
         public List<DeviceMessageSpec> getSupportedMessages() {

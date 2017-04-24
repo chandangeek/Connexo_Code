@@ -28,6 +28,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.io.Serializable;
 import java.util.Optional;
 
 import static org.junit.Assert.assertFalse;
@@ -147,7 +148,7 @@ public class DeviceCachingTest {
         meterProtocolAdapter.setDeviceCache(deviceCacheAdapter);
 
         // assert that the proper meterProtocol.setCache(...) is called
-        verify(meterProtocol).setCache(device);
+        verify(meterProtocol).setCache((Serializable) device);
     }
 
     @Test
