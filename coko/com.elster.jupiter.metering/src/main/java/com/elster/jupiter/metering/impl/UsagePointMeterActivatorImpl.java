@@ -34,7 +34,6 @@ import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationServi
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointStage;
 import com.elster.jupiter.users.PreferenceType;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.RangeComparatorFactory;
@@ -323,7 +322,7 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
         for (Activation deactivation : deactivationChanges) {
             if (deactivation.getUsagePoint().getEffectiveMetrologyConfiguration(deactivation.getStart())
                     .map(EffectiveMetrologyConfigurationOnUsagePoint::getMetrologyConfiguration)
-                    .filter(mc -> !mc.isGapAllowed())
+                    .filter(mc -> !mc.areGapsAllowed())
                     .isPresent()
                     && !activationChanges.stream()
                     .filter(activation -> deactivation.getMeterRole().equals(activation.getMeterRole())
@@ -341,7 +340,7 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
         for (Activation activation : activationChanges) {
             Optional<EffectiveMetrologyConfigurationOnUsagePoint> configurationOnUsagePoint = activation.getUsagePoint().getEffectiveMetrologyConfiguration(activation.getStart());
             if (configurationOnUsagePoint.isPresent()
-                    && !configurationOnUsagePoint.get().getMetrologyConfiguration().isGapAllowed()
+                    && !configurationOnUsagePoint.get().getMetrologyConfiguration().areGapsAllowed()
                     && configurationOnUsagePoint.get().getStart().isBefore(activation.getStart())
                     && !deactivationChanges.stream()
                     .filter(deactivation -> activation.getMeterRole().equals(deactivation.getMeterRole())
@@ -933,7 +932,7 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
         @Override
         public void incorrectStartTimeOfMeterAndMetrologyConfig(Meter meter, MeterRole meterRole, String date) {
             this.valid = false;
-            String errorMessage = this.thesaurus.getFormat(MessageSeeds.METER_ACTIVATION_INVALID_DATE)
+            String errorMessage = this.thesaurus.getFormat(PrivateMessageSeeds.METER_ACTIVATION_INVALID_DATE)
                     .format(meter.getName(), date);
             this.context.buildConstraintViolationWithTemplate(errorMessage).addPropertyNode(meterRole.getKey()).addConstraintViolation();
         }

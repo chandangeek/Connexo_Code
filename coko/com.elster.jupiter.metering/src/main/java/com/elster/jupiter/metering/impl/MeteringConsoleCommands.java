@@ -65,12 +65,10 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Scanner;
 import java.util.stream.Collectors;
@@ -742,7 +740,7 @@ public class MeteringConsoleCommands {
 
     public void addContract(long metrologyConfigurationId, String metrologyPurpose) {
         this.threadPrincipalService.set(() -> "Console");
-        this.addMetrologyContract(
+        this.addContract(
                 this.metrologyConfigurationService
                         .findMetrologyConfiguration(metrologyConfigurationId)
                         .orElseThrow(() -> new IllegalArgumentException("No such metrology configuration")),

@@ -106,6 +106,7 @@ public enum PrivateMessageSeeds implements MessageSeed {
     UNSATISFIED_READING_TYPE_REQUIREMENT_FOR_METER(7019, Constants.UNSATISFIED_READING_TYPE_REQUIREMENT_FOR_METER, "Meter {0} does not provide reading types required by purpose {1}"),
     CANNOT_START_PRIOR_TO_LATEST_CALENDAR_OF_SAME_CATEGORY(7020, "usagepoint.calendar.cannot.start.prior.of.same.category", "Cannot start calendar on usage point, prior to latest calendar of same category."),
     METER_NOT_IN_OPERATIONAL_STAGE(7021, Constants.METER_NOT_IN_OPERATIONAL_STAGE, "Meter {0} is not operational"),
+    METER_IN_POST_OPERATIONAL_STAGE(7023, Constants.METER_IN_POST_OPERATIONAL_STAGE, "Metrology configuration is not active but meter is in post operational stage", Level.SEVERE),
     CANNOT_START_BEFORE_NOW(7022, "usagepoint.calendar.cannot.start.before.now", "Activation date can''t be in the past."),
 
     DENOMINATOR_CANNOT_BE_ZERO(8001, Constants.DENOMINATOR_CANNOT_BE_ZERO, "Denominator cannot be 0"),
@@ -124,7 +125,8 @@ public enum PrivateMessageSeeds implements MessageSeed {
     INVALID_END_DEVICE_STAGE_WITH_GAPS_ALLOWED(12207, Constants.INVALID_END_DEVICE_STAGE_WITH_GAPS_ALLOWED, "Meter linking error. Meter {0} cannot be linked to usage point {1}, as the linking would occur after the metrology configuration''s activation and before the meter''s activation."),
     METER_ACTIVATION_BEFORE_UP_INSTALLATION_TIME(12209, Constants.METER_ACTIVATION_BEFORE_UP_INSTALLATION_TIME, "Meter linking error. The meter activation date must be greater than, or equal to, the usage point creation date. This usage point''s creation date is {0}."),
     METROLOGY_CONFIG_INVALID_START_DATE(12211, Constants.METROLOGY_CONFIG_INVALID_START_DATE, "Metrology configuration linking error. The metrology configuration''s start date must be greater than, or equal to, the creation date of the usage point {0}"),
-    METERS_ARE_NOT_SPECIFIED_FOR_CONFIGURATION(12212, Constants.METERS_ARE_NOT_SPECIFIED_FOR_CONFIGURATION, "Metrology configuration linking error.  Meters must be specified for all the meter roles required for the calculation of the active purposes of the selected metrology configuration. Required meter roles: {0}");
+    METERS_ARE_NOT_SPECIFIED_FOR_CONFIGURATION(12212, Constants.METERS_ARE_NOT_SPECIFIED_FOR_CONFIGURATION, "Metrology configuration linking error.  Meters must be specified for all the meter roles required for the calculation of the active purposes of the selected metrology configuration. Required meter roles: {0}"),
+    METER_CANNOT_BE_UNLINKED(12209, Constants.METER_CANNOT_BE_UNLINKED, "Meter unlinking error. Because the metrology configuration does not allow gaps, meter {0} cannot be unlinked from usage point {1} at {2}. This meter is required for the calculation of the active purposes of the metrology configuration.");
 
     private final int number;
     private final String key;
@@ -248,6 +250,7 @@ public enum PrivateMessageSeeds implements MessageSeed {
         public static final String UNSATISFIED_TOU = "usagepoint.tou.unsatisfied";
         public static final String DENOMINATOR_CANNOT_BE_ZERO = "denominator.cannot.be.zero";
         public static final String METER_NOT_IN_OPERATIONAL_STAGE = "meter.not.in.operational.stage";
+        public static final String METER_IN_POST_OPERATIONAL_STAGE = "meter.in.post.operational.stage";
         public static final String DUPLICATE_SLP_NAME = "slp.name.already.exists";
         public static final String READING_TYPE_FOR_DELIVERABLE_ALREADY_USED_ON_CONTRACT = "reading.type.already.used.for.deliverable.on.same.metrologycontract";
         public static final String INVALID_METROLOGYCONTRACT_FOR_DELIVERABLE = "invalid.metrologycontract.for.deliverable";
@@ -258,6 +261,7 @@ public enum PrivateMessageSeeds implements MessageSeed {
         public static final String METER_ACTIVATION_BEFORE_UP_INSTALLATION_TIME = "meter.activation.before.up.installation.time";
         public static final String METROLOGY_CONFIG_INVALID_START_DATE = "metrology.config.invalid.start.date";
         public static final String METERS_ARE_NOT_SPECIFIED_FOR_CONFIGURATION = "meters.are.not.specified.for.configuration";
+        public static final String METER_CANNOT_BE_UNLINKED = "meter.cannot.be.unlinked";
     }
 
 }

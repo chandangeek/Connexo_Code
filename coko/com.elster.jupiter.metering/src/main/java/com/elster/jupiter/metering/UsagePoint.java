@@ -343,7 +343,6 @@ public interface UsagePoint extends HasId, IdentifiedObject {
     interface CalendarUsage {
         Range<Instant> getRange();
         Calendar getCalendar();
-        void end(Instant endAt);
     }
 
     interface UsedCalendars {
@@ -452,8 +451,6 @@ public interface UsagePoint extends HasId, IdentifiedObject {
          * @return The Calendar or <code>Optional.empty()</code> if no such Calendar exists
          */
         Optional<Calendar> getCalendar(Instant instant, Category category);
-
-        Map<Category, List<CalendarUsage>> getCalendars();
 
     }
 

@@ -57,12 +57,18 @@ public class UsagePointMeterActivationException extends com.elster.jupiter.meter
         return new MeterActiveWithDifferentMeterRole(thesaurus, PrivateMessageSeeds.THE_SAME_METER_ACTIVATED_TWICE_ON_USAGE_POINT);
     }
 
-    public static class ActivationFailedByCustomValidator extends UsagePointMeterActivationException {
+    public static MeterCannotBeUnlinked meterCannotBeUnlinked(Thesaurus thesaurus, Meter meter, MeterRole meterRole, UsagePoint usagePoint, String date) {
+        return new MeterCannotBeUnlinked(thesaurus, meter.getName(), usagePoint.getName(), date);
+    }
 
+    public static IncorrectStartTimeOfMeterAndMetrologyConfig incorrectStartTimeOfMeterAndMetrologyConfig(Thesaurus thesaurus, Meter meter, MeterRole meterRole,  String date) {
+        return new IncorrectStartTimeOfMeterAndMetrologyConfig(thesaurus, meter.getName(), date);
+    }
+
+    public static class ActivationFailedByCustomValidator extends UsagePointMeterActivationException {
         private ActivationFailedByCustomValidator(Thesaurus thesaurus, MessageSeed messageSeed, CustomUsagePointMeterActivationValidationException cause, Object... args) {
             super(thesaurus, messageSeed, cause, args);
         }
-
     }
 
     public static ActivationFailedByCustomValidator activationFailedByCustomValidator(Thesaurus thesaurus, CustomUsagePointMeterActivationValidationException cause) {
@@ -90,6 +96,12 @@ public class UsagePointMeterActivationException extends com.elster.jupiter.meter
     public static class IncorrectMeterActivationDateWhenGapsAreAllowed extends UsagePointMeterActivationException {
         public IncorrectMeterActivationDateWhenGapsAreAllowed(Thesaurus thesaurus, String meter, String usagePoint) {
             super(thesaurus, PrivateMessageSeeds.INVALID_END_DEVICE_STAGE_WITH_GAPS_ALLOWED, meter, usagePoint);
+        }
+    }
+
+    public static class MeterCannotBeUnlinked extends UsagePointMeterActivationException {
+        public MeterCannotBeUnlinked(Thesaurus thesaurus, String meter, String usagePoint, String date) {
+            super(thesaurus, PrivateMessageSeeds.METER_CANNOT_BE_UNLINKED, meter, usagePoint, date);
         }
     }
 

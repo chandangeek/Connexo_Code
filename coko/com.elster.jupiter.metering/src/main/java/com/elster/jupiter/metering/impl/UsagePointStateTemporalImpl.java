@@ -26,7 +26,7 @@ public class UsagePointStateTemporalImpl implements Effectivity {
     @IsPresent(message = "{" + PrivateMessageSeeds.Constants.REQUIRED + "}")
     private Reference<UsagePoint> usagePoint = ValueReference.absent();
     @IsPresent(message = "{" + PrivateMessageSeeds.Constants.REQUIRED + "}")
-    private Reference<UsagePointState> state = ValueReference.absent();
+    private Reference<State> state = ValueReference.absent();
     private Interval interval;
     @SuppressWarnings("unused")
     private long version;
