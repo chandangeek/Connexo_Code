@@ -4,12 +4,12 @@
 
 package com.elster.jupiter.prepayment.impl;
 
-import com.energyict.mdc.common.Unit;
-
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Optional;
+
+import com.energyict.cbo.Unit;
 
 /**
  * Created by bvn on 9/18/15.
