@@ -83,7 +83,7 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRole;
-import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
 
 import com.google.common.collect.Range;
 
@@ -309,6 +309,7 @@ public enum TableSpecs {
                     .add();
             table.column("GEOCOORDINATES").sdoGeometry().conversion(SDOGEOMETRY2SPATIALGEOOBJ).map("spatialCoordinates").since(version(10, 2)).add();
             Column obsoleteTime = table.column("OBSOLETETIME").number().map("obsoleteTime").conversion(ColumnConversion.NUMBER2INSTANT).since(version(10, 3)).add();
+            Column lifeCycle = table.column("LIFECYCLE").number().notNull().since(version(10, 3)).add();
             table.addAuditColumns();
 
             table.primaryKey("PK_MTR_USAGEPOINT").on(idColumn).add();
@@ -334,6 +335,13 @@ public enum TableSpecs {
                     .onDelete(RESTRICT)
                     .map("upLocation", LocationMember.class)
                     .since(version(10, 2))
+                    .add();
+            table.foreignKey("FK_MTR_USAGEPOINT_LIFECYCLE")
+                    .on(lifeCycle)
+                    .references(UsagePointLifeCycle.class)
+                    .onDelete(RESTRICT)
+                    .map("usagepointLifeCycle")
+                    .since(version(10, 3))
                     .add();
         }
     },
@@ -1962,7 +1970,7 @@ public enum TableSpecs {
                     .add();
             table.foreignKey("FK_UPL_STATE_2_STATE")
                     .on(state)
-                    .references(UsagePointState.class)
+                    .references(State.class)
                     .onDelete(RESTRICT)
                     .map("state")
                     .add();
