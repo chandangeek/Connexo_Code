@@ -88,6 +88,9 @@ public final class BasicAuthentication implements HttpAuthenticationService {
     private int tokenRefreshMaxCount;
     private int tokenExpTime;
     private String installDir;
+    private Optional<String> host;
+    private Optional<Integer> port;
+    private Optional<String> scheme;
 
 
     @Inject
@@ -157,6 +160,17 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         installDir = context.getProperty("install.dir");
         upgradeService.register(InstallIdentifier.identifier("Pulse", "HTP"), dataModel, Installer.class, Collections.emptyMap());
         initSecurityTokenImpl();
+
+        host = getOptionalStringProperty("com.elster.jupiter.url.rewrite.host", context);
+        Optional<String> portString = getOptionalStringProperty("com.elster.jupiter.url.rewrite.port", context);
+        port = portString.map(port -> {
+            try {
+                return Optional.of(Integer.valueOf(port));
+            } catch (NumberFormatException e) {
+                return Optional.<Integer>empty();
+            }
+        }).orElse(Optional.<Integer>empty());
+        scheme = getOptionalStringProperty("com.elster.jupiter.url.rewrite.scheme", context);
     }
 
     public void createNewTokenKey(String... args) {
@@ -224,6 +238,19 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         return defaultValue;
     }
 
+    private Optional<String> getOptionalStringProperty(String propertyName, BundleContext context) {
+        if (context != null) {
+            String property = context.getProperty(propertyName);
+            if (!is(property).emptyOrOnlyWhiteSpace()) {
+                return Optional.of(property.trim());
+            } else {
+                return Optional.empty();
+            }
+        } else {
+            return Optional.empty();
+        }
+    }
+
     Optional<KeyStoreImpl> getKeyPair() {
         List<KeyStoreImpl> keys = new ArrayList<>(dataModel.mapper(KeyStoreImpl.class).find());
         if (!keys.isEmpty()) {
@@ -261,11 +288,8 @@ public final class BasicAuthentication implements HttpAuthenticationService {
                 response.setStatus(HttpServletResponse.SC_ACCEPTED);
                 return true;
             } else if (!shouldUnauthorize(request.getRequestURI())) {
-                String server = request.getRequestURL()
-                        .substring(0, request.getRequestURL().indexOf(request.getRequestURI()));
-
                 response.setStatus(HttpServletResponse.SC_TEMPORARY_REDIRECT);
-                response.setHeader("Location", server + LOGIN_URI + "?" + "page=" + request.getRequestURL());
+                response.setHeader("Location", getLoginUrl(request));
                 response.getOutputStream().flush();
                 return true;
             } else {
@@ -275,6 +299,17 @@ public final class BasicAuthentication implements HttpAuthenticationService {
             }
         }
     }
+
+    private String getLoginUrl(HttpServletRequest request) {
+        String loginUrl = (scheme.isPresent() ? scheme.get() : request.getScheme()) + "://" + (host.isPresent() ? host.get() : request.getServerName());
+        int portNumber = (port.isPresent() ? port.get() : request.getServerPort());
+        if (portNumber != 80 && portNumber != 443) {
+            loginUrl = loginUrl + ":" + portNumber;
+        }
+
+        return loginUrl + LOGIN_URI + "?" + "page=" + loginUrl + request.getRequestURI();
+    }
+
 
     @Override
     public void logout(HttpServletRequest request, HttpServletResponse response) {
@@ -373,19 +408,19 @@ public final class BasicAuthentication implements HttpAuthenticationService {
 
     private boolean unsecureAllowed(String uri) {
         return Stream.of(RESOURCES_NOT_SECURED)
-                .filter(r -> uri.startsWith(r))
+                .filter(uri::startsWith)
                 .findAny().isPresent();
     }
 
     private boolean isCachedResource(String uri) {
         return !Stream.of(RESOURCES_NOT_CACHED)
-                .filter(r -> uri.endsWith(r))
+                .filter(uri::endsWith)
                 .findAny().isPresent();
     }
 
     private boolean shouldUnauthorize(String uri) {
         return Stream.of(RESOURCES_UNAUTHORIZED)
-                .filter(r -> uri.startsWith(r))
+                .filter(uri::startsWith)
                 .findAny().isPresent();
     }
 
