@@ -144,7 +144,7 @@ public class S200 extends AbstractProtocol {
 
     @Override
     public String getProtocolDescription() {
-        return "vLandis&Gyr Sentry S200";
+        return "Landis&Gyr Sentry S200";
     }
 
     @Override
