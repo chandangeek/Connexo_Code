@@ -22,6 +22,6 @@ public class MetrologyConfigurationInfo extends LinkInfo<Long> {
     public Instant createTime;
     public Instant modTime;
 
-    public List<IdWithNameInfo> meterRoles;
+    public List<String> meterRoles;
     public List<LinkInfo> customProperties;
 }

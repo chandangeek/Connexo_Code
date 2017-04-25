@@ -5,6 +5,7 @@
 package com.elster.jupiter.kore.api.v2;
 
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
+import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.LinkInfo;
@@ -82,7 +83,7 @@ public class MetrologyConfigurationInfoFactory extends SelectableFieldFactory<Me
         map.put("meterRoles", (metrologyInfo, metrology, uriInfo) -> metrologyInfo.meterRoles
                 = ((UsagePointMetrologyConfiguration) metrology).getMeterRoles()
                 .stream()
-                .map(meterRole -> asIdWithNameInfo(meterRole.getKey(), meterRole.getDisplayName()))
+                .map(MeterRole::getKey)
                 .collect(Collectors.toList()));
         map.put("customProperties", (metrologyInfo, metrology, uriInfo) -> metrologyInfo.customProperties
                 = metrology.getCustomPropertySets()
