@@ -16,8 +16,6 @@ import com.elster.jupiter.demo.impl.templates.OutboundTCPComPortPoolTpl;
 import com.elster.jupiter.demo.impl.templates.RegisterTypeTpl;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Password;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
@@ -39,8 +37,8 @@ import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.tasks.ComTask;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocols.naming.ConnectionTypePropertySpecName;
-import com.energyict.protocols.naming.SecurityPropertySpecName;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -157,7 +155,7 @@ public class CreateA3DeviceCommand {
         channels.put(RegisterTypeTpl.DELRA_REACTIVE_ENERGY_PLUS.getMrid(), "0.3.128.0.0.255");
         channels.put(RegisterTypeTpl.DELRA_REACTIVE_ENERGY_MINUS.getMrid(), "0.4.128.0.0.255");
         addChannelsOnLoadProfileToDeviceConfiguration(configuration, channels);
-        ConnectionTypePluggableClass pluggableClass = protocolPluggableService.findConnectionTypePluggableClassByName("OutboundTcpIp").get();
+        ConnectionTypePluggableClass pluggableClass = protocolPluggableService.findConnectionTypePluggableClassByName("OutboundTcpIpConnectionType").get();
         configuration
                 .newPartialScheduledConnectionTask("Outbound TCP", pluggableClass, new TimeDuration(5, TimeDuration.TimeUnit.MINUTES), ConnectionStrategy.AS_SOON_AS_POSSIBLE, configuration.getProtocolDialectConfigurationPropertiesList().get(0))
                 .comPortPool(Builders.from(OutboundTCPComPortPoolTpl.ORANGE).get())
@@ -259,12 +257,18 @@ public class CreateA3DeviceCommand {
         DeviceConfiguration configuration = device.getDeviceConfiguration();
         SecurityPropertySet securityPropertySet = configuration.getSecurityPropertySets().stream().filter(sps -> SECURITY_PROPERTY_NAME.equals(sps.getName())).findFirst().orElseThrow(() -> new UnableToCreate(""));
         TypedProperties typedProperties = TypedProperties.empty();
-        typedProperties.setProperty(SecurityPropertySpecName.ANSI_C12_USER_ID.getKey(), "0");
-        typedProperties.setProperty(SecurityPropertySpecName.ANSI_C12_USER.getKey(), "          ");
-        securityPropertySet.getPropertySpecs().stream().filter(ps -> SecurityPropertySpecName.ENCRYPTION_KEY.getKey().equals(ps.getName())).findFirst().ifPresent(
+        typedProperties.setProperty("C12UserId", BigDecimal.ZERO);
+        typedProperties.setProperty("C12User", "          ");
+        securityPropertySet.getPropertySpecs().stream().filter(ps -> "EncryptionKey".equals(ps.getName())).findFirst().ifPresent(
                 ps -> typedProperties.setProperty(ps.getName(), ps.getValueFactory().fromStringValue("F2FE78E33DF19786BBD2E56F9E93BE88")));
-        typedProperties.setProperty(SecurityPropertySpecName.ANSI_CALLED_AP_TITLE.getKey(), "1.3.6.1.4.1.33507.1919.42327");
-        typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.getKey(), new Password("00000000000000000000"));
+        typedProperties.setProperty("CalledAPTitle", "1.3.6.1.4.1.33507.1919.42327");
+
+        securityPropertySet
+                .getPropertySpecs()
+                .stream()
+                .filter(ps -> "Password".equals(ps.getName()))
+                .findFirst()
+                .ifPresent(ps -> typedProperties.setProperty(ps.getName(), ps.getValueFactory().fromStringValue("00000000000000000000")));
         device.setSecurityProperties(securityPropertySet, typedProperties);
     }
 }

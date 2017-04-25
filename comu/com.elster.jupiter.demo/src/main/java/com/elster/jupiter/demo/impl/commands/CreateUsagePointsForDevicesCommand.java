@@ -175,7 +175,7 @@ public class CreateUsagePointsForDevicesCommand {
         return () -> {
             Principal currentPrincipal = threadPrincipalService.getPrincipal();
             // need 'real' user to create usage point,
-            // so that initial UsagePointState change request will be created with this user
+            // so that initial State change request will be created with this user
             threadPrincipalService.set(Builders.from(UserTpl.MELISSA).get());
             UsagePoint usagePoint = Builders.from(UsagePointBuilder.class)
                     .withName(prefix + device.getSerialNumber())
@@ -207,11 +207,15 @@ public class CreateUsagePointsForDevicesCommand {
         if (!device.getUsagePoint().isPresent()
                 && !device.getState(this.clock.instant().plus(10, ChronoUnit.MINUTES)).map(State::isInitial).orElse(true)) {
             // +10m to be sure that we get the latest state and skip all devices with initial state
+            Instant now = clock.instant();
             this.meteringService.findAmrSystem(KnownAmrSystem.MDC.getId())
                     .flatMap(amrSystem -> amrSystem.findMeter(String.valueOf(device.getId())))
                     .ifPresent(mtr -> usagePoint.linkMeters()
-                            .activate(mtr, this.metrologyConfigurationService.findDefaultMeterRole(DefaultMeterRole.DEFAULT))
+                            .activate(now, mtr, this.metrologyConfigurationService.findDefaultMeterRole(DefaultMeterRole.DEFAULT))
                             .complete());
+            usagePoint.getEffectiveMetrologyConfiguration(now).ifPresent(effectiveMC -> effectiveMC.close(now));
+            usagePoint.apply(metrologyConfiguration, now);
+            usagePoint.update();
         }
     }
 }
