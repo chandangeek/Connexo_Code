@@ -243,12 +243,32 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
         Response response = target("/devices/BVN001/securityaccessors/keys").request().get();
         JsonModel jsonModel = JsonModel.create((InputStream) response.getEntity());
         assertThat(jsonModel.<List>get("$.keys")).hasSize(1);
+        assertThat(jsonModel.<Boolean>get("$.keys[0].hasTempValue")).isFalse();
         assertThat(jsonModel.<List>get("$.keys[0].currentProperties")).hasSize(1);
         assertThat(jsonModel.<String>get("$.keys[0].currentProperties[0].key")).isEqualTo("key");
         assertThat(jsonModel.<String>get("$.keys[0].currentProperties[0].propertyValueInfo.value")).isEqualTo("b21nLEkgY2FuJ3QgYmVsaWV2ZSB5b3UgZGVjb2RlZCB0aGlz");
         assertThat(jsonModel.<List>get("$.keys[0].tempProperties")).hasSize(1);
         assertThat(jsonModel.<String>get("$.keys[0].tempProperties[0].key")).isEqualTo("key");
         assertThat(jsonModel.<JSONObject>get("$.keys[0].tempProperties[0].propertyValueInfo")).isEmpty();
+    }
+
+    @Test
+    public void testGetKeysWithTempValue() throws Exception {
+        SymmetricKeyWrapper tempSymmetricKeyWrapper = mockSymmetricKeyWrapper(symmetricKeyPropertySpecs, "key", "oldtempvalue");
+        symmetrickeyAccessor = mockSymmetricKeyAccessor(actualSymmetricKeyWrapper, tempSymmetricKeyWrapper);
+        when(device.getKeyAccessor(symmetricKeyAccessorType)).thenReturn(Optional.of(symmetrickeyAccessor));
+        when(deviceService.findAndLockKeyAccessorByIdAndVersion(device, symmetricKeyAccessorType, 11L)).thenReturn(Optional.of(symmetrickeyAccessor));
+
+        Response response = target("/devices/BVN001/securityaccessors/keys").request().get();
+        JsonModel jsonModel = JsonModel.create((InputStream) response.getEntity());
+        assertThat(jsonModel.<List>get("$.keys")).hasSize(1);
+        assertThat(jsonModel.<Boolean>get("$.keys[0].hasTempValue")).isTrue();
+        assertThat(jsonModel.<List>get("$.keys[0].currentProperties")).hasSize(1);
+        assertThat(jsonModel.<String>get("$.keys[0].currentProperties[0].key")).isEqualTo("key");
+        assertThat(jsonModel.<String>get("$.keys[0].currentProperties[0].propertyValueInfo.value")).isEqualTo("b21nLEkgY2FuJ3QgYmVsaWV2ZSB5b3UgZGVjb2RlZCB0aGlz");
+        assertThat(jsonModel.<List>get("$.keys[0].tempProperties")).hasSize(1);
+        assertThat(jsonModel.<String>get("$.keys[0].tempProperties[0].key")).isEqualTo("key");
+        assertThat(jsonModel.<JSONObject>get("$.keys[0].tempProperties[0].propertyValueInfo")).isEqualTo("oldtempvalue");
     }
 
     @Test

@@ -37,6 +37,7 @@ public class SecurityAccessorInfoFactory {
         info.version = keyAccessor.getVersion();
         info.modificationDate = keyAccessor.getModTime();
         info.status = thesaurus.getFormat(keyAccessor.getStatus()).format();
+        info.hasTempValue = keyAccessor.getTempValue().isPresent();
         keyAccessor.getActualValue().getExpirationTime().ifPresent(expiration -> info.expirationTime = expiration);
 
         return info;
