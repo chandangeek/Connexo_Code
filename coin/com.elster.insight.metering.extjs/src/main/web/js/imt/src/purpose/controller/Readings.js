@@ -845,7 +845,8 @@ Ext.define('Imt.purpose.controller.Readings', {
             router = me.getController('Uni.controller.history.Router'),
             commentCombo = window.down('#estimation-comment-box'),
             commentId = commentCombo ? commentCombo.getValue() : null,
-            commentValue = commentCombo ? commentCombo.getRawValue() : null;
+            commentValue = commentCombo ? commentCombo.getRawValue() : null,
+            adjustedPropertyFormErrors;
 
         record.getProxy().setParams(decodeURIComponent(router.arguments.usagePointId), router.arguments.purposeId, router.arguments.outputId);
         window.setLoading();
@@ -902,6 +903,14 @@ Ext.define('Imt.purpose.controller.Readings', {
                             window.down('#error-label').setText('<div style="color: #EB5642">' + errorMessage + '</div>', false);
                         } else if (responseText.errors) {
                             window.down('#form-errors').show();
+                            if (Ext.isArray(responseText.errors)) {
+                                adjustedPropertyFormErrors = responseText.errors.map(function (error) {
+                                    if (error.id.startsWith('properties.')) {
+                                        error.id = error.id.slice(11);
+                                    }
+                                    return error;
+                                });
+                            }
                             window.down('#property-form').markInvalid(responseText.errors);
                         } else {
                             window.destroy();
