@@ -14,12 +14,13 @@ import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.metering.readings.beans.ReadingImpl;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.collections.DualIterable;
-import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
-import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
-import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
-import com.energyict.mdc.protocol.api.device.data.IntervalData;
-import com.energyict.mdc.protocol.api.device.data.IntervalValue;
-import com.energyict.mdc.protocol.api.device.events.MeterProtocolEvent;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.upl.meterdata.CollectedLogBook;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
+
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.IntervalValue;
+import com.energyict.protocol.MeterProtocolEvent;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -36,25 +37,25 @@ public final class MeterDataFactory {
      * @param deviceRegister The given collectedRegister
      * @return the newly created Reading
      */
-    public static Reading createReadingForDeviceRegisterAndObisCode(final CollectedRegister deviceRegister) {
-        ReadingImpl reading = getRegisterReading(deviceRegister);
+    public static Reading createReadingForDeviceRegisterAndObisCode(final CollectedRegister deviceRegister, final String readingTypeMRID) {
+        ReadingImpl reading = getRegisterReading(deviceRegister, readingTypeMRID);
         if (deviceRegister.getFromTime() != null && deviceRegister.getToTime() != null) {
-            reading.setTimePeriod(deviceRegister.getFromTime(), deviceRegister.getToTime());
+            reading.setTimePeriod(deviceRegister.getFromTime().toInstant(), deviceRegister.getToTime().toInstant());
         }
         return reading;
     }
 
-    private static ReadingImpl getRegisterReading(final CollectedRegister collectedRegister) {
+    private static ReadingImpl getRegisterReading(final CollectedRegister collectedRegister, final String readingTypeMRID) {
         if (!collectedRegister.isTextRegister()) {
             return ReadingImpl.of(
-                    collectedRegister.getReadingType().getMRID(),
+                    readingTypeMRID,
                     collectedRegister.getCollectedQuantity() != null ? collectedRegister.getCollectedQuantity().getAmount() : BigDecimal.ZERO,
-                    (collectedRegister.getEventTime() != null ? collectedRegister.getEventTime() : collectedRegister.getReadTime()));
+                    (collectedRegister.getEventTime() != null ? collectedRegister.getEventTime().toInstant() : collectedRegister.getReadTime().toInstant()));
         } else {
             return ReadingImpl.of(
-                    collectedRegister.getReadingType().getMRID(),
+                    readingTypeMRID,
                     collectedRegister.getText(),
-                    (collectedRegister.getEventTime() != null ? collectedRegister.getEventTime() : collectedRegister.getReadTime()));
+                    (collectedRegister.getEventTime() != null ? collectedRegister.getEventTime().toInstant() : collectedRegister.getReadTime().toInstant()));
         }
     }
 
@@ -68,7 +69,7 @@ public final class MeterDataFactory {
     public static List<EndDeviceEvent> createEndDeviceEventsFor(CollectedLogBook deviceLogBook, long logBookId) {
         List<EndDeviceEvent> endDeviceEvents = new ArrayList<>();
         for (MeterProtocolEvent meterProtocolEvent : deviceLogBook.getCollectedMeterEvents()) {
-            EndDeviceEventImpl endDeviceEvent = EndDeviceEventImpl.of(meterProtocolEvent.getEventType().getMRID(), meterProtocolEvent.getTime().toInstant());
+            EndDeviceEventImpl endDeviceEvent = EndDeviceEventImpl.of(meterProtocolEvent.getEventType().getCode(), meterProtocolEvent.getTime().toInstant());
             endDeviceEvent.setLogBookId(logBookId);
             endDeviceEvent.setLogBookPosition(meterProtocolEvent.getDeviceEventId());
             endDeviceEvent.setType(String.valueOf(meterProtocolEvent.getProtocolCode()));
@@ -91,8 +92,8 @@ public final class MeterDataFactory {
             for (Pair<IntervalBlockImpl, IntervalValue> pair : DualIterable.endWithShortest(intervalBlock, intervalData.getIntervalValues())) {
 
                 Set<ReadingQualityType> readingQualityTypes = new HashSet<>();
-                readingQualityTypes.addAll(pair.getLast().getReadingQualityTypes());
-                readingQualityTypes.addAll(intervalData.getReadingQualityTypes());
+                readingQualityTypes.addAll(pair.getLast().getReadingQualityTypes().stream().map(ReadingQualityType::new).collect(Collectors.toSet()));
+                readingQualityTypes.addAll(intervalData.getReadingQualityTypes().stream().map(ReadingQualityType::new).collect(Collectors.toList()));
 
                 IntervalReadingImpl intervalReading = IntervalReadingImpl.of(
                         intervalData.getEndTime().toInstant(),

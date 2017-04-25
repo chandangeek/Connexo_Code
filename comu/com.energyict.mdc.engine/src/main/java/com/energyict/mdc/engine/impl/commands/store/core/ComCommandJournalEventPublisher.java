@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.engine.impl.commands.store.core;
 
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.events.ComServerEvent;
@@ -40,17 +41,16 @@ class ComCommandJournalEventPublisher {
         if (executionContext != null) {
             String logMessage = this.buildLogMessage(comCommand, this.getServerLogLevel(executionContext));
             return new ComCommandLoggingEvent(
-                    new ServiceProvider(executionContext.clock()),
+                    new ServiceProvider(executionContext.clock(), executionContext.deviceMessageService()),
                     executionContext.getComPort(),
                     executionContext.getConnectionTask(),
                     executionContext.getComTaskExecution(),
                     LogLevel.DEBUG,
                     logMessage);
-        }
-        else {
+        } else {
             String logMessage = this.buildLogMessage(comCommand, LogLevel.DEBUG);
             return new ComCommandLoggingEvent(
-                    new ServiceProvider(Clock.systemUTC()),
+                    new ServiceProvider(Clock.systemUTC(), null),
                     null,
                     null,
                     null,
@@ -65,31 +65,32 @@ class ComCommandJournalEventPublisher {
         String logMessage;
         if (!errorDescription.isEmpty()) {
             logMessage = (journalMessageDescription + "; ") + errorDescription;
-        }
-        else {
+        } else {
             logMessage = journalMessageDescription;
         }
         return logMessage;
     }
 
-    private LogLevel getServerLogLevel (ExecutionContext executionContext) {
+    private LogLevel getServerLogLevel(ExecutionContext executionContext) {
         return this.getServerLogLevel(executionContext.getComPort());
     }
 
-    private LogLevel getServerLogLevel (ComPort comPort) {
+    private LogLevel getServerLogLevel(ComPort comPort) {
         return this.getServerLogLevel(comPort.getComServer());
     }
 
-    private LogLevel getServerLogLevel (ComServer comServer) {
+    private LogLevel getServerLogLevel(ComServer comServer) {
         return LogLevelMapper.forComServerLogLevel().toLogLevel(comServer.getCommunicationLogLevel());
     }
 
     private class ServiceProvider implements AbstractComServerEventImpl.ServiceProvider {
         private final Clock clock;
+        private final DeviceMessageService deviceMessageService;
 
-        private ServiceProvider(Clock clock) {
+        private ServiceProvider(Clock clock, DeviceMessageService deviceMessageService) {
             super();
             this.clock = clock;
+            this.deviceMessageService = deviceMessageService;
         }
 
         @Override
@@ -97,6 +98,9 @@ class ComCommandJournalEventPublisher {
             return this.clock;
         }
 
+        @Override
+        public DeviceMessageService deviceMessageService() {
+            return deviceMessageService;
+        }
     }
-
 }

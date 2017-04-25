@@ -6,17 +6,18 @@ package com.energyict.mdc.engine.impl.events.datastorage;
 
 import com.energyict.mdc.engine.events.CollectedDataProcessingEvent;
 import com.energyict.mdc.engine.impl.commands.store.UpdateDeviceMessage;
-import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
-
+import com.energyict.mdc.upl.messages.DeviceMessageStatus;
+import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
 import org.json.JSONException;
 import org.json.JSONWriter;
+
+import java.util.Optional;
 
 /**
  * {@link CollectedDataProcessingEvent} related to a {@link UpdateDeviceMessage}
  */
-public class UpdateDeviceMessageEvent extends AbstractCollectedDataProcessingEventImpl  {
+public class UpdateDeviceMessageEvent extends AbstractCollectedDataProcessingEventImpl {
 
     private MessageIdentifier messageIdentifier;
     private DeviceMessageStatus deviceMessageStatus;
@@ -41,9 +42,9 @@ public class UpdateDeviceMessageEvent extends AbstractCollectedDataProcessingEve
         writer.key("updateDeviceMessage");
         writer.object();
         if (messageIdentifier != null) {
-            DeviceMessage message = messageIdentifier.getDeviceMessage();
-            if (message !=  null) {
-                writer.key("deviceMessageId").value(message.getId());
+            Optional<DeviceMessage> deviceMessage = getDeviceMessageService().findDeviceMessageByIdentifier(messageIdentifier);
+            if (deviceMessage.isPresent()) {
+                writer.key("deviceMessageId").value(deviceMessage.get().getId());
             }
         }
         if (deviceMessageStatus != null) {

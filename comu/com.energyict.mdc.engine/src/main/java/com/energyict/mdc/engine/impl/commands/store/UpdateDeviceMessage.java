@@ -12,10 +12,10 @@ import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.events.datastorage.UpdateDeviceMessageEvent;
 import com.energyict.mdc.engine.impl.meterdata.DeviceProtocolMessageAcknowledgement;
-import com.energyict.mdc.issues.Issue;
-import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
+import com.energyict.mdc.upl.issue.Issue;
+import com.energyict.mdc.upl.messages.DeviceMessageStatus;
+import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
 
 import java.time.Instant;
 import java.util.List;
@@ -27,7 +27,7 @@ import java.util.Optional;
  */
 public class UpdateDeviceMessage extends DeviceCommandImpl<UpdateDeviceMessageEvent> {
 
-    public final static String DESCRIPTION_TITLE = "Update device message";
+    public static final String DESCRIPTION_TITLE = "Update device message";
 
     private MessageIdentifier messageIdentifier;
     private DeviceMessageStatus deviceMessageStatus;
@@ -40,6 +40,14 @@ public class UpdateDeviceMessage extends DeviceCommandImpl<UpdateDeviceMessageEv
         this.deviceMessageStatus = messageAcknowledgement.getDeviceMessageStatus();
         this.sentDate = messageAcknowledgement.getSentDate();
         this.protocolInfo = messageAcknowledgement.getProtocolInfo();
+    }
+
+    protected DeviceMessageStatus getDeviceMessageStatus() {
+        return deviceMessageStatus;
+    }
+
+    protected String getProtocolInfo() {
+        return protocolInfo;
     }
 
     @Override

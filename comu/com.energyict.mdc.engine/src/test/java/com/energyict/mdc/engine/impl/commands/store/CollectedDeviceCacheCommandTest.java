@@ -7,6 +7,7 @@ package com.energyict.mdc.engine.impl.commands.store;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.NlsService;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierById;
 import com.energyict.mdc.engine.EngineService;
@@ -17,8 +18,8 @@ import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.engine.impl.meterdata.UpdatedDeviceCache;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-import com.energyict.mdc.protocol.api.DeviceProtocolCache;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.cache.DeviceProtocolCache;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 
 import java.io.Serializable;
 import java.sql.SQLException;
@@ -65,13 +66,14 @@ public class CollectedDeviceCacheCommandTest {
         deviceCacheCommand.execute(comServerDAO);
 
         // Asserts
-        verify(this.engineService, times(0)).findDeviceCacheByDevice(any(Device.class));
+        verify(this.engineService, times(0)).findDeviceCacheByDeviceIdentifier(any(DeviceIdentifier.class));
     }
 
     @Test
     public void updateWithChangeTest() throws SQLException {
         final String newDescription = "laaaalallalallallllaaal";
-        UpdatedDeviceCache updatedDeviceCache = new UpdatedDeviceCache(getMockedDeviceIdentifier());
+        DeviceIdentifier deviceIdentifier = getMockedDeviceIdentifier();
+        UpdatedDeviceCache updatedDeviceCache = new UpdatedDeviceCache(deviceIdentifier);
         SimpleDeviceProtocolCache protocolCache = new SimpleDeviceProtocolCache();
         protocolCache.updateChangedState(true);
         protocolCache.updateDescription(newDescription);
@@ -81,7 +83,8 @@ public class CollectedDeviceCacheCommandTest {
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
 
         DeviceCache existingCache = mock(DeviceCache.class);
-        when(this.engineService.findDeviceCacheByDevice(this.device)).thenReturn(Optional.of(existingCache));
+        when(this.engineService.findDeviceCacheByDeviceIdentifier(deviceIdentifier)).thenReturn(Optional.of(existingCache));
+
         // Business method
         deviceCacheCommand.execute(comServerDAO);
 
@@ -92,7 +95,7 @@ public class CollectedDeviceCacheCommandTest {
 
     @Test
     public void testToJournalMessageDescription() {
-        final DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID, deviceService);
+        final DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID);
         UpdatedDeviceCache updatedDeviceCache = new UpdatedDeviceCache(deviceIdentifier);
         CollectedDeviceCacheCommand command = new CollectedDeviceCacheCommand(updatedDeviceCache, null, new EngineServiceOnly());
 
@@ -106,7 +109,6 @@ public class CollectedDeviceCacheCommandTest {
     private DeviceIdentifier getMockedDeviceIdentifier() {
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
         when(this.device.getId()).thenReturn(DEVICE_ID);
-        when(deviceIdentifier.findDevice()).thenReturn(this.device);
         return deviceIdentifier;
     }
 
@@ -116,18 +118,13 @@ public class CollectedDeviceCacheCommandTest {
         private String description = "NoDescription";
 
         @Override
-        public boolean isDirty() {
+        public boolean contentChanged() {
             return dirty;
         }
 
         @Override
-        public void markClean() {
-            this.dirty = false;
-        }
-
-        @Override
-        public void markDirty() {
-            this.dirty = true;
+        public void setContentChanged(boolean changed) {
+            this.dirty = changed;
         }
 
         protected void updateChangedState(final boolean changedState) {
@@ -176,6 +173,11 @@ public class CollectedDeviceCacheCommandTest {
 
         @Override
         public EventPublisher eventPublisher() {
+            return null;
+        }
+
+        @Override
+        public DeviceMessageService deviceMessageService() {
             return null;
         }
     }

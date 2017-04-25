@@ -5,15 +5,18 @@
 package com.energyict.mdc.engine.impl.core.inbound;
 
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
@@ -22,12 +25,13 @@ import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSessionBuilder;
 import com.energyict.mdc.engine.EngineService;
-import com.energyict.mdc.engine.FakeTransactionService;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.InboundComPort;
 import com.energyict.mdc.engine.config.InboundComPortPool;
+import com.energyict.mdc.engine.impl.DeviceIdentifierById;
+import com.energyict.mdc.engine.impl.commands.offline.ServerOfflineDevice;
 import com.energyict.mdc.engine.impl.commands.store.ComSessionRootDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.CompositeDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.CreateInboundComSession;
@@ -47,15 +51,11 @@ import com.energyict.mdc.engine.impl.meterdata.DefaultDeviceRegister;
 import com.energyict.mdc.engine.impl.monitor.InboundComPortMonitorImpl;
 import com.energyict.mdc.engine.impl.monitor.InboundComPortOperationalStatisticsImpl;
 import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
-import com.energyict.mdc.io.ComChannel;
+import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.api.crypto.Cryptographer;
-import com.energyict.mdc.protocol.api.device.data.CollectedData;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceContext;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
@@ -66,6 +66,12 @@ import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.RegistersTask;
+import com.energyict.mdc.upl.issue.Problem;
+import com.energyict.mdc.upl.issue.Warning;
+import com.energyict.mdc.upl.meterdata.CollectedData;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
+import com.energyict.mdc.upl.offline.OfflineDeviceContext;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -97,6 +103,7 @@ import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -153,6 +160,8 @@ public class InboundCommunicationHandlerTest {
     @Mock
     private ComTaskExecutionSessionBuilder comTaskExecutionSessionBuilder;
     @Mock
+    private DeviceMessageService deviceMessageService;
+    @Mock
     private DeviceConfigurationService deviceConfigurationService;
     @Mock
     private ConnectionTaskService connectionTaskService;
@@ -162,6 +171,8 @@ public class InboundCommunicationHandlerTest {
     private EventService eventService;
     @Mock
     private HexService hexService;
+    @Mock
+    private IssueService issueService;
     @Mock
     private IdentificationService identificationService;
     @Mock
@@ -173,7 +184,7 @@ public class InboundCommunicationHandlerTest {
     @Mock
     private EncryptionDeviceAccessLevel encryptionDeviceAccessLevel;
 
-    private FakeTransactionService transactionService = new FakeTransactionService();
+    private TransactionService transactionService = TransactionModule.FakeTransactionService.INSTANCE;
     private TestInboundCommunicationHandler handler;
     private Clock clock = Clock.systemDefaultZone();
     private EventPublisherImpl eventPublisher;
@@ -187,6 +198,9 @@ public class InboundCommunicationHandlerTest {
         when(this.serviceProvider.identificationService()).thenReturn(identificationService);
         when(this.serviceProvider.connectionTaskService()).thenReturn(connectionTaskService);
         when(this.serviceProvider.hexService()).thenReturn(this.hexService);
+        when(this.serviceProvider.issueService()).thenReturn(this.issueService);
+        doReturn(mock(Problem.class)).when(this.issueService).newProblem(any(), any(MessageSeed.class), anyVararg());
+        doReturn(mock(Warning.class)).when(this.issueService).newWarning(any(), any(MessageSeed.class), anyVararg());
         when(connectionTaskService.buildComSession(any(ConnectionTask.class), any(ComPortPool.class), any(ComPort.class), any(Instant.class))).
                 thenReturn(this.comSessionBuilder);
         when(this.comSessionBuilder.addSentBytes(anyLong())).thenReturn(this.comSessionBuilder);
@@ -213,15 +227,16 @@ public class InboundCommunicationHandlerTest {
         when(this.inboundComPortMonitor.getOperationalStatistics()).thenReturn(this.operationalStatistics);
         this.handler = new TestInboundCommunicationHandler(this.comPort, this.comServerDAO, this.deviceCommandExecutor);
 
+        when(this.deviceType.getAllowedCalendars()).thenReturn(Collections.emptyList());
         when(this.deviceConfiguration.getDeviceType()).thenReturn(this.deviceType);
-        when(this.deviceConfiguration.getComTaskEnablements()).thenReturn(Arrays.asList(this.comTaskEnablement));
+        when(this.deviceConfiguration.getComTaskEnablements()).thenReturn(Collections.singletonList(this.comTaskEnablement));
         // The following prohibits the execution of every ComTask on all devices of the configuration
         when(this.deviceConfiguration.getComTaskEnablementFor(any(ComTask.class))).thenReturn(Optional.empty());
         when(this.comTaskEnablement.getSecurityPropertySet()).thenReturn(securityPropertySet);
-        when(securityPropertySet.getAuthenticationDeviceAccessLevel()).thenReturn(authenticationDeviceAccessLevel);
-        when(securityPropertySet.getEncryptionDeviceAccessLevel()).thenReturn(encryptionDeviceAccessLevel);
-        when(authenticationDeviceAccessLevel.getId()).thenReturn(2);
-        when(encryptionDeviceAccessLevel.getId()).thenReturn(3);
+        when(this.securityPropertySet.getAuthenticationDeviceAccessLevel()).thenReturn(authenticationDeviceAccessLevel);
+        when(this.securityPropertySet.getEncryptionDeviceAccessLevel()).thenReturn(encryptionDeviceAccessLevel);
+        when(this.authenticationDeviceAccessLevel.getId()).thenReturn(2);
+        when(this.encryptionDeviceAccessLevel.getId()).thenReturn(3);
     }
 
     // Todo (JP-3084)
@@ -240,7 +255,7 @@ public class InboundCommunicationHandlerTest {
 
     private void testCommunicationWithDeviceThatDoesNotExist(InboundDiscoveryContextImpl context) {
         InboundDeviceProtocol inboundDeviceProtocol = mock(InboundDeviceProtocol.class);
-        when(inboundDeviceProtocol.doDiscovery()).thenReturn(InboundDeviceProtocol.DiscoverResultType.DATA);
+        when(inboundDeviceProtocol.doDiscovery()).thenReturn(com.energyict.mdc.upl.InboundDeviceProtocol.DiscoverResultType.DATA);
         when(inboundDeviceProtocol.getDeviceIdentifier()).thenReturn(mock(DeviceIdentifier.class));
         when(this.comServerDAO.findOfflineDevice(any(DeviceIdentifier.class))).thenReturn(null);
         when(this.comServerDAO.findOfflineDevice(any(DeviceIdentifier.class), any(OfflineDeviceContext.class))).thenReturn(null);
@@ -251,7 +266,7 @@ public class InboundCommunicationHandlerTest {
         // Asserts
         verify(this.comServerDAO, never()).findExecutableInboundComTasks(any(OfflineDevice.class), any(InboundComPort.class));
         verify(this.deviceCommandExecutor, never()).tryAcquireTokens(anyInt());
-        verify(inboundDeviceProtocol).provideResponse(InboundDeviceProtocol.DiscoverResponseType.DEVICE_NOT_FOUND);
+        verify(inboundDeviceProtocol).provideResponse(com.energyict.mdc.upl.InboundDeviceProtocol.DiscoverResponseType.DEVICE_NOT_FOUND);
         verify(this.eventService, never()).postEvent(anyString(), anyObject());
     }
 
@@ -290,7 +305,7 @@ public class InboundCommunicationHandlerTest {
                 sessionStopClock,
                 connectionClosedEventOccurrenceClock);
         InboundDeviceProtocol inboundDeviceProtocol = mock(InboundDeviceProtocol.class);
-        when(inboundDeviceProtocol.doDiscovery()).thenReturn(InboundDeviceProtocol.DiscoverResultType.DATA);
+        when(inboundDeviceProtocol.doDiscovery()).thenReturn(com.energyict.mdc.upl.InboundDeviceProtocol.DiscoverResultType.DATA);
         when(inboundDeviceProtocol.getDeviceIdentifier()).thenReturn(mock(DeviceIdentifier.class));
         when(this.comServerDAO.findOfflineDevice(any(DeviceIdentifier.class))).thenReturn(null);
         when(this.comServerDAO.findOfflineDevice(any(DeviceIdentifier.class), any(OfflineDeviceContext.class))).thenReturn(null);
@@ -322,7 +337,7 @@ public class InboundCommunicationHandlerTest {
 
     private void testCommunicationWithDeviceThatIsNotReadyForCommunication(InboundDiscoveryContextImpl context) {
         InboundDeviceProtocol inboundDeviceProtocol = mock(InboundDeviceProtocol.class);
-        when(inboundDeviceProtocol.doDiscovery()).thenReturn(InboundDeviceProtocol.DiscoverResultType.DATA);
+        when(inboundDeviceProtocol.doDiscovery()).thenReturn(com.energyict.mdc.upl.InboundDeviceProtocol.DiscoverResultType.DATA);
         OfflineDevice device = mock(OfflineDevice.class);
         when(this.comServerDAO.findOfflineDevice(any(DeviceIdentifier.class))).thenReturn(Optional.of(device));
         when(this.comServerDAO.findOfflineDevice(any(DeviceIdentifier.class), any(OfflineDeviceContext.class))).thenReturn(Optional.of(device));
@@ -334,7 +349,7 @@ public class InboundCommunicationHandlerTest {
         // Asserts
         verify(this.comServerDAO).findExecutableInboundComTasks(any(OfflineDevice.class), any(InboundComPort.class));
         verify(this.deviceCommandExecutor, never()).tryAcquireTokens(anyInt());
-        verify(inboundDeviceProtocol).provideResponse(InboundDeviceProtocol.DiscoverResponseType.DEVICE_DOES_NOT_EXPECT_INBOUND);
+        verify(inboundDeviceProtocol).provideResponse(com.energyict.mdc.upl.InboundDeviceProtocol.DiscoverResponseType.DEVICE_DOES_NOT_EXPECT_INBOUND);
         verify(this.eventService, never()).postEvent(anyString(), anyObject());
     }
 
@@ -373,7 +388,7 @@ public class InboundCommunicationHandlerTest {
                 sessionStopClock,
                 connectionClosedEventOccurrenceClock);
         InboundDeviceProtocol inboundDeviceProtocol = mock(InboundDeviceProtocol.class);
-        when(inboundDeviceProtocol.doDiscovery()).thenReturn(InboundDeviceProtocol.DiscoverResultType.DATA);
+        when(inboundDeviceProtocol.doDiscovery()).thenReturn(com.energyict.mdc.upl.InboundDeviceProtocol.DiscoverResultType.DATA);
         OfflineDevice device = mock(OfflineDevice.class);
         when(this.comServerDAO.findOfflineDevice(any(DeviceIdentifier.class))).thenReturn(Optional.of(device));
         when(this.comServerDAO.findOfflineDevice(any(DeviceIdentifier.class), any(OfflineDeviceContext.class))).thenReturn(Optional.of(device));
@@ -402,7 +417,7 @@ public class InboundCommunicationHandlerTest {
     private void testCommunicationWhenServerIsBusy(InboundDiscoveryContextImpl context) throws ExecutionException, InterruptedException {
         InboundDeviceProtocol inboundDeviceProtocol = mock(InboundDeviceProtocol.class);
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
-        when(inboundDeviceProtocol.doDiscovery()).thenReturn(InboundDeviceProtocol.DiscoverResultType.DATA);
+        when(inboundDeviceProtocol.doDiscovery()).thenReturn(com.energyict.mdc.upl.InboundDeviceProtocol.DiscoverResultType.DATA);
         OfflineDevice device = mock(OfflineDevice.class);
         when(device.getDeviceIdentifier()).thenReturn(deviceIdentifier);
         when(this.comServerDAO.findOfflineDevice(any(DeviceIdentifier.class))).thenReturn(Optional.of(device));
@@ -426,7 +441,7 @@ public class InboundCommunicationHandlerTest {
         verify(this.comServerDAO).findExecutableInboundComTasks(any(OfflineDevice.class), any(InboundComPort.class));
         verify(this.deviceCommandExecutor).tryAcquireTokens(anyInt());
         verify(this.deviceCommandExecutor, never()).execute(any(DeviceCommand.class), any(DeviceCommandExecutionToken.class));
-        verify(inboundDeviceProtocol).provideResponse(InboundDeviceProtocol.DiscoverResponseType.SERVER_BUSY);
+        verify(inboundDeviceProtocol).provideResponse(com.energyict.mdc.upl.InboundDeviceProtocol.DiscoverResponseType.SERVER_BUSY);
         verify(this.eventService, never()).postEvent(anyString(), anyObject());
     }
 
@@ -441,13 +456,19 @@ public class InboundCommunicationHandlerTest {
     }
 
     private void testComSessionShadowWhenServerIsBusy(InboundDiscoveryContextImpl context) throws ExecutionException, InterruptedException {
+        DeviceIdentifierById deviceIdentifier = DeviceIdentifierById.from(DEVICE_ID);
+        Device device = getMockedDevice();
         InboundDeviceProtocol inboundDeviceProtocol = mock(InboundDeviceProtocol.class);
-        when(inboundDeviceProtocol.doDiscovery()).thenReturn(InboundDeviceProtocol.DiscoverResultType.DATA);
-        OfflineDevice device = mock(OfflineDevice.class);
-        when(this.comServerDAO.findOfflineDevice(any(DeviceIdentifier.class))).thenReturn(Optional.of(device));
-        when(this.comServerDAO.findOfflineDevice(any(DeviceIdentifier.class), any(OfflineDeviceContext.class))).thenReturn(Optional.of(device));
+        when(inboundDeviceProtocol.doDiscovery()).thenReturn(com.energyict.mdc.upl.InboundDeviceProtocol.DiscoverResultType.DATA);
+        when(inboundDeviceProtocol.getDeviceIdentifier()).thenReturn(deviceIdentifier);
+        ServerOfflineDevice offlineDevice = mock(ServerOfflineDevice.class);
+        when(offlineDevice.getDeviceIdentifier()).thenReturn(deviceIdentifier);
+        when(this.comServerDAO.findOfflineDevice(deviceIdentifier)).thenReturn(Optional.of(offlineDevice));
+        when(this.comServerDAO.findOfflineDevice(eq(deviceIdentifier), any(OfflineDeviceContext.class))).thenReturn(Optional.of(offlineDevice));
+        when(this.comServerDAO.getDeviceFor(deviceIdentifier)).thenReturn(Optional.of(device));
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
-        when(this.comServerDAO.findExecutableInboundComTasks(device, this.comPort)).thenReturn(Arrays.asList(comTaskExecution));
+        when(comTaskExecution.getConnectionTask()).thenReturn(Optional.of(mock(InboundConnectionTask.class)));
+        when(this.comServerDAO.findExecutableInboundComTasks(offlineDevice, this.comPort)).thenReturn(Collections.singletonList(comTaskExecution));
         when(this.deviceCommandExecutor.tryAcquireTokens(1)).thenReturn(new ArrayList<>(0));
         when(this.connectionTaskService.buildComSession(any(ConnectionTask.class), eq(this.comPortPool), eq(this.comPort), any(Instant.class))).thenReturn(this.comSessionBuilder);
 
@@ -479,14 +500,15 @@ public class InboundCommunicationHandlerTest {
 
     private void testSuccessFulCommunication(InboundDiscoveryContextImpl context, final boolean storingSuccess) throws ExecutionException, InterruptedException {
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
+        Device device = getMockedDevice();
         InboundDeviceProtocol inboundDeviceProtocol = mock(InboundDeviceProtocol.class);
-        when(inboundDeviceProtocol.doDiscovery()).thenReturn(InboundDeviceProtocol.DiscoverResultType.DATA);
+        when(inboundDeviceProtocol.doDiscovery()).thenReturn(com.energyict.mdc.upl.InboundDeviceProtocol.DiscoverResultType.DATA);
         when(inboundDeviceProtocol.getDeviceIdentifier()).thenReturn(deviceIdentifier);
-        DefaultDeviceRegister collectedRegister = new DefaultDeviceRegister(mock(RegisterIdentifier.class), mock(ReadingType.class));
+        DefaultDeviceRegister collectedRegister = new DefaultDeviceRegister(mock(RegisterIdentifier.class));
         List<CollectedData> collectedData = new ArrayList<>();
         collectedData.add(collectedRegister);
-        when(inboundDeviceProtocol.getCollectedData(any(OfflineDevice.class))).thenReturn(collectedData);
-        OfflineDevice offlineDevice = mock(OfflineDevice.class);
+        when(inboundDeviceProtocol.getCollectedData()).thenReturn(collectedData);
+        ServerOfflineDevice offlineDevice = mock(ServerOfflineDevice.class);
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(mock(DeviceProtocol.class));
         when(offlineDevice.getDeviceProtocolPluggableClass()).thenReturn(deviceProtocolPluggableClass);
@@ -495,8 +517,7 @@ public class InboundCommunicationHandlerTest {
         when(this.comServerDAO.findOfflineDevice(any(DeviceIdentifier.class), any(OfflineDeviceContext.class))).thenReturn(Optional.of(offlineDevice));
         ComTask comTask = mock(ComTask.class);
         RegistersTask registersTask = mock(RegistersTask.class);
-        when(comTask.getProtocolTasks()).thenReturn(Arrays.asList(registersTask));
-        Device device = mock(Device.class);
+        when(comTask.getProtocolTasks()).thenReturn(Collections.singletonList(registersTask));
         ConnectionTask connectionTask = mock(InboundConnectionTask.class);
         when(connectionTask.getComPortPool()).thenReturn(this.comPortPool);
         when(connectionTask.getDevice()).thenReturn(device);
@@ -534,7 +555,7 @@ public class InboundCommunicationHandlerTest {
         verify(this.deviceCommandExecutor).tryAcquireTokens(anyInt());
         ArgumentCaptor<DeviceCommand> deviceCommandArgumentCaptor = ArgumentCaptor.forClass(DeviceCommand.class);
         verify(this.deviceCommandExecutor).execute(deviceCommandArgumentCaptor.capture(), any(DeviceCommandExecutionToken.class));
-        verify(inboundDeviceProtocol).provideResponse(storingSuccess ? InboundDeviceProtocol.DiscoverResponseType.SUCCESS : InboundDeviceProtocol.DiscoverResponseType.STORING_FAILURE);
+        verify(inboundDeviceProtocol).provideResponse(storingSuccess ? com.energyict.mdc.upl.InboundDeviceProtocol.DiscoverResponseType.SUCCESS : com.energyict.mdc.upl.InboundDeviceProtocol.DiscoverResponseType.STORING_FAILURE);
         DeviceCommand deviceCommand = deviceCommandArgumentCaptor.getValue();
         assertThat(deviceCommand).isInstanceOf(ComSessionRootDeviceCommand.class);
         ComSessionRootDeviceCommand compositeDeviceCommand = (ComSessionRootDeviceCommand) deviceCommand;
@@ -558,14 +579,18 @@ public class InboundCommunicationHandlerTest {
 
     private void testComSessionShadowForSuccessFulCommunication(InboundDiscoveryContextImpl context) throws ExecutionException, InterruptedException {
         InboundDeviceProtocol inboundDeviceProtocol = mock(InboundDeviceProtocol.class);
-        when(inboundDeviceProtocol.doDiscovery()).thenReturn(InboundDeviceProtocol.DiscoverResultType.DATA);
-        DefaultDeviceRegister collectedRegister = new DefaultDeviceRegister(mock(RegisterIdentifier.class), mock(ReadingType.class));
+        DeviceProtocolPluggableClass deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
+        when(inboundDeviceProtocol.doDiscovery()).thenReturn(com.energyict.mdc.upl.InboundDeviceProtocol.DiscoverResultType.DATA);
+        DefaultDeviceRegister collectedRegister = new DefaultDeviceRegister(mock(RegisterIdentifier.class));
         List<CollectedData> collectedData = new ArrayList<>();
         collectedData.add(collectedRegister);
-        when(inboundDeviceProtocol.getCollectedData(any(OfflineDevice.class))).thenReturn(collectedData);
+        when(inboundDeviceProtocol.getCollectedData()).thenReturn(collectedData);
+        DeviceIdentifier deviceIdentifier = DeviceIdentifierById.from(DEVICE_ID);
         Device device = getMockedDevice();
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
         when(offlineDevice.getId()).thenReturn(DEVICE_ID);
+        when(offlineDevice.getDeviceIdentifier()).thenReturn(deviceIdentifier);
+        when(offlineDevice.getDeviceProtocolPluggableClass()).thenReturn(deviceProtocolPluggableClass);
         when(this.comServerDAO.findOfflineDevice(any(DeviceIdentifier.class))).thenReturn(Optional.of(offlineDevice));
         when(this.comServerDAO.findOfflineDevice(any(DeviceIdentifier.class), any(OfflineDeviceContext.class))).thenReturn(Optional.of(offlineDevice));
         ComTask comTask = mock(ComTask.class);
@@ -607,7 +632,7 @@ public class InboundCommunicationHandlerTest {
     private void testSuccessFulCommunicationWithHandOverToProtocol(InboundDiscoveryContextImpl inboundDiscoveryContext) throws ExecutionException, InterruptedException {
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
         InboundDeviceProtocol inboundDeviceProtocol = mock(InboundDeviceProtocol.class);
-        when(inboundDeviceProtocol.doDiscovery()).thenReturn(InboundDeviceProtocol.DiscoverResultType.IDENTIFIER);
+        when(inboundDeviceProtocol.doDiscovery()).thenReturn(com.energyict.mdc.upl.InboundDeviceProtocol.DiscoverResultType.IDENTIFIER);
         when(inboundDeviceProtocol.getDeviceIdentifier()).thenReturn(deviceIdentifier);
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
@@ -615,6 +640,7 @@ public class InboundCommunicationHandlerTest {
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
         when(offlineDevice.getId()).thenReturn(DEVICE_ID);
         when(offlineDevice.getDeviceIdentifier()).thenReturn(deviceIdentifier);
+        when(offlineDevice.getAllProperties()).thenReturn(TypedProperties.empty());
 
         when(offlineDevice.getDeviceProtocolPluggableClass()).thenReturn(deviceProtocolPluggableClass);
         when(this.deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(deviceProtocolPluggableClass));
@@ -664,7 +690,7 @@ public class InboundCommunicationHandlerTest {
         verify(this.deviceCommandExecutor).tryAcquireTokens(anyInt());
         ArgumentCaptor<DeviceCommand> deviceCommandArgumentCaptor = ArgumentCaptor.forClass(DeviceCommand.class);
         verify(this.deviceCommandExecutor).execute(deviceCommandArgumentCaptor.capture(), any(DeviceCommandExecutionToken.class));
-        verify(inboundDeviceProtocol).provideResponse(InboundDeviceProtocol.DiscoverResponseType.SUCCESS);
+        verify(inboundDeviceProtocol).provideResponse(com.energyict.mdc.upl.InboundDeviceProtocol.DiscoverResponseType.SUCCESS);
         DeviceCommand deviceCommand = deviceCommandArgumentCaptor.getValue();
         assertThat(deviceCommand).isInstanceOf(CompositeDeviceCommand.class);
         CompositeDeviceCommand compositeDeviceCommand = (CompositeDeviceCommand) deviceCommand;
@@ -678,10 +704,15 @@ public class InboundCommunicationHandlerTest {
     }
 
     private Device getMockedDevice() {
+        DeviceProtocolPluggableClass deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
         Device device = mock(Device.class);
         when(device.getId()).thenReturn(DEVICE_ID);
         when(device.getDeviceType()).thenReturn(this.deviceType);
         when(device.getDeviceConfiguration()).thenReturn(this.deviceConfiguration);
+        when(device.getLocation()).thenReturn(Optional.empty());
+        when(device.getUsagePoint()).thenReturn(Optional.empty());
+        when(device.getDeviceProtocolProperties()).thenReturn(TypedProperties.empty());
+        when(device.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(deviceProtocolPluggableClass));
         return device;
     }
 
@@ -693,8 +724,10 @@ public class InboundCommunicationHandlerTest {
                                 mock(ComChannel.class),
                                 this.comPort,
                                 this.clock,
+                                this.deviceMessageService,
                                 this.hexService,
-                                this.eventPublisher),
+                                this.eventPublisher
+                        ),
                         this.connectionTaskService);
         this.initializeInboundDiscoveryContext(context);
         return context;
@@ -708,9 +741,6 @@ public class InboundCommunicationHandlerTest {
 
     private void initializeInboundDiscoveryContext(InboundDiscoveryContext context) {
         context.setLogger(Logger.getAnonymousLogger());
-        Cryptographer cryptographer = mock(Cryptographer.class);
-        when(cryptographer.wasUsed()).thenReturn(true);
-        context.setCryptographer(cryptographer);
         // TODO need initialization of ComSessionBuilder on context
     }
 

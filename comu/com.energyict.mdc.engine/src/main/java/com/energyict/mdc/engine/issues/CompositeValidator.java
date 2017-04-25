@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.engine.issues;
 
-import com.energyict.mdc.issues.Issue;
+import com.energyict.mdc.upl.issue.Issue;
 
 import java.util.ArrayList;
 import java.util.Collections;

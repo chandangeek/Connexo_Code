@@ -7,6 +7,7 @@ package com.energyict.mdc.engine.impl.commands.store.legacy;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.util.time.StopWatch;
+import com.energyict.mdc.channel.serial.ServerSerialPort;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
@@ -22,10 +23,9 @@ import com.energyict.mdc.engine.impl.core.CommandFactory;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.core.inbound.ComChannelPlaceHolder;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
-import com.energyict.mdc.io.ComChannel;
-import com.energyict.mdc.io.SerialComChannel;
-import com.energyict.mdc.io.ServerSerialPort;
-import com.energyict.mdc.protocol.api.ComPortType;
+import com.energyict.mdc.ports.ComPortType;
+import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.SerialPortComChannel;
 import com.energyict.mdc.protocol.api.ConnectionProvider;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.OpticalDriver;
@@ -34,6 +34,13 @@ import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 import com.energyict.mdc.protocol.pluggable.MeterProtocolAdapter;
 import com.energyict.mdc.protocol.pluggable.SmartMeterProtocolAdapter;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.ConnexoToUPLPropertSpecAdapter;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.InputStream;
 import java.util.EnumSet;
@@ -41,6 +48,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -62,7 +70,7 @@ public class HandHeldUnitEnablerCommandTest extends AbstractComCommandExecuteTes
     @Mock
     private ServerSerialPort serverSerialPort;
     @Mock
-    private SerialComChannel serialComChannel;
+    private SerialPortComChannel serialPortComChannel;
     @Mock
     private ComPortRelatedComChannel comPortRelatedComChannel;
     @Mock
@@ -72,10 +80,10 @@ public class HandHeldUnitEnablerCommandTest extends AbstractComCommandExecuteTes
 
     @Before
     public void initMocks() {
-        when(serialComChannel.getSerialPort()).thenReturn(serverSerialPort);
+        when(serialPortComChannel.getSerialPort()).thenReturn(serverSerialPort);
         when(serverSerialPort.getInputStream()).thenReturn(inputStream);
         this.comChannelPlaceHolder = ComChannelPlaceHolder.forKnownComChannel(this.comPortRelatedComChannel);
-        when(this.comPortRelatedComChannel.getActualComChannel()).thenReturn(serialComChannel);
+        when(this.comPortRelatedComChannel.getActualComChannel()).thenReturn(serialPortComChannel);
         when(this.comPortRelatedComChannel.getSerialPort()).thenReturn(serverSerialPort);
     }
 
@@ -229,6 +237,21 @@ public class HandHeldUnitEnablerCommandTest extends AbstractComCommandExecuteTes
         }
 
         @Override
+        public ComChannel connect() throws com.energyict.protocol.exceptions.ConnectionException {
+            return null;
+        }
+
+        @Override
+        public List<com.energyict.mdc.upl.properties.PropertySpec> getUPLPropertySpecs() {
+            return getPropertySpecs().stream().map(ConnexoToUPLPropertSpecAdapter::new).collect(Collectors.toList());
+        }
+
+        @Override
+        public void setUPLProperties(com.energyict.mdc.upl.properties.TypedProperties properties) throws PropertyValidationException {
+
+        }
+
+        @Override
         public Set<ComPortType> getSupportedComPortTypes() {
             return EnumSet.allOf(ComPortType.class);
         }
@@ -239,17 +262,17 @@ public class HandHeldUnitEnablerCommandTest extends AbstractComCommandExecuteTes
         }
 
         @Override
-        public ComChannel connect(List<ConnectionProperty> properties) throws com.energyict.mdc.protocol.api.ConnectionException {
+        public ComChannel connect(List<ConnectionProperty> properties) throws com.energyict.protocol.exceptions.ConnectionException {
             return null;
         }
 
         @Override
-        public void disconnect(ComChannel comChannel) throws com.energyict.mdc.protocol.api.ConnectionException {
+        public void disconnect(ComChannel comChannel) throws com.energyict.protocol.exceptions.ConnectionException {
         }
 
         @Override
-        public Direction getDirection() {
-            return Direction.OUTBOUND;
+        public ConnectionTypeDirection getDirection() {
+            return ConnectionTypeDirection.OUTBOUND;
         }
 
         @Override

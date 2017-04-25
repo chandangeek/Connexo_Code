@@ -10,21 +10,21 @@ import com.energyict.mdc.engine.impl.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.store.CollectedLoadProfileDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommand;
-import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
-import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
-import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
-import com.energyict.mdc.protocol.api.device.data.IntervalData;
-import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
-
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
+import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.IntervalData;
 import com.google.common.collect.Range;
 
+import javax.xml.bind.annotation.XmlElement;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 
 /**
  * Implementation of a LoadProfile, collected from a Device.
- * If no data could be collected, then a proper {@link #issueList issue} and {@link com.energyict.mdc.protocol.api.device.data.ResultType}
+ * If no data could be collected, then a proper {@link #issueList issue} and {@link com.energyict.mdc.upl.meterdata.ResultType}
  * will be returned.
  *
  * @author gna
@@ -50,7 +50,7 @@ public class DeviceLoadProfile extends CollectedDeviceData implements CollectedL
 
     /**
      * Indication whether to store {@link IntervalData} before the lastReading of
-     * a {@link com.energyict.mdc.protocol.api.device.BaseLoadProfile}
+     * a {@link com.energyict.mdc.upl.meterdata.LoadProfile}
      * <ul>
      * <li>true: store values before the lastReading</li>
      * <li>false: don't store values before the lastReading</li>
@@ -58,14 +58,27 @@ public class DeviceLoadProfile extends CollectedDeviceData implements CollectedL
      */
     private boolean doStoreOlderValues = false;
 
-    @Override
-    public DeviceCommand toDeviceCommand(MeterDataStoreCommand meterDataStoreCommand, DeviceCommand.ServiceProvider serviceProvider) {
-        return new CollectedLoadProfileDeviceCommand(this, this.getComTaskExecution(), meterDataStoreCommand, serviceProvider);
-    }
+    /**
+     * Indication whether the collected intervalData may be incomplete or not. <br/>
+     * IntervalData is considered incomplete in case the intervalData contains only data for part of the channels
+     * of the corresponding LoadProfile
+     * <ul>
+     * <li>false: the collected intervalData should be complete, thus there should be data present for <b>all channels</b> of the corresponding loadProfile</li>
+     * <li>true: the collected intervalData may be incomplete; interval data can be missing for some of the channels of the corresponding loadProfile<br/>
+     * E.g.: the loadProfile is defined in EIMaster with 32 channels, but the collected intervalData only contains data for 4 channels</li>
+     * </ul>
+     * <b>Remark:</b> By default this is set to <i>false</i>, <i>true</i> should only be used in specific cases (such as EIWeb)!
+     */
+    private boolean allowIncompleteLoadProfileData = false;
 
     public DeviceLoadProfile(LoadProfileIdentifier loadProfileIdentifier) {
         super();
         this.loadProfileIdentifier = loadProfileIdentifier;
+    }
+
+    @Override
+    public DeviceCommand toDeviceCommand(MeterDataStoreCommand meterDataStoreCommand, DeviceCommand.ServiceProvider serviceProvider) {
+        return new CollectedLoadProfileDeviceCommand(this, this.getComTaskExecution(), meterDataStoreCommand, serviceProvider);
     }
 
     @Override
@@ -81,7 +94,7 @@ public class DeviceLoadProfile extends CollectedDeviceData implements CollectedL
         return collectedIntervalData;
     }
 
-    public Range<Instant> getCollectedIntervalDataRange () {
+    public Range<Instant> getCollectedIntervalDataRange() {
         return collectedIntervalDataRange;
     }
 
@@ -94,7 +107,7 @@ public class DeviceLoadProfile extends CollectedDeviceData implements CollectedL
     }
 
     @Override
-    public boolean doStoreOlderValues() {
+    public boolean isDoStoreOlderValues() {
         return doStoreOlderValues;
     }
 
@@ -109,18 +122,18 @@ public class DeviceLoadProfile extends CollectedDeviceData implements CollectedL
     }
 
     @Override
-    public void setCollectedData(final List<IntervalData> collectedIntervalData, final List<ChannelInfo> deviceChannelInfo) {
+    public void setCollectedIntervalData(final List<IntervalData> collectedIntervalData, final List<ChannelInfo> deviceChannelInfo) {
         if (collectedIntervalData == null) {
-            throw CodingException.methodArgumentCanNotBeNull(getClass(), "setCollectedData", "collectedIntervalData", MessageSeeds.METHOD_ARGUMENT_CAN_NOT_BE_NULL);
+            throw CodingException.methodArgumentCanNotBeNull(getClass(), "setCollectedIntervalData", "collectedIntervalData", MessageSeeds.METHOD_ARGUMENT_CAN_NOT_BE_NULL);
         } else if (deviceChannelInfo == null) {
-            throw CodingException.methodArgumentCanNotBeNull(getClass(), "setCollectedData", "deviceChannelInfo", MessageSeeds.METHOD_ARGUMENT_CAN_NOT_BE_NULL);
+            throw CodingException.methodArgumentCanNotBeNull(getClass(), "setCollectedIntervalData", "deviceChannelInfo", MessageSeeds.METHOD_ARGUMENT_CAN_NOT_BE_NULL);
         }
         this.collectedIntervalData = collectedIntervalData;
         this.collectedIntervalDataRange = this.calculateCollectedIntervalDataRange(collectedIntervalData);
         this.deviceChannelInfo = deviceChannelInfo;
     }
 
-    private Range<Instant> calculateCollectedIntervalDataRange (List<IntervalData> collectedIntervalData) {
+    private Range<Instant> calculateCollectedIntervalDataRange(List<IntervalData> collectedIntervalData) {
         Instant fromDate = null;
         Instant toDate = null;
         for (IntervalData intervalData : collectedIntervalData) {
@@ -130,22 +143,38 @@ public class DeviceLoadProfile extends CollectedDeviceData implements CollectedL
         return Ranges.openClosed(fromDate, toDate);
     }
 
-    private Instant min (Instant currentMinimum, Instant candidate) {
+    private Instant min(Instant currentMinimum, Instant candidate) {
         if (currentMinimum == null || candidate.isBefore(currentMinimum)) {
             return candidate;
-        }
-        else {
+        } else {
             return currentMinimum;
         }
     }
 
-    private Instant max (Instant currentMaximum, Instant candidate) {
+    private Instant max(Instant currentMaximum, Instant candidate) {
         if (currentMaximum == null || candidate.isAfter(currentMaximum)) {
             return candidate;
-        }
-        else {
+        } else {
             return currentMaximum;
         }
     }
 
+    @Override
+    public boolean isAllowIncompleteLoadProfileData() {
+        return allowIncompleteLoadProfileData;
+    }
+
+    @Override
+    public void setAllowIncompleteLoadProfileData(boolean allowIncompleteLoadProfileData) {
+        this.allowIncompleteLoadProfileData = allowIncompleteLoadProfileData;
+    }
+
+    @XmlElement(name = "type")
+    public String getXmlType() {
+        return this.getClass().getName();
+    }
+
+    public void setXmlType(String ignore) {
+        // For xml unmarshalling purposes only
+    }
 }

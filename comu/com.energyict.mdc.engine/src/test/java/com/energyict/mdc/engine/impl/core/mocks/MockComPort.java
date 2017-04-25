@@ -6,7 +6,7 @@ package com.energyict.mdc.engine.impl.core.mocks;
 
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.protocol.api.ComPortType;
+import com.energyict.mdc.ports.ComPortType;
 
 import java.time.Instant;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -171,11 +171,8 @@ public abstract class MockComPort implements ComPort, Cloneable {
 
         MockComPort that = (MockComPort) o;
 
-        if (id != that.id) {
-            return false;
-        }
+        return id == that.id;
 
-        return true;
     }
 
     @Override

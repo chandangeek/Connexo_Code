@@ -9,10 +9,12 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.LogBooksCommand;
 import com.energyict.mdc.masterdata.LogBookType;
-import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.api.device.offline.OfflineLogBook;
 import com.energyict.mdc.tasks.LogBooksTask;
+import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
+import com.energyict.mdc.upl.offline.OfflineLogBook;
+
+import com.energyict.protocol.LogBookReader;
 
 import java.time.Clock;
 import java.util.ArrayList;
@@ -44,7 +46,7 @@ public class LogBookCommandHelper {
         } else {
             for (LogBookType logBookType : logBooksTask.getLogBookTypes()) {
                 for (OfflineLogBook logBook : listOfAllLogBooks) {
-                    if (logBookType.getId() == logBook.getLogBookTypeId()) {
+                    if (logBookType.getId() == logBook.getOfflineLogBookSpec().getLogBookTypeId()) {
                         if (comTaskExecution.getDevice().getId() == logBook.getDeviceId()) {
                             logBookReaders.add(createLogBookReader(serviceProvider.clock(), logBook));
                         }
@@ -60,11 +62,9 @@ public class LogBookCommandHelper {
      */
     private static LogBookReader createLogBookReader(final Clock clock, final OfflineLogBook logBook) {
         return new LogBookReader(
-                clock,
-                logBook.getObisCode(),
-                logBook.getLastLogBook(),
+                logBook.getOfflineLogBookSpec().getDeviceObisCode(),
+                logBook.getLastReading(),
                 logBook.getLogBookIdentifier(),
-                logBook.getDeviceIdentifier(),
                 logBook.getMasterSerialNumber());
     }
 
@@ -88,6 +88,7 @@ public class LogBookCommandHelper {
     }
 
     private static boolean sameLogBook(LogBookReader newReader, LogBookReader existingReader) {
-        return existingReader.getLogBookIdentifier().equals(newReader.getLogBookIdentifier());
+        return LogBookIdentifier.is(existingReader.getLogBookIdentifier()).equalTo(newReader.getLogBookIdentifier());
     }
+
 }

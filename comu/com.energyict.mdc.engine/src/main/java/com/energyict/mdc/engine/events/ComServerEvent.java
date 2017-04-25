@@ -43,17 +43,17 @@ public interface ComServerEvent {
      *
      * @return The timestamp on which this event occurred
      */
-    public Instant getOccurrenceTimestamp ();
+    Instant getOccurrenceTimestamp();
 
     /**
      * Gets the {@link Category} to which this event belongs.
      *
      * @return The Category
      */
-    public Category getCategory ();
+    Category getCategory();
 
     /**
-     * Tests if this ComServerEvent relates to a {@link com.energyict.mdc.protocol.api.device.BaseDevice device}.
+     * Tests if this ComServerEvent relates to a {@link com.energyict.mdc.upl.meterdata.Device device}.
      * When that is the case, it should be possible to cast
      * this ComServerEvent to {@link DeviceRelatedEvent} to obtain the device
      * from the event. The device that is obtained from the event is guaranteed
@@ -61,7 +61,7 @@ public interface ComServerEvent {
      *
      * @return <code>true</code> iff this ComServerEvent relates to a device
      */
-    public boolean isDeviceRelated ();
+    boolean isDeviceRelated();
 
     /**
      * Tests if this ComServerEvent relates to a {@link com.energyict.mdc.device.data.tasks.ConnectionTask}.
@@ -72,7 +72,7 @@ public interface ComServerEvent {
      *
      * @return <code>true</code> iff this ComServerEvent relates to a ConnectionTask
      */
-    public boolean isConnectionTaskRelated ();
+    boolean isConnectionTaskRelated();
 
     /**
      * Tests if this ComServerEvent relates to a {@link com.energyict.mdc.engine.config.ComPort}.
@@ -83,7 +83,7 @@ public interface ComServerEvent {
      *
      * @return <code>true</code> iff this ComServerEvent relates to a ComPort
      */
-    public boolean isComPortRelated ();
+    boolean isComPortRelated();
 
     /**
      * Tests if this ComServerEvent relates to a {@link com.energyict.mdc.engine.config.ComPortPool}.
@@ -94,7 +94,7 @@ public interface ComServerEvent {
      *
      * @return <code>true</code> iff this ComServerEvent relates to a ComPortPool
      */
-    public boolean isComPortPoolRelated ();
+    boolean isComPortPoolRelated();
 
     /**
      * Tests if this ComServerEvent relates to a {@link com.energyict.mdc.device.data.tasks.ComTaskExecution}.
@@ -105,7 +105,7 @@ public interface ComServerEvent {
      *
      * @return <code>true</code> iff this ComServerEvent relates to a ComTaskExecution
      */
-    public boolean isComTaskExecutionRelated ();
+    boolean isComTaskExecutionRelated();
 
     /**
      * Tests if this ComServerEvent relates to log messages
@@ -116,6 +116,6 @@ public interface ComServerEvent {
      *
      * @return <code>true</code> iff this ComServerEvent relates to a log message
      */
-    public boolean isLoggingRelated ();
+    boolean isLoggingRelated();
 
 }

@@ -34,7 +34,7 @@ class PendingMessagesValidator {
         this.device = device;
     }
 
-    boolean isStillValid(DeviceMessage<Device> message) {
+    boolean isStillValid(DeviceMessage message) {
         if (this.hasCalendarAttribute(message)) {
             Set<Calendar> allowedCalendars = this.allowedCalendars(this.device);
             return this.calendarAttributeValues(message)
@@ -45,7 +45,7 @@ class PendingMessagesValidator {
         }
     }
 
-    String failingCalendarNames(DeviceMessage<Device> message) {
+    String failingCalendarNames(DeviceMessage message) {
         Set<Calendar> allowedCalendars = this.allowedCalendars(this.device);
         return this.calendarAttributeValues(message)
                 .stream()
@@ -54,7 +54,7 @@ class PendingMessagesValidator {
                 .collect(Collectors.joining(", "));
     }
 
-    private boolean hasCalendarAttribute(DeviceMessage<Device> message) {
+    private boolean hasCalendarAttribute(DeviceMessage message) {
         return this.messagesWithCalendarAttributes().contains(message.getDeviceMessageId());
     }
 
@@ -78,10 +78,11 @@ class PendingMessagesValidator {
                 .collect(Collectors.toSet());
     }
 
-    private List<Calendar> calendarAttributeValues(DeviceMessage<Device> message) {
+    private List<Calendar> calendarAttributeValues(DeviceMessage message) {
         return message
                 .getAttributes()
                 .stream()
+                .map(DeviceMessageAttribute.class::cast)        //Downcast to Connexo DeviceMessageAttribute
                 .filter(this::isCalendarRelated)
                 .map(DeviceMessageAttribute::getValue)
                 .map(Calendar.class::cast)

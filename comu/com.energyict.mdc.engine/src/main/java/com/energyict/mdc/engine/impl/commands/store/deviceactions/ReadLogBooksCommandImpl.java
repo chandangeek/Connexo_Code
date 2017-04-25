@@ -15,8 +15,8 @@ import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.LogBookReader;
-import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
+import com.energyict.protocol.LogBookReader;
+import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 
 import java.util.ArrayList;
 import java.util.List;

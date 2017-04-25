@@ -8,10 +8,9 @@ import com.elster.jupiter.metering.readings.EndDeviceEvent;
 import com.elster.jupiter.metering.readings.IntervalBlock;
 import com.elster.jupiter.metering.readings.Reading;
 import com.energyict.mdc.common.comserver.logging.CanProvideDescriptionTitle;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
 
 import java.time.Instant;
 import java.util.List;
@@ -20,13 +19,13 @@ public interface MeterDataStoreCommand extends DeviceCommand, CanProvideDescript
 
     String DESCRIPTION_TITLE = "Store meter data";
 
-    void addIntervalReadings(DeviceIdentifier<Device> deviceIdentifier, List<IntervalBlock> intervalBlocks);
+    void addIntervalReadings(DeviceIdentifier deviceIdentifier, List<IntervalBlock> intervalBlocks);
 
     void addLastReadingUpdater(LoadProfileIdentifier loadProfileIdentifier, Instant lastReading);
 
-    void addReadings(DeviceIdentifier<Device> deviceIdentifier, List<Reading> registerReadings);
+    void addReadings(DeviceIdentifier deviceIdentifier, List<Reading> registerReadings);
 
-    void addEventReadings(DeviceIdentifier<Device> deviceIdentifier, List<EndDeviceEvent> endDeviceEvents);
+    void addEventReadings(DeviceIdentifier deviceIdentifier, List<EndDeviceEvent> endDeviceEvents);
 
     void addLastLogBookUpdater(LogBookIdentifier logBookIdentifier, Instant lastLogbook);
 

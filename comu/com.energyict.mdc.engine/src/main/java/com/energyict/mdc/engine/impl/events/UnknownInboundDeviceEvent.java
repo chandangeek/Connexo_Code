@@ -5,8 +5,8 @@
 package com.energyict.mdc.engine.impl.events;
 
 import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 
 /**
  * Models the event that occurs when an inbound device opens a communication channel
@@ -30,7 +30,7 @@ public class UnknownInboundDeviceEvent {
         super();
         this.comPortName = comPort.getName();
         this.comServerName = comPort.getComServer().getName();
-        this.deviceIdentifier = deviceIdentifier.getIdentifier();
+        this.deviceIdentifier = deviceIdentifier.toString();
         this.discoveryProtocolId = discoveryProtocolPluggableClass.getId();
     }
 

@@ -18,12 +18,12 @@ import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
 import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactoryImpl;
 import com.energyict.mdc.engine.impl.status.StatusServiceImpl;
 import com.energyict.mdc.engine.status.StatusService;
-import com.energyict.mdc.io.SerialComponentService;
-import com.energyict.mdc.io.SocketService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.services.HexService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.upl.io.SerialComponentService;
+import com.energyict.mdc.upl.io.SocketService;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;

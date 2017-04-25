@@ -43,8 +43,8 @@ class ComPortRequestType extends IdBusinessObjectRequestType {
     @Override
     protected Request newRequestAccording(String parameterString) throws BusinessObjectParseException {
         try{
-            //As the parameterString could not be parsed to a List of long,
-            // We consider the parameterString being a comma separated list of comport names
+            // As the parameterString could not be parsed to a List of long,
+            // we consider the parameterString being a comma separated list of comport names
             StringTokenizer tokenizer = new StringTokenizer(parameterString, ",", false);
             String[] comportNames = new String[tokenizer.countTokens()];
             int i = 0;

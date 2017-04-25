@@ -15,7 +15,7 @@ import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.impl.events.DeviceTopologyChangedEvent;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 
 import java.util.Collections;
 import java.util.Optional;
@@ -63,7 +63,7 @@ public class DeviceLifeCycleEventSupportTest {
     @Mock
     private Device device = mock(Device.class);
     @Mock
-    private DeviceIdentifier<Device> deviceIdentifier;
+    private DeviceIdentifier deviceIdentifier;
     @Mock
     private ScheduledConnectionTask connectionTask;
     @Mock
@@ -94,7 +94,7 @@ public class DeviceLifeCycleEventSupportTest {
         when(this.device.getId()).thenReturn(DEVICE_ID);
         when(this.device.getState()).thenReturn(this.state);
         when(this.deviceService.findDeviceById(DEVICE_ID)).thenReturn(Optional.of(this.device));
-        when(this.deviceIdentifier.findDevice()).thenReturn(this.device);
+        when(this.deviceService.findDeviceByIdentifier(this.deviceIdentifier)).thenReturn(Optional.of(this.device));
         when(this.comServer.getId()).thenReturn(COMSERVER_ID);
         when(this.comServer.getName()).thenReturn("ComServer");
         when(this.comPort.getId()).thenReturn(COMPORT_ID);
@@ -317,7 +317,7 @@ public class DeviceLifeCycleEventSupportTest {
         when(eventType.getTopic()).thenReturn(EventType.DEVICE_TOPOLOGY_CHANGED.topic());
         LocalEvent localEvent = mock(LocalEvent.class);
         when(localEvent.getType()).thenReturn(eventType);
-        when(this.deviceIdentifier.findDevice()).thenReturn(null);
+        when(this.deviceService.findDeviceByIdentifier(this.deviceIdentifier)).thenReturn(Optional.empty());
         DeviceTopologyChangedEvent topologyChangedEvent = new DeviceTopologyChangedEvent(this.deviceIdentifier, Collections.emptyList());
         when(localEvent.getSource()).thenReturn(topologyChangedEvent);
 

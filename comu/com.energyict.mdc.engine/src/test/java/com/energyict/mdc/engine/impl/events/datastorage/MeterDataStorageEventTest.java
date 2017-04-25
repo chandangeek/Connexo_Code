@@ -9,16 +9,16 @@ import com.elster.jupiter.metering.readings.IntervalBlock;
 import com.elster.jupiter.metering.readings.Reading;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.util.Pair;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.engine.events.Category;
 import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommandImpl;
 import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 
 import java.time.Clock;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -78,12 +78,13 @@ public class MeterDataStorageEventTest {
 
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
         when(deviceIdentifier.toString()).thenReturn("My Device identifier");
-        HashMap<String, Pair<DeviceIdentifier<Device>, MeterReadingImpl>> readings = new HashMap<>();
-        readings.put("MRID1", Pair.of(deviceIdentifier,meterReading ));
+        Map<DeviceIdentifier, Pair<DeviceIdentifier, MeterReadingImpl>> readings = new HashMap<>();
+        readings.put(mock(DeviceIdentifier.class), Pair.of(deviceIdentifier, meterReading));
         MeterDataStoreCommandImpl command = mock(MeterDataStoreCommandImpl.class);
         when(command.getMeterReadings()).thenReturn(readings);
 
         MeterDataStorageEvent event = new MeterDataStorageEvent(serviceProvider, command);
+
         // Business method
         String eventString = event.toString();
 
@@ -110,8 +111,8 @@ public class MeterDataStorageEventTest {
 
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
         when(deviceIdentifier.toString()).thenReturn("My Device identifier");
-        HashMap<String, Pair<DeviceIdentifier<Device>, MeterReadingImpl>> readings = new HashMap<>();
-        readings.put("MRID1", Pair.of(deviceIdentifier,meterReading ));
+        Map<DeviceIdentifier, Pair<DeviceIdentifier, MeterReadingImpl>> readings = new HashMap<>();
+        readings.put(mock(DeviceIdentifier.class), Pair.of(deviceIdentifier, meterReading));
         MeterDataStoreCommandImpl command = mock(MeterDataStoreCommandImpl.class);
         when(command.getMeterReadings()).thenReturn(readings);
 
@@ -141,8 +142,8 @@ public class MeterDataStorageEventTest {
 
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
         when(deviceIdentifier.toString()).thenReturn("My Device identifier");
-        HashMap<String, Pair<DeviceIdentifier<Device>, MeterReadingImpl>> readings = new HashMap<>();
-        readings.put("MRID1", Pair.of(deviceIdentifier,meterReading ));
+        Map<DeviceIdentifier, Pair<DeviceIdentifier, MeterReadingImpl>> readings = new HashMap<>();
+        readings.put(mock(DeviceIdentifier.class), Pair.of(deviceIdentifier, meterReading));
         MeterDataStoreCommandImpl command = mock(MeterDataStoreCommandImpl.class);
         when(command.getMeterReadings()).thenReturn(readings);
 
@@ -172,12 +173,13 @@ public class MeterDataStorageEventTest {
 
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
         when(deviceIdentifier.toString()).thenReturn("My Device identifier");
-        HashMap<String, Pair<DeviceIdentifier<Device>, MeterReadingImpl>> readings = new HashMap<>();
-        readings.put("MRID1", Pair.of(deviceIdentifier,meterReading ));
+        Map<DeviceIdentifier, Pair<DeviceIdentifier, MeterReadingImpl>> readings = new HashMap<>();
+        readings.put(mock(DeviceIdentifier.class), Pair.of(deviceIdentifier, meterReading));
         MeterDataStoreCommandImpl command = mock(MeterDataStoreCommandImpl.class);
         when(command.getMeterReadings()).thenReturn(readings);
 
         MeterDataStorageEvent event = new MeterDataStorageEvent(serviceProvider, command);
+
         // Business method
         String eventString = event.toString();
 
@@ -202,12 +204,13 @@ public class MeterDataStorageEventTest {
 
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
         when(deviceIdentifier.toString()).thenReturn("My Device identifier");
-        HashMap<String, Pair<DeviceIdentifier<Device>, MeterReadingImpl>> readings = new HashMap<>();
-        readings.put("MRID1", Pair.of(deviceIdentifier,meterReading ));
+        Map<DeviceIdentifier, Pair<DeviceIdentifier, MeterReadingImpl>> readings = new HashMap<>();
+        readings.put(mock(DeviceIdentifier.class), Pair.of(deviceIdentifier, meterReading));
         MeterDataStoreCommandImpl command = mock(MeterDataStoreCommandImpl.class);
         when(command.getMeterReadings()).thenReturn(readings);
 
         MeterDataStorageEvent event = new MeterDataStorageEvent(serviceProvider, command);
+
         // Business method
         String eventString = event.toString();
 
@@ -232,8 +235,8 @@ public class MeterDataStorageEventTest {
 
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
         when(deviceIdentifier.toString()).thenReturn("My Device identifier");
-        HashMap<String, Pair<DeviceIdentifier<Device>, MeterReadingImpl>> readings = new HashMap<>();
-        readings.put("MRID1", Pair.of(deviceIdentifier,meterReading ));
+        Map<DeviceIdentifier, Pair<DeviceIdentifier, MeterReadingImpl>> readings = new HashMap<>();
+        readings.put(mock(DeviceIdentifier.class), Pair.of(deviceIdentifier, meterReading));
         MeterDataStoreCommandImpl command = mock(MeterDataStoreCommandImpl.class);
         when(command.getMeterReadings()).thenReturn(readings);
 
@@ -261,8 +264,8 @@ public class MeterDataStorageEventTest {
 
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
         when(deviceIdentifier.toString()).thenReturn("My Device identifier");
-        HashMap<String, Pair<DeviceIdentifier<Device>, MeterReadingImpl>> readings = new HashMap<>();
-        readings.put("MRID1", Pair.of(deviceIdentifier,meterReading ));
+        Map<DeviceIdentifier, Pair<DeviceIdentifier, MeterReadingImpl>> readings = new HashMap<>();
+        readings.put(mock(DeviceIdentifier.class), Pair.of(deviceIdentifier, meterReading));
         MeterDataStoreCommandImpl command = mock(MeterDataStoreCommandImpl.class);
         when(command.getMeterReadings()).thenReturn(readings);
 
@@ -286,4 +289,5 @@ public class MeterDataStorageEventTest {
         // Asserts
         assertThat(eventString).matches("\\{.*\\}");
     }
+
 }

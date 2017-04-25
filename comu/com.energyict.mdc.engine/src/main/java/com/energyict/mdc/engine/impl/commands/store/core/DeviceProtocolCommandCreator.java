@@ -12,8 +12,8 @@ import com.energyict.mdc.engine.impl.core.CommandFactory;
 import com.energyict.mdc.engine.impl.core.inbound.ComChannelPlaceHolder;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.tasks.ProtocolTask;
+import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 
 import java.util.List;
 
@@ -50,7 +50,7 @@ public class DeviceProtocolCommandCreator implements CommandCreator {
     }
 
     private void doSetupNewDevice(GroupedDeviceCommand groupedDeviceCommand, TypedProperties protocolDialectProperties, ComChannelPlaceHolder comChannel, OfflineDevice offlineDevice, DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet, ComTaskExecution comTaskExecution) {
-        CommandFactory.createAddProperties(groupedDeviceCommand, comTaskExecution, offlineDevice.getAllProperties(), protocolDialectProperties, deviceProtocolSecurityPropertySet);
+        CommandFactory.createAddProperties(groupedDeviceCommand, comTaskExecution, TypedProperties.copyOf(offlineDevice.getAllProperties()), protocolDialectProperties, deviceProtocolSecurityPropertySet);
         CommandFactory.createSetDeviceCacheCommand(groupedDeviceCommand, comTaskExecution, offlineDevice);
         CommandFactory.createDeviceProtocolInitialization(groupedDeviceCommand,comTaskExecution, offlineDevice, comChannel);
     }

@@ -14,21 +14,22 @@ import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
+import com.energyict.mdc.engine.impl.meterdata.ServerCollectedData;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.device.data.CollectedDeviceInfo;
-import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.api.tasks.TopologyAction;
 import com.energyict.mdc.tasks.TopologyTask;
+import com.energyict.mdc.upl.meterdata.CollectedDeviceInfo;
+import com.energyict.mdc.upl.meterdata.CollectedTopology;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.tasks.TopologyAction;
 
-import java.util.HashSet;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * Implementation of a {@link TopologyCommand}
+ * Implementation of a {@link TopologyCommand}.
  *
  * @author gna
  * @since 9/05/12 - 15:49
@@ -66,13 +67,17 @@ public class TopologyCommandImpl extends SimpleComCommand implements TopologyCom
     public void doExecute(final DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
         this.deviceTopology = deviceProtocol.getDeviceTopology();
         this.deviceTopology.setTopologyAction(this.topologyAction);
-        this.deviceTopology.setDataCollectionConfiguration(this.comTaskExecution);
-        this.deviceTopology.getAdditionalCollectedDeviceInfo().stream().forEach(collectedDeviceInfo -> collectedDeviceInfo.setDataCollectionConfiguration(comTaskExecution));
+        ((ServerCollectedData) this.deviceTopology).injectComTaskExecution(this.comTaskExecution);
+        this.deviceTopology.getAdditionalCollectedDeviceInfo().stream().forEach(collectedDeviceInfo -> ((ServerCollectedData) collectedDeviceInfo).injectComTaskExecution(comTaskExecution));
         addCollectedDataItem(this.deviceTopology);
     }
 
     protected Set<DeviceIdentifier> getSlaveIdentifiersFromOfflineDevices() {
-        return this.offlineDevice.getAllSlaveDevices().stream().map(OfflineDevice::getDeviceIdentifier).collect(Collectors.toSet());
+        return this.offlineDevice
+                .getAllSlaveDevices()
+                .stream()
+                .map(com.energyict.mdc.upl.offline.OfflineDevice::getDeviceIdentifier)
+                .collect(Collectors.toSet());
     }
 
     public TopologyAction getTopologyAction() {
@@ -112,11 +117,11 @@ public class TopologyCommandImpl extends SimpleComCommand implements TopologyCom
         PropertyDescriptionBuilder originalSlavesBuilder = builder.addListProperty("originalSlaves");
         appendSlaves(originalSlavesBuilder, getSlaveIdentifiersFromOfflineDevices());
         PropertyDescriptionBuilder receivedSlavesBuilder = builder.addListProperty("receivedSlaves");
-        appendSlaves(receivedSlavesBuilder, new HashSet<>(this.deviceTopology.getSlaveDeviceIdentifiers()));
+        appendSlaves(receivedSlavesBuilder, this.deviceTopology.getSlaveDeviceIdentifiers().keySet());
         appendCollectedDeviceInfo(builder, this.deviceTopology.getAdditionalCollectedDeviceInfo());
     }
 
-    private void appendSlaves(PropertyDescriptionBuilder builder, Set<DeviceIdentifier> slaveDeviceIdentifiers) {
+    private void appendSlaves(PropertyDescriptionBuilder builder, Collection<DeviceIdentifier> slaveDeviceIdentifiers) {
         if (slaveDeviceIdentifiers.isEmpty()) {
             builder.append("None").next();
         } else {

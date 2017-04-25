@@ -6,9 +6,9 @@ package com.energyict.mdc.engine.impl.commands.collect;
 
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
-import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.tasks.LoadProfilesTask;
+import com.energyict.protocol.LoadProfileReader;
 
 import java.util.List;
 
@@ -38,7 +38,7 @@ public interface LoadProfileCommand extends CompositeComCommand {
     void removeIncorrectLoadProfileReaders(List<LoadProfileReader> readersToRemove);
 
     /**
-     * Get the configured interval of the {@link com.energyict.mdc.protocol.api.device.BaseLoadProfile} corresponding with the given {@link LoadProfileReader}
+     * Get the configured interval of the {@link com.energyict.mdc.upl.meterdata.LoadProfile} corresponding with the given {@link LoadProfileReader}
      *
      * @param loadProfileReader the given LoadProfileReader
      * @return the requested interval in seconds
@@ -68,12 +68,12 @@ public interface LoadProfileCommand extends CompositeComCommand {
     /**
      * @return the {@link LoadProfilesTaskOptions}
      */
-    public LoadProfilesTaskOptions getLoadProfilesTaskOptions();
+    LoadProfilesTaskOptions getLoadProfilesTaskOptions();
 
     /**
      * @return the {@link OfflineDevice}
      */
     OfflineDevice getOfflineDevice();
 
-    public void updateAccordingTo(LoadProfilesTask loadProfilesTask, GroupedDeviceCommand groupedDeviceCommand, ComTaskExecution comTaskExecution);
+    void updateAccordingTo(LoadProfilesTask loadProfilesTask, GroupedDeviceCommand groupedDeviceCommand, ComTaskExecution comTaskExecution);
 }

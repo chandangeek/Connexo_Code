@@ -11,17 +11,18 @@ import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.ReadRegistersCommand;
 import com.energyict.mdc.engine.impl.commands.collect.RegisterCommand;
+import com.energyict.mdc.engine.impl.commands.offline.ServerOfflineDevice;
 import com.energyict.mdc.engine.impl.commands.store.core.CompositeComCommandImpl;
 import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.meterdata.DeviceRegisterList;
 import com.energyict.mdc.masterdata.RegisterGroup;
-import com.energyict.mdc.protocol.api.device.data.CollectedData;
-import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
-import com.energyict.mdc.protocol.api.device.data.CollectedRegisterList;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.tasks.RegistersTask;
+import com.energyict.mdc.upl.meterdata.CollectedData;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.meterdata.CollectedRegisterList;
+import com.energyict.mdc.upl.offline.OfflineRegister;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,9 +50,6 @@ public class RegisterCommandImpl extends CompositeComCommandImpl implements Regi
 
     public RegisterCommandImpl(final GroupedDeviceCommand groupedDeviceCommand, final RegistersTask registersTask, ComTaskExecution comTaskExecution) {
         super(groupedDeviceCommand);
-        if (groupedDeviceCommand == null) {
-            throw CodingException.methodArgumentCanNotBeNull(getClass(), "constructor", "groupedDeviceCommand", MessageSeeds.METHOD_ARGUMENT_CAN_NOT_BE_NULL);
-        }
         if (groupedDeviceCommand.getOfflineDevice() == null) {
             throw CodingException.methodArgumentCanNotBeNull(getClass(), "constructor", "offlineDevice", MessageSeeds.METHOD_ARGUMENT_CAN_NOT_BE_NULL);
         }
@@ -63,27 +61,26 @@ public class RegisterCommandImpl extends CompositeComCommandImpl implements Regi
         }
 
         readRegistersCommand = getGroupedDeviceCommand().getReadRegistersCommand(this, comTaskExecution);
-        readRegistersCommand.addRegisters(createOfflineRegisters(registersTask, groupedDeviceCommand.getOfflineDevice(), comTaskExecution));
+        readRegistersCommand.addRegisters(createOfflineRegisters(registersTask, (ServerOfflineDevice) groupedDeviceCommand.getOfflineDevice(), comTaskExecution));
         deviceRegisterList = new DeviceRegisterList(groupedDeviceCommand.getOfflineDevice().getDeviceIdentifier());
     }
 
-    private List<OfflineRegister> createOfflineRegisters(RegistersTask registersTask, OfflineDevice offlineDevice, ComTaskExecution comTaskExecution) {
-        List<OfflineRegister> registers = new ArrayList<>();
-        if (registersTask.getRegisterGroups().size() > 0) {
+    private List<OfflineRegister> createOfflineRegisters(RegistersTask registersTask, ServerOfflineDevice offlineDevice, ComTaskExecution comTaskExecution) {
+        if (!registersTask.getRegisterGroups().isEmpty()) {
             //Only add the registers of the master or the slave, not both
             List<Long> ids = registersTask.getRegisterGroups().stream().map(RegisterGroup::getId).collect(Collectors.toList());
-            registers.addAll(offlineDevice.getRegistersForRegisterGroupAndMRID(ids, comTaskExecution.getDevice().getmRID()));
+
+            return offlineDevice.getRegistersForRegisterGroupAndMRID(ids, comTaskExecution.getDevice().getmRID());
         } else {
-            List<OfflineRegister> allRegisters = offlineDevice.getAllRegisters();
+            List<OfflineRegister> allRegisters = offlineDevice.getAllOfflineRegisters();
             //Only add the registers of the master or the slave, not both
-            registers.addAll(allRegisters.stream().filter(register -> comTaskExecution.getDevice().getmRID().equals(register.getDeviceMRID())).collect(Collectors.toList()));
+            return allRegisters.stream().filter(register -> comTaskExecution.getDevice().getmRID().equals(register.getDeviceMRID())).collect(Collectors.toList());
         }
-        return registers;
     }
 
     @Override
     public void addAdditionalRegisterGroups(RegistersTask registersTask, OfflineDevice offlineDevice, ComTaskExecution comTaskExecution) {
-        readRegistersCommand.addRegisters(createOfflineRegisters(registersTask, offlineDevice, comTaskExecution));
+        readRegistersCommand.addRegisters(createOfflineRegisters(registersTask, (ServerOfflineDevice) offlineDevice, comTaskExecution));
     }
 
     @Override

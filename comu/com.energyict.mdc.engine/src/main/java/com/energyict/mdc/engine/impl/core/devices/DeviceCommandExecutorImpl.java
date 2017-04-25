@@ -6,6 +6,7 @@ package com.energyict.mdc.engine.impl.core.devices;
 
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.User;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
@@ -21,7 +22,6 @@ import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.logging.LogLevelMapper;
 import com.energyict.mdc.engine.impl.logging.LoggerFactory;
-
 import org.eclipse.jetty.util.ConcurrentHashSet;
 
 import java.text.MessageFormat;
@@ -65,6 +65,7 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
     private final EventPublisher eventPublisher;
     private final WorkQueue workQueue;
     private final ComServer.LogLevel logLevel;
+    private final DeviceMessageService deviceMessageService;
     private volatile ServerProcessStatus status = ServerProcessStatus.SHUTDOWN;
     private int numberOfThreads;
     private ExecutorService executorService;
@@ -72,7 +73,7 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
     private String name;
     private CompositeDeviceCommandExecutorLogger logger;
 
-    public DeviceCommandExecutorImpl(String comServerName, int queueCapacity, int numberOfThreads, int threadPriority, ComServer.LogLevel logLevel, ThreadFactory threadFactory, Clock clock, ComServerDAO comServerDAO, EventPublisher eventPublisher, ThreadPrincipalService threadPrincipalService) {
+    public DeviceCommandExecutorImpl(String comServerName, int queueCapacity, int numberOfThreads, int threadPriority, ComServer.LogLevel logLevel, ThreadFactory threadFactory, Clock clock, ComServerDAO comServerDAO, EventPublisher eventPublisher, ThreadPrincipalService threadPrincipalService, DeviceMessageService deviceMessageService) {
         super();
         this.clock = clock;
         this.eventPublisher = eventPublisher;
@@ -83,6 +84,7 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
         this.logLevel = logLevel;
         this.comServerDAO = comServerDAO;
         this.threadPrincipalService = threadPrincipalService;
+        this.deviceMessageService = deviceMessageService;
         this.initializeLogging();
     }
 
@@ -803,6 +805,10 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
         public Clock clock() {
             return clock;
         }
-    }
 
+        @Override
+        public DeviceMessageService deviceMessageService() {
+            return deviceMessageService;
+        }
+    }
 }

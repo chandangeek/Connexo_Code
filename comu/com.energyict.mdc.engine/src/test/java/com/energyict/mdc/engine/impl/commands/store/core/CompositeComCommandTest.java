@@ -18,17 +18,16 @@ import com.energyict.mdc.engine.impl.commands.store.deviceactions.LoadProfileCom
 import com.energyict.mdc.engine.impl.commands.store.deviceactions.TimeDifferenceCommandImpl;
 import com.energyict.mdc.engine.impl.commands.store.deviceactions.TopologyCommandImpl;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.api.tasks.TopologyAction;
 import com.energyict.mdc.tasks.ClockTask;
 import com.energyict.mdc.tasks.ClockTaskType;
 import com.energyict.mdc.tasks.LoadProfilesTask;
-
-import java.util.Optional;
-
+import com.energyict.mdc.upl.tasks.TopologyAction;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import java.util.Optional;
 
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;

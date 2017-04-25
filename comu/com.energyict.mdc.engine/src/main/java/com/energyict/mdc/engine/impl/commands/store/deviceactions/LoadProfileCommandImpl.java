@@ -5,6 +5,7 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
 import com.elster.jupiter.time.TimeDuration;
+import com.energyict.mdc.common.interval.Temporals;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.exceptions.CodingException;
@@ -22,13 +23,13 @@ import com.energyict.mdc.engine.impl.commands.collect.TimeDifferenceCommand;
 import com.energyict.mdc.engine.impl.commands.collect.VerifyLoadProfilesCommand;
 import com.energyict.mdc.engine.impl.commands.store.core.CompositeComCommandImpl;
 import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
-import com.energyict.mdc.issues.Issue;
-import com.energyict.mdc.protocol.api.LoadProfileReader;
-import com.energyict.mdc.protocol.api.device.data.CollectedData;
-import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
 import com.energyict.mdc.tasks.LoadProfilesTask;
+import com.energyict.mdc.upl.issue.Issue;
+import com.energyict.mdc.upl.meterdata.CollectedData;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.upl.offline.OfflineLoadProfile;
+import com.energyict.protocol.LoadProfileReader;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -136,7 +137,7 @@ public class LoadProfileCommandImpl extends CompositeComCommandImpl implements R
     }
 
     /**
-     * Gets the configured interval of the BaseLoadProfile
+     * Gets the configured interval of the LoadProfile
      * corresponding with the given LoadProfileReader.
      *
      * @param loadProfileReader the given LoadProfileReader
@@ -144,7 +145,7 @@ public class LoadProfileCommandImpl extends CompositeComCommandImpl implements R
      */
     public int findLoadProfileIntervalForLoadProfileReader(final LoadProfileReader loadProfileReader) {
         if (getLoadProfileReaderMap().containsKey(loadProfileReader)) {
-            return getLoadProfileReaderMap().get(loadProfileReader).getInterval().getSeconds();
+            return Temporals.toTimeDuration(getLoadProfileReaderMap().get(loadProfileReader).interval()).getSeconds();
         }
         return LoadProfileCommand.INVALID_LOAD_PROFILE_INTERVAL;
     }

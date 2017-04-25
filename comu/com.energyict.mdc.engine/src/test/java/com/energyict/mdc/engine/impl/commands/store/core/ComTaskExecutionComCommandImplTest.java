@@ -21,15 +21,10 @@ import com.energyict.mdc.engine.impl.core.JobExecution;
 import com.energyict.mdc.engine.impl.meterdata.ComTaskExecutionCollectedData;
 import com.energyict.mdc.engine.impl.meterdata.ServerCollectedData;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.tasks.ComTask;
-
-import java.time.Clock;
-import java.util.Arrays;
-import java.util.List;
-
+import com.energyict.mdc.upl.meterdata.CollectedData;
+import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,6 +32,10 @@ import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import java.time.Clock;
+import java.util.Arrays;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;

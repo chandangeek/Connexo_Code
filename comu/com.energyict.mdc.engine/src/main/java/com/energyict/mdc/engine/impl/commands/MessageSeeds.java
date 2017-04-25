@@ -15,7 +15,8 @@ import java.util.logging.Level;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-08-21 (14:51)
  */
-public enum MessageSeeds implements MessageSeed {
+public enum MessageSeeds implements MessageSeed, com.energyict.mdc.upl.nls.MessageSeed {
+    CAN_NOT_FIND_FOR_DEVICE_IDENTIFIER(2066, "deviceIdentifier.not.found", "Could not find a device for identifier ''{0}''"),
     UNSUPPORTED_LOAD_PROFILE(5000, "loadProfile.notSupported", "Loadprofile ''{0}'' is not supported by the device"),
     CHANNEL_UNIT_MISMATCH(5001, "channel.unit.mismatch", "Channel unit mismatch: load profile in the meter with OBIS code ''{0}'' has a channel ({1}) with the unit ''{2}'', whilst the configured unit for that channel is ''{3}''"),
     LOAD_PROFILE_INTERVAL_MISMATCH(5002, "loadprofile.interval.mismatch", "Load profile interval mismatch; load profile with OBIS code ''{0}'' has a {1} second(s) interval on the device, while {2} second(s) is configured"),
@@ -81,8 +82,10 @@ public enum MessageSeeds implements MessageSeed {
     COMMAND_FAILED_DUE_TO_CONNECTION_RELATED_ISSUE(5062, "commandFailedDueToConnectionRelatedIssue", "Communication task failed due to connection related error: {0}"),
     NOT_EXECUTED_DUE_TO_BASIC_CHECK_FAILURE(5063, "notExecutedDueToBasicCheckFailure", "Communication task will be rescheduled due to the failure of the BasicCheck task"),
     LOAD_PROFILE_CONFIGURATION_MISMATCH(5064, "loadProfileConfigDoesNotMatchCollectedData", "Collected load profile data for {0} doesn''t match the configured load profile interval ''{1}''"),
-    MAC_CHECK_FAILURE(5065, "macCheckFailure", "Failed to execute command due to message authentication check failure.")
-    ;
+    MAC_CHECK_FAILURE(5065, "macCheckFailure", "Failed to execute command due to message authentication check failure."),
+    UNSUPPORTED_PROTOCOL_PROPERTY_TYPE(5066, "protocolPropertyUnsupportedType", "Unsupported protocol property type"),
+    INCOMPATIBLE_PROTOCOL_PROPERTY_VALUE(5067, "protocolPropertyIncompatibleValue", "Value of protocol property is not compatible with the type definition"),
+    UNKNOWN_DEVICE(5068, "collectedDeviceProtocolPropertyForUnknownDevice", "Protocol property for unknown device");
 
     private final int number;
     private final String key;
@@ -100,9 +103,15 @@ public enum MessageSeeds implements MessageSeed {
         this.level = level;
     }
 
+
     @Override
     public int getNumber() {
         return number;
+    }
+
+    @Override
+    public int getId() {
+        return this.getNumber();
     }
 
     @Override

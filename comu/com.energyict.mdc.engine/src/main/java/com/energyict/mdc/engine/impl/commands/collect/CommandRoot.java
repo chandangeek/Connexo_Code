@@ -7,6 +7,7 @@ package com.energyict.mdc.engine.impl.commands.collect;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.transaction.TransactionService;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
@@ -15,8 +16,8 @@ import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
+import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 
 import java.time.Clock;
 import java.util.List;
@@ -39,12 +40,12 @@ public interface CommandRoot extends Iterable<GroupedDeviceCommand> {
      *
      * @return The ExecutionContext
      */
-    public ExecutionContext getExecutionContext();
+    ExecutionContext getExecutionContext();
 
     /**
      * Indicates if any exceptions (during storing of underlying collected data) should be exposed to the DeviceCommandExecutor
      */
-    public boolean isExposeStoringException();
+    boolean isExposeStoringException();
 
     /**
      * Creates a GroupedDeviceCommand for the given OfflineDevice.
@@ -54,16 +55,16 @@ public interface CommandRoot extends Iterable<GroupedDeviceCommand> {
      * @param deviceProtocolSecurityPropertySet
      * @return the newly created GroupedDeviceCommand
      */
-    public GroupedDeviceCommand getOrCreateGroupedDeviceCommand(OfflineDevice offlineDevice, DeviceProtocol deviceProtocol, DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet);
+    GroupedDeviceCommand getOrCreateGroupedDeviceCommand(OfflineDevice offlineDevice, DeviceProtocol deviceProtocol, DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet);
 
-    public void removeAllGroupedDeviceCommands();
+    void removeAllGroupedDeviceCommands();
 
     /**
      * Get the List of ComCommands
      *
      * @return the requested list of ComCommands
      */
-    public Map<ComCommandType, ComCommand> getCommands();
+    Map<ComCommandType, ComCommand> getCommands();
 
     /**
      * Performs all the Commands which are required and prepared for this
@@ -103,6 +104,8 @@ public interface CommandRoot extends Iterable<GroupedDeviceCommand> {
         IdentificationService identificationService();
 
         MeteringService meteringService();
+
+        DeviceMessageService deviceMessageService();
 
     }
 }

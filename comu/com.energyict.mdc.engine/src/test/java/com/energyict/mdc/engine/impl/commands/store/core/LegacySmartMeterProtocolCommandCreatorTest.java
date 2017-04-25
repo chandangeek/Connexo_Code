@@ -93,6 +93,7 @@ public class LegacySmartMeterProtocolCommandCreatorTest {
     @Test
     public void testCommandCreationOrder() {
         OfflineDevice device = mock(OfflineDevice.class);
+        when(device.getAllProperties()).thenReturn(TypedProperties.empty());
         CommandRootImpl commandRoot = new CommandRootImpl(this.newTestExecutionContext(), commandRootServiceProvider);
         GroupedDeviceCommand groupedDeviceCommand = spy(new GroupedDeviceCommand(commandRoot, device, deviceProtocol, null));
         ComPortRelatedComChannel comChannel = mock(ComPortRelatedComChannel.class);
@@ -122,6 +123,7 @@ public class LegacySmartMeterProtocolCommandCreatorTest {
     @Test
     public void testCommandCreationOrderWithOptical() {
         OfflineDevice device = mock(OfflineDevice.class);
+        when(device.getAllProperties()).thenReturn(TypedProperties.empty());
         CommandRootImpl commandRoot = new CommandRootImpl(this.newTestExecutionContext(), commandRootServiceProvider);
         GroupedDeviceCommand groupedDeviceCommand = spy(new GroupedDeviceCommand(commandRoot, device, deviceProtocol, null));
         ComPortRelatedComChannel comChannel = mock(ComPortRelatedComChannel.class);

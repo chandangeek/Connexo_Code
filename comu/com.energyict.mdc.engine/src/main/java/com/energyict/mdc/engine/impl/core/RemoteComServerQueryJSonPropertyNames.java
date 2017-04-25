@@ -76,7 +76,7 @@ public final class RemoteComServerQueryJSonPropertyNames {
 
     /**
      * The name of the property that specifies the unique identifier
-     * of a {@link com.energyict.mdc.protocol.api.device.BaseDevice device}
+     * of a {@link com.energyict.mdc.upl.meterdata.Device device}
      * that is passed as an argument to a remote com server query.
      */
     public static final String DEVICE = "device";
