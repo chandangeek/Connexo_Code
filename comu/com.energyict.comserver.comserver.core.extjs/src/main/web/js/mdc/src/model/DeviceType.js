@@ -20,6 +20,7 @@ Ext.define('Mdc.model.DeviceType', {
         {name: 'canBeDirectlyAddressed', type: 'boolean', useNull: true},
         {name: 'deviceProtocolPluggableClass', type: 'string', useNull: true},
         {name: 'deviceProtocolPluggableClassId', type: 'number', useNull: true},
+        {name: 'deviceLifeCycleEffectiveTimeShiftPeriod'},
         {name: 'registerTypes'},
         {name: 'deviceLifeCycleId'},
         {name: 'deviceLifeCycleName'},
@@ -32,7 +33,8 @@ Ext.define('Mdc.model.DeviceType', {
                 getTypeDiscriminator: function (node) {
                     return 'Mdc.model.RegisterType';
                 }
-            }
+            },
+            {name: 'deviceLifeCycleEffectiveTimeShiftPeriod', type: 'hasOne', model: 'Mdc.model.field.TimePeriod', associationKey: 'deviceLifeCycleEffectiveTimeShiftPeriod'}
         ],
 
     proxy: {
