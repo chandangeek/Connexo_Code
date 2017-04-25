@@ -13,6 +13,8 @@ import com.elster.jupiter.estimation.EstimationResult;
 import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.estimation.Estimator;
+import com.elster.jupiter.mdm.usagepoint.data.ChannelEstimationRuleOverriddenProperties;
+import com.elster.jupiter.mdm.usagepoint.data.UsagePointEstimation;
 import com.elster.jupiter.metering.AggregatedChannel;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.ChannelsContainer;
@@ -31,6 +33,7 @@ import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
 import com.elster.jupiter.rest.util.BigDecimalFunction;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.IntervalInfo;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.time.Interval;
@@ -41,6 +44,8 @@ import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationRuleSetVersion;
 import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
+
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
 import org.junit.Before;
@@ -70,7 +75,6 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -610,18 +614,32 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
     }
 
     @Test
-    public void testGetEstimationRulesForChannel() throws IOException {
+    public void testGetApplicableEstimationRules() throws IOException {
+        mockPropertyValueInfoService();
+
         MetrologyContract contract1 = effectiveMC1.getMetrologyConfiguration().getContracts().get(0);
         MetrologyContract contract2 = effectiveMC2.getMetrologyConfiguration().getContracts().get(0);
         MetrologyContract contract3 = effectiveMC4.getMetrologyConfiguration().getContracts().get(0);
-        EstimationRuleSet estimationRuleSet1 = mockEstimationRuleSet(15, 17, "ABC", regularReadingType, irregularReadingType);
+        EstimationRuleSet estimationRuleSet1 = mockEstimationRuleSet(15, 17, "ABC", regularReadingType);
         EstimationRuleSet estimationRuleSet2 = mockEstimationRuleSet(16, 18, "AAC", regularReadingType);
         EstimationRuleSet estimationRuleSet3 = mockEstimationRuleSet(17, 19, "CBA", irregularReadingType);
         when(usagePointConfigurationService.getEstimationRuleSets(contract1)).thenReturn(Collections.singletonList(estimationRuleSet1));
         when(usagePointConfigurationService.getEstimationRuleSets(contract2)).thenReturn(Collections.singletonList(estimationRuleSet2));
         when(usagePointConfigurationService.getEstimationRuleSets(contract3)).thenReturn(Collections.singletonList(estimationRuleSet3));
 
-        Response response = target("/usagepoints/" + USAGE_POINT_NAME + "/purposes/100/outputs/1/channelData/estimateWithRule").request().get();
+        UsagePointEstimation usagePointEstimation = mock(UsagePointEstimation.class);
+        when(usagePointDataModelService.forEstimation(usagePoint)).thenReturn(usagePointEstimation);
+        doReturn(Optional.empty()).when(usagePointEstimation).findOverriddenProperties(any(), any());
+
+        EstimationRule ruleWithOverriddenProperties = estimationRuleSet2.getRules().get(0);
+        List<PropertySpec> propertySpecs = Arrays.asList(mockPropertySpec("P1"), mockPropertySpec("P2"));
+        when(ruleWithOverriddenProperties.getPropertySpecs()).thenReturn(propertySpecs);
+        when(ruleWithOverriddenProperties.getProps()).thenReturn(ImmutableMap.of("P1", 100));
+        ChannelEstimationRuleOverriddenProperties overriddenProperties = mock(ChannelEstimationRuleOverriddenProperties.class);
+        doReturn(Optional.of(overriddenProperties)).when(usagePointEstimation).findOverriddenProperties(ruleWithOverriddenProperties, regularReadingType);
+        when(overriddenProperties.getProperties()).thenReturn(ImmutableMap.of("P2", 200));
+
+        Response response = target("/usagepoints/" + USAGE_POINT_NAME + "/purposes/100/outputs/1/channelData/applicableEstimationRules").request().get();
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel jsonModel = JsonModel.model((ByteArrayInputStream) response.getEntity());
@@ -631,18 +649,21 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         assertThat(jsonModel.<List<Number>>get("$.rules[*].ruleSetId")).containsExactly(16, 15);
         assertThat(jsonModel.<List<Boolean>>get("$.rules[*].deleted")).containsExactly(false, false);
         assertThat(jsonModel.<List<String>>get("$.rules[*].application.id")).containsExactly("MDM", "MDM");
+
+        assertThat(jsonModel.<List<String>>get("$.rules[0].properties[*].key")).containsExactly("P1", "P2");
+        assertThat(jsonModel.<List<Number>>get("$.rules[0].properties[*].propertyValueInfo.value")).containsExactly(100, 200);
     }
 
-    private static EstimationRuleSet mockEstimationRuleSet(long id, long ruleId, String ruleName, ReadingType... readingTypes) {
+    private static EstimationRuleSet mockEstimationRuleSet(long id, long ruleId, String ruleName, ReadingType readingType) {
         EstimationRule estimationRule = mock(EstimationRule.class);
         EstimationRuleSet estimationRuleSet = mock(EstimationRuleSet.class);
         doReturn(Collections.singletonList(estimationRule)).when(estimationRuleSet).getRules();
+        doReturn(Collections.singletonList(estimationRule)).when(estimationRuleSet).getRules(Collections.singleton(readingType));
         when(estimationRule.getRuleSet()).thenReturn(estimationRuleSet);
         when(estimationRuleSet.getQualityCodeSystem()).thenReturn(QualityCodeSystem.MDM);
         when(estimationRuleSet.getId()).thenReturn(id);
         when(estimationRule.getId()).thenReturn(ruleId);
         when(estimationRule.getName()).thenReturn(ruleName);
-        when(estimationRule.getReadingTypes()).thenReturn(Arrays.stream(readingTypes).collect(Collectors.toSet()));
         return estimationRuleSet;
     }
 
