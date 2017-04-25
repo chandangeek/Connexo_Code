@@ -54,6 +54,7 @@ import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.rest.DataValidationTaskInfo;
 import com.elster.jupiter.validation.rest.DataValidationTaskInfoFactory;
+
 import com.google.common.collect.ImmutableRangeSet;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
@@ -583,20 +584,40 @@ public class UsagePointOutputResource {
 
         List<OutputChannelDataInfo> resultReadings = new ArrayList<>();
         for (Map.Entry<Range<Instant>, Range<Instant>> range : getCorrectedTimeStampsForReference(referenceChannelDataInfo.startDate, referenceChannelDataInfo.intervals).entrySet()) {
-            List<IntervalReadingRecord> referenceRecords = referenceChannel.getCalculatedIntervalReadings(range.getValue());
-            channel.getCalculatedIntervalReadings(range.getKey()).stream().forEach(record -> {
-                referenceRecords.stream()
-                        .findFirst()
-                        .ifPresent(referenceReading -> {
-                            OutputChannelDataInfo channelDataInfo = outputChannelDataInfoFactory.createUpdatedChannelDataInfo(record, referenceReading.getValue()
-                                    .scaleByPowerOfTen(referenceReading.getReadingType().getMultiplier().getMultiplier() - record.getReadingType().getMultiplier().getMultiplier()),
+            Optional<IntervalReadingRecord> referenceRecord = referenceChannel.getCalculatedIntervalReadings(range.getValue()).stream().findFirst();
+            Optional<IntervalReadingRecord> sourceRecord = channel.getCalculatedIntervalReadings(range.getKey()).stream().findFirst();
+            if (sourceRecord.isPresent()) {
+                referenceRecord.ifPresent(referenceReading -> {
+                    OutputChannelDataInfo channelDataInfo = outputChannelDataInfoFactory.createUpdatedChannelDataInfo(sourceRecord.get(), referenceReading.getValue()
+                                    .scaleByPowerOfTen(referenceReading.getReadingType().getMultiplier().getMultiplier() - sourceRecord.get()
+                                            .getReadingType()
+                                            .getMultiplier()
+                                            .getMultiplier()),
                                     referenceChannelDataInfo.projectedValue, referenceChannelDataInfo.commentId!=null ? resourceHelper.getReadingQualityComment(referenceChannelDataInfo.commentId) : Optional.empty());
                             channelDataInfo.isProjected = referenceChannelDataInfo.projectedValue;
                             if(referenceChannelDataInfo.allowSuspectData || referenceReading.getReadingQualities().stream().noneMatch(ReadingQualityRecord::isSuspect)) {
                                 resultReadings.add(channelDataInfo);
                             }
                         });
-            });
+            } else {
+                referenceRecord.ifPresent(referenceReading -> {
+                    OutputChannelDataInfo channelDataInfo = new OutputChannelDataInfo();
+                    channelDataInfo.value = referenceReading.getValue()
+                            .scaleByPowerOfTen(referenceReading.getReadingType().getMultiplier().getMultiplier() - channel.getMainReadingType().getMultiplier().getMultiplier());
+                    if (referenceChannelDataInfo.commentId != null) {
+                        resourceHelper.getReadingQualityComment(referenceChannelDataInfo.commentId)
+                                .ifPresent(comment -> {
+                                    channelDataInfo.commentId = comment.getId();
+                                    channelDataInfo.commentValue = comment.getComment();
+                                });
+                    }
+                    channelDataInfo.isProjected = referenceChannelDataInfo.projectedValue;
+                    channelDataInfo.interval = IntervalInfo.from(range.getKey());
+                    if (referenceChannelDataInfo.allowSuspectData || referenceReading.getReadingQualities().stream().noneMatch(ReadingQualityRecord::isSuspect)) {
+                        resultReadings.add(channelDataInfo);
+                    }
+                });
+            }
         }
         if (!referenceChannelDataInfo.completePeriod || resultReadings.size() == referenceChannelDataInfo.intervals.size()) {
             return resultReadings;
