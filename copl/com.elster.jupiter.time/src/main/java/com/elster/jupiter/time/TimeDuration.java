@@ -108,7 +108,7 @@ public class TimeDuration implements Comparable<TimeDuration>, Serializable {
     }
 
     public TemporalAmount asTemporalAmount() {
-        switch(this.timeUnit) {
+        switch(getTimeUnit()) {
             case MILLISECONDS:
             case SECONDS:
             case MINUTES:
