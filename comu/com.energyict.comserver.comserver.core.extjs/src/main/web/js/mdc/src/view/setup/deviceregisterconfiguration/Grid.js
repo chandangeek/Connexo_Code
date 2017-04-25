@@ -59,7 +59,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.Grid', {
                 {
                     dataIndex: 'dataloggerSlaveName',
                     flex: 1,
-                    header: Mdc.util.LinkPurpose.forDevice(me.device).channelGridSlaveColumn,
+                    header: me.getLinkPurpose().channelGridSlaveColumn,
                     renderer: function(value) {
                         if (Ext.isEmpty(value)) {
                             return '-';
@@ -103,6 +103,9 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.Grid', {
         ];
 
         me.callParent(arguments);
+    },
+    getLinkPurpose: function(){
+        return Mdc.util.LinkPurpose.forDevice(this.device);
     }
 });
 

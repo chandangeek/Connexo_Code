@@ -114,7 +114,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.RegisterReadingsGrid', {
                 {
                     dataIndex: 'dataloggerSlavemRID',
                     flex: 10,
-                    header: Mdc.util.LinkPurpose.forDevice(me.device),
+                    header: Mdc.util.LinkPurpose.forDevice(me.device).channelGridSlaveColumn,
                     renderer: function (value) {
                         if (Ext.isEmpty(value)) {
                             return '-';

@@ -32,6 +32,7 @@ Ext.define('Mdc.util.LinkPurpose', {
             slavesGridItemsPerPageMsg: Uni.I18n.translate('slaves.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Slaves per page'),
             channelGridSlaveColumn: Uni.I18n.translate('general.slave', 'MDC', 'Slave'),
             dataLoggerSlaveHistoryTitle: Uni.I18n.translate('slaveHistory.title', 'MDC', 'Slave history'),
+            dataLoggerSlaveHistoryEmpty: Uni.I18n.translate('slaveHistory.empty', 'MDC', 'No slave history available.'),
             deviceTypeFilter: function (deviceType) {
                 return (deviceType.get('deviceTypePurpose') === 'DATALOGGER_SLAVE' || deviceType.get('deviceTypePurpose') === 'MULTI_ELEMENT_SLAVE') && deviceType.get('activeDeviceConfigurationCount') > 0;
             }
@@ -58,6 +59,7 @@ Ext.define('Mdc.util.LinkPurpose', {
             slavesGridItemsPerPageMsg: Uni.I18n.translate('dataLoggerSlaves.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Data logger slaves per page'),
             channelGridSlaveColumn: Uni.I18n.translate('general.dataLoggerSlave', 'MDC', 'Data logger slave'),
             dataLoggerSlaveHistoryTitle: Uni.I18n.translate('dataLoggerSlaveHistory.title', 'MDC', 'Data logger slave history'),
+            dataLoggerSlaveHistoryEmpty: Uni.I18n.translate('dataLoggerSlaveHistory.empty', 'MDC', 'No data logger slave history available.'),
             deviceTypeFilter: function (deviceType) {
                 return deviceType.get('deviceTypePurpose') === 'DATALOGGER_SLAVE' && deviceType.get('activeDeviceConfigurationCount') > 0;
             }
@@ -84,6 +86,7 @@ Ext.define('Mdc.util.LinkPurpose', {
             newSlaveOption: '',
             channelGridSlaveColumn: Uni.I18n.translate('general.multiElementSlave', 'MDC', 'Multi-element slave'),
             dataLoggerSlaveHistoryTitle: Uni.I18n.translate('multiElementSlaveHistory.title', 'MDC', 'Multi-element slave history'),
+            dataLoggerSlaveHistoryEmpty: Uni.I18n.translate('multiElementSlaveHistory.empty', 'MDC', 'No multi-element slave history available.'),
             deviceTypeFilter: function (deviceType) {
                 return deviceType.get('deviceTypePurpose') === 'MULTI_ELEMENT_SLAVE' && deviceType.get('activeDeviceConfigurationCount') > 0;
             }

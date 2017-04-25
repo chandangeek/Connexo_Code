@@ -16,7 +16,6 @@ Ext.define('Mdc.view.setup.devicechannels.DataLoggerSlaveHistory', {
     labelAlign: 'top',
     linkPurpose: null,
     dataLoggerSlaveHistoryStore: null,
-   // fieldLabel: Uni.I18n.translate('dataLoggerSlaveHistory.title', 'MDC', 'Data logger slave history'),
     initComponent: function () {
         var me = this;
         me.fieldLabel = me.linkPurpose.dataLoggerSlaveHistoryTitle;
@@ -26,7 +25,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataLoggerSlaveHistory', {
                     xtype: 'form',
                     items: {
                         xtype: 'uni-form-empty-message',
-                        text: Uni.I18n.translate('dataLoggerSlaveHistory.empty', 'MDC', 'No data logger slave history available.')
+                        text: me.linkPurpose.dataLoggerSlaveHistoryEmpty
                     }
                 }
             ];
