@@ -181,6 +181,7 @@ Ext.define('Uni.controller.Error', {
                     me.showError(title, message, code);
                 }
                 break;
+            case 422:
             case 400: // Bad request.
                 if (decoded && decoded.message && decoded.errorCode) {
                     code = decoded.errorCode;
@@ -231,7 +232,6 @@ Ext.define('Uni.controller.Error', {
                 code = 'CFT-1000'; // known code - to be extracted to a reference file
                 me.showError(title, message, code);
                 break;
-            case 422:
             case 404: // Not found.
                 title = Uni.I18n.translate(
                     'error.requestFailed',
