@@ -10,18 +10,20 @@ import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.impl.configchange.ServerLogBookForConfigChange;
 import com.energyict.mdc.masterdata.LogBookType;
+import com.energyict.obis.ObisCode;
+import com.google.common.collect.Range;
 
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 import java.time.Instant;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -47,7 +49,7 @@ public class LogBookImpl implements ServerLogBookForConfigChange {
     private long id;
     private Reference<DeviceImpl> device = ValueReference.absent();
     private Reference<LogBookSpec> logBookSpec = ValueReference.absent();
-    private Instant lastEventOccurrence;    // last event time stamp (data unitil)
+    private Instant lastEventOccurrence;    // last event time stamp (data until)
     private Instant latestEventAddition;    // last reading (next reading block start)
     private String userName;
     private long version;
@@ -78,6 +80,11 @@ public class LogBookImpl implements ServerLogBookForConfigChange {
     @Override
     public Optional<Instant> getLastLogBook() {
         return Optional.ofNullable(this.lastEventOccurrence);
+    }
+
+    @Override
+    public Date getLastReading() {
+        return lastEventOccurrence == null ? null : Date.from(lastEventOccurrence);
     }
 
     private void update() {

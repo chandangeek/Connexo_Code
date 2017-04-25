@@ -4,42 +4,46 @@
 
 package com.energyict.mdc.device.data.impl.identifiers;
 
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.device.data.LoadProfile;
-import com.energyict.mdc.device.data.LoadProfileService;
-import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
-import com.energyict.mdc.device.data.impl.MessageSeeds;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifierType;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
+
+import com.energyict.obis.ObisCode;
 
 import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.Collections;
-import java.util.List;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 
+/**
+ * Implementation of a LoadProfileIdentifier that uniquely identifies a LoadProfile with its database ID.
+ * <p>
+ *
+ * Date: 13/05/13
+ * Time: 13:30
+ */
 @XmlRootElement
 public final class LoadProfileIdentifierById implements LoadProfileIdentifier {
 
-    private Long id;
-    private LoadProfileService loadProfileService;
     private final ObisCode profileObisCode;
-
-    private LoadProfile loadProfile;
+    private final DeviceIdentifier deviceIdentifier;
+    private Long id;
 
     /**
      * Constructor only to be used by JSON (de)marshalling.
      */
+    @SuppressWarnings("unused")
     public LoadProfileIdentifierById() {
         super();
         this.profileObisCode = null;
+        this.deviceIdentifier = null;
     }
 
-    public LoadProfileIdentifierById(Long id, LoadProfileService loadProfileService, ObisCode obisCode) {
+    public LoadProfileIdentifierById(Long id, ObisCode obisCode, DeviceIdentifier deviceIdentifier) {
         this.id = id;
-        this.loadProfileService = loadProfileService;
         this.profileObisCode = obisCode;
+        this.deviceIdentifier = deviceIdentifier;
     }
 
     @Override
@@ -48,11 +52,8 @@ public final class LoadProfileIdentifierById implements LoadProfileIdentifier {
     }
 
     @Override
-    public LoadProfile findLoadProfile() {
-        if (loadProfile == null) {
-            this.loadProfile = this.loadProfileService.findById(id).orElseThrow(() -> CanNotFindForIdentifier.loadProfile(this, MessageSeeds.CAN_NOT_FIND_FOR_LOADPROFILE_IDENTIFIER));
-        }
-        return loadProfile;
+    public DeviceIdentifier getDeviceIdentifier() {
+        return deviceIdentifier;
     }
 
     @XmlAttribute
@@ -61,33 +62,56 @@ public final class LoadProfileIdentifierById implements LoadProfileIdentifier {
     }
 
     @Override
-    public LoadProfileIdentifierType getLoadProfileIdentifierType() {
-        return LoadProfileIdentifierType.DataBaseId;
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        LoadProfileIdentifierById that = (LoadProfileIdentifierById) o;
+        return Objects.equals(id, that.id);
     }
 
     @Override
-    public List<Object> getIdentifier() {
-        return Collections.singletonList((Object) getId());
-    }
-
-    @XmlElement(name = "type")
-    public String getXmlType() {
-        return this.getClass().getName();
+    public int hashCode() {
+        return Objects.hash(id);
     }
 
     @Override
-    public void setXmlType(String ignore) {
-        // For xml unmarshalling purposes only
-    }
-
-    @Override
-    public DeviceIdentifier<?> getDeviceIdentifier() {
-        return new DeviceIdentifierByLoadProfile(this);
+    public com.energyict.mdc.upl.meterdata.identifiers.Introspector forIntrospection() {
+        return new Introspector();
     }
 
     @Override
     public String toString() {
         return "load profile having id " + this.id;
+    }
+
+    private class Introspector implements com.energyict.mdc.upl.meterdata.identifiers.Introspector {
+        @Override
+        public String getTypeName() {
+            return "DatabaseId";
+        }
+
+        @Override
+        public Set<String> getRoles() {
+            return new HashSet<>(Arrays.asList("databaseValue", "device", "obisCode"));
+        }
+
+        @Override
+        public Object getValue(String role) {
+            switch (role) {
+                case "databaseValue":
+                    return getId();
+                case "device":
+                    return getDeviceIdentifier();
+                case "obisCode":
+                    return getProfileObisCode();
+                default:
+                    throw new IllegalArgumentException("Role '" + role + "' is not supported by identifier of type " + getTypeName());
+            }
+        }
     }
 
 }

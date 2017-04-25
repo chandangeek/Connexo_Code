@@ -17,8 +17,8 @@ import com.energyict.mdc.device.data.impl.ami.servicecall.CommandOperationStatus
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandServiceCallDomainExtension;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
-import com.energyict.mdc.protocol.api.device.data.BreakerStatus;
 import com.energyict.mdc.tasks.StatusInformationTask;
+import com.energyict.mdc.upl.meterdata.BreakerStatus;
 
 import java.text.MessageFormat;
 import java.util.Optional;

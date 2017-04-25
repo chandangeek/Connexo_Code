@@ -4,13 +4,11 @@
 
 package com.energyict.mdc.device.data;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.util.time.Interval;
-import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.config.RegisterSpec;
-import com.energyict.mdc.protocol.api.device.BaseRegister;
-
-import aQute.bnd.annotation.ProviderType;
+import com.energyict.obis.ObisCode;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -18,7 +16,7 @@ import java.util.List;
 import java.util.Optional;
 
 @ProviderType
-public interface Register<R extends Reading, RS extends RegisterSpec> extends BaseRegister {
+public interface Register<R extends Reading, RS extends RegisterSpec> extends com.energyict.mdc.upl.meterdata.Register {
 
     Device getDevice();
 
@@ -113,6 +111,14 @@ public interface Register<R extends Reading, RS extends RegisterSpec> extends Ba
      * @return true if the readingtype of this register has a macroperiod billing
      */
     boolean isBilling();
+
+    ObisCode getRegisterTypeObisCode();
+
+    ObisCode getRegisterSpecObisCode();
+
+    ObisCode getDeviceObisCode();
+
+    long getRegisterSpecId();
 
     interface RegisterUpdater {
         RegisterUpdater setNumberOfFractionDigits(Integer overruledNbrOfFractionDigits);

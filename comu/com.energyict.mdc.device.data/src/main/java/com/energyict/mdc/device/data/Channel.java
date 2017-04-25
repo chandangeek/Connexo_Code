@@ -4,13 +4,12 @@
 
 package com.energyict.mdc.device.data;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.common.ObisCode;
+import com.energyict.cbo.Unit;
 import com.energyict.mdc.device.config.ChannelSpec;
-import com.energyict.mdc.protocol.api.device.BaseChannel;
-
-import aQute.bnd.annotation.ProviderType;
+import com.energyict.obis.ObisCode;
 import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
@@ -19,13 +18,19 @@ import java.util.List;
 import java.util.Optional;
 
 @ProviderType
-public interface Channel extends BaseChannel {
+public interface Channel {
 
-    @Override
     Device getDevice();
 
-    @Override
     LoadProfile getLoadProfile();
+
+    /**
+     * Returns the receiver's configured unit.
+     * @return the configured unit.
+     */
+    Unit getUnit();
+
+    ObisCode getRegisterTypeObisCode();
 
     /**
      * Returns the configured interval in seconds.

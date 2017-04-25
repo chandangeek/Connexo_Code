@@ -13,7 +13,6 @@ import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
-
 import com.google.inject.Inject;
 
 import java.time.Instant;
@@ -49,7 +48,7 @@ public class ProtocolDialectDynamicSearchableProperty extends AbstractDynamicSea
 
     @Override
     public String getDisplayName() {
-        return super.getDisplayName() + " (" + this.protocolDialect.getProtocolDialect().getDisplayName() + ")";
+        return super.getDisplayName() + " (" + this.protocolDialect.getProtocolDialect().getDeviceProtocolDialectDisplayName() + ")";
     }
 
     @Override

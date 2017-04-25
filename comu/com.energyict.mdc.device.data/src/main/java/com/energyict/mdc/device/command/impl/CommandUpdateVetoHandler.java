@@ -16,7 +16,7 @@ import com.energyict.mdc.device.command.impl.exceptions.InvalidCommandLimitation
 import com.energyict.mdc.device.command.impl.exceptions.LimitsExceededForCommandException;
 import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
+import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 
 import com.google.inject.Inject;
 import org.osgi.service.component.annotations.Component;
@@ -56,7 +56,7 @@ public class CommandUpdateVetoHandler implements TopicHandler {
         try {
             DeviceMessage deviceMessage = (DeviceMessage) localEvent.getSource();
 
-            if (deviceMessage.getStatus().equals(DeviceMessageStatus.REVOKED)) {
+            if (deviceMessage.getStatus().equals(DeviceMessageStatus.CANCELED)) {
                 commandRuleService.commandDeleted(deviceMessage);
             } else {
                 long oldReleaseDate = (Long) localEvent.toOsgiEvent().getProperty("oldReleaseDate");

@@ -4,19 +4,18 @@
 
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.util.streams.Currying;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LoadProfileService;
-import com.energyict.mdc.protocol.api.device.BaseChannel;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
-import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
-import com.energyict.mdc.protocol.api.device.BaseRegister;
-import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
-
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.Introspector;
+import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
+import com.energyict.obis.ObisCode;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -25,18 +24,24 @@ import java.util.Optional;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-10-01 (13:06)
  */
-@Component(name = "com.energyict.mdc.device.data.impl.LoadProfileServiceImpl", service = LoadProfileFactory.class, immediate = true)
-public class LoadProfileServiceImpl implements ServerLoadProfileService, LoadProfileFactory {
+@Component(name = "com.energyict.mdc.device.data.impl.LoadProfileServiceImpl", service = LoadProfileService.class, immediate = true)
+public class LoadProfileServiceImpl implements ServerLoadProfileService {
 
     private volatile DeviceDataModelService deviceDataModelService;
 
-    //Only testing purposes
+    // For OSGi purpose
     public LoadProfileServiceImpl() {
     }
 
+    // For testing purposes
     @Inject
     public LoadProfileServiceImpl(DeviceDataModelService deviceDataModelService) {
-        super();
+        this();
+        this.setDataModelService(deviceDataModelService);
+    }
+
+    @Reference
+    public void setDataModelService(DeviceDataModelService deviceDataModelService){
         this.deviceDataModelService = deviceDataModelService;
     }
 
@@ -51,18 +56,62 @@ public class LoadProfileServiceImpl implements ServerLoadProfileService, LoadPro
     }
 
     @Override
-    public BaseLoadProfile findLoadProfileById(int loadProfileId) {
-        return this.findById(loadProfileId).orElse(null);
+    public Optional<LoadProfile> findByIdentifier(LoadProfileIdentifier identifier) {
+        try {
+            return this.doFind(identifier);
+        } catch (UnsupportedLoadProfileIdentifierTypeName | IllegalArgumentException e) {
+            return Optional.empty();
+        }
     }
 
-    @Override
-    public List<BaseLoadProfile<BaseChannel>> findLoadProfilesByDevice(BaseDevice<BaseChannel, BaseLoadProfile<BaseChannel>, BaseRegister> device) {
-        return device.getLoadProfiles();
+    private Optional<LoadProfile> doFind(LoadProfileIdentifier identifier) throws UnsupportedLoadProfileIdentifierTypeName {
+        Introspector introspector = identifier.forIntrospection();
+        switch (introspector.getTypeName()) {
+            case "Null": {
+                throw new UnsupportedOperationException("NullLoadProfileIdentifier is not capable of finding a load profile because it is a marker for a missing load profile");
+            }
+            case "Actual": {
+                return Optional.of((LoadProfile) introspector.getValue("actual"));
+            }
+            case "DatabaseId": {
+                return this.findById(Long.valueOf(introspector.getValue("databaseValue").toString()));
+            }
+            case "DeviceIdentifierAndObisCode": {
+                DeviceIdentifier deviceIdentifier = (DeviceIdentifier) introspector.getValue("device");
+                ObisCode loadProfileObisCode = (ObisCode) introspector.getValue("obisCode");
+                this.deviceDataModelService.deviceService()
+                        .findDeviceByIdentifier(deviceIdentifier)
+                        .map(Currying.use(this::findByDeviceAndObisCode).with(loadProfileObisCode));
+            }
+            case "FirstLoadProfileOnDevice": {
+                DeviceIdentifier deviceIdentifier = (DeviceIdentifier) introspector.getValue("device");
+                this.deviceDataModelService.deviceService()
+                        .findDeviceByIdentifier(deviceIdentifier)
+                        .map(this::findFirstOnDevice);
+            }
+            default: {
+                throw new UnsupportedLoadProfileIdentifierTypeName();
+            }
+        }
     }
 
-    @Reference
-    public void setDataModelService(DeviceDataModelService deviceDataModelService){
-        this.deviceDataModelService = deviceDataModelService;
+    private Optional<LoadProfile> findByDeviceAndObisCode(Device device, ObisCode obisCode) {
+        return device
+                .getLoadProfiles()
+                .stream()
+                .filter(loadProfile -> loadProfile.getDeviceObisCode().equals(obisCode))
+                .findAny();
+    }
+
+    private Optional<LoadProfile> findFirstOnDevice(Device device) {
+        return device
+                .getLoadProfiles()
+                .stream()
+                .findFirst();
+    }
+
+    private static class UnsupportedLoadProfileIdentifierTypeName extends RuntimeException {
+
     }
 
 }
