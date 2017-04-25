@@ -17,15 +17,15 @@ import java.util.stream.Stream;
  * @since 2015-09-04 (15:11)
  */
 public enum KeyFunctionTypePrivilegeTranslationKeys implements TranslationKey {
-
-    EDIT_1(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1, "Level 1"),
-    EDIT_2(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES2, "Level 2"),
-    EDIT_3(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES3, "Level 3"),
-    EDIT_4(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES4, "Level 4"),
-    VIEW_1(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES1, "Level 1"),
-    VIEW_2(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES2, "Level 2"),
-    VIEW_3(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES3, "Level 3"),
-    VIEW_4(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES4, "Level 4");
+    // Remark: the translations SHOULD contain the "Edit" or "View" part. If not you can't distinguish them in Connexo Admin > Edit role page
+    EDIT_1(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1, "Edit level 1"),
+    EDIT_2(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES2, "Edit level 2"),
+    EDIT_3(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES3, "Edit level 3"),
+    EDIT_4(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES4, "Edit level 4"),
+    VIEW_1(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES1, "View level 1"),
+    VIEW_2(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES2, "View level 2"),
+    VIEW_3(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES3, "View level 3"),
+    VIEW_4(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES4, "View level 4");
 
     private final DeviceSecurityUserAction action;
     private final String defaultFormat;
