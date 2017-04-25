@@ -90,97 +90,6 @@ public class MainCheckValidator extends MainCheckAbstractValidator {
     }
 
     @Override
-    public ValidationResult validate(IntervalReadingRecord intervalReadingRecord) {
-
-        // verify predefined behaviour
-        if (preparedValidationResult != null) {
-            return preparedValidationResult;
-        }
-
-        IntervalReadingRecord checkIntervalReadingRecord = checkReadingRecords.get(intervalReadingRecord.getTimeStamp());
-
-        return validate(intervalReadingRecord, checkIntervalReadingRecord);
-    }
-
-    private void prepareValidationResult(ValidationResult validationResult, Instant timeStamp) {
-        preparedValidationResult = validationResult;
-
-        failedValidatonInterval = Range.range(timeStamp, failedValidatonInterval.lowerBoundType(), failedValidatonInterval
-                .upperEndpoint(), failedValidatonInterval.upperBoundType());
-
-    }
-
-
-    private ValidationResult validate(IntervalReadingRecord mainReading, IntervalReadingRecord checkReading) {
-
-        Instant timeStamp = mainReading.getTimeStamp();
-
-        // [RULE CHECK] If no data is available on the check channel:
-        if (checkReading == null) {
-            // show log
-            LoggingContext.get()
-                    .warning(getLogger(), getThesaurus().getFormat(MessageSeeds.MAIN_CHECK_MISC_CHECK_OUTPUT_MISSING_OR_NOT_VALID)
-                            .format(rangeToString(failedValidatonInterval), getDisplayName(), validatingUsagePointName, readingType
-                                    .getFullAliasName()));
-
-            if (passIfNoRefData) {
-                // [RULE ACTION] No further checks are done to the interval (marked as valid) and the rule moves to the next interval if Pass if no reference data is checked
-                return ValidationResult.VALID;
-            } else {
-                // [RULE ACTION]  Stop the validation at the timestamp where the timestamp with the last reference data was found for the channel if Pass if no reference data is not checked
-                prepareValidationResult(ValidationResult.NOT_VALIDATED, timeStamp);
-                return ValidationResult.NOT_VALIDATED;
-            }
-        }
-
-        // [RULE FLOW CHECK] Data is available on check output but not validated:
-        ValidationResult checkReadingValidationResult = checkReadingRecordValidations.getOrDefault(checkReading
-                .getTimeStamp(), ValidationResult.NOT_VALIDATED);
-        if (checkReadingValidationResult != ValidationResult.VALID) {
-            // show log
-            if (useValidatedData) {
-                LoggingContext.get()
-                        .warning(getLogger(), getThesaurus().getFormat(MessageSeeds.MAIN_CHECK_MISC_CHECK_OUTPUT_MISSING_OR_NOT_VALID)
-                                .format(rangeToString(failedValidatonInterval), getDisplayName(), validatingUsagePointName, readingType
-                                        .getFullAliasName()));
-                // [RULE ACTION] Stop the validation at the timestamp where the timestamp with the last validated reference data was found for the channel if Use validated data is checked
-                prepareValidationResult(ValidationResult.NOT_VALIDATED, timeStamp);
-                return ValidationResult.NOT_VALIDATED;
-            }   // else:
-            // [RULE ACTION] Continue validation if Use validated data is unchecked
-            // So, next checks will be applied
-
-        }
-
-        BigDecimal mainValue = mainReading.getValue();
-        BigDecimal checkValue = checkReading.getValue();
-
-        if (!minThreshold.isNone()) {
-            if (mainValue.compareTo(minThreshold.getValue()) <= 0 && checkValue.compareTo(minThreshold.getValue()) <= 0) {
-                // [RULE FLOW ACTION] the check for the interval is marked valid and the validation moves to the next interval.
-                return ValidationResult.VALID;
-            }
-        }
-
-        BigDecimal differenceValue;
-
-
-        if (TwoValuesDifference.Type.ABSOLUTE == maxAbsoluteDifference.getType()) {
-            differenceValue = maxAbsoluteDifference.getValue();
-        } else if (TwoValuesDifference.Type.RELATIVE == maxAbsoluteDifference.getType()) {
-            differenceValue = mainValue.multiply(maxAbsoluteDifference.getValue()).multiply(new BigDecimal(0.01));
-        } else {
-            return ValidationResult.NOT_VALIDATED;
-        }
-
-        if (mainValue.subtract(checkValue).abs().compareTo(differenceValue) > 0) {
-            return ValidationResult.SUSPECT;
-        } else {
-            return ValidationResult.VALID;
-        }
-    }
-
-    @Override
     public String getDefaultFormat() {
         return "Main/check comparison";
     }
@@ -191,19 +100,19 @@ public class MainCheckValidator extends MainCheckAbstractValidator {
     }
 
     @Override
-    void logInitCancelFailure(InitCancelProps props) {
+    void logFailure(InitCancelProps props) {
         // FIXME: verify messages
         InitCancelReason reason = props.reason;
         switch (reason) {
             case NO_REFERENCE_PURPOSE_FOUND_ON_REFERENCE_USAGE_POINT:
                 LoggingContext.get()
                         .warning(getLogger(), getThesaurus().getFormat(MessageSeeds.MAIN_CHECK_MISC_NO_PURPOSE)
-                                .format(rangeToString(failedValidatonInterval), getDisplayName(), props.readingType, validatingUsagePointName));
+                                .format(rangeToString(failedValidatonInterval), getDisplayName(), props.readingType.getFullAliasName(), validatingUsagePointName));
                 break;
             case REFERENCE_PURPOSE_HAS_NOT_BEEN_EVER_ACTIVATED:
                 LoggingContext.get()
                         .warning(getLogger(), getThesaurus().getFormat(MessageSeeds.MAIN_CHECK_MISC_PURPOSE_NEVER_ACTIVATED)
-                                .format(rangeToString(failedValidatonInterval), getDisplayName(), props.readingType, validatingUsagePointName));
+                                .format(rangeToString(failedValidatonInterval), getDisplayName(), props.readingType.getFullAliasName(), validatingUsagePointName));
 
                 break;
             case REFERENCE_OUTPUT_DOES_NOT_EXIST:
@@ -211,8 +120,14 @@ public class MainCheckValidator extends MainCheckAbstractValidator {
                         .warning(getLogger(), getThesaurus().getFormat(MessageSeeds.MAIN_CHECK_MISC_NO_CHECK_OUTPUT)
                                 .format(rangeToString(failedValidatonInterval),
                                         getDisplayName(),
-                                        props.readingType,
+                                        props.readingType.getFullAliasName(),
                                         validatingUsagePointName));
+                break;
+            case REFERENCE_OUPUT_MISSING_OR_NOT_VALID:
+                LoggingContext.get()
+                        .warning(getLogger(), getThesaurus().getFormat(MessageSeeds.MAIN_CHECK_MISC_CHECK_OUTPUT_MISSING_OR_NOT_VALID)
+                                .format(rangeToString(failedValidatonInterval), getDisplayName(), validatingUsagePointName, props.readingType
+                                        .getFullAliasName()));
                 break;
         }
     }

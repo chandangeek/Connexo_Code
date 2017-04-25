@@ -7,6 +7,7 @@ package com.elster.jupiter.validators.impl;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.MetrologyContractChannelsContainer;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
@@ -68,6 +69,9 @@ abstract public class MainCheckValidatorTest {
 
     @Mock
     MetrologyPurpose CHECK_PURPOSE;
+
+    @Mock
+    MetrologyPurpose validatingMetrologyPurpose;
 
     protected PropertySpecService propertySpecService = new PropertySpecServiceImpl();
 
@@ -262,11 +266,14 @@ abstract public class MainCheckValidatorTest {
             mainChannel = mock(Channel.class);
             UsagePoint usagePoint = mock(UsagePoint.class);
             when(usagePoint.getName()).thenReturn("Usage point name");
-            ChannelsContainer channelsContainer = mock(ChannelsContainer.class);
+            MetrologyContractChannelsContainer channelsContainer = mock(MetrologyContractChannelsContainer.class);
+            MetrologyContract validatingMetrologyContract = mock(MetrologyContract.class);
+            when(validatingMetrologyContract.getMetrologyPurpose()).thenReturn(validatingMetrologyPurpose);
+            when(channelsContainer.getMetrologyContract()).thenReturn(validatingMetrologyContract);
             EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint = mock(EffectiveMetrologyConfigurationOnUsagePoint.class);
             UsagePointMetrologyConfiguration metrologyConfiguration = mock(UsagePointMetrologyConfiguration.class);
-            MetrologyContract metrologyContract = mock(MetrologyContract.class);
 
+            MetrologyContract metrologyContract = mock(MetrologyContract.class);
             when(metrologyContract.getMetrologyPurpose()).thenReturn(rule.checkPurpose);
             when(metrologyConfiguration.getContracts()).thenReturn(Collections.singletonList(metrologyContract));
             when(effectiveMetrologyConfigurationOnUsagePoint.getMetrologyConfiguration()).thenReturn(metrologyConfiguration);

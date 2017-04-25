@@ -137,7 +137,9 @@ public class ReferenceComparisonValidator extends MainCheckAbstractValidator {
             validateReferenceUsagePoint();
             initCheckData(referenceUsagePoint, referenceReadinType);
         }catch (InitCancelException e){
-            // do nothing. already handled
+            if(preparedValidationResult==null){
+                throw new IllegalStateException("Reference comparison validator failed on init and has no prepared validation result");
+            }
         }
     }
 
@@ -146,12 +148,9 @@ public class ReferenceComparisonValidator extends MainCheckAbstractValidator {
     }
 
     @Override
-    public ValidationResult validate(IntervalReadingRecord intervalReadingRecord) {
-        // TODO: add code from main check validator
-
-
-
-        return ValidationResult.NOT_VALIDATED;
+    protected ComparingValues calculateComparingValues(IntervalReadingRecord mainReading, IntervalReadingRecord checkReading) {
+        // TODO: calculate check value to be compared with main value
+        return null;
     }
 
     @Override
@@ -193,7 +192,7 @@ public class ReferenceComparisonValidator extends MainCheckAbstractValidator {
     }
 
     @Override
-    void logInitCancelFailure(InitCancelProps props) {
+    void logFailure(InitCancelProps props) {
         // FIXME: verify messages
         InitCancelReason reason = props.reason;
         switch (reason) {

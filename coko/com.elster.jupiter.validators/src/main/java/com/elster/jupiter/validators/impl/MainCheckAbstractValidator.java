@@ -115,9 +115,8 @@ public abstract class MainCheckAbstractValidator extends AbstractValidator {
         this.failedValidatonInterval = interval;
         this.validatingChannel = channel;
 
-        //LoggingContext.get().info(getLogger(), "init main check");
+        initValidatingPurpose();
 
-        // 1. parse validator parameters
         checkChannelPurpose = getCheckPurposeProperty();
         maxAbsoluteDifference = getMaxAbsoluteDiffProperty();
         minThreshold = getMinThresholdProperty();
@@ -126,12 +125,94 @@ public abstract class MainCheckAbstractValidator extends AbstractValidator {
 
     }
 
-    protected void initValidatingPurpose() throws InitCancelException {
+    @Override
+    public ValidationResult validate(IntervalReadingRecord intervalReadingRecord) {
+
+        // verify predefined behaviour
+        if (preparedValidationResult != null) {
+            return preparedValidationResult;
+        }
+
+        IntervalReadingRecord checkIntervalReadingRecord = checkReadingRecords.get(intervalReadingRecord.getTimeStamp());
+
+        return validate(intervalReadingRecord, checkIntervalReadingRecord);
+    }
+
+    private ValidationResult validate(IntervalReadingRecord mainReading, IntervalReadingRecord checkReading) {
+
+        Instant timeStamp = mainReading.getTimeStamp();
+
+        // [RULE CHECK] If no data is available on the check channel:
+        if (checkReading == null) {
+            // show log
+            logFailure(InitCancelReason.REFERENCE_OUPUT_MISSING_OR_NOT_VALID.getProps().withReadingType(readingType));
+            if (passIfNoRefData) {
+                // [RULE ACTION] No further checks are done to the interval (marked as valid) and the rule moves to the next interval if Pass if no reference data is checked
+                return ValidationResult.VALID;
+            } else {
+                // [RULE ACTION]  Stop the validation at the timestamp where the timestamp with the last reference data was found for the channel if Pass if no reference data is not checked
+                prepareValidationResult(ValidationResult.NOT_VALIDATED, timeStamp);
+                return ValidationResult.NOT_VALIDATED;
+            }
+        }
+
+        // [RULE FLOW CHECK] Data is available on check output but not validated:
+        ValidationResult checkReadingValidationResult = checkReadingRecordValidations.getOrDefault(checkReading
+                .getTimeStamp(), ValidationResult.NOT_VALIDATED);
+        if (checkReadingValidationResult != ValidationResult.VALID) {
+            // show log
+            if (useValidatedData) {
+                logFailure(InitCancelReason.REFERENCE_OUPUT_MISSING_OR_NOT_VALID.getProps().withReadingType(readingType));
+                // [RULE ACTION] Stop the validation at the timestamp where the timestamp with the last validated reference data was found for the channel if Use validated data is checked
+                prepareValidationResult(ValidationResult.NOT_VALIDATED, timeStamp);
+                return ValidationResult.NOT_VALIDATED;
+            }   // else:
+            // [RULE ACTION] Continue validation if Use validated data is unchecked
+            // So, next checks will be applied
+
+        }
+
+        ComparingValues comparingValues = calculateComparingValues(mainReading, checkReading);
+
+        if (!minThreshold.isNone()) {
+            if (comparingValues.mainValue.compareTo(minThreshold.getValue()) <= 0 && comparingValues.checkValue.compareTo(minThreshold.getValue()) <= 0) {
+                // [RULE FLOW ACTION] the check for the interval is marked valid and the validation moves to the next interval.
+                return ValidationResult.VALID;
+            }
+        }
+
+        BigDecimal differenceValue;
+
+
+        if (TwoValuesDifference.Type.ABSOLUTE == maxAbsoluteDifference.getType()) {
+            differenceValue = maxAbsoluteDifference.getValue();
+        } else if (TwoValuesDifference.Type.RELATIVE == maxAbsoluteDifference.getType()) {
+            differenceValue = comparingValues.mainValue.multiply(maxAbsoluteDifference.getValue()).multiply(new BigDecimal(0.01));
+        } else {
+            return ValidationResult.NOT_VALIDATED;
+        }
+
+        if (comparingValues.mainValue.subtract(comparingValues.checkValue).abs().compareTo(differenceValue) > 0) {
+            return ValidationResult.SUSPECT;
+        } else {
+            return ValidationResult.VALID;
+        }
+    }
+
+    private void prepareValidationResult(ValidationResult validationResult, Instant timeStamp) {
+        preparedValidationResult = validationResult;
+
+        failedValidatonInterval = Range.range(timeStamp, failedValidatonInterval.lowerBoundType(), failedValidatonInterval
+                .upperEndpoint(), failedValidatonInterval.upperBoundType());
+
+    }
+
+    protected void initValidatingPurpose() {
         // find validating purpose
             if (validatingChannel.getChannelsContainer() instanceof MetrologyContractChannelsContainer){
                 validatingPurpose = ((MetrologyContractChannelsContainer)validatingChannel.getChannelsContainer()).getMetrologyContract().getMetrologyPurpose();
             } else {
-                // TODO: illigal state
+                throw new IllegalStateException("Validating channels container is not instance of MetrologyContractChannelsContainer");
             }
     }
 
@@ -204,7 +285,7 @@ public abstract class MainCheckAbstractValidator extends AbstractValidator {
     }
 
     private void handleInitFail(InitCancelProps props) throws InitCancelException {
-        logInitCancelFailure(props);
+        logFailure(props);
         preparedValidationResult = ValidationResult.NOT_VALIDATED;
         throw new InitCancelException();
     }
@@ -432,6 +513,12 @@ public abstract class MainCheckAbstractValidator extends AbstractValidator {
             InitCancelProps getProps() {
                 return new InitCancelProps(REFERENCE_OUTPUT_DOES_NOT_EXIST);
             }
+        },
+        REFERENCE_OUPUT_MISSING_OR_NOT_VALID{
+            @Override
+            InitCancelProps getProps() {
+                return new InitCancelProps(REFERENCE_OUPUT_MISSING_OR_NOT_VALID);
+            }
         };
 
         abstract InitCancelProps getProps();
@@ -440,7 +527,6 @@ public abstract class MainCheckAbstractValidator extends AbstractValidator {
     static class InitCancelProps {
         InitCancelReason reason;
         ReadingType readingType;
-        int effectiveMCListSize;
 
         InitCancelProps(InitCancelReason reason) {
             this.reason = reason;
@@ -451,12 +537,21 @@ public abstract class MainCheckAbstractValidator extends AbstractValidator {
             return this;
         }
 
-        InitCancelProps withEffectiveMCListSize(int effectiveMCListSize) {
-            this.effectiveMCListSize = effectiveMCListSize;
-            return this;
-        }
-
     }
 
-    abstract void logInitCancelFailure(InitCancelProps props);
+    abstract void logFailure(InitCancelProps props);
+
+    protected class ComparingValues {
+        BigDecimal mainValue;
+        BigDecimal checkValue;
+
+        public ComparingValues(BigDecimal mainValue, BigDecimal checkValue) {
+            this.mainValue = mainValue;
+            this.checkValue = checkValue;
+        }
+    }
+
+    protected ComparingValues calculateComparingValues(IntervalReadingRecord mainReading, IntervalReadingRecord checkReading){
+        return new ComparingValues(mainReading.getValue(), checkReading.getValue());
+    }
 }
