@@ -32,15 +32,15 @@ public class MetrologyConfigurationEqualsContractTest extends EqualsContractTest
     public static final long INSTANCE_A_ID = 54L;
 
     @Mock
-    DataModel dataModel;
+    private DataModel dataModel;
     @Mock
-    EventService eventService;
+    private EventService eventService;
     @Mock
-    Thesaurus thesaurus;
+    private Thesaurus thesaurus;
     @Mock
-    ServerMetrologyConfigurationService metrologyConfigurationService;
+    private ServerMetrologyConfigurationService metrologyConfigurationService;
     @Mock
-    UsagePointRequirementsSearchDomain searchDomain;
+    private UsagePointRequirementsSearchDomain searchDomain;
     @Mock
     private CustomPropertySetService customPropertySetService;
     @Mock
@@ -70,7 +70,7 @@ public class MetrologyConfigurationEqualsContractTest extends EqualsContractTest
 
     @Override
     protected Iterable<?> getInstancesNotEqualToA() {
-        MetrologyConfigurationImpl other = new MetrologyConfigurationImpl(dataModel, metrologyConfigurationService, eventService, clock, publisher);
+        MetrologyConfigurationImpl other = new MetrologyConfigurationImpl(this.dataModel, this.metrologyConfigurationService, this.eventService, this.clock, this.publisher);
         Reflection.field("id").ofType(Long.TYPE).in(other).set(INSTANCE_A_ID + 1);
         return singletonList(other);
     }
@@ -82,9 +82,9 @@ public class MetrologyConfigurationEqualsContractTest extends EqualsContractTest
 
     @Override
     protected Object getInstanceOfSubclassEqualToA() {
-        when(searchDomain.getId()).thenReturn("UsagePoint");
-        when(searchService.findDomain(any())).thenReturn(Optional.of(searchDomain));
-        UsagePointMetrologyConfigurationImpl subInst = new UsagePointMetrologyConfigurationImpl(dataModel, metrologyConfigurationService, eventService, this.customPropertySetService, searchDomain, clock, publisher);
+        when(this.searchDomain.getId()).thenReturn("UsagePoint");
+        when(this.searchService.findDomain(any())).thenReturn(Optional.of(this.searchDomain));
+        UsagePointMetrologyConfigurationImpl subInst = new UsagePointMetrologyConfigurationImpl(this.dataModel, this.metrologyConfigurationService, this.eventService, this.customPropertySetService, this.searchDomain, this.searchService, this.clock, publisher);
         Reflection.field("id").ofType(Long.TYPE).in(subInst).set(INSTANCE_A_ID);
         return subInst;
     }
