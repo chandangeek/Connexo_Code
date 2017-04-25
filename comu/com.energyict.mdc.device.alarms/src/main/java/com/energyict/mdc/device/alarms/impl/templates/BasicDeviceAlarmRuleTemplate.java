@@ -485,6 +485,10 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
             return "";
         }
 
+        public DeviceType getDeviceType() {
+            return deviceType;
+        }
+
         private String getStateName(State state) {
             return DefaultState
                     .from(state)

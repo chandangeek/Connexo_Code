@@ -17,7 +17,8 @@ public enum MessageSeeds implements MessageSeed {
     UNABLE_TO_CREATE_EVENT(4, "UnableToCreateEvent", "Unable to create event", Level.SEVERE),
     INVALID_NUMBER_OF_ARGUMENTS(9, "invalid.number.of.arguments", "Invalid number of arguments {0}, expected {1} ", Level.SEVERE),
     INVALID_ARGUMENT(10, "invalid.argument", "Invalid argument {0}", Level.SEVERE),
-    INCORRECT_NUMBER_OF_CONCURRENT_PROCESSED_EVENTS(9, "incorrect.number.of.concurrent.processed.events", "Incorrect number of concurrently processed events : {0}", Level.SEVERE)
+    INCORRECT_NUMBER_OF_CONCURRENT_PROCESSED_EVENTS(11, "incorrect.number.of.concurrent.processed.events", "Incorrect number of concurrently processed events : {0}", Level.SEVERE),
+    DEVICE_TYPE_IN_USE(12, "deviceTypeInUseByAlarmCreationRule", "Device type ''{0}'' is still in use by an alarm creation rule", Level.SEVERE)
     ;
 
     private final int number;

@@ -287,6 +287,11 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
         return DeviceAlarmGroupOperation.from(filter, this.dataModel, thesaurus).execute();
     }
 
+    @Override
+    public Thesaurus thesaurus() {
+        return thesaurus;
+    }
+
     public DataModel getDataModel() {
         return this.dataModel;
     }
