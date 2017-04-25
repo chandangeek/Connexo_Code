@@ -720,9 +720,9 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
                 ComTaskExecutionFields.ONHOLD.fieldName(),
                 ComTaskExecutionFields.PLANNEDNEXTEXECUTIONTIMESTAMP.fieldName());
 
-        if(informConnectionTask) {
+        if (informConnectionTask) {
             this.getConnectionTask().ifPresent(ct -> {
-                if(!calledByConnectionTask) {
+                if (!calledByConnectionTask) {
                     ((ServerConnectionTask) ct).scheduledComTaskRescheduled(this);
                 }
                 calledByConnectionTask = false;
@@ -1026,42 +1026,51 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
 
     @Override
     public boolean isConfiguredToCollectRegisterData() {
-        return this.getBehavior().isConfiguredToCollectRegisterData();
+        return isConfiguredToCollectDataOfClass(RegistersTask.class);
     }
 
     @Override
     public boolean isConfiguredToCollectLoadProfileData() {
-        return this.getBehavior().isConfiguredToCollectLoadProfileData();
+        return isConfiguredToCollectDataOfClass(LoadProfilesTask.class);
     }
 
     @Override
     public boolean isConfiguredToRunBasicChecks() {
-        return this.getBehavior().isConfiguredToRunBasicChecks();
+        return isConfiguredToCollectDataOfClass(BasicCheckTask.class);
     }
 
     @Override
     public boolean isConfiguredToCheckClock() {
-        return this.getBehavior().isConfiguredToCheckClock();
+        return isConfiguredToCollectDataOfClass(ClockTask.class);
     }
 
     @Override
     public boolean isConfiguredToCollectEvents() {
-        return this.getBehavior().isConfiguredToCollectEvents();
+        return isConfiguredToCollectDataOfClass(LogBooksTask.class);
     }
 
     @Override
     public boolean isConfiguredToSendMessages() {
-        return this.getBehavior().isConfiguredToSendMessages();
+        return isConfiguredToCollectDataOfClass(MessagesTask.class);
     }
 
     @Override
     public boolean isConfiguredToReadStatusInformation() {
-        return this.getBehavior().isConfiguredToReadStatusInformation();
+        return isConfiguredToCollectDataOfClass(StatusInformationTask.class);
     }
 
     @Override
     public boolean isConfiguredToUpdateTopology() {
-        return this.getBehavior().isConfiguredToUpdateTopology();
+        return isConfiguredToCollectDataOfClass(TopologyTask.class);
+    }
+
+    private <T extends ProtocolTask> boolean isConfiguredToCollectDataOfClass(Class<T> protocolTaskClass) {
+        for (ProtocolTask protocolTask : this.getProtocolTasks()) {
+            if (protocolTaskClass.isAssignableFrom(protocolTask.getClass())) {
+                return true;
+            }
+        }
+        return false;
     }
 
 
