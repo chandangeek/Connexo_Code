@@ -45,6 +45,11 @@ Ext.define('Imt.purpose.view.OutputReadings', {
                     itemId: 'add-register-data'
                 }
             ];
+            emptyComponent.reasons = [
+                Uni.I18n.translate('readings.list.reason1x', 'IMT', 'No metrology configurations in the specified period of time'),
+                Uni.I18n.translate('readings.list.reason2x', 'IMT', 'No data has been collected or added yet'),
+                Uni.I18n.translate('readings.list.reason4', 'IMT', 'No data matching to the filters')
+            ];
         }
         else {
             emptyComponent.stepItems = [
