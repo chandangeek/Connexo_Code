@@ -238,8 +238,18 @@ public class UsagePointOutputResource {
         }
         Map<Instant, ChannelReadingWithValidationStatus> outputChannelDataMap = new TreeMap<>(Collections.reverseOrder());
 
-        usagePoint.getEffectiveMetrologyConfigurations().forEach(effectiveMC -> findMetrologyContractForPurpose(effectiveMC, metrologyPurpose)
-                .ifPresent(contract -> putChannelDataFromMetrologyConfiguration(usagePoint, outputChannelDataMap, contract, readingType, filter, effectiveMC)));
+        usagePoint
+                .getEffectiveMetrologyConfigurations()
+                .forEach(effectiveMC ->
+                        findMetrologyContractForPurpose(effectiveMC, metrologyPurpose)
+                            .ifPresent(contract ->
+                                    putChannelDataFromMetrologyConfiguration(
+                                            usagePoint,
+                                            outputChannelDataMap,
+                                            contract,
+                                            readingType,
+                                            filter,
+                                            effectiveMC)));
 
         List<OutputChannelDataInfo> infoList = outputChannelDataMap.values().stream()
                 .filter(getSuspectsFilter(filter, this::hasSuspects))
@@ -265,8 +275,8 @@ public class UsagePointOutputResource {
                         ValidationEvaluator evaluator = validationService.getEvaluator();
                         ReadingWithValidationStatusFactory readingWithValidationStatusFactory = new ReadingWithValidationStatusFactory(
                                 channel,
-                                validationStatusFactory.isValidationActive(metrologyContract, Collections.singletonList(channel)),
-                                validationStatusFactory.getLastCheckedForChannels(evaluator, channelsContainer, Collections.singletonList(channel)),
+                                evaluator.isValidationEnabled(channel),
+                                evaluator.getLastChecked(channelsContainer, channel.getMainReadingType()).orElse(null),
                                 usagePoint,
                                 this.calendarService);
 
@@ -394,11 +404,11 @@ public class UsagePointOutputResource {
         return readings.stream().filter(reading -> range.contains(reading.getTimeStamp())).collect(Collectors.toList());
     }
 
-    private static boolean isToBeConfirmed(OutputChannelDataInfo channelDataInfo) {
+    private boolean isToBeConfirmed(OutputChannelDataInfo channelDataInfo) {
         return Boolean.TRUE.equals(channelDataInfo.isConfirmed);
     }
 
-    private static Optional<MetrologyContract> findMetrologyContractForPurpose(EffectiveMetrologyConfigurationOnUsagePoint effectiveMC, MetrologyPurpose metrologyPurpose) {
+    private Optional<MetrologyContract> findMetrologyContractForPurpose(EffectiveMetrologyConfigurationOnUsagePoint effectiveMC, MetrologyPurpose metrologyPurpose) {
         return effectiveMC.getMetrologyConfiguration()
                 .getContracts()
                 .stream()
@@ -561,8 +571,8 @@ public class UsagePointOutputResource {
 
                                 ReadingWithValidationStatusFactory readingWithValidationStatusFactory = new ReadingWithValidationStatusFactory(
                                         channel,
-                                        validationStatusFactory.isValidationActive(metrologyContract, Collections.singletonList(channel)),
-                                        validationStatusFactory.getLastCheckedForChannels(evaluator, channelsContainer, Collections.singletonList(channel)),
+                                        evaluator.isValidationEnabled(channel),
+                                        evaluator.getLastChecked(channelsContainer, channel.getMainReadingType()).orElse(null),
                                         usagePoint,
                                         calendarService);
 
@@ -649,8 +659,8 @@ public class UsagePointOutputResource {
         ValidationEvaluator evaluator = validationService.getEvaluator();
         ReadingWithValidationStatusFactory readingWithValidationStatusFactory = new ReadingWithValidationStatusFactory(
                 channel,
-                validationStatusFactory.isValidationActive(metrologyContract, Collections.singletonList(channel)),
-                validationStatusFactory.getLastCheckedForChannels(evaluator, channelsContainer, Collections.singletonList(channel)),
+                evaluator.isValidationEnabled(channel),
+                evaluator.getLastChecked(channelsContainer, channel.getMainReadingType()).orElse(null),
                 usagePoint, calendarService);
         RegisterReadingWithValidationStatus readingWithValidationStatus = readingWithValidationStatusFactory.createRegisterReading(requestedTime);
 

@@ -102,7 +102,8 @@ public class UsagePointOutputResourceRegisterDataTest extends UsagePointDataRest
         when(usedCalendars.getCalendar(any(Instant.class), any(Category.class))).thenReturn(Optional.empty());
         when(this.usagePoint.getUsedCalendars()).thenReturn(usedCalendars);
         when(clock.getZone()).thenReturn(ZoneId.systemDefault());
-        when(channel.getZoneId()).thenReturn(ZoneId.systemDefault());
+        when(channel1.getZoneId()).thenReturn(ZoneId.systemDefault());
+        when(channel2.getZoneId()).thenReturn(ZoneId.systemDefault());
 
         when(meteringService.findUsagePointByName(any())).thenReturn(Optional.empty());
         when(meteringService.findUsagePointByName(USAGE_POINT_NAME)).thenReturn(Optional.of(usagePoint));
@@ -179,10 +180,15 @@ public class UsagePointOutputResourceRegisterDataTest extends UsagePointDataRest
 
         evaluator = mock(ValidationEvaluator.class);
         when(validationService.getEvaluator()).thenReturn(evaluator);
-        when(evaluator.getValidationStatus(eq(EnumSet.of(QualityCodeSystem.MDM)), any(Channel.class), any(),
-                eq(Range.openClosed(TIME_STAMP_BEFORE_1, READING_TIME_STAMP_3))))
+        when(evaluator
+                .getValidationStatus(
+                        eq(EnumSet.of(QualityCodeSystem.MDM)),
+                        any(Channel.class),
+                        any(),
+                        eq(Range.openClosed(TIME_STAMP_BEFORE_1, READING_TIME_STAMP_3))))
                 .thenReturn(Collections.emptyList());
-        when(evaluator.getLastChecked(eq(channelsContainer), any(ReadingType.class))).thenReturn(Optional.of(readingTimeStamp1));
+        when(evaluator.getLastChecked(eq(channelsContainer1), any(ReadingType.class))).thenReturn(Optional.of(READING_TIME_STAMP_1));
+        when(evaluator.getLastChecked(eq(channelsContainer2), any(ReadingType.class))).thenReturn(Optional.empty());
     }
 
     private String defaultFilter() throws UnsupportedEncodingException {

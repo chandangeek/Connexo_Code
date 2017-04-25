@@ -91,7 +91,6 @@ public class ValidationStatusFactory {
                     if (interval != null) {
                         setReasonInfo(validationEvaluator.getValidationStatus(EnumSet.of(QualityCodeSystem.MDM), channel, Collections.emptyList(), interval != null ? interval : lastMonth()), info);
                     }
-
                 });
                 result.put(readingTypeDeliverable, info);
             }
@@ -112,7 +111,6 @@ public class ValidationStatusFactory {
 
         }
         return info;
-
     }
 
     private Range<Instant> lastMonth() {
@@ -120,7 +118,6 @@ public class ValidationStatusFactory {
         ZonedDateTime start = end.minusMonths(1);
         return Range.openClosed(start.toInstant(), end.toInstant());
     }
-
 
     private void setReasonInfo(List<DataValidationStatus> validationStatuses, UsagePointValidationStatusInfo info) {
         Map<ValidationRule, Long> suspectRulesCount = new HashMap<>();
