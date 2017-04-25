@@ -20,6 +20,7 @@ import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
 import com.energyict.mdc.common.rest.IntervalInfo;
+import com.energyict.mdc.common.services.ObisCodeDescriptor;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.config.RegisterSpec;
@@ -56,6 +57,7 @@ import java.util.stream.Collectors;
  */
 public class DeviceDataInfoFactory {
 
+    private final ObisCodeDescriptor obisCodeDescriptor;
     private final MeteringTranslationService meteringTranslationService;
     private final ValidationInfoFactory validationInfoFactory;
     private final EstimationRuleInfoFactory estimationRuleInfoFactory;
@@ -65,13 +67,15 @@ public class DeviceDataInfoFactory {
     private final ReadingTypeInfoFactory readingTypeInfoFactory;
 
     @Inject
-    public DeviceDataInfoFactory(MeteringTranslationService meteringTranslationService,
-                                 ValidationInfoFactory validationInfoFactory,
-                                 EstimationRuleInfoFactory estimationRuleInfoFactory,
-                                 ValidationRuleInfoFactory validationRuleInfoFactory,
-                                 Clock clock,
-                                 ResourceHelper resourceHelper,
-                                 ReadingTypeInfoFactory readingTypeInfoFactory) {
+    public DeviceDataInfoFactory(
+            ObisCodeDescriptor obisCodeDescriptor, MeteringTranslationService meteringTranslationService,
+            ValidationInfoFactory validationInfoFactory,
+            EstimationRuleInfoFactory estimationRuleInfoFactory,
+            ValidationRuleInfoFactory validationRuleInfoFactory,
+            Clock clock,
+            ResourceHelper resourceHelper,
+            ReadingTypeInfoFactory readingTypeInfoFactory) {
+        this.obisCodeDescriptor = obisCodeDescriptor;
         this.meteringTranslationService = meteringTranslationService;
         this.validationInfoFactory = validationInfoFactory;
         this.estimationRuleInfoFactory = estimationRuleInfoFactory;
@@ -391,7 +395,7 @@ public class DeviceDataInfoFactory {
         registerInfo.readingType = readingTypeInfoFactory.from(register.getReadingType());
         registerInfo.obisCode = registerSpec.getDeviceObisCode();
         registerInfo.overruledObisCode = register.getDeviceObisCode();
-        registerInfo.obisCodeDescription = register.getDeviceObisCode().getDescription();
+        registerInfo.obisCodeDescription = this.obisCodeDescriptor.describe(register.getDeviceObisCode());
         registerInfo.isCumulative = register.getReadingType().isCumulative();
         registerInfo.hasEvent = register.hasEventDate();
         registerInfo.isBilling = register.isBilling();

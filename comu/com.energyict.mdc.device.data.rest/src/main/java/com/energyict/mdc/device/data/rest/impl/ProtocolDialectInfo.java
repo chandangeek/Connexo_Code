@@ -33,7 +33,7 @@ public class ProtocolDialectInfo {
         ProtocolDialectInfo protocolDialectInfo = new ProtocolDialectInfo();
         protocolDialectInfo.id = protocolDialectConfigurationProperties.getId();
         protocolDialectInfo.name = protocolDialectConfigurationProperties.getDeviceProtocolDialect().getDeviceProtocolDialectName();
-        protocolDialectInfo.displayName = protocolDialectConfigurationProperties.getDeviceProtocolDialect().getDisplayName();
+        protocolDialectInfo.displayName = protocolDialectConfigurationProperties.getDeviceProtocolDialect().getDeviceProtocolDialectDisplayName();
         protocolDialectInfo.availableForUse = true;
 
         List<PropertySpec> propertySpecs = protocolDialectConfigurationProperties.getPropertySpecs();
