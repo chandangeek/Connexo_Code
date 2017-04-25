@@ -59,6 +59,14 @@ public class ReferenceComparisonValidator extends MainCheckAbstractValidator {
     }
 
     @Override
+    public void validateProperties(Map<String, Object> properties) {
+        // FIXME:
+
+        // The chosen check usage point doesn't have the selected purpose
+        // The chosen reading type is not available on the selected purpose of the usage point
+    }
+
+    @Override
     public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
                 buildMaxAbsoluteDiffPropertySpec(),
