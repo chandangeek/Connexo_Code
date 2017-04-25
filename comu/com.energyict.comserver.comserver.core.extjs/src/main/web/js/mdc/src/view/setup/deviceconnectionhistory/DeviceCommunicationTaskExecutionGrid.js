@@ -31,8 +31,8 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceCommunicationTaskExecut
                 text: Uni.I18n.translate('deviceconnectionhistory.device', 'MDC', 'Device'),
                 dataIndex: 'device',
                 flex: 2,
-                renderer: function(value){
-                   return Ext.String.htmlEncode(value.name);
+                renderer: function(device){
+                    return device!=='' ? '<a href="#/devices/'+device.name+'">' + Ext.String.htmlEncode(device.name) + '</a>' : '-';
                 }
             },
             {
@@ -47,7 +47,7 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceCommunicationTaskExecut
                 dataIndex: 'startTime',
                 flex: 2,
                 renderer: function (value) {
-                    return value ? Uni.DateTime.formatDateTimeShort(value) : '-';
+                    return value ? Uni.DateTime.formatDateTimeLong(value) : '-';
                 }
             },
             {

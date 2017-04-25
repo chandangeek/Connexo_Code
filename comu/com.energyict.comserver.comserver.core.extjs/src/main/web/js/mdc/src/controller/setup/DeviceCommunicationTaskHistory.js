@@ -37,7 +37,13 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTaskHistory', {
         {ref: 'deviceCommunicationTaskHistoryLogGrid', selector: '#deviceCommunicationTaskHistoryLogGrid'},
         {ref: 'deviceCommunicationTaskHistoryLogPreview', selector: '#deviceCommunicationTaskHistoryLogPreview'},
         {ref: 'deviceCommunicationTaskLogOverviewForm', selector: '#deviceCommunicationTaskLogOverviewForm'},
-        {ref: 'comPortField', selector: '#comPort'}
+        {ref: 'comPortField', selector: '#comPort'},
+        {ref: 'showComTaskConnectionDetails', selector: '#btn-com-task-show-connection-details'},
+        {ref: 'showComTaskCommunicationDetails', selector: '#btn-com-task-show-communication-details'},
+        {ref: 'comTaskConnectionDetails', selector: '#deviceConnectionHistoryPreviewForm'},
+        {ref: 'comTaskCommunicationDetails', selector: '#deviceCommunicationTaskHistoryPreviewForm'},
+        {ref: 'comTaskConnectionSummary', selector: '#com-task-connection-summary'},
+        {ref: 'comTaskCommunicationSummary', selector: '#com-task-communication-summary'}
     ],
 
     init: function () {
@@ -53,6 +59,12 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTaskHistory', {
             },
             '#deviceCommunicationTaskHistoryLogGrid': {
                 selectionchange: this.previewDeviceCommunicationTaskHistoryLog
+            },
+            'button[action=showComTaskConnectionDetails]': {
+                click: this.showComTaskConnectionDetails
+            },
+            'button[action=showComTaskCommunicationDetails]': {
+                click: this.showComTaskCommunicationDetails
             }
         });
     },
@@ -88,6 +100,10 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTaskHistory', {
             communicationMenu = communicationPreview.down('menu'),
             connectionPreview = me.getDeviceConnectionHistoryPreviewPanel(),
             connectionMenu = connectionPreview.down('menu'),
+            comTaskConnectionSummary = me.getComTaskConnectionSummary(),
+            comTaskCommunicationSummary = me.getComTaskCommunicationSummary(),
+            errorListConnection = [],
+            errorListCommunication = [],
             communicationTaskHistory = me.getDeviceCommunicationTaskHistoryGrid().getSelectionModel().getSelection()[0];
 
         Ext.suspendLayouts();
@@ -95,6 +111,49 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTaskHistory', {
         me.getComPortField().setValue(Ext.String.format(Uni.I18n.translate('deviceconnectionhistory.on', 'MDC', '{0} on {1}'), communicationTaskHistory.get('comSession').comPort, '<a href="#/administration/comservers/' + communicationTaskHistory.get('comSession').comServer.id + '">' + communicationTaskHistory.get('comSession').comServer.name + '</a>'));
         me.getDeviceConnectionHistoryPreviewForm().loadRecord(communicationTaskHistory.getComSession());
         connectionPreview.setTitle(Uni.I18n.translate('devicecommunicationtaskhistory.connectionPreviewTitle', 'MDC', '{0} on {1}', [communicationTaskHistory.getComSession().get('connectionMethod').name, communicationTaskHistory.getComSession().get('device').name]));
+
+        if (communicationTaskHistory.get('comSession').errors && communicationTaskHistory.get('comSession').errors.length > 0) {
+            errorListConnection.push((Uni.I18n.translate('deviceconnectionhistory.errorsTitle', 'MDC', 'Errors:')));
+            Ext.Array.forEach(communicationTaskHistory.get('comSession').errors, function (error){
+                errorListConnection.push(Uni.DateTime.formatDateTime(error.timestamp, Uni.DateTime.SHORT, Uni.DateTime.LONGWITHMILLIS) + ' - ' + error.details);
+            });
+            errorListConnection.push(' '); //new empty line
+        }
+
+        if (communicationTaskHistory.get('comSession').warnings && communicationTaskHistory.get('comSession').warnings.length > 0) {
+            errorListCommunication.push((Uni.I18n.translate('deviceconnectionhistory.warningsTitle', 'MDC', 'Warnings:')));
+            Ext.Array.forEach(communicationTaskHistory.get('comSession').warnings, function (warn){
+                errorListCommunication.push(Uni.DateTime.formatDateTime(warn.timestamp, Uni.DateTime.SHORT, Uni.DateTime.LONGWITHMILLIS) + ' - ' + warn.details);
+            });
+            errorListCommunication.push(' '); //new empty line
+        }
+
+        if (communicationTaskHistory.get('errors') && communicationTaskHistory.get('errors').length > 0) {
+            errorListCommunication.push((Uni.I18n.translate('deviceconnectionhistory.errorsTitle', 'MDC', 'Errors:')));
+            Ext.Array.forEach(communicationTaskHistory.get('errors'), function (error){
+                errorListCommunication.push(Uni.DateTime.formatDateTime(error.timestamp, Uni.DateTime.SHORT, Uni.DateTime.LONGWITHMILLIS) + ' - ' + error.details);
+            });
+            errorListCommunication.push(' '); //new empty line
+        }
+
+        if (communicationTaskHistory.get('warnings') && communicationTaskHistory.get('warnings').length > 0) {
+            errorListCommunication.push((Uni.I18n.translate('deviceconnectionhistory.warningsTitle', 'MDC', 'Warnings:')));
+            Ext.Array.forEach(communicationTaskHistory.get('warnings'), function (warn){
+                errorListCommunication.push(Uni.DateTime.formatDateTime(warn.timestamp, Uni.DateTime.SHORT, Uni.DateTime.LONGWITHMILLIS) + ' - ' + warn.details);
+            });
+            errorListCommunication.push(' '); //new empty line
+        }
+
+        me.getComTaskConnectionDetails().setVisible(!errorListConnection.length > 0);
+        me.getShowComTaskConnectionDetails().setVisible(errorListConnection.length > 0);
+        comTaskConnectionSummary.setVisible(errorListConnection.length > 0);
+        comTaskConnectionSummary.setValue(errorListConnection.join('<br/>'));
+
+        me.getComTaskCommunicationDetails().setVisible(!errorListCommunication.length > 0);
+        me.getShowComTaskCommunicationDetails().setVisible(errorListCommunication.length > 0);
+        comTaskCommunicationSummary.setVisible(errorListCommunication.length > 0);
+        comTaskCommunicationSummary.setValue(errorListCommunication.join('<br/>'));
+
         Ext.resumeLayouts(true);
         if (communicationMenu) {
             communicationMenu.record = record;
@@ -175,5 +234,19 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTaskHistory', {
         this.getDeviceCommunicationTaskHistoryLogPreviewForm().loadRecord(comTaskLog);
         var timeStamp = Uni.DateTime.formatDateTimeLong(new Date(comTaskLog.get('timestamp')));
         this.getDeviceCommunicationTaskHistoryLogPreview().setTitle(Ext.String.format(Uni.I18n.translate('devicecommunicationtaskhistory.communicationOn', 'MDC', 'Communication on {0}'), timeStamp));
+    },
+
+    showComTaskConnectionDetails: function(){
+        var me = this;
+
+        me.getShowComTaskConnectionDetails().setVisible(false);
+        me.getComTaskConnectionDetails().setVisible(true);
+    },
+
+    showComTaskCommunicationDetails: function(){
+        var me = this;
+
+        me.getShowComTaskCommunicationDetails().setVisible(false);
+        me.getComTaskCommunicationDetails().setVisible(true);
     }
 });

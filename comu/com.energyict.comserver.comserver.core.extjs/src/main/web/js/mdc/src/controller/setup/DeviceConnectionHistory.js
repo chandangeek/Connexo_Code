@@ -45,6 +45,14 @@ Ext.define('Mdc.controller.setup.DeviceConnectionHistory', {
         {ref: 'deviceConnectionHistoryPreviewMenu', selector: '#deviceConnectionHistoryPreview button menu'},
         {ref: 'deviceConnectionHistoryGridActionColumn', selector: '#deviceConnectionHistoryGrid #action'},
         {ref: 'titlePanel', selector: '#titlePanel'},
+        {ref: 'rightConnectionDetails', selector: '#right-connection-details'},
+        {ref: 'leftConnectionDetails', selector: '#left-connection-details'},
+        {ref: 'leftCommunicationDetails', selector: '#left-communication-details'},
+        {ref: 'rightCommunicationDetails', selector: '#right-communication-details'},
+        {ref: 'showConnectionDetailsButton', selector: '#btn-show-connection-details'},
+        {ref: 'showCommunicationDetailsButton', selector: '#btn-show-communication-details'},
+        {ref: 'connectionSummaryField', selector: '#connection-summary'},
+        {ref: 'communicationSummaryField', selector: '#communication-summary'},
         {ref: 'comPortField', selector: '#comPort'},
         {ref: 'deviceConnectionLogOverviewForm', selector: '#deviceConnectionLogOverviewForm'},
         {ref: 'deviceconnectionhistorySideFilterForm', selector: '#deviceconnectionhistorySideFilterForm'},
@@ -73,6 +81,12 @@ Ext.define('Mdc.controller.setup.DeviceConnectionHistory', {
             },
             'mdc-device-communication-task-grid-action-menu': {
                 click: this.showComTaskLog
+            },
+            'button[action=showConnectionDetails]': {
+                click: this.showConnectionDetails
+            },
+            'button[action=showCommunicationDetails]': {
+                click: this.showCommunicationDetails
             }
         });
     },
@@ -110,9 +124,33 @@ Ext.define('Mdc.controller.setup.DeviceConnectionHistory', {
     previewDeviceConnectionHistory: function () {
         var me = this,
             connectionHistory = me.getDeviceConnectionHistoryGrid().getSelectionModel().getSelection()[0],
+            connectionSummary = me.getConnectionSummaryField(),
+            errorList = [],
             deviceCommunicationTaskExecutionsStore = me.getDeviceCommunicationTaskExecutionsStore();
 
         me.getDeviceConnectionHistoryPreviewForm().loadRecord(connectionHistory);
+
+        if (connectionHistory.get('errors') && connectionHistory.get('errors').length > 0) {
+            errorList.push((Uni.I18n.translate('deviceconnectionhistory.errorsTitle', 'MDC', 'Errors:')));
+            Ext.Array.forEach(connectionHistory.get('errors'), function (error){
+                errorList.push(Uni.DateTime.formatDateTime(error.timestamp, Uni.DateTime.SHORT, Uni.DateTime.LONGWITHMILLIS) + ' - ' + error.details);
+            });
+            errorList.push(' '); //new empty line
+        }
+
+        if (connectionHistory.get('warnings') && connectionHistory.get('warnings').length > 0) {
+            errorList.push((Uni.I18n.translate('deviceconnectionhistory.warningsTitle', 'MDC', 'Warnings:')));
+            Ext.Array.forEach(connectionHistory.get('warnings'), function (warn){
+                errorList.push(Uni.DateTime.formatDateTime(warn.timestamp, Uni.DateTime.SHORT, Uni.DateTime.LONGWITHMILLIS) + ' - ' + warn.details);
+            });
+            errorList.push(' '); //new empty line
+        }
+
+        me.getRightConnectionDetails().setVisible(!errorList.length > 0);
+        me.getLeftConnectionDetails().setVisible(!errorList.length > 0);
+        me.getShowConnectionDetailsButton().setVisible(errorList.length > 0);
+        connectionSummary.setVisible(errorList.length > 0);
+        connectionSummary.setValue(errorList.join('<br/>'));
 
         me.getStatusLink().setValue('<a href="#/devices/' + this.deviceId
             + '/connectionmethods/'
@@ -145,8 +183,33 @@ Ext.define('Mdc.controller.setup.DeviceConnectionHistory', {
     previewDeviceCommunicationTaskExecution: function () {
         var me = this,
             communication = me.getDeviceCommunicationTaskExecutionGrid().getSelectionModel().getSelection()[0],
+            errorList = [],
+            communicationSummary = me.getCommunicationSummaryField(),
             deviceCommunicationTaskExecutionPreviewMenu = me.getDeviceCommunicationTaskExecutionPreviewMenu();
         me.getDeviceCommunicationTaskExecutionPreviewForm().loadRecord(communication);
+
+        if (communication.get('errors') && communication.get('errors').length > 0) {
+            errorList.push((Uni.I18n.translate('devicecommunicationhistory.errorsTitle', 'MDC', 'Errors:')));
+            Ext.Array.forEach(communication.get('errors'), function (error){
+                errorList.push(Uni.DateTime.formatDateTime(error.timestamp, Uni.DateTime.SHORT, Uni.DateTime.LONGWITHMILLIS) + ' - ' + error.details);
+            });
+            errorList.push(' '); //new empty line
+        }
+
+        if (communication.get('warnings') && communication.get('warnings').length > 0) {
+            errorList.push((Uni.I18n.translate('devicecommunicationhistory.warningsTitle', 'MDC', 'Warnings:')));
+            Ext.Array.forEach(communication.get('warnings'), function (warn){
+                errorList.push(Uni.DateTime.formatDateTime(warn.timestamp, Uni.DateTime.SHORT, Uni.DateTime.LONGWITHMILLIS) + ' - ' + warn.details);
+            });
+            errorList.push(' '); //new empty line
+        }
+
+        me.getRightCommunicationDetails().setVisible(!errorList.length > 0);
+        me.getLeftCommunicationDetails().setVisible(!errorList.length > 0);
+        me.getShowCommunicationDetailsButton().setVisible(errorList.length > 0);
+        communicationSummary.setVisible(errorList.length > 0);
+        communicationSummary.setValue(errorList.join('<br/>'));
+
         deviceCommunicationTaskExecutionPreviewMenu.record = communication;
         me.getDeviceCommunicationTaskExecutionPreview().setTitle(Ext.String.format(Uni.I18n.translate('deviceconnectionhistory.on', 'MDC', '{0} on {1}'), communication.get('name'), me.device.get('name')));
     },
@@ -204,6 +267,22 @@ Ext.define('Mdc.controller.setup.DeviceConnectionHistory', {
             + '/history/' + record.get('id')
             + '/viewlog'
             + '?logLevels=Error&logLevels=Warning&logLevels=Information';
+    },
+
+    showConnectionDetails: function (){
+        var me = this;
+
+        me.getRightConnectionDetails().setVisible(true);
+        me.getLeftConnectionDetails().setVisible(true);
+        me.getShowConnectionDetailsButton().setVisible(false);
+    },
+
+    showCommunicationDetails: function (){
+        var me = this;
+
+        me.getRightCommunicationDetails().setVisible(true);
+        me.getLeftCommunicationDetails().setVisible(true);
+        me.getShowCommunicationDetailsButton().setVisible(false);
     },
 
     previewConnectionLog: function () {
