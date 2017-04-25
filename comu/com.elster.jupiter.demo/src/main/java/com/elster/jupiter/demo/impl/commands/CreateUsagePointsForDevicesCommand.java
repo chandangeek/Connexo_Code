@@ -124,9 +124,8 @@ public class CreateUsagePointsForDevicesCommand {
             metrologyConfiguration = (UsagePointMetrologyConfiguration) metrologyConfigurationService.findMetrologyConfiguration("Residential prosumer with 1 meter").get();
         }
         metrologyConfiguration.addMeterRole(metrologyConfigurationService.findDefaultMeterRole(DefaultMeterRole.DEFAULT));
-        usagePoint.apply(metrologyConfiguration, clock.instant());
         usagePoint.update();
-        setUsagePoint(device, usagePoint);
+        setUsagePoint(device, usagePoint, metrologyConfiguration);
         activateUsagePoint(usagePoint);
     }
 
@@ -138,9 +137,8 @@ public class CreateUsagePointsForDevicesCommand {
                 .forEach(cps -> cps.setValues(getUsagePointGeneralDomainExtensionValues(clock.instant().plusSeconds(60))));
         UsagePointMetrologyConfiguration metrologyConfiguration = (UsagePointMetrologyConfiguration) metrologyConfigurationService.findMetrologyConfiguration("Residential water").get();
         metrologyConfiguration.addMeterRole(metrologyConfigurationService.findDefaultMeterRole(DefaultMeterRole.DEFAULT));
-        usagePoint.apply(metrologyConfiguration, clock.instant());
         usagePoint.update();
-        setUsagePoint(device, usagePoint);
+        setUsagePoint(device, usagePoint, metrologyConfiguration);
         activateUsagePoint(usagePoint);
 
     }
@@ -153,9 +151,8 @@ public class CreateUsagePointsForDevicesCommand {
                 .forEach(cps -> cps.setValues(getUsagePointGeneralDomainExtensionValues(clock.instant().plusSeconds(60))));
         UsagePointMetrologyConfiguration metrologyConfiguration = (UsagePointMetrologyConfiguration) metrologyConfigurationService.findMetrologyConfiguration("Residential gas").get();
         metrologyConfiguration.addMeterRole(metrologyConfigurationService.findDefaultMeterRole(DefaultMeterRole.DEFAULT));
-        usagePoint.apply(metrologyConfiguration, clock.instant());
         usagePoint.update();
-        setUsagePoint(device, usagePoint);
+        setUsagePoint(device, usagePoint, metrologyConfiguration);
         activateUsagePoint(usagePoint);
     }
 
@@ -203,7 +200,7 @@ public class CreateUsagePointsForDevicesCommand {
         return values;
     }
 
-    private void setUsagePoint(Device device, UsagePoint usagePoint) {
+    private void setUsagePoint(Device device, UsagePoint usagePoint, UsagePointMetrologyConfiguration metrologyConfiguration) {
         if (!device.getUsagePoint().isPresent()
                 && !device.getState(this.clock.instant().plus(10, ChronoUnit.MINUTES)).map(State::isInitial).orElse(true)) {
             // +10m to be sure that we get the latest state and skip all devices with initial state
