@@ -44,8 +44,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel {
 
@@ -142,10 +144,15 @@ public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel
 
     @Override
     public List<IntervalReadingRecord> getIntervalReadings(Range<Instant> interval) {
-        Map<Instant, IntervalReadingRecord> calculatedReadings = new HashMap<>(getCalculatedIntervalReadings(interval, record -> new CalculatedReadingRecordImpl(this.persistedChannel, record,clock)));
-        Map<Instant, IntervalReadingRecord> persistedReadings = new HashMap<>(getPersistedIntervalReadings(interval).stream().collect(Collectors.toMap(BaseReadingRecord::getTimeStamp, Function.identity())));
-        calculatedReadings.putAll(persistedReadings);
-        return calculatedReadings.values().stream().sorted(Comparator.comparing(BaseReading::getTimeStamp)).collect(Collectors.toList());
+        Map<Instant, IntervalReadingRecord> calculatedReadings = getCalculatedIntervalReadings(interval, record -> new CalculatedReadingRecordImpl(this.persistedChannel, record, clock));
+        Map<Instant, IntervalReadingRecord> persistedReadings = getPersistedIntervalReadings(interval).stream()
+                .collect(Collectors.toMap(BaseReadingRecord::getTimeStamp, Function.identity()));
+
+        // return elements, sorted by timestamp
+        Map<Instant, IntervalReadingRecord> orderedReadings = new TreeMap<>(calculatedReadings);
+        orderedReadings.putAll(persistedReadings);
+
+        return new ArrayList<>(orderedReadings.values());
     }
 
     @Override

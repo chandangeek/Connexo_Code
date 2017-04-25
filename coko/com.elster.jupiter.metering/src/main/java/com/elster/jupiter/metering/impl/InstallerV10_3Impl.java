@@ -11,6 +11,8 @@ import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.ids.Vault;
 import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
+import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
 import com.elster.jupiter.metering.impl.slp.SyntheticLoadProfileServiceImpl;
 import com.elster.jupiter.metering.slp.SyntheticLoadProfileService;
 import com.elster.jupiter.orm.DataModel;
@@ -35,12 +37,15 @@ public class InstallerV10_3Impl implements FullInstaller {
     private final DataModel dataModel;
     private final IdsService idsService;
     private final FiniteStateMachineService stateMachineService;
+    private final ServerMetrologyConfigurationService metrologyConfigurationService;
 
     @Inject
-    InstallerV10_3Impl(DataModel dataModel, IdsService idsService, FiniteStateMachineService stateMachineService) {
+    InstallerV10_3Impl(DataModel dataModel, IdsService idsService, FiniteStateMachineService stateMachineService,
+                       ServerMetrologyConfigurationService metrologyConfigurationService) {
         this.dataModel = dataModel;
         this.idsService = idsService;
         this.stateMachineService = stateMachineService;
+        this.metrologyConfigurationService = metrologyConfigurationService;
     }
 
     @Override
@@ -53,6 +58,11 @@ public class InstallerV10_3Impl implements FullInstaller {
         doTry(
                 "Create SLP Record Spec",
                 this::createRecordSpec,
+                logger
+        );
+        doTry(
+                "Create Check Metrology Purpose",
+                this::createCheckMetrologyPurpose,
                 logger
         );
     }
@@ -83,5 +93,9 @@ public class InstallerV10_3Impl implements FullInstaller {
         Stream.of(EndDeviceStage.values())
                 .forEach(endDeviceStage -> stageSetBuilder.stage(endDeviceStage.getKey()));
         stageSetBuilder.add();
+    }
+
+    private void createCheckMetrologyPurpose() {
+        metrologyConfigurationService.createMetrologyPurpose(DefaultMetrologyPurpose.CHECK);
     }
 }
