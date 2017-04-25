@@ -5,6 +5,10 @@ Ext.define('Mdc.securityaccessors.view.DeviceSecurityAccessorsActionMenu', {
     extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.device-security-accessors-action-menu',
 
+    requires:[
+        'Mdc.privileges.Device'
+    ],
+
     keyMode: undefined,
 
     initComponent: function () {
