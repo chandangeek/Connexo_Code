@@ -22,10 +22,14 @@ import com.elster.jupiter.estimation.Estimator;
 import com.elster.jupiter.estimation.NoneCalendarWithEventSettings;
 import com.elster.jupiter.estimators.AbstractEstimator;
 import com.elster.jupiter.metering.BaseReadingRecord;
+import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.CimChannel;
+import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
@@ -34,6 +38,7 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.logging.LoggingContext;
+import com.elster.jupiter.util.time.DefaultDateTimeFormatters;
 import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.validation.ValidationService;
 
@@ -46,6 +51,7 @@ import java.math.RoundingMode;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.Temporal;
@@ -58,7 +64,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -75,6 +83,12 @@ public class NearestAvgValueDayEstimator extends AbstractEstimator implements Es
     public static final String CALENDAR = TranslationKeys.CALENDAR.getKey();
     public static final String EVENT_CODE = TranslationKeys.EVENT_CODE.getKey();
     private static final Set<QualityCodeSystem> QUALITY_CODE_SYSTEMS = ImmutableSet.of(QualityCodeSystem.MDC, QualityCodeSystem.MDM);
+    private static final DateTimeFormatter DATE_TIME_FORMATTER = DefaultDateTimeFormatters.mediumDate()
+            .withShortTime()
+            .build()
+            .withZone(ZoneId
+                    .systemDefault())
+            .withLocale(Locale.ENGLISH);
 
     private final ValidationService validationService;
     private final MeteringService meteringService;
@@ -308,6 +322,11 @@ public class NearestAvgValueDayEstimator extends AbstractEstimator implements Es
         ZoneId zone = estimationBlock.getChannel().getZoneId();
         Calendar.ZonedView zonedView = null;
         Boolean discardDay = discardSpecificDay instanceof NoneCalendarWithEventSettings ? false : ((DiscardDaySettings) discardSpecificDay).isDiscardDay();
+        String estimateOn = estimationBlock.getChannel()
+                .getChannelsContainer()
+                .getUsagePoint()
+                .map((usagePoint) -> usagePoint.getName())
+                .orElseGet(() -> estimationBlock.getChannel().getChannelsContainer().getMeter().map((meter) -> meter.getName()).orElse(""));
         if (discardDay) {
             calendar = ((DiscardDaySettings) discardSpecificDay).getCalendar();
             calendarEventId = ((DiscardDaySettings) discardSpecificDay).getEvent().getId();
@@ -334,8 +353,11 @@ public class NearestAvgValueDayEstimator extends AbstractEstimator implements Es
                         .map(HasId::getId)
                         .anyMatch(eventId -> eventId == calendarEventId)
                         && discardDay) {
-                    String message = "Failed estimation with {rule}: Block {block} since the values to estimate belong to a day configured to be discarded";
-                    LoggingContext.get().info(getLogger(), message);
+                    String message = getThesaurus().getFormat(MessageSeeds.NEAREST_AVG_VALUE_DAY_ESTIMATOR_FAIL_ESTIMATED_DAY_DISCARDED)
+                            .format(blockToString(estimationBlock), getThesaurus().getFormat(TranslationKeys.ESTIMATOR_NAME)
+                                    .format(), estimationBlock.getReadingType()
+                                    .getFullAliasName(), estimateOn);
+                    LoggingContext.get().warning(getLogger(), message);
                     return false;
                 }
 
@@ -355,8 +377,11 @@ public class NearestAvgValueDayEstimator extends AbstractEstimator implements Es
             }
 
             if (readingsBefore.size() < numberOfSamples) {
-                String message = "Failed estimation with {rule}: Block {block} since not enough samples are found.  Found {0} samples, requires {1} samples";
-                LoggingContext.get().info(getLogger(), message, readingsBefore.size(), this.numberOfSamples.intValue());
+                String message = getThesaurus().getFormat(MessageSeeds.NEAREST_AVG_VALUE_DAY_ESTIMATOR_FAIL_NOT_ENOUGH_SAMPLES)
+                        .format(blockToString(estimationBlock), getThesaurus().getFormat(TranslationKeys.ESTIMATOR_NAME)
+                                .format(), estimationBlock.getReadingType()
+                                .getFullAliasName(), estimateOn);
+                LoggingContext.get().warning(getLogger(), message);
                 return false;
             }
             result = readingsBefore
@@ -417,5 +442,14 @@ public class NearestAvgValueDayEstimator extends AbstractEstimator implements Es
     private static boolean sameTimeOfWeek(ZonedDateTime first, ZonedDateTime second) {
         return first.getDayOfWeek().equals(second.getDayOfWeek())
                 && first.getLong(ChronoField.NANO_OF_DAY) == second.getLong(ChronoField.NANO_OF_DAY);
+    }
+
+    private String blockToString(EstimationBlock block) {
+        return DATE_TIME_FORMATTER.format(block.estimatables()
+                .get(0)
+                .getTimestamp()) + " until " + DATE_TIME_FORMATTER.format(block
+                .estimatables()
+                .get(block.estimatables().size() - 1)
+                .getTimestamp());
     }
 }
