@@ -31,8 +31,7 @@ public interface SymmetricKeyWrapper extends HasDynamicPropertiesWithUpdatableVa
      * It's up to the implementing class to make sure all renewal information is available (through linking
      * KeyTypes/KeyAccessorTypes)
      * Note that not all key encryption methods will permit automatic renewal.
-     * @param keyAccessorType Contains values required by renew process // TODO could also provide individual values, better?
      */
-    public void generateValue(KeyAccessorType keyAccessorType);
+    public void generateValue();
 
 }

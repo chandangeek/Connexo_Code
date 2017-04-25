@@ -10,13 +10,13 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.PlaintextPassphrase;
 import com.elster.jupiter.pki.impl.MessageSeeds;
 import com.elster.jupiter.pki.impl.wrappers.PkiLocalizedException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.Checks;
 
 import javax.inject.Inject;
@@ -80,8 +80,9 @@ public final class PlaintextPassphraseImpl implements PlaintextPassphrase {
 
     }
 
-    PlaintextPassphraseImpl init(KeyType keyType) {
+    PlaintextPassphraseImpl init(KeyType keyType, TimeDuration timeDuration) {
         this.keyTypeReference.set(keyType);
+        this.setExpirationTime(timeDuration);
         return this;
     }
 
@@ -114,15 +115,14 @@ public final class PlaintextPassphraseImpl implements PlaintextPassphrase {
         return Optional.ofNullable(expirationTime);
     }
 
-    private void setExpirationTime(Instant expirationTime) {
-        this.expirationTime = expirationTime;
+    private void setExpirationTime(TimeDuration timeDuration) {
+        this.expirationTime = ZonedDateTime.now(clock).plus(timeDuration.asTemporalAmount()).toInstant();
     }
 
     @Override
-    public void generateValue(KeyAccessorType keyAccessorType) {
+    public void generateValue() {
         try {
-            doRenewValue(keyAccessorType.getKeyType());
-            keyAccessorType.getDuration().ifPresent(td -> setExpirationTime(ZonedDateTime.now(clock).plus(td.asTemporalAmount()).toInstant()));
+            doRenewValue(getKeyType());
         } catch (NoSuchAlgorithmException e) {
             throw new PkiLocalizedException(thesaurus, MessageSeeds.ALGORITHM_NOT_SUPPORTED, e);
         }

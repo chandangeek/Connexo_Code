@@ -46,7 +46,7 @@ public class DataVaultPassphraseFactory implements PassphraseFactory {
     @Override
     public PassphraseWrapper newPassphraseWrapper(KeyAccessorType keyAccessorType) {
         PlaintextPassphraseImpl plaintextPassphrase = dataModel.getInstance(PlaintextPassphraseImpl.class)
-                .init(keyAccessorType.getKeyType());
+                .init(keyAccessorType.getKeyType(), keyAccessorType.getDuration().get());
         plaintextPassphrase.save();
         return plaintextPassphrase;
     }

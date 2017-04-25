@@ -35,8 +35,7 @@ public interface PassphraseWrapper extends HasDynamicPropertiesWithUpdatableValu
      * It's up to the implementing class to make sure all renewal information is available (through linking
      * KeyTypes/KeyAccessorTypes)
      * Note that not all key encryption methods might permit automatic renewal.
-     * @param keyAccessorType Contains values required by renew process // TODO could also provide individual values, better?
      */
-    public void generateValue(KeyAccessorType keyAccessorType);
+    public void generateValue();
 
 }

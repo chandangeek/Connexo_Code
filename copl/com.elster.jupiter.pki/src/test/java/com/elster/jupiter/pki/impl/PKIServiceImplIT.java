@@ -368,7 +368,7 @@ public class PKIServiceImplIT {
         when(keyAccessorType.getKeyEncryptionMethod()).thenReturn(DataVaultSymmetricKeyFactory.KEY_ENCRYPTION_METHOD);
         PlaintextSymmetricKey symmetricKeyWrapper = (PlaintextSymmetricKey) inMemoryPersistence.getPkiService()
                 .newSymmetricKeyWrapper(keyAccessorType);
-        symmetricKeyWrapper.generateValue(keyAccessorType);
+        symmetricKeyWrapper.generateValue();
 
         assertThat(symmetricKeyWrapper.getKey()).isPresent();
         assertThat(symmetricKeyWrapper.getKey().get().getEncoded()).isNotEmpty();
@@ -394,7 +394,7 @@ public class PKIServiceImplIT {
         when(keyAccessorType.getKeyEncryptionMethod()).thenReturn(DataVaultPassphraseFactory.KEY_ENCRYPTION_METHOD);
         PlaintextPassphrase passphraseWrapper = (PlaintextPassphrase) inMemoryPersistence.getPkiService()
                 .newPassphraseWrapper(keyAccessorType);
-        passphraseWrapper.generateValue(keyAccessorType);
+        passphraseWrapper.generateValue();
 
         assertThat(passphraseWrapper.getPassphrase()).isPresent();
         assertThat(passphraseWrapper.getPassphrase().get()).isNotEmpty();
@@ -636,7 +636,7 @@ public class PKIServiceImplIT {
         when(keyAccessorType.getKeyEncryptionMethod()).thenReturn(DataVaultPassphraseFactory.KEY_ENCRYPTION_METHOD);
 
         PlaintextPassphrase passphraseWrapper = (PlaintextPassphrase) inMemoryPersistence.getPkiService().newPassphraseWrapper(keyAccessorType);
-        passphraseWrapper.generateValue(keyAccessorType);
+        passphraseWrapper.generateValue();
 
         assertThat(passphraseWrapper.getPassphrase()).isPresent();
         String password = passphraseWrapper.getPassphrase().get();
@@ -1006,7 +1006,7 @@ public class PKIServiceImplIT {
 
         SymmetricKeyWrapper symmetricKeyWrapper = inMemoryPersistence.getPkiService()
                 .newSymmetricKeyWrapper(keyAccessorType);
-        symmetricKeyWrapper.generateValue(keyAccessorType);
+        symmetricKeyWrapper.generateValue();
 
         Map<String, Object> properties = symmetricKeyWrapper.getProperties();
         assertThat(properties).containsKeys("key");

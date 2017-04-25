@@ -10,7 +10,6 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.PlaintextSymmetricKey;
 import com.elster.jupiter.pki.impl.MessageSeeds;
@@ -83,8 +82,9 @@ public final class PlaintextSymmetricKeyImpl implements PlaintextSymmetricKey {
         this.clock = clock;
     }
 
-    PlaintextSymmetricKeyImpl init(KeyType keyType) {
+    PlaintextSymmetricKeyImpl init(KeyType keyType, TimeDuration timeDuration) {
         this.keyTypeReference.set(keyType);
+        this.setExpirationTime(timeDuration);
         return this;
     }
 
@@ -115,24 +115,23 @@ public final class PlaintextSymmetricKeyImpl implements PlaintextSymmetricKey {
         return Optional.ofNullable(expirationTime);
     }
 
-    private void setExpirationTime(Instant expirationTime) {
-        this.expirationTime = expirationTime;
+    private void setExpirationTime(TimeDuration timeDuration) {
+        this.expirationTime = ZonedDateTime.now(clock).plus(timeDuration.asTemporalAmount()).toInstant();
     }
 
     @Override
-    public void generateValue(KeyAccessorType keyAccessorType) {
+    public void generateValue() {
         try {
-            doRenewValue(keyAccessorType.getDuration());
+            doRenewValue();
         } catch (NoSuchAlgorithmException e) {
             throw new PkiLocalizedException(thesaurus, MessageSeeds.ALGORITHM_NOT_SUPPORTED, e);
         }
     }
 
-    private void doRenewValue(Optional<TimeDuration> duration) throws NoSuchAlgorithmException {
+    private void doRenewValue() throws NoSuchAlgorithmException {
         KeyGenerator keyGenerator = KeyGenerator.getInstance(getKeyType().getKeyAlgorithm());
         keyGenerator.init(getKeyType().getKeySize());
         setKey(keyGenerator.generateKey());
-        duration.ifPresent(td -> setExpirationTime(ZonedDateTime.now(clock).plus(td.asTemporalAmount()).toInstant()));
         this.save();
     }
 
