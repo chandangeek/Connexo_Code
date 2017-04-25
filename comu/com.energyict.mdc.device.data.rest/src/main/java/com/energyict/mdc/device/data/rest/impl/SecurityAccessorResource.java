@@ -9,7 +9,6 @@ import com.elster.jupiter.pki.CryptographicType;
 import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.pki.SecurityValueWrapper;
-import com.elster.jupiter.pki.SymmetricKeyWrapper;
 import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyInfo;
@@ -210,9 +209,14 @@ public class SecurityAccessorResource {
         Optional<KeyAccessor> keyAccessor = device.getKeyAccessor(keyAccessorType);
 
         BiFunction<KeyAccessor<SecurityValueWrapper>, Map<String, Object>, SecurityValueWrapper> securityValueWrapperCreator = (keyAccessor1, properties) -> {
-            SymmetricKeyWrapper symmetricKeyWrapper = pkiService.newSymmetricKeyWrapper(keyAccessor1.getKeyAccessorType());
-            symmetricKeyWrapper.setProperties(properties);
-            return symmetricKeyWrapper;
+            SecurityValueWrapper securityValueWrapper;
+            if (keyAccessor1.getKeyAccessorType().getKeyType().getCryptographicType().equals(CryptographicType.Passphrase)) {
+                securityValueWrapper = pkiService.newPassphraseWrapper(keyAccessor1.getKeyAccessorType());
+            } else {
+                securityValueWrapper = pkiService.newSymmetricKeyWrapper(keyAccessor1.getKeyAccessorType());
+            }
+            securityValueWrapper.setProperties(properties);
+            return securityValueWrapper;
         };
 
         BiFunction<KeyAccessor<SecurityValueWrapper>, Map<String, Object>, SecurityValueWrapper> actualValueUpdater = (keyAccessor1, properties) -> {
