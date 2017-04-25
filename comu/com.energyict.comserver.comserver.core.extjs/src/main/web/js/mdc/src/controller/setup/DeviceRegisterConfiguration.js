@@ -343,8 +343,8 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
                                         deviceId: encodeURIComponent(deviceId),
                                         registerId: registerId,
                                         router: me.getController('Uni.controller.history.Router'),
-                                        showDataLoggerSlaveField: !Ext.isEmpty(device.get('isDataLogger')) && device.get('isDataLogger'),
-                                        showDataLoggerSlaveHistory: !Ext.isEmpty(device.get('isDataLogger')) && device.get('isDataLogger'),
+                                        showDataLoggerSlaveField: (!Ext.isEmpty(device.get('isDataLogger')) && device.get('isDataLogger')) || (!Ext.isEmpty(device.get('isMultiElementDevice')) && device.get('isMultiElementDevice')),
+                                        showDataLoggerSlaveHistory:  (!Ext.isEmpty(device.get('isDataLogger')) && device.get('isDataLogger')) || (!Ext.isEmpty(device.get('isMultiElementDevice')) && device.get('isMultiElementDevice')),
                                         dataLoggerSlaveHistoryStore: slaveHistoryStore
                                     }),
                                     form = config.down('#deviceRegisterConfigurationDetailForm'),

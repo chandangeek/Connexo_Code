@@ -9,18 +9,17 @@ Ext.define('Mdc.view.setup.devicechannels.DataLoggerSlaveHistory', {
 
     requires: [
         'Uni.util.FormEmptyMessage',
-        'Mdc.store.DataLoggerSlaveChannelHistory'
+        'Mdc.store.DataLoggerSlaveChannelHistory',
+        'Mdc.util.LinkPurpose'
     ],
 
-    fieldLabel: Uni.I18n.translate('dataLoggerSlaveHistory.title', 'MDC', 'Data logger slave history'),
-
     labelAlign: 'top',
-
+    linkPurpose: null,
     dataLoggerSlaveHistoryStore: null,
-
+   // fieldLabel: Uni.I18n.translate('dataLoggerSlaveHistory.title', 'MDC', 'Data logger slave history'),
     initComponent: function () {
         var me = this;
-
+        me.fieldLabel = me.linkPurpose.dataLoggerSlaveHistoryTitle;
         if (me.dataLoggerSlaveHistoryStore.getTotalCount() === 0) {
             me.items = [
                 {
@@ -50,7 +49,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataLoggerSlaveHistory', {
                             flex: 1
                         },
                         {
-                            header: Uni.I18n.translate('general.dataLoggerSlave', 'MDC', 'Data logger slave'),
+                            header: me.linkPurpose.channelGridSlaveColumn,
                             dataIndex: 'deviceName',
                             flex: 1,
                             renderer: function (value, meta, record) {
