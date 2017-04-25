@@ -39,7 +39,8 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
     stores: [
         'Mdc.customattributesonvaluesobjects.store.RegisterCustomAttributeSets',
         'RegisterConfigsOfDevice',
-        'Mdc.store.DataLoggerSlaveRegisterHistory'
+        'Mdc.store.DataLoggerSlaveRegisterHistory',
+        'Mdc.store.RegisterValidationConfiguration'
     ],
 
     refs: [
@@ -320,94 +321,99 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
             contentPanel = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
             registersOfDeviceStore = me.getStore('RegisterConfigsOfDevice'),
             slaveHistoryStore = me.getStore('Mdc.store.DataLoggerSlaveRegisterHistory'),
-            registersStore = me.getStore('Mdc.store.RegisterConfigsOfDevice');
+            registersStore = me.getStore('Mdc.store.RegisterConfigsOfDevice'),
+            validationConfigurationStore = me.getStore('Mdc.store.RegisterValidationConfiguration');
 
         me.fromSpecification = true;
         contentPanel.setLoading(true);
         registersStore.getProxy().extraParams = {deviceId: deviceId};
-        registersStore.load(Ext.ModelManager.getModel('Mdc.model.Device').load(deviceId, {
-            success: function (device) {
-                me.getApplication().fireEvent('loadDevice', device);
-                var model = Ext.ModelManager.getModel('Mdc.model.DeviceRegisterForPreview');
-                model.getProxy().setExtraParam('deviceId', deviceId);
-                model.load(registerId, {
-                    success: function (register) {
-                        var type = register.get('type'),
-                            widget = Ext.widget('tabbedDeviceRegisterView', {
-                                device: device,
-                                router: me.getController('Uni.controller.history.Router')
-                            }),
-                            func = function () {
-                                var customAttributesStore = me.getStore('Mdc.customattributesonvaluesobjects.store.RegisterCustomAttributeSets'),
-                                    config = Ext.widget('deviceRegisterConfigurationDetail-' + type, {
-                                        deviceId: encodeURIComponent(deviceId),
-                                        registerId: registerId,
-                                        router: me.getController('Uni.controller.history.Router'),
-                                        showDataLoggerSlaveField: !Ext.isEmpty(device.get('isDataLogger')) && device.get('isDataLogger'),
-                                        showDataLoggerSlaveHistory: !Ext.isEmpty(device.get('isDataLogger')) && device.get('isDataLogger'),
-                                        dataLoggerSlaveHistoryStore: slaveHistoryStore
-                                    }),
-                                    form = config.down('#deviceRegisterConfigurationDetailForm'),
-                                    multiplierField = form.down('[name=multiplier]'),
-                                    calculatedReadingTypeField = form.down('[name=calculatedReadingType]');
+        validationConfigurationStore.getProxy().extraParams = {deviceId: deviceId, registerId: registerId};
+        validationConfigurationStore.load(function () {
+            registersStore.load(Ext.ModelManager.getModel('Mdc.model.Device').load(deviceId, {
+                success: function (device) {
+                    me.getApplication().fireEvent('loadDevice', device);
+                    var model = Ext.ModelManager.getModel('Mdc.model.DeviceRegisterForPreview');
+                    model.getProxy().setExtraParam('deviceId', deviceId);
+                    model.load(registerId, {
+                        success: function (register) {
+                            var type = register.get('type'),
+                                widget = Ext.widget('tabbedDeviceRegisterView', {
+                                    device: device,
+                                    router: me.getController('Uni.controller.history.Router'),
+                                    validationConfigurationStore: validationConfigurationStore
+                                }),
+                                func = function () {
+                                    var customAttributesStore = me.getStore('Mdc.customattributesonvaluesobjects.store.RegisterCustomAttributeSets'),
+                                        config = Ext.widget('deviceRegisterConfigurationDetail-' + type, {
+                                            deviceId: encodeURIComponent(deviceId),
+                                            registerId: registerId,
+                                            router: me.getController('Uni.controller.history.Router'),
+                                            showDataLoggerSlaveField: !Ext.isEmpty(device.get('isDataLogger')) && device.get('isDataLogger'),
+                                            showDataLoggerSlaveHistory: !Ext.isEmpty(device.get('isDataLogger')) && device.get('isDataLogger'),
+                                            dataLoggerSlaveHistoryStore: slaveHistoryStore
+                                        }),
+                                        form = config.down('#deviceRegisterConfigurationDetailForm'),
+                                        multiplierField = form.down('[name=multiplier]'),
+                                        calculatedReadingTypeField = form.down('[name=calculatedReadingType]');
 
-                                if (!Ext.isEmpty(widget.down('#custom-attribute-sets-placeholder-form-id'))) {
-                                    customAttributesStore.getProxy().setParams(deviceId, registerId);
-                                    customAttributesStore.load(function () {
-                                        widget.down('#custom-attribute-sets-placeholder-form-id').loadStore(customAttributesStore);
-                                    });
-                                }
-                                me.getApplication().fireEvent('changecontentevent', widget);
-                                widget.down('#registerTabPanel').setTitle(register.get('readingType').fullAliasName);
-                                me.getApplication().fireEvent('loadRegisterConfiguration', register);
-                                form.loadRecord(register);
-                                if (multiplierField) {
-                                    if (register.get('multiplier')) {
-                                        multiplierField.show();
-                                    } else {
-                                        multiplierField.hide();
+                                    if (!Ext.isEmpty(widget.down('#custom-attribute-sets-placeholder-form-id'))) {
+                                        customAttributesStore.getProxy().setParams(deviceId, registerId);
+                                        customAttributesStore.load(function () {
+                                            widget.down('#custom-attribute-sets-placeholder-form-id').loadStore(customAttributesStore);
+                                        });
                                     }
-                                }
-                                if (!Ext.isEmpty(calculatedReadingTypeField)) {
-                                    if (register.get('calculatedReadingType')) {
-                                        calculatedReadingTypeField.show();
-                                    } else {
-                                        calculatedReadingTypeField.hide();
+                                    me.getApplication().fireEvent('changecontentevent', widget);
+                                    widget.down('#registerTabPanel').setTitle(register.get('readingType').fullAliasName);
+                                    me.getApplication().fireEvent('loadRegisterConfiguration', register);
+                                    form.loadRecord(register);
+                                    if (multiplierField) {
+                                        if (register.get('multiplier')) {
+                                            multiplierField.show();
+                                        } else {
+                                            multiplierField.hide();
+                                        }
                                     }
-                                }
-                                if (!register.get('detailedValidationInfo').validationActive) {
-                                    config.down('#validateNowRegister').hide();
-                                }
-                                config.down('#deviceRegisterConfigurationActionMenu').record = register;
-                                widget.down('#register-specifications').add(config);
-                            },
-                            loadSlaveHistoryIfNeeded = function() {
-                                if (!Ext.isEmpty(device.get('isDataLogger')) && device.get('isDataLogger')) {
-                                    slaveHistoryStore.getProxy().setParams(deviceId, registerId);
-                                    slaveHistoryStore.load(function() {
+                                    if (!Ext.isEmpty(calculatedReadingTypeField)) {
+                                        if (register.get('calculatedReadingType')) {
+                                            calculatedReadingTypeField.show();
+                                        } else {
+                                            calculatedReadingTypeField.hide();
+                                        }
+                                    }
+                                    if (!register.get('detailedValidationInfo').validationActive) {
+                                        config.down('#validateNowRegister').hide();
+                                    }
+                                    config.down('#deviceRegisterConfigurationActionMenu').record = register;
+                                    widget.down('#register-specifications').add(config);
+                                },
+                                loadSlaveHistoryIfNeeded = function() {
+                                    if (!Ext.isEmpty(device.get('isDataLogger')) && device.get('isDataLogger')) {
+                                        slaveHistoryStore.getProxy().setParams(deviceId, registerId);
+                                        slaveHistoryStore.load(function() {
+                                            func();
+                                        });
+                                    } else {
                                         func();
-                                    });
-                                } else {
-                                    func();
-                                }
-                            };
+                                    }
+                                };
 
-                        if (registersOfDeviceStore.getTotalCount() === 0) {
-                            registersOfDeviceStore.getProxy().setExtraParam('deviceId', deviceId);
-                            registersOfDeviceStore.load(function () {
+                            if (registersOfDeviceStore.getTotalCount() === 0) {
+                                registersOfDeviceStore.getProxy().setExtraParam('deviceId', deviceId);
+                                registersOfDeviceStore.load(function () {
+                                    loadSlaveHistoryIfNeeded();
+                                });
+                            } else {
                                 loadSlaveHistoryIfNeeded();
-                            });
-                        } else {
-                            loadSlaveHistoryIfNeeded();
+                            }
+                        },
+                        callback: function () {
+                            contentPanel.setLoading(false);
+                            tabController.showTab(0);
                         }
-                    },
-                    callback: function () {
-                        contentPanel.setLoading(false);
-                        tabController.showTab(0);
-                    }
-                });
-            }
-        }));
+                    });
+                }
+            }));
+        });
     },
 
     showValidateNowMessage: function (record) {

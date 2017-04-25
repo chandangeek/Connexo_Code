@@ -11,7 +11,8 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
         'Mdc.view.setup.devicechannels.GraphView',
         'Mdc.view.setup.devicechannels.DataPreview',
         'Mdc.view.setup.devicechannels.DataGrid',
-        'Uni.grid.FilterPanelTop'
+        'Uni.grid.FilterPanelTop',
+        'Cfg.configuration.view.RuleWithAttributesForm'
     ],
 
     store: 'Mdc.store.ChannelOfLoadProfileOfDeviceData',
@@ -37,6 +38,9 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
     mentionDataLoggerSlave: false,
     dataLoggerSlaveHistoryStore: null,
     idProperty: 'interval_end',
+    validationConfigurationStore: undefined,
+    estimationConfigurationStore: undefined,
+    application: null,
 
     initComponent: function () {
         var me = this;
@@ -139,7 +143,7 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
                 listeners: {
                     afterrender: function (panel) {
                         var bar = panel.tabBar;
-                        bar.insert(2, [
+                        bar.add([
                             {
                                 xtype: 'tbfill'
                             },
@@ -158,6 +162,14 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
                 }
             }
         ];
+
+        if (Mdc.privileges.Device.canViewValidationConfiguration()) {
+            me.addValidationConfiguration();
+        }
+        if (Mdc.privileges.Device.canViewEstimationConfiguration()) {
+            me.addEstimationConfiguration();
+        }
+
         me.side = [
             {
                 xtype: 'panel',
@@ -186,6 +198,74 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
         me.callParent(arguments);
         me.bindStore(me.store || 'ext-empty-store', true);
         me.on('beforedestroy', me.onBeforeDestroy, me);
+    },
+
+    addValidationConfiguration: function () {
+        var me = this,
+            validationConfigurationRecord = me.validationConfigurationStore.first(),
+            valRulesForCollectedReadingTypeStore = validationConfigurationRecord.rulesForCollectedReadingType(),
+            valRulesForCalculatedReadingTypeStore = validationConfigurationRecord.rulesForCalculatedReadingType(),
+            validationRuleWithAttributesForms = [];
+
+        if (valRulesForCollectedReadingTypeStore.getCount()) {
+            validationRuleWithAttributesForms.push(me.prepareForm('validation', valRulesForCollectedReadingTypeStore, 'collected'));
+        }
+
+        if (valRulesForCalculatedReadingTypeStore.getCount()) {
+            validationRuleWithAttributesForms.push(me.prepareForm('validation', valRulesForCalculatedReadingTypeStore, 'calculated'));
+        }
+
+        if (validationRuleWithAttributesForms.length) {
+            me.content[0].items.push({
+                title: Uni.I18n.translate('general.validationConfiguration', 'MDC', 'Validation configuration'),
+                itemId: 'channel-validation-configuration',
+                items: validationRuleWithAttributesForms
+            });
+        }
+    },
+
+    addEstimationConfiguration: function () {
+        var me = this,
+            estimationConfigurationRecord = me.estimationConfigurationStore.first(),
+            estRulesForCollectedReadingTypeStore = estimationConfigurationRecord.rulesForCollectedReadingType(),
+            estRulesForCalculatedReadingTypeStore = estimationConfigurationRecord.rulesForCalculatedReadingType(),
+            estimationRuleWithAttributesForms = [];
+
+        if (estRulesForCollectedReadingTypeStore.getCount()) {
+            estimationRuleWithAttributesForms.push(me.prepareForm('estimation', estRulesForCollectedReadingTypeStore, 'collected'));
+        }
+
+        if (estRulesForCalculatedReadingTypeStore.getCount()) {
+            estimationRuleWithAttributesForms.push(me.prepareForm('estimation', estRulesForCalculatedReadingTypeStore, 'calculated'));
+        }
+
+        if (estimationRuleWithAttributesForms.length) {
+            me.content[0].items.push({
+                title: Uni.I18n.translate('general.estimationConfiguration', 'MDC', 'Estimation configuration'),
+                itemId: 'channel-estimation-configuration',
+                items: estimationRuleWithAttributesForms
+            });
+        }
+    },
+
+    prepareForm: function (type, store, kindOfReadingType) {
+        var me = this,
+            titleToken = type === 'validation' ? Uni.I18n.translate('general.validationConfigurationFor', 'MDC', 'Validation configuration for')
+                : Uni.I18n.translate('general.estimationConfigurationFor', 'MDC', 'Estimation configuration for'),
+            hasAdministerPrivileges = type === 'validation' ? Mdc.privileges.Device.canAdministerValidationConfiguration() : Mdc.privileges.Device.canAdministerEstimationConfiguration();
+
+        return {
+            xtype: 'rule-with-attributes-form',
+            itemId: 'rule-with-attributes-channel-' + type + '-form-' + kindOfReadingType,
+            kindOfReadingType: kindOfReadingType,
+            router: me.router,
+            records: store.getRange(),
+            type: type,
+            ui: 'medium',
+            title: Ext.String.format("{0} {1}", titleToken, store.first().get('readingType').fullAliasName),
+            application: me.application,
+            hasAdministerPrivileges: hasAdministerPrivileges
+        };
     },
 
     getStoreListeners: function () {

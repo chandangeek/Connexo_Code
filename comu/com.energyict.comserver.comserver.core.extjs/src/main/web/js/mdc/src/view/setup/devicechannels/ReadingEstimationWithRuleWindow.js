@@ -86,11 +86,26 @@ Ext.define('Mdc.view.setup.devicechannels.ReadingEstimationWithRuleWindow', {
                             listeners: {
                                 change: {
                                     fn: function (implementationCombo, newValue) {
-                                        var estimator = implementationCombo.getStore().getById(newValue);
+                                        var estimator = implementationCombo.getStore().getById(newValue),
+                                            errorLabel = implementationCombo.up('reading-estimation-with-rule-window').down('#error-label'),
+                                            hasEmptyRequiredProperties;
 
-                                        estimator && me.down('property-form').loadRecord(estimator);
+                                        if (estimator) {
+                                            me.down('property-form').loadRecord(estimator);
+                                            hasEmptyRequiredProperties = estimator.properties().getRange().find(function(property) {
+                                                return property.get('required') && Ext.isEmpty(property.get('value'));
+                                            });
+                                            if (!!hasEmptyRequiredProperties) {
+                                                errorLabel.show();
+                                                errorLabel.setText('<div style="color: #EB5642">' + Uni.I18n.translate('estimateWithRule.emptyRequiredAttributesMsg', 'MDC', 'Mandatory attributes on the reading type level are not specified') + '</div>', false);
+                                            } else {
+                                                errorLabel.hide();
+                                            }
+                                        }
+
                                         me.updateLayout();
                                         me.center();
+                                        me.down('#estimate-reading-button').setDisabled(!!hasEmptyRequiredProperties);
                                     }
                                 }
                             }

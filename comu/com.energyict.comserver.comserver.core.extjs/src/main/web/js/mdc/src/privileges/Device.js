@@ -31,6 +31,10 @@ Ext.define('Mdc.privileges.Device', {
     editDeviceAttributes: ['privilege.administrate.attribute.device'],
     deviceProcesses: ['privilege.view.bpm', 'privilege.administrate.bpm'],
     viewProcesses: ['privilege.view.bpm'],
+    viewValidationConfiguration: ['privilege.administrate.device','privilege.view.device', 'privilege.administer.device.validationConfiguration'],
+    administerValidationConfiguration: ['privilege.administer.device.validationConfiguration'],
+    viewEstimationConfiguration: ['privilege.administrate.device','privilege.view.device', 'privilege.administer.device.estimationConfiguration'],
+    administerEstimationConfiguration: ['privilege.administer.device.estimationConfiguration'],
     deviceExecuteProcesses: ['privilege.execute.processes.lvl.1',
                     'privilege.execute.processes.lvl.2',
                     'privilege.execute.processes.lvl.3',
@@ -96,5 +100,17 @@ Ext.define('Mdc.privileges.Device', {
     },
     hasFullAdministrateTimeSlicedCps: function(){
         return Uni.Auth.checkPrivileges(Mdc.privileges.Device.adminTimeSlicedCps) && Uni.Auth.checkPrivileges(Mdc.privileges.Device.administrateDeviceData);
+    },
+    canViewValidationConfiguration: function () {
+        return Uni.Auth.checkPrivileges(Mdc.privileges.Device.viewValidationConfiguration);
+    },
+    canViewEstimationConfiguration: function () {
+        return Uni.Auth.checkPrivileges(Mdc.privileges.Device.viewEstimationConfiguration);
+    },
+    canAdministerValidationConfiguration: function () {
+        return Uni.Auth.checkPrivileges(Mdc.privileges.Device.administerValidationConfiguration);
+    },
+    canAdministerEstimationConfiguration: function () {
+        return Uni.Auth.checkPrivileges(Mdc.privileges.Device.administerEstimationConfiguration);
     }
 });
