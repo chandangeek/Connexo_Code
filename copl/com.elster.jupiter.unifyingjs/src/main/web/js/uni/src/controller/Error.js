@@ -27,13 +27,13 @@ Ext.define('Uni.controller.Error', {
 
     routeConfig: {
         notfound: {
-            title: Uni.I18n.translate('error.pageNotFound', 'UNI', 'Page not found'),
+            title: '<span style="color: #eb5642">' + Uni.I18n.translate('error.pageNotFound', 'UNI', 'Page not found') + '</span>',
             route: 'error/notfound',
             controller: 'Uni.controller.Error',
             action: 'showPageNotFound'
         },
         notvisible: {
-            title: Uni.I18n.translate('error.pageNotVisible', 'UNI', 'Page not visible'),
+            title: '<span style="color: #eb5642">' + Uni.I18n.translate('error.pageNotVisible', 'UNI', 'Page not visible') + '</span>',
             route: 'error/notvisible',
             controller: 'Uni.controller.Error',
             action: 'showPageNotVisible'

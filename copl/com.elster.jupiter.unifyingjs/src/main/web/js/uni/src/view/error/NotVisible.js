@@ -27,11 +27,12 @@ Ext.define('Uni.view.error.NotVisible', {
             items: [
                 {
                     xtype: 'no-items-found-panel',
-                    title: Uni.I18n.translate(
+                    title: '<span style="color: #eb5642">'
+                    + Uni.I18n.translate(
                         'error.pageNotVisible',
                         'UNI',
                         'Page not visible'
-                    ),
+                    ) + '</span>',
                     reasons: [
                         Uni.I18n.translate(
                             'error.pageNotVisibleAuthorized',

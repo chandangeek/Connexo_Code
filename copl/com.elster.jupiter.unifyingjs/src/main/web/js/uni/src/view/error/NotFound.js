@@ -27,11 +27,12 @@ Ext.define('Uni.view.error.NotFound', {
             items: [
                 {
                     xtype: 'no-items-found-panel',
-                    title: Uni.I18n.translate(
+                    title: '<span style="color: #eb5642">'
+                    + Uni.I18n.translate(
                         'error.pageNotFound',
                         'UNI',
                         'Page not found'
-                    ),
+                    ) + '</span>',
                     reasons: [
                         Uni.I18n.translate(
                             'error.pageNotFoundPageMisspelled',
@@ -40,7 +41,7 @@ Ext.define('Uni.view.error.NotFound', {
                         ),
                         Uni.I18n.translate(
                             'error.pageNotFoundPageNotAvailable',
-                            'UNI',"The page you are looking for is not available."
+                            'UNI', "The page you are looking for is not available."
                         )
                     ],
                     stepItems: []
