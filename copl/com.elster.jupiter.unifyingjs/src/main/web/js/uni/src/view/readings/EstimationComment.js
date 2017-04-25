@@ -23,7 +23,7 @@ Ext.define('Uni.view.readings.EstimationComment', {
             displayField: 'comment',
             queryMode: 'local',
             editable: false,
-            emptyText: Uni.I18n.translate('estimationComment.selectComment', 'CFG', 'Select a comment..'),
+            emptyText: Uni.I18n.translate('estimationComment.selectComment', 'UNI', 'Select a comment..'),
             listeners: {
                 afterrender: function () {
                     var keepComment = {
