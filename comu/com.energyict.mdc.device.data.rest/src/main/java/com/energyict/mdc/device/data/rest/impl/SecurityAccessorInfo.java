@@ -19,6 +19,8 @@ public class SecurityAccessorInfo {
     public Instant lastReadDate;
     public Instant modificationDate;
     public String status;
+    public Boolean hasTempValue;
+    public Boolean hasCompleteTempValue;
     public List<PropertyInfo> currentProperties;
     public List<PropertyInfo> tempProperties;
 }
