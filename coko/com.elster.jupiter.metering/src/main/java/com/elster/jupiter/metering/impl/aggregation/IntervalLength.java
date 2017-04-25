@@ -981,7 +981,7 @@ public enum IntervalLength {
         sqlBuilder.append("FLOOR(");
         sqlBuilder.append(expression);
         sqlBuilder.append(".");
-        sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.TIMESTAMP.fieldSpecName());
+        sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.TIMESTAMP.sqlName());
         sqlBuilder.append("/");
         sqlBuilder.append(truncationMillis);
         sqlBuilder.append(")");

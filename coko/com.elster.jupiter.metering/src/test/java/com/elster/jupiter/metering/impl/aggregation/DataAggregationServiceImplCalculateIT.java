@@ -648,7 +648,7 @@ public class DataAggregationServiceImplCalculateIT {
             // Assert that the with clause for the consumption requirement is aggregated to 30min values
             String consumptionWithSelectClause = this.consumptionWithClauseBuilder1.getText();
             assertThat(consumptionWithSelectClause).matches(".*[sum|SUM]\\(value\\).*");
-            assertThat(consumptionWithSelectClause).matches(".*[group by floor|GROUP BY FLOOR]\\(rawdata\\.UTCSTAMP/1800000\\).*");
+            assertThat(consumptionWithSelectClause).matches(".*[group by floor|GROUP BY FLOOR]\\(rawdata\\.timestamp/1800000\\).*");
             // Assert that one of the requirements is used as source for the timeline
             assertThat(this.netConsumptionWithClauseBuilder1.getText())
                     .matches("SELECT.*[max|MAX]\\(realrod" + netConsumptionDeliverableId + "_1\\.timestamp\\).*");

@@ -37,6 +37,7 @@ import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
@@ -79,7 +80,9 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CalendarOnUsagePointImplIT {
@@ -92,10 +95,13 @@ public class CalendarOnUsagePointImplIT {
     private BundleContext bundleContext;
     @Mock
     private EventAdmin eventAdmin;
+    @Mock
+    private SearchDomain searchDomain;
 
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
     private TransactionService transactionService;
     private Injector injector;
+    private SearchService searchService;
     private MeteringDataModelService meteringModelService;
     private CalendarService calendarService;
     private MetrologyConfigurationService metrologyConfigurationService;
@@ -107,7 +113,7 @@ public class CalendarOnUsagePointImplIT {
         protected void configure() {
             bind(BundleContext.class).toInstance(bundleContext);
             bind(EventAdmin.class).toInstance(eventAdmin);
-            bind(SearchService.class).toInstance(mock(SearchService.class));
+            bind(SearchService.class).toInstance(searchService);
             bind(LicenseService.class).toInstance(mock(LicenseService.class));
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
         }
@@ -115,6 +121,8 @@ public class CalendarOnUsagePointImplIT {
 
     @Before
     public void setUp() throws SQLException {
+        this.searchService = mock(SearchService.class);
+        when(this.searchService.findDomain(anyString())).thenReturn(Optional.of(this.searchDomain));
         try {
             injector = Guice.createInjector(
                     new MockModule(),
