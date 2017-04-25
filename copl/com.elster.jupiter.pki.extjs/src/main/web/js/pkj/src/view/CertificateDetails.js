@@ -7,6 +7,7 @@ Ext.define('Pkj.view.CertificateDetails', {
     requires: [
         'Pkj.view.CertificatePreview',
         'Pkj.view.CertificateActionMenu',
+        'Pkj.privileges.CertificateManagement',
         'Uni.button.Action'
     ],
 

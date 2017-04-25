@@ -7,9 +7,10 @@ Ext.define('Pkj.view.TrustedCertificatesGrid', {
     store: undefined,
     requires: [
         'Uni.grid.column.Action',
-        //'Pkj.view.TrustStoreActionMenu',
         'Uni.view.toolbar.PagingTop',
-        'Uni.view.toolbar.PagingBottom'
+        'Uni.view.toolbar.PagingBottom',
+        'Pkj.view.TrustedCertificateActionMenu',
+        'Pkj.privileges.CertificateManagement'
     ],
 
     initComponent: function () {

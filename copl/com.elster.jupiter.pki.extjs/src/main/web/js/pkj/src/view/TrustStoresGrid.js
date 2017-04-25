@@ -7,9 +7,10 @@ Ext.define('Pkj.view.TrustStoresGrid', {
     store: 'Pkj.store.TrustStores',
     requires: [
         'Uni.grid.column.Action',
-        'Pkj.view.TrustStoreActionMenu',
         'Uni.view.toolbar.PagingTop',
-        'Uni.view.toolbar.PagingBottom'
+        'Uni.view.toolbar.PagingBottom',
+        'Pkj.view.TrustStoreActionMenu',
+        'Pkj.privileges.CertificateManagement'
     ],
 
     router: undefined,

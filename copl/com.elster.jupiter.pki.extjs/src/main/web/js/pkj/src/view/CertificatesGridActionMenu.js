@@ -4,6 +4,9 @@
 Ext.define('Pkj.view.CertificatesGridActionMenu', {
     extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.certificates-grid-action-menu',
+    requires: [
+        'Pkj.privileges.CertificateManagement'
+    ],
     initComponent: function () {
         this.items = [
             {

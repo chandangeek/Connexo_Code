@@ -11,6 +11,7 @@ Ext.define('Pkj.view.CertificatesOverview', {
         'Pkj.view.CertificatePreview',
         'Pkj.view.CertificateFilter',
         'Pkj.view.CertificateActionMenu',
+        'Pkj.privileges.CertificateManagement',
         'Uni.view.notifications.NoItemsFoundPanel'
     ],
 

@@ -4,6 +4,9 @@
 Ext.define('Pkj.view.TrustedCertificateActionMenu', {
     extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.trusted-certificate-action-menu',
+    requires: [
+        'Pkj.privileges.CertificateManagement'
+    ],
     initComponent: function () {
         this.items = [
             {

@@ -7,7 +7,8 @@ Ext.define('Pkj.controller.Main', {
 
     requires: [
         'Uni.store.PortalItems',
-        'Uni.store.MenuItems'
+        'Uni.store.MenuItems',
+        'Pkj.privileges.CertificateManagement'
     ],
 
     controllers: [

@@ -5,6 +5,9 @@
 Ext.define('Pkj.controller.history.Main', {
     extend: 'Uni.controller.history.Converter',
 
+    requires:[
+        'Pkj.privileges.CertificateManagement'
+    ],
     rootToken: 'administration',
 
     routeConfig: {

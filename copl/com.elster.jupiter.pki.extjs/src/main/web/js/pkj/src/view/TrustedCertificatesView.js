@@ -10,6 +10,7 @@ Ext.define('Pkj.view.TrustedCertificatesView', {
         'Pkj.view.TrustedCertificatePreview',
         'Pkj.view.TrustStorePreviewForm',
         'Pkj.view.TrustStoreActionMenu',
+        'Pkj.privileges.CertificateManagement',
         'Uni.view.notifications.NoItemsFoundPanel'
     ],
 

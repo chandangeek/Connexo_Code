@@ -9,6 +9,7 @@ Ext.define('Pkj.view.CertificatesGrid', {
         'Uni.grid.column.Action',
         'Pkj.view.CertificateActionMenu',
         'Pkj.view.CertificatesGridActionMenu',
+        'Pkj.privileges.CertificateManagement',
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom'
     ],

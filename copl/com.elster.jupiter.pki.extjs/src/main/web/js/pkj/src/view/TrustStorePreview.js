@@ -7,7 +7,8 @@ Ext.define('Pkj.view.TrustStorePreview', {
     alias: 'widget.truststore-preview',
     requires: [
         'Pkj.view.TrustStorePreviewForm',
-        'Pkj.view.TrustStoreActionMenu'
+        'Pkj.view.TrustStoreActionMenu',
+        'Pkj.privileges.CertificateManagement'
     ],
 
     initComponent: function () {

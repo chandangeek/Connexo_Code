@@ -10,7 +10,8 @@ Ext.define('Pkj.view.TrustStoresOverview', {
         'Uni.view.notifications.NoItemsFoundPanel',
         'Pkj.view.TrustStoresGrid',
         'Pkj.view.TrustStorePreview',
-        'Pkj.view.TrustStoreActionMenu'
+        'Pkj.view.TrustStoreActionMenu',
+        'Pkj.privileges.CertificateManagement'
     ],
     initComponent: function () {
         var me = this;

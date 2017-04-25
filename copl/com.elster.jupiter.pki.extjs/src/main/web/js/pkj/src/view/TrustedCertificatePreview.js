@@ -7,7 +7,8 @@ Ext.define('Pkj.view.TrustedCertificatePreview', {
     alias: 'widget.trusted-certificate-preview',
     requires: [
         'Pkj.view.TrustedCertificatePreviewForm',
-        'Pkj.view.TrustedCertificateActionMenu'
+        'Pkj.view.TrustedCertificateActionMenu',
+        'Pkj.privileges.CertificateManagement'
     ],
 
     initComponent: function () {
