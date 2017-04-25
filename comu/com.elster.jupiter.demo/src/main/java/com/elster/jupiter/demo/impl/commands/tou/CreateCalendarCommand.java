@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.demo.impl.commands.tou;
 
+import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.calendar.Category;
 import com.elster.jupiter.calendar.EventSet;
@@ -29,6 +30,7 @@ public class CreateCalendarCommand {
     private static final String HOLIDAY_DAYTYPE_NAME = "holiday";
     private static final String WEEKEND_DAYTYPE_NAME = "weekend";
     public static final String PERIOD_NAME = "Always";
+    public static final String CALENDAR_NAME = "Peak/Offpeak (Belgium)";
 
     private final CalendarService calendarService;
 
@@ -37,9 +39,15 @@ public class CreateCalendarCommand {
         this.calendarService = calendarService;
     }
 
-    void createCalendar(EventSet eventSet) {
+    void findOrCreateCalendar(EventSet eventSet) {
+        this.calendarService
+                .findCalendarByName(CALENDAR_NAME)
+                .orElseGet(() -> this.createCalendar(eventSet));
+    }
+
+    private Calendar createCalendar(EventSet eventSet) {
         CalendarService.CalendarBuilder builder = this.calendarService
-                .newCalendar("Peak/Offpeak (Belgium)", this.getTimeOfUseCategory(), Year.of(2015), eventSet)
+                .newCalendar(CALENDAR_NAME, this.getTimeOfUseCategory(), Year.of(2015), eventSet)
                 .description("Default calendar for Belgian market (for demo purposes only)")
                 .newDayType(WEEKEND_DAYTYPE_NAME).eventWithCode(EventCodes.OFFPEAK.getCode()).startsFrom(LocalTime.MIDNIGHT).add()
                 .newDayType(HOLIDAY_DAYTYPE_NAME).eventWithCode(EventCodes.OFFPEAK.getCode()).startsFrom(LocalTime.MIDNIGHT).add()
@@ -52,9 +60,9 @@ public class CreateCalendarCommand {
                 .on(MonthDay.of(Month.JANUARY, 1)).transitionTo(PERIOD_NAME);
         Stream.of(RecurringHolidays.values()).forEach(recurringHolidays -> recurringHolidays.addTo(builder));
         Stream.of(FixedHolidays.values()).forEach(recurringHolidays -> recurringHolidays.addTo(builder));
-        builder
-            .add()
-            .activate();
+        Calendar calendar = builder.add();
+        calendar.activate();
+        return calendar;
     }
 
     private Category getTimeOfUseCategory() {

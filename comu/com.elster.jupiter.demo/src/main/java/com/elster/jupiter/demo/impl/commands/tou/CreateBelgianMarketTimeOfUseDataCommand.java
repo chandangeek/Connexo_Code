@@ -28,7 +28,7 @@ public class CreateBelgianMarketTimeOfUseDataCommand extends CommandWithTransact
 
     @Override
     public void run() {
-        this.calendarCommandProvider.get().createCalendar(this.eventSetCommandProvider.get().createEventSet());
+        this.calendarCommandProvider.get().findOrCreateCalendar(this.eventSetCommandProvider.get().createEventSet());
     }
 
 }
