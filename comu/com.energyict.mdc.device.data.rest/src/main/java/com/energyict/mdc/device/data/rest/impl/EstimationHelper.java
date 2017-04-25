@@ -63,7 +63,8 @@ public class EstimationHelper {
             throw exceptionFactory.newException(MessageSeeds.ESTIMATOR_REQUIRED);
         }
 
-        Estimator estimator = estimationService.getEstimator(estimateChannelDataInfo.estimatorImpl).orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.ESTIMATOR_NOT_FOUND));
+        Estimator estimator = estimationService.getEstimator(estimateChannelDataInfo.estimatorImpl)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.ESTIMATOR_NOT_FOUND));
         Map<String, String> invalidProperties = new HashMap<>();
         for (PropertySpec propertySpec : estimator.getPropertySpecs()) {
             try {
@@ -71,7 +72,7 @@ public class EstimationHelper {
                 propertySpec.validateValue(value);
                 propertyMap.put(propertySpec.getName(), value);
             } catch (Exception ex) {
-                invalidProperties.put(propertySpec.getName(), thesaurus.getFormat(MessageSeeds.INVALID_ESTIMATOR_PROPERTY_VALUE).format());
+                invalidProperties.put("properties." + propertySpec.getName(), thesaurus.getFormat(MessageSeeds.INVALID_ESTIMATOR_PROPERTY_VALUE).format());
             }
         }
         try {
@@ -79,11 +80,12 @@ public class EstimationHelper {
         } catch (LocalizedFieldValidationException ex) {
             invalidProperties.put(ex.getViolatingProperty(), thesaurus.getFormat(MessageSeeds.INVALID_ESTIMATOR_PROPERTY_VALUE).format());
         }
-        if(!invalidProperties.isEmpty()) {
+        if (!invalidProperties.isEmpty()) {
             throw new EstimatorPropertiesException(invalidProperties);
         }
 
-        Estimator baseEstimator = estimationService.getEstimator(estimateChannelDataInfo.estimatorImpl, propertyMap).orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.ESTIMATOR_NOT_FOUND));
+        Estimator baseEstimator = estimationService.getEstimator(estimateChannelDataInfo.estimatorImpl, propertyMap)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.ESTIMATOR_NOT_FOUND));
         baseEstimator.init(LOGGER);
         return baseEstimator;
     }

@@ -38,6 +38,9 @@ import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.rest.PropertyInfo;
+import com.elster.jupiter.properties.rest.PropertyValueInfo;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.search.SearchService;
@@ -96,11 +99,15 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Currency;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
@@ -376,5 +383,49 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         when(finder.find()).thenReturn(list);
         when(finder.stream()).thenReturn(list.stream());
         return finder;
+    }
+
+    void mockPropertyValueInfoService() {
+        when(propertyValueInfoService.findPropertyValue(any(), any())).thenAnswer(invocationOnMock -> {
+            Object[] arguments = invocationOnMock.getArguments();
+            PropertySpec propertySpec = (PropertySpec) arguments[0];
+            List<PropertyInfo> infos = (List<PropertyInfo>) arguments[1];
+            return infos.stream()
+                    .filter(info -> info.key.equals(propertySpec.getName()))
+                    .map(info -> info.propertyValueInfo.value)
+                    .filter(Objects::nonNull)
+                    .findAny()
+                    .orElse(null);
+        });
+        when(propertyValueInfoService.getPropertyInfos(any(), any(), any())).thenAnswer(invocationOnMock -> {
+            Object[] arguments = invocationOnMock.getArguments();
+            List<PropertySpec> propertySpecs = (List<PropertySpec>) arguments[0];
+            Map<String, Object> actualProps = (Map<String, Object>) arguments[1];
+            Map<String, Object> inheritedProps = (Map<String, Object>) arguments[2];
+            return getPropertyInfo(propertySpecs, actualProps, inheritedProps);
+        });
+        when(propertyValueInfoService.getPropertyInfos(any(), any())).thenAnswer(invocationOnMock -> {
+            Object[] arguments = invocationOnMock.getArguments();
+            List<PropertySpec> propertySpecs = (List<PropertySpec>) arguments[0];
+            Map<String, Object> actualProps = (Map<String, Object>) arguments[1];
+            return getPropertyInfo(propertySpecs, actualProps, Collections.emptyMap());
+        });
+    }
+
+    private Object getPropertyInfo(List<PropertySpec> propertySpecs, Map<String, Object> actualProps, Map<String, Object> inheritedProps) {
+        return propertySpecs.stream()
+                .map(propertySpec -> {
+                    PropertyInfo info = new PropertyInfo();
+                    info.key = propertySpec.getName();
+                    info.propertyValueInfo = new PropertyValueInfo<>(actualProps.get(info.key), inheritedProps.get(info.key), null, null);
+                    return info;
+                })
+                .collect(Collectors.toList());
+    }
+
+    PropertySpec mockPropertySpec(String name) {
+        PropertySpec propertySpec = mock(PropertySpec.class);
+        when(propertySpec.getName()).thenReturn(name);
+        return propertySpec;
     }
 }
