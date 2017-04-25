@@ -27,8 +27,6 @@ class Installer implements FullInstaller, PrivilegesProvider {
 
     private final DataModel dataModel;
     private final UserService userService;
-    private final MetrologyConfigurationService metrologyConfigurationService;
-    private final MeteringService meteringService;
     private final MetrologyConfigurationsInstaller metrologyConfigurationsInstaller;
 
     @Inject
@@ -36,8 +34,6 @@ class Installer implements FullInstaller, PrivilegesProvider {
         super();
         this.dataModel = dataModel;
         this.userService = userService;
-        this.metrologyConfigurationService = metrologyConfigurationService;
-        this.meteringService = meteringService;
         this.metrologyConfigurationsInstaller = new MetrologyConfigurationsInstaller(calendarService, metrologyConfigurationService, meteringService);
     }
 

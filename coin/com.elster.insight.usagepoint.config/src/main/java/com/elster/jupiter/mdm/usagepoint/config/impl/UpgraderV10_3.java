@@ -57,7 +57,7 @@ class UpgraderV10_3 implements Upgrader, PrivilegesProvider {
         this.meteringService = meteringService;
         this.userService = userService;
         this.calendarService = calendarService;
-        this.metrologyConfigurationsInstaller = new MetrologyConfigurationsInstaller(this.calendarService, metrologyConfigurationService, meteringService);
+        this.metrologyConfigurationsInstaller = new MetrologyConfigurationsInstaller(calendarService, metrologyConfigurationService, meteringService);
     }
 
     @Override
