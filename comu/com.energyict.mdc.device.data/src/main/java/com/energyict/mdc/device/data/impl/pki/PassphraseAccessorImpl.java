@@ -69,9 +69,9 @@ public class PassphraseAccessorImpl extends AbstractKeyAccessorImpl<PassphraseWr
     }
 
     private void doRenewValue() {
-        SymmetricKeyWrapper symmetricKeyWrapper = pkiService.newSymmetricKeyWrapper(getKeyAccessorType());
-        symmetricKeyWrapper.generateValue(getKeyAccessorType());
-        tempPassphraseWrapperReference = dataModel.asRefAny(symmetricKeyWrapper);
+        PassphraseWrapper passphraseWrapper = pkiService.newPassphraseWrapper(getKeyAccessorType());
+        passphraseWrapper.generateValue();
+        tempPassphraseWrapperReference = dataModel.asRefAny(passphraseWrapper);
         this.save();
     }
 
