@@ -45,6 +45,7 @@ import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidation;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
 import com.energyict.mdc.issue.datavalidation.NotEstimatedBlock;
+
 import com.google.common.collect.ImmutableRangeSet;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
@@ -559,7 +560,7 @@ public class ChannelResource {
                                             .findFirst())
                                     .orElse(null);// There can be only one channel (or no channel at all if the channel has no dta for this interval)
                             List<ReadingQualityRecord> readingQualities = loadProfileJournalReading.get().getReadingQualities().entrySet().stream()
-                                    .map(Map.Entry::getValue)
+                                            .map(Map.Entry::getValue)
                                     .flatMap(List::stream).collect(Collectors.toList());
                             return validationInfoFactory.createVeeReadingInfoWithModificationFlags(channel, dataValidationStatus.get(), deviceValidation, channelReading, readingQualities, isValidationActive);
 
@@ -696,8 +697,7 @@ public class ChannelResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_DATA, com.elster.jupiter.estimation.security.Privileges.Constants.EDIT_WITH_ESTIMATOR})
     public List<ChannelDataInfo> previewCopyFromReferenceChannelData(@PathParam("name") String name, @PathParam("channelid") long channelId,
-                                                             @HeaderParam(APPLICATION_HEADER_PARAM) String applicationName,
-                                                             ReferenceChannelDataInfo referenceChannelDataInfo) {
+                                                                     ReferenceChannelDataInfo referenceChannelDataInfo) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(device, channelId);
         return previewCopyFromReference(channel, referenceChannelDataInfo);
@@ -756,12 +756,12 @@ public class ChannelResource {
         boolean isValidationActive = deviceValidation.isValidationActive();
 
         Device referenceDevice = resourceHelper.findDeviceByName(copyFromReferenceChannelDataInfo.referenceDevice)
-                .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_DEVICE, "referenceDevice",  copyFromReferenceChannelDataInfo.referenceDevice));
+                .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_DEVICE, "referenceDevice", copyFromReferenceChannelDataInfo.referenceDevice));
         ReadingType readingType = meteringService.getReadingType(copyFromReferenceChannelDataInfo.readingType)
-                .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_READINGTYPE, "readingType",  copyFromReferenceChannelDataInfo.readingType));
+                .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_READINGTYPE, "readingType", copyFromReferenceChannelDataInfo.readingType));
         Channel referenceChannel = referenceDevice.getChannels().stream().filter(ch -> ch.getReadingType().equals(readingType)).findFirst()
                 .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.READINGTYPE_NOT_FOUND_ON_DEVICE, "readingType"));
-        if(!matchReadingTypes(referenceChannel.getReadingType(), channel.getReadingType())){
+        if (!matchReadingTypes(referenceChannel.getReadingType(), channel.getReadingType())) {
             throw new LocalizedFieldValidationException(MessageSeeds.READINGTYPES_DONT_MATCH, "readingType");
         }
 
@@ -778,9 +778,9 @@ public class ChannelResource {
                         .ifPresent(referenceReading -> {
                             ChannelDataInfo channelDataInfo = deviceDataInfoFactory.createChannelDataInfo(channel, record, isValidationActive, deviceValidation, null);
                             ChannelDataInfo referenceChannelDataInfo = deviceDataInfoFactory.createChannelDataInfo(channel, referenceReading, isValidationActive, deviceValidation, null);
-                                channelDataInfo.value = referenceChannelDataInfo.value
-                                        .scaleByPowerOfTen(referenceChannel.getReadingType().getMultiplier().getMultiplier()
-                                                - channel.getReadingType().getMultiplier().getMultiplier());
+                            channelDataInfo.value = referenceChannelDataInfo.value
+                                    .scaleByPowerOfTen(referenceChannel.getReadingType().getMultiplier().getMultiplier()
+                                            - channel.getReadingType().getMultiplier().getMultiplier());
                             channelDataInfo.mainValidationInfo.validationResult = ValidationStatus.NOT_VALIDATED;
                             channelDataInfo.commentId = copyFromReferenceChannelDataInfo.commentId;
                             channelDataInfo.commentValue = copyFromReferenceChannelDataInfo.commentValue;
@@ -1018,11 +1018,11 @@ public class ChannelResource {
                 .map(info -> Range.openClosed(Instant.ofEpochMilli(info.start), Instant.ofEpochMilli(info.end)))
                 .reduce(Range::span)
                 .ifPresent(intervals ->
-                    result.addAll(channel.getChannelData(intervals).stream()
-                            .flatMap(loadProfileReading -> loadProfileReading.getChannelValues().values().stream())
-                            .filter(readingRecord -> timestamps.contains(readingRecord.getTimeStamp()))
-                            .map(readingRecord -> createCorrectedChannelDataInfo(channel, valueCorrectionInfo, readingRecord))
-                            .collect(Collectors.toList())));
+                        result.addAll(channel.getChannelData(intervals).stream()
+                                .flatMap(loadProfileReading -> loadProfileReading.getChannelValues().values().stream())
+                                .filter(readingRecord -> timestamps.contains(readingRecord.getTimeStamp()))
+                                .map(readingRecord -> createCorrectedChannelDataInfo(channel, valueCorrectionInfo, readingRecord))
+                                .collect(Collectors.toList())));
         return result;
     }
 
