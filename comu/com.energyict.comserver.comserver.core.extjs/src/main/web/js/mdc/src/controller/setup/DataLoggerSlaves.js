@@ -792,7 +792,7 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
                 }
             };
 
-        me.wizardInformation.linkingDate = dateField.getValue().getTime();
+        me.wizardInformation.linkingDate = dateField.getValue().getTime() + 59999; // No seconds on the linking date widget
 
         if (me.wizardInformation.linkingDate < earliestLinkingDate) {
             me.getStep4FormErrorMessage().show();
