@@ -8,6 +8,7 @@ import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.ReadingTypeComparator;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -25,6 +26,7 @@ import com.elster.jupiter.validators.impl.properties.ReadingTypeValueFactory;
 
 import com.google.common.collect.Range;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
@@ -132,14 +134,13 @@ public class ReferenceComparisonValidator extends MainCheckAbstractValidator {
         referenceReadinType = getReferenceReadingTypeProperty().getReadingType();
 
         try {
+            validateReferenceReadingType(readingType,referenceReadinType);
+            validateReferenceUsagePoint();
             initValidatingPurpose();
             initUsagePointName(channel);
-            validateReferenceUsagePoint();
             initCheckData(referenceUsagePoint, referenceReadinType);
         }catch (InitCancelException e){
-            if(preparedValidationResult==null){
-                throw new IllegalStateException("Reference comparison validator failed on init and has no prepared validation result");
-            }
+            preparedValidationResult = e.getValidationResult();
         }
     }
 
@@ -149,8 +150,26 @@ public class ReferenceComparisonValidator extends MainCheckAbstractValidator {
 
     @Override
     protected ComparingValues calculateComparingValues(IntervalReadingRecord mainReading, IntervalReadingRecord checkReading) {
-        // TODO: calculate check value to be compared with main value
-        return null;
+        BigDecimal mainValue = mainReading.getValue();
+        BigDecimal referenceValue = checkReading.getValue()
+        .scaleByPowerOfTen(checkReading.getReadingType().getMultiplier().getMultiplier())
+                .scaleByPowerOfTen(-mainReading.getReadingType().getMultiplier().getMultiplier());
+        return new ComparingValues(mainValue, referenceValue);
+    }
+
+    private void validateReferenceReadingType(ReadingType validatingReadingType, ReadingType referenceReadingType) throws InitCancelException{
+        if (!areReadingTypesComparable(validatingReadingType,referenceReadingType)){
+            LoggingContext.get()
+                    .warning(getLogger(), getThesaurus().getFormat(MessageSeeds.REFERENCE_MISC_REFERENCE_READING_TYPE_NOT_SUTABLE)
+                            .format(rangeToString(failedValidatonInterval), getDisplayName(), readingType, validatingUsagePointName));
+            throw new InitCancelException(ValidationResult.NOT_VALIDATED);
+        }
+    }
+
+    private boolean areReadingTypesComparable(ReadingType validatingReadingType, ReadingType referenceReadingType) {
+        return ReadingTypeComparator.ignoring(
+                ReadingTypeComparator.Attribute.Multiplier
+        ).compare(validatingReadingType, referenceReadingType) == 0;
     }
 
     @Override

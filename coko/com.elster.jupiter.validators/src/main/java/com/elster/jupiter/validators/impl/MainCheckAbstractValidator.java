@@ -227,7 +227,7 @@ public abstract class MainCheckAbstractValidator extends AbstractValidator {
                     .warning(getLogger(), getThesaurus().getFormat(MessageSeeds.VALIDATOR_MISC_NOT_ONE_EMC)
                             .format(rangeToString(failedValidatonInterval), getDisplayName(), referenceReadingType, effectiveMCList
                                     .size()));
-            throw new InitCancelException();
+            throw new InitCancelException(ValidationResult.NOT_VALIDATED);
         }
 
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMC = effectiveMCList.get(0);
@@ -286,8 +286,7 @@ public abstract class MainCheckAbstractValidator extends AbstractValidator {
 
     private void handleInitFail(InitCancelProps props) throws InitCancelException {
         logFailure(props);
-        preparedValidationResult = ValidationResult.NOT_VALIDATED;
-        throw new InitCancelException();
+        throw new InitCancelException(ValidationResult.NOT_VALIDATED);
     }
 
     protected void initUsagePointName(Channel channel) throws InitCancelException {
@@ -298,8 +297,7 @@ public abstract class MainCheckAbstractValidator extends AbstractValidator {
             LoggingContext.get()
                     .severe(getLogger(), getThesaurus().getFormat(MessageSeeds.VALIDATOR_INIT_MISC_NO_UP)
                             .format(rangeToString(failedValidatonInterval), getDisplayName(), readingType.getFullAliasName()));
-            preparedValidationResult = ValidationResult.NOT_VALIDATED;
-            throw new InitCancelException();
+            throw new InitCancelException(ValidationResult.NOT_VALIDATED);
         }
 
         validatingUsagePoint = usagePoint.get();
@@ -493,6 +491,15 @@ public abstract class MainCheckAbstractValidator extends AbstractValidator {
     }
 
     protected class InitCancelException extends Exception {
+        ValidationResult validationResult;
+
+        public InitCancelException(ValidationResult validationResult) {
+            this.validationResult = validationResult;
+        }
+
+        public ValidationResult getValidationResult() {
+            return validationResult;
+        }
     }
 
     enum InitCancelReason {

@@ -85,7 +85,7 @@ public class MainCheckValidator extends MainCheckAbstractValidator {
             initUsagePointName(channel);
             initCheckData(validatingUsagePoint, readingType);
         } catch (InitCancelException e) {
-
+            preparedValidationResult = e.getValidationResult();
         }
     }
 
