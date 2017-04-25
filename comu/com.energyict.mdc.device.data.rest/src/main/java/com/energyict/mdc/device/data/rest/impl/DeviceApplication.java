@@ -51,6 +51,7 @@ import com.elster.jupiter.yellowfin.groups.YellowfinGroupsService;
 import com.energyict.mdc.common.rest.ExceptionLogger;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.configuration.rest.ExecutionLevelInfoFactory;
 import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
@@ -605,6 +606,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
             bind(ReadingTypeInfoFactory.class).to(ReadingTypeInfoFactory.class);
             bind(ChannelInfoFactory.class).to(ChannelInfoFactory.class);
             bind(KeyAccessorPlaceHolder.class).to(KeyAccessorPlaceHolder.class);
+            bind(ExecutionLevelInfoFactory.class).to(ExecutionLevelInfoFactory.class);
         }
     }
 }
