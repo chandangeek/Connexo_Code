@@ -2,7 +2,7 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-Ext.define('Uni.property.view.property.MaximumAbsoluteDifference', {
+Ext.define('Uni.property.view.property.NoneOrBigDecimal', {
     extend: 'Uni.property.view.property.Base',
 
     getEditCmp: function () {
@@ -27,27 +27,17 @@ Ext.define('Uni.property.view.property.MaximumAbsoluteDifference', {
                     items: [
                         {
                             xtype: 'radiofield',
-                            boxLabel: Uni.I18n.translate('value', me.translationKey, 'Value'),
-                            name: 'type',
+                            boxLabel: Uni.I18n.translate('none', me.translationKey, 'None'),
+                            name: 'isNone',
                             style: {
                                 margin: '0 10px 0 0'
                             },
                             checked: true,
-                            itemId: 'value_radio_' + me.key,
+                            itemId: 'none_radio_' + me.key,
                             listeners: {
                                 change: function(fld, newValue, oldValue, eOpts){
-                                    me.getValueNumberField().setDisabled(!newValue);
-                                    me.getPercentNumberField().setDisabled(newValue);
+                                    me.getValueNumberField().setDisabled(newValue);
                                 }
-                            }
-                        },
-                        {
-                            xtype: 'numberfield',
-                            value: 0,
-                            width: 100,
-                            itemId: 'value_number_field_' + me.key,
-                            listeners: {
-                                blur: me.recurrenceNumberFieldValidation
                             }
                         }
                     ]
@@ -58,21 +48,20 @@ Ext.define('Uni.property.view.property.MaximumAbsoluteDifference', {
                     items: [
                         {
                             xtype: 'radiofield',
-                            boxLabel: Uni.I18n.translate('percent', me.translationKey, 'Percent'),
-                            name: 'type',
+                            boxLabel: Uni.I18n.translate('value', me.translationKey, 'Value'),
+                            name: 'isNone',
                             style: {
                                 margin: '0 10px 0 0'
                             },
-                            itemId: 'percent_radio_' + me.key
+                            itemId: 'value_radio_' + me.key
                         },
                         {
                             xtype: 'numberfield',
-                            minValue: 0,
                             disabled: true,
-                            value: 0,
                             width: 100,
-                            itemId: 'percent_number_field_' + me.key,
-                            maxValue: 100,
+                            minValue: 0,
+                            value: 0,
+                            itemId: 'value_number_field_' + me.key,
                             listeners: {
                                 blur: me.recurrenceNumberFieldValidation
                             }
@@ -84,20 +73,17 @@ Ext.define('Uni.property.view.property.MaximumAbsoluteDifference', {
         };
     },
 
+
     getValueNumberField: function () {
         return this.down('#value_number_field_' + this.key);
-    },
-
-    getPercentNumberField: function () {
-        return this.down('#percent_number_field_' + this.key);
     },
 
     getValueRadioField: function () {
         return this.down('#value_radio_' + this.key);
     },
 
-    getPercentRadioField: function () {
-        return this.down('#percent_radio_' + this.key);
+    getNoneRadioField: function () {
+        return this.down('#none_radio_' + this.key);
     },
 
     getField: function () {
@@ -107,12 +93,11 @@ Ext.define('Uni.property.view.property.MaximumAbsoluteDifference', {
     setValue: function (value) {
         var me =this;
         if(me.isEdit){
-            if(value.type === 'absolute'){
+            if(value.isNone){
+                me.getNoneRadioField().setValue(true);
+            } else {
                 me.getValueRadioField().setValue(true);
                 me.getValueNumberField().setValue(value.value);
-            } else if(value.type === 'relative') {
-                me.getPercentRadioField().setValue(true);
-                me.getPercentNumberField().setValue(value.value);
             }
         } else {
             this.callParent([me.getValueAsDisplayString(value)]);
@@ -120,38 +105,27 @@ Ext.define('Uni.property.view.property.MaximumAbsoluteDifference', {
     },
 
     getValueAsDisplayString: function (value) {
-
-        if (value.type === 'absolute') {
+        var me = this;
+        if (value.isNone) {
+            return Uni.I18n.translate('value.none1', me.translationKey, 'None');
+        } else{
             return value.value;
-        } else if (value.type === 'relative') {
-            return value.value + '%';
-        } else {
-            return arguments;
         }
     },
-
-    getValue: function(){
-        var me = this, result;
-        if(me.getValueRadioField().getValue()){
-            return {
-                type: 'absolute',
-                value: me.getValueNumberField().getValue()
-            }
-        } else {
-            return {
-                type: 'relative',
-                value: me.getPercentNumberField().getValue()
-            }
-        }
+    
+    getValue: function () {
+        var me = this;
+        return {
+            isNone: me.getNoneRadioField().getValue(),
+            value: me.getNoneRadioField().getValue() ? null : me.getValueNumberField().getValue()
+        };
     },
 
     recurrenceNumberFieldValidation: function (field) {
         var value = field.getValue();
 
-        if (Ext.isEmpty(value) || (!Ext.isEmpty(field.minValue) && value < field.minValue)) {
+        if (Ext.isEmpty(value) || value < field.minValue) {
             field.setValue(field.minValue);
-        } else if(!Ext.isEmpty(field.maxValue) && value > field.maxValue){
-            field.setValue(field.maxValue);
         }
     },
 
@@ -164,8 +138,7 @@ Ext.define('Uni.property.view.property.MaximumAbsoluteDifference', {
 
         this.callParent(arguments);
         me.getValueNumberField() && me.getValueNumberField().on('change', resetButtonListener);
-        me.getPercentNumberField() && me.getPercentNumberField().on('change', resetButtonListener);
         me.getValueRadioField() && me.getValueRadioField().on('change', resetButtonListener);
+    }
 
-    },
 });
