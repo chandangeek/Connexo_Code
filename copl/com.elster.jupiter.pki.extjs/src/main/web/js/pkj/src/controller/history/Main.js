@@ -104,7 +104,7 @@ Ext.define('Pkj.controller.history.Main', {
                                 return this;
                             },
                             items: {
-                                import: {
+                                'import': {
                                     route: 'import',
                                     title: Uni.I18n.translate('general.importCertificate', 'PKJ', 'Import certificate'),
                                     privileges: Pkj.privileges.CertificateManagement.adminCertificates,
