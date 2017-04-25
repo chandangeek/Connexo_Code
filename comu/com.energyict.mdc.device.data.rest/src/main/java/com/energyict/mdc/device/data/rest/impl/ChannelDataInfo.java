@@ -50,7 +50,7 @@ public class ChannelDataInfo {
     public MinimalVeeReadingValueInfo bulkValidationInfo;
 
     @JsonProperty("commentId")
-    public long commentId;
+    public Long commentId;
 
     @JsonProperty("commentValue")
     public String commentValue;
