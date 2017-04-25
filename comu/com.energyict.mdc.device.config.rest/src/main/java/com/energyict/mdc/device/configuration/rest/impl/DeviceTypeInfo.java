@@ -17,6 +17,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,6 +43,7 @@ public class DeviceTypeInfo {
     public List<RegisterTypeInfo> registerTypes;
     public Long deviceLifeCycleId;
     public String deviceLifeCycleName;
+    public PeriodInfo deviceLifeCycleEffectiveTimeShiftPeriod;
     public long version;
     public String deviceTypePurpose;
     public boolean fileManagementEnabled;
@@ -79,6 +81,7 @@ public class DeviceTypeInfo {
         if (deviceLifeCycle != null) {
             deviceTypeInfo.deviceLifeCycleId = deviceLifeCycle.getId();
             deviceTypeInfo.deviceLifeCycleName = deviceLifeCycle.getName();
+            deviceTypeInfo.deviceLifeCycleEffectiveTimeShiftPeriod = new PeriodInfo(deviceLifeCycle.getMaximumPastEffectiveTimestamp().toEpochMilli(), deviceLifeCycle.getMaximumFutureEffectiveTimestamp().toEpochMilli());
         }
         deviceTypeInfo.version = deviceType.getVersion();
         deviceTypeInfo.deviceTypePurpose = deviceType.isDataloggerSlave() ? DeviceTypePurpose.DATALOGGER_SLAVE.name() : (deviceType.isMultiElementSlave() ? DeviceTypePurpose.MULTI_ELEMENT_SLAVE.name() : DeviceTypePurpose.REGULAR.name());
@@ -92,6 +95,19 @@ public class DeviceTypeInfo {
             deviceTypeInfos.add(DeviceTypeInfo.from(deviceType));
         }
         return deviceTypeInfos;
+    }
+
+    @XmlType
+    public static class PeriodInfo {
+        public long start;
+        public long end;
+
+        public PeriodInfo(){}
+
+        PeriodInfo(long start, long end){
+            this.start = start;
+            this.end = end;
+        }
     }
 
 }
