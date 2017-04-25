@@ -85,6 +85,7 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksAddEdit', {
 
             newEstimationTask.set('name', newEstimationTaskDto.name);
             newEstimationTask.set('logLevel', newEstimationTaskDto.logLevel);
+            newEstimationTask.set('revalidate', newEstimationTaskDto.reValidate);
             newEstimationTask.set('application', appName);
             newEstimationTask.set('active', true);
             newEstimationTask.set('lastEstimationOccurrence', null);

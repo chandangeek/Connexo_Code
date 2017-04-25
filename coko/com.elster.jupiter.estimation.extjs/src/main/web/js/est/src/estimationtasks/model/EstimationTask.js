@@ -7,6 +7,7 @@ Ext.define('Est.estimationtasks.model.EstimationTask', {
     fields: [
         {name: 'id', type: 'number', useNull: true},
         {name: 'active', type: 'boolean'},
+        {name: 'revalidate', type: 'boolean', defaultValue: false},
         {name: 'name', type: 'string'},
         {name: 'application', type: 'string'},
         {name: 'schedule', type: 'auto', defaultValue: null},

@@ -40,6 +40,8 @@ Ext.define('Est.estimationrules.controller.Edit', {
     ],
     MULTISENSE_KEY: 'MultiSense',
     INSIGHT_KEY: 'MdmApp',
+    initialRuleName: undefined,
+    ruleSetInUse: false,
 
     init: function () {
         this.control({
@@ -70,6 +72,7 @@ Ext.define('Est.estimationrules.controller.Edit', {
                 waitBeforeLoadingTheRule--;
                 if (!waitBeforeLoadingTheRule) {
                     if (rule) {
+                        me.initialRuleName = rule.get('name');
                         widget.down('estimation-rule-edit-form') && widget.down('estimation-rule-edit-form').loadRecord(rule);
                     }
                     widget.setLoading(false);
@@ -77,7 +80,7 @@ Ext.define('Est.estimationrules.controller.Edit', {
             },
             ruleModel = me.getModel('Est.estimationrules.model.Rule'),
             rule;
-
+        me.getStore('Est.estimationrules.store.Estimators').getProxy().extraParams = {propertyDefinitionLevel: 'ESTIMATION_RULE'};
         if (router.queryParams.previousRoute) {
             setTimeout(function () { // make redirect after executing this method
                 Uni.util.History.setParsePath(false);
@@ -97,6 +100,7 @@ Ext.define('Est.estimationrules.controller.Edit', {
         ruleModel.getProxy().setUrl(ruleSetId);
         me.getModel('Est.estimationrulesets.model.EstimationRuleSet').load(ruleSetId, {
             success: function (record) {
+                me.ruleSetInUse = record.get('isInUse');
                 me.getApplication().fireEvent('loadEstimationRuleSet', record);
             }
         });
@@ -142,36 +146,75 @@ Ext.define('Est.estimationrules.controller.Edit', {
         var me = this,
             page = me.getPage(),
             form = me.getEditForm(),
-            errorMsg = me.getEditFormErrorMessage();
+            errorMsg = me.getEditFormErrorMessage(),
+            isNameChanged,
+            record;
 
         form.updateValid();
         if (form.isValid()) {
             form.updateRecord();
+            record = form.getRecord();
+            isNameChanged = record.get('name') !== me.initialRuleName;
             page.setLoading(true);
-            form.getRecord().save({
-                backUrl: page.returnLink,
-                callback: function (record, operation, success) {
-                    var responseText = Ext.decode(operation.response.responseText, true);
+            if (me.ruleSetInUse && isNameChanged && page.edit) {
+                me.showRuleSetInUseWindow(record);
+            } else {
+                me.accomplishSavingRule(record);
+            }
 
-                    page.setLoading(false);
-                    if (success) {
-                        me.getApplication().fireEvent('acknowledge', operation.action === 'create'
-                            ? Uni.I18n.translate('estimationrules.addRuleSuccess', 'EST', 'Estimation rule successfully added')
-                            : Uni.I18n.translate('estimationrules.saveRuleSuccess', 'EST', 'Estimation rule successfully saved'));
-                        if (page.rendered) {
-                            window.location.href = page.returnLink;
-                        }
-                    } else {
-                        if (page.rendered && responseText && responseText.errors) {
-                            form.updateValid(responseText.errors);
-                        }
-                    }
-                }
-            });
         } else {
             errorMsg.setText(errorMsg.defaultText);
             errorMsg.show();
         }
+    },
+
+    showRuleSetInUseWindow: function(record) {
+        var me = this,
+            confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
+                confirmText: Uni.I18n.translate('general.save', 'EST', 'Save')
+            }),
+            entity = me.getApplication().name === 'MdmApp' ? 'usage point' : 'device',
+            title = Uni.I18n.translate('general.editName.question', 'EST', 'Edit name?'),
+            message = Uni.I18n.translate('general.editName.msg', 'EST', 'Changing the name could potentially delete overriden attributes on {0} reading qualities', entity);
+
+        confirmationWindow.show({
+            title: title,
+            msg: message,
+            fn: confirm
+        });
+
+        function confirm(state) {
+            if (state === 'confirm') {
+                me.accomplishSavingRule(record);
+            }
+        }
+    },
+
+    accomplishSavingRule: function(rule) {
+        var me = this,
+            page = me.getPage(),
+            form = me.getEditForm();
+
+        rule.save({
+            backUrl: page.returnLink,
+            callback: function (record, operation, success) {
+                var responseText = Ext.decode(operation.response.responseText, true);
+
+                page.setLoading(false);
+                if (success) {
+                    me.getApplication().fireEvent('acknowledge', operation.action === 'create'
+                        ? Uni.I18n.translate('estimationrules.addRuleSuccess', 'EST', 'Estimation rule successfully added')
+                        : Uni.I18n.translate('estimationrules.saveRuleSuccess', 'EST', 'Estimation rule successfully saved'));
+                    if (page.rendered) {
+                        window.location.href = page.returnLink;
+                    }
+                } else {
+                    if (page.rendered && responseText && responseText.errors) {
+                        form.updateValid(responseText.errors);
+                    }
+                }
+            }
+        });
     },
 
     addReadingTypes: function () {
