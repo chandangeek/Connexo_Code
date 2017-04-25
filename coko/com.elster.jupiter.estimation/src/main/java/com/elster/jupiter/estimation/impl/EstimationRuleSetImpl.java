@@ -189,7 +189,7 @@ class EstimationRuleSetImpl implements IEstimationRuleSet {
 
     private void doUpdate() {
         Save.UPDATE.save(dataModel, this);
-        doGetRules().forEach(rule -> rule.save());
+        doGetRules().forEach(IEstimationRule::save);
         eventService.postEvent(EventType.ESTIMATIONRULESET_UPDATED.topic(), this);
     }
 

@@ -47,6 +47,7 @@ final class EstimationTaskImpl implements IEstimationTask {
     private long id;
 
     private String name;
+    private boolean revalidate;
     private Reference<RecurrentTask> recurrentTask = ValueReference.absent();
     private Reference<EndDeviceGroup> endDeviceGroup = ValueReference.absent();
     private Reference<UsagePointGroup> usagePointGroup = ValueReference.absent();
@@ -76,12 +77,14 @@ final class EstimationTaskImpl implements IEstimationTask {
         this.logLevel = Level.WARNING.intValue();
     }
 
-    static IEstimationTask from(DataModel dataModel, String name, EndDeviceGroup endDeviceGroup, UsagePointGroup usagePointGroup, ScheduleExpression scheduleExpression, Instant nextExecution, QualityCodeSystem qualityCodeSystem, int logLevel) {
-        return dataModel.getInstance(EstimationTaskImpl.class).init(name, endDeviceGroup, usagePointGroup, scheduleExpression, nextExecution, qualityCodeSystem, logLevel);
+    static IEstimationTask from(DataModel dataModel, String name, boolean revalidate, EndDeviceGroup endDeviceGroup, UsagePointGroup usagePointGroup, ScheduleExpression scheduleExpression, Instant nextExecution, QualityCodeSystem qualityCodeSystem, int logLevel) {
+        return dataModel.getInstance(EstimationTaskImpl.class)
+                .init(name, revalidate, endDeviceGroup, usagePointGroup, scheduleExpression, nextExecution, qualityCodeSystem, logLevel);
     }
 
-    private EstimationTaskImpl init(String name, EndDeviceGroup endDeviceGroup, UsagePointGroup usagePointGroup, ScheduleExpression scheduleExpression, Instant nextExecution, QualityCodeSystem qualityCodeSystem, int logLevel) {
+    private EstimationTaskImpl init(String name, boolean revalidate, EndDeviceGroup endDeviceGroup, UsagePointGroup usagePointGroup, ScheduleExpression scheduleExpression, Instant nextExecution, QualityCodeSystem qualityCodeSystem, int logLevel) {
         this.name = name;
+        this.revalidate = revalidate;
         this.logLevel = logLevel;
         this.endDeviceGroup.set(endDeviceGroup);
         this.usagePointGroup.set(usagePointGroup);
@@ -140,7 +143,7 @@ final class EstimationTaskImpl implements IEstimationTask {
     private void persist() {
         //TODO: 10.3 -> make this dynamic
         String applicationName;
-        if(qualityCodeSystem.equals(QualityCodeSystem.MDC)) {
+        if (qualityCodeSystem.equals(QualityCodeSystem.MDC)) {
             applicationName = "MultiSense";
         } else if (qualityCodeSystem.equals(QualityCodeSystem.MDM)) {
             applicationName = "Insight";
@@ -213,6 +216,10 @@ final class EstimationTaskImpl implements IEstimationTask {
         recurrentTaskDirty = true;
     }
 
+    public void setRevalidate(boolean revalidate) {
+        this.revalidate = revalidate;
+    }
+
     @Override
     public void setName(String name) {
         this.name = (name != null ? name.trim() : "");
@@ -238,7 +245,7 @@ final class EstimationTaskImpl implements IEstimationTask {
     public void triggerNow() {
         recurrentTask.get().triggerNow();
         Optional<TaskOccurrence> lastOccurence = recurrentTask.get().getLastOccurrence();
-        if(lastOccurence.isPresent() && lastOccurence.get().getStatus().equals(TaskStatus.NOT_EXECUTED_YET)){
+        if (lastOccurence.isPresent() && lastOccurence.get().getStatus().equals(TaskStatus.NOT_EXECUTED_YET)) {
             lastOccurence.get().start();
         }
     }
@@ -318,6 +325,11 @@ final class EstimationTaskImpl implements IEstimationTask {
                         new Order[]{Order.descending("startDate")}, false, null, 0, 1)
                 .stream()
                 .findFirst();
+    }
+
+    @Override
+    public boolean shouldRevalidate() {
+        return revalidate;
     }
 
     @Override

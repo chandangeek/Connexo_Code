@@ -137,6 +137,7 @@ public enum TableSpecs {
             Column metrologyPurposeId = table.column("METROLOGYPURPOSE").number().conversion(ColumnConversion.NUMBER2LONG).since(version(10, 3)).add();
             Column relativePeriod = table.column("PERIOD").number().add();
 
+            table.column("REVALIDATE").type("char(1)").notNull().conversion(CHAR2BOOLEAN).map("revalidate").installValue("'N'").since(version(10, 3)).add();
             table.column("LASTRUN").number().conversion(NUMBER2INSTANT).map("lastRun").notAudited().add();
             table.column("QUALITY_SYSTEM").number().conversion(NUMBER2ENUM).notNull().map("qualityCodeSystem").since(version(10, 2)).installValue("2").add();
             table.addAuditColumns();

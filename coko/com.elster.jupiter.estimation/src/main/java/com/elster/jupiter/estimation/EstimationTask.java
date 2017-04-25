@@ -51,6 +51,8 @@ public interface EstimationTask extends HasName, HasAuditInfo {
 
     Optional<TaskOccurrence> getLastOccurrence();
 
+    boolean shouldRevalidate();
+
     EstimationTaskOccurrenceFinder getOccurrencesFinder();
 
     History<EstimationTask> getHistory();
@@ -68,6 +70,8 @@ public interface EstimationTask extends HasName, HasAuditInfo {
     void setPeriod(RelativePeriod relativePeriod);
 
     void setScheduleExpression(ScheduleExpression scheduleExpression);
+
+    void setRevalidate(boolean revalidate);
 
     void update();
 

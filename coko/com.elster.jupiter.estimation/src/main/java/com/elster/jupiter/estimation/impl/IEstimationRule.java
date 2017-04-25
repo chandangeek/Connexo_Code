@@ -7,6 +7,8 @@ package com.elster.jupiter.estimation.impl;
 import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.Estimator;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ChannelsContainer;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.properties.PropertySpec;
 
 import java.util.Map;
@@ -32,4 +34,6 @@ interface IEstimationRule extends EstimationRule {
     void setMarkProjected(boolean b);
 
     boolean appliesTo(Channel channel);
+
+    Estimator createNewEstimator(ChannelsContainer channelsContainer, ReadingType readingType);
 }
