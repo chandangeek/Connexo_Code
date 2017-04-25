@@ -68,11 +68,15 @@ Ext.define('Mdc.securityaccessors.view.DeviceSecurityAccessorsActionMenu', {
 
             me.items.each(function(item) {
                 if (Ext.isDefined(item.invisibleWhenSwapped)) {
-                    item.setVisible(!swapped);
+                    if (Ext.isDefined(item.visible)) {
+                        item.setVisible( !swapped && item.visible.call(me) && Mdc.privileges.Device.canAdministrateDevice() );
+                    } else {
+                        item.setVisible( !swapped );
+                    }
                 } else if (item.visible === undefined) {
                     item.show();
                 } else {
-                    item.visible.call(me) && Mdc.privileges.Device.canAdministrateDevice() ?  item.show() : item.hide();
+                    item.setVisible( item.visible.call(me) && Mdc.privileges.Device.canAdministrateDevice() );
                 }
             })
         }
