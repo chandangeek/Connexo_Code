@@ -11,6 +11,7 @@ import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.device.config.DeviceSecurityUserAction;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.configuration.rest.ExecutionLevelInfoFactory;
 
 import javax.inject.Inject;
 import java.util.EnumSet;

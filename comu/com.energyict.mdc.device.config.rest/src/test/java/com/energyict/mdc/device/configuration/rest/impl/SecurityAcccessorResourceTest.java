@@ -13,6 +13,7 @@ import com.elster.jupiter.time.rest.TimeDurationInfo;
 import com.energyict.mdc.device.config.DeviceSecurityUserAction;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.KeyAccessorTypeUpdater;
+import com.energyict.mdc.device.configuration.rest.ExecutionLevelInfo;
 
 import com.jayway.jsonpath.JsonModel;
 

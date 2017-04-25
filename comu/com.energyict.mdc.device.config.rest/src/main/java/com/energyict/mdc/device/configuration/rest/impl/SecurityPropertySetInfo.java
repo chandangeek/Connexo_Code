@@ -6,6 +6,7 @@ package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.energyict.mdc.device.config.SecurityPropertySet;
+import com.energyict.mdc.device.configuration.rest.ExecutionLevelInfo;
 import com.energyict.mdc.device.configuration.rest.SecurityLevelInfo;
 import com.energyict.mdc.protocol.api.security.DeviceAccessLevel;
 
