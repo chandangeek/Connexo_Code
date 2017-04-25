@@ -10,6 +10,8 @@ import com.elster.jupiter.calendar.Event;
 import com.elster.jupiter.calendar.OutOfTheBoxCategory;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.fsm.Stage;
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageBuilder;
@@ -40,7 +42,6 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointStage;
-import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
 
@@ -60,6 +61,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.util.Collections;
+import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -152,11 +154,11 @@ public class CalendarTimeSeriesCacheHandlerMessagePostTest {
         now = LocalDate.ofYearDay(2017, 1).atStartOfDay(ZoneOffset.UTC).toInstant();
         when(this.clock.instant()).thenReturn(now);
         UsagePointLifeCycle lifeCycle = mock(UsagePointLifeCycle.class);
-        UsagePointState state = mock(UsagePointState.class);
+        State state = mock(State.class);
         when(state.isInitial()).thenReturn(true);
-        UsagePointStage stage = mock(UsagePointStage.class);
-        when(stage.getKey()).thenReturn(UsagePointStage.Key.PRE_OPERATIONAL);
-        when(state.getStage()).thenReturn(stage);
+        Stage stage = mock(Stage.class);
+        when(stage.getName()).thenReturn(UsagePointStage.PRE_OPERATIONAL.getKey());
+        when(state.getStage()).thenReturn(Optional.of(stage));
         when(lifeCycle.getStates()).thenReturn(Collections.singletonList(state));
         when(this.usagePointLifeCycleConfigurationService.getDefaultLifeCycle()).thenReturn(lifeCycle);
     }

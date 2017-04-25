@@ -64,7 +64,7 @@ class UsagePointMetrologyConfigurationImpl extends MetrologyConfigurationImpl im
     public void addMeterRole(MeterRole meterRole) {
         if (!getMeterRoles().contains(meterRole)) {
             if (!getServiceCategory().getMeterRoles().contains(meterRole)
-                    && !meterRole.equals(super.getMetrologyConfigurationService().findMeterRole(DefaultMeterRole.DEFAULT.getKey()).orElse(null))) {
+                    && !meterRole.equals(this.getMetrologyConfigurationService().findMeterRole(DefaultMeterRole.DEFAULT.getKey()).orElse(null))) {
                 throw CannotManageMeterRoleOnMetrologyConfigurationException
                         .canNotAddMeterRoleWhichIsNotAssignedToServiceCategory(getMetrologyConfigurationService().getThesaurus(),
                                 meterRole.getDisplayName(), getServiceCategory().getDisplayName());

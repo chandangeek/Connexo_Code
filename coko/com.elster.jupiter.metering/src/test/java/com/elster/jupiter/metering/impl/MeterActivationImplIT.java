@@ -719,10 +719,9 @@ public class MeterActivationImplIT {
         ServerMetrologyConfigurationService metrologyConfigurationService = inMemoryBootstrapModule.getMetrologyConfigurationService();
         UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = metrologyConfigurationService
                 .newUsagePointMetrologyConfiguration("testConfiguration", meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get())
-                .withGapAllowed(false)
+                .withGapsAllowed(false)
                 .create();
         usagePointMetrologyConfiguration.addMeterRole(metrologyConfigurationService.findDefaultMeterRole(DefaultMeterRole.DEFAULT));
-        when(usagePointMetrologyConfiguration.areGapsAllowed()).thenReturn(false);
         ReadingType readingType = meteringService.getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
         FullySpecifiedReadingTypeRequirement readingTypeRequirement =
                 usagePointMetrologyConfiguration

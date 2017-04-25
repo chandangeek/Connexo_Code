@@ -603,14 +603,14 @@ public class UsagePointImpl implements ServerUsagePoint {
     }
 
     private void validateMetersIfGapsAreNotAllowedWithMeterRoles(UsagePointMetrologyConfiguration metrologyConfiguration, Instant start) {
-        if (!metrologyConfiguration.areGapsAllowed() && !metrologyConfiguration.getMeterRoles().isEmpty()) {
+        if (   !metrologyConfiguration.areGapsAllowed()
+            && !metrologyConfiguration.getRequirements().isEmpty()
+            && !metrologyConfiguration.getMeterRoles().isEmpty()) {
             List<ChannelsContainer> channelsContainers = getMeterActivations(start)
                     .stream()
                     .map(MeterActivation::getChannelsContainer)
                     .collect(Collectors.toList());
-            List<ReadingTypeRequirement> metrologyConfigRequirements = metrologyConfiguration.getRequirements()
-                    .stream()
-                    .collect(Collectors.toList());
+            List<ReadingTypeRequirement> metrologyConfigRequirements = metrologyConfiguration.getRequirements();
             boolean meterActivationsMatched = channelsContainers.stream()
                     .filter(channelsContainer ->  metersActivationsMatched(metrologyConfigRequirements, channelsContainer))
                     .findAny()

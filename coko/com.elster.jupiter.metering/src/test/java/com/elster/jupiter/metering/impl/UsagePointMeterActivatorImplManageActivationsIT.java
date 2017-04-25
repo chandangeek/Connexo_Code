@@ -33,9 +33,6 @@ import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.transaction.TransactionContext;
 
 import com.google.common.collect.Range;
-import org.junit.*;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -443,7 +440,7 @@ public class UsagePointMeterActivatorImplManageActivationsIT {
         ServiceCategory serviceCategory = inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
         UsagePoint usagePoint2 = serviceCategory.newUsagePoint("UsagePoint2", THREE_DAYS_BEFORE).create();
 
-        UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = inMemoryBootstrapModule.getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("UP2", serviceCategory).withGapAllowed(false).create();
+        UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = inMemoryBootstrapModule.getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("UP2", serviceCategory).withGapsAllowed(false).create();
         usagePointMetrologyConfiguration.addMeterRole(meterRole);
         usagePoint2.apply(usagePointMetrologyConfiguration, THREE_DAYS_BEFORE);
         usagePoint2.linkMeters().activate(meter, meterRole).complete();
@@ -463,7 +460,7 @@ public class UsagePointMeterActivatorImplManageActivationsIT {
         when(deviceState.getStage()).thenReturn(Optional.of(deviceStage));
         when(deviceStage.getName()).thenReturn(operationalDeviceStageKey);
 
-        UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = inMemoryBootstrapModule.getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("UP2", serviceCategory).withGapAllowed(false).create();
+        UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = inMemoryBootstrapModule.getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("UP2", serviceCategory).withGapsAllowed(false).create();
         usagePointMetrologyConfiguration.addMeterRole(meterRole);
         usagePoint2.apply(usagePointMetrologyConfiguration, THREE_DAYS_BEFORE);
         usagePoint2.linkMeters().activate(meter, meterRole).complete();
@@ -490,7 +487,7 @@ public class UsagePointMeterActivatorImplManageActivationsIT {
         when(deviceState.getStage()).thenReturn(Optional.of(deviceStage));
         when(deviceStage.getName()).thenReturn(operationalDeviceStageKey);
 
-        UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = inMemoryBootstrapModule.getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("UP2", serviceCategory).withGapAllowed(false).create();
+        UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = inMemoryBootstrapModule.getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("UP2", serviceCategory).withGapsAllowed(false).create();
         usagePointMetrologyConfiguration.addMeterRole(meterRole);
         usagePoint2.apply(usagePointMetrologyConfiguration, THREE_DAYS_BEFORE);
         usagePoint2.linkMeters().activate(TWO_DAYS_AFTER, meter, meterRole).throwingValidation().complete();
