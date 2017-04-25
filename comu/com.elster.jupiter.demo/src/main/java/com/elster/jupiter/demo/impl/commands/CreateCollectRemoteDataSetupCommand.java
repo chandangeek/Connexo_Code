@@ -292,6 +292,7 @@ public class CreateCollectRemoteDataSetupCommand extends CommandWithTransaction 
                     Builders.from(DeviceConfigurationTpl.DEFAULT_GAS).withDeviceType(deviceType).withPostBuilder(new ChannelsOnDevConfPostBuilder()).get().activate();
                 }
                 createGasDevice(Builders.from(DeviceConfigurationTpl.DEFAULT_GAS).withDeviceType(deviceType).get(), serialNumber, DeviceTypeTpl.BK_GF, devicename);
+
                 deviceType = Builders.from(DeviceTypeTpl.V200PR_6).get();
                 if (deviceType.getConfigurations().isEmpty()) {
                     Builders.from(DeviceConfigurationTpl.DEFAULT_WATER).withDeviceType(deviceType).withPostBuilder(new ChannelsOnDevConfPostBuilder()).get().activate();

@@ -108,6 +108,7 @@ public class DeviceConfigurationBuilder extends NamedBuilder<DeviceConfiguration
         configBuilder.gatewayType(this.gatewayType);
         configBuilder.isDirectlyAddressable(directlyAddressable);
         configBuilder.dataloggerEnabled(dataLoggerEnabled);
+        configBuilder.validateOnStore(true);
         addRegisters(configBuilder);
         addLoadProfiles(configBuilder);
         addLogBooks(configBuilder);

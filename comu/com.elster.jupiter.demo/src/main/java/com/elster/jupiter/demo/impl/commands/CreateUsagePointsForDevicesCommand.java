@@ -171,11 +171,12 @@ public class CreateUsagePointsForDevicesCommand {
     private Supplier<UsagePoint> newUsagePointSupplier(Device device, ServiceKind serviceKind, String prefix) {
         return () -> {
             Principal currentPrincipal = threadPrincipalService.getPrincipal();
+            String name = prefix + device.getName().substring(3);
             // need 'real' user to create usage point,
             // so that initial State change request will be created with this user
             threadPrincipalService.set(Builders.from(UserTpl.MELISSA).get());
             UsagePoint usagePoint = Builders.from(UsagePointBuilder.class)
-                    .withName(prefix + device.getSerialNumber())
+                    .withName(name)
                     .withInstallationTime(clock.instant())
                     .withLocation(device.getLocation().orElse(null))
                     .withGeoCoordinates(device.getSpatialCoordinates().orElse(null))
