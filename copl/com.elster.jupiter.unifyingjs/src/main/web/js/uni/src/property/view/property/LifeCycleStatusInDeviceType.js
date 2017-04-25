@@ -99,7 +99,7 @@ Ext.define('Uni.property.view.property.LifeCycleStatusInDeviceType', {
                         editable: false,
                         multiSelect: true,
                         msgTarget: 'under',
-                        emptyText: Uni.I18n.translate('general.device.state.empty', 'UNI', 'Select a device state...'),
+                        emptyText: Uni.I18n.translate('general.device.state.empty', 'UNI', 'Select a device state...')
                     }
                 ]
             }
