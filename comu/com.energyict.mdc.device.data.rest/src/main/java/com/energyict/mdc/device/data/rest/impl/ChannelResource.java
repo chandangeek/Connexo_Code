@@ -695,7 +695,7 @@ public class ChannelResource {
     @Path("/{channelid}/data/copyfromreference")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_DATA, com.elster.jupiter.estimation.security.Privileges.Constants.EDIT_WITH_ESTIMATOR})
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA, Privileges.Constants.ADMINISTRATE_DEVICE})
     public List<ChannelDataInfo> previewCopyFromReferenceChannelData(@PathParam("name") String name, @PathParam("channelid") long channelId,
                                                                      ReferenceChannelDataInfo referenceChannelDataInfo) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
