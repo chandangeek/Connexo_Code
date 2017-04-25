@@ -49,7 +49,8 @@ public enum SimplePropertyType implements PropertyType {
     TIMEDURATION(TimeDuration.class),       //Property that can indicate any kind of duration/period
     TWO_VALUES_DIFFERENCE(TwoValuesDifferenceValueFactory.class),
     NONE_OR_BIGDECIMAL(NoneOrBigDecimalValueFactory.class),
-    NONE_OR_TIMEDURATION(NoneOrTimeDurationValueFactory.class);
+    NONE_OR_TIMEDURATION(NoneOrTimeDurationValueFactory.class),
+    USAGE_POINT(String.class);
 
     private Class typeClass;
 
