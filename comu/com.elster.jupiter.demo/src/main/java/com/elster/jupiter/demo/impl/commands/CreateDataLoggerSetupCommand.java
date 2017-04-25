@@ -109,9 +109,6 @@ public class CreateDataLoggerSetupCommand extends CommandWithTransaction {
         if (!deviceConfiguration.isActive()) {
             deviceConfiguration.activate();
         }
-        //3. Create Device Group "Data logger slaves"
-        EndDeviceGroup dataLoggerSlaveGroup = Builders.from(DeviceGroupTpl.DATA_LOGGER_SLAVES).get();
-        Builders.from(FavoriteGroupBuilder.class).withGroup(dataLoggerSlaveGroup).get();
 
         //4. Create "Data logger slave" devices
         int existing = deviceService.findDevicesByDeviceConfiguration(deviceConfiguration).find().size();

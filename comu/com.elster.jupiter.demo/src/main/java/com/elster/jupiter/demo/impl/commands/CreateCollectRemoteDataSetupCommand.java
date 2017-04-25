@@ -360,6 +360,8 @@ public class CreateCollectRemoteDataSetupCommand extends CommandWithTransaction 
         Builders.from(FavoriteGroupBuilder.class).withGroup(Builders.from(DeviceGroupTpl.NORTH_REGION).get()).get();
         Builders.from(FavoriteGroupBuilder.class).withGroup(Builders.from(DeviceGroupTpl.SOUTH_REGION).get()).get();
         Builders.from(FavoriteGroupBuilder.class).withGroup(Builders.from(DeviceGroupTpl.ALL_ELECTRICITY_DEVICES).get()).get();
+        Builders.from(FavoriteGroupBuilder.class).withGroup(Builders.from(DeviceGroupTpl.GAS_DEVICES).get()).get();
+        Builders.from(FavoriteGroupBuilder.class).withGroup(Builders.from(DeviceGroupTpl.WATER_DEVICES).get()).get();
     }
 
     private void createDataCollectionKpi() {

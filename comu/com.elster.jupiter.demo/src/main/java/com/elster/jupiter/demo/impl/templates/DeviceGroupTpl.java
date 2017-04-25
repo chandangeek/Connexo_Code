@@ -12,22 +12,20 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 
 public enum DeviceGroupTpl implements Template<EndDeviceGroup, DeviceGroupBuilder> {
-    NORTH_REGION("North region", Constants.Device.STANDARD_PREFIX + "*",
+    NORTH_REGION("North region", Constants.Device.STANDARD_PREFIX + "SPE*",
             DeviceTypeTpl.Elster_AS1440, DeviceTypeTpl.Landis_Gyr_ZMD, DeviceTypeTpl.Actaris_SL7000
     ),
-    SOUTH_REGION("South region", Constants.Device.STANDARD_PREFIX + "*",
+    SOUTH_REGION("South region", Constants.Device.STANDARD_PREFIX + "SPE*",
             DeviceTypeTpl.Elster_A1800, DeviceTypeTpl.Siemens_7ED, DeviceTypeTpl.Iskra_38
     ),
-    ALL_ELECTRICITY_DEVICES("Electricity devices", null,
+    ALL_ELECTRICITY_DEVICES("Electricity devices", "SPE*",
             DeviceTypeTpl.BK_GF, DeviceTypeTpl.Landis_Gyr_ZMD, DeviceTypeTpl.Actaris_SL7000,
             DeviceTypeTpl.Elster_A1800, DeviceTypeTpl.Siemens_7ED, DeviceTypeTpl.Iskra_38
     ),
-    A1800_DEVICES("Elster A1800 devices", null, DeviceTypeTpl.Elster_A1800),
-    DATA_LOGGERS("Data loggers", null, DeviceTypeTpl.WEBRTU_Z2),
-    DATA_LOGGER_SLAVES("Data logger slaves", null, DeviceTypeTpl.EIMETER_FLEX),
+    A1800_DEVICES("Elster A1800 devices", "SPE*", DeviceTypeTpl.Elster_A1800),
     GAS_DEVICES("Gas devices", null,
             DeviceTypeTpl.BK_GF),
-    WATER_DEVICE("Water devices", null,
+    WATER_DEVICES("Water devices", null,
             DeviceTypeTpl.V200PR_6),
     ;
 
