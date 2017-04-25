@@ -2,11 +2,14 @@ Ext.define('Mdc.util.LinkPurpose', {
     alias: 'LinkPurpose',
     requires: 'Mdc.model.Device',
     singleton: true,
-
+    NOT_APPLICABLE: 0,
     LINK_SLAVE: 1,
     LINK_DATALOGGER_SLAVE: 2,
     LINK_MULTI_ELEMENT_SLAVE: 3,
     properties: {
+        0: { name: 'NotApplicable',
+             value: 0,
+        },
         1: {
             name: 'LinkSlave',
             value: 1,
@@ -94,5 +97,6 @@ Ext.define('Mdc.util.LinkPurpose', {
         } else if (device.get('isMultiElementDevice')) {
             return this.properties[this.LINK_MULTI_ELEMENT_SLAVE];
         }
+        return this.properties[this.NOT_APPLICABLE];
     }
 });
