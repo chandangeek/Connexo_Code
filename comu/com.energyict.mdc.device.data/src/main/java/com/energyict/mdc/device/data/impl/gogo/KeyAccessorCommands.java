@@ -8,7 +8,9 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.ValueType;
 import com.elster.jupiter.pki.ClientCertificateWrapper;
 import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.PassphraseWrapper;
 import com.elster.jupiter.pki.PkiService;
+import com.elster.jupiter.pki.PlaintextPassphrase;
 import com.elster.jupiter.pki.PlaintextPrivateKeyWrapper;
 import com.elster.jupiter.pki.PlaintextSymmetricKey;
 import com.elster.jupiter.pki.SymmetricKeyWrapper;
@@ -66,7 +68,8 @@ import static java.util.stream.Collectors.toList;
                 "osgi.command.function=renew",
                 "osgi.command.function=swap",
                 "osgi.command.function=clearTemp",
-                "osgi.command.function=createEventType"
+                "osgi.command.function=createEventType",
+                "osgi.command.function=setAccessorPassword"
 
         },
         immediate = true)
@@ -210,6 +213,39 @@ public class KeyAccessorCommands {
                     .orElseGet(()->device.newKeyAccessor(certKeyAccessorType));
             keyAccessor.setActualValue(clientCertificateWrapper);
             keyAccessor.save();
+            context.commit();
+        }
+    }
+
+    public void setAccessorPassword() {
+        System.out.println("Usage: setAccessorPassword <device name> <key accessor type name> <cleartext password>");
+        System.out.println("e.g. : setAccessorPassword Device0001 DlmsPhrase ABCD1234");
+    }
+
+    public void setAccessorPassword(String deviceName, String keyAccessorTypeName, String cleartextPassword) {
+        threadPrincipalService.set(() -> "Console");
+
+        try (TransactionContext context = transactionService.getContext()) {
+            Device device = deviceService.findDeviceByName(deviceName)
+                    .orElseThrow(() -> new RuntimeException("No such device"));
+            KeyAccessorType keyAccessorType = device.getDeviceType()
+                    .getKeyAccessorTypes()
+                    .stream()
+                    .filter(kat -> kat.getName().equals(keyAccessorTypeName))
+                    .findAny()
+                    .orElseThrow(() -> new RuntimeException("No such key accessor type on the device type: " + keyAccessorTypeName));
+
+            Optional<KeyAccessor> keyAccessor = device.getKeyAccessor(keyAccessorType);
+            if (keyAccessor.isPresent()) {
+                PlaintextPassphrase actualValue = (PlaintextPassphrase) keyAccessor.get().getActualValue();
+                actualValue.setPassphrase(cleartextPassword);
+            } else {
+                PassphraseWrapper passphraseWrapper = pkiService.newPassphraseWrapper(keyAccessorType);
+                ((PlaintextPassphrase)passphraseWrapper).setPassphrase(cleartextPassword);
+                KeyAccessor newKeyAccessor = device.newKeyAccessor(keyAccessorType);
+                newKeyAccessor.setActualValue(passphraseWrapper);
+                newKeyAccessor.save();
+            }
             context.commit();
         }
     }

@@ -139,6 +139,7 @@ import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueName;
 import com.energyict.mdc.device.data.impl.constraintvalidators.ValidOverruledAttributes;
 import com.energyict.mdc.device.data.impl.constraintvalidators.ValidSecurityProperties;
 import com.energyict.mdc.device.data.impl.pki.CertificateAccessorImpl;
+import com.energyict.mdc.device.data.impl.pki.PassphraseAccessorImpl;
 import com.energyict.mdc.device.data.impl.pki.SymmetricKeyAccessorImpl;
 import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
 import com.energyict.mdc.device.data.impl.security.ServerDeviceForValidation;
@@ -3341,7 +3342,10 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                 this.keyAccessors.add(symmetricKeyAccessor);
                 return symmetricKeyAccessor;
             case Passphrase:
-                break; // TODO implement
+                PassphraseAccessorImpl passphraseAccessor = dataModel.getInstance(PassphraseAccessorImpl.class);
+                passphraseAccessor.init(keyAccessorType, this);
+                this.keyAccessors.add(passphraseAccessor);
+                return passphraseAccessor;
             case AsymmetricKey:
                 break; // TODO implement? will this occur?
         }

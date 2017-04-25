@@ -40,6 +40,7 @@ public abstract class AbstractKeyAccessorImpl<T extends SecurityValueWrapper> im
     public static final Map<String, Class<? extends KeyAccessor>> IMPLEMENTERS =
             ImmutableMap.of(
                     "C", CertificateAccessorImpl.class,
+                    "P", PassphraseAccessorImpl.class,
                     "S", SymmetricKeyAccessorImpl.class);
 
     protected AbstractKeyAccessorImpl(PkiService pkiService) {
@@ -53,7 +54,9 @@ public abstract class AbstractKeyAccessorImpl<T extends SecurityValueWrapper> im
         CERTIFICATE_WRAPPER_ACTUAL("actualCertificate"),
         CERTIFICATE_WRAPPER_TEMP("tempCertificate"),
         SYMM_KEY_WRAPPER_ACTUAL("actualSymmetricKeyWrapperReference"),
-        SYMM_KEY_WRAPPER_TEMP("tempSymmetricKeyWrapperReference")
+        SYMM_KEY_WRAPPER_TEMP("tempSymmetricKeyWrapperReference"),
+        PASSPHRASE_WRAPPER_ACTUAL("actualPassphraseWrapperReference"),
+        PASSPHRASE_WRAPPER_TEMP("tempPassphraseWrapperReference")
         ;
 
         private final String fieldName;
