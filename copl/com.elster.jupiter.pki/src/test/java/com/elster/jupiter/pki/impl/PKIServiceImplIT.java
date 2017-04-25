@@ -1002,7 +1002,7 @@ public class PKIServiceImplIT {
         KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
         when(keyAccessorType.getKeyType()).thenReturn(created);
         when(keyAccessorType.getKeyEncryptionMethod()).thenReturn("DataVault");
-        when(keyAccessorType.getDuration()).thenReturn(Optional.empty());
+        when(keyAccessorType.getDuration()).thenReturn(Optional.of(TimeDuration.years(2)));
 
         SymmetricKeyWrapper symmetricKeyWrapper = inMemoryPersistence.getPkiService()
                 .newSymmetricKeyWrapper(keyAccessorType);
@@ -1023,7 +1023,7 @@ public class PKIServiceImplIT {
         KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
         when(keyAccessorType.getKeyType()).thenReturn(created);
         when(keyAccessorType.getKeyEncryptionMethod()).thenReturn("DataVault");
-        when(keyAccessorType.getDuration()).thenReturn(Optional.empty());
+        when(keyAccessorType.getDuration()).thenReturn(Optional.of(TimeDuration.years(1)));
 
         SymmetricKeyWrapper symmetricKeyWrapper = inMemoryPersistence.getPkiService()
                 .newSymmetricKeyWrapper(keyAccessorType);
@@ -1041,7 +1041,7 @@ public class PKIServiceImplIT {
         KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
         when(keyAccessorType.getKeyType()).thenReturn(created);
         when(keyAccessorType.getKeyEncryptionMethod()).thenReturn("DataVault");
-        when(keyAccessorType.getDuration()).thenReturn(Optional.empty());
+        when(keyAccessorType.getDuration()).thenReturn(Optional.of(TimeDuration.years(1)));
 
         SymmetricKeyWrapper symmetricKeyWrapper = inMemoryPersistence.getPkiService()
                 .newSymmetricKeyWrapper(keyAccessorType);
