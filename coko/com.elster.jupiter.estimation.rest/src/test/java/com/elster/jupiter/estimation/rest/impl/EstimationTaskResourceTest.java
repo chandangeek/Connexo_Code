@@ -5,6 +5,7 @@
 package com.elster.jupiter.estimation.rest.impl;
 
 import com.elster.jupiter.cbo.QualityCodeSystem;
+import com.elster.jupiter.devtools.tests.FakeBuilder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.estimation.EstimationTask;
 import com.elster.jupiter.estimation.EstimationTaskBuilder;
@@ -21,16 +22,12 @@ import com.jayway.jsonpath.JsonModel;
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
-import java.util.function.Supplier;
 
 import org.junit.After;
 import org.junit.Before;
@@ -47,7 +44,7 @@ import static org.mockito.Mockito.when;
 
 public class EstimationTaskResourceTest extends EstimationApplicationJerseyTest {
 
-    private EstimationTaskBuilder builder = initBuilderStub();
+    private EstimationTaskBuilder builder;
     @Mock
     private EstimationTask estimationTask;
     @Mock
@@ -62,19 +59,8 @@ public class EstimationTaskResourceTest extends EstimationApplicationJerseyTest 
     private MetrologyPurpose metrologyPurpose;
 
     private EstimationTaskBuilder initBuilderStub() {
-        final Object proxyInstance = Proxy.newProxyInstance(EstimationTaskBuilder.class.getClassLoader(), new Class<?>[]{EstimationTaskBuilder.class}, new InvocationHandler() {
-            @Override
-            public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-                if (EstimationTaskBuilder.class.isAssignableFrom(method.getReturnType())) {
-                    return builderGetter.get();
-                }
-                return taskGetter.get();
-            }
-
-            private Supplier<EstimationTask> taskGetter = () -> estimationTask;
-            private Supplier<EstimationTaskBuilder> builderGetter = () -> builder;
-        });
-        return (EstimationTaskBuilder) proxyInstance;
+        builder = FakeBuilder.initBuilderStub(estimationTask, EstimationTaskBuilder.class);
+        return builder;
     }
 
     public static final ZonedDateTime NEXT_EXECUTION = ZonedDateTime.of(2015, 1, 13, 0, 0, 0, 0, ZoneId.systemDefault());
@@ -85,6 +71,7 @@ public class EstimationTaskResourceTest extends EstimationApplicationJerseyTest 
 
     @Before
     public void setUpMocks() {
+        initBuilderStub();
         doReturn(query).when(estimationService).getEstimationTaskQuery();
         doReturn(restQuery).when(restQueryService).wrap(query);
         doReturn(Collections.singletonList(estimationTask)).when(restQuery).select(any(), anyVararg());
@@ -100,6 +87,7 @@ public class EstimationTaskResourceTest extends EstimationApplicationJerseyTest 
         when(estimationService.newBuilder()).thenReturn(builder);
         when(estimationTask.getName()).thenReturn("Name");
         when(estimationTask.getId()).thenReturn(750L);
+        when(estimationTask.shouldRevalidate()).thenReturn(true);
         when(estimationTask.getLastOccurrence()).thenReturn(Optional.empty());
         when(estimationTask.getLastRun()).thenReturn(Optional.<Instant>empty());
         when(estimationTask.getMetrologyPurpose()).thenReturn(Optional.of(metrologyPurpose));
@@ -108,11 +96,10 @@ public class EstimationTaskResourceTest extends EstimationApplicationJerseyTest 
         doReturn(Optional.of(estimationTask)).when(estimationService).findAndLockEstimationTask(TASK_ID, 1L);
         doReturn(Optional.empty()).when(estimationService).findAndLockEstimationTask(TASK_ID, 2L);
         doReturn(Arrays.asList(estimationTask)).when(estimationService).findEstimationTasks(QualityCodeSystem.MDC);
-
     }
 
     @After
-    public void after(){
+    public void after() {
         Mockito.validateMockitoUsage();
     }
 
@@ -125,6 +112,7 @@ public class EstimationTaskResourceTest extends EstimationApplicationJerseyTest 
         assertThat(jsonModelFromMultisense.<Number>get("$.total")).isEqualTo(1);
         assertThat(jsonModelFromMultisense.<Number>get("$.estimationTasks[0].id")).isEqualTo(TASK_ID);
         assertThat(jsonModelFromMultisense.<String>get("$.estimationTasks[0].name")).isEqualTo("Name");
+        assertThat(jsonModelFromMultisense.<Boolean>get("$.estimationTasks[0].revalidate")).isTrue();
     }
 
     @Test
@@ -136,12 +124,11 @@ public class EstimationTaskResourceTest extends EstimationApplicationJerseyTest 
         info.version = 1L;
         Entity<EstimationTaskInfo> json = Entity.json(info);
 
-        Response response1 = target("/estimation/tasks/"+TASK_ID+"/trigger").request().header(HEADER_NAME, MULTISENSE_KEY).put(json);
+        Response response1 = target("/estimation/tasks/" + TASK_ID + "/trigger").request().header(HEADER_NAME, MULTISENSE_KEY).put(json);
         assertThat(response1.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
 
         verify(estimationTask).triggerNow();
     }
-
 
     @Test
     public void getCreateTasksTest() {
@@ -150,10 +137,13 @@ public class EstimationTaskResourceTest extends EstimationApplicationJerseyTest 
         info.nextRun = 250L;
         info.deviceGroup = new MeterGroupInfo();
         info.deviceGroup.id = 5;
+        info.revalidate = true;
         Entity<EstimationTaskInfo> json = Entity.json(info);
 
         Response response = target("/estimation/tasks").request().header(HEADER_NAME, MULTISENSE_KEY).post(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
+        verify(builder).create();
+        verify(builder).setRevalidate(true);
     }
 
     @Test
@@ -163,10 +153,12 @@ public class EstimationTaskResourceTest extends EstimationApplicationJerseyTest 
         info.deviceGroup = new MeterGroupInfo();
         info.deviceGroup.id = 5;
         info.version = 1L;
+        info.revalidate = true;
         Entity<EstimationTaskInfo> json = Entity.json(info);
 
         Response response = target("/estimation/tasks/" + TASK_ID).request().header(HEADER_NAME, MULTISENSE_KEY).put(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        verify(estimationTask).setRevalidate(true);
     }
 
     @Test

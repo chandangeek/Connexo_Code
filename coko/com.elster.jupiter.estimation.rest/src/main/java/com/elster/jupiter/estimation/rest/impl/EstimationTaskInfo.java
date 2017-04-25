@@ -23,6 +23,7 @@ public class EstimationTaskInfo {
 
     public long id = 0;
     public String name = "blank_name";
+    public boolean revalidate;
     public boolean active = true;
     public MeterGroupInfo deviceGroup;
     public IdWithDisplayValueInfo<Long> usagePointGroup;
@@ -70,6 +71,7 @@ public class EstimationTaskInfo {
     void populate(EstimationTask estimationTask) {
         id = estimationTask.getId();
         name = estimationTask.getName();
+        revalidate = estimationTask.shouldRevalidate();
         logLevel = estimationTask.getLogLevel();
         active = estimationTask.isActive();
         deviceGroup =  estimationTask.getEndDeviceGroup().map(MeterGroupInfo::new).orElse(null);
