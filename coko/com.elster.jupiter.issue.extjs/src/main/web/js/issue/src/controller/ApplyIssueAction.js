@@ -134,7 +134,7 @@ Ext.define('Isu.controller.ApplyIssueAction', {
                     me.getApplication().fireEvent('acknowledge', responseText.actions[0].message);
                     window.location.href = backUrl;
                 } else {
-                    me.getApplication().getController('Uni.controller.Error').showError(actionRecord.get('issue').title, responseText.actions[0].message);
+                    me.getApplication().getController('Uni.controller.Error').showError(Uni.I18n.translate('issues.applyAction.failureTitle', 'ISU', 'Couldn\'t perform your action'), actionRecord.get('issue').title + '.' + responseText.actions[0].message, responseText.actions[0].errorCode);
                 }
             },
             failure: function (record, operation) {
@@ -146,7 +146,7 @@ Ext.define('Isu.controller.ApplyIssueAction', {
                 }
                 if (operation.response.status === 200 && responseText.actions) {
                     window.location.href = backUrl;
-                    me.getApplication().getController('Uni.controller.Error').showError(actionRecord.get('issue').title, responseText.actions[0].message);
+                    me.getApplication().getController('Uni.controller.Error').showError(Uni.I18n.translate('issues.applyAction.failureTitle', 'ISU', 'Couldn\'t perform your action'), actionRecord.get('issue').title + '.' + responseText.actions[0].message, responseText.actions[0].errorCode);
                 }
             },
             callback: function () {
@@ -188,7 +188,7 @@ Ext.define('Isu.controller.ApplyIssueAction', {
 
         Ext.Ajax.request({
             url: Ext.String.format(me.assignUrl, assign, issueId),
-            jsonData: Ext.JSON.encode({'issue' : _.pick(record.getData(), 'title', 'version')}),
+            jsonData: Ext.JSON.encode({'issue': _.pick(record.getData(), 'title', 'version')}),
             method: 'PUT',
             success: function (response) {
                 var decoded = response.responseText ? Ext.decode(response.responseText, true) : null;

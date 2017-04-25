@@ -122,7 +122,8 @@ Ext.define('Isu.controller.CreationRules', {
             },
             failure: function (response) {
                 if (response.status == 400) {
-                    var errorText = Uni.I18n.translate('administration.issueCreationRules.error.unknown', 'ISU', 'Unknown error occurred');
+                    var errorText = Uni.I18n.translate('administration.issueCreationRules.error.unknown', 'ISU', 'Unknown error occurred'),
+                        code='';
                     if (!Ext.isEmpty(response.statusText)) {
                         errorText = response.statusText;
                     }
@@ -131,12 +132,15 @@ Ext.define('Isu.controller.CreationRules', {
                         if (json && json.error) {
                             errorText = json.error;
                         }
+                        if (json && json.errorCode) {
+                            code = json.errorCode;
+                        }
                     }
-                    var titleText = suspended
+                    var msgText = suspended
                         ? Uni.I18n.translate('administration.issueCreationRules.deactivate.operation.failed', 'ISU', 'Deactivate operation failed')
                         : Uni.I18n.translate('administration.issueCreationRules.activate.operation.failed', 'ISU', 'Activate operation failed');
 
-                    me.getApplication().getController('Uni.controller.Error').showError(titleText, errorText);
+                    me.getApplication().getController('Uni.controller.Error').showError(Uni.I18n.translate('administration.issueCreationRules.activation.operation.failed.title', 'ISU', 'Couldn\'t perform your action'), msg + '.' + errorText, code);
                 }
             }
         });
