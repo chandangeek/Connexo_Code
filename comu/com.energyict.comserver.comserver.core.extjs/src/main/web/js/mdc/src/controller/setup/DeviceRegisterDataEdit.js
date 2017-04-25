@@ -160,7 +160,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
             record.save({
                 success: function () {
                     me.getApplication().fireEvent('acknowledge', cfg.successMessage);
-                    me.forwardToPreviousPage();
+                    window.history.back();
                 },
                 failure: function (record, resp) {
                     var response = resp.response;
@@ -331,14 +331,6 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
         me.getRegisterDataEditForm().getForm().clearInvalid();
         formErrorsPlaceHolder.hide();
         Ext.resumeLayouts(true);
-    },
-
-    forwardToPreviousPage: function () {
-        var router = this.getController('Uni.controller.history.Router'),
-            splittedPath = router.currentRoute.split('/');
-
-        splittedPath.pop();
-        router.getRoute(splittedPath.join('/')).forward();
     }
 });
 
