@@ -430,7 +430,7 @@ public class DeviceResource {
                     topologyService.setDataLogger(slave, dataLogger, Instant.ofEpochMilli(slaveDeviceInfo.linkingTimeStamp), channelMap, registerMap);
                 }
                 if (slave.getDeviceType().isMultiElementSlave()) {
-                    multiElementDeviceService.addSlave(slave, dataLogger, clock.instant(), channelMap, registerMap);
+                    multiElementDeviceService.addSlave(slave, dataLogger, Instant.ofEpochMilli(slaveDeviceInfo.linkingTimeStamp) , channelMap, registerMap);
                 }
             }
         }
