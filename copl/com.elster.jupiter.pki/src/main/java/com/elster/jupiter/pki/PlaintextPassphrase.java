@@ -15,7 +15,7 @@ public interface PlaintextPassphrase extends PassphraseWrapper {
 
     /**
      * Set the plaintxt value of the passphrase. The passphrase will be encrypted prior to storage in the db.
-     * @param encryptedPassphrase The plaintext Passphrase to store.
+     * @param plainTextPassphrase The plaintext Passphrase to store.
      */
-    void setPassphrase(String encryptedPassphrase);
+    void setPassphrase(String plainTextPassphrase);
 }

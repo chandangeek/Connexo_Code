@@ -386,6 +386,32 @@ public class PKIServiceImplIT {
 
     @Test
     @Transactional
+    public void testGeneratePlaintextPasswordKey() {
+        KeyType created = inMemoryPersistence.getPkiService().newPassphraseType("SECRET").withLowerCaseCharacters().withUpperCaseCharacters().length(20).add();
+        KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
+        when(keyAccessorType.getKeyType()).thenReturn(created);
+        when(keyAccessorType.getDuration()).thenReturn(Optional.of(TimeDuration.years(2)));
+        when(keyAccessorType.getKeyEncryptionMethod()).thenReturn(DataVaultPassphraseFactory.KEY_ENCRYPTION_METHOD);
+        PlaintextPassphrase passphraseWrapper = (PlaintextPassphrase) inMemoryPersistence.getPkiService()
+                .newPassphraseWrapper(keyAccessorType);
+        passphraseWrapper.generateValue(keyAccessorType);
+
+        assertThat(passphraseWrapper.getPassphrase()).isPresent();
+        assertThat(passphraseWrapper.getPassphrase().get()).isNotEmpty();
+        assertThat(passphraseWrapper.getPassphrase().get()).hasSize(20);
+        assertThat(passphraseWrapper.getProperties()).hasSize(1);
+        assertThat(passphraseWrapper.getProperties()).containsKey("passphrase");
+        assertThat(((String)passphraseWrapper.getProperties().get("passphrase"))).hasSize(20);
+        assertThat(passphraseWrapper.getPropertySpecs()).hasSize(1);
+        assertThat(passphraseWrapper.getPropertySpecs().get(0).getDisplayName()).isEqualTo("Passphrase");
+        assertThat(passphraseWrapper.getPropertySpecs().get(0).getDescription()).isEqualTo("Plaintext passphrase");
+        assertThat(passphraseWrapper.getPropertySpecs().get(0).getValueFactory().getValueType()).isEqualTo(String.class);
+        assertThat(passphraseWrapper.getExpirationTime()).isPresent();
+        assertThat(passphraseWrapper.getExpirationTime().get()).isEqualTo(ZonedDateTime.of(2019, 4, 4, 13, 0,0,0, ZoneId.of("UTC")).toInstant());
+    }
+
+    @Test
+    @Transactional
     public void testCreateTrustedCertificate() throws Exception {
         TrustStore main = inMemoryPersistence.getPkiService()
                 .newTrustStore("main")

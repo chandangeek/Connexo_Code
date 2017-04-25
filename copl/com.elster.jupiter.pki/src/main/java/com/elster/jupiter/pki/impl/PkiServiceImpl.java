@@ -114,7 +114,7 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
             case ClientCertificate: // ClientCertificates are linked to an asymmetric key
             case AsymmetricKey: return privateKeyFactories.keySet().stream().sorted().collect(Collectors.toList());
             case SymmetricKey: return symmetricKeyFactories.keySet().stream().sorted().collect(Collectors.toList());
-            case Passphrase: return null; // TODO implement
+            case Passphrase: return passphraseFactories.keySet().stream().sorted().collect(Collectors.toList());
             default: return Collections.emptyList(); // No encryption methods for other cryptographic elements
         }
     }
@@ -302,7 +302,7 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
             case SymmetricKey:
                 return getSymmetricKeyFactoryOrThrowException(keyAccessorType.getKeyEncryptionMethod()).getPropertySpecs();
             case Passphrase:
-                throw new RuntimeException("This is not implemented yet"); // todo implement
+                return getPassphraseFactoryOrThrowException(keyAccessorType.getKeyEncryptionMethod()).getPropertySpecs();
             case AsymmetricKey:
                 return Collections.emptyList(); // There is currently no need for visibility on asymmetric keys
             default:

@@ -104,8 +104,8 @@ public final class PlaintextPassphraseImpl implements PlaintextPassphrase {
     }
 
     @Override
-    public void setPassphrase(String passphrase) {
-        this.encryptedPassphrase=dataVaultService.encrypt(passphrase.getBytes());
+    public void setPassphrase(String plainTextPassphrase) {
+        this.encryptedPassphrase=dataVaultService.encrypt(plainTextPassphrase.getBytes());
         this.save();
     }
 
@@ -193,7 +193,7 @@ public final class PlaintextPassphraseImpl implements PlaintextPassphrase {
             public PropertySpec asPropertySpec(PropertySpecService propertySpecService) {
                 return propertySpecService.stringSpec()
                         .named(getPropertyName(), "Passphrase")
-                        .describedAs("plainttext passphrase")
+                        .describedAs("Plaintext passphrase")
                         .finish();
             }
 
@@ -206,7 +206,7 @@ public final class PlaintextPassphraseImpl implements PlaintextPassphrase {
 
             @Override
             void copyToMap(Map<String, Object> properties, PlaintextPassphraseImpl plaintextPassphrase) {
-                properties.put(getPropertyName(), plaintextPassphrase.getPassphrase());
+                properties.put(getPropertyName(), plaintextPassphrase.getPassphrase().orElse(null));
             }
         },
         ;
