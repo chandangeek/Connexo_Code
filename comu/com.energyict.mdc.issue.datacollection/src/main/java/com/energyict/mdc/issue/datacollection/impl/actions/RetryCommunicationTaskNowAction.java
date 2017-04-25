@@ -54,7 +54,7 @@ public class RetryCommunicationTaskNowAction extends AbstractIssueAction {
             if (!dcIssue.getStatus().isHistorical() && dcIssue.getConnectionTask().isPresent() && dcIssue.getCommunicationTask().isPresent()){
                 ConnectionTask<?, ?> task = dcIssue.getConnectionTask().get();
                 return task instanceof ScheduledConnectionTask
-                        && task.getConnectionType().getDirection() == ConnectionType.Direction.OUTBOUND;
+                        && task.getConnectionType().getDirection() == ConnectionType.ConnectionTypeDirection.OUTBOUND;
             }
         }
         return false;
