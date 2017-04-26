@@ -467,9 +467,9 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
                             slaveDeviceModel.id = 0;
                             slaveDeviceModel.deviceTypeName = slaveDeviceType.get('name');
                             slaveDeviceModel.shipmentDate = me.wizardInformation.dataLogger.get('shipmentDate');
-                            if (slaveDeviceType.get('deviceLifeCycleEffectiveTimeShiftPeriod')){
-                                var start =  slaveDeviceType.get('deviceLifeCycleEffectiveTimeShiftPeriod').start;
-                                var end = slaveDeviceType.get('deviceLifeCycleEffectiveTimeShiftPeriod').end;
+                            if (slaveDeviceType.raw.deviceLifeCycleEffectiveTimeShiftPeriod){
+                                var start =  slaveDeviceType.raw.deviceLifeCycleEffectiveTimeShiftPeriod.start;
+                                var end = slaveDeviceType.raw.deviceLifeCycleEffectiveTimeShiftPeriod.end;
                                 if (slaveDeviceModel.shipmentDate < start || slaveDeviceModel.shipmentDate > end){
                                     slaveDeviceModel.shipmentDate = start + 3600000;    // 1 hour to do the input...
                                 }
