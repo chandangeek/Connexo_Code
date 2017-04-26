@@ -25,7 +25,7 @@ Ext.define('Imt.purpose.view.Outputs', {
                 xtype: 'panel',
                 ui: 'large',
                 itemId: 'purpose-outputs',
-                title: me.router.getRoute().getTitle(),
+                // title: me.router.getRoute().getTitle(),
                 layout: {
                     type: 'vbox',
                     align: 'stretch'
@@ -86,22 +86,6 @@ Ext.define('Imt.purpose.view.Outputs', {
                                 }
                             }
                         ]
-                    }
-                ]
-            }
-        ];
-
-        me.side = [
-            {
-                xtype: 'panel',
-                ui: 'medium',
-                items: [
-                    {
-                        xtype: 'usage-point-management-side-menu',
-                        itemId: 'usage-point-management-side-menu',
-                        router: me.router,
-                        usagePoint: me.usagePoint,
-                        purposes: me.purposes
                     }
                 ]
             }
