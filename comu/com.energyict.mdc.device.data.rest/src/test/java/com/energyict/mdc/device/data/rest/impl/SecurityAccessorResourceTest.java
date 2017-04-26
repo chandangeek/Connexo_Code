@@ -13,6 +13,7 @@ import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.pki.SecurityValueWrapper;
 import com.elster.jupiter.pki.SymmetricKeyWrapper;
+import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.ValueFactory;
@@ -173,6 +174,8 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
     public void testAliasPropertyTypeAheadFilteringWithAliasAndTrustStore() throws Exception {
         SecurityAccessorInfo response = target("/devices/BVN001/securityaccessors/certificates/222").request().get(SecurityAccessorInfo.class);
         URI uri = new URI(response.currentProperties.get(0).propertyTypeInfo.propertyValuesResource.possibleValuesURI);
+        TrustStore trustStore = mock(TrustStore.class);
+        when(pkiService.findTrustStore(14L)).thenReturn(Optional.ofNullable(trustStore));
         Response response1 = target(uri.getPath())
                 .queryParam("filter", ExtjsFilter.filter().property("alias", "com*").property("trustStore", 14L).create())
                 .request()
@@ -180,13 +183,16 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
         ArgumentCaptor<PkiService.AliasSearchFilter> captor = ArgumentCaptor.forClass(PkiService.AliasSearchFilter.class);
         verify(pkiService, times(1)).getAliasesByFilter(captor.capture());
         assertThat(captor.getValue().alias).isEqualTo("com*");
-        assertThat(captor.getValue().trustStore).isEqualTo(14);
+        assertThat(captor.getValue().trustStore).isEqualTo(trustStore);
     }
 
     @Test
     public void testAliasPropertyTypeAheadFilteringEmptyAlias() throws Exception {
         SecurityAccessorInfo response = target("/devices/BVN001/securityaccessors/certificates/222").request().get(SecurityAccessorInfo.class);
         URI uri = new URI(response.currentProperties.get(0).propertyTypeInfo.propertyValuesResource.possibleValuesURI);
+        TrustStore trustStore = mock(TrustStore.class);
+        when(pkiService.findTrustStore(16L)).thenReturn(Optional.ofNullable(trustStore));
+
         Response response1 = target(uri.getPath())
                 .queryParam("filter", ExtjsFilter.filter().property("alias", "").property("trustStore", 16L).create())
                 .request()
@@ -194,7 +200,7 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
         ArgumentCaptor<PkiService.AliasSearchFilter> captor = ArgumentCaptor.forClass(PkiService.AliasSearchFilter.class);
         verify(pkiService, times(1)).getAliasesByFilter(captor.capture());
         assertThat(captor.getValue().alias).isEqualTo("*");
-        assertThat(captor.getValue().trustStore).isEqualTo(16);
+        assertThat(captor.getValue().trustStore).isEqualTo(trustStore);
     }
 
     /**
@@ -237,12 +243,32 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
         Response response = target("/devices/BVN001/securityaccessors/keys").request().get();
         JsonModel jsonModel = JsonModel.create((InputStream) response.getEntity());
         assertThat(jsonModel.<List>get("$.keys")).hasSize(1);
+        assertThat(jsonModel.<Boolean>get("$.keys[0].hasTempValue")).isFalse();
         assertThat(jsonModel.<List>get("$.keys[0].currentProperties")).hasSize(1);
         assertThat(jsonModel.<String>get("$.keys[0].currentProperties[0].key")).isEqualTo("key");
         assertThat(jsonModel.<String>get("$.keys[0].currentProperties[0].propertyValueInfo.value")).isEqualTo("b21nLEkgY2FuJ3QgYmVsaWV2ZSB5b3UgZGVjb2RlZCB0aGlz");
         assertThat(jsonModel.<List>get("$.keys[0].tempProperties")).hasSize(1);
         assertThat(jsonModel.<String>get("$.keys[0].tempProperties[0].key")).isEqualTo("key");
         assertThat(jsonModel.<JSONObject>get("$.keys[0].tempProperties[0].propertyValueInfo")).isEmpty();
+    }
+
+    @Test
+    public void testGetKeysWithTempValue() throws Exception {
+        SymmetricKeyWrapper tempSymmetricKeyWrapper = mockSymmetricKeyWrapper(symmetricKeyPropertySpecs, "key", "oldtempvalue");
+        symmetrickeyAccessor = mockSymmetricKeyAccessor(actualSymmetricKeyWrapper, tempSymmetricKeyWrapper);
+        when(device.getKeyAccessor(symmetricKeyAccessorType)).thenReturn(Optional.of(symmetrickeyAccessor));
+        when(deviceService.findAndLockKeyAccessorByIdAndVersion(device, symmetricKeyAccessorType, 11L)).thenReturn(Optional.of(symmetrickeyAccessor));
+
+        Response response = target("/devices/BVN001/securityaccessors/keys").request().get();
+        JsonModel jsonModel = JsonModel.create((InputStream) response.getEntity());
+        assertThat(jsonModel.<List>get("$.keys")).hasSize(1);
+        assertThat(jsonModel.<Boolean>get("$.keys[0].hasTempValue")).isTrue();
+        assertThat(jsonModel.<List>get("$.keys[0].currentProperties")).hasSize(1);
+        assertThat(jsonModel.<String>get("$.keys[0].currentProperties[0].key")).isEqualTo("key");
+        assertThat(jsonModel.<String>get("$.keys[0].currentProperties[0].propertyValueInfo.value")).isEqualTo("b21nLEkgY2FuJ3QgYmVsaWV2ZSB5b3UgZGVjb2RlZCB0aGlz");
+        assertThat(jsonModel.<List>get("$.keys[0].tempProperties")).hasSize(1);
+        assertThat(jsonModel.<String>get("$.keys[0].tempProperties[0].key")).isEqualTo("key");
+        assertThat(jsonModel.<String>get("$.keys[0].tempProperties[0].propertyValueInfo.value")).isEqualTo("oldtempvalue");
     }
 
     @Test
