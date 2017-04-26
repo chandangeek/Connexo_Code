@@ -403,4 +403,8 @@ public class ResourceHelper {
                 return new IdWithNameInfo(system.name(), system.name());
         }
     }
+
+    public List<MeterRole> getMeterRoles() {
+        return meteringService.getMeterRoles();
+    }
 }

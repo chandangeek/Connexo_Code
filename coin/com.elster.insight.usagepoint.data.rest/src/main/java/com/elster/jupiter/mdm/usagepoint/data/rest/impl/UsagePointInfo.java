@@ -64,6 +64,7 @@ public class UsagePointInfo {
     public MetrologyConfigurationInfo metrologyConfiguration;
     public MetrologyConfigurationInfo effectiveMetrologyConfiguration;
     public List<MeterActivationInfo> meterActivations;
+    public List<MeterRoleInfo> meterRoles;
 
     public UsagePointInfo() {
     }

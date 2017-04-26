@@ -261,6 +261,13 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
             }
         });
 
+        info.meterRoles = getMetersOnUsagePointInfo(usagePoint).stream()
+                .map(meterActivationInfo -> {
+                    MeterRoleInfo mrInfo = meterActivationInfo.meterRole;
+                    mrInfo.meter = meterActivationInfo.meter.name;
+                    return mrInfo;
+                }).collect(Collectors.toList());
+
         addDetailsInfo(info, usagePoint);
         addCustomPropertySetInfo(info, usagePoint);
         addLocationInfo(info, usagePoint);
@@ -477,8 +484,12 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         if (usagePoint.getCurrentEffectiveMetrologyConfiguration().isPresent()) {
             return getMetersOnUsagePointWithMetrologyConfigurationInfo(usagePoint, authorization);
         }
-        return usagePoint.getMeterActivations(clock.instant())
+        return usagePoint.getMeterActivations()
                 .stream()
+                .filter(meterActivation -> meterActivation.getInterval().toClosedRange().hasUpperBound() == false || meterActivation.getInterval()
+                        .toClosedRange()
+                        .upperEndpoint()
+                        .toEpochMilli() >= clock.instant().toEpochMilli())
                 .filter(meterActivation -> meterActivation.getMeterRole().isPresent() && meterActivation.getMeter().isPresent())
                 .map(meterActivation -> {
                     MeterActivationInfo meterActivationInfo = new MeterActivationInfo();
