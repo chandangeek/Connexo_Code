@@ -36,7 +36,7 @@ Ext.define('Uni.form.field.EditedDisplay', {
                         ? Uni.I18n.translate('general.editedOnXx', 'UNI', 'Edited')
                         : Uni.I18n.translate('general.editedOnX', 'UNI', 'Edited on {0}', formattedDate);
                     tooltipText += record.get('commentValue')
-                        ? Uni.I18n.translate('general.estimationCommentWithComment', 'UNI', 'Estimation comment: {0}', record.get('commentValue'))
+                        ? ' ' + Uni.I18n.translate('general.estimationCommentWithComment', 'UNI', 'Estimation comment: {0}', record.get('commentValue'))
                         : '';
                     break;
                 case 'ESTIMATED':
