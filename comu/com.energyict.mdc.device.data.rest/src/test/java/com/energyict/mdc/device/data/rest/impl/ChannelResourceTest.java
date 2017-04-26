@@ -542,6 +542,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         channelDataInfo.interval = new IntervalInfo();
         channelDataInfo.interval.start = INTERVAL_START;
         channelDataInfo.interval.end = INTERVAL_END;
+        channelDataInfo.commentId = 0L;
 
         List<ChannelDataInfo> infos = new ArrayList<>();
         infos.add(channelDataInfo);
@@ -673,9 +674,13 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         assertThat(jsonModel.<Number>get("$.validationBlocks[0].endTime")).isEqualTo(now.plus(90, ChronoUnit.MINUTES).toEpochMilli());
     }
 
-    private void mockChannelWithCalculatedReadingType(long channelId, String collectedReadingTypeMrid, String calculatedReadingTypeMrid, Optional<BigDecimal> multiplier) {
+    private Channel mockChannelWithCalculatedReadingType(long channelId, String collectedReadingTypeMrid, String calculatedReadingTypeMrid, Optional<BigDecimal> multiplier) {
         ReadingType collectedReadingType = ReadingTypeMockBuilder.from(collectedReadingTypeMrid).getMock();
         ReadingType calculatedReadingType = ReadingTypeMockBuilder.from(calculatedReadingTypeMrid).getMock();
+        return mockChannelWithCalculatedReadingType(channelId, collectedReadingType, calculatedReadingType, multiplier);
+    }
+
+    private Channel mockChannelWithCalculatedReadingType(long channelId, ReadingType collectedReadingType, ReadingType calculatedReadingType, Optional<BigDecimal> multiplier) {
 //        when(collectedReadingType.getCalculatedReadingType()).thenReturn(Optional.of(calculatedReadingType));
         ChannelSpec channelSpec = mock(ChannelSpec.class);
         when(channelSpec.getReadingType()).thenReturn(collectedReadingType);
@@ -684,7 +689,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(channelWithBulkAndCalculatedDelta.getId()).thenReturn(channelId);
         when(channelWithBulkAndCalculatedDelta.getChannelSpec()).thenReturn(channelSpec);
         when(channelWithBulkAndCalculatedDelta.getReadingType()).thenReturn(collectedReadingType);
-        when(channelWithBulkAndCalculatedDelta.getCalculatedReadingType(clock.instant())).thenReturn(Optional.of(calculatedReadingType));
+        when(channelWithBulkAndCalculatedDelta.getCalculatedReadingType(any(Instant.class))).thenReturn(Optional.of(calculatedReadingType));
         when(channelWithBulkAndCalculatedDelta.getMultiplier(any(Instant.class))).thenReturn(multiplier);
         when(channelWithBulkAndCalculatedDelta.getInterval()).thenReturn(TimeDuration.minutes(15));
         when(channelWithBulkAndCalculatedDelta.getLastReading()).thenReturn(Optional.empty());
@@ -697,6 +702,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(loadProfile.getChannels()).thenReturn(Arrays.asList(channelWithBulkAndCalculatedDelta));
         when(deviceValidation.getLastChecked(channelWithBulkAndCalculatedDelta)).thenReturn(Optional.of(NOW));
         when(device.getChannels()).thenReturn(Arrays.asList(channelWithBulkAndCalculatedDelta));
+        return channelWithBulkAndCalculatedDelta;
     }
 
     private Unit getUnit(ReadingType rt) {
@@ -1127,5 +1133,70 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         JsonModel json = JsonModel.create(target("/devices/1/channels/" + CHANNEL_ID1 + "/data/correctValues").request().put(Entity.json(valueCorrectionInfo), String.class));
 
         assertThat(json.<String>get("$.[0].value")).isEqualTo("20.000");
+    }
+
+    @Test
+    public void testCopyFromReferenceChannel(){
+        ReadingType collectedReadingType = ReadingTypeMockBuilder.from("0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0").getMock();
+        ReadingType calculatedReadingType = ReadingTypeMockBuilder.from("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0").getMock();
+        Channel channelWithCalculatedReadingType = mockChannelWithCalculatedReadingType(CHANNEL_ID1, collectedReadingType, calculatedReadingType, Optional.empty());
+        ReferenceChannelDataInfo info = new ReferenceChannelDataInfo();
+        info.referenceDevice = device.getName();
+        info.readingType = calculatedReadingType.getMRID();
+        List<IntervalInfo> intervalInfos = new ArrayList<>();
+        Range<Instant> sourceRange = Range.openClosed(Instant.ofEpochMilli(1492150500000L), Instant.ofEpochMilli(1492151400000L));
+        intervalInfos.add(IntervalInfo.from(sourceRange));
+        info.intervals = intervalInfos;
+        info.allowSuspectData = true;
+        info.completePeriod = true;
+        info.startDate = Instant.ofEpochMilli(1492147800000L);
+        when(meteringService.getReadingType(calculatedReadingType.getMRID())).thenReturn(Optional.of(calculatedReadingType));
+        Quantity quantity = Quantity.create(new BigDecimal(10), 1, com.elster.jupiter.util.units.Unit.WATT_HOUR.getSymbol());
+        when(readingRecord.getReadingType()).thenReturn(calculatedReadingType);
+        when(readingRecord.getQuantity(any(ReadingType.class))).thenReturn(quantity);
+        when(readingRecord.getTimeStamp()).thenReturn(sourceRange.upperEndpoint());
+        when(channelWithCalculatedReadingType.getChannelData(any(Range.class))).thenReturn(Collections.singletonList(loadProfileReading));
+        when(loadProfileReading.getRange()).thenReturn(Range.openClosed(Instant.ofEpochMilli(1492146900000L), Instant.ofEpochMilli(1492147800000L)));
+        when(loadProfileReading.getChannelValues()).thenReturn(Collections.singletonMap(channel, readingRecord));
+        when(deviceService.findDeviceByName(device.getName())).thenReturn(Optional.of(device));
+        JsonModel json = JsonModel.create(target("/devices/1/channels/" + CHANNEL_ID1 + "/data/copyfromreference").request().post(Entity.json(info), String.class));
+
+        assertThat(json.<String>get("$.[0].value")).isEqualTo("10");
+        assertThat(json.<Long>get("$.[0].interval.start")).isEqualTo(1492146900000L);
+        assertThat(json.<Long>get("$.[0].interval.end")).isEqualTo(1492147800000L);
+    }
+
+    @Test
+    public void testCopyFromReferenceChannelWithSuspects(){
+        ReadingType collectedReadingType = ReadingTypeMockBuilder.from("0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0").getMock();
+        ReadingType calculatedReadingType = ReadingTypeMockBuilder.from("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0").getMock();
+        Channel channelWithCalculatedReadingType = mockChannelWithCalculatedReadingType(CHANNEL_ID1, collectedReadingType, calculatedReadingType, Optional.empty());
+        ReferenceChannelDataInfo info = new ReferenceChannelDataInfo();
+        info.referenceDevice = device.getName();
+        info.readingType = calculatedReadingType.getMRID();
+        List<IntervalInfo> intervalInfos = new ArrayList<>();
+        Range<Instant> sourceRange = Range.openClosed(Instant.ofEpochMilli(1492150500000L), Instant.ofEpochMilli(1492151400000L));
+        intervalInfos.add(IntervalInfo.from(sourceRange));
+        info.intervals = intervalInfos;
+        info.allowSuspectData = false;
+        info.completePeriod = true;
+        info.startDate = Instant.ofEpochMilli(1492147800000L);
+        when(meteringService.getReadingType(calculatedReadingType.getMRID())).thenReturn(Optional.of(calculatedReadingType));
+        Quantity quantity = Quantity.create(new BigDecimal(10), 1, com.elster.jupiter.util.units.Unit.WATT_HOUR.getSymbol());
+        when(readingRecord.getReadingType()).thenReturn(calculatedReadingType);
+        when(readingRecord.getQuantity(any(ReadingType.class))).thenReturn(quantity);
+        ReadingQualityRecord readingQualityRecord = mockReadingQuality("2.5.258");
+        when(readingQualityRecord.isSuspect()).thenReturn(true);
+        when(readingRecord.getTimeStamp()).thenReturn(sourceRange.upperEndpoint());
+        when(channelWithCalculatedReadingType.getChannelData(any(Range.class))).thenReturn(Collections.singletonList(loadProfileReading));
+        when(loadProfileReading.getRange()).thenReturn(Range.openClosed(Instant.ofEpochMilli(1492146900000L), Instant.ofEpochMilli(1492147800000L)));
+        when(loadProfileReading.getChannelValues()).thenReturn(Collections.singletonMap(channel, readingRecord));
+        Map<Channel, List<ReadingQualityRecord>> readingQualityRecordMap = new HashMap<>();
+        readingQualityRecordMap.put(channelWithCalculatedReadingType, Collections.singletonList(readingQualityRecord));
+        doReturn(readingQualityRecordMap).when(loadProfileReading).getReadingQualities();
+        when(deviceService.findDeviceByName(device.getName())).thenReturn(Optional.of(device));
+        JsonModel json = JsonModel.create(target("/devices/1/channels/" + CHANNEL_ID1 + "/data/copyfromreference").request().post(Entity.json(info), String.class));
+
+        assertThat(json.<List>get("$")).hasSize(0);
     }
 }

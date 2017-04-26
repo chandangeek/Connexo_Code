@@ -759,7 +759,9 @@ public class ChannelResource {
                 .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_DEVICE, "referenceDevice", copyFromReferenceChannelDataInfo.referenceDevice));
         ReadingType readingType = meteringService.getReadingType(copyFromReferenceChannelDataInfo.readingType)
                 .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_READINGTYPE, "readingType", copyFromReferenceChannelDataInfo.readingType));
-        Channel referenceChannel = referenceDevice.getChannels().stream().filter(ch -> ch.getReadingType().equals(readingType)).findFirst()
+        Channel referenceChannel = referenceDevice.getChannels().stream()
+                .filter(ch -> ch.getCalculatedReadingType(copyFromReferenceChannelDataInfo.startDate).filter(refernceReadingType -> refernceReadingType.equals(readingType)).isPresent())
+                .findFirst()
                 .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.READINGTYPE_NOT_FOUND_ON_DEVICE, "readingType"));
         if (!matchReadingTypes(referenceChannel.getReadingType(), channel.getReadingType())) {
             throw new LocalizedFieldValidationException(MessageSeeds.READINGTYPES_DONT_MATCH, "readingType");
