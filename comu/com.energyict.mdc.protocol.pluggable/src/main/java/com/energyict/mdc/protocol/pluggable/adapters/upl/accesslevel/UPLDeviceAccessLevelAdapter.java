@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
  */
 public class UPLDeviceAccessLevelAdapter implements DeviceAccessLevel {
 
-    private final com.energyict.mdc.upl.security.DeviceAccessLevel uplDeviceAccessLevel;
+    protected final com.energyict.mdc.upl.security.DeviceAccessLevel uplDeviceAccessLevel;
 
     public UPLDeviceAccessLevelAdapter(com.energyict.mdc.upl.security.DeviceAccessLevel uplDeviceAccessLevel) {
         this.uplDeviceAccessLevel = uplDeviceAccessLevel;
