@@ -14,6 +14,7 @@ import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.validation.ValidationService;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -22,6 +23,7 @@ import org.osgi.service.component.annotations.Reference;
 public class EstimationHandlerFactory implements MessageHandlerFactory {
 
     private volatile IEstimationService estimationService;
+    private volatile ValidationService validationService;
     private volatile TaskService taskService;
     private volatile TransactionService transactionService;
     private volatile TimeService timeService;
@@ -33,7 +35,7 @@ public class EstimationHandlerFactory implements MessageHandlerFactory {
 
     @Override
     public MessageHandler newMessageHandler() {
-        return taskService.createMessageHandler(new EstimationTaskExecutor(estimationService, transactionService, meteringService, timeService, threadPrincipalService, getUser()));
+        return taskService.createMessageHandler(new EstimationTaskExecutor(estimationService, validationService, meteringService, timeService, transactionService, threadPrincipalService, getUser()));
     }
 
     @Reference
@@ -69,6 +71,11 @@ public class EstimationHandlerFactory implements MessageHandlerFactory {
     @Reference
     public void setMeteringService(MeteringService meteringService) {
         this.meteringService = meteringService;
+    }
+
+    @Reference
+    public void setValidationService(ValidationService validationService) {
+        this.validationService = validationService;
     }
 
     public User getUser() {

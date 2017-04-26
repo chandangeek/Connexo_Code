@@ -69,7 +69,6 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>appserver</artifactId>
         </dependency>
-
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>cbo</artifactId>
@@ -93,6 +92,10 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>upgrade</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>validation</artifactId>
         </dependency>
 
         <dependency>
