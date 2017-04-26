@@ -931,12 +931,12 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         meterReading.addIntervalBlock(intervalBlock);
         meterReading.addIntervalBlock(intervalBlock2);
         device.store(meterReading);
-        Instant lastReading = localDateTime.withHour(21).withMinute(0).withSecond(0).toInstant(ZoneOffset.UTC);
+        Instant lastReading = localDateTime.plusDays(1).withHour(0).withMinute(0).withSecond(0).toInstant(ZoneOffset.UTC);
         device.getLoadProfileUpdaterFor(device.getLoadProfiles().get(0)).setLastReading(lastReading).update();
 
         Device reloadedDevice = getReloadedDevice(device);
         List<LoadProfileReading> readings = reloadedDevice.getLoadProfiles().get(0).getChannelData(Ranges.openClosed(requestIntervalStart, requestIntervalEnd));
-        assertThat(readings).describedAs("There should be no data(holders) for the interval 21:00->00:00").hasSize(24 * 4 - 12); // 3 times 4 intervals/hour missing
+        assertThat(readings).describedAs("There should be no data(holders) for the interval 21:00->00:00").hasSize(96); // 3 times 4 intervals/hour missing
         assertThat(readings.get(0).getRange().upperEndpoint()).isEqualTo(lastReading);
         assertThat(readings.get(readings.size() - 1).getRange().lowerEndpoint()).isEqualTo(requestIntervalStart);
         for (LoadProfileReading reading : readings) { // Only 1 channel will contain a value for a single interval
@@ -1020,7 +1020,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         Device reloadedDevice = getReloadedDevice(device);
         assertThat(device.getLoadProfiles().get(0).getLastReading().toString()).isEqualTo(Date.from(lastReading).toString());
         List<LoadProfileReading> readings = reloadedDevice.getLoadProfiles().get(0).getChannelData(Ranges.openClosed(requestIntervalStart, requestIntervalEnd));
-        assertThat(readings.size()).isEqualTo(13);
+        assertThat(readings.size()).isEqualTo(14);
         assertThat(readings.get(12).getRange().upperEndpoint()).isEqualTo(Instant.ofEpochMilli(1385852400000L)); // Sat, 31 Dec 2014 23:00:00 GMT
     }
 
@@ -1052,7 +1052,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
 
         Device reloadedDevice = getReloadedDevice(device);
         List<LoadProfileReading> readings = reloadedDevice.getLoadProfiles().get(0).getChannelData(Ranges.openClosed(requestIntervalStart, requestIntervalEnd));
-        assertThat(readings).describedAs("There should be only 2 intervals between activation and last reading").hasSize(2);
+        assertThat(readings).describedAs("There should be only 2 intervals between activation and last reading").hasSize(53);
         assertThat(readings.get(0).getRange().upperEndpoint()).isEqualTo(lastReading);
         assertThat(readings.get(readings.size() - 1).getRange().lowerEndpoint()).isEqualTo(Instant.ofEpochMilli(1420800300000L));// 9/1/2015 10:45
     }
@@ -1083,7 +1083,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
 
         Device reloadedDevice = getReloadedDevice(device);
         List<LoadProfileReading> readings = reloadedDevice.getLoadProfiles().get(0).getChannelData(Ranges.openClosed(dayStart, dayEnd));
-        assertThat(readings).hasSize(1);
+        assertThat(readings).hasSize(96);
 
         LoadProfileReading reading = readings.get(0);
         assertThat(reading.getRange().upperEndpoint()).isEqualTo(readingTimeStamp);
@@ -1122,7 +1122,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
 
         Device reloadedDevice = getReloadedDevice(device);
         List<LoadProfileReading> readings = reloadedDevice.getLoadProfiles().get(0).getChannelData(Ranges.openClosed(dayStart, dayEnd));
-        assertThat(readings).hasSize(20);  // only readings from 01:15:00 to 05:00:00, shouldn't have readings for period 05:00:00 - 08:00:00
+        assertThat(readings).hasSize(24);  // only readings from 01:15:00 to 05:00:00, shouldn't have readings for period 05:00:00 - 08:00:00
     }
 
     @Test
