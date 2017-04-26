@@ -36,7 +36,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataBulkActionMenu', {
             },
             {
                 itemId: 'edit-estimation-comment',
-                // hidden: true,
+                hidden: true,
                 text: Uni.I18n.translate('general.editEstimationComment', 'MDC', 'Edit estimation comment'),
                 action: 'editEstimationComment',
                 section: this.SECTION_ACTION

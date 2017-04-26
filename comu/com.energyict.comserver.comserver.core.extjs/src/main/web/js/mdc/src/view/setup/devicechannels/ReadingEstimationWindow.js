@@ -101,6 +101,7 @@ Ext.define('Mdc.view.setup.devicechannels.ReadingEstimationWindow', {
                 },
                 {
                     xtype: 'estimation-comment',
+                    keepOriginal: true,
                     hidden: true
                 },
                 {
