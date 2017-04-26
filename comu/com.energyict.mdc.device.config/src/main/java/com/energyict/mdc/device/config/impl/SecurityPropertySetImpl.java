@@ -213,7 +213,7 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
     public AuthenticationDeviceAccessLevel getAuthenticationDeviceAccessLevel() {
         if (this.authenticationLevel == null) {
             if (this.authenticationLevelId == NOT_USED_DEVICE_ACCESS_LEVEL_ID) {
-                this.authenticationLevel = new NoAuthentication(getThesaurus());
+                this.authenticationLevel = new NoAuthentication();
             } else {
                 this.authenticationLevel = this.findAuthenticationLevel(this.authenticationLevelId);
             }
@@ -236,14 +236,14 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
                 return level;
             }
         }
-        return new NoAuthentication(getThesaurus());
+        return new NoAuthentication();
     }
 
     @Override
     public EncryptionDeviceAccessLevel getEncryptionDeviceAccessLevel() {
         if (this.encryptionLevel == null) {
             if (this.encryptionLevelId == NOT_USED_DEVICE_ACCESS_LEVEL_ID) {
-                this.encryptionLevel = new NoEncryption(getThesaurus());
+                this.encryptionLevel = new NoEncryption();
             } else {
                 this.encryptionLevel = this.findEncryptionLevel(this.encryptionLevelId);
             }
@@ -266,7 +266,7 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
                 return level;
             }
         }
-        return new NoEncryption(getThesaurus());
+        return new NoEncryption();
     }
 
     @Override
@@ -278,7 +278,7 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
     public SecuritySuite getSecuritySuite() {
         if (this.securitySuite == null) {
             if (this.securitySuiteId == NOT_USED_DEVICE_ACCESS_LEVEL_ID) {
-                this.securitySuite = new NoSecuritySuite(getThesaurus());
+                this.securitySuite = new NoSecuritySuite();
             } else {
                 this.securitySuite = this.findSecuritySuite(this.securitySuiteId);
             }
@@ -303,14 +303,14 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
                 }
             }
         }
-        return new NoSecuritySuite(getThesaurus());
+        return new NoSecuritySuite();
     }
 
     @Override
     public RequestSecurityLevel getRequestSecurityLevel() {
         if (this.requestSecurityLevel == null) {
             if (this.requestSecurityLevelId == NOT_USED_DEVICE_ACCESS_LEVEL_ID) {
-                this.requestSecurityLevel = new NoRequestSecurity(getThesaurus());
+                this.requestSecurityLevel = new NoRequestSecurity();
             } else {
                 this.requestSecurityLevel = this.findRequestSecurityLevel(this.requestSecurityLevelId);
             }
@@ -335,14 +335,14 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
                 }
             }
         }
-        return new NoRequestSecurity(getThesaurus());
+        return new NoRequestSecurity();
     }
 
     @Override
     public ResponseSecurityLevel getResponseSecurityLevel() {
         if (this.responseSecurityLevel == null) {
             if (this.responseSecurityLevelId == NOT_USED_DEVICE_ACCESS_LEVEL_ID) {
-                this.responseSecurityLevel = new NoResponseSecurity(getThesaurus());
+                this.responseSecurityLevel = new NoResponseSecurity();
             } else {
                 this.responseSecurityLevel = this.findResponseSecurityLevel(this.responseSecurityLevelId);
             }
@@ -367,7 +367,7 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
                 }
             }
         }
-        return new NoResponseSecurity(getThesaurus());
+        return new NoResponseSecurity();
     }
 
     private DeviceProtocol getDeviceProtocol() {
@@ -474,10 +474,7 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
 
     private static class NoAuthentication implements AuthenticationDeviceAccessLevel {
 
-        private final Thesaurus thesaurus;
-
-        private NoAuthentication(Thesaurus thesaurus) {
-            this.thesaurus = thesaurus;
+        private NoAuthentication() {
         }
 
         @Override
@@ -487,7 +484,7 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
 
         @Override
         public String getTranslation() {
-            return thesaurus.getFormat(TranslationKeys.NO_AUTHENTICATION).format();
+            return "-";
         }
 
         @Override
@@ -502,10 +499,8 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
     }
 
     private static class NoEncryption implements EncryptionDeviceAccessLevel {
-        private final Thesaurus thesaurus;
 
-        private NoEncryption(Thesaurus thesaurus) {
-            this.thesaurus = thesaurus;
+        private NoEncryption() {
         }
 
         @Override
@@ -515,7 +510,7 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
 
         @Override
         public String getTranslation() {
-            return thesaurus.getFormat(TranslationKeys.NO_ENCRYPTION).format();
+            return "-";
         }
 
         @Override
@@ -531,10 +526,7 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
 
     private static class NoSecuritySuite implements SecuritySuite {
 
-        private final Thesaurus thesaurus;
-
-        public NoSecuritySuite(Thesaurus thesaurus) {
-            this.thesaurus = thesaurus;
+        public NoSecuritySuite() {
         }
 
         @Override
@@ -544,7 +536,7 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
 
         @Override
         public String getTranslation() {
-            return thesaurus.getFormat(TranslationKeys.NO_SECURITY_SUITE).format();
+            return "-";
         }
 
         @Override
@@ -580,10 +572,7 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
 
     private static class NoRequestSecurity implements RequestSecurityLevel {
 
-        private final Thesaurus thesaurus;
-
-        public NoRequestSecurity(Thesaurus thesaurus) {
-            this.thesaurus = thesaurus;
+        public NoRequestSecurity() {
         }
 
         @Override
@@ -593,7 +582,7 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
 
         @Override
         public String getTranslation() {
-            return thesaurus.getFormat(TranslationKeys.NO_REQUEST_SECURITY).format();
+            return "-";
         }
 
         @Override
@@ -609,10 +598,7 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
 
     private static class NoResponseSecurity implements ResponseSecurityLevel {
 
-        private final Thesaurus thesaurus;
-
-        public NoResponseSecurity(Thesaurus thesaurus) {
-            this.thesaurus = thesaurus;
+        public NoResponseSecurity() {
         }
 
         @Override
@@ -622,7 +608,7 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
 
         @Override
         public String getTranslation() {
-            return thesaurus.getFormat(TranslationKeys.NO_RESPONSE_SECURITY).format();
+            return "-";
         }
 
         @Override
@@ -681,7 +667,7 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
             } else {
                 levels = value.getDeviceProtocol().getEncryptionAccessLevels();
             }
-            return levels.isEmpty() ? Collections.singletonList(new NoEncryption(thesaurus)) : levels;
+            return levels.isEmpty() ? Collections.singletonList(new NoEncryption()) : levels;
         }
 
         private boolean authLevelSupported(SecurityPropertySetImpl value) {
@@ -700,7 +686,7 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
             } else {
                 levels = value.getDeviceProtocol().getAuthenticationAccessLevels();
             }
-            return levels.isEmpty() ? Collections.singletonList(new NoAuthentication(thesaurus)) : levels;
+            return levels.isEmpty() ? Collections.singletonList(new NoAuthentication()) : levels;
         }
 
         private boolean securitySuiteSupported(SecurityPropertySetImpl value) {
@@ -717,7 +703,7 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
             if (value.getDeviceProtocol() instanceof AdvancedDeviceProtocolSecurityCapabilities) {
                 securitySuites = ((AdvancedDeviceProtocolSecurityCapabilities) value.getDeviceProtocol()).getSecuritySuites();
             }
-            return (securitySuites == null || securitySuites.isEmpty()) ? Collections.singletonList(new NoSecuritySuite(thesaurus)) : securitySuites;
+            return (securitySuites == null || securitySuites.isEmpty()) ? Collections.singletonList(new NoSecuritySuite()) : securitySuites;
         }
 
         private boolean requestSecurityLevelSupported(SecurityPropertySetImpl value) {
@@ -736,7 +722,7 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
             } else {
                 levels = Collections.emptyList();
             }
-            return levels.isEmpty() ? Collections.singletonList(new NoRequestSecurity(thesaurus)) : levels;
+            return levels.isEmpty() ? Collections.singletonList(new NoRequestSecurity()) : levels;
         }
 
         private boolean responseSecurityLevelSupported(SecurityPropertySetImpl value) {
@@ -755,7 +741,7 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
             } else {
                 levels = Collections.emptyList();
             }
-            return levels.isEmpty() ? Collections.singletonList(new NoResponseSecurity(thesaurus)) : levels;
+            return levels.isEmpty() ? Collections.singletonList(new NoResponseSecurity()) : levels;
         }
     }
 
