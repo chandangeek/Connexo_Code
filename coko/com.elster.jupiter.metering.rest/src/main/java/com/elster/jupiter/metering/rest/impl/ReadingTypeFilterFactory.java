@@ -42,7 +42,11 @@ public class ReadingTypeFilterFactory {
         }
 
         if (jsonQueryFilter.hasProperty("fullAliasName")) {
-            filter.addFullAliasNameCondition(jsonQueryFilter.getString("fullAliasName"));
+            String fullAliasName = jsonQueryFilter.getString("fullAliasName");
+            if(!fullAliasName.contains("*") && !fullAliasName.contains("?")) {
+                fullAliasName = "*" + fullAliasName + "*";
+            }
+            filter.addFullAliasNameCondition(fullAliasName);
         }
 
         if (jsonQueryFilter.hasProperty("equidistant")) {
