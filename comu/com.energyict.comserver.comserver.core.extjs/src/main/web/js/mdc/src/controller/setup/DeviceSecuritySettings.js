@@ -21,12 +21,12 @@ Ext.define('Mdc.controller.setup.DeviceSecuritySettings', {
     refs: [
         {ref: 'deviceSecuritySettingGrid', selector: '#devicesecuritysettinggrid'},
         {ref: 'deviceSecuritySettingPreview', selector: '#deviceSecuritySettingPreview'},
-        {ref: 'deviceSecuritySettingPreviewTitle', selector: '#deviceSecuritySettingDetailsTitle'},
+        {ref: 'deviceSecuritySettingEditDetailsTitle', selector: '#deviceSecuritySettingEditDetailsTitle'},
         {ref: 'deviceSecuritySettingPreviewForm', selector: '#deviceSecuritySettingPreviewForm'},
         {ref: 'deviceSecuritySettingEditView', selector: '#deviceSecuritySettingEdit'},
         {ref: 'deviceSecuritySettingEditForm', selector: '#deviceSecuritySettingEditForm'},
         {ref: 'deviceSecuritySettingComboBox', selector: '#deviceSecuritySettingComboBox'},
-        {ref: 'deviceSecuritySettingDetailTitle', selector: '#deviceSecuritySettingDetailsTitle'},
+        {ref: 'deviceSecuritySettingPreviewDetailsTitle', selector: '#deviceSecuritySettingPreviewDetailsTitle'},
         {ref: 'restoreAllButton', selector: '#restoreAllButton'},
         {ref: 'addEditButton', selector: '#addEditButton'},
         {ref: 'showValueDeviceSecuritySetting', selector: '#showValueDeviceSecuritySetting'},
@@ -106,8 +106,7 @@ Ext.define('Mdc.controller.setup.DeviceSecuritySettings', {
             me.getDeviceSecuritySettingPreviewForm().loadRecord(deviceSecuritySetting[0]);
             me.getDeviceSecuritySettingPreview().down('property-form').readOnly = true;
             me.getDeviceSecuritySettingPreview().down('property-form').loadRecord(deviceSecuritySetting[0]);
-            me.getDeviceSecuritySettingPreviewTitle().setVisible(deviceSecuritySetting[0].propertiesStore.data.items.length > 0);
-            me.getDeviceSecuritySettingPreview().setTitle(Ext.String.htmlEncode(deviceSecuritySettingName));
+            me.getDeviceSecuritySettingPreviewDetailsTitle().setVisible(deviceSecuritySetting[0].propertiesStore.data.items.length > 0);
         } else {
             me.getDeviceSecuritySettingPreview().getLayout().setActiveItem(0);
         }
@@ -218,14 +217,14 @@ Ext.define('Mdc.controller.setup.DeviceSecuritySettings', {
                             widget.down('#device-security-setting-show-value').setVisible(true);
                             form.show();
                             form.loadRecord(deviceSecuritySetting);
-                            me.getDeviceSecuritySettingDetailTitle().setVisible(true);
+                            me.getDeviceSecuritySettingEditDetailsTitle().setVisible(true);
                         } else {
                             form.hide();
                             var showValuesForm = widget.down('#deviceSecuritySettingEditShowValuesForm');
                             showValuesForm.hide();
                             var buttonForm = widget.down('#deviceSecuritySettingEditButtonsForm');
                             buttonForm.hide();
-                            me.getDeviceSecuritySettingDetailTitle().setVisible(false);
+                            me.getDeviceSecuritySettingEditDetailsTitle().setVisible(false);
                         }
 
                         widget.setLoading(false);

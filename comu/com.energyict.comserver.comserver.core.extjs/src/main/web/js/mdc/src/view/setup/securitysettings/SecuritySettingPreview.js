@@ -6,7 +6,12 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingPreview', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.securitySettingPreview',
     frame: true,
-
+    requires: [
+        'Mdc.model.SecuritySetting',
+        'Uni.property.form.Property',
+        'Uni.util.FormEmptyMessage',
+        'Mdc.view.setup.securitysettings.SecuritySettingsActionMenu'
+    ],
 
     tools: [
         {
@@ -94,20 +99,60 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingPreview', {
         me.items = [
             {
                 xtype: 'form',
-                name: 'securitySettingDetails',
-                layout: 'column',
-                defaults: {
-                    xtype: 'container',
-                    layout: 'form'
+                border: false,
+                itemId: 'mdc-security-settings-preview-form',
+                layout: {
+                    type: 'vbox',
+                    align: 'stretch'
                 },
                 items: [
                     {
-                        columnWidth: 0.4,
-                        items: leftItems
+                        xtype: 'container',
+                        layout: {
+                            type: 'column'
+                        },
+                        items: [
+                            {
+                                columnWidth: 0.49,
+                                items: leftItems
+                            },
+                            {
+                                columnWidth: 0.49,
+                                items: rightItems
+                            }
+                        ]
                     },
                     {
-                        columnWidth: 0.6,
-                        items: rightItems
+                        xtype: 'form',
+                        border: false,
+                        itemId: 'mdc-security-settings-preview-details-title',
+                        hidden: true,
+                        defaults: {
+                            labelWidth: 250,
+                            labelAlign: 'left'
+                        },
+                        items: [
+                            {
+                                xtype: 'displayfield',
+                                fieldLabel: Uni.I18n.translate('general.attributes', 'MDC', 'Attributes'),
+                                renderer: function () {
+                                    return ''; // No dash!
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        xtype: 'property-form',
+                        isEdit: false,
+                        layout: 'column',
+
+                        defaults: {
+                            xtype: 'container',
+                            layout: 'form',
+                            resetButtonHidden: true,
+                            labelWidth: 200,
+                            columnWidth: 0.49
+                        }
                     }
                 ]
             }

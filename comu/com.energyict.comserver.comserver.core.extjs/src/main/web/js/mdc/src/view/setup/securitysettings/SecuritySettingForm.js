@@ -7,7 +7,8 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingForm', {
     requires: [
         'Ext.form.field.TextArea',
         'Ext.button.Button',
-        'Uni.util.FormErrorMessage'
+        'Uni.util.FormErrorMessage',
+        'Uni.property.form.Property'
     ],
     alias: 'widget.securitySettingForm',
     config: {
@@ -145,6 +146,26 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingForm', {
                         this.getForm().loadRecord(record);
                     }
                 },
+                {
+                    xtype: 'form',
+                    border: false,
+                    itemId: 'mdc-security-settings-form-details-title',
+                    hidden: true,
+                    items: [
+                        {
+                            xtype: 'displayfield',
+                            fieldLabel: Uni.I18n.translate('general.attributes', 'MDC', 'Attributes'),
+                            renderer: function () {
+                                return ''; // No dash!
+                            }
+                        }
+                    ]
+                },
+                {
+                    xtype: 'property-form',
+                    width: '100%'
+                },
+
                 {
                     xtype: 'form',
                     border: false,

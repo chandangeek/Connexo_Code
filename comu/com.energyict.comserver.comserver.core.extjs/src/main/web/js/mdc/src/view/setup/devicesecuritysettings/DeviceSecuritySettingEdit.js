@@ -174,7 +174,7 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingEdit', {
                     {
                         xtype: 'form',
                         border: false,
-                        itemId: 'deviceSecuritySettingDetailsTitle',
+                        itemId: 'deviceSecuritySettingEditDetailsTitle',
                         hidden: true,
                         items: [
                             {

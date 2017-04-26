@@ -9,7 +9,8 @@ Ext.define('Mdc.model.SecuritySetting', {
         'Mdc.model.AuthenticationLevel',
         'Mdc.model.EncryptionLevel',
         'Mdc.model.RequestSecurityLevel',
-        'Mdc.model.ResponseSecurityLevel'
+        'Mdc.model.ResponseSecurityLevel',
+        'Uni.property.model.Property'
     ],
     fields: [
         {name: 'id',type:'number',useNull:true},
@@ -31,7 +32,12 @@ Ext.define('Mdc.model.SecuritySetting', {
         {name: 'authenticationLevel', type: 'hasOne', model: 'Mdc.model.AuthenticationLevel'},
         {name: 'encryptionLevel', type: 'hasOne', model: 'Mdc.model.EncryptionLevel'},
         {name: 'requestSecurityLevel', type: 'hasOne', model: 'Mdc.model.RequestSecurityLevel'},
-        {name: 'responseSecurityLevel', type: 'hasOne', model: 'Mdc.model.ResponseSecurityLevel'}
+        {name: 'responseSecurityLevel', type: 'hasOne', model: 'Mdc.model.ResponseSecurityLevel'},
+        {name: 'properties', type: 'hasMany', model: 'Uni.property.model.Property', associationKey: 'properties', foreignKey: 'properties',
+            getTypeDiscriminator: function (node) {
+                return 'Uni.property.model.Property';
+            }
+        }
     ],
     proxy: {
         type: 'rest',
