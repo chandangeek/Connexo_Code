@@ -6,7 +6,9 @@ package com.elster.jupiter.demo.impl.templates;
 
 import com.elster.jupiter.demo.impl.builders.UserBuilder;
 import com.elster.jupiter.users.User;
+import com.elster.jupiter.util.streams.FancyJoiner;
 
+import java.util.Arrays;
 import java.util.Locale;
 
 public enum UserTpl implements Template<User, UserBuilder> {
@@ -53,7 +55,8 @@ public enum UserTpl implements Template<User, UserBuilder> {
 
     @Override
     public UserBuilder get(UserBuilder builder) {
-        return builder.withName(this.name).withLanguage(this.locale).withRoles(this.roles);
+        String description = Arrays.stream(this.roles).collect(FancyJoiner.joining(", ", " and "));
+        return builder.withName(this.name).withDescription(description).withLanguage(this.locale).withRoles(this.roles);
     }
 
     public static final class UserRoles {

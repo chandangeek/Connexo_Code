@@ -264,11 +264,6 @@ public class CreateCollectRemoteDataSetupCommand extends CommandWithTransaction 
         if (deviceTypeTpl == DeviceTypeTpl.Elster_A1800 || deviceTypeTpl == DeviceTypeTpl.Elster_AS1440) {
             deviceCount = (int) Math.floor(deviceCount / 2);
         }
-        if (deviceTypeTpl == DeviceTypeTpl.Elster_A1800) {
-            int validationStrictDeviceCount = this.devicesPerType == null ? VALIDATION_STRICT_DEVICE_COUNT : this.devicesPerType / 3; // 3 device conf on this type
-            createDevices(Builders.from(DeviceConfigurationTpl.PROSUMERS_VALIDATION_STRICT).withDeviceType(deviceType).get(), deviceTypeTpl, validationStrictDeviceCount);
-            deviceCount = Math.max(0, deviceCount - validationStrictDeviceCount);
-        }
         if (deviceTypeTpl == DeviceTypeTpl.Elster_A1800 || deviceTypeTpl == DeviceTypeTpl.Elster_AS1440 || deviceTypeTpl == DeviceTypeTpl.Iskra_38 || deviceTypeTpl == DeviceTypeTpl.Landis_Gyr_ZMD) {
             createDevices(Builders.from(DeviceConfigurationTpl.PROSUMERS).withDeviceType(deviceType).get(), deviceTypeTpl, deviceCount);
         }
@@ -304,9 +299,6 @@ public class CreateCollectRemoteDataSetupCommand extends CommandWithTransaction 
 
     private void createDeviceStructureForDeviceType(DeviceTypeTpl deviceTypeTpl) {
         DeviceType deviceType = Builders.from(deviceTypeTpl).withPostBuilder(this.attachDeviceTypeCPSPostBuilderProvider.get()).get();
-        if (deviceTypeTpl == DeviceTypeTpl.Elster_A1800) {
-            createDeviceConfigurationWithDevices(deviceType, DeviceConfigurationTpl.PROSUMERS_VALIDATION_STRICT);
-        }
         createDeviceConfigurationWithDevices(deviceType, DeviceConfigurationTpl.PROSUMERS);
         createDeviceConfigurationWithDevices(deviceType, DeviceConfigurationTpl.CONSUMERS);
     }
@@ -370,7 +362,8 @@ public class CreateCollectRemoteDataSetupCommand extends CommandWithTransaction 
     }
 
     private void createDataValidationKpi() {
-        Builders.from(DataQualityKpiTpl.ALL_ELECTRICITY_DEVICES).get();
+        Builders.from(DataQualityKpiTpl.NORTH_REGION).get();
+        Builders.from(DataQualityKpiTpl.SOUTH_REGION).get();
     }
 
     private void addLocationAndUsagePoints() {

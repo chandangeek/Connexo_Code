@@ -46,7 +46,7 @@ public class ValidationRuleSetBuilder extends NamedBuilder<ValidationRuleSet, Va
     @Override
     public ValidationRuleSet create() {
         ValidationRuleSet ruleSet = validationService.createValidationRuleSet(getName(), QualityCodeSystem.MDC, this.description);
-        ValidationRuleSetVersion ruleSetVersion = ruleSet.addRuleSetVersion("Demo Default Version", Instant.EPOCH);
+        ValidationRuleSetVersion ruleSetVersion = ruleSet.addRuleSetVersion("1", Instant.EPOCH);
         ruleSet.save();
         applyPostBuilders(ruleSet);
         this.postBuilders.forEach(postBuilder -> postBuilder.accept(ruleSetVersion));

@@ -12,17 +12,18 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 
 public enum DeviceGroupTpl implements Template<EndDeviceGroup, DeviceGroupBuilder> {
-    NORTH_REGION("North region", Constants.Device.STANDARD_PREFIX + "SPE*",
+    NORTH_REGION("North region", Constants.Device.STANDARD_PREFIX + "*",
             DeviceTypeTpl.Elster_AS1440, DeviceTypeTpl.Landis_Gyr_ZMD, DeviceTypeTpl.Actaris_SL7000
     ),
-    SOUTH_REGION("South region", Constants.Device.STANDARD_PREFIX + "SPE*",
+    SOUTH_REGION("South region", Constants.Device.STANDARD_PREFIX + "*",
             DeviceTypeTpl.Elster_A1800, DeviceTypeTpl.Siemens_7ED, DeviceTypeTpl.Iskra_38
     ),
-    ALL_ELECTRICITY_DEVICES("Electricity devices", "SPE*",
-            DeviceTypeTpl.BK_GF, DeviceTypeTpl.Landis_Gyr_ZMD, DeviceTypeTpl.Actaris_SL7000,
-            DeviceTypeTpl.Elster_A1800, DeviceTypeTpl.Siemens_7ED, DeviceTypeTpl.Iskra_38
+    ALL_ELECTRICITY_DEVICES("Electricity devices", Constants.Device.STANDARD_PREFIX + "*",
+            DeviceTypeTpl.Landis_Gyr_ZMD, DeviceTypeTpl.Actaris_SL7000,
+            DeviceTypeTpl.Elster_A1800, DeviceTypeTpl.Siemens_7ED, DeviceTypeTpl.Iskra_38,
+            DeviceTypeTpl.Elster_AS1440
     ),
-    A1800_DEVICES("Elster A1800 devices", "SPE*", DeviceTypeTpl.Elster_A1800),
+    A1800_DEVICES("Elster A1800 devices", Constants.Device.STANDARD_PREFIX + "*", DeviceTypeTpl.Elster_A1800),
     GAS_DEVICES("Gas devices", null,
             DeviceTypeTpl.BK_GF),
     WATER_DEVICES("Water devices", null,

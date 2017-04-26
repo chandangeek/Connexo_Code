@@ -13,7 +13,8 @@ import java.time.temporal.TemporalAmount;
 
 public enum DataQualityKpiTpl implements Template<DeviceDataQualityKpi, DeviceDataQualityKpiBuilder> {
 
-    ALL_ELECTRICITY_DEVICES(DeviceGroupTpl.ALL_ELECTRICITY_DEVICES, Duration.ofHours(1L));
+    SOUTH_REGION(DeviceGroupTpl.SOUTH_REGION, Duration.ofHours(1L)),
+    NORTH_REGION(DeviceGroupTpl.NORTH_REGION, Duration.ofHours(1L));
 
     private final DeviceGroupTpl deviceGroupTpl;
     private final TemporalAmount frequency;

@@ -38,7 +38,8 @@ public class CreateValidationSetupCommand extends CommandWithTransaction {
     private final ValidationService validationService;
 
     private ValidationRuleSet validationRuleSet;
-    private ValidationRuleSet strictValidationRuleSet;
+    private ValidationRuleSet gasValidationRuleSet;
+    private ValidationRuleSet waterValidationRuleSet;
 
     @Inject
     public CreateValidationSetupCommand(
@@ -67,54 +68,65 @@ public class CreateValidationSetupCommand extends CommandWithTransaction {
 
     private void createValidationRuleSet() {
         this.validationRuleSet = Builders.from(ValidationRuleSetTpl.RESIDENTIAL_CUSTOMERS)
-                .withVersionPostBuilder(new ValidationRuleRegisterIncreasePostBuilder())
-                .withVersionPostBuilder(new ValidationRuleDetectMissingValuesPostBuilder())
-                .withVersionPostBuilder(new ValidationRuleDetectThresholdViolationPostBuilder(1200))
+                .withVersionPostBuilder(new ValidationRuleRegisterIncreasePostBuilder()
+                        .withReadingType("0.0.0.1.19.1.12.0.0.0.0.0.0.0.0.0.72.0")
+                        .withReadingType("0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0")
+                        .withReadingType("0.0.0.9.1.1.12.0.0.0.0.1.0.0.0.0.72.0")
+                        .withReadingType("0.0.0.9.19.1.12.0.0.0.0.1.0.0.0.0.72.0")
+                        .withReadingType("0.0.0.9.1.1.12.0.0.0.0.2.0.0.0.0.72.0")
+                        .withReadingType("0.0.0.9.19.1.12.0.0.0.0.2.0.0.0.0.72.0"))
+                .withVersionPostBuilder(new ValidationRuleDetectThresholdViolationPostBuilder(1200)
+                        .withReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0")
+                        .withReadingType("0.0.2.4.19.1.12.0.0.0.0.0.0.0.0.0.72.0"))
                 .get();
-        this.strictValidationRuleSet = Builders.from(ValidationRuleSetTpl.RESIDENTIAL_CUSTOMERS_STRICT)
-                .withVersionPostBuilder(new ValidationRuleDetectThresholdViolationPostBuilder(900))
+
+        this.gasValidationRuleSet = Builders.from(ValidationRuleSetTpl.RESIDENTIAL_GAS)
+                .withVersionPostBuilder(new ValidationRuleRegisterIncreasePostBuilder()
+                        .withReadingType("0.0.0.1.1.7.58.0.0.0.0.0.0.0.0.0.42.0"))
+                .withVersionPostBuilder(new ValidationRuleDetectThresholdViolationPostBuilder(3600)
+                        .withReadingType("0.0.7.4.1.7.58.0.0.0.0.0.0.0.0.0.42.0"))
+                .get();
+
+        this.waterValidationRuleSet = Builders.from(ValidationRuleSetTpl.RESIDENTIAL_WATER)
+                .withVersionPostBuilder(new ValidationRuleRegisterIncreasePostBuilder()
+                        .withReadingType("0.0.0.1.1.9.58.0.0.0.0.0.0.0.0.0.42.0"))
+                .withVersionPostBuilder(new ValidationRuleDetectThresholdViolationPostBuilder(3600)
+                        .withReadingType("0.0.7.4.1.9.58.0.0.0.0.0.0.0.0.0.42.0"))
                 .get();
     }
 
     private void addValidationToDeviceConfigurations() {
         this.deviceConfigurationService.getLinkableDeviceConfigurations(this.validationRuleSet)
                 .stream()
-                .filter(configuration -> !DeviceConfigurationTpl.PROSUMERS_VALIDATION_STRICT.getName().equals(configuration.getName()))
                 .forEach(configuration -> {
                     configuration.addValidationRuleSet(this.validationRuleSet);
                     configuration.save();
                 });
-        Builders.from(DeviceTypeTpl.Elster_A1800).get().getConfigurations()
+
+        this.deviceConfigurationService.getLinkableDeviceConfigurations(this.waterValidationRuleSet)
                 .stream()
-                .filter(configuration -> DeviceConfigurationTpl.PROSUMERS_VALIDATION_STRICT.getName().equals(configuration.getName()))
-                .filter(configuration -> configuration.getValidationRuleSets().stream().map(ValidationRuleSet::getId).noneMatch(id -> id == this.strictValidationRuleSet.getId()))
                 .forEach(configuration -> {
-                    configuration.addValidationRuleSet(this.strictValidationRuleSet);
+                    configuration.addValidationRuleSet(this.waterValidationRuleSet);
+                    configuration.save();
+                });
+
+        this.deviceConfigurationService.getLinkableDeviceConfigurations(this.gasValidationRuleSet)
+                .stream()
+                .forEach(configuration -> {
+                    configuration.addValidationRuleSet(this.gasValidationRuleSet);
                     configuration.save();
                 });
     }
 
 
     private void addValidationToDevices() {
-        DeviceType elsterA1800DeviceType = Builders.from(DeviceTypeTpl.Elster_A1800).get();
         Subquery devicesWithValidateOnStore = this.deviceService.deviceQuery()
-                .asSubquery(where("name").like(Constants.Device.STANDARD_PREFIX + "*").and(where("deviceType").isNotEqual(elsterA1800DeviceType)), "id");
+                .asSubquery(where("name").like(Constants.Device.STANDARD_PREFIX + "*")
+                        .or(where("name").like(Constants.Device.GAS_PREFIX + "*"))
+                        .or(where("name").like(Constants.Device.WATER_PREFIX + "*")), "id");
         List<Meter> meters = this.meteringService.getMeterQuery()
                 .select(ListOperator.IN.contains(devicesWithValidateOnStore, "amrId"));
         System.out.println("==> Validate on store will be activated for " + meters.size() + " devices");
-        meters.forEach(meter -> {
-            this.validationService.activateValidation(meter);
-            this.validationService.enableValidationOnStorage(meter);
-        });
-
-        devicesWithValidateOnStore = this.deviceService.deviceQuery()
-                .asSubquery(where("name").like(Constants.Device.STANDARD_PREFIX + "*").and(where("deviceType").isEqualTo(elsterA1800DeviceType)), "id");
-        meters = this.meteringService.getMeterQuery()
-                .select(ListOperator.IN.contains(devicesWithValidateOnStore, "amrId"));
-        System.out.println("==> Validation (without validate on store) will be activated for " + meters.size() + " devices");
-        meters.forEach(meter -> {
-            this.validationService.activateValidation(meter);
-            this.validationService.disableValidationOnStorage(meter);
-        });
+        meters.forEach(this.validationService::activateValidation);
     }
 }
