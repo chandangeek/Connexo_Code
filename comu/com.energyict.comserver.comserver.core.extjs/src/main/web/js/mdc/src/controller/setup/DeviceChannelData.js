@@ -690,7 +690,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
     getChangedData: function (store) {
         var changedData = [],
             confirmedObj;
-debugger;
+
         Ext.Array.each(store.getUpdatedRecords(), function (record) {
             if (record.get('confirmed')) {
                 confirmedObj = {
@@ -702,7 +702,6 @@ debugger;
                         isConfirmed: record.get('bulkValidationInfo').confirmedNotSaved || false
                     }
                 };
-                changedData.push(confirmedObj);
             } else if (record.get('mainValidationInfo').ruleId || record.get('bulkValidationInfo').ruleId) {
                 confirmedObj = {
                     interval: record.get('interval'),
@@ -717,28 +716,31 @@ debugger;
                         ruleId: record.get('bulkValidationInfo').estimatedNotSaved ? record.get('bulkValidationInfo').ruleId : null
                     }
                 };
-                changedData.push(confirmedObj);
             } else if (record.isModified('value')) {
-                if (record.get('commentId') && record.isModified('commentId')) {
-                    confirmedObj = {
-                        interval: record.get('interval'),
-                        value: record.get('value'),
-                        commentId: record.get('commentId')
-                    };
-                } else {
-                    confirmedObj = {
-                        interval: record.get('interval'),
-                        value: record.get('value')
-                    };
-                }
+                confirmedObj = {
+                    interval: record.get('interval'),
+                    value: record.get('value')
+                };
                 if (record.isModified('collectedValue')) {
                     confirmedObj.collectedValue = record.get('collectedValue');
                 }
-                changedData.push(confirmedObj);
 
             } else if (record.isModified('collectedValue')) {
-                changedData.push(_.pick(record.getData(), 'interval', 'collectedValue'));
+                confirmedObj = _.pick(record.getData(), 'interval', 'collectedValue');
             }
+            confirmedObj.mainValidationInfo = {};
+            confirmedObj.bulkValidationInfo = {};
+            if (record.get('mainValidationInfo') && record.get('mainValidationInfo').commentId) {
+                confirmedObj.mainValidationInfo.commentId = record.get('mainValidationInfo').commentId;
+            } else {
+                confirmedObj.mainValidationInfo.commentId = null;
+            }
+            if (record.get('bulkValidationInfo') && record.get('bulkValidationInfo').commentId) {
+                confirmedObj.bulkValidationInfo.commentId = record.get('bulkValidationInfo').commentId;
+            } else {
+                confirmedObj.bulkValidationInfo.commentId = null;
+            }
+            changedData.push(confirmedObj);
         });
 
         return changedData;
