@@ -51,7 +51,11 @@ public interface ChannelsContainerValidation extends HasId {
 
     void validate();
 
+    void validate(Instant until);
+
     void validate(Collection<Channel> channels);
+
+    void validate(Collection<Channel> channels, Instant until);
 
     void updateLastChecked(Instant lastChecked);
 

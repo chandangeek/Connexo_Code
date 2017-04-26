@@ -68,10 +68,9 @@ public class ValidationEventHandler extends EventHandler<LocalEvent> {
                                 .stream())
                         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, Range::span));
                 resetEstimatedReadingsOnDependentScope(dependentScope);
-                if (StorerProcess.ESTIMATION != action) {
-                    scopePerChannelPerChannelsContainer.entrySet()
-                            .forEach(containerAndScopeByChannel -> validationService.validate(containerAndScopeByChannel.getKey(),
-                                    containerAndScopeByChannel.getValue()));
+                if (StorerProcess.DEFAULT == action) { // we want to revalidate data automatically only if they come from meter, not by editing
+                    scopePerChannelPerChannelsContainer.entrySet().forEach(
+                            containerAndScope -> validationService.validate(containerAndScope.getKey(), containerAndScope.getValue()));
                 }
                 validationService.validate(dependentScope);
             }
@@ -82,7 +81,6 @@ public class ValidationEventHandler extends EventHandler<LocalEvent> {
             Map<Channel, Range<Instant>> scope = ImmutableMap.of(channel, deleteEvent.getRange());
             Map<Channel, Range<Instant>> dependentScope = channelsContainer.findDependentChannelScope(scope);
             resetEstimatedReadingsOnDependentScope(dependentScope);
-            validationService.validate(channelsContainer, scope);
             validationService.validate(dependentScope);
         } else if (event.getType().getTopic().equals(METER_ACTIVATION_ADVANCED_TOPIC)) {
             handleAdvancedMeterActivation((EventType.MeterActivationAdvancedEvent) event.getSource());

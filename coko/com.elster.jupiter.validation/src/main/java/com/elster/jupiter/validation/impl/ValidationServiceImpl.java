@@ -472,6 +472,20 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
         container.validate();
     }
 
+    @Override
+    public void validate(ValidationContext validationContext, Range<Instant> interval) {
+        if (!interval.hasLowerBound()) {
+            throw new IllegalArgumentException("Interval must have lower bound");
+        }
+        ChannelsContainerValidationList container = updatedChannelsContainerValidationsFor(validationContext);
+        container.moveLastCheckedBefore(interval.lowerEndpoint());
+        if (interval.hasUpperBound()) {
+            container.validate(interval.upperEndpoint());
+        } else {
+            container.validate();
+        }
+    }
+
     public void validate(ValidationContext validationContext) {
         Set<QualityCodeSystem> allowedQualityCodeSystems = getQualityCodeSystemsWithAllowedValidation(validationContext);
         if (!allowedQualityCodeSystems.isEmpty()) {

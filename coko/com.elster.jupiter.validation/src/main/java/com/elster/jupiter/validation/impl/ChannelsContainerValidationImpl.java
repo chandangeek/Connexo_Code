@@ -133,26 +133,36 @@ class ChannelsContainerValidationImpl implements ChannelsContainerValidation {
 
     @Override
     public void validate() {
+        this.validate(getChannelsContainer().getChannels());
+    }
+
+    public void validate(Collection<Channel> channels) {
         if (isActive()) {
-            getChannelsContainer().getChannels().forEach(this::validateChannel);
+            getChannelsContainer().getChannels().forEach(channel -> validateChannel(channel, channel.getLastDateTime()));
             lastRun = Instant.now(clock);
             save();
         }
     }
 
     @Override
-    public void validate(Collection<Channel> channels) {
+    public void validate(Instant until) {
+        this.validate(getChannelsContainer().getChannels(), until);
+    }
+
+    @Override
+    public void validate(Collection<Channel> channels, Instant until) {
         if (isActive()) {
-            channels.forEach(this::validateChannel);
+            channels.forEach(channel -> validateChannel(channel, until));
+            lastRun = Instant.now(clock);
             save();
         }
     }
 
-    private void validateChannel(Channel channel) {
+    private void validateChannel(Channel channel, Instant validateUntil) {
         List<IValidationRule> activeRules = getActiveRules();
         if (hasApplicableRules(channel, activeRules)) {
             ChannelValidationImpl channelValidation = findOrAddValidationFor(channel);
-            channelValidation.validate();
+            channelValidation.validate(validateUntil);
             channelValidation.setActiveRules(true);
         } else {
             ChannelValidationImpl channelValidation = findValidationFor(channel);
@@ -298,7 +308,7 @@ class ChannelsContainerValidationImpl implements ChannelsContainerValidation {
         }
     }
 
-    private void updateLastRun(){
+    private void updateLastRun() {
         Instant minLastChecked = getMinLastChecked();
         if (minLastChecked != null) {
             Instant firstMeterActivation = getChannelsContainer().getMeter().flatMap(meter -> {

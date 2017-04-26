@@ -32,8 +32,6 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
-import static com.elster.jupiter.util.streams.Predicates.either;
-
 class ChannelValidator {
     private final Channel channel;
     private final Range<Instant> range;
@@ -114,7 +112,7 @@ class ChannelValidator {
     }
 
     private void handleRuleFailed(ValidatedResult target) {
-        if (!isEditedConfirmedOrEstimated(target.getTimestamp())) {
+        if (!isConfirmed(target.getTimestamp())) {
             setValidationQuality(target);
             if (ValidationAction.FAIL.equals(rule.getAction())) {
                 setSuspectQuality(target, rule.getRuleSet().getQualityCodeSystem());
@@ -154,13 +152,10 @@ class ChannelValidator {
                 .findFirst();
     }
 
-    private boolean isEditedConfirmedOrEstimated(Instant timeStamp) {
+    private boolean isConfirmed(Instant timeStamp) {
         return existingReadingQualities.get(timeStamp).stream()
                 .filter(ReadingQualityRecord::isActual)
-                .anyMatch(
-                        either(ReadingQualityRecord::isConfirmed)
-                                .or(ReadingQualityRecord::hasEstimatedCategory)
-                );
+                .anyMatch(ReadingQualityRecord::isConfirmed);
     }
 
     private Instant determineLastChecked(ValidatedResult target, Instant lastChecked) {

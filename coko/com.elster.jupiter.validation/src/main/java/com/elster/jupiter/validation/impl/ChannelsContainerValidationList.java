@@ -18,12 +18,14 @@ import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 import java.time.Instant;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -43,7 +45,7 @@ class ChannelsContainerValidationList {
 
     @Inject
     ChannelsContainerValidationList(ValidationServiceImpl validationService,
-                                            EventService eventService) {
+                                    EventService eventService) {
         this.validationService = validationService;
         this.eventService = eventService;
     }
@@ -64,6 +66,18 @@ class ChannelsContainerValidationList {
     }
 
     void validate() {
+        this.validate(ChannelsContainerValidation::validate);
+    }
+
+    void validate(Set<Channel> channels) {
+        this.validate(channels, ChannelsContainerValidation::validate);
+    }
+
+    void validate(Instant until) {
+        this.validate((channelsContainerValidation, channels) -> channelsContainerValidation.validate(channels, until));
+    }
+
+    private void validate(BiConsumer<ChannelsContainerValidation, Collection<Channel>> validationConsumer) {
         if (channelsContainer instanceof MetrologyContractChannelsContainer) {
             ((MetrologyContractChannelsContainer) channelsContainer).getMetrologyContract().sortReadingTypesByDependencyLevel()
                     .forEach(readingTypes -> {
@@ -71,20 +85,22 @@ class ChannelsContainerValidationList {
                                 .map(channelsContainer::getChannel)
                                 .flatMap(Functions.asStream())
                                 .collect(Collectors.toSet());
-                        validate(channels);
+                        validate(channels, validationConsumer);
                     });
         } else {
             Map<Channel, Range<Instant>> validationScopeByChannelMap = channelsContainer.getChannels().stream()
                     .collect(Collectors.toMap(Function.identity(), this::getValidationScope));
-            channelsContainerValidations.forEach(ChannelsContainerValidation::validate);
+            channelsContainerValidations.forEach(channelsContainerValidation ->
+                    validationConsumer.accept(channelsContainerValidation, channelsContainerValidation.getChannelsContainer().getChannels())
+            );
             eventService.postEvent(EventType.VALIDATION_PERFORMED.topic(), new ValidationScopeImpl(channelsContainer, validationScopeByChannelMap));
         }
     }
 
-    void validate(Set<Channel> channels) {
+    private void validate(Set<Channel> channels, BiConsumer<ChannelsContainerValidation, Collection<Channel>> validator) {
         Map<Channel, Range<Instant>> validationScopeByChannelMap = channels.stream()
                 .collect(Collectors.toMap(Function.identity(), this::getValidationScope));
-        channelsContainerValidations.forEach(channelsContainerValidation -> channelsContainerValidation.validate(channels));
+        channelsContainerValidations.forEach(channelsContainerValidation -> validator.accept(channelsContainerValidation, channels));
         eventService.postEvent(EventType.VALIDATION_PERFORMED.topic(), new ValidationScopeImpl(channelsContainer, validationScopeByChannelMap));
     }
 

@@ -122,14 +122,11 @@ public class ValidationEventHandlerTest {
                 cimChannel2, Range.openClosed(DATE_3, DATE_5),
                 cimChannel3, Range.openClosed(DATE_4, DATE_6)
         ));
-        scope1 = ImmutableMap.of(channel1, Range.openClosed(DATE_1, DATE_3),
-                channel2, Range.openClosed(DATE_3, DATE_5));
+        scope1 = ImmutableMap.of(channel1, Range.openClosed(DATE_1, DATE_3), channel2, Range.openClosed(DATE_3, DATE_5));
         scope2 = ImmutableMap.of(channel3, Range.openClosed(DATE_4, DATE_6));
-        dependentScope1 = ImmutableMap.of(channelMdm1, Range.openClosed(DATE_2, DATE_3),
-                channelMdm2, Range.openClosed(DATE_4, DATE_5));
+        dependentScope1 = ImmutableMap.of(channelMdm1, Range.openClosed(DATE_2, DATE_3), channelMdm2, Range.openClosed(DATE_4, DATE_5));
         dependentScope2 = ImmutableMap.of(channelMdm2, Range.openClosed(DATE_3, DATE_4));
-        allDependentScope = ImmutableMap.of(channelMdm1, Range.openClosed(DATE_2, DATE_3),
-                channelMdm2, Range.openClosed(DATE_3, DATE_5));
+        allDependentScope = ImmutableMap.of(channelMdm1, Range.openClosed(DATE_2, DATE_3), channelMdm2, Range.openClosed(DATE_3, DATE_5));
 
         when(localEvent.getSource()).thenReturn(readingStorer);
         when(localEvent.getType()).thenReturn(eventType);
@@ -241,8 +238,6 @@ public class ValidationEventHandlerTest {
 
         handler.handle(localEvent);
 
-        verify(validationService).validate(channelsContainer1, scope1);
-        verify(validationService).validate(channelsContainer2, scope2);
         verify(validationService).validate(allDependentScope);
         verifyNoMoreInteractions(validationService);
         InOrder inOrder = Mockito.inOrder(channelMdm1, channelMdm2);
@@ -260,8 +255,6 @@ public class ValidationEventHandlerTest {
 
         handler.handle(localEvent);
 
-        verify(validationService).validate(channelsContainer1, scope1);
-        verify(validationService).validate(channelsContainer2, scope2);
         verify(validationService).validate(dependentScope1);
         verifyNoMoreInteractions(validationService);
         InOrder inOrder = Mockito.inOrder(channelMdm1, channelMdm2);
@@ -283,7 +276,6 @@ public class ValidationEventHandlerTest {
 
         handler.handle(localEvent);
 
-        verify(validationService).validate(channelsContainer2, scope);
         verify(validationService).validate(dependentScope2);
         verifyNoMoreInteractions(validationService);
         verify(channelMdm1, never()).removeReadings(any(QualityCodeSystem.class), any());

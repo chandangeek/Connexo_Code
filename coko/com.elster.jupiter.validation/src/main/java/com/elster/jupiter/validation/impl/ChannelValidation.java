@@ -24,5 +24,5 @@ public interface ChannelValidation {
 
     boolean moveLastCheckedBefore(Instant date);
 
-    void validate();
+    void validate(Instant until);
 }

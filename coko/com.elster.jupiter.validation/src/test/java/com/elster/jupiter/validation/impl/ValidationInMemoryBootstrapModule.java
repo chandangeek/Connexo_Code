@@ -74,7 +74,6 @@ public class ValidationInMemoryBootstrapModule {
         this.dataAggregationService = mock(DataAggregationService.class);
     }
 
-
     public void activate() {
         injector = Guice.createInjector(
                 new MockModule(),

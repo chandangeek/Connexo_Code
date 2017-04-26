@@ -147,10 +147,9 @@ final class ChannelValidationImpl implements ChannelValidation {
     }
 
     @Override
-    public void validate() {
-        Instant end = getChannel().getLastDateTime();
-        if (end != null && lastChecked.isBefore(end)) {
-            Range<Instant> dataRange = Range.openClosed(lastChecked, end);
+    public void validate(Instant until) {
+        if (until != null && lastChecked.isBefore(until)) {
+            Range<Instant> dataRange = Range.openClosed(lastChecked, until);
             List<? extends ValidationRuleSetVersion> versions = getChannelsContainerValidation().getRuleSet().getRuleSetVersions();
 
             Instant newLastChecked = versions.stream()
@@ -167,7 +166,7 @@ final class ChannelValidationImpl implements ChannelValidation {
                     // as per agreement with Igor Nesterov, a proper behavior might be
                     // not to validate with later version until all data are validated within the range of the previous one,
                     // and to keep the latest resulting lastChecked as master lastChecked.
-                    .orElse(end);
+                    .orElse(until);
 
             updateLastChecked(newLastChecked);
         }
