@@ -131,7 +131,7 @@ public class ChannelDataTransferor {
         return device.getChannels().stream().filter(mdcChannel -> channel.getReadingTypes().contains(mdcChannel.getReadingType())).findFirst();
     }
 
-    private class FilteredMeterReading implements MeterReading {
+    private static class FilteredMeterReading implements MeterReading {
 
         private final MeterReading decorated;
         private final Predicate<IntervalBlock> intervalBlockFilter;
@@ -183,7 +183,7 @@ public class ChannelDataTransferor {
         }
     }
 
-    private class FilteredIntervalBlock implements IntervalBlock {
+    private static class FilteredIntervalBlock implements IntervalBlock {
 
         private final IntervalBlock decorated;
         private final Predicate<ReadingQuality> readingQualityPredicate;
@@ -206,7 +206,7 @@ public class ChannelDataTransferor {
         }
     }
 
-    private class FilteredIntervalReading implements IntervalReading {
+    private static class FilteredIntervalReading implements IntervalReading {
         private final IntervalReading decorated;
         private final Predicate<ReadingQuality> readingQualityFilter;
 
@@ -251,7 +251,7 @@ public class ChannelDataTransferor {
         }
     }
 
-    private class FilteredReading implements Reading {
+    private static class FilteredReading implements Reading {
 
         private final Reading decoratedReading;
         private final Predicate<ReadingQuality> readingQualityFilter;
