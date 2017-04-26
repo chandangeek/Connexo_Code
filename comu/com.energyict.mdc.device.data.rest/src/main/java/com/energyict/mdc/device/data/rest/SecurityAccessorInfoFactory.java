@@ -15,6 +15,7 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.configuration.rest.ExecutionLevelInfoFactory;
 import com.energyict.mdc.device.data.CertificateAccessor;
 import com.energyict.mdc.device.data.KeyAccessor;
+import com.energyict.mdc.device.data.KeyAccessorStatus;
 import com.energyict.mdc.device.data.rest.impl.SecurityAccessorInfo;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.pluggable.rest.PropertyDefaultValuesProvider;
@@ -53,6 +54,7 @@ public class SecurityAccessorInfoFactory {
         info.version = keyAccessor.getVersion();
         info.modificationDate = keyAccessor.getModTime();
         info.status = thesaurus.getFormat(keyAccessor.getStatus()).format();
+        info.canGeneratePassiveKey = KeyAccessorStatus.COMPLETE.equals(keyAccessor.getStatus());
         info.hasTempValue = keyAccessor.getTempValue().isPresent();
         keyAccessor.getActualValue().getExpirationTime().ifPresent(expiration -> info.expirationTime = expiration);
 
