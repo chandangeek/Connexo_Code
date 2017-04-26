@@ -34,7 +34,6 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
     indexLocation: null,
     contentName: null,
     filterDefault: {},
-    mentionDataLoggerSlave: false,
     dataLoggerSlaveHistoryStore: null,
     idProperty: 'interval_end',
 
@@ -94,7 +93,7 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
                             },
                             {
                                 xtype: 'deviceLoadProfileChannelGraphView',
-                                mentionDataLoggerSlave: me.mentionDataLoggerSlave,
+                                linkPurpose: Mdc.util.LinkPurpose.forDevice(me.device),
                                 listeners: {
                                     barselect: Ext.bind(me.onBarSelect, me)
                                 }
@@ -121,7 +120,7 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
                                     xtype: 'deviceLoadProfileChannelDataPreview',
                                     channelRecord: me.channel,
                                     router: me.router,
-                                    mentionDataLoggerSlave: !Ext.isEmpty(me.device) && !Ext.isEmpty(me.device.get('isDataLogger')) && me.device.get('isDataLogger'),
+                                    linkPurpose: Mdc.util.LinkPurpose.forDevice(me.device),
                                     hidden: true
                                 },
                                 emptyComponent: {
