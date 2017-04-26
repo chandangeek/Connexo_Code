@@ -16,7 +16,7 @@ Ext.define('Imt.purpose.model.Reading', {
         {name: 'confirmedNotSaved', type: 'auto'},
         {name: 'estimatedNotSaved', type: 'auto'},
         {name: 'commentId', type: 'int'},
-        {name: 'estimationValue', type: 'auto'},
+        {name: 'commentValue', type: 'auto'},
         {name: 'removedNotSaved', type: 'auto'},
         {name: 'confirmed', type: 'auto'},
         {name: 'estimatedByRule', type: 'auto'},

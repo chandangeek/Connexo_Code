@@ -453,16 +453,12 @@ Ext.define('Imt.purpose.controller.Readings', {
             if (record.isModified('collectedValue')) {
                 Ext.merge(changedRecord, _.pick(record.getData(), 'collectedValue', 'isProjected'));
             }
-            if (record.isModified('commentId')) {
-                Ext.merge(changedRecord, _.pick(record.getData(), 'value', 'commentId'));
-            }
 
             if (record.get('removedNotSaved')) {
                 confirmedObj = {
                     interval: record.get('interval'),
                     value: null
                 };
-                changedData.push(confirmedObj);
             } else if (record.get('confirmed')) {
                 confirmedObj = {
                     interval: record.get('interval'),
@@ -470,8 +466,9 @@ Ext.define('Imt.purpose.controller.Readings', {
                 };
             }
 
-            Ext.merge(confirmedObj, changedRecord);
-            changedData.push(changedRecord);
+            confirmedObj = Ext.merge(confirmedObj, changedRecord);
+            confirmedObj.commentId = record.get('commentId');
+            changedData.push(confirmedObj);
         });
 
         return changedData;
