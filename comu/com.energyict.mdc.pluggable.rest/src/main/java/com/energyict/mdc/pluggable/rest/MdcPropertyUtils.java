@@ -107,10 +107,14 @@ public class MdcPropertyUtils {
     }
 
     public List<PropertyInfo> convertPropertySpecsToPropertyInfos(Collection<PropertySpec> propertySpecs, TypedProperties properties) {
+        return this.convertPropertySpecsToPropertyInfos(propertySpecs, properties, SHOW_VALUES, WITHOUT_PRIVILEGES);
+    }
+
+    public List<PropertyInfo> convertPropertySpecsToPropertyInfos(Collection<PropertySpec> propertySpecs, TypedProperties properties, ValueVisibility showValue, PrivilegePresence privilegePresence) {
         List<PropertyInfo> propertyInfoList = new ArrayList<>();
         for (PropertySpec propertySpec : propertySpecs) {
             PropertyInfo propertyInfo = propertyValueInfoService.getPropertyInfo(propertySpec, properties.getLocalValue(propertySpec.getName()) != null ? properties::getLocalValue : null);
-            modifyPropertyValueInfo(propertyInfo, propertySpec, properties, SHOW_VALUES, WITHOUT_PRIVILEGES);
+            modifyPropertyValueInfo(propertyInfo, propertySpec, properties, showValue, privilegePresence);
             modifyPropertyTypeInfo(propertyInfo, propertySpec, null, (PropertyDefaultValuesProvider)null);
             propertyInfoList.add(propertyInfo);
         }
