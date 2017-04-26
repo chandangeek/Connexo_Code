@@ -570,7 +570,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
 
     undoChannelDataChanges: function () {
         var router = this.getController('Uni.controller.history.Router');
-        router.getRoute().forward(router.arguments, router.queryParams);
+        router.getRoute().forward(router.arguments, Uni.util.QueryString.getQueryStringValues());
     },
 
     getChangedData: function (store) {
