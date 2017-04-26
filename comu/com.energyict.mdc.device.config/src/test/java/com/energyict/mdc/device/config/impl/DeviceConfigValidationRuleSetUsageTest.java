@@ -60,23 +60,29 @@ import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
-import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
-import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
+import com.energyict.mdc.protocol.api.services.CustomPropertySetInstantiatorService;
 import com.energyict.mdc.protocol.api.services.DeviceCacheMarshallingService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolMessageService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolSecurityService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.tasks.impl.TasksModule;
-
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
@@ -85,15 +91,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Mockito.mock;
@@ -103,7 +103,11 @@ import static org.mockito.Mockito.when;
 public class DeviceConfigValidationRuleSetUsageTest {
 
     static final long DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID = 139;
-
+    static final String DEVICE_TYPE_NAME = DeviceConfigValidationRuleSetUsageTest.class.getSimpleName();
+    @Mock
+    DeviceProtocolPluggableClass deviceProtocolPluggableClass;
+    @Mock
+    DeviceProtocol deviceProtocol;
     @Mock
     private BundleContext bundleContext;
     @Mock
@@ -112,15 +116,6 @@ public class DeviceConfigValidationRuleSetUsageTest {
     private EventAdmin eventAdmin;
     @Mock
     private Thesaurus thesaurus;
-
-    static final String DEVICE_TYPE_NAME = DeviceConfigValidationRuleSetUsageTest.class.getSimpleName();
-
-    @Mock
-    DeviceProtocolPluggableClass deviceProtocolPluggableClass;
-
-    @Mock
-    DeviceProtocol deviceProtocol;
-
     private InMemoryBootstrapModule bootstrapModule;
     private Injector injector;
     @Mock
@@ -217,26 +212,6 @@ public class DeviceConfigValidationRuleSetUsageTest {
         when(this.thesaurus.getFormat(any(MessageSeed.class))).thenReturn(messageFormat);
     }
 
-    private class MockModule extends AbstractModule {
-        @Override
-        protected void configure() {
-            bind(EventAdmin.class).toInstance(eventAdmin);
-            bind(BundleContext.class).toInstance(bundleContext);
-            bind(LicenseService.class).toInstance(licenseService);
-            bind(IssueService.class).toInstance(issueService);
-            bind(PropertySpecService.class).toInstance(propertySpecService);
-            bind(ConnectionTypeService.class).toInstance(connectionTypeService);
-            bind(DeviceCacheMarshallingService.class).toInstance(deviceCacheMarshallingService);
-            bind(DeviceProtocolMessageService.class).toInstance(deviceProtocolMessageService);
-            bind(DeviceProtocolSecurityService.class).toInstance(deviceProtocolSecurityService);
-            bind(DeviceProtocolService.class).toInstance(deviceProtocolService);
-            bind(InboundDeviceProtocolService.class).toInstance(inboundDeviceProtocolService);
-            bind(LicensedProtocolService.class).toInstance(licensedProtocolService);
-            bind(UserService.class).toInstance(userService);
-            bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
-        }
-    }
-
     @Test
     public void testDeviceConfigValidationRuleSetUsage() {
         TransactionService transactionService = injector.getInstance(TransactionService.class);
@@ -307,11 +282,46 @@ public class DeviceConfigValidationRuleSetUsageTest {
     public void initializeMocks() {
         when(deviceProtocolPluggableClass.getId()).thenReturn(DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID);
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
-        AuthenticationDeviceAccessLevel authenticationAccessLevel = mock(AuthenticationDeviceAccessLevel.class);
+        com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel authenticationAccessLevel = mock(com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel.class);
         when(authenticationAccessLevel.getId()).thenReturn(0);
         when(this.deviceProtocol.getAuthenticationAccessLevels()).thenReturn(Arrays.asList(authenticationAccessLevel));
-        EncryptionDeviceAccessLevel encryptionAccessLevel = mock(EncryptionDeviceAccessLevel.class);
+        com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel encryptionAccessLevel = mock(com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel.class);
         when(encryptionAccessLevel.getId()).thenReturn(0);
         when(this.deviceProtocol.getEncryptionAccessLevels()).thenReturn(Arrays.asList(encryptionAccessLevel));
+    }
+
+    private class MockModule extends AbstractModule {
+
+        private final DeviceMessageSpecificationService deviceMessageSpecificationService;
+
+        public MockModule() {
+            this.deviceMessageSpecificationService = mock(DeviceMessageSpecificationService.class);
+
+            when(deviceMessageSpecificationService.findCategoryById(anyInt())).thenAnswer(invocation -> {
+                Object[] args = invocation.getArguments();
+                return Optional.of(DeviceMessageTestCategories.values()[((int) args[0])]);
+            });
+        }
+
+        @Override
+        protected void configure() {
+            bind(EventAdmin.class).toInstance(eventAdmin);
+            bind(BundleContext.class).toInstance(bundleContext);
+            bind(LicenseService.class).toInstance(licenseService);
+            bind(IssueService.class).toInstance(issueService);
+            bind(PropertySpecService.class).toInstance(propertySpecService);
+            bind(DeviceMessageSpecificationService.class).toInstance(deviceMessageSpecificationService);
+            bind(IdentificationService.class).toInstance(mock(IdentificationService.class));
+            bind(CustomPropertySetInstantiatorService.class).toInstance(mock(CustomPropertySetInstantiatorService.class));
+            bind(ConnectionTypeService.class).toInstance(connectionTypeService);
+            bind(DeviceCacheMarshallingService.class).toInstance(deviceCacheMarshallingService);
+            bind(DeviceProtocolMessageService.class).toInstance(deviceProtocolMessageService);
+            bind(DeviceProtocolSecurityService.class).toInstance(deviceProtocolSecurityService);
+            bind(DeviceProtocolService.class).toInstance(deviceProtocolService);
+            bind(InboundDeviceProtocolService.class).toInstance(inboundDeviceProtocolService);
+            bind(LicensedProtocolService.class).toInstance(licensedProtocolService);
+            bind(UserService.class).toInstance(userService);
+            bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
+        }
     }
 }

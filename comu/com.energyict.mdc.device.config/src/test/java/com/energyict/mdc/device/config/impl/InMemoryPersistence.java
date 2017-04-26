@@ -60,7 +60,6 @@ import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.impl.EngineModelModule;
-import com.energyict.mdc.io.impl.MdcIOModule;
 import com.energyict.mdc.issues.impl.IssuesModule;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.impl.MasterDataModule;
@@ -68,16 +67,22 @@ import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
 import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
+import com.energyict.mdc.protocol.api.services.CustomPropertySetInstantiatorService;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel.UPLAuthenticationLevelAdapter;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel.UPLEncryptionLevelAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
-
+import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -94,6 +99,7 @@ import java.util.Optional;
 
 import static java.util.Arrays.asList;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -239,7 +245,6 @@ public class InMemoryPersistence {
                 new SearchModule(),
                 new TaskModule(),
                 new DeviceConfigurationModule(),
-                new MdcIOModule(),
                 new EngineModelModule(),
                 new PluggableModule(),
                 new SchedulingModule(),
@@ -284,6 +289,15 @@ public class InMemoryPersistence {
         if (this.mockProtocolPluggableService) {
             this.protocolPluggableService = mock(ProtocolPluggableService.class);
             when(this.protocolPluggableService.findDeviceProtocolPluggableClass(anyLong())).thenReturn(Optional.empty());
+
+            when(protocolPluggableService.adapt(any(AuthenticationDeviceAccessLevel.class))).thenAnswer(invocation -> {
+                Object[] args = invocation.getArguments();
+                return new UPLAuthenticationLevelAdapter((AuthenticationDeviceAccessLevel) args[0]);
+            });
+            when(protocolPluggableService.adapt(any(EncryptionDeviceAccessLevel.class))).thenAnswer(invocation -> {
+                Object[] args = invocation.getArguments();
+                return new UPLEncryptionLevelAdapter((EncryptionDeviceAccessLevel) args[0]);
+            });
         }
         this.licenseService = mock(LicenseService.class);
         when(this.licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.empty());
@@ -411,11 +425,26 @@ public class InMemoryPersistence {
     }
 
     private class MockModule extends AbstractModule {
+
+        private final DeviceMessageSpecificationService deviceMessageSpecificationService;
+
+        public MockModule() {
+            this.deviceMessageSpecificationService = mock(DeviceMessageSpecificationService.class);
+
+            when(deviceMessageSpecificationService.findCategoryById(anyInt())).thenAnswer(invocation -> {
+                Object[] args = invocation.getArguments();
+                return Optional.of(DeviceMessageTestCategories.values()[((int) args[0])]);
+            });
+        }
+
         @Override
         protected void configure() {
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(BundleContext.class).toInstance(bundleContext);
             bind(LicenseService.class).toInstance(licenseService);
+            bind(IdentificationService.class).toInstance(mock(IdentificationService.class));
+            bind(CustomPropertySetInstantiatorService.class).toInstance(mock(CustomPropertySetInstantiatorService.class));
+            bind(DeviceMessageSpecificationService.class).toInstance(deviceMessageSpecificationService);
             if (mockProtocolPluggableService) {
                 bind(ProtocolPluggableService.class).toInstance(protocolPluggableService);
             }
